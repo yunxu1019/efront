@@ -2,7 +2,7 @@
   "name": "efront",
   "version": "1.0.0",
   "description": "efront",
-  "main": "gulpfile.js",
+  "main": "main.js",
   "directories": {
     "test": "test"
   },
@@ -27,11 +27,17 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "dox": "^0.9.0",
     "escodegen": "^1.8.1",
     "esmangle": "^1.0.1",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "npm": "^4.5.0",
+    "robotjs": "^0.4.7",
+    "wd": "^1.2.0",
+    "webpack": "^2.3.3"
   },
   "scripts": {
+    "start": "node main",
     "server": "node server/index",
     "test": "mocha \"@(test|apps|coms|demos){/**,}/*_test.@(js|jsx)\""
   },

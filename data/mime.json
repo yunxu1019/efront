@@ -1,0 +1,58 @@
+{
+    ".doc": [
+        "application/msword:doc|dot",
+        "application/rtf:rtf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document:docx",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.template:dotx",
+        "application/vnd.ms-word.document.macroEnabled.12:docm",
+        "application/vnd.ms-word.template.macroEnabled.12:dotm",
+        "application/kswps:wps|wpt|wpso|wpsx|wptx" //金山的模板文件没有mime类型
+    ],
+    ".xls": [
+        "application/vnd.ms-excel:xla|xlc|xlm|xls|xlt|xltx|xlw",
+        "application/vnd.ms-excel.sheet.binary.macroEnabled.12:xlsb",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:xlsx",
+        "application/vnd.ms-excel.sheet.macroEnabled.12:xlsm",
+        "application/vnd.ms-excel.template.macroEnabled.12:xltm",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.template:xltx",
+        "application/kset:et|ett|eto|etx|ettx" //金山的模板文件没有mime类型
+    ],
+    ".ppt": [
+        "application/vnd.ms-powerpoint:pot|pps|ppt",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation:pptx",
+        "application/vnd.openxmlformats-officedocument.presentationml.template:potx",
+        "application/vnd.openxmlformats-officedocument.presentationml.slideshow:ppsx",
+        "application/vnd.ms-powerpoint.presentation.macroEnabled.12:pptm",
+        "application/vnd.ms-powerpoint.slideshow.macroEnabled.12:ppsm",
+        "application/vnd.ms-powerpoint.template.macroEnabled.12:potm",
+        "application/ksdps:dps|dpt|dpss|dpso|dpsx|dptx" //金山的模板文件没有mime类型
+    ],
+    ".pdf": ["application/pdf:pdf"],
+    ".png": [
+        //图像文件延时太重
+        //"image/*:bmp|dib|png|cod|gif|ief|jpeg|jpe|jpeg|jpg|jfif|svg|tiff|tiff|ras|cmx|ico|pnm|pbm|pgm|ppm|rgb|xbm|xpm|xwd"
+        "image/bmp:bmp",
+        "image/gif:gif",
+        "image/png:png",
+        "image/jpeg:jpe|jpeg|jpg",
+        "image/x-icon:ico"
+    ],
+    ".html":[
+        "text/html:html|htm|hta|stm",
+        "message/rfc822:mht|mhtml"
+    ],
+    ".wav":[
+        "audio/mid:mid|rmi",
+        "audio/mpeg:mp3",
+        "audio/x-wav:wav"
+    ],
+    ".wmv":[
+        "video/mpeg:mp3|mpa|mpe|mpeg|mpg|mpv2"
+    ],
+    ".js":[
+        "application/x-javascript:js",
+        "text/css:css",
+        "application/css:json"
+    ]
+}
