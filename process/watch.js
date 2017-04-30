@@ -2,8 +2,8 @@ var start_time = 0;
 var fs = require("fs");
 var watch_tree={};
 function watch(file, then) {
-    watch_tree[file]&&watch_tree[file].forEach(function(unwatch){
-        unwatch();
+    watch_tree[file]&&watch_tree[file].forEach(function(watcher){
+        watcher.close();
     });
     if(!(then instanceof Function)){
         delete watch_tree[file];
@@ -17,19 +17,16 @@ function watch(file, then) {
     }).output[1];
     var watchers = String(files).trim().split(/[\r\n]+/).map(function (f) {
         var file=folder+f;
-        fs.watch(file, function () {
+        return fs.watch(file, function () {
             clearTimeout(timmer);
             timmer = setTimeout(function () {
                 try {
                     then()
                 } catch (e) {
-                    console.error("执行失败！");
+                    console.error("执行失败！",e.message);
                 }
             }, 80);
-        })
-        return function () {
-            return fs.unwatch(file);
-        };
+        });
     });
     watch_tree[file]=watchers;
 }

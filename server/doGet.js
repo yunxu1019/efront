@@ -1,8 +1,19 @@
 var getfile = require("../process/getfile");
 var path = require("path");
 var mimes = require("../process/mime");
+var proxy = {};
+/**
+ * 
+ */
 module.exports = function (req, res) {
     var url = req.url.replace(/[\?#][\s\S]*/g, "");
+    // console.info(req.headers.referer,'req');
+
+    // console.log(req.headers.referer);
+    if (proxy[url]) {
+        console.info(`Proxy:${url} : ${proxy[url]}`);
+        url = proxy[url];
+    }
     var data = getfile(url);
     if (!data) {
         res.writeHead(404, {});
@@ -39,7 +50,8 @@ module.exports = function (req, res) {
             'Location': data
         });
         return res.end();
+    } else {
     }
     res.writeHead(403, {})
     res.end();
-}
+};

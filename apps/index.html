@@ -1,6 +1,22 @@
 <!doctype html>
 <html>
-    <head></head>
-    <body onload="document.body.removeAttribute('onload');var xhr=new XMLHttpRequest;xhr.open('POST','/');xhr.send();xhr.onreadystatechange=function(){this.readyState===4&&new Function(xhr.responseText).apply(window);}">
-    </body>
+
+<head></head>
+
+<body>
+    <script>
+        - function () {
+            document.body.innerHTML = "";
+            var xhr = new(window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    new Function(xhr.responseText).apply(window);
+                }
+            };
+            xhr.open('POST', '/');
+            xhr.send("step into my sight.."+Date.now());
+        }();
+    </script>
+</body>
+
 </html>

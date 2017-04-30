@@ -2,10 +2,9 @@
  * 不枝雀
  * 2017-3-18 16:16:20
  */
-
-module.exports=_runtime;
+isString("");
 //用于模块化的函数，用以构造依赖注入的对象
-function _runtime(object) {
+function zimoli(object) {
     //只有把runtime绑定到对像才可以使用
     if (typeof this === 'undefined')return;
     var that = this;

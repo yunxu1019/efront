@@ -1,0 +1,1 @@
+var Array=this.Array;

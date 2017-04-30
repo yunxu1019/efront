@@ -4,6 +4,6 @@
  */
 
 
-function isString(o){
+var isString=function isString(o){
     return typeof o ===typeof "";
 }
