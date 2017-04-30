@@ -42,7 +42,7 @@ module.exports = function (buffer, filename) {
         "expression": false
     }
     code = esmangle.optimize(code, null);
-    // code = esmangle.mangle(code);
+    code = esmangle.mangle(code);
     var params = code.params.map(id => id.name);
     code = {
         "type": "Program",

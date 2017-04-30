@@ -3,9 +3,11 @@ var keywords = {};
 keyword.split(/\s+/g).forEach(function (key) {
     keywords[key] = true;
 });
+// var Node=require("../apps/esprima/Node")
 // var getUnDeclaredVariables = function (ast) {
 //     return Object.keys(getVariables(ast).unDeclaredVariables);
 // };
+var estraverse = require("estraverse");
 var merge = function (dst, o) {
     for (var k in o) {
         dst[k] = dst[k] || o[k];
@@ -88,12 +90,46 @@ var getVariables = function (ast) {
                     DeclaredVariables,
                     unDeclaredVariables
                 } = getVariables(ast.object);
+                if (ast.property.type === "Identifier") {
+                    //用以兼容IE5-9
+                    var name = ast.property.name
+                    if (name in keywords) {
+                        ast.property = {
+                            "type": "Literal",
+                            "value": name,
+                            "raw": "\"" + name + "\""
+                        };
+                        ast.computed=true;
+                        // ast.property=new Node.Literal(name,JSON.stringify(name))
+                        // console.log(ast.property.__proto__)
+                        // delete ast.property.name;
+                        // ast.property.type = "Literal";
+                        // ast.property.value = name;
+                        // ast.property.raw = "\"" + name + "\"";
+                        // console.log(ast.property)
+                    }
+                }
                 break;
             case "Property":
                 var {
                     DeclaredVariables,
                     unDeclaredVariables
                 } = getVariables(ast.object);
+                if (ast.key.type === "Identifier") {
+                    //用以兼容IE5-9
+                    var name = ast.key.name;
+                    if (name in keywords) {
+                        // delete ast.key.name;
+                        ast.key = {
+                            "type": "Literal",
+                            "value": name,
+                            "raw": "\"" + name + "\""
+                        }
+                        ast.computed=true;
+                    }
+                }
+
+                break;
             case "CatchClause":
                 // "type": "CatchClause",
                 // "param": {
