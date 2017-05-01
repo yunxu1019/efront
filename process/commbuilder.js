@@ -1,7 +1,7 @@
 var getvariables = require("../process/variables");
-var esprima = require("../apps/esprima/index");
-var esmangle = require("esmangle");
-var escodegen = require("escodegen");
+var esprima = require("../process/esprima/index");
+var esmangle = require("../process/esmangle/esmangle.browser");
+var escodegen = require("../process/escodegen/escodegen.browser");
 module.exports = function (buffer, filename) {
 
     var data = String(buffer);

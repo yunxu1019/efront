@@ -1,3 +1,4 @@
+var window={};
 (function(){var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
     var mod = require.modules[resolved];
@@ -7019,3 +7020,4 @@ require.define("/tools/entry.js",function(require,module,exports,__dirname,__fil
 require("/tools/entry.js");
 })();
 
+module.exports=window.esmangle;

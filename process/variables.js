@@ -1,13 +1,11 @@
+/**
+ * 读取全局变量
+ */
 var keyword = `break do in typeof case else instanceof var catch export new void class extends return while const finally super with continue for switch yield debugger function this default if throw delete import try enum await null true false arguments`;
 var keywords = {};
 keyword.split(/\s+/g).forEach(function (key) {
     keywords[key] = true;
 });
-// var Node=require("../apps/esprima/Node")
-// var getUnDeclaredVariables = function (ast) {
-//     return Object.keys(getVariables(ast).unDeclaredVariables);
-// };
-var estraverse = require("estraverse");
 var merge = function (dst, o) {
     for (var k in o) {
         dst[k] = dst[k] || o[k];
@@ -100,13 +98,6 @@ var getVariables = function (ast) {
                             "raw": "\"" + name + "\""
                         };
                         ast.computed=true;
-                        // ast.property=new Node.Literal(name,JSON.stringify(name))
-                        // console.log(ast.property.__proto__)
-                        // delete ast.property.name;
-                        // ast.property.type = "Literal";
-                        // ast.property.value = name;
-                        // ast.property.raw = "\"" + name + "\"";
-                        // console.log(ast.property)
                     }
                 }
                 break;
@@ -119,7 +110,6 @@ var getVariables = function (ast) {
                     //用以兼容IE5-9
                     var name = ast.key.name;
                     if (name in keywords) {
-                        // delete ast.key.name;
                         ast.key = {
                             "type": "Literal",
                             "value": name,
@@ -131,15 +121,6 @@ var getVariables = function (ast) {
 
                 break;
             case "CatchClause":
-                // "type": "CatchClause",
-                // "param": {
-                //     "type": "Identifier",
-                //     "name": "e"
-                // },
-                // "body": {
-                //     "type": "BlockStatement",
-                //     "body": []
-                // }
                 var {
                     DeclaredVariables,
                     unDeclaredVariables
@@ -201,52 +182,5 @@ var getVariables = function (ast) {
         DeclaredVariables,
         unDeclaredVariables
     };
-
-    // switch (ast && ast.type) {
-    //     case "Program":
-    //         ast.body.forEach(function (a) {
-    //             DeclaredVariables = getDeclaredVariables(a, preDeclaredVariables);
-    //         });
-    //         break;
-    //     case "VariableDeclaration":
-    //         ast.declarations.forEach(function (decl) {
-    //             DeclaredVariables[decl.id.name] = true;
-    //             var aftDeclaredVariables = getDeclaredVariables(decl.init);
-    //         });
-    //         break;
-    //     case "ObjectExpression":
-    //         ast.properties.forEach(function (a) {
-    //             DeclaredVariables = getDeclaredVariables(a, preDeclaredVariables);
-    //         })
-    //         break;
-    //     case "EmptyStatement":
-    //         break;
-    //     case "ExpressionStatement":
-    //         getDeclaredVariables(ast.expression, preDeclaredVariables);
-    //         break;
-    //     case "CallExpression":
-    //         ast.arguments.forEach(function (a) {
-    //             getDeclaredVariables(a);
-    //         });
-    //         break;
-    //     case "Literal": // 字面量
-    //         break;
-    //     case "FunctionExpression":
-    //         DeclaredVariables = getDeclaredVariables(ast.params, DeclaredVariables);
-    //         getDeclaredVariables(ast.body, DeclaredVariables);
-    //         break;
-    //     case "BlockStatement":
-    //         ast.body.forEach(function (a) {
-    //             getDeclaredVariables(a, DeclaredVariables);
-    //         });
-    //         break;
-    //     case "IfStatement":
-    //         getDeclaredVariables(ast.test);
-    //         getDeclaredVariables(ast.consequent);
-    //         getDeclaredVariables(ast.alternate);
-    //         break;
-    //     default:
-    //         // console.log(ast&&ast.type)
-    // }
 };
 module.exports = getVariables;
