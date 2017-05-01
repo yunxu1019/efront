@@ -3,7 +3,8 @@
  * 2017-3-18 0:25:46
  */
 
-
-function anniu(){
-    return createElement("div");
+var userAgent = navigator.userAgent;
+var anniu = createElement("input");
+if (!/Safari/.test(userAgent) || /Edge/.test(userAgent)) {
+    anniu.type="button";
 }

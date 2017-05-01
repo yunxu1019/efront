@@ -44,9 +44,9 @@ if (cluster.isMaster) {
                 }
             });
             worker.on("exit", function () {
-                if(worker.exitedAfterDisconnect!==true){
-                    for(var cx=workers.length-1;cx>=0;cx--){
-                        workers[cx]===worker&&workers.splice(cx,1);
+                if (worker.exitedAfterDisconnect !== true) {
+                    for (var cx = workers.length - 1; cx >= 0; cx--) {
+                        workers[cx] === worker && workers.splice(cx, 1);
                     }
                 }
                 counter--;
@@ -67,38 +67,40 @@ if (cluster.isMaster) {
     message.quit = end;
     process.on("SIGINT", end);
     process.on("SIGTERM", end);
-    return run();
-}
+    run();
+} else {
+
 //子线程们
-process.on("message", function (msg, then) {
-    if (!(then instanceof Function)) {
-        then = function () {};
-    }
-    switch (msg) {
-        case "quit":
-            server.close();
-            process.exit();
-            break;
-    }
-});
+    process.on("message", function (msg, then) {
+        if (!(then instanceof Function)) {
+            then = function () {};
+        }
+        switch (msg) {
+            case "quit":
+                server.close();
+                process.exit();
+                break;
+        }
+    });
 // 仅做开发使用的简易服务器
-var http = require("http");
+    var http = require("http");
 // build mime
-var doGet = require("./doGet");
-var doPost = require("./doPost");
+    var doGet = require("./doGet");
+    var doPost = require("./doPost");
 // create server
-var server = http.createServer(function (req, res) {
-    if (req.method === "GET") {
-        return doGet(req, res);
-    } else {
-        return doPost(req, res);
-    }
-});
-server.on("error", function () {
-    // console.info("server is already running!");
-});
-server.on("listening", function () {
-    // console.info("server start success!");
-});
-server.listen(80);
-process.send("count.count");
+    var server = http.createServer(function (req, res) {
+        if (req.method === "GET") {
+            return doGet(req, res);
+        } else {
+            return doPost(req, res);
+        }
+    });
+    server.on("error", function () {
+        // console.info("server is already running!");
+    });
+    server.on("listening", function () {
+        // console.info("server start success!");
+    });
+    server.listen(80);
+    process.send("count.count");
+}

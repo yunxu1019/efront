@@ -7,10 +7,8 @@ var getcomm = function (name) {
     return getcommfile(comms_root + name + ".js");
 };
 var getpage = function (name) {
-    var pages_root = "./wp/";
-    var data = String(getcommfile(comms_root + name + ".js"));
-    var code = esprima.parse(data);
-    return "";
+    var pages_root = "./zimoli/";
+    return getpagefile(pages_root + name + ".js");
 };
 var handle = {
     "/count" (req, res) {
@@ -45,22 +43,25 @@ var handle = {
         res.end();
     }
 };
+sumedSize = 0;
 
 function read(req, size) {
+    sumedSize += size;
     return new Promise(function (ok, oh) {
         var buff = [];
         req.on("data", function (buf) {
             var data = String(buf);
             size -= data.length;
             if (size < 0) {
-                delete buff;
+                buff = null;
+                req.resume();
                 oh("size error");
             }
-            req.end();
             buff.push(data);
         });
         req.on("end", function () {
-            ok(buff.join(""));
+            buff && ok(buff.join(""));
+            sumedSize -= size;
         });
     });
 }

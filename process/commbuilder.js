@@ -11,7 +11,6 @@ module.exports = function (buffer, filename) {
         unDeclaredVariables: undeclares
     } = getvariables(code);
     var globals=Object.keys(undeclares);
-    console.log(globals);
     var commName = filename.match(/([\$_\w][\w]*)\.js$/);
     commName = commName && commName[1];
     if (commName) {
