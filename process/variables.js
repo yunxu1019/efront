@@ -10,7 +10,7 @@ var merge = function (dst, o) {
     for (var k in o) {
         dst[k] = dst[k] || o[k];
     }
-}
+};
 var getVariables = function (ast) {
     var DeclaredVariables = {},
         unDeclaredVariables = {};
@@ -97,7 +97,7 @@ var getVariables = function (ast) {
                             "value": name,
                             "raw": "\"" + name + "\""
                         };
-                        ast.computed=true;
+                        ast.computed = true;
                     }
                 }
                 break;
@@ -115,7 +115,7 @@ var getVariables = function (ast) {
                             "value": name,
                             "raw": "\"" + name + "\""
                         }
-                        ast.computed=true;
+                        ast.computed = true;
                     }
                 }
 
@@ -158,6 +158,16 @@ var getVariables = function (ast) {
             case "Identifier":
                 unDeclaredVariables[ast.name] = true;
                 break;
+            case "ExpressionStatement":
+                //去除测试脚本
+                var expression = ast.expression;
+                if (expression.type === "CallExpression" && expression.callee.type === "Identifier" && expression.callee.name.toLowerCase() === "describe") {
+                    for(var k in ast){
+                        delete ast[k];
+                    }
+                    ast.type="EmptyStatement";
+                    break;
+                }
             default:
                 for (var k in ast) {
                     var {
