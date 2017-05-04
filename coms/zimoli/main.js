@@ -8,18 +8,18 @@ var Function = window.Function;
 var Array = window.Array;
 var Promise = window.Promise;
 var setTimeout = window.setTimeout;
-var Math=this.Math;
+var Math = this.Math;
 var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
 var retry = function (url, count) {
     setTimeout(function () {
         load(url, ++count);
-    }, parseInt(count +Math.random())* 200);
+    }, parseInt(count + Math.random()) * 200);
     return count;
 };
 var load = function (url, count) {
-    var xhr = new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
+    var xhr = new(XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
     xhr.open("POST", url);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -30,7 +30,7 @@ var load = function (url, count) {
             } else if (count > 150) {
                 throw new Error("加载" + url + "出错！");
             } else {
-                count=retry(url,count||0);
+                count = retry(url, count || 0);
             }
         }
     };
@@ -57,8 +57,9 @@ var get = function (url, then) {
     }
 };
 var executer = function (f, args) {
-    return f.apply(window, args || []);
-}, Zimoli = executer;
+        return f.apply(window, args || []);
+    },
+    Zimoli = executer;
 
 function modules() {}
 var init = function (name, then) {

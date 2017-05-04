@@ -3,15 +3,24 @@
  * 2017-5-1 18:33:41
  */
 
-var style = document.body.style;
-var css = function (targetNode, oStyle) {
-    var targetStyle = targetNode.style;
-    for (var k in oStyle) {
-        if (k in targetStyle) {
-            try {
-                targetStyle[k] = oStyle[k];
-            } catch (e) {
-            }
+var css = function (targetNode, oStyle, oValue) {
+    var stylesheet = [];
+    if (typeof oStyle==="string") {
+        if (typeof oValue==="string") {
+            stylesheet.push(oStyle + ":" + oValue)
+        } else {
+            stylesheet.push(oStyle);
+        }
+    } else if (oStyle instanceof Object) {
+
+        for (var k in oStyle) {
+            stylesheet.push(k + ":" + oStyle[k]);
         }
     }
+    try {
+
+        targetNode.style.cssText=stylesheet.join(";").replace(/[A-Z]/,function(m){return "-"+m.toLowerCase()});
+    } catch (e) {
+    }
+
 };

@@ -4,7 +4,7 @@
  */
 
 
-function isNumber(o){
-    return typeof o ===typeof 0;
+function isNumber(o) {
+    return typeof o === "number";
 }
-module.exports=isNumber;
+module.exports = isNumber;
