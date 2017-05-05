@@ -65,11 +65,11 @@ function modules() {}
 var init = function (name, then) {
     var url, adapter;
     if (then instanceof Function) {
-        url = "/comm/" + name + ".js";
+        url = "/comm/" + name;
         adapter = executer;
     } else {
         adapter = Zimoli;
-        url = "/page/" + name + ".js";
+        url = "/page/" + name;
     }
     if (modules[url]) {
         return then(modules[url]);

@@ -53,7 +53,7 @@ module.exports = function (buffer, filename) {
             renumber: true,
             hexadecimal: true, //十六进位
             escapeless: true,
-            // compact: true, //去空格
+            compact: true, //去空格
             semicolons: false, //分号
             parentheses: false //圆括号
         }
