@@ -14,12 +14,12 @@ var css = function (targetNode, oStyle, oValue) {
     } else if (oStyle instanceof Object) {
 
         for (var k in oStyle) {
-            stylesheet.push(k + ":" + oStyle[k]);
+            stylesheet.push(k.replace(/[A-Z]/g,function(m){return "-"+m.toLowerCase()}) + ":" + oStyle[k]);
         }
     }
     try {
 
-        targetNode.style.cssText=stylesheet.join(";").replace(/[A-Z]/,function(m){return "-"+m.toLowerCase()});
+        targetNode.style.cssText=stylesheet.join(";");
     } catch (e) {
     }
 

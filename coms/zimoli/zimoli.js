@@ -14,9 +14,10 @@ function zimoli(page, args) {
         width: "100%",
         height: "100%",
         position: "absolute",
-        backgroundColor:"#ff0",
+        backgroundColor: "#ff0",
         margin: "0",
         padding: "0",
+        overflow: "hidden"
     });
     // document.body.setAttribute("style","width:100%;height:100%;position:absolute;margin:0;padding:0;");
     // document.body.style.backgroundColor="#000";
