@@ -27,7 +27,7 @@ var FILES = UglifyJS.FILES = [
 new Function("MOZ_SourceMap", "exports", FILES.map(function(file){
     return fs.readFileSync(file, "utf8");
 }).join("\n\n"))(
-    require("source-map"),
+    require("../../source-map.js"),
     UglifyJS
 );
 
