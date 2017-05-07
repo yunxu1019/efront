@@ -1,4 +1,4 @@
-var SourceMapGenerator = require('source-map').SourceMapGenerator;
+var SourceMapGenerator = require('../../source-map.js').SourceMapGenerator;
 var all = require('./helpers').all;
 
 var lineBreak = require('os').EOL;
