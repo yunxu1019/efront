@@ -8,7 +8,7 @@ var Function = window.Function;
 var Array = window.Array;
 var Promise = window.Promise;
 var setTimeout = window.setTimeout;
-var Math = this.Math;
+var Math = window.Math;
 var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
@@ -34,7 +34,7 @@ var load = function (url, count) {
             }
         }
     };
-    xhr.send("look inside the light");
+    xhr.send("look inside the light"+Math.random());
     return xhr;
 };
 var flush = function (url) {

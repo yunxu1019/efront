@@ -8,7 +8,7 @@ function zimoli(page, args) {
     //    css(document.body,{
     //        backgroundColor:"rgba(0,0,0,1)"
     //    });
-    //    var button=cloneNode(anniu);
+    //    var button=createElement(anniu);
     //    console.log(button)
     css(document.body, {
         width: "100%",
@@ -17,7 +17,12 @@ function zimoli(page, args) {
         backgroundColor: "#ff0",
         margin: "0",
         padding: "0",
-        overflow: "hidden"
+        overflow: "hidden",
+        // WebkitTouchCallout: "none",
+        // WebkitUserSelect: "none",
+        // KhtmlUserSelect: "none",
+        // MozUserSelect: "none",
+        // MsUserSelect: "none"
     });
     // document.body.setAttribute("style","width:100%;height:100%;position:absolute;margin:0;padding:0;");
     // document.body.style.backgroundColor="#000";

@@ -5,8 +5,10 @@
 
 var css = function (targetNode, oStyle, oValue) {
     var stylesheet = [];
-    if (typeof oStyle==="string") {
-        if (typeof oValue==="string") {
+    // var styleobject = parseKV(targetStyle.cssText);
+
+    if (typeof oStyle === "string") {
+        if (typeof oValue === "string") {
             stylesheet.push(oStyle + ":" + oValue)
         } else {
             stylesheet.push(oStyle);
@@ -14,13 +16,14 @@ var css = function (targetNode, oStyle, oValue) {
     } else if (oStyle instanceof Object) {
 
         for (var k in oStyle) {
-            stylesheet.push(k.replace(/[A-Z]/g,function(m){return "-"+m.toLowerCase()}) + ":" + oStyle[k]);
+            stylesheet.push(k.replace(/[A-Z]/g, function (m) {
+                return "-" + m.toLowerCase()
+            }) + ":" + oStyle[k]);
         }
     }
     try {
-
-        targetNode.style.cssText=stylesheet.join(";");
-    } catch (e) {
-    }
+        var targetStyle = targetNode.style;
+        targetStyle.cssText +=";"+ stylesheet.join(";");
+    } catch (e) {}
 
 };
