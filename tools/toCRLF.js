@@ -26,4 +26,4 @@ var replace = function (dir, deep) {
         fs.writeFileSync(dir, data);
     }
 }
-replace("./",3);
+replace("./",5);
