@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
-        <meta charset="utf-8"/>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-        <link rel="Shortcut Icon" href="/favicon.ico" type="image/x-icon"/>
-        <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-        <title>紫茉莉</title>
-    </head>
-    <body>
-        <script>
-            -function (body,window) {
-                body.removeChild(body.getElementsByTagName("script")[0]);
-                var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        new Function(xhr.responseText).apply(window);
-                    }
-                };
-                xhr.open('POST', '/');
-                xhr.send("step into my sight..");
-            }(document.body,this);
-        </script>
-    </body>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="Shortcut Icon" href="/favicon.ico" type="image/x-icon" />
+    <meta name="viewport" content="user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1" />
+    <meta name="viewport" content="width=device-width" />
+    <title>紫茉莉</title>
+</head>
+
+<body>
+    <script>
+        - function (body, window) {
+            body.removeChild(body.getElementsByTagName("script")[0]);
+            var xhr = new(window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    new Function(xhr.responseText).apply(window);
+                }
+            };
+            xhr.open('POST', '/');
+            xhr.send("step into my sight..");
+        }(document.body, this);
+    </script>
+</body>
 
 </html>

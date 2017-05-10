@@ -8,8 +8,13 @@ var anu = createElement("input");
 if (!/Safari/.test(userAgent) || /Edge/.test(userAgent)) {
     anu.type = "button";
 }
-css(anu,"position:absolute;left:0;right:0;top:0;bottom:0;width:100%;height:100%;cursor:default;box-sizing:border-box;border:none;");
-opacity(anu,0);
+css(anu, "position:absolute;left:0;right:0;top:0;bottom:0;width:100%;height:100%;cursor:default;box-sizing:border-box;border:none;ime-mode:disabled;");
+if("ontouchstart" in window){
+    anu.enabled=false;
+}
+opacity(anu, 0);
+
 function anniu() {
-    return anu.cloneNode();
+    var anniu = createElement(anu);
+    return anniu;
 }
