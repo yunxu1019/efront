@@ -12,6 +12,7 @@ var Math = window.Math;
 var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
+var console = this.console;
 var retry = function (url, count) {
     setTimeout(function () {
         load(url, ++count);
@@ -34,7 +35,7 @@ var load = function (url, count) {
             }
         }
     };
-    xhr.send("look inside the light"+Math.random());
+    xhr.send("look inside the light" + Math.random());
     return xhr;
 };
 var flush = function (url) {
@@ -56,28 +57,56 @@ var get = function (url, then) {
         load(url);
     }
 };
-var executer = function (f, args) {
-        return f.apply(window, args || []);
-    },
-    Zimoli = executer;
 
 function modules() {}
+var pendding = {};
+var executer = function (f, args) {
+    return f.apply(window, args || []);
+};
+var broadcast = function (url, exports) {
+    modules[url] = exports;
+    var thens = pendding[url];
+    delete pendding[url];
+    return thens.map(function (then) {
+        then(exports);
+    });
+}
 var init = function (name, then) {
-    var url, adapter;
-    if (then instanceof Function) {
-        url = "/comm/" + name;
-        adapter = executer;
-    } else {
-        adapter = Zimoli;
-        url = "/page/" + name;
+    if (name instanceof Array) {
+        return Promise.all(name.map(function (argName) {
+            return new Promise(function (ok, oh) {
+                init(argName, ok);
+            });
+        })).then(function (args) {
+            (then instanceof Function) && then(args);
+        }).catch(function (e) {});
+    }
+    if (modules[name]) {
+        return then(modules[name]);
+    }
+    if (window[name]) {
+        modules[name] = window[name];
+        return then(modules[name]);
+    }
+    var url;
+    switch (name[0]) {
+        case "/":
+            url = "/page" + name;
+            break;
+        case "$":
+        
+            break;
+        default:
+            url = "/comm/" + name;
     }
     if (modules[url]) {
         return then(modules[url]);
     }
-    if (window[name]) {
-        modules[url] = window[name];
-        return then(modules[url]);
+    if (pendding[url]) {
+        return pendding[url].push(then);
     }
+    pendding[url] = [then];
+    var adapter = executer;
     // return 
     get(url, function (text) {
         var functionArgs, functionBody;
@@ -95,22 +124,18 @@ var init = function (name, then) {
             functionBody = text;
         }
         if (functionArgs.length) {
-            Promise.all(functionArgs.slice(0, functionArgs.length >> 1).map(function (argName) {
-                return new Promise(function (ok, oh) {
-                    init(argName, function (result) {
-                        ok(result);
-                    });
-                });
-            })).then(function (args) {
-                modules[url] = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
-                (then instanceof Function) && then(modules[url]);
-            }).catch(function (e) {});
+
+            init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
+                var exports = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
+                broadcast(url, exports);
+            });
         } else {
-            modules[url] = adapter(Function.call(window, functionBody));
-            (then instanceof Function) && then(modules[url]);
+            var exports = adapter(Function.call(window, functionBody));
+            broadcast(url, exports);
         }
     });
 };
+modules.init = init;
 var replacePromise = function (promise) {
     Promise = promise;
     hook(--requires_count);
@@ -131,8 +156,8 @@ if (![].map) {
 var hook = function (requires_count) {
     if (requires_count === 0) {
         init("zimoli", function (zimoli) {
-            Zimoli = zimoli;
-            init("main");
+            modules.go = modules.zimoli = zimoli;
+            zimoli("/main");
         });
     }
 };

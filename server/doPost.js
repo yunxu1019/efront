@@ -1,7 +1,13 @@
 var getpagefile = require("../process/cache");
-var commbuiler = require("../process/commbuilder");
-var getcommfile = require("../process/cache")("./coms", commbuiler);
-var getpagefile = require("../process/cache")("./apps", commbuiler);
+var commbuilder = require("../process/commbuilder");
+var iconbuilder = require("../process/iconbuilder")
+var getcommfile = require("../process/cache")("./coms", commbuilder);
+var getpagefile = require("../process/cache")("./apps", commbuilder);
+var geticonfile = require("../process/cache")("./cons", iconbuilder);
+var geticon = function (name) {
+    var comms_root = "./zimoli/";
+    return geticonfile(comms_root + name + ".js");
+};
 var getcomm = function (name) {
     var comms_root = "./zimoli/";
     return getcommfile(comms_root + name + ".js");
@@ -29,6 +35,9 @@ var handle = {
             return res.end(getcomm(name));
         });
     },
+    "/ccon" (req, res) {
+
+    }
     "/page" (req, res) {
         var buff = [];
         req.on("data", function (buf) {
@@ -70,7 +79,7 @@ module.exports = function (req, res) {
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
     }
-    var match = url.match(/^\/(comm|page|api)\/(.*?)(?:\.js)?$/);
+    var match = url.match(/^\/(comm|page|ccon|api)\/(.*?)(?:\.js)?$/);
     if (match) {
         var type = match[1],
             name = match[2];
@@ -79,6 +88,9 @@ module.exports = function (req, res) {
                 res.end(getcomm(name));
                 break;
             case "page":
+                res.end(getpage(name));
+                break;
+            case "ccon":
                 res.end(getpage(name));
                 break;
         }
