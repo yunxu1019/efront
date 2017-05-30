@@ -1,3 +1,3 @@
 REM 先只支持单应用吧
-set APPS=zimoli
-@for %%i in (%apps%) do @call "%~DP0app=%%i"
+set APP=zimoli
+@for %%i in (%app%) do @call "%~DP0app=%%i"

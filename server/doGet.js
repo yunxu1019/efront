@@ -50,8 +50,7 @@ module.exports = function (req, res) {
             'Location': data
         });
         return res.end();
-    } else {
-    }
+    } else {}
     res.writeHead(403, {})
     res.end();
 };

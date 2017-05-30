@@ -9,7 +9,7 @@ css(document.body, {
     margin: "0",
     padding: "0",
     overflow: "hidden",
-    backgroundColor:"black"
+    backgroundColor: "black"
 });
 /**
  * go
@@ -22,8 +22,6 @@ function zimoli(page, args) {
     //    var button=createElement(anniu);
     //    console.log(button)
     init(page, function (pg) {
-
-        // console.log(pg(),"pg");  
-        document.body.appendChild(pg.apply(null,args));
+        document.body.appendChild(pg.apply(null, args || []));
     })
 }

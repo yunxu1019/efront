@@ -70,7 +70,7 @@ if (cluster.isMaster) {
     run();
 } else {
 
-//子线程们
+    //子线程们
     process.on("message", function (msg, then) {
         if (!(then instanceof Function)) {
             then = function () {};
@@ -82,13 +82,19 @@ if (cluster.isMaster) {
                 break;
         }
     });
-// 仅做开发使用的简易服务器
+    // 仅做开发使用的简易服务器
     var http = require("http");
-// build mime
+    // build mime
     var doGet = require("./doGet");
     var doPost = require("./doPost");
-// create server
+    // create server
     var server = http.createServer(function (req, res) {
+        var match = req.url.match(/ccon\/(.*?)\.([\da-f]+)\.png$/);
+        if (match) {
+            name = match[1];
+            color = parseInt(match[2], 16);
+            return res.end(doPost.ccon(name, color));
+        }
         if (req.method === "GET") {
             return doGet(req, res);
         } else {

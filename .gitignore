@@ -4,4 +4,8 @@ demos/
 .vscode/
 apps/fc/
 apps/yjkj/
+apps/daxia/
+coms/xsy
+coms/i-theme
+gulpfile.js
 public/

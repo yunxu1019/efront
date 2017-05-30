@@ -1,7 +1,7 @@
 var temp=0;
 var map={};
-var fs=require("./fs");
-fs.readFileSync("./data/gbk-unicode-utf8-cn.txt").split(/[\r\n]+/g).forEach(function(element) {
+var fs=require("fs");
+fs.readFileSync("./data/gbk-unicode-utf8-cn.txt").toString().split(/[\r\n]+/g).forEach(function(element) {
     map[parseInt(element.slice(0,4),16)]=element[element.length-1];
 });
 

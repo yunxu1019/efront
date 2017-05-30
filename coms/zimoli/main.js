@@ -1,4 +1,5 @@
 "use strict";
+//去除外层广告
 var window = this;
 var parseInt = window.parseInt;
 var XMLHttpRequest = window.XMLHttpRequest;
@@ -12,7 +13,18 @@ var Math = window.Math;
 var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
-var console = this.console;
+//var console = window.console;
+var document = window.document;
+var message = '请关闭后重新打开..';
+
+try {
+    if (window.top && window.top !== window && !/MSIE/.test(window.navigator.userAgent)) {
+        window.top.location.href = window.location.href;
+    }
+} catch (e) {
+    document.write(message);
+    window.top.location.reload();
+}
 var retry = function (url, count) {
     setTimeout(function () {
         load(url, ++count);
@@ -63,14 +75,17 @@ var pendding = {};
 var executer = function (f, args) {
     return f.apply(window, args || []);
 };
+var noop = function (a) {
+    return a
+};
 var broadcast = function (url, exports) {
     modules[url] = exports;
     var thens = pendding[url];
     delete pendding[url];
-    return thens.map(function (then) {
-        then(exports);
-    });
-}
+    for (var cx = 0, dx = thens.length; cx < dx; cx++) {
+        thens[cx](exports);
+    }
+};
 var init = function (name, then) {
     if (name instanceof Array) {
         return Promise.all(name.map(function (argName) {
@@ -88,15 +103,18 @@ var init = function (name, then) {
         modules[name] = window[name];
         return then(modules[name]);
     }
-    var url;
-    switch (name[0]) {
+    var url, adapter;
+    switch (name.charAt(0)) {
         case "/":
             url = "/page" + name;
+            adapter = executer;
             break;
         case "$":
-        
+            url = "/ccon/" + name.slice(1);
+            adapter = noop;
             break;
         default:
+            adapter = executer;
             url = "/comm/" + name;
     }
     if (modules[url]) {
@@ -106,9 +124,11 @@ var init = function (name, then) {
         return pendding[url].push(then);
     }
     pendding[url] = [then];
-    var adapter = executer;
     // return 
     get(url, function (text) {
+        if (adapter === noop) {
+            return broadcast(url, text);
+        }
         var functionArgs, functionBody;
         //依赖项名称部分的长度限制为36*36*18=23328
         var doublecount = parseInt(text.slice(0, 3), 36);
@@ -124,7 +144,6 @@ var init = function (name, then) {
             functionBody = text;
         }
         if (functionArgs.length) {
-
             init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
                 var exports = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
                 broadcast(url, exports);
