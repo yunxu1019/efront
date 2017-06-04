@@ -5,7 +5,7 @@
 var body = document.body;
 var onbacks = [];
 var backman, target_hash;
-location.href!==location.pathname && (location.replace(location.pathname));
+location.href.slice(location.href.length-location.pathname.length)!==location.pathname && location.replace(location.pathname);
 
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
