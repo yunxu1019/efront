@@ -12,19 +12,19 @@
     <title>紫茉莉</title>
 </head>
 
-<body>
+<body scroll=no>
     <script>
         - function (body, window) {
             body.removeChild(body.getElementsByTagName("script")[0]);
             var xhr = new(window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
-                    new Function(xhr.responseText).apply(window);
+                    new Function(xhr.responseText).call(window);
                 }
             };
             xhr.open('POST', '/');
             xhr.send("step into my sight..");
-        }(document.body, this);
+        }.call(this,document.body, this);
     </script>
 </body>
 

@@ -6,15 +6,23 @@ css(track, "width:100%;height:100%;background:#000;position:absolute;left:0;top:
 opacity(track, 0);
 var btn = div();
 css(btn, "width:50px;height:24px;font-size:14px;background-color:#ff0000;position:relative;overflow:hidden;")
-var opacity_mouseout=0;
-var opacity_mouseover=0.2;
-var opacity_active=0.3;
-function button() {
+var opacity_mouseout = 0;
+var opacity_mouseover = 0.2;
+var opacity_active = 0.3;
+
+function button(texter) {
     var tracker = createElement(track);
-    var texter = createElement(text);
+    var _texter;
+    if (isNode(texter)) {
+        _texter = texter;
+    } else {
+        _texter = createElement(text);
+        if (isString(texter))
+            _texter.innerText = texter;
+    }
     var bluer = anniu();
-    var button = createElement(btn, tracker, texter, bluer);
-    onmouseover(button, function () {//兼容手机端没有over与leave事件
+    var button = createElement(btn, tracker, _texter, bluer);
+    onmouseover(button, function () { //兼容手机端没有over与leave事件
         opacity(tracker, opacity_mouseover);
     });
     onmouseleave(button, function () {
@@ -24,12 +32,12 @@ function button() {
         opacity(tracker, opacity_active);
     });
     onmouseup(button, function () {
-        opacity(tracker, opacity_mouseover);
+        opacity(tracker, opacity_mouseout);
     });
     button.text = function (text) {
         if (arguments.length)
-            return texter.innerText = text;
-        return texter.innerText;
+            return _texter.innerText = text;
+        return _texter.innerText;
     };
     return button;
 };

@@ -4,6 +4,6 @@
  */
 
 
-function isNode(a){
-    return "nodeName" in a;
+function isNode(a) {
+    return a && "cloneNode" in a;
 }

@@ -71,6 +71,7 @@ var get = function (url, then) {
 };
 
 function modules() {}
+modules.modules=modules;
 var pendding = {};
 var executer = function (f, args) {
     return f.apply(window, args || []);
@@ -94,7 +95,7 @@ var init = function (name, then) {
             });
         })).then(function (args) {
             (then instanceof Function) && then(args);
-        }).catch(function (e) {});
+        }).catch(function (e) {window.console.error(e)});
     }
     if (modules[name]) {
         return then(modules[name]);

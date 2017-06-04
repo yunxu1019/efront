@@ -7,4 +7,3 @@
 function isNumber(o) {
     return typeof o === "number";
 }
-module.exports = isNumber;
