@@ -132,7 +132,7 @@ function pngencode(alpha, width, height, color) {
     var compressed = deflate(filtered);
     if (arguments.length === 4) {
         var binarys = png_leader.concat(IHDR(width, height), PLTE(color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff), tRNS(), IDAT(compressed), IEND());
-        return Buffer.from(binarys);
+        return Buffer.from(binarys).toString("base64");
     }
     var binarys = png_leader.concat(IHDR(width, height), /*PLTE(0xff, 0, 0) ,tRNS(),*/ IDAT(compressed), IEND());
 
