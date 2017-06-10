@@ -1,4 +1,8 @@
-var getfile = require("../process/getfile");
+if (global.PUBLIC_PATH) {
+    var getfile = require("../process/cache")(global.PUBLIC_PATH);
+} else {
+    var getfile = require("../process/getfile");
+}
 var path = require("path");
 var mimes = require("../process/mime");
 var proxy = {};

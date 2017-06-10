@@ -101,9 +101,11 @@ var doPost = module.exports = function (req, res) {
             case "ccon":
                 res.end(geticon(name));
                 break;
+            default:
+                res.end();
         }
     } else {
-
+        res.end();
     }
 };
 doPost.ccon = function (name, color) {

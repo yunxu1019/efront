@@ -107,16 +107,16 @@ var init = function (name, then) {
     var url, adapter;
     switch (name.charAt(0)) {
         case "/":
-            url = "/page" + name;
+            url = "page" + name;
             adapter = executer;
             break;
         case "$":
-            url = "/ccon/" + name.slice(1);
+            url = "ccon/" + name.slice(1);
             adapter = noop;
             break;
         default:
             adapter = executer;
-            url = "/comm/" + name;
+            url = "comm/" + name;
     }
     if (modules[url]) {
         return then(modules[url]);
@@ -164,6 +164,10 @@ var replaceArrayMap = function (map) {
     Array.prototype.map = map;
     hook(--requires_count);
 };
+var replaceClickEvent=function(fastclick){
+    new fastclick(document.body);
+    hook(--requires_count);
+};
 var requires_count = 0;
 if (!Promise) {
     requires_count++;
@@ -172,6 +176,10 @@ if (!Promise) {
 if (![].map) {
     requires_count++;
     init("[].map", replaceArrayMap);
+}
+if("ontouchstart" in window){
+    requires_count++;
+    init("fastclick",replaceClickEvent);
 }
 var hook = function (requires_count) {
     if (requires_count === 0) {
