@@ -12,24 +12,32 @@ var createBottomBar = function (buttonsConfig) {
     var button_count = 0;
     for (var k in buttonsConfig) button_count++;
     var btnArea = createElement(div);
-    css(btnArea, "position:relative;width:" + (100 / button_count) + "%;height:50px;");
+    css(btnArea, "bottom:0;position:relative;width:" + (100 / button_count) + "%;height:50px;");
     inlineBlock(btnArea);
     maxWidth(btnArea, 100);
+    var index = 0;
     for (var k in buttonsConfig) {
         var o = buttonsConfig[k];
         var btn = createElement(btnArea);
         btn.url = o;
         btn.home = createBtn(k, 0x00ff00);
         btn.other = createBtn(k, 0xcccccc);
-        var active = btn.active = function () {
-            var active = bar.active;
-            active && active.replaceChild(active.other, active.home);
-            this.replaceChild(this.home, this.other);
-            bar.active = this;
-            go(this.url, null, container);
+        var active = btn.active = function (ratio) {
+            opacity(this.home, ratio);
+            go(this.url, null, this.container);
+            return this.container;
         };
-        onclick(btn, active);
-        appendChild(btn, btn.other);
+        btn.container = createElement(container);
+        btn.index = index++;
+        onclick(btn, function () {
+            var childNodes = btn.parentNode.childNodes;
+            for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
+                childNodes[cx] !== this && opacity(childNodes[cx].home, 0);
+            }
+            page.go(this.index);
+        });
+        opacity(btn.home, 0);
+        appendChild(btn, btn.other, btn.home);
         appendChild(bar, btn);
     }
     bar.childNodes[0].active();
@@ -60,9 +68,13 @@ var bar = createBottomBar({
     "personal": "/personal/main"
 });
 var nav = createTitleBar();
-// go.global(nav, "tittlebar");
-// go.global(bar, "bottombar");
-var page = createElement(div, nav, bar, container);
+go.global(nav, "tittlebar");
+go.global(bar, "bottombar");
+var page = slider(function (index, ratio) {
+    var b = bar.childNodes[index];
+    return b && b.active(ratio);
+});
+appendChild(page);
 css(page, "position:absolute;left:0;right:0;top:0;bottom:0;width:100%;height:100%;");
 
 function main() {
