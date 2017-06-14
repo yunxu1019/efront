@@ -77,6 +77,7 @@ var pages = slider(function (index, ratio) {
 var page = createElement(div);
 appendChild(page, pages, bar);
 css(page, "position:absolute;left:0;right:0;top:0;bottom:0;width:100%;height:100%;");
+css(pages, "position:absolute;left:0;right:0;top:0;bottom:0;width:100%;height:100%;");
 
 function main() {
     return page;

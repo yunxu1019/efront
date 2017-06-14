@@ -60,7 +60,8 @@ function slider(autoplay) {
         delta_negative_index = 0,
         timer_animate = 0,
         timer_playyer = 0,
-        saved_clientx = 0;
+        saved_clientx = 0,
+        saved_clienty = 0;
     var reshape = function (index) {
         current_index = index;
         var width = outter.offsetWidth || windowInnerWidth;
@@ -157,6 +158,7 @@ function slider(autoplay) {
         mousemove_remove = onmousemove(body, mousemove);
         mouseup_remove = onmouseup(body, mouseup);
         saved_clientx = event.clientX;
+        saved_clienty = event.clientY;
     });
 
     if (is_touch_enabled) {
@@ -165,25 +167,25 @@ function slider(autoplay) {
             if (has_moving_instance) {
                 return;
             }
+            e.stopPropagation();
             has_moving_instance = true;
             moving = e.target;
             extendTouch(e);
             clearTimeout(timer_animate);
             clearTimeout(timer_playyer);
             saved_clientx = e.clientX;
-            moving.addEventListener("touchmove", ontouchmove);
-            moving.addEventListener("touchend", ontouchend);
+            saved_clienty = e.clientY;
         });
         var ontouchmove = function (e) {
             extendTouch(e);
             mousemove(e);
         };
         var ontouchend = function (e) {
-            moving.removeEventListener("touchmove", ontouchmove);
-            moving.removeEventListener("touchend", ontouchend);
             moving = has_moving_instance = false;
             park();
         }
+        outter.addEventListener("touchmove", ontouchmove);
+        outter.addEventListener("touchend", ontouchend);
     }
 
     appendChild(outter, imageMain, imageHelp);
