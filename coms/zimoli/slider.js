@@ -49,8 +49,9 @@ function slider(autoplay) {
                 dest.removeChild(dest.childNodes[0]);
             return false;
         }
-        if (dest.childNodes.length)
-            dest.replaceChild(src, dest.childNodes[0]);
+        var childNodes=dest.childNodes;
+        if (childNodes.length&&childNodes[0]!==src)
+            dest.replaceChild(src, childNodes[0]);
         else
             appendChild(dest, src);
         return true;
@@ -61,7 +62,8 @@ function slider(autoplay) {
         timer_animate = 0,
         timer_playyer = 0,
         saved_clientx = 0,
-        saved_clienty = 0;
+        saved_clienty = 0,
+        moving = 0;
     var reshape = function (index) {
         current_index = index;
         var width = outter.offsetWidth || windowInnerWidth;
@@ -70,8 +72,8 @@ function slider(autoplay) {
         outter.hasLeft = generator(imageMain, indexLeft, indexLeft - index);
         outter.hasRight = generator(imageHelp, indexRight, indexRight - index);
         if (!width) return;
-        css(imageMain, "left:" + (indexLeft - index) * width + "px");
-        css(imageHelp, "left:" + (indexRight - index) * width + "px");
+        imageMain.style.left = (indexLeft - index) * width + "px";
+        imageHelp.style.left = (indexRight - index) * width + "px"
     };
     var animate = function () {
         clearTimeout(timer_animate);
@@ -162,7 +164,6 @@ function slider(autoplay) {
     });
 
     if (is_touch_enabled) {
-        var moving;
         outter.addEventListener("touchstart", function (e) {
             if (has_moving_instance) {
                 return;
