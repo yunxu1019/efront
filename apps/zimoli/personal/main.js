@@ -1,6 +1,6 @@
-var page=createElement(div);
+var tbar=titlebar("个人",null,false);
+var page=createElement(div,tbar);
 css(page,"font-size:40px;color:#fff;");
-text(page,"你好");
 function main(){
     return page;
 }

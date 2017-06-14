@@ -1,6 +1,6 @@
-var page=createElement(div);
+var tbar=titlebar("缘分",null,false);
+var page=createElement(div,tbar);
 css(page,"font-size:40px;color:#fff;");
-text(page,"缘分");
 appendChild(page,createElement(slider));
 function main(){
     return page;

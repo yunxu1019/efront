@@ -171,13 +171,9 @@ function slider(autoplay) {
             clearTimeout(timer_animate);
             clearTimeout(timer_playyer);
             saved_clientx = e.clientX;
-            moving.addEventListener("touchmove", ontouchmove, {
-                passive: true
-            });
-            moving.addEventListener("touchend", ontouchend, {
-                passive: true
-            });
-        },{passive:true});
+            moving.addEventListener("touchmove", ontouchmove);
+            moving.addEventListener("touchend", ontouchend);
+        });
         var ontouchmove = function (e) {
             extendTouch(e);
             mousemove(e);
