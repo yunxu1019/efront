@@ -1,4 +1,4 @@
-var window=this;
+var window = this;
 var Array = window.Array;
 var setTimeout = window.setTimeout;
 var Function = window.Function;
@@ -9,36 +9,36 @@ var isPromise = function (pendding) {
 };
 
 function concat(threads, f, oks, ohs) {
-    var _ok, _oh,removeed;
-    var remove=function(){
-        var res=!removeed;
-        removeed=true;
+    var _ok, _oh, removeed;
+    var remove = function () {
+        var res = !removeed;
+        removeed = true;
         return removeed;
     };
     var runable = function (ok, oh) {
         _ok = ok;
-        _oh =oh;
+        _oh = oh;
     };
     var _promise = new Promise(runable);
-    var onpermit=function(){
-            remove();
-            try {
-                var pendding = f.apply(null, arguments);
-                if (isPromise(pendding)) {
-                    pendding.then(_ok);
-                    pendding.catch(_oh);
-                } else {
-                    _ok(pendding);
-                }
-            } catch (e) {
-                _oh(e);
+    var onpermit = function () {
+        remove();
+        try {
+            var pendding = f.apply(null, arguments);
+            if (isPromise(pendding)) {
+                pendding.then(_ok);
+                pendding.catch(_oh);
+            } else {
+                _ok(pendding);
             }
+        } catch (e) {
+            _oh(e);
+        }
     };
-    var onresolve=function(){
-        remove()&&_ok.apply(null,arguments);
+    var onresolve = function () {
+        remove() && _ok.apply(null, arguments);
     };
-    var onreject=function(){
-        remove()&&_oh.apply(null,arguments);
+    var onreject = function () {
+        remove() && _oh.apply(null, arguments);
     };
     threads.push(onpermit);
     oks.push(onresolve);
@@ -49,7 +49,7 @@ function concat(threads, f, oks, ohs) {
 function Promise(executor) {
     var PromiseFulfillReactions = [], //thens
         PromiseRejectReactions = [], //catches
-        oked, ohed,resolved;
+        oked, ohed, resolved;
 
     function run(threads, args) {
         do {
@@ -84,7 +84,7 @@ function Promise(executor) {
     this.catch = function (f) {
         var _promise = concat(PromiseRejectReactions, f, PromiseFulfillReactions, PromiseRejectReactions);
         ohed && run(PromiseRejectReactions, ohed);
-        oked &&run(PromiseFulfillReactions,oked);
+        oked && run(PromiseFulfillReactions, oked);
         return _promise;
     };
 }
@@ -115,6 +115,9 @@ Promise.all = function (penddings) {
                     });
                 } else {
                     results[cx] = pendding;
+                    if (++resolved_count === dx) {
+                        ok(results);
+                    }
                 };
             }
         } catch (e) {

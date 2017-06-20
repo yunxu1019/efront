@@ -1,4 +1,4 @@
-var setBackGround, icon,icn;
+var setBackGround, icon, icn;
 
 if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
     icn = new Image;
@@ -8,11 +8,11 @@ if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
     };
     icon = function (path, color, hover, active) {
         var icon = createElement(icn);
-        setBackGround(icon, path + "." + color.toString(16));
+        setBackGround(icon, path + "." + (color || 0).toString(16));
         return icon;
     };
 } else {
-    icn=createElement(div);
+    icn = createElement(div);
     css(icn, "background-position:center;background-repeat:no-repeat;background-size:contain;width:3em;height:3em;");
     setBackGround = function (div, src) {
         css(div, "background-image:url('data:image/png;base64," + src + "')");

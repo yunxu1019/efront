@@ -71,7 +71,7 @@ var get = function (url, then) {
 };
 
 function modules() {}
-modules.modules=modules;
+modules.modules = modules;
 var pendding = {};
 var executer = function (f, args) {
     return f.apply(window, args || []);
@@ -87,15 +87,20 @@ var broadcast = function (url, exports) {
         thens[cx](exports);
     }
 };
-var init = function (name, then) {
+var init = function (name, then, prebuild) {
     if (name instanceof Array) {
         return Promise.all(name.map(function (argName) {
+            if (prebuild && argName in prebuild) {
+                return prebuild[argName];
+            }
             return new Promise(function (ok, oh) {
                 init(argName, ok);
             });
         })).then(function (args) {
             (then instanceof Function) && then(args);
-        }).catch(function (e) {window.console.error(e)});
+        }).catch(function (e) {
+            window.console.error(e)
+        });
     }
     if (modules[name]) {
         return then(modules[name]);
@@ -148,7 +153,7 @@ var init = function (name, then) {
             init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
                 var exports = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
                 broadcast(url, exports);
-            });
+            }, prebuild);
         } else {
             var exports = adapter(Function.call(window, functionBody));
             broadcast(url, exports);
@@ -164,7 +169,7 @@ var replaceArrayMap = function (map) {
     Array.prototype.map = map;
     hook(--requires_count);
 };
-var replaceClickEvent=function(fastclick){
+var replaceClickEvent = function (fastclick) {
     new fastclick(document.body);
     hook(--requires_count);
 };
@@ -177,15 +182,15 @@ if (![].map) {
     requires_count++;
     init("[].map", replaceArrayMap);
 }
-if("ontouchstart" in window){
+if ("ontouchstart" in window) {
     requires_count++;
-    init("fastclick",replaceClickEvent);
+    init("fastclick", replaceClickEvent);
 }
 var hook = function (requires_count) {
     if (requires_count === 0) {
         init("zimoli", function (zimoli) {
             modules.go = modules.zimoli = zimoli;
-            zimoli("/main");
+            zimoli();
         });
     }
 };

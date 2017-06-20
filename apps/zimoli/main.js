@@ -40,7 +40,6 @@ var createBottomBar = function (buttonsConfig) {
         appendChild(btn, btn.other, btn.home);
         appendChild(bar, btn);
     }
-    bar.childNodes[0].active();
     return bar;
 };
 var createTitleBar = function () {
@@ -59,7 +58,7 @@ var createTitleBar = function () {
     return nav;
 };
 var container = createElement(div);
-css(container, "position:absolute;left:0;right:0;top:0;bottom:50px;width:100%;height:auto;");
+css(container, "position:absolute;left:0px;right:0px;top:0px;bottom:50px;width:100%;height:auto;");
 var bar = createBottomBar({
     "yuanfen": "/yuanfen/main",
     "nearby": "/nearby/main",
@@ -71,13 +70,19 @@ var nav = createTitleBar();
 // go.global(nav, "tittlebar");
 // go.global(bar, "bottombar");
 var pages = slider(function (index, ratio) {
+    if (ratio === 1) {
+        state({
+            page: index
+        });
+    }
     var b = bar.childNodes[index];
     return b && b.active(ratio);
 });
+pages.go(state().page || 0);
 var page = createElement(div);
+css(page, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;background-color:#ff0;");
+css(pages, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;background:#001;");
 appendChild(page, pages, bar);
-css(page, "position:absolute;left:0;right:0;top:0;bottom:0;width:100%;height:100%;");
-css(pages, "position:absolute;left:0;right:0;top:0;bottom:0;width:100%;height:100%;");
 
 function main() {
     return page;

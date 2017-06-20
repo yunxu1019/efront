@@ -1,5 +1,5 @@
 var _slider = createElement(div);
-css(_slider, "position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;");
+css(_slider, "position:absolute;top:0px;left:0px;right:0px;bottom:0px;width:100%;height:100%;");
 var container = createElement(div);
 var windowInnerWidth = window.innerWidth || screen.availWidth;
 css(container, "overflow:hidden;position:relative;width:100%;height:260px;font-size:120px;cursor:move;");
@@ -17,7 +17,7 @@ var extendTouch = function (e) {
         e[k] = touch[k];
     }
     return e;
-}
+};
 var has_moving_instance;
 /**
  * 
@@ -25,8 +25,8 @@ var has_moving_instance;
  */
 function slider(autoplay) {
     var outter = createElement(container);
-    var imageMain = createElement(_slider);
-    var imageHelp = createElement(_slider);
+    var _imageMain = createElement(_slider);
+    var _imageHelp = createElement(_slider);
     var play_autostart = autoplay === true;
     outter.src = function (index) {
         var block = createElement(div);
@@ -44,17 +44,12 @@ function slider(autoplay) {
         if (isFunction(src)) {
             src = src(index, 1 - abs(ratio));
         }
-        if (!src) {
-            if (dest.childNodes.length)
-                dest.removeChild(dest.childNodes[0]);
-            return false;
+        if (src) {
+            if (src.parentNode !== outter) {
+                outter.appendChild(src);
+            }
         }
-        var childNodes=dest.childNodes;
-        if (childNodes.length&&childNodes[0]!==src)
-            dest.replaceChild(src, childNodes[0]);
-        else
-            appendChild(dest, src);
-        return true;
+        return src;
     };
     var negative_index = 0,
         current_index = 0,
@@ -69,11 +64,24 @@ function slider(autoplay) {
         var width = outter.offsetWidth || windowInnerWidth;
         var indexLeft = floor(index);
         var indexRight = indexLeft + 1;
-        outter.hasLeft = generator(imageMain, indexLeft, indexLeft - index);
-        outter.hasRight = generator(imageHelp, indexRight, indexRight - index);
+        _imageMain = generator(_imageMain, indexLeft, indexLeft - index);
+        _imageHelp = generator(_imageHelp, indexRight, indexRight - index);
+        var childNodes = outter.childNodes;
+        for (var dx = childNodes.length - 1; dx >= 0; dx--) {
+            var childNode = childNodes[dx];
+            if (childNode !== _imageMain && childNode !== _imageHelp) {
+                outter.removeChild(childNode);
+            }
+        }
         if (!width) return;
-        imageMain.style.left = (indexLeft - index) * width + "px";
-        imageHelp.style.left = (indexRight - index) * width + "px"
+        css(_imageMain, {
+            left: round((indexLeft - index) * width) + "px"
+        });
+        css(_imageHelp, {
+            left: round((indexRight - index) * width) + "px"
+        });
+        outter.hasLeft = _imageMain;
+        outter.hasRight = _imageHelp;
     };
     var animate = function () {
         clearTimeout(timer_animate);
@@ -82,7 +90,7 @@ function slider(autoplay) {
             return reshape(-negative_index);
         timer_animate = setTimeout(animate, 20);
         reshape((current_index * 3 - negative_index) / 4);
-    }
+    };
     var park = function () {
         if (delta_negative_index > 0) {
             if (negative_index - floor(negative_index) > 0.3)
@@ -114,12 +122,12 @@ function slider(autoplay) {
     var stop = function () {
         clearTimeout(timer_playyer);
         play.ing = false;
-    }
+    };
     var mousemove = function (event) {
         var deltax = event.clientX - saved_clientx;
         var width = outter.offsetWidth;
         if (!outter.hasLeft && deltax > 0) {
-            var current_Left = imageHelp.offsetLeft;
+            var current_Left = parseInt(_imageHelp.style.left);
             var avail_deltaWidth = round(width >> 2);
             if (current_Left + deltax >= avail_deltaWidth) {
                 deltax = avail_deltaWidth - current_Left;
@@ -128,7 +136,7 @@ function slider(autoplay) {
                 saved_clientx = event.clientX;
             }
         } else if (!outter.hasRight && deltax < 0) {
-            var current_Left = imageMain.offsetLeft;
+            var current_Left = parseInt(_imageMain.style.left);
             var avail_deltaWidth = -round(width >> 2);
             if (current_Left + deltax <= avail_deltaWidth) {
                 deltax = avail_deltaWidth - current_Left;
@@ -168,7 +176,6 @@ function slider(autoplay) {
             if (has_moving_instance) {
                 return;
             }
-            e.stopPropagation();
             has_moving_instance = true;
             moving = e.target;
             extendTouch(e);
@@ -184,13 +191,10 @@ function slider(autoplay) {
         var ontouchend = function (e) {
             moving = has_moving_instance = false;
             park();
-        }
+        };
         outter.addEventListener("touchmove", ontouchmove);
         outter.addEventListener("touchend", ontouchend);
     }
-
-    appendChild(outter, imageMain, imageHelp);
-    park();
     outter.go = function (index) {
         negative_index = -index;
         reshape(index);

@@ -5,5 +5,5 @@
 
 
 function isNode(a) {
-    return a && "cloneNode" in a;
+    return !!(a && a.cloneNode);
 }

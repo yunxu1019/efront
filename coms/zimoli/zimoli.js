@@ -2,15 +2,20 @@
  * 不枝雀
  * 2017-3-18 16:16:20
  */
+
+//main
 var body = document.body;
 var onbacks = [];
 var backman, target_hash;
-location.href.slice(location.href.length-location.pathname.length)!==location.pathname && location.replace(location.pathname);
+location.href.slice(location.href.length - location.pathname.length) !== location.pathname && location.replace(location.pathname);
 
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
-        return onback&&onback() === true;
-    }
+        return onback && onback() === true;
+    };
+    onselectstart(body, function (e) {
+        return e.preventDefault();
+    });
     var frame = createElement("iframe");
     css(frame, "display:none");
     appendChild(body, frame);
@@ -19,7 +24,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         doc.open();
         doc.write(isloaded !== false ? "" : "<script>result=parent.onhistorychange();onload=function(){history.forward()}</script>");
         doc.close();
-    }
+    };
     backman(false);
     backman();
 } else {
@@ -32,6 +37,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         if (onback() === true) {}
     }
 }
+// body
 css(body, {
     width: "100%",
     height: "100%",
@@ -40,7 +46,7 @@ css(body, {
     margin: "0",
     padding: "0",
     overflow: "hidden",
-    backgroundColor: "black"
+    backgroundColor: "#f2f4f9"
 });
 /**
  * 加载一个页面到document.body
@@ -48,6 +54,11 @@ css(body, {
  * 如果args是bool值true，那么当执行history.back()时，此对象被清除
  */
 function zimoli(page, args, history_name) {
+    if (arguments.length === 0) {
+        history_name = current_history;
+        var _history = history[history_name] || [];
+        page = _history[_history.length - 1] || "/main";
+    }
     if (isNumber(page)) {
         if (!history_name)
             history_name = current_history;
@@ -57,23 +68,48 @@ function zimoli(page, args, history_name) {
         }
     }
     if (!page) return true;
+    if (isNode(history_name)) {
+        if (history_name.activate === page) return;
+        history_name.activate = page;
+    }
     //只有把runtime绑定到对像才可以使用
     //    css(document.body,{
     //        backgroundColor:"rgba(0,0,0,1)"
     //    });
     //    var button=createElement(anniu);
     //    console.log(button)
+    var _zimoli_state_key = "_zimoli_page_state:" + page;
+    var state = function state(state) {
+        if (arguments.length >= 1) {
+            sessionStorage.setItem(_zimoli_state_key, JSON.stringify(state));
+        }
+        try {
+            state = JSON.parse(sessionStorage.getItem(_zimoli_state_key)) || {};
+        } catch (e) {
+            state = {};
+        }
+        return state;
+    };
     init(page, function (pg) {
         if (!args) args = {};
-        var _page = pg(args);
+        var _page = pg.call(state, args);
         addGlobal(_page, history_name);
         pushstate(page, history_name);
+    }, {
+        state: state
     });
 }
 var alertslist = zimoli.alertslist = [];
 var global = {};
 var history = {};
 var current_history = "default";
+history[current_history] = [];
+try {
+    history = JSON.parse(sessionStorage.getItem(history_session_object_key)) || history;
+} catch (e) {
+    console.log(e);
+}
+var history_session_object_key = "_zimoli_history_key";
 var pushstate = function (path_name, history_name) {
     if (!history_name) {
         history_name = current_history;
@@ -91,7 +127,8 @@ var pushstate = function (path_name, history_name) {
         }
         _history.push(path_name);
     }
-}
+    sessionStorage.setItem(history_session_object_key, JSON.stringify(history));
+};
 var onback = function () {
     if (alertslist.length) {
         remove(alertslist.pop());

@@ -4,6 +4,7 @@
  */
 
 var css = function (targetNode, oStyle, oValue) {
+    if (!isNode(targetNode)) return;
     var stylesheet = [];
     // var styleobject = parseKV(targetStyle.cssText);
 
@@ -14,16 +15,18 @@ var css = function (targetNode, oStyle, oValue) {
             stylesheet.push(oStyle);
         }
     } else if (oStyle instanceof Object) {
-
         for (var k in oStyle) {
-            stylesheet.push(k.replace(/[A-Z]/g, function (m) {
-                return "-" + m.toLowerCase()
-            }) + ":" + oStyle[k]);
+            targetNode.style[k.replace(/\w\-+(\w)/g, function (m, w) {
+                return w.toUpperCase();
+            })] = oStyle[k];
+            // stylesheet.push(k.replace(/[A-Z]/g, function (m) {
+            //     return "-" + m.toLowerCase()
+            // }) + ":" + oStyle[k]);
         }
     }
-    try {
-        var targetStyle = targetNode.style;
-        targetStyle.cssText +=";"+ stylesheet.join(";");
-    } catch (e) {}
-
+    if (stylesheet.length)
+        try {
+            var targetStyle = targetNode.style;
+            targetStyle.cssText += ";" + stylesheet.join(";");
+        } catch (e) {}
 };
