@@ -80,8 +80,8 @@ var pages = slider(function (index, ratio) {
 });
 pages.go(state().page || 0);
 var page = createElement(div);
-css(page, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;background-color:#ff0;");
-css(pages, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;background:#001;");
+css(page, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;");
+css(pages, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;");
 appendChild(page, pages, bar);
 
 function main() {
