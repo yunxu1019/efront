@@ -29,7 +29,7 @@ function slider(autoplay) {
     var _imageHelp = createElement(_slider);
     var play_autostart = autoplay === true;
     outter.src = function (index) {
-        var block = createElement(div);
+        var block = createElement(_slider);
         text(block, index);
         return block;
     };
@@ -56,9 +56,10 @@ function slider(autoplay) {
         delta_negative_index = 0,
         timer_animate = 0,
         timer_playyer = 0,
-        saved_clientx = 0,
-        saved_clienty = 0,
-        moving = 0;
+        saved_x = 0,
+        saved_y = 0,
+        moving = 0,
+        direction;
     var reshape = function (index) {
         current_index = index;
         var width = outter.offsetWidth || windowInnerWidth;
@@ -92,6 +93,7 @@ function slider(autoplay) {
         reshape((current_index * 3 - negative_index) / 4);
     };
     var park = function () {
+        direction = 0;
         if (delta_negative_index > 0) {
             if (negative_index - floor(negative_index) > 0.3)
                 negative_index = ceil(negative_index);
@@ -124,28 +126,44 @@ function slider(autoplay) {
         play.ing = false;
     };
     var mousemove = function (event) {
-        var deltax = event.clientX - saved_clientx;
+        var deltax = event.pageX - saved_x;
+        var deltay = event.pageY - saved_y;
+        if (!direction) {
+            if (abs(deltay) - abs(deltax) > 0) { //垂直方向
+                direction = -1;
+            } else { //水平方向
+                direction = 1;
+            }
+        }
+        if (direction < 0) {
+            return;
+        }
+        if (!moving) {
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
         var width = outter.offsetWidth;
         if (!outter.hasLeft && deltax > 0) {
             var current_Left = parseInt(_imageHelp.style.left);
             var avail_deltaWidth = round(width >> 2);
             if (current_Left + deltax >= avail_deltaWidth) {
                 deltax = avail_deltaWidth - current_Left;
-                saved_clientx += deltax
+                saved_x += deltax;
             } else {
-                saved_clientx = event.clientX;
+                saved_x = event.pageX;
             }
         } else if (!outter.hasRight && deltax < 0) {
             var current_Left = parseInt(_imageMain.style.left);
             var avail_deltaWidth = -round(width >> 2);
             if (current_Left + deltax <= avail_deltaWidth) {
                 deltax = avail_deltaWidth - current_Left;
-                saved_clientx += deltax;
+                saved_x += deltax;
             } else {
-                saved_clientx = event.clientX;
+                saved_x = event.pageX;
             }
         } else {
-            saved_clientx = event.clientX;
+            saved_x = event.pageX;
         }
         delta_negative_index = deltax / width;
         negative_index += delta_negative_index;
@@ -154,46 +172,57 @@ function slider(autoplay) {
     var mouseup = function () {
         mousemove_remove();
         mouseup_remove();
-        has_moving_instance = false;
+        moving = has_moving_instance = false;
         park();
     };
     var mousemove_remove, mouseup_remove;
     onmousedown(outter, function (event) {
+        clearTimeout(timer_animate);
+        clearTimeout(timer_playyer);
         if (has_moving_instance) {
             return;
         }
         has_moving_instance = true;
-        clearTimeout(timer_animate);
-        clearTimeout(timer_playyer);
+        moving = event.target;
         mousemove_remove = onmousemove(body, mousemove);
         mouseup_remove = onmouseup(body, mouseup);
-        saved_clientx = event.clientX;
-        saved_clienty = event.clientY;
+        saved_x = event.pageX;
+        saved_y = event.pageY;
     });
 
     if (is_touch_enabled) {
-        outter.addEventListener("touchstart", function (e) {
+        var addEventListener = function (target, eventname, handle) {
+            target.addEventListener(eventname, handle);
+        };
+        var removeEventListener = function (target, eventname, handle) {
+            target.removeEventListener(eventname, handle);
+        };
+        addEventListener(outter, "touchstart", function (e) {
+            clearTimeout(timer_animate);
+            clearTimeout(timer_playyer);
             if (has_moving_instance) {
                 return;
             }
             has_moving_instance = true;
             moving = e.target;
+            addEventListener(moving, "touchmove", ontouchmove);
+            addEventListener(moving, "touchcancel", ontouchend);
+            addEventListener(moving, "touchend", ontouchend);
             extendTouch(e);
-            clearTimeout(timer_animate);
-            clearTimeout(timer_playyer);
-            saved_clientx = e.clientX;
-            saved_clienty = e.clientY;
+            saved_x = e.pageX;
+            saved_y = e.pageY;
         });
         var ontouchmove = function (e) {
             extendTouch(e);
             mousemove(e);
         };
         var ontouchend = function (e) {
+            removeEventListener(moving, "touchmove", ontouchmove);
+            removeEventListener(moving, "touchcancel", ontouchend);
+            removeEventListener(moving, "touchend", ontouchend);
             moving = has_moving_instance = false;
             park();
         };
-        outter.addEventListener("touchmove", ontouchmove);
-        outter.addEventListener("touchend", ontouchend);
     }
     outter.go = function (index) {
         negative_index = -index;
