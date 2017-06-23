@@ -205,9 +205,9 @@ function slider(autoplay) {
             }
             has_moving_instance = true;
             moving = e.target;
-            addEventListener(moving, "touchmove", ontouchmove);
-            addEventListener(moving, "touchcancel", ontouchend);
-            addEventListener(moving, "touchend", ontouchend);
+            // addEventListener(moving, "touchmove", ontouchmove);
+            // addEventListener(moving, "touchcancel", ontouchend);
+            // addEventListener(moving, "touchend", ontouchend);
             extendTouch(e);
             saved_x = e.pageX;
             saved_y = e.pageY;
@@ -217,12 +217,15 @@ function slider(autoplay) {
             mousemove(e);
         };
         var ontouchend = function (e) {
-            removeEventListener(moving, "touchmove", ontouchmove);
-            removeEventListener(moving, "touchcancel", ontouchend);
-            removeEventListener(moving, "touchend", ontouchend);
+            // removeEventListener(moving, "touchmove", ontouchmove);
+            // removeEventListener(moving, "touchcancel", ontouchend);
+            // removeEventListener(moving, "touchend", ontouchend);
             moving = has_moving_instance = false;
             park();
         };
+        addEventListener(outter, "touchmove", ontouchmove);
+        addEventListener(outter, "touchcancel", ontouchend);
+        addEventListener(outter, "touchend", ontouchend);
     }
     outter.go = function (index) {
         negative_index = -index;
