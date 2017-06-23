@@ -126,8 +126,8 @@ function slider(autoplay) {
         play.ing = false;
     };
     var mousemove = function (event) {
-        var deltax = event.pageX - saved_x;
-        var deltay = event.pageY - saved_y;
+        var deltax = event.clientX - saved_x;
+        var deltay = event.clientY - saved_y;
         if (!direction) {
             if (abs(deltay) - abs(deltax) > 0) { //垂直方向
                 direction = -1;
@@ -151,7 +151,7 @@ function slider(autoplay) {
                 deltax = avail_deltaWidth - current_Left;
                 saved_x += deltax;
             } else {
-                saved_x = event.pageX;
+                saved_x = event.clientX;
             }
         } else if (!outter.hasRight && deltax < 0) {
             var current_Left = parseInt(_imageMain.style.left);
@@ -160,10 +160,10 @@ function slider(autoplay) {
                 deltax = avail_deltaWidth - current_Left;
                 saved_x += deltax;
             } else {
-                saved_x = event.pageX;
+                saved_x = event.clientX;
             }
         } else {
-            saved_x = event.pageX;
+            saved_x = event.clientX;
         }
         delta_negative_index = deltax / width;
         negative_index += delta_negative_index;
@@ -186,8 +186,8 @@ function slider(autoplay) {
         moving = event.target;
         mousemove_remove = onmousemove(body, mousemove);
         mouseup_remove = onmouseup(body, mouseup);
-        saved_x = event.pageX;
-        saved_y = event.pageY;
+        saved_x = event.clientX;
+        saved_y = event.clientY;
     });
 
     if (is_touch_enabled) {
@@ -205,27 +205,24 @@ function slider(autoplay) {
             }
             has_moving_instance = true;
             moving = e.target;
-            // addEventListener(moving, "touchmove", ontouchmove);
-            // addEventListener(moving, "touchcancel", ontouchend);
-            // addEventListener(moving, "touchend", ontouchend);
+            addEventListener(moving, "touchmove", ontouchmove);
+            addEventListener(moving, "touchcancel", ontouchend);
+            addEventListener(moving, "touchend", ontouchend);
             extendTouch(e);
-            saved_x = e.pageX;
-            saved_y = e.pageY;
+            saved_x = e.clientX;
+            saved_y = e.clientY;
         });
         var ontouchmove = function (e) {
             extendTouch(e);
             mousemove(e);
         };
         var ontouchend = function (e) {
-            // removeEventListener(moving, "touchmove", ontouchmove);
-            // removeEventListener(moving, "touchcancel", ontouchend);
-            // removeEventListener(moving, "touchend", ontouchend);
+            removeEventListener(moving, "touchmove", ontouchmove);
+            removeEventListener(moving, "touchcancel", ontouchend);
+            removeEventListener(moving, "touchend", ontouchend);
             moving = has_moving_instance = false;
             park();
         };
-        addEventListener(outter, "touchmove", ontouchmove);
-        addEventListener(outter, "touchcancel", ontouchend);
-        addEventListener(outter, "touchend", ontouchend);
     }
     outter.go = function (index) {
         negative_index = -index;
