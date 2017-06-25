@@ -1,0 +1,1 @@
+var ontouchstart=on("touchstart");

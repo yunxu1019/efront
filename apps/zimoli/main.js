@@ -27,7 +27,7 @@ var createBottomBar = function (buttonsConfig) {
             go(this.url, null, this.container);
             return this.container;
         };
-        btn.container = createElement(container);
+        btn.container = createElement(vbox);
         btn.index = index++;
         onclick(btn, function () {
             var childNodes = btn.parentNode.childNodes;

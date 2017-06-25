@@ -2,7 +2,7 @@ var _slider = createElement(div);
 css(_slider, "position:absolute;top:0px;left:0px;right:0px;bottom:0px;width:100%;height:100%;");
 var container = createElement(div);
 var windowInnerWidth = window.innerWidth || screen.availWidth;
-css(container, "overflow:hidden;position:relative;width:100%;height:260px;font-size:120px;cursor:move;");
+css(container, "overflow:hidden;position:relative;width:100%;height:120px;font-size:60px;cursor:move;");
 onresize(window, function (event) {});
 var floor = Math.floor;
 var ceil = Math.ceil;
@@ -71,14 +71,20 @@ function slider(autoplay) {
         for (var dx = childNodes.length - 1; dx >= 0; dx--) {
             var childNode = childNodes[dx];
             if (childNode !== _imageMain && childNode !== _imageHelp) {
-                outter.removeChild(childNode);
+                remove(childNode);
             }
         }
         if (!width) return;
         css(_imageMain, {
+            position: "absolute",
+            width: width + "px",
+            height: "100%",
             left: round((indexLeft - index) * width) + "px"
         });
         css(_imageHelp, {
+            position: "absolute",
+            width: "100%",
+            height: "100%",
             left: round((indexRight - index) * width) + "px"
         });
         outter.hasLeft = _imageMain;
@@ -142,7 +148,7 @@ function slider(autoplay) {
             return;
         }
         event.preventDefault();
-        event.stopPropagation();
+        event.stopPropagation && event.stopPropagation();
         var width = outter.offsetWidth;
         if (!outter.hasLeft && deltax > 0) {
             var current_Left = parseInt(_imageHelp.style.left);
@@ -183,7 +189,7 @@ function slider(autoplay) {
             return;
         }
         has_moving_instance = true;
-        moving = event.target;
+        moving = true;
         mousemove_remove = onmousemove(body, mousemove);
         mouseup_remove = onmouseup(body, mouseup);
         saved_x = event.clientX;

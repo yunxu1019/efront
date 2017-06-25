@@ -5,12 +5,9 @@
 
 var slice = [].slice;
 
-function create(node) {
-    return isFunction(node) ? node() : node.cloneNode ? node : document.createElement(node);
-}
 
 function createElement(name) {
-    var node = name.cloneNode ? name.cloneNode() : create(name);
-    appendChild(node, slice.call(arguments, 1).map(create));
+    var node = isNode(name) ? name.cloneNode() : isFunction(name) ? name() : document.createElement(name);
+    appendChild(node, slice.call(arguments, 1));
     return node;
 }

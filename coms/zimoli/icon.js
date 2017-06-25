@@ -2,7 +2,7 @@ var setBackGround, icon, icn;
 
 if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
     icn = new Image;
-    css(icn, "display:block;width:42px;height:42px;position:relative;");
+    css(icn, "display:block;width:28px;height:28px;position:relative;");
     setBackGround = function (img, src) {
         img.src = "ccon/" + src + ".png";
     };
@@ -13,7 +13,7 @@ if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
     };
 } else {
     icn = createElement(div);
-    css(icn, "background-position:center;background-repeat:no-repeat;background-size:contain;width:3em;height:3em;");
+    css(icn, "background-position:center;background-repeat:no-repeat;background-size:contain;width:28px;height:28px;");
     setBackGround = function (div, src) {
         css(div, "background-image:url('data:image/png;base64," + src + "')");
     };
