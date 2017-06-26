@@ -38,7 +38,10 @@ function vbox(generator) {
     var saved_x, saved_y, direction, speed = 0,
         lastmoveTime;
     var smooth = function () {
-        if (abs(speed) < 1) return;
+        if (abs(speed) < 1) {
+            speed = 0;
+            return;
+        }
         speed_timer = setTimeout(smooth, 20);
         _box.scroll(-speed);
         speed = speed - 0.5 * sign(speed);
@@ -52,22 +55,23 @@ function vbox(generator) {
         var now = new Date;
         var deltat = now - lastmoveTime;
         lastmoveTime = now;
-        speed = (speed + deltay * 20 / deltat) >> 1;
+        speed = ((speed || deltay * 20) + deltay * 20 / deltat) >> 1;
         _box.scroll(-deltay);
         smooth();
     });
     var speed_timer;
     onmousedown(_box, function (event) {
         clearTimeout(speed_timer);
+        speed = 0;
         lastmoveTime = new Date;
         saved_x = event.clientX, saved_y = event.clientY;
         var cancel = function () {
-            direction=0;
+            direction = 0;
             cancelmousemove();
             cancelmouseup();
             smooth();
         };
-        var body=document.body;
+        var body = document.body;
         var cancelmousemove = onmousemove(body, function (event) {
             var clientX = event.clientX;
             var clientY = event.clientY;
@@ -82,7 +86,7 @@ function vbox(generator) {
             var now = new Date;
             var deltat = now - lastmoveTime;
             lastmoveTime = now;
-            speed = (speed + deltay * 20 / deltat) >> 1;
+            speed = ((speed || deltay * 20) + deltay * 20 / deltat) >> 1;
             _box.scroll(-deltay);
             saved_x = clientX;
             saved_y = clientY;
@@ -95,8 +99,9 @@ function vbox(generator) {
         lastmoveTime = new Date;
         saved_x = event.clientX, saved_y = event.clientY;
         var moving = event.target;
+        speed = 0;
         var cancel = function () {
-            direction=0;
+            direction = 0;
             canceltouchmove();
             canceltouchend();
             canceltouchcancel();
@@ -118,7 +123,7 @@ function vbox(generator) {
             var now = new Date;
             var deltat = now - lastmoveTime;
             lastmoveTime = now;
-            speed = (speed + deltay * 20 / deltat) >> 1;
+            speed = ((speed || deltay * 20) + deltay * 20 / deltat) >> 1;
             _box.scroll(-deltay);
             saved_x = clientX;
             saved_y = clientY;
