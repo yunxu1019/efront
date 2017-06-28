@@ -5,10 +5,14 @@ function release(node) {
 }
 
 function appendChild(parent, obj) {
+
     var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
-    if (parent.appendChild)
+    if (parent.appendChild) {
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
-            parent.appendChild(release(children[cx]));
+            var o = release(children[cx]);
+            parent.appendChild(o);
+            o.with && appendChild(parent, o.with);
         }
+    }
     return parent;
 }

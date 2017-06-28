@@ -5,7 +5,7 @@ var sign = Math.sign || function (a) {
 };
 var pow = Math.pow;
 var box = createElement(div);
-css(box, "overflow:hidden;");
+css(box, "overflow:hidden;height:100%");
 var extendTouch = function (e) {
     var touch = e.touches[0];
     for (var k in touch) {
@@ -15,7 +15,13 @@ var extendTouch = function (e) {
 };
 
 function vbox(generator) {
-    var _box = createElement(box);
+    var _box;
+    if (isNode(generator)) {
+        _box = generator;
+        _box.style.cssText = box.style.cssText + _box.style.cssText;
+    } else {
+        box = createElement(box);
+    }
     _box.height = function () {
         return _box.offsetHeight;
     };
@@ -33,21 +39,66 @@ function vbox(generator) {
         return _box.scrollTop;
     };
     _box.scroll = function (deltay) {
-        return currentTop(currentTop() + deltay);
+        var top = currentTop() + deltay;
+        console.log(top, deltay);
+        var height = _box.height();
+        var scrollHeight = totalHeight();
+        if (top < 0) {
+            speed = speed >> 1;
+            increase(top);
+            top = 0;
+        } else if (top + height > scrollHeight) {
+            speed = speed >> 1;
+            increase(top + height - scrollHeight);
+        }
+        return currentTop(top);
     };
     var saved_x, saved_y, direction, speed = 0,
         lastmoveTime;
     var smooth = function () {
         if (abs(speed) < 1) {
             speed = 0;
+            decrease();
             return;
         }
         speed_timer = setTimeout(smooth, 20);
         _box.scroll(-speed);
         speed = speed - 0.5 * sign(speed);
     };
+    var increaser = createElement(div);
+    var decrease_timer = 0;
+    var decrease = function () {
+        var height = parseInt(increaser.style.height);
+        var decrease_ing = 0;
+        if (height > 1) {
+            setTimeout(decrease, 20);
+            decrease_ing++;
+            css(increaser, {
+                height: (height > 16 ? (height*4 + 6)/5 : height >> 1) + "px"
+            });
+        }
+        if (!decrease_ing) {
+            remove(increaser);
+        }
+    };
+    var increase = function (deltaY) {
+        var height = parseInt(increaser.style.height) || 0;
+        if (deltaY < 0) {
+            height -= deltaY;
+            _box.insertBefore(increaser, _box.childNodes[0] || null);
+        } else if (deltaY > 0) {
+            height += deltaY;
+            appendChild(_box, increaser);
+        }
+        if (height > 100)
+            height = 100;
+        css(increaser, {
+            height: height + "px"
+        });
+    };
     onmousewheel(_box, function (event) {
         clearTimeout(speed_timer);
+        clearTimeout(decrease_timer);
         var deltay = isNumber(event.deltaY) ? -event.deltaY : event.wheelDeltaY;
         !isNumber(deltay) && (deltay = event.wheelDelta);
         !isNumber(deltay) && (deltay = -event.detail * 40);
@@ -62,6 +113,7 @@ function vbox(generator) {
     var speed_timer;
     onmousedown(_box, function (event) {
         clearTimeout(speed_timer);
+        clearTimeout(decrease_timer);
         speed = 0;
         lastmoveTime = new Date;
         saved_x = event.clientX, saved_y = event.clientY;
@@ -95,6 +147,7 @@ function vbox(generator) {
     });
     ontouchstart(_box, function (event) {
         clearTimeout(speed_timer);
+        clearTimeout(decrease_timer);
         extendTouch(event);
         lastmoveTime = new Date;
         saved_x = event.clientX, saved_y = event.clientY;

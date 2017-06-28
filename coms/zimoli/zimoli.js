@@ -90,15 +90,29 @@ function zimoli(page, args, history_name) {
         }
         return state;
     };
+    var _with_elements = [];
+    state.with = function (element) {
+        element && _with_elements.push(element);
+        return _with_elements;
+    };
     init(page, function (pg) {
         if (!args) args = {};
         var _page = pg.call(state, args);
+        _page.with = _with_elements;
         addGlobal(_page, history_name);
         pushstate(page, history_name);
     }, {
-        state: state
+        state: state,
+        titlebar: function () {
+            return getTitleBar(state, arguments);
+        }
     });
 }
+var getTitleBar = function (state, args) {
+    var realTitleBar = titlebar.apply(null, args);
+    state.with(realTitleBar);
+    return realTitleBar;
+};
 var alertslist = zimoli.alertslist = [];
 var global = {};
 var history = {};
@@ -142,18 +156,15 @@ function addGlobal(element, name) {
         name = current_history;
     }
     if (isString(name)) {
-        if (global[name])
-            body.replaceChild(element, global[name] || null);
-        else
-            body.insertBefore(element, body.childNodes[0] || null);
+        if (global[name]) {
+            remove(global[name]);
+        }
+        appendChild(body, element);
         global[name] = element;
     } else if (isNode(name)) {
-        if (name.childNodes.length)
-            name.replaceChild(element, name.childNodes[0] || null);
-        else
-            name.appendChild(element);
+        appendChild(name, element);
     } else {
-        body.appendChild(element);
+        appendChild(body, element);
         alertslist.push(element);
     }
 }

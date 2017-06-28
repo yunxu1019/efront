@@ -31,5 +31,5 @@ var page = createElement(div, tbar, money_about, life_circle, live_connect, reci
 css(page, "font-size:40px;color:#fff;");
 
 function main() {
-    return page;
+    return vbox(page);
 }

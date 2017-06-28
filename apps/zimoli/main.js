@@ -27,7 +27,7 @@ var createBottomBar = function (buttonsConfig) {
             go(this.url, null, this.container);
             return this.container;
         };
-        btn.container = createElement(vbox);
+        btn.container = createElement(div);
         btn.index = index++;
         onclick(btn, function () {
             var childNodes = btn.parentNode.childNodes;
@@ -81,7 +81,7 @@ var pages = slider(function (index, ratio) {
 pages.go(state().page || 0);
 var page = createElement(div);
 css(page, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;");
-css(pages, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;");
+css(pages, "position:absolute;left:0px;right:0px;top:0px;bottom:50px;height:auto;");
 appendChild(page, pages, bar);
 
 function main() {

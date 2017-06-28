@@ -1,4 +1,10 @@
 function remove(node) {
-    if (!node || node.onremove && node.onremove() === false) return;
-    node.parentNode && node.parentNode.removeChild(node);
+    var args=isArray(node)?node:arguments;
+    for (var cx = 0, dx = args.length; cx < dx; cx++) {
+        node = args[cx];
+        node.parentNode && node.parentNode.removeChild(node);
+        if(node.with){
+            remove(node.with);
+        }
+    }
 }
