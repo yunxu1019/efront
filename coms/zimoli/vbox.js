@@ -20,7 +20,7 @@ function vbox(generator) {
         _box = generator;
         _box.style.cssText = box.style.cssText + _box.style.cssText;
     } else {
-        box = createElement(box);
+        _box = createElement(box);
     }
     _box.height = function () {
         return _box.offsetHeight;
@@ -40,14 +40,15 @@ function vbox(generator) {
     };
     _box.scroll = function (deltay) {
         var top = currentTop() + deltay;
-        console.log(top, deltay);
         var height = _box.height();
         var scrollHeight = totalHeight();
         if (top < 0) {
+            if(speed>30)speed=30;
             speed = speed >> 1;
             increase(top);
             top = 0;
         } else if (top + height > scrollHeight) {
+            if(speed>30)speed=30;
             speed = speed >> 1;
             increase(top + height - scrollHeight);
         }
@@ -71,10 +72,22 @@ function vbox(generator) {
         var height = parseInt(increaser.style.height);
         var decrease_ing = 0;
         if (height > 1) {
+            var scrollTop = currentTop();
+            if (scrollTop > 0 && _box.childNodes[0] === increaser) {
+                var deltaY = scrollTop > height ? height : scrollTop;
+                height -= deltaY;
+                currentTop(scrollTop - deltaY);
+            }
+            var tH = totalHeight();
+            var bH = _box.height();
+            if (scrollTop + bH < tH&&_box.childNodes[_box.childNodes.length-1]===increaser) {
+                var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
+                height -= deltaY;
+            }
             setTimeout(decrease, 20);
             decrease_ing++;
             css(increaser, {
-                height: (height > 16 ? (height*4 + 6)/5 : height >> 1) + "px"
+                height: (height > 16 ? (height * 2 + 6) / 3 : height >> 1) + "px"
             });
         }
         if (!decrease_ing) {
