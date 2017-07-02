@@ -4,25 +4,26 @@ var iconbuilder = require("../process/iconbuilder");
 var getcommfile = require("../process/cache")("./coms", commbuilder);
 var getpagefile = require("../process/cache")("./apps", commbuilder);
 var geticonfile = require("../process/cache")("./cons", iconbuilder);
+var setupenv = require("../process/setupenv");
 var env = process.env;
-var APP = env.APP || "zimoli";
-var COM = env.COM || "zimoli";
-var CON = env.CON || "zimoli";
+var PAGE = env.PAGE || "zimoli";
+var COMM = env.COMM || "zimoli";
+var ICON = env.ICON || "zimoli";
 
-var ccons_root = "./" + CON + "/";
-var comms_root = "./" + COM + "/";
-var pages_root = "./" + APP + "/";
+var ccons_root = "./" + ICON;
+var comms_root = "./" + COMM;
+var pages_root = "./" + PAGE;
 
 var geticon = function (name, _ccons_root = ccons_root) {
-    return geticonfile(_ccons_root + name + ".png");
+    return geticonfile(_ccons_root + "/" + name + ".png");
 };
 
 var getcomm = function (name, _comms_root = comms_root) {
-    return getcommfile(_comms_root + name + ".js");
+    return getcommfile(_comms_root + "/" + name + ".js");
 };
 
 var getpage = function (name, _pages_root = pages_root) {
-    return getpagefile(_pages_root + name + ".js");
+    return getpagefile(_pages_root + "/" + name + ".js");
 };
 
 var handle = {
@@ -86,20 +87,22 @@ var doPost = module.exports = function (req, res) {
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
     }
-    var match = url.match(/^\/(comm|page|ccon|api)\/(.*?)(?:\.js|\.png)?$/);
+    var match = url.match(/^\/(.*?)(comm|page|ccon|api)\/(.*?)(?:\.js|\.png)?$/);
     if (match) {
-        var type = match[1],
-            name = match[2],
-            extt = match[3];
+        var appc = match[1],
+            type = match[2],
+            name = match[3],
+            extt = match[4];
+        var env = appc ? setupenv(appc) : {};
         switch (type) {
             case "comm":
-                res.end(getcomm(name));
+                res.end(getcomm(name, env.COMM));
                 break;
             case "page":
-                res.end(getpage(name));
+                res.end(getpage(name, env.PAGE));
                 break;
             case "ccon":
-                res.end(geticon(name));
+                res.end(geticon(name, env.ICON));
                 break;
             default:
                 res.end();

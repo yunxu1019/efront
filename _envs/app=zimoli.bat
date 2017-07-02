@@ -1,3 +1,3 @@
-set ICON_PROVIDER=zimoli
-set COMM_PROVIDER=zimoli
-set APPP_PROVIDER=zimoli
+set ICON=zimoli
+set COMM=zimoli
+set PAGE=zimoli
