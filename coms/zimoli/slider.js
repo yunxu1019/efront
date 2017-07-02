@@ -36,7 +36,7 @@ function slider(autoplay) {
     if (isFunction(autoplay) || isArray(autoplay)) {
         outter.src = autoplay;
     }
-    var generator = function (dest, index, ratio) {
+    var generator = function (index, ratio) {
         var src = outter.src;
         if (isArray(src)) {
             src = src[index];
@@ -60,13 +60,23 @@ function slider(autoplay) {
         saved_y = 0,
         moving = 0,
         direction;
-    var reshape = function (index) {
+    var reshape = function (index, ising) {
         current_index = index;
         var width = outter.offsetWidth || windowInnerWidth;
         var indexLeft = floor(index);
         var indexRight = indexLeft + 1;
-        _imageMain = generator(_imageMain, indexLeft, indexLeft - index);
-        _imageHelp = generator(_imageHelp, indexRight, indexRight - index);
+        if(ising===false){
+            //预载
+            generator(indexLeft - 1, 1);
+            generator(indexLeft - 2, 1);
+            generator(indexLeft - 3, 1);
+            generator(indexLeft - 4, 1);
+            generator(indexLeft + 2, 1);
+            generator(indexLeft + 3, 1);
+            generator(indexLeft + 4, 1);
+        }
+        _imageMain = generator(indexLeft, indexLeft - index);
+        _imageHelp = generator(indexRight, indexRight - index);
         var childNodes = outter.childNodes;
         for (var dx = childNodes.length - 1; dx >= 0; dx--) {
             var childNode = childNodes[dx];
@@ -94,7 +104,7 @@ function slider(autoplay) {
         clearTimeout(timer_animate);
         var width = outter.offsetWidth;
         if (abs(current_index + negative_index) < 1.25 / width)
-            return reshape(-negative_index);
+            return reshape(-negative_index, false);
         timer_animate = setTimeout(animate, 20);
         reshape((current_index * 3 - negative_index) / 4);
     };
@@ -232,7 +242,7 @@ function slider(autoplay) {
     }
     outter.go = function (index) {
         negative_index = -index;
-        reshape(index);
+        reshape(index, false);
     };
     return outter;
 }
