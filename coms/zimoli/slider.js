@@ -46,7 +46,7 @@ function slider(autoplay) {
         }
         if (src) {
             if (src.parentNode !== outter) {
-                outter.appendChild(src);
+                appendChild(outter, src);
             }
         }
         return src;
@@ -65,7 +65,7 @@ function slider(autoplay) {
         var width = outter.offsetWidth || windowInnerWidth;
         var indexLeft = floor(index);
         var indexRight = indexLeft + 1;
-        if(ising===false){
+        if (ising === false) {
             //预载
             generator(indexLeft - 1, 1);
             generator(indexLeft - 2, 1);

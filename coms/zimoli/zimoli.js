@@ -7,7 +7,10 @@
 var body = document.body;
 var onbacks = [];
 var backman, target_hash;
-location.href.slice(location.href.length - location.pathname.length) !== location.pathname && location.replace(location.pathname);
+if (location.href.slice(location.href.length - location.pathname.length) !== location.pathname) {
+    location.replace(location.pathname)
+    throw "start from child hash";
+}
 
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
@@ -32,7 +35,8 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         location.href = "#";
     };
     backman();
-    this.onhashchange = function () {
+    this.onhashchange = function (event) {
+        if (/#$/.test(event.newURL)) return;
         backman();
         if (onback() === true) {}
     }
@@ -48,6 +52,54 @@ css(body, {
     overflow: "hidden",
     backgroundColor: "#f2f4f9"
 });
+
+var _zimoli_params_key = "_zimoli_parameters:";
+
+function go(url, args, history_name) {
+    if (isNumber(url)) {
+        if (!history_name)
+            history_name = current_history;
+        if (isString(history_name)) {
+            var _history = history[history_name] || [];
+            url = _history[url < 1 ? _history.length + url - 1 : url];
+        }
+    }
+    if (!url) return true;
+    sessionStorage.setItem(_zimoli_params_key + url, JSON.stringify(args));
+    if (!page_generators[url]) {
+        return zimoli(url, args, history_name);
+    }
+    if (isNode(history_name)) {
+        if (history_name.activate === url) return;
+        history_name.activate = url;
+    }
+    var pg = page_generators[url];
+    var _with_elements = [].concat(pg.with);
+    var _remove_listeners = [].concat(pg.onappend);
+    var _append_listeners = [].concat(pg.onremove);
+    var state = pg.state;
+    state.onappend = function (handler) {
+        console.log(handler, "onremove");
+        isFunction(handler) && _append_listeners.push(handler);
+    };
+    state.onremove = function (handler) {
+        console.log(handler, "onremove");
+        isFunction(handler) && _remove_listeners.push(handler);
+    };
+    state.with = function (element) {
+        element && _with_elements.push(element);
+        return _with_elements;
+    };
+    if (!args) args = {};
+    var _page = pg.call(state, args);
+    _page.with = _with_elements;
+    _page.onappend = _append_listeners;
+    _page.onremove = _remove_listeners;
+    addGlobal(_page, history_name);
+    pushstate(url, history_name);
+    return _page;
+}
+var page_generators = {};
 /**
  * 加载一个页面到document.body
  * 如果args是一个字符串，那么当下次指定一个相同的字符串时，此对象被新对象代替
@@ -58,19 +110,11 @@ function zimoli(page, args, history_name) {
         history_name = current_history;
         var _history = history[history_name] || [];
         page = _history[_history.length - 1] || "/main";
-    }
-    if (isNumber(page)) {
-        if (!history_name)
-            history_name = current_history;
-        if (isString(history_name)) {
-            var _history = history[history_name] || [];
-            page = _history[page < 1 ? _history.length + page - 1 : page];
+        try {
+            args = JSON.parse(sessionStorage.getItem(_zimoli_params_key + page)) || {};
+        } catch (e) {
+            args = {};
         }
-    }
-    if (!page) return true;
-    if (isNode(history_name)) {
-        if (history_name.activate === page) return;
-        history_name.activate = page;
     }
     //只有把runtime绑定到对像才可以使用
     //    css(document.body,{
@@ -95,19 +139,49 @@ function zimoli(page, args, history_name) {
         element && _with_elements.push(element);
         return _with_elements;
     };
+    state.go = function (url, args, history_name) {
+        if (isString(url) && /^[^\\\/]/.test(url)) {
+            url = page.replace(/[^\/]*$/, url);
+            return go(url, args, history_name);
+        }
+        return go(url, args, history_name);
+    };
+    var _remove_listeners = [];
+    state.onremove = function (handler) {
+        isFunction(handler) && _remove_listeners.push(handler);
+    };
+    var _append_listeners = [];
+    state.onappend = function (handler) {
+        isFunction(handler) && _append_listeners.push(handler);
+    };
     init(page, function (pg) {
-        if (!args) args = {};
-        var _page = pg.call(state, args);
-        _page.with = _with_elements;
-        addGlobal(_page, history_name);
-        pushstate(page, history_name);
+        pg.with = _with_elements;
+        pg.onremove = _remove_listeners;
+        pg.onappend = _append_listeners;
+        pg.state = state;
+        page_generators[page] = pg;
+        return go(page, args, history_name);
     }, {
         state: state,
         titlebar: function () {
             return getTitleBar(state, arguments);
+        },
+        zimoli: state.go,
+        go: state.go,
+        onremove: function () {
+            return getRemoveFn(state, arguments);
+        },
+        onappend: function () {
+            return getAppendFn(state, arguments);
         }
     });
 }
+var getRemoveFn = function (state, args) {
+    return state.onremove.apply(null, args);
+};
+var getAppendFn = function (state, args) {
+    return state.onappend.apply(null, args);
+};
 var getTitleBar = function (state, args) {
     var realTitleBar = titlebar.apply(null, args);
     state.with(realTitleBar);
@@ -118,12 +192,12 @@ var global = {};
 var history = {};
 var current_history = "default";
 history[current_history] = [];
+var history_session_object_key = "_zimoli_history_key";
 try {
     history = JSON.parse(sessionStorage.getItem(history_session_object_key)) || history;
 } catch (e) {
     console.log(e);
 }
-var history_session_object_key = "_zimoli_history_key";
 var pushstate = function (path_name, history_name) {
     if (!history_name) {
         history_name = current_history;
@@ -141,6 +215,7 @@ var pushstate = function (path_name, history_name) {
         }
         _history.push(path_name);
     }
+    console.log(JSON.stringify(history));
     sessionStorage.setItem(history_session_object_key, JSON.stringify(history));
 };
 var onback = function () {
@@ -148,7 +223,7 @@ var onback = function () {
         remove(alertslist.pop());
         return;
     }
-    return zimoli(-1);
+    return go(-1);
 };
 
 function addGlobal(element, name) {

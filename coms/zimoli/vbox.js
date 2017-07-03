@@ -29,10 +29,10 @@ function vbox(generator) {
         return _box.offsetWidth;
     };
     isFunction(generator) && generator(_box);
-    var totalHeight = _box.Height || function () {
+    var totalHeight = _box.Height = _box.Height || function () {
         return _box.scrollHeight;
     };
-    var currentTop = _box.Top || function (top) {
+    var currentTop = _box.Top = _box.Top || function (top) {
         if (isNumber(top)) {
             _box.scrollTop = top;
         }
@@ -43,12 +43,12 @@ function vbox(generator) {
         var height = _box.height();
         var scrollHeight = totalHeight();
         if (top < 0) {
-            if(speed>30)speed=30;
+            if (speed > 30) speed = 30;
             speed = speed >> 1;
             increase(top);
             top = 0;
         } else if (top + height > scrollHeight) {
-            if(speed>30)speed=30;
+            if (speed > 30) speed = 30;
             speed = speed >> 1;
             increase(top + height - scrollHeight);
         }
@@ -80,7 +80,7 @@ function vbox(generator) {
             }
             var tH = totalHeight();
             var bH = _box.height();
-            if (scrollTop + bH < tH&&_box.childNodes[_box.childNodes.length-1]===increaser) {
+            if (scrollTop + bH < tH && _box.childNodes[_box.childNodes.length - 1] === increaser) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
             }
