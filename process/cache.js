@@ -45,7 +45,7 @@ var loader = function (curl, temp, key, rebuild) {
         } else {
             var data = getfile.call(root, curl);
             if (rebuild instanceof Function) {
-                data = rebuild(data, key);
+                data = rebuild(data, key, path.resolve(root, curl));
             }
             temp[key] = data;
         }
@@ -77,10 +77,13 @@ var seek = function (url, tree, rebuild) {
         return temp;
     }
     if (!key && (temp instanceof Buffer)) {
-        return curl.replace("\\", "/");
+        return curl.replace(/\\+/g, "/");
+    }
+    if (key && temp instanceof Function) {
+        return temp;
     }
     if (key && !(temp instanceof Buffer)) {
-        return curl.replace("\\", "/") + "/";
+        return curl.replace(/\\+/g, "/") + "/";
     }
     return temp;
 }
