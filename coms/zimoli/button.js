@@ -1,5 +1,5 @@
 var text = div();
-css(text, "position:absolute;left:0;right:0;width:100%;height:1em;line-height:1em;top:50%;bottom:50%;margin: -.5em 0;overflow:hidden;");
+css(text, "position:absolute;left:0;right:0;width:100%;height:1em;line-height:1em;top:50%;bottom:50%;margin: -.5em 0;overflow:hidden;text-align:center;");
 var track = createElement(div);
 // var track_over="visibility:inherit";
 css(track, "width:100%;height:100%;background:#000;position:absolute;left:0;top:0;");

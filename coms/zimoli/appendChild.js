@@ -15,12 +15,13 @@ function _onappend(node) {
     if (isFunction(onappend)) {
         onappend();
     }
-    var childNodes = node.childNodes;
-    for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
-        _onappend(childNodes[cx]);
+    var children = node.children;
+    for (var cx = 0, dx = children.length; cx < dx; cx++) {
+        _onappend(children[cx]);
     }
 }
 _onappend(document.documentElement);
+
 function appendChild(parent, obj) {
     var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
     if (parent.appendChild) {

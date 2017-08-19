@@ -35,11 +35,11 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         location.href = "#";
     };
     backman();
-    this.onhashchange = function (event) {
-        if (/#$/.test(event.newURL)) return;
+    onhashchange(this, function (event) {
+        if (/#$/.test(event.newURL||event.actionURL)) return;
         backman();
         if (onback() === true) {}
-    }
+    })
 }
 // body
 css(body, {
@@ -79,11 +79,9 @@ function go(url, args, history_name) {
     var _append_listeners = [].concat(pg.onremove);
     var state = pg.state;
     state.onappend = function (handler) {
-        console.log(handler, "onremove");
         isFunction(handler) && _append_listeners.push(handler);
     };
     state.onremove = function (handler) {
-        console.log(handler, "onremove");
         isFunction(handler) && _remove_listeners.push(handler);
     };
     state.with = function (element) {
@@ -215,7 +213,6 @@ var pushstate = function (path_name, history_name) {
         }
         _history.push(path_name);
     }
-    console.log(JSON.stringify(history));
     sessionStorage.setItem(history_session_object_key, JSON.stringify(history));
 };
 var onback = function () {

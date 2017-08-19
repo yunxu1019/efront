@@ -1,0 +1,1 @@
+var onhashchange=on("hashchange");
