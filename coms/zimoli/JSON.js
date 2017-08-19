@@ -104,7 +104,6 @@ var _safeparse = function (str, start) {
 };
 var parse = function (string) {
     string = String(string);
-    console.log(string, "passing");
     if (_safeparse(string, 0) === string.length) {
         return new Function("return " + string)();
     } else {
