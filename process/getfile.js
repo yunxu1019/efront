@@ -1,5 +1,6 @@
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 module.exports = require("./cache")("./apps", function (buff, name) {
+    if(process.env.IN_TEST_MODE)return buff;
     if (/\.html$/.test(name))
         buff = Buffer.from(htmlMinifier.minify(buff.toString(), {
             // Strip HTML comments
