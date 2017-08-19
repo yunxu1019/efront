@@ -46,6 +46,7 @@ var _safeparse = function (str, start) {
         case "{":
             var end = str.length;
             start++;
+            if (start >= end) return false;
             while (start < end) {
                 start = _safeparse(str, start);
                 if (start === false)
@@ -69,6 +70,26 @@ var _safeparse = function (str, start) {
                 break;
             }
             break;
+        case "[":
+            var end = str.length;
+            start++;
+            if (start >= end) return false;
+            while (start < end) {
+                start = _safeparse(str, start);
+                if (start === false)
+                    return start;
+                start = scan_blank(str, start);
+                if (str.charAt(start) === ",") {
+                    start++;
+                    continue;
+                }
+                if (str.charAt(start) !== "]") {
+                    return false;
+                }
+                start++;
+                break;
+            }
+            break;
         case "n":
         case "f":
         case "t":
@@ -83,6 +104,7 @@ var _safeparse = function (str, start) {
 };
 var parse = function (string) {
     string = String(string);
+    console.log(string, "passing");
     if (_safeparse(string, 0) === string.length) {
         return new Function("return " + string)();
     } else {
@@ -94,11 +116,21 @@ var parse = function (string) {
  * @param {object} object 
  * @param {function} filter 
  */
-var stringify = function (object, filter) {
+var stringify = function (object, filter, space) {
     if (isFunction(object))
         return;
     if (object instanceof Date) {
         object = String(object);
+    }
+    if (object instanceof Array) {
+        if (object[circle_private_key])
+            throw stringify_failed_error_message;
+        object[circle_private_key] = true;
+        var stringified = object.map(function (a) {
+            return stringify(a);
+        });
+        delete object[circle_private_key];
+        return "[" + stringified.join(",") + "]";
     }
     if (object instanceof Object) {
         if (object[circle_private_key])
@@ -109,14 +141,14 @@ var stringify = function (object, filter) {
             if (object.hasOwnProperty(k)) {
                 var v = stringify(object[k], filter);
                 if (isDefined(v))
-                    stringified.push(k + ":" + v);
+                    stringified.push("\"" + k.replace(/"/g, "\\\"") + "\":" + v);
             }
         }
         delete object[circle_private_key];
         return "{" + stringified.join(",") + "}";
     }
     if (isString(object)) {
-        return object.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+        return "\""+object.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")+"\"";
     }
     return object;
 };
