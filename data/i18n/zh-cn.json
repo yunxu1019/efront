@@ -1,0 +1,7 @@
+{
+    //提交的数据量不能超出
+    "posted_data_too_large":"提交的数据量过大",
+    "the_data_you_send_should_be_less_than":"提交的数据不能超过%1！",
+    "the_data_you_send_can_not_be_parsed_as_json":"您提交的数据不能转换成JSON！%1",
+    "SyntaxError: Unexpected token (.*?) in JSON at position (\\d+)":"【语法错误】：在JSON数据的第$2个位置出现了意外的标记“$1”。"
+}
