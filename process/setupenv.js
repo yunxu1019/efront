@@ -67,6 +67,7 @@ var get = function (text) {
     return text;
 };
 call("./_envs/setup.bat");
+if(!env.PAGE)env.PAGE=env.APP;
 var cache = {};
 module.exports = function (appname) {
     appname = appname.replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
@@ -74,5 +75,6 @@ module.exports = function (appname) {
     else env = {};
     call("./_envs/app=" + appname + ".bat");
     cache[appname] = env;
+    if (!env.PAGE) env.PAGE = appname;
     return env;
 };
