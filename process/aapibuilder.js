@@ -1,11 +1,11 @@
-
-var Database = require("../database/index")
-global.database = new Database;
-
+var Database = require("../database/index");
+var database = global.database = new Database;
+database.init();
+var _i18n = require("./i18n");
 /**
  * 读取参数
  */
-function getParameters(req) {
+function getParameters(req, i18n) {
     return new Promise(function (ok, oh) {
         var chunks = [],
             cached_length = 0;
@@ -13,7 +13,7 @@ function getParameters(req) {
             cached_length += buff.length;
             if (cached_length > 0xffff) { //64k
                 delete chunks;
-                oh("parameters too large!");
+                oh(i18n.posted_data_too_large("64k"));
             } else {
                 chunks.push(buff);
             }
@@ -24,7 +24,7 @@ function getParameters(req) {
                 var json = JSON.parse(data);
                 ok(json);
             } catch (e) {
-                oh("parse parameters failed!");
+                oh(i18n.parse_data_failed(e));
             }
         });
     });
@@ -32,13 +32,15 @@ function getParameters(req) {
 module.exports = function aapibuilder(buffer, filename, fullpath) {
     delete require.cache[fullpath];
     return function ApiManager(req, res) {
+        var i18n = _i18n(req.headers["accept-language"] || req.headers["Accept-Language"]);
         var request_accept_time = Date.now();
-        return getParameters(req).then(function (data) {
+        return getParameters(req, i18n).then(function (data) {
             try {
                 data.req = req;
                 data.res = res;
+                data.i18n = i18n;
                 var api = require(fullpath);
-                return Promise.race([api(data, req, res), new Promise((ok, oh) => setTimeout(oh, 2000, "Timeout!"))])
+                return Promise.race([api(data, req, res), new Promise((ok, oh) => setTimeout(oh, 2000, i18n.Achieve_the_longest_processing_time()))])
                     .then(function (result) {
                         res.writeHead(200, {
                             "Content-Type": "text/plain"
@@ -65,7 +67,7 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
                     res.end(String(e));
                 } else {
                     res.writeHead(500, {});
-                    res.end("Server side error!");
+                    res.end(i18n.server_side_error(e));
                 }
             }
         }).catch(function (e) {
