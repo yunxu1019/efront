@@ -78,3 +78,4 @@ module.exports = function (appname) {
     if (!env.PAGE) env.PAGE = appname;
     return env;
 };
+process.env.IN_DEBUG_MODE = process.argv.findIndex(e => /--debug-brk=/i.test(e)) > 0
