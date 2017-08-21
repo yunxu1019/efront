@@ -67,7 +67,7 @@ var get = function (text) {
     return text;
 };
 call("./_envs/setup.bat");
-if(!env.PAGE)env.PAGE=env.APP;
+if (!env.PAGE) env.PAGE = env.APP;
 var cache = {};
 module.exports = function (appname) {
     appname = appname.replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
@@ -78,4 +78,4 @@ module.exports = function (appname) {
     if (!env.PAGE) env.PAGE = appname;
     return env;
 };
-process.env.IN_DEBUG_MODE = process.argv.findIndex(e => /--debug-brk=/i.test(e)) > 0
+process.env.IN_DEBUG_MODE = process.argv.findIndex(e => /--debug-brk=/i.test(e)) > 0 ? 1 : 0

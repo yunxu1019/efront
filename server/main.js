@@ -4,7 +4,7 @@
  */
 var cluster = require("cluster");
 var message = require("./message");
-if (cluster.isMaster && !process.env.IN_DEBUG_MODE) {
+if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var watch = require("../process/watch");
     var counter = 0;
     var killing;

@@ -3,7 +3,7 @@ var fs = require("fs");
 var path = require("path");
 var message_handlers_path = "./message";
 message_handlers_path = path.join(__dirname, message_handlers_path);
-if (cluster.isMaster && !process.env.IN_DEBUG_MODE) {
+if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var message = module.exports = function (msg, then) {
         var index = msg.indexOf(":");
         var run, args;
