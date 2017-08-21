@@ -2,8 +2,8 @@ var cluster = require("cluster");
 var fs = require("fs");
 var path = require("path");
 var message_handlers_path = "./message";
-message_handlers_path=path.join(__dirname,message_handlers_path);
-if (cluster.isMaster) {
+message_handlers_path = path.join(__dirname, message_handlers_path);
+if (cluster.isMaster && !process.env.IN_DEBUG_MODE) {
     var message = module.exports = function (msg, then) {
         var index = msg.indexOf(":");
         var run, args;
@@ -22,8 +22,9 @@ if (cluster.isMaster) {
         }
     };
     fs.readdirSync(message_handlers_path).forEach(function (name) {
-        key = name.match(/^(.*).js$/);
-        if (key) {
+        var match = name.match(/^(.*).js$/);
+        if (match) {
+            var key = match[1];
             message[key] = require(path.join(message_handlers_path, name));
         }
     });
@@ -33,8 +34,9 @@ var message = module.exports = function (key, msg, then) {
     process.send(key + ":" + JSON.stringify(msg), then);
 };
 fs.readdirSync(message_handlers_path).forEach(function (name) {
-    key = name.match(/^(.*).js$/);
-    if (key) {
+    var match = name.match(/^(.*).js$/);
+    if (match) {
+        var key = match[1];
         message[key] = function (data, then) {
             message(key, data, then);
         };

@@ -4,7 +4,7 @@
  */
 var cluster = require("cluster");
 var message = require("./message");
-if (cluster.isMaster) {
+if (cluster.isMaster && !process.env.IN_DEBUG_MODE) {
     var watch = require("../process/watch");
     var counter = 0;
     var killing;
@@ -108,5 +108,5 @@ if (cluster.isMaster) {
         // console.info("server start success!");
     });
     server.listen(80);
-    process.send("count.count");
+    cluster.isWorker && process.send("count.count");
 }
