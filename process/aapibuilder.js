@@ -13,7 +13,7 @@ function getParameters(req, i18n) {
             cached_length += buff.length;
             if (cached_length > 0xffff) { //64k
                 delete chunks;
-                oh(i18n.posted_data_too_large("64k"));
+                oh(i18n.the_data_you_send_should_be_less_than("64k"));
             } else {
                 chunks.push(buff);
             }
@@ -24,7 +24,7 @@ function getParameters(req, i18n) {
                 var json = JSON.parse(data);
                 ok(json);
             } catch (e) {
-                oh(i18n.parse_data_failed(e));
+                oh(i18n.the_data_you_send_can_not_be_parsed_as_json(e));
             }
         });
     });
@@ -40,7 +40,7 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
                 data.res = res;
                 data.i18n = i18n;
                 var api = require(fullpath);
-                return Promise.race([api(data, req, res), new Promise((ok, oh) => setTimeout(oh, 2000, i18n.Achieve_the_longest_processing_time()))])
+                return Promise.race([api(data, req, res), new Promise((ok, oh) => setTimeout(oh, 2000, "The request was canceled by server!"))])
                     .then(function (result) {
                         res.writeHead(200, {
                             "Content-Type": "text/plain"
@@ -56,7 +56,7 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
                     })
                     .catch(function (e) {
                         res.writeHead(500, {});
-                        res.end(String(e));
+                        res.end(i18n(e));
                     });
             } catch (e) {
                 if (typeof e === "number") {
@@ -64,7 +64,7 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
                     res.end();
                 } else if (e) {
                     res.writeHead(403, {});
-                    res.end(String(e));
+                    res.end(i18n(e));
                 } else {
                     res.writeHead(500, {});
                     res.end(i18n.server_side_error(e));
@@ -72,7 +72,7 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
             }
         }).catch(function (e) {
             res.writeHead(400, {});
-            res.end(e);
+            res.end(i18n(e));
         });
     };
 };

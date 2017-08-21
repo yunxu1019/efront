@@ -22,22 +22,27 @@ var reload = function () {
         regexps
     } = parse();
     var parseArgs = function (args) {
-        return [].map.call(args, a => String(a).replace(regexp, function (matched) {
-            regexps.forEach((reg, x) => arguments[x + 1]&&(matched = matched.replace(new RegExp(reg), target[reg])));
+        return [].map.call(args, a => target.hasOwnProperty(a) ? target[a] : String(a).replace(regexp, function (matched) {
+            regexps.forEach((reg, x) => arguments[x + 1] && (matched = matched.replace(new RegExp(reg), function () {
+                var args = parseArgs([].slice.call(arguments, 1, arguments.length - 2));
+                return target[reg].replace(/\$(\d+)/g, (m, d) => args[d - 1]);
+            })));
             return matched;
         }));
     };
 
-    i18n_data = new Proxy(target, {
-        get: function (target, i18n_path) {
+    i18n_data = new Proxy(function i18n() {
+        return parseArgs(arguments).join("\r\n");
+    }, {
+        get: function (i18n, i18n_path) {
             if (target.hasOwnProperty(i18n_path)) {
                 return function i18nReader() {
-                    var args=parseArgs(arguments)
+                    var args = parseArgs(arguments);
                     return target[i18n_path].replace(/%(\d+)/g, (i, d) => args[d - 1] || "");
                 };
             } else {
                 return function i18nAdapter() {
-                    var args=parseArgs(arguments)
+                    var args = parseArgs(arguments);
                     return i18n_path.replace(/_/g, " ").trim().replace(/%(\d+)/g, (i, d) => args[d - 1] || "");
                 };
             }
