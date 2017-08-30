@@ -49,9 +49,11 @@ var loader = function (curl, temp, key, rebuild) {
             }
             temp[key] = data;
         }
+        is_reload && _reload_handlers.forEach(run => run());
     };
     load();
     watch(path.join(root, curl), load);
+    var is_reload = true;
     return load;
 };
 /**
@@ -115,4 +117,8 @@ var cache = function (filesroot, rebuild) {
     seeker.new = cache;
     return seeker;
 }
+var _reload_handlers = [];
+cache.onreload = function (handler) {
+    if (handler instanceof Function) _reload_handlers.push(handler);
+};
 module.exports = cache;
