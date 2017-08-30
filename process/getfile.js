@@ -1,7 +1,9 @@
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 module.exports = require("./cache")("./apps", function (buff, name) {
-    if(process.env.IN_TEST_MODE)return buff;
-    if (/\.html$/.test(name))
+    if (/\.html$/.test(name)) {
+        if (process.env.IN_TEST_MODE) {
+            buff = Buffer.concat([buff, Buffer.from(`<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}()</script>`)]);
+        }
         buff = Buffer.from(htmlMinifier.minify(buff.toString(), {
             // Strip HTML comments
             removeComments: true,
@@ -52,7 +54,7 @@ module.exports = require("./cache")("./apps", function (buff, name) {
             removeOptionalTags: true,
 
             // Remove all elements with empty contents
-            removeEmptyElements: true,
+            // removeEmptyElements: true,
 
             // Toggle linting
             lint: false,
@@ -96,6 +98,7 @@ module.exports = require("./cache")("./apps", function (buff, name) {
             // Type of quote to use for attribute values (' or ")
             quoteCharacter: "",
 
-        }))
+        }));
+    }
     return buff;
 });

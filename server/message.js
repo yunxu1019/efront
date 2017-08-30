@@ -14,7 +14,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             args = message[msg.slice(index + 1)];
         }
         if (run instanceof Function) {
-            if (args !== void 0) {
+            if (args) {
                 run(JSON.parse(args));
             } else {
                 run();
@@ -28,17 +28,35 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             message[key] = require(path.join(message_handlers_path, name));
         }
     });
-    return message;
+
+} else {
+    var message = function (key, msg, then) {
+        process.send([key, JSON.stringify(msg)].join(":"), then);
+    };
+    fs.readdirSync(message_handlers_path).forEach(function (name) {
+        var match = name.match(/^(.*).js$/);
+        if (match) {
+            var key = match[1];
+            message[key] = function (data, then) {
+                message(key, data, then);
+            };
+        }
+    });
+    module.exports = new Proxy(message, {
+        get: function (o, k) {
+            if (!(k in o) && ("on" + k) in o) {
+                return function (...args) {
+                    return message("broadcast", "on" + k + ":" + JSON.stringify(args));
+                };
+            } else if (k in o) {
+                //自动广播子线程的方法
+                return o[k];
+            } else {
+                throw `message faild with key ${k}!`
+            }
+        },
+        set: function (o, k, v) {
+            o[k] = v;
+        }
+    });
 }
-var message = module.exports = function (key, msg, then) {
-    process.send(key + ":" + JSON.stringify(msg), then);
-};
-fs.readdirSync(message_handlers_path).forEach(function (name) {
-    var match = name.match(/^(.*).js$/);
-    if (match) {
-        var key = match[1];
-        message[key] = function (data, then) {
-            message(key, data, then);
-        };
-    }
-});

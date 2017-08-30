@@ -71,6 +71,27 @@ var handle = {
         res.end();
     }
 };
+
+if (process.env.IN_TEST_MODE) {
+    let connections = [];
+    handle["/reload"] = function (req, res) {
+        var remove = function () {
+            for (var cx = connections.length - 1; cx >= 0; cx--) {
+                if (connections[cx] === res) connections.splice(cx, 1);
+            }
+        }
+        connections.push(res);
+        req.on("aborted", remove);
+        req.on("close", remove);
+    };
+
+    require("../process/cache").onreload(function () {
+        require("./message").reload();
+    });
+    require("./message").onreload = function () {
+        connections.splice(0).forEach(res => res.end());
+    };
+}
 sumedSize = 0;
 
 function read(req, size) {

@@ -30,10 +30,18 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             });
         });
     };
+    var broadcast = function (value) {
+        var index = value.indexOf(":");
+        var key = value.slice(0, index);
+        var data = value.slice(index + 1);
+        quitting.concat(workers).forEach(function (worker) {
+            worker.send([key, data].join(":"));
+        });
+    };
     var run = function () {
         quitting = quitting.concat(workers);
         var workking = 0;
-        workers = cpus.map(function () {
+        workers = cpus.map(function getWorker() {
             counter++;
             var worker = cluster.fork();
             worker.on("listening", function () {
@@ -46,7 +54,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             worker.on("exit", function () {
                 if (worker.exitedAfterDisconnect !== true) {
                     for (var cx = workers.length - 1; cx >= 0; cx--) {
-                        workers[cx] === worker && workers.splice(cx, 1);
+                        workers[cx] === worker && workers.splice(cx, 1, getWorker());
                     }
                 }
                 counter--;
@@ -65,6 +73,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     };
     watch("./", run);
     message.quit = end;
+    message.broadcast = broadcast;
     process.on("SIGINT", end);
     process.on("SIGTERM", end);
     run();
@@ -80,6 +89,18 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 server.close();
                 process.exit();
                 break;
+            default:
+                var index = msg.indexOf(":");
+                if (index > 0) {
+                    var key = msg.slice(0, index),
+                        value = msg.slice(index + 1);
+
+                } else {
+                    var key = msg,
+                        value = void 0;
+                }
+                var data = value ? JSON.parse(value) : void 0;
+                if (key in message) message[key](data);
         }
     });
     // 仅做开发使用的简易服务器
