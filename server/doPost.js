@@ -7,6 +7,7 @@ var getpagefile = require("../process/cache")("./apps", commbuilder);
 var geticonfile = require("../process/cache")("./cons", iconbuilder);
 var getaapifunc = require("../process/cache")("./apis", aapibuilder);
 var setupenv = require("../process/setupenv");
+var message=require("./message");
 var env = process.env;
 var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || "zimoli";
@@ -33,7 +34,7 @@ var getapi = function (name, _aapis_root = aapis_root) {
 }
 var handle = {
     "/count" (req, res) {
-        process.send("count." + req.headers.referer);
+        message.count(req.headers.referer);
         res.end();
     },
     "/" (req, res) {
@@ -75,14 +76,7 @@ var handle = {
 if (process.env.IN_TEST_MODE) {
     let connections = [];
     handle["/reload"] = function (req, res) {
-        var remove = function () {
-            for (var cx = connections.length - 1; cx >= 0; cx--) {
-                if (connections[cx] === res) connections.splice(cx, 1);
-            }
-        }
         connections.push(res);
-        req.on("aborted", remove);
-        req.on("close", remove);
     };
 
     require("../process/cache").onreload(function () {

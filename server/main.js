@@ -13,6 +13,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var cpus = require('os').cpus();
     var count = require("../process/count");
     var counts = count() || {};
+    global.counts=counts;
     var end = function () {
         quitting = quitting.concat(workers);
         workers = [];
@@ -129,5 +130,5 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         // console.info("server start success!");
     });
     server.listen(80);
-    cluster.isWorker && process.send("count.count");
+    cluster.isWorker && message.count("boot");
 }

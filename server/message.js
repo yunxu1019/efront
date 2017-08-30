@@ -10,8 +10,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         if (index < 0) {
             run = message[msg]
         } else {
-            run = message[msg.slice(-index)];
-            args = message[msg.slice(index + 1)];
+            run = message[msg.slice(0, index)];
+            args = msg.slice(index + 1);
         }
         if (run instanceof Function) {
             if (args) {
