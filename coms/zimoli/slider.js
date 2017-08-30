@@ -1,3 +1,4 @@
+// 中文编码 utf8
 var _slider = createElement(div);
 css(_slider, "position:absolute;top:0px;left:0px;right:0px;bottom:0px;width:100%;height:100%;");
 var container = createElement(div);
@@ -142,6 +143,7 @@ function slider(autoplay) {
         play.ing = false;
     };
     var mousemove = function (event) {
+        if (event.defaultPrevented) return;
         var deltax = event.clientX - saved_x;
         var deltay = event.clientY - saved_y;
         if (!direction) {
@@ -158,7 +160,7 @@ function slider(autoplay) {
             return;
         }
         event.preventDefault();
-        event.stopPropagation && event.stopPropagation();
+        // event.stopPropagation && event.stopPropagation();
         var width = outter.offsetWidth;
         if (!outter.hasLeft && deltax > 0) {
             var current_Left = parseInt(_imageHelp.style.left);
