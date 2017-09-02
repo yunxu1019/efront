@@ -105,7 +105,7 @@ var getVariables = function (ast) {
                 var {
                     DeclaredVariables,
                     unDeclaredVariables
-                } = getVariables(ast.object);
+                } = getVariables(ast.value);
                 if (ast.key.type === "Identifier") {
                     //用以兼容IE5-9
                     var name = ast.key.name;
@@ -118,7 +118,7 @@ var getVariables = function (ast) {
                         ast.computed = true;
                     }
                 }
-
+                ast.shorthand = false; //让esmangle兼容shorthand
                 break;
             case "CatchClause":
                 var {
@@ -158,14 +158,16 @@ var getVariables = function (ast) {
             case "Identifier":
                 unDeclaredVariables[ast.name] = true;
                 break;
+            case "":
+                break;
             case "ExpressionStatement":
                 //去除测试脚本
                 var expression = ast.expression;
                 if (expression.type === "CallExpression" && expression.callee.type === "Identifier" && expression.callee.name.toLowerCase() === "describe") {
-                    for(var k in ast){
+                    for (var k in ast) {
                         delete ast[k];
                     }
-                    ast.type="EmptyStatement";
+                    ast.type = "EmptyStatement";
                     break;
                 }
             default:
