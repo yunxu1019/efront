@@ -185,6 +185,7 @@
         LabeledStatement: 'LabeledStatement',
         LogicalExpression: 'LogicalExpression',
         MemberExpression: 'MemberExpression',
+        MetaProperty: 'MetaProperty',
         MethodDefinition: 'MethodDefinition',
         ModuleSpecifier: 'ModuleSpecifier',
         NewExpression: 'NewExpression',
@@ -196,6 +197,7 @@
         ReturnStatement: 'ReturnStatement',
         SequenceExpression: 'SequenceExpression',
         SpreadElement: 'SpreadElement',
+        Super: 'Super',
         SwitchStatement: 'SwitchStatement',
         SwitchCase: 'SwitchCase',
         TaggedTemplateExpression: 'TaggedTemplateExpression',
@@ -218,7 +220,7 @@
         AssignmentPattern: ['left', 'right'],
         ArrayExpression: ['elements'],
         ArrayPattern: ['elements'],
-        ArrowFunctionExpression: ['params', 'defaults', 'rest', 'body'],
+        ArrowFunctionExpression: ['params', 'body'],
         AwaitExpression: ['argument'], // CAUTION: It's deferred to ES7.
         BlockStatement: ['body'],
         BinaryExpression: ['left', 'right'],
@@ -244,8 +246,8 @@
         ForStatement: ['init', 'test', 'update', 'body'],
         ForInStatement: ['left', 'right', 'body'],
         ForOfStatement: ['left', 'right', 'body'],
-        FunctionDeclaration: ['id', 'params', 'defaults', 'rest', 'body'],
-        FunctionExpression: ['id', 'params', 'defaults', 'rest', 'body'],
+        FunctionDeclaration: ['id', 'params', 'body'],
+        FunctionExpression: ['id', 'params', 'body'],
         GeneratorExpression: ['blocks', 'filter', 'body'],  // CAUTION: It's deferred to ES7.
         Identifier: [],
         IfStatement: ['test', 'consequent', 'alternate'],
@@ -257,6 +259,7 @@
         LabeledStatement: ['label', 'body'],
         LogicalExpression: ['left', 'right'],
         MemberExpression: ['object', 'property'],
+        MetaProperty: ['meta', 'property'],
         MethodDefinition: ['key', 'value'],
         ModuleSpecifier: [],
         NewExpression: ['callee', 'arguments'],
@@ -268,6 +271,7 @@
         ReturnStatement: ['argument'],
         SequenceExpression: ['expressions'],
         SpreadElement: ['argument'],
+        Super: [],
         SwitchStatement: ['discriminant', 'cases'],
         SwitchCase: ['test', 'consequent'],
         TaggedTemplateExpression: ['tag', 'quasi'],
@@ -275,7 +279,7 @@
         TemplateLiteral: ['quasis', 'expressions'],
         ThisExpression: [],
         ThrowStatement: ['argument'],
-        TryStatement: ['block', 'handlers', 'handler', 'guardedHandlers', 'finalizer'],
+        TryStatement: ['block', 'handler', 'finalizer'],
         UnaryExpression: ['argument'],
         UpdateExpression: ['argument'],
         VariableDeclaration: ['declarations'],
@@ -428,7 +432,13 @@
         this.__leavelist = [];
         this.__current = null;
         this.__state = null;
-        this.__fallback = visitor.fallback === 'iteration';
+        this.__fallback = null;
+        if (visitor.fallback === 'iteration') {
+            this.__fallback = objectKeys;
+        } else if (typeof visitor.fallback === 'function') {
+            this.__fallback = visitor.fallback;
+        }
+
         this.__keys = VisitorKeys;
         if (visitor.keys) {
             this.__keys = extend(objectCreate(this.__keys), visitor.keys);
@@ -502,11 +512,11 @@
                 }
 
                 node = element.node;
-                nodeType = element.wrap || node.type;
+                nodeType = node.type || element.wrap;
                 candidates = this.__keys[nodeType];
                 if (!candidates) {
                     if (this.__fallback) {
-                        candidates = objectKeys(node);
+                        candidates = this.__fallback(node);
                     } else {
                         throw new Error('Unknown node type ' + nodeType + '.');
                     }
@@ -544,6 +554,20 @@
     };
 
     Controller.prototype.replace = function replace(root, visitor) {
+        var worklist,
+            leavelist,
+            node,
+            nodeType,
+            target,
+            element,
+            current,
+            current2,
+            candidates,
+            candidate,
+            sentinel,
+            outer,
+            key;
+
         function removeElem(element) {
             var i,
                 key,
@@ -568,20 +592,6 @@
                 }
             }
         }
-
-        var worklist,
-            leavelist,
-            node,
-            nodeType,
-            target,
-            element,
-            current,
-            current2,
-            candidates,
-            candidate,
-            sentinel,
-            outer,
-            key;
 
         this.__initialize(root, visitor);
 
@@ -656,11 +666,11 @@
                 continue;
             }
 
-            nodeType = element.wrap || node.type;
+            nodeType = node.type || element.wrap;
             candidates = this.__keys[nodeType];
             if (!candidates) {
                 if (this.__fallback) {
-                    candidates = objectKeys(node);
+                    candidates = this.__fallback(node);
                 } else {
                     throw new Error('Unknown node type ' + nodeType + '.');
                 }
@@ -824,7 +834,7 @@
         return tree;
     }
 
-    exports.version = "4.1.1";
+    exports.version = "4.2.0";
     exports.Syntax = Syntax;
     exports.traverse = traverse;
     exports.replace = replace;
