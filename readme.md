@@ -20,6 +20,6 @@
     ```
     开启本机服务，在访问端口时不对代码进行压缩
     ```
-    npm test --electron
+    npm run electron
     ```
     开启本机服务，并启动electron调试环境
