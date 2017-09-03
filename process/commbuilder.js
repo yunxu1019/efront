@@ -2,9 +2,11 @@ var getvariables = require("../process/variables");
 var esprima = require("../process/esprima/index");
 var esmangle = require("../process/esmangle/esmangle");
 var escodegen = require("../process/escodegen/escodegen");
+var typescript=require("typescript");
 module.exports = function commbuilder(buffer, filename) {
 
     var data = String(buffer);
+    data=typescript.transpile(data);
     var code = esprima.parse(data);
     var {
         DeclaredVariables: declares,

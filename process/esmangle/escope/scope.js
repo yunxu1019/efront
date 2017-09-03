@@ -542,7 +542,7 @@ exports.CatchScope = class CatchScope extends Scope {
     }
 }
 
-exports.CatchScope = class WithScope extends Scope {
+exports.WithScope = class WithScope extends Scope {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, 'with', upperScope, block, false);
     }
