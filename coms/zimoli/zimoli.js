@@ -36,7 +36,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     };
     backman();
     onhashchange(this, function (event) {
-        if (/#$/.test(event.newURL||event.actionURL)) return;
+        if (/#$/.test(event.newURL || event.actionURL)) return;
         backman();
         if (onback() === true) {}
     })
@@ -90,6 +90,7 @@ function go(url, args, history_name) {
     };
     if (!args) args = {};
     var _page = pg.call(state, args);
+    if (pg.className) _page.className = pg.className;
     _page.with = _with_elements;
     _page.onappend = _append_listeners;
     _page.onremove = _remove_listeners;

@@ -99,7 +99,7 @@ var init = function (name, then, prebuild) {
         })).then(function (args) {
             (then instanceof Function) && then(args);
         }).catch(function (e) {
-            window.console.error(e)
+            window.console.error(e);
         });
     }
     if (modules[name]) {

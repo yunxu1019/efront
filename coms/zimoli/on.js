@@ -22,7 +22,7 @@ if (is_addEventListener_enabled) {
             } else {
                 element[handler_path] = element[on_event_path] ? [element[on_event_path], handler] : [handler];
                 element[on_event_path] = function (e) {
-                    if (!e) e = window.event;
+                    if (!e) e = window.event||{};
                     if (!e.preventDefault) {
                         e.preventDefault = function () {
                             e.returnValue = false;
