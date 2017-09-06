@@ -35,6 +35,8 @@ var isdir = function (url) {
  */
 var loader = function (curl, temp, key, rebuild) {
     var root = String(this);
+    var durl = path.resolve(root, curl);
+    var durls = [durl];
     var load = function () {
         console.info(root, curl, "change");
         if (isdir.call(root, curl)) {
@@ -45,14 +47,14 @@ var loader = function (curl, temp, key, rebuild) {
         } else {
             var data = getfile.call(root, curl);
             if (rebuild instanceof Function) {
-                data = rebuild(data, key, path.resolve(root, curl));
+                data = rebuild(data, key, durl, is_reload ? [] : durls);
             }
             temp[key] = data;
         }
         is_reload && _reload_handlers.forEach(run => run());
     };
     load();
-    watch(path.join(root, curl), load);
+    durls.forEach(curl=> watch( curl, load));
     var is_reload = true;
     return load;
 };

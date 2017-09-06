@@ -2,19 +2,25 @@ var getvariables = require("../process/variables");
 var esprima = require("../process/esprima/index");
 var esmangle = require("../process/esmangle/esmangle");
 var escodegen = require("../process/escodegen/escodegen");
-var typescript=require("typescript");
-module.exports = function commbuilder(buffer, filename) {
-
+var typescript = require("typescript");
+var less = require("less");
+var fs = require("fs");
+var path = require("path");
+var cwd = path.join(__dirname, "..");
+module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var data = String(buffer);
-    data=typescript.transpile(data);
+    data = typescript.transpile(data);
     var code = esprima.parse(data);
     var {
         DeclaredVariables: declares,
         unDeclaredVariables: undeclares
     } = getvariables(code);
     var globals = Object.keys(undeclares);
-    var commName = filename.match(/([\$_\w][\w]*)\.js$/);
+    var globalsmap = {};
+    globals.forEach(g => globalsmap[g] = g);
+    var commName = filename.match(/([\$_\w][\w]*)\.[tj]sx?$/i);
     commName = commName && commName[1];
+    var className = path.relative(cwd, fullpath).replace(/[\\\/\:\.]+/g, "-");
     if (commName) {
         if (!declares[commName]) {
             commName = commName[0].toUpperCase() + commName.slice(1);
@@ -22,18 +28,72 @@ module.exports = function commbuilder(buffer, filename) {
                 commName = null;
             }
         }
+        var lessFile = fullpath.replace(/\.[jt]sx?$/i, ".less"),
+            lessData;
+        if (fs.existsSync(lessFile)) {
+            watchurls.push(lessFile);
+            if (fs.statSync(lessFile).isFile()) {
+                watchurls.push(lessFile);
+                less.render(`.${className}{${fs.readFileSync(lessFile).toString()}}`, function (err, data) {
+                    if (err) return;
+                    lessData = data.css;
+                });
+            }
+        }
+        if (lessData) {
+            if (!declares.cless) {
+                globalsmap.cless = "cless";
+            } else {
+                var random_variable;
+                do {
+                    random_variable = "cless_" + Math.random().toString(36)
+                } while (declares[random_variable]);
+                globalsmap.cless = random_variable;
+            }
+        }
     }
+    var code_body = code.body.concat(commName ? {
+        "type": "ReturnStatement",
+        "argument": lessData ? {
+            "type": "SequenceExpression",
+            "expressions": [{
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "Identifier",
+                        "name": globalsmap.cless
+                    },
+                    "arguments": [{
+                            "type": "Identifier",
+                            "name": commName
+                        },
+                        {
+                            "type": "Literal",
+                            "value": lessData,
+                            "raw": JSON.stringify(lessData)
+                        },
+                        {
+                            "type": "Literal",
+                            "value": className,
+                            "raw": JSON.stringify(className)
+                        }
+                    ]
+                },
+                {
+                    "type": "Identifier",
+                    "name": commName
+                }
+            ]
+        } : {
+            "type": "Identifier",
+            "name": commName
+        }
+    } : []);
+    globals = Object.keys(globalsmap);
     if (process.env.IN_TEST_MODE) {
         code = {
             "type": "Program",
             "sourceType": "script",
-            body: code.body.concat(commName ? {
-                "type": "ReturnStatement",
-                "argument": {
-                    "type": "Identifier",
-                    "name": commName
-                }
-            } : [])
+            body: code_body
         };
         data = escodegen.generate(code, {
             format: {
@@ -45,23 +105,17 @@ module.exports = function commbuilder(buffer, filename) {
                 parentheses: true //圆括号
             }
         });
-        var params = globals;
+        var params = globals.map(g => globalsmap[g]);
     } else {
         code = {
             type: "FunctionExpression",
             params: globals.map(n => ({
                 type: "Identifier",
-                name: n
+                name: globalsmap[n]
             })),
             body: {
                 type: "BlockStatement",
-                body: code.body.concat(commName ? {
-                    "type": "ReturnStatement",
-                    "argument": {
-                        "type": "Identifier",
-                        "name": commName
-                    }
-                } : [])
+                body: code_body
             },
             "generator": false,
             "expression": false
