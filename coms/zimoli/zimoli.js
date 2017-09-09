@@ -52,9 +52,9 @@ css(body, {
     overflow: "hidden",
     backgroundColor: "#f2f4f9"
 });
-
-var _zimoli_params_key = "_zimoli_parameters:";
-
+var location_pathname=location.pathname;
+var _zimoli_params_key = `_zimoli_parameters:${location_pathname}#`;
+var _zimoli_state_prefix=`_zimoli_page_state:${location_pathname}#`;
 function go(url, args, history_name) {
     if (isNumber(url)) {
         if (!history_name)
@@ -121,7 +121,7 @@ function zimoli(page, args, history_name) {
     //    });
     //    var button=createElement(anniu);
     //    console.log(button)
-    var _zimoli_state_key = "_zimoli_page_state:" + page;
+    var _zimoli_state_key = _zimoli_state_prefix + page;
     var state = function state(state) {
         if (arguments.length >= 1) {
             sessionStorage.setItem(_zimoli_state_key, JSON.stringify(state));
@@ -191,7 +191,7 @@ var global = {};
 var history = {};
 var current_history = "default";
 history[current_history] = [];
-var history_session_object_key = "_zimoli_history_key";
+var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
     history = JSON.parse(sessionStorage.getItem(history_session_object_key)) || history;
 } catch (e) {
