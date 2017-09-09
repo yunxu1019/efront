@@ -47,12 +47,12 @@ function vbox(generator) {
         var height = _box.height();
         var scrollHeight = totalHeight();
         if (top < 0) {
-            if (speed > 30) speed = 30;
+            // if (speed > 30) speed = 30;
             speed = speed >> 1;
             increase(top);
             top = 0;
         } else if (top + height > scrollHeight) {
-            if (speed > 30) speed = 30;
+            // if (speed > 30) speed = 30;
             speed = speed >> 1;
             increase(top + height - scrollHeight);
         }
@@ -61,17 +61,19 @@ function vbox(generator) {
     var saved_x, saved_y, direction, speed = 0,
         lastmoveTime;
     var smooth = function () {
-        if (abs(speed) < 1) {
+        var abs_speed = abs(speed<<2)/time_splitter;
+        if (abs_speed < 1) {
             speed = 0;
             decrease();
             return;
         }
-        speed_timer = setTimeout(smooth, 20);
+        speed_timer = setTimeout(smooth, time_splitter);
         _box.scroll(-speed);
-        speed = speed - 0.5 * sign(speed);
+        speed = speed - sign(speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
     var increaser = createElement(div);
     var decrease_timer = 0;
+    var time_splitter = 30;
     var decrease = function () {
         var height = parseInt(increaser.style.height);
         var decrease_ing = 0;
@@ -88,7 +90,7 @@ function vbox(generator) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
             }
-            setTimeout(decrease, 20);
+            decrease_timer = setTimeout(decrease, time_splitter);
             decrease_ing++;
             css(increaser, {
                 height: (height > 16 ? (height * 2 + 6) / 3 : height >> 1) + "px"
@@ -123,7 +125,7 @@ function vbox(generator) {
         var now = new Date;
         var deltat = now - lastmoveTime;
         lastmoveTime = now;
-        speed = ((speed || deltay * 20) + deltay * 20 / deltat) >> 1;
+        speed = speed ? (speed + deltay * time_splitter / deltat) >> 1 : deltay * time_splitter / deltat;
         _box.scroll(-deltay);
         smooth();
     });
@@ -155,7 +157,7 @@ function vbox(generator) {
             var now = new Date;
             var deltat = now - lastmoveTime;
             lastmoveTime = now;
-            speed = ((speed || deltay * 20) + deltay * 20 / deltat) >> 1;
+            speed = speed ? (speed + deltay * time_splitter / deltat) >> 1 : deltay * time_splitter / deltat;
             _box.scroll(-deltay);
             saved_x = clientX;
             saved_y = clientY;
@@ -178,7 +180,7 @@ function vbox(generator) {
             smooth();
         };
         var canceltouchmove = ontouchmove(moving, function (event) {
-            if(event.defaultPrevented)return;
+            if (event.defaultPrevented) return;
             extendTouch(event);
             var clientX = event.clientX;
             var clientY = event.clientY;
@@ -193,7 +195,7 @@ function vbox(generator) {
             var now = new Date;
             var deltat = now - lastmoveTime;
             lastmoveTime = now;
-            speed = ((speed || deltay * 20) + deltay * 20 / deltat) >> 1;
+            speed = speed ? (speed + deltay * time_splitter / deltat) >> 1 : deltay * time_splitter / deltat;
             _box.scroll(-deltay);
             saved_x = clientX;
             saved_y = clientY;
