@@ -4,7 +4,17 @@ var gbk2utf8 = require("./gbk2utf8");
 var map = {};
 var reg_set = /^\s*@?\s*(?:set|setx)\s+(.*?)\s*=\s*(['"`]?)([\s\S]*)\2$/im
 var reg_call = /^\s*@?\s*call\s+(["]?)(.*?)\1([\s\S]*)$/i;
-var reg_for = /^\s*@?\s*for\s+([%\w]+)\s+in\s*\((.*?)\)\s*do\s+(.*?)$/i
+var reg_for = /^\s*@?\s*for\s+([%\w]+)\s+in\s*\((.*?)\)\s*do\s+(.*?)$/i;
+var reg_if = /^\s*@?\s*if\s+(\/i\s+)?(not\s+)?(?:(cmdextversion|errorlevel)\s+(.+?)|(.+?)\s*(==|equ|neq|lss|leq|gtr|geq)\s*(.+?)|exist\s+(.+?)|defined\s+(.+?))\s+([\s\S]*?)$/i;
+var if_conditions = {
+    "==": (a, b) => a == b,
+    "equ": (a, b) => a == b,
+    "neq": (a, b) => a != b,
+    "lss": (a, b) => a < b,
+    "leq": (a, b) => a <= b,
+    "gtr": (a, b) => a > b,
+    "geq": (a, b) => a >= b
+};
 var env = process.env;
 var call = function (file, args = []) {
     if (!fs.existsSync(file)) {
@@ -53,12 +63,28 @@ var get = function (text) {
         .replace(/%(.*?)%/ig, function (match, env_name) {
             if (!env_name) return "%";
             return env[env_name];
-        })
+        });
+    var match = text.match(reg_if);
+    if (match) {
+        var [matched_text, ignorecase, not, label, level, condition_left, condition_symbol, condition_right, exist, defined, command] = match;
+        if (!!not ^ (
+                level && env[label] == level ||
+                condition_left && if_conditions[condition_symbol.toLowerCase()](
+                    ignorecase ? condition_left.toUpperCase() : condition_left,
+                    ignorecase ? condition_right.toUpperCase() : condition_right
+                ) ||
+                exist && fs.existsSync(exist) ||
+                defined && defined in env
+            )) get(command);
+    }
     var match = text.match(reg_set);
     if (match) {
         var k = match[1],
             v = match[3];
-        return env[k] = v;
+        if (v)
+            return env[k] = v;
+        else
+            return delete env[k]
     }
     var match = text.match(reg_call);
     if (match) {
