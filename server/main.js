@@ -42,7 +42,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var run = function () {
         quitting = quitting.concat(workers);
         var workking = 0;
-        workers = cpus.map(function getWorker() {
+        workers = cpus.map(function() {
             counter++;
             var worker = cluster.fork();
             worker.on("listening", function () {
@@ -55,7 +55,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             worker.on("exit", function () {
                 if (worker.exitedAfterDisconnect !== true) {
                     for (var cx = workers.length - 1; cx >= 0; cx--) {
-                        workers[cx] === worker && workers.splice(cx, 1, getWorker());
+                        workers[cx] === worker && workers.splice(cx, 1);
                     }
                 }
                 counter--;
