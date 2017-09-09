@@ -1,19 +1,30 @@
 var finalpacker = require("./finalpacker");
 describe("finalpacker_test", function () {
     this.timeout(600000);
+    require("./setupenv");
+    var {
+        app,
+        aapi,
+        comm,
+        page,
+        icon,
+    }=process.env;
+    it("clear dest",function(){
+        finalpacker.clear(`./public/${app}`);
+    });
     it("pack page", function () {
-        finalpacker.page("./apps/zimoli", "./public/zimoli/page");
+        finalpacker.page(`./apps/${app}`, `./public/${app}/page`);
     });
     it("pack comm", function () {
-        finalpacker.comm("./coms/zimoli", "./public/zimoli/comm");
+        finalpacker.comm(`./coms/${comm}`, `./public/${app}/comm`);
     });
     it("puck ccon", function () {
-        finalpacker.ccon("./cons/zimoli", "./public/zimoli/ccon");
+        finalpacker.ccon(`./cons/${icon}`, `./public/${app}/ccon`);
     });
     it("puck ccon with colors", function () {
-        finalpacker.ccon("./cons/zimoli", "./public/zimoli/ccon", [0xff0000, 0x00ff00]);
-    })
+        finalpacker.ccon(`./cons/${icon}`, `./public/${app}/ccon`, [0xff0000, 0x00ff00]);
+    });
     it("puck index", function () {
-        finalpacker.index("./apps", "./public/zimoli");
+        finalpacker.index(`./apps/${app}`, `./public/${app}`);
     });
 });
