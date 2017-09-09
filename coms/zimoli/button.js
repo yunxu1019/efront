@@ -2,7 +2,7 @@ var text = div();
 css(text, "position:absolute;left:0;right:0;width:100%;height:1em;line-height:1em;top:50%;bottom:50%;margin: -.5em 0;overflow:hidden;text-align:center;");
 var track = createElement(div);
 // var track_over="visibility:inherit";
-css(track, "width:100%;height:100%;background:#000;position:absolute;left:0;top:0;");
+css(track, "transition:opacity .2s ease-in;width:100%;height:100%;background:#000;position:absolute;left:0;top:0;");
 opacity(track, 0);
 var btn = div();
 css(btn, "width:50px;height:24px;font-size:14px;background-color:#ff0000;position:relative;")
@@ -33,8 +33,10 @@ function button(texter) {
     };
     onmouseover(button, hover);
     onmouseleave(button, reset);
+    onmousemove(button, reset);
     onmousedown(button, active);
     onmouseup(button, reset);
+    ontouchmove(button, reset);
     ontouchstart(button, active);
     ontouchcancel(button, reset);
     ontouchend(button, reset);
