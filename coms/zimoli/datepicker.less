@@ -1,0 +1,141 @@
+@title-height: 45px;
+@height: 240px;
+@width: 280px;
+& {
+    display: block;
+    position: relative;
+    width: @width;
+    max-width: 100%;
+    height: @height;
+    background-color: #fff;
+}
+
+.ing {
+    background-color: #00aaef;
+    color: #fff;
+}
+
+.cbody {
+    position: absolute;
+    height: @height - @title-height;
+    top: @title-height;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    >div {
+        text-align: center;
+        display: block;
+        float: left;
+        border-radius: 50%;
+        transition: border-radius .1s, background-color .1s;
+        position: relative;
+        cursor: pointer;
+        >span {
+            position: absolute;
+            top: 50%;
+            height: 16px;
+            margin-top: -8px;
+            line-height: 16px;
+            right: 0;
+            left: 0;
+        }
+    }
+    >div:hover {
+        background-color: #ddd;
+        border-radius: 3px;
+        &:active {
+            color: #fff;
+            background-color: #2266dd;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.3) inset;
+            border-radius: 3px;
+        }
+    }
+    >div.last,
+    >div.next {
+        opacity: 0.5;
+        background-color: transparent;
+        color: inherit;
+    }
+    >div.title {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        background-color: transparent;
+        color: inherit;
+    }
+}
+
+.chead {
+    @height: @title-height;
+    height: @height;
+    line-height: @height;
+    background-color: #4358A5;
+    font-size: 20px;
+    color: #fff;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    left: 0;
+    text-align: center;
+    >i {
+        box-sizing: border-box;
+        width: @height;
+        height: @height;
+        top: 0;
+        position: absolute;
+        cursor: pointer;
+        &:nth-child(1) {
+            left: 0;
+            &:after {
+                border-right: 7px solid #959ca8;
+            }
+            &:hover {
+                &:after {
+                    border-right-color: #00aaef;
+                }
+                &:active {
+                    &:after {
+                        border-right-color: #3399cc;
+                    }
+                }
+            }
+        }
+        &:after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            top: 50%;
+            left: 50%;
+            margin-top: -8px;
+            margin-left: -8px;
+            border: 8px solid transparent;
+            position: absolute;
+        }
+        &:nth-last-child(1) {
+            right: 0;
+            &:after {
+                border-left: 7px solid #959ca8;
+            }
+            &:hover {
+                &:after {
+                    border-left-color: #00aaef;
+                }
+                &:active {
+                    &:after {
+                        border-left-color: #3399cc;
+                    }
+                }
+            }
+        }
+    }
+    >span {
+        >span {
+            cursor: pointer;
+            &:hover {
+                color: #00aaef;
+                &:active {
+                    color: #3399cc;
+                }
+            }
+        }
+    }
+}
