@@ -10,3 +10,5 @@ coms/i-theme
 gulpfile.js
 public/
 public.bat
+_envs/app=fc.bat
+tools/
