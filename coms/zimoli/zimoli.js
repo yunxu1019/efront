@@ -2,7 +2,7 @@
  * 不枝雀
  * 2017-3-18 16:16:20
  */
-
+var sessionStorage=localStorage;
 //main
 var body = document.body;
 var onbacks = [];

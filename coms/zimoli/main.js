@@ -149,15 +149,22 @@ var init = function (name, then, prebuild) {
             functionArgs = [];
             functionBody = text;
         }
-        if (functionArgs.length) {
-            init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
-                var exports = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
-                broadcast(url, exports);
-            }, prebuild);
-        } else {
-            var exports = adapter(Function.call(window, functionBody));
-            broadcast(url, exports);
+        if(!functionArgs.length){
+            try{
+                var exports = adapter(Function.call(window, functionBody));
+            }catch(e){
+                throw new Error(`[${url}] ${e}`);
+            }
+            return broadcast(url, exports);
         }
+        init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
+            try {
+                var exports = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
+            } catch (e) {
+                throw new Error(`[${url}] ${e}`);
+            }
+            broadcast(url, exports);
+        }, prebuild);
     });
 };
 modules.init = init;

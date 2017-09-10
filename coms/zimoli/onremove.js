@@ -1,0 +1,1 @@
+var onremove=on("remove");
