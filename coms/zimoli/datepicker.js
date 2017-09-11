@@ -109,7 +109,8 @@ var getDatesCount = function (year, month) {
     if (month === 2 && !(year % 100 === 0 ? year % 400 : year % 4)) {
         return 29;
     }
-    return [3, 0, 3, 2, 3, 3, 2, 3, 2, 3, 2, 3][month - 1] + 28;
+    //      1     3     5     7  8    10    12
+    return [3, 0, 3, 2, 3, 2, 3, 3, 2, 3, 2, 3][month - 1] + 28;
 };
 /**
  * 指定的日期是星期几
@@ -132,10 +133,10 @@ var buildDate = function (date) {
     var src = m2n(srcCount + 1, 1);
     var last_month = getDay(year, month, 1);
     var last_month_count = getDatesCount(year, month - 1);
-    var last_src = m2n(last_month_count, last_month_count - last_month);
+    var last_src = m2n(last_month_count, last_month_count + 1 - last_month);
     var next_month = 6 - (src.length + last_src.length - 1) % 7;
     var next_src = m2n(next_month + 1, 1);
-    var title_src = '日一二三四五六',
+    var title_src = '一二三四五六日',
         width = fixcent(7),
         height = fixcent((src.length + last_src.length + next_src.length + 7) / 7);
     return [src, width, height, 0, last_src, next_src, title_src];
@@ -161,7 +162,7 @@ var fixcent = function (count) {
  * @param {Date} date 
  */
 var buildYear = function (date) {
-    var year = (0 | ((date.年() | 0) + 10) / 20) * 20,
+    var year = ((+date.年()  + 10) / 20).toFixed(0) * 20,
         src = m2n(year + 10, year - 10),
         last_src = [year - 12, year - 11],
         next_src = [year + 10, year + 11],
@@ -200,16 +201,17 @@ var render = function (value, models = "年月日", message = "") {
     var container = createElement(div);
     var build = function (index) {
         var builder = builders[index];
-        var [src, width, height, addon = 0, last_src, next_src, title_src] = builder(value);
+        var [src, width, height, addon = 0, last_src = [], next_src = [], title_src = ""] = builder(value);
         var ing = model.charAt(index);
-        var src_ing = value[ing]()-1;
+        addon++;
+        var src_ing = +value[ing]();
         var style = `width:${width};height:${height}`;
-        var getsrc = (cls, s) => `<div class=${cls?cls:"item"} style=${style}><span class=${cls?+cls:"item"}>${s}</span></div>`;
+        var getsrc = (cls, s, i) => `<div class=${cls?cls:"item"} style=${style} value=${i+addon}><span value=${i+addon} class=${cls?cls:"item"}>${s}</span></div>`;
         var model_buttons = map.call(models, (model, index) => `<span class=${model===ing?"ing":"val"}>${value[model]()}&nbsp;${model}</span>`).join("&nbsp;");
-        var title = title_src ? map.call(title_src, s => getsrc("title", s)).join("") : "";
-        var last = last_src ? map.call(last_src, s => getsrc("last", s)).join("") : "";
-        var next = next_src ? map.call(next_src, s => getsrc("next", s)).join("") : "";
-        var curr = src.map((s, i) => getsrc(i + addon === src_ing && "ing", s)).join("");
+        var title = map.call(title_src, (s, i) => getsrc("title", s, i)).join("");
+        var last = map.call(last_src, (s, i) => getsrc("last", s, i)).join("");
+        var next = map.call(next_src, (s, i) => getsrc("next", s, i)).join("");
+        var curr = src.map((s, i) => getsrc(i + addon === src_ing && "iing", s, i)).join("");
         var head = `${last_src?"<i class=last></i>":""}<span>${model_buttons}</span>${next_src?"<i class=next></i>":""}`;
         var body = `${title}${last}${curr}${next}`;
         container.innerHTML = `<div class=chead>${head}</div><div class=cbody>${body}</div><div class=msg>${message}</div>`;
@@ -218,7 +220,7 @@ var render = function (value, models = "年月日", message = "") {
     onselectstart(container, function (event) {
         event.preventDefault();
     });
-    var _index = model.indexOf(models),
+    var _index = model.indexOf(models) + models.length - 1,
         _src_length, _ing;
     build(_index);
     onclick(container, function (event) {
@@ -229,17 +231,29 @@ var render = function (value, models = "年月日", message = "") {
             className,
             tagName,
         } = target;
+        var parent_src = models.charAt(_index - 1);
         switch (className) {
             case "last":
-                if (tagName === "I") value[_ing](value[_ing]() - _src_length);
-                else value[_ing](target.innerText);
+                if (tagName === "I") {
+                    if (parent_src) value[parent_src](value[parent_src]() - 1);
+                    else value[_ing](value[_ing]() - _src_length);
+                } else {
+                    if (parent_src) value[parent_src](value[parent_src]() - 1);
+                    value[_ing](target.innerText);
+                }
                 break;
             case "next":
-                if (tagName === "I") value[_ing](+value[_ing]() + +_src_length);
-                else value[_ing](target.innerText);
+                if (tagName === "I") {
+                    if (parent_src) value[parent_src](+value[parent_src]() + 1);
+                    else value[_ing](+value[_ing]() + _src_length);
+                } else {
+                    if (parent_src) value[parent_src](+value[parent_src]() + 1);
+                    value[_ing](target.innerText);
+                }
                 break;
             case "item":
-                value[_ing](target.innerText);
+            case "iing":
+                value[_ing](target.getAttribute("value"));
                 _index++;
                 if (_index >= models.length) _index--;
                 break;
@@ -255,41 +269,5 @@ var render = function (value, models = "年月日", message = "") {
 
 function datepicker(value = parseDate(), title) {
     var datebox = render(value, "年月日", title);
-    var onblur = function () {
-        remove(datebox);
-    };
-    datebox.onblur = onblur;
-    onappend(datebox, function () {
-        var width = 240,
-            height = 360;
-        css(datebox, {
-            left: 0,
-            top: 0,
-            height: height + "px",
-            width: width + "px",
-        });
-    });
     return datebox;
-
-    return function picker() {
-        if (!this) return;
-        var that = this;
-        var {
-            width,
-            height,
-            left,
-            top
-        } = getScreenPosition(that);
-        css(datebox, {
-            width: width + "px",
-            height: height + "px",
-            left: left + "px",
-            top: top + "px",
-        });
-        datebox.onchange = function () {
-            that.value = this.value;
-        };
-        mask(onblur);
-        return datebox;
-    }
 }
