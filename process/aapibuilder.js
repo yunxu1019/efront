@@ -1,6 +1,6 @@
 var Database = require("../database/index");
 var database = global.database = new Database;
-database.init();
+// database.init();
 var _i18n = require("./i18n");
 /**
  * 读取参数
