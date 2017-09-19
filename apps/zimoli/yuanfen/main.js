@@ -1,13 +1,14 @@
+// 中文编码 utf-8
 var tbar = titlebar("缘分", null, false);
-var page = createElement(div, tbar, slider());
+var page = createElement(div, beian, tbar, slider());
 css(page, "font-size:40px;color:#fff;padding-top:50px;");
 
-var group_sample=createElement(div);
-css(group_sample,"width:100%;height:auto;position:relative;");
-var title_sample=createElement(div);
-css(title_sample,"width:100%;height:50px;position:relative;");
-var body_sample=createElement(div);
-css(body_sample,"width:");
+var group_sample = createElement(div);
+css(group_sample, "width:100%;height:auto;position:relative;");
+var title_sample = createElement(div);
+css(title_sample, "width:100%;height:50px;position:relative;");
+var body_sample = createElement(div);
+css(body_sample, "width:");
 // var group=function(title,objects){
 //     var title=createElement(div);
 //     appendChild(div,title);
@@ -25,20 +26,20 @@ css(body_sample,"width:");
 
 // };
 appendChild(page, group(
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),"")
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), "")
 ), group(
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),""),
-    option(icon("menu"),"")
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), ""),
+    option(icon("menu"), "")
 ));
 
 function main() {

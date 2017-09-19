@@ -1,4 +1,6 @@
+// 中文编码 utf-8
 "use strict";
+// 备案信息
 // var document=this.document;
 // document["body"].appendChild(this.document.createElement("input"));
 var createBtn = function (btnName, color) {
