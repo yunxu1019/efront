@@ -1,4 +1,4 @@
-var lowerCase = require('lower-case')
+var lowerCase = require('./lower-case')
 
 var NON_WORD_REGEXP = require('./vendor/non-word-regexp')
 var CAMEL_CASE_REGEXP = require('./vendor/camel-case-regexp')
