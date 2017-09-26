@@ -18,7 +18,7 @@ var extendTouch = function (e) {
  * 传入一个页面，将其重构为可纵向平滑滑动的页面
  * @param {Element|Function|string} generator 
  */
-function vbox(generator) {
+function vbox(generator, state) {
     var _box;
     if (isNode(generator)) {
         _box = generator;
@@ -61,7 +61,7 @@ function vbox(generator) {
     var saved_x, saved_y, direction, speed = 0,
         lastmoveTime;
     var smooth = function () {
-        var abs_speed = abs(speed<<2)/time_splitter;
+        var abs_speed = abs(speed << 2) / time_splitter;
         if (abs_speed < 1) {
             speed = 0;
             decrease();
@@ -71,12 +71,12 @@ function vbox(generator) {
         _box.scroll(-speed);
         speed = speed - sign(speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
-    var increaser = createElement(div);
+    var increaser_t = createElement(div);
+    var increaser_b = createElement(div);
     var decrease_timer = 0;
     var time_splitter = 30;
-    var decrease = function () {
+    var _decrease = function (increaser) {
         var height = parseInt(increaser.style.height);
-        var decrease_ing = 0;
         if (height > 1) {
             var scrollTop = currentTop();
             if (scrollTop > 0 && _box.childNodes[0] === increaser) {
@@ -90,29 +90,37 @@ function vbox(generator) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
             }
-            decrease_timer = setTimeout(decrease, time_splitter);
-            decrease_ing++;
             css(increaser, {
                 height: (height > 16 ? (height * 2 + 6) / 3 : height >> 1) + "px"
             });
+            return 1;
         }
-        if (!decrease_ing) {
-            remove(increaser);
-        }
+        remove(increaser);
+        return 0;
+    }
+    var decrease = function () {
+        if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = setTimeout(decrease, time_splitter);
     };
     var increase = function (deltaY) {
-        var height = parseInt(increaser.style.height) || 0;
-        if (deltaY < 0) {
-            height -= deltaY;
-            _box.insertBefore(increaser, _box.childNodes[0] || null);
-        } else if (deltaY > 0) {
-            height += deltaY;
-            appendChild(_box, increaser);
+        var t_height = parseInt(increaser_t.style.height) || 0;
+        var b_height = parseInt(increaser_b.style.height) || 0;
+        t_height -= deltaY;
+        b_height += deltaY;
+        if (deltaY < 0 && t_height > 0) {
+            _box.insertBefore(increaser_t, _box.childNodes[0] || null);
+        } else if (deltaY > 0 && b_height > 0) {
+            appendChild(_box, increaser_b);
         }
-        if (height > 100)
-            height = 100;
-        css(increaser, {
-            height: height + "px"
+        var total_height = 100;
+        if (b_height > total_height) b_height = total_height;
+        if (t_height > total_height) t_height = total_height;
+        if (b_height < 0) b_height = 0;
+        if (t_height < 0) t_height = 0;
+        b_height && css(increaser_b, {
+            height: b_height + "px"
+        });
+        t_height && css(increaser_t, {
+            height: t_height + "px"
         });
     };
     onmousewheel(_box, function (event) {
