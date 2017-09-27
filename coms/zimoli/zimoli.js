@@ -2,11 +2,13 @@
  * 不枝雀
  * 2017-3-18 16:16:20
  */
-var sessionStorage=localStorage;
+var sessionStorage = localStorage;
 //main
 var body = document.body;
 var onbacks = [];
-var backman, target_hash;
+var backman, target_hash, exit_ing;
+var window_history = window.history;
+var window_history_length = window_history.length;
 if (location.href.slice(location.href.length - location.pathname.length) !== location.pathname) {
     location.replace(location.pathname)
     throw "start from child hash";
@@ -14,7 +16,8 @@ if (location.href.slice(location.href.length - location.pathname.length) !== loc
 
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
-        return onback && onback() === true;
+        if (exit_ing) return exit_ing = false, window_history.go(-1);
+        if (exit_ing === void 0 ? onback && onback() === true : exit_ing = void 0) {}
     };
     onselectstart(body, function (e) {
         return e.preventDefault();
@@ -35,11 +38,12 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         location.href = "#";
     };
     backman();
-    onhashchange(this, function (event) {
+    setTimeout(onhashchange, 0, window, function (event) {
         if (/#$/.test(event.newURL || event.actionURL)) return;
+        if (exit_ing) return exit_ing = false, window_history.go(-1);
         backman();
-        if (onback() === true) {}
-    })
+        if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) {}
+    });
 }
 // body
 css(body, {
@@ -52,9 +56,10 @@ css(body, {
     overflow: "hidden",
     backgroundColor: "#f2f4f9"
 });
-var location_pathname=location.pathname;
+var location_pathname = location.pathname;
 var _zimoli_params_key = `_zimoli_parameters:${location_pathname}#`;
-var _zimoli_state_prefix=`_zimoli_page_state:${location_pathname}#`;
+var _zimoli_state_prefix = `_zimoli_page_state:${location_pathname}#`;
+
 function go(url, args, history_name) {
     if (isNumber(url)) {
         if (!history_name)
@@ -153,7 +158,7 @@ function zimoli(page, args, history_name) {
     state.onappend = function (handler) {
         isFunction(handler) && _append_listeners.push(handler);
     };
-    init(page, function (pg) {
+    return init(page, function (pg) {
         pg.with = _with_elements;
         pg.onremove = _remove_listeners;
         pg.onappend = _append_listeners;
@@ -221,7 +226,13 @@ var onback = function () {
         remove(alertslist.pop());
         return;
     }
-    return go(-1);
+    if (go(-1) === true) {
+        try {
+            navigator.app.exitApp()
+        } catch (e) {
+            if (window_history.length > 2) exit_ing = true, window_history.go(-1);
+        };
+    } else {};
 };
 
 function addGlobal(element, name) {
@@ -236,6 +247,8 @@ function addGlobal(element, name) {
         global[name] = element;
     } else if (isNode(name)) {
         appendChild(name, element);
+    } else if (isFunction(name)) {
+        name(element);
     } else {
         appendChild(body, element);
         alertslist.push(element);
