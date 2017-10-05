@@ -82,7 +82,7 @@ var get = function (text) {
         var k = match[1],
             v = match[3];
         if (v)
-            return env[k] = v;
+            return env[k] = /^path\./i.test(k) ? path.normalize(v) : v;
         else
             return delete env[k]
     }
