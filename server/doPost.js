@@ -42,7 +42,7 @@ var readdata = function (req, res, then, max_length) {
         buff.push(buf);
     });
     req.on("end", function () {
-        length <= max_thength && then(Buffer.concat(buff));
+        length <= max_length && then(Buffer.concat(buff));
     });
 }
 var handle = {
