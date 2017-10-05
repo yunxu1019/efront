@@ -12,7 +12,7 @@ set DB_PASSWORD=root
 set DB_DATABASE=%APP%
 SET HOST.QINIU=ouxjfkv92.bkt.clouddn.com
 rem https证书路径
-set PATH.SSL_PFX=%~DP0CERT\efront.cc.pfx
+set PATH.SSL_PFX=%~DP0cert\efront.cc.pfx
 rem 把以下值写入.\cert\private.bat 以阻止提交
 REM set PASSWORD.SSL_PFX=%ssl证书密码%
 REM set KEY.AMAP=%高德地图key%
