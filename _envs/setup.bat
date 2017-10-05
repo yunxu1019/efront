@@ -1,6 +1,6 @@
 REM 中文编码gb2312
 rem 默认应用
-if not defined app set APP=fc
+if not defined app set APP=zimoli
 set AAPI=zimoli
 set ICON=zimoli
 set COMM=zimoli
