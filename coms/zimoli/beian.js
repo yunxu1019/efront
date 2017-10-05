@@ -4,10 +4,9 @@ css(_beian, "font-size:14px;cursor:pointer;position:absolute;bottom:0;background
 
 function beian() {
     var b_a = createElement(_beian);
-    b_a.innerHTML = "豫ICP备17037756号";
+    b_a.innerText = "豫ICP备17037756号";
     onclick(b_a, function () {
         window.open("http://www.miitbeian.gov.cn");
     });
-    console.log("beian loaded",b_a)
     return b_a;
 }
