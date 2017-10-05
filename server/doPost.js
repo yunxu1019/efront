@@ -72,9 +72,9 @@ var handle = {
         readdata(req, res, function (buff) {
             try {
                 var token = JSON.parse(buff.toString()).token;
-                console.log(buff.toString())
                 require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("./message").webhook();
             } catch (e) {}
+            res.end();
         }, 1000);
     }
 };
