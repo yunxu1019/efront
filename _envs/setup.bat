@@ -19,7 +19,7 @@ REM set KEY.AMAP=%高德地图key%
 REM set KEY.QINIU_ACCESS=%七牛云access%
 REM set KEY.QINIU_SECRET=%七牛云secret%
 REM set KEY.REQUEST_SECRET=%efront通信密钥%
-@if exist %~dp0cert\private.bat @call "%~dp0cert\private"
+@if exist "%~dp0cert\private.bat" @call "%~dp0cert\private"
 
 rem 前文已配置的所有参数可用 app=%app%.bat 重写
 @for %%i in (%app%) do @call "%~DP0app=%%i"

@@ -3,9 +3,24 @@ var path = require("path");
 var gbk2utf8 = require("./gbk2utf8");
 var map = {};
 var reg_set = /^\s*@?\s*(?:set|setx)\s+(.*?)\s*=\s*(['"`]?)([\s\S]*)\2$/im
-var reg_call = /^\s*@?\s*call\s+(["]?)(.*?)\1([\s\S]*)$/i;
+var reg_call = /^\s*@?\s*call\s+(["]?)(.+?)\1([\s\S]*)$/i;
 var reg_for = /^\s*@?\s*for\s+([%\w]+)\s+in\s*\((.*?)\)\s*do\s+(.*?)$/i;
-var reg_if = /^\s*@?\s*if\s+(\/i\s+)?(not\s+)?(?:(cmdextversion|errorlevel)\s+(.+?)|(.+?)\s*(==|equ|neq|lss|leq|gtr|geq)\s*(.+?)|exist\s+(.+?)|defined\s+(.+?))\s+([\s\S]*?)$/i;
+
+var reg_if =
+    //00 matched_text
+    //01 ignorecase
+    //02 not
+    //03 label
+    //04 level
+    //05 condition_left
+    //06 condition_symbol
+    //07 condition_right
+    //08 qoute
+    //09 exist
+    //10 defined
+    //11 command
+    ////////////////   1  ///   2  /////            3            ///// 4 /// 5 /////            6             ///// 7 /////////// 8 // 9 ///////////////10 //////   11   ///
+    /^\s*@?\s*if\s+(\/i\s+)?(not\s+)?(?:(cmdextversion|errorlevel)\s+(.+?)|(.+?)\s*(==|equ|neq|lss|leq|gtr|geq)\s*(.+?)|exist\s+(["])(.+?)\8|defined\s+(.+?))\s+([\s\S]*?)$/i;
 var if_conditions = {
     "==": (a, b) => a == b,
     "equ": (a, b) => a == b,
@@ -17,6 +32,7 @@ var if_conditions = {
 };
 var env = process.env;
 var call = function (file, args = []) {
+    file = path.normalize(file.replace(/[\\]+/ig, "/"));
     if (!fs.existsSync(file)) {
         var _file;
         var _path = path.parse(file);
@@ -62,18 +78,18 @@ var get = function (text) {
     text = text
         .replace(/%(.*?)%/ig, function (match, env_name) {
             if (!env_name) return "%";
-            return env[env_name];
+            return env[env_name.toUpperCase()];
         });
     var match = text.match(reg_if);
     if (match) {
-        var [matched_text, ignorecase, not, label, level, condition_left, condition_symbol, condition_right, exist, defined, command] = match;
+        var [matched_text, ignorecase, not, label, level, condition_left, condition_symbol, condition_right, qoute, exist, defined, command] = match;
         if (!!not ^ (
                 level && env[label] == level ||
                 condition_left && if_conditions[condition_symbol.toLowerCase()](
                     ignorecase ? condition_left.toUpperCase() : condition_left,
                     ignorecase ? condition_right.toUpperCase() : condition_right
                 ) ||
-                exist && fs.existsSync(exist) ||
+                exist && fs.existsSync(path.normalize(exist.replace(/[\\]+/gi, "/"))) ||
                 defined && defined in env
             )) get(command);
     }
@@ -82,7 +98,7 @@ var get = function (text) {
         var k = match[1],
             v = match[3];
         if (v)
-            return env[k] = /^path\./i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v;
+            return env[k.toUpperCase()] = /^path\./i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v;
         else
             return delete env[k]
     }
