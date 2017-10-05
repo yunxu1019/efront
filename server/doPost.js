@@ -75,7 +75,7 @@ var handle = {
                 require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("./message").webhook();
             } catch (e) {}
             res.end();
-        }, 1000);
+        }, 200000);
     }
 };
 
