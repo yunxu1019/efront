@@ -32,6 +32,19 @@ var getpage = function (name, _pages_root = pages_root) {
 var getapi = function (name, _aapis_root = aapis_root) {
     return getaapifunc(_aapis_root + "/" + name + ".js");
 }
+
+var readdata = function (req, res, then, max_length) {
+    var buff = [],
+        length = 0;
+    req.on("data", function (buf) {
+        length += buf.length;
+        if (length > max_length) return res.writeHead(403, {}), res.end();
+        buff.push(buf);
+    });
+    req.on("end", function () {
+        then(Buffer.concat(buff));
+    });
+}
 var handle = {
     "/count" (req, res) {
         message.count(req.headers.referer);
@@ -42,34 +55,26 @@ var handle = {
         return res.end(main);
     },
     "/comm" (req, res) {
-        var buff = [],
-            length = 0;
-        req.on("data", function (buf) {
-            length += buf.length;
-            if (length > 1000) return;
-            buff.push(buf);
-        });
-        req.on("end", function () {
-            var name = Buffer.concat(buff).toString();
-            return res.end(getcomm(name));
-        });
+        readdata(req, res, function (buff) {
+            res.end(getcomm(buff.toString()));
+        }, 1000);
     },
     "/ccon" (req, res) {},
     "/page" (req, res) {
-        var buff = [],
-            length = 0;
-        req.on("data", function (buf) {
-            length += buf.length;
-            if (length > 1000) return;
-            buff.push(buf);
-        });
-        req.on("end", function () {
-            var name = Buffer.concat(buff).toString();
-            return res.end(getpage(name));
-        });
+        readdata(req, res, function (buff) {
+            return res.end(getpage(buff.toString()));
+        }, 1000);
     },
-    "/api" () {
+    "/api" (req, res) {
         res.end();
+    },
+    "/webhook" (req, res) {
+        readdata(req, res, function () {
+            try {
+                var token = JSON.parse(buff.toString()).token;
+                require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("./message").webhook();
+            } catch (e) {}
+        }, 1000);
     }
 };
 
