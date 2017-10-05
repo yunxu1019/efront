@@ -132,9 +132,13 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         // console.info("server start success!");
     });
     server.listen(80);
-    process.env["PATH.SSL_PFX"] && https.createServer({
-        pfx: require("fs").readFileSync(process.env["PATH.SSL_PFX"]),
-        passphrase: process.env["PASSWORD.SSL_PFX"]
-    }, requestListener).listen(443);
+    var SSL_PFX_PATH = process.env["PATH.SSL_PFX"];
+    if (SSL_PFX_PATH) {
+        var fs = require("fs");
+        fs.existsSync(SSL_PFX_PATH) && https.createServer({
+            pfx: fs.readFileSync(SSL_PFX_PATH),
+            passphrase: process.env["PASSWORD.SSL_PFX"]
+        }, requestListener).listen(443);
+    }
     cluster.isWorker && message.count("boot");
 }
