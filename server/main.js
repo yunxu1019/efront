@@ -13,7 +13,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var cpus = require('os').cpus();
     var count = require("../process/count");
     var counts = count() || {};
-    global.counts=counts;
+    global.counts = counts;
     var end = function () {
         quitting = quitting.concat(workers);
         workers = [];
@@ -42,7 +42,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var run = function () {
         quitting = quitting.concat(workers);
         var workking = 0;
-        workers = cpus.map(function() {
+        workers = cpus.map(function () {
             counter++;
             var worker = cluster.fork();
             worker.on("listening", function () {
@@ -106,11 +106,11 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     });
     // 仅做开发使用的简易服务器
     var http = require("http");
+    var https = require("https");
     // build mime
     var doGet = require("./doGet");
     var doPost = require("./doPost");
-    // create server
-    var server = http.createServer(function (req, res) {
+    var requestListener = function (req, res) {
         var match = req.url.match(/ccon\/(.*?)\.([\da-f]+)\.png$/);
         if (match) {
             name = match[1];
@@ -122,7 +122,9 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         } else {
             return doPost(req, res);
         }
-    });
+    };
+    // create server
+    var server = http.createServer(requestListener);
     server.on("error", function () {
         // console.info("server is already running!");
     });
@@ -130,5 +132,9 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         // console.info("server start success!");
     });
     server.listen(80);
+    process.env["PATH.SSL_PFX"] && https.createServer({
+        pfx: require("fs").readFileSync(process.env["PATH.SSL_PFX"]),
+        passphrase: process.env["PASSWORD.SSL_PFX"]
+    }, requestListener).listen(443);
     cluster.isWorker && message.count("boot");
 }
