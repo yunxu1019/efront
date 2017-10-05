@@ -42,7 +42,7 @@ var readdata = function (req, res, then, max_length) {
         buff.push(buf);
     });
     req.on("end", function () {
-        then(Buffer.concat(buff));
+        length <= max_thength && then(Buffer.concat(buff));
     });
 }
 var handle = {
@@ -69,9 +69,10 @@ var handle = {
         res.end();
     },
     "/webhook" (req, res) {
-        readdata(req, res, function () {
+        readdata(req, res, function (buff) {
             try {
                 var token = JSON.parse(buff.toString()).token;
+                console.log(buff.toString())
                 require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("./message").webhook();
             } catch (e) {}
         }, 1000);
