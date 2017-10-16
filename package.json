@@ -6,7 +6,9 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "less": "^3.0.0-alpha.3"
+  },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
@@ -16,7 +18,7 @@
     "start": "node main",
     "server": "node server/index",
     "test": "node tester/main",
-    "electron":"node tester/main --electron",
+    "electron": "node tester/main --electron",
     "public": "mocha process/finalpacker_test"
   },
   "repository": {
