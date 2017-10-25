@@ -60,7 +60,8 @@ function slider(autoplay) {
         saved_x = 0,
         saved_y = 0,
         moving = 0,
-        direction;
+        direction,
+        _speed = speed(1);
     var reshape = function (index, ising) {
         current_index = index;
         var width = outter.offsetWidth || windowInnerWidth;
@@ -112,12 +113,12 @@ function slider(autoplay) {
     var park = function () {
         direction = 0;
         if (delta_negative_index > 0) {
-            if (negative_index - floor(negative_index) > 0.3)
+            if (negative_index - floor(negative_index) > 0.3 / (1 + abs(_speed())))
                 negative_index = ceil(negative_index);
             else
                 negative_index = floor(negative_index);
         } else if (delta_negative_index < 0) {
-            if (ceil(negative_index) - negative_index > 0.3)
+            if (ceil(negative_index) - negative_index > 0.3 / (1 + abs(_speed())))
                 negative_index = floor(negative_index);
             else
                 negative_index = ceil(negative_index);
@@ -172,6 +173,7 @@ function slider(autoplay) {
             } else {
                 saved_x = event.clientX;
             }
+            _speed(0);
         } else if (!outter.hasRight && deltax < 0) {
             var current_Left = parseInt(_imageMain.style.left);
             var avail_deltaWidth = -round(width >> 2);
@@ -181,8 +183,10 @@ function slider(autoplay) {
             } else {
                 saved_x = event.clientX;
             }
+            _speed(0);
         } else {
             saved_x = event.clientX;
+            _speed(deltax);
         }
         delta_negative_index = deltax / width;
         negative_index += delta_negative_index;
@@ -203,6 +207,8 @@ function slider(autoplay) {
         }
         has_moving_instance = true;
         moving = true;
+        direction = 0;
+        _speed(0);
         mousemove_remove = onmousemove(body, mousemove);
         mouseup_remove = onmouseup(body, mouseup);
         saved_x = event.clientX;
@@ -224,6 +230,8 @@ function slider(autoplay) {
             }
             has_moving_instance = true;
             moving = e.target;
+            direction = 0;
+            _speed(0);
             addEventListener(moving, "touchmove", ontouchmove);
             addEventListener(moving, "touchcancel", ontouchend);
             addEventListener(moving, "touchend", ontouchend);
