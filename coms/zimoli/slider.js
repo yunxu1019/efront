@@ -4,7 +4,7 @@ css(_slider, "position:absolute;top:0px;left:0px;right:0px;bottom:0px;width:100%
 var container = createElement(div);
 var windowInnerWidth = window.innerWidth || screen.availWidth;
 css(container, "overflow:hidden;position:relative;width:100%;height:120px;font-size:60px;cursor:move;");
-onresize(window, function (event) {});
+onresize(window, function (event) { });
 var floor = Math.floor;
 var ceil = Math.ceil;
 var round = Math.round;
@@ -147,6 +147,7 @@ function slider(autoplay) {
         var deltax = event.clientX - saved_x;
         var deltay = event.clientY - saved_y;
         if (!direction) {
+            if (abs(deltax) < 3 && abs(deltay) < 3) return;
             if (abs(deltay) - abs(deltax) > 0) { //垂直方向
                 direction = -1;
             } else { //水平方向

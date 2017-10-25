@@ -42,25 +42,25 @@ function vbox(generator, state) {
         }
         return _box.scrollTop;
     };
-    _box.scroll = function (deltay) {
+    _box.scroll = function (deltay, useIncrease = true) {
         var top = currentTop() + deltay;
         var height = _box.height();
         var scrollHeight = totalHeight();
         if (top < 0) {
             // if (speed > 30) speed = 30;
             speed = speed >> 1;
-            increase(top);
+            useIncrease && increase(top);
             top = 0;
         } else if (top + height > scrollHeight) {
             // if (speed > 30) speed = 30;
             speed = speed >> 1;
-            increase(top + height - scrollHeight);
+            useIncrease && increase(top + height - scrollHeight);
         }
         return currentTop(top);
     };
     var saved_x, saved_y, direction, speed = 0,
         lastmoveTime;
-    var smooth = function () {
+    var smooth = function (useIncrease = true) {
         var abs_speed = abs(speed << 2) / time_splitter;
         if (abs_speed < 1) {
             speed = 0;
@@ -68,7 +68,7 @@ function vbox(generator, state) {
             return;
         }
         speed_timer = setTimeout(smooth, time_splitter);
-        _box.scroll(-speed);
+        _box.scroll(-speed, useIncrease);
         speed = speed - sign(speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
     var increaser_t = createElement(div);
@@ -134,8 +134,8 @@ function vbox(generator, state) {
         var deltat = now - lastmoveTime;
         lastmoveTime = now;
         speed = speed ? (speed + deltay * time_splitter / deltat) >> 1 : deltay * time_splitter / deltat;
-        _box.scroll(-deltay);
-        smooth();
+        _box.scroll(-deltay, false);
+        smooth(false);
     });
     var speed_timer;
     onmousedown(_box, function (event) {
@@ -144,6 +144,7 @@ function vbox(generator, state) {
         speed = 0;
         lastmoveTime = new Date;
         saved_x = event.clientX, saved_y = event.clientY;
+        direction = 0;
         var cancel = function () {
             direction = 0;
             cancelmousemove();
@@ -157,7 +158,8 @@ function vbox(generator, state) {
             var deltax = clientX - saved_x;
             var deltay = clientY - saved_y;
             if (!direction) {
-                direction = abs(deltax) >= abs(deltay) ? -1 : 1;
+                if (abs(deltax) < 3 && abs(deltay) < 3) return;
+                direction = abs(deltax) > abs(deltay) ? -1 : 1;
             }
             if (direction < 0)
                 return;
@@ -180,6 +182,7 @@ function vbox(generator, state) {
         saved_x = event.clientX, saved_y = event.clientY;
         var moving = event.target;
         speed = 0;
+        direction = 0;
         var cancel = function () {
             direction = 0;
             canceltouchmove();
