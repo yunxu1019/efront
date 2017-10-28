@@ -12,4 +12,7 @@ public/
 public.bat
 _envs/*=*
 _envs/cert
-tools/
+tools/node_modules/
+data/count.json
+tools/zanme.js
+tools/prebuilds/
