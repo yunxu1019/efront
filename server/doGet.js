@@ -51,10 +51,10 @@ module.exports = function (req, res) {
         }
     } else if (typeof data === "string") {
         res.writeHead(301, {
-            'Location': data
+            'Location': data[0] === "/" ? data : "/" + data
         });
         return res.end();
-    } else {}
+    } else { }
     res.writeHead(403, {})
     res.end();
 };
