@@ -1,16 +1,17 @@
 var _preich = function _preich(obj) {
-    function EnrichedPromise(){}
+    function EnrichedPromise() { }
     var _obj = {};
     for (var k in obj) {
-        _obj[k] = function () {
-            var method = obj[k];
-            return function () {
-                var args = arguments;
-                return this.then(function (res) {
-                    return method.apply(this, args);
-                });
-            };
-        }();
+        if (obj[k] instanceof Function)
+            _obj[k] = function () {
+                var method = obj[k];
+                return function () {
+                    var args = arguments;
+                    return this.then(function (res) {
+                        return method.apply(this, args);
+                    });
+                };
+            }();
     }
     for (var cx = 0, dx = ["catch", "then"], k; k = dx[cx++];)
         _obj[k] = function () {
