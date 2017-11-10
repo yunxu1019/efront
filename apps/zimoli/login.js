@@ -14,6 +14,5 @@ css(_logoArea, "width:80px;height:80px;margin:60px auto 40px auto;")
 css(_loginBtn, "width:200px;height:50px;background-color:rgba(255,255,255,.3);margin:20px auto;");
 appendChild(_login, _logoArea, _username, _password, _loginBtn);
 function login(dst_url, src_url) {
-    console.error(arguments, dst_url, src_url)
     return _login;
 }
