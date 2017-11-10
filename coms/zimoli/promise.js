@@ -58,6 +58,8 @@ function Promise(executor) {
                 next.apply(null, args);
             }
         } while (threads.length);
+        PromiseRejectReactions.splice(0);
+        PromiseFulfillReactions.splice(0);
     };
 
     function ResolvingFunctions_resolve() { //ok
