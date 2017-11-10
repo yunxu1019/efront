@@ -1,0 +1,1 @@
+var oninput=on("input");
