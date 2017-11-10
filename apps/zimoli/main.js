@@ -22,7 +22,7 @@ var createBottomBar = function (buttonsConfig) {
         var o = buttonsConfig[k];
         var btn = createElement(btnArea);
         btn.url = o;
-        btn.home = createBtn(k, 0x00ff00);
+        btn.home = createBtn(k, 0x2a85e2);
         btn.other = createBtn(k, 0xcccccc);
         var active = btn.active = function (ratio) {
             opacity(this.home, ratio);
