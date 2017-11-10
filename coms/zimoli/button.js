@@ -7,8 +7,8 @@ opacity(track, 0);
 var btn = div();
 css(btn, "width:50px;height:24px;font-size:14px;background-color:#ff0000;position:relative;")
 var opacity_mouseout = 0;
-var opacity_mouseover = 0.03;
-var opacity_active = 0.06;
+var opacity_mouseover = 0.04;
+var opacity_active = 0.1;
 
 function button(texter) {
     var tracker = createElement(track);
