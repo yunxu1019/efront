@@ -4,20 +4,25 @@ function release(node) {
     return isFunction(node) ? node() : isNode(node) ? node : document.createTextNode(node);
 }
 
-function _onappend(node) {
+function _onappend(node, event) {
+    if (!event) {
+        event = document.createEvent("Event");
+        event.initEvent("append", false, false);
+    }
+    node.dispatchEvent(event);
     node.isMounted = true;
     var onappend = node.onappend;
     if (isArray(onappend)) {
         onappend.map(function (append_handler) {
-            append_handler();
-        });
+            append_handler.call(this, event);
+        }, node);
     }
     if (isFunction(onappend)) {
-        onappend();
+        onappend.call(node, event);
     }
     var children = node.children;
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
-        _onappend(children[cx]);
+        _onappend(children[cx], event);
     }
 }
 _onappend(document.documentElement);

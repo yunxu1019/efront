@@ -97,8 +97,8 @@ function go(url, args, history_name) {
     var _page = pg.call(state, args);
     if (pg.className) _page.className = pg.className;
     _page.with = _with_elements;
-    _page.onappend = _append_listeners;
-    _page.onremove = _remove_listeners;
+    onappend(_page, _append_listeners);
+    onremove(_page, _remove_listeners);
     addGlobal(_page, history_name);
     pushstate(url, history_name);
     return _page;
@@ -151,12 +151,16 @@ function zimoli(page, args, history_name) {
         return go(url, args, history_name);
     };
     var _remove_listeners = [];
-    state.onremove = function (handler) {
-        isFunction(handler) && _remove_listeners.push(handler);
+    state.onremove = function (handler, _handler) {
+        console.log("onremove");
+        if (isFunction(handler)) _remove_listeners.push(handler);
+        else onremove(handler, _handler);
     };
     var _append_listeners = [];
-    state.onappend = function (handler) {
-        isFunction(handler) && _append_listeners.push(handler);
+    state.onappend = function (handler, _handler) {
+        console.log("onappend");
+        if (isFunction(handler)) _remove_listeners.push(handler);
+        else onappend(handler, _handler);
     };
     return init(page, function (pg) {
         pg.with = _with_elements;
