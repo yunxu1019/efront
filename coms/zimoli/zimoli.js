@@ -17,7 +17,7 @@ if (location.href.slice(location.href.length - location.pathname.length) !== loc
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
         if (exit_ing) return exit_ing = false, window_history.go(-1);
-        if (exit_ing === void 0 ? onback && onback() === true : exit_ing = void 0) {}
+        if (exit_ing === void 0 ? onback && onback() === true : exit_ing = void 0) { }
     };
     onselectstart(body, function (e) {
         return e.preventDefault();
@@ -42,7 +42,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         if (/#$/.test(event.newURL || event.actionURL)) return;
         if (exit_ing) return exit_ing = false, window_history.go(-1);
         backman();
-        if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) {}
+        if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) { }
     });
 }
 // body
@@ -166,19 +166,19 @@ function zimoli(page, args, history_name) {
         page_generators[page] = pg;
         return go(page, args, history_name);
     }, {
-        state: state,
-        titlebar: function () {
-            return getTitleBar(state, arguments);
-        },
-        zimoli: state.go,
-        go: state.go,
-        onremove: function () {
-            return getRemoveFn(state, arguments);
-        },
-        onappend: function () {
-            return getAppendFn(state, arguments);
-        }
-    });
+            state: state,
+            titlebar: function () {
+                return getTitleBar(state, arguments);
+            },
+            zimoli: state.go,
+            go: state.go,
+            onremove: function () {
+                return getRemoveFn(state, arguments);
+            },
+            onappend: function () {
+                return getAppendFn(state, arguments);
+            }
+        });
 }
 var getRemoveFn = function (state, args) {
     return state.onremove.apply(null, args);
@@ -218,6 +218,7 @@ var pushstate = function (path_name, history_name) {
             }
         }
         _history.push(path_name);
+        if (_history.length > 1 && !/#/.test(location.href)) location.href = "#";
     }
     sessionStorage.setItem(history_session_object_key, JSON.stringify(history));
 };
@@ -232,7 +233,7 @@ var onback = function () {
         } catch (e) {
             if (window_history.length > 2) exit_ing = true, window_history.go(-1);
         };
-    } else {};
+    } else { };
 };
 
 function addGlobal(element, name) {
