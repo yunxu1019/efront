@@ -32,7 +32,7 @@ var retry = function (url, count) {
     return count;
 };
 var load = function (url, count) {
-    var xhr = new(XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
+    var xhr = new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
     xhr.open("POST", url);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -70,7 +70,7 @@ var get = function (url, then) {
     }
 };
 
-function modules() {}
+function modules() { }
 modules.modules = modules;
 var pendding = {};
 var executer = function (f, args) {
@@ -149,10 +149,10 @@ var init = function (name, then, prebuild) {
             functionArgs = [];
             functionBody = text;
         }
-        if(!functionArgs.length){
-            try{
+        if (!functionArgs.length) {
+            try {
                 var exports = adapter(Function.call(window, functionBody));
-            }catch(e){
+            } catch (e) {
                 throw new Error(`[${url}] ${e}`);
             }
             return broadcast(url, exports);
@@ -200,5 +200,8 @@ var hook = function (requires_count) {
             zimoli();
         });
     }
+};
+modules.put = function (name, module) {
+    modules[name] = module;
 };
 hook(requires_count);
