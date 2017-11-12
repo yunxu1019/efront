@@ -222,10 +222,14 @@ var pushstate = function (path_name, history_name) {
             }
         }
         _history.push(path_name);
-        if (_history.length > 1 && !/#/.test(location.href)) location.href = "#";
+        if (_history.length > 1) fixurl();
     }
     sessionStorage.setItem(history_session_object_key, JSON.stringify(history));
 };
+var fixurl = function () {
+    if (!/#/.test(location.href)) location.href = "#";
+    exit_ing = void 0;
+}
 var onback = function () {
     if (alertslist.length) {
         remove(alertslist.pop());
@@ -257,6 +261,7 @@ function addGlobal(element, name) {
     } else {
         appendChild(body, element);
         alertslist.push(element);
+        fixurl();
     }
 }
 
