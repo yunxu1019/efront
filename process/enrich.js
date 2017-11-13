@@ -1,3 +1,4 @@
+"use strict";
 var enrich = function enrich(obj) {
     var _obj = {};
     for (var k in obj) {
@@ -7,24 +8,22 @@ var enrich = function enrich(obj) {
                     var method = obj[k];
                     var args = arguments;
                     return this.then(function (res) {
-                        return method.apply(this, args);
+                        return method.apply(_obj, args);
                     });
                 };
             }(k);
     }
-    _obj._enrich = function(promise) {
+    _obj._enrich = function (promise) {
         if (!promise._enrich) {
-            for (var k in this) promise[k] = this[k];
-            if (!this.then) {
-                var then = promise.then;
-                var _catch = promise.catch;
-                promise.then = function () {
-                    return this._enrich(then.apply(this, arguments));
-                };
-                promise.catch = function () {
-                    return this.then(_catch.apply(this, arguments));
-                }
+            var then = promise.then;
+            var _catch = promise.catch;
+            this.then = function () {
+                return this._enrich(then.apply(promise, arguments));
+            };
+            this.catch = function () {
+                return this.then(_catch.apply(promise, arguments));
             }
+            for (var k in this) promise[k] = this[k];
         }
         return promise;
     };
