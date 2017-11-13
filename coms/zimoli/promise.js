@@ -9,42 +9,50 @@ var isPromise = function (pendding) {
 };
 
 function concat(threads, f, oks, ohs) {
-    var _ok, _oh, removeed;
-    var remove = function () {
-        var res = !removeed;
-        removeed = true;
-        return removeed;
-    };
+    var _oked, _ohed, _ok, _oh, removeed;
     var runable = function (ok, oh) {
-        _ok = ok;
-        _oh = oh;
+        if (_oked) {
+            ok.apply(null, _oked);
+        } else if (_ohed) {
+            oh.apply(null, _ohed);
+        } else {
+            _ok = ok;
+            _oh = oh;
+        }
     };
     var _promise = new Promise(runable);
     var onpermit = function () {
-        remove();
-        try {
-            var pendding = f.apply(null, arguments);
-            if (isPromise(pendding)) {
-                pendding.then(_ok);
-                pendding.catch(_oh);
-            } else {
-                _ok(pendding);
+        if (!removeed) {
+            try {
+                var pendding = f.apply(null, arguments);
+                if (_ok) _ok(pendding);
+                else _oked = [pendding];
+            } catch (e) {
+                if (_oh) _oh(e);
+                else _ohed = [e];
             }
-        } catch (e) {
-            _oh(e);
+            removeed = true;
         }
     };
     var onresolve = function () {
-        remove() && _ok.apply(null, arguments);
+        if (!removeed) {
+            if (_ok) _ok.apply(null, arguments);
+            else _oked = arguments;
+            removeed = true;
+        }
     };
     var onreject = function () {
-        remove() && _oh.apply(null, arguments);
+        if (!removeed) {
+            if (_oh) _oh.apply(null, arguments);
+            else _ohed = arguments;
+            removeed = true;
+        }
     };
     threads.push(onpermit);
     oks.push(onresolve);
     ohs.push(onreject);
     return _promise;
-};
+}
 
 function Promise(executor) {
     var PromiseFulfillReactions = [], //thens
@@ -60,23 +68,29 @@ function Promise(executor) {
         } while (threads.length);
         PromiseRejectReactions.splice(0);
         PromiseFulfillReactions.splice(0);
-    };
+    }
 
-    function ResolvingFunctions_resolve() { //ok
-        oked = arguments;
-        run(PromiseFulfillReactions, oked);
-    };
+    function ResolvingFunctions_resolve(result) { //ok
+        if (isPromise(result)) {
+            result.then(ResolvingFunctions_resolve).catch(ResolvingFunctions_reject);
+        } else {
+            oked = arguments;
+            run(PromiseFulfillReactions, oked);
+        }
+    }
 
     function ResolvingFunctions_reject(e) { //oh
         ohed = arguments;
         run(PromiseRejectReactions, ohed);
-    };
-
-    try {
-        executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
-    } catch (e) {
-        ResolvingFunctions_reject(e);
     }
+
+    setTimeout(function () {
+        try {
+            executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
+        } catch (e) {
+            ResolvingFunctions_reject(e);
+        }
+    }, 0);
     this.then = function (f) {
         var _promise = concat(PromiseFulfillReactions, f, PromiseFulfillReactions, PromiseRejectReactions);
         oked && run(PromiseFulfillReactions, oked);
@@ -182,9 +196,9 @@ Promise.resolve = function () {
 // }).then(function () {
 //     console.log(4);
 // });
-//test
+// // test
 // new Promise(function (ok, oh) {
-//     setTimeout(function(){
+//     setTimeout(function () {
 //         oh(1);
 //     }, 1000)
 // }).then(function () {
