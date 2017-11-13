@@ -1,33 +1,35 @@
 "use strict";
 var enrich = function enrich(obj) {
-    var _obj = {};
+    var _obj = Promise.resolve();
     for (var k in obj) {
         if (obj[k] instanceof Function)
-            _obj[k] = function (k) {
+            _obj[k] = function () {
+                var method = obj[k];
                 return function () {
-                    var method = obj[k];
                     var args = arguments;
                     return this.then(function (res) {
                         return method.apply(_obj, args);
                     });
                 };
-            }(k);
+            }();
     }
     _obj._enrich = function (promise) {
         if (!promise._enrich) {
-            var then = promise.then;
-            var _catch = promise.catch;
-            this.then = function () {
-                return this._enrich(then.apply(promise, arguments));
-            };
-            this.catch = function () {
-                return this.then(_catch.apply(promise, arguments));
-            }
-            for (var k in this) promise[k] = this[k];
+            for (var k in _obj) promise[k] = _obj[k];
         }
         return promise;
     };
-    return _obj._enrich(Promise.resolve());
+    var then = _obj.then;
+    var _catch = _obj.catch;
+    _obj.then = function () {
+        var promise = then.apply(this, arguments);
+        return this._enrich(promise);
+    };
+    _obj.catch = function () {
+        var promise = _catch.apply(this, arguments);
+        return this._enrich(promise);
+    }
+    return _obj;
 };
 module.exports = enrich;
 
