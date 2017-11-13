@@ -12,16 +12,18 @@ var enrich = function enrich(obj) {
                 };
             }(k);
     }
-    _obj._enrich = function _enrich(promise) {
+    _obj._enrich = function(promise) {
         if (!promise._enrich) {
-            for (var k in this) if (!/^(catch|then)$/.test(k)) promise[k] = this[k];
-            var then = promise.then;
-            var _catch = promise.catch;
-            promise.then = function () {
-                return this._enrich(then.apply(this, arguments));
-            };
-            promise.catch = function () {
-                return this.then(_catch.apply(this, arguments));
+            for (var k in this) promise[k] = this[k];
+            if (!this.then) {
+                var then = promise.then;
+                var _catch = promise.catch;
+                promise.then = function () {
+                    return this._enrich(then.apply(this, arguments));
+                };
+                promise.catch = function () {
+                    return this.then(_catch.apply(this, arguments));
+                }
             }
         }
         return promise;
