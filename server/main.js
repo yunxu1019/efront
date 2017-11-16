@@ -3,7 +3,7 @@
  * 2017-4-5 22:38:04
  */
 var cluster = require("cluster");
-var message = require("./message");
+var message = require("../process/message");
 if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var watch = require("../process/watch");
     var counter = 0;

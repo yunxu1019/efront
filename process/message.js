@@ -1,3 +1,5 @@
+//为了防止因message而形成环形引用，message文件夹中的内容不允许被外界调用
+
 var cluster = require("cluster");
 var fs = require("fs");
 var path = require("path");

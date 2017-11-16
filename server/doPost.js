@@ -7,7 +7,7 @@ var getpagefile = require("../process/cache")("./apps", commbuilder);
 var geticonfile = require("../process/cache")("./cons", iconbuilder);
 var getaapifunc = require("../process/cache")("./apis", aapibuilder);
 var setupenv = require("../process/setupenv");
-var message = require("./message");
+var message = require("../process/message");
 var env = process.env;
 var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || "zimoli";
@@ -86,9 +86,9 @@ if (process.env.IN_TEST_MODE) {
     };
 
     require("../process/cache").onreload(function () {
-        require("./message").reload();
+        message.reload();
     });
-    require("./message").onreload = function () {
+    message.onreload = function () {
         connections.splice(0).forEach(res => res.end());
     };
 }
