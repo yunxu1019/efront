@@ -1,4 +1,4 @@
-var Database = require("../database/index");
+var Database = require("./database/index");
 var database = global.database = new Database;
 // database.init();
 var _i18n = require("./i18n");
