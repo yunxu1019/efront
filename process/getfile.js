@@ -101,7 +101,7 @@ if (process.env.IN_TEST_MODE) module.exports = require("./cache")("./apps", func
     }
     return buff;
 });
-else module.exports = require("./cache")("./public", function (buff, name) {
+else module.exports = require("./cache")(process.env.PUBLIC_PATH || "./public", function (buff, name) {
     if (/\.html$/i.test(name)) {
         buff = Buffer.from(htmlMinifier.minify(buff.toString(), config));
     } else if (/\.js$/i.test(name)) {
