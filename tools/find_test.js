@@ -23,12 +23,18 @@ describe("find_test", function () {
     })
     it("getfiles", function () {
         return find("E:\\").getfiles().then(function (result) {
-            console.log(result);
+            // console.log(result);
         });
     });
-    it("查找E盘", function () {
+    it("readtree", function () {
         this.timeout(2000000);
-        return find("E:\\").readtree().then(function (result) {
+        return find("E:\\77").readtree().then(function (result) {
+            // console.log(result);
+        });
+    });
+    it("getmulti",function(){
+        this.timeout(2000000);
+        return find("E:\\77").getmulti().then(function (result) {
             console.log(result);
         });
     });
