@@ -1,9 +1,12 @@
-module.exports=function count(key, then) {
-    if (!counts.count) {
-        counts.count = 0;
+module.exports = function count({ path, update }, then) {
+    if (update) {
+        if (!counts[path]) {
+            counts[path] = 0;
+        }
+        counts[path]++;
     }
-    if (!(then instanceof Function)) {
-        return counts[key]++;
+    if (!counts[path]) {
+        return then(0);
     }
-    then(counts[key]);
+    then(counts[path]);
 }

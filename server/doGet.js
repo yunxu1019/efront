@@ -1,6 +1,7 @@
 var getfile = require("../process/getfile");
 var path = require("path");
 var mimes = require("../process/mime");
+var message = require("../process/message");
 var proxy = {};
 /**
  * 
@@ -30,6 +31,7 @@ module.exports = function (req, res) {
                 });
             }
         }
+        message.count({ path: url, update: true });
         res.write(data);
         return res.end();
     } else if (data instanceof Object) {
@@ -38,6 +40,7 @@ module.exports = function (req, res) {
             data = getfile(path.join(url, "/index.html"));
         }
         if (data instanceof Buffer) {
+            message.count({ path: url, update: true });
             res.writeHead(200, {
                 'Content-Type': mimes.html,
                 "Content-Length": data.length
