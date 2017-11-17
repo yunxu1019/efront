@@ -1,5 +1,6 @@
 var Database = require("./database/index");
 var database = global.database = new Database;
+var message = require("./message");
 // database.init();
 var _i18n = require("./i18n");
 /**
@@ -36,11 +37,8 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
         var request_accept_time = Date.now();
         return getParameters(req, i18n).then(function (data) {
             try {
-                data.req = req;
-                data.res = res;
-                data.i18n = i18n;
                 var api = require(fullpath);
-                return Promise.race([api(data, req, res), new Promise((ok, oh) => setTimeout(oh, 2000, "The request was canceled by server!"))])
+                return Promise.race([api(data, { req, res, i18n, message }), new Promise((ok, oh) => setTimeout(oh, 2000, "The request was canceled by server!"))])
                     .then(function (result) {
                         res.writeHead(200, {
                             "Content-Type": "text/plain"
