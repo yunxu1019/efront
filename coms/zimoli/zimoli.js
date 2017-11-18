@@ -10,8 +10,8 @@ var backman, target_hash, exit_ing;
 var window_history = window.history;
 var window_history_length = window_history.length;
 if (location.href.slice(location.href.length - location.pathname.length) !== location.pathname) {
-    location.replace(location.pathname)
-    throw "start from child hash";
+    location.replace("#reload");
+    // throw "start from child hash";
 }
 
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
@@ -227,7 +227,7 @@ var pushstate = function (path_name, history_name) {
     sessionStorage.setItem(history_session_object_key, JSON.stringify(history));
 };
 var fixurl = function () {
-    if (!/#/.test(location.href)) location.href = "#";
+    if (!/#$/.test(location.href)) location.href = "#";
     exit_ing = void 0;
 }
 var onback = function () {
