@@ -21,7 +21,7 @@ function back(){
 function titlebar(page_title, option_buttons, use_back) {
     use_back=use_back!==false;
     var bar = createElement(nav);
-    var title = createElement(div);
+    var title = createElement(label);
     var _back=createElement(back);
     text(title, page_title || document.title);
     appendChild(bar, title);
