@@ -27,12 +27,15 @@ try {
 }
 var retry = function (url, count) {
     setTimeout(function () {
-        load(url, ++count);
-    }, parseInt(count + Math.random()) * 200);
+        load(url, --count);
+    }, parseInt(Math.random()) * 200);
     return count;
 };
-var load = function (url, count) {
-    var xhr = new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
+var XHR = function () {
+    return new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
+};
+var load = function (url, count = 150) {
+    var xhr = XHR();
     xhr.open("POST", url);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -40,7 +43,7 @@ var load = function (url, count) {
             if (status === 0 || status === 200 || status === 304) {
                 responseTree[url] = xhr.responseText;
                 flush(url);
-            } else if (count > 150) {
+            } else if (count <= 0) {
                 throw new Error("加载" + url + "出错！");
             } else {
                 count = retry(url, count || 0);
@@ -48,7 +51,6 @@ var load = function (url, count) {
         }
     };
     xhr.send("look inside the light" + Math.random());
-    return xhr;
 };
 var flush = function (url) {
     var thens = loaddingTree[url];
@@ -204,4 +206,5 @@ var hook = function (requires_count) {
 modules.put = function (name, module) {
     modules[name] = module;
 };
+modules.XHR = XHR;
 hook(requires_count);
