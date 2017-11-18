@@ -143,26 +143,7 @@ function slider(autoplay) {
         clearTimeout(timer_playyer);
         play.ing = false;
     };
-    var mousemove = function (event) {
-        if (event.defaultPrevented) return;
-        var deltax = event.clientX - saved_x;
-        var deltay = event.clientY - saved_y;
-        if (!direction) {
-            if (abs(deltax) < 3 && abs(deltay) < 3) return;
-            if (abs(deltay) - abs(deltax) > 0) { //垂直方向
-                direction = -1;
-            } else { //水平方向
-                direction = 1;
-            }
-        }
-        if (direction < 0) {
-            return;
-        }
-        if (!moving) {
-            return;
-        }
-        event.preventDefault();
-        // event.stopPropagation && event.stopPropagation();
+    var moveDeltaX = function (deltax) {
         var width = outter.offsetWidth;
         if (!outter.hasLeft && deltax > 0) {
             var current_Left = parseInt(_imageHelp.style.left);
@@ -191,6 +172,29 @@ function slider(autoplay) {
         delta_negative_index = deltax / width;
         negative_index += delta_negative_index;
         reshape(-negative_index);
+
+    }
+    var mousemove = function (event) {
+        if (event.defaultPrevented) return;
+        var deltax = event.clientX - saved_x;
+        var deltay = event.clientY - saved_y;
+        if (!direction) {
+            if (abs(deltax) < 3 && abs(deltay) < 3) return;
+            if (abs(deltay) - abs(deltax) > 0) { //垂直方向
+                direction = -1;
+            } else { //水平方向
+                direction = 1;
+            }
+        }
+        if (direction < 0) {
+            return;
+        }
+        if (!moving) {
+            return;
+        }
+        event.preventDefault();
+        // event.stopPropagation && event.stopPropagation();
+        moveDeltaX(deltax);
     };
     var mouseup = function () {
         mousemove_remove();
@@ -198,11 +202,17 @@ function slider(autoplay) {
         moving = has_moving_instance = false;
         park();
     };
+    var stop_wheel_timer = 0;
+    onmousewheel(outter, function (event) {
+        if (!event.deltaX) return;
+        if (event._target && event._target !== this) return;
+        event._target = outter;
+        clearTimeout(stop_wheel_timer);
+        stop_wheel_timer = setTimeout(park, 30);
+        var deltax = -event.deltaX;
+        moveDeltaX(deltax);
+    });
     var mousemove_remove, mouseup_remove;
-    onmousewheel(outter,function(event){
-        if(!event.deltaX)return;
-        console.log(event);
-    })
     onmousedown(outter, function (event) {
         clearTimeout(timer_animate);
         clearTimeout(timer_playyer);
