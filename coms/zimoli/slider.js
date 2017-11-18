@@ -143,7 +143,7 @@ function slider(autoplay) {
         clearTimeout(timer_playyer);
         play.ing = false;
     };
-    var moveDeltaX = function (deltax) {
+    var moveDeltaX = function (deltax, event) {
         var width = outter.offsetWidth;
         if (!outter.hasLeft && deltax > 0) {
             var current_Left = parseInt(_imageHelp.style.left);
@@ -194,7 +194,7 @@ function slider(autoplay) {
         }
         event.preventDefault();
         // event.stopPropagation && event.stopPropagation();
-        moveDeltaX(deltax);
+        moveDeltaX(deltax, event);
     };
     var mouseup = function () {
         mousemove_remove();
@@ -210,7 +210,7 @@ function slider(autoplay) {
         clearTimeout(stop_wheel_timer);
         stop_wheel_timer = setTimeout(park, 30);
         var deltax = -event.deltaX;
-        moveDeltaX(deltax);
+        moveDeltaX(deltax, event);
     });
     var mousemove_remove, mouseup_remove;
     onmousedown(outter, function (event) {
