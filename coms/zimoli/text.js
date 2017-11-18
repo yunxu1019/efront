@@ -5,6 +5,7 @@ function text(node, text) {
         css(_node, text);
         return _node;
     }
+    node.innerHTML = "";
     isFunction(text) && (text = text());
-    isFunction(node.text) ? node.text(text) : appendChild(node, document.createTextNode(text));
+    isFunction(node.text) ? node.text(text) : node.appendChild(document.createTextNode(text));
 }
