@@ -78,11 +78,11 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                             "raw": JSON.stringify(className)
                         }
                     ]
-                },
-                {
-                    "type": "Identifier",
-                    "name": commName
                 }
+                // {
+                //     "type": "Identifier",
+                //     "name": commName
+                // }
             ]
         } : {
             "type": "Identifier",
