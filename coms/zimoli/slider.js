@@ -3,7 +3,7 @@ var _slider = createElement(div);
 css(_slider, "position:absolute;top:0px;left:0px;right:0px;bottom:0px;width:100%;height:100%;");
 var container = createElement(div);
 var windowInnerWidth = window.innerWidth || screen.availWidth;
-css(container, "overflow:hidden;position:relative;width:100%;height:120px;font-size:60px;cursor:move;");
+css(container, "overflow:hidden;position:relative;width:100%;height:120px;font-size:60px;");
 onresize(window, function (event) { });
 var floor = Math.floor;
 var ceil = Math.ceil;
@@ -199,6 +199,10 @@ function slider(autoplay) {
         park();
     };
     var mousemove_remove, mouseup_remove;
+    onmousewheel(outter,function(event){
+        if(!event.deltaX)return;
+        console.log(event);
+    })
     onmousedown(outter, function (event) {
         clearTimeout(timer_animate);
         clearTimeout(timer_playyer);
