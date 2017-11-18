@@ -1,5 +1,5 @@
-var text = div();
-css(text, "position:absolute;left:0;right:0;width:100%;height:1em;line-height:1em;top:50%;bottom:50%;margin: -.5em 0;overflow:hidden;text-align:center;");
+var _label = label();
+css(_label, "position:absolute;left:0;right:0;width:100%;height:1em;line-height:1em;top:50%;bottom:50%;margin: -.5em 0;overflow:hidden;text-align:center;");
 var track = createElement(div);
 // var track_over="visibility:inherit";
 css(track, "transition:opacity .2s ease-in;width:100%;height:100%;background:#000;position:absolute;left:0;top:0;");
@@ -16,9 +16,9 @@ function button(texter) {
     if (isNode(texter)) {
         _texter = texter;
     } else {
-        _texter = createElement(text);
+        _texter = createElement(_label);
         if (isString(texter))
-            _texter.innerText = texter;
+            text(_texter, texter);
     }
     var bluer = anniu();
     var button = createElement(btn, _texter, tracker, bluer);
@@ -40,10 +40,10 @@ function button(texter) {
     ontouchstart(button, active);
     ontouchcancel(button, reset);
     ontouchend(button, reset);
-    button.text = function (text) {
+    button.text = function (_text) {
         if (arguments.length)
-            return _texter.innerText = text;
-        return _texter.innerText;
+            return text(_texter, _text);
+        return text(_texter);
     };
     return button;
 };
