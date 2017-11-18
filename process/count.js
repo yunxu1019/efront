@@ -11,8 +11,8 @@ var fs = require("fs");
 var data_file = "./data/count.json";
 
 function load() {
-    var data = fs.readFileSync(data_file);
     try {
+        var data = fs.readFileSync(data_file);
         return JSON.parse(String(data))||{};
     } catch (e) {
         return {};
