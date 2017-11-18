@@ -4,7 +4,7 @@ var esmangle = require("../process/esmangle/esmangle");
 var escodegen = require("../process/escodegen/escodegen");
 var typescript = require("./typescript/typescript");
 var less = require("./less/less-node")();
-less.PluginLoader=function(){};
+less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
 var cwd = path.join(__dirname, "..");
@@ -56,38 +56,31 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var code_body = code.body.concat(commName ? {
         "type": "ReturnStatement",
         "argument": lessData ? {
-            "type": "SequenceExpression",
-            "expressions": [{
-                    "type": "CallExpression",
-                    "callee": {
-                        "type": "Identifier",
-                        "name": globalsmap.cless
-                    },
-                    "arguments": [{
-                            "type": "Identifier",
-                            "name": commName
-                        },
-                        {
-                            "type": "Literal",
-                            "value": lessData,
-                            "raw": JSON.stringify(lessData)
-                        },
-                        {
-                            "type": "Literal",
-                            "value": className,
-                            "raw": JSON.stringify(className)
-                        }
-                    ]
+            "type": "CallExpression",
+            "callee": {
+                "type": "Identifier",
+                "name": globalsmap.cless
+            },
+            "arguments": [
+                {
+                    "type": "Identifier",
+                    "name": commName
+                },
+                {
+                    "type": "Literal",
+                    "value": lessData,
+                    "raw": JSON.stringify(lessData)
+                },
+                {
+                    "type": "Literal",
+                    "value": className,
+                    "raw": JSON.stringify(className)
                 }
-                // {
-                //     "type": "Identifier",
-                //     "name": commName
-                // }
             ]
         } : {
-            "type": "Identifier",
-            "name": commName
-        }
+                "type": "Identifier",
+                "name": commName
+            }
     } : []);
     globals = Object.keys(globalsmap);
     if (process.env.IN_TEST_MODE) {
