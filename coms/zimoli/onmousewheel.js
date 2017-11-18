@@ -1,1 +1,1 @@
-var onmousewheel=on("mousewheel");
+var onmousewheel = "onmousewheel" in window ? on("mousewheel") : on("DOMMouseScroll");
