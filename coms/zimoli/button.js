@@ -5,7 +5,7 @@ track.className = "track";
 _label.className = "label";
 
 var btn = div();
-css(btn, "width:50px;height:24px;font-size:14px;position:relative;")
+css(btn, "position:relative;")
 
 function button(texter, type) {
     var tracker = createElement(track);
