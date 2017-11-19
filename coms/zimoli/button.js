@@ -1,16 +1,16 @@
 var _label = label();
 css(_label, "position:absolute;left:0;right:0;width:100%;height:1em;line-height:1em;top:50%;bottom:50%;margin: -.5em 0;overflow:hidden;text-align:center;");
 var track = createElement(div);
+track.className = "track";
 // var track_over="visibility:inherit";
-css(track, "transition:opacity .2s ease-in;width:100%;height:100%;background:#000;position:absolute;left:0;top:0;");
 opacity(track, 0);
 var btn = div();
-css(btn, "width:50px;height:24px;font-size:14px;background-color:#ff0000;position:relative;")
+css(btn, "width:50px;height:24px;font-size:14px;position:relative;")
 var opacity_mouseout = 0;
 var opacity_mouseover = 0.04;
 var opacity_active = 0.1;
 
-function button(texter) {
+function button(texter, type) {
     var tracker = createElement(track);
     var _texter;
     if (isNode(texter)) {
@@ -45,5 +45,6 @@ function button(texter) {
             return text(_texter, _text);
         return text(_texter);
     };
+    if (type) button.setAttribute("type", type);
     return button;
 };
