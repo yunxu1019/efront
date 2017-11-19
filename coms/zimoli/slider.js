@@ -176,6 +176,7 @@ function slider(autoplay) {
     }
     var mousemove = function (event) {
         if (event.defaultPrevented) return;
+        if (event.type !== "touchmove" && event.which === 0) return mouseup();
         var deltax = event.clientX - saved_x;
         var deltay = event.clientY - saved_y;
         if (!direction) {
