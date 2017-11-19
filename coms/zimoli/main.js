@@ -54,6 +54,7 @@ var load = function (url, count = 150) {
 };
 var flush = function (url) {
     var thens = loaddingTree[url];
+    delete loaddingTree[url];
     for (var k in thens) {
         var then = thens[k];
         if (then instanceof Function) {
@@ -206,5 +207,11 @@ var hook = function (requires_count) {
 modules.put = function (name, module) {
     modules[name] = module;
 };
+modules.responseTree = responseTree;
+modules.loaddingTree = loaddingTree;
+modules.setGetMethod = function (_get) {
+    get = _get;
+};
+modules.load = load;
 modules.XHR = XHR;
 hook(requires_count);
