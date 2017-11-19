@@ -2,13 +2,10 @@ var _label = label();
 css(_label, "position:absolute;left:0;right:0;width:100%;height:1em;line-height:1em;top:50%;bottom:50%;margin: -.5em 0;overflow:hidden;text-align:center;");
 var track = createElement(div);
 track.className = "track";
-// var track_over="visibility:inherit";
-opacity(track, 0);
+_label.className = "label";
+
 var btn = div();
 css(btn, "width:50px;height:24px;font-size:14px;position:relative;")
-var opacity_mouseout = 0;
-var opacity_mouseover = 0.04;
-var opacity_active = 0.1;
 
 function button(texter, type) {
     var tracker = createElement(track);
@@ -21,30 +18,53 @@ function button(texter, type) {
             text(_texter, texter);
     }
     var bluer = anniu();
-    var button = createElement(btn, _texter, tracker, bluer);
+    var button = createElement(btn, tracker, _texter, bluer);
     var hover = function () {
-        opacity(tracker, opacity_mouseover);
+        addClass(button, "hover");
     };
     var active = function () {
-        opacity(tracker, opacity_active);
+        addClass(button, "active");
     };
-    var reset = function () {
-        opacity(tracker, opacity_mouseout);
+    var resethover = function () {
+        removeClass(button, "hover");
+    };
+    var resetactive = function () {
+        removeClass(button, "active hover");
     };
     onmouseover(button, hover);
-    onmouseleave(button, reset);
-    onmousemove(button, reset);
+    onmouseleave(button, function () {
+        removeClass(button, "hover");
+    });
+    onmousemove(button, function (event) {
+        if (event.which) resetactive();
+    });
     onmousedown(button, active);
-    onmouseup(button, reset);
-    ontouchmove(button, reset);
+    onmouseup(button, resetactive);
+    ontouchmove(button, resetactive);
     ontouchstart(button, active);
-    ontouchcancel(button, reset);
-    ontouchend(button, reset);
+    ontouchcancel(button, resetactive);
+    ontouchend(button, resetactive);
+    onfocus(bluer, function () {
+        addClass(button, "focus");
+    });
+    onblur(bluer, function () {
+        removeClass(button, "focus");
+    })
     button.text = function (_text) {
+        if (_text && _text.length === 2) {
+            addClass(button, "space");
+        } else {
+            removeClass(button, "space");
+        }
         if (arguments.length)
             return text(_texter, _text);
         return text(_texter);
     };
+    if (texter && texter.length === 2) {
+        addClass(button, "space");
+    } else {
+        removeClass(button, "space");
+    }
     if (type) button.setAttribute("type", type);
     return button;
 };
