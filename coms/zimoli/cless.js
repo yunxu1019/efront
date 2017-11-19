@@ -12,7 +12,7 @@ function cless(commFactory, styleSheet, className) {
         var commRelease = commFactory.apply(this || null, arguments);
         if (commRelease) {
             try {
-                commRelease.className = className;
+                addClass(commRelease, className);
             } catch (e) {
                 console.error(e, "bindClassNameError");
             }
@@ -21,7 +21,7 @@ function cless(commFactory, styleSheet, className) {
     };
     if (commFactory) {
         try {
-            commFactory.className = className;
+            addClass(commFactory, className);
         } catch (e) {
             console.error(e, "bindClassNameError");
         }
