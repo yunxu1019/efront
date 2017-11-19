@@ -35,7 +35,9 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
             watchurls.push(lessFile);
             if (fs.statSync(lessFile).isFile()) {
                 watchurls.push(lessFile);
-                less.render(`.${className}{${fs.readFileSync(lessFile).toString()}}`, function (err, data) {
+                less.render(`.${className}{${fs.readFileSync(lessFile).toString()}}`, {
+                    compress: !process.env.IN_TEST_MODE
+                }, function (err, data) {
                     if (err) return;
                     lessData = data.css;
                 });
