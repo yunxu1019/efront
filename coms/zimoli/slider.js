@@ -172,8 +172,7 @@ function slider(autoplay) {
         delta_negative_index = deltax / width;
         negative_index += delta_negative_index;
         reshape(-negative_index);
-
-    }
+    };
     var mousemove = function (event) {
         if (event.defaultPrevented) return;
         if (event.type !== "touchmove" && event.which === 0) return mouseup();
@@ -209,7 +208,7 @@ function slider(autoplay) {
         if (event._target && event._target !== this) return;
         event._target = outter;
         clearTimeout(stop_wheel_timer);
-        stop_wheel_timer = setTimeout(park, 30);
+        stop_wheel_timer = setTimeout(park, 60);
         var deltax = -event.deltaX;
         moveDeltaX(deltax, event);
     });
