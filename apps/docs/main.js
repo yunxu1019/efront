@@ -18,8 +18,15 @@ onkeydown(outerbox, function (event) {
 var load = function () {
     component && remove(component);
     if (!outerbox.value) return;
-    console.info(`load ${outerbox.value}!`);
+    var commName = outerbox.value;
+    console.info(`load ${commName}!`);
     init(outerbox.value, function (comm) {
+        window[commName] = function () {
+            remove(component);
+            component = isFunction(comm) ? comm.apply(null, arguments) : createElement(comm);
+            component && appendChild(page, component);
+            return component;
+        };
         component = createElement(comm);
         component && appendChild(page, component);
     });
