@@ -7,8 +7,8 @@ function addClass(target, classNames) {
         cls[c] = true;
     }
     if (isString(classNames)) {
-        var clsNames = classNames.split(/\s+/);
-        for (var cx = 0, dx = arr.length; cx < dx; cx++) {
+        var clsNames = classNames.trim().split(/\s+/);
+        for (var cx = 0, dx = clsNames.length; cx < dx; cx++) {
             var c = clsNames[cx];
             cls[c] = true;
         }
@@ -17,7 +17,7 @@ function addClass(target, classNames) {
     }
     var newarr = [];
     for (var k in cls) {
-        if (cls) {
+        if (cls[k]) {
             newarr.push(k);
         }
     }

@@ -29,21 +29,25 @@ function button(texter, type) {
         removeClass(button, "hover");
     };
     var resetactive = function () {
-        removeClass(button, "active hover");
+        removeClass(button, "active");
     };
+    var resetall = function () {
+        removeClass(button, "active hover");
+    }
+    onremove(button, resetall);
     onmouseover(button, hover);
     onmouseleave(button, function () {
         removeClass(button, "hover");
     });
     onmousemove(button, function (event) {
-        if (event.which) resetactive();
+        if (onclick.preventClick && event.which) resetall();
     });
     onmousedown(button, active);
     onmouseup(button, resetactive);
-    ontouchmove(button, resetactive);
+    ontouchmove(button, resetall);
     ontouchstart(button, active);
-    ontouchcancel(button, resetactive);
-    ontouchend(button, resetactive);
+    ontouchcancel(button, resetall);
+    ontouchend(button, resetall);
     onfocus(bluer, function () {
         addClass(button, "focus");
     });
