@@ -23,7 +23,7 @@ function button(texter, type) {
         addClass(button, "hover");
     };
     var active = function () {
-        addClass(button, "active");
+        addClass(button, "active hover");
     };
     var resethover = function () {
         removeClass(button, "hover");
