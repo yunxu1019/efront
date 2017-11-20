@@ -157,6 +157,7 @@ function vbox(generator, state) {
         var deltax = clientX - saved_x;
         var deltay = clientY - saved_y;
         if (!direction) {
+            if (abs(deltax) < 3 && abs(deltay) < 3) return;
             direction = abs(deltax) >= abs(deltay) ? -1 : 1;
         }
         if (direction < 0)
