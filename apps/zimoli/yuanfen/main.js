@@ -2,7 +2,7 @@
 var qq_icon = icon("QQ", 0xffffff);
 var loginBtn = button(qq_icon);
 onclick(loginBtn, function () {
-    go("/login");
+    go("/user/login");
 });
 css(qq_icon, "width:28px;height:28px;margin:-14px;top:50%;left:50%;position:absolute;");
 css(loginBtn, "display:inline-block;position:absolute;right:0;top:0;height:100%;width:60px;background-color:transparent");

@@ -52,7 +52,7 @@ var createTitleBar = function () {
     text(title, document.title);
     text(login, "注册");
     onclick(login, function () {
-        go("/login");
+        go("/user/login");
     });
     appendChild(nav, title, login);
     css(login, "position:absolute;background-color:#333336;right:0px;top:0;bottom:0;height:100%;width:60px;");
