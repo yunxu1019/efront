@@ -7,6 +7,14 @@ var filesystem = enrich({
     path(full_path) {
         this._full_path = full_path;
     },
+    mkdir(full_path=tihs._full_path){
+        return new Promise(function(ok,oh){
+            fs.mkdir(full_path,function(error){
+                if(error)oh(error);
+                else ok();
+            });
+        });
+    },
     exists(full_path = this._full_path) {
         return new Promise(function (ok, oh) {
             fs.exists(full_path, ok);
