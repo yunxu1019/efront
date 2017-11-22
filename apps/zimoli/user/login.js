@@ -14,7 +14,10 @@ css(_logoArea, "width:80px;height:80px;margin:60px auto 40px auto;")
 css(_loginBtn, "width:200px;height:50px;margin:20px auto;");
 var _pageCount = createElement(div);
 css(_pageCount, "white-space:nowrap;right:0;bottom:0;color:#888;right:0;position:absolute;height:50px;line-height:50px;padding:0 16px;");
-appendChild(_login, _logoArea, _username, _password, _loginBtn, _pageCount);
+var register = anchor("注册", "/user/register");
+vbox(_login);
+
+appendChild(_login, _logoArea, _username, _password, _loginBtn, _pageCount, register);
 function login(dst_url, src_url) {
     api("/server/count", { path: "/" }).success(function (response) {
         text(_pageCount, "累计访问量：" + response.result);
