@@ -1,3 +1,4 @@
+"use strict";
 var extractImportUrlAndMedia = require('./extract-import-url-and-media');
 var restoreImport = require('./restore-import');
 var rewriteUrl = require('./rewrite-url');

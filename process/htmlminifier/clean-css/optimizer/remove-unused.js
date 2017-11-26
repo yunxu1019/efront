@@ -1,3 +1,4 @@
+"use strict";
 function removeUnused(properties) {
   for (var i = properties.length - 1; i >= 0; i--) {
     var property = properties[i];

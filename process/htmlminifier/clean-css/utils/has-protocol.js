@@ -1,3 +1,4 @@
+"use strict";
 var NO_PROTOCOL_RESOURCE_PATTERN = /^\/\//;
 
 function hasProtocol(uri) {

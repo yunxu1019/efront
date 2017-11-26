@@ -1,3 +1,4 @@
+"use strict";
 var commbuilder = require("./commbuilder"),
     pagebuilder = commbuilder;
 var cconbuilder = require("./iconbuilder");

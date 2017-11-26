@@ -1,3 +1,4 @@
+"use strict";
 var Database = require("./database/index");
 var database = global.database = new Database;
 var message = require("./message");
@@ -30,8 +31,16 @@ function getParameters(req, i18n) {
         });
     });
 }
+
+/**
+ * 
+ */
+function request(){
+
+}
 module.exports = function aapibuilder(buffer, filename, fullpath) {
     delete require.cache[fullpath];
+    message.abpi({fullpath});
     return function ApiManager(req, res) {
         var i18n = _i18n(req.headers["accept-language"] || req.headers["Accept-Language"]);
         var request_accept_time = Date.now();

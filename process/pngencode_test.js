@@ -1,3 +1,4 @@
+"use strict";
 it("将数据生成图像", function () {
     var fs = require('fs');
     var path = require("path");

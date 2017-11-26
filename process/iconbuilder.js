@@ -1,3 +1,4 @@
+"use strict";
 var pngjs = require("./pngjs/parser-sync");
 var pngencode = require("./pngencode");
 var crc= require("./crc");

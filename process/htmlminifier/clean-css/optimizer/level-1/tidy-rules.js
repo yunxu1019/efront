@@ -1,3 +1,4 @@
+"use strict";
 var Spaces = require('../../options/format').Spaces;
 var Marker = require('../../tokenizer/marker');
 var formatPosition = require('../../utils/format-position');

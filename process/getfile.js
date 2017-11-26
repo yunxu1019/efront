@@ -1,3 +1,4 @@
+"use strict";
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
 

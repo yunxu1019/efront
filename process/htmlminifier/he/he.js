@@ -1,3 +1,4 @@
+"use strict";
 /*! https://mths.be/he v1.1.1 by @mathias | MIT license */
 ;(function(root) {
 

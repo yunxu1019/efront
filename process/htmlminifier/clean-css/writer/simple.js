@@ -1,3 +1,4 @@
+"use strict";
 var all = require('./helpers').all;
 
 var lineBreak = require('os').EOL;

@@ -1,3 +1,4 @@
+"use strict";
 var fs = require("fs");
 var watch = require("../process/watch");
 var path = require("path");

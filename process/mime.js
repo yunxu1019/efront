@@ -1,3 +1,4 @@
+"use strict";
 var fs = require("fs");
 var mime_data_file = "./data/mime.json";
 var mimes = exports;

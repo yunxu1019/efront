@@ -1,3 +1,4 @@
+"use strict";
 var upperCase = require('./upper-case')
 var sentenceCase = require('./sentence-case')
 

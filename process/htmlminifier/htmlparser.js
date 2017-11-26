@@ -1,3 +1,4 @@
+"use strict";
 /*!
  * HTML Parser By John Resig (ejohn.org)
  * Modified by Juriy "kangax" Zaytsev

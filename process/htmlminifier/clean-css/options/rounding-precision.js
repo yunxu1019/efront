@@ -1,3 +1,4 @@
+"use strict";
 var override = require('../utils/override');
 
 var INTEGER_PATTERN = /^\d+$/;

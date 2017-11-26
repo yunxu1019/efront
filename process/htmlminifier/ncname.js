@@ -1,3 +1,4 @@
+"use strict";
 'use strict';
 var xmlChars = require('./xml-char-classes.js');
 

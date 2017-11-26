@@ -1,3 +1,4 @@
+"use strict";
 function rebaseFrom(rebaseOption) {
   return undefined === rebaseOption ? true : !!rebaseOption;
 }

@@ -1,3 +1,4 @@
+"use strict";
 var DATA_URI_PATTERN = /^data:(\S*?)?(;charset=[^;]+)?(;[^,]+?)?,(.+)/;
 
 function matchDataUri(uri) {

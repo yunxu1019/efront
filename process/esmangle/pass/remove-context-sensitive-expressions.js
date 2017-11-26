@@ -1,3 +1,4 @@
+"use strict";
 /*
   Copyright (C) 2012 Mihai Bazon <mihai.bazon@gmail.com>
   Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>

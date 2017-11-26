@@ -1,3 +1,4 @@
+"use strict";
 var compactable = require('./compactable');
 
 function restoreWithComponents(property) {

@@ -1,3 +1,4 @@
+"use strict";
 var Hack = {
   ASTERISK: 'asterisk',
   BANG: 'bang',

@@ -1,3 +1,4 @@
+"use strict";
 // TODO: it'd be great to merge it with the other canReorder functionality
 
 var rulesOverlap = require('./rules-overlap');

@@ -1,3 +1,4 @@
+"use strict";
 function table(sign) {
     var c, table = new Array(256);
     for (var n = 0; n < 256; n++) {

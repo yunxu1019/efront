@@ -1,3 +1,4 @@
+"use strict";
 var understandable = require('./properties/understandable');
 
 function backgroundPosition(validator, value1, value2) {

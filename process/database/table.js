@@ -1,3 +1,4 @@
+"use strict";
 /**
  * object转buffer
  * @param {Object} object 

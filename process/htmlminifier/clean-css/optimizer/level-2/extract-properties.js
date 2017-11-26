@@ -1,3 +1,4 @@
+"use strict";
 // This extractor is used in level 2 optimizations
 // IMPORTANT: Mind Token class and this code is not related!
 // Properties will be tokenized in one step, see #429

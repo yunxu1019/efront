@@ -1,3 +1,4 @@
+"use strict";
 var lineBreak = require('os').EOL;
 var emptyCharacter = '';
 

@@ -1,3 +1,4 @@
+"use strict";
 var UNIX_SEPARATOR = '/';
 var WINDOWS_SEPARATOR_PATTERN = /\\/g;
 

@@ -1,3 +1,4 @@
+"use strict";
 var MODIFIER_PATTERN = /\-\-.+$/;
 
 function rulesOverlap(rule1, rule2, bemMode) {

@@ -1,3 +1,4 @@
+"use strict";
 var start_time = 0;
 var fs = require("fs");
 var watch_tree={};

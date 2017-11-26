@@ -1,3 +1,4 @@
+"use strict";
 var Token = {
   AT_RULE: 'at-rule', // e.g. `@import`, `@charset`
   AT_RULE_BLOCK: 'at-rule-block', // e.g. `@font-face{...}`

@@ -1,3 +1,4 @@
+"use strict";
 // 中文编码 utf-8
 describe("encode62_test", function () {
     var encode62, a, b, c, d;

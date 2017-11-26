@@ -1,3 +1,4 @@
+"use strict";
 var fs = require("fs");
 var path = require("path");
 var gbk2utf8 = require("./gbk2utf8");

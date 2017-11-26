@@ -1,3 +1,4 @@
+"use strict";
 function restoreImport(uri, mediaQuery) {
   return ('@import ' + uri + ' ' + mediaQuery).trim();
 }

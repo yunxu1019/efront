@@ -1,3 +1,4 @@
+"use strict";
 var temp=0;
 var map={};
 var fs=require("fs");

@@ -1,3 +1,4 @@
+"use strict";
 var canReorder = require('./reorderable').canReorder;
 var extractProperties = require('./extract-properties');
 

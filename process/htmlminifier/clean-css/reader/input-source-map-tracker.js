@@ -1,3 +1,4 @@
+"use strict";
 var SourceMapConsumer = require('../../source-map.js').SourceMapConsumer;
 
 function inputSourceMapTracker() {

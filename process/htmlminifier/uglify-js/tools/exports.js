@@ -1,3 +1,4 @@
+"use strict";
 exports["Compressor"] = Compressor;
 exports["DefaultsError"] = DefaultsError;
 exports["Dictionary"] = Dictionary;

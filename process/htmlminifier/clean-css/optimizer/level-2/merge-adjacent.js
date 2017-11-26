@@ -1,3 +1,4 @@
+"use strict";
 var isMergeable = require('./is-mergeable');
 
 var optimizeProperties = require('./properties/optimize');

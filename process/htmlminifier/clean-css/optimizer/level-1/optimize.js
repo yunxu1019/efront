@@ -1,3 +1,4 @@
+"use strict";
 var shortenHex = require('./shorten-hex');
 var shortenHsl = require('./shorten-hsl');
 var shortenRgb = require('./shorten-rgb');

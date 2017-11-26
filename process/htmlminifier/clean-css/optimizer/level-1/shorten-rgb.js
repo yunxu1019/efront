@@ -1,3 +1,4 @@
+"use strict";
 function shortenRgb(red, green, blue) {
   var normalizedRed = Math.max(0, Math.min(parseInt(red), 255));
   var normalizedGreen = Math.max(0, Math.min(parseInt(green), 255));

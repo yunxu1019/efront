@@ -1,3 +1,4 @@
+"use strict";
 var finalpacker = require("./finalpacker");
 describe("finalpacker_test", function () {
     this.timeout(600000);

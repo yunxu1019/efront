@@ -1,3 +1,4 @@
+"use strict";
 var HTTP_RESOURCE_PATTERN = /^http:\/\//;
 
 function isHttpResource(uri) {

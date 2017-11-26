@@ -1,3 +1,4 @@
+"use strict";
 var Token = require('../../tokenizer/token');
 
 var serializeAll = require('../../writer/one-time').all;

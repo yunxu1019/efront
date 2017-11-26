@@ -1,3 +1,4 @@
+"use strict";
 // workaround for tty output truncation upon process.exit()
 [process.stdout, process.stderr].forEach(function(stream){
     if (stream._handle && stream._handle.setBlocking)

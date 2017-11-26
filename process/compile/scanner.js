@@ -1,3 +1,4 @@
+"use strict";
 function test(test, count) {
     var time = Date.now();
     if (test instanceof Function) {

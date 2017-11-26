@@ -1,3 +1,4 @@
+"use strict";
 var getvariables = require("../process/variables");
 var esprima = require("../process/esprima/index");
 var esmangle = require("../process/esmangle/esmangle");

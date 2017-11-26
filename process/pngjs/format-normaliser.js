@@ -1,3 +1,4 @@
+"use strict";
 'use strict';
 
 function dePalette(indata, outdata, width, height, palette) {

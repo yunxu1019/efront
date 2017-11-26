@@ -1,3 +1,4 @@
+"use strict";
 // adapted from http://nedbatchelder.com/blog/200712.html#e20071211T054956
 
 var NUMBER_PATTERN = /([0-9]+)/;

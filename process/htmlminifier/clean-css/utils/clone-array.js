@@ -1,3 +1,4 @@
+"use strict";
 function cloneArray(array) {
   var cloned = array.slice(0);
 

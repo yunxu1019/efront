@@ -1,3 +1,4 @@
+"use strict";
 module.exports = function count({ path, update }, then) {
     if (update) {
         if (!counts[path]) {

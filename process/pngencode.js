@@ -1,3 +1,4 @@
+"use strict";
 var png_leader = [137, 80, 78, 71, 13, 10, 26, 10];
 var crc = require("./crc");
 var deflate = require("zlib").deflateSync;

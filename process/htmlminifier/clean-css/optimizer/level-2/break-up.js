@@ -1,3 +1,4 @@
+"use strict";
 var InvalidPropertyError = require('./invalid-property-error');
 
 var wrapSingle = require('../wrap-for-optimizing').single;

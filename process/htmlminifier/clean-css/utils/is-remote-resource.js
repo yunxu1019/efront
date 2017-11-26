@@ -1,3 +1,4 @@
+"use strict";
 var REMOTE_RESOURCE_PATTERN = /^(\w+:\/\/|\/\/)/;
 
 function isRemoteResource(uri) {

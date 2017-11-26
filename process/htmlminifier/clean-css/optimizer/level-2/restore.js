@@ -1,3 +1,4 @@
+"use strict";
 var shallowClone = require('./clone').shallow;
 
 var Token = require('../../tokenizer/token');

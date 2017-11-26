@@ -1,3 +1,4 @@
+"use strict";
 function formatPosition(metadata) {
   var line = metadata[0];
   var column = metadata[1];

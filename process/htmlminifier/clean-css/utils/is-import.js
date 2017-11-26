@@ -1,3 +1,4 @@
+"use strict";
 var IMPORT_PREFIX_PATTERN = /^@import/i;
 
 function isImport(value) {

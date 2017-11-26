@@ -1,3 +1,4 @@
+"use strict";
 var isMergeable = require('./is-mergeable');
 
 var sortSelectors = require('../level-1/sort-selectors');

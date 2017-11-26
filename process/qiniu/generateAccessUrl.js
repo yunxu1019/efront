@@ -1,3 +1,4 @@
+"use strict";
 var _base_url = process.env["HOST.QINIU"];
 var _access_key = process.env["KEY.QINIU_ACCESS"];
 var _secret_key = process.env["KEY.QINIU_SECRET"];

@@ -1,3 +1,4 @@
+"use strict";
 var lowerCase = require('./lower-case')
 
 var NON_WORD_REGEXP = require('./vendor/non-word-regexp')

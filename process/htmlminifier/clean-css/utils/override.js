@@ -1,3 +1,4 @@
+"use strict";
 function override(source1, source2) {
   var target = {};
   var key1;

@@ -1,3 +1,4 @@
+"use strict";
 function InvalidPropertyError(message) {
   this.name = 'InvalidPropertyError';
   this.message = message;

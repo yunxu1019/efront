@@ -1,3 +1,4 @@
+"use strict";
 var SourceMapGenerator = require('../../source-map.js').SourceMapGenerator;
 var all = require('./helpers').all;
 

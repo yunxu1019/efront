@@ -1,3 +1,4 @@
+"use strict";
 var Hack = require('./hack');
 
 var Marker = require('../tokenizer/marker');

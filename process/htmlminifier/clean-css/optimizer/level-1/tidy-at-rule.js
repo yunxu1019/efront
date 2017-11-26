@@ -1,3 +1,4 @@
+"use strict";
 function tidyAtRule(value) {
   return value
     .replace(/\s+/g, ' ')

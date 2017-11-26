@@ -1,3 +1,4 @@
+"use strict";
 // Contains the interpretation of CSS properties, as used by the property optimizer
 
 var breakUp = require('./break-up');

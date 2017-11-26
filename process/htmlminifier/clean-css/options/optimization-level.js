@@ -1,3 +1,4 @@
+"use strict";
 var roundingPrecisionFrom = require('./rounding-precision').roundingPrecisionFrom;
 
 var override = require('../utils/override');

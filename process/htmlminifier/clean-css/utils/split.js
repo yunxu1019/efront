@@ -1,3 +1,4 @@
+"use strict";
 var Marker = require('../tokenizer/marker');
 
 function split(value, separator) {

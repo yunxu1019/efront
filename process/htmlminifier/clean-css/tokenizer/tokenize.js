@@ -1,3 +1,4 @@
+"use strict";
 var Marker = require('./marker');
 var Token = require('./token');
 

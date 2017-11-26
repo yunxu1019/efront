@@ -1,3 +1,4 @@
+"use strict";
 var canReorderSingle = require('./reorderable').canReorderSingle;
 var extractProperties = require('./extract-properties');
 var isMergeable = require('./is-mergeable');

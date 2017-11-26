@@ -1,3 +1,4 @@
+"use strict";
 describe("enrich_test", function () {
     var enrich = require("./enrich");
     it("enrich_onstep", function () {

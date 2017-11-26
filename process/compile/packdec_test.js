@@ -1,3 +1,4 @@
+"use strict";
 describe("webpack反编译工具", function () {
     var fs, path, packdec;
     before(function () {

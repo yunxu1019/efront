@@ -1,3 +1,4 @@
+"use strict";
 var helpers = require('./helpers');
 
 function store(serializeContext, token) {

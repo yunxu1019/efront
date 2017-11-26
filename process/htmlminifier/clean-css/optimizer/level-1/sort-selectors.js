@@ -1,3 +1,4 @@
+"use strict";
 var naturalCompare = require('../../utils/natural-compare');
 
 function naturalSorter(scope1, scope2) {

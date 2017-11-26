@@ -1,3 +1,4 @@
+"use strict";
 'use strict';
 
 var paethPredictor = require('./paeth-predictor');

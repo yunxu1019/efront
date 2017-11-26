@@ -1,3 +1,4 @@
+"use strict";
 var DEFAULT_TIMEOUT = 5000;
 
 function inlineTimeoutFrom(option) {

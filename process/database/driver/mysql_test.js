@@ -1,3 +1,4 @@
+"use strict";
 describe("database_test", function () {
     require("../process/setupenv");
     var database;

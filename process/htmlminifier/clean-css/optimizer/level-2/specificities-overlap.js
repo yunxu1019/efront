@@ -1,3 +1,4 @@
+"use strict";
 var specificity = require('./specificity');
 
 function specificitiesOverlap(selector1, selector2, cache) {

@@ -1,3 +1,4 @@
+"use strict";
 'use strict';
 
 module.exports = function paethPredictor(left, above, upLeft) {

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Clean-css - https://github.com/jakubpawlowicz/clean-css
  * Released under the terms of MIT license

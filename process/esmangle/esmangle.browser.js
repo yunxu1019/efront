@@ -1,3 +1,4 @@
+"use strict";
 var window={};
 (function(){var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');

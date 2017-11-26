@@ -1,3 +1,4 @@
+"use strict";
 var SUPPORTED_COMPACT_BLOCK_MATCHER = /^@media\W/;
 
 function tidyBlock(values, spaceAfterClosingBrace) {

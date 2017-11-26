@@ -1,3 +1,4 @@
+"use strict";
 var i18n_data;
 var i18n_file = require("path").join("./data/i18n/zh-cn.json");
 var parse = function (value) {

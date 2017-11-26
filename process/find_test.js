@@ -1,3 +1,4 @@
+"use strict";
 var chai = require("chai");
 describe("find_test", function () {
     var find;

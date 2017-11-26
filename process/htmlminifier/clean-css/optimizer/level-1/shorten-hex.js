@@ -1,3 +1,4 @@
+"use strict";
 var COLORS = {
   aliceblue: '#f0f8ff',
   antiquewhite: '#faebd7',

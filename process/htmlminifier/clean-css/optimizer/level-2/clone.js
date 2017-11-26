@@ -1,3 +1,4 @@
+"use strict";
 var wrapSingle = require('../wrap-for-optimizing').single;
 
 var Token = require('../../tokenizer/token');

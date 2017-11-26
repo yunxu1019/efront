@@ -1,3 +1,4 @@
+"use strict";
 var split = require('../utils/split');
 
 var BRACE_PREFIX = /^\(/;

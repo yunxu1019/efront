@@ -1,3 +1,4 @@
+"use strict";
 function inlineOptionsFrom(rules) {
   if (Array.isArray(rules)) {
     return rules;

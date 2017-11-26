@@ -1,3 +1,4 @@
+"use strict";
 /*
   Copyright (C) 2014 Yusuke Suzuki <utatane.tea@gmail.com>
 

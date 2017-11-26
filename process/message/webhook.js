@@ -1,3 +1,4 @@
+"use strict";
 var needrestart = false,
     restarttimer = false;
 var restart_process = function () {

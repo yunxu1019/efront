@@ -1,3 +1,4 @@
+"use strict";
 module.exports = encode62;
 var src = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 var map = {};

@@ -1,3 +1,4 @@
+"use strict";
 var mergeAdjacent = require('./merge-adjacent');
 var mergeMediaQueries = require('./merge-media-queries');
 var mergeNonAdjacentByBody = require('./merge-non-adjacent-by-body');
