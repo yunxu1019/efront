@@ -152,6 +152,7 @@ var init = function (name, then, prebuild) {
             functionArgs = [];
             functionBody = text;
         }
+        functionBody = functionBody.replace(/^(?:"user? strict";?[\r\n]*)?/i, "\"use strict\";\r\n");
         if (!functionArgs.length) {
             try {
                 var exports = adapter(Function.call(window, functionBody));

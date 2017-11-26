@@ -14,7 +14,6 @@ function getParameters(req, i18n) {
         req.on("data", function (buff) {
             cached_length += buff.length;
             if (cached_length > 0xffff) { //64k
-                delete chunks;
                 oh(i18n.the_data_you_send_should_be_less_than("64k"));
             } else {
                 chunks.push(buff);
@@ -59,7 +58,6 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
                         }));
                         delete data.req;
                         delete data.res;
-                        delete data;
                     })
                     .catch(function (e) {
                         res.writeHead(500, {});
