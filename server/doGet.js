@@ -1,3 +1,4 @@
+"use strict";
 var getfile = require("../process/getfile");
 var path = require("path");
 var mimes = require("../process/mime");

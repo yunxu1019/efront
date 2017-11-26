@@ -1,3 +1,4 @@
+"use strict";
 var getpagefile = require("../process/cache");
 var commbuilder = require("../process/commbuilder");
 var iconbuilder = require("../process/iconbuilder");
@@ -92,7 +93,7 @@ if (process.env.IN_TEST_MODE) {
         connections.splice(0).forEach(res => res.end());
     };
 }
-sumedSize = 0;
+var sumedSize = 0;
 
 function read(req, size) {
     sumedSize += size;
