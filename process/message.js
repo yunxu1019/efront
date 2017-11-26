@@ -94,7 +94,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         },
         set: function (o, k, v) {
             if (k in o) throw new Error(`the property '${k}' is already in object [message]!`);
-            o[k] = v;
+            return o[k] = v;
         }
     });
 }
