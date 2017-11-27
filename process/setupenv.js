@@ -99,7 +99,7 @@ var get = function (text) {
         var k = match[1],
             v = match[3];
         if (v)
-            return env[k.toUpperCase()] = /^path\./i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v;
+            return env[k.toUpperCase()] = /^path\.|path$/i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v;
         else
             return delete env[k]
     }
