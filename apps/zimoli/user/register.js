@@ -1,4 +1,5 @@
-var page=createElement("div");
-function register(){
-return page;
+var page = createElement("div");
+titlebar("注册");
+function register() {
+    return page;
 }
