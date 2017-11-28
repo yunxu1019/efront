@@ -114,8 +114,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var requestListener = function (req, res) {
         var match = req.url.match(/ccon\/(.*?)\.([\da-f]+)\.png$/);
         if (match) {
-            name = match[1];
-            color = parseInt(match[2], 16);
+            var name = match[1];
+            var color = parseInt(match[2], 16);
             return res.end(doPost.ccon(name, color));
         }
         if (req.method === "GET") {
