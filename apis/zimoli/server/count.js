@@ -1,11 +1,4 @@
-function countPage({ path }, { message }) {
-    return new Promise(function (ok, oh) {
-        message.count({
-            path: path || "/",
-            isupdate: false
-        }, function (count) {
-            ok(count);
-        });
-    });
+function countPage({ path }) {
+    return counts[path] || 0;
 }
 module.exports = countPage;

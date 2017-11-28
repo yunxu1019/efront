@@ -30,23 +30,70 @@ function getParameters(req, i18n) {
         });
     });
 }
-
+var queue = [];
 /**
- * 
+ * 请求主进程加载或执行相应的api，传入两个参数为执行，一个参数为重载
+ * @param {string} fullpath 
+ * @param {object} data 
+ * @param {object} info
  */
-function request(){
-
+function request(fullpath, data, info) {
+    if (queue.length > 200000) {
+        return Promise.reject("please wait for a time!");
+    }
+    var promise;
+    if (arguments.length === 1) {
+        if (queue.length > 0) {
+            queue.splice(1, 0, [fullpath]);
+        } else {
+            queue.push([fullpath]);
+        }
+    } else {
+        promise = new Promise(function (ok, oh) {
+            queue.push([fullpath, ok, oh, data, info]);
+        });
+    }
+    if (queue.length > 1) return promise;
+    var runner = function () {
+        if (!queue.length) return;
+        var args = queue[0];
+        var [fullpath, ok, oh, data, info] = args;
+        if (args.length === 1) {
+            message.abpi({
+                fullpath
+            }, function (result) {
+                queue.shift();
+                runner();
+            });
+        } else {
+            message.abpi({
+                fullpath,
+                data: data,
+                info: info
+            }, function (result) {
+                queue.shift();
+                if (result.status === 200) ok(result.result);
+                else oh(result.result || result.status);
+                runner();
+            });
+        }
+    };
+    setTimeout(runner, 0);
+    return promise;
 }
+
 module.exports = function aapibuilder(buffer, filename, fullpath) {
     delete require.cache[fullpath];
-    message.abpi({fullpath});
+    delete message[fullpath];
+    request(fullpath);
     return function ApiManager(req, res) {
         var i18n = _i18n(req.headers["accept-language"] || req.headers["Accept-Language"]);
         var request_accept_time = Date.now();
         return getParameters(req, i18n).then(function (data) {
             try {
-                var api = require(fullpath);
-                return Promise.race([api(data, { req, res, i18n, message }), new Promise((ok, oh) => setTimeout(oh, 2000, "The request was canceled by server!"))])
+                var info = {
+                };
+                return Promise.race([request(fullpath, data, info), new Promise((ok, oh) => setTimeout(oh, 2000, "The request was canceled by server!"))])
                     .then(function (result) {
                         res.writeHead(200, {
                             "Content-Type": "text/plain"

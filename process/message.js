@@ -28,9 +28,9 @@ var onmessage = function (msg, then) {
     if (run instanceof Function) {
         if (args) {
             var { params, stamp } = JSON.parse(args);
-            run(params, then, stamp);
+            run.call(onmessage, params, then, stamp);
         } else {
-            run(null, then);
+            run.call(onmessage, null, then);
         }
     }
 };
