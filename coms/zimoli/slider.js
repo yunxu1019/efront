@@ -15,7 +15,7 @@ var is_touch_enabled = "ontouchstart" in window;
 var extendTouch = function (e) {
     var touch = e.touches[0];
     for (var k in touch) {
-        e[k] = touch[k];
+        if (!e[k]) e[k] = touch[k];
     }
     return e;
 };

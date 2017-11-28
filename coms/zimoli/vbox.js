@@ -9,7 +9,7 @@ css(box, "overflow:hidden;height:100%");
 var extendTouch = function (e) {
     var touch = e.touches[0];
     for (var k in touch) {
-        e[k] = touch[k];
+        if (!e[k]) e[k] = touch[k];
     }
     return e;
 };
