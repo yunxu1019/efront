@@ -38,12 +38,14 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         location.href = "#";
     };
     backman();
-    setTimeout(onhashchange, 0, window, function (event) {
-        if (/#$/.test(event.newURL || event.actionURL)) return;
-        if (exit_ing) return exit_ing = false, window_history.go(-1);
-        backman();
-        if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) { }
-    });
+    setTimeout(function () {
+        onhashchange(window, function (event) {
+            if (/#$/.test(event.newURL || event.actionURL)) return;
+            if (exit_ing) return exit_ing = false, window_history.go(-1);
+            backman();
+            if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) { }
+        })
+    }, 0);
 }
 // body
 css(body, {

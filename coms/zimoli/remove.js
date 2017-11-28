@@ -15,10 +15,9 @@ function _onremove(node, event) {
     var onremove = node.onremove;
     node.isMounted = false;
     if (!event) {
-        event = document.createEvent("Event");
-        event.initEvent("remove", false, false);
+        event = createEvent("remove");
     }
-    node.dispatchEvent(event);
+    dispatch(node, event);
     if (isArray(onremove)) {
         onremove.map(function (remove_hindler) {
             remove_hindler.call(this, event);

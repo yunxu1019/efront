@@ -6,10 +6,9 @@ function release(node) {
 
 function _onappend(node, event) {
     if (!event) {
-        event = document.createEvent("Event");
-        event.initEvent("append", false, false);
+        event = createEvent("append");
     }
-    node.dispatchEvent(event);
+    dispatch(node, event);
     node.isMounted = true;
     var onappend = node.onappend;
     if (isArray(onappend)) {
