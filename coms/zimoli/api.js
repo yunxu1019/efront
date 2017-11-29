@@ -56,7 +56,7 @@ var api = function (uri, parameters, prefix) {
                 onerror && onerror(prefix + "接口未返回信息！", 2);
             }
         };
-        xhr.upload.onprogress = function (event) {
+        if (xhr.upload) xhr.upload.onprogress = function (event) {
             onupload && onupload(event, xhr);
             req.up_total = event.total;
             req.up_loaded = event.loaded;
