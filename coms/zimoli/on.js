@@ -40,18 +40,17 @@ if (is_addEventListener_enabled) {
                     }
                     broadcast(element[handler_path], e);
                 };
-            }
-            var broadcast = function (handlers, e) {
-                for (var cx = 0, dx = handlers.length; cx < dx; cx++) {
-                    var _handler = handlers[cx];
-                    if (handler instanceof Function) {
-                        handler.call(element, e);
-                    } else if (handler instanceof Array) {
-                        broadcast(handler, e);
+                var broadcast = function (handlers, e) {
+                    for (var cx = 0, dx = handlers.length; cx < dx; cx++) {
+                        var _handler = handlers[cx];
+                        if (_handler instanceof Function) {
+                            _handler.call(element, e);
+                        } else if (_handler instanceof Array) {
+                            broadcast(_handler, e);
+                        }
                     }
-                    handlers[cx].call(element, e);
-                }
-            };
+                };
+            }
             var remove = function () {
                 var handlers = element[handler_path];
                 for (var cx = handlers.length - 1; cx >= 0; cx--) {
