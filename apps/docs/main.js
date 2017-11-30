@@ -27,17 +27,17 @@ var load = function (then) {
     init(commNameInput.value, function (comm) {
         window[commName] = function () {
             remove(component);
-            try{
+            try {
                 component = isFunction(comm) ? comm.apply(null, arguments) : createElement(comm);
                 component && appendChild(page, component);
-            }catch(e){
+            } catch (e) {
             }
             return component;
         };
-        try{
+        try {
             component = createElement(comm);
             component && appendChild(page, component);
-        }catch(e){
+        } catch (e) {
 
         }
         then && then(comm);
@@ -50,15 +50,34 @@ var clearCachedResponse = function () {
     for (var k in responseTree) {
         delete responseTree[k];
         delete modules[k];
+        delete window[k];
     }
 };
+var sync = function (method, url) {
+    var xhr = new XHR;
+    xhr.open(method, url, false);
+    xhr.send("efront");
+    return xhr.responseText;
+};
 var exportCodes = function () {
+    baseUrl = "/";
+    var mainScript = sync("post", "/comm/main");
+    var indexHtml = sync("get", "/");
     clearCachedResponse();
     load(function () {
-        var code=JSON.stringify(responseTree);
-        console.log(code,code.length, modules.loaddingTree);
+        var commName = commNameInput.value;
+        var code = JSON.stringify(responseTree, null, 4);
+        code = mainScript.replace(/var\s+responseTree\s*=\s*\{\};?/, function () {
+            return `var responseTree = ${code};`;
+        });
+        var html = indexHtml.replace(/<!--[\s\S]*?-->/g, "").replace(/<title>.*?<\/title>/, "<title>http://efront.cc</title>").replace(/<script[\s\w\"\']*>[\s\S]*<\/script>/, function () {
+            return `<script>-function(){${code}}.call(window)</script>`;
+        });
+        // var blob = new Blob([code], { type: "text/plain" });
+        download(html, commName + ".html", "text/html");
+        console.log(html.length);
     });
-}
+};
 var exportButton = button("导出代码", "default");
 css(exportButton, "height:50px;width:200px;")
 onclick(exportButton, exportCodes);
