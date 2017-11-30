@@ -55,8 +55,8 @@ var call = function (file, args = []) {
         file = _file;
     }
     gbk2utf8(
-            fs.readFileSync(file)
-        )
+        fs.readFileSync(file)
+    )
         .replace(/%(\d)/g, function (match, i) {
             return args[i];
         })
@@ -85,14 +85,14 @@ var get = function (text) {
     if (match) {
         var [matched_text, ignorecase, not, label, level, condition_left, condition_symbol, condition_right, qoute, exist, defined, command] = match;
         if (!!not ^ (
-                level && env[label] == level ||
-                condition_left && if_conditions[condition_symbol.toLowerCase()](
-                    ignorecase ? condition_left.toUpperCase() : condition_left,
-                    ignorecase ? condition_right.toUpperCase() : condition_right
-                ) ||
-                exist && fs.existsSync(path.normalize(exist.replace(/[\\]+/gi, "/"))) ||
-                defined && defined in env
-            )) get(command);
+            level && env[label] == level ||
+            condition_left && if_conditions[condition_symbol.toLowerCase()](
+                ignorecase ? condition_left.toUpperCase() : condition_left,
+                ignorecase ? condition_right.toUpperCase() : condition_right
+            ) ||
+            exist && fs.existsSync(path.normalize(exist.replace(/[\\]+/gi, "/"))) ||
+            defined && defined in env
+        )) get(command);
     }
     var match = text.match(reg_set);
     if (match) {
@@ -121,4 +121,4 @@ module.exports = function (appname) {
     if (!env.PAGE) env.PAGE = appname;
     return env;
 };
-process.env.IN_DEBUG_MODE = process.argv.findIndex(e => /--debug-brk=/i.test(e)) > 0 ? 1 : 0
+process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--debug-brk=/i.test(e)) > 0 ? 1 : 0
