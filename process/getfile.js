@@ -98,17 +98,21 @@ var config = {
 }
 if (process.env.IN_TEST_MODE) module.exports = require("./cache")("./apps", function (buff, name) {
     if (/\.html$/i.test(name)) {
-        buff = Buffer.concat([buff, Buffer.from(`<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}()</script>`)]);
+        buff = Buffer.from(String(buff).replace(/<script.*?>([\s\S]*?)<\/script>/i, `<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}()\r\n$1</script>`));
     }
     return buff;
 });
 else module.exports = require("./cache")(process.env.PUBLIC_PATH || "./public", function (buff, name) {
-    if (/\.html$/i.test(name)) {
-        buff = Buffer.from(htmlMinifier.minify(buff.toString(), config));
-    } else if (/\.js$/i.test(name)) {
-        buff = Buffer.from(htmlMinifier.minify("<script>- function (document, window) {" + typescript.transpile(buff.toString()) + "}.call(this, document, this);</script>", config).replace(/<script>|<\/script>/g, ""));
-    } else if (/\.css$/i.test(name)) {
-        buff = Buffer.from(htmlMinifier.minify("<style>" + buff.toString() + "</style>", config).replace(/<style>|<\/style>/g, ""));
+    try {
+        if (/\.html$/i.test(name)) {
+            buff = Buffer.from(htmlMinifier.minify(buff.toString(), config));
+        } else if (/\.js$/i.test(name)) {
+            buff = Buffer.from(htmlMinifier.minify("<script><!--\r\n- function (document, window) {" + typescript.transpile(buff.toString()) + "}.call(this, document, this);\r\n</script>", config).replace(/<script>|<\/script>/g, ""));
+        } else if (/\.css$/i.test(name)) {
+            buff = Buffer.from(htmlMinifier.minify("<style>" + buff.toString() + "</style>", config).replace(/<style>|<\/style>/g, ""));
+        }
+    } catch (e) {
+        console.error(`${name}压缩失败！`);
     }
     return buff;
 });
