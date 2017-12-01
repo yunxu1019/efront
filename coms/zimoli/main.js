@@ -35,19 +35,30 @@ var retry = function (url, count) {
 var XHR = function () {
     return new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
 };
-var load = function (url, count = 150) {
+var load = function (name, count = 150) {
+    var url;
+    switch (name.charAt(0)) {
+        case "/":
+            url = "page" + name;
+            break;
+        case "$":
+            url = "ccon/" + name.slice(1);
+            break;
+        default:
+            url = "comm/" + name;
+    }
     var xhr = XHR();
     xhr.open("POST", url);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             var status = xhr.status;
             if (status === 0 || status === 200 || status === 304) {
-                responseTree[url] = xhr.responseText;
-                flush(url);
+                responseTree[name] = xhr.responseText;
+                flush(name);
             } else if (count <= 0) {
-                throw new Error("加载" + url + "出错！");
+                throw new Error("加载" + name + "出错！");
             } else {
-                count = retry(url, count || 0);
+                count = retry(name, count || 0);
             }
         }
     };
@@ -113,31 +124,28 @@ var init = function (name, then, prebuild) {
         modules[name] = window[name];
         return then(modules[name]);
     }
-    var url, adapter;
+    var  adapter;
     switch (name.charAt(0)) {
         case "/":
-            url = "page" + name;
             adapter = executer;
             break;
         case "$":
-            url = "ccon/" + name.slice(1);
             adapter = noop;
             break;
         default:
             adapter = executer;
-            url = "comm/" + name;
     }
-    if (modules[url]) {
-        return then(modules[url]);
+    if (modules[name]) {
+        return then(modules[name]);
     }
-    if (pendding[url]) {
-        return pendding[url].push(then);
+    if (pendding[name]) {
+        return pendding[name].push(then);
     }
-    pendding[url] = [then];
+    pendding[name] = [then];
     // return 
-    get(url, function (text) {
+    get(name, function (text) {
         if (adapter === noop) {
-            return broadcast(url, text);
+            return broadcast(name, text);
         }
         var functionArgs, functionBody;
         //依赖项名称部分的长度限制为36*36*18=23328
@@ -158,17 +166,17 @@ var init = function (name, then, prebuild) {
             try {
                 var exports = adapter(Function.call(window, functionBody));
             } catch (e) {
-                throw new Error(`[${url}] ${e}`);
+                throw new Error(`[${name}] ${e}`);
             }
-            return broadcast(url, exports);
+            return broadcast(name, exports);
         }
         init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
             try {
                 var exports = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
             } catch (e) {
-                throw new Error(`[${url}] ${e}`);
+                throw new Error(`[${name}] ${e}`);
             }
-            broadcast(url, exports);
+            broadcast(name, exports);
         }, prebuild);
     });
 };

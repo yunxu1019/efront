@@ -26,7 +26,7 @@ var requestTree = {};
 var responseTree = {};
 var window = global;
 var load = function (url) {
-    var match = url.match(/^\/?(.*?)(comm|page|ccon|api)\/(.*?)(?:\.js|\.png)?$/);
+    var match = url.match(/^(.*?)(\/|\$|)(.*?)(?:\.js|\.png)?$/);
     var builder, fullpath;
     if (match) {
         var appc = match[1],
@@ -34,17 +34,17 @@ var load = function (url) {
             name = match[3],
             extt = match[4];
         switch (type) {
-            case "comm":
+            case "":
                 builder = commbuilder;
                 extt = ".js";
                 fullpath = path.join(comms_root, name + extt);
                 break;
-            case "page":
+            case "/":
                 builder = commbuilder;
                 extt = ".js";
                 fullpath = path.join(pages_root, name + extt);
                 break;
-            case "ccon":
+            case "$":
                 builder = iconbuilder;
                 extt = ".png";
                 fullpath = path.join(ccons_root, name + extt);
@@ -75,25 +75,24 @@ var load = function (url) {
         }
     });
 };
-var flush = function (url) {
-    var thens = loaddingTree[url];
-    delete loaddingTree[url];
+var flush = function (name) {
+    var thens = loaddingTree[name];
+    delete loaddingTree[name];
     for (var k in thens) {
         var then = thens[k];
         if (then instanceof Function) {
-            then(responseTree[url]);
+            then(responseTree[name]);
         }
     }
 };
-var get = function (url, then) {
-    url = url.replace(/[\\\/]+/, "/");
-    if (responseTree[url]) {
-        then(responseTree[url]);
-    } else if (loaddingTree[url]) {
-        loaddingTree[url].push(then);
+var get = function (name, then) {
+    if (responseTree[name]) {
+        then(responseTree[name]);
+    } else if (loaddingTree[name]) {
+        loaddingTree[name].push(then);
     } else {
-        loaddingTree[url] = [then];
-        load(url);
+        loaddingTree[name] = [then];
+        load(name);
     }
 };
 
@@ -132,33 +131,32 @@ var init = function (name, then, prebuild) {
     if (modules[name]) {
         return then(modules[name]);
     }
-    var url, adapter;
+    var adapter;
     switch (name.charAt(0)) {
         case "/":
-            url = "page" + name.replace(/\.[tj]sx?$/, "");
+            name = name.replace(/\.[tj]sx?$/, "");
             adapter = executer;
             break;
         case "$":
-            url = "ccon/" + name.replace(/^\$(.*?)\.png/, "$1");
+            name = name.replace(/\.png/, "");
             adapter = noop;
             break;
         default:
             adapter = executer;
-            url = "comm/" + name;
     }
-    if (modules[url]) {
-        return then(modules[url]);
+    if (modules[name]) {
+        return then(modules[name]);
     }
-    if (pendding[url]) {
-        return pendding[url].push(then);
+    if (pendding[name]) {
+        return pendding[name].push(then);
     }
-    pendding[url] = [then];
+    pendding[name] = [then];
     // return 
-    get(url, function (text) {
+    get(name, function (text) {
         if (!text)
-            return broadcast(url, global[url.replace(/^.*?comm\/(.*?)$/, "$1")]);
+            return broadcast(name, global[name]);
         if (adapter === noop) {
-            return broadcast(url, text);
+            return broadcast(name, text);
         }
         var functionArgs, functionBody;
         //依赖项名称部分的长度限制为36*36*18=23328
@@ -179,43 +177,36 @@ var init = function (name, then, prebuild) {
             try {
                 var exports = adapter(Function.call(window, functionBody));
             } catch (e) {
-                throw new Error(`[${url}] ${e}`);
+                throw new Error(`[${name}] ${e}`);
             }
-            return broadcast(url, exports);
+            return broadcast(name, exports);
         }
         init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
             try {
                 var exports = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
             } catch (e) {
-                throw new Error(`[${url}] ${e}`);
+                throw new Error(`[${name}] ${e}`);
             }
-            broadcast(url, exports);
+            broadcast(name, exports);
         }, prebuild);
     });
 };
 modules.init = init;
 var replacePromise = function (promise) {
-    Promise = promise;
     hook(--requires_count);
 };
 var replaceArrayMap = function (map) {
-    Array.prototype.map = map;
     hook(--requires_count);
 };
 var replaceClickEvent = function (fastclick) {
-    new fastclick(document.body);
     hook(--requires_count);
 };
 var requires_count = 0;
-if (!Promise) {
+if (true) {
     requires_count++;
     init("promise", replacePromise);
-}
-if (![].map) {
     requires_count++;
     init("[].map", replaceArrayMap);
-}
-if ("ontouchstart" in window) {
     requires_count++;
     init("fastclick", replaceClickEvent);
 }
@@ -263,7 +254,7 @@ var hook = function (requires_count) {
             var indexHtml = getpagefile("index.html").toString();
             env.PUBLIC_PATH = process_env_public_path;
             console.info("编译完成，正在写入文件..");
-            var code = JSON.stringify(responseTree, null, 4);
+            var code = JSON.stringify(responseTree, null, "\t");
             var mainScript = commbuilder(fs.readFileSync("./coms/zimoli/main.js"), "main.js", "./coms/zimoli/main.js", []).toString();
             var responseTreeName = /\.responseTree\s*=\s*(.*?)[,;$]/m.exec(mainScript)[1];
 
