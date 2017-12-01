@@ -24,6 +24,7 @@ try {
 } catch (e) {
     document.write(message);
     window.top.location.reload();
+    throw message;
 }
 var retry = function (url, count) {
     setTimeout(function () {
