@@ -139,7 +139,7 @@ var init = function (name, then, prebuild) {
             adapter = executer;
             break;
         case "$":
-            url = "ccon/" + name.slice(1);
+            url = "ccon/" + name.replace(/^\$(.*?)\.png/, "$1");
             adapter = noop;
             break;
         default:
@@ -229,8 +229,15 @@ var hook = function (requires_count) {
                     fs.stat(file, function (error, stat) {
                         if (error) return oh(error);
                         if (stat.isFile()) {
-                            if (!/\.[tj]sx?$/.test(file)) return ok();
-                            init("/" + path.relative(pages_root, file).replace(/[\\\/]+/, "/"), ok);
+                            if (/\.png$/.test(file)) {
+                                var name = path.relative(ccons_root, file).replace(/[\\\/]+/, "/");
+                                init("$" + name, ok);
+                            } else if (/\.[tj]sx?$/.test(file)) {
+                                var name = path.relative(pages_root, file).replace(/[\\\/]+/, "/");
+                                init("/" + name, ok);
+                            } else {
+                                ok();
+                            }
                         } else {
                             fs.readdir(file, function (error, names) {
                                 if (error) oh(error);
@@ -258,8 +265,10 @@ var hook = function (requires_count) {
             console.info("编译完成，正在写入文件..");
             var code = JSON.stringify(responseTree, null, 4);
             var mainScript = commbuilder(fs.readFileSync("./coms/zimoli/main.js"), "main.js", "./coms/zimoli/main.js", []).toString();
-            code = mainScript.replace(/var\s+responseTree\s*=\s*\{.*?\};?/, function () {
-                return `var responseTree = ${code};`;
+            var responseTreeName = /\.responseTree\s*=\s*(.*?)[,;$]/m.exec(mainScript)[1];
+
+            code = mainScript.replace(new RegExp(responseTreeName + "(\s*)=(\s*)\{.*?\}"), function (m, s1, s2) {
+                return responseTreeName + `${s1}=${s2}${code}`;
             });
             var html = indexHtml.replace(/<!--[\s\S]*?-->/g, "").replace(/<title>.*?<\/title>/, "<title>http://efront.cc</title>").replace(/<script[\s\w\"\']*>[\s\S]*<\/script>/, function () {
                 return `<script>\r\n<!--\r\n-function(){${code}}.call(window)\r\n-->\r\n</script>`;
@@ -273,7 +282,7 @@ var hook = function (requires_count) {
         };
         init("zimoli", function (zimoli) {
             modules.go = modules.zimoli = zimoli;
-            hook([pages_root]);
+            hook([pages_root, ccons_root]);
         });
     }
 };
