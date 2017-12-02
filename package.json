@@ -19,7 +19,7 @@
     "server": "node server/index",
     "test": "node tester/main",
     "electron": "node tester/main --electron",
-    "public": "mocha process/finalpacker_test"
+    "public": "node tools/public"
   },
   "repository": {
     "type": "git",
