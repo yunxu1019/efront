@@ -11,7 +11,6 @@ if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
 if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
 var commbuilder = require("../process/commbuilder");
 var iconbuilder = require("../process/iconbuilder");
-var aapibuilder = require("../process/aapibuilder");
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : process.env;
 var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || "zimoli";
@@ -99,8 +98,8 @@ var get = function (name, then) {
 function modules() { }
 modules.modules = modules;
 var pendding = {};
-var executer = function (f, args) {
-    return (args || []).concat([f.toString()]);
+var executer = function (functionBody,argsNames=[]) {
+    return argsNames.concat([functionBody]);
 };
 var noop = function (a) {
     return a
@@ -120,16 +119,16 @@ var init = function (name, then, prebuild) {
                 return argName;
             }
             return new Promise(function (ok, oh) {
-                init(argName, e => ok(argName));
+                init(argName, ok);
             });
         })).then(function (args) {
-            (then instanceof Function) && then(args);
+            (then instanceof Function) && then();
         }).catch(function (e) {
             window.console.error(e, "\r\n");
         });
     }
     if (modules[name]) {
-        return then(modules[name]);
+        return then();
     }
     var adapter;
     switch (name.charAt(0)) {
@@ -145,7 +144,7 @@ var init = function (name, then, prebuild) {
             adapter = executer;
     }
     if (modules[name]) {
-        return then(modules[name]);
+        return then();
     }
     if (pendding[name]) {
         return pendding[name].push(then);
@@ -174,19 +173,11 @@ var init = function (name, then, prebuild) {
         }
         functionBody = functionBody.replace(/^(?:"user? strict";?[\r\n]*)?/i, "\"use strict\";\r\n");
         if (!functionArgs.length) {
-            try {
-                var exports = adapter(Function.call(window, functionBody));
-            } catch (e) {
-                throw new Error(`[${name}] ${e}`);
-            }
+            var exports = adapter(functionBody);
             return broadcast(name, exports);
         }
-        init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
-            try {
-                var exports = adapter(Function.apply(window, functionArgs.slice(args.length).concat(functionBody)), args);
-            } catch (e) {
-                throw new Error(`[${name}] ${e}`);
-            }
+        init(functionArgs.slice(0, functionArgs.length >> 1), function () {
+            var exports = adapter(functionBody,functionArgs);
             broadcast(name, exports);
         }, prebuild);
     });
@@ -216,7 +207,7 @@ var hook = function (requires_count) {
             var file = files.shift();
             new Promise(function (ok, oh) {
                 fs.exists(file, function (exists) {
-                    if (!exists) oh(`路径${file}不存在`);
+                    if (!exists) return oh(`路径${file}不存在`);
                     fs.stat(file, function (error, stat) {
                         if (error) return oh(error);
                         if (stat.isFile()) {
@@ -231,7 +222,7 @@ var hook = function (requires_count) {
                             }
                         } else {
                             fs.readdir(file, function (error, names) {
-                                if (error) oh(error);
+                                if (error)return oh(error);
                                 names.forEach(function (name) {
                                     files.push(path.join(file, name));
                                 });
@@ -250,8 +241,11 @@ var hook = function (requires_count) {
         var public = function () {
             var process_env_public_path = process.env.PUBLIC_PATH;
             process.env.PUBLIC_PATH = "./apps";
+            var watch=fs.watch;
             var getpagefile = require("../process/getfile");
+            fs.watch=function(){return function(){}};
             var indexHtml = getpagefile("index.html").toString();
+            fs.watch=watch;
             env.PUBLIC_PATH = process_env_public_path;
             console.info("编译完成，正在写入文件..");
             var code = JSON.stringify(responseTree, null, "\t");
@@ -269,7 +263,7 @@ var hook = function (requires_count) {
             if (!fs.statSync(public_path).isDirectory()) return;
             if (/(apis|coms|cons|data|process|server|tester|tools)$/i.test(path.relative("./", PUBLIC_PATH))) throw new Error("请不要在源码文件夹生成目标代码！");
             fs.writeFileSync(path.join(public_path, "index.html"), html);
-            process.exit();
+            console.info(`完成，用时${process.uptime()}秒。`);
         };
         init("zimoli", function (zimoli) {
             modules.go = modules.zimoli = zimoli;
