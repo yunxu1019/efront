@@ -17,9 +17,12 @@ module.exports = function (req, res) {
         url = proxy[url];
     }
     var data = getfile(url);
-    if (!data) {
-        res.writeHead(404, {});
-        return res.end();
+    if (!data || data === "/") {
+        data = getfile(path.join(process.env.APP, url));
+        if (!data) {
+            res.writeHead(404, {});
+            return res.end();
+        }
     }
     if (data instanceof Buffer) {
         var extend = url.match(/\.(.*?)$/);
@@ -36,9 +39,11 @@ module.exports = function (req, res) {
         res.write(data);
         return res.end();
     } else if (data instanceof Object) {
-        var data = data["index.html"];
-        if (!data) {
-            data = getfile(path.join(url, "/index.html"));
+        if (!data["index.html"]) {
+            if (url[url.length - 1] !== "/") data = getfile(path.join(process.env.APP, url));
+            else data = "index.html" in data ? getfile(url + "/index.html") : getfile(process.env.APP + url + "index.html");
+        } else {
+            data = data["index.html"];
         }
         if (data instanceof Buffer) {
             message.count({ path: url, update: true });
@@ -54,7 +59,9 @@ module.exports = function (req, res) {
             'Location': data[0] === "/" ? data : "/" + data
         });
         return res.end();
-    } else { }
+    } else {
+
+    }
     res.writeHead(403, {})
     res.end();
 };
