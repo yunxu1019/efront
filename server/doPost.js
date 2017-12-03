@@ -47,34 +47,34 @@ var readdata = function (req, res, then, max_length) {
     });
 }
 var handle = {
-    "/count" (req, res) {
+    "/count"(req, res) {
         message.count(req.headers.referer);
         res.end();
     },
-    "/" (req, res) {
+    "/"(req, res) {
         var main = getcomm("main");
         return res.end(main);
     },
-    "/comm" (req, res) {
+    "/comm"(req, res) {
         readdata(req, res, function (buff) {
             res.end(getcomm(buff.toString()));
         }, 1000);
     },
-    "/ccon" (req, res) {},
-    "/page" (req, res) {
+    "/ccon"(req, res) { },
+    "/page"(req, res) {
         readdata(req, res, function (buff) {
             return res.end(getpage(buff.toString()));
         }, 1000);
     },
-    "/api" (req, res) {
+    "/api"(req, res) {
         res.end();
     },
-    "/webhook" (req, res) {
+    "/webhook"(req, res) {
         readdata(req, res, function (buff) {
             try {
                 var token = JSON.parse(buff.toString()).token;
                 require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("./message").webhook();
-            } catch (e) {}
+            } catch (e) { }
             res.end();
         }, 200000);
     }
@@ -120,7 +120,7 @@ var doPost = module.exports = function (req, res) {
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
     }
-    var match = url.match(/^\/(.*?)(comm|page|ccon|api)\/(.*?)(?:\.js|\.png)?$/);
+    var match = url.match(/^\/(.*?)(comm|page|ccon|a?api)\/(.*?)(?:\.js|\.png)?$/);
     if (match) {
         var appc = match[1],
             type = match[2],
@@ -128,6 +128,16 @@ var doPost = module.exports = function (req, res) {
             extt = match[4];
         var env = appc ? setupenv(appc) : {};
         switch (type) {
+            case "api":
+                var api = getapi(name, env.AAPI)
+                if (api instanceof Function) api(req, res);
+                else res.writeHead(404, {}) | res.end();
+                break;
+            case "aapi":
+                var api = getapi(name, env.AAPI)
+                if (api instanceof Function) res.end(api());
+                else res.writeHead(404, {}) | res.end();
+                break;
             case "comm":
                 res.end(getcomm(name, env.COMM));
                 break;
@@ -136,11 +146,6 @@ var doPost = module.exports = function (req, res) {
                 break;
             case "ccon":
                 res.end(geticon(name, env.ICON));
-                break;
-            case "api":
-                var api = getapi(name, env.AAPI)
-                if (api instanceof Function) api(req, res);
-                else res.writeHead(404, {}) | res.end();
                 break;
             default:
                 res.end();
