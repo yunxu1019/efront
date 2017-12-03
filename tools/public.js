@@ -98,7 +98,7 @@ var get = function (name, then) {
 function modules() { }
 modules.modules = modules;
 var pendding = {};
-var executer = function (functionBody,argsNames=[]) {
+var executer = function (functionBody, argsNames = []) {
     return argsNames.concat([functionBody]);
 };
 var noop = function (a) {
@@ -177,7 +177,7 @@ var init = function (name, then, prebuild) {
             return broadcast(name, exports);
         }
         init(functionArgs.slice(0, functionArgs.length >> 1), function () {
-            var exports = adapter(functionBody,functionArgs);
+            var exports = adapter(functionBody, functionArgs);
             broadcast(name, exports);
         }, prebuild);
     });
@@ -222,7 +222,7 @@ var hook = function (requires_count) {
                             }
                         } else {
                             fs.readdir(file, function (error, names) {
-                                if (error)return oh(error);
+                                if (error) return oh(error);
                                 names.forEach(function (name) {
                                     files.push(path.join(file, name));
                                 });
@@ -241,11 +241,11 @@ var hook = function (requires_count) {
         var public = function () {
             var process_env_public_path = process.env.PUBLIC_PATH;
             process.env.PUBLIC_PATH = "./apps";
-            var watch=fs.watch;
+            var watch = fs.watch;
             var getpagefile = require("../process/getfile");
-            fs.watch=function(){return function(){}};
+            fs.watch = function () { return function () { } };
             var indexHtml = getpagefile("index.html").toString();
-            fs.watch=watch;
+            fs.watch = watch;
             env.PUBLIC_PATH = process_env_public_path;
             console.info("编译完成，正在写入文件..");
             var code = JSON.stringify(responseTree, null, "\t");
@@ -297,7 +297,8 @@ Object.assign(global, {
         }
     },
     state: {},
-    screen: {}
+    screen: {},
+    Image: {}
 })
 modules.load = load;
 modules.XHR = function () { };
