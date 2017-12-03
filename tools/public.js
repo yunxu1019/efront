@@ -283,7 +283,7 @@ var hook = function (requires_count) {
                 var code = JSON.stringify(responseTree, null, "\t");
                 var mainScript = commbuilder(fs.readFileSync("./coms/zimoli/main.js"), "main.js", "./coms/zimoli/main.js", []).toString();
                 var responseTreeName = /\.responseTree\s*=\s*(.*?)[,;$]/m.exec(mainScript)[1];
-                code = mainScript.replace(new RegExp(responseTreeName + "(\s*)=(\s*)\{.*?\}"), function (m, s1, s2) {
+                code = mainScript.replace(/(['"])post\1/ig,"$1get$1").replace(/\.send\(.*?\)/g,".send()").replace(new RegExp(responseTreeName + "(\s*)=(\s*)\{.*?\}"), function (m, s1, s2) {
                     return responseTreeName + `${s1}=${s2}${code}`;
                 });
                 var html = indexHtml.replace(/<!--[\s\S]*?-->/g, "").replace(/<title>.*?<\/title>/, "<title>http://efront.cc</title>").replace(/<script[\s\w\"\']*>[\s\S]*<\/script>/, function () {
@@ -304,7 +304,7 @@ var hook = function (requires_count) {
                 setTimeout(function () {
                     var thens = mkkingTree[dir];
                     thens && thens.forEach(e => e(error));
-                }, 1);
+                }, 10);
             });
         };
         var deepwr = function (dir, data) {
