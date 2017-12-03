@@ -43,5 +43,8 @@
     11. tester 测试入口
     12. tools 工具
 
+## 命名黄区
+    禁止使用page,aapi,comm,ccon作为项目名称
+
 ## 安全性
     apps、coms 安全性极低，不要把重要信息放在这两个目录
