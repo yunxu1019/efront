@@ -84,7 +84,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     //子线程们
     process.on("message", function (msg, then) {
         if (!(then instanceof Function)) {
-            then = function () {};
+            then = function () { };
         }
         switch (msg) {
             case "quit":
@@ -119,6 +119,9 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             return res.end(doPost.ccon(name, color));
         }
         if (req.method === "GET") {
+            if (SSL_ENABLED && req.socket.localPort === 80) {
+                res.setHeader("Content-Security-Policy", "upgrade-insecure-requests");
+            }
             return doGet(req, res);
         } else {
             return doPost(req, res);
@@ -133,13 +136,19 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         // console.info("server start success!");
     });
     server.listen(80);
-    var SSL_PFX_PATH = process.env["PATH.SSL_PFX"];
+    var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
     if (SSL_PFX_PATH) {
         var fs = require("fs");
-        fs.existsSync(SSL_PFX_PATH) && https.createServer({
-            pfx: fs.readFileSync(SSL_PFX_PATH),
-            passphrase: process.env["PASSWORD.SSL_PFX"]
-        }, requestListener).listen(443);
+        if (fs.existsSync(SSL_PFX_PATH)) {
+            https.createServer({
+                pfx: fs.readFileSync(SSL_PFX_PATH),
+                passphrase: process.env["PASSWORD.SSL_PFX"]
+            }, requestListener).on("listening", function () {
+                SSL_ENABLED = true;
+            }).on("error", function () {
+                SSL_ENABLED = false;
+            }).listen(443);
+        }
     }
     cluster.isWorker && message.count("boot");
 }
