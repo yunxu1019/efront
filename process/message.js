@@ -35,7 +35,7 @@ var onmessage = function (msg, then) {
     }
 };
 
-if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
+if (cluster.isMaster && process.env.IN_DEBUG_MODE !== "1") {
     fs.readdirSync(message_handlers_path).forEach(function (name) {
         var match = name.match(/^(.*).js$/);
         if (match) {
@@ -60,6 +60,10 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             params, stamp
         })].join(":"));
     };
+    if (process.env.IN_DEBUG_MODE === "1") {
+        send = function () {
+        };
+    }
     //收到主进程的回复
     var onresponse = function ({ stamp, params }) {
         var callback = callback_maps[stamp];
