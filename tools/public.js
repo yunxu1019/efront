@@ -283,18 +283,27 @@ var hook = function (requires_count) {
                 var code = JSON.stringify(responseTree, null, "\t");
                 var mainScript = commbuilder(fs.readFileSync("./coms/zimoli/main.js"), "main.js", "./coms/zimoli/main.js", []).toString();
                 var responseTreeName = /\.responseTree\s*=\s*(.*?)[,;$]/m.exec(mainScript)[1];
-                code = mainScript.replace(/(['"])post\1/ig,"$1get$1").replace(/\.send\(.*?\)/g,".send()").replace(new RegExp(responseTreeName + "(\s*)=(\s*)\{.*?\}"), function (m, s1, s2) {
+                code = mainScript.replace(/(['"])post\1/ig, "$1get$1").replace(/\.send\(.*?\)/g, ".send()").replace(new RegExp(responseTreeName + "(\s*)=(\s*)\{.*?\}"), function (m, s1, s2) {
                     return responseTreeName + `${s1}=${s2}${code}`;
                 });
                 var html = indexHtml.replace(/<!--[\s\S]*?-->/g, "").replace(/<title>.*?<\/title>/, "<title>http://efront.cc</title>").replace(/<script[\s\w\"\']*>[\s\S]*<\/script>/, function () {
                     return `<script>\r\n<!--\r\n-function(){${code}}.call(window)\r\n-->\r\n</script>`;
                 });
+                if (fs.existsSync(path.join(pages_root, "favicon.ico"))) {
+                    var favicon = fs.readFileSync(path.join(pages_root, "favicon.ico"))
+                } else if (fs.existsSync("apps/favicon.ico")) {
+                    var favicon = fs.readFileSync("apps/favicon.ico");
+                }
                 fs.writeFile(path.join(public_path, "index.html"), html, function () {
-                    console.info(`完成，用时${process.uptime()}秒。\r\n`);
+                    if (favicon) fs.writeFile(path.join(public_path, "favicon.ico"), favicon, finish);
+                    else finish();
                 });
             }).catch(function (e) {
                 console.error(e, "\r\n");
             });
+        };
+        var finish = function () {
+            console.info(`完成，用时${process.uptime()}秒。\r\n`);
         };
         var mkkingTree = {};
         var mkdir = function (dir, then) {
