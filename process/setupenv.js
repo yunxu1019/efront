@@ -121,4 +121,4 @@ module.exports = function (appname) {
     if (!env.PAGE) env.PAGE = appname;
     return env;
 };
-process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--debug-brk=/i.test(e)) > 0 ? 1 : 0
+process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug-brk|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0
