@@ -261,7 +261,7 @@ var hook = function (requires_count) {
             var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
             if (!fs.existsSync(public_path)) fs.mkdirSync(public_path);
             if (!fs.statSync(public_path).isDirectory()) return;
-            if (/(apis|coms|cons|data|process|server|tester|tools)$/i.test(path.relative("./", PUBLIC_PATH))) throw new Error("请不要在源码文件夹生成目标代码！");
+            if (/(apis|coms|cons|data|process|server|tester|tools|apps)$/i.test(path.relative("./", PUBLIC_PATH))) return console.error("请不要在源码文件夹生成目标代码！");
             fs.writeFileSync(path.join(public_path, "index.html"), html);
             console.info(`完成，用时${process.uptime()}秒。`);
         };
