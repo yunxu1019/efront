@@ -9,6 +9,7 @@ var Function = window.Function;
 var Array = window.Array;
 var Promise = window.Promise;
 var setTimeout = window.setTimeout;
+var Date = window.Date;
 var Math = window.Math;
 var loaddingTree = {};
 var requestTree = {};
@@ -26,6 +27,7 @@ try {
     window.top.location.reload();
     throw message;
 }
+
 var retry = function (url, count) {
     setTimeout(function () {
         load(url, --count);
@@ -87,7 +89,7 @@ var get = function (url, then) {
         load(url);
     }
 };
-
+modules.start_time = +new Date;
 function modules() { }
 modules.modules = modules;
 var penddingTree = {}, prebuildsTree = {};
@@ -189,29 +191,31 @@ var replaceClickEvent = function (fastclick) {
     new fastclick(document.body);
     hook(--requires_count);
 };
-var requires_count = 0;
+var requires_count = 1;
 var hook = function (requires_count) {
     if (requires_count === 0) {
         init("zimoli", function (zimoli) {
             modules.go = modules.zimoli = zimoli;
             zimoli();
+            modules.hook_time = +new Date;
         });
     }
 };
-window.onload=function(){
-    if (!Promise) {
-        requires_count++;
-        init("promise", replacePromise);
-    }
-    if (![].map) {
-        requires_count++;
-        init("[].map", replaceArrayMap);
-    }
+if (!Promise) {
+    requires_count++;
+    init("promise", replacePromise);
+}
+if (![].map) {
+    requires_count++;
+    init("[].map", replaceArrayMap);
+}
+var onload = function () {
+    delete window.onload;
     if ("ontouchstart" in window) {
         requires_count++;
         init("fastclick", replaceClickEvent);
     }
-    hook(requires_count);
+    hook(--requires_count);
 };
 modules.put = function (name, module) {
     modules[name] = module;
@@ -223,3 +227,5 @@ modules.setGetMethod = function (_get) {
 };
 modules.load = load;
 modules.XHR = XHR;
+if (document.body) onload();
+else window.onload = onload;
