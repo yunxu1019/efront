@@ -190,6 +190,14 @@ var replaceClickEvent = function (fastclick) {
     hook(--requires_count);
 };
 var requires_count = 0;
+var hook = function (requires_count) {
+    if (requires_count === 0) {
+        init("zimoli", function (zimoli) {
+            modules.go = modules.zimoli = zimoli;
+            zimoli();
+        });
+    }
+};
 if (!Promise) {
     requires_count++;
     init("promise", replacePromise);
@@ -202,14 +210,6 @@ if ("ontouchstart" in window) {
     requires_count++;
     init("fastclick", replaceClickEvent);
 }
-var hook = function (requires_count) {
-    if (requires_count === 0) {
-        init("zimoli", function (zimoli) {
-            modules.go = modules.zimoli = zimoli;
-            zimoli();
-        });
-    }
-};
 modules.put = function (name, module) {
     modules[name] = module;
 };
