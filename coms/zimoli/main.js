@@ -198,18 +198,21 @@ var hook = function (requires_count) {
         });
     }
 };
-if (!Promise) {
-    requires_count++;
-    init("promise", replacePromise);
-}
-if (![].map) {
-    requires_count++;
-    init("[].map", replaceArrayMap);
-}
-if ("ontouchstart" in window) {
-    requires_count++;
-    init("fastclick", replaceClickEvent);
-}
+window.onload=function(){
+    if (!Promise) {
+        requires_count++;
+        init("promise", replacePromise);
+    }
+    if (![].map) {
+        requires_count++;
+        init("[].map", replaceArrayMap);
+    }
+    if ("ontouchstart" in window) {
+        requires_count++;
+        init("fastclick", replaceClickEvent);
+    }
+    hook(requires_count);
+};
 modules.put = function (name, module) {
     modules[name] = module;
 };
@@ -220,4 +223,3 @@ modules.setGetMethod = function (_get) {
 };
 modules.load = load;
 modules.XHR = XHR;
-hook(requires_count);
