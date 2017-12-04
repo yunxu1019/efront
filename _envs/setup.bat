@@ -25,4 +25,4 @@ rem 前文已配置的所有参数可用 app=%app%.bat 重写
 @for %%i in (%app%) do @call "%~DP0app=%%i"
 
 rem 应用发布路径
-set PUBLIC_PATH="%~DP0..\apps"
+set PUBLIC_PATH="%~DP0..\public"
