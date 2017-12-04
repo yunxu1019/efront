@@ -287,7 +287,7 @@ var hook = function (requires_count) {
                     return responseTreeName + `${s1}=${s2}${code}`;
                 });
                 var html = indexHtml.replace(/<!--[\s\S]*?-->/g, "").replace(/<title>.*?<\/title>/, "<title>http://efront.cc</title>").replace(/<script[\s\w\"\']*>[\s\S]*<\/script>/, function () {
-                    return `<script>\r\n<!--\r\n-function(){${code}}.call(window)\r\n-->\r\n</script>`;
+                    return `<script>\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>`;
                 });
                 if (fs.existsSync(path.join(pages_root, "favicon.ico"))) {
                     var favicon = fs.readFileSync(path.join(pages_root, "favicon.ico"))
