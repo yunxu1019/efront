@@ -6,7 +6,7 @@ var sessionStorage = localStorage;
 //main
 var body = document.body;
 var onbacks = [];
-var backman, target_hash, exit_ing;
+var target_hash, exit_ing;
 var window_history = window.history;
 var window_history_length = window_history.length;
 if (location.href.slice(location.href.length - location.pathname.length) !== location.pathname) {
@@ -34,17 +34,12 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     backman(false);
     backman();
 } else {
-    backman = function () {
-        location.href = "#";
-    };
-    setTimeout(function () {
-        onhashchange(window, function (event) {
-            if (/#$/.test(event.newURL || event.actionURL)) return;
-            if (exit_ing) return exit_ing = false, window_history.go(-1);
-            backman();
-            if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) { }
-        })
-    }, 0);
+    onhashchange(window, function (event) {
+        if (/#$/.test(event.newURL || event.actionURL || location.href)) return;
+        if (exit_ing) return exit_ing = false, window_history.go(-1);
+        event.preventDefault();
+        if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) { }
+    });
 }
 // body
 css(body, {
@@ -231,7 +226,7 @@ var fixurl = function () {
     setTimeout(function () {
         if (!/#$/.test(location.href)) location.href = "#";
         exit_ing = void 0;
-    },0);
+    }, 0);
 }
 var onback = function () {
     if (alertslist.length) {

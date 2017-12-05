@@ -210,7 +210,7 @@ if (![].map) {
     init("[].map", replaceArrayMap);
 }
 var onload = function () {
-    delete window.onload;
+    window.onload = null;
     if ("ontouchstart" in window) {
         requires_count++;
         init("fastclick", replaceClickEvent);
