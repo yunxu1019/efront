@@ -37,7 +37,6 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     backman = function () {
         location.href = "#";
     };
-    backman();
     setTimeout(function () {
         onhashchange(window, function (event) {
             if (/#$/.test(event.newURL || event.actionURL)) return;
@@ -229,8 +228,10 @@ var pushstate = function (path_name, history_name) {
     sessionStorage.setItem(history_session_object_key, JSON.stringify(history));
 };
 var fixurl = function () {
-    if (!/#$/.test(location.href)) location.href = "#";
-    exit_ing = void 0;
+    setTimeout(function () {
+        if (!/#$/.test(location.href)) location.href = "#";
+        exit_ing = void 0;
+    },0);
 }
 var onback = function () {
     if (alertslist.length) {
