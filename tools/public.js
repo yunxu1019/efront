@@ -280,7 +280,7 @@ var hook = function (requires_count) {
                     return deepwr(path.join(public_path, url), data);
                 }));
             }).then(function () {
-                var code = JSON.stringify(responseTree, null, "\t").replace(/[<>]/g, s => "\\x" + `0${s.charCodeAt(0).toString(16)}`.slice(-2));
+                var code = JSON.stringify(responseTree, null, "\t")//.replace(/[<>]/g, s => "\\x" + `0${s.charCodeAt(0).toString(16)}`.slice(-2));
                 var mainScript = commbuilder(fs.readFileSync("./coms/zimoli/main.js"), "main.js", "./coms/zimoli/main.js", []).toString();
                 var responseTreeName = /\.responseTree\s*=\s*(.*?)[,;$]/m.exec(mainScript)[1];
                 code = mainScript.replace(/(['"])post\1/ig, "$1get$1").replace(/\.send\(.*?\)/g, ".send()").replace(new RegExp(responseTreeName + "(\s*)=(\s*)\{.*?\}"), function (m, s1, s2) {
