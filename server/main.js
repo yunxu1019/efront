@@ -5,6 +5,7 @@
  */
 var cluster = require("cluster");
 var message = require("../process/message");
+process.title = `服务器地址：${require("../process/getLocalIP")()}`;
 if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var watch = require("../process/watch");
     var counter = 0;
