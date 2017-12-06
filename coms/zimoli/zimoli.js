@@ -123,16 +123,16 @@ function zimoli(page, args, history_name) {
     //    var button=createElement(anniu);
     //    console.log(button)
     var _zimoli_state_key = _zimoli_state_prefix + page;
-    var state = function state(state) {
+    var state = function state(condition) {
         if (arguments.length >= 1) {
-            sessionStorage.setItem(_zimoli_state_key, JSON.stringify(state));
+            sessionStorage.setItem(_zimoli_state_key, JSON.stringify(condition));
         }
         try {
-            state = JSON.parse(sessionStorage.getItem(_zimoli_state_key)) || {};
+            condition = JSON.parse(sessionStorage.getItem(_zimoli_state_key)) || {};
         } catch (e) {
-            state = {};
+            condition = {};
         }
-        return state;
+        return condition;
     };
     var _with_elements = [];
     state.with = function (element) {
