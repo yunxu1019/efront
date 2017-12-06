@@ -18,7 +18,7 @@ var extendTouch = function (e) {
  * 传入一个页面，将其重构为可纵向平滑滑动的页面
  * @param {Element|Function|string} generator 
  */
-function vbox(generator, state) {
+function vbox(generator) {
     var _box;
     if (isNode(generator)) {
         _box = generator;
