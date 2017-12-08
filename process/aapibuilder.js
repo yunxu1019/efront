@@ -84,7 +84,6 @@ function request(fullpath, data, info) {
 
 module.exports = function aapibuilder(buffer, filename, fullpath) {
     delete require.cache[fullpath];
-    delete message[fullpath];
     request(fullpath);
     return function ApiManager(req, res) {
         var i18n = _i18n(req.headers["accept-language"] || req.headers["Accept-Language"]);

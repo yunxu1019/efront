@@ -4,7 +4,6 @@ module.exports = function ({
     data,
     info
 }, then) {
-    delete require.cache[fullpath];
     if ("data" in arguments[0]) {
         try {
             Promise.resolve(this[fullpath](data, info)).then(function (result) {
@@ -26,6 +25,7 @@ module.exports = function ({
         }
     } else {
         try {
+            delete require.cache[fullpath];
             this[fullpath] = require(fullpath);
             then("success");
         } catch (e) {
