@@ -24,7 +24,14 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     commName = commName && commName[1];
     var className = path.relative(cwd, fullpath).replace(/[\\\/\:\.]+/g, "-");
     if (commName) {
-        if (!declares[commName]) {
+        //如果声明了main方法或main对象，默认用main作为返回值
+        if (declares.main) {
+            commName = "main";
+        } else if (declares.Main) {
+            commName = "Main";
+        } else if (declares.MAIN) {
+            commName = "MAIN";
+        } else if (!declares[commName]) {
             commName = commName[0].toUpperCase() + commName.slice(1);
             if (!declares[commName]) {
                 commName = null;
@@ -56,35 +63,63 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
             }
         }
     }
-    var code_body = code.body.concat(commName ? {
-        "type": "ReturnStatement",
-        "argument": lessData ? {
-            "type": "CallExpression",
-            "callee": {
-                "type": "Identifier",
-                "name": globalsmap.cless
-            },
-            "arguments": [
-                {
+    var code_body;
+    if (code.body.length === 1 && /(ExpressionStatement)$/.test(code.body[0].type)) {
+        //如果整个函数只有一个表达式或一个变量，直接反回其本身
+        code_body = [{
+            "type": "ReturnStatement",
+            "argument": lessData ? {
+                "type": "CallExpression",
+                "callee": {
+                    "type": "Identifier",
+                    "name": globalsmap.cless
+                },
+                "arguments": [
+                    code.body[0].expression,
+                    {
+                        "type": "Literal",
+                        "value": lessData,
+                        "raw": JSON.stringify(lessData)
+                    },
+                    {
+                        "type": "Literal",
+                        "value": className,
+                        "raw": JSON.stringify(className)
+                    }
+                ]
+            } : code.body[0].expression
+        }]
+    } else {
+        code_body = code.body.concat(commName ? {
+            "type": "ReturnStatement",
+            "argument": lessData ? {
+                "type": "CallExpression",
+                "callee": {
+                    "type": "Identifier",
+                    "name": globalsmap.cless
+                },
+                "arguments": [
+                    {
+                        "type": "Identifier",
+                        "name": commName
+                    },
+                    {
+                        "type": "Literal",
+                        "value": lessData,
+                        "raw": JSON.stringify(lessData)
+                    },
+                    {
+                        "type": "Literal",
+                        "value": className,
+                        "raw": JSON.stringify(className)
+                    }
+                ]
+            } : {
                     "type": "Identifier",
                     "name": commName
-                },
-                {
-                    "type": "Literal",
-                    "value": lessData,
-                    "raw": JSON.stringify(lessData)
-                },
-                {
-                    "type": "Literal",
-                    "value": className,
-                    "raw": JSON.stringify(className)
                 }
-            ]
-        } : {
-                "type": "Identifier",
-                "name": commName
-            }
-    } : []);
+        } : []);
+    }
     globals = Object.keys(globalsmap);
     if (process.env.IN_TEST_MODE) {
         code = {
