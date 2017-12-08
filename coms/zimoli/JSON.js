@@ -140,14 +140,14 @@ var stringify = function (object, filter, space) {
             if (object.hasOwnProperty(k)) {
                 var v = stringify(object[k], filter);
                 if (isDefined(v))
-                    stringified.push("\"" + k.replace(/"/g, "\\\"") + "\":" + v);
+                    stringified.push("\"" + k.replace(/[\\"]/g, "\\$1") + "\":" + v);
             }
         }
         delete object[circle_private_key];
         return "{" + stringified.join(",") + "}";
     }
     if (isString(object)) {
-        return "\""+object.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")+"\"";
+        return "\""+object.replace(/[\\"]/g, "\\$1")+"\"";
     }
     return object;
 };
