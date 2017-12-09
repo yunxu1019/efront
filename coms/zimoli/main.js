@@ -108,7 +108,7 @@ var executer = function (text, name) {
         functionArgs = [];
         functionBody = text;
     }
-    functionBody = functionBody.replace(/^(?:"user? strict";?[\r\n]*)?/i, "\"use strict\";\r\n");
+    functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
     if (!functionArgs.length) {
         try {
             var exports = Function.call(window, functionBody).call(window);
