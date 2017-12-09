@@ -19,3 +19,4 @@ function map(f, o) {
     }
     return res;
 }
+Array.prototype.map = map;
