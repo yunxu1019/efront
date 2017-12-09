@@ -28,8 +28,8 @@ var colors = {
 var lastLogLength = 0;
 [
     "info:提示:FgBlue:",
-    "warn:\r\n警告:FgYellow:",
-    "error:\r\n错误:FgWhite:BgRed"
+    "warn:警告:FgYellow:",
+    "error:错误:FgWhite:BgRed"
 ].forEach(function (config) {
     var [log, info = log.toUpperCase(), fg, bg] = config.split(":");
     var fgColor = colors[fg] || "",
@@ -38,8 +38,9 @@ var lastLogLength = 0;
     var logger = function (...args) {
         var str = args.join(" ");
         var width = process.stderr.columns;
-        /\n/.test(str) ? process.stderr.write(str.replace(/[\r\n]+$/,"\r\n")) : process.stderr.write(("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1) + "\r" + str);
-        lastLogLength = str.length + str.replace(/[\x00-\xff]/g, "").length;
+        var hasNewLine = /^(warn|error)$/.test(log);
+        hasNewLine ? process.stderr.write((lastLogLength ? "\r\n" : "") + str.trim() + "\r\n") : process.stderr.write(("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1) + "\r" + str);
+        lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x00-\xff]/g, "").length;
     }
     console[log] = function (...args) {
         return logger(
