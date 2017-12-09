@@ -73,8 +73,8 @@ var load = function (url) {
                 flush(url);
             });
         } else {
-            if (!window[name]) throw new Error(`没有发现文件：${url}\r\n`);
-            else console.warn(`${url} will be replaced by the global variables\r\n`);
+            if (!window[name]) throw new Error(`没有发现文件：${url}`);
+            else console.warn(`${url} will be replaced by the global variables`);
             flush(url);
         }
     });
@@ -176,7 +176,7 @@ var init = function (name, then, prebuild) {
             functionArgs = [];
             functionBody = text;
         }
-        functionBody = functionBody.replace(/^(?:"user? strict";?[\r\n]*)?/i, "\"use strict\";\r\n");
+        functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*\s*)?/i, "\"use strict\";\r\n");
         if (!functionArgs.length) {
             var exports = adapter(functionBody);
             return broadcast(name, exports);
@@ -197,8 +197,33 @@ var replaceArrayMap = function (map) {
 var replaceClickEvent = function (fastclick) {
     hook(--requires_count);
 };
-var requires_count = 0;
-if (true) {
+var requires_count = 1;
+var is_commponent_package;
+var public_app = path.resolve(comms_root, PUBLIC_APP);
+if (fs.existsSync(public_app) && fs.statSync(public_app).isFile()) {
+    //导出组件
+    is_commponent_package = true;
+    var hook = function () {
+        if (requires_count === 0) build([public_app]);
+    };
+    requires_count++;
+    init("[].map", replaceArrayMap);
+} else {
+    //导出项目
+    public_app = pages_root;
+    if (fs.existsSync(public_app) && fs.statSync(public_app).isDirectory()) {
+        is_commponent_package = false;
+    } else {
+        throw new Error(`要发布或打包的源路径不存在:${public_app}`);
+    }
+    var hook = function (requires_count) {
+        if (requires_count === 0) {
+            init("zimoli", function (zimoli) {
+                modules.go = modules.zimoli = zimoli;
+                build([pages_root, ccons_root]);
+            });
+        }
+    };
     requires_count++;
     init("promise", replacePromise);
     requires_count++;
@@ -206,181 +231,6 @@ if (true) {
     requires_count++;
     init("fastclick", replaceClickEvent);
 }
-var hook = function (requires_count) {
-    if (requires_count === 0) {
-        var hook = function (files) {
-            var file = files.shift();
-            new Promise(function (ok, oh) {
-                fs.exists(file, function (exists) {
-                    if (!exists) return oh(`路径${file}不存在`);
-                    fs.stat(file, function (error, stat) {
-                        if (error) return oh(error);
-                        if (stat.isFile()) {
-                            if (/\.png$/.test(file)) {
-                                var name = path.relative(ccons_root, file).replace(/[\\\/]+/, "/");
-                                init("$" + name, ok);
-                            } else if (/\.[tj]sx?$/.test(file)) {
-                                if (/^.*?\/?apps/i.test(file)) {
-                                    var name = path.relative(pages_root, file).replace(/[\\\/]+/, "/");
-                                    init("/" + name, ok);
-                                }
-                                else {
-                                    var name = path.relative(aapis_root, file).replace(/[\\\/]+/, "/");
-                                    init("_" + name, ok);
-                                }
-                            } else {
-                                ok();
-                            }
-                        } else {
-                            fs.readdir(file, function (error, names) {
-                                if (error) return oh(error);
-                                names.forEach(function (name) {
-                                    files.push(path.join(file, name));
-                                });
-                                ok();
-                            });
-                        }
-                    });
-                });
-            }).catch(function (e) {
-                console.error(e, "\r\n");
-            }).then(function () {
-                if (!files.length) public();
-                else hook(files);
-            });
-        };
-        var public = function () {
-            var process_env_public_path = process.env.PUBLIC_PATH;
-            process.env.PUBLIC_PATH = "./apps";
-            var getpagefile = require("../process/getfile");
-            var indexHtml = getpagefile("index.html").toString();
-            env.PUBLIC_PATH = process_env_public_path;
-            console.info("编译完成，正在写入文件..");
-            var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
-            if (!fs.existsSync(public_path)) fs.mkdirSync(public_path);
-            if (!fs.statSync(public_path).isDirectory()) return console.error(`目标位置存在文件${public_path}`);
-            if (/(apis|coms|cons|data|process|server|tester|tools|apps)$/i.test(path.relative("./", PUBLIC_PATH))) return console.error("请不要在源码文件夹生成目标代码！");
-            deeprm(public_path).then(function () {
-                return Promise.all(Object.keys(responseTree).map(function (name) {
-                    var data = responseTree[name];
-                    switch (name.charAt(0)) {
-                        case "/":
-                            url = "page" + name;
-                            break;
-                        case "_":
-                            url = "aapi/" + name.slice(1).replace(/([A-Z])/g, "/$1").toLowerCase();
-                            break;
-                        case "$":
-                            // delete responseTree[name];
-                            url = "ccon/" + name.slice(1);
-                            break;
-                        default:
-                            url = "comm/" + name;
-                    }
-                    return deepwr(path.join(public_path, url), data);
-                }));
-            }).then(function () {
-                var code = JSON.stringify(responseTree, null, "\t")//.replace(/[<>]/g, s => "\\x" + `0${s.charCodeAt(0).toString(16)}`.slice(-2));
-                var mainScript = commbuilder(fs.readFileSync("./coms/zimoli/main.js"), "main.js", "./coms/zimoli/main.js", []).toString();
-                var responseTreeName = /\.responseTree\s*=\s*(.*?)[,;$]/m.exec(mainScript)[1];
-                code = mainScript.replace(/(['"])post\1/ig, "$1get$1").replace(/\.send\(.*?\)/g, ".send()").replace(new RegExp(responseTreeName + "(\s*)=(\s*)\{.*?\}"), function (m, s1, s2) {
-                    return responseTreeName + `${s1}=${s2}${code}`;
-                });
-                var html = indexHtml.replace(/<!--[\s\S]*?-->/g, "").replace(/<title>.*?<\/title>/, `<title>${env.TITLE || "http://efront.cc"}</title>`).replace(/<script[\s\w\"\']*>[\s\S]*<\/script>/, function () {
-                    return `<script>\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>`;
-                });
-                if (fs.existsSync(path.join(pages_root, "favicon.ico"))) {
-                    var favicon = fs.readFileSync(path.join(pages_root, "favicon.ico"))
-                } else if (fs.existsSync("apps/favicon.ico")) {
-                    var favicon = fs.readFileSync("apps/favicon.ico");
-                }
-                fs.writeFile(path.join(public_path, "index.html"), html, function () {
-                    if (favicon) fs.writeFile(path.join(public_path, "favicon.ico"), favicon, finish);
-                    else finish();
-                });
-            }).catch(function (e) {
-                console.error(e, "\r\n");
-            });
-        };
-        var finish = function () {
-            console.info(`完成，用时${process.uptime()}秒。\r\n`);
-        };
-        var mkkingTree = {};
-        var mkdir = function (dir, then) {
-            if (mkkingTree[dir]) return mkkingTree[dir].push(then);
-            else mkkingTree[dir] = [then];
-            fs.mkdir(dir, function (error) {
-                setTimeout(function () {
-                    var thens = mkkingTree[dir];
-                    thens && thens.forEach(e => e(error));
-                }, 10);
-            });
-        };
-        var deepwr = function (dir, data) {
-            console.info(dir);
-            var dirname = path.dirname(dir);
-            var paths = [];
-            return new Promise(function (ok, oh) {
-                var detect = function () {
-                    fs.exists(dirname, function (exists) {
-                        if (exists) {
-                            if (!paths.length) {
-                                fs.writeFile(dir, data, function (err) {
-                                    if (err) return oh(err);
-                                    else ok();
-                                });
-                            } else {
-                                dirname = path.join(dirname, paths.shift());
-                                mkdir(dirname, function (err) {
-                                    if (err) return oh(err);
-                                    else detect();
-                                });
-                            }
-                        } else {
-                            if (dirname === ".") return oh();
-                            paths.unshift(path.basename(dirname));
-                            dirname = path.dirname(dirname);
-                            detect();
-                        }
-                    });
-                };
-                detect();
-            });
-        }
-        var deeprm = function (dir) {
-            return new Promise(function (ok, oh) {
-                fs.exists(dir, function (exists) {
-                    if (!exists) return ok();
-                    fs.stat(dir, function (error, stat) {
-                        if (error) return oh(error);
-                        if (stat.isDirectory()) {
-                            fs.readdir(dir, function (error, names) {
-                                if (error) return oh(error);
-                                Promise.all(names.map(function (name) {
-                                    return deeprm(path.join(dir, name));
-                                })).then(function () {
-                                    fs.rmdir(dir, function (error) {
-                                        if (error) return oh(error);
-                                        ok();
-                                    });
-                                }).catch(oh);
-                            });
-                        } else {
-                            fs.unlink(dir, function (error) {
-                                if (error) return oh(error);
-                                ok();
-                            });
-                        }
-                    });
-                });
-            });
-        };
-        init("zimoli", function (zimoli) {
-            modules.go = modules.zimoli = zimoli;
-            hook([pages_root, ccons_root]);
-        });
-    }
-};
 modules.put = function (name, module) {
     modules[name] = module;
 };
@@ -412,4 +262,269 @@ Object.assign(global, {
 })
 modules.load = load;
 modules.XHR = function () { };
-hook(requires_count);
+
+
+
+
+var build = function (files) {
+    var file = files.shift();
+    new Promise(function (ok, oh) {
+        fs.exists(file, function (exists) {
+            if (!exists) return oh(`路径${file}不存在`);
+            fs.stat(file, function (error, stat) {
+                if (error) return oh(error);
+                if (stat.isFile()) {
+                    if (/\.png$/i.test(file)) {
+                        var name = path.relative(ccons_root, file).replace(/[\\\/]+/g, "/");
+                        init("$" + name, ok);
+                    } else if (/\.[tj]sx?$/i.test(file)) {
+                        if (/^.*?\/?coms/i.test(file)) {
+                            var name = path.relative(comms_root, file).replace(/[\\\/]+/g, "/");
+                            init(name, ok);
+                        }
+                        else if (/^.*?\/?apps/i.test(file)) {
+                            var name = path.relative(pages_root, file).replace(/[\\\/]+/g, "/");
+                            init("/" + name, ok);
+                        }
+                        else {
+                            var name = path.relative(aapis_root, file).replace(/[\\\/]+/g, "/");
+                            init("_" + name, ok);
+                        }
+                    } else {
+                        ok();
+                    }
+                } else {
+                    fs.readdir(file, function (error, names) {
+                        if (error) return oh(error);
+                        names.forEach(function (name) {
+                            files.push(path.join(file, name));
+                        });
+                        ok();
+                    });
+                }
+            });
+        });
+    }).catch(function (e) {
+        console.error(e, "\r\n");
+    }).then(function () {
+        if (!files.length) public();
+        else build(files);
+    });
+};
+var public = function () {
+    console.info("编译完成，正在写入文件..");
+    if (is_commponent_package) {
+        writeComponent();
+    } else {
+        writeApplication();
+    }
+};
+
+var writeComponent = function () {
+    var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
+    if (/(apis|coms|cons|data|process|server|tester|tools|apps)$/i.test(path.relative("./", PUBLIC_PATH))) return console.error("请不要在源码文件夹生成目标代码！");
+    if (fs.existsSync(public_path) && fs.statSync(public_path).isDirectory()) return console.error(`目标位置存在文件夹${public_path}`);
+    var resultMap = {}, result = [];
+    var needmap = false;
+    for (var k in responseTree) {
+        var v = responseTree[k];
+        var needs = modules[v];
+        if (/\.map($|\(|\s\.\)\]\}\,)/.test(v)) {
+            needmap = true;
+        }
+    }
+    var array_map = responseTree["[].map"];
+    delete responseTree["[].map"];
+    for (var k in responseTree) {
+        result.push([k].concat(modules[k]));
+    }
+    var dest = [], last_result_length = result.length;
+    var $$_efront_map_string_key = "$$_efront_map_const_string_key__";
+    var escodegen = require("../process/escodegen/escodegen");
+    var esprima = require("../process/esprima/esprima");
+    var esmangle = require("../process/esmangle/esmangle");
+
+    while (result.length) {
+        for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
+            var [k, ...module_body] = result[cx];
+            var ok = true;
+            module_body.slice(0, module_body.length >> 1).forEach(function (k) {
+                if (!resultMap[k] && responseTree[k]) ok = false;
+                if (!responseTree[k] && !resultMap[k]) resultMap[k] = dest.length + 1, dest.push(k);
+            });
+            if (ok) {
+                var this_module_params = {};
+                var setMatchedConstString = function (match, key) {
+                    var $key = $$_efront_map_string_key + key;
+                    if (!resultMap[$key]) {
+                        dest.push(JSON.stringify(key));
+                        resultMap[$key] = dest.length;
+                    }
+                    if (!this_module_params[$key]) {
+                        this_module_params[$key] = true;
+                        module_body.splice(module_body.length >> 1, 0, $key);
+                        module_body.splice(module_body.length - 1, 0, $key);
+                    }
+                    return `[${$key}]`;
+                };
+                var module_string = module_body[module_body.length - 1]
+                    .replace(/\.([a-zA-Z][\w\$_]+)/g, setMatchedConstString)
+                    .replace(/\[\"([a-zA-Z][\w\$_]+)\"\]/g, setMatchedConstString);
+                var module_code = esprima.parse(`function ${k.replace(/([\$_a-zA-Z]\w*)\.[tj]sx?$/g, "$1")}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
+                module_code = esmangle.optimize(module_code, null);
+                module_code = esmangle.mangle(module_code);
+                module_string = escodegen.generate(module_code, {
+                    format: {
+                        renumber: true,
+                        hexadecimal: true, //十六进位
+                        escapeless: true,
+                        compact: true, //去空格
+                        semicolons: false, //分号
+                        parentheses: false //圆括号
+                    }
+                });
+                dest.push(`[${module_body.slice(0, module_body.length >> 1).map(a => resultMap[a]).concat(module_string)}]`);
+                resultMap[k] = dest.length;
+                result.splice(cx, 1);
+            }
+        }
+        if (last_result_length === result.length) throw new Error(`处理失败！`);
+        last_result_length = result.length;
+    }
+
+    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(this)).call([${dest}],function(a,c){return this[c+1]=a instanceof Array?a[a.length-1].apply(this[0],a.slice(0,a.length-1).map(function(a){return this[a]},this)):a},[this])[${dest.length - 1}]`;
+    fs.writeFileSync(public_path, template);
+    finish();
+};
+
+var writeApplication = function () {
+    var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
+    if (/(apis|coms|cons|data|process|server|tester|tools|apps)$/i.test(path.relative("./", PUBLIC_PATH))) return console.error("请不要在源码文件夹生成目标代码！");
+    if (!fs.existsSync(public_path)) fs.mkdirSync(public_path);
+    if (!fs.statSync(public_path).isDirectory()) return console.error(`目标位置存在文件${public_path}`);
+    var process_env_public_path = process.env.PUBLIC_PATH;
+    process.env.PUBLIC_PATH = "./apps";
+    var getpagefile = require("../process/getfile");
+    var indexHtml = getpagefile("index.html").toString();
+    env.PUBLIC_PATH = process_env_public_path;
+    deeprm(public_path).then(function () {
+        return Promise.all(Object.keys(responseTree).map(function (name) {
+            var data = responseTree[name];
+            switch (name.charAt(0)) {
+                case "/":
+                    url = "page" + name;
+                    break;
+                case "_":
+                    url = "aapi/" + name.slice(1).replace(/([A-Z])/g, "/$1").toLowerCase();
+                    break;
+                case "$":
+                    // delete responseTree[name];
+                    url = "ccon/" + name.slice(1);
+                    break;
+                default:
+                    url = "comm/" + name;
+            }
+            return deepwr(path.join(public_path, url), data);
+        }));
+    }).then(function () {
+        var code = JSON.stringify(responseTree, null, "\t")//.replace(/[<>]/g, s => "\\x" + `0${s.charCodeAt(0).toString(16)}`.slice(-2));
+        var mainScript = commbuilder(fs.readFileSync("./coms/zimoli/main.js"), "main.js", "./coms/zimoli/main.js", []).toString();
+        var responseTreeName = /\.responseTree\s*=\s*(.*?)[,;$]/m.exec(mainScript)[1];
+        code = mainScript.replace(/(['"])post\1/ig, "$1get$1").replace(/\.send\(.*?\)/g, ".send()").replace(new RegExp(responseTreeName + "(\s*)=(\s*)\{.*?\}"), function (m, s1, s2) {
+            return responseTreeName + `${s1}=${s2}${code}`;
+        });
+        var html = indexHtml.replace(/<!--[\s\S]*?-->/g, "").replace(/<title>.*?<\/title>/, `<title>${env.TITLE || "http://efront.cc"}</title>`).replace(/<script[\s\w\"\']*>[\s\S]*<\/script>/, function () {
+            return `<script>\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>`;
+        });
+        if (fs.existsSync(path.join(pages_root, "favicon.ico"))) {
+            var favicon = fs.readFileSync(path.join(pages_root, "favicon.ico"))
+        } else if (fs.existsSync("apps/favicon.ico")) {
+            var favicon = fs.readFileSync("apps/favicon.ico");
+        }
+        fs.writeFile(path.join(public_path, "index.html"), html, function () {
+            if (favicon) fs.writeFile(path.join(public_path, "favicon.ico"), favicon, finish);
+            else finish();
+        });
+    }).catch(function (e) {
+        console.error(e, "\r\n");
+    });
+};
+var finish = function () {
+    console.info(`完成，用时${process.uptime()}秒。\r\n`);
+};
+var mkkingTree = {};
+var mkdir = function (dir, then) {
+    if (mkkingTree[dir]) return mkkingTree[dir].push(then);
+    else mkkingTree[dir] = [then];
+    fs.mkdir(dir, function (error) {
+        setTimeout(function () {
+            var thens = mkkingTree[dir];
+            thens && thens.forEach(e => e(error));
+        }, 10);
+    });
+};
+var deepwr = function (dir, data) {
+    console.info(dir);
+    var dirname = path.dirname(dir);
+    var paths = [];
+    return new Promise(function (ok, oh) {
+        var detect = function () {
+            fs.exists(dirname, function (exists) {
+                if (exists) {
+                    if (!paths.length) {
+                        fs.writeFile(dir, data, function (err) {
+                            if (err) return oh(err);
+                            else ok();
+                        });
+                    } else {
+                        dirname = path.join(dirname, paths.shift());
+                        mkdir(dirname, function (err) {
+                            if (err) return oh(err);
+                            else detect();
+                        });
+                    }
+                } else {
+                    if (dirname === ".") return oh();
+                    paths.unshift(path.basename(dirname));
+                    dirname = path.dirname(dirname);
+                    detect();
+                }
+            });
+        };
+        detect();
+    });
+}
+var deeprm = function (dir) {
+    return new Promise(function (ok, oh) {
+        fs.exists(dir, function (exists) {
+            if (!exists) return ok();
+            fs.stat(dir, function (error, stat) {
+                if (error) return oh(error);
+                if (stat.isDirectory()) {
+                    fs.readdir(dir, function (error, names) {
+                        if (error) return oh(error);
+                        Promise.all(names.map(function (name) {
+                            return deeprm(path.join(dir, name));
+                        })).then(function () {
+                            fs.rmdir(dir, function (error) {
+                                if (error) return oh(error);
+                                ok();
+                            });
+                        }).catch(oh);
+                    });
+                } else {
+                    fs.unlink(dir, function (error) {
+                        if (error) return oh(error);
+                        ok();
+                    });
+                }
+            });
+        });
+    });
+};
+
+
+
+
+
+hook(--requires_count);
