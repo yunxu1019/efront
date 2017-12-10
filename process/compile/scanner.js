@@ -113,7 +113,6 @@ function regexp_qoute_scanner(index) {
     var reg = /[^\\]\/[imgy]*/g;
     reg.lastIndex = index + 1;
     var res = reg.exec(this);
-    res && console.log(this.slice(index, res[0].length + res.index));
     return res ? res.index + res[0].length : this.length;
 }
 
