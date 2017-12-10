@@ -356,11 +356,11 @@ var writeComponent = function () {
             if (ok) {
                 var this_module_params = {};
                 var setMatchedConstString = function (match, type, k) {
-                    if (k === "use strict") return match;
-                    var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_")
+                    if (k === "use strict" || k.length < 3) return match;
+                    var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
                     var $key = $$_efront_map_string_key + key;
                     if (!resultMap[$key]) {
-                        dest.push(type === "." ? JSON.stringify(k) : k);
+                        dest.push(type === "." ? "\""+k+"\"" : k);
                         resultMap[$key] = dest.length;
                     }
                     if (!this_module_params[$key]) {
@@ -398,9 +398,9 @@ var writeComponent = function () {
                         return setMatchedConstRegExp(block_string, "", block_string);
                     }
                     return module_string.slice(block.start, block.end);
-                }).join("").replace(/(\.)\s*([\$_a-zA-Z][\$_\w]{2,})/g, setMatchedConstString);
+                }).join("").replace(/(\.)\s*((?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_a-z\u0100-\u2027\u2030-\uffff])(?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_\w\u0100-\u2027\u2030-\uffff])*)/ig, setMatchedConstString);
 
-                var module_code = esprima.parse(`function ${k.replace(/([\$_a-zA-Z]\w*)\.[tj]sx?$/g, "$1")}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
+                var module_code = esprima.parse(`function ${k.replace(/([\$_a-z]\w*)\.[tj]sx?$/ig, "$1")}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
                 module_code = esmangle.optimize(module_code, null);
                 module_code = esmangle.mangle(module_code);
                 module_string = escodegen.generate(module_code, {
