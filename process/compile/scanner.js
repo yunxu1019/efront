@@ -69,20 +69,20 @@ function single_quote_scanner2(index) {
 // var count = 1000000;
 // var string="                  '"
 // var t1 = test(function () {
-//     double_qoute_scanner.call(string,0);
+//     double_quote_scanner.call(string,0);
 // }, count);//240+
 // var t2 = test(function () {
-//     double_qoute_scanner2.call(string,0)
+//     double_quote_scanner2.call(string,0)
 // }, count);//1128+
 // console.log(t1, t2);
-function double_qoute_scanner(index) {
+function double_quote_scanner(index) {
     var reg = /[^\\]"/g;
     reg.lastIndex = index;
     var res = reg.exec(this);
     return res ? res.index + 2 : this.length;
 }
 
-function double_qoute_scanner2(index) {
+function double_quote_scanner2(index) {
     // var x = "\"".codePointAt(0);//34
     // var u = "\\".codePointAt(0);//92
     var length = this.length;
@@ -103,20 +103,20 @@ function double_qoute_scanner2(index) {
 // var count = 1000000;
 // var string="                  '"
 // var t1 = test(function () {
-//     regexp_qoute_scanner.call(string,0);
+//     regexp_quote_scanner.call(string,0);
 // }, count);//220+
 // var t2 = test(function () {
-//     regexp_qoute_scanner2.call(string,0)
+//     regexp_quote_scanner2.call(string,0)
 // }, count);//1200+
 // console.log(t1, t2);
-function regexp_qoute_scanner(index) {
+function regexp_quote_scanner(index) {
     var reg = /[^\\]\/[imgy]*/g;
     reg.lastIndex = index + 1;
     var res = reg.exec(this);
     return res ? res.index + res[0].length : this.length;
 }
 
-function regexp_qoute_scanner2(index) {
+function regexp_quote_scanner2(index) {
     // var x="/".codePointAt(0);//47
     // var u = "\\".codePointAt(0);//92
     while (++index < this.length) {
@@ -135,14 +135,14 @@ function regexp_qoute_scanner2(index) {
 // var count = 1000000;
 // var string = "                  ${`"
 // var t1 = test(function () {
-//     template_qoute_scanner.call(string, 0);
+//     template_quote_scanner.call(string, 0);
 // }, count); //610+
 // var t2 = test(function () {
-//     template_qoute_scanner2.call(string, 0)
+//     template_quote_scanner2.call(string, 0)
 // }, count); //2500+
 // console.log(t1, t2);
 
-function template_qoute_scanner(index, blocks) {
+function template_quote_scanner(index, blocks) {
     while (++index < this.length) {
         var reg = /[^\\]`|\$\{/g;
         reg.lastIndex = index;
@@ -159,7 +159,7 @@ function template_qoute_scanner(index, blocks) {
     return index;
 }
 
-function template_qoute_scanner2(index, blocks) {
+function template_quote_scanner2(index, blocks) {
     // var x1 = "`".codePointAt(0);//96
     // var x2 = "{".codePointAt(0);//123
     // var u1 = "\\".codePointAt(0);//92
@@ -355,8 +355,8 @@ function block_code_scanner(index, blocks = []) {
                         }
                     }
                     if (isReg) {
-                        index = regexp_qoute_scanner.call(this, index);
-                        save(regexp_qoute_scanner);
+                        index = regexp_quote_scanner.call(this, index);
+                        save(regexp_quote_scanner);
                     } else {
                         index++;
                     }
@@ -364,8 +364,8 @@ function block_code_scanner(index, blocks = []) {
                 break;
             case "`": //     `
                 save(block_code_scanner);
-                index = template_qoute_scanner.call(this, index);
-                save(template_qoute_scanner);
+                index = template_quote_scanner.call(this, index);
+                save(template_quote_scanner);
                 break;
             case "'": //         '
                 save(block_code_scanner);
@@ -374,8 +374,8 @@ function block_code_scanner(index, blocks = []) {
                 break;
             case "\"": //         "
                 save(block_code_scanner);
-                index = double_qoute_scanner.call(this, index);
-                save(double_qoute_scanner);
+                index = double_quote_scanner.call(this, index);
+                save(double_quote_scanner);
                 break;
             case "}": //          }
                 if (deep === 0) {
@@ -431,8 +431,8 @@ function block_code_scanner2(index, blocks) {
                     index = single_comment_scanner.call(this, index + 1);
                     save(single_comment_scanner);
                 } else { // /reg/
-                    index = regexp_qoute_scanner.call(this, index);
-                    save(regexp_qoute_scanner);
+                    index = regexp_quote_scanner.call(this, index);
+                    save(regexp_quote_scanner);
                 }
                 // var d = this.codePointAt(index + 1);
                 // save(block_code_scanner);
@@ -443,14 +443,14 @@ function block_code_scanner2(index, blocks) {
                 //     index = single_comment_scanner.call(this, index + 1);
                 //     save(single_comment_scanner);
                 // } else { // /reg/
-                //     index = regexp_qoute_scanner.call(this, index);
-                //     save(regexp_qoute_scanner);
+                //     index = regexp_quote_scanner.call(this, index);
+                //     save(regexp_quote_scanner);
                 // }
                 break;
             case "`": //     `
                 save(block_code_scanner);
-                index = template_qoute_scanner.call(this, index);
-                save(template_qoute_scanner);
+                index = template_quote_scanner.call(this, index);
+                save(template_quote_scanner);
                 break;
             case "'": //         '
                 save(block_code_scanner);
@@ -459,8 +459,8 @@ function block_code_scanner2(index, blocks) {
                 break;
             case "\"": //         "
                 save(block_code_scanner);
-                index = double_qoute_scanner.call(this, index);
-                save(double_qoute_scanner);
+                index = double_quote_scanner.call(this, index);
+                save(double_quote_scanner);
                 break;
             case "}": //          }
                 if (deep === 0) {
@@ -491,8 +491,8 @@ function block_code_scanner2(index, blocks) {
         //         //         save(single_comment_scanner);
         //         //         break;
         //         //     default:
-        //         //         index = regexp_qoute_scanner.call(this, index);
-        //         //         save(regexp_qoute_scanner);
+        //         //         index = regexp_quote_scanner.call(this, index);
+        //         //         save(regexp_quote_scanner);
         //         // }
         //         if (d === 42) { // u /* */
         //             index = multi_comment_scanner.call(this, index + 1);
@@ -501,14 +501,14 @@ function block_code_scanner2(index, blocks) {
         //             index = single_comment_scanner.call(this, index + 1);
         //             save(single_comment_scanner);
         //         } else { // /reg/
-        //             index = regexp_qoute_scanner.call(this, index);
-        //             save(regexp_qoute_scanner);
+        //             index = regexp_quote_scanner.call(this, index);
+        //             save(regexp_quote_scanner);
         //         }
         //         break;
         //     case 96://     `
         //         save(block_code_scanner);
-        //         index = template_qoute_scanner.call(this, index);
-        //         save(template_qoute_scanner);
+        //         index = template_quote_scanner.call(this, index);
+        //         save(template_quote_scanner);
         //         break;
         //     case 39: //         '
         //         save(block_code_scanner);
@@ -517,8 +517,8 @@ function block_code_scanner2(index, blocks) {
         //         break;
         //     case 34://         "
         //         save(block_code_scanner);
-        //         index = double_qoute_scanner.call(this, index);
-        //         save(double_qoute_scanner);
+        //         index = double_quote_scanner.call(this, index);
+        //         save(double_quote_scanner);
         //         break;
         //     case 125://          }
         //         if (deep === 0) {
@@ -546,8 +546,8 @@ function block_code_scanner2(index, blocks) {
         //             save(single_quote_scanner);
         //         } else if (34 === c) { //x2 " 34
         //             save(block_code_scanner);
-        //             index = double_qoute_scanner.call(this, index);
-        //             save(double_qoute_scanner);
+        //             index = double_quote_scanner.call(this, index);
+        //             save(double_quote_scanner);
         //         }else{
         //             index++;
         //         }
@@ -562,13 +562,13 @@ function block_code_scanner2(index, blocks) {
         //                 index = single_comment_scanner.call(this, index + 1);
         //                 save(single_comment_scanner);
         //             } else { // /reg/
-        //                 index = regexp_qoute_scanner.call(this, index);
-        //                 save(regexp_qoute_scanner);
+        //                 index = regexp_quote_scanner.call(this, index);
+        //                 save(regexp_quote_scanner);
         //             }
         //         } else if (96 === c) { //x4 ` 96
         //             save(block_code_scanner);
-        //             index = template_qoute_scanner.call(this, index);
-        //             save(template_qoute_scanner);
+        //             index = template_quote_scanner.call(this, index);
+        //             save(template_quote_scanner);
         //         }else{
         //             index++;
         //         }
@@ -609,12 +609,12 @@ function Block(scanner, start, end) {
 }
 Block.prototype = {
     block_code_scanner,
-    double_qoute_scanner,
-    regexp_qoute_scanner,
+    double_quote_scanner,
+    regexp_quote_scanner,
     single_quote_scanner,
     multi_comment_scanner,
     single_comment_scanner,
-    template_qoute_scanner
+    template_quote_scanner
 };
 // module.exports(require("fs").readFileSync("./apps/x6/js/angular.js"))
 // module.exports(require("fs").readFileSync("./main.js"))
