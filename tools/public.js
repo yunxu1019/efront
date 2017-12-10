@@ -343,6 +343,7 @@ var writeComponent = function () {
     var escodegen = require("../process/escodegen/escodegen");
     var esprima = require("../process/esprima/esprima");
     var esmangle = require("../process/esmangle/esmangle");
+    var scanner = require("../process/compile/scanner");
 
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
@@ -354,10 +355,12 @@ var writeComponent = function () {
             });
             if (ok) {
                 var this_module_params = {};
-                var setMatchedConstString = function (match, key) {
+                var setMatchedConstString = function (match, type, k) {
+                    if (k === "use strict") return match;
+                    var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_")
                     var $key = $$_efront_map_string_key + key;
                     if (!resultMap[$key]) {
-                        dest.push(JSON.stringify(key));
+                        dest.push(type === "." ? JSON.stringify(k) : k);
                         resultMap[$key] = dest.length;
                     }
                     if (!this_module_params[$key]) {
@@ -365,11 +368,38 @@ var writeComponent = function () {
                         module_body.splice(module_body.length >> 1, 0, $key);
                         module_body.splice(module_body.length - 1, 0, $key);
                     }
-                    return `[${$key}]`;
+                    return type === "." ? `[${$key}]` : " " + $key + " ";
                 };
+                var setMatchedConstRegExp = function (match, type, k) {
+                    var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_")
+                    var $key = $$_efront_map_string_key + key;
+                    if (!resultMap[$key]) {
+                        dest.push(k.toString());
+                        resultMap[$key] = dest.length;
+                    }
+                    if (!this_module_params[$key]) {
+                        this_module_params[$key] = true;
+                        module_body.splice(module_body.length >> 1, 0, $key);
+                        module_body.splice(module_body.length - 1, 0, $key);
+                    }
+                    return type + $key;
+                }
                 var module_string = module_body[module_body.length - 1]
-                    .replace(/\.([a-zA-Z][\w\$_]+)/g, setMatchedConstString)
-                    .replace(/\[\"([a-zA-Z][\w\$_]+)\"\]/g, setMatchedConstString);
+                // .replace(/(["'])(|.*?[^\\])\1/g, setMatchedConstString)
+                // .replace(/([^<])(\/.*?[^\\]\/[igmy]+)/g, setMatchedConstRegExp)
+                // .replace(/(\.)([\$_a-zA-Z][\$_\w]{2,})/g, setMatchedConstString);
+                var code_blocks = scanner(module_string);
+                module_string = code_blocks.map(function (block) {
+                    var block_string = module_string.slice(block.start, block.end);
+                    if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
+                        return setMatchedConstString(block_string, "", block_string);
+                    }
+                    if (block.type === block.regexp_quote_scanner) {
+                        return setMatchedConstRegExp(block_string, "", block_string);
+                    }
+                    return module_string.slice(block.start, block.end);
+                }).join("").replace(/(\.)\s*([\$_a-zA-Z][\$_\w]{2,})/g, setMatchedConstString);
+
                 var module_code = esprima.parse(`function ${k.replace(/([\$_a-zA-Z]\w*)\.[tj]sx?$/g, "$1")}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
                 module_code = esmangle.optimize(module_code, null);
                 module_code = esmangle.mangle(module_code);
@@ -382,7 +412,7 @@ var writeComponent = function () {
                         semicolons: false, //分号
                         parentheses: false //圆括号
                     }
-                });
+                }).replace(/^function\s+[\$_A-Za-z][\$_\w]*\(/, "function(");
                 dest.push(`[${module_body.slice(0, module_body.length >> 1).map(a => resultMap[a]).concat(module_string)}]`);
                 resultMap[k] = dest.length;
                 result.splice(cx, 1);
