@@ -8,23 +8,23 @@ function test(test, count) {
     }
     return Date.now() - time;
 } -
-function () {
-    single_comment_scanner.call("'", 0) === 1;
-    single_comment_scanner.call(" ", 0) === 1;
-    single_comment_scanner.call("' ", 0) === 1;
-    single_comment_scanner.call("\\'", 0) === 2;
-    single_comment_scanner.call(" ' ", 0) === 2;
-    single_comment_scanner.call("\\''", 0) === 3;
-    single_comment_scanner.call("\\'' ", 0) === 3;
-    // var t1=test(function(){
-    //     /[\r\n\u2028\u2029]/.exec(" ");
-    // },10000000);//300+
-    // var t2=test(function(){
-    //     "\r\n\u2028\u2029".indexOf(" ");
-    // },10000000);//700+
-    // console.log(t1,t2);
-}();
-
+    function () {
+        single_comment_scanner.call("'", 0) === 1;
+        single_comment_scanner.call(" ", 0) === 1;
+        single_comment_scanner.call("' ", 0) === 1;
+        single_comment_scanner.call("\\'", 0) === 2;
+        single_comment_scanner.call(" ' ", 0) === 2;
+        single_comment_scanner.call("\\''", 0) === 3;
+        single_comment_scanner.call("\\'' ", 0) === 3;
+        // var t1=test(function(){
+        //     /[\r\n\u2028\u2029]/.exec(" ");
+        // },10000000);//300+
+        // var t2=test(function(){
+        //     "\r\n\u2028\u2029".indexOf(" ");
+        // },10000000);//700+
+        // console.log(t1,t2);
+    }();
+console.log(single_quote_scanner.call("''", 0))
 
 
 
@@ -43,7 +43,7 @@ function () {
 // console.log(t1, t2);
 function single_quote_scanner(index) {
     var reg = /[^\\]'/g;
-    reg.lastIndex = index + 1;
+    reg.lastIndex = index;
     var res = reg.exec(this);
     return res ? res.index + 2 : this.length;
 }
@@ -77,7 +77,7 @@ function single_quote_scanner2(index) {
 // console.log(t1, t2);
 function double_qoute_scanner(index) {
     var reg = /[^\\]"/g;
-    reg.lastIndex = index + 1;
+    reg.lastIndex = index;
     var res = reg.exec(this);
     return res ? res.index + 2 : this.length;
 }
@@ -112,7 +112,7 @@ function double_qoute_scanner2(index) {
 function regexp_qoute_scanner(index) {
     var reg = /[^\\]\//g;
     reg.lastIndex = index + 1;
-    res = reg.exec(this);
+    var res = reg.exec(this);
     return res ? res.index + 2 : this.length;
 }
 
@@ -284,17 +284,13 @@ function single_comment_scanner2(index) {
 //     single_comment_scanner2.call(string, 0);
 // }, count); //3354+
 // console.log(t1, t2);
-function block_code_scanner(index, blocks) {
+function block_code_scanner(index, blocks = []) {
     var save = (blocks instanceof Array) ? function (scanner) {
         if (saved_index < index) {
-            blocks.push({
-                type: scanner,
-                start: saved_index,
-                end: index
-            });
+            blocks.push(new Block(scanner, saved_index, index));
             saved_index = index;
         }
-    } : function () {};
+    } : function () { };
     var saved_index = index;
     var c, deep = 0;
     var length = this.length;
@@ -317,8 +313,39 @@ function block_code_scanner(index, blocks) {
                     index = single_comment_scanner.call(this, index + 1);
                     save(single_comment_scanner);
                 } else { // /reg/
-                    index = regexp_qoute_scanner.call(this, index);
-                    save(regexp_qoute_scanner);
+                    var isReg = false, tempIndex = index;
+                    while (tempIndex-- > saved_index && /\s/.test(tempIndex));
+                    if (tempIndex < saved_index) {
+                        var blockIndex = blocks.length;
+                        while (blockIndex-- > 0) {
+                            var tempBlock = blocks[blockIndex];
+                            var type = tempBlock.type;
+                            if (type === single_comment_scanner || type === multi_comment_scanner) continue;
+                            if (type !== block_code_scanner) break;
+                            var tempLastIndex = tempBlock.start;
+                            tempIndex = tempBlock.end;
+                            while (tempIndex-- > tempLastIndex && /\s/.test(tempIndex));
+                            if (tempIndex > tempLastIndex) break;
+                        }
+                        if (blockIndex < 0) tempIndex = blockIndex;
+                    }
+                    // do{break 8
+                    // for(;;)break 12
+                    // while(0)break 13
+                    // switch(a){case 1:break
+                    //switch case break,while continue,break abcd;
+                    isReg = tempIndex < 0 || /[[|,+=\-/*~?:&\^{\(\/><;%]/.test(this[tempIndex]);
+                    if (!isReg && tempIndex >= 8) {
+                        var last_pice = this.slice(Math.max(tempIndex - 100, 0), tempIndex);
+                        isReg = /([)};:{]|[^\.\s]\s*)((?:continue|break).*?|return|case)$/.test(last_pice);
+                        isReg = isReg || tempIndex > 100 && !/[^\r\n\u2028\u2029\/\*]/.test(last_pice) && /([)};:{]|[^\.\s]\s*)(continue|break).*?$/.test(this.slice(0, tempIndex));
+                    }
+                    if (isReg) {
+                        index = regexp_qoute_scanner.call(this, index);
+                        save(regexp_qoute_scanner);
+                    } else if (tempIndex > 10) {
+                        index++;
+                    }
                 }
                 break;
             case "`": //     `
@@ -357,14 +384,10 @@ function block_code_scanner(index, blocks) {
 function block_code_scanner2(index, blocks) {
     var save = (blocks instanceof Array) ? function (scanner) {
         if (saved_index < index) {
-            blocks.push({
-                type: scanner,
-                start: saved_index,
-                end: index
-            });
+            blocks.push(new Block(scanner, saved_index, index));
             saved_index = index;
         }
-    } : function () {};
+    } : function () { };
     //for(){block} while(){block} function(){block} switch(){block} ()=>{block} {simple block} 
     //{object block} /var|let|const\s*{block}/ 
     // "\"'/`{}".split("").sort().map(a=>a.codePointAt(0));
@@ -562,17 +585,22 @@ var scanner = module.exports = function (s) {
     // }//angular 1.5.3 x1000 7.0s
     // console.log(Date.now() - time);
     block_code_scanner.call(s, 0, blocks);
-    // blocks.prototype = {
-    //     block_code_scanner,
-    //     double_qoute_scanner,
-    //     regexp_qoute_scanner,
-    //     single_quote_scanner,
-    //     multi_comment_scanner,
-    //     single_comment_scanner,
-    //     template_qoute_scanner
-    // };
     // console.log(blocks.map(a => s.slice(a.start, a.end)).join())
     return blocks;
+};
+function Block(scanner, start, end) {
+    this.type = scanner;
+    this.start = start;
+    this.end = end;
+}
+Block.prototype = {
+    block_code_scanner,
+    double_qoute_scanner,
+    regexp_qoute_scanner,
+    single_quote_scanner,
+    multi_comment_scanner,
+    single_comment_scanner,
+    template_qoute_scanner
 };
 // module.exports(require("fs").readFileSync("./apps/x6/js/angular.js"))
 // module.exports(require("fs").readFileSync("./main.js"))
