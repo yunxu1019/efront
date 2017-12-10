@@ -110,10 +110,11 @@ function double_qoute_scanner2(index) {
 // }, count);//1200+
 // console.log(t1, t2);
 function regexp_qoute_scanner(index) {
-    var reg = /[^\\]\//g;
+    var reg = /[^\\]\/[imgy]*/g;
     reg.lastIndex = index + 1;
     var res = reg.exec(this);
-    return res ? res.index + 2 : this.length;
+    res && console.log(this.slice(index, res[0].length + res.index));
+    return res ? res.index + res[0].length : this.length;
 }
 
 function regexp_qoute_scanner2(index) {
@@ -291,6 +292,24 @@ function block_code_scanner(index, blocks = []) {
             saved_index = index;
         }
     } : function () { };
+    var lookback = function (tempIndex) {
+        while (tempIndex >= saved_index && /\s/.test(this[tempIndex])) tempIndex--;
+        if (tempIndex < saved_index) {
+            var blockIndex = blocks.length;
+            while (blockIndex-- > 0) {
+                var tempBlock = blocks[blockIndex];
+                var type = tempBlock.type;
+                if (type === single_comment_scanner || type === multi_comment_scanner) continue;
+                if (type !== block_code_scanner) break;
+                var tempLastIndex = tempBlock.start;
+                tempIndex = Math.min(tempBlock.end, tempIndex);
+                while (tempIndex >= tempLastIndex && /\s/.test(this[tempIndex])) tempIndex--;
+                if (tempIndex > tempLastIndex) break;
+            }
+            if (blockIndex < 0) tempIndex = blockIndex;
+        }
+        return tempIndex;
+    };
     var saved_index = index;
     var c, deep = 0;
     var length = this.length;
@@ -313,37 +332,33 @@ function block_code_scanner(index, blocks = []) {
                     index = single_comment_scanner.call(this, index + 1);
                     save(single_comment_scanner);
                 } else { // /reg/
-                    var isReg = false, tempIndex = index;
-                    while (tempIndex-- > saved_index && /\s/.test(tempIndex));
-                    if (tempIndex < saved_index) {
-                        var blockIndex = blocks.length;
-                        while (blockIndex-- > 0) {
-                            var tempBlock = blocks[blockIndex];
-                            var type = tempBlock.type;
-                            if (type === single_comment_scanner || type === multi_comment_scanner) continue;
-                            if (type !== block_code_scanner) break;
-                            var tempLastIndex = tempBlock.start;
-                            tempIndex = tempBlock.end;
-                            while (tempIndex-- > tempLastIndex && /\s/.test(tempIndex));
-                            if (tempIndex > tempLastIndex) break;
-                        }
-                        if (blockIndex < 0) tempIndex = blockIndex;
-                    }
+                    var isReg = false;
                     // do{break 8
                     // for(;;)break 12
                     // while(0)break 13
                     // switch(a){case 1:break
                     //switch case break,while continue,break abcd;
-                    isReg = tempIndex < 0 || /[[|,+=\-/*~?:&\^{\(\/><;%]/.test(this[tempIndex]);
+                    var tempIndex = lookback.call(this, index - 1);
+                    isReg = tempIndex < 0 || /[[|,+=*~?:&\^{\(\/><;%\-]/.test(this[tempIndex]);
                     if (!isReg && tempIndex >= 8) {
-                        var last_pice = this.slice(Math.max(tempIndex - 100, 0), tempIndex);
-                        isReg = /([)};:{]|[^\.\s]\s*)((?:continue|break).*?|return|case)$/.test(last_pice);
-                        isReg = isReg || tempIndex > 100 && !/[^\r\n\u2028\u2029\/\*]/.test(last_pice) && /([)};:{]|[^\.\s]\s*)(continue|break).*?$/.test(this.slice(0, tempIndex));
+                        var last_pice = this.slice(Math.max(tempIndex - 50, 0), tempIndex + 1);
+                        isReg = /([)};:{]|[^\.\s]\s*)(continue|break|return|case)$/.test(last_pice);
+                        isReg = isReg || /([)};:{]|[^\.\s]\s*)(?:continue|break)\s+([\w\u0100-\u2027\u2030-\uffff]+?)$/.test(last_pice);
+                        if (!isReg && !/\r\n\u2028\u2929/.test(last_pice)) {
+                            var variabled_name_reg = /\w\u0100-\u2027\u2030-\uffff/;
+                            if (variabled_name_reg.test(this[tempIndex])) {
+                                while (tempIndex > 8 && variabled_name_reg.test(this[tempIndex])) tempIndex--;
+                                var tempIndex2 = lookback.call(this, tempIndex);
+                                if (tempIndex2 >= 8 && !/\r\n\u2028\u2029/.test(this.slice(tempIndex2, tempIndex))) {
+                                    isReg = /([)};:{]|[^\.\s]\s*)(continue|break)$/.test(this.slice(tempIndex2 - 8, tempIndex2 + 1));
+                                }
+                            }
+                        }
                     }
                     if (isReg) {
                         index = regexp_qoute_scanner.call(this, index);
                         save(regexp_qoute_scanner);
-                    } else if (tempIndex > 10) {
+                    } else {
                         index++;
                     }
                 }
