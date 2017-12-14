@@ -356,11 +356,11 @@ var writeComponent = function () {
             if (ok) {
                 var this_module_params = {};
                 var setMatchedConstString = function (match, type, k) {
-                    if (k === "use strict" || k.length < 3) return match;
+                    if (/user?\s+strict/.test(k) || k.length < 3) return match;
                     var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
                     var $key = $$_efront_map_string_key + key;
                     if (!resultMap[$key]) {
-                        dest.push(type === "." ? "\""+k+"\"" : k);
+                        dest.push(type === "." ? "\"" + k + "\"" : k);
                         resultMap[$key] = dest.length;
                     }
                     if (!this_module_params[$key]) {
@@ -382,7 +382,7 @@ var writeComponent = function () {
                         module_body.splice(module_body.length >> 1, 0, $key);
                         module_body.splice(module_body.length - 1, 0, $key);
                     }
-                    return type + $key;
+                    return type + " " + $key + " ";
                 }
                 var module_string = module_body[module_body.length - 1]
                 // .replace(/(["'])(|.*?[^\\])\1/g, setMatchedConstString)
