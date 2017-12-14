@@ -357,6 +357,10 @@ var writeComponent = function () {
                 var this_module_params = {};
                 var setMatchedConstString = function (match, type, k) {
                     if (/user?\s+strict/.test(k) || k.length < 3) return match;
+                    k = k.replace(/^(['"])(.*?)\1$/g, function (match, qoute, string) {
+                        if (/['"]/.test(string)) return match;
+                        return "\"" + string + "\"";
+                    });
                     var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
                     var $key = $$_efront_map_string_key + key;
                     if (!resultMap[$key]) {
