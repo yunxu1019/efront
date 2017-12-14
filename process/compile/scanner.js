@@ -24,7 +24,7 @@ function test(test, count) {
         // },10000000);//700+
         // console.log(t1,t2);
     }();
-console.log(single_quote_scanner.call("''", 0))
+// console.log(single_quote_scanner.call("''", 0))
 
 
 
