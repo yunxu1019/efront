@@ -12,12 +12,12 @@ var object2buffer = function (object) {
         id_flag = id.length << 1;
     } else {
         id = id + "";
-        id_flag = id.length << 1 + 1;
+        id_flag = (id.length << 1) + 1;
     }
     if (id_flag >= 256) throw new Error("Id data is too large!");
     var body = Buffer.from(JSON.stringify(object));
     var length = body.length;
-    if (length >= 8192) throw new Error("object data is too large!");
+    if (length + (id_flag >> 1) + 4 >= 8192) throw new Error("object data is too large!");
     var ah = length >> 8;
     var al = length - (ah << 8);
     var head = Buffer.from([id]);
@@ -54,22 +54,25 @@ var buffer2object = function (buffer) {
     object.id = id;
     return object;
 };
+var isObjectBuffer = function (buffer) {
+    return buffer[0] === 0;
+};
 /**
  * 索引序列化
  * @param {Object} index_object 
  */
-var index2buffer = function (index_object) {
-    var index_array = Object.keys(index_array);
+var index2buffer = function (index_array) {
     var index_sizes = index_array.map(a => a.length);
     var size_buffer = Buffer.from(index_sizes);
     var data_buffer = Buffer.from(index_array.join(""));
     var data_length = data_buffer.length;
     var size_length = size_buffer.length;
     return Buffer.concat([
+        Buffer.from([1]),
         size_buffer,
         data_buffer,
-        Buffer.from([size_length >> 24, size_length << 8 >> 24, size_length << 16 >> 24, size_length << 24 >> 24]),
-        Buffer.from([data_length >> 24, data_length << 8 >> 24, data_length << 16 >> 24, data_length << 24 >> 24]),
+        Buffer.from([size_length >>> 24, size_length << 8 >>> 24, size_length << 16 >>> 24, size_length << 24 >>> 24]),
+        Buffer.from([data_length >>> 24, data_length << 8 >>> 24, data_length << 16 >>> 24, data_length << 24 >>> 24]),
     ]);
 };
 /**
@@ -88,14 +91,56 @@ var buffer2index = function (index_buffer) {
     var sum = 0;
     size_buffer.forEach(a => sum += a);
     if (sum !== data_length) throw new Error("invaild index format!");
-    var index_object = {}, index = 0, sum_size = 0;
+    var index_array = [];
+    var index = 0, sum_size = 0;
     size_buffer.forEach(function (size) {
         var key = data_buffer.slice(sum_size, sum_size += size);
-        index_object[String(key)] = index += 8192;
+        saveToOrderedArray(index_array, String(key));
     });
-    return index_object;
+    return index_array;
+};
+var isIndexBuffer = function (buffer) {
+    return buffer[0] === 1;
+};
+/**
+ * 保存数据到有序数组
+ * @param {Array} orderArray 
+ * @param {string|number} newItem 
+ */
+var saveToOrderedArray = function (orderArray, newItem) {
+    var cx = getIndexFromOrderedArray(orderArray, newItem);
+    orderArray.splice(cx + 1, 0, newItem);
 };
 
+/**
+ * 读取元素在有序数组中的位置
+ * @param {Array} orderArray 
+ * @param {string|number} searchItem 
+ */
+var getIndexFromOrderedArray = function (orderArray, searchItem) {
+    for (var cx = 0, dx = orderArray.length - 1, ci = cx + dx >>> 1; cx < dx; ci = cx + dx >>> 1) {
+        var orderItem = orderArray[ci];
+        if (orderItem <= newItem) {
+            cx = ci;
+        } else {
+            dx = ci - 1;
+        }
+    }
+    return cx;
+};
+var id2index = function (id, index) {
+    var offset = index.toString(36);
+    return String(id) + "0".repeat(8 - offset.length) + offset;
+};
+
+var breakBalancedIndex = function (index_array, size) {
+    var sum_size = 9;
+    index_array.forEach(function (id) {
+        sum_size += id.length + 1;
+    });
+    if (sum_size <= size) return null;
+
+}
 
 var fs = require("fs");
 var path = require("path");
@@ -155,111 +200,108 @@ var access = function (handle, index, buffer) {
         }
         access_cache.push(is_read_access ? [ok, oh] : [ok, oh, buffer]);
         if (access_cache.length > 1) return;
-        that.init().then(function (handle) {
-            that.handle = handle;
-            access_queue.push([index, that]);
-            if (access_queue.length > 1) return;
-            var runner = function () {
+        access_queue.push([index, that]);
+        if (access_queue.length > 1) return;
+        var runner = function () {
+            do {
+                var [index, that] = access_queue[0];
+                var access_caches = that.access_cache;
+                if (access_caches[index]) break;
+                access_queue.shift();
+            } while (access_queue.length);
+            if (!access_queue.length) return runner = null;
+            var handle = that.handle;
+            var is_read_access = access_caches[index][0].length === 2;
+            if (is_read_access) {
+                var read_size = 0, upblank_size = 0, downblank_size = 0;
                 do {
-                    var [index, that] = access_queue[0];
-                    var access_caches = that.access_cache;
-                    if (access_caches[index]) break;
-                    access_queue.shift();
-                } while (access_queue.length);
-                if (!access_queue.length) return runner = null;
-                var handle = that.handle;
-                var is_read_access = access_caches[index][0].length === 2;
-                if (is_read_access) {
-                    var read_size = 0, upblank_size = 0, downblank_size = 0;
-                    do {
-                        if (upblank_size > 8192 && downblank_size > 8192) break;
-                        index -= 8192;
-                        read_size += 16384;
-                        var access_cache = access_caches[index];
-                        if (!access_cache || access_cache.length < 1 || access_cache[0].length !== 2) {
-                            upblank_size += 8192;
+                    if (upblank_size > 8192 && downblank_size > 8192) break;
+                    index -= 8192;
+                    read_size += 16384;
+                    var access_cache = access_caches[index];
+                    if (!access_cache || access_cache.length < 1 || access_cache[0].length !== 2) {
+                        upblank_size += 8192;
+                    } else {
+                        upblank_size = 0;
+                    }
+                    var access_cache = access_caches[index + read_size];
+                    if (!access_cache || access_cache.length < 1 || access_cache[0].length !== 2) {
+                        downblank_size += 8192;
+                    } else {
+                        downblank_size = 0;
+                    }
+                } while (read_size < 0xffffff);
+                index += upblank_size;
+                read_size -= upblank_size + downblank_size;
+                var buffer = new Buffer(read_size);
+                fs.read(handle, buffer, 0, buffer.length, index, function (err, buffer) {
+                    for (var cx = index, dx = index + read_size; cx < dx; cx += 8192) {
+                        var access_array = access_cache[cx];
+                        if (!access_array || !access_array.length || access_array[0].length !== 2) continue;
+                        if (access_array[access_array.length - 1].length === 2) {
+                            delete access_cache[cx];
                         } else {
-                            upblank_size = 0;
+                            access_cache[cx] = access_array.splice(access_array.length - 1, 1);
+                            access_queue.push([cx, that]);
                         }
-                        var access_cache = access_caches[index + read_size];
-                        if (!access_cache || access_cache.length < 1 || access_cache[0].length !== 2) {
-                            downblank_size += 8192;
-                        } else {
-                            downblank_size = 0;
-                        }
-                    } while (read_size < 0xffffff);
-                    index += upblank_size;
-                    read_size -= upblank_size + downblank_size;
-                    var buffer = new Buffer(read_size);
-                    fs.read(handle, buffer, 0, buffer.length, index, function (err, buffer) {
-                        for (var cx = index, dx = index + read_size; cx < dx; cx += 8192) {
-                            var access_array = access_cache[cx];
-                            if (!access_array || !access_array.length || access_array[0].length !== 2) continue;
-                            if (access_array[access_array.length - 1].length === 2) {
-                                delete access_cache[cx];
-                            } else {
-                                access_cache[cx] = access_array.splice(access_array.length - 1, 1);
-                                access_queue.push([cx, that]);
-                            }
-                            var _buffer = buffer.slice(cx, cx + 8192);
-                            access_array.forEach(function ([ok, oh]) {
-                                if (err) oh(err);
-                                else ok(_buffer);
-                            });
-                            access_queue.shift();
-                        }
-                        runner();
+                        var _buffer = buffer.slice(cx, cx + 8192);
+                        access_array.forEach(function ([ok, oh]) {
+                            if (err) oh(err);
+                            else ok(_buffer);
+                        });
+                        access_queue.shift();
+                    }
+                    runner();
+                });
+            } else {
+                var write_size = 0, upblank_size = 0, downblank_size = 0;
+                do {
+                    if (upblank_size > 0 && downblank_size > 0) break;
+                    index -= 8192;
+                    write_size += 16384;
+                    var access_cache = access_caches[index];
+                    if (upblank_size || !access_cache || access_cache.length < 1 || access_cache[0].length !== 3) {
+                        upblank_size += 8192;
+                    }
+                    var access_cache = access_caches[index + write_size];
+                    if (downblank_size || !access_cache || access_cache.length < 1 || access_cache[0].length !== 3) {
+                        downblank_size += 8192;
+                    }
+                } while (write_size < 0xffffff);
+                index += upblank_size;
+                write_size -= upblank_size + downblank_size;
+                var buffer = new Buffer(write_size);
+                for (var cx = index, dx = index + write_size; cx < dx; cx += 8192) {
+                    var access_array = access_cache[cx];
+                    var temp_buffer = new Buffer(0);
+                    access_array.forEach(function (buffered_array) {
+                        var buffer = buffered_array.splice(2, 1)[0];
+                        temp_buffer = merge_buffer(temp_buffer, buffer);
                     });
-                } else {
-                    var write_size = 0, upblank_size = 0, downblank_size = 0;
-                    do {
-                        if (upblank_size > 0 && downblank_size > 0) break;
-                        index -= 8192;
-                        write_size += 16384;
-                        var access_cache = access_caches[index];
-                        if (upblank_size || !access_cache || access_cache.length < 1 || access_cache[0].length !== 3) {
-                            upblank_size += 8192;
-                        }
-                        var access_cache = access_caches[index + write_size];
-                        if (downblank_size || !access_cache || access_cache.length < 1 || access_cache[0].length !== 3) {
-                            downblank_size += 8192;
-                        }
-                    } while (write_size < 0xffffff);
-                    index += upblank_size;
-                    write_size -= upblank_size + downblank_size;
-                    var buffer = new Buffer(write_size);
+                    temp_buffer.copy(buffer, cx - index, 0, temp_buffer.length);
+                }
+                fs.write(handle, buffer, 0, buffer.length, index, function (err) {
                     for (var cx = index, dx = index + write_size; cx < dx; cx += 8192) {
                         var access_array = access_cache[cx];
-                        var temp_buffer = new Buffer(0);
-                        access_array.forEach(function (buffered_array) {
-                            var buffer = buffered_array.splice(2, 1)[0];
-                            temp_buffer = merge_buffer(temp_buffer, buffer);
-                        });
-                        temp_buffer.copy(buffer, cx - index, 0, temp_buffer.length);
-                    }
-                    fs.write(handle, buffer, 0, buffer.length, index, function (err) {
-                        for (var cx = index, dx = index + write_size; cx < dx; cx += 8192) {
-                            var access_array = access_cache[cx];
-                            if (!access_array || !access_array.length || access_array[0].length !== 2) continue;
-                            if (access_array[access_array.length - 1].length === 2) {
-                                delete access_cache[cx];
-                            } else {
-                                access_cache[cx] = access_array.splice(access_array.length - 1, 1);
-                                access_queue.push([cx, that]);
-                            }
-                            var _buffer = buffer.slice(cx, cx + 8192);
-                            access_array.forEach(function ([ok, oh]) {
-                                if (err) oh(err);
-                                else ok(_buffer);
-                            });
-                            access_queue.shift();
+                        if (!access_array || !access_array.length || access_array[0].length !== 2) continue;
+                        if (access_array[access_array.length - 1].length === 2) {
+                            delete access_cache[cx];
+                        } else {
+                            access_cache[cx] = access_array.splice(access_array.length - 1, 1);
+                            access_queue.push([cx, that]);
                         }
-                        runner();
-                    });
-                }
-            };
-            setTimeout(runner);
-        }).catch(oh);
+                        var _buffer = buffer.slice(cx, cx + 8192);
+                        access_array.forEach(function ([ok, oh]) {
+                            if (err) oh(err);
+                            else ok(_buffer);
+                        });
+                        access_queue.shift();
+                    }
+                    runner();
+                });
+            }
+        };
+        setTimeout(runner);
     });
 }
 
@@ -271,30 +313,62 @@ function Table(tablename) {
     if (typeof this !== "object") throw new Error("call Table from new please!");
     this.tablename = tablename;
     this.access_cache = {};
-};
-
-Table.prototype = {
-
     /**
      * 初始化文件句柄
      */
-    init() {
+    this.init = function () {
         var that = this;
         if (this.inited) return Promise.resolve(this.inited);
         else return this.inited = new Promise(function (ok, oh) {
             initBalanceDirectory().then(function (__balance_directory) {
                 var __balance__table = path.resolve(__balance_directory, that.tablename);
-                fs.open(__balance__table, function (error, handle) {
+                fs.open(__balance__table, 'w+', function (error, handle) {
                     if (error) return oh(error);
                     process.on("beforeExit", function () {
                         fs.close(that.inited);
                     });
-                    ok(that.inited = handle);
+                    that.inited = that.handle = handle;
+                    fs.read(handle, new Buffer(8192), 0, 8192, 0, function (error, length, buffer) {
+                        if (error) return oh(error);
+                        if (length) {
+                            that.index_array = [];
+                        } else {
+                            that.index_array = buffer2index(length === 8192 ? buffer : buffer.slice(0, length));
+                        }
+                        fs.stat(function (error, stat) {
+                            if (error) return oh(error);
+                            for (var k in that) {
+                                if (that[k] instanceof Function) {
+                                    delete that[k];
+                                }
+                            }
+                            that.file_size = stat.size;
+
+                            that.init = function () {
+                                throw new Error("already inited!");
+                            };
+                            ok(handle);
+                        });
+                    });
                 });
             }).catch(oh);
         });
-    },
+    };
+    for (var k in this) {
+        if (this[k] instanceof Function) {
+            let key = k;
+            this[key] = function () {
+                var args = arguments;
+                var that = this;
+                return this.init().then(function () {
+                    return that[key].apply(that, args);
+                });
+            };
+        }
+    }
+};
 
+Table.prototype = {
     /**
      * 文件访问缓冲
      */
@@ -316,53 +390,83 @@ Table.prototype = {
         return access.call(this, index, buffer);
     },
 
-    select(id) {
-        if (this.index_object) {
-            var index = this.index_object[id];
-            if (index) return this.read(index);
-        }
-        return new Promise(function (ok, oh) {
-            var load = function (scale, offset) {
-                read(offset).then(function (buffer) {
-                    var string = String(buffer);
-                    var value = string.slice(62, 62 << 1);
-                    if (value === id) return ok(value);
-                    if (value < id) {
-                        offset = scale + offset;
-                    } else {
-                        offset = scale + offset + 1;
-                    }
-                    load(scale + scale, offset);
-                }).catch(oh);
+    load(id) {
+        var that = this;
+        var index_array = that.index_array;
+        var sid = String(id) + "zzzzzzzz";
+        return new Promsie(function (ok, oh) {
+            var getter = function () {
+                var cx = getIndexFromOrderedArray(index_array, sid);
+                var iid = index_array[cx];
+                if (!iid) return ok(null);
+                var address = parseInt(iid.slice(iid.length - 8), 36);
+                var isIndex = address % 2;
+                if (isIndex) {
+                    iid = iid.slice(0, iid.length - 16);
+                }
+                if (iid && iid.length === sid.length && iid.slice(0, sid.length - 8) === sid.slice(0, sid.length - 8)) {//found
+                    address = parseInt(iid.slice(iid.length - 8), 36);
+                    that.read(address / 2).then(function (buffer) {
+                        ok(buffer2object(buffer));
+                    }).catch(oh);
+                } else if (isIndex) {//isindex
+                    that.read((address - 1) / 2).then(function (buffer) {
+                        index_array = buffer2index(buffer);
+                        getter();
+                    }).catch(oh);
+                } else {//isobject
+                    ok(null);
+                }
             };
-            load(1, 0);
+            getter();
         });
     },
-    insert(object) {
+    save(object) {
         var id = object.id;
         var _buffer = object2buffer(object);
-        return new Promise(function (ok, oh) {
-            var load = function (scale, offset) {
-                read(offset).then(function (buffer) {
-                    var string = String(buffer);
-                    var value = string.slice(62, 62 << 1);
-                    if (value === id) return write(value);
-                    var is_left_balance = buffer[0];
-                    if (value < id) {
-                        if (is_left_balance) {
-                            var temp = _buffer;
-                            _buffer = buffer;
-                            return write(_buffer).then()
-                        }
-                        offset = scale + offset;
-                    } else {
-                        offset = scale + offset + 1;
+        var that = this;
+        var index_array = that.index_array;
+        var sid = String(id) + "zzzzzzzz";
+        return new Promsie(function (ok, oh) {
+            var getter = function () {
+                var cx = getIndexFromOrderedArray(index_array, sid);
+                var iid = index_array[cx];
+                if (!iid) {
+                    //申请索引存储区
+                    index_array = [id2index(String(id), (that.size + 8192) * 2)];
+                    var promise = that.write(that.size, index2buffer(index_array))
+                    that.size += 8192 << 1;
+                    promise.then(getter).catch(oh);
+                    return;
+                }
+                var address = parseInt(iid.slice(iid.length - 8), 36);
+                var isIndex = address % 2, count = 0;
+                if (isIndex) {
+                    count = parseInt(iid.slice(iid.length - 16, iid.length - 8), 36);
+                    iid = iid.slice(0, iid.length - 16);
+                }
+                if (iid && iid.length === sid.length && iid.slice(0, sid.length - 8) === sid.slice(0, sid.length - 8)) {//found
+                    address = parseInt(iid.slice(iid.length - 8), 36);
+                    that.write(address / 2, _buffer).then(ok).catch(oh);
+                } else if (isIndex) {//isindex
+                    that.read((address - 1) / 2).then(function (buffer) {
+                        index_array = buffer2index(buffer);
+                        getter();
+                    }).catch(oh);
+                } else {//isobject
+                    if (that.size >= 1410554953727) {
+                        throw new Error("File size too large!");
                     }
-                    load(scale + scale, offset);
-                }).catch(oh);
+                    indexedId = id2index(String(id), (that.size + 8192) * 2);
+                    var promise = that.write(that.size, index2buffer(index_array))
+                    that.size += 8192 << 1;
+                    promise.then(getter).catch(oh);
+                    var index = that.size;
+                    that.size += 8192;
+                    that.write(index, _buffer).then(ok).catch(oh);
+                }
             };
-            load(1, 0);
+            getter();
         });
-    },
-
+    }
 };
