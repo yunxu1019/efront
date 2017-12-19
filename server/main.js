@@ -136,6 +136,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     server.on("listening", function () {
         // console.info("server start success!");
     });
+    server.setTimeout(0);
     server.listen(80);
     var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
     if (SSL_PFX_PATH) {
@@ -148,7 +149,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 SSL_ENABLED = true;
             }).on("error", function () {
                 SSL_ENABLED = false;
-            }).listen(443);
+            }).listen(443).setTimeout(0);
         }
     }
     cluster.isWorker && message.count("boot");
