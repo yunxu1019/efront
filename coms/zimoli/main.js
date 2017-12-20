@@ -92,8 +92,8 @@ var get = function (url, then) {
 modules.start_time = +new Date;
 function modules() { }
 modules.modules = modules;
-var penddingTree = {}, prebuildsTree = {};
-var executer = function (text, name) {
+var penddingTree = {};
+var executer = function (text, name, then, prebuild) {
     var functionArgs, functionBody;
     //依赖项名称部分的长度限制为36*36*18=23328
     var doublecount = parseInt(text.slice(0, 3), 36);
@@ -110,31 +110,48 @@ var executer = function (text, name) {
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
     if (!functionArgs.length) {
+        if (modules[name] && !prebuild) return then(modules[name]);
+        else if (prebuild && name in prebuild) return then(prebuild[name]);
         try {
             var exports = Function.call(window, functionBody).call(window);
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
-        broadcast(name, exports);
+        modules[name] = exports;
+        then(exports);
     } else init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
+        // 如果构造该对象没有依赖预置树中的对象，保存这个对象到全局单例对象，否则保存这个对象到预置树
+        if (modules[name]) return then(modules[name]);
+        else if (prebuild && name in prebuild) return then(prebuild[name]);
+        var prevent_save = 0;
+        prebuild && [].map.call(functionArgs.slice(0, functionArgs.length >> 1), k => k in prebuild && prevent_save++);
         try {
             var exports = Function.apply(window, functionArgs.slice(args.length).concat(functionBody)).apply(window, args);
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
-        broadcast(name, exports);
-    }, prebuildsTree[name]);
-    delete prebuildsTree[name];
+        if (prevent_save) prebuild[name] = exports;
+        else modules[name] = exports;
+        then(exports);
+    }, prebuild);
 };
-var noop = function (text, name) {
-    broadcast(name, text);
+var noop = function (text, name, then) {
+    then(text);
 };
-var broadcast = function (url, exports) {
-    modules[url] = exports;
-    var thens = penddingTree[url];
-    delete penddingTree[url];
+var broadcast = function (text, name) {
+    var adapter;
+    switch (name.charAt(0)) {
+        case "$":
+            adapter = noop;
+            break;
+        default:
+            adapter = executer;
+    }
+    var thens = penddingTree[name];
+    delete penddingTree[name];
     for (var cx = 0, dx = thens.length; cx < dx; cx++) {
-        thens[cx](exports);
+        var [then, prebuild] = thens[cx];
+        adapter(text, name, then, prebuild);
     }
 };
 var init = function (name, then, prebuild) {
@@ -144,7 +161,7 @@ var init = function (name, then, prebuild) {
                 return prebuild[argName];
             }
             return new Promise(function (ok, oh) {
-                init(argName, ok);
+                init(argName, ok, prebuild);
             });
         })).then(function (args) {
             (then instanceof Function) && then(args);
@@ -159,24 +176,15 @@ var init = function (name, then, prebuild) {
         modules[name] = window[name];
         return then(modules[name]);
     }
-    var adapter;
-    switch (name.charAt(0)) {
-        case "$":
-            adapter = noop;
-            break;
-        default:
-            adapter = executer;
-    }
     if (modules[name]) {
         return then(modules[name]);
     }
     if (penddingTree[name]) {
-        return penddingTree[name].push(then);
+        return penddingTree[name].push([then, prebuild]);
     }
-    penddingTree[name] = [then];
-    if (prebuild) prebuildsTree[name] = prebuild;
+    penddingTree[name] = [[then, prebuild]];
     // return 
-    get(name, adapter);
+    get(name, broadcast);
 };
 modules.init = init;
 var replacePromise = function (promise) {
@@ -195,7 +203,6 @@ var requires_count = 1;
 var hook = function (requires_count) {
     if (requires_count === 0) {
         init("zimoli", function (zimoli) {
-            modules.go = modules.zimoli = zimoli;
             zimoli();
             modules.hook_time = +new Date;
         });

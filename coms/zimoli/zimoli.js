@@ -66,7 +66,7 @@ function go(url, args, history_name) {
         }
     }
     if (!url) return true;
-    sessionStorage.setItem(_zimoli_params_key + url, JSON.stringify(args));
+    sessionStorage.setItem(_zimoli_params_key + url, JSON.stringify(args) || null);
     if (!page_generators[url]) {
         return zimoli(url, args, history_name);
     }
@@ -125,7 +125,7 @@ function zimoli(page, args, history_name) {
     var _zimoli_state_key = _zimoli_state_prefix + page;
     var state = function state(condition) {
         if (arguments.length >= 1) {
-            sessionStorage.setItem(_zimoli_state_key, JSON.stringify(condition));
+            sessionStorage.setItem(_zimoli_state_key, JSON.stringify(condition) || null);
         }
         try {
             condition = JSON.parse(sessionStorage.getItem(_zimoli_state_key)) || {};
@@ -134,6 +134,7 @@ function zimoli(page, args, history_name) {
         }
         return condition;
     };
+    if (page_generators[page]) return go(page, args, history_name);
     var _with_elements = [];
     state.with = function (element) {
         element && _with_elements.push(element);
@@ -146,18 +147,18 @@ function zimoli(page, args, history_name) {
         }
         return go(url, args, history_name);
     };
+
     var _remove_listeners = [];
     state.onremove = function (handler, _handler) {
-        console.log("onremove");
         if (isFunction(handler)) _remove_listeners.push(handler);
         else onremove(handler, _handler);
     };
     var _append_listeners = [];
     state.onappend = function (handler, _handler) {
-        console.log("onappend");
         if (isFunction(handler)) _remove_listeners.push(handler);
         else onappend(handler, _handler);
     };
+
     return init(page, function (pg) {
         pg.with = _with_elements;
         pg.onremove = _remove_listeners;
@@ -200,7 +201,6 @@ var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
     history = JSON.parse(sessionStorage.getItem(history_session_object_key)) || history;
 } catch (e) {
-    console.log(e);
 }
 var pushstate = function (path_name, history_name) {
     if (!history_name) {
@@ -220,7 +220,7 @@ var pushstate = function (path_name, history_name) {
         _history.push(path_name);
         if (_history.length > 1) fixurl();
     }
-    sessionStorage.setItem(history_session_object_key, JSON.stringify(history));
+    sessionStorage.setItem(history_session_object_key, JSON.stringify(history) || null);
 };
 var fixurl = function () {
     setTimeout(function () {
