@@ -2,17 +2,19 @@
  * 不枝雀
  * 2017-3-18 16:16:20
  */
-var sessionStorage = localStorage;
 //main
 var body = document.body;
 var onbacks = [];
 var target_hash, exit_ing;
 var window_history = window.history;
 var window_history_length = window_history.length;
-if (location.href.slice(location.href.length - location.pathname.length) !== location.pathname) {
+var load_count = "__zimoli_load_times";
+var loadTime = +sessionStorage.getItem(load_count) || 0;
+if (!loadTime) {
     location.replace("#reload");
-    // throw "start from child hash";
 }
+loadTime++;
+sessionStorage.setItem(load_count, loadTime);
 
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
@@ -66,7 +68,7 @@ function go(url, args, history_name) {
         }
     }
     if (!url) return true;
-    sessionStorage.setItem(_zimoli_params_key + url, JSON.stringify(args) || null);
+    localStorage.setItem(_zimoli_params_key + url, JSON.stringify(args) || null);
     if (!page_generators[url]) {
         return zimoli(url, args, history_name);
     }
@@ -107,11 +109,12 @@ var page_generators = {};
  */
 function zimoli(page, args, history_name) {
     if (arguments.length === 0) {
+        exit_ing = false;
         history_name = current_history;
         var _history = history[history_name] || [];
         page = _history[_history.length - 1] || "/main";
         try {
-            args = JSON.parse(sessionStorage.getItem(_zimoli_params_key + page)) || {};
+            args = JSON.parse(localStorage.getItem(_zimoli_params_key + page)) || {};
         } catch (e) {
             args = {};
         }
@@ -125,10 +128,10 @@ function zimoli(page, args, history_name) {
     var _zimoli_state_key = _zimoli_state_prefix + page;
     var state = function state(condition) {
         if (arguments.length >= 1) {
-            sessionStorage.setItem(_zimoli_state_key, JSON.stringify(condition) || null);
+            localStorage.setItem(_zimoli_state_key, JSON.stringify(condition) || null);
         }
         try {
-            condition = JSON.parse(sessionStorage.getItem(_zimoli_state_key)) || {};
+            condition = JSON.parse(localStorage.getItem(_zimoli_state_key)) || {};
         } catch (e) {
             condition = {};
         }
@@ -199,7 +202,7 @@ var current_history = "default";
 history[current_history] = [];
 var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
-    history = JSON.parse(sessionStorage.getItem(history_session_object_key)) || history;
+    history = JSON.parse(localStorage.getItem(history_session_object_key)) || history;
 } catch (e) {
 }
 var pushstate = function (path_name, history_name) {
@@ -220,12 +223,12 @@ var pushstate = function (path_name, history_name) {
         _history.push(path_name);
         if (_history.length > 1) fixurl();
     }
-    sessionStorage.setItem(history_session_object_key, JSON.stringify(history) || null);
+    localStorage.setItem(history_session_object_key, JSON.stringify(history) || null);
 };
 var fixurl = function () {
     setTimeout(function () {
-        if (!/#$/.test(location.href)) location.href = "#";
         exit_ing = void 0;
+        if (!/#$/.test(location.href)) location.href = "#";
     }, 0);
 }
 var onback = function () {
@@ -235,7 +238,7 @@ var onback = function () {
     }
     if (go(-1) === true) {
         try {
-            navigator.app.exitApp()
+            navigator.app.exitApp();
         } catch (e) {
             if (window_history.length > 2) exit_ing = true, window_history.go(-1);
         };
