@@ -109,6 +109,7 @@ var executer = function (text, name, then, prebuild) {
         functionBody = text;
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
+    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => d * .72 + "pt");
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
