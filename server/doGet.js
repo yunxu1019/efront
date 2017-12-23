@@ -3,18 +3,26 @@ var getfile = require("../process/getfile");
 var path = require("path");
 var mimes = require("../process/mime");
 var message = require("../process/message");
-var proxy = {};
+var referer_proxy = {
+    "/": "/" + process.env.APP || "",
+};
+referer_proxy[""] = referer_proxy["/"];
+var URL = require("url");
 /**
  * 
  */
 module.exports = function (req, res) {
+
     var url = req.url.replace(/[\?#][\s\S]*/g, "");
     // console.info(req.headers.referer,'req');
 
-    // console.log(req.headers.referer);
-    if (proxy[url]) {
-        console.info(`Proxy:${url} : ${proxy[url]}`);
-        url = proxy[url];
+    if (req.headers.referer) {
+        var referer = req.headers.referer;
+        var pathname = URL.parse(referer).pathname;
+        if (referer_proxy[pathname]) {
+            console.info(`Proxy:${url} : ${referer_proxy[pathname]}${url}`);
+            url = referer_proxy[pathname] + url;
+        }
     }
     var data = getfile(url);
     if (!data || data === "/") {
