@@ -9,11 +9,14 @@ var Function = window.Function;
 var Array = window.Array;
 var Promise = window.Promise;
 var setTimeout = window.setTimeout;
+var clearTimeout = window.clearTimeout;
 var Date = window.Date;
 var Math = window.Math;
+var localStorage = window.localStorage;
 var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
+var versionTree = {};
 //var console = window.console;
 var document = window.document;
 var message = '请关闭后重新打开..';
@@ -69,7 +72,80 @@ var load = function (name, count = 150) {
     };
     xhr.send("{}");
 };
+var flush_to_storage_timer = 0, responseTree_storageKey = "zimoliAutoSavedResponseTree";
+var saveResponseTreeToStorage = function () {
+    var responseTextArray = [];
+    for (var k in responseTree) {
+        if (versionTree[k]) responseTextArray.push(
+            k + "：" + versionTree[k] + "：" + responseTree[k]
+        );
+    }
+    var data = responseTextArray.join("，");
+    localStorage && localStorage.setItem(responseTree_storageKey, data);
+};
+var loadResponseTreeFromStorage = function () {
+    function table(sign) {
+        var c, table = new Array(256);
+        for (var n = 0; n < 256; n++) {
+            c = n;
+            c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
+            c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
+            c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
+            c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
+            c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
+            c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
+            c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
+            c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
+            table[n] = c;
+        }
+        return table;
+    }
+
+    function crc(bstr, seed) {
+        var C = seed ^ -1,
+            L = bstr.length - 1;
+        for (var i = 0; i < L;) {
+            C = C >>> 8 ^ T[(C ^ bstr.charCodeAt(i++, 36)) & 0xFF];
+            C = C >>> 8 ^ T[(C ^ bstr.charCodeAt(i++, 36)) & 0xFF];
+        }
+        if (i === L) C = C >>> 8 ^ T[(C ^ bstr.charCodeAt(i)) & 0xFF];
+        return C ^ -1;
+    }
+
+    var sign = parseInt("-52l3vk", 36);
+    var T = table(sign);
+    var load = function (name) {
+        var data = localStorage.getItem(responseTree_storageKey);
+        if (!data) return;
+        var responseTextArray = data.split("，");
+        for (var cx = 0, dx = responseTextArray.length; cx < dx; cx++) {
+            var kv = responseTextArray[cx].split("：");
+            var [responseName, version, responseText] = kv;
+            preLoadVersionTree[responseName] = version;
+            preLoadResponseTree[responseName] = responseText;
+        }
+    };
+    var preLoadResponseTree = {};
+    var preLoadVersionTree = {};
+    if (localStorage) load();
+    else init("localStorage", function (_localStorage) {
+        localStorage = _localStorage;
+        load();
+    });
+    preLoad = function (responseName) {
+        if (responseTree[responseName]) return;
+        var version = preLoadVersionTree[responseName]
+        if (!version) return;
+        var responseText = preLoadResponseTree[responseName]
+        var sum = crc(responseText).toString(36);
+        if (sum + version.slice(sum.length) === versionTree[responseName])
+            responseTree[responseName] = responseText;
+        else window.console.log(responseName, sum, version, versionTree[responseName]);
+    };
+};
+var preLoad = function () { };
 var flush = function (url) {
+    clearTimeout(flush_to_storage_timer);
     var thens = loaddingTree[url];
     delete loaddingTree[url];
     for (var k in thens) {
@@ -78,8 +154,10 @@ var flush = function (url) {
             then(responseTree[url], url);
         }
     }
+    flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 260);
 };
 var get = function (url, then) {
+    preLoad(url);
     if (responseTree[url]) {
         then(responseTree[url], url);
     } else if (loaddingTree[url]) {
@@ -109,7 +187,8 @@ var executer = function (text, name, then, prebuild) {
         functionBody = text;
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => d * .72 + "pt");
+    var devicePixelRatio = window.devicePixelRatio || 1, ratio = devicePixelRatio > 2 ? .86 : .75;
+    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => (+d !== 1 ? d * ratio : ratio / devicePixelRatio) + "pt");
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
@@ -196,13 +275,15 @@ var replaceArrayMap = function (map) {
     Array.prototype.map = map;
     hook(--requires_count);
 };
-var replaceClickEvent = function (fastclick) {
-    new fastclick(document.body);
-    hook(--requires_count);
-};
 var requires_count = 1;
 var hook = function (requires_count) {
     if (requires_count === 0) {
+        loadResponseTreeFromStorage();
+        if ("ontouchstart" in window) {
+            init("fastclick", function (fastclick) {
+                new fastclick(document.body);
+            });
+        }
         init("zimoli", function (zimoli) {
             zimoli();
             modules.hook_time = +new Date;
@@ -219,15 +300,12 @@ if (![].map) {
 }
 var onload = function () {
     window.onload = null;
-    if ("ontouchstart" in window) {
-        requires_count++;
-        init("fastclick", replaceClickEvent);
-    }
     hook(--requires_count);
 };
 modules.put = function (name, module) {
     modules[name] = module;
 };
+modules.versionTree = versionTree;
 modules.responseTree = responseTree;
 modules.loaddingTree = loaddingTree;
 modules.setGetMethod = function (_get) {
