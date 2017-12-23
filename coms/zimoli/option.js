@@ -6,19 +6,19 @@ var _itemBody = div();
 css(_itemBody, "outline:1px solid #e2e3e4;position:absolute;right:0;left:60px;top:0;bottom:0;height:100%;width:auto;font-size:16px;color:#666;padding-left:1px;");
 var _itemFoot = div();
 css(_itemFoot, "position:absolute;right:0;width:40px;top:0;bottom:0;height:100%;");
-var middle=function(item){
-    var half_height=parseInt(item.style.height)>>1;
-    half_height&&css(item,{
-        position:"absolute",
-        top:"25px",
-        marginTop:-half_height+"px"
+var middle = function (item) {
+    var half_height = parseInt(item.style.height) >> 1;
+    half_height && css(item, {
+        position: "absolute",
+        top: "25px",
+        marginTop: -half_height + item.style.height.replace(/(\d*)/, "");
     });
     return item;
 };
 function option(head, body, foot, splitter) {
     var box = createElement(_itemBox);
-    isNode(head)&&middle(head);
-    isNode(body)&&middle(body);
+    isNode(head) && middle(head);
+    isNode(body) && middle(body);
     var _head = createElement(_itemHead, head);
     var _body = createElement(_itemBody, body);
     appendChild(box, _body, _head);
