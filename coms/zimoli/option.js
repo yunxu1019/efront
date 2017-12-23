@@ -11,7 +11,7 @@ var middle = function (item) {
     half_height && css(item, {
         position: "absolute",
         top: "25px",
-        marginTop: -half_height + item.style.height.replace(/(\d*)/, "");
+        marginTop: -half_height + item.style.height.replace(/(\d*)/, "")
     });
     return item;
 };
