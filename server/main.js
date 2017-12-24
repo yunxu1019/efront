@@ -121,6 +121,12 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         }
         if (req.method === "GET") {
             if (SSL_ENABLED && req.socket.localPort === 80) {
+                // 现代浏览器不会给http网站标记为不安全，并且火狐等浏览器对网站进行云检查以判断是否安全
+                // 没有必要自动转向https，所以请让以下代码胎死腹中
+                // if (req.headers["upgrade-insecure-requests"] && req.headers.host) {
+                //     res.writeHead(302, { "Location": "https://" + req.headers.host + req.url });
+                //     return res.end();
+                // }
                 res.setHeader("Content-Security-Policy", "upgrade-insecure-requests");
             }
             return doGet(req, res);
