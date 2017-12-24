@@ -33,18 +33,26 @@ module.exports = function (req, res) {
         }
     }
     if (data instanceof Buffer) {
-        var extend = url.match(/\.(.*?)$/);
-        if (extend) {
-            var mime = mimes[extend[1]];
-            if (mime) {
-                res.writeHead(200, {
-                    'Content-Type': mime,
-                    "Content-Length": data.length
-                });
+        message.count({ path: url, update: true });
+        var requiredVersion = req.headers["if-modified-since"];
+        if (requiredVersion && new Date(requiredVersion) - data.stat.mtime >= 0) {
+            res.writeHead(304, {});
+        }
+        else {
+            var extend = url.match(/\.(.*?)$/);
+            if (extend) {
+                var mime = mimes[extend[1]];
+                if (mime) {
+                    res.writeHead(200, {
+                        "Last-Modified": data.stat.mtime.toUTCString(),
+                        'Content-Type': mime,
+                        "Content-Length": data.length
+                    });
+                }
             }
+            res.write(data);
         }
         message.count({ path: url, update: true });
-        res.write(data);
         return res.end();
     } else if (data instanceof Object) {
         if (!data["index.html"]) {
@@ -55,11 +63,17 @@ module.exports = function (req, res) {
         }
         if (data instanceof Buffer) {
             message.count({ path: url, update: true });
-            res.writeHead(200, {
-                'Content-Type': mimes.html,
-                "Content-Length": data.length
-            });
-            res.write(data);
+            var requiredVersion = req.headers["if-modified-since"];
+            if (requiredVersion && new Date(requiredVersion) - data.stat.mtime >= 0) {
+                res.writeHead(304, {});
+            } else {
+                res.writeHead(200, {
+                    "Last-Modified": data.stat.mtime.toUTCString(),
+                    'Content-Type': mimes.html,
+                    "Content-Length": data.length
+                });
+                res.write(data);
+            }
             return res.end();
         }
     } else if (typeof data === "string") {
