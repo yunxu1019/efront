@@ -2,6 +2,7 @@
 var fs = require("fs");
 var watch = require("../process/watch");
 var path = require("path");
+var versionTree = {};
 /**
  * 取文件夹
  * @param {string} dir 
@@ -25,8 +26,15 @@ var getfile = function (url) {
  * @param {string} url 
  */
 var isdir = function (url) {
-    return fs.statSync(path.join(String(this), url)).isDirectory();
-}
+    var pathname = path.join(String(this), url);
+    var stat = fs.statSync(pathname);
+    if (stat.isDirectory()) return true;
+    else return versionTree[pathname] = stat, false;
+};
+var getVersion = function (url) {
+    var pathname = path.join(String(this), url);
+    return versionTree[pathname];
+};
 /**
  * 加载器
  * @param {string} curl 
@@ -55,7 +63,7 @@ var loader = function (curl, temp, key, rebuild) {
         is_reload && _reload_handlers.forEach(run => run());
     };
     load();
-    durls.forEach(curl=> watch( curl, load));
+    durls.forEach(curl => watch(curl, load));
     var is_reload = true;
     return load;
 };
@@ -90,6 +98,7 @@ var seek = function (url, tree, rebuild) {
     if (key && !(temp instanceof Buffer)) {
         return curl.replace(/\\+/g, "/") + "/";
     }
+    temp.stat = getVersion.call(this, curl);
     return temp;
 }
 /**
