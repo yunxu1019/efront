@@ -32,10 +32,13 @@ var createBottomBar = function (buttonsConfig) {
         btn.container = createElement(div);
         btn.index = index++;
         onclick(btn, function () {
+            if (pages.index === this.index) return;
             var childNodes = btn.parentNode.childNodes;
             for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
                 childNodes[cx] !== this && opacity(childNodes[cx].home, 0);
             }
+            css(this.container, "transform:scale(.95);opacity:0.5;transation:1.8s transform ease-out, .5s opacity ease-out");
+            setTimeout(() => css(this.container, "transform:scale(1);opacity:1;"), 0);
             pages.go(this.index);
         });
         opacity(btn.home, 0);
