@@ -67,7 +67,7 @@ function slider(autoplay) {
         var width = outter.offsetWidth || windowInnerWidth;
         var indexLeft = floor(index);
         var indexRight = indexLeft + 1;
-        if (ising === false) {
+        if (ising===false) {
             //预载
             generator(indexLeft - 1, 1);
             generator(indexLeft - 2, 1);
@@ -266,8 +266,21 @@ function slider(autoplay) {
         };
     }
     outter.go = function (index) {
+        if (outter.index === index) return;
         negative_index = -index;
+        var _removingMain = _imageMain;
         reshape(index, false);
+        css(_removingMain, "transition:.1s opacity ease-out,.1s transform;z-index:1;left:0;");
+        appendChild(outter, _removingMain);
+        setTimeout(function(){
+            css(_removingMain, "transform:scale(.97);opacity:0;");
+        });
+        setTimeout(function () {
+            remove(_removingMain);
+            css(_removingMain, "transform:scale(1);opacity:1;transition:none");
+        }, 100);
+        css(_imageMain, "z-index:0;transform:scale(.92);opacity:0;transition:none");
+        setTimeout(() => css(_imageMain, "transform:scale(1);opacity:1;transition:.2s transform ease-out,.4s opacity"), 0);
     };
     return outter;
 }
