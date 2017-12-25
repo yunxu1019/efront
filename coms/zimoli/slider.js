@@ -63,7 +63,7 @@ function slider(autoplay) {
         direction,
         _speed = speed(1);
     var reshape = function (index, ising) {
-        current_index = index;
+        outter.index = current_index = index;
         var width = outter.offsetWidth || windowInnerWidth;
         var indexLeft = floor(index);
         var indexRight = indexLeft + 1;
