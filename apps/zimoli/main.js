@@ -37,8 +37,8 @@ var createBottomBar = function (buttonsConfig) {
             for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
                 childNodes[cx] !== this && opacity(childNodes[cx].home, 0);
             }
-            css(this.container, "transform:scale(.95);opacity:0.5;transation:1.8s transform ease-out, .5s opacity ease-out");
-            setTimeout(() => css(this.container, "transform:scale(1);opacity:1;"), 0);
+            css(this.container, "transform:scale(.72);opacity:0;transition:none");
+            setTimeout(() => css(this.container, "transform:scale(1);opacity:1;transition:.1s transform ease-out,.2s opacity"), 0);
             pages.go(this.index);
         });
         opacity(btn.home, 0);
