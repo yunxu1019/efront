@@ -183,11 +183,10 @@ var merge_buffer = function (dst_buffer, src_buffer) {
 
 /**
  * 文件访问
- * @param {integer} handle 文件句柄
  * @param {integer} index 访问偏移量
  * @param {Buffer} buffer 为Buffer时是写操作，不存在是读操作
  */
-var access = function (handle, index, buffer) {
+var access = function (index, buffer) {
     if (access_queue.length > 200000) return Promise.reject("please wait for a time!");
     var that = this;
     var is_read_access = arguments.length === 2;
@@ -414,20 +413,34 @@ Table.prototype = {
                         index_array = buffer2index(buffer);
                         getter();
                     }).catch(oh);
-                } else {//isobject
+                } else {//not found
                     ok(null);
                 }
             };
             getter();
         });
     },
+    save_cache: {},
     save(object) {
         var id = object.id;
         var _buffer = object2buffer(object);
-        var that = this;
         var index_array = that.index_array;
         var sid = String(id) + "zzzzzzzz";
+        if (save_cache[sid]) return save_cache[sid] = _buffer; // 两次连续提交相同id的数据
+        save_cache[sid] = _buffer;
+        var that = this;
+        // 存入时，先检查是否存在。
+        // 如果存在，则存入原位置，过程结束
+        // 如果不存在，存入新位置，并将新位置保存到新索引
+        // 建立新索引：1.查找新id所处位置所在的叶子节点，插入。
+        //            2.检查新节点是否已满。
+        //            (1)如果未满，存入索引，完成。
+        //            (2)如果已满，节点一分为二，存入，并将中点上移至父节点，重复步骤2.。
+        // 
+        // 为了防止多线程并发写入的数据错误，写入操作应转换为队列，先入先出，串行操作
+        // 如果两条数据入口处于根结点的不同搜索路，则可以并行写入
         return new Promsie(function (ok, oh) {
+            var temp_indexes = [];
             var getter = function () {
                 var cx = getIndexFromOrderedArray(index_array, sid);
                 var iid = index_array[cx];
@@ -446,27 +459,35 @@ Table.prototype = {
                     iid = iid.slice(0, iid.length - 16);
                 }
                 if (iid && iid.length === sid.length && iid.slice(0, sid.length - 8) === sid.slice(0, sid.length - 8)) {//found
+                    // 已存在，存入原位置
                     address = parseInt(iid.slice(iid.length - 8), 36);
                     that.write(address / 2, _buffer).then(ok).catch(oh);
                 } else if (isIndex) {//isindex
+                    // 继续查找索引
                     that.read((address - 1) / 2).then(function (buffer) {
+                        temp_indexes.push(index_array);
                         index_array = buffer2index(buffer);
                         getter();
                     }).catch(oh);
                 } else {//isobject
+                    // 不存在，存入父对象
                     if (that.size >= 1410554953727) {
                         throw new Error("File size too large!");
                     }
                     indexedId = id2index(String(id), (that.size + 8192) * 2);
-                    var promise = that.write(that.size, index2buffer(index_array))
-                    that.size += 8192 << 1;
-                    promise.then(getter).catch(oh);
-                    var index = that.size;
+                    var promises = [that.write(that.size, index2buffer(index_array))];
                     that.size += 8192;
-                    that.write(index, _buffer).then(ok).catch(oh);
+
+                    do {
+                        var index = that.size;
+                        that.size += 8192;
+                        promises.push(that.write(index, _buffer).then(ok).catch(oh));
+                    } while (temp_indexes.length);
+                    Promise.all(promises).then(ok).catch(oh);
                 }
             };
             getter();
         });
     }
 };
+module.exports = Table;
