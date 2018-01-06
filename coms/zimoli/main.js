@@ -13,6 +13,9 @@ var clearTimeout = window.clearTimeout;
 var Date = window.Date;
 var Math = window.Math;
 var localStorage = window.localStorage;
+var devicePixelRatio = window.devicePixelRatio || 1;
+var renderPixelRatio = devicePixelRatio > 1 && window.innerWidth >= 360 ? .86 : .75;
+var navigator = window.navigator;
 var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
@@ -30,7 +33,13 @@ try {
     window.top.location.reload();
     throw message;
 }
-
+if (/Android/.test(navigator.userAgent) && document.querySelector) {
+    let ratio = +(1000000 / devicePixelRatio | 0) / 1000000;
+    let getComputedStyle = window.getComputedStyle;
+    window.alert(ratio);
+    document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},minimum-scale=${ratio},maximum-scale=${ratio}`);
+    renderPixelRatio *= devicePixelRatio;
+}
 var retry = function (url, count) {
     setTimeout(function () {
         load(url, --count);
@@ -140,7 +149,7 @@ var loadResponseTreeFromStorage = function () {
         var sum = crc(responseText).toString(36);
         if (sum + version.slice(sum.length) === versionTree[responseName])
             responseTree[responseName] = responseText;
-        else window.console.log(responseName, sum, version, versionTree[responseName]);
+        // else window.console.log(responseName, sum, version, versionTree[responseName]);
     };
 };
 var preLoad = function () { };
@@ -187,8 +196,8 @@ var executer = function (text, name, then, prebuild) {
         functionBody = text;
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    var devicePixelRatio = window.devicePixelRatio || 1, ratio = devicePixelRatio > 2 ? .86 : .75;
-    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => (+d !== 1 ? d * ratio : ratio / devicePixelRatio) + "pt");
+    // window.alert(devicePixelRatio);
+    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => (+d !== 1 ? d * renderPixelRatio + "pt" : renderPixelRatio * .75 + "pt"));
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
@@ -313,5 +322,6 @@ modules.setGetMethod = function (_get) {
 };
 modules.load = load;
 modules.XHR = XHR;
+modules.renderPixelRatio = renderPixelRatio;
 if (document.body) onload();
 else window.onload = onload;

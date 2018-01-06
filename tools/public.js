@@ -203,6 +203,7 @@ var replaceArrayMap = function (map) {
 var replaceClickEvent = function (fastclick) {
     hook(--requires_count);
 };
+
 var requires_count = 1;
 var is_commponent_package;
 var public_app = path.resolve(comms_root, PUBLIC_APP);
@@ -245,6 +246,7 @@ modules.loaddingTree = loaddingTree;
 modules.setGetMethod = function (_get) {
     get = _get;
 };
+modules.renderPixelRatio = 1;
 Object.assign(global, {
     navigator: { userAgent: "" },
     globalStorage: {},
