@@ -36,7 +36,6 @@ try {
 if (/Android/.test(navigator.userAgent) && document.querySelector) {
     let ratio = +(1000000 / devicePixelRatio | 0) / 1000000;
     let getComputedStyle = window.getComputedStyle;
-    window.alert(ratio);
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},minimum-scale=${ratio},maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
 }
