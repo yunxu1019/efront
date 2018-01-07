@@ -15,7 +15,7 @@ var is_touch_enabled = "ontouchstart" in window;
 var extendTouch = function (e) {
     var touch = e.touches[0];
     for (var k in touch) {
-        if (!e[k]) e[k] = touch[k];
+        if (!(k in e)) e[k] = touch[k];
     }
     return e;
 };
@@ -67,7 +67,7 @@ function slider(autoplay) {
         var width = outter.offsetWidth || windowInnerWidth;
         var indexLeft = floor(index);
         var indexRight = indexLeft + 1;
-        if (ising===false) {
+        if (ising === false) {
             //预载
             generator(indexLeft - 1, 1);
             generator(indexLeft - 2, 1);
@@ -272,7 +272,7 @@ function slider(autoplay) {
         reshape(index, false);
         css(_removingMain, "transition:.1s opacity ease-out,.1s transform;z-index:1;left:0;");
         appendChild(outter, _removingMain);
-        setTimeout(function(){
+        setTimeout(function () {
             css(_removingMain, "transform:scale(.97);opacity:0;");
         });
         setTimeout(function () {
