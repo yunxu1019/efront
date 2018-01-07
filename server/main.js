@@ -129,7 +129,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 //     res.writeHead(302, { "Location": "https://" + req.headers.host + req.url });
                 //     return res.end();
                 // }
-                res.setHeader("Content-Security-Policy", "upgrade-insecure-requests");
+                // res.setHeader("Content-Security-Policy", "upgrade-insecure-requests");
             }
             return doGet(req, res);
         } else {
