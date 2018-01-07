@@ -33,7 +33,7 @@ try {
     window.top.location.reload();
     throw message;
 }
-if (/Android/.test(navigator.userAgent) && document.querySelector) {
+if (document.querySelector && devicePixelRatio > 1) {
     let ratio = +(1000000 / devicePixelRatio | 0) / 1000000;
     let getComputedStyle = window.getComputedStyle;
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},minimum-scale=${ratio},maximum-scale=${ratio}`);
@@ -196,7 +196,7 @@ var executer = function (text, name, then, prebuild) {
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
     // window.alert(devicePixelRatio);
-    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => (+d !== 1 ? d * renderPixelRatio + "pt" : renderPixelRatio * .75 + "pt"));
+    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => (+d !== 1 ? d * renderPixelRatio + "pt" : ".75pt"));
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
