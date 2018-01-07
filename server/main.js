@@ -154,7 +154,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 pfx: fs.readFileSync(SSL_PFX_PATH),
                 passphrase: process.env["PASSWORD.SSL_PFX"]
             }, requestListener).on("listening", function () {
-                SSL_ENABLED = true;
+                SSL_ENABLED = +process.env.IN_TEST_MODE === 1;
             }).on("error", function () {
                 SSL_ENABLED = false;
             }).listen(443).setTimeout(0);
