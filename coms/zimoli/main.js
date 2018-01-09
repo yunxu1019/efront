@@ -1,5 +1,4 @@
 "use strict";
-//去除外层广告
 var window = this;
 var parseInt = window.parseInt;
 var XMLHttpRequest = window.XMLHttpRequest;
@@ -14,7 +13,7 @@ var Date = window.Date;
 var Math = window.Math;
 var localStorage = window.localStorage;
 var devicePixelRatio = window.devicePixelRatio || 1;
-var renderPixelRatio = devicePixelRatio > 1 && window.innerWidth >= 360 ? .86 : .75;
+var renderPixelRatio = devicePixelRatio > 1 && window.innerWidth > 360 && window.innerHeight > 360 ? .86 : .75;
 var navigator = window.navigator;
 var loaddingTree = {};
 var requestTree = {};
@@ -23,7 +22,7 @@ var versionTree = {};
 //var console = window.console;
 var document = window.document;
 var message = '请关闭后重新打开..';
-
+//去除外层广告
 try {
     if (window.top && window.top !== window && !/MSIE/.test(window.navigator.userAgent)) {
         window.top.location.href = window.location.href;
@@ -33,10 +32,10 @@ try {
     window.top.location.reload();
     throw message;
 }
-if (document.querySelector && devicePixelRatio > 1) {
-    let ratio = +(1000000 / devicePixelRatio | 0) / 1000000;
-    let getComputedStyle = window.getComputedStyle;
-    document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},minimum-scale=${ratio},maximum-scale=${ratio}`);
+// 适配大小屏
+if (document.querySelector && devicePixelRatio > 1 && /Android/.test(navigator.userAgent)) {
+    let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
+    document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
 }
 var retry = function (url, count) {
@@ -195,8 +194,7 @@ var executer = function (text, name, then, prebuild) {
         functionBody = text;
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    // window.alert(devicePixelRatio);
-    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => (+d !== 1 ? d * renderPixelRatio + "pt" : ".75pt"));
+    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => (+d !== 1 ? d * renderPixelRatio + "pt" : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
