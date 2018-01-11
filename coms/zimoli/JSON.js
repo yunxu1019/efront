@@ -1,6 +1,6 @@
 var stringify_failed_error_message = "stringify json failed!";
 var parse_failed_error_message = "parse json failed!";
-var circle_private_key = "__circle_private_key_" + new Date().valueOf();
+var circle_private_key = "__circle_private_key_" + +new Date;
 var scan_string = function (str, start) {
     if (str.charAt(start) !== "\"")
         return false;
@@ -137,7 +137,7 @@ var stringify = function (object, filter, space) {
         object[circle_private_key] = true;
         var stringified = [];
         for (var k in object) {
-            if (object.hasOwnProperty(k)) {
+            if (object.hasOwnProperty(k) && k !== circle_private_key) {
                 var v = stringify(object[k], filter);
                 if (isDefined(v))
                     stringified.push("\"" + k.replace(/[\\"]/g, "\\$1") + "\":" + v);
@@ -147,7 +147,7 @@ var stringify = function (object, filter, space) {
         return "{" + stringified.join(",") + "}";
     }
     if (isString(object)) {
-        return "\""+object.replace(/[\\"]/g, "\\$1")+"\"";
+        return "\"" + object.replace(/[\\"]/g, "\\$1") + "\"";
     }
     return object;
 };
