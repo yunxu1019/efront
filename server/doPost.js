@@ -68,7 +68,11 @@ var handle = {
                     method: $method,
                     headers: $headers,
                 }, require("url").parse($url)), function (response) {
-                    res.writeHead(response.statusCode, response.headers);
+                    var headers = response.headers;
+                    headers.origin && (headers["Access-Control-Allow-Credentials"] = true);
+                    var setCookie = headers["set-cookie"];
+                    if (setCookie) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
+                    res.writeHead(response.statusCode, headers);
                     response.on("data", function (buffer) {
                         res.write(buffer);
                     });
