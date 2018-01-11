@@ -163,7 +163,7 @@ var init = function (name, then, prebuild) {
     pendding[name] = [then];
     // return 
     get(name, function (text) {
-        if (!text)
+        if (!text && typeof text !== "string")
             return broadcast(name, global[name]);
         if (adapter === noop) {
             return broadcast(name, text);
@@ -437,6 +437,18 @@ var writeComponent = function () {
     }
 
     var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(this)).call([${dest}],function(a,c){return this[c+1]=a instanceof Array?a[a.length-1].apply(this[0],a.slice(0,a.length-1).map(function(a){return this[a]},this)):a},[this])[${dest.length - 1}]`;
+    var tester_path = path.join(comms_root, PUBLIC_APP.replace(/\.[tj]sx?$/, "_test.js"));
+    if (fs.existsSync(tester_path)) {
+        try {
+            let vm = require("vm");
+            let globals = require("../tester/core/suit");
+            let context = vm.createContext(globals);
+            vm.runInContext(template, context);
+            vm.runInContext(fs.readFileSync(tester_path).toString(), context);
+        } catch (e) {
+            console.error(e);
+        }
+    }
     fs.writeFileSync(public_path, template);
     finish();
 };
