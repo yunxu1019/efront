@@ -33,7 +33,7 @@ try {
     throw message;
 }
 // 适配大小屏
-if (document.querySelector && devicePixelRatio > 1 && /Android/.test(navigator.userAgent)) {
+if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform)) {
     let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
@@ -322,3 +322,4 @@ modules.XHR = XHR;
 modules.renderPixelRatio = renderPixelRatio;
 if (document.body) onload();
 else window.onload = onload;
+window.alert(navigator.platform);
