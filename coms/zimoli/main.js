@@ -322,4 +322,3 @@ modules.XHR = XHR;
 modules.renderPixelRatio = renderPixelRatio;
 if (document.body) onload();
 else window.onload = onload;
-window.alert(navigator.platform);
