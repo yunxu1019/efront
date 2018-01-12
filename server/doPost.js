@@ -45,66 +45,9 @@ var readdata = function (req, res, then, max_length) {
     req.on("end", function () {
         length <= max_length && then(Buffer.concat(buff));
     });
-}
+};
+
 var handle = {
-    "/cross"(req, res) {
-        readdata(req, res, function (buff) {
-            try {
-                var response = "";
-                var $post = JSON.parse(buff.toString());
-                if (!$post.token) throw new Error("验证身份失败！");
-                var
-                    $url = $post['url'],
-                    $data = $post['data'],
-                    $method = $post['method'] || "get",//$_SERVER['REQUEST_METHOD'];
-                    $headers = $post['headers'];
-                var http;
-                if (/^https\:/i.test($url)) {
-                    http = require("https");
-                } else {
-                    http = require("http");
-                }
-                var request = http.request(Object.assign({
-                    method: $method,
-                    headers: $headers,
-                }, require("url").parse($url)), function (response) {
-                    var headers = response.headers;
-                    headers.origin && (headers["Access-Control-Allow-Credentials"] = true);
-                    var setCookie = headers["set-cookie"];
-                    if (setCookie) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
-                    res.writeHead(response.statusCode, headers);
-                    response.on("data", function (buffer) {
-                        res.write(buffer);
-                    });
-                    response.on("end", function () {
-                        res.end();
-                    });
-                    response.on("close", function () {
-                        res.close();
-                    });
-                    response.on("abort", function () {
-                        res.abort();
-                    });
-                });
-                request.on("error", function (error) {
-                    res.writeHead(403, {});
-                    res.end(String(e));
-                });
-                request.setTimeout(1);
-                if ($data) {
-                    request.setHeader("Content-Length", $data.length)
-                }
-                for (var k in $headers) {
-                    request.setHeader(k, $headers[k]);
-                }
-                request.write($data || "");
-                request.end();
-            } catch (e) {
-                res.writeHead(403, {});
-                res.end(String(e));
-            }
-        }, 200000);
-    },
     "/count"(req, res) {
         message.count(req.headers.referer);
         res.end();

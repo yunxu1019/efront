@@ -112,9 +112,13 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     // build mime
     var doGet = require("./doGet");
     var doPost = require("./doPost");
+    var doCross = require("./doCross");
     var requestListener = function (req, res) {
         var origin = req.headers.origin;
         origin && res.setHeader("Access-Control-Allow-Origin", origin);
+        if (/^\/\?/.test(req.url)) {
+            return doCross(req, res);
+        }
         var match = req.url.match(/ccon\/(.*?)\.([\da-f]+)\.png$/);
         if (match) {
             var name = match[1];
