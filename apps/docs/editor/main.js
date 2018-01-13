@@ -1,8 +1,8 @@
 document.title = "编辑器和键盘"
 
 var innerHeight = window.innerHeight;
-var inputBoxHeight = 50;
-var emojiPadHeight = 180;
+var inputBoxHeight = 50 * renderPixelRatio / .75;
+var emojiPadHeight = 180 * renderPixelRatio / .75;
 var editorTotalHeight = emojiPadHeight + inputBoxHeight;
 var editorMiniHeight = inputBoxHeight;
 var editorInitTop = innerHeight - editorMiniHeight;
@@ -84,15 +84,13 @@ function editor() {
         css(_editor, { top: _showemoji ? focusHeightfromInputBoxOnly : focusHeightfromEmojiPadAddon });
     };
     _input.onblur = function () {
-        var innerHeight = window.innerHeight;
         css(_editor, { top: (showemoji ? innerHeight - editorTotalHeight : innerHeight - inputBoxHeight) + "px" });
     };
     function switchemoji(_showemoji = !showemoji) {
         showemoji = _showemoji;
-        var innerHeight = window.innerHeight;
         css(_editor, {
             "height": showemoji ? `${editorTotalHeight}px` : editorMiniHeight + "px",
-            "top": showemoji ? `${innerHeight - editorTotalHeight}px` : innerHeight - editorMiniHeight + "px"
+            "top": showemoji ? `${(innerHeight - editorTotalHeight)}px` : (innerHeight - editorMiniHeight) + "px"
         });
     }
     appendChild(_editor, _input, _emojiBtn, _emojiPad);
