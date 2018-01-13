@@ -1,6 +1,6 @@
 var maxWidth = function (target, pixels_count) {
     pixels_count *= renderPixelRatio;
-    return css(target, "max-width:" + pixels_count + "px;");
+    return css(target, "max-width:" + pixels_count + "pt;");
 };
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     maxWidth = function (target, pixels_count) {
