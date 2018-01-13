@@ -38,10 +38,10 @@ function option(head, body, foot, splitter) {
     }
     var divide = function (headWidth) {
         css(_head, {
-            width: +headWidth + 1 + "px"
+            width: (+headWidth + 1)*renderPixelRatio + "pt"
         });
         css(_body, {
-            left: headWidth + "px"
+            left: headWidth*renderPixelRatio + "pt"
         });
     };
     splitter && divide(splitter);
