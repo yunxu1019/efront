@@ -64,7 +64,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
             var key = transformCssKey(oStyle);
             styleobject[key] = oValue;
         } else {
-            oStyle.split(";").map(function (kv) {
+            oStyle.replace(/^;+|;+$/g, "").split(/;+/).map(function (kv) {
                 var [k, v] = kv.split(":");
                 delete styleobject[k];
                 styleobject[k] = v;
@@ -78,7 +78,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
     }
     var rowStyles = [];
     stylesheet.innerHTML.replace(/^.*?\{([\s\S]*?)\}.*?$/, "$1").split(";").map(function (kv) {
-        var [k, v] = kv.split(":");
+        var k = kv.replace(/^(.*?)\:/, "$1");
         if (!(k in styleobject)) rowStyles.push(kv);
     });
     for (var k in styleobject) {
