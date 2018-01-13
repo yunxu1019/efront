@@ -4,7 +4,6 @@ var maxWidth = function (target, pixels_count) {
 };
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     maxWidth = function (target, pixels_count) {
-        pixels_count *= renderPixelRatio;
         var width = target.style.width;
         if (String(width).charAt(width.length - 1) === "%") {
             width = parseInt(width) / 100;
