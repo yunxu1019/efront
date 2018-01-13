@@ -1,9 +1,8 @@
 // 中文编码 utf8
 var _slider = createElement(div);
-css(_slider, "position:absolute;top:0px;left:0px;right:0px;bottom:0px;width:100%;height:100%;");
+addClass(_slider,"slider");
 var container = createElement(div);
 var windowInnerWidth = window.innerWidth || screen.availWidth;
-css(container, "overflow:hidden;position:relative;width:100%;height:120px;font-size:60px;");
 onresize(window, function (event) {
     windowInnerWidth = window.innerWidth || screen.availWidth;
 });
