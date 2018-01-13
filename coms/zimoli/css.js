@@ -3,47 +3,103 @@
  * 2017-5-1 18:33:41
  */
 var stylesheet_Map = {};
-var css = function (targetNode, oStyle, oValue) {
-    if (!isNode(targetNode) && !isString(targetNode)) return;
-    var stylesheet = [];
-    // var styleobject = parseKV(targetStyle.cssText);
-
+/**
+ * 将中划线转成驼峰式
+ * @param {string} key 
+ */
+var transformNodeKey = function (key) {
+    return key.replace(/^\-+/, "").replace(/\-+(\w)/g, function (m, w) {
+        return w.toUpperCase();
+    });
+};
+/**
+ * 将驼峰式命名转成中划线命名
+ * @param {string} key 
+ */
+var transformCssKey = function (key) {
+    key = key.replace(/[A-Z]/g, function (m) {
+        return "-" + m.toLowerCase();
+    });
+    return key;
+};
+/**
+ * 将样式绑定到dom元素
+ * @param {Element} targetNode 
+ * @param {string|object} oStyle 
+ * @param {string|} oValue 
+ */
+var cssTargetNode = function (targetNode, oStyle, oValue) {
+    var styleobject = targetNode.style;
     if (typeof oStyle === "string") {
         if (typeof oValue === "string") {
-            stylesheet.push(oStyle + ":" + oValue)
+            styleobject[transformNodeKey(oStyle)] = oValue;
         } else {
-            stylesheet.push(oStyle);
+            try {
+                targetNode.style.cssText += ";" + oStyle;
+            } catch (e) { }
         }
     } else if (oStyle instanceof Object) {
-        if (isNode(targetNode)) {
-            for (var k in oStyle) {
-                targetNode.style[k.replace(/\w\-+(\w)/g, function (m, w) {
-                    return w.toUpperCase();
-                })] = oStyle[k];
-            }
-        } else {
-            for (var k in oStyle) {
-                stylesheet.push(k.replace(/[A-Z]/g, function (m) {
-                    return "-" + m.toLowerCase()
-                }) + ":" + oStyle[k]);
-            }
+        for (var k in oStyle) {
+            styleobject[transformNodeKey(k)] = oStyle[k];
         }
     }
-    if (stylesheet.length)
-        try {
-            if (isNode(targetNode)) {
-                var targetStyle = targetNode.style;
-                targetStyle.cssText += ";" + stylesheet.join(";");
-            } else {
-                var style = createElement("style");
-                style.type = "text/css";
-                var innerCss = `${targetNode}{${stylesheet.join(";")}}`;
-                if (style.styleSheet) {
-                    style.styleSheet.cssText = innerCss;
-                } else {
-                    style.innerHTML = innerCss;
-                }
-                appendChild(document.getElementsByTagName("head")[0], style);
-            }
-        } catch (e) { }
+};
+/**
+ * 将样式绑定到选择器
+ * @param {string} targetSelector 
+ * @param {string|object} oStyle 
+ * @param {string|} oValue 
+ */
+var cssTargetSelector = function (targetSelector, oStyle, oValue) {
+    var styleobject = {};
+    var stylesheet = stylesheet_Map[targetSelector];
+    if (!stylesheet) {
+        stylesheet = createElement("style")
+        stylesheet.type = "text/css";
+        stylesheet_Map[targetSelector] = stylesheet;
+        appendChild(document.getElementsByTagName("head")[0], stylesheet);
+    };
+    if (typeof oStyle === "string") {
+        if (typeof oValue === "string") {
+            var key = transformCssKey(oStyle);
+            styleobject[key] = oValue;
+        } else {
+            oStyle.split(";").map(function (kv) {
+                var [k, v] = kv.split(":");
+                delete styleobject[k];
+                styleobject[k] = v;
+            });
+        }
+    } else if (oStyle instanceof Object) {
+        for (var k in oStyle) {
+            var key = transformCssKey[k];
+            styleobject[key] = oStyle[k];
+        }
+    }
+    var rowStyles = [];
+    stylesheet.innerHTML.replace(/^.*?\{([\s\S]*?)\}.*?$/, "$1").split(";").map(function (kv) {
+        var [k, v] = kv.split(":");
+        if (!(k in styleobject)) rowStyles.push(kv);
+    });
+    for (var k in styleobject) {
+        rowStyles.push(k + ":" + styleobject[k]);
+    }
+    var innerCss = `${targetSelector}{${rowStyles.join(";")}}`;
+    if (stylesheet.styleSheet) {
+        //IE
+        var styleSheet = stylesheet.styleSheet;
+        stylesheet.styleSheet.cssText = innerCss;
+    } else {
+        stylesheet.innerHTML = innerCss;
+    }
+};
+/**
+ * 函数的入口
+ * @param {string|Element} target 
+ * @param {object|string} oStyle 
+ * @param {|string} oValue 
+ */
+var css = function (target, oStyle, oValue) {
+    if (isNode(target)) cssTargetNode(target, oStyle, oValue);
+    else if (isString(target)) cssTargetSelector(target, oStyle, oValue);
 };
