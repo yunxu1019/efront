@@ -4,7 +4,9 @@ css(_slider, "position:absolute;top:0px;left:0px;right:0px;bottom:0px;width:100%
 var container = createElement(div);
 var windowInnerWidth = window.innerWidth || screen.availWidth;
 css(container, "overflow:hidden;position:relative;width:100%;height:120px;font-size:60px;");
-onresize(window, function (event) { });
+onresize(window, function (event) {
+    windowInnerWidth = window.innerWidth || screen.availWidth;
+});
 var floor = Math.floor;
 var ceil = Math.ceil;
 var round = Math.round;
@@ -22,9 +24,9 @@ var extendTouch = function (e) {
 var has_moving_instance;
 /**
  * 
- * @param {Boolean,Array,Function} autoplay 
+ * @param {Boolean|Array|Function} autoplay 
  */
-function slider(autoplay) {
+function slider(autoplay, circle = true) {
     var outter = createElement(container);
     var _imageMain = createElement(_slider);
     var _imageHelp = createElement(_slider);
@@ -40,6 +42,10 @@ function slider(autoplay) {
     var generator = function (index, ratio) {
         var src = outter.src;
         if (isArray(src)) {
+            if (circle) {
+                index = index % src.length;
+                if (index < 0) index += src.length;
+            }
             src = src[index];
         }
         if (isFunction(src)) {
@@ -135,7 +141,7 @@ function slider(autoplay) {
     var play = function () {
         play.ing = true;
         clearTimeout(timer_playyer);
-        timer_playyer = setTimeout(play, 5);
+        timer_playyer = setTimeout(play, 5000);
         negative_index--;
         animate();
     };
@@ -281,6 +287,11 @@ function slider(autoplay) {
         }, 100);
         css(_imageMain, "z-index:0;transform:scale(.92);opacity:0;transition:none");
         setTimeout(() => css(_imageMain, "transform:scale(1);opacity:1;transition:.2s transform ease-out,.4s opacity"), 0);
+        return outter;
+    };
+    outter.play = function (delay = 5000) {
+        setTimeout(play, delay);
+        return outter;
     };
     return outter;
 }
