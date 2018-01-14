@@ -112,11 +112,12 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
                 height -= deltaY;
             }
             css(increaser, {
-                height: (height > 16 ? (height * 2 + 6) / 3 : height >> 1) + "px"
+                [$height]: (height > 16 ? (height * 2 + 6) / 3 : height >> 1) + "px"
             });
             return 1;
         }
         height && _box[$Top](_box[$Top]() - height);
+        css(increaser, { [$height]: 0 });
         remove(increaser);
         return 0;
     };
