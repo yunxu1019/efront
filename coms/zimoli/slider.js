@@ -38,7 +38,7 @@ function slider(autoplay, circle = true) {
     if (isFunction(autoplay) || isArray(autoplay)) {
         outter.src = autoplay;
     } else {
-        css(outter, 'height:' + (windowInnerWidth * .375 * renderPixelRatio) + 'pt');
+        css(outter, 'height:' + (windowInnerWidth * .375 * .75) + 'pt');
     }
     var generator = function (index, ratio) {
         var src = outter.src;
