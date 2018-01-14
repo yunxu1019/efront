@@ -1,6 +1,6 @@
 // 中文编码 utf8
 var _slider = createElement(div);
-addClass(_slider,"slider");
+addClass(_slider, "slider");
 var container = createElement(div);
 var windowInnerWidth = window.innerWidth || screen.availWidth;
 onresize(window, function (event) {
@@ -37,6 +37,8 @@ function slider(autoplay, circle = true) {
     };
     if (isFunction(autoplay) || isArray(autoplay)) {
         outter.src = autoplay;
+    } else {
+        css(outter, 'height:' + (windowInnerWidth * .375 * renderPixelRatio) + 'pt');
     }
     var generator = function (index, ratio) {
         var src = outter.src;
