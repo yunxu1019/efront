@@ -52,7 +52,7 @@ function cross(req, res) {
             request.setHeader(k, $headers[k]);
         }
         req.on("data", function (buf) {
-            request.write(data);
+            request.write(buf);
         });
         req.on("end", function () {
             request.end();
