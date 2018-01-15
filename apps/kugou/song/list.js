@@ -1,7 +1,7 @@
-var page = vbox();
+var page = createVboxWithState(state);
 
 cross("get", "http://m.kugou.com/").done(function (xhr) {
-    var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(/^.*?<body>(.*?)<\/body>.*?$/, "$1").replace(/<script.*?<\/script>/g, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
+    var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
     var sandbox = createElement(div);
     sandbox.innerHTML = bodyHTML;
     var images = [].map.call(sandbox.getElementsByClassName("mod-slider")[0].children[0].children, function (child) {
