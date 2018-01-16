@@ -54,6 +54,7 @@ function slider(autoplay, circle = true) {
         }
         if (src) {
             if (src.parentNode !== outter) {
+                remove(src);
                 appendChild(outter, src);
             }
         }
