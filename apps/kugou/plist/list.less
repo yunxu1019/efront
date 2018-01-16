@@ -14,10 +14,13 @@
     padding: 10px;
     background-color: #fff;
     >div{
+        display: inline-block;
         line-height: 75px;
         height: 75px;
         vertical-align: top;
-        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 &>.item+.item{
