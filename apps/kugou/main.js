@@ -1,10 +1,12 @@
 var page = createElement(div);
-var tags = "新歌:song/list,排行:rank/list,歌单:plist/list,歌手:singer/keywords".split(",").map(function (tag, cx) {
-    var [str, url] = tag.split(":");
+
+var tags = "新歌:song/list:音乐总有新玩法,排行:rank/list:排行榜 - 酷狗音乐,歌单:plist/list:歌单 - 酷狗音乐,歌手:singer/keywords:歌手分类 - 酷狗音乐".split(",").map(function (tag, cx) {
+    var [str, url, title] = tag.split(":");
     var label = createElement(div);
     label.active = function (ratio) {
         go(this.url, null, this.container);
         if (ratio === 1) {
+            document.title = label.title;
             if (tags.active === this) return this.container;
             if (tags.active) removeClass(tags.active, "active");
             addClass(this, "active");
@@ -12,6 +14,7 @@ var tags = "新歌:song/list,排行:rank/list,歌单:plist/list,歌手:singer/ke
         }
         return this.container;
     };
+    label.title = title;
     label.url = url;
     label.container = createElement(div);
     onclick(label, function () {
@@ -30,6 +33,9 @@ var pages = slider(function (index, ratio) {
     return tag && tag.active(ratio);
 });
 pages.go(state().page || 0);
+onappend(page, function () {
+    tags.active && (document.title = tags.active.title);
+});
 addClass(pages, "pages");
 var titleBar = createElement(div);
 addClass(titleBar, "title-bar");
