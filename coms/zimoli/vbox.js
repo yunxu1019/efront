@@ -95,7 +95,7 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
     var increaser_b = createElement(div);
     var decrease_timer = 0;
     var time_splitter = 30;
-    var increase_height = 100;
+    var increase_height = 100 * renderPixelRatio / .75;
     var _decrease = function (increaser) {
         var height = parseInt(increaser.style[$height]);
         if (height > 1) {
