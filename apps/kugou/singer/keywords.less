@@ -1,3 +1,25 @@
 &{
     padding-top: 50px;
 }
+.group{
+    margin: 10px;
+    position: relative;
+    height: auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    >div{
+        height: 45px;
+        line-height: 25px;
+        padding: 10px;
+        color: #333;
+        background: url(http://m.kugou.com/v3/static/images/index/arrow_icon.png) right 10px center no-repeat;
+        background-size: 7px 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    >div+div{
+        border-top:1px solid #ccc;
+    }
+}
