@@ -12,7 +12,6 @@ var createItem = function (img_src, str) {
 };
 cross("get", "http://m.kugou.com/plist/index").done(function (xhr) {
     var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
-    console.log(bodyHTML);
     var sandbox = createElement(div);
     sandbox.innerHTML = bodyHTML;
     var items = [].map.call(sandbox.getElementsByClassName("panel-img-list")[0].children, function (child) {
