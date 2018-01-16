@@ -22,10 +22,16 @@ cross("get", "http://m.kugou.com/singer/class").done(function (xhr) {
             var innerText = anchor.innerText.replace(/^\s*|\s*$/g, "");
             var item = createElement(div);
             text(item, innerText);
+            onclick(item, function () {
+                go("list", {
+                    href,
+                    _text: innerText
+                });
+            });
             return item;
         });
-        var group = createWithClass(div,"group");
-        appendChild(group,items);
+        var group = createWithClass(div, "group");
+        appendChild(group, items);
         return group;
     });
     appendChild(page, groups);

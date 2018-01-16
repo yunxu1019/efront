@@ -19,10 +19,17 @@ cross("get", "http://m.kugou.com/rank/list").done(function (xhr) {
         var href = anchor.getAttribute("shref");
         var img_src = anchor.getElementsByTagName("img")[0].getAttribute("_src");
         var text = anchor.getElementsByTagName("p")[0].innerText.replace(/^\s*|\s*$/g, "");
-        return createItem(
+        var item = createItem(
             img_src,
             text
         );
+        onclick(item, function () {
+            go("detail", {
+                _text: text,
+                href
+            });
+        });
+        return item;
     });
     appendChild(page, items);
 });
