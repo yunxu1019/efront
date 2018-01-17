@@ -1,9 +1,8 @@
 var nav = createElement(div);
-css(nav, "color:#ffffff;opacity:0.98;box-shadow:0 0 1px rgba(0,0,0,0.1);z-index:2;text-align:center;line-height:50px;font-size:24px;background-color:#333336;height:50px;position:absolute;top:0px;left:0px;right:0px;width:100%;");
 
 function btn(element) {
     var opt = button(element);
-    css(opt, "position:absolute;background-color:#333336;top:0;bottom:0;height:100%;width:60px;");
+    addClass(opt, "btn");
     return opt;
 }
 function back() {
