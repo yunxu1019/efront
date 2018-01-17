@@ -1,6 +1,16 @@
 var tbar = titlebar("").children[0];
 var page = createVboxWithState(state);
 function main({ _text, href }) {
+    var _state = state() || {};
+    if (!_text) {
+        _text = _state._text;
+    }
+    if (!href) {
+        href = _state.href;
+    }
+    _state._text = _text;
+    _state.href = href;
+    state(_state);
     document.title = _text;
     text(tbar, _text);
     remove([].slice.call(page.children, 0));
@@ -17,6 +27,12 @@ function main({ _text, href }) {
             text(item, name);
             css(item, {
                 backgroundImage: `url('${_src}')`
+            });
+            onclick(item, function () {
+                go("detail", {
+                    href,
+                    _text: name
+                });
             });
             return item;
         });
