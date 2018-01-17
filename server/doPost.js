@@ -27,7 +27,7 @@ var getcomm = function (name, _comms_root = comms_root) {
     var comm = "";
     for (var cx = 0, dx = _comms_root.length; cx < dx; cx++) {
         comm = getcommfile(_comms_root[cx] + "/" + name + ".js");
-        if (comm instanceof Buffer) break;
+        if (comm && !/^\w*\/$/.test(comm)) break;
     }
     return comm;
 };
@@ -130,9 +130,9 @@ var doPost = module.exports = function (req, res) {
     var match = url.match(/^\/(.*?)(comm|page|ccon|a?api)\/(.*?)(?:\.js|\.png)?$/);
     if (match) {
         var appc = match[1],
-        type = match[2],
-        name = match[3],
-        extt = match[4];
+            type = match[2],
+            name = match[3],
+            extt = match[4];
         var env = appc ? setupenv(appc) : {};
         switch (type) {
             case "api":
