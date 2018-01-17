@@ -1,4 +1,6 @@
-var tbar = titlebar("").children[0];
+var _titlebar = titlebar(" ");
+css(_titlebar, "background:#2ca2f9;");
+var tbar = _titlebar.children[0];
 var page = createVboxWithState(state);
 function main({ _text, href }) {
     var _state = state() || {};

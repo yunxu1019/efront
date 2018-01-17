@@ -1,3 +1,7 @@
+var _titlebar = titlebar(" ");
+css(_titlebar, "background:transparent");
+var tbar = _titlebar.children[0];
+
 var page = createVboxWithState(state);
 function main({ _text, href }) {
     document.title = _text;
