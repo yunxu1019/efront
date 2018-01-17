@@ -20,7 +20,7 @@ var COMM = env.COMM || "zimoli";
 var ICON = env.ICON || "zimoli";
 var AAPI = env.APIS || "zimoli";
 var ccons_root = "./cons/" + ICON;
-var comms_root = "./coms/" + COMM;
+var comms_root = /,/.test(COMM) ? COMM.split(/,/).map(a => "./coms/" + a) : "./coms/" + COMM;
 var pages_root = "./apps/" + PAGE;
 var aapis_root = "./apis/" + AAPI;
 var loaddingTree = {};
@@ -40,7 +40,7 @@ var load = function (url) {
             case "":
                 builder = commbuilder;
                 extt = ".js";
-                fullpath = path.join(comms_root, name + extt);
+                fullpath = comms_root instanceof Array ? comms_root.map(a => path.join(a, name + extt)) : path.join(comms_root, name + extt);
                 break;
             case "/":
                 builder = commbuilder;
@@ -64,26 +64,34 @@ var load = function (url) {
         throw new Error(`Bad Request ${url}!`);
     }
     if (!builder) throw new Error(`build system not support ${type}`);
-
-    fs.exists(fullpath, function (exists) {
-        if (exists) {
-            fs.stat(fullpath, function (error, stat) {
-                if (error) throw new Error(`读取文件信息出错${url}`);
-                if (!stat.isFile()) throw new Error(`源路径不存在文件${url}`);
-                fs.readFile(fullpath, function (error, buffer) {
-                    if (error) throw new Error("加载" + url + "出错！");
-                    var responseText = builder(buffer, name + extt, fullpath, []);
-                    responseTree[url] = responseText;
-                    versionTree[url] = crc([].map.call(responseText, e => e.charCodeAt(0))).toString(36) + (+stat.mtime).toString(36);
-                    flush(url);
+    var get = function () {
+        var _filepath = fullpath instanceof Array ? fullpath.shift() : fullpath;
+        fs.exists(_filepath, function (exists) {
+            if (exists) {
+                fs.stat(_filepath, function (error, stat) {
+                    if (error) throw new Error(`读取文件信息出错${url}`);
+                    if (!stat.isFile()) throw new Error(`源路径不存在文件${url}`);
+                    fs.readFile(_filepath, function (error, buffer) {
+                        if (error) throw new Error("加载" + url + "出错！");
+                        var responseText = builder(buffer, name + extt, _filepath, []);
+                        responseTree[url] = responseText;
+                        versionTree[url] = crc([].map.call(responseText, e => e.charCodeAt(0))).toString(36) + (+stat.mtime).toString(36);
+                        flush(url);
+                    });
                 });
-            });
-        } else {
-            if (!window[name]) throw new Error(`没有发现文件：${url}`);
-            else console.warn(`${url} will be replaced by the global variables`);
-            flush(url);
-        }
-    });
+            } else {
+                if (fullpath instanceof Array && fullpath.length) {
+                    get();
+                    return;
+                }
+                if (!window[name]) throw new Error(`没有发现文件：${url}`);
+                else console.warn(`${url} will be replaced by the global variables`);
+                flush(url);
+            }
+        });
+    }
+    get();
+
 };
 var flush = function (name) {
     var thens = loaddingTree[name];
@@ -206,8 +214,8 @@ var replaceClickEvent = function (fastclick) {
 
 var requires_count = 1;
 var is_commponent_package;
-var public_app = path.resolve(comms_root, PUBLIC_APP);
-if (fs.existsSync(public_app) && fs.statSync(public_app).isFile()) {
+var public_app = path.resolve(comms_root instanceof Array ? comms_root[0] : comms_root, PUBLIC_APP);
+if (/\.[tj]sx?$/i.test(PUBLIC_APP) || fs.existsSync(public_app) && fs.statSync(public_app).isFile()) {
     //导出组件
     is_commponent_package = true;
     var hook = function () {
@@ -287,8 +295,13 @@ var build = function (files) {
                         init("$" + name, ok);
                     } else if (/\.[tj]sx?$/i.test(file)) {
                         if (/^.*?\/?coms/i.test(file)) {
-                            var name = path.relative(comms_root, file).replace(/[\\\/]+/g, "/");
-                            init(name, ok);
+                            if(comms_root instanceof Array){
+                                var name= path.parse(file).base;
+                                init(name, ok);
+                            }else{
+                                var name = path.relative(comms_root, file).replace(/[\\\/]+/g, "/");
+                                init(name, ok);
+                            }
                         }
                         else if (/^.*?\/?apps/i.test(file)) {
                             var name = path.relative(pages_root, file).replace(/[\\\/]+/g, "/");
