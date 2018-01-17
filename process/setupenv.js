@@ -97,7 +97,7 @@ var get = function (text) {
     var match = text.match(reg_set);
     if (match) {
         var k = match[1],
-            v = process.env[k] || match[3];
+            v = env[k] || match[3] || process.env[k];
         if (v)
             return env[k.toUpperCase()] = /^path\.|path$/i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v;
         else
