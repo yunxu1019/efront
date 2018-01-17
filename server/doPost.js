@@ -23,7 +23,13 @@ var geticon = function (name, _ccons_root = ccons_root) {
 };
 
 var getcomm = function (name, _comms_root = comms_root) {
-    return getcommfile(_comms_root + "/" + name + ".js");
+    _comms_root = _comms_root.split(/,/);
+    var comm = "";
+    for (var cx = 0, dx = _comms_root.length; cx < dx; cx++) {
+        comm = getcommfile(_comms_root[cx] + "/" + name + ".js");
+        if (comm instanceof Buffer) break;
+    }
+    return comm;
 };
 
 var getpage = function (name, _pages_root = pages_root) {
@@ -124,9 +130,9 @@ var doPost = module.exports = function (req, res) {
     var match = url.match(/^\/(.*?)(comm|page|ccon|a?api)\/(.*?)(?:\.js|\.png)?$/);
     if (match) {
         var appc = match[1],
-            type = match[2],
-            name = match[3],
-            extt = match[4];
+        type = match[2],
+        name = match[3],
+        extt = match[4];
         var env = appc ? setupenv(appc) : {};
         switch (type) {
             case "api":
