@@ -19,6 +19,10 @@ function main({ _text, href }) {
             var name = child.children[0].innerText.replace(/^\s*|\s*$/g, "");
             var item = createWithClass(div, "song");
             text(item, name);
+            item.hash = id.replace(/^songs_(.*?)$/g, "$1");
+            onclick(item, function () {
+                kgplayer.play(this.hash);
+            });
             return item;
         });
         appendChild(page, songsList);
