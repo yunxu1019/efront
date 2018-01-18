@@ -37,6 +37,7 @@ if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.pla
     let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
+    document.documentElement.style.fontSize= `${16 * renderPixelRatio}pt`;
 }
 var retry = function (url, count) {
     setTimeout(function () {
