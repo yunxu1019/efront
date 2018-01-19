@@ -211,9 +211,10 @@ var executer = function (text, name, then, prebuild) {
         if (modules[name]) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
         var prevent_save = 0;
-        prebuild && [].map.call(functionArgs.slice(0, functionArgs.length >> 1), k => k in prebuild && prevent_save++);
+        var argslength=functionArgs.length>>1;
+        prebuild && [].map.call(functionArgs.slice(0, argslength), k => k in prebuild && prevent_save++);
         try {
-            var exports = Function.apply(window, functionArgs.slice(args.length).concat(functionBody)).apply(window, args);
+            var exports = Function.apply(window, functionArgs.slice(argslength).concat(functionBody)).apply(window, args);
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
