@@ -1,5 +1,5 @@
 var setBackGround, icon, icn;
-
+var binaryImagePathReg = /^https?\:|\.(?:png|gif|bmp|jpe?g)$/i;
 if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
     icn = new Image;
     css(icn, "display:block;width:28px;height:28px;position:relative;");
@@ -8,17 +8,26 @@ if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
     };
     icon = function (path, color, hover, active) {
         var icon = createElement(icn);
+        if (binaryImagePathReg.test(path)) {
+            icon.src = path;
+            return icon;
+        }
         setBackGround(icon, path + "." + (color || 0).toString(16));
         return icon;
     };
 } else {
     icn = createElement(div);
-    css(icn, "background-position:center;background-repeat:no-repeat;background-size:contain;width:28px;height:28px;");
     setBackGround = function (div, src) {
         css(div, "background-image:url('data:image/png;base64," + src + "')");
     };
     icon = function (path, color, hover, active) {
         var icon = createElement(icn);
+        if (binaryImagePathReg.test(path)) {
+            css(icon, {
+                backgroundImage: `url('${path}')`
+            });
+            return icon;
+        }
         init("$" + path, function (icon_src) {
             var chunks = pngdecode(icon_src);
             var PLTE_COLOR = plte(color);
