@@ -4,7 +4,7 @@ cross("get", "http://m.kugou.com/").done(function (xhr) {
     var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
     var sandbox = createElement(div);
     sandbox.innerHTML = bodyHTML;
-    var images = [].map.call(sandbox.getElementsByClassName("mod-slider")[0].children[0].children, function (child) {
+    var images = [].map.call(sandbox.querySelector(".mod-slider").children[0].children, function (child) {
         var a = child.children[0];
         var src = a.children[0].getAttribute("ssrc");
         var href = a.getAttribute("shref");
@@ -16,7 +16,7 @@ cross("get", "http://m.kugou.com/").done(function (xhr) {
     var _slider = slider(images).go(0).play();
     css(_slider, "height:" + (window.innerWidth * 0.38) + "px;max-height:240px;");
     appendChild(page, _slider);
-    var songs = [].map.call(sandbox.getElementsByClassName("panel-songslist")[0].children, function (child) {
+    var songs = [].map.call(sandbox.querySelector(".panel-songslist").children, function (child) {
         var id = child.getAttribute("id");
         var [singer, song] = child.children[0].innerText.split(/\s*\-\s*/);
         var block = createElement(div);

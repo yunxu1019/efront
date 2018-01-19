@@ -20,7 +20,7 @@ function main({ _text, href }) {
         var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
         var sandbox = createElement(div);
         sandbox.innerHTML = bodyHTML;
-        var singersList = [].map.call(sandbox.getElementsByClassName("panel-img-list")[0].children, function (child) {
+        var singersList = [].map.call(sandbox.querySelector(".panel-img-list").children, function (child) {
             child = child.children[0];
             var href = child.getAttribute("shref");
             var _src = child.children[0].children[0].getAttribute("_src");

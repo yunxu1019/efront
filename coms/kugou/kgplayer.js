@@ -64,16 +64,24 @@ var kgplayer = function (box = div()) {
          */
         box.playing = true;
         var audio = document.createElement("audio");
+        if (audio.play) {
+            audio.play();//安卓4以上的播放功能要在用户事件中调用;
+        } else {
+            // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
+            audio = document.createElement("embed");
+            audio.type = "audio/mpeg";
+            audio.autostart = true;
+            return alert("暂不支持在您的浏览器中播放！");
+        }
         getMusicInfo(hash).done(function (xhr) {
             var data = JSON.parse(xhr.responseText);
             box.apply(data);
             audio.src = data.url;
         });
-        audio.play();//安卓4以上的播放功能要在用户事件中调用;
         this.audio = audio;
     };
     box.pause = function () {
-        this.audio && this.audio.pause();
+        this.audio && this.audio.pause && this.audio.pause();
         this.playing = false;
     };
     return box;

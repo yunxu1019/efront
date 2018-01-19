@@ -39,6 +39,7 @@ onappend(page, function () {
 addClass(pages, "pages");
 var titleBar = createElement(div);
 addClass(titleBar, "title-bar");
+var searchIcon=icon("http://m.kugou.com/v3/static/images/index/search.png");
 appendChild(titleBar, tags);
 appendChild(page, pages, titleBar);
 function main() {

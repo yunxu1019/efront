@@ -14,7 +14,7 @@ cross("get", "http://m.kugou.com/rank/list").done(function (xhr) {
     var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
     var sandbox = createElement(div);
     sandbox.innerHTML = bodyHTML;
-    var items = [].map.call(sandbox.getElementsByClassName("panel-img-list")[0].children, function (child) {
+    var items = [].map.call(sandbox.querySelector(".panel-img-list").children, function (child) {
         var anchor = child.children[0];
         var href = anchor.getAttribute("shref");
         var img_src = anchor.getElementsByTagName("img")[0].getAttribute("_src");

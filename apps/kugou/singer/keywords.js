@@ -14,7 +14,7 @@ cross("get", "http://m.kugou.com/singer/class").done(function (xhr) {
     var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
     var sandbox = createElement(div);
     sandbox.innerHTML = bodyHTML;
-    var groups = [].map.call(sandbox.getElementsByClassName("bd")[0].children, function (child) {
+    var groups = [].map.call(sandbox.querySelector(".bd").children, function (child) {
         var anchors = child.getElementsByTagName("a");
         var items = [].map.call(anchors, function (anchor) {
             var href = anchor.getAttribute("shref");

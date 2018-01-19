@@ -10,7 +10,7 @@ function main({ _text, href }) {
         var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
         var sandbox = createElement(div);
         sandbox.innerHTML = bodyHTML;
-        var topPict = sandbox.getElementsByClassName("rank-info-hd")[0];
+        var topPict = sandbox.querySelector(".rank-info-hd")[0];
         var topImgSrc = topPict.children[0].getAttribute("ssrc");
         var lastUpdateTime = topPict.children[1].innerText.replace(/^\s*|\s*$/g, "");
         var imageBox = createWithClass(div, "top-image");
@@ -18,7 +18,7 @@ function main({ _text, href }) {
             backgroundImage: `url(${topImgSrc})`
         })
         appendChild(page, imageBox);
-        var songsList = [].map.call(sandbox.getElementsByClassName("panel-songslist")[0].children, function (child) {
+        var songsList = [].map.call(sandbox.querySelector(".panel-songslist").children, function (child) {
             var id = child.getAttribute("id");
             var name = child.children[0].innerText.replace(/^\s*|\s*$/g, "");
             var item = createWithClass(div, "song");
