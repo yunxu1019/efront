@@ -9,6 +9,11 @@
 }
 
 & {
+    width: 100%;
+    position: relative;
+    background: #fff;
+    height: 50px;
+    line-height: 50px;
     box-shadow: none;
 }
 
@@ -17,11 +22,13 @@
         border-top: 1px solid #ccc;
     }
 }
-&.active{
-    .body{
+
+&.active {
+    .body {
         border-top-color: transparent;
     }
 }
+
 &.active+& {
     .body {
         border-top-color: transparent;

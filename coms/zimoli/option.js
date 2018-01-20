@@ -46,6 +46,5 @@ function option(head, body, foot, splitter) {
     };
     splitter && divide(splitter);
     var btn = button(box);
-    css(btn, "width:100%;position:relative;background:#fff;height:50px;line-height:50px;");
     return btn;
 }
