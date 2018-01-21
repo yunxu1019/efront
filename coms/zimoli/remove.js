@@ -1,7 +1,7 @@
 function remove(node) {
     if (!node) return;
     var args = isNode(node) ? arguments : node;
-    for (var cx = 0, dx = args.length; cx < dx; cx++) {
+    for (var cx = args.length - 1; cx >= 0; cx--) {
         node = args[cx];
         _onremove(node);
         node.parentNode && node.parentNode.removeChild(node);
