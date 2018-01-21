@@ -39,8 +39,15 @@ onappend(page, function () {
 addClass(pages, "pages");
 var titleBar = createElement(div);
 addClass(titleBar, "title-bar");
-var searchIcon=icon("http://m.kugou.com/v3/static/images/index/search.png");
+var search_icon = icon("http://m.kugou.com/v3/static/images/index/search.png");
+addClass(search_icon, "search-icon");
+var searchIcon = button(search_icon);
+addClass(searchIcon, "search-btn");
 appendChild(titleBar, tags);
+appendChild(titleBar, searchIcon);
+onclick(searchIcon, function () {
+    go("search/search");
+});
 appendChild(page, pages, titleBar);
 function main() {
     return page;
