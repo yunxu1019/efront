@@ -1,6 +1,6 @@
 function remove(node) {
     if (!node) return;
-    var args = isArray(node) ? node : arguments;
+    var args = isNode(node) ? arguments : node;
     for (var cx = 0, dx = args.length; cx < dx; cx++) {
         node = args[cx];
         _onremove(node);
