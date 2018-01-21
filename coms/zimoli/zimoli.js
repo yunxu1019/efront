@@ -80,6 +80,7 @@ function go(url, args, history_name) {
     var _with_elements = [].concat(pg.with);
     var _remove_listeners = [].concat(pg.onappend);
     var _append_listeners = [].concat(pg.onremove);
+    var _pageback_listener = [].concat(pg.onback);
     var state = pg.state;
     state.onappend = function (handler) {
         isFunction(handler) && _append_listeners.push(handler);
@@ -91,6 +92,9 @@ function go(url, args, history_name) {
         element && _with_elements.push(element);
         return _with_elements;
     };
+    state.onback = function (handler) {
+        _pageback_listener = handler;
+    };
     if (!args) args = {};
     var _page = pg.call(state, args);
     if (pg.className) _page.className = pg.className;
@@ -98,6 +102,7 @@ function go(url, args, history_name) {
     onappend(_page, _append_listeners);
     onremove(_page, _remove_listeners);
     addGlobal(_page, history_name);
+    _page.onback = _pageback_listener;
     pushstate(url, history_name);
     return _page;
 }
@@ -161,12 +166,18 @@ function zimoli(page, args, history_name) {
         if (isFunction(handler)) _remove_listeners.push(handler);
         else onappend(handler, _handler);
     };
+    var _pageback_listener = [];
+    var onback = state.onback = state.onrelease = state.ondestroy = function (handler) {
+        //只能在page上使用
+        _pageback_listener = handler;
+    };
 
     return init(page, function (pg) {
         pg.with = _with_elements;
         pg.onremove = _remove_listeners;
         pg.onappend = _append_listeners;
         pg.state = state;
+        pg.onback = _pageback_listener;
         page_generators[page] = pg;
         return go(page, args, history_name);
     }, {
@@ -181,7 +192,10 @@ function zimoli(page, args, history_name) {
             },
             onappend: function () {
                 return getAppendFn(state, arguments);
-            }
+            },
+            onback: onback,
+            ondestroy: onback,
+            onrelease: onback
         });
 }
 var getRemoveFn = function (state, args) {
@@ -236,7 +250,18 @@ var onback = function () {
         remove(alertslist.pop());
         return;
     }
-    if (go(-1) === true) {
+    var current_page = global[current_history];
+    var onback = current_page && current_page.onback;
+    if (isFunction(onback)) {
+        onback = current_page.onback();
+    }
+    if (onback === false) {
+        return;
+    }
+    if (isString(onback)) {
+        return go(onback);
+    }
+    if (go(-1, onback) === true) {
         try {
             navigator.app.exitApp();
         } catch (e) {
