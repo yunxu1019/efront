@@ -3,10 +3,7 @@ var getfile = require("../process/getfile");
 var path = require("path");
 var mimes = require("../process/mime");
 var message = require("../process/message");
-var referer_proxy = {
-    "/": "/" + process.env.APP || "",
-};
-referer_proxy[""] = referer_proxy["/"];
+var referer_proxy = require("./proxy");
 var URL = require("url");
 /**
  * 

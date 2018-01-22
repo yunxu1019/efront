@@ -9,6 +9,8 @@ var geticonfile = require("../process/cache")("./cons", iconbuilder);
 var getaapifunc = require("../process/cache")("./apis", aapibuilder);
 var setupenv = require("../process/setupenv");
 var message = require("../process/message");
+var referer_proxy = require("./proxy");
+var URL = require("url");
 var env = process.env;
 var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || "zimoli";
@@ -127,6 +129,15 @@ var doPost = module.exports = function (req, res) {
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
     }
+    if (req.headers.referer) {
+        var referer = req.headers.referer;
+        var pathname = URL.parse(referer).pathname;
+        if (referer_proxy[pathname]) {
+            console.info(`Proxy:${url} : ${referer_proxy[pathname]}${url}`);
+            url = referer_proxy[pathname] + url;
+        }
+    }
+
     var match = url.match(/^\/(.*?)(comm|page|ccon|a?api)\/(.*?)(?:\.js|\.png)?$/);
     if (match) {
         var appc = match[1],
@@ -146,6 +157,13 @@ var doPost = module.exports = function (req, res) {
                 else res.writeHead(404, {}) | res.end();
                 break;
             case "comm":
+                if (!env.COMM) {
+                    if (appc === comms_root) {
+                        env.COMM = comms_root;
+                    } else {
+                        env.COMM = appc + "," + comms_root;
+                    }
+                }
                 res.end(getcomm(name, env.COMM));
                 break;
             case "page":
