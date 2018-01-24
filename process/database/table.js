@@ -120,7 +120,7 @@ var saveToOrderedArray = function (orderArray, newItem) {
 var getIndexFromOrderedArray = function (orderArray, searchItem) {
     for (var cx = 0, dx = orderArray.length - 1, ci = cx + dx >>> 1; cx < dx; ci = cx + dx >>> 1) {
         var orderItem = orderArray[ci];
-        if (orderItem <= newItem) {
+        if (orderItem <= searchItem) {
             cx = ci;
         } else {
             dx = ci - 1;
