@@ -1,25 +1,70 @@
-&{
+.song {
+    color: #fff;
+}
+
+.singer {
+    color: #ccc;
+}
+
+&.pause .play:before {
+    content: "放";
+}
+
+&.play .play:before {
+    content: "停";
+}
+
+.avatar,
+&:after {
+    border-radius: 50%;
+    width: 72px;
+    height: 72px;
+    bottom: 0px;
+    left: 4px;
+    position: absolute;
+    background-size: cover;
+    border: 3px solid #000;
+    background-clip: content-box;
+}
+
+&.play .avatar {
+    @keyframes rotate {
+        0% {
+            box-shadow: 0 0 60px rgba(255, 0, 0, .5) inset;
+        }
+        33% {
+            box-shadow: 0 0 60px rgba(0, 255, 0, .5) inset;
+        }
+        67% {
+            box-shadow: 0 0 60px rgba(0, 0, 255, .5) inset;
+        }
+    }
+    animation: 25s rotate infinite linear;
+}
+
+&:after {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+}
+
+.avatar {
+    opacity: .9;
+    box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset;
+}
+
+& {
     z-index: 2;
     height: 60px;
     width: 100%;
     position: fixed;
     bottom: 0;
-    background-color: rgba(0, 0, 0, .9);
     color: #fff;
     left: 0;
     right: 0;
-    .song {
-        color: #fff;
-    }
-    .singer {
-        color: #ccc;
-    }
-    .play:before {
-        content: "放";
-    }
-    .pause:before {
-        content: "停";
-    }
+    padding: 0 0 0 75px;
+    background-color: transparent;
+    opacity: .95;
     >div {
         text-align: center;
         line-height: 60px;
@@ -27,7 +72,7 @@
         vertical-align: top;
     }
     >div.info {
-        width: calc(~'100% - 160px');
+        width: calc(~'100% - 100px');
         height: 60px;
         line-height: 30px;
         text-align: left;
@@ -42,12 +87,31 @@
         display: inline-block;
         height: 100%;
     }
-    .avatar {
-        border-radius: 3px;
-        width: 50px;
-        height: 50px;
-        margin: 5px;
-        background: #ccc no-repeat;
-        background-size: cover;
+    >.track {
+        position: absolute;
+        height: 60px;
+        width: 100%;
+        left: 0;
+        right: 0;
+        overflow: hidden;
+        z-index: -1;
+        &:after {
+            @size: 1000px;
+            @blank-size: 70px;
+            box-sizing: content-box;
+            content: "";
+            display: block;
+            background-color: transparent;
+            position: absolute;
+            width: @blank-size;
+            height: @blank-size;
+            border: @size solid #000;
+            margin: -@size - @blank-size/2;
+            top: 24px;
+            left: 40px;
+        }
+        &:after {
+            border-radius: 50%;
+        }
     }
 }

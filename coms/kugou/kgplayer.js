@@ -17,20 +17,27 @@ var createControls = function () {
     var song = createWithClass(div, "song");
     var singer = createWithClass(div, "singer");
     var info = createWithClass(div, "info");
+    var track = createWithClass(div, "track");
     appendChild(info, song, singer);
     var avatar = createWithClass(div, "avatar");
-    appendChild(box, avatar, info, play, next);
+    appendChild(box, track, avatar, info, play, next);
+    var pauseCss=function(){
+        removeClass(box, "play");
+        addClass(box, "pause");
+    };
+    var playCss=function(){
+        removeClass(box, "pause");
+        addClass(box, "play");
+    };
     onclick(play, function () {
         if (box.playing) {
-            removeClass(play, "pause");
-            addClass(play, "play");
+            pauseCss();
             box.pause();
         } else {
-            removeClass(play, "play");
-            addClass(play, "pause");
+            playCss();
             box.play();
         }
-    })
+    });
     box.apply = function (data) {
         text(singer, data.choricSinger);
         text(song, data.songName)
@@ -39,12 +46,12 @@ var createControls = function () {
         });
     };
     box.reset = function () {
-        removeClass(play, "play");
-        addClass(play, "pause");
+        playCss();
         if (!box.parentNode) {
             appendChild(document.body, box);
         }
     };
+    appendChild(document.body, box);
     return box;
 };
 var kgplayer = function (box = div()) {
