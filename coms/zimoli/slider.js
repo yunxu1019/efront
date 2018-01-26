@@ -11,7 +11,6 @@ var ceil = Math.ceil;
 var round = Math.round;
 var abs = Math.abs;
 var sign = Math.sign;
-var body = document.body;
 var is_touch_enabled = "ontouchstart" in window;
 var extendTouch = function (e) {
     var touch = e.touches[0];
@@ -231,8 +230,8 @@ function slider(autoplay, circle = true) {
         moving = true;
         direction = 0;
         _speed(0);
-        mousemove_remove = onmousemove(body, mousemove);
-        mouseup_remove = onmouseup(body, mouseup);
+        mousemove_remove = onmousemove(window, mousemove);
+        mouseup_remove = onmouseup(window, mouseup);
         saved_x = event.clientX;
         saved_y = event.clientY;
     });

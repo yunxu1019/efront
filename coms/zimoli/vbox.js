@@ -168,9 +168,8 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
         lastmoveTime = new Date;
         saved_x = event[$clientX], saved_y = event[$clientY];
         direction = 0;
-        var body = document.body;
-        cancelmousemove = onmousemove(body, mousemove);
-        cancelmouseup = onmouseup(body, mouseup);
+        cancelmousemove = onmousemove(window, mousemove);
+        cancelmouseup = onmouseup(window, mouseup);
     });
     var mousemove = function (event) {
         if (event.defaultPrevented) return;
