@@ -3,7 +3,7 @@
  * @param {Array} orderArray 
  * @param {string|number} searchItem 
  */
-var getIndexFromOrderedArray = function (orderArray, searchItem, isLE = (sample, search) => (typeof sample === "object" ? sample.value : sample) <= (typeof search === "object" ? searchItem.value : sample)) {
+var getIndexFromOrderedArray = function (orderArray, searchItem, isLE = (sample, search) => (typeof sample === "object" ? sample.value : sample) <= (typeof search === "object" ? search.value : search)) {
     var count = 0;
     for (var cx = 0, dx = orderArray.length - 1, ci = cx + dx >>> 1; cx < dx; ci = cx + dx + 1 >>> 1) {
         var orderItem = orderArray[ci];
