@@ -118,7 +118,7 @@ var saveToOrderedArray = function (orderArray, newItem) {
  * @param {string|number} searchItem 
  */
 var getIndexFromOrderedArray = function (orderArray, searchItem) {
-    for (var cx = 0, dx = orderArray.length - 1, ci = cx + dx >>> 1; cx < dx; ci = cx + dx >>> 1) {
+    for (var cx = 0, dx = orderArray.length - 1, ci = cx + dx >>> 1; cx < dx; ci = cx + dx + 1 >>> 1) {
         var orderItem = orderArray[ci];
         if (orderItem <= searchItem) {
             cx = ci;
