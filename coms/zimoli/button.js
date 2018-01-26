@@ -41,18 +41,30 @@ function button(texter, type) {
     onmousemove(button, function (event) {
         if (onclick.preventClick && event.which) resetall();
     });
-    onmousedown(button, active);
-    onmouseup(button, resetactive);
+    onmousedown(button, function () {
+        var cancelmouseup = onmouseup(window, function () {
+            cancelmouseup();
+            resetactive();
+        });
+        active();
+    });
     ontouchmove(button, resetall);
-    ontouchstart(button, active);
-    ontouchcancel(button, resetall);
-    ontouchend(button, resetall);
+    ontouchstart(button, function () {
+        var cancel = function () {
+            canceltouchcancel();
+            canceltouchend();
+            resetall();
+        };
+        var canceltouchcancel = ontouchcancel(window, cancel);
+        var canceltouchend = ontouchend(window, cancel);
+        active();
+    });
     onfocus(bluer, function () {
         addClass(button, "focus");
     });
     onblur(bluer, function () {
         removeClass(button, "focus");
-    })
+    });
     button.text = function (_text) {
         if (_text && _text.length === 2) {
             addClass(button, "space");
