@@ -4,10 +4,7 @@ function grid(breakpoints) {
     var grid = div();
     extend(grid, grid_prototype);
     if (!breakpoints) {
-        var breakpoints = createPoints([0, [0, 100, 200], 90, 230, [0, 200, [230, 290], 300], 320]);
-        breakpoints.value = 0;
-        breakpoints.direction = "y";
-        breakpoints = breakpoints;
+        var breakpoints = createPoints([0, [0, 100, 200], 90, 230, [200, [230, 290], 300], 320]);
     }
     grid.breakpoints = breakpoints;
     grid.setAttribute("grid", "");
@@ -184,13 +181,13 @@ var grid_prototype = {
             var value = isX ? x : y;// 先 y 后 x
             var index = getIndexFromOrderedArray(breakpoints, value);
             if (isX) {
-                maxXStart = breakpoints[index]
-                minXEnd = breakpoints[index + 1] || minXEnd;
+                maxXStart = breakpoints[index - 1] || maxXStart
+                minXEnd = breakpoints[index] || minXEnd;
             } else {
-                maxYStart = breakpoints[index];
-                minYEnd = breakpoints[index + 1] || minYEnd;
+                maxYStart = breakpoints[index - 1] || maxYStart;
+                minYEnd = breakpoints[index] || minYEnd;
             }
-            breakpoints = breakpoints[index];
+            breakpoints = breakpoints[index - 1] || [];
             breakpath.push(breakpoints);
             isX = !isX;
         } while (breakpoints.length);
@@ -206,3 +203,4 @@ var grid_prototype = {
         return area;
     },
 };
+console.log(getIndexFromOrderedArray([0, 2, 4, 6], 7));
