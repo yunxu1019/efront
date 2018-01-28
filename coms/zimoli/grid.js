@@ -4,7 +4,7 @@ function grid(breakpoints) {
     var grid = div();
     extend(grid, grid_prototype);
     if (!breakpoints) {
-        var breakpoints = [Point(0), Point(80), Point(160)];
+        var breakpoints = createPoints([0, [0, 100, 200], 90, 230, [0, 200, [230, 290], 300], 320]);
         breakpoints.value = 0;
         breakpoints.direction = "y";
         breakpoints = breakpoints;
@@ -41,7 +41,7 @@ function grid(breakpoints) {
     onappend(grid, function () {
         grid.init();
         cancelmove && cancelmove();
-        cancelmove = onmousemove(document, function (event) {
+        cancelmove = onmousemove(window, function (event) {
             if (grid.editting) {
                 resizeView(event);
             } else {
@@ -78,7 +78,7 @@ function grid(breakpoints) {
             }
             grid.editting = { startX: event.clientX };
         }
-        var cancelup = onmouseup(document, function () {
+        var cancelup = onmouseup(window, function () {
             grid.editting = false;
             cancelup();
         });
@@ -90,22 +90,80 @@ var Point = function (value) {
     point.value = value;
     return point;
 };
+var createPoints = function (values, direction = "x", result = Point(0)) {
+    if (!values instanceof Array) values = arguments;
+    for (var cx = 0, dx = values.length; cx < dx; cx++) {
+        var value = values[cx];
+        if (value instanceof Array) {
+            if (!result.length) throw new Error("数据转换为grid失败！");
+            createPoints(value, direction === "x" ? "y" : "x", result[result.length - 1]);
+        } else {
+            var breakpoint = Point(value);
+            breakpoint.direction = direction;
+            breakpoint.parent = result;
+            result.push(breakpoint);
+        }
+    }
+    return result;
+}
 var grid_prototype = {
     breakpoints: [],
     init() {
         var that = this;
-        var current_x, current_y, current_w, current_h
-        var append = function (point) {
+        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = that.offsetWidth, current_b = that.offsetHeight;
+        var append = function (point, index, points) {
+            var next_point = points ? points[index + 1] : null;
             if (point.length) {
+                var temp_l = current_l, temp_t = current_t, temp_w = current_w, temp_h = current_h, temp_d = current_d, temp_r = current_r, temp_b = current_b;
+                if (current_d === "x") {
+                    current_d = "y";
+                    current_l = point.value + "px";
+                    if (next_point) {
+                        current_w = next_point.value - point.value + "px";
+                        current_r = next_point.value;
+                    } else {
+                        current_w = current_r - point.value + "px";
+                    }
+                } else {
+                    current_d = "x";
+                    current_t = point.value + "px";
+                    if (next_point) {
+                        current_h = next_point.value - point.value + "px";
+                        current_b = next_point.value;
+                    } else {
+                        current_h = current_b - point.value + "px";
+                    }
+                }
                 point.map(append);
+                current_l = temp_l, current_t = temp_t, current_w = temp_w, current_h = temp_h, current_d = temp_d, current_r = temp_r, current_b = temp_b;
             } else {
                 var _div = div();
-                css(_div, {
-                    left: point.left || 0,
-                    top: point.top || 0,
-                    width: point.width || that.offsetWidth + "px",
-                    height: point.height || that.offsetHeight + "px"
-                });
+                var current_value;
+                if (current_d === "x") {
+                    if (next_point) {
+                        current_value = next_point.value - point.value;
+                    } else {
+                        current_value = current_r - point.value;
+                    }
+                    css(_div, {
+                        left: point.value + "px",
+                        top: current_t || 0,
+                        width: current_value + "px",
+                        height: current_h || 0
+                    });
+                } else {
+                    if (next_point) {
+                        current_value = next_point.value - point.value;
+                    } else {
+                        current_value = current_b - point.value;
+                    }
+                    css(_div, {
+                        left: current_l || 0,
+                        top: point.value + "px",
+                        width: current_w || 0,
+                        height: current_value + "px"
+                    });
+                }
                 appendChild(that, _div);
                 point.target = _div;
             }
@@ -123,7 +181,7 @@ var grid_prototype = {
         var minYEnd = Point(this.offsetHeight);
         var isX = true;
         do {
-            var value = isX ? x : y;//先y后x;
+            var value = isX ? x : y;// 先 y 后 x
             var index = getIndexFromOrderedArray(breakpoints, value);
             if (isX) {
                 maxXStart = breakpoints[index]
@@ -144,8 +202,7 @@ var grid_prototype = {
         area.w = area.width = minXEnd.value - maxXStart.value;
         area.h = area.height = minYEnd.value - maxYStart.value;
         area.p = area.path = breakpath;
-        area.d = area.direction = isX ? "X" : "Y";
+        area.d = area.direction = isX ? "x" : "y";
         return area;
     },
 };
-console.log(getIndexFromOrderedArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5), "getIndexFromOrderedArray");
