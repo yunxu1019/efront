@@ -34,10 +34,24 @@ function grid(breakpoints) {
     };
     var resizeInfo = null;
     var resizeView = function (event) {
+        var editting = grid.editting;
+        var { area, target, resize } = editting;
+        var style = target.style;
+        for (var k in resize) {
+            var [key, min, max, delta, extra] = resize[k];
+            var value = event[k] - delta;
+            if (value < min) value = min;
+            if (value > max) value = max;
+            var origin = parseInt(style[key]);
+            style[key] = value + "px";
+            if (extra)
+                style[extra] = parseInt(style[extra]) + origin - value + "px";
+        }
     };
     onappend(grid, function () {
         grid.init();
         cancelmove && cancelmove();
+
         cancelmove = onmousemove(window, function (event) {
             if (grid.editting) {
                 resizeView(event);
@@ -55,28 +69,65 @@ function grid(breakpoints) {
             var position = getScreenPosition(grid);
             var clientX = event.clientX - position.left;
             var clientY = event.clientY - position.top;
-            var [x1, y1, x2, y2] = grid.nearby(clientX, clientY);
-            var direction = "";
-            if (clientY - y1 < 7) {
-                direction += "n";
-            } else if (y2 - clientY < 7) {
-                direction += "s";
+            var area = grid.nearby(clientX, clientY);
+            var [x_left, y_top, x_right, y_bottom] = area;
+            var resize = {};
+            var path = area.path;
+            var target_point = path[path.length - 1];
+            var style = target_point.target.style;
+            if (clientY - y_top < 7) {
+                var top = area.top;
+                if (top.parent) {
+                    var parent = top.parent;
+                    var index = getIndexFromOrderedArray(parent, clientY);
+                    var point = parent[0].value > 0 ? parent[index - 2] || Point(0) : parent[index - 2] || null;
+                    if (point) {
+                        resize.clientY = [
+                            "top", point.value + 20, area.bottom.value - 20, event.clientY - parseInt(style.top),
+                            "height"
+                        ];
+                    }
+                }
+            } else if (y_bottom - clientY < 7) {
+                var bottom = area.bottom;
+                if (bottom.parent) {
+                    var parent = bottom.parent;
+                    var index = getIndexFromOrderedArray(parent, clientY);
+                    var offsetHeight = grid.offsetHeight;
+                    var point = parent[parent.length - 1].value < offsetHeight ? parent[index + 1] || Point(offsetHeight) : parent[index + 1] || null;
+                    if (point) {
+                        resize.clientY = ["height", 20, point.value - area.top.value - 20, event.clientY - parseInt(style.height)];
+                    }
+                }
             }
-            if (clientX - x1 < 7) {
-                direction += "w";
-            } else if (x2 - clientX < 7) {
-                direction += "e";
+            if (clientX - x_left < 7) {
+                var left = area.left;
+                if (left.parent) {
+                    var parent = left.parent;
+                    var index = getIndexFromOrderedArray(parent, clientX);
+                    var offsetWidth = grid.offsetWidth;
+                    var point = parent[0].value > 0 ? parent[index - 2] || Point(offsetWidth) : parent[index - 2] || null;
+                    if (point) {
+                        resize.clientX = ["left", point.value + 20, area.right.value - 20, event.clientX - parseInt(style.left), "width"];
+                    }
+                }
+            } else if (x_right - clientX < 7) {
+                var right = area.right;
+                if (right.parent) {
+                    var parent = right.parent;
+                    var index = getIndexFromOrderedArray(parent, clientX);
+                    var offsetWidth = grid.offsetWidth;
+                    var point = parent[0].value > 0 ? parent[index + 1] || Point(offsetWidth) : parent[index + 1] || null;
+                    if (point) {
+                        resize.clientX = ["width", 20, point.value - area.left.value - 20, event.clientX - parseInt(style.width)];
+                    }
+                }
             }
-            grid.direction = direction;
-            if (direction) {
-                css("[grid]", "cursor:" + direction + "-resize");
-            } else {
-                css("[grid]", "cursor:default;");
-            }
-            grid.editting = { startX: event.clientX };
+            console.log(area.path, "area.path");
+            grid.editting = { area, target: target_point.target, resize };
         }
         var cancelup = onmouseup(window, function () {
-            grid.editting = false;
+            grid.editting = null;
             cancelup();
         });
     });
@@ -107,28 +158,28 @@ var grid_prototype = {
     breakpoints: [],
     init() {
         var that = this;
-        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = that.offsetWidth, current_b = that.offsetHeight;
+        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(that.offsetWidth), current_b = Point(that.offsetHeight);
         var append = function (point, index, points) {
             var next_point = points ? points[index + 1] : null;
             if (point.length) {
                 var temp_l = current_l, temp_t = current_t, temp_w = current_w, temp_h = current_h, temp_d = current_d, temp_r = current_r, temp_b = current_b;
                 if (current_d === "x") {
                     current_d = "y";
-                    current_l = point.value + "px";
+                    current_l = point;
                     if (next_point) {
                         current_w = next_point.value - point.value + "px";
-                        current_r = next_point.value;
+                        current_r = next_point;
                     } else {
-                        current_w = current_r - point.value + "px";
+                        current_w = current_r.value - point.value + "px";
                     }
                 } else {
                     current_d = "x";
-                    current_t = point.value + "px";
+                    current_t = point;
                     if (next_point) {
                         current_h = next_point.value - point.value + "px";
-                        current_b = next_point.value;
+                        current_b = next_point;
                     } else {
-                        current_h = current_b - point.value + "px";
+                        current_h = current_b.value - point.value + "px";
                     }
                 }
                 point.map(append);
@@ -140,11 +191,11 @@ var grid_prototype = {
                     if (next_point) {
                         current_value = next_point.value - point.value;
                     } else {
-                        current_value = current_r - point.value;
+                        current_value = current_r.value - point.value;
                     }
                     css(_div, {
                         left: point.value + "px",
-                        top: current_t || 0,
+                        top: current_t ? current_t.value + "px" : 0,
                         width: current_value + "px",
                         height: current_h || 0
                     });
@@ -152,10 +203,10 @@ var grid_prototype = {
                     if (next_point) {
                         current_value = next_point.value - point.value;
                     } else {
-                        current_value = current_b - point.value;
+                        current_value = current_b.value - point.value;
                     }
                     css(_div, {
-                        left: current_l || 0,
+                        left: current_l ? current_l.value + "px" : 0,
                         top: point.value + "px",
                         width: current_w || 0,
                         height: current_value + "px"
@@ -203,4 +254,3 @@ var grid_prototype = {
         return area;
     },
 };
-console.log(getIndexFromOrderedArray([0, 2, 4, 6], 7));
