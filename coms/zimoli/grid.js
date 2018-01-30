@@ -51,7 +51,6 @@ function grid(breakpoints) {
     onappend(grid, function () {
         grid.init();
         cancelmove && cancelmove();
-
         cancelmove = onmousemove(window, function (event) {
             if (grid.editting) {
                 resizeView(event);
@@ -123,7 +122,6 @@ function grid(breakpoints) {
                     }
                 }
             }
-            console.log(area.path, "area.path");
             grid.editting = { area, target: target_point.target, resize };
         }
         var cancelup = onmouseup(window, function () {
