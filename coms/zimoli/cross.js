@@ -1,11 +1,12 @@
 var cookies_map = {};
+var base = /^https?:\/\//.test(location.href) ? "/?" : "http://efront.cc/?";
 function cross(method, url, headers) {
     var _cookies = cookies_map[url];
     if (_cookies) {
         headers.cookie = _cookies;
     }
     var xhr = new XHR;
-    xhr.open(method, "/?" + encodeURIComponent(JSON.stringify({
+    xhr.open(method, base + encodeURIComponent(JSON.stringify({
         url,
         token: "0",
         headers

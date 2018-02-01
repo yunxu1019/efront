@@ -1,8 +1,9 @@
-var isIE = !!document.all,
-    localStorage;
+var isIEValid = /MSIE\s+[2-9]/.test(navigator.userAgent),
+    localStorage;//IE8以上支持localStorage,IE11以上不支持documentElement.save;
 var globalStorage = this.globalStorage;
-
-if (isIE) {
+if (globalStorage) {
+    localStorage = globalStorage[location.hostname];
+} else if (isIEValid) {
     var documentElement = document.documentElement;
     localStorage = {
         setItem: function (key, value) {
@@ -19,6 +20,14 @@ if (isIE) {
         }
     };
     documentElement.addBehavior('#default#userdata');
-} else if (globalStorage) {
-    localStorage = globalStorage[location.hostname];
+} else {
+    localStorage = {
+        setItem() {
+        },
+        getItem() {
+            return null;
+        },
+        removeItem() {
+        }
+    };
 }
