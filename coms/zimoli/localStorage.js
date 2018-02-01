@@ -1,5 +1,6 @@
 var isIE = !!document.all,
     localStorage;
+var globalStorage=this.globalStorage;
 
 if (isIE) {
     var documentElement = document.documentElement;
@@ -19,5 +20,5 @@ if (isIE) {
     };
     documentElement.addBehavior('#default#userdata');
 } else if (globalStorage) {
-    localStorage = this.globalStorage[location.hostname];
+    localStorage = globalStorage[location.hostname];
 }
