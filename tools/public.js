@@ -274,7 +274,9 @@ Object.assign(global, {
     },
     state: {},
     screen: {},
-    Image: {}
+    Image: {},
+    alert(){
+    }
 })
 modules.load = load;
 modules.XHR = function () { };
