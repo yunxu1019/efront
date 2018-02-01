@@ -1,6 +1,6 @@
 var isIE = !!document.all,
     localStorage;
-var globalStorage=this.globalStorage;
+var globalStorage = this.globalStorage;
 
 if (isIE) {
     var documentElement = document.documentElement;
