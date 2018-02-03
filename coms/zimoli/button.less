@@ -35,6 +35,7 @@
     left: 0;
     top: 0;
     opacity: 0;
+    filter: Alpha(opacity=0);
 }
 
 &.space>.label {
@@ -46,11 +47,13 @@
     >.track {
         background-color: #ffffff;
         opacity: .1;
+        filter: Alpha(opacity=10);
     }
     &.active {
         >.track {
             background-color: #000000;
             opacity: .2;
+            filter: Alpha(opacity=20);
         }
         box-shadow: 0 0 2px rgba(0, 0, 0, 0.3) inset;
     }
