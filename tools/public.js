@@ -17,7 +17,7 @@ var aapibuilder = require("../process/aapibuilder");
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : process.env;
 var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || "zimoli," + PUBLIC_APP.replace(/\/$/, "");
-var ICON = env.ICON || "zimoli";
+var ICON = env.ICON || PUBLIC_APP.replace(/\/$/, "");
 var AAPI = env.APIS || "zimoli";
 var ccons_root = "./cons/" + ICON;
 var comms_root = /,/.test(COMM) ? COMM.split(/,/).map(a => "./coms/" + a) : "./coms/" + COMM;
@@ -492,10 +492,8 @@ var writeSingleHtmlFile = function () {
     } else if (fs.existsSync("apps/favicon.ico")) {
         var favicon = fs.readFileSync("apps/favicon.ico");
     }
-    fs.writeFile(path.join(public_path, "index.html"), html, function () {
-        if (favicon) fs.writeFile(path.join(public_path, "favicon.ico"), favicon, finish);
-        else finish();
-    });
+    if (favicon) html = html.replace(/<link[^>]*rel="Shortcut Icon"[^>]*\/>/i, `<link rel="Shortcut Icon" href="data:image/x-icon;base64,${favicon.toString("base64")}" type=image/x-icon />`);
+    fs.writeFile(path.join(public_path, "index.html"), html, finish);
 }
 var writeApplication = function () {
     var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
