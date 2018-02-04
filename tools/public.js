@@ -16,7 +16,7 @@ var iconbuilder = require("../process/iconbuilder");
 var aapibuilder = require("../process/aapibuilder");
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : process.env;
 var PAGE = env.PAGE || "zimoli";
-var COMM = env.COMM || "zimoli";
+var COMM = env.COMM || "zimoli," + PUBLIC_APP.replace(/\/$/, "");
 var ICON = env.ICON || "zimoli";
 var AAPI = env.APIS || "zimoli";
 var ccons_root = "./cons/" + ICON;
@@ -275,7 +275,7 @@ Object.assign(global, {
     state: {},
     screen: {},
     Image: {},
-    alert(){
+    alert() {
     }
 })
 modules.load = load;
@@ -297,10 +297,10 @@ var build = function (files) {
                         init("$" + name, ok);
                     } else if (/\.[tj]sx?$/i.test(file)) {
                         if (/^.*?\/?coms/i.test(file)) {
-                            if(comms_root instanceof Array){
-                                var name= path.parse(file).base;
+                            if (comms_root instanceof Array) {
+                                var name = path.parse(file).base;
                                 init(name, ok);
-                            }else{
+                            } else {
                                 var name = path.relative(comms_root, file).replace(/[\\\/]+/g, "/");
                                 init(name, ok);
                             }
