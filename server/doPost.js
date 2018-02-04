@@ -29,12 +29,12 @@ var getfrompath = function (name, __root, getter, extt) {
     var body;
     for (var cx = 0, dx = __root.length; cx < dx; cx++) {
         body = getter(__root[cx] + "/" + name + extt);
-        if (body instanceof Buffer) break;
+        if (body instanceof Buffer) return body;
     }
     return "";
 }
 var geticon = function (name, _ccons_root = ccons_root) {
-    return getfrompath(name, _ccons_root,geticonfile, ".png");
+    return getfrompath(name, _ccons_root, geticonfile, ".png");
 };
 
 var getcomm = function (name, _comms_root = comms_root) {
@@ -50,7 +50,7 @@ var getapi = function (name, _aapis_root = aapis_root) {
 };
 
 var getimag = function (name, _imags_root = imags_root) {
-    return getfrompath(name,_imags_root,getimagfile,".png");
+    return getfrompath(name, _imags_root, getimagfile, ".png");
 };
 var readdata = function (req, res, then, max_length) {
     var buff = [],
