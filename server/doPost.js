@@ -3,10 +3,12 @@ var getpagefile = require("../process/cache");
 var commbuilder = require("../process/commbuilder");
 var iconbuilder = require("../process/iconbuilder");
 var aapibuilder = require("../process/aapibuilder");
+var imagbuilder = require("../process/imagbuilder");
 var getcommfile = require("../process/cache")("./coms", commbuilder);
 var getpagefile = require("../process/cache")("./apps", commbuilder);
 var geticonfile = require("../process/cache")("./cons", iconbuilder);
 var getaapifunc = require("../process/cache")("./apis", aapibuilder);
+var getimagfile = require("../process/cache")("./imgs", imagbuilder);
 var setupenv = require("../process/setupenv");
 var message = require("../process/message");
 var referer_proxy = require("./proxy");
@@ -16,10 +18,12 @@ var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || "zimoli";
 var ICON = env.ICON || "zimoli";
 var AAPI = env.APIS || "zimoli";
+var IMAG = env.IMAG || "zimoli";
 var ccons_root = "./" + ICON;
 var comms_root = "./" + COMM;
 var pages_root = "./" + PAGE;
 var aapis_root = "./" + AAPI;
+var imags_root = "./" + IMAG;
 var geticon = function (name, _ccons_root = ccons_root) {
     return geticonfile(_ccons_root + "/" + name + ".png");
 };
@@ -40,8 +44,11 @@ var getpage = function (name, _pages_root = pages_root) {
 
 var getapi = function (name, _aapis_root = aapis_root) {
     return getaapifunc(_aapis_root + "/" + name + ".js");
-}
+};
 
+var getimag = function (name, _imags_root = imags_root) {
+    return getimagfile(_imags_root + "/" + name + ".png");
+};
 var readdata = function (req, res, then, max_length) {
     var buff = [],
         length = 0;
@@ -138,7 +145,7 @@ var doPost = module.exports = function (req, res) {
         }
     }
 
-    var match = url.match(/^\/(.*?)(comm|page|ccon|a?api)\/(.*?)(?:\.js|\.png)?$/);
+    var match = url.match(/^\/(.*?)(comm|page|ccon|a?api|imag)\/(.*?)(?:\.js|\.png)?$/);
     if (match) {
         var appc = match[1],
             type = match[2],
@@ -172,6 +179,8 @@ var doPost = module.exports = function (req, res) {
             case "ccon":
                 res.end(geticon(name, env.ICON));
                 break;
+            case "imag":
+                res.end(getimag(name, env.IMAG));
             default:
                 res.end();
         }
