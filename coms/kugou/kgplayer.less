@@ -20,7 +20,7 @@
     width: 72px;
     height: 72px;
     bottom: 0px;
-    left: 4px;
+    left: 14px;
     position: absolute;
     background-size: cover;
     border: 3px solid #000;
@@ -28,18 +28,25 @@
 }
 
 &.play .avatar {
-    @keyframes rotate {
-        0% {
-            box-shadow: 0 0 60px rgba(255, 0, 0, .5) inset;
-        }
-        33% {
-            box-shadow: 0 0 60px rgba(0, 255, 0, .5) inset;
-        }
-        67% {
-            box-shadow: 0 0 60px rgba(0, 0, 255, .5) inset;
-        }
+    animation-play-state: running;
+    -webkit-animation-play-state: running;
+}
+
+@keyframes rotate {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0);
     }
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.avatar {
     animation: 25s rotate infinite linear;
+    animation-play-state: paused;
+    -webkit-animation-play-state: paused;
 }
 
 &:after {
@@ -96,7 +103,7 @@
         overflow: hidden;
         z-index: -1;
         &:after {
-            @size: 1000px;
+            @size: 10000px;
             @blank-size: 70px;
             box-sizing: content-box;
             content: "";
@@ -108,7 +115,7 @@
             border: @size solid #000;
             margin: -@size - @blank-size/2;
             top: 24px;
-            left: 40px;
+            left: 50px;
         }
         &:after {
             border-radius: 50%;
