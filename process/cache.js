@@ -58,6 +58,9 @@ var loader = function (curl, temp, key, rebuild) {
             if (rebuild instanceof Function) {
                 data = rebuild(data, key, durl, is_reload ? [] : durls);
             }
+            if (!(data instanceof Buffer) && typeof data === "string") {
+                data = Buffer.from(data);
+            }
             temp[key] = data;
         }
         is_reload && _reload_handlers.forEach(run => run());
