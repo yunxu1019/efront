@@ -24,30 +24,33 @@ var comms_root = "./" + COMM;
 var pages_root = "./" + PAGE;
 var aapis_root = "./" + AAPI;
 var imags_root = "./" + IMAG;
+var getfrompath = function (name, __root, getter, extt) {
+    __root = __root.split(/,/);
+    var body;
+    for (var cx = 0, dx = __root.length; cx < dx; cx++) {
+        body = getter(__root[cx] + "/" + name + extt);
+        if (body instanceof Buffer) break;
+    }
+    return "";
+}
 var geticon = function (name, _ccons_root = ccons_root) {
-    return geticonfile(_ccons_root + "/" + name + ".png");
+    return getfrompath(name, _ccons_root,geticonfile, ".png");
 };
 
 var getcomm = function (name, _comms_root = comms_root) {
-    _comms_root = _comms_root.split(/,/);
-    var comm = "";
-    for (var cx = 0, dx = _comms_root.length; cx < dx; cx++) {
-        comm = getcommfile(_comms_root[cx] + "/" + name + ".js");
-        if (comm && !/^\w*\/$/.test(comm)) break;
-    }
-    return comm;
+    return getfrompath(name, _comms_root, getcommfile, ".js");
 };
 
 var getpage = function (name, _pages_root = pages_root) {
-    return getpagefile(_pages_root + "/" + name + ".js");
+    return getfrompath(name, _pages_root, getpagefile, ".js");
 };
 
 var getapi = function (name, _aapis_root = aapis_root) {
-    return getaapifunc(_aapis_root + "/" + name + ".js");
+    return getfrompath(name, _aapis_root, getaapifunc, ".js");
 };
 
 var getimag = function (name, _imags_root = imags_root) {
-    return getimagfile(_imags_root + "/" + name + ".png");
+    return getfrompath(name,_imags_root,getimagfile,".png");
 };
 var readdata = function (req, res, then, max_length) {
     var buff = [],
@@ -164,13 +167,6 @@ var doPost = module.exports = function (req, res) {
                 else res.writeHead(404, {}) | res.end();
                 break;
             case "comm":
-                if (!env.COMM) {
-                    if (appc === comms_root) {
-                        env.COMM = comms_root;
-                    } else {
-                        env.COMM = appc + "," + comms_root;
-                    }
-                }
                 res.end(getcomm(name, env.COMM));
                 break;
             case "page":
@@ -190,5 +186,5 @@ var doPost = module.exports = function (req, res) {
 };
 doPost.ccon = function (name, color) {
     var data = geticon(name);
-    return iconbuilder.color(data, color);
+    return iconbuilder.color(String(data), color);
 }
