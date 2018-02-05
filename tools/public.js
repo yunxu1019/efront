@@ -84,7 +84,7 @@ var load = function (url) {
                     get();
                     return;
                 }
-                if (!window[name]) throw new Error(`没有发现文件：${url}`);
+                if (!window[name]) console.error(`没有发现文件：${url}`);
                 else console.warn(`${url} will be replaced by the global variables`);
                 flush(url);
             }
@@ -463,8 +463,8 @@ var writeComponent = function () {
     }
 
     var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(this)).call([${dest}],function(a,c){return this[c+1]=a instanceof Array?a[a.length-1].apply(this[0],a.slice(0,a.length-1).map(function(a){return this[a]},this)):a},[this])[${dest.length - 1}]`;
-    var tester_path = path.join(comms_root, PUBLIC_APP.replace(/\.[tj]sx?$/, "_test.js"));
-    if (fs.existsSync(tester_path)) {
+    var tester_path = resolve_component_file_path(PUBLIC_APP.replace(/\.[tj]sx?$/, "_test.js"));
+    if (tester_path) {
         try {
             let vm = require("vm");
             let globals = require("../tester/core/suit");
