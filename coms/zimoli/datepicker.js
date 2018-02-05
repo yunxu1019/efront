@@ -66,8 +66,8 @@ var bindValue = function () {
             return value;
         };
         defineProperty(m, function get() {
-                return genLength(this['get' + _model[c]]() + i, l);
-            },
+            return genLength(this['get' + _model[c]]() + i, l);
+        },
             function set(v) {
                 return this['set' + _model[c]](trim.call(this, v - i));
             }
@@ -162,7 +162,7 @@ var fixcent = function (count) {
  * @param {Date} date 
  */
 var buildYear = function (date) {
-    var year = ((+date.年()  + 10) / 20).toFixed(0) * 20,
+    var year = ((+date.年() + 10) / 20).toFixed(0) * 20,
         src = m2n(year + 10, year - 10),
         last_src = [year - 12, year - 11],
         next_src = [year + 10, year + 11],
@@ -176,8 +176,8 @@ var buildYear = function (date) {
  */
 var buildMonth = function () {
     var src = "一 二 三 四 五 六 七 八 九 十 十一 十二".split(" ").map(function (i) {
-            return i + "月";
-        }),
+        return i + "月";
+    }),
         width = fixcent(4),
         height = fixcent(3);
     return [src, width, height];
@@ -206,13 +206,13 @@ var render = function (value, models = "年月日", message = "") {
         addon++;
         var src_ing = +value[ing]();
         var style = `width:${width};height:${height}`;
-        var getsrc = (cls, s, i) => `<div class=${cls?cls:"item"} style=${style} value=${i+addon}><span value=${i+addon} class=${cls?cls:"item"}>${s}</span></div>`;
-        var model_buttons = map.call(models, (model, index) => `<span class=${model===ing?"ing":"val"}>${value[model]()}&nbsp;${model}</span>`).join("&nbsp;");
+        var getsrc = (cls, s, i) => `<div class=${cls ? cls : "item"} style=${style} value=${i + addon}><span value=${i + addon} class=${cls ? cls : "item"}>${s}</span></div>`;
+        var model_buttons = map.call(models, (model, index) => `<span class=${model === ing ? "ing" : "val"}>${value[model]()}&nbsp;${model}</span>`).join("&nbsp;");
         var title = map.call(title_src, (s, i) => getsrc("title", s, i)).join("");
         var last = map.call(last_src, (s, i) => getsrc("last", s, i)).join("");
         var next = map.call(next_src, (s, i) => getsrc("next", s, i)).join("");
         var curr = src.map((s, i) => getsrc(i + addon === src_ing && "iing", s, i)).join("");
-        var head = `${last_src?"<i class=last></i>":""}<span>${model_buttons}</span>${next_src?"<i class=next></i>":""}`;
+        var head = `${last_src ? "<i class=last></i>" : ""}<span>${model_buttons}</span>${next_src ? "<i class=next></i>" : ""}`;
         var body = `${title}${last}${curr}${next}`;
         container.innerHTML = `<div class=chead>${head}</div><div class=cbody>${body}</div><div class=msg>${message}</div>`;
         _src_length = src.length, _ing = ing;
@@ -267,7 +267,8 @@ var render = function (value, models = "年月日", message = "") {
     return container;
 };
 
-function datepicker(value = parseDate(), title) {
+function datepicker(value, title) {
+    value = parseDate(value);
     var datebox = render(value, "年月日", title);
     return datebox;
 }
