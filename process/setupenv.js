@@ -126,7 +126,6 @@ module.exports = function (appname) {
             } else if (default_value) {
                 env[key] = appname + "," + default_value;
             }
-            console.log(key, env[key]);
         }
     })
     if (!env.PAGE) env.PAGE = appname;
