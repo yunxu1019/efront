@@ -214,9 +214,18 @@ var replaceClickEvent = function (fastclick) {
 
 var requires_count = 1;
 var is_commponent_package;
-var public_app = path.resolve(comms_root instanceof Array ? comms_root[0] : comms_root, PUBLIC_APP);
-if (/\.[tj]sx?$/i.test(PUBLIC_APP) || fs.existsSync(public_app) && fs.statSync(public_app).isFile()) {
+var resolve_component_file_path = function (public_path = PUBLIC_APP, source_paths = [""].concat(pages_root).concat(comms_root)) {
+    for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
+        var temp_path = source_paths[cx];
+        var public_app = path.join(temp_path, public_path);
+        if (fs.existsSync(public_app) && fs.statSync(public_app).isFile()) return public_app;
+    }
+    return "";
+};
+var public_app = resolve_component_file_path();
+if (public_app) {
     //导出组件
+    console.log(public_app);
     is_commponent_package = true;
     var hook = function () {
         if (requires_count === 0) build([public_app]);
@@ -274,6 +283,8 @@ Object.assign(global, {
     },
     state: {},
     screen: {},
+    performance:{
+    },
     Image: {},
     alert() {
     }
