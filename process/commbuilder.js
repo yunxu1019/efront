@@ -1,8 +1,8 @@
 "use strict";
-var getvariables = require("../process/variables");
-var esprima = require("../process/esprima/index");
-var esmangle = require("../process/esmangle/esmangle");
-var escodegen = require("../process/escodegen/escodegen");
+var getvariables = require("./compile/variables");
+var esprima = require("./esprima/index");
+var esmangle = require("./esmangle/esmangle");
+var escodegen = require("./escodegen/escodegen");
 var typescript = require("./typescript/typescript");
 var less = require("./less/less-node")();
 less.PluginLoader = function () { };
