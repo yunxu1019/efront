@@ -10,11 +10,11 @@ var createBtn = function (btnName, color) {
 };
 var createBottomBar = function (buttonsConfig) {
     var bar = createElement(div);
-    css(bar, "text-align:center;position:absolute;bottom:0px;height:50px;width:100%;left:0px;right:0px;margin:0;;background-color:#fff;");
+    addClass(bar, "bottom-bar");
     var button_count = 0;
     for (var k in buttonsConfig) button_count++;
     var btnArea = createElement(div);
-    css(btnArea, "bottom:0;position:relative;width:" + (100 / button_count) + "%;height:50px;");
+    css(btnArea, "width:" + (100 / button_count) + "%;");
     inlineBlock(btnArea);
     maxWidth(btnArea, 100);
     var index = 0;
@@ -83,7 +83,6 @@ var pages = slider(function (index, ratio) {
 });
 pages.go(state().page || 0);
 var page = createElement(div);
-css(page, "position:absolute;left:0px;right:0px;top:0px;bottom:0px;width:100%;height:100%;");
 css(pages, "position:absolute;left:0px;right:0px;top:0px;bottom:50px;height:auto;");
 appendChild(page, pages, bar);
 
