@@ -28,12 +28,14 @@ if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
             });
             return icon;
         }
-        init("$" + path, function (icon_src) {
-            var chunks = pngdecode(icon_src);
-            var PLTE_COLOR = plte(color);
-            var PLTE_HOVER = plte(hover);
-            var PLTE_ACTIVE = plte(active);
-            var src = pngencode(chunks, PLTE_COLOR);
+        init("$" + path, function (src) {
+            if (color || isNumber(color)) {
+                var chunks = pngdecode(src);
+                var PLTE_COLOR = plte(color);
+                var PLTE_HOVER = plte(hover);
+                var PLTE_ACTIVE = plte(active);
+                src = pngencode(chunks, PLTE_COLOR);
+            }
             setBackGround(icon, src);
         });
         return icon;
