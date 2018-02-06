@@ -85,10 +85,10 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
         rowStyles.push(k + ":" + styleobject[k]);
     }
     var innerCss = `${targetSelector}{${rowStyles.join(";")}}`;
-    if (stylesheet.styleSheet) {
+    var styleSheet = stylesheet.styleSheet;
+    if (styleSheet) {
         //IE
-        var styleSheet = stylesheet.styleSheet;
-        stylesheet.styleSheet.cssText = innerCss;
+        styleSheet.cssText = innerCss;
     } else {
         stylesheet.innerHTML = innerCss;
     }
