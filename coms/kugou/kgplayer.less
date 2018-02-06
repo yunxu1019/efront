@@ -19,7 +19,7 @@
     border-radius: 50%;
     width: 72px;
     height: 72px;
-    bottom: 0px;
+    top: -12px;
     left: 14px;
     position: absolute;
     background-size: cover;
@@ -44,6 +44,8 @@
 }
 
 .avatar {
+    opacity: .9;
+    box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset;
     animation: 25s rotate infinite linear;
     animation-play-state: paused;
     -webkit-animation-play-state: paused;
@@ -55,14 +57,14 @@
     box-sizing: border-box;
 }
 
-.avatar {
-    opacity: .9;
-    box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset;
+&.play,
+&.pause {
+    height: 60px;
 }
 
 & {
     z-index: 2;
-    height: 60px;
+    height: 0;
     width: 100%;
     position: fixed;
     bottom: 0;
@@ -72,6 +74,7 @@
     padding: 0 0 0 75px;
     background-color: transparent;
     opacity: .95;
+    transition: height .5s ease-out;
     >div {
         text-align: center;
         line-height: 60px;
