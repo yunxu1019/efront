@@ -160,6 +160,9 @@ var getVariables = function (ast) {
                 unDeclaredVariables[ast.name] = true;
                 break;
             case "":
+            case "LabeledStatement":
+            case "BreakStatement":
+            case "ContinueStatement":
                 break;
             case "ExpressionStatement":
                 //去除测试脚本
