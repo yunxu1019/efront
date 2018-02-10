@@ -18,26 +18,28 @@ var createControls = function () {
     var singer = createWithClass(div, "singer");
     var info = createWithClass(div, "info");
     var track = createWithClass(div, "track");
+    var progress = createWithClass(div, "progress");
+    progress.innerHTML = "<div class=track></div><div class=avatar></div>";
     appendChild(info, song, singer);
     var avatar = createWithClass(div, "avatar");
-    appendChild(box, track, avatar, info, play, next);
-    var pauseCss=function(){
+    appendChild(box, progress, track, avatar, info, play, next);
+    var pauseCss = function () {
         removeClass(box, "play");
         addClass(box, "pause");
     };
-    var playCss=function(){
+    var playCss = function () {
         removeClass(box, "pause");
         addClass(box, "play");
     };
     onclick(play, function () {
         if (box.playing) {
-            pauseCss();
             box.pause();
         } else {
-            playCss();
             box.play();
         }
     });
+    box.pauseCss = pauseCss;
+    box.playCss = playCss;
     box.apply = function (data) {
         text(singer, data.choricSinger);
         text(song, data.songName)
@@ -51,17 +53,33 @@ var createControls = function () {
             appendChild(document.body, box);
         }
     };
+    box.process = function (currentTime, duration) {
+        if (currentTime === duration) {
+            box.pause();
+        }
+        css(progress, `width:${(currentTime * 100 / duration)}%;`);
+    };
     appendChild(document.body, box);
     return box;
 };
 var kgplayer = function (box = div()) {
-
     box.playing = false;
+    var timer = 0;
+    var updater = function () {
+        if (box.process instanceof Function) {
+            box.process(box.audio.currentTime, box.audio.duration);
+        }
+        timer = requestAnimationFrame(updater);
+    };
+
     box.play = function (hash = this.hash) {
+        this.playCss && this.playCss();
+        cancelAnimationFrame(timer);
         if (hash === this.hash) {
             if (this.playing) return;
             this.audio.play();
             this.playing = true;
+            timer = requestAnimationFrame(updater);
             return;
         }
         box.pause();
@@ -86,10 +104,13 @@ var kgplayer = function (box = div()) {
             audio.src = data.url;
         });
         this.audio = audio;
+        timer = requestAnimationFrame(updater);
     };
     box.pause = function () {
+        cancelAnimationFrame(timer);
         this.audio && this.audio.pause && this.audio.pause();
         this.playing = false;
+        this.pauseCss && this.pauseCss();
     };
     return box;
 }(createControls());
