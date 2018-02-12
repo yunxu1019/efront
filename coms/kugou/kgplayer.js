@@ -57,8 +57,27 @@ var createControls = function () {
         if (currentTime === duration) {
             box.pause();
         }
+        css(avatar, `transform:rotate(${currentTime * 6}deg);-webkit-transform:rotate(${currentTime*6}deg);`);
         css(progress, `width:${(currentTime * 100 / duration)}%;`);
     };
+    bindtouch(box, function (value) {
+        if (value) {
+            var { x } = value;
+            var audio = box.audio;
+            box.process(x / box.offsetWidth * audio.duration, audio.duration);
+        }
+
+        return { x: progress.offsetWidth };
+    });
+    box.onmovestart = function () {
+        box.pause();
+    };
+    box.onmoveend = function () {
+        var audio = box.audio;
+        audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth
+        box.play();
+    };
+
     appendChild(document.body, box);
     return box;
 };
