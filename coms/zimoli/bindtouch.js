@@ -7,7 +7,7 @@ var extendTouch = function (e) {
 };
 var abs = Math.abs;
 function bindtouch(target, bindder, lockDirection = "x") {
-    var direction, cancelmousemove, cancelmouseup, onend;
+    var direction, cancelmousemove, cancelmouseup, onend, saved_x, saved_y;
     onmousedown(target, function (event) {
         cancelmousemove = onmousemove(window, mousemove);
         cancelmouseup = onmouseup(window, mouseup);
