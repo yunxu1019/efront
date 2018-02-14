@@ -96,7 +96,7 @@ function slider(autoplay, circle = true) {
         if (!width) return;
         css(_imageMain, {
             position: "absolute",
-            width: width + "px",
+            width: "100%",
             height: "100%",
             left: round((indexLeft - index) * width) + "px"
         });
