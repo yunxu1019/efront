@@ -13,5 +13,5 @@ var getIndexFromOrderedArray = function (orderArray, searchItem, isLE = (sample,
             dx = ci;
         }
     }
-    return cx;
+    return dx - 1;
 };
