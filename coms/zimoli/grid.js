@@ -75,53 +75,36 @@ function grid(breakpoints) {
             var path = area.path;
             var target_point = path[path.length - 1];
             var target_element = target_point.target;
+            console.log(target_element);
             var style = target_element.style;
             if (clientY - y_top < 7) {
                 var top = area.top;
-                if (top.parent) {
-                    var parent = top.parent;
-                    var index = getIndexFromOrderedArray(parent, clientY);
-                    var point = parent[0].value > 0 ? parent[index - 2] || Point(0) : parent[index - 2] || null;
-                    if (point) {
-                        resize.clientY = [
-                            "top", point.value + 20, area.bottom.value - 20, event.clientY - parseInt(style.top),
-                            "height"
-                        ];
-                    }
+                var point = top.top;
+                if (point) {
+                    resize.clientY = [
+                        "top", point.value + 20, area.bottom.value - 20, event.clientY - parseInt(style.top),
+                        "height"
+                    ];
                 }
             } else if (y_bottom - clientY < 7) {
                 var bottom = area.bottom;
-                if (bottom.parent) {
-                    var parent = bottom.parent;
-                    var index = getIndexFromOrderedArray(parent, clientY);
-                    var offsetHeight = grid.offsetHeight;
-                    var point = parent[parent.length - 1].value < offsetHeight ? parent[index + 1] || Point(offsetHeight) : parent[index + 1] || null;
-                    if (point) {
-                        resize.clientY = ["height", 20, point.value - area.top.value - 20, event.clientY - parseInt(style.height)];
-                    }
+                var point = bottom.bottom;
+                if (point) {
+                    resize.clientY = ["height", 20, point.value - area.top.value, event.clientY - parseInt(style.height)];
                 }
             }
             if (clientX - x_left < 7) {
                 var left = area.left;
-                if (left.parent) {
-                    var parent = left.parent;
-                    var index = getIndexFromOrderedArray(parent, clientX);
-                    var offsetWidth = grid.offsetWidth;
-                    var point = parent[0].value > 0 ? parent[index - 2] || Point(offsetWidth) : parent[index - 2] || null;
-                    if (point) {
-                        resize.clientX = ["left", point.value + 20, area.right.value - 20, event.clientX - parseInt(style.left), "width"];
-                    }
+                var point = left.left;
+                console.log(left, point)
+                if (point) {
+                    resize.clientX = ["left", point.value + 20, area.right.value - 20, event.clientX - parseInt(style.left), "width"];
                 }
             } else if (x_right - clientX < 7) {
                 var right = area.right;
-                if (right.parent) {
-                    var parent = right.parent;
-                    var index = getIndexFromOrderedArray(parent, clientX);
-                    var offsetWidth = grid.offsetWidth;
-                    var point = parent[0].value > 0 ? parent[index + 1] || Point(offsetWidth) : parent[index + 1] || null;
-                    if (point) {
-                        resize.clientX = ["width", 20, point.value - area.left.value - 20, event.clientX - parseInt(style.width)];
-                    }
+                var point = right.right;
+                if (point) {
+                    resize.clientX = ["width", 20, point.value - area.left.value, event.clientX - parseInt(style.width)];
                 }
             }
             grid.editting = { area, target: target_element, resize };
@@ -166,7 +149,6 @@ var bindToOrderedSpliters = function (split_points, target, value, side) {
         target, side
     }
     var point = split_points[index];
-    console.log(index, point, value, point && point.value === value)
     if (point && point.value === value) {
         point.push(data);
     } else {
@@ -175,14 +157,22 @@ var bindToOrderedSpliters = function (split_points, target, value, side) {
         saveToOrderedArray(split_points, point);
     }
     return split_points;
+};
+var getRelativePoints = function (point) {
+    var parent = point.parent;
+    var result = [];
+    if (parent) {
+
+    }
+    console.log(point);
 }
 var grid_prototype = {
     breakpoints: [],
     init() {
         var that = this;
         var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(that.offsetWidth), current_b = Point(that.offsetHeight);
-        var xPoints = [];
-        var yPoints = [];
+        // var xPoints = [];
+        // var yPoints = [];
         var append = function (point, index, points) {
             var next_point = points ? points[index + 1] : null;
             if (point.length) {
@@ -192,6 +182,8 @@ var grid_prototype = {
                     current_l = point;
                     if (next_point) {
                         current_w = next_point.value - point.value + "px";
+                        next_point.left = point;
+                        point.right = next_point;
                         current_r = next_point;
                     } else {
                         current_w = current_r.value - point.value + "px";
@@ -202,6 +194,8 @@ var grid_prototype = {
                     if (next_point) {
                         current_h = next_point.value - point.value + "px";
                         current_b = next_point;
+                        next_point.top = point;
+                        point.right = next_point;
                     } else {
                         current_h = current_b.value - point.value + "px";
                     }
@@ -214,29 +208,34 @@ var grid_prototype = {
                 if (current_d === "x") {
                     if (next_point) {
                         current_value = next_point.value - point.value;
+                        point.right = next_point;
+                        next_point.left = point;
                     } else {
                         current_value = current_r.value - point.value;
+                        point.right = current_r;
                     }
-                    bindToOrderedSpliters(xPoints,
-                        _div,
-                        point.value + current_value,
-                        "right"
-                    );
-                    bindToOrderedSpliters(xPoints,
-                        _div,
-                        point.value,
-                        "left"
-                    );
-                    bindToOrderedSpliters(yPoints,
-                        _div,
-                        current_t && current_t.value || 0,
-                        "top"
-                    );
-                    bindToOrderedSpliters(yPoints,
-                        _div,
-                        current_b,
-                        "bottom"
-                    );
+                    point.top = current_t;
+                    point.bottom = current_b;
+                    // bindToOrderedSpliters(xPoints,
+                    //     _div,
+                    //     point.value + current_value,
+                    //     "right"
+                    // );
+                    // bindToOrderedSpliters(xPoints,
+                    //     _div,
+                    //     point.value,
+                    //     "left"
+                    // );
+                    // bindToOrderedSpliters(yPoints,
+                    //     _div,
+                    //     current_t && current_t.value || 0,
+                    //     "top"
+                    // );
+                    // bindToOrderedSpliters(yPoints,
+                    //     _div,
+                    //     current_b,
+                    //     "bottom"
+                    // );
                     css(_div, {
                         left: point.value + "px",
                         top: current_t ? current_t.value + "px" : 0,
@@ -246,29 +245,34 @@ var grid_prototype = {
                 } else {
                     if (next_point) {
                         current_value = next_point.value - point.value;
+                        next_point.top = point;
+                        point.bottom = next_point;
                     } else {
                         current_value = current_b.value - point.value;
+                        point.bottom = current_b;
                     }
-                    bindToOrderedSpliters(xPoints,
-                        _div,
-                        current_r,
-                        "right"
-                    );
-                    bindToOrderedSpliters(xPoints,
-                        _div,
-                        current_l && current_l.value || 0,
-                        "left"
-                    );
-                    bindToOrderedSpliters(yPoints,
-                        _div,
-                        point.value,
-                        "top"
-                    );
-                    bindToOrderedSpliters(yPoints,
-                        _div,
-                        point.value + current_value,
-                        "bottom"
-                    );
+                    point.left = current_l;
+                    point.right = current_r;
+                    // bindToOrderedSpliters(xPoints,
+                    //     _div,
+                    //     current_r,
+                    //     "right"
+                    // );
+                    // bindToOrderedSpliters(xPoints,
+                    //     _div,
+                    //     current_l && current_l.value || 0,
+                    //     "left"
+                    // );
+                    // bindToOrderedSpliters(yPoints,
+                    //     _div,
+                    //     point.value,
+                    //     "top"
+                    // );
+                    // bindToOrderedSpliters(yPoints,
+                    //     _div,
+                    //     point.value + current_value,
+                    //     "bottom"
+                    // );
                     css(_div, {
                         left: current_l ? current_l.value + "px" : 0,
                         top: point.value + "px",
@@ -282,8 +286,8 @@ var grid_prototype = {
             }
         };
         append(this.breakpoints);
-        this.xPoints = xPoints;
-        this.yPoints = yPoints;
+        // this.xPoints = xPoints;
+        // this.yPoints = yPoints;
         window.grid = this;
     },
     seprate(x) {
