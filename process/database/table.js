@@ -126,7 +126,7 @@ var getIndexFromOrderedArray = function (orderArray, searchItem) {
             dx = ci;
         }
     }
-    return cx;
+    return cx - 1;
 };
 var id2index = function (id, index) {
     var offset = index.toString(36);
