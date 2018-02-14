@@ -5,11 +5,11 @@ function release(node) {
 }
 
 function _onappend(node, event) {
+    node.isMounted = true;
     if (!event) {
         event = createEvent("append");
     }
     dispatch(node, event);
-    node.isMounted = true;
     var onappend = node.onappend;
     if (isArray(onappend)) {
         onappend.map(function (append_handler) {
