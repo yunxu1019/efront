@@ -1,10 +1,36 @@
 "use strict";
-var getfile = require("../process/getfile");
+var getfile = require("../process/getfile").async;
 var path = require("path");
 var mimes = require("../process/mime");
 var message = require("../process/message");
 var referer_proxy = require("./proxy");
 var URL = require("url");
+
+var response = function (data, url, req, res) {
+    message.count({ path: url, update: true });
+    var requiredVersion = req.headers["if-modified-since"];
+    if (requiredVersion && data.stat && new Date(requiredVersion) - data.stat.mtime >= 0) {
+        res.writeHead(304, {});
+    }
+    else {
+        var extend = url.match(/\.(.*?)$/);
+        if (extend) {
+            var mime = mimes[extend[1]];
+            if (mime) {
+                var headers = {
+                    'Content-Type': mime,
+                    "Content-Length": data.length
+                };
+                if (data.stat) {
+                    headers["Last-Modified"] = data.stat.mtime.toUTCString()
+                }
+                res.writeHead(200, headers);
+            }
+        }
+        res.write(data);
+    }
+    return res.end();
+}
 /**
  * 
  */
@@ -30,27 +56,14 @@ module.exports = function (req, res) {
         }
     }
     if (data instanceof Buffer) {
-        message.count({ path: url, update: true });
-        var requiredVersion = req.headers["if-modified-since"];
-        if (requiredVersion && new Date(requiredVersion) - data.stat.mtime >= 0) {
-            res.writeHead(304, {});
-        }
-        else {
-            var extend = url.match(/\.(.*?)$/);
-            if (extend) {
-                var mime = mimes[extend[1]];
-                if (mime) {
-                    res.writeHead(200, {
-                        "Last-Modified": data.stat.mtime.toUTCString(),
-                        'Content-Type': mime,
-                        "Content-Length": data.length
-                    });
-                }
-            }
-            res.write(data);
-        }
-        message.count({ path: url, update: true });
-        return res.end();
+        return response(data, url, req, res);
+    } else if (data instanceof Promise) {
+        return data.then(function (data) {
+            response(data, url, req, res);
+        }).catch(function (error) {
+            res.writeHead(500, {});
+            res.end(String(error));
+        });
     } else if (data instanceof Object) {
         if (!data["index.html"]) {
             if (url[url.length - 1] !== "/") data = getfile(path.join(process.env.APP, url));
@@ -59,19 +72,14 @@ module.exports = function (req, res) {
             data = data["index.html"];
         }
         if (data instanceof Buffer) {
-            message.count({ path: url, update: true });
-            var requiredVersion = req.headers["if-modified-since"];
-            if (requiredVersion && new Date(requiredVersion) - data.stat.mtime >= 0) {
-                res.writeHead(304, {});
-            } else {
-                res.writeHead(200, {
-                    "Last-Modified": data.stat.mtime.toUTCString(),
-                    'Content-Type': mimes.html,
-                    "Content-Length": data.length
-                });
-                res.write(data);
-            }
-            return res.end();
+            return response(data, "index.html", req, res);
+        } else if (data instanceof Promise) {
+            return data.then(function (data) {
+                response(data, "index.html", req, res);
+            }).catch(function (error) {
+                res.writeHead(500, {});
+                res.end(String(error));
+            });
         }
     } else if (typeof data === "string") {
         res.writeHead(301, {
