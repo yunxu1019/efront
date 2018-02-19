@@ -26,20 +26,9 @@ function cross(req, res) {
             var setCookie = headers["set-cookie"];
             if (setCookie) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
             res.writeHead(response.statusCode, headers);
-            response.on("data", function (buffer) {
-                res.write(buffer);
-            });
-            response.on("end", function () {
-                res.end();
-            });
-            response.on("close", function () {
-                res.close();
-            });
-            response.on("abort", function () {
-                res.abort();
-            });
+            response.pipe(res);
         });
-        request.on("error", function (error) {
+        request.on("error", function (error) {  
             res.writeHead(403, {});
             res.end(String(error));
         });
@@ -51,12 +40,7 @@ function cross(req, res) {
         for (var k in $headers) {
             request.setHeader(k, $headers[k]);
         }
-        req.on("data", function (buf) {
-            request.write(buf);
-        });
-        req.on("end", function () {
-            request.end();
-        });
+        req.pipe(request);
     } catch (e) {
         res.writeHead(403, {});
         res.end(String(e));
