@@ -29,7 +29,7 @@ var getfrompath = function (name, __root, getter, extt) {
     var body;
     for (var cx = 0, dx = __root.length; cx < dx; cx++) {
         body = getter(__root[cx] + "/" + name + extt);
-        if (body instanceof Buffer) return body;
+        if (body instanceof Buffer || body instanceof Function) return body;
     }
     return "";
 }
@@ -148,7 +148,10 @@ var doPost = module.exports = function (req, res) {
         }
     }
 
-    var match = url.match(/^\/(.*?)(comm|page|ccon|a?api|imag)\/(.*?)(?:\.js|\.png)?$/);
+    var match = url.match(
+        ///// 1 //            2            //// 3 //     4      ////
+        /^\/(.*?)(comm|page|ccon|aa?pi|imag)\/(.*?)(?:\.js|\.png)?$/
+    );
     if (match) {
         var appc = match[1],
             type = match[2],
@@ -157,12 +160,12 @@ var doPost = module.exports = function (req, res) {
         var env = appc ? setupenv(appc) : {};
         switch (type) {
             case "api":
-                var api = getapi(name, env.AAPI)
+                var api = getapi(name, env.AAPI);
                 if (api instanceof Function) api(req, res);
                 else res.writeHead(404, {}) | res.end();
                 break;
             case "aapi":
-                var api = getapi(name, env.AAPI)
+                var api = getapi(name, env.AAPI);
                 if (api instanceof Function) res.end(api());
                 else res.writeHead(404, {}) | res.end();
                 break;

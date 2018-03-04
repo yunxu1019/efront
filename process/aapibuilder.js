@@ -106,7 +106,7 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
                         delete data.res;
                     })
                     .catch(function (e) {
-                        res.writeHead(500, {});
+                        res.writeHead(403, {});
                         res.end(i18n(e));
                     });
             } catch (e) {
