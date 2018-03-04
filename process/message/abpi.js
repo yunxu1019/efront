@@ -13,14 +13,14 @@ module.exports = function ({
                 });
             }).catch(function (error) {
                 then({
-                    result: error,
+                    result: error instanceof Object ? String(error) : error,
                     status: 403
                 });
             });
         } catch (e) {
             then({
-                result: e,
-                status: 500
+                result: e instanceof Object ? String(e) : e,
+                status: 403
             });
         }
     } else {
