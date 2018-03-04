@@ -1,7 +1,7 @@
 /**
  * 请求api的逻辑
  */
-var baseUrl = "/api";
+var baseUrl = "api";
 var runner = null;
 var api = function (uri, parameters, prefix) {
     if (!uri) {
@@ -49,7 +49,7 @@ var api = function (uri, parameters, prefix) {
                     prefix && console.info(prefix + "成功！");
                 } catch (e) {
                     prefix && console.error(prefix + "失败！", e);
-                    onerror && onerror(prefix + "接口返回信息异常！", 1);
+                    onerror && onerror(xhr.responseText || prefix + "接口返回信息异常！", 1);
                 }
             } else {
                 prefix && console.error(prefix + "失败！");
