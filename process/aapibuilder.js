@@ -92,7 +92,9 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
             try {
                 var info = {
                 };
-                return Promise.race([request(fullpath, data, info), new Promise((ok, oh) => setTimeout(oh, 2000, "The request was canceled by server!"))])
+                return Promise.race([request(fullpath, data, info), new Promise(
+                    (ok, oh) => setTimeout(oh,/*允许建立20秒以内的长连接*/ 20000, "The request was canceled by server!")
+                )])
                     .then(function (result) {
                         res.writeHead(200, {
                             "Content-Type": "text/plain"
