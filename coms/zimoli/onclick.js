@@ -14,7 +14,7 @@ var onclick = function (target, handler) {
     return _onclick(target, function (event) {
         saved_time = lasttime_click;
         lasttime_click = +new Date;
-        if (lasttime_click - saved_time < 20) {
+        if (lasttime_click - saved_time < 60) {
             // 阻止非人为点击，防止误操作
             return;
         }
