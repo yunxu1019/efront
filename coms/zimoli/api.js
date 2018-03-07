@@ -116,7 +116,7 @@ var api = function (uri, parameters, prefix) {
         }
         req.up_scale = 0;
         xhr.send(parameters || "");
-        req.cancel = function () {
+        req.abort = req.cancel = function () {
             xhr.abort();
         };
     };
@@ -148,7 +148,7 @@ var api = function (uri, parameters, prefix) {
         ondownload = _onprogress;
         return req;
     };
-    req.cancel = function () { };
+    req.abort = req.cancel = function () { };
 
     req.success = req.onsuccess;
     req.error = req.onerror;
