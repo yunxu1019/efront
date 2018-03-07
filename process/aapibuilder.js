@@ -38,6 +38,23 @@ var queue = [];
  * @param {object} info
  */
 function request(fullpath, data, info) {
+    if (multithreadingApiMap[fullpath] && arguments.length > 1) {
+        return new Promise(function (ok, oh) {
+            if (multithreading_requestCount > 20000) {
+                return oh("please wait for a time!");
+            }
+            multithreading_requestCount++;
+            message.abpi({
+                fullpath,
+                data: data,
+                info: info
+            }, function (result) {
+                multithreading_requestCount--;
+                if (result.status === 200) ok(result.result);
+                else oh(result.result || result.status);
+            });
+        });
+    }
     if (queue.length > 200000) {
         return Promise.reject("please wait for a time!");
     }
@@ -81,9 +98,14 @@ function request(fullpath, data, info) {
     setTimeout(runner, 0);
     return promise;
 }
-
+var multithreadingApiMap = {};
+var multithreading_requestCount = 0;
 module.exports = function aapibuilder(buffer, filename, fullpath) {
     delete require.cache[fullpath];
+    delete multithreadingApiMap[fullpath];
+    if (/^\s*(["'`])use multithreading\1/.test(String(buffer))) {
+        multithreadingApiMap[fullpath] = true;
+    }
     request(fullpath);
     return function ApiManager(req, res) {
         var i18n = _i18n(req.headers["accept-language"] || req.headers["Accept-Language"]);
