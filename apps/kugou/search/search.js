@@ -32,31 +32,41 @@ var updateHotKeyword = function () {
         updateKeywords();
     });
 };
+var searchIng = createElement(div);
+text(searchIng, "搜索中..");
+var searchNoResult = createElement(div);
+text(searchNoResult, "没有找到匹配的项");
 var updateResultWithKeyword = function () {
     var keyword = textInput.value;
     if (updateResultWithKeyword.ing) updateResultWithKeyword.ing.abort();
+    remove(result_pad.children);
+    appendChild(result_pad, searchIng);
     updateResultWithKeyword.ing = cross("get", `http://mobilecdn.kugou.com/api/v3/search/song?format=jsonp&keyword=${encodeURIComponent(keyword)}&page=1&pagesize=30&showtype=1&callback=kgJSONP`).done(function (xhr) {
         if (keyword !== textInput.value) return;
-        var data = getKugouJsonpData(xhr);
         remove(result_pad.children);
-        var songs = data.info.map(function (data) {
-            var singer = String(data.singername);
-            var song = String(data.songname);
-            var block = createElement(div);
-            var _singer = createElement(div);
-            var _song = createElement(div);
-            singer = mark(singer.trim(), keyword);
-            song = mark(song.trim(), keyword);
-            _singer.innerHTML = singer;
-            _song.innerHTML = song;
-            appendChild(block, _singer, _song);
-            block.hash = data.hash;
-            onclick(block, function () {
-                kgplayer.play(this.hash);
+        var data = getKugouJsonpData(xhr);
+        if (data.info && data.info.length) {
+            var songs = data.info.map(function (data) {
+                var singer = String(data.singername);
+                var song = String(data.songname);
+                var block = createElement(div);
+                var _singer = createElement(div);
+                var _song = createElement(div);
+                singer = mark(singer.trim(), keyword);
+                song = mark(song.trim(), keyword);
+                _singer.innerHTML = singer;
+                _song.innerHTML = song;
+                appendChild(block, _singer, _song);
+                block.hash = data.hash;
+                onclick(block, function () {
+                    kgplayer.play(this.hash);
+                });
+                return block;
             });
-            return block;
-        });
-        appendChild(result_pad, songs)
+            appendChild(result_pad, songs)
+        } else {
+            appendChild(result_pad, searchNoResult);
+        }
     });
 };
 var input_timer = 0;
