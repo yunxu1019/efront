@@ -45,8 +45,10 @@ var updateResultWithKeyword = function () {
             var block = createElement(div);
             var _singer = createElement(div);
             var _song = createElement(div);
-            text(_singer, singer.trim());
-            text(_song, song.trim());
+            singer = mark(singer.trim(), keyword);
+            song = mark(song.trim(), keyword);
+            _singer.innerHTML = singer;
+            _song.innerHTML = song;
             appendChild(block, _singer, _song);
             block.hash = data.hash;
             onclick(block, function () {
