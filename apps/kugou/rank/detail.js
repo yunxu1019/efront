@@ -1,8 +1,8 @@
 var _titlebar = titlebar(" ");
 css(_titlebar, "background:transparent");
 var tbar = _titlebar.children[0];
-
 var page = createVboxWithState(state);
+bindScroll(_titlebar, page);
 function main({ _text, href }) {
     document.title = _text;
     remove([].slice.call(page.children, 0));
