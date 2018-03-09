@@ -3,7 +3,7 @@ function bindScroll(titlebar, page) {
     css(labelarea, "height:100%;width:100%;position:absolute;left:0;top:0;background-color:rgb(44,162,249);");
     css(titlebar.children[1], "height:50px;box-shadow:none;");
     onappend(page, function () {
-        css(titlebar, "background:transparent;min-height:50px");
+        css(titlebar, "background:transparent;min-height:50px;box-shadow:none");
         opacity(labelarea, 0);
     });
     page.onscroll = function () {
