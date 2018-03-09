@@ -1,6 +1,7 @@
 function bindScroll(titlebar, page) {
     var labelarea = titlebar.children[0];
     css(labelarea, "height:100%;width:100%;position:absolute;left:0;top:0;background-color:rgb(44,162,249);");
+    css(titlebar.children[1], "height:50px;box-shadow:none;");
     onappend(page, function () {
         css(titlebar, "background:transparent;min-height:50px");
         opacity(labelarea, 0);

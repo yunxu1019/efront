@@ -5,6 +5,7 @@ var page = createVboxWithState(state);
 bindScroll(_titlebar, page);
 function main({ _text, href }) {
     document.title = _text;
+    text(_titlebar.children[0], _text);
     remove([].slice.call(page.children, 0));
     cross("get", href, { "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1" }).done(function (xhr) {
         var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
