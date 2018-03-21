@@ -5,8 +5,8 @@ var fs = require("fs");
 var path = require("path");
 if (!process.cwd() === path.dirname(__dirname)) throw new Error("请在项目根目录启动！");
 var { PUBLIC_PATH, APP } = process.env;
-var PUBLIC_APP = process.argv[2] || APP;
-if (!PUBLIC_APP) throw new Error("请输入要发布的项目名称！");
+var PUBLIC_APP =/* process.argv[2] || */APP;
+if (!PUBLIC_APP) throw new Error("请配置要发布的项目名称！");
 if (!PUBLIC_PATH) throw new Error("请指定输出路径！");
 if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
 if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
@@ -284,7 +284,7 @@ Object.assign(global, {
     },
     state: {},
     screen: {},
-    performance:{
+    performance: {
     },
     Image: {},
     alert() {
