@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var setupenv = require("../process/setupenv");
 require("../process/console");
 var fs = require("fs");

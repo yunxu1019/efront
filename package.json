@@ -6,14 +6,11 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-    "less": "^3.0.0-alpha.3"
+  "bin": {
+    "efront": "./main"
   },
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^3.2.0",
-    "mysql": "^2.13.0"
-  },
+  "dependencies": {},
+  "devDependencies": {},
   "scripts": {
     "start": "node main",
     "server": "node server/index",
