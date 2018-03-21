@@ -1,13 +1,13 @@
 {
   "name": "efront",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "efront",
   "main": "main.js",
   "directories": {
     "test": "test"
   },
   "bin": {
-    "efront": "./main"
+    "efront": "./main.js"
   },
   "dependencies": {},
   "devDependencies": {},
