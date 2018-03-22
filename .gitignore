@@ -16,3 +16,5 @@ tools/node_modules/
 data/count.json
 tools/zanme.js
 tools/prebuilds/
+process/asm/
+*.tgz
