@@ -149,7 +149,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         // console.info("server start success!");
     });
     server.setTimeout(0);
-    server.listen(80);
+    server.listen(+process.env.HTTP_PORT || 80);
     var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
     if (SSL_PFX_PATH) {
         var fs = require("fs");
@@ -161,7 +161,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 SSL_ENABLED = +process.env.IN_TEST_MODE === 1;
             }).on("error", function () {
                 SSL_ENABLED = false;
-            }).listen(443).setTimeout(0);
+            }).listen(+process.env.HTTPS_PORT || 443).setTimeout(0);
         }
     }
     cluster.isWorker && message.count("boot");
