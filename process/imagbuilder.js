@@ -1,4 +1,5 @@
 "use strict";
+var crc = require("./crc");
 function fromUInt32BE(a, b, c, d) {
     return (a << 24) + (b << 16) + (c << 8) + d;
 }
@@ -73,4 +74,5 @@ function imagbuilder(binaries) {
 }
 imagbuilder.getChunks = getchunks;
 imagbuilder.fromChunks = fromChunks;
+imagbuilder.chunk = chunk;
 module.exports = imagbuilder;
