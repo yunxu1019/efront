@@ -57,7 +57,7 @@ var createControls = function () {
         if (currentTime === duration) {
             box.pause();
         }
-        css(avatar, `transform:rotate(${currentTime * 6}deg);-webkit-transform:rotate(${currentTime*6}deg);`);
+        css(avatar, `transform:rotate(${currentTime * 6}deg);-webkit-transform:rotate(${currentTime * 6}deg);`);
         css(progress, `width:${(currentTime * 100 / duration)}%;`);
     };
     bindtouch(box, function (value) {
@@ -120,6 +120,7 @@ var kgplayer = function (box = div()) {
         getMusicInfo(hash).done(function (xhr) {
             var data = JSON.parse(xhr.responseText);
             box.apply(data);
+            krc(data);
             audio.src = data.url;
         });
         this.audio = audio;
