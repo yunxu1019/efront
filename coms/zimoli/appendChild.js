@@ -39,3 +39,16 @@ function appendChild(parent, obj) {
     }
     return parent;
 }
+function insertBefore(alreadyMounted, obj) {
+    var parent = alreadyMounted && alreadyMounted.parentNode;
+    if (!parent || !parent.insertBefore) return;
+    var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+    for (var cx = 0, dx = children.length; cx < dx; cx++) {
+        var o = release(children[cx]);
+        parent.insertBefore(o, alreadyMounted);
+        o.with && insertBefore(o, o.with);
+        if (parent.isMounted)
+            _onappend(o);
+    }
+};
+appendChild.before = insertBefore;
