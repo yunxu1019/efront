@@ -181,6 +181,6 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
         length = "0" + length;
     }
 
-    data = (_arguments.length ? length + _arguments : "") + data.replace(/[\u0100-\uffff]/g, m => "\\u" + m.charCodeAt(0).toString(16));
+    data = (_arguments.length ? length + _arguments : "") + data.replace(/[\u0100-\uffff]/g, m => "\\u" + (m.charCodeAt(0) > 0x1000 ? m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)));
     return data;
 }
