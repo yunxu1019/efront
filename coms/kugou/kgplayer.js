@@ -49,9 +49,6 @@ var createControls = function () {
     };
     box.reset = function () {
         playCss();
-        if (!box.parentNode) {
-            appendChild(document.body, box);
-        }
     };
     box.process = function (currentTime, duration) {
         if (currentTime === duration) {
@@ -77,8 +74,12 @@ var createControls = function () {
         audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth
         box.play();
     };
+    if (document.body.children.length) {
+        appendChild.before(document.body.children[0], box);
+    } else {
+        appendChild(document.body, box);
+    }
 
-    appendChild(document.body, box);
     return box;
 };
 var kgplayer = function (box = div()) {

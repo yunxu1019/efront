@@ -5,7 +5,8 @@
 .singer {
     color: #ccc;
 }
-@main-color:#2292e4;
+
+@main-color: #2292e4;
 &.pause .play:before {
     content: "放";
 }
@@ -28,8 +29,7 @@
 }
 
 &.play .avatar {
-    opacity: 1;
-    // animation-play-state: running;
+    opacity: 1; // animation-play-state: running;
     // -webkit-animation-play-state: running;
 }
 
@@ -47,8 +47,7 @@
 .avatar {
     opacity: .2;
     transition: opacity .6s ease;
-    box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset;
-    // animation: 25s rotate infinite linear;
+    box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset; // animation: 25s rotate infinite linear;
     // animation-play-state: paused;
     // -webkit-animation-play-state: paused;
 }
@@ -156,4 +155,9 @@
         display: inline-block;
         height: 100%;
     }
+}
+
+&.play+div,
+&.pause+div {
+    padding-bottom: 60px;
 }
