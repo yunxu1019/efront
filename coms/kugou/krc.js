@@ -12,8 +12,8 @@ function krc(info) {
             content = content.slice(4).map((a, i) => a ^ secret[i % 16]);
             var bufff = inflate(content.slice(2));
             var saved_time = new Date;
-            for (var k = 0; k < 1000; k++)
-                var krc = decodeUTF8(bufff);
+            // for (var k = 0; k < 1000; k++)
+            var krc = decodeUTF8(bufff);
             console.log(new Date - saved_time);
         });
     });
