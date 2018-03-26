@@ -2,19 +2,19 @@
 /**
  * 只在主线程中使用
  */
-if(!require("cluster").isMaster){
+if (!require("cluster").isMaster) {
     throw "只在主线程中使用";
 }
 module.exports = function (a) {
     return arguments.length > 0 ? save(a) : load();
 }
 var fs = require("fs");
-var data_file = "./data/count.json";
+var data_file = require("path").join(__dirname, "../data/count.json");
 
 function load() {
     try {
         var data = fs.readFileSync(data_file);
-        return JSON.parse(String(data))||{};
+        return JSON.parse(String(data)) || {};
     } catch (e) {
         return {};
     }

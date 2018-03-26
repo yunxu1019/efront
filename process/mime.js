@@ -1,6 +1,6 @@
 "use strict";
 var fs = require("fs");
-var mime_data_file = "./data/mime.json";
+var mime_data_file = require("path").join(__dirname, "../data/mime.json");
 var mimes = exports;
 var watch = require("../process/watch");
 var loadjson = require("../process/loadjson");
