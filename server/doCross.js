@@ -20,6 +20,7 @@ function cross(req, res) {
         var request = http.request(Object.assign({
             method: $method,
             headers: $headers,
+            rejectUnauthorized: false// 放行证书不可用的网站
         }, require("url").parse($url)), function (response) {
             var headers = response.headers;
             headers.origin && (headers["Access-Control-Allow-Credentials"] = true);
@@ -28,13 +29,13 @@ function cross(req, res) {
             res.writeHead(response.statusCode, headers);
             response.pipe(res);
         });
-        request.on("error", function (error) {  
+        request.on("error", function (error) {
             res.writeHead(403, {});
             res.end(String(error));
         });
         request.setTimeout(1);
-        var ContentLength=req.headers["Content-Length"];
-        if(ContentLength){
+        var ContentLength = req.headers["Content-Length"];
+        if (ContentLength) {
             request.setHeader("Content-Length", $data.length)
         }
         for (var k in $headers) {
