@@ -5,7 +5,7 @@ track.className = "track";
 _label.className = "label";
 
 var btn = div();
-
+btn.tabIndex = 0;
 function button(texter, type) {
     var tracker = createElement(track);
     var _texter;
@@ -16,8 +16,7 @@ function button(texter, type) {
         if (isString(texter))
             text(_texter, texter);
     }
-    var bluer = anniu();
-    var button = createElement(btn, tracker, _texter, bluer);
+    var button = createElement(btn, tracker, _texter);
     var hover = function () {
         addClass(button, "hover");
     };
@@ -58,12 +57,6 @@ function button(texter, type) {
         var canceltouchcancel = ontouchcancel(window, cancel);
         var canceltouchend = ontouchend(window, cancel);
         active();
-    });
-    onfocus(bluer, function () {
-        addClass(button, "focus");
-    });
-    onblur(bluer, function () {
-        removeClass(button, "focus");
     });
     button.text = function (_text) {
         if (_text && _text.length === 2) {
