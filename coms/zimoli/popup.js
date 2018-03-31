@@ -61,11 +61,21 @@ var popup_extra = function (element, target) {
     });
     zimoli.global(element, true);
     var height = element.offsetHeight;
+    //如果高度超出可视区，调整高度
     if (height > maxHeight) {
         css(element, `height:${maxHeight}px`);
     }
     var width = element.offsetWidth;
-    if (width > maxWidth) {
+    var aimedWidth = width;
+    //如果宽度不足其附着元素的宽度
+    if (width < target.offsetWidth) {
+        aimedWidth = target.offsetWidth;
+    }
+    //如果宽度超出可视区，调整宽度
+    if (aimedWidth > maxWidth) {
+        aimedWidth = maxWidth;
+    }
+    if (width !== aimedWidth) {
         css(element, `width:${maxWidth}px`);
     }
     if (position.top + element.offsetHeight + position.height > window.innerHeight) {
