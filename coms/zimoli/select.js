@@ -16,9 +16,12 @@ function select(target, list) {
         zIndex: zIndex()
     });
     onmousedown(target, function () {
-        if (saved_list !== list) _remove();
-        popup(list, target);
-        saved_list = list;
+        if (saved_list !== list) {
+            _remove();
+            popup(list, target);
+            saved_list = list;
+        }
+        else _remove();
     });
     return target;
 }
