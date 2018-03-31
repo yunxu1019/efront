@@ -40,17 +40,35 @@ var popup = function (path) {
 };
 var popup_extra = function (element, target) {
     var position = getScreenPosition(target);
-    var maxHeight = Math.min(position.top, window.innerHeight - position.top - position.height);
-    css(element, `position:absolute;left:${position.left}px;min-width:${position.width}px`);
+    var maxHeight = Math.max(position.top, window.innerHeight - position.top - position.height);
+    var maxWidth = Math.max(position.left + position.width, window.innerWidth - position.left);
+    if (!element.origin) {
+        element.origin = {
+            height: element.style.height,
+            width: element.style.width
+        };
+    } else {
+        extend(element.style, element.origin);
+    }
+    css(element, `position:absolute;left:${position.left}px;min-width:${position.width}px;`);
     zimoli.global(element, true);
     var height = element.offsetHeight;
     if (height > maxHeight) {
         css(element, `height:${maxHeight}px`);
     }
-    if (position.top + height + position.height > window.innerHeight) {
-        css(element, `bottom:${position.top}px`);
+    var width = element.offsetWidth;
+    if (width > maxWidth) {
+        css(element, `width:${maxWidth}px`);
+    }
+    if (position.top + element.offsetHeight + position.height > window.innerHeight) {
+        css(element, `bottom:${window.innerHeight - position.top}px;top:auto;`);
     } else {
-        css(element, `top:${position.top + position.height}px`);
+        css(element, `top:${position.top + position.height}px;bottom:auto;`);
+    }
+    if (position.left + element.offsetWidth > window.innerWidth) {
+        css(element, `right:${window.innerWidth - position.left - position.width}px;left:auto;`);
+    } else {
+        css(element, `left:${position.left}px;right:auto;`);
     }
 };
 var popup_path = function (path = "", parameters, style) {
