@@ -38,6 +38,9 @@ var popup = function (path) {
         return popup_extra.apply(null, arguments);
     }
 };
+var popup_view = function (element) {
+
+};
 var popup_extra = function (element, target) {
     var position = getScreenPosition(target);
     var maxHeight = Math.max(position.top, window.innerHeight - position.top - position.height);
@@ -51,6 +54,11 @@ var popup_extra = function (element, target) {
         extend(element.style, element.origin);
     }
     css(element, `position:absolute;left:${position.left}px;min-width:${position.width}px;`);
+    onappend(element, addMask);
+    onremove(element, escMask);
+    onremove(target, function () {
+        remove(element);
+    });
     zimoli.global(element, true);
     var height = element.offsetHeight;
     if (height > maxHeight) {
