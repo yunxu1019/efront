@@ -19,10 +19,11 @@ var createControls = function () {
     var info = createWithClass(div, "info");
     var track = createWithClass(div, "track");
     var progress = createWithClass(div, "progress");
+    var background = createWithClass(div, "background");
     progress.innerHTML = "<div class=track></div><div class=avatar></div>";
     appendChild(info, song, singer);
     var avatar = createWithClass(div, "avatar");
-    appendChild(box, progress, track, avatar, info, play, next);
+    appendChild(box, background, progress, track, avatar, info, play, next);
     var pauseCss = function () {
         removeClass(box, "play");
         addClass(box, "pause");
@@ -38,6 +39,16 @@ var createControls = function () {
             box.play();
         }
     });
+    var player_page = false;
+    onclick(box, function () {
+        player_page = !player_page;
+        if (player_page) {
+            addClass(box, "page");
+        } else {
+            removeClass(box, "page");
+        }
+    });
+
     box.pauseCss = pauseCss;
     box.playCss = playCss;
     box.apply = function (data) {
@@ -46,6 +57,9 @@ var createControls = function () {
         css(avatar, {
             backgroundImage: `url('${data.imgUrl.replace(/\{size\}/g, 200)}')`
         });
+        css(background, {
+            backgroundImage: `url('${data.imgUrl.replace(/\{size\}/g, 200)}')`
+        })
     };
     box.reset = function () {
         playCss();
@@ -79,7 +93,6 @@ var createControls = function () {
     } else {
         appendChild(document.body, box);
     }
-
     return box;
 };
 var kgplayer = function (box = div()) {
@@ -135,3 +148,4 @@ var kgplayer = function (box = div()) {
     };
     return box;
 }(createControls());
+
