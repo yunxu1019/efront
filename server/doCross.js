@@ -26,6 +26,10 @@ function cross(req, res) {
             headers.origin && (headers["Access-Control-Allow-Credentials"] = true);
             var setCookie = headers["set-cookie"];
             if (setCookie) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
+            if (headers.location) {
+                headers["cross-location"] = headers.location;
+                delete headers.location;
+            }
             res.writeHead(response.statusCode, headers);
             response.pipe(res);
         });
