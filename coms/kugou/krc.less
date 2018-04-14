@@ -11,5 +11,21 @@
         white-space: nowrap;
         position: relative;
         transition: margin-top .2s ease-out;
+        &.before,
+        &.after {
+            color: #ccc;
+            >div{
+                display: none;
+            }
+        }
+        &.active{
+            >div{
+                color: #fffb0f;
+                position: absolute;
+                display: inline-block;
+                overflow: hidden;
+                text-overflow: clip;
+            }
+        }
     }
 }

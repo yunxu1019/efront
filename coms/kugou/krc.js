@@ -64,12 +64,39 @@ function createKRC(krc) {
             var current_row_word = current_words[current_row_index];
             var ele = krcList[index];
             var firstChild = krcList[0];
-            if (firstChild && firstChild.isMounted) {
+            if (ele && firstChild && firstChild.isMounted) {
                 var marginTop = (firstChild.parentNode.offsetHeight - ele.offsetHeight >> 1) - ele.offsetTop + firstChild.offsetTop;
-                css(krcList[0], `margin-top:${marginTop | 0}px;color:#ccc;`)
+                if (index > 0) {
+                    krcList.slice(0, index).map(function (a) {
+                        removeClass(a, "active after")
+                        addClass(a, "before");
+                    });
+                    removeClass(ele, "after before");
+                    addClass(ele, "active");
+                    var word_ele = ele.children[current_row_index];
+                    krcList.slice(index + 1).map(function (a) {
+                        removeClass(a, "before active");
+                        addClass(a, "after");
+                    });
+                    if (markerLabel.parentNode !== ele) {
+                        appendChild(ele, markerLabel);
+                    }
+                    var rowData = current_words.map(a => a.label).join("");
+                    if (text(markerLabel) != rowData) {
+                        text(markerLabel, rowData);
+                    }
+                    var widthRatio = (current_row_offset - current_row_word.value) / current_row_word.timeLength;
+                    if (widthRatio > 1) {
+                        widthRatio = 1;
+                    }
+                    var word_first = ele.children[0];
+                    css(markerLabel, `left:${ele.children[0].offsetLeft}px;width:${word_ele.offsetLeft - word_first.offsetLeft + word_ele.offsetWidth * widthRatio}px;`);
+                }
+                css(firstChild, `margin-top:${marginTop | 0}px;`);
             }
         }
     };
+    var markerLabel = createElement(div);
     return krcList;
 }
 function createCell(word) {
