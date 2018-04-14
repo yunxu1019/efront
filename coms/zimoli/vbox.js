@@ -216,6 +216,7 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
             canceltouchcancel();
             smooth();
         };
+        event.preventDefault();
         var canceltouchmove = ontouchmove(moving, function (event) {
             extendTouch(event);
             mousemove(event);
