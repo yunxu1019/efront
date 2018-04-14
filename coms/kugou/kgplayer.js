@@ -67,6 +67,10 @@ var createControls = function () {
     box.process = function (currentTime, duration) {
         if (currentTime === duration) {
             box.pause();
+            return false;
+        }
+        if (krc_pad && krc_pad.process instanceof Function) {
+            krc_pad.process(currentTime, duration);
         }
         css(avatar, `transform:rotate(${currentTime * 6}deg);-webkit-transform:rotate(${currentTime * 6}deg);`);
         css(progress, `width:${(currentTime * 100 / duration)}%;`);
@@ -77,7 +81,6 @@ var createControls = function () {
             var audio = box.audio;
             box.process(x / box.offsetWidth * audio.duration, audio.duration);
         }
-
         return { x: progress.offsetWidth };
     });
     box.onmovestart = function () {
@@ -93,6 +96,13 @@ var createControls = function () {
     } else {
         appendChild(document.body, box);
     }
+    var krc_pad;
+    box.krc = function (data) {
+        remove(krc_pad);
+        krc_pad = krc(data);
+        addClass(krc_pad, "krc")
+        appendChild(box, krc_pad);
+    };
     return box;
 };
 var kgplayer = function (box = div()) {
@@ -100,7 +110,9 @@ var kgplayer = function (box = div()) {
     var timer = 0;
     var updater = function () {
         if (box.process instanceof Function) {
-            box.process(box.audio.currentTime, box.audio.duration);
+            if (box.process(box.audio.currentTime, box.audio.duration) == false) {
+                return;
+            };
         }
         timer = requestAnimationFrame(updater);
     };
@@ -134,7 +146,7 @@ var kgplayer = function (box = div()) {
         getMusicInfo(hash).done(function (xhr) {
             var data = JSON.parse(xhr.responseText);
             box.apply(data);
-            krc(data);
+            box.krc(data);
             audio.src = data.url;
         });
         this.audio = audio;
@@ -149,3 +161,4 @@ var kgplayer = function (box = div()) {
     return box;
 }(createControls());
 
+// krc_test();
