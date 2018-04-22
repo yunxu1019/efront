@@ -1,5 +1,4 @@
 var _label = label();
-css(_label, "position:absolute;left:0;right:0;width:100%;height:1em;line-height:1em;top:50%;bottom:50%;margin: -.5em 0;overflow:hidden;text-align:center;");
 var track = createElement(div);
 track.className = "track";
 _label.className = "label";
