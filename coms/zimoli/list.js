@@ -6,6 +6,7 @@ var cache_height = 200;
  * @param {Boolean|Array|Function} generator 
  */
 function list(generator, source) {
+    var restHeight = 2000;
     var list = div();
     list.autoFix = true;
     var saved_itemIndex;
@@ -61,6 +62,7 @@ function list(generator, source) {
             var item = childrenMap[offset];
             if (!item) {
                 item = generator(offset, ratio);
+                if (!item) break;
                 item.index = offset;
                 if (last_index > index) {
                     appendChild.before(last_item, item);
@@ -102,10 +104,16 @@ function list(generator, source) {
                 var item = childrenMap[offset];
                 if (!item) {
                     item = generator(offset, ratio);
+                    if (!item) {
+                        restHeight = 0;
+                        break;
+                    } else if (!restHeight) {
+                        restHeight = 2000;
+                    }
                     item.index = offset;
                     appendChild(list, item);
                 }
-                if (!item || !item.offsetHeight) break;
+                if (!item.offsetHeight) break;
                 offsetBottom = item.offsetTop + item.offsetHeight;
             }
             //移除顶部不可见的元素
@@ -141,6 +149,7 @@ function list(generator, source) {
                 var item = childrenMap[offset];
                 if (!item) {
                     item = generator(offset, ratio);
+                    if (!item) break;
                     item.index = offset;
                     childrenMap[offset] = item;
                     appendChild.before(children[0], item);
@@ -160,7 +169,7 @@ function list(generator, source) {
     list.go = scrollTo;
     list.Height = function () {
         var firstElement = getFirstElement();
-        return firstElement.index * firstElement.offsetHeight + list.offsetHeight + 2000;
+        return firstElement.index * firstElement.offsetHeight + list.offsetHeight + list.scrollTop + restHeight;
     };
     list.Top = function (y) {
         if (isFinite(y)) {
@@ -172,5 +181,6 @@ function list(generator, source) {
         return currentY();
     };
     vbox(list);
+    list.style.height = null;
     return list;
 }
