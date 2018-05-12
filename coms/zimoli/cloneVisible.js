@@ -31,7 +31,5 @@ function cloneVisible(node, parentPosition) {
         var childClone = cloneVisible(child, screenPosition);
         if (childClone) clone.appendChild(childClone);
     }
-    if (clone.style.lineHeight !== "normal")
-        console.log(clone.style.font);
     return clone;
 }
