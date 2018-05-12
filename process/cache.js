@@ -189,6 +189,7 @@ var seek = function (url, tree, rebuild) {
 };
 var seekAsync = function (url, tree, rebuild) {
     var temp = tree;
+    if (!temp) return new Error('file system error');
     var keeys = url.split(/[\\\/]+/);
     var curl = "";
     var that = this;
@@ -207,6 +208,9 @@ var seekAsync = function (url, tree, rebuild) {
             });
         }
         temp = temp[key];
+        if (!temp) {
+            break;
+        }
     }
     if (temp && !(temp instanceof Object)) {
         return temp;
