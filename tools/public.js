@@ -378,7 +378,7 @@ var writeComponent = function () {
     var dest = [], last_result_length = result.length;
     var $$_efront_map_string_key = "$$_efront_map_const_string_key__";
     var escodegen = require("../process/escodegen/escodegen");
-    var esprima = require("../process/esprima/esprima");
+    var esprima = require("../process/esprima");
     var esmangle = require("../process/esmangle/esmangle");
     var scanner = require("../process/compile/scanner");
 
