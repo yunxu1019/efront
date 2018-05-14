@@ -1,9 +1,12 @@
 var assert = function (result, expect, log = console.error) {
     var errors = {}, hasCollect;
-    var collect = function (k) {
+    var collect = function (k, args) {
         hasCollect = true;
+        if (args) return function () {
+            errors = `Except (${args}) to be ${JSON.stringify(k)}`;
+        }
         if (k === undefined) return function () {
-            errors = `Except ${result} to be ${expect}`;
+            errors = `Except ${JSON.stringify(result, null, 4)} to be ${JSON.stringify(expect, null, 4)}`;
         };
         return function (error) {
             if (error instanceof Object) {
@@ -26,6 +29,8 @@ var assert = function (result, expect, log = console.error) {
                 res = res && assert(result[cx], expect[cx], collect(cx));
             }
         }
+    } else if (expect instanceof Function) {
+        res = expect(result, (...args) => (b) => assert(result.apply(null, args), b, collect(b, args)), collect(`()`)) !== false;
     } else if (expect instanceof Object && result instanceof Object) {
         var res = true;
         for (var k in expect) {
