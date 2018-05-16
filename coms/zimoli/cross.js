@@ -11,6 +11,7 @@ function getCookies(domainPath) {
     do {
         var copy = splited.slice(0);
         do {
+            domainPath = copy.join("/");
             var cookie = cookiesMap[domainPath];
             if (cookie) {
                 for (var k in cookie) {
@@ -20,7 +21,6 @@ function getCookies(domainPath) {
                 }
             }
             copy.pop();
-            domainPath = copy.join("/");
         } while (copy.length);
         domain = domain.replace(/^.*?(\.|$)/, "");
         splited[0] = domain;
@@ -32,11 +32,11 @@ function isChildPath(relative, path) {
 }
 function cross(method, url, headers) {
     var originDomain = getDomainPath(url);
-    if (!originDomain) return;
+    if (!originDomain) throw new Error("Unsupposed url format!");
     var _cookies = getCookies(originDomain);
     if (_cookies) {
         if (!headers) headers = {};
-        headers.cookie = _cookies;
+        headers.Cookie = _cookies;
     }
     var xhr = new XHR;
     xhr.open(method, base + encodeURIComponent(JSON.stringify({
@@ -50,34 +50,37 @@ function cross(method, url, headers) {
             if (xhr.getResponseHeader) {
                 var cookie = xhr.getResponseHeader("cross-cookie");
                 if (cookie) {
-                    cookie.replace(/(^|;|,)\s*(expires)=(\w*),([^=]*)(;|$)/ig, "$1$2=$3.$4")
+                    cookie.replace(/(^|;|,)\s*(expires)=(\w*),([^=]*)(;|$)/ig, "$1$2=$3.$4$5")
                         .split(/,\s*/).map(function (cookie) {
                             var cookieObject = {};
                             var result = cookie.split(/;\s*/);
                             result.slice(1).map(function (kev) {
-                                var kvs = /^(.+?)\=(.+?)/.exec(kev);
+                                var kvs = /^(.+?)\=(.+?)$/.exec(kev);
                                 if (kvs) {
                                     var [, k, v] = kvs;
                                     cookieObject[k.toLowerCase()] = v;
                                 }
                             });
                             var { path, domain } = cookieObject;
-                            var destPath;
+                            if (!domain) {
+                                domain = originDomain.replace(/[^\/]+$/, "");
+                            }
                             if (/^\./.test(domain)) {
                                 domain = domain.replace(/^\.+/, "");
                             }
+                            var destPath;
                             if (/^\//.test(path)) {
-                                destPath = domain + path;
-                            } else if (domain) {
-                                destPath = domain;
+                                destPath = domain.replace(/\/.*$/, "") + path;
                             } else {
-                                destPath = originDomain.replace(/[^\/]+$/, "");
+                                destPath = domain;
                             }
+                            destPath = destPath.replace(/\/+$/, "");
                             if (originDomain.indexOf(destPath) >= 0) {
+                                var cookieMap = parseKV(result[0], ";");
                                 if (!cookiesMap[destPath]) {
-                                    cookiesMap[destPath] = cookieObject;
+                                    cookiesMap[destPath] = cookieMap;
                                 } else {
-                                    extend(cookiesMap[destPath], cookieObject);
+                                    extend(cookiesMap[destPath], cookieMap);
                                 }
                             }
                         });
@@ -92,7 +95,7 @@ function cross(method, url, headers) {
         }
     };
     setTimeout(function () {
-        if (xhr.readyState === 0) xhr.send();
+        if (xhr.readyState === 1) xhr.send();
     }, 0);
     var onload, onerror;
     xhr.done = function (on) {
