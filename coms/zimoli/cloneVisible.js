@@ -1,4 +1,4 @@
-var cloneProperties = "font,color,display,borderRadius,border,verticalAlign,textAlign,textShadow,background,opacity,padding,boxSizing,boxShadow,overflow,height,width,position,writingMode,blockSize,wordSpacing,letterSpacing,textIndent".split(",");
+var cloneProperties = "font,color,display,borderRadius,border-top,border-right,border-bottom,border-left,verticalAlign,textAlign,textShadow,background,opacity,padding,boxSizing,boxShadow,overflow,height,width,position,writingMode,blockSize,wordSpacing,letterSpacing,textIndent".split(",");
 function cloneVisible(node, parentPosition) {
     if (!node || node.nodeType > 3 || node.nodeType == 2) return;
     var style = node.style;
