@@ -173,6 +173,8 @@ function zimoli(page, args, history_name) {
     };
 
     return init(page, function (pg) {
+        console.log(page);
+        if (!pg) return;
         pg.with = _with_elements;
         pg.onremove = _remove_listeners;
         pg.onappend = _append_listeners;
@@ -247,6 +249,7 @@ var fixurl = function () {
 }
 var onback = function () {
     if (alertslist.length) {
+        fixurl();
         remove(alertslist.pop());
         return;
     }
@@ -285,14 +288,24 @@ function addGlobal(element, name) {
     } else if (isFunction(name)) {
         name(element);
     } else {
+        onremove(element, cleanup);
         appendChild(body, element);
         alertslist.push(element);
         fixurl();
     }
 }
-
+function cleanup(event) {
+    var target = event.target;
+    for (var cx = alertslist.length - 1; cx > 0; cx--) {
+        var element = alertslist[cx];
+        if (element === target) {
+            alertslist.splice(cx, 1);
+        }
+    }
+}
 var _switch = zimoli.switch = function (history_name) {
     if (history_name)
         current_history = history_name;
 };
 zimoli.global = addGlobal;
+window.modules = modules;
