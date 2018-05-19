@@ -294,15 +294,7 @@ function addGlobal(element, name) {
         fixurl();
     }
 }
-function cleanup(event) {
-    var target = event.target;
-    for (var cx = alertslist.length - 1; cx > 0; cx--) {
-        var element = alertslist[cx];
-        if (element === target) {
-            alertslist.splice(cx, 1);
-        }
-    }
-}
+var cleanup = new Cleanup(alertslist);
 var _switch = zimoli.switch = function (history_name) {
     if (history_name)
         current_history = history_name;
