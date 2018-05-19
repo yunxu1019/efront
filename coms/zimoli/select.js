@@ -1,7 +1,6 @@
 var saved_list;
 var _remove = function () {
     saved_list && remove(saved_list);
-    saved_list = null;
 };
 function select(target, list) {
     if (!target) {
@@ -15,6 +14,7 @@ function select(target, list) {
     css(list, {
         zIndex: zIndex()
     });
+    onremove(list, () => saved_list = null);
     onmousedown(target, function () {
         if (saved_list !== list) {
             _remove();
