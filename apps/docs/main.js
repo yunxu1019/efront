@@ -46,7 +46,7 @@ var baseUrl = "";
 setGetMethod(function (url, then) {
     url = baseUrl + url;
     if (responseTree[url]) {
-        then(responseTree[url]);
+        then(responseTree[url], url);
     } else if (loaddingTree[url]) {
         loaddingTree[url].push(then);
     } else {
