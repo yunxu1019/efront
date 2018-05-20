@@ -37,7 +37,7 @@ if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.pla
     let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
-    document.documentElement.style.fontSize= `${16 * renderPixelRatio}pt`;
+    document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
 }
 var retry = function (url, count) {
     setTimeout(function () {
@@ -211,7 +211,7 @@ var executer = function (text, name, then, prebuild) {
         if (modules[name]) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
         var prevent_save = 0;
-        var argslength=functionArgs.length>>1;
+        var argslength = functionArgs.length >> 1;
         prebuild && [].map.call(functionArgs.slice(0, argslength), k => k in prebuild && prevent_save++);
         try {
             var exports = Function.apply(window, functionArgs.slice(argslength).concat(functionBody)).apply(window, args);
@@ -262,9 +262,6 @@ var init = function (name, then, prebuild) {
     }
     if (window[name]) {
         modules[name] = window[name];
-        return then(modules[name]);
-    }
-    if (modules[name]) {
         return then(modules[name]);
     }
     if (penddingTree[name]) {
