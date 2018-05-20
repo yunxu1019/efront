@@ -56,11 +56,11 @@ setGetMethod(function (url, then) {
 });
 var build = function () {
     execute(commNameInput.value, function (comm) {
-        appendChild(mainArea, comm);
+        isNode(comm) && appendChild(mainArea, comm);
     });
 }
 appendChild(nameArea, commNameInput, exportButton);
-appendChild(page, leftArea,nameArea, mainArea);
+appendChild(page, leftArea, nameArea, mainArea);
 function main() {
     build();
     return page;
