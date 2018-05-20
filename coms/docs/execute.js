@@ -4,6 +4,7 @@ var execute = function (commName, then) {
     if (!commName) return;
     console.info(`load ${commName}!`);
     delete window[commName];
+    delete modules[commName];
     init(commName, function (comm) {
         window[commName] = function () {
             remove(component);
@@ -20,6 +21,6 @@ var execute = function (commName, then) {
         } catch (e) {
 
         }
-        then && then(comm);
+        then && then(component);
     });
 };
