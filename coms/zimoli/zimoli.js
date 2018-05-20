@@ -187,7 +187,6 @@ function zimoli(page, args, history_name) {
             titlebar: function () {
                 return getTitleBar(state, arguments);
             },
-            zimoli: state.go,
             go: state.go,
             onremove: function () {
                 return getRemoveFn(state, arguments);
