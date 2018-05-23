@@ -8,7 +8,7 @@ onkeydown(document, function (e) {
     }
 });
 var popups = [];
-var addMask = function () {
+var addMask = function (event) {
     escMask.call(this);
     popups.push(this);
 };
@@ -51,24 +51,24 @@ var popup_path = function (path = "", parameters, target) {
     if (/^#/.test(path)) {
         // mask
         var element = windowFactory();
-        go(path.replace(/^#/, ""), parameters, element);
+        zimoli.go(path.replace(/^#/, ""), parameters, element);
         return popup_with_mask(element, target);
     }
     // 2 has view control has no mask
     if (/^@/.test(path)) {
         var element = windowFactory();
-        go(path.replace(/^@/, ""), parameters, element);
+        zimoli.go(path.replace(/^@/, ""), parameters, element);
         return popup_as_single(element);
     }
     // 1 has mask has no control
     if (/^!/.test(path)) {
         var element = loadingFactory();
-        go(path.replace(/^!/, ""), parameters, element);
+        zimoli.go(path.replace(/^!/, ""), parameters, element);
         return popup_with_mask(element);
     }
     // 0 has no mask no control
     var element = loadingFactory();
-    go(path, parameters, element);
+    zimoli.go(path, parameters, element);
     return popup_as_single(element);
 };
 
@@ -79,7 +79,7 @@ var popup_view = function (element, target) {
         }
         return popup_as_extra(element, target);
     }
-    return zimoli.global(element, true);
+    return popup_as_single(element);
 };
 var createMask = function () {
     var mask = createElement(div);
@@ -104,7 +104,7 @@ var popup_with_mask = function (element, mask = createMask()) {
     element.mask = mask;
     onremove(element, mask.clean);
     css(element, `z-index:${zIndex()};`);
-    if (mask.isMount) {
+    if (mask.isMounted) {
         zimoli.global(element, true);
     }
     return element;
@@ -160,6 +160,7 @@ var popup_as_extra = function (element, target) {
 var popup_as_single = function (element) {
     onappend(element, addMask);
     onremove(element, escMask);
+    css(element, `z-index:${zIndex()};`);
     zimoli.global(element, true);
 };
 window["popup"] = popup;
