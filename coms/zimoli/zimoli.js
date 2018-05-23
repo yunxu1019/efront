@@ -124,12 +124,6 @@ function zimoli(page, args, history_name) {
             args = {};
         }
     }
-    //只有把runtime绑定到对像才可以使用
-    //    css(document.body,{
-    //        backgroundColor:"rgba(0,0,0,1)"
-    //    });
-    //    var button=createElement(anniu);
-    //    console.log(button)
     var _zimoli_state_key = _zimoli_state_prefix + page;
     var state = function state(condition) {
         if (arguments.length >= 1) {
@@ -142,18 +136,21 @@ function zimoli(page, args, history_name) {
         }
         return condition;
     };
+    state.state = state;
     if (page_generators[page]) return go(page, args, history_name);
     var _with_elements = [];
     state.with = function (element) {
         element && _with_elements.push(element);
         return _with_elements;
     };
-    state.go = function (url, args, history_name) {
+    state.path = function (url) {
         if (isString(url) && /^[^\\\/]/.test(url)) {
             url = page.replace(/[^\/]*$/, url);
-            return go(url, args, history_name);
         }
-        return go(url, args, history_name);
+        return url;
+    }
+    state.go = function (url, args, history_name) {
+        return go(state.path(url), args, history_name);
     };
 
     var _remove_listeners = [];
@@ -167,13 +164,16 @@ function zimoli(page, args, history_name) {
         else onappend(handler, _handler);
     };
     var _pageback_listener = [];
-    var onback = state.onback = state.onrelease = state.ondestroy = function (handler) {
+    state.onback = state.onrelease = state.ondestroy = function (handler) {
         //只能在page上使用
         _pageback_listener = handler;
     };
-
+    state.titlebar = function () {
+        var realTitleBar = titlebar.apply(null, arguments);
+        state.with(realTitleBar);
+        return realTitleBar;
+    };
     return init(page, function (pg) {
-        console.log(page);
         if (!pg) return;
         pg.with = _with_elements;
         pg.onremove = _remove_listeners;
@@ -182,34 +182,8 @@ function zimoli(page, args, history_name) {
         pg.onback = _pageback_listener;
         page_generators[page] = pg;
         return go(page, args, history_name);
-    }, {
-            state: state,
-            titlebar: function () {
-                return getTitleBar(state, arguments);
-            },
-            go: state.go,
-            onremove: function () {
-                return getRemoveFn(state, arguments);
-            },
-            onappend: function () {
-                return getAppendFn(state, arguments);
-            },
-            onback: onback,
-            ondestroy: onback,
-            onrelease: onback
-        });
+    }, state);
 }
-var getRemoveFn = function (state, args) {
-    return state.onremove.apply(null, args);
-};
-var getAppendFn = function (state, args) {
-    return state.onappend.apply(null, args);
-};
-var getTitleBar = function (state, args) {
-    var realTitleBar = titlebar.apply(null, args);
-    state.with(realTitleBar);
-    return realTitleBar;
-};
 var alertslist = zimoli.alertslist = [];
 var global = {};
 var history = {};
@@ -299,4 +273,5 @@ var _switch = zimoli.switch = function (history_name) {
         current_history = history_name;
 };
 zimoli.global = addGlobal;
+zimoli.go = go;
 window.modules = modules;
