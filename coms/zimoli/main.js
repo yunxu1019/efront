@@ -1,5 +1,6 @@
 "use strict";
 var window = this;
+delete window.alert;
 var parseInt = window.parseInt;
 var XMLHttpRequest = window.XMLHttpRequest;
 var ActiveXObject = window.ActiveXObject;
