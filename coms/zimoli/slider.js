@@ -140,10 +140,17 @@ function slider(autoplay, circle = true) {
         }
     };
     var play = function () {
-        play.ing = true;
+        if (!play.ing) {
+            play.ing = true;
+        }
+        switchBy(1);
+    };
+    var switchBy = function (count) {
         clearTimeout(timer_playyer);
-        timer_playyer = setTimeout(play, 5000);
-        negative_index--;
+        if (play.ing) {
+            timer_playyer = setTimeout(play, 5000);
+        }
+        negative_index -= count;
         animate();
     };
     var stop = function () {
@@ -293,6 +300,12 @@ function slider(autoplay, circle = true) {
     outter.play = function (delay = 5000) {
         setTimeout(play, delay);
         return outter;
+    };
+    outter.next = function (count = 1) {
+        switchBy(count);
+    };
+    outter.prev = function (count = 1) {
+        switchBy(-count);
     };
     return outter;
 }
