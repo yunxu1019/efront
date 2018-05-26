@@ -20,6 +20,20 @@ var prototype = {
     appendTo(target) {
         appendChild(target, this);
         return this;
+    },
+    remove() {
+        remove(this);
+        return this;
+    },
+    empty() {
+        remove(this.childNodes);
+        return this;
+    },
+    click(action) {
+        if (isFunction(action)) {
+            onclick(this, action);
+        }
+        return this;
     }
 }
 
