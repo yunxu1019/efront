@@ -132,30 +132,35 @@ function slider(autoplay, circle = true) {
         } else {
             negative_index = round(negative_index);
         }
-        if (play.ing) {
+        if (player.ing) {
             negative_index++;
-            play();
+            player();
         } else {
             animate();
         }
     };
     var play = function () {
-        if (!play.ing) {
-            play.ing = true;
+        if (!player.ing) {
+            player.ing = true;
         }
+        clearTimeout(timer_playyer);
+        timer_playyer = setTimeout(player, player.schedule);
+    };
+    var player = function () {
         switchBy(1);
     };
+    player.schedule = 5000;
     var switchBy = function (count) {
         clearTimeout(timer_playyer);
-        if (play.ing) {
-            timer_playyer = setTimeout(play, 5000);
+        if (player.ing) {
+            timer_playyer = setTimeout(player, player.schedule);
         }
         negative_index -= count;
         animate();
     };
     var stop = function () {
         clearTimeout(timer_playyer);
-        play.ing = false;
+        player.ing = false;
     };
     var moveDeltaX = function (deltax, event) {
         var width = outter.offsetWidth;
@@ -280,6 +285,8 @@ function slider(autoplay, circle = true) {
         };
     }
     outter.go = function (index) {
+        var play_ing = player.ing;
+        if (play_ing) stop();
         if (outter.index === index) return;
         negative_index = -index;
         var _removingMain = _imageMain;
@@ -295,17 +302,23 @@ function slider(autoplay, circle = true) {
         }, 100);
         css(_imageMain, "z-index:0;transform:scale(.92);opacity:0;transition:none");
         setTimeout(() => css(_imageMain, "transform:scale(1);opacity:1;transition:.2s transform ease-out,.4s opacity"), 0);
+        if (play_ing) play();
         return outter;
     };
-    outter.play = function (delay = 5000) {
-        setTimeout(play, delay);
+    outter.play = function (schedule = player.schedule, delay = schedule) {
+        if (schedule !== player.schedule) {
+            player.schedule = schedule;
+        }
+        play();
         return outter;
     };
     outter.next = function (count = 1) {
         switchBy(count);
+        return outter;
     };
     outter.prev = function (count = 1) {
         switchBy(-count);
+        return outter;
     };
     return outter;
 }
