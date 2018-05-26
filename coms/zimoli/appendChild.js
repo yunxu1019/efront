@@ -5,6 +5,7 @@ function release(node) {
 }
 
 function _onappend(node, event) {
+    if (node.isMounted) return;
     node.isMounted = true;
     if (!event) {
         event = createEvent("append");
