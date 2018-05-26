@@ -17,7 +17,7 @@ function addClass(target, classNames) {
     }
     var newarr = [];
     for (var k in cls) {
-        if (cls[k]) {
+        if (k && cls[k]) {
             newarr.push(k);
         }
     }
