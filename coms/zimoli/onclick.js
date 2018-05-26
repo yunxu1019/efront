@@ -1,10 +1,10 @@
 var _onclick = on("click");
 var preventClick = false, saved_x, saved_y, lasttime_click;
-onmousedown(window, function (event) {
+onmousedown(document, function (event) {
     saved_x = event.clientX, saved_y = event.clientY;
     onclick.preventClick = preventClick = false;
 });
-onmousemove(window, function (event) {
+onmousemove(document, function (event) {
     var abs = Math.abs;
     if (abs(event.clientX - saved_x) > 2 || abs(event.clientY - saved_y) > 2)
         onclick.preventClick = preventClick = true;
