@@ -3,7 +3,7 @@ var execute = function (commName, then) {
     component && remove(component);
     if (!commName) return;
     console.info(`load ${commName}!`);
-    delete window[commName];
+    window[commName] = null;
     delete modules[commName];
     init(commName, function (comm) {
         window[commName] = function () {
