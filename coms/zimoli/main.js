@@ -1,6 +1,5 @@
 "use strict";
 var window = this;
-delete window.alert;
 var parseInt = window.parseInt;
 var XMLHttpRequest = window.XMLHttpRequest;
 var ActiveXObject = window.ActiveXObject;
@@ -306,6 +305,8 @@ if (![].map) {
 }
 var onload = function () {
     window.onload = null;
+    window.alert = null;
+    window.confirm = null;
     hook(--requires_count);
 };
 modules.put = function (name, module) {
