@@ -110,11 +110,11 @@ function slider(autoplay, circle = true) {
         outter.hasRight = _imageHelp;
     };
     var animate = function () {
-        clearTimeout(timer_animate);
+        cancelAnimationFrame(timer_animate);
         var width = outter.offsetWidth;
         if (abs(current_index + negative_index) < 1.25 / width)
             return reshape(-negative_index, false);
-        timer_animate = setTimeout(animate, 20);
+        timer_animate = requestAnimationFrame(animate);
         reshape((current_index * 3 - negative_index) / 4);
     };
     var park = function () {
@@ -233,7 +233,7 @@ function slider(autoplay, circle = true) {
     });
     var mousemove_remove, mouseup_remove;
     onmousedown(outter, function (event) {
-        clearTimeout(timer_animate);
+        cancelAnimationFrame(timer_animate);
         clearTimeout(timer_playyer);
         if (has_moving_instance) {
             return;
@@ -256,7 +256,7 @@ function slider(autoplay, circle = true) {
             target.removeEventListener(eventname, handle);
         };
         addEventListener(outter, "touchstart", function (e) {
-            clearTimeout(timer_animate);
+            cancelAnimationFrame(timer_animate);
             clearTimeout(timer_playyer);
             if (has_moving_instance) {
                 return;
@@ -285,8 +285,6 @@ function slider(autoplay, circle = true) {
         };
     }
     outter.go = function (index) {
-        var play_ing = player.ing;
-        if (play_ing) stop();
         if (outter.index === index) return;
         negative_index = -index;
         var _removingMain = _imageMain;
@@ -302,7 +300,7 @@ function slider(autoplay, circle = true) {
         }, 100);
         css(_imageMain, "z-index:0;transform:scale(.92);opacity:0;transition:none");
         setTimeout(() => css(_imageMain, "transform:scale(1);opacity:1;transition:.2s transform ease-out,.4s opacity"), 0);
-        if (play_ing) play();
+        if (player.ing) play();
         return outter;
     };
     outter.play = function (schedule = player.schedule, delay = schedule) {
@@ -320,5 +318,16 @@ function slider(autoplay, circle = true) {
         switchBy(-count);
         return outter;
     };
+    var cancel_resize;
+    onappend(outter, function () {
+        cancel_resize && cancel_resize();
+        cancel_resize = onresize(window, function () {
+            if (player.ing) switchBy(0);
+        });
+    });
+    onremove(outter, function () {
+        cancel_resize && cancel_resize();
+        cancel_resize = null;
+    });
     return outter;
 }
