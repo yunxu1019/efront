@@ -6,20 +6,23 @@ input {
     font-size: 24px;
     margin: 0;
 }
-
 & {
+    height: 1000px;
     >div {}
     >div.left-bar {
         top: 50px;
         bottom: 0;
+        height: auto;
         left: 0;
         position: absolute;
         display: block;
         width: 200px;
+        background: red;
         >div{
             width: auto;
             box-shadow: none;
             border-radius: 0;
+            margin: 0;
             >label {
                 position: unset;
             }
@@ -53,7 +56,8 @@ input {
         background-color: #2cc;
         left: 200px;
         position: absolute;
-        width: calc(~'100% - 200px');
+        right: 0;
+        bottom: 0;
     }
     padding-top: 50px;
 }
