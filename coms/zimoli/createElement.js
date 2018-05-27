@@ -6,7 +6,7 @@
 var slice = [].slice;
 var prototype = {
     addClass(clazz) {
-        addclass(this, clazz);
+        addClass(this, clazz);
         return this;
     },
     removeClass(clazz) {
