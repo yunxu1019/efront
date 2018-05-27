@@ -57,14 +57,15 @@ function button(texter, type) {
         var canceltouchend = ontouchend(window, cancel);
         active();
     });
-    button.text = function (_text) {
+    button.setText = function (_text) {
         if (_text && _text.length === 2) {
             addClass(button, "space");
         } else {
             removeClass(button, "space");
         }
-        if (arguments.length)
-            return text(_texter, _text);
+        return text(_texter, _text);
+    };
+    button.getText = function () {
         return text(_texter);
     };
     if (texter && texter.length === 2) {
