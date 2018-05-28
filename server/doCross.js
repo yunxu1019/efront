@@ -33,10 +33,6 @@ function cross(req, res) {
             res.writeHead(response.statusCode, headers);
             response.pipe(res);
         });
-        request.on("error", function (error) {
-            res.writeHead(403, {});
-            res.end(String(error));
-        });
         request.setTimeout(1);
         var ContentLength = req.headers["Content-Length"];
         if (ContentLength) {
