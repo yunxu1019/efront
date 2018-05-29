@@ -1,8 +1,16 @@
 var cookiesMap = {};
 var domainReg = /^https?\:\/\/(.*?)(\/.*?)?(?:[\?#].*)?$/i;
 var base = domainReg.test(location.href) ? "/?" : "http://efront.cc/?";
+var HeadersKeys = ["Content-Type"];
 function getDomainPath(url) {
     return url.replace(domainReg, "$1$2");
+}
+
+function getRequestProtocol(url) {
+    if (/^https:/i.test(url)) {
+        return "https";
+    }
+    return "http";
 }
 function getCookies(domainPath) {
     var cookieObject = {};
@@ -34,16 +42,21 @@ function cross(method, url, headers) {
     var originDomain = getDomainPath(url);
     if (!originDomain) throw new Error("Unsupposed url format!");
     var _cookies = getCookies(originDomain);
+    var _headers = {};
     if (_cookies) {
-        if (!headers) headers = {};
-        headers.Cookie = _cookies;
+        _headers.Cookie = _cookies;
     }
+    extend(_headers, headers);
     var xhr = new XHR;
     xhr.open(method, base + encodeURIComponent(JSON.stringify({
         url,
         token: "0",
-        headers
+        headers: _headers
     })));
+    HeadersKeys.map(function (k) {
+        xhr.setRequestHeader(k, _headers[k]);
+        delete _headers[k];
+    });
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -86,21 +99,46 @@ function cross(method, url, headers) {
                         });
                 }
             }
-            var status = xhr.status;
-            if (status === 0 || status === 200 || status === 304) {
-                onload instanceof Function && onload(xhr);
-            } else {
-                onerror instanceof Function && onerror(xhr);
+            switch (xhr.status) {
+                case 0:
+                case 200:
+                case 304:
+                    onload instanceof Function && onload(xhr);
+                    break;
+                case 302:
+                case 301:
+                    if (xhr.isRedirected > 2) break;
+                    var location = xhr.getResponseHeader("cross-location");
+                    if (!domainReg.test(location)) {
+                        if (/^\//.test(location)) {
+                            location = originDomain.replace(/\/.*$/, location);
+                        } else {
+                            location = originDomain.replace(/[^\/+]$/, location);
+                        }
+                        location = getRequestProtocol(url) + "://" + location;
+                    }
+                    var crs = cross("get", location, headers);
+                    crs.isRedirected = (xhr.isRedirected || 0) + 1;
+                    onload && crs.done(onload);
+                    onerror && crs.error(onerror);
+                    break;
+                default:
+                    onerror instanceof Function && onerror(xhr);
             }
         }
     };
     setTimeout(function () {
-        if (xhr.readyState === 1) xhr.send();
+        if (!xhr.isSended) xhr.send();
     }, 0);
     var onload, onerror;
     xhr.done = function (on) {
         onload = on;
         return xhr;
+    };
+    var send = xhr.send;
+    xhr.send = function () {
+        this.isSended = true;
+        send.apply(this, arguments);
     };
     xhr.error = function (on) {
         onerror = on;
