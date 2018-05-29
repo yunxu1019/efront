@@ -1,4 +1,5 @@
 var URL = require("url");
+var headersKeys = "Content-Type,User-Agent,Accept-Language,Accept-Encoding".split(",");
 function cross(req, res) {
     var parsed = URL.parse(req.url);
     var search = parsed.search;
@@ -11,6 +12,12 @@ function cross(req, res) {
             // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
             $method = $cross['method'] || req.method,//$_SERVER['REQUEST_METHOD'];
             $headers = $cross['headers'];
+        var _headers = req.headers;
+        headersKeys.forEach(function (key) {
+            if (!$headers[key] && _headers[key]) {
+                $headers[key] = _headers[key];
+            }
+        });
         var http;
         if (/^https\:/i.test($url)) {
             http = require("https");
