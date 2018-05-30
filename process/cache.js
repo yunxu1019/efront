@@ -85,8 +85,9 @@ var loader = function (curl, temp, key, rebuild) {
     var root = String(this);
     var durl = path.resolve(root, curl);
     var durls = [durl];
-    var load = function () {
-        console.info(root, curl, "change");
+    var load = function (loadType) {
+        var is_reload = loadType === "change";
+        console.info(root, curl, is_reload ? "change" : "load");
         if (isdir.call(root, curl)) {
             if (temp[key]) {
                 unwatch(path.join(root, curl), temp[key]);
@@ -106,7 +107,6 @@ var loader = function (curl, temp, key, rebuild) {
     };
     load();
     durls.forEach(curl => watch(curl, load));
-    var is_reload = true;
     return load;
 };
 
@@ -114,8 +114,9 @@ var asyncLoader = function (curl, temp, key, rebuild) {
     var root = String(this);
     var durl = path.resolve(root, curl);
     var durls = [durl];
-    var load = function () {
-        console.info(root, curl, "change");
+    var load = function (loadType) {
+        var is_reload = loadType === "change";
+        console.info(root, curl, is_reload ? "change" : "load");
         temp[key] = isdirAsync.call(root, curl).then(function (isdir) {
             if (isdir) {
                 if (temp[key]) {
@@ -150,7 +151,6 @@ var asyncLoader = function (curl, temp, key, rebuild) {
     };
     load();
     durls.forEach(curl => watch(curl, load));
-    var is_reload = true;
     return load;
 };
 /**
