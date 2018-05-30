@@ -393,15 +393,23 @@ var writeComponent = function () {
             if (ok) {
                 var this_module_params = {};
                 var setMatchedConstString = function (match, type, k) {
-                    if (/user?\s+strict/.test(k) || k.length < 3) return match;
-                    k = k.replace(/^(['"])(.*?)\1$/g, function (match, qoute, string) {
-                        if (/['"]/.test(string)) return match;
-                        return "\"" + string + "\"";
-                    });
+
+                    if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
+                    if (k.length < 3) return match;
+                    switch (type) {
+                        case "'":
+                            k = k.replace(/(')(.*?)\1/, function (match, quote, string) {
+                                return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
+                            });
+                            break;
+                        case ".":
+                            k = "\"" + k + "\"";
+                            break;
+                    }
                     var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
                     var $key = $$_efront_map_string_key + key;
                     if (!resultMap[$key]) {
-                        dest.push(type === "." ? "\"" + k + "\"" : k);
+                        dest.push(k);
                         resultMap[$key] = dest.length;
                     }
                     if (!this_module_params[$key]) {
@@ -432,8 +440,11 @@ var writeComponent = function () {
                 var code_blocks = scanner(module_string);
                 module_string = code_blocks.map(function (block) {
                     var block_string = module_string.slice(block.start, block.end);
-                    if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
-                        return setMatchedConstString(block_string, "", block_string);
+                    if (block.type === block.single_quote_scanner) {
+                        return setMatchedConstString(block_string, "'", block_string);
+                    }
+                    if (block.type === block.double_quote_scanner) {
+                        return setMatchedConstString(block_string, "\"", block_string);
                     }
                     if (block.type === block.regexp_quote_scanner) {
                         return setMatchedConstRegExp(block_string, "", block_string);
