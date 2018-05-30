@@ -474,7 +474,7 @@ var writeComponent = function () {
         last_result_length = result.length;
     }
 
-    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(this)).call([${dest}],function(a,c){return this[c+1]=a instanceof Array?a[a.length-1].apply(this[0],a.slice(0,a.length-1).map(function(a){return this[a]},this)):a},[this])[${dest.length - 1}]`;
+    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(window)).call([${dest}],function(a,c){return this[c+1]=a instanceof Array?a[a.length-1].apply(this[0],a.slice(0,a.length-1).map(function(a){return this[a]},this)):a},[window])[${dest.length - 1}]`;
     var tester_path = resolve_component_file_path(PUBLIC_APP.replace(/\.[tj]sx?$/, "_test.js"));
     if (tester_path) {
         try {
