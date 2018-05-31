@@ -41,6 +41,10 @@ function cross(req, res) {
             response.pipe(res);
         });
         request.setTimeout(1);
+        request.on("error",function(e){
+            res.writeHead(403,{});
+            res.end(String(e));
+        });
         var ContentLength = req.headers["Content-Length"];
         if (ContentLength) {
             request.setHeader("Content-Length", $data.length)
