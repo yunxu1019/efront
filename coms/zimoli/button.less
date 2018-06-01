@@ -26,18 +26,21 @@
     cursor: pointer;
 }
 
-&>label{
+&>label {
     position: absolute;
-    left:0;right:0;
-    width:100%;
-    height:1em;
-    line-height:1em;
-    top:50%;
-    bottom:50%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 1em;
+    line-height: 1em;
+    top: 50%;
+    bottom: 50%;
     margin: -.5em 0;
-    overflow:hidden;
-    text-align:center;
+    overflow: hidden;
+    text-align: center;
+    box-sizing: border-box;
 }
+
 &>.track {
     border-radius: inherit;
     transition: opacity .1s ease-in, background-color .1s ease-in, box-shadow .1s;
