@@ -19,10 +19,11 @@ function watch(file, then) {
     var watchers = String(files).trim().split(/[\r\n]+/).map(function (f) {
         var file = folder + f;
         return fs.watch(file, function (a) {
+            var args = arguments;
             clearTimeout(timmer);
             timmer = setTimeout(function () {
                 try {
-                    then.apply(null, arguments);
+                    then.apply(null, args);
                 } catch (e) {
                     console.error("执行失败！", e.message);
                 }
