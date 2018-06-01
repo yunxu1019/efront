@@ -2,23 +2,10 @@
  * 弹出层
  */
 onkeydown(document, function (e) {
-    if (e.which === 27 && popups.length) {
-        console.log(e, popups.join())
-        history.back();
+    if (e.which === 27 && rootElements.length) {
+        remove(rootElements[rootElements.length - 1]);
     }
 });
-var popups = [];
-var addMask = function (event) {
-    escMask.call(this);
-    popups.push(this);
-};
-var escMask = function () {
-    for (var cx = popups.length - 1; cx >= 0; cx--) {
-        if (popups[cx] === this) {
-            popups.splice(cx, 1);
-        }
-    }
-};
 var windowFactory = function () {
     var window = createElement(div);
     css(window, `height:100px;width:100px;position:absolute;background-color:#fff;left:${popups.length << 4}px;top:${popups.length << 4}px;`);
@@ -48,27 +35,28 @@ var popup = function (path) {
 };
 var popup_path = function (path = "", parameters, target) {
     // 3 has mask has view control
+    if (!popup.go) throw new Error("当前环境无法使用");
     if (/^#/.test(path)) {
         // mask
         var element = windowFactory();
-        zimoli.go(path.replace(/^#/, ""), parameters, element);
+        popup.go(path.replace(/^#/, ""), parameters, element);
         return popup_with_mask(element, target);
     }
     // 2 has view control has no mask
     if (/^@/.test(path)) {
         var element = windowFactory();
-        zimoli.go(path.replace(/^@/, ""), parameters, element);
+        popup.go(path.replace(/^@/, ""), parameters, element);
         return popup_as_single(element);
     }
     // 1 has mask has no control
     if (/^!/.test(path)) {
         var element = loadingFactory();
-        zimoli.go(path.replace(/^!/, ""), parameters, element);
+        popup.go(path.replace(/^!/, ""), parameters, element);
         return popup_with_mask(element);
     }
     // 0 has no mask no control
     var element = loadingFactory();
-    zimoli.go(path, parameters, element);
+    popup.go(path, parameters, element);
     return popup_as_single(element);
 };
 
@@ -85,8 +73,6 @@ var createMask = function () {
     var mask = createElement(div);
     css(mask, `position:absolute;position:fixed;z-index:${zIndex()};left:0;right:0;bottom:0;top:0;width:auto;height:auto;background-color:rgba(0,0,0,0.2)`);
     mask.className = "popup-factory mask";
-    onappend(mask, addMask);
-    onremove(mask, escMask);
     mask.isMask = true;
     return mask;
 };
@@ -105,7 +91,7 @@ var popup_with_mask = function (element, mask = createMask()) {
     onremove(element, mask.clean);
     css(element, `z-index:${zIndex()};`);
     if (mask.isMounted) {
-        zimoli.global(element, true);
+        global(element);
     }
     return element;
 };
@@ -122,12 +108,10 @@ var popup_as_extra = function (element, target) {
         extend(element.style, element.origin);
     }
     css(element, `position:absolute;left:${position.left}px;min-width:${position.width}px;`);
-    onappend(element, addMask);
-    onremove(element, escMask);
     onremove(target, function () {
         remove(element);
     });
-    zimoli.global(element, true);
+    global(element);
     var height = element.offsetHeight;
     //如果高度超出可视区，调整高度
     if (height > maxHeight) {
@@ -158,9 +142,12 @@ var popup_as_extra = function (element, target) {
     }
 };
 var popup_as_single = function (element) {
-    onappend(element, addMask);
-    onremove(element, escMask);
     css(element, `z-index:${zIndex()};`);
-    zimoli.global(element, true);
+    global(element);
 };
-window["popup"] = popup;
+var global = function (element) {
+    onremove(element, cleanup);
+    appendChild(document.body, element);
+    rootElements.push(element);
+}
+var cleanup = new Cleanup(rootElements);

@@ -184,7 +184,6 @@ function zimoli(page, args, history_name) {
         return go(page, args, history_name);
     }, state);
 }
-var alertslist = zimoli.alertslist = [];
 var global = {};
 var history = {};
 var current_history = "default";
@@ -221,9 +220,9 @@ var fixurl = function () {
     }, 0);
 }
 var onback = function () {
-    if (alertslist.length) {
+    if (rootElements.length) {
         fixurl();
-        remove(alertslist.pop());
+        remove(rootElements.pop());
         return;
     }
     var current_page = global[current_history];
@@ -261,17 +260,18 @@ function addGlobal(element, name) {
     } else if (isFunction(name)) {
         name(element);
     } else {
-        onremove(element, cleanup);
-        appendChild(body, element);
-        alertslist.push(element);
+        popup(element);
         fixurl();
     }
 }
-var cleanup = new Cleanup(alertslist);
 var _switch = zimoli.switch = function (history_name) {
     if (history_name)
         current_history = history_name;
 };
 zimoli.global = addGlobal;
-zimoli.go = go;
+popup.go = zimoli.go = go;
+rootElements.push = function () {
+    [].push.apply(this, arguments);
+    fixurl();
+};
 window.modules = modules;
