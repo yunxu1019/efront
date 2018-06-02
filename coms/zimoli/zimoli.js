@@ -52,6 +52,7 @@ css(body, {
     margin: "0",
     padding: "0",
     overflow: "hidden",
+    fontFamily: `"SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif`,
     backgroundColor: "#f2f4f9"
 });
 var location_pathname = location.pathname;
