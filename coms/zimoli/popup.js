@@ -67,6 +67,9 @@ var popup_view = function (element, target) {
         }
         return popup_as_extra(element, target);
     }
+    if (target) {
+        return popup_with_mask(element);
+    }
     return popup_as_single(element);
 };
 var createMask = function () {
