@@ -25,6 +25,10 @@ function cloneVisible(node, parentPosition) {
     if (parentPosition && cloneStyle.position === "absolute") {
         cloneStyle.left = (screenPosition.left - parentPosition.left) + "px";
         cloneStyle.top = (screenPosition.top - parentPosition.top) + "px";
+    } else {
+        cloneStyle.margin = style.margin;
+        cloneStyle.left = style.left;
+        cloneStyle.top = style.top;
     }
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var child = children[cx];
