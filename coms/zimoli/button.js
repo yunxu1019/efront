@@ -73,6 +73,12 @@ function button(texter, type) {
     } else {
         removeClass(button, "space");
     }
-    if (type) button.setAttribute("type", type);
+    if (type) {
+        if (parseFloat(type)) {
+            var size = isFinite(type) ? type + "px" : type;
+            css(button, `height:${size};`);
+        }
+        else if (isString(type)) button.setAttribute("type", type);
+    }
     return button;
 };
