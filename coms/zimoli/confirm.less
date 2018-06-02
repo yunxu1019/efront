@@ -1,0 +1,31 @@
+& {
+    position: absolute;
+    margin: 0 auto;
+    top: 50%;
+    background-color: #fff;
+}
+
+&>.head {
+    line-height: 50px;
+    position: relative;
+    padding-left: 16px;
+}
+
+&>.body {
+    padding: 16px;
+}
+
+&>.option {
+    text-align: center;
+    padding: 10px;
+    white-space: nowrap;
+    >div {
+        display: inline-block;
+        width: auto;
+        min-width: 80px;
+        position: relative;
+    }
+    >div+div {
+        margin-left: 10px;
+    }
+}
