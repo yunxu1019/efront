@@ -66,6 +66,10 @@ function confirm() {
         })
         return btn;
     });
+
+    onmousedown(elem, function (event) {
+        drag(this, event);
+    })
     appendChild(option, buttons);
     popup(elem);
     return elem;
