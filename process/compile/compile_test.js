@@ -94,7 +94,6 @@ function TestRegularExpression() {
         {
             type: { name: 'RegularExpression', value: 5 },
             start: 0,
-            parent: null,
             end: 4
         }
     ]);

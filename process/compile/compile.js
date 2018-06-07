@@ -7,10 +7,12 @@ var Scanner = function (dataString, syntax) {
     this.syntax = syntax.syntax;
     this.token = syntax.token;
     this.entry = syntax.entry;
-    this.blocks = [];
+    this.block = new this.token(syntax.entry, 0);
+    this.blocks = this.block.children = [];
+    this.source = dataString;
 }
 Scanner.prototype = {
-    scan(index = 0, type = this.entry, collection = this.blocks, parent = null) {
+    scan(index = 0, type = this.entry, collection = this.blocks, parent = this.block) {
         var regInfo = this.syntax[type];
         var dataString = this.source;
         var Block = this.token;
@@ -21,26 +23,35 @@ Scanner.prototype = {
         var reg = regInfo[0];
         loop: while (index < dataString.length) {
             reg.lastIndex = index;
-            var res = reg.exec(dataString);
+            var res = reg.exec(dataString, collection);
             if (res) {
-                index = res.index + res[0].length;
+                var savedIndex = reg.lastIndex - res[0].length;
+                index = reg.lastIndex;
                 var inc = 0;
                 while (res[++inc] === undefined) {
                     if (inc >= regInfo.length) break loop;
                 }
-                var children = [];
                 var matchType = regInfo[inc];
                 if (!matchType) continue;
-                var savedIndex = res.index;
+                var children = [];
                 var block = new Block(matchType, savedIndex);
                 block.parent = parent;
+                block.children = children;
                 index = this.scan(index, matchType, children, block);
-                block.end = index;
-                if (children.length) block.children = children;
                 if (collection && savedIndex < index) {
+                    if (collection.length) {
+                        var lastChild = collection[collection.length - 1];
+                        block.prev = lastChild;
+                        lastChild.next = block;
+                    }
                     collection.push(block);
                 }
-            } else {
+                block.end = index;
+                block.root = this.block;
+                block.scanner = this;
+            } else if(/y/.test(reg.flags)){
+                throw new Error(`unexcepted token ${dataString[index]}`);
+            }else{
                 index = dataString.length;
             }
         }
@@ -48,9 +59,8 @@ Scanner.prototype = {
     }
 }
 var scan = function (data, syntax) {
-    var blocks = [];
     var scanner = new Scanner(data, syntax);
-    scanner.scan(undefined, undefined, blocks);
-    return blocks;
+    scanner.scan();
+    return scanner.blocks;
 };
 module.exports = scan;
