@@ -6,7 +6,7 @@ var assert = function (result, expect, log = console.error) {
             errors = `Except (${args}) to be ${JSON.stringify(k)}`;
         }
         if (k === undefined) return function () {
-            errors = `Except ${JSON.stringify(result, null, 4)} to be ${JSON.stringify(expect, null, 4)}`;
+            errors = `Except ${result} to be ${expect}`;
         };
         return function (error) {
             if (error instanceof Object) {
