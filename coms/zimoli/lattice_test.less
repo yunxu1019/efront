@@ -1,0 +1,19 @@
+& {
+    height: 300px;
+}
+
+&>div {
+    height: 100px;
+    @mask-color: rgba(0,0,0,.4);
+    background: linear-gradient(45deg, @mask-color, 25%, @mask-color, 25%, rgba(0, 0, 0, 0), 75%, rgba(0, 0, 0, 0), 75%, @mask-color), linear-gradient(135deg, @mask-color, 25%, @mask-color, 25%, rgba(0, 0, 0, 0), 75%, rgba(0, 0, 0, 0), 75%, @mask-color);
+    background-size: 20px 20px;
+    background-repeat: repeat;
+    border:2px solid transparent;
+    background-clip: content-box;
+    >div{
+        height: 100%;
+        border: 1px solid transparent;
+        width: 100px;
+        float: left;
+    }
+}
