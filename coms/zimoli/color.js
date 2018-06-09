@@ -17,6 +17,15 @@ function rotate_rgb(RGBA, theta) {
 }
 var trim16 = a => max(min(a | 0, 15), 0);
 var trim256 = a => max(min(a | 0, 255), 0);
+var hex256 = function (num) {
+	num = trim256(num);
+	if (num < 16) return "0" + num.toString(16);
+	return num.toString(16);
+}
+var hex16 = function (num) {
+	num = trim16(num);
+	return num.toString(16);
+}
 function color() {
 }
 function doWith(manager, color, args) {
@@ -31,13 +40,13 @@ function doWith(manager, color, args) {
 		});
 	} else if (rgbHex.test(color)) {
 		return color.replace(rgbHex, function (match, r, g, b) {
-			var [R, G, B] = manager([r, g, b].map(a => parseInt(a, 16)), args).map(trim16);
-			return "#" + R.toString(16) + G.toString(16) + B.toString(16);
+			var [R, G, B] = manager([r, g, b].map(a => parseInt(a, 16)), args).map(hex16);
+			return "#" + R + G + B;
 		});
 	} else if (rgbHex2.test(color)) {
 		return color.replace(rgbHex2, function (match, r, g, b) {
-			var [R, G, B] = manager([r, g, b].map(a => parseInt(a, 16)), args).map(trim256);
-			return "#" + R.toString(16) + G.toString(16) + B.toString(16);
+			var [R, G, B] = manager([r, g, b].map(a => parseInt(a, 16)), args).map(hex256);
+			return "#" + R + G + B;
 		});
 	}
 }
