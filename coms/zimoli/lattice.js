@@ -21,6 +21,7 @@ function lattice(layers, minWidth) {
             });
             return a;
         });
+        if (!objs.length) return false;
         var _container = div();
         appendChild(_container, objs);
         return _container;
