@@ -5,7 +5,7 @@ var cache_height = 200;
  * 
  * @param {Boolean|Array|Function} generator 
  */
-function list(generator, source) {
+function list(generator) {
     var restHeight = 2000;
     var list = div();
     list.autoFix = true;
@@ -57,11 +57,11 @@ function list(generator, source) {
         var ratio = itemIndex - index;
         if (index < 0) index = 0;
         var childrenMap = getChildrenMap();
-        var offsetBottom = 0, offsetTop = 0, offset = +index || 0, last_item = getFirstElement() || null;
-        while (offsetBottom - offsetTop <= list.offsetHeight) {
+        var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null;
+        while (offsetBottom - ratioTop <= list.offsetHeight + cache_height) {
             var item = childrenMap[offset];
             if (!item) {
-                item = generator(offset, ratio);
+                item = generator(offset);
                 if (!item) break;
                 item.index = offset;
                 if (last_index > index) {
@@ -71,11 +71,12 @@ function list(generator, source) {
                 }
             }
             if (++offset - index > 3000) throw new Error("多于3000个元素需要绘制！");
-            if (!offsetTop) {
-                offsetTop = item.offsetTop || 1;
-            }
             offsetBottom = item.offsetTop + item.offsetHeight;
+            if (ratio && !ratioTop) {
+                ratioTop = +(ratio * getFirstElement().offsetHeight).toFixed(0);
+            }
         }
+        list.scrollTop = ratioTop;
         for (var k in childrenMap) {
             if (!(k <= offset && k >= index)) {
                 remove(childrenMap[k]);
@@ -103,7 +104,7 @@ function list(generator, source) {
                 offset++;
                 var item = childrenMap[offset];
                 if (!item) {
-                    item = generator(offset, ratio);
+                    item = generator(offset);
                     if (!item) {
                         restHeight = 0;
                         break;
@@ -118,7 +119,7 @@ function list(generator, source) {
             }
             //移除顶部不可见的元素
             var scrollTop = list.scrollTop + deltaY;
-            var collection = [], deltaTop = 0;
+            var collection = [];
             for (var k in childrenMap) {
                 var item = childrenMap[k];
                 if (item.offsetTop + item.offsetHeight + cache_height < scrollTop) {
@@ -148,7 +149,7 @@ function list(generator, source) {
                 }
                 var item = childrenMap[offset];
                 if (!item) {
-                    item = generator(offset, ratio);
+                    item = generator(offset);
                     if (!item) break;
                     item.index = offset;
                     childrenMap[offset] = item;
@@ -179,6 +180,12 @@ function list(generator, source) {
             }
         }
         return currentY();
+    };
+    list.index = function () {
+        var firstElement = getFirstElement();
+        var index = firstElement.index;
+        var scrolled = list.scrollTop / firstElement.offsetHeight;
+        return index + scrolled;
     };
     vbox(list);
     list.style.height = null;
