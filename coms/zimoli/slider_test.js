@@ -1,5 +1,5 @@
 function slider_test() {
-    var images = [1, 2, 3, 4, 5, 6, 7].map(function (a, i) {
+    var images = [1].map(function (i) {
         var ele = createElement(div);
         text(ele, i);
         return ele;
