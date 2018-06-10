@@ -22,6 +22,10 @@ function getTreeFromArray(array) {
             parentElement.parent.count += parentElement.count || parentElement.length || 1;
         }
     }
+    while (path.length > 1) {
+        var elem = path.pop();
+        path[path.length - 1].count += elem.count || elem.length || 1;
+    }
     return root;
 }
 function getArrayFromTree(root, skipClosed) {
