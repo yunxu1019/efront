@@ -2,13 +2,24 @@
 
 // 用编辑器的开发者工具加载些文件
 // 可以使用如下方式加载
-eval(fs.readFileSync("d:\\work\\efront\\tools\\electron.js").toString())("http://localhost/")
+eval(fs.readFileSync("d:\\work\\efront\\tools\\electron.js").toString())
+("http://localhost/","d:\\work\\efront\\tools\\reload.js");
 
 */
-function run(url) {
+function run(url,preload) {
     var electron = require("electron");
     var { BrowserWindow } = electron.BrowserWindow ? electron : electron.remote;
-    var window = new BrowserWindow({ width: 800, height: screen.height, show: false });
+    var window = new BrowserWindow({
+        width: 800, height: screen.height, show: false,
+        webPreferences: {
+            // 是否支持node
+            nodeIntegration: false,
+            //缩放级别
+            zoomFactor: 1.0,
+            nativeWindowOpen: true,
+            preload
+        }
+    });
     window.showInactive();
     window.on('closed', () => {
         window = null
