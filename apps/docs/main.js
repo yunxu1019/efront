@@ -2,7 +2,7 @@
 // var document=this.document;
 // document["body"].appendChild(this.document.createElement("input"));
 titlebar("组件加载工具", false, false);
-var leftArea = leftSideMenu();
+var leftArea = tree();
 addClass(leftArea, "left-bar");
 var mainArea = createWithClass(div, "main-area");
 var nameArea = createWithClass(div, "name-area");
@@ -22,7 +22,7 @@ onkeydown(commNameInput, function (event) {
     }
 });
 api("/getAllComponents").success(function (result) {
-    leftArea.src = result.result;
+    leftArea.src(result.result);
     leftArea.go(0);
 }).error(function (err) {
     alert(err);
