@@ -1,7 +1,7 @@
 /**
  * 创建自定义事件
  */
-var createEvent = "createEvent" in document ? function createEvent(eventName, canBubble = false, cancelable = false) {
+var createEvent = "createEvent" in document ? function createEvent(eventName, canBubble = false, cancelable = true) {
     var event = document.createEvent("Event");
     event.initEvent(eventName, canBubble, cancelable);
     return event;
