@@ -68,8 +68,10 @@ function tree() {
         css(_div, {
             "padding-left": com.tab * 10 * renderPixelRatio + 'pt'
         });
-        onclick(_div, function (event) {
-            event.targetValue = com;
+        onclick(_div, function () {
+            if (!active(banner, com, _div)) {
+                return;
+            };
             var index = banner.index();
             com.closed = !com.closed;
             dom = getArrayFromTree(root, true);
@@ -80,7 +82,7 @@ function tree() {
     });
 
     banner.src = function (src) {
-        if (src instanceof Array) {
+        if (isArray(src)) {
             root = getTreeFromArray(src);
             dom = getArrayFromTree(root);
         }
