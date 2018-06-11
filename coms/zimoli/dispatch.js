@@ -20,5 +20,8 @@ function main() {
             event = arg;
         }
     }
-    dispatch(target || window, event);
+    if (dispatch(target || window, event)) {
+        return event;
+    };
+    return false;
 }
