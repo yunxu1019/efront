@@ -35,6 +35,16 @@ function list(generator) {
         }
         return null;
     };
+    var getFirstVisibleElement = function () {
+        var children = list.children;
+        for (var cx = 0, dx = children.length; cx < dx; cx++) {
+            var child = children[cx]
+            if (isFinite(child.index) && child.offsetTop + child.offsetHeight >= list.scrollTop) {
+                return child;
+            }
+        }
+        return null;
+    };
     //元素表
     var getChildrenMap = function () {
         var children = list.children;
@@ -73,15 +83,15 @@ function list(generator) {
             if (++offset - index > 3000) throw new Error("多于3000个元素需要绘制！");
             offsetBottom = item.offsetTop + item.offsetHeight;
             if (ratio && !ratioTop) {
-                ratioTop = +(ratio * getFirstElement().offsetHeight).toFixed(0);
+                ratioTop = +(ratio * getFirstVisibleElement().offsetHeight).toFixed(0);
             }
         }
-        list.scrollTop = ratioTop;
         for (var k in childrenMap) {
             if (!(k <= offset && k >= index)) {
                 remove(childrenMap[k]);
             }
         }
+        list.scrollTop = ratioTop;
     };
     //计算当前高度
     var currentY = function () {
@@ -182,9 +192,9 @@ function list(generator) {
         return currentY();
     };
     list.index = function () {
-        var firstElement = getFirstElement();
+        var firstElement = getFirstVisibleElement();
         var index = firstElement.index;
-        var scrolled = list.scrollTop / firstElement.offsetHeight;
+        var scrolled = (list.scrollTop - firstElement.offsetTop) / firstElement.offsetHeight;
         return index + scrolled;
     };
     vbox(list);
