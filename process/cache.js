@@ -45,6 +45,7 @@ var getFileHead = function (pathname, buffer_size) {
         chunk = chunk.slice(0, length);
     }
     chunk.location = pathname;
+    fs.closeSync(h);
     return chunk;
 };
 var getfileAsync = function (pathname, buffer_size) {
@@ -70,7 +71,10 @@ var getFileHeadAsync = function (pathname, buffer_size) {
                     chunk = chunk.slice(0, length);
                 }
                 chunk.location = pathname;
-                ok(chunk);
+                fs.close(h, function (error) {
+                    if (error) return oh(error);
+                    ok(chunk);
+                })
             });
         });
     });
