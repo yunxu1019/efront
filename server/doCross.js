@@ -1,5 +1,5 @@
 var URL = require("url");
-var headersKeys = "Content-Type,User-Agent,Accept-Language,Accept-Encoding".split(",");
+var headersKeys = "Content-Type,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 function cross(req, res) {
     var parsed = URL.parse(req.url);
     var search = parsed.search;
@@ -41,8 +41,8 @@ function cross(req, res) {
             response.pipe(res);
         });
         request.setTimeout(1);
-        request.on("error",function(e){
-            res.writeHead(403,{});
+        request.on("error", function (e) {
+            res.writeHead(403, {});
             res.end(String(e));
         });
         var ContentLength = req.headers["Content-Length"];

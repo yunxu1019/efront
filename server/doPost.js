@@ -11,8 +11,7 @@ var getaapifunc = require("../process/cache")("./apis", aapibuilder);
 var getimagfile = require("../process/cache")("./imgs", imagbuilder);
 var setupenv = require("../process/setupenv");
 var message = require("../process/message");
-var referer_proxy = require("./proxy");
-var URL = require("url");
+var proxy = require("./proxy");
 var env = process.env;
 var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || "zimoli";
@@ -139,15 +138,7 @@ var doPost = module.exports = function (req, res) {
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
     }
-    if (req.headers.referer) {
-        var referer = req.headers.referer;
-        var pathname = URL.parse(referer).pathname;
-        if (referer_proxy[pathname]) {
-            console.info(`Proxy:${url} : ${referer_proxy[pathname]}${url}`);
-            url = referer_proxy[pathname] + url;
-        }
-    }
-
+    url = proxy(req);
     var match = url.match(
         ///// 1 //            2            //// 3 //     4      ////
         /^\/(.*?)(comm|page|ccon|aa?pi|imag)\/(.*?)(?:\.js|\.png)?$/

@@ -3,8 +3,7 @@ var getfile = require("../process/getfile").async;
 var path = require("path");
 var mimes = require("../process/mime");
 var message = require("../process/message");
-var referer_proxy = require("./proxy");
-var URL = require("url");
+var proxy = require("./proxy");
 /**
  * 返回数据
  * @param {Buffer} data 
@@ -29,10 +28,17 @@ var response = function (data, url, req, res) {
                 headers['Content-Type'] = mime;
             }
         }
+        var status = 200;
         if (data.stat) {
-            headers["Last-Modified"] = data.stat.mtime.toUTCString()
+            headers["Last-Modified"] = data.stat.mtime.toUTCString();
+            if (data.length < data.stat.size) {
+                headers["Accept-Ranges"] = "bytes";
+                headers["Content-Range"] = "bytes 0-" + (data.length - 1) + "/" + data.stat.size;
+                headers["Content-Length"] = data.length;
+                status = 206;
+            }
         }
-        res.writeHead(200, headers);
+        res.writeHead(status, headers);
         res.write(data);
     }
     return res.end();
@@ -47,6 +53,10 @@ var response = function (data, url, req, res) {
 var adapter = function (data, url, req, res) {
     if (data instanceof Buffer) {
         return response(data, url, req, res);
+    }
+    if (data instanceof Error) {
+        res.writeHead(404, {});
+        return res.end(String(data));
     }
     if (data instanceof Object) {
         if (!data["index.html"]) {
@@ -80,17 +90,8 @@ var adapter = function (data, url, req, res) {
  */
 module.exports = function (req, res) {
 
-    var url = req.url.replace(/[\?#][\s\S]*/g, "");
-    // console.info(req.headers.referer,'req');
-
-    if (req.headers.referer) {
-        var referer = req.headers.referer;
-        var pathname = URL.parse(referer).pathname;
-        if (referer_proxy[pathname]) {
-            console.info(`Proxy:${url} : ${referer_proxy[pathname]}${url}`);
-            url = referer_proxy[pathname] + url;
-        }
-    }
+    var url = proxy(req);
+    url = url.replace(/[\?#][\s\S]*/g, "");
     var data = getfile(url);
     if (!data || data === "/") {
         data = getfile(path.join(process.env.APP, url));
