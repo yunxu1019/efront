@@ -1,3 +1,13 @@
+function Item(value) {
+    this.value = value;
+    if (value instanceof Object) {
+        this.name = value.name;
+        this.tab = value.tab;
+    }
+    this.count = 0;
+}
+Item.prototype = [];
+
 function getTreeFromArray(array) {
     var root = [];
     root.tab = -Infinity;
@@ -5,26 +15,22 @@ function getTreeFromArray(array) {
     var path = [root];
     for (var cx = 0, dx = array.length; cx < dx; cx++) {
         var arg = array[cx];
-        var elem = [];
-        elem.root = root;
-        elem.name = arg.name;
-        elem.value = arg;
-        elem.tab = arg.tab;
-        elem.count = 0;
+        var item = new Item(arg);
+        item.root = root;
         for (var cy = path.length - 1; cy >= 0; cy--) {
             var parentElement = path[cy];
             if (parentElement.tab < arg.tab) {
-                elem.parent = parentElement;
-                parentElement.push(elem);
-                path.splice(cy + 1, path.length - cy - 1, elem);
+                item.parent = parentElement;
+                parentElement.push(item);
+                path.splice(cy + 1, path.length - cy - 1, item);
                 break;
             }
             parentElement.parent.count += parentElement.count || parentElement.length || 1;
         }
     }
     while (path.length > 1) {
-        var elem = path.pop();
-        path[path.length - 1].count += elem.count || elem.length || 1;
+        var item = path.pop();
+        path[path.length - 1].count += item.count || item.length || 1;
     }
     return root;
 }
@@ -34,26 +40,40 @@ function getArrayFromTree(root, skipClosed) {
     loop: while (pathcx.length) {
         var pathindex = pathcx.length - 1;
         var cx = pathcx[pathindex];
-        var elem = path[pathindex][cx];
+        var item = path[pathindex];
+        if (cx >= item.length) {
+            path.pop();
+            pathcx.pop();
+            continue loop;
+        }
+        var elem = item[cx];
         result.push(elem);
         pathcx[pathindex] = ++cx;
         if (!skipClosed || !elem.closed) {
-            for (var cy = 0, dy = elem.length; cy < dy; cy++) {
-                var temp = elem[cy];
-                result.push(temp);
-                if (temp.length) {
-                    path.push(temp);
-                    pathcx.push(cy);
-                    continue loop;
-                }
+            if (elem.length) {
+                path.push(elem);
+                pathcx.push(0);
             }
-        }
-        if (cx >= path[pathindex].length) {
-            path.pop();
-            pathcx.pop();
         }
     }
     return result;
+}
+function appendTo(parent, datas) {
+    var tab = parent && parent.tab + 1 || 1;
+    var length = parent.length;
+    datas.map(function (data) {
+        if (data instanceof Object) {
+            data.tab = tab;
+            var item = new Item(data);
+            parent.push(item);
+        }
+    });
+
+    var delta = parent.length - length;
+    while (parent) {
+        parent.count += delta;
+        parent = parent.parent;
+    }
 }
 function tree() {
     var dom = [], root = null;
@@ -68,15 +88,13 @@ function tree() {
         css(_div, {
             "padding-left": com.tab * 10 * renderPixelRatio + 'pt'
         });
+        com.target = _div;
         onclick(_div, function () {
-            if (!active(banner, com, _div)) {
+            if (!active(banner, com.value, com)) {
                 return;
             };
-            var index = banner.index();
             com.closed = !com.closed;
-            dom = getArrayFromTree(root, true);
-            remove(banner.children);
-            banner.go(index);
+            refresh();
         })
         return _div;
     });
@@ -87,6 +105,17 @@ function tree() {
             dom = getArrayFromTree(root);
         }
     };
+    banner.add = function (data, parent = root) {
+        appendTo(parent, data);
+        dom = getArrayFromTree(root);
+    };
+    var refresh = function () {
+        var index = banner.index();
+        dom = getArrayFromTree(root, true);
+        remove(banner.children);
+        banner.go(index);
+    };
+    banner.refresh = refresh;
 
     return banner;
 }
