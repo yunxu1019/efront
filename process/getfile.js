@@ -1,6 +1,7 @@
 "use strict";
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
+var FILE_BUFFER_SIZE = 512 * 1024;
 
 var config = {
     // Strip HTML comments
@@ -101,8 +102,8 @@ if (process.env.IN_TEST_MODE) module.exports = require("./cache")("./apps", func
         buff = Buffer.from(String(buff).replace(/<script.*?>([\s\S]*?)<\/script>/i, `<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}()\r\n$1</script>`));
     }
     return buff;
-});
-else if (require("path").relative(process.env.PUBLIC_PATH, "./public") === "") module.exports = require("./cache")("./public");
+}, FILE_BUFFER_SIZE);
+else if (require("path").relative(process.env.PUBLIC_PATH, "./public") === "") module.exports = require("./cache")("./public", null, FILE_BUFFER_SIZE);
 else module.exports = require("./cache")(process.env.PUBLIC_PATH || "./public", function (buff, name) {
     try {
         if (/\.html$/i.test(name)) {

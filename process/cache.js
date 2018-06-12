@@ -5,19 +5,18 @@ var path = require("path");
 var versionTree = {};
 /**
  * 取文件夹
- * @param {string} dir 
+ * @param {string} pathname 
  */
-var getdir = function (dir) {
+var getdir = function (pathname) {
     var directory = {};
-    fs.readdirSync(path.join(String(this), dir)).forEach(function (name) {
+    fs.readdirSync(pathname).forEach(function (name) {
         directory[name] = false;
     });
     return directory;
 };
-var getdirAsync = function (dir) {
-    var that = this;
+var getdirAsync = function (pathname) {
     return new Promise(function (ok, oh) {
-        fs.readdir(path.join(String(that), dir), function (error, files) {
+        fs.readdir(pathname, function (error, files) {
             if (error) oh(error);
             else {
                 var directory = {}
@@ -33,15 +32,46 @@ var getdirAsync = function (dir) {
  * 取文件
  * @param {string} url 
  */
-var getfile = function (url) {
-    return fs.readFileSync(path.join(String(this), url));
+var getfile = function (pathname, buffer_size) {
+    if (isFinite(buffer_size))
+        return getFileHead(pathname, buffer_size);
+    return fs.readFileSync(pathname);
 };
-var getfileAsync = function (url) {
-    var that = this;
+var getFileHead = function (pathname, buffer_size) {
+    var h = fs.openSync(pathname, "r");
+    var chunk = Buffer.alloc(buffer_size);
+    var length = fs.readSync(h, chunk, 0, chunk.length, 0);
+    if (length < chunk.length) {
+        chunk = chunk.slice(0, length);
+    }
+    chunk.location = pathname;
+    return chunk;
+};
+var getfileAsync = function (pathname, buffer_size) {
+    if (isFinite(buffer_size))
+        return getFileHeadAsync(pathname, buffer_size);
     return new Promise(function (ok, oh) {
-        fs.readFile(path.join(String(that), url), function (error, data) {
+        fs.readFile(pathname, function (error, data) {
             if (error) oh(error);
             else ok(data);
+        });
+    });
+};
+var getFileHeadAsync = function (pathname, buffer_size) {
+    return new Promise(function (ok, oh) {
+        fs.open(pathname, "r", function (err, h) {
+            if (err) {
+                return oh(err);
+            }
+            var chunk = Buffer.alloc(buffer_size);
+            fs.read(h, chunk, 0, chunk.length, 0, function (err, length, chunk) {
+                if (err) return oh(err);
+                if (length < chunk.length) {
+                    chunk = chunk.slice(0, length);
+                }
+                chunk.location = pathname;
+                ok(chunk);
+            });
         });
     });
 };
@@ -49,17 +79,15 @@ var getfileAsync = function (url) {
  * 是不是文件夹
  * @param {string} url 
  */
-var isdir = function (url) {
-    var pathname = path.join(String(this), url);
+var isdir = function (pathname) {
     var stat = fs.statSync(pathname);
     if (stat.isDirectory()) return true;
     else return versionTree[pathname] = stat, false;
 };
 
-var isdirAsync = function (url) {
-    var pathname = path.join(String(this), url);
+var isdirAsync = function (pathname) {
     return new Promise(function (ok, oh) {
-        var stat = fs.stat(pathname, function (error, stats) {
+        fs.stat(pathname, function (error, stats) {
             if (error) oh(error);
             else if (stats.isDirectory()) ok(true);
             else {
@@ -70,8 +98,7 @@ var isdirAsync = function (url) {
     });
 };
 
-var getVersion = function (url) {
-    var pathname = path.join(String(this), url);
+var getVersion = function (pathname) {
     return versionTree[pathname];
 };
 /**
@@ -83,18 +110,20 @@ var getVersion = function (url) {
  */
 var loader = function (curl, temp, key, rebuild) {
     var root = String(this);
+    var buffer_size = this.buffer_size;
     var durl = path.resolve(root, curl);
     var durls = [durl];
     var load = function (loadType) {
         var is_reload = loadType === "change";
         console.info(root, curl, is_reload ? "change" : "load");
-        if (isdir.call(root, curl)) {
+        var pathname = path.join(root, curl);
+        if (isdir(pathname)) {
             if (temp[key]) {
-                unwatch(path.join(root, curl), temp[key]);
+                unwatch(pathname, temp[key]);
             }
-            temp[key] = getdir.call(root, curl);
+            temp[key] = getdir(pathname);
         } else {
-            var data = getfile.call(root, curl);
+            var data = getfile(pathname, buffer_size);
             if (rebuild instanceof Function) {
                 data = rebuild(data, key, durl, is_reload ? [] : durls);
             }
@@ -112,25 +141,26 @@ var loader = function (curl, temp, key, rebuild) {
 
 var asyncLoader = function (curl, temp, key, rebuild) {
     var root = String(this);
+    var buffer_size = this.buffer_size;
     var durl = path.resolve(root, curl);
     var durls = [durl];
     var load = function (loadType) {
         var is_reload = loadType === "change";
         console.info(root, curl, is_reload ? "change" : "load");
-        temp[key] = isdirAsync.call(root, curl).then(function (isdir) {
+        var pathname = path.join(root, curl);
+        temp[key] = isdirAsync(pathname).then(function (isdir) {
             if (isdir) {
                 if (temp[key]) {
-                    unwatch(path.join(root, curl), temp[key]);
+                    unwatch(pathname, temp[key]);
                 }
-                temp[key] = getdirAsync.call(root, curl).then(function (dirs) {
+                temp[key] = getdirAsync(pathname).then(function (dirs) {
                     temp[key] = dirs;
                     is_reload && _reload_handlers.forEach(run => run());
                 }).catch(function (error) {
                     temp[key] = error;
-                    console.error(error);
                 });
             } else {
-                temp[key] = getfileAsync.call(root, curl).then(function (data) {
+                temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
                     if (rebuild instanceof Function) {
                         data = rebuild(data, key, durl, is_reload ? [] : durls);
                     }
@@ -184,7 +214,7 @@ var seek = function (url, tree, rebuild) {
     if (key && !(temp instanceof Buffer)) {
         return curl.replace(/\\+/g, "/") + "/";
     }
-    temp.stat = getVersion.call(this, curl);
+    temp.stat = getVersion(path.join(String(this), curl));
     return temp;
 };
 var seekAsync = function (url, tree, rebuild) {
@@ -222,12 +252,12 @@ var seekAsync = function (url, tree, rebuild) {
         return temp;
     }
     if (temp instanceof Error) {
-        return String(temp);
+        return temp;
     }
     if (key && !(temp instanceof Buffer)) {
         return curl.replace(/\\+/g, "/") + "/";
     }
-    temp.stat = getVersion.call(this, curl);
+    temp.stat = getVersion(path.join(String(this), curl));
     return temp;
 };
 
@@ -249,15 +279,19 @@ var unwatch = function (curl, temp) {
  * 根椐filesroot路径设置文件缓冲
  * @param {string} filesroot 
  */
-var cache = function (filesroot, rebuild) {
-    var filescount = 0;
-    var filessize = 0;
-    var tree = getdir.call(filesroot, "./");
+var cache = function (filesroot, rebuild, buffer_size_limit) {
     var seeker = function (url) {
-        return seek.call(filesroot, url, tree, rebuild);
+        return seek.call(seeker, url, tree, rebuild);
     };
+    var tree = getdir(filesroot);
+    seeker.toString = function () {
+        return filesroot;
+    };
+    if (isFinite(buffer_size_limit) && buffer_size_limit >= 0) {
+        seeker.buffer_size = buffer_size_limit | 0;
+    }
     var seekerAsync = function (url) {
-        return seekAsync.call(filesroot, url, tree, rebuild);
+        return seekAsync.call(seeker, url, tree, rebuild);
     };
     seeker.async = seekerAsync;
     seeker.new = cache;
