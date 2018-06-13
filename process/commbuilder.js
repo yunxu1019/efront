@@ -9,8 +9,29 @@ less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
 var cwd = path.join(__dirname, "..");
+var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)?\s*(.*?)\1(\s*;)?\s*$/i;
 module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var data = String(buffer);
+    var commName = filename.match(/([\$_\w][\w]*)\.[tj]sx?$/i);
+    commName = commName && commName[1];
+    if (useInternalReg.test(data)) {
+        data = data.replace(useInternalReg, function (match, quote, relative) {
+            var realPath = path.relative(fullpath, relative);
+            if (!fs.existsSync(realPath)) {
+                realPath = relative;
+            }
+            if (!fs.existsSync(realPath)) {
+                realPath = path.join(__dirname, "..", relative);
+            } else {
+                watchurls.push(realPath);
+            }
+            if (!fs.existsSync(realPath) || !fs.statSync(realPath).isFile()) {
+                console.warn("没有处理include:" + filename);
+                return match;
+            }
+            return fs.readFileSync(realPath).toString().replace(/\bmodule.exports\s*=/g, commName ? "var " + commName : "return ");
+        });
+    }
     data = typescript.transpile(data);
     var code = esprima.parse(data);
     var {
@@ -20,8 +41,6 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var globals = Object.keys(undeclares);
     var globalsmap = {};
     globals.forEach(g => globalsmap[g] = g);
-    var commName = filename.match(/([\$_\w][\w]*)\.[tj]sx?$/i);
-    commName = commName && commName[1];
     var className = path.relative(cwd, fullpath).replace(/[\\\/\:\.]+/g, "-");
     if (commName) {
         //如果声明了main方法或main对象，默认用main作为返回值
