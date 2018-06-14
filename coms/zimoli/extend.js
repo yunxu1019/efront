@@ -8,4 +8,5 @@ function extend(o1,o2){
     for(var k in o2){
         o1[k]=o2[k];
     }
+    return o1;
 }
