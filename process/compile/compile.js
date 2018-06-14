@@ -25,7 +25,6 @@ Scanner.prototype = {
             reg.lastIndex = index;
             var res = reg.exec(dataString, collection);
             if (res) {
-                var savedIndex = reg.lastIndex - res[0].length;
                 index = reg.lastIndex;
                 var inc = 0;
                 while (res[++inc] === undefined) {
@@ -33,6 +32,7 @@ Scanner.prototype = {
                 }
                 var matchType = regInfo[inc];
                 if (!matchType) continue;
+                var savedIndex = reg.lastIndex - res[inc].length;
                 var children = [];
                 var block = new Block(matchType, savedIndex);
                 block.parent = parent;
