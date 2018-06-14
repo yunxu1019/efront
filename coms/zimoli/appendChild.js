@@ -1,6 +1,7 @@
 var slice = [].slice;
 
 function release(node) {
+    if (node === null || node === undefined) return node;
     return isFunction(node) ? node() : isNode(node) ? node : document.createTextNode(node);
 }
 
@@ -32,6 +33,7 @@ function appendChild(parent, obj) {
     if (parent.appendChild) {
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var o = release(children[cx]);
+            if (!o) continue;
             parent.appendChild(o);
             o.with && appendChild(parent, o.with);
             if (parent.isMounted)
