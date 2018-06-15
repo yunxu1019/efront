@@ -33,7 +33,7 @@ var getdirAsync = function (pathname) {
  * @param {string} url 
  */
 var getfile = function (pathname, buffer_size) {
-    if (isFinite(buffer_size))
+    if (isFinite(buffer_size) && getVersion(pathname).size > buffer_size)
         return getFileHead(pathname, buffer_size);
     return fs.readFileSync(pathname);
 };
@@ -49,7 +49,7 @@ var getFileHead = function (pathname, buffer_size) {
     return chunk;
 };
 var getfileAsync = function (pathname, buffer_size) {
-    if (isFinite(buffer_size))
+    if (isFinite(buffer_size) && getVersion(pathname).size > buffer_size)
         return getFileHeadAsync(pathname, buffer_size);
     return new Promise(function (ok, oh) {
         fs.readFile(pathname, function (error, data) {

@@ -1,9 +1,9 @@
 "use strict";
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
-var FILE_BUFFER_SIZE = 512 * 1024;
+var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = process.env.PUBLIC_PATH || "./public";
-var APPS_PATH = process.env.APPS_PATH || "./apps";
+var APPS_PATH = process.env.APPS_PATH || process.env.PAGE_PATH || "./apps";
 var config = {
     // Strip HTML comments
     removeComments: true,
@@ -104,7 +104,7 @@ if (process.env.IN_TEST_MODE) module.exports = require("./cache")(APPS_PATH, fun
     }
     return buff;
 }, FILE_BUFFER_SIZE);
-else if (require("path").relative(PUBLIC_PATH, "./public") === "") module.exports = require("./cache")("./public", null, FILE_BUFFER_SIZE);
+else if (require("path").relative(PUBLIC_PATH, APPS_PATH) !== "") module.exports = require("./cache")(PUBLIC_PATH, null, FILE_BUFFER_SIZE);
 else module.exports = require("./cache")(PUBLIC_PATH, function (buff, name) {
     try {
         if (/\.html$/i.test(name)) {
