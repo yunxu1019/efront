@@ -3,6 +3,7 @@ var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
 var FILE_BUFFER_SIZE = 512 * 1024;
 var PUBLIC_PATH = process.env.PUBLIC_PATH || "./public";
+var APPS_PATH = process.env.APPS_PATH || "./apps";
 var config = {
     // Strip HTML comments
     removeComments: true,
@@ -97,7 +98,7 @@ var config = {
     // Type of quote to use for attribute values (' or ")
     quoteCharacter: "",
 }
-if (process.env.IN_TEST_MODE) module.exports = require("./cache")("./apps", function (buff, name) {
+if (process.env.IN_TEST_MODE) module.exports = require("./cache")(APPS_PATH, function (buff, name) {
     if (/\.html$/i.test(name)) {
         buff = Buffer.from(String(buff).replace(/<script.*?>([\s\S]*?)<\/script>/i, `<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}()\r\n$1</script>`));
     }

@@ -26,3 +26,7 @@ rem 前文已配置的所有参数可用 app=%app%.bat 重写
 
 rem 应用发布路径
 set PUBLIC_PATH="%~DP0..\public"
+set APIS_PATH="%~DP0..\apis"
+set APPS_PATH="%~DP0..\apps"
+set COMS_PATH="%~DP0..\coms"
+set ICONS_PATH="%~DP0..\cons"
