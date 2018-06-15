@@ -48,7 +48,7 @@
         "audio/x-wav:wav"
     ],
     ".wmv":[
-        "video/mpeg:mp3|mpa|mpe|mpeg|mpg|mpv2"
+        "video/mpeg:mp4|mpa|mpe|mpeg|mpg|mpv2"
     ],
     ".js":[
         "application/x-javascript:js",
