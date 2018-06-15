@@ -2,7 +2,7 @@
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
 var FILE_BUFFER_SIZE = 512 * 1024;
-
+var PUBLIC_PATH = process.env.PUBLIC_PATH || "./public";
 var config = {
     // Strip HTML comments
     removeComments: true,
@@ -103,8 +103,8 @@ if (process.env.IN_TEST_MODE) module.exports = require("./cache")("./apps", func
     }
     return buff;
 }, FILE_BUFFER_SIZE);
-else if (require("path").relative(process.env.PUBLIC_PATH, "./public") === "") module.exports = require("./cache")("./public", null, FILE_BUFFER_SIZE);
-else module.exports = require("./cache")(process.env.PUBLIC_PATH || "./public", function (buff, name) {
+else if (require("path").relative(PUBLIC_PATH, "./public") === "") module.exports = require("./cache")("./public", null, FILE_BUFFER_SIZE);
+else module.exports = require("./cache")(PUBLIC_PATH, function (buff, name) {
     try {
         if (/\.html$/i.test(name)) {
             buff = Buffer.from(htmlMinifier.minify(buff.toString(), config));

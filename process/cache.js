@@ -287,7 +287,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
     var seeker = function (url) {
         return seek.call(seeker, url, tree, rebuild);
     };
-    var tree = getdir(filesroot);
+    var tree = fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {};
     seeker.toString = function () {
         return filesroot;
     };

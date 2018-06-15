@@ -76,14 +76,14 @@ var adapter = function (data, url, req, res) {
             });
         }
     }
-    if (typeof data === "string") {
+    if (typeof data === "string" && data !== url) {
         res.writeHead(301, {
             'Location': data[0] === "/" ? data : "/" + data
         });
         return res.end();
     }
-    res.writeHead(403, {})
-    res.end();
+    res.writeHead(404, {});
+    res.end(String(data));
 }
 /**
  * doGet
