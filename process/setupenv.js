@@ -109,8 +109,8 @@ var get = function (text) {
     }
     return text;
 };
-call(path.join(__dirname, "../_envs/setup.bat"));
 call("./_envs/setup.bat");
+call(path.join(__dirname, "../_envs/setup.bat"));
 if (!env.PAGE) env.PAGE = env.APP;
 var cache = {};
 module.exports = function (appname) {
