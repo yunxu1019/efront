@@ -44,16 +44,17 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     });
 }
 // body
-css("body", {
-    width: "100%",
+css("html", {
     height: "100%",
-    border: "none",
-    position: "absolute",
-    margin: "0",
-    padding: "0",
-    overflow: "hidden",
     fontFamily: `"SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif`,
     backgroundColor: "#f2f4f9"
+});
+css("body", {
+    border: "none",
+    margin: "0",
+    padding: "0",
+    height: "100%",
+    overflow: "hidden",
 });
 var location_pathname = location.pathname;
 var _zimoli_params_key = `_zimoli_parameters:${location_pathname}#`;
