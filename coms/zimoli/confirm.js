@@ -30,9 +30,9 @@ function confirm() {
             selected = arg | 0;
         }
     });
-    var elem = div();
-    elem.innerHTML = `<div class=head></div><div class=body></div><div class=option></div>`;
-    var [head, body, option] = elem.children;
+    var element = div();
+    element.innerHTML = `<div class=head></div><div class=body></div><div class=option></div>`;
+    var [head, body, option] = element.children;
     if (isString(title)) {
         head.innerHTML = title;
     }
@@ -62,15 +62,23 @@ function confirm() {
         var btn = button(label);
         onclick(btn, function () {
             if (isFunction(callback) && callback(label, index, options) === false) return;
-            remove(elem);
+            remove(element);
         })
         return btn;
     });
 
-    onmousedown(elem, function (event) {
+    onmousedown(element, function (event) {
         drag(this, event);
     })
     appendChild(option, buttons);
-    popup(elem);
-    return elem;
+    setTimeout(function () {
+        popup(element);
+        css(element, {
+            marginLeft: -element.offsetWidth / 2 + "px",
+            marginTop: -element.offsetHeight / 2 + "px",
+            left: "50%",
+            top: "50%"
+        });
+    });
+    return element;
 }
