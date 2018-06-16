@@ -44,7 +44,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     });
 }
 // body
-css(body, {
+css("body", {
     width: "100%",
     height: "100%",
     border: "none",
