@@ -67,19 +67,19 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
             oStyle.replace(/^;+|;+$/g, "").split(/;+/).map(function (kv) {
                 var [k, v] = kv.split(":");
                 delete styleobject[k];
-                styleobject[k] = v;
+                if (k && v) styleobject[k] = v;
             });
         }
     } else if (oStyle instanceof Object) {
         for (var k in oStyle) {
-            var key = transformCssKey[k];
+            var key = transformCssKey(k);
             styleobject[key] = oStyle[k];
         }
     }
     var rowStyles = [];
     stylesheet.innerHTML.replace(/^.*?\{([\s\S]*?)\}.*?$/, "$1").split(";").map(function (kv) {
         var k = kv.replace(/^(.*?)\:.*$/, "$1");
-        if (!(k in styleobject)) rowStyles.push(kv);
+        if (k && !(k in styleobject)) rowStyles.push(kv);
     });
     for (var k in styleobject) {
         rowStyles.push(k + ":" + styleobject[k]);
