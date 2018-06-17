@@ -96,11 +96,10 @@ var config = {
     // Type of quote to use for attribute values (' or ")
     quoteCharacter: "",
 }
-var path = require("path");
 var builder;
 if (process.env.IN_TEST_MODE) builder = function (buff, name) {
-    if (/\b(index|default)\.html$/i.test(name)) {
-        buff = Buffer.from(String(buff).replace(/<script.*?>([\s\S]*?)<\/script>/i, `<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}()\r\n$1</script>`));
+    if (/\b(index|default)\.html$/i.test(name) || /\.html?$/.test(name) && /^\s*!<Doctype/i.test(buff.slice(0, 100).toString())) {
+        buff = Buffer.from(String(buff).replace(/<script.*?>([\s\S]*?)<\/script>/i, `<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}();\r\n$1</script>`));
     }
     return buff;
 };
