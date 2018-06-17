@@ -498,7 +498,9 @@ var writeSingleHtmlFile = function () {
     if (!fs.statSync(public_path).isDirectory()) return console.error(`目标位置存在文件${public_path}`);
     var process_env_public_path = process.env.PUBLIC_PATH;
     process.env.PUBLIC_PATH = "./apps";
-    var getpagefile = require("../process/getfile");
+    var filebuilder = require("../process/filebuilder");
+    var APPS_PATH = process.env.APPS_PATH || process.env.PAGE_PATH || "./apps";
+    var getpagefile = require("../process/cache")(process.env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, filebuilder);
     var indexHtml = getpagefile("index.html").toString();
     env.PUBLIC_PATH = process_env_public_path;
     var code = JSON.stringify(responseTree, null, "\t")//.replace(/[<>]/g, s => "\\x" + `0${s.charCodeAt(0).toString(16)}`.slice(-2));
@@ -525,7 +527,9 @@ var writeApplication = function () {
     if (!fs.statSync(public_path).isDirectory()) return console.error(`目标位置存在文件${public_path}`);
     var process_env_public_path = process.env.PUBLIC_PATH;
     process.env.PUBLIC_PATH = "./apps";
-    var getpagefile = require("../process/getfile");
+    var filebuilder = require("../process/filebuilder");
+    var APPS_PATH = process.env.APPS_PATH || process.env.PAGE_PATH || "./apps";
+    var getpagefile = require("../process/cache")(process.env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, filebuilder);
     var indexHtml = getpagefile("index.html").toString();
     env.PUBLIC_PATH = process_env_public_path;
     deeprm(public_path).then(function () {

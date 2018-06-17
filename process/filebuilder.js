@@ -1,7 +1,6 @@
 "use strict";
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
-var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = process.env.PUBLIC_PATH || "./public";
 var APPS_PATH = process.env.APPS_PATH || process.env.PAGE_PATH || "./apps";
 var config = {
@@ -98,14 +97,14 @@ var config = {
     // Type of quote to use for attribute values (' or ")
     quoteCharacter: "",
 }
-if (process.env.IN_TEST_MODE) module.exports = require("./cache")(APPS_PATH, function (buff, name) {
+var builder;
+if (process.env.IN_TEST_MODE) builder = function (buff, name) {
     if (/\.html$/i.test(name)) {
         buff = Buffer.from(String(buff).replace(/<script.*?>([\s\S]*?)<\/script>/i, `<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}()\r\n$1</script>`));
     }
     return buff;
-}, FILE_BUFFER_SIZE);
-else if (require("path").relative(PUBLIC_PATH, APPS_PATH) !== "") module.exports = require("./cache")(PUBLIC_PATH, null, FILE_BUFFER_SIZE);
-else module.exports = require("./cache")(PUBLIC_PATH, function (buff, name) {
+};
+else if (require("path").relative(PUBLIC_PATH, APPS_PATH) === "") builder = function (buff, name) {
     try {
         if (/\.html$/i.test(name)) {
             buff = Buffer.from(htmlMinifier.minify(buff.toString(), config));
@@ -118,4 +117,5 @@ else module.exports = require("./cache")(PUBLIC_PATH, function (buff, name) {
         console.error(`${name}压缩失败！`);
     }
     return buff;
-});
+};
+module.exports = builder;
