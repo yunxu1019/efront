@@ -1,8 +1,7 @@
 "use strict";
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
-var PUBLIC_PATH = process.env.PUBLIC_PATH || "./public";
-var APPS_PATH = process.env.APPS_PATH || process.env.PAGE_PATH || "./apps";
+
 var config = {
     // Strip HTML comments
     removeComments: true,
@@ -97,14 +96,15 @@ var config = {
     // Type of quote to use for attribute values (' or ")
     quoteCharacter: "",
 }
+var path = require("path");
 var builder;
 if (process.env.IN_TEST_MODE) builder = function (buff, name) {
-    if (/\.html$/i.test(name)) {
+    if (/\b(index|default)\.html$/i.test(name)) {
         buff = Buffer.from(String(buff).replace(/<script.*?>([\s\S]*?)<\/script>/i, `<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}()\r\n$1</script>`));
     }
     return buff;
 };
-else if (require("path").relative(PUBLIC_PATH, APPS_PATH) === "") builder = function (buff, name) {
+else builder = function (buff, name, fullpath) {
     try {
         if (/\.html$/i.test(name)) {
             buff = Buffer.from(htmlMinifier.minify(buff.toString(), config));
@@ -114,7 +114,7 @@ else if (require("path").relative(PUBLIC_PATH, APPS_PATH) === "") builder = func
             buff = Buffer.from(htmlMinifier.minify("<style>" + buff.toString() + "</style>", config).replace(/<style>|<\/style>/g, ""));
         }
     } catch (e) {
-        console.error(`${name}压缩失败！`);
+        console.warn(`${name}压缩失败！`);
     }
     return buff;
 };
