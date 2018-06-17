@@ -76,7 +76,7 @@ var adapter = function (data, url, req, res) {
             });
         }
     }
-    if (typeof data === "string" && data !== url) {
+    if (typeof data === "string" && data !== url && "/" + data !== url) {
         res.writeHead(301, {
             'Location': data[0] === "/" ? data : "/" + data
         });
