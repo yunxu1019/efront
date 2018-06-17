@@ -1,5 +1,6 @@
+"use strict";
 var URL = require("url");
-var headersKeys = "Content-Type,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
+var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 function cross(req, res) {
     var parsed = URL.parse(req.url);
     var search = parsed.search;
@@ -44,13 +45,6 @@ function cross(req, res) {
             res.writeHead(403, {});
             res.end(String(e));
         });
-        var ContentLength = req.headers["Content-Length"];
-        if (ContentLength) {
-            request.setHeader("Content-Length", $data.length)
-        }
-        for (var k in $headers) {
-            request.setHeader(k, $headers[k]);
-        }
         req.pipe(request);
     } catch (e) {
         res.writeHead(403, {});
