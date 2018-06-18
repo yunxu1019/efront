@@ -1,11 +1,17 @@
 #!/usr/bin/env node
+
 require("../../process/console");
 var environment = require("./environment");
 var fs = require("fs");
 var path = require("path");
 if (!process.cwd() === path.dirname(__dirname)) throw new Error("请在项目根目录启动！");
-var { PUBLIC_PATH, APP, pages_root, comms_root } = environment;
-var PUBLIC_APP =/* process.argv[2] || */APP;
+var {
+    PUBLIC_PATH,
+    APP,
+    pages_root,
+    comms_root
+} = environment;
+var PUBLIC_APP = /* process.argv[2] || */ APP;
 if (!PUBLIC_APP) throw new Error("请配置要发布的项目名称！");
 if (!PUBLIC_PATH) throw new Error("请指定输出路径！");
 if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
@@ -42,14 +48,14 @@ if (public_app) {
     is_commponent_package = false;
     var toApplication = require("./toApplication");
     loadData([
-        pages_root,
-        environment.ccons_root,
-        "apps/favicon.ico",
-        "coms/zimoli/main.js",
-        "coms/zimoli/[].map.js",
-        "coms/zimoli/promise.js",
-        "coms/zimoli/fastclick.js"
-    ])
+            pages_root,
+            "apps/favicon.ico",
+            "coms/zimoli/main.js",
+            "coms/zimoli/zimoli.js",
+            "coms/zimoli/[].map.js",
+            "coms/zimoli/promise.js",
+            "coms/zimoli/fastclick.js"
+        ].concat(environment.ccons_root))
         .then(toApplication)
         .then(function (response) {
             return clean(public_path).then(function () {

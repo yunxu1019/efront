@@ -67,8 +67,8 @@ function compile(buildInfo) {
                         fs.readFile(_filepath, function (error, buffer) {
                             if (error) throw new Error("加载" + url + "出错！");
                             responsePath = _filepath;
-                            responseText = builder(buffer, name + extt, _filepath, []).toString();
-                            responseVersion = crc([].map.call(responseText, e => e.charCodeAt(0))).toString(36) + (+stat.mtime).toString(36);
+                            responseText = builder(buffer, name + extt, _filepath, []);
+                            responseVersion = crc([].map.call(responseText.toString(), e => e.charCodeAt(0))).toString(36) + (+stat.mtime).toString(36);
                             resolve();
                         });
                     });

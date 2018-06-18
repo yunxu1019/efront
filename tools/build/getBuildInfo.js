@@ -14,6 +14,7 @@ BuildInfo.prototype = {
         return this.data || "";
     }
 }
+
 function getBuildInfo(url) {
     var match = url.match(/^(.*?)(\/|\$|@|)(.*?)(\.[tj]sx?|\.html?|\.png)?$/);
     var fullpath, destpath, builder;
@@ -38,10 +39,10 @@ function getBuildInfo(url) {
             case "/":
                 if (/\.html?$/.test(extt)) {
                     builder = htmlbuilder;
-                    destpath = path.join("page", name + extt);
-                } else if (!/^\.[tj]sx?$/.test(extt)) {
+                    destpath = path.join(name + extt);
+                } else if (!/\.[tj]sx?$/.test(extt)) {
                     builder = noopbuilder;
-                    destpath = path.join("page", name + extt);
+                    destpath = path.join(name + extt);
                 } else {
                     extt = ".js";
                     builder = commbuilder;
@@ -57,14 +58,14 @@ function getBuildInfo(url) {
             case "$":
                 builder = iconbuilder;
                 extt = ".png";
-                fullpath = path.join(ccons_root, name + extt);
+                fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
                 destpath = path.join("ccon", name);
                 break;
-            // case "_":
-            //     builder = aapibuilder;
-            //     extt = ".js";
-            //     fullpath = path.join(aapis_root, name + extt);
-            //     break;
+                // case "_":
+                //     builder = aapibuilder;
+                //     extt = ".js";
+                //     fullpath = path.join(aapis_root, name + extt);
+                //     break;
         }
     }
     return new BuildInfo({

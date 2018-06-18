@@ -4,7 +4,6 @@ var path = require("path");
 var {
     comms_root,
     pages_root,
-    ccons_root,
     COMS_PATH,
     PAGE_PATH
 } = require("./environment");
@@ -29,8 +28,9 @@ var getBuildRoot = function (files) {
                             if (comms_root instanceof Array) {
                                 var name = path.parse(file).base;
                             } else {
-                                var name = path.relative(comms_root, file).replace(/[\\\/]+/g, "/").replace(/\.[tj]sx?$/, "");
+                                var name = path.relative(comms_root, file);
                             }
+                            name = name.replace(/[\\\/]+/g, "/").replace(/\.[tj]sx?$/, "");
                             return result.push(name), ok();
                         }
                         if (/^[^\.]/i.test(path.relative(PAGE_PATH, file))) {
@@ -38,7 +38,7 @@ var getBuildRoot = function (files) {
                             return result.push(name), ok();
                         }
                         if (/\.png$/i.test(file)) {
-                            var name = path.relative(ccons_root, file).replace(/[\\\/]+/g, "/").replace(/\.png$/, "");
+                            var name = path.parse(file).base.replace(/[\\\/]+/g, "/").replace(/\.png$/, "");
                             return result.push("$" + name), ok();
                         }
                         console.warn(file, "skiped");
