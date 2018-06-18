@@ -1,7 +1,10 @@
 "use strict";
 var is_addEventListener_enabled = "addEventListener" in window;
+var handlersMap = {};
 if (is_addEventListener_enabled) {
     var on = function (k) {
+        var on_event_path = "on" + k;
+        if (handlersMap[on_event_path]) return handlersMap[on_event_path];
         function addhandler(element, handler) {
             if (handler instanceof Array) {
                 handler.map(function (handler) {
@@ -20,12 +23,13 @@ if (is_addEventListener_enabled) {
             }
             return remove;
         }
-        return addhandler;
+        return handlersMap[on_event_path] = addhandler;
     };
 } else {
     var on = function on(k) {
         var handler_path = k + "handlers";
         var on_event_path = "on" + k;
+        if (handlersMap[on_event_path]) return handlersMap[on_event_path];
         function addhandler(element, handler) {
             if (element[handler_path]) {
                 element[handler_path].push(handler);
@@ -61,6 +65,6 @@ if (is_addEventListener_enabled) {
             };
             return remove;
         }
-        return addhandler;
+        return handlersMap[on_event_path] = addhandler;
     };
 }
