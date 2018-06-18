@@ -8,7 +8,7 @@ function cross(req, res) {
         var $cross = JSON.parse(decodeURIComponent(search.slice(1)));
         if (!$cross.token) throw new Error("验证身份失败！");
         var
-            $url = $cross['url'],
+            $url = encodeURI($cross['url']),
             // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
             $method = $cross['method'] || req.method,//$_SERVER['REQUEST_METHOD'];
             $headers = $cross['headers'] || {};
