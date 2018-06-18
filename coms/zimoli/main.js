@@ -46,7 +46,7 @@ var retry = function (url, count) {
     return count;
 };
 var XHR = function () {
-    return new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
+    return new(XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
 };
 var load = function (name, count = 150) {
     var url;
@@ -80,7 +80,8 @@ var load = function (name, count = 150) {
     };
     xhr.send("{}");
 };
-var flush_to_storage_timer = 0, responseTree_storageKey = "zimoliAutoSavedResponseTree";
+var flush_to_storage_timer = 0,
+    responseTree_storageKey = "zimoliAutoSavedResponseTree";
 var saveResponseTreeToStorage = function () {
     var responseTextArray = [];
     for (var k in responseTree) {
@@ -151,7 +152,7 @@ var loadResponseTreeFromStorage = function () {
         // else window.console.log(responseName, sum, version, versionTree[responseName]);
     };
 };
-var preLoad = function () { };
+var preLoad = function () {};
 var flush = function (url) {
     clearTimeout(flush_to_storage_timer);
     var thens = loaddingTree[url];
@@ -176,7 +177,8 @@ var get = function (url, then) {
     }
 };
 modules.start_time = +new Date;
-function modules() { }
+
+function modules() {}
 modules.modules = modules;
 var penddingTree = {};
 var executer = function (text, name, then, prebuild) {
@@ -267,19 +269,13 @@ var init = function (name, then, prebuild) {
     if (penddingTree[name]) {
         return penddingTree[name].push([then, prebuild]);
     }
-    penddingTree[name] = [[then, prebuild]];
+    penddingTree[name] = [
+        [then, prebuild]
+    ];
     // return 
     get(name, broadcast);
 };
 modules.init = init;
-var replacePromise = function (promise) {
-    Promise = promise;
-    hook(--requires_count);
-};
-var replaceArrayMap = function (map) {
-    Array.prototype.map = map;
-    hook(--requires_count);
-};
 var requires_count = 1;
 var hook = function (requires_count) {
     if (requires_count === 0) {
@@ -295,18 +291,17 @@ var hook = function (requires_count) {
         });
     }
 };
-if (!Promise) {
-    requires_count++;
-    init("promise", replacePromise);
+var initIfNotDefined = function (defined, path, onload) {
+    if (defined === void 0) requires_count++, init(path, a => onload(a, hook(--requires_count)));
 }
-if (![].map) {
-    requires_count++;
-    init("[].map", replaceArrayMap);
-}
+initIfNotDefined(Promise, "promise", promise => Promise = promise);
+initIfNotDefined([].map, "[].map", map => Array.prototype.map = map);
 var onload = function () {
     window.onload = null;
     window.alert = null;
     window.confirm = null;
+    window.innerWidth = null;
+    window.innerHeight = null;
     hook(--requires_count);
 };
 modules.put = function (name, module) {

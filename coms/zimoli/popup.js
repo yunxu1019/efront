@@ -100,8 +100,8 @@ var popup_with_mask = function (element, mask = createMask()) {
 };
 var popup_as_extra = function (element, target) {
     var position = getScreenPosition(target);
-    var maxHeight = Math.max(position.top, window.innerHeight - position.top - position.height);
-    var maxWidth = Math.max(position.left + position.width, window.innerWidth - position.left);
+    var maxHeight = Math.max(position.top, innerHeight - position.top - position.height);
+    var maxWidth = Math.max(position.left + position.width, innerWidth - position.left);
     if (!element.origin) {
         element.origin = {
             height: element.style.height,
@@ -133,13 +133,13 @@ var popup_as_extra = function (element, target) {
     if (width !== aimedWidth) {
         css(element, `width:${maxWidth}px`);
     }
-    if (position.top + element.offsetHeight + position.height > window.innerHeight) {
-        css(element, `bottom:${window.innerHeight - position.top}px;top:auto;`);
+    if (position.top + element.offsetHeight + position.height > innerHeight) {
+        css(element, `bottom:${innerHeight - position.top}px;top:auto;`);
     } else {
         css(element, `top:${position.top + position.height}px;bottom:auto;`);
     }
-    if (position.left + element.offsetWidth > window.innerWidth) {
-        css(element, `right:${window.innerWidth - position.left - position.width}px;left:auto;`);
+    if (position.left + element.offsetWidth > innerWidth) {
+        css(element, `right:${innerWidth - position.left - position.width}px;left:auto;`);
     } else {
         css(element, `left:${position.left}px;right:auto;`);
     }

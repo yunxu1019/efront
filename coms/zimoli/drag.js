@@ -4,13 +4,12 @@ function getMarginLeft(offsetLeft, offsetWidth, innerWidth) {
     // marginLeft*offsetWidth-marginLeft*innerWidth=offsetLeft*offsetWidth
     // marginLeft(offsetWidth-innerWidth)=offsetLeft*offsetWidth
     // marginLeft=offsetLeft*offsetWidth/(offsetWidth-innerWidth)
-    if (offsetWidth === innerWidth) return -offsetWidth / 2;
+    if (offsetWidth === +innerWidth) return -offsetWidth / 2;
     return offsetLeft * offsetWidth / (offsetWidth - innerWidth);
 }
 function drag(target, event, overflow = false) {
     var saved_delta = { x: target.offsetLeft - event.clientX, y: target.offsetTop - event.clientY };
     var cancelmousemove = onmousemove(window, function (event) {
-        var { innerHeight, innerWidth } = window;
         event.preventDefault();
         var offsetLeft = saved_delta.x + event.clientX;
         var offsetTop = saved_delta.y + event.clientY;

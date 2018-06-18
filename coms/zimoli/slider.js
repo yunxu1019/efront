@@ -2,10 +2,6 @@
 var _slider = createElement(div);
 addClass(_slider, "slider");
 var container = createElement(div);
-var windowInnerWidth = window.innerWidth || screen.availWidth;
-onresize(window, function (event) {
-    windowInnerWidth = window.innerWidth || screen.availWidth;
-});
 var floor = Math.floor;
 var ceil = Math.ceil;
 var round = Math.round;
@@ -36,7 +32,7 @@ function slider(autoplay, circle = true) {
     if (isFunction(autoplay) || isArray(autoplay)) {
         outter.src = autoplay;
     } else {
-        css(outter, 'height:' + (windowInnerWidth * .375 * .75) + 'pt');
+        css(outter, 'height:' + (innerWidth * .375 * .75) + 'pt');
     }
     var generator = function (index, ratio) {
         var src = outter.src;
@@ -71,7 +67,7 @@ function slider(autoplay, circle = true) {
         _speed = speed(1);
     var reshape = function (index, ising) {
         outter.index = current_index = index;
-        var width = outter.offsetWidth || windowInnerWidth;
+        var width = outter.offsetWidth || +innerWidth;
         var indexLeft = floor(index);
         var indexRight = indexLeft + 1;
         _imageMain = generator(indexLeft, indexLeft - index);
