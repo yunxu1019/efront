@@ -57,7 +57,7 @@ var load = function (name, count = 150) {
         case "_":
             url = "aapi/" + name.slice(1).replace(/([A-Z])/g, "/$1").toLowerCase();
             break;
-        case "$":
+        case ".":
             url = "ccon/" + name.slice(1);
             break;
         default:
@@ -231,7 +231,7 @@ var noop = function (text, name, then) {
 var broadcast = function (text, name) {
     var adapter;
     switch (name.charAt(0)) {
-        case "$":
+        case ".":
             adapter = noop;
             break;
         default:

@@ -28,7 +28,7 @@ if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
             });
             return icon;
         }
-        init("$" + path, function (src) {
+        init("." + path, function (src) {
             if (color || isNumber(color)) {
                 var chunks = pngdecode(src);
                 var PLTE_COLOR = plte(color);
