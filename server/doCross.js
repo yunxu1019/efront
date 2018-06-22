@@ -40,7 +40,7 @@ function cross(req, res) {
             res.writeHead(response.statusCode, headers);
             response.pipe(res);
         });
-        request.setTimeout(1);
+        request.setTimeout(36000/*support for wechat long pull*/);
         request.on("error", function (e) {
             res.writeHead(403, {});
             res.end(String(e));
