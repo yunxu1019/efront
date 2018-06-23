@@ -103,7 +103,7 @@ function cross(method, url, headers) {
                 case 0:
                 case 200:
                 case 304:
-                    onload instanceof Function && onload(xhr);
+                    onload(xhr);
                     break;
                 case 302:
                 case 301:
@@ -119,30 +119,46 @@ function cross(method, url, headers) {
                     }
                     var crs = cross("get", location, headers);
                     crs.isRedirected = (xhr.isRedirected || 0) + 1;
-                    onload && crs.done(onload);
-                    onerror && crs.error(onerror);
+                    onload && crs.done(onload, false);
+                    onerror && crs.error(onerror, false);
                     break;
                 default:
-                    onerror instanceof Function && onerror(xhr);
+                    onerror(xhr);
             }
         }
     };
     setTimeout(function () {
         if (!xhr.isSended) xhr.send();
     }, 0);
-    var onload, onerror;
-    xhr.done = function (on) {
-        onload = on;
+    var onload = function (xhr) {
+        onloads.map(e => e instanceof Function && e(xhr));
+    };
+    var onerror = function (xhr) {
+        onerrors.map(e => e instanceof Function && e(xhr));
+    };
+    var onloads = [], onerrors = [];
+    xhr.done = function (on, asqueue = true) {
+        if (asqueue) {
+            onloads.push(on);
+        } else {
+            onload = on;
+        }
         return xhr;
     };
     var send = xhr.send;
     xhr.send = function () {
-        this.isSended = true;
-        send.apply(this, arguments);
+        xhr.isSended = true;
+        send.apply(xhr, arguments);
+        return xhr;
     };
-    xhr.error = function (on) {
+    xhr.fail = xhr.error = function (on, asqueue = true) {
+        if (asqueue) {
+            onerrors.push(on);
+        } else {
+            onerror = on;
+        }
         onerror = on;
         return xhr;
-    }
+    };
     return xhr;
 }
