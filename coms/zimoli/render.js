@@ -24,7 +24,7 @@ function rebuild(element) {
     element.renders.map(a => a.call(element));
 }
 var createGetter = function (search) {
-    return new Function("scope", `try{with(scope)return ${search}}catch(e){console.error(e)}`);
+    return new Function("scope", `try{with(scope)return ${search}}catch(e){/*console.warn(String(e))*/}`);
 };
 var directives = {
     bind(scope, search) {
