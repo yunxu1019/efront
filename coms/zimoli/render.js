@@ -27,6 +27,10 @@ var createGetter = function (search) {
     return new Function("scope", `try{with(scope)return ${search}}catch(e){/*console.warn(String(e))*/}`);
 };
 var directives = {
+    click(scope, search) {
+        var getter = createGetter(search);
+        onclick(this, getter.bind(this, scope));
+    },
     bind(scope, search) {
         var getter = createGetter(search);
         this.renders.push(function () {
@@ -91,6 +95,7 @@ var directives = {
             onappend(comment, addRenderElement);
             onremove(comment, removeRenderElement);
             appendChild.after(this, comment);
+            rebuild(comment);
         });
     },
     repeat(scope, search) {
