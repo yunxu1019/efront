@@ -1,35 +1,40 @@
 "use strict";
 var window = this;
-var parseInt = window.parseInt;
-var XMLHttpRequest = window.XMLHttpRequest;
-var ActiveXObject = window.ActiveXObject;
-var Error = window.Error;
-var Function = window.Function;
-var Array = window.Array;
-var Promise = window.Promise;
-var setTimeout = window.setTimeout;
-var clearTimeout = window.clearTimeout;
-var Date = window.Date;
-var Math = window.Math;
-var localStorage = window.localStorage;
+var {
+    Object,
+    parseInt,
+    XMLHttpRequest,
+    ActiveXObject,
+    Error,
+    Function,
+    Array,
+    Promise,
+    setTimeout,
+    clearTimeout,
+    Date,
+    Math,
+    localStorage,
+    navigator,
+    document,
+    top
+} = window;
+
 var devicePixelRatio = window.devicePixelRatio || 1;
 var renderPixelRatio = devicePixelRatio > 1 && window.innerWidth > 360 && window.innerHeight > 360 ? .86 : .75;
-var navigator = window.navigator;
 var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
 var versionTree = {};
 //var console = window.console;
-var document = window.document;
 var message = '请关闭后重新打开..';
 //去除外层广告
 try {
-    if (window.top && window.top !== window && !/MSIE/.test(window.navigator.userAgent)) {
-        window.top.location.href = window.location.href;
+    if (top && top !== window && !/MSIE/.test(navigator.userAgent)) {
+        top.location.href = window.location.href;
     }
 } catch (e) {
     document.write(message);
-    window.top.location.reload();
+    top.location.reload();
     throw message;
 }
 // 适配大小屏
@@ -46,7 +51,7 @@ var retry = function (url, count) {
     return count;
 };
 var XHR = function () {
-    return new(XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
+    return new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
 };
 var load = function (name, count = 150) {
     var url;
@@ -152,7 +157,7 @@ var loadResponseTreeFromStorage = function () {
         // else window.console.log(responseName, sum, version, versionTree[responseName]);
     };
 };
-var preLoad = function () {};
+var preLoad = function () { };
 var flush = function (url) {
     clearTimeout(flush_to_storage_timer);
     var thens = loaddingTree[url];
@@ -178,7 +183,7 @@ var get = function (url, then) {
 };
 modules.start_time = +new Date;
 
-function modules() {}
+function modules() { }
 modules.modules = modules;
 var penddingTree = {};
 var executer = function (text, name, then, prebuild) {
@@ -187,7 +192,6 @@ var executer = function (text, name, then, prebuild) {
     var doublecount = parseInt(text.slice(0, 3), 36);
     if (doublecount >> 1 << 1 === doublecount) {
         var dependencesCount = doublecount >> 1;
-        var perdependenceCount = doublecount - (dependencesCount << 1);
         var dependenceNamesOffset = 3 + dependencesCount;
         var dependenceNames = text.slice(3, dependenceNamesOffset);
         functionArgs = dependenceNames ? dependenceNames.split(",") : [];
@@ -279,6 +283,7 @@ modules.init = init;
 var requires_count = 1;
 var hook = function (requires_count) {
     if (requires_count === 0) {
+        "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
         loadResponseTreeFromStorage();
         if ("ontouchstart" in window) {
             init("fastclick", function (fastclick) {
@@ -292,16 +297,15 @@ var hook = function (requires_count) {
     }
 };
 var initIfNotDefined = function (defined, path, onload) {
-    if (defined === void 0) requires_count++, init(path, a => onload(a, hook(--requires_count)));
+    if (defined === void 0) requires_count++ , init(path, a => onload(a, hook(--requires_count)));
 }
 initIfNotDefined(Promise, "promise", promise => Promise = promise);
 initIfNotDefined([].map, "[].map", map => Array.prototype.map = map);
+var removeGlobalProperty = function (property) {
+    Object.defineProperty ? Object.defineProperty(window, property, { get() { return null } }) : window[property] = null;
+};
 var onload = function () {
     window.onload = null;
-    window.alert = null;
-    window.confirm = null;
-    window.innerWidth = null;
-    window.innerHeight = null;
     hook(--requires_count);
 };
 modules.put = function (name, module) {
