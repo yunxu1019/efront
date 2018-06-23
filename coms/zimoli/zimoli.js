@@ -80,16 +80,8 @@ function go(url, args, history_name) {
     }
     var pg = page_generators[url];
     var _with_elements = [].concat(pg.with);
-    var _remove_listeners = [].concat(pg.onappend);
-    var _append_listeners = [].concat(pg.onremove);
     var _pageback_listener = [].concat(pg.onback);
     var state = pg.state;
-    state.onappend = function (handler) {
-        isFunction(handler) && _append_listeners.push(handler);
-    };
-    state.onremove = function (handler) {
-        isFunction(handler) && _remove_listeners.push(handler);
-    };
     state.with = function (element) {
         element && _with_elements.push(element);
         return _with_elements;
@@ -101,8 +93,6 @@ function go(url, args, history_name) {
     var _page = pg.call(state, args);
     if (pg.className) _page.className = pg.className;
     _page.with = _with_elements;
-    onappend(_page, _append_listeners);
-    onremove(_page, _remove_listeners);
     addGlobal(_page, history_name);
     _page.onback = _pageback_listener;
     pushstate(url, history_name);
@@ -155,16 +145,6 @@ function zimoli(page, args, history_name) {
         return go(state.path(url), args, history_name);
     };
 
-    var _remove_listeners = [];
-    state.onremove = function (handler, _handler) {
-        if (isFunction(handler)) _remove_listeners.push(handler);
-        else onremove(handler, _handler);
-    };
-    var _append_listeners = [];
-    state.onappend = function (handler, _handler) {
-        if (isFunction(handler)) _remove_listeners.push(handler);
-        else onappend(handler, _handler);
-    };
     var _pageback_listener = [];
     state.onback = state.onrelease = state.ondestroy = function (handler) {
         //只能在page上使用
@@ -178,8 +158,6 @@ function zimoli(page, args, history_name) {
     return init(page, function (pg) {
         if (!pg) return;
         pg.with = _with_elements;
-        pg.onremove = _remove_listeners;
-        pg.onappend = _append_listeners;
         pg.state = state;
         pg.onback = _pageback_listener;
         page_generators[page] = pg;
