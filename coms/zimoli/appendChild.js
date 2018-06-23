@@ -21,8 +21,8 @@ function _onappend(node, event) {
     if (isFunction(onappend)) {
         onappend.call(node, event);
     }
-    var children = node.children;
-    for (var cx = 0, dx = children.length; cx < dx; cx++) {
+    var children = node.childNodes;
+    if (children) for (var cx = 0, dx = children.length; cx < dx; cx++) {
         _onappend(children[cx], event);
     }
 }

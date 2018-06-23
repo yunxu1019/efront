@@ -27,7 +27,7 @@ function _onremove(node, event) {
     if (isFunction(onremove)) {
         onremove.call(node, event);
     }
-    var children = node.children;
+    var children = node.childNodes;
     if (children) for (var cx = 0, dx = children.length; cx < dx; cx++) {
         _onremove(children[cx], event);
     }
