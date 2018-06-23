@@ -7,7 +7,7 @@ function release(node) {
 
 function _onappend(node, event) {
     if (node.isMounted) return;
-    node.isMounted = true;
+    if (node.nodeType === 1 || node.nodeType === 8) node.isMounted = true;
     if (!event) {
         event = createEvent("append");
     }
@@ -53,5 +53,19 @@ function insertBefore(alreadyMounted, obj) {
         if (parent.isMounted)
             _onappend(o);
     }
-};
+}
+function insertAfter(alreadyMounted, obj) {
+    var parent = alreadyMounted && alreadyMounted.parentNode;
+    if (!parent || !parent.insertBefore) return;
+    var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+    for (var cx = 0, dx = children.length; cx < dx; cx++) {
+        var o = release(children[cx]);
+        parent.insertBefore(o, alreadyMounted.nextSibling);
+        o.with && insertBefore(o, o.with);
+        if (parent.isMounted)
+            _onappend(o);
+    }
+}
+
 appendChild.before = insertBefore;
+appendChild.after = insertAfter;
