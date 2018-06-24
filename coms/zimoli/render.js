@@ -31,6 +31,13 @@ var directives = {
         var getter = createGetter(search);
         onclick(this, getter.bind(this, scope));
     },
+    src(scope, search) {
+        var getter = createGetter(search);
+        this.renders.push(function () {
+            var value = getter(scope) || "";
+            if (this.src !== value) this.src = value;
+        });
+    },
     bind(scope, search) {
         var getter = createGetter(search);
         this.renders.push(function () {
@@ -165,7 +172,7 @@ function renderElement(element, scope) {
     element.renders = [];
     [].slice.call(attrs, 0).map(function (attr) {
         var { name, value } = attr;
-        if (/^(?:class|style)$/i.test(name)) return;
+        if (/^(?:class|style|src)$/i.test(name)) return;
         name = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (directives.hasOwnProperty(name) && isFunction(directives[name])) {
             directives[name].call(element, scope, value);
