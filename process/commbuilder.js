@@ -16,7 +16,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     commName = commName && commName[1];
     if (useInternalReg.test(data)) {
         data = data.replace(useInternalReg, function (match, quote, relative) {
-            var realPath = path.relative(fullpath, relative);
+            var realPath = path.join(path.dirname(fullpath), relative);
             if (!fs.existsSync(realPath)) {
                 realPath = relative;
             }
@@ -26,10 +26,15 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 watchurls.push(realPath);
             }
             if (!fs.existsSync(realPath) || !fs.statSync(realPath).isFile()) {
-                console.warn("没有处理include:" + filename);
+                console.warn("没有处理include:" + filename, realPath);
                 return match;
             }
-            return fs.readFileSync(realPath).toString().replace(/\bmodule.exports\s*=/g, commName ? "var " + commName : "return ");
+            var data = fs.readFileSync(realPath).toString();
+            if (/module.exports\s*=/.test(data)) {
+                return data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName : "return ");
+            }
+            var realName = path.basename(realPath).replace(/\..*$/, "")
+            return data + `;var ${realName},${commName}=${realName};`;
         });
     }
     data = typescript.transpile(data);
