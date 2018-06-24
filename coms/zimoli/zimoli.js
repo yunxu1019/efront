@@ -117,16 +117,34 @@ function zimoli(page, args, history_name) {
         }
     }
     var _zimoli_state_key = _zimoli_state_prefix + page;
-    var state = function state(condition) {
-        if (arguments.length >= 1) {
-            localStorage.setItem(_zimoli_state_key, JSON.stringify(condition) || null);
+    var state = function state(condition, setAsAdditional = condition !== null) {
+        var state_string = localStorage.getItem(_zimoli_state_key);
+        if (state_string) {
+            try {
+                state_object = JSON.parse(state_string);
+            } catch (e) {
+                state_object = {};
+            }
+        } else {
+            state_object = {}
         }
-        try {
-            condition = JSON.parse(localStorage.getItem(_zimoli_state_key)) || {};
-        } catch (e) {
-            condition = {};
+        if (condition instanceof Object && setAsAdditional) {
+            if (!(state_object instanceof Object)) {
+                state_object = {
+                    toString() {
+                        return String(this.valueOf());
+                    },
+                    valueOf: new Function(`return ${state_object}`),
+                };
+            }
+            state_object = extend(state_object, condition);
+        } else if (arguments.length) {
+            state_object = condition;
         }
-        return condition;
+        if (arguments.length) {
+            localStorage.setItem(_zimoli_state_key, JSON.stringify(state_object) || null);
+        }
+        return state_object;
     };
     state.state = state;
     if (page_generators[page]) return go(page, args, history_name);
