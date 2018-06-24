@@ -128,7 +128,7 @@ function cross(method, url, headers) {
         }
     };
     setTimeout(function () {
-        if (!xhr.isSended) xhr.send();
+        send.call(xhr, datas === jsondata ? JSON.stringify(datas) : datas);
     }, 0);
     var onload = function (xhr) {
         onloads.map(e => e instanceof Function && e(xhr));
@@ -146,10 +146,24 @@ function cross(method, url, headers) {
         return xhr;
     };
     var send = xhr.send;
-    xhr.send = function () {
-        xhr.isSended = true;
-        send.apply(xhr, arguments);
+    var datas = {};
+    var jsondata = datas;
+    xhr.json = xhr.data = xhr.send = function (data, value) {
+        if (data instanceof Object) {
+            extend(jsondata, data);
+        } else if (value) {
+            extend(jsondata, { [data]: value })
+        } else if (isString(data) && value !== false) {
+            var data = /^\{/.test(data) ? JSON.parse(data) : parseKV(data, "&", "=");
+            extend(jsondata, data);
+        } else {
+            datas = data;
+        }
         return xhr;
+    };
+    xhr.form = function (data) {
+        xhr.data(data);
+        datas = serialize(jsondata, "&", "=");
     };
     xhr.fail = xhr.error = function (on, asqueue = true) {
         if (asqueue) {
