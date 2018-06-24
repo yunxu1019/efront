@@ -121,7 +121,7 @@ var directives = {
                 });
             } else if (className instanceof Object) {
                 for (var k in className) {
-                    if (!hasOwnProperty.call(originClassName, k)) {
+                    if (!hasOwnProperty.call(originClassName, k) && className[k]) {
                         deltaClassNames.push(deltaClassNames[k] = k);
                     }
                 }
