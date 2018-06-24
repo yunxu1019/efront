@@ -2,10 +2,9 @@
 var URL = require("url");
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 function cross(req, res) {
-    var parsed = URL.parse(req.url);
-    var search = parsed.search;
+    var search = req.url.slice(1);
     try {
-        var $cross = JSON.parse(decodeURIComponent(search.slice(1)));
+        var $cross = JSON.parse(decodeURIComponent(search));
         if (!$cross.token) throw new Error("验证身份失败！");
         var
             $url = encodeURI($cross['url']),

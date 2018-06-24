@@ -117,7 +117,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var requestListener = function (req, res) {
         var origin = req.headers.origin;
         origin && res.setHeader("Access-Control-Allow-Origin", origin);
-        if (/^\/\?/.test(req.url)) {
+        if (/^\/%7b/i.test(req.url)) {
             return doCross(req, res);
         }
         if (req.headers.range) {
