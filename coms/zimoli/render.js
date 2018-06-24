@@ -24,76 +24,76 @@ function rebuild(element) {
     element.renders.map(a => a.call(element));
 }
 var createGetter = function (search) {
-    return new Function("scope", `try{with(scope)return ${search}}catch(e){/*console.warn(String(e))*/}`);
+    return new Function(`try{with(this.$scope)return ${search}}catch(e){/*console.warn(String(e))*/}`);
 };
 var directives = {
-    click(scope, search) {
+    click(search) {
         var getter = createGetter(search);
-        onclick(this, getter.bind(this, scope));
+        onclick(this, getter);
     },
-    src(scope, search) {
-        var getter = createGetter(search);
+    src(search) {
+        var getter = createGetter(search).bind(this);
         this.renders.push(function () {
-            var value = getter(scope) || "";
+            var value = getter() || "";
             if (this.src !== value) this.src = value;
         });
     },
-    bind(scope, search) {
-        var getter = createGetter(search);
+    bind(search) {
+        var getter = createGetter(search).bind(this);
         this.renders.push(function () {
-            var value = getter(scope);
+            var value = getter();
             if (text(this) !== value) text(this, value);
         });
     },
-    model(scope, search) {
-        var getter = createGetter(search);
+    model(search) {
+        var getter = createGetter(search).bind(this);
         if (/select|input|textarea/i.test(this.tagName)) {
             this.renders.push(function () {
-                var value = getter(scope);
+                var value = getter();
                 if (value === undefined) value = "";
                 if (this.value != value) this.value = value;
 
             });
-            var change = new Function("scope", `with(scope)${search}=this.value`).bind(this, scope);
+            var change = new Function(`with(this.$scope)${search}=this.value`);
         } else {
             this.renders.push(function () {
-                var value = getter(scope);
+                var value = getter();
                 if (value === undefined) value = "";
                 if (html(this) != value) html(this, value);
             });
-            var change = new Function("scope", "html", `with(scope)${search}=html(this)`).bind(this, scope, html);
+            var change = new Function("html", `with(this.$scope)${search}=html(this)`).bind(this, html);
         }
         var onchange = lazy(change);
         eventsHandlers.map(on => on(this, onchange));
     },
-    hide(scope, search) {
-        var getter = createGetter(search);
+    hide(search) {
+        var getter = createGetter(search).bind(this);
         this.renders.push(function () {
-            if (getter(scope)) {
+            if (getter()) {
                 this.style.display = "none";
             } else {
                 this.style.display = "";
             }
         });
     },
-    show(scope, search) {
-        var getter = createGetter(search);
+    show(search) {
+        var getter = createGetter(search).bind(this);
         this.renders.push(function () {
-            if (getter(scope)) {
+            if (getter()) {
                 this.style.display = "";
             } else {
                 this.style.display = "none";
             }
         });
     },
-    "if"(scope, search) {
+    "if"(search) {
         // 懒渲染
-        var getter = createGetter(search);
+        var getter = createGetter(search).bind(this);
         var cancelonappend = onappend(this, function () {
             cancelonappend();
             var comment = document.createComment("-if:" + search);
             comment.renders = [function () {
-                if (getter(scope)) {
+                if (getter()) {
                     if (!this.parentNode) appendChild.before(comment, this);
                 } else {
                     remove(this);
@@ -105,12 +105,12 @@ var directives = {
             rebuild(comment);
         });
     },
-    repeat(scope, search) {
+    repeat(search) {
         // 懒渲染
         throw new Error("repeat is not supported! use list component instead");
     },
-    "class"(scope, search) {
-        var getter = createGetter(search);
+    "class"(search) {
+        var getter = createGetter(search).bind(this);
         var originClassName = [];
         this.className.split(/\s+/).map(function (k) {
             if (k && !hasOwnProperty.call(originClassName, k)) {
@@ -118,7 +118,7 @@ var directives = {
             }
         });
         this.renders.push(function () {
-            var className = getter(scope);
+            var className = getter();
             var deltaClassNames = [];
             if (isString(className)) {
                 className.split(/\s+/).map(function (k) {
@@ -139,10 +139,10 @@ var directives = {
             }
         });
     },
-    style(scope, search) {
-        var getter = createGetter(search);
+    style(search) {
+        var getter = createGetter(search).bind(this);
         this.renders.push(function () {
-            var stylesheet = getter(scope);
+            var stylesheet = getter();
             if (isString(stylesheet)) {
                 stylesheet.replace(/[\s\u00a0]+/g, "").split(/;/).map(function (kv) {
                     var [k, v] = kv.split(":");
@@ -161,13 +161,14 @@ var directives = {
     }
 };
 function renderElement(element, scope) {
-    if (element.renderid) return element;
     var children = element.children;
     if (!children) {
         return [].slice.call(element, 0).map(function (element) {
             return renderElement(element, scope);
         });
     }
+    element.$scope = scope;
+    if (element.renderid) return;
     var attrs = element.attributes;
     element.renders = [];
     [].slice.call(attrs, 0).map(function (attr) {
@@ -175,7 +176,7 @@ function renderElement(element, scope) {
         if (/^(?:class|style|src)$/i.test(name)) return;
         name = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (directives.hasOwnProperty(name) && isFunction(directives[name])) {
-            directives[name].call(element, scope, value);
+            directives[name].call(element, value);
         }
     });
     if (children.length) renderElement(children, scope);
