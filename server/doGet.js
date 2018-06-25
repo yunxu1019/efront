@@ -81,7 +81,7 @@ var adapter = function (data, url, req, res) {
         }
     }
     if (typeof data === "string" && data !== url && "/" + data !== url) {
-        res.writeHead(301, {
+        res.writeHead(302, {
             'Location': data[0] === "/" ? data : "/" + data
         });
         return res.end();
