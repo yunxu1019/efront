@@ -1,67 +1,97 @@
 "use strict";
 var URL = require("url");
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
-function cross(req, res, referer) {
-    if (referer) {
-        var { pathname, search } = URL.parse(referer);
-    } else {
-        var { pathname, search } = URL.parse(req.url);
-    }
-    var slice_end = pathname.indexOf("@");
-    if (slice_end < 0) {
-        slice_end = pathname.length;
-    }
-    var jsonlike = decodeURIComponent(pathname.slice(1, slice_end));
-    var realpath = referer ? req.url.slice(1) : pathname.slice(slice_end + 1) + (search || "");
-    if (referer && /head|get/i.test(req.method)) {
-        var redirect = "/" + encodeURIComponent(jsonlike) + "@" + realpath;
-        res.writeHead(302, {
-            "Location": redirect
+var options = {};
+-function () {
+    var fs = require("fs");
+    var path = require("path");
+    var loadCertFile = function (keyname, reletivepath) {
+        var fullpath = path.join(__dirname, "../data/keystore", reletivepath);
+        fs.readFile(fullpath, function (err, chunk) {
+            if (err) console.error(err);
+            else options[keyname] = chunk;
         });
-        return res.end();
     }
+    loadCertFile("key", "cross-key.pem");
+    loadCertFile("cert", "cross-cert.pem");
+}();
+function parseUrl(hostpath, real) {
+    var { pathname, search } = URL.parse(hostpath);
+    var slice_end = pathname.indexOf("@");
+    if (slice_end < 0) slice_end = pathname.length;
+    var jsonlike = decodeURIComponent(pathname.slice(1, slice_end));
+    var realpath = real ? real.slice(1) : pathname.slice(slice_end + 1) + (search || "");
+    var matchlike = /^\{(s?)\/\/(.*?)\/(.*?)\}$/i.exec(jsonlike);
+    if (matchlike) {
+        // {s//wx2.qq.com/k=v,k=v,k=v}
+        var headers = {};
+        let [, s, host, header] = matchlike;
+        var hostpath = `http${s}://${host}/`;
+        header.split("&").forEach(function (kv) {
+            var [k, v] = kv.split("=");
+            if (k && v) headers[decodeURIComponent(k)] = decodeURIComponent(v);
+        });
+    } else {
+        var { url: hostpath, token, headers = {} } = JSON.parse(jsonlike);
+        if (!token) throw new Error("验证身份失败！");
+        hostpath = encodeURI(hostpath);
+    }
+    return { jsonlike, realpath, hostpath, headers };
+}
+function cross(req, res, referer) {
     try {
-        var matchlike = /^\{(s?)\/\/(.*?)\/(.*?)\}$/i.exec(jsonlike);
-        if (matchlike) {
-            var $cross = {};
-            // {s//wx2.qq.com/k=v,k=v,k=v}
-            let headers = $cross.headers = {};
-            let [, s, host, header] = matchlike;
-            $cross.url = `http${s}://${host}/`;
-            header.split("&").forEach(function (kv) {
-                var [k, v] = kv.split("=");
-                if (k && v) headers[decodeURIComponent(k)] = decodeURIComponent(v);
-            });
+        if (referer) {
+            var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
+            if (/head|get/i.test(req.method)) {
+                var redirect = "/" + encodeURIComponent(jsonlike) + "@" + realpath;
+                res.writeHead(302, {
+                    "Location": redirect
+                });
+                return res.end();
+            }
         } else {
-            var $cross = JSON.parse(jsonlike);
-            if (!$cross.token) throw new Error("验证身份失败！");
+            var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
         }
         var
-            $url = encodeURI($cross['url']) + realpath,
+            $url = hostpath + realpath,
             // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
-            $method = $cross['method'] || req.method,//$_SERVER['REQUEST_METHOD'];
-            $headers = $cross['headers'] || {};
+            method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
+        var is_proxy = false;
+        if (/^https?:\/\/[^\/]*\/%7b/i.test(_headers.referer) && !headers.referer) {
+            headers.referer = hostpath + parseUrl(_headers.referer).realpath;
+            is_proxy = true;
+        }
+        {
+            for (let key in headers) {
+                let k = key.toLowerCase();
+                if (k !== key) {
+                    headers[k] = headers[key];
+                    delete headers[key];
+                }
+            }
+        }
         headersKeys.forEach(function (key) {
-            if (!$headers[key] && _headers[key]) {
-                $headers[key] = _headers[key];
+            key = key.toLowerCase();
+            if (!headers[key] && _headers[key]) {
+                headers[key] = _headers[key];
             }
         });
         var http;
-        if (/^https\:/i.test($url)) {
+        if (/^https\:/i.test(hostpath)) {
             http = require("https");
         } else {
             http = require("http");
         }
         var request = http.request(Object.assign({
-            method: $method,
-            headers: $headers,
+            method: method,
+            headers: headers,
             rejectUnauthorized: false// 放行证书不可用的网站
-        }, URL.parse($url)), function (response) {
+        }, URL.parse($url), options), function (response) {
             var headers = response.headers;
             headers.origin && (headers["Access-Control-Allow-Credentials"] = true);
             var setCookie = headers["set-cookie"];
-            if (setCookie && !matchlike) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
+            if (setCookie && !is_proxy) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
             if (headers.location) {
                 headers["cross-location"] = headers.location;
                 delete headers.location;
