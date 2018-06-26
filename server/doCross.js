@@ -13,7 +13,7 @@ function cross(req, res, referer) {
     }
     var jsonlike = decodeURIComponent(pathname.slice(1, slice_end));
     var realpath = referer ? req.url.slice(1) : pathname.slice(slice_end + 1) + (search || "");
-    if (referer) {
+    if (referer && /head|get/i.test(req.method)) {
         var redirect = "/" + encodeURIComponent(jsonlike) + "@" + realpath;
         res.writeHead(302, {
             "Location": redirect
@@ -37,7 +37,7 @@ function cross(req, res, referer) {
             if (!$cross.token) throw new Error("验证身份失败！");
         }
         var
-            $url = encodeURI($cross['url'] + realpath),
+            $url = encodeURI($cross['url']) + realpath,
             // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
             $method = $cross['method'] || req.method,//$_SERVER['REQUEST_METHOD'];
             $headers = $cross['headers'] || {};
@@ -61,7 +61,7 @@ function cross(req, res, referer) {
             var headers = response.headers;
             headers.origin && (headers["Access-Control-Allow-Credentials"] = true);
             var setCookie = headers["set-cookie"];
-            if (setCookie) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
+            if (setCookie && !matchlike) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
             if (headers.location) {
                 headers["cross-location"] = headers.location;
                 delete headers.location;
