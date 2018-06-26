@@ -11,18 +11,31 @@ function cross(req, res, referer) {
     if (slice_end < 0) {
         slice_end = pathname.length;
     }
-    var jsondata = decodeURIComponent(pathname.slice(1, slice_end));
+    var jsonlike = decodeURIComponent(pathname.slice(1, slice_end));
     var realpath = referer ? req.url.slice(1) : pathname.slice(slice_end + 1) + (search || "");
     if (referer) {
-        var redirect = "/" + encodeURIComponent(jsondata) + "@" + realpath;
+        var redirect = "/" + encodeURIComponent(jsonlike) + "@" + realpath;
         res.writeHead(302, {
             "Location": redirect
         });
         return res.end();
     }
     try {
-        var $cross = JSON.parse(jsondata);
-        if (!$cross.token) throw new Error("验证身份失败！");
+        var matchlike = /^\{(s?)\/\/(.*?)\/(.*?)\}$/i.exec(jsonlike);
+        if (matchlike) {
+            var $cross = {};
+            // {s//wx2.qq.com/k=v,k=v,k=v}
+            let headers = $cross.headers = {};
+            let [, s, host, header] = matchlike;
+            $cross.url = `http${s}://${host}/`;
+            header.split("&").forEach(function (kv) {
+                var [k, v] = kv.split("=");
+                if (k && v) headers[decodeURIComponent(k)] = decodeURIComponent(v);
+            });
+        } else {
+            var $cross = JSON.parse(jsonlike);
+            if (!$cross.token) throw new Error("验证身份失败！");
+        }
         var
             $url = encodeURI($cross['url'] + realpath),
             // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
