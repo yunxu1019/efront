@@ -7,7 +7,8 @@ function reload() {
 var reload_timmer;
 function reloader() {
     var xhr = new XMLHttpRequest;
-    xhr.open("post", "http://localhost/reload");
+    var http_port = process.env.HTTP_PORT;
+    xhr.open("post", `http://localhost${http_port ? ":" + http_port : ""}/reload`);
     xhr.timeout = 0;
     xhr.onerror = reload;
 
