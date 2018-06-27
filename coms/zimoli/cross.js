@@ -2,10 +2,18 @@ var cookiesMap = {};
 var domainReg = /^https?\:\/\/(.*?)(\/.*?)?(?:[\?#].*)?$/i;
 var base = domainReg.test(location.href) ? "/" : "http://efront.cc/";
 var HeadersKeys = ["Content-Type"];
+var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
+var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
+if (cookiesData) {
+    try {
+        extend(cookiesMap, JSON.parse(cookiesData));
+    } catch (e) {
+        console.warn("加载cookie出错！");
+    }
+}
 function getDomainPath(url) {
     return url.replace(domainReg, "$1$2");
 }
-
 function getRequestProtocol(url) {
     if (/^https:/i.test(url)) {
         return "https";
@@ -37,6 +45,10 @@ function getCookies(domainPath) {
 }
 function addCookie(cookie, originDomain = "") {
     if (cookie) {
+        clearTimeout(addCookie.save_timer);
+        addCookie.save_timer = setTimeout(function () {
+            sessionStorage.setItem(cookieItemsInSessionStorageKey, JSON.stringify(cookiesMap));
+        }, 20);
         cookie.replace(/(^|;|,)\s*(expires)=(\w*),([^=]*)(;|$)/ig, "$1$2=$3.$4$5")
             .split(/,\s*/).map(function (cookie) {
                 var cookieObject = {};
@@ -131,8 +143,8 @@ function cross(method, url, headers) {
         }
     };
     setTimeout(function () {
-        if (jsondata === datas) {
-            datas = JSON.stringify(datas);
+        if (jsondata && !datas) {
+            datas = JSON.stringify(jsondata);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         }
         send.call(xhr, datas);
@@ -153,9 +165,10 @@ function cross(method, url, headers) {
         return xhr;
     };
     var send = xhr.send;
-    var datas = {};
-    var jsondata = datas;
+    var datas = "";
+    var jsondata = null;
     xhr.json = xhr.data = xhr.send = function (data, value) {
+        if (!jsondata) jsondata = {};
         if (data instanceof Object) {
             extend(jsondata, data);
         } else if (value) {
