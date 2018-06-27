@@ -19,25 +19,48 @@ var {
 var RegExpressions = {
     [Attribute]: [
         //    1   ///    2   ///     3       ///---------//
-        /(\s*=\s*')|(\s*=\s*")|(\s*=\s*[^\s*])|(?=\/?>|\s)/yg,
+        /(\s*=\s*')|(\s*=\s*")|(\s*=\s*[^\s*])|(?=\/?>|\s)/g,
         SingleQuoteString,
         DoubleQuoteString
     ],
-    [SingleQuoteString]: /(\\[\s\S])|'/yg,
-    [DoubleQuoteString]: /(\\[\s\S])|"/yg,
-    [Comment]: /-->/yg,
+    [SingleQuoteString]: /(\\[\s\S])|'/g,
+    [DoubleQuoteString]: /(\\[\s\S])|"/g,
+    [Comment]: /-->/g,
     [Element]: [
         /////// 1////2////3///    4    /// 5 //
-        /\/>|<\/.*?>|>(\s)|>(<)|>(.)|([^\s>\/]+)|(\s+)/yg,
+        {
+            exec(source, lookback) {
+                var reg = /\/>|<\/.*?>|>(\s)|>(<)|>(.)|([^\s>\/]+)|(\s+)/g;
+                reg.lastIndex = this.lastIndex;
+                var res = reg.exec(source);
+                this.lastIndex = reg.lastIndex;
+                switch (res && res[0].charAt(0)) {
+                    case ">":
+                        if (lookback.length) {
+                            var back = lookback[lookback.length - 1];
+                            if (!back.parent.startWith(/<(?:input|img|br|hr|meta|link)/ig)) {
+                                break;
+                            }
+                        };
+                        this.lastIndex = res.index;
+                        return [">"];
+                    case "/":
+                        this.lastIndex = res.index + 1;
+                        return ["/>"];
+
+                }
+                return res;
+            }
+        },
         Space,
         Element,
         Text,
         Attribute
     ],
-    [Space]: /(?=[^\s])/yg,
+    [Space]: /(?=[^\s])/g,
     [Text]: [
         //  1 ///-----///    2     /// 3///4//
-        /(<!--)|(?=<\/)|(<[^\s\/>]+)|(\s)|([^\s])/yg,
+        /(<!--)|(?=<\/)|(<[^\s\/>]+)|(\s)|([^\s])/g,
         Comment,
         Element,
         Space
@@ -49,6 +72,11 @@ function Block(type, start, parent) {
     this.parent = parent;
 }
 Block.prototype = extend({
+    startWith(reg) {
+        reg.lastIndex = this.start;
+        reg.lastIndex = this.start;
+        return reg.exec(this.scanner.source).index === this.start;
+    },
     getSource() {
         return this.scanner.source.slice(this.start, this.end);
     }
@@ -80,8 +108,15 @@ var xml = {
                         var node = document.createTextNode(block.getSource());
                         return node;
                     case Attribute:
-                        var attr = block.getSource().split(/\s*=\s*/);
-                        parentNode && parentNode.setAttribute(attr[0], attr[1] || "");
+                        var source = block.getSource();
+                        var spliter = source.indexOf("=");
+                        if (spliter < 0) spliter = source.length;
+                        var key = source.slice(0, spliter).replace(/^\s*|s*$/g, "");
+                        var value = source.slice(spliter + 1).replace(/^\s*|s*$/g, "");
+                        if (value) {
+                            value = value.replace(/^([`'"])([\s\S]*)\1$/mg, "$2").replace(/\\([\s\S])/g, "$1")
+                        }
+                        parentNode && parentNode.setAttribute(key, value);
                     case Space:
                         return document.createTextNode(" ");
                 }
