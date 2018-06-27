@@ -33,6 +33,8 @@ Scanner.prototype = {
                 var block = new Block(matchType, savedIndex);
                 block.parent = parent;
                 block.children = children;
+                block.root = this.block;
+                block.scanner = this;
                 index = this.scan(index, matchType, children, block);
                 if (collection && savedIndex < index) {
                     if (collection.length) {
@@ -43,11 +45,9 @@ Scanner.prototype = {
                     collection.push(block);
                 }
                 block.end = index;
-                block.root = this.block;
-                block.scanner = this;
-            } else if(/y/.test(reg.flags)){
+            } else if (/y/.test(reg.flags)) {
                 throw new Error(`unexcepted token ${dataString[index]}`);
-            }else{
+            } else {
                 index = dataString.length;
             }
         }
