@@ -128,11 +128,16 @@ var loader = function (curl, temp, key, rebuild) {
             temp[key] = getdir(pathname);
         } else {
             var data = getfile(pathname, buffer_size);
-            if (rebuild instanceof Function) {
-                data = rebuild(data, key, durl, is_reload ? [] : durls);
-            }
-            if (!(data instanceof Buffer) && typeof data === "string") {
-                data = Buffer.from(data);
+            try {
+                if (rebuild instanceof Function) {
+                    data = rebuild(data, key, durl, is_reload ? [] : durls);
+                }
+                if (!(data instanceof Buffer) && typeof data === "string") {
+                    data = Buffer.from(data);
+                }
+            } catch (e) {
+                console.warn("Build Faild:", curl, e);
+                data = e;
             }
             temp[key] = data;
         }
@@ -165,11 +170,16 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                 });
             } else {
                 temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
-                    if (rebuild instanceof Function) {
-                        data = rebuild(data, key, durl, is_reload ? [] : durls);
-                    }
-                    if (!(data instanceof Buffer) && typeof data === "string") {
-                        data = Buffer.from(data);
+                    try {
+                        if (rebuild instanceof Function) {
+                            data = rebuild(data, key, durl, is_reload ? [] : durls);
+                        }
+                        if (!(data instanceof Buffer) && typeof data === "string") {
+                            data = Buffer.from(data);
+                        }
+                    } catch (e) {
+                        console.warn("Build Faild:", curl, e);
+                        data = e;
                     }
                     is_reload && _reload_handlers.forEach(run => run());
                     return temp[key] = data;
