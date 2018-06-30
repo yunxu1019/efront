@@ -96,6 +96,7 @@ function list(generator) {
     //计算当前高度
     var currentY = function () {
         var firstElement = getFirstElement();
+        if (!firstElement) return saved_itemIndex * restHeight;
         return firstElement.index * firstElement.offsetHeight + list.scrollTop;
     };
     //滚动一定的距离
@@ -180,6 +181,7 @@ function list(generator) {
     list.go = scrollTo;
     list.Height = function () {
         var firstElement = getFirstElement();
+        if (!firstElement) return restHeight;
         return firstElement.index * firstElement.offsetHeight + list.offsetHeight + list.scrollTop + restHeight;
     };
     list.Top = function (y) {
@@ -193,6 +195,7 @@ function list(generator) {
     };
     list.index = function () {
         var firstElement = getFirstVisibleElement();
+        if (!firstElement) return saved_itemIndex;
         var index = firstElement.index;
         var scrolled = (list.scrollTop - firstElement.offsetTop) / firstElement.offsetHeight;
         return index + scrolled;
