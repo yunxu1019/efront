@@ -14,7 +14,7 @@ cross("get", "http://m.kugou.com/").done(function (xhr) {
         return image;
     });
     var _slider = slider(images).go(0).play();
-    css(_slider, "height:" + (window.innerWidth * 0.38) + "px;max-height:240px;");
+    css(_slider, "height:" + (innerWidth * 0.38) + "px;max-height:240px;");
     appendChild(page, _slider);
     var songs = [].map.call(sandbox.querySelector(".panel-songslist").children, function (child) {
         var id = child.getAttribute("id");
