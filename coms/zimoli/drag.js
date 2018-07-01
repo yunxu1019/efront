@@ -10,6 +10,12 @@ function getMarginLeft(offsetLeft, offsetWidth, innerWidth) {
 function drag(target, event, overflow = false) {
     var saved_delta = { x: target.offsetLeft - event.clientX, y: target.offsetTop - event.clientY };
     var cancelmousemove = onmousemove(window, function (event) {
+        if (event.defaultPrevented) return;
+        if (!saved_delta.ing) {
+            var abs = Math.abs;
+            if (abs(target.offsetLeft - event.clientX - saved_delta.x < 3) && abs(target.offsetTop - event.clientY - saved_delta.y) < 3) return;
+            saved_delta.ing = true;
+        }
         event.preventDefault();
         var offsetLeft = saved_delta.x + event.clientX;
         var offsetTop = saved_delta.y + event.clientY;
