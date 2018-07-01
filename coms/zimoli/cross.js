@@ -150,6 +150,9 @@ function cross(method, url, headers) {
         send.call(xhr, datas);
     }, 0);
     var onload = function (xhr) {
+        if (xhr.decoder) {
+            xhr = xhr.decoder(xhr);
+        }
         onloads.map(e => e instanceof Function && e(xhr));
     };
     var onerror = function (xhr) {
