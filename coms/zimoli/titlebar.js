@@ -24,7 +24,10 @@ function titlebar(page_title, option_buttons, use_back) {
     var _back = createElement(back);
     text(title, page_title || document.title);
     appendChild(bar, title);
-    use_back && appendChild(bar, _back);
+    if (use_back) {
+        appendChild(bar, _back);
+        css(title, "padding-left:46px;");
+    }
     option_buttons && appendChild(bar, option_buttons);
     return bar;
 }
