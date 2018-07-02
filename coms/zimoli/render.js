@@ -111,29 +111,31 @@ var directives = {
     },
     "class"(search) {
         var getter = createGetter(search).bind(this);
-        var originClassName = [];
-        this.className.split(/\s+/).map(function (k) {
-            if (k && !hasOwnProperty.call(originClassName, k)) {
-                originClassName.push(originClassName[k] = k);
-            }
-        });
+        var generatedClassNames = {};
         this.renders.push(function () {
+            var originalClassNames = [];
+            this.className.split(/\s+/).map(function (k) {
+                if (k && !hasOwnProperty.call(generatedClassNames, k) && !hasOwnProperty.call(originalClassNames, k)) {
+                    originalClassNames.push(originalClassNames[k] = k);
+                }
+            });
             var className = getter();
             var deltaClassNames = [];
             if (isString(className)) {
                 className.split(/\s+/).map(function (k) {
-                    if (!hasOwnProperty.call(originClassName, k)) {
+                    if (!hasOwnProperty.call(originalClassNames, k)) {
                         deltaClassNames.push(deltaClassNames[k] = k);
                     }
                 });
             } else if (className instanceof Object) {
                 for (var k in className) {
-                    if (!hasOwnProperty.call(originClassName, k) && className[k]) {
+                    if (!hasOwnProperty.call(originalClassNames, k) && className[k]) {
                         deltaClassNames.push(deltaClassNames[k] = k);
                     }
                 }
             }
-            var destClassName = originClassName.concat(deltaClassNames).join(" ");
+            var destClassName = originalClassNames.concat(deltaClassNames).join(" ");
+            generatedClassNames = deltaClassNames;
             if (this.className !== destClassName) {
                 this.className = destClassName;
             }
