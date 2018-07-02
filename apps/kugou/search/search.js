@@ -1,3 +1,4 @@
+
 css(titlebar("搜索"), { backgroundColor: "rgb(44, 162, 249)" });
 var inputBox = createWithClass(div, "input-box");
 var textInput = createWithClass(input, "input");
@@ -19,12 +20,10 @@ var updateKeywords = function () {
     });
     appendChild(keywords_pad, keywords);
 };
+
 appendChild(page, keywords_pad);
 var result_pad = createWithClass(div, "result-pad");
 
-var getKugouJsonpData = function (xhr) {
-    return JSON.parse(String(xhr.responseText || xhr.response || "").replace(/^.*?\(([\s\S]*?)\)$/, "$1")).data;
-};
 var updateHotKeyword = function () {
     cross("get", "http://mobilecdn.kugou.com/api/v3/search/hot?format=jsonp&plat=0&count=30&callback=kgJSONP").done(function (xhr) {
         var data = getKugouJsonpData(xhr);
@@ -88,11 +87,11 @@ oninput(textInput, function () {
 onback(function () {
     textInput.value = "";
 });
-onappend(function () {
+onappend(page, function () {
     textInput.value = state.keyword || "";
     dispatch(textInput, "input");
 });
-onremove(function () {
+onremove(page, function () {
     var _state = state();
     _state.keyword = textInput.value;
     state(_state);
