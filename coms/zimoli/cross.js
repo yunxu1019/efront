@@ -88,6 +88,9 @@ function addCookie(cookie, originDomain = "") {
 function isChildPath(relative, path) {
     return relative.replace(/^(.*\/)[^\/]*$/, path);
 }
+var digest = function () {
+    if (cross.digest instanceof Function) cross.digest();
+};
 function cross(method, url, headers) {
     var originDomain = getDomainPath(url);
     if (!originDomain) throw new Error("Unsupposed url format!");
@@ -154,9 +157,11 @@ function cross(method, url, headers) {
             xhr = xhr.decoder(xhr);
         }
         onloads.map(e => e instanceof Function && e(xhr));
+        digest();
     };
     var onerror = function (xhr) {
         onerrors.map(e => e instanceof Function && e(xhr));
+        digest();
     };
     var onloads = [], onerrors = [];
     xhr.done = function (on, asqueue = true) {
