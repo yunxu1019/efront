@@ -119,6 +119,7 @@ function zimoli(page, args, history_name) {
     var _zimoli_state_key = _zimoli_state_prefix + page;
     var state = function state(condition, setAsAdditional = condition !== null) {
         var state_string = localStorage.getItem(_zimoli_state_key);
+        var state_object;
         if (state_string) {
             try {
                 state_object = JSON.parse(state_string);

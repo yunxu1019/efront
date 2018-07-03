@@ -8,7 +8,7 @@ onkeydown(document, function (e) {
 });
 var windowFactory = function () {
     var window = createElement(div);
-    css(window, `height:100px;width:100px;position:absolute;background-color:#fff;left:${popups.length << 4}px;top:${popups.length << 4}px;`);
+    css(window, `height:100px;width:100px;position:absolute;background-color:#fff;left:${rootElements.length << 4}px;top:${rootElements.length << 4}px;`);
     return window;
 };
 var loadingFactory = function () {
