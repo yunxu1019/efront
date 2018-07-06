@@ -37,6 +37,7 @@ var geticon = function (name, _ccons_root = ccons_root) {
 };
 
 var getcomm = function (name, _comms_root = comms_root) {
+    name = name.replace(/(\w)\$/g, "$1/");
     return getfrompath(name, _comms_root, getcommfile, ".js");
 };
 

@@ -33,7 +33,8 @@ function getBuildInfo(url) {
             case "":
                 builder = commbuilder;
                 extt = ".js";
-                fullpath = comms_root instanceof Array ? comms_root.map(a => path.join(a, name + extt)) : path.join(comms_root, name + extt);
+                var $name = name.replace(/(\w)\$/g, "$1/");
+                fullpath = comms_root instanceof Array ? comms_root.map(a => path.join(a, $name + extt)) : path.join(comms_root, $name + extt);
                 destpath = path.join("comm", name);
                 break;
             case "/":
@@ -61,11 +62,11 @@ function getBuildInfo(url) {
                 fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
                 destpath = path.join("ccon", name);
                 break;
-                // case "_":
-                //     builder = aapibuilder;
-                //     extt = ".js";
-                //     fullpath = path.join(aapis_root, name + extt);
-                //     break;
+            // case "_":
+            //     builder = aapibuilder;
+            //     extt = ".js";
+            //     fullpath = path.join(aapis_root, name + extt);
+            //     break;
         }
     }
     return new BuildInfo({
