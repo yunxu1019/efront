@@ -67,7 +67,7 @@ function list(generator) {
         var ratio = itemIndex - index;
         if (index < 0) index = 0;
         var childrenMap = getChildrenMap();
-        var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null;
+        var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null, last_index = last_item && last_item.index;
         while (offsetBottom - ratioTop <= list.offsetHeight + cache_height) {
             var item = childrenMap[offset];
             if (!item) {
