@@ -55,6 +55,7 @@ var XHR = function () {
 };
 var load = function (name, count = 150) {
     var url;
+    var version = versionTree[url] || (+new Date).toString(32);
     switch (name.charAt(0)) {
         case "/":
             url = "page" + name;
@@ -83,7 +84,7 @@ var load = function (name, count = 150) {
             }
         }
     };
-    xhr.send("{}");
+    xhr.send(version);
 };
 var flush_to_storage_timer = 0,
     responseTree_storageKey = "zimoliAutoSavedResponseTree";
