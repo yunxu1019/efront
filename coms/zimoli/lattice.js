@@ -4,20 +4,20 @@ onresize(window, function () {
     }
 });
 var mountedLattices = [];
-function lattice(layers, minWidth) {
+function lattice(layers, minWidth, maxWidth = minWidth << 1) {
     var boxCount;
     var resize = function () {
         var clientWidth = _box.clientWidth;
         boxCount = clientWidth / minWidth | 0;
-        if (boxCount < 1) {
-            boxCount = 1;
-        }
+        if (boxCount > layers.length) boxCount = layers.length;
+        if (boxCount < 1) boxCount = 1;
     }
     var _box = list(function (index) {
         var offset = boxCount * index;
         var objs = layers.slice(offset, offset + boxCount).map(function (a) {
             css(a, {
-                width: (1000000 / boxCount | 0) / 10000 + "%"
+                width: (1000000 / boxCount | 0) / 10000 + "%",
+                maxWidth: maxWidth * renderPixelRatio + "pt",
             });
             return a;
         });
