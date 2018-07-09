@@ -7,6 +7,9 @@ var keywords = {};
 keyword.split(/\s+/g).forEach(function (key) {
     keywords[key] = true;
 });
+var ieSpecialWords = Object.assign({
+    valueOf: true
+}, keywords);
 var merge = function (dst, o) {
     for (var k in o) {
         dst[k] = dst[k] || o[k];
@@ -92,7 +95,7 @@ var getVariables = function (ast) {
                 if (ast.property.type === "Identifier") {
                     //用以兼容IE5-9
                     var name = ast.property.name
-                    if (name in keywords) {
+                    if (name in ieSpecialWords) {
                         ast.property = {
                             "type": "Literal",
                             "value": name,
@@ -110,13 +113,13 @@ var getVariables = function (ast) {
                 if (ast.key.type === "Identifier") {
                     //用以兼容IE5-9
                     var name = ast.key.name;
-                    if (name in keywords) {
+                    if (name in ieSpecialWords) {
                         ast.key = {
                             "type": "Literal",
                             "value": name,
                             "raw": "\"" + name + "\""
                         }
-                        ast.computed = true;
+                        // ast.computed = true;
                     }
                 }
                 ast.shorthand = false; //让esmangle兼容shorthand
@@ -152,8 +155,8 @@ var getVariables = function (ast) {
                     unDeclaredVariables[k] = "function";
                 }
                 ast.id ? DeclaredVariables = {
-                        [ast.id.name]: "function"
-                    } :
+                    [ast.id.name]: "function"
+                } :
                     DeclaredVariables = {};
                 break;
             case "Identifier":
