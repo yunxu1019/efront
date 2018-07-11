@@ -75,14 +75,19 @@ function appendTo(parent, datas) {
         parent = parent.parent;
     }
 }
-function tree() {
+function tree(constructor) {
     var dom = [], root = null;
     var banner = list(function (index) {
         var coms = dom;
         if (index >= coms.length) return;
         var com = coms[index];
-        var span = div();
-        html(span, `<b>${com.name}</b>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
+        var span;
+        if (isFunction(constructor)) {
+            span = constructor(com);
+        } else {
+            span = div();
+            html(span, `<b>${com.name}</b>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
+        }
         var _div = button(span);
         addClass(_div, "tab" + com.tab);
         css(_div, {
