@@ -4,13 +4,17 @@ onresize(window, function () {
     }
 });
 var mountedLattices = [];
+var complete_class = "complete";
+var inadequate_class = "lack";
 function lattice(layers, minWidth, maxWidth = minWidth << 1) {
     var boxCount;
     var resize = function () {
         var clientWidth = _box.clientWidth;
         boxCount = clientWidth / minWidth | 0;
-        if (boxCount > layers.length) boxCount = layers.length;
-        if (boxCount < 1) boxCount = 1;
+        if (boxCount >= layers.length) boxCount = layers.length, addClass(_box, complete_class);
+        else removeClass(_box, complete_class);
+        if (boxCount < 1) boxCount = 1, addClass(_box, inadequate_class);
+        else removeClass(_box, inadequate_class);
     }
     var _box = list(function (index) {
         var offset = boxCount * index;
