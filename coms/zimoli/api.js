@@ -27,7 +27,20 @@ var api = function (uri, parameters, prefix) {
         };
         var xhr = XHR();
         xhr.open('post', url);
-        xhr.onload = function () {
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) return;
+            switch (xhr.status) {
+                case 0:
+                case 200:
+                case 304:
+                    xhr_onload(xhr);
+                    break;
+                default:
+                    xhr_onerror(xhr);
+            }
+        }
+
+        var xhr_onload = function () {
             setTimeout(clear);
             var text = xhr.responseText;
             if (text) {
@@ -74,7 +87,7 @@ var api = function (uri, parameters, prefix) {
             setTimeout(clear);
             onerror && onerror("请求超时！");
         };
-        xhr.onerror = function () {
+        var xhr_onerror = function () {
             setTimeout(clear);
             if (!navigator.onLine) {
                 onerror && onerror("请求网络失败，请确认网络连接正常！", -1);
