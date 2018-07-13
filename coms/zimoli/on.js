@@ -35,7 +35,7 @@ if (is_addEventListener_enabled) {
             if (!(on_event_path in element)) {
                 if (element === window && on_event_path in document) {
                     element = document;
-                    console.warn("use", on_event_path, "on document instead of on window");
+                    if (!addhandler.logged) addhandler.logged = true, console.warn("use", on_event_path, "on document instead of on window");
                 }
             }
             if (element[handler_path]) {
@@ -85,7 +85,7 @@ if (is_addEventListener_enabled) {
             cancelup();
         }, true);
         var cancelmove = on("mousemove")(document, function (event) {
-            if (!event.which) dispatch("mouseup", document), console.warn("dispatch mouseup nanually.");
+            if (!event.which) dispatch("mouseup", document)/* ,console.warn("dispatch mouseup nanually.")*/;
         }, true);
     });
 }
