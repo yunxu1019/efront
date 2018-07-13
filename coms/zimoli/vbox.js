@@ -65,7 +65,7 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
         var scrollHeight = _box[$Height]();
         if (top < 0) {
             // if (speed > 30) speed = 30;
-            speed = speed >> 1;
+            __speed = __speed >> 1;
             useIncrease && increase(top);
             top = 0;
         } else if (top + height > scrollHeight) {
@@ -73,28 +73,31 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
             if (top + height - scrollHeight > increase_height) {
                 top = increase_height + scrollHeight - height;
             }
-            speed = speed >> 1;
+            __speed = __speed >> 1;
             useIncrease && increase(top + height - scrollHeight);
         }
         return _box[$Top](top);
     };
-    var saved_x, saved_y, direction, speed = 0,
+    var saved_x, saved_y, direction, __speed = 0,
         lastmoveTime;
     var smooth = function (useIncrease = true) {
-        var abs_speed = abs(speed << 2) / time_splitter;
+        console.log(__speed)
+        var abs_speed = abs(__speed << 2) / time_splitter;
+        var abs_speed = abs(__speed << 2) / time_splitter;
         if (abs_speed < 1) {
-            speed = 0;
+            __speed = _speed(0);
             decrease();
             return;
         }
-        speed_timer = setTimeout(smooth, time_splitter);
-        _box[$scrollY](-speed, useIncrease);
-        speed = speed - sign(speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
+        speed_timer = requestAnimationFrame(smooth.bind(null, useIncrease));
+        _box[$scrollY](-__speed, useIncrease);
+        __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
     var increaser_t = createElement(div);
     var increaser_b = createElement(div);
     var decrease_timer = 0;
-    var time_splitter = 30;
+    var time_splitter = 16;
+    var _speed = speed(time_splitter);
     var increase_height = 100 * renderPixelRatio / .75;
     var _decrease = function (increaser) {
         var height = parseInt(increaser.style[$height]);
@@ -122,8 +125,8 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
         return 0;
     };
     var decrease = function () {
-        if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = setTimeout(decrease, time_splitter);
-        else if (_box[$stopY]() - _box[$Top]()) decrease_timer = setTimeout(decrease, time_splitter);
+        if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = requestAnimationFrame(decrease);
+        else if (_box[$stopY]() - _box[$Top]()) decrease_timer = requestAnimationFrame(decrease);
     };
     var increase = function (deltaY) {
         var t_height = parseInt(increaser_t.style[$height]) || 0;
@@ -147,24 +150,21 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
         });
     };
     onmousewheel(_box, function (event) {
-        clearTimeout(speed_timer);
-        clearTimeout(decrease_timer);
+        cancelAnimationFrame(speed_timer);
+        cancelAnimationFrame(decrease_timer);
         var deltay = isNumber(event[$deltaY]) ? -event[$deltaY] : event[$wheelDeltaY];
         !isNumber(deltay) && (deltay = event.wheelDelta);
         !isNumber(deltay) && (deltay = -event.detail * 40);
         event.preventDefault();
-        var now = new Date;
-        var deltat = now - lastmoveTime;
-        lastmoveTime = now;
-        speed = speed ? (speed + deltay * time_splitter / deltat) >> 1 : deltay * time_splitter / deltat;
+        __speed = _speed(deltay);
         _box[$scrollY](-deltay, false);
         smooth(false);
     });
     var speed_timer, cancelmousemove, cancelmouseup;
     onmousedown(_box, function (event) {
-        clearTimeout(speed_timer);
-        clearTimeout(decrease_timer);
-        speed = 0;
+        cancelAnimationFrame(speed_timer);
+        cancelAnimationFrame(decrease_timer);
+        _speed(0);
         lastmoveTime = new Date;
         saved_x = event[$clientX], saved_y = event[$clientY];
         direction = 0;
@@ -185,10 +185,7 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
         if (direction < 0)
             return;
         event.preventDefault();
-        var now = new Date;
-        var deltat = now - lastmoveTime;
-        lastmoveTime = now;
-        speed = speed ? (speed + deltay * time_splitter / deltat) >> 1 : deltay * time_splitter / deltat;
+        __speed = _speed(deltay);
         _box[$scrollY](-deltay);
         saved_x = clientX;
         saved_y = clientY;
@@ -201,19 +198,20 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
     };
 
     ontouchstart(_box, function (event) {
-        clearTimeout(speed_timer);
-        clearTimeout(decrease_timer);
+        cancelAnimationFrame(speed_timer);
+        cancelAnimationFrame(decrease_timer);
         extendTouch(event);
         lastmoveTime = new Date;
         saved_x = event[$clientX], saved_y = event[$clientY];
         var moving = event.target;
-        speed = 0;
+        _speed(0);
         direction = 0;
         var cancel = function () {
             direction = 0;
             canceltouchmove();
             canceltouchend();
             canceltouchcancel();
+            __speed = _speed();
             smooth();
         };
         event.preventDefault();
