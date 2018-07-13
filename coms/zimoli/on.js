@@ -1,7 +1,7 @@
 "use strict";
 var is_addEventListener_enabled = "addEventListener" in window;
 var handlersMap = {};
-if (is_addEventListener_enabled) {
+if (is_addEventListener_enabled && false) {
     var on = function (k) {
         var on_event_path = "on" + k;
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
@@ -30,15 +30,17 @@ if (is_addEventListener_enabled) {
         var handler_path = k + "handlers";
         var on_event_path = "on" + k;
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
-        function addhandler(element, handler) {
+        function addhandler(element, handler, firstmost = false) {
+            // 仅在hack事件中使用firstmost参数
             if (!(on_event_path in element)) {
                 if (element === window && on_event_path in document) {
                     element = document;
-                    console.warn("use ", on_event_path, "on document instead of on window");
+                    console.warn("use", on_event_path, "on document instead of on window");
                 }
             }
             if (element[handler_path]) {
-                element[handler_path].push(handler);
+                if (firstmost) element[handler_path].unshift(handler);
+                else element[handler_path].push(handler);
             } else {
                 element[handler_path] = element[on_event_path] ? [element[on_event_path], handler] : [handler];
                 element[on_event_path] = function (e) {
@@ -56,7 +58,7 @@ if (is_addEventListener_enabled) {
                 };
                 var broadcast = function (handlers, e) {
                     for (var cx = 0, dx = handlers.length; cx < dx; cx++) {
-                        var _handler = handlers[cx];
+                        var _handler = handlers[handlers.length + cx - dx];
                         if (_handler instanceof Function) {
                             _handler.call(element, e);
                         } else if (_handler instanceof Array) {
@@ -77,4 +79,13 @@ if (is_addEventListener_enabled) {
         }
         return handlersMap[on_event_path] = addhandler;
     };
+    if (!("onmousedown" in window)) on("mousedown")(document, function () {
+        var cancelup = on("mouseup")(document, function () {
+            cancelmove();
+            cancelup();
+        }, true);
+        var cancelmove = on("mousemove")(document, function (event) {
+            if (!event.which) dispatch("mouseup", document), console.warn("dispatch mouseup nanually.");
+        }, true);
+    });
 }
