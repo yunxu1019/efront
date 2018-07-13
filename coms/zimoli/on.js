@@ -1,7 +1,7 @@
 "use strict";
 var is_addEventListener_enabled = "addEventListener" in window;
 var handlersMap = {};
-if (is_addEventListener_enabled && false) {
+if (is_addEventListener_enabled) {
     var on = function (k) {
         var on_event_path = "on" + k;
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
@@ -51,8 +51,8 @@ if (is_addEventListener_enabled && false) {
                         };
                     }
                     if (e.button) {
-                        if (!e.buttons) e.buttons = e.button;
-                        if (!e.which) e.which = e.button;
+                        if (e.buttons === undefined) e.buttons = e.button;
+                        if (e.which === undefined) e.which = e.button;
                     }
                     broadcast(element[handler_path], e);
                 };
