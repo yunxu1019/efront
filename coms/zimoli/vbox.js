@@ -78,10 +78,8 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
         }
         return _box[$Top](top);
     };
-    var saved_x, saved_y, direction, __speed = 0,
-        lastmoveTime;
+    var saved_x, saved_y, direction, __speed = 0;
     var smooth = function (useIncrease = true) {
-        console.log(__speed)
         var abs_speed = abs(__speed << 2) / time_splitter;
         var abs_speed = abs(__speed << 2) / time_splitter;
         if (abs_speed < 1) {
@@ -89,7 +87,7 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
             decrease();
             return;
         }
-        speed_timer = requestAnimationFrame(smooth.bind(null, useIncrease));
+        speed_timer = requestAnimationFrame(() => smooth(useIncrease));
         _box[$scrollY](-__speed, useIncrease);
         __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
