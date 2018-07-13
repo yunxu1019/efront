@@ -31,6 +31,12 @@ if (is_addEventListener_enabled) {
         var on_event_path = "on" + k;
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
         function addhandler(element, handler) {
+            if (!(on_event_path in element)) {
+                if (element === window && on_event_path in document) {
+                    element = document;
+                    console.warn("use ", on_event_path, "on document instead of on window");
+                }
+            }
             if (element[handler_path]) {
                 element[handler_path].push(handler);
             } else {
@@ -41,6 +47,10 @@ if (is_addEventListener_enabled) {
                         e.preventDefault = function () {
                             e.returnValue = false;
                         };
+                    }
+                    if (e.button) {
+                        if (!e.buttons) e.buttons = e.button;
+                        if (!e.which) e.which = e.button;
                     }
                     broadcast(element[handler_path], e);
                 };
