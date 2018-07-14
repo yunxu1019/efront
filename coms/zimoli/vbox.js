@@ -171,6 +171,7 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
     });
     var mousemove = function (event) {
         if (event.defaultPrevented) return;
+        if (_box.nodrag) return;
         if (event.type !== "touchmove" && event.which === 0) return mouseup();
         var clientX = event[$clientX];
         var clientY = event[$clientY];
