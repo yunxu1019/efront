@@ -30,6 +30,7 @@ function drag(target, event, overflow = false) {
                 clone = target;
             }
         }
+        drag.target = clone;
         event.preventDefault();
         var offsetLeft = saved_delta.x + event.clientX;
         var offsetTop = saved_delta.y + event.clientY;
@@ -59,6 +60,7 @@ function drag(target, event, overflow = false) {
     });
     var clear = function () {
         saved_delta = null;
+        drag.target = null;
         if (clone !== target) remove(clone), css(target, { opacity: saved_opacity });
         cancelmousemove();
         cancelmouseup();
