@@ -17,7 +17,9 @@ function cloneVisible(node, parentPosition) {
     for (var cx = 0, dx = cloneProperties.length; cx < dx; cx++) {
         var k = cloneProperties[cx];
         if (k in cloneStyle) {
-            cloneStyle[k] = style[k];
+            if ((cloneStyle[k] || style[k]) && cloneStyle[k] !== style[k]) {
+                cloneStyle[k] = style[k] || "";
+            }
         }
     }
     var screenPosition = getScreenPosition(node);
