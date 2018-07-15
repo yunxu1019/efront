@@ -1,4 +1,4 @@
-var cloneProperties = "font,color,display,borderRadius,border-top,border-right,border-bottom,border-left,verticalAlign,textAlign,textShadow,background,opacity,padding,boxSizing,boxShadow,overflow,height,width,position,writingMode,blockSize,wordSpacing,letterSpacing,textIndent".split(",");
+var cloneProperties = "font,color,display,borderRadius,border-top,border-right,border-bottom,border-left,verticalAlign,textAlign,textShadow,background,opacity,padding,boxShadow,overflow,position,writingMode,blockSize,wordSpacing,letterSpacing,textIndent".split(",");
 function cloneVisible(node, parentPosition) {
     if (!node || node.nodeType > 3 || node.nodeType == 2) return;
     var style = node.style;
@@ -32,6 +32,9 @@ function cloneVisible(node, parentPosition) {
         cloneStyle.left = style.left;
         cloneStyle.top = style.top;
     }
+    cloneStyle.width = screenPosition.width + "px";
+    cloneStyle.height = screenPosition.height + "px";
+    cloneStyle.boxSizing = "border-box";
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var child = children[cx];
         var childClone = cloneVisible(child, screenPosition);
