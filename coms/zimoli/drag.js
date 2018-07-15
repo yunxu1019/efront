@@ -15,7 +15,7 @@ function drag(target, event, overflow = false) {
         if (event.defaultPrevented) return;
         if (!saved_delta.ing) {
             var abs = Math.abs;
-            if (event.buttons !== 1) return clear();
+            if (event.which !== 1) return clear();
             if (abs(target.offsetLeft - event.clientX - saved_delta.x < 3) && abs(target.offsetTop - event.clientY - saved_delta.y) < 3) return;
             saved_delta.ing = true;
             if (!/absolute|fixed/.test(getComputedStyle(target).position)) {
