@@ -8,8 +8,12 @@
     box-shadow: inset 0 0 12px #51ddf6, inset 0px -120px 120px -120px #51ddf6;
 }
 
-&>div,
-&>div>div {
+&>div.lack+div.more {
+    width: 100%;
+}
+
+&>div>div,
+&>div>div>div {
     position: relative;
     display: inline-block;
     width: 100%;
@@ -18,5 +22,58 @@
 }
 
 &>.more {
-    float: right;
+    position: absolute;
+    right: 0;
+    width: 40px;
+    height: 100%;
+    color: #fff;
+    background: transparent;
+    &::after {
+        content: "";
+        position: absolute;
+        display: block;
+        @size: 8px;
+        width: @size;
+        height: @size;
+        right: 20px;
+        top: 50%;
+        margin: -@size/2;
+        box-sizing: border-box;
+        border-top: 2px solid;
+        border-bottom: 2px solid;
+    }
+}
+
+body:active & {
+    // 仅在拖动过程中使用动画
+    >.lattice {
+        >div>div {
+            @time: .1s;
+            transition: margin @time;
+        }
+    }
+}
+
+&>.lattice {
+    right: 40px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    &.complete {
+        right: 0;
+    }
+    &.lack {
+        >div {
+            opacity: 0;
+        }
+    }
+}
+
+&>.complete+.more {
+    display: none;
+}
+
+&>.lack+.more {
+    width: 100%;
 }

@@ -6,8 +6,6 @@ var columns = `首页
 办公文档
 装饰装修
 插画配图
-个人VIP
-企业VIP
 `.replace(/^\s+|\s+$/g, "").split(/\s+/);
 var menu_buttons = columns.map(a => button(a));
 function main() {
