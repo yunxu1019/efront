@@ -11,6 +11,7 @@ function drag(target, event, overflow = false) {
     var saved_delta = { x: target.offsetLeft - event.clientX, y: target.offsetTop - event.clientY };
     var clone;
     var saved_opacity = target.style.opacity;
+    var saved_filter = target.style.filter;
     var cancelmousemove = onmousemove(window, function (event) {
         if (event.defaultPrevented) return;
         if (!saved_delta.ing) {
@@ -21,8 +22,8 @@ function drag(target, event, overflow = false) {
             if (!/absolute|fixed/.test(getComputedStyle(target).position)) {
                 clone = cloneVisible(target);
                 var position = getScreenPosition(target);
-                css(target, "opacity:0");
                 css(clone, `position:absolute;left:${position.left}px;top:${position.top}px;`);
+                opacity(target, 0);
                 appendChild(document.body, clone);
                 saved_delta.x += clone.offsetLeft - target.offsetLeft;
                 saved_delta.y += clone.offsetTop - target.offsetTop;
@@ -62,7 +63,7 @@ function drag(target, event, overflow = false) {
     var clear = function () {
         saved_delta = null;
         drag.target = null;
-        if (clone !== target) remove(clone), css(target, { opacity: saved_opacity });
+        if (clone !== target) remove(clone), css(target, { opacity: saved_opacity, filter: saved_filter });
         cancelmousemove();
         cancelmouseup();
     };
