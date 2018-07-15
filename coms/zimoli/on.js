@@ -54,6 +54,9 @@ if (is_addEventListener_enabled) {
                         if (e.buttons === undefined) e.buttons = e.button;
                         if (e.which === undefined) e.which = e.button;
                     }
+                    if (!e.target && e.srcElement) {
+                        e.target = e.srcElement;
+                    }
                     broadcast(element[handler_path], e);
                 };
                 var broadcast = function (handlers, e) {
