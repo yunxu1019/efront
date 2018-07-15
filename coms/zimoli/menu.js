@@ -88,9 +88,6 @@ function autodragchildren(target, matcher) {
     return target;
 }
 
-function split() {
-
-}
 
 function menu(buttons) {
     var menu_box = div();
