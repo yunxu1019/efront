@@ -29,6 +29,7 @@ function drag(target, event, overflow = false) {
             } else {
                 clone = target;
             }
+            clone.style.zIndex = zIndex();
         }
         drag.target = clone;
         event.preventDefault();
