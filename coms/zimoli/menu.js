@@ -12,7 +12,9 @@ var recover = function (element) {
     moveMargin(element, 0);
 };
 var moveMargin = function (element, movePixels) {
+    if (element.moved === movePixels) return;
     element.moved = movePixels;
+    element.moving = new Date;
     css(element, {
         marginLeft: movePixels ? movePixels + "px" : "",
         marginRight: movePixels ? -movePixels + "px" : ""
@@ -32,7 +34,9 @@ function autodragchildren(target, matcher) {
                 if (area > 0) {
                     var dragPosition = getScreenPosition(dragTarget);
                     var dragPositionLeft = dragPosition.left;
+                    var currentTime = new Date;
                     preivousElements.map(function (element) {
+                        if (currentTime - element.moving < 100) return;
                         var elementPosition = getScreenPosition(element);
                         var elementCenter = elementPosition.left + elementPosition.width / 2;
                         if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
@@ -43,6 +47,7 @@ function autodragchildren(target, matcher) {
                     });
                     var dragPositionRight = dragPosition.left + dragPosition.width;
                     followedElements.map(function (element) {
+                        if (currentTime - element.moving < 100) return;
                         var elementPosition = getScreenPosition(element);
                         var elementCenter = elementPosition.left + elementPosition.width / 2;
                         if (elementCenter - (element.moved || 0) <= dragPositionRight) {
@@ -78,7 +83,6 @@ function autodragchildren(target, matcher) {
                     break;
                 }
             }
-
             preivousElements.map(recover);
             followedElements.map(recover);
             cancelmouseup();
