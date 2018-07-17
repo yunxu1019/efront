@@ -2,7 +2,6 @@ var nav = createElement(div);
 
 function btn(element) {
     var opt = button(element);
-    addClass(opt, "btn");
     return opt;
 }
 function back() {
@@ -17,7 +16,24 @@ function back() {
 }
 
 
-function titlebar(page_title, option_buttons, use_back) {
+function titlebar() {
+    var page_title, option_buttons, use_back;
+    {
+        for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
+            let arg = arguments[cx];
+            switch (typeof arg) {
+                case "string":
+                    page_title = arg;
+                    break;
+                case "object":
+                    option_buttons = arg;
+                    break;
+                case "boolean":
+                    use_back = arg;
+                    break;
+            }
+        }
+    }
     use_back = use_back !== false;
     var bar = createElement(nav);
     var title = createElement(label);
@@ -26,9 +42,25 @@ function titlebar(page_title, option_buttons, use_back) {
     appendChild(bar, title);
     if (use_back) {
         appendChild(bar, _back);
-        css(title, "padding-left:46px;");
+        addClass(_back, "back");
     }
-    option_buttons && appendChild(bar, option_buttons);
+    if (isArray(option_buttons)) {
+        option_buttons = option_buttons.map(function (button) {
+            return isString(button) ? btn(button) : button;
+        });
+        if (option_buttons.length > 1) {
+            var menu_group = div();
+            addClass(menu_group, "menus");
+            appendChild(menu_group, option_buttons);
+            appendChild(bar, menu_group);
+        } else if (option_buttons.length === 1) {
+            var button = option_buttons[0];
+            addClass(button, "menu");
+            appendChild(bar, button);
+        }
+    } else if (isNode(option_buttons)) {
+        appendChild(bar, option_buttons);
+    }
     return bar;
 }
 titlebar.button = btn;

@@ -15,7 +15,7 @@
     border: 1px solid #18333c;
     background-color: #18333c;
     box-shadow: inset 0 0 6px #51ddf6, inset 200px -160px 200px -200px #51ddf6;
-    >label{
+    >label {
         overflow: hidden;
         text-overflow: ellipsis;
         padding: 0 10px;
@@ -24,11 +24,28 @@
     }
 }
 
-&>.btn {
+&>div {
     position: absolute;
     background-color: transparent;
     top: 0;
     bottom: 0;
     height: 100%;
+}
+
+&>.back {
+    left: 0;
     width: 60px;
+}
+&>.menus>div{
+    height: 100%;
+    position: relative;
+    vertical-align: top;
+    display: inline-block;
+    min-width: 60px;
+    background: transparent;
+}
+&>.menus,
+&>.menu {
+    min-width: 60px;
+    right: 0;
 }
