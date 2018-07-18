@@ -6,19 +6,9 @@ var _itemBody = div();
 addClass(_itemBody, "body");
 var _itemFoot = div();
 addClass(_itemFoot, "foot");
-var middle = function (item) {
-    var half_height = parseInt(item.style.height) >> 1;
-    half_height && css(item, {
-        position: "absolute",
-        top: "25px",
-        marginTop: -half_height + item.style.height.replace(/(\d*)/, "")
-    });
-    return item;
-};
+
 function option(head, body, foot, splitter) {
     var box = createElement(_itemBox);
-    isNode(head) && middle(head);
-    isNode(body) && middle(body);
     var _head = createElement(_itemHead, head);
     var _body = createElement(_itemBody, body);
     appendChild(box, _body, _head);
