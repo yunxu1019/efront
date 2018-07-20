@@ -61,8 +61,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 commName = null;
             }
         }
-        var lessFile = fullpath.replace(/\.[jt]sx?$/i, ".less"),
-            lessData;
+        var lessFile = fullpath.replace(/\.[jt]sx?$/i, ".less"), lessData;
         if (fs.existsSync(lessFile)) {
             watchurls.push(lessFile);
             if (fs.statSync(lessFile).isFile()) {
@@ -70,7 +69,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 less.render(`.${className}{${fs.readFileSync(lessFile).toString()}}`, {
                     compress: !process.env.IN_TEST_MODE
                 }, function (err, data) {
-                    if (err) return;
+                    if (err) return console.warn(err);
                     lessData = data.css;
                 });
             }
