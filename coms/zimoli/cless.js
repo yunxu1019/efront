@@ -8,17 +8,22 @@ function cless(commFactory, styleSheet, className) {
         style.innerHTML = styleSheet
     }
     appendChild(document.getElementsByTagName("head")[0], style);
-    if (isFunction(commFactory)) return function () {
-        var commRelease = commFactory.apply(this || null, arguments);
-        if (commRelease) {
-            try {
-                addClass(commRelease, className);
-            } catch (e) {
-                console.error(e, "bindClassNameError");
+    if (isFunction(commFactory)) {
+        var result = function () {
+            var commRelease = commFactory.apply(this || null, arguments);
+            if (commRelease) {
+                try {
+                    addClass(commRelease, className);
+                } catch (e) {
+                    console.error(e, "bindClassNameError");
+                }
             }
-        }
-        return commRelease;
-    };
+            return commRelease;
+        };
+        result.prototype = commFactory.prototype;
+        keys(commFactory).map(k => result[k] = commFactory[k]);
+        return result;
+    }
     if (commFactory) {
         try {
             addClass(commFactory, className);
