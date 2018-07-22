@@ -13,6 +13,7 @@ function cloneVisible_test() {
         var clone = cloneVisible(ele);
         css(clone, "left:100px;top:100px;position:absolute;z-index:10");
         appendChild(document.body, clone);
+        ele.with ? ele.with.push(clone) : ele.with = [clone];
         window.e1 = ele.querySelector("input");
         window.e2 = clone.querySelector("input");
         var s1 = window.s1 = getComputedStyle(e1);
