@@ -12,6 +12,7 @@ var execute = function (commName, then) {
                 component = isFunction(comm) ? comm.apply(null, arguments) : createElement(comm);
                 // component && appendChild(page, component);
             } catch (e) {
+                console.error(e);
             }
             return component;
         };
@@ -19,7 +20,7 @@ var execute = function (commName, then) {
             component = createElement(comm);
             // component && appendChild(page, component);
         } catch (e) {
-
+            console.error(e);
         }
         then && then(component);
     });
