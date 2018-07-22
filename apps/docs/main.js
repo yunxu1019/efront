@@ -28,6 +28,7 @@ api("/getAllComponents").success(function (result) {
     alert(err);
 });
 onactive(leftArea, function (event) {
+    if (event.value.tab === 1) return;
     if (!event.value.test) return alert("仅可以测试点击以_test结尾的哦");
     commNameInput.value = event.value.name + "_test";
     build();
