@@ -27,10 +27,11 @@ api("/getAllComponents").success(function (result) {
 }).error(function (err) {
     alert(err);
 });
-onclick(leftArea, function (event) {
-    var data = leftArea.src[event.target.parentNode.index];
-    console.log(data);
-})
+onactive(leftArea, function (event) {
+    if (!event.value.test) return alert("仅可以测试点击以_test结尾的哦");
+    commNameInput.value = event.value.name + "_test";
+    build();
+});
 
 /**
  * clearCacheResponse
