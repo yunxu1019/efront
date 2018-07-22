@@ -32,6 +32,8 @@ var prototype = {
     click(action) {
         if (isFunction(action)) {
             onclick(this, action);
+        } else {
+            dispatch(this, "click");
         }
         return this;
     }
