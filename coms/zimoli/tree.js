@@ -1,8 +1,15 @@
 function Item(value) {
     this.value = value;
+    this.valueOf = function () {
+        return value;
+    };
+    this.toString = function () {
+        return String(value);
+    };
     if (value instanceof Object) {
         this.name = value.name;
         this.tab = value.tab;
+        this.test = value.test;
     }
     this.count = 0;
 }
