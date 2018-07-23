@@ -19,7 +19,12 @@ var extendTouch = function (e) {
  * 传入一个页面，将其重构为可纵向平滑滑动的页面
  * @param {Element|Function|string} generator 
  */
-function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
+function vbox(generator, $Y = "Y") {
+    if ($Y === "X") {
+        var $height = "width", $top = "left", $X = "Y";
+    } else if ($Y === "Y") {
+        var $height = "height", $top = "top", $X = "X";
+    }
     var $Height = $height.charAt(0).toUpperCase() + $height.slice(1);
     var $Top = $top.charAt(0).toUpperCase() + $top.slice(1);
     var $scrollHeight = "scroll" + $Height;
@@ -141,10 +146,10 @@ function vbox(generator, $height = "height", $top = "top", $X = "X", $Y = "Y") {
         if (b_height < 0) b_height = 0;
         if (t_height < 0) t_height = 0;
         b_height && css(increaser_b, {
-            height: b_height + "px"
+            [$height]: b_height + "px"
         });
         t_height && css(increaser_t, {
-            height: t_height + "px"
+            [$height]: t_height + "px"
         });
     };
     onmousewheel(_box, function (event) {
