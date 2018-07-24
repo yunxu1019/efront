@@ -5,10 +5,26 @@ var cache_height = 200;
  * 
  * @param {Boolean|Array|Function} generator 
  */
-function list(generator, $Y = "Y") {
+function list() {
+    var generator, $Y = "Y", container;
+    {
+        for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
+            let arg = arguments[cx];
+            switch (typeof arg) {
+                case "string":
+                    $Y = arg;
+                    break;
+                case "function":
+                    generator = arg;
+                    break;
+                default:
+                    container = arg;
+            }
+        }
+    }
     if ($Y === "X") {
         var $height = "width", $top = "left", $X = "Y";
-    } else if ($Y === "Y") {
+    } else {
         var $height = "height", $top = "top", $X = "X";
     }
     var $Height = $height.charAt(0).toUpperCase() + $height.slice(1);
@@ -17,7 +33,7 @@ function list(generator, $Y = "Y") {
     var $offsetTop = "offset" + $Top;
     var $offsetHeight = "offset" + $Height;
     var restHeight = 2000;
-    var list = div();
+    var list = container || div();
     list.autoFix = true;
     var saved_itemIndex;
     onappend(list, function () {
