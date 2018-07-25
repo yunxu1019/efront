@@ -155,9 +155,7 @@ function vbox(generator, $Y = "Y") {
     onmousewheel(_box, function (event) {
         cancelAnimationFrame(speed_timer);
         cancelAnimationFrame(decrease_timer);
-        var deltay = isNumber(event[$deltaY]) ? -event[$deltaY] : event[$wheelDeltaY];
-        !isNumber(deltay) && (deltay = event.wheelDelta);
-        !isNumber(deltay) && (deltay = -event.detail * 40);
+        var deltay = -event[$deltaY];
         event.preventDefault();
         __speed = _speed(deltay);
         _box[$scrollY](-deltay, false);
