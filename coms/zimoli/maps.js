@@ -72,12 +72,21 @@ function maps(config = {}) {
             context.clearRect(0, y_start, canvas.offsetWidth, y_empty);
             var [lng, lat] = map.Center();
             var zoom = map.Zoom();
-            map.Center(x2lng(lng2x(lng, zoom) - deltaX / 256, zoom), y2lat(lat2y(lat, zoom) - deltaY / 256, zoom));
+            var scale = map.Scale();
+            if (scale === 1) {
+                map.Center(x2lng(lng2x(lng, zoom) - deltaX / 256, zoom), y2lat(lat2y(lat, zoom) - deltaY / 256, zoom));
+            } else {
+                map.Center(x2lng(lng2x(lng, zoom) - (deltaX / 256 / scale).toFixed(6), zoom), y2lat(lat2y(lat, zoom) - (deltaY / 256 / scale).toFixed(6), zoom));
+            }
+
         });
         var cancelup = onmouseup(window, function () {
             cancelup();
             cancelmove();
         });
+    });
+    onmousewheel(canvas, function (event) {
+        console.warn(event);
     });
     return canvas;
 };
@@ -85,13 +94,35 @@ maps.prototype = {
     url: "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     direction: 1,
     zoom: 10,
+    scale: 1,
     center: [0, 0],
+    canvas: null,
+    context: null,
     Zoom(level) {
         if (isFinite(level)) {
             this.zoom = +level;
             this.refresh();
         }
         return this.zoom;
+    },
+    Scale(level) {
+        if (isFinite(level)) {
+            this.scale = +level;
+            this.refresh();
+        }
+        return this.scale;
+    },
+    location(layerx, layery) {
+        var map = this;
+        var [centerlng, centerlat] = map.Center();
+        var zoom = map.Zoom();
+        var centerx = map.lng2x(centerlng, zoom);
+        var centery = map.lat2y(centerlat, zoom);
+        var { offsetWidth, offsetHeight } = this.canvas;
+        var x = centerx + (layerx - offsetWidth / 2) / 256;
+        var y = centery + (layery - offsetHeight / 2) / 256;
+        var lng = +map.x2lng(x, zoom).toFixed(6), lat = +map.y2lat(y, zoom).toFixed(6);
+        return [lng, lat];
     },
     Center(lng, lat) {
         if (isFinite(lng) && isFinite(lat)) {
@@ -132,7 +163,7 @@ maps.prototype = {
     },
     getImage(x, y, z) {
         var image = new Image;
-        image.crossOrigin = "anonymous"
+        image.crossOrigin = "anonymous";
         this.loadImage(image, this.getURL(x, y, z));
         return image;
     },
@@ -147,11 +178,10 @@ maps.prototype = {
             offsetWidth,
             offsetHeight
         } = this.canvas;
-        var halfWidth = offsetWidth >> 1;
-        var halfHeight = offsetHeight >> 1;
-
-        var marginX = (halfWidth + 256 * (x + 1 - x0) | 0) % 256 - 256;
-        var marginY = (halfHeight + 256 * (y + 1 - y0) | 0) % 256 - 256;
+        var halfWidth = offsetWidth / 2;
+        var halfHeight = offsetHeight / 2;
+        var marginX = (halfWidth + 256 * (x + 1 - x0) ) % 256 - 256;
+        var marginY = (halfHeight + 256 * (y + 1 - y0) ) % 256 - 256;
         var countX = Math.ceil((offsetWidth - marginX) / 256);
         var countY = Math.ceil((offsetHeight - marginY) / 256);
         var grids = [];
@@ -188,6 +218,21 @@ maps.prototype = {
         if (this.direction < 0) {
             top = this.canvas.offsetHeight - top - 256;
         }
+        var scale = this.Scale();
+        if (scale !== 1) {
+            var { offsetHeight, offsetWidth } = this.canvas;
+            var centerx = offsetWidth / 2;
+            var centery = offsetHeight / 2;
+            left = (left - centerx) * scale + centerx;
+            top = (top - centery) * scale + centery;
+            width = scale * width;
+            height = scale * height;
+        }
+        var round = Math.round;
+        left = round(left);
+        top = round(top);
+        width = round(width);
+        height = round(height);
         this.context.clearRect(left, top, width, height);
         // console.log(grids)
         this.context.drawImage(image, left, top, width, height);

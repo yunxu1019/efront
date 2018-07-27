@@ -9,14 +9,7 @@ function maps_test() {
         var map = this.map;
         var layerx = event.offsetX || event.layerX || 0;
         var layery = event.offsetY || event.layerY || 0;
-        var [centerlng, centerlat] = map.Center();
-        var zoom = map.Zoom();
-        var centerx = map.lng2x(centerlng, zoom);
-        var centery = map.lat2y(centerlat, zoom);
-        var { offsetWidth, offsetHeight } = this;
-        var x = centerx + (layerx - offsetWidth / 2) / 256;
-        var y = centery + (layery - offsetHeight / 2) / 256;
-        var lng = +map.x2lng(x, zoom).toFixed(6), lat = +map.y2lat(y, zoom).toFixed(6);
+        var [lng, lat] = map.location(layerx, layery);
         alert(`${lng},${lat}`);
     });
     var active;
