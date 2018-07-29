@@ -117,6 +117,15 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
         move(btns, c1, c2);
         move(map, c1, c2);
     });
+    var extra_list = list(function (index) {
+        var btn = btns[menu_items.children[0].children.length + index];
+        var clone = btn ? button(btn.innerText, "white") : false;
+        css(clone, `display:block;width:100%;height:28px;overflow:hidden;box-shadow:none;text-align:left;padding-left:20px`);
+        return clone;
+    });
+    css(extra_list, "min-width:180px;border:1px solid #000;background:#fff;padding:8px 0;");
+    extra_list.go(0);
+    select(menu_extra, extra_list);
     appendChild(menu_box, menu_items, menu_extra);
     return menu_box;
 }
