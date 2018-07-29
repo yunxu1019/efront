@@ -11,19 +11,19 @@ var page = createElement(div);
  * commNameInput
  */
 var commNameInput = createElement(input);
-commNameInput.value = state();
+commNameInput.value = state().value || "";
 onkeydown(commNameInput, function (event) {
     var {
         keyCode
     } = event;
     if (keyCode === 13) {
-        state(this.value);
         build();
+        state({ value: this.value });
     }
 });
 api("/getAllComponents").success(function (result) {
     leftArea.src(result.result);
-    leftArea.go(0);
+    leftArea.go(state().scroll);
 }).error(function (err) {
     alert(err);
 });
@@ -31,9 +31,12 @@ onactive(leftArea, function (event) {
     if (event.value.tab === 1) return;
     if (!event.value.test) return alert("仅可以测试点击以_test结尾的哦");
     commNameInput.value = event.value.name + "_test";
+    state({
+        scroll: leftArea.index(),
+        value: commNameInput.value
+    })
     build();
 });
-
 /**
  * clearCacheResponse
  */
@@ -57,9 +60,13 @@ setGetMethod(function (url, then) {
     }
 });
 var build = function () {
-    execute(commNameInput.value, function (comm) {
-        isNode(comm) && appendChild(mainArea, comm);
-    });
+    try {
+        execute(commNameInput.value, function (comm) {
+            isNode(comm) && appendChild(mainArea, comm);
+        });
+    } catch (e) {
+        console.error(e);
+    }
 }
 appendChild(nameArea, commNameInput, exportButton);
 appendChild(page, leftArea, nameArea, mainArea);
