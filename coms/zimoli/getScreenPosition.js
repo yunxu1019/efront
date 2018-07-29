@@ -6,8 +6,8 @@ function getScreenPosition(target) {
         height = target.offsetHeight;
     while (target.offsetParent) {
         target = target.offsetParent;
-        left += target.offsetLeft - target.scrollLeft;
-        top += target.offsetTop - target.scrollTop;
+        left += target.offsetLeft - target.scrollLeft + target.clientLeft;
+        top += target.offsetTop - target.scrollTop + target.clientTop;
     }
     return {
         left,
