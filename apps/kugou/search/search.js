@@ -40,14 +40,20 @@ var updateResultWithKeyword = function () {
     if (updateResultWithKeyword.ing) updateResultWithKeyword.ing.abort();
     remove(result_pad.children);
     appendChild(result_pad, searchIng);
-    updateResultWithKeyword.ing = cross("get", `http://mobilecdn.kugou.com/api/v3/search/song?format=jsonp&keyword=${encodeURIComponent(keyword)}&page=1&pagesize=30&showtype=1&callback=kgJSONP`).done(function (xhr) {
+    var url = `http://mobilecdn.kugou.com/api/v3/search/song?format=jsonp&keyword=${keyword}&page=1&pagesize=30&showtype=1&callback=kgJSONP`;
+    // var url = `http://songsearch.kugou.com/song_search_v2?callback=kgJSONP&keyword=${keyword}&page=1&pagesize=30&userid=-1&clientver=&platform=WebFilter&tag=em&filter=2&iscorrection=1&privilege_filter=0&_=${+new Date}`;
+    // `http://searchtip.kugou.com/getSearchTip?MusicTipCount=5&MVTipCount=2&albumcount=2&keyword=${encodeURIComponent(keyword)}&callback=kgJSONP&_=${+new Date}`;
+    updateResultWithKeyword.ing = cross("get", url).done(function (xhr) {
         if (keyword !== textInput.value) return;
         remove(result_pad.children);
         var data = getKugouJsonpData(xhr);
+        if (!data.info && data.lists instanceof Array) {
+            data.info = data.lists;
+        }
         if (data.info && data.info.length) {
             var songs = data.info.map(function (data) {
-                var singer = String(data.singername);
-                var song = String(data.songname);
+                var singer = String(data.SingerName || data.singername);
+                var song = String(data.SongName || data.songname);
                 var block = createElement(div);
                 var _singer = createElement(div);
                 var _song = createElement(div);
@@ -56,7 +62,7 @@ var updateResultWithKeyword = function () {
                 _singer.innerHTML = singer;
                 _song.innerHTML = song;
                 appendChild(block, _singer, _song);
-                block.hash = data.hash;
+                block.hash = data.FileHash || data.HQFileHash || data.SQFileHash || data.hash;
                 onclick(block, function () {
                     kgplayer.play(this.hash);
                 });
@@ -69,7 +75,7 @@ var updateResultWithKeyword = function () {
     });
 };
 var input_timer = 0;
-oninput(textInput, function () {
+oninput(textInput, function (event) {
     clearTimeout(input_timer);
     var value = textInput.value;
     if (value) {
