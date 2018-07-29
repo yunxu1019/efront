@@ -21,12 +21,12 @@ var moveMargin = function (element, movePixels) {
     });
 };
 
-function autodragchildren(target, matcher) {
+function autodragchildren(target, matcher, MOV) {
     onmousedown(target, function (event) {
         if (event.target === this) return;
         var targetChild = getTargetIn(matcher, event.target);
         drag(targetChild, event);
-        var preivousElements = getPreviousElementSiblings(targetChild), followedElements = getFollowedElementSiblings(targetChild);
+        var previousElements = getPreviousElementSiblings(targetChild), followedElements = getFollowedElementSiblings(targetChild);
         var cancelmousemove = onmousemove(window, function () {
             var dragTarget = drag.target;
             if (dragTarget) {
@@ -35,7 +35,7 @@ function autodragchildren(target, matcher) {
                     var dragPosition = getScreenPosition(dragTarget);
                     var dragPositionLeft = dragPosition.left;
                     var currentTime = new Date;
-                    preivousElements.map(function (element) {
+                    previousElements.map(function (element) {
                         if (currentTime - element.moving < 100) return;
                         var elementPosition = getScreenPosition(element);
                         var elementCenter = elementPosition.left + elementPosition.width / 2;
@@ -57,33 +57,37 @@ function autodragchildren(target, matcher) {
                         }
                     });
                 } else {
-                    preivousElements.map(recover);
+                    previousElements.map(recover);
                     followedElements.map(recover);
                 }
             } else {
-                preivousElements.map(recover);
+                previousElements.map(recover);
                 followedElements.map(recover);
             }
         });
         var cancelmouseup = onmouseup(window, function () {
-            if (preivousElements.length && preivousElements[0].moved) for (var cx = 1, dx = preivousElements.length + 1; cx < dx; cx++) {
-                if (!preivousElements[cx]) {
-                    appendChild.before(preivousElements[cx - 1], targetChild);
-                } else if (!preivousElements[cx].moved) {
-                    appendChild.after(preivousElements[cx], targetChild);
+            if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
+                if (!previousElements[cx]) {
+                    if (isFunction(MOV)) MOV(previousElements.length, 0);
+                    appendChild.before(previousElements[cx - 1], targetChild);
+                } else if (!previousElements[cx].moved) {
+                    if (isFunction(MOV)) MOV(previousElements.length, previousElements.length - cx);
+                    appendChild.after(previousElements[cx], targetChild);
                     break;
                 }
             }
 
             if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
                 if (!followedElements[cx]) {
+                    if (isFunction(MOV)) MOV(previousElements.length, followedElements.length + previousElements.length);
                     appendChild.after(followedElements[cx - 1], targetChild);
                 } else if (!followedElements[cx].moved) {
+                    if (isFunction(MOV)) MOV(previousElements.length, previousElements.length + cx);
                     appendChild.before(followedElements[cx], targetChild);
                     break;
                 }
             }
-            preivousElements.map(recover);
+            previousElements.map(recover);
             followedElements.map(recover);
             cancelmouseup();
             cancelmousemove();
@@ -92,10 +96,16 @@ function autodragchildren(target, matcher) {
     return target;
 }
 
-
-function menu(buttons) {
+function move(array, src, dst) {
+    var temp = array.splice(src, 1);
+    if (temp.length) array.splice(dst, 0, temp[0]);
+}
+function menu(buttons, map = buttons.map((a, cx) => cx)) {
+    var btns = buttons.map(function (a, cx) {
+        return cx in map ? buttons[map[cx]] : a;
+    });
     var menu_box = div();
-    var menu_items = lattice(buttons, 100);
+    var menu_items = lattice(btns, 100);
     menu_items.nodrag = true;
     addClass(menu_items, "lattice");
     var menu_extra = button("");
@@ -103,7 +113,10 @@ function menu(buttons) {
     onappend(menu_items, function () {
         menu_items.go(0);
     });
-    autodragchildren(menu_items, e => e.parentNode && e.parentNode.parentNode === menu_items);
+    autodragchildren(menu_items, e => e.parentNode && e.parentNode.parentNode === menu_items, function (c1, c2) {
+        move(btns, c1, c2);
+        move(map, c1, c2);
+    });
     appendChild(menu_box, menu_items, menu_extra);
     return menu_box;
 }
