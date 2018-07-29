@@ -105,33 +105,39 @@ var popup_as_extra = function (element, target) {
     if (!element.origin) {
         element.origin = {
             height: element.style.height,
-            width: element.style.width
+            width: element.style.width,
+            minWidth: element.style.minWidth
         };
     } else {
         extend(element.style, element.origin);
     }
-    css(element, `position:absolute;left:${position.left}px;min-width:${position.width}px;`);
-    onremove(target, function () {
+    css(element, `position:absolute;left:${position.left}px;`);
+    var release1 = onremove(target, function () {
         remove(element);
+    });
+    var release2 = onremove(element, function () {
+        release1();
+        release2();
     });
     global(element);
     var height = element.offsetHeight;
     //如果高度超出可视区，调整高度
     if (height > maxHeight) {
-        css(element, `height:${maxHeight}px`);
+        css(element, `height:${maxHeight}px;`);
     }
-    var width = element.offsetWidth;
-    var aimedWidth = width;
+    var aimedWidth = element.offsetWidth;
+    css(element, `min-width:auto;`);
     //如果宽度不足其附着元素的宽度
-    if (width < target.offsetWidth) {
+    if (aimedWidth < target.offsetWidth) {
         aimedWidth = target.offsetWidth;
     }
+
     //如果宽度超出可视区，调整宽度
     if (aimedWidth > maxWidth) {
         aimedWidth = maxWidth;
     }
-    if (width !== aimedWidth) {
-        css(element, `width:${maxWidth}px`);
+    if (aimedWidth !== element.offsetWidth) {
+        css(element, `width:${aimedWidth}px`);
     }
     if (position.top + element.offsetHeight + position.height > innerHeight) {
         css(element, `bottom:${innerHeight - position.top}px;top:auto;`);
@@ -149,7 +155,10 @@ var popup_as_single = function (element) {
     global(element);
 };
 var global = function (element) {
-    onremove(element, cleanup);
+    var release = onremove(element, function (event) {
+        cleanup.call(this, event);
+        release();
+    });
     appendChild(document.body, element);
     rootElements.push(element);
 }
