@@ -116,7 +116,7 @@ var directives = {
             var originalClassNames = [];
             this.className.split(/\s+/).map(function (k) {
                 if (k && !hasOwnProperty.call(generatedClassNames, k) && !hasOwnProperty.call(originalClassNames, k)) {
-                    originalClassNames.push(originalClassNames[k] = k);
+                    if (!/^\d+$/.test(k)) originalClassNames.push(originalClassNames[k] = k);
                 }
             });
             var className = getter();
@@ -124,13 +124,13 @@ var directives = {
             if (isString(className)) {
                 className.split(/\s+/).map(function (k) {
                     if (!hasOwnProperty.call(originalClassNames, k)) {
-                        deltaClassNames.push(deltaClassNames[k] = k);
+                        if (!/^\d+$/.test(k)) deltaClassNames.push(deltaClassNames[k] = k);
                     }
                 });
             } else if (className instanceof Object) {
                 for (var k in className) {
                     if (!hasOwnProperty.call(originalClassNames, k) && className[k]) {
-                        deltaClassNames.push(deltaClassNames[k] = k);
+                        if (!/^\d+$/.test(k)) deltaClassNames.push(deltaClassNames[k] = k);
                     }
                 }
             }
