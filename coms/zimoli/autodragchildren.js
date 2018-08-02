@@ -11,11 +11,14 @@ var moveMargin = function (element, movePixels) {
     });
 };
 
-function autodragchildren(target, matcher, MOV) {
+function autodragchildren(target, matcher, move) {
     onmousedown(target, function (event) {
         if (event.target === this) return;
         var targetChild = getTargetIn(matcher, event.target);
         drag(targetChild, event);
+        if (isArray(targetChild)) {
+            targetChild = targetChild[0];
+        }
         var previousElements = getPreviousElementSiblings(targetChild), followedElements = getFollowedElementSiblings(targetChild);
         var cancelmousemove = onmousemove(window, function () {
             var dragTarget = drag.target;
@@ -56,24 +59,33 @@ function autodragchildren(target, matcher, MOV) {
             }
         });
         var cancelmouseup = onmouseup(window, function () {
+            var dst, append, delta;
             if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
                 if (!previousElements[cx]) {
-                    if (isFunction(MOV)) MOV(previousElements.length, 0);
-                    appendChild.before(previousElements[cx - 1], targetChild);
+                    dst = 0;
+                    delta = 0;
+                    append = appendChild.before;
+                    append(previousElements[cx - 1], targetChild);
                 } else if (!previousElements[cx].moved) {
-                    if (isFunction(MOV)) MOV(previousElements.length, previousElements.length - cx);
-                    appendChild.after(previousElements[cx], targetChild);
+                    dst = previousElements.length - cx;
+                    delta = -1;
+                    append = appendChild.after;
+                    append(previousElements[cx], targetChild);
                     break;
                 }
             }
 
             if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
                 if (!followedElements[cx]) {
-                    if (isFunction(MOV)) MOV(previousElements.length, followedElements.length + previousElements.length);
-                    appendChild.after(followedElements[cx - 1], targetChild);
+                    dst = followedElements.length + previousElements.length;
+                    delta = 0;
+                    append = appendChild.after;
+                    append(followedElements[cx - 1], targetChild);
                 } else if (!followedElements[cx].moved) {
-                    if (isFunction(MOV)) MOV(previousElements.length, previousElements.length + cx);
-                    appendChild.before(followedElements[cx], targetChild);
+                    dst = previousElements.length + cx;
+                    delta = 1;
+                    append = appendChild.before;
+                    append(followedElements[cx], targetChild);
                     break;
                 }
             }
@@ -81,6 +93,7 @@ function autodragchildren(target, matcher, MOV) {
             followedElements.map(recover);
             cancelmouseup();
             cancelmousemove();
+            if (append && isFunction(move)) move(previousElements.length, dst, dst + delta, append);
         });
     });
     return target;
