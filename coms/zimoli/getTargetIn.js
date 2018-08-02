@@ -6,7 +6,11 @@ function getTargetIn(match, childTarget) {
         }
     }
     while (childTarget) {
-        if (match(childTarget)) return childTarget;
+        var matchResult = match(childTarget);
+        if (matchResult) {
+            if (isFinite(matchResult)) return childTarget;
+            return matchResult;
+        }
         childTarget = childTarget.parentNode;
     }
     return null;
