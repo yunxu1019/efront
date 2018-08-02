@@ -1,13 +1,3 @@
-var getPreviousElementSiblings = function (target) {
-    var previousElements = [];
-    while (target.previousSibling) target = target.previousSibling, target.nodeType === 1 && previousElements.push(target);
-    return previousElements;
-};
-var getFollowedElementSiblings = function (target) {
-    var nextElements = [];
-    while (target.nextSibling) target = target.nextSibling, target.nodeType === 1 && nextElements.push(target);
-    return nextElements;
-};
 var recover = function (element) {
     moveMargin(element, 0);
 };
