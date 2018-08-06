@@ -14,8 +14,8 @@ function cloneVisible_test() {
         css(clone, "left:100px;top:100px;position:absolute;z-index:10");
         appendChild(document.body, clone);
         ele.with ? ele.with.push(clone) : ele.with = [clone];
-        window.e1 = ele.querySelector("input");
-        window.e2 = clone.querySelector("input");
+        var e1 = window.e1 = ele.querySelector("input");
+        var e2 = window.e2 = clone.querySelector("input");
         var s1 = window.s1 = getComputedStyle(e1);
         var s2 = window.s2 = getComputedStyle(e2);
         for (var k in s1) {
