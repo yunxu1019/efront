@@ -50,8 +50,6 @@ var cloneVisible = function (td) {
             width,
             height
         };
-        console.log(copy)
-
         if (_left === undefined || _left > left) _left = left;
         if (_top === undefined || _top > top) _top = top;
         if (_right === undefined || _right < right) _right = right;
@@ -77,9 +75,7 @@ var cloneVisible = function (td) {
             width: width + "px",
             height: height + "px"
         });
-        if (element.tagName === "x") console.log(element);
     });
-    console.log(result.childNodes)
     return result;
 };
 
