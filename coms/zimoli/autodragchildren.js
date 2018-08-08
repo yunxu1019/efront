@@ -11,8 +11,43 @@ var moveMargin = function (element, movePixels) {
         marginLeft: movePixels ? movePixels + "px" : "",
         marginRight: movePixels ? -movePixels + "px" : ""
     });
+    if (isArray(element.with)) {
+        element.with.map(function (element) {
+            moveMargin(element, movePixels);
+        });
+    }
 };
 function autodragchildren(target, matcher, move) {
+    var cloneCell = function (element) {
+        var targets = getTargetIn(matcher, element);
+        if (isArray(targets)) {
+            var extra = targets.slice(1);
+            targets = cloneVisible(targets[0]);
+            targets.extraStyles = extra.map(function (extra) {
+                var style = extra.style;
+                return [style.opacity, style.filter];
+            });
+            targets.extra = extra;
+            once("remove")(targets, function () {
+                var { extra, extraStyles } = this;
+                extra.map(function (elem, cx) {
+                    var [opacity, filter] = extraStyles[cx];
+                    extend(elem.style, {
+                        opacity,
+                        filter
+                    });
+                });
+                delete this.extra;
+            })
+            targets.with = extra.map(cloneVisible);
+            extra.map(function (elem) {
+                opacity(elem, 0);
+            });
+        } else {
+            targets = cloneVisible(targets);
+        }
+        return targets;
+    };
     onmousedown(target, function (event) {
         if (event.target === this) return;
         var targetChild = getTargetIn(matcher, event.target);
@@ -25,8 +60,8 @@ function autodragchildren(target, matcher, move) {
         var saved_filter = targetBox.style.filter;
         var previousElements = getPreviousElementSiblings(targetChild), followedElements = getFollowedElementSiblings(targetChild);
         var offdragstart = on("dragstart")(targetChild, function () {
-            previousElements = previousElements.map(cloneVisible);
-            followedElements = followedElements.map(cloneVisible);
+            previousElements = previousElements.map(cloneCell);
+            followedElements = followedElements.map(cloneCell);
             opacity(targetBox, 0);
             appendChild(document.body, previousElements);
             appendChild(document.body, followedElements);
@@ -65,11 +100,10 @@ function autodragchildren(target, matcher, move) {
             previousElements.map(recover);
             followedElements.map(recover);
             if (appendSibling) {
-                isFunction(move) && move(src, dst, dst + delta, appendSibling);
                 var children = this.parentNode.children;
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
-                console.log(src, dst, srcElement, dstElement, targ)
+                isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
                 appendSibling(dstElement, srcElement);
             }
         });

@@ -1,0 +1,57 @@
+&.dragging {
+    >thead,
+    >tbody,
+    & {
+        >tr {
+            >th,
+            >td {
+            }
+        }
+    }
+}
+
+thead,
+tbody,
+th,
+td,
+tr,
+table {
+    box-sizing: border-box;
+}
+
+& {
+    text-align: center;
+    line-height: 40px;
+    border-collapse: collapse;
+    >thead {
+        user-select: none;
+        >tr {
+            >td,
+            >th {
+                color: #fff;
+                background-color: #999;
+                width: 100px;
+            }
+        }
+    }
+    >tbody {
+        >tr {
+            >td,
+            >th {
+                width: 100px;
+            }
+        }
+        >tr:nth-child(even) {
+            >td,
+            >th {
+                background-color: #ccc;
+            }
+        }
+        >tr:nth-child(odd) {
+            >td,
+            >th {
+                background-color: #fff;
+            }
+        }
+    }
+}
