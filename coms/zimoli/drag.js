@@ -46,6 +46,7 @@ function drag(target, event, overflow = false) {
             saved_delta.y += clone.offsetTop - target.offsetTop;
             clone.style.zIndex = zIndex();
             extraClones.map(e => e.style.zIndex = clone.style.zIndex);
+            dispatch("dragstart", target);
         }
         drag.target = clone;
         event.preventDefault();
@@ -81,13 +82,14 @@ function drag(target, event, overflow = false) {
         extraClones.map(clone => css(clone, `left:${clone.offsetLeft + cloneDeltaLeft}px;top:${clone.offsetTop + cloneDeltaTop}px;`));
     });
     var clear = function () {
-        saved_delta = null;
-        drag.target = null;
         if (clone !== target) remove(clone), css(target, { opacity: saved_opacity, filter: saved_filter });
         remove(extraClones);
         extraTargets.map((target, cx) => css(target, extraStyles[cx]));
         cancelmousemove();
         cancelmouseup();
+        if (saved_delta.ing) dispatch("dragend", target);
+        drag.target = null;
+        saved_delta = null;
     };
     var cancelmouseup = onmouseup(window, clear);
 }
