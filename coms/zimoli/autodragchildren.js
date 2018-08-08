@@ -20,18 +20,19 @@ function autodragchildren(target, matcher, move) {
         if (isArray(targetChild)) {
             targetChild = targetChild[0];
         }
-        var saved_opacity = target.style.opacity;
-        var saved_filter = target.style.filter;
+        var targetBox = targetChild.parentNode;
+        var saved_opacity = targetBox.style.opacity;
+        var saved_filter = targetBox.style.filter;
         var previousElements = getPreviousElementSiblings(targetChild), followedElements = getFollowedElementSiblings(targetChild);
         var offdragstart = on("dragstart")(targetChild, function () {
             previousElements = previousElements.map(cloneVisible);
             followedElements = followedElements.map(cloneVisible);
-            opacity(target, 0);
+            opacity(targetBox, 0);
             appendChild(document.body, previousElements);
             appendChild(document.body, followedElements);
         });
         var offdragend = on("dragend")(targetChild, function () {
-            css(target, { opacity: saved_opacity, filter: saved_filter });
+            css(targetBox, { opacity: saved_opacity, filter: saved_filter });
             remove(previousElements);
             remove(followedElements);
             var dst, appendSibling, delta;
@@ -75,7 +76,7 @@ function autodragchildren(target, matcher, move) {
         var cancelmousemove = onmousemove(window, function () {
             var dragTarget = drag.target;
             if (dragTarget) {
-                var area = overlap(dragTarget, target);
+                var area = overlap(dragTarget, targetBox);
                 if (area > 0) {
                     var dragPosition = getScreenPosition(dragTarget);
                     var dragPositionLeft = dragPosition.left;
