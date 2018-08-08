@@ -6,11 +6,12 @@ var moveMargin = function (element, movePixels) {
     element.moved = movePixels;
     element.moving = new Date;
     css(element, {
+        transition: "margin .1s",
+        userSelect: "none",
         marginLeft: movePixels ? movePixels + "px" : "",
         marginRight: movePixels ? -movePixels + "px" : ""
     });
 };
-
 function autodragchildren(target, matcher, move) {
     onmousedown(target, function (event) {
         if (event.target === this) return;
@@ -19,7 +20,58 @@ function autodragchildren(target, matcher, move) {
         if (isArray(targetChild)) {
             targetChild = targetChild[0];
         }
+        var saved_opacity = target.style.opacity;
+        var saved_filter = target.style.filter;
         var previousElements = getPreviousElementSiblings(targetChild), followedElements = getFollowedElementSiblings(targetChild);
+        var offdragstart = on("dragstart")(targetChild, function () {
+            previousElements = previousElements.map(cloneVisible);
+            followedElements = followedElements.map(cloneVisible);
+            opacity(target, 0);
+            appendChild(document.body, previousElements);
+            appendChild(document.body, followedElements);
+        });
+        var offdragend = on("dragend")(targetChild, function () {
+            css(target, { opacity: saved_opacity, filter: saved_filter });
+            remove(previousElements);
+            remove(followedElements);
+            var dst, appendSibling, delta;
+            var src = previousElements.length;
+            if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
+                if (!previousElements[cx]) {
+                    dst = 0;
+                    delta = 0;
+                    appendSibling = appendChild.before;
+                } else if (!previousElements[cx].moved) {
+                    dst = previousElements.length - cx;
+                    delta = -1;
+                    appendSibling = appendChild.after;
+                    break;
+                }
+            }
+
+            if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
+                if (!followedElements[cx]) {
+                    dst = followedElements.length + previousElements.length;
+                    delta = 0;
+                    appendSibling = appendChild.after;
+                } else if (!followedElements[cx].moved) {
+                    dst = previousElements.length + cx;
+                    delta = 1;
+                    appendSibling = appendChild.before;
+                    break;
+                }
+            }
+            previousElements.map(recover);
+            followedElements.map(recover);
+            if (appendSibling) {
+                isFunction(move) && move(src, dst, dst + delta, appendSibling);
+                var children = this.parentNode.children;
+                var srcElement = children[src];
+                var dstElement = children[dst + delta];
+                console.log(src, dst, srcElement, dstElement, targ)
+                appendSibling(dstElement, srcElement);
+            }
+        });
         var cancelmousemove = onmousemove(window, function () {
             var dragTarget = drag.target;
             if (dragTarget) {
@@ -59,41 +111,10 @@ function autodragchildren(target, matcher, move) {
             }
         });
         var cancelmouseup = onmouseup(window, function () {
-            var dst, append, delta;
-            if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
-                if (!previousElements[cx]) {
-                    dst = 0;
-                    delta = 0;
-                    append = appendChild.before;
-                    append(previousElements[cx - 1], targetChild);
-                } else if (!previousElements[cx].moved) {
-                    dst = previousElements.length - cx;
-                    delta = -1;
-                    append = appendChild.after;
-                    append(previousElements[cx], targetChild);
-                    break;
-                }
-            }
-
-            if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
-                if (!followedElements[cx]) {
-                    dst = followedElements.length + previousElements.length;
-                    delta = 0;
-                    append = appendChild.after;
-                    append(followedElements[cx - 1], targetChild);
-                } else if (!followedElements[cx].moved) {
-                    dst = previousElements.length + cx;
-                    delta = 1;
-                    append = appendChild.before;
-                    append(followedElements[cx], targetChild);
-                    break;
-                }
-            }
-            previousElements.map(recover);
-            followedElements.map(recover);
             cancelmouseup();
             cancelmousemove();
-            if (append && isFunction(move)) move(previousElements.length, dst, dst + delta, append);
+            offdragstart();
+            offdragend();
         });
     });
     return target;
