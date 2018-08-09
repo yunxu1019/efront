@@ -36,7 +36,8 @@
         "image/gif:gif",
         "image/png:png",
         "image/jpeg:jpe|jpeg|jpg",
-        "image/x-icon:ico"
+        "image/x-icon:ico",
+        "image/svg+xml:svg"
     ],
     ".html":[
         "text/html:html|htm|hta|stm",
