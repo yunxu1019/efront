@@ -18,7 +18,7 @@ var downloadmap = function (rootpath, map_location, zoom_location, config, info)
             var py = function (cx) {
                 if (cy > yend) return cx;
                 var url = map.getImage(cx, cy, cz);
-                var destpath = [cx, cy, cz].join("/") + ".png";
+                var destpath = [cz, cx, cy].join("/") + ".png";
                 cy++;
                 return getimagefromurl(url, destpath, rootpath).then(e => cx).then(ty);
             };
