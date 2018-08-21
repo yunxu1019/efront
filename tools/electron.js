@@ -12,14 +12,14 @@ function run(url, preload) {
     var window = new BrowserWindow({
         width: 800, height: screen.height, show: false,
         webPreferences: {
-            // 是否支持node
-            nodeIntegration: false,
+            // 支持node
+            nodeIntegration: true,
             //缩放级别
             zoomFactor: 1.0,
             //使用原生的window.open
             nativeWindowOpen: true,
             //允许跨域资源
-            webwebSecurity: false,
+            webwebSecurity: true,
             preload
         }
     });
