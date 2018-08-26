@@ -23,6 +23,7 @@ function y2lat(y, z) {
     return (180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))));
 }
 
+
 function maps(config = {}) {
     var canvas = document.createElement("canvas");
     canvas.width = 800;
@@ -51,34 +52,7 @@ function maps(config = {}) {
             var deltaY = clientY - saved_point.y;
             saved_point.x = clientX;
             saved_point.y = clientY;
-            var imagedata = context.getImageData(0, 0, canvas.offsetWidth, canvas.offsetHeight);
-            // context.translate(clientX - saved_point.x, clientY - saved_point.y);
-            context.putImageData(imagedata, deltaX, deltaY);
-            if (deltaX < 0) {
-                var x_empty = -deltaX;
-                var x_start = canvas.offsetWidth + deltaX;
-            } else {
-                x_start = 0;
-                x_empty = deltaX;
-            }
-            if (deltaY < 0) {
-                var y_empty = -deltaY;
-                var y_start = canvas.offsetHeight + deltaY;
-            } else {
-                y_start = 0;
-                y_empty = deltaY;
-            }
-            context.clearRect(x_start, 0, x_empty, canvas.offsetHeight);
-            context.clearRect(0, y_start, canvas.offsetWidth, y_empty);
-            var [lng, lat] = map.Center();
-            var zoom = map.Zoom();
-            var scale = map.Scale();
-            if (scale === 1) {
-                map.Center(x2lng(lng2x(lng, zoom) - deltaX / 256, zoom), y2lat(lat2y(lat, zoom) - deltaY / 256, zoom));
-            } else {
-                map.Center(x2lng(lng2x(lng, zoom) - (deltaX / 256 / scale).toFixed(6), zoom), y2lat(lat2y(lat, zoom) - (deltaY / 256 / scale).toFixed(6), zoom));
-            }
-
+            map.Move(deltaX, deltaY);
         });
         var cancelup = onmouseup(window, function () {
             cancelup();
@@ -86,8 +60,19 @@ function maps(config = {}) {
         });
     });
     onmousewheel(canvas, function (event) {
-        console.warn(event);
+        var hwidth = this.width / 2;
+        var hheight = this.height / 2;
+        var layerx = event.offsetX || event.layerX || hwidth;
+        var layery = event.offsetY || event.layerY || hheight;
+        var scale = map.Scale();
+        if (event.deltaY < 0) {
+            scale += 0.125;
+        } else {
+            scale -= 0.125;
+        }
+        map.Scale(scale);
     });
+
     return canvas;
 };
 maps.prototype = {
@@ -98,6 +83,36 @@ maps.prototype = {
     center: [0, 0],
     canvas: null,
     context: null,
+    Move(deltaX, deltaY) {
+        var { canvas, context } = this;
+        var imagedata = context.getImageData(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+        context.putImageData(imagedata, deltaX, deltaY);
+        if (deltaX < 0) {
+            var x_empty = -deltaX;
+            var x_start = canvas.offsetWidth + deltaX;
+        } else {
+            x_start = 0;
+            x_empty = deltaX;
+        }
+        if (deltaY < 0) {
+            var y_empty = -deltaY;
+            var y_start = canvas.offsetHeight + deltaY;
+        } else {
+            y_start = 0;
+            y_empty = deltaY;
+        }
+        context.clearRect(x_start, 0, x_empty, canvas.offsetHeight);
+        context.clearRect(0, y_start, canvas.offsetWidth, y_empty);
+        var map = this;
+        var [lng, lat] = map.Center();
+        var zoom = map.Zoom();
+        var scale = map.Scale();
+        if (scale === 1) {
+            map.Center(x2lng(lng2x(lng, zoom) - deltaX / 256, zoom), y2lat(lat2y(lat, zoom) - deltaY / 256, zoom));
+        } else {
+            map.Center(x2lng(lng2x(lng, zoom) - (deltaX / 256 / scale).toFixed(6), zoom), y2lat(lat2y(lat, zoom) - (deltaY / 256 / scale).toFixed(6), zoom));
+        }
+    },
     Zoom(level) {
         if (isFinite(level)) {
             this.zoom = +level;
@@ -105,9 +120,43 @@ maps.prototype = {
         }
         return this.zoom;
     },
-    Scale(level) {
-        if (isFinite(level)) {
-            this.scale = +level;
+    Layer() {
+
+    },
+    Scale(scale) {
+        if (isFinite(scale)) {
+            var map = this;
+            var { canvas, context } = map;
+            var {
+                width,
+                height
+            } = canvas;
+            var zoom = map.Zoom();
+            var saved_value = zoom * scale;
+            if (scale >= 2) {
+                zoom += 1;
+                scale -= 1;
+            } else if (scale <= 1) {
+                zoom -= 1;
+                scale += 1;
+            }
+            if (!zoom || zoom < 3) {
+                zoom = 3;
+                scale = 1;
+            } else if (zoom > 23) {
+                scale = 1;
+                zoom = 23;
+            }
+            if (zoom !== this.zoom) map.Zoom(zoom);
+            var dest_scale = zoom * scale / saved_value;
+            if (dest_scale !== 1) {
+                var dwidth = width * dest_scale;
+                var dheight = height * dest_scale;
+                var imagedata = context.getImageData(0, 0, width, height);
+                context.putImageData(imagedata, 0, 0, (width - dwidth) >> 1, (height - dheight) >> 1, dwidth, dheight);
+
+            }
+            this.scale = +scale;
             this.refresh();
         }
         return this.scale;
@@ -180,8 +229,8 @@ maps.prototype = {
         } = this.canvas;
         var halfWidth = offsetWidth / 2;
         var halfHeight = offsetHeight / 2;
-        var marginX = (halfWidth + 256 * (x + 1 - x0) ) % 256 - 256;
-        var marginY = (halfHeight + 256 * (y + 1 - y0) ) % 256 - 256;
+        var marginX = (halfWidth + 256 * (x + 1 - x0)) % 256 - 256;
+        var marginY = (halfHeight + 256 * (y + 1 - y0)) % 256 - 256;
         var countX = Math.ceil((offsetWidth - marginX) / 256);
         var countY = Math.ceil((offsetHeight - marginY) / 256);
         var grids = [];
@@ -261,6 +310,10 @@ maps.prototype = {
             };
             this.loadings.push(image);
         }
+    },
+    lng2layer(lng, zoom) {
+    },
+    lat2layer(lat, zoom) {
     },
     lng2tile,
     lat2tile,
