@@ -1,7 +1,12 @@
 function getScreenPosition(target) {
     if (!target) return;
     if (target.getBoundingClientRect) {
-        return target.getBoundingClientRect();
+        var rect = target.getBoundingClientRect();
+        if (!(width in rect)) {
+            rect.width = rect.right - rect.left;
+            rect.height = rect.bottom - rect.top;
+        }
+        return rect;
     }
     var left = target.offsetLeft,
         top = target.offsetTop,
@@ -12,8 +17,12 @@ function getScreenPosition(target) {
         left += target.offsetLeft - target.scrollLeft + target.clientLeft;
         top += target.offsetTop - target.scrollTop + target.clientTop;
     }
+    var right = left + width,
+        bottom = top + height;
     return {
         left,
+        right,
+        bottom,
         top,
         width,
         height
