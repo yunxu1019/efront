@@ -1,5 +1,8 @@
 function getScreenPosition(target) {
     if (!target) return;
+    if (target.getBoundingClientRect) {
+        return target.getBoundingClientRect();
+    }
     var left = target.offsetLeft,
         top = target.offsetTop,
         width = target.offsetWidth,
