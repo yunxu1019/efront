@@ -47,14 +47,21 @@ var directives = {
     },
     model(search) {
         var getter = createGetter(search).bind(this);
-        if (/select|input|textarea/i.test(this.tagName)) {
+        if (/^input$/i.test(this.tagName) && /^checkbox$/i.test(this.type) || /^checkbox$/i.test(this.tagName)) {
+            this.renders.push(function (event) {
+                var value = getter();
+                if (value === undefined) value = "";
+                if (this.checked != value) this.checked = value;
+            });
+            var change = new Function(`with(this.$scope)${search}=this.checked`).bind(this);
+        } else if (/^(select|input|textarea)$/i.test(this.tagName)) {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (this.value != value) this.value = value;
 
             });
-            var change = new Function(`with(this.$scope)${search}=this.value`);
+            var change = new Function(`with(this.$scope)${search}=this.value`).bind(this);
         } else {
             this.renders.push(function () {
                 var value = getter();
