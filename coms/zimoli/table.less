@@ -4,8 +4,7 @@
     & {
         >tr {
             >th,
-            >td {
-            }
+            >td {}
         }
     }
 }
@@ -19,6 +18,19 @@ table {
     box-sizing: border-box;
 }
 
+.y-ing {
+    &:before {
+        content: "";
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, .1);
+    }
+}
+
 & {
     text-align: center;
     line-height: 40px;
@@ -28,6 +40,7 @@ table {
         >tr {
             >td,
             >th {
+                position: relative;
                 color: #fff;
                 background-color: #999;
                 width: 100px;
@@ -38,6 +51,7 @@ table {
         >tr {
             >td,
             >th {
+                position: relative;
                 width: 100px;
             }
         }
