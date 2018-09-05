@@ -1,0 +1,50 @@
+& {
+    width: 40px;
+    height: 20px;
+    border-radius: 10px;
+    border: none;
+    position: relative;
+    outline: none;
+    vertical-align: middle;
+    background-color: #ccc;
+    -webkit-appearance: none;
+    &:before {
+        background-color: #26f;
+        transition: all .1s ease-out;
+        left: 50%;
+        top: 50%;
+        right: 50%;
+        bottom: 50%;
+        content: "";
+        position: absolute;
+        border-radius: inherit;
+    }
+    &:after {
+        box-sizing: border-box;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        content: "";
+        display: block;
+        left: 0;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        margin-top: -10px;
+        background-color: #fff;
+        transition: left .1s ease-out;
+        background-clip: content-box;
+        position: absolute;
+    }
+}
+
+&:checked {
+    &:before {
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+    &:after {
+        left: 20px;
+    }
+}
