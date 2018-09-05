@@ -51,6 +51,7 @@ function autodragchildren(target, matcher, move) {
     onmousedown(target, function (event) {
         if (event.target === this) return;
         var targetChild = getTargetIn(matcher, event.target);
+        if (!targetChild) return;
         drag(targetChild, event);
         if (isArray(targetChild)) {
             targetChild = targetChild[0];
