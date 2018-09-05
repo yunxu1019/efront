@@ -23,6 +23,7 @@ function option(head, body, foot, splitter) {
         if (!foot) {
             foot = icon("next", 0xcccccc);
             addClass(foot, "next");
+            addClass(box, "has-next");
         }
         var _foot = createElement(_itemFoot, foot);
         appendChild(box, _foot);
