@@ -25,11 +25,16 @@ var id = option("房车号  ", "", w96);
 var nb = option("社交账号", "QQ:WeChat", w96);
 var id_account = group(id, nb);
 var setting = option("设置    ", "", w96);
+onclick(setting, function (event) {
+    go("setting", {
+        initialStyle: "marginLeft:100%;"
+    });
+});
 var setting_about = group(setting);
-
-var page = createElement(div, beian, tbar, money_about, life_circle, live_connect, recived_gift, id_account, setting_about);
+var page = createVboxWithState(state);
+appendChild(page, beian, tbar, money_about, life_circle, live_connect, recived_gift, id_account, setting_about);
 css(page, "font-size:40px;color:#fff;");
 
 function main() {
-    return vbox(page);
+    return page;
 }
