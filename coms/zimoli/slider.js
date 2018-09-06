@@ -22,6 +22,18 @@ var has_moving_instance;
  */
 function slider(autoplay, circle = true) {
     var outter = createElement(container);
+    {
+        for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
+            let arg = arguments[cx];
+            if (arg === true || arg === false) {
+                circle = arg;
+            } else if (isNode(arg)) {
+                outter = arg;
+            } else {
+                autoplay = arg;
+            }
+        }
+    }
     var _imageMain = createElement(_slider);
     var _imageHelp = createElement(_slider);
     outter.src = function (index) {
