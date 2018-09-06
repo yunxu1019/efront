@@ -1,12 +1,33 @@
-function remove(node) {
+function remove(node, transition) {
     if (!node) return;
-    var args = isNode(node) ? arguments : node;
+    if (isNode(node)) {
+        if (transition !== false) {
+            var args = arguments;
+        } else {
+            var args = [node];
+        }
+    } else {
+        var args = node;
+    }
     for (var cx = args.length - 1; cx >= 0; cx--) {
         node = args[cx];
-        _onremove(node);
-        node.parentNode && node.parentNode.removeChild(node);
-        if (node.with) {
-            remove(node.with);
+        if (node.initialStyle && transition !== false && isFunction(remove.transition)) {
+            var duration = remove.transition(node, node.initialStyle, true);
+            if (duration) {
+                setTimeout(function (node) {
+                    return function () {
+                        remove(node, false);
+                    };
+                }(node), +duration || 100);
+            } else {
+                remove(node, false);
+            }
+        } else {
+            _onremove(node);
+            node.parentNode && node.parentNode.removeChild(node);
+            if (node.with) {
+                remove(node.with, false);
+            }
         }
     }
 }

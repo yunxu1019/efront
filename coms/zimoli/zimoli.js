@@ -89,10 +89,12 @@ function go(url, args, history_name) {
     state.onback = function (handler) {
         _pageback_listener = handler;
     };
-    if (!args) args = {};
+    if (undefined === args || null === args) args = {};
     var _page = pg.call(state, args);
     if (pg.className) _page.className = pg.className;
     _page.with = _with_elements;
+
+    _page.initialStyle = args.initialStyle;
     addGlobal(_page, history_name);
     _page.onback = _pageback_listener;
     pushstate(url, history_name);
@@ -273,4 +275,6 @@ rootElements.push = function () {
     [].push.apply(this, arguments);
     fixurl();
 };
+appendChild.transition = transition;
+remove.transition = transition;
 window.modules = modules;

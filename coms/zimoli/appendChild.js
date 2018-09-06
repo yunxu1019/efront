@@ -28,42 +28,63 @@ function _onappend(node, event) {
 }
 _onappend(document.documentElement);
 
-function appendChild(parent, obj) {
-    var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+function appendChild(parent, obj, transition) {
+    if (transition === false) {
+        var children = [].concat(obj);
+    } else {
+        var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+    }
     if (parent.appendChild) {
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var o = release(children[cx]);
             if (!o) continue;
+            if (o.initialStyle && transition !== false) {
+                isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
+            }
             parent.appendChild(o);
-            o.with && appendChild(parent, o.with);
+            o.with && appendChild(parent, o.with, false);
             if (parent.isMounted)
                 _onappend(o);
         }
     }
     return parent;
 }
-function insertBefore(alreadyMounted, obj) {
+function insertBefore(alreadyMounted, obj, transition) {
     var parent = alreadyMounted && alreadyMounted.parentNode;
     if (!parent || !parent.insertBefore) return;
-    var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+    if (transition === false) {
+        var children = [].concat(obj);
+    } else {
+        var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+    }
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         parent.insertBefore(o, alreadyMounted);
-        o.with && insertBefore(o, o.with);
+        o.with && insertBefore(o, o.with, false);
         if (parent.isMounted)
             _onappend(o);
+        if (o.initialStyle && transition !== false) {
+            isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
+        }
     }
 }
-function insertAfter(alreadyMounted, obj) {
+function insertAfter(alreadyMounted, obj, transition) {
     var parent = alreadyMounted && alreadyMounted.parentNode;
     if (!parent || !parent.insertBefore) return;
-    var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+    if (transition === false) {
+        var children = [].concat(obj);
+    } else {
+        var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+    }
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         parent.insertBefore(o, alreadyMounted.nextSibling);
-        o.with && insertBefore(o, o.with);
+        o.with && insertBefore(o, o.with, false);
         if (parent.isMounted)
             _onappend(o);
+        if (o.initialStyle && transition !== false) {
+            isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
+        }
     }
 }
 
