@@ -85,7 +85,50 @@ pages.go(state().page || 0);
 var page = createElement(div);
 css(pages, "position:absolute;left:0px;right:0px;top:0px;bottom:50px;height:auto;");
 appendChild(page, pages, bar);
-
+var menu = list(function (index) {
+    var buttons = [
+        "更换主页"
+    ];
+    if (index >= buttons.length) return false;
+    var label = button(buttons[index]);
+    onclick(label, function () {
+        menu.blur();
+        var pages = [
+            `/user/register`,
+            `/user/login`,
+            `/kugou/home`,
+            `/baotu/home`,
+            `/main`
+        ];
+        var scope = {
+            go(index) {
+                go(pages[index]);
+            }
+        };
+        var body = list(function (index) {
+            var pageTitles = [
+                `注册`,
+                `登录`,
+                `酷狗`,
+                `包图网`,
+                `欢迎屏幕`
+            ];
+            if (index >= pageTitles.length) return;
+            var item = div();
+            html(item, pageTitles[index]);
+            attr(item, "ng-click", `go(${index})`);
+            render(item, scope);
+            return item || false;
+        });
+        body.go(0);
+        confirm("<b>请选择主页</b>", body);
+    });
+    return label || false;
+});
+css(menu, "width:200px;height:100px;");
+menu.go(0);
+contextmenu(page, menu);
+page.initialStyle = "transform:scale(.92)";
 function main() {
     return page;
 }

@@ -1,18 +1,22 @@
 document.title = "编辑器和键盘"
 
-var innerHeight = window.innerHeight;
 var inputBoxHeight = 50 * renderPixelRatio / .75;
 var emojiPadHeight = 180 * renderPixelRatio / .75;
 var editorTotalHeight = emojiPadHeight + inputBoxHeight;
 var editorMiniHeight = inputBoxHeight;
 var editorInitTop = innerHeight - editorMiniHeight;
-var focusHeightfromInputBoxOnly =/**
-* settings from iPhone SE
-*/"310px";
-var focusHeightfromEmojiPadAddon =/**
-* settings from iPhone SE
-*/"415px";
+var focusHeightfromInputBoxOnly =
+    /**
+     * settings from iPhone SE
+     */
+    "150px";
+var focusHeightfromEmojiPadAddon =
+    /**
+     * settings from iPhone SE
+     */
+    "150px";
 var page = createElement(div);
+
 function insertNode(node, input) {
     if (!isNode(node)) return;
     var selection = document.getSelection();
@@ -25,9 +29,11 @@ function insertNode(node, input) {
     selection.setBaseAndExtent(parent, position, parent, position);
     selection.setPosition(parent, position);
 }
+
 function insertImage(image_src) {
     document.execCommand("InsertImage", false, image_src);
 }
+
 function editor() {
     var _input = createElement(div);
     var showemoji = false;
@@ -81,11 +87,19 @@ function editor() {
     _input.onfocus = function (e) {
         var _showemoji = showemoji;
         switchemoji(false);
-        css(_editor, { top: _showemoji ? focusHeightfromInputBoxOnly : focusHeightfromEmojiPadAddon });
+        var target = this;
+        target.scrollIntoViewIfNeeded(false);
+        css(_editor, {
+            top: _showemoji ? focusHeightfromInputBoxOnly : focusHeightfromEmojiPadAddon
+        });
     };
+    onkeydown(_input,e=>alert("e"));
     _input.onblur = function () {
-        css(_editor, { top: (showemoji ? innerHeight - editorTotalHeight : innerHeight - inputBoxHeight) + "px" });
+        css(_editor, {
+            top: (showemoji ? innerHeight - editorTotalHeight : innerHeight - inputBoxHeight) + "px"
+        });
     };
+
     function switchemoji(_showemoji = !showemoji) {
         showemoji = _showemoji;
         css(_editor, {
@@ -99,9 +113,12 @@ function editor() {
 }
 var _editor = editor();
 appendChild(page, _editor);
-onappend(page, function () {
-    css(_editor, { top: editorInitTop + "px" });
+onappend(_editor, function () {
+    css(_editor, {
+        top: editorInitTop + "px"
+    });
 });
+
 function main() {
-    return page;
+    return _editor;
 }
