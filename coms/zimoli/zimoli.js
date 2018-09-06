@@ -93,8 +93,7 @@ function go(url, args, history_name) {
     var _page = pg.call(state, args);
     if (pg.className) _page.className = pg.className;
     _page.with = _with_elements;
-
-    _page.initialStyle = args.initialStyle;
+    if (args.initialStyle) _page.initialStyle = args.initialStyle;
     addGlobal(_page, history_name);
     _page.onback = _pageback_listener;
     pushstate(url, history_name);
