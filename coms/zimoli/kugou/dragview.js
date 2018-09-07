@@ -7,6 +7,7 @@ var dragview = function (event) {
     var offtouchmove = ontouchmove(event.target, function (event) {
         if (pages.index !== 0) return;
         if (event.touches.length !== 1) return;
+        if (event.defaultPrevented) return;
         var deltaX = savedX - event.touches[0].clientX;
         var deltaY = savedY - event.touches[0].clientY;
 
