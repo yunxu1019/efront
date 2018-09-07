@@ -1,0 +1,117 @@
+& {
+    position: absolute;
+    color: #fff;
+    left: 0;
+    right: 60px;
+    top: 0;
+    bottom: 0;
+    background-size: contain;
+}
+
+.line(@fix, @tra) {
+    &:before {
+        content: "";
+        display: block;
+        height: 1px;
+        left: 16px;
+        right: 16px;
+        @{fix}: 0;
+        position: absolute;
+        background-color: rgba(255, 255, 255, @tra);
+    }
+}
+
+.options-list {
+    padding: 10px 0 0 0;
+    overflow: hidden;
+    position: absolute;
+    top: 80px;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    height: auto;
+    background-clip: content-box;
+    >div:not(.group) {
+        height: 36px;
+        line-height: 40px;
+        margin: 0;
+        padding: 0 16px;
+    }
+    >.group {
+        height: auto;
+        background-color: transparent;
+        border-bottom: none;
+        border-top: none;
+        margin-top: 4px;
+        padding: 6px 0;
+        position: relative;
+        .line(top, .1);
+    }
+}
+
+.field {
+    background-color: transparent;
+    margin: 0;
+    height: 36px;
+    line-height: 36px;
+    >div.container>.head {
+        text-shadow: none;
+        color: #fff;
+    }
+    >div.container>.body {
+        border: none;
+        >.Switch {
+            box-shadow: 0 0 2px 0 #fff inset;
+            background-color: transparent;
+        }
+    }
+}
+
+.setting-button {
+    padding: 0 16px;
+    position: absolute;
+    bottom: 0;
+    height: 60px;
+    line-height: 60px;
+    left: 0;
+    right: 0;
+    font-size: 14px;
+    color: #ccc;
+    .line(top, .2);
+}
+
+.user-info {
+    width: 100%;
+    height: 80px;
+    padding: 20px 0 0 0;
+    position: relative;
+    .line(bottom, .2);
+    >div {
+        padding-left: 16px;
+        vertical-align: top;
+        &:nth-last-child(1) {
+            padding-right: 16px;
+        }
+        display: inline-block;
+    }
+    .name {
+        font-size: 16px;
+        line-height: 26px;
+    }
+    .level {
+        border-radius: 2px;
+        font-size: 10px;
+        padding: 0 2px;
+        color: #fa2;
+        border: 1px solid;
+        height: 12px;
+        line-height: 12px;
+        display: inline-block;
+    }
+    .avatar {
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+    }
+}

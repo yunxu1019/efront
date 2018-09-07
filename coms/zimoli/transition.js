@@ -36,7 +36,7 @@ function transition(target, initialStyle, isLeave) {
                 extend(target.style, initialStyle);
             });
             transitionTimerEnd = setTimeout(function () {
-                extend(target.style, recoverStyle);
+                target.style.transition = recoverStyle.transition;
             }, transitionDuration + 2);
         } else {
             extend(target.style, initialStyle);
