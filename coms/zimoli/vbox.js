@@ -39,7 +39,6 @@ function vbox(generator, $Y = "Y") {
     var _box;
     if (isNode(generator)) {
         _box = generator;
-        _box.style.cssText = box.style.cssText + _box.style.cssText;
     } else {
         _box = createElement(box);
     }
