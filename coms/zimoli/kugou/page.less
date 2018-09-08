@@ -12,25 +12,48 @@
 .bottom-bar {
     text-align: center;
     position: absolute;
-    bottom: 0px;
-    height: 50px;
-    width: 100%;
-    left: 0px;
-    right: 0px;
+    padding: 24px 64px 0 64px;
+    top: 0px;
+    right: 0;
+    left: 0;
+    height: 64px;
+    width: auto;
     margin: 0;
-    background-color: #fff;
+    background-color: #0090ff;
+    color: rgba(255,255,255,.8);
     >div {
         bottom: 0;
+        font-size: 18px;
         position: relative;
-        height: 50px;
+        height: 40px;
+        line-height: 40px;
+        &.active {
+            color: #fff;
+            font-size: 20px;
+            text-shadow: 0 0 2px #fff;
+        }
+        &.line {
+            height: ~'1.0px';
+            margin-top: ~'-2.0px';
+            line-height: ~'1.0px';
+            display: block;
+            &:after {
+                content: "";
+                width: 30px;
+                display: inline-block;
+                height: 100%;
+                background-color: #fff;
+                vertical-align: top;
+            }
+        }
     }
 }
 
-.pages {
+.slider {
     position: absolute;
     left: 0px;
     right: 0px;
-    top: 0px;
-    bottom: 50px;
+    top: 64px;
+    bottom: 0px;
     height: auto;
 }
