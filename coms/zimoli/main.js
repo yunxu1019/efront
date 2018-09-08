@@ -202,7 +202,7 @@ var executer = function (text, name, then, prebuild) {
         functionBody = text;
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    functionBody = functionBody.replace(/(\d+)px/ig, (m, d) => (+d !== 1 ? d * renderPixelRatio + "pt" : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
+    functionBody = functionBody.replace(/((?:\d*\.)?\d+)px/ig, (m, d) => (d !== '1' ? d * renderPixelRatio + "pt" : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
