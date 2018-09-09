@@ -66,7 +66,9 @@ slider(pages, function (index, ratio) {
     var b = bar.childNodes[index];
     return b && b.active(ratio);
 });
-pages.go(state().page || 0);
+onappend(pages, function () {
+    pages.go(state().page || 0);
+});
 var page = createElement(div);
 appendChild(page, pages, bar);
 extend(kugou$dragview, {

@@ -20,30 +20,30 @@
     width: auto;
     margin: 0;
     background-color: #0090ff;
-    color: rgba(255,255,255,.8);
+    color: rgba(255, 255, 255, .8);
     >div {
         bottom: 0;
         font-size: 18px;
         position: relative;
         height: 40px;
         line-height: 40px;
+        vertical-align: top;
         &.active {
             color: #fff;
             font-size: 20px;
             text-shadow: 0 0 2px #fff;
         }
         &.line {
-            height: ~'1.0px';
-            margin-top: ~'-2.0px';
-            line-height: ~'1.0px';
-            display: block;
-            &:after {
+            &:before {
                 content: "";
+                position: absolute;
+                margin-top: ~'-1.0px';
+                height: ~"1.0px";
                 width: 30px;
-                display: inline-block;
-                height: 100%;
+                left: 50%;
+                margin-left: -15px;
+                top: 0;
                 background-color: #fff;
-                vertical-align: top;
             }
         }
     }
