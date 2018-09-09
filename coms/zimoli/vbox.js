@@ -223,5 +223,6 @@ function vbox(generator, $Y = "Y") {
         var canceltouchcancel = ontouchcancel(moving, cancel);
         var canceltouchend = ontouchend(moving, cancel);
     });
+    _box.style.overflow = "hidden";
     return _box;
 }
