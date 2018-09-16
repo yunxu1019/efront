@@ -10,9 +10,9 @@ var createBottomBar = function (buttonsConfig) {
     for (var k in buttonsConfig) button_count++;
     var btnArea = createElement(div);
     css(btnArea, "width:" + (100 / button_count) + "%;");
+    maxWidth(btnArea, 100);
     var line = createElement(btnArea);
     inlineBlock(btnArea);
-    maxWidth(btnArea, 100);
     var active = function (ratio) {
         if (ratio >= .6) {
             if (bar.active !== this) {
@@ -21,7 +21,7 @@ var createBottomBar = function (buttonsConfig) {
                 bar.active = this;
             }
         }
-        css(line, { left: pages.index * this.offsetWidth + "px" });
+        css(line, { left: ((-button_count / 2 + pages.index) * this.offsetWidth) + "px" });
         go(this.url, null, this.container);
         return this.container;
     };
