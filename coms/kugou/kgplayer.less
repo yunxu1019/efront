@@ -169,11 +169,12 @@
     >div.progress>.track {
         height: 3px;
     }
-    >.krc{
+    >.krc {
         margin-top: -90px;
     }
 }
-&>.krc{
+
+&>.krc {
     position: absolute;
     left: 0;
     right: 0;
@@ -185,20 +186,32 @@
     width: auto;
     line-height: 36px;
 }
+
 &>.background {
     background-color: #000;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    filter: blur(15px);
     position: absolute;
     top: 0;
+    overflow: hidden;
     bottom: -30px;
     left: -30px;
     right: -30px;
     margin: 0;
     width: auto;
     height: auto;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    &:before {
+        content:"";
+        display: block;
+        position: absolute;
+        background: inherit;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        filter: blur(15px);
+    }
     &:after {
         background-color: #000;
         opacity: .6;
