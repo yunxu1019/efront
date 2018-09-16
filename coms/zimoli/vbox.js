@@ -136,9 +136,18 @@ function vbox(generator, $Y = "Y") {
         t_height -= deltaY;
         b_height += deltaY;
         if (deltaY < 0 && t_height > 0) {
-            _box.insertBefore(increaser_t, _box.childNodes[0] || null);
+            if (!increaser_t.nextSibling) {
+                _box.insertBefore(increaser_t, _box.childNodes[0] || null);
+            }
         } else if (deltaY > 0 && b_height > 0) {
-            appendChild(_box, increaser_b);
+            if (!increaser_b.previousSibling) {
+                increaser_b.style.marginTop = 0;
+                appendChild(_box, increaser_b);
+                var deltaMargin = _box.offsetHeight + _box.scrollTop - increaser_b.offsetTop - increaser_b.offsetHeight;
+                if (deltaMargin > 0) {
+                    increaser_b.style.marginTop = deltaMargin + "px";
+                }
+            }
         }
         if (b_height > increase_height) b_height = increase_height;
         if (t_height > increase_height) t_height = increase_height;
