@@ -172,7 +172,7 @@ function vbox(generator, $Y = "Y") {
         cancelmouseup = onmouseup(window, mouseup);
     });
     var mousemove = function (event) {
-        if (event.defaultPrevented) return;
+        if (event.moveLocked) return;
         if (_box.nodrag) return;
         if (event.type !== "touchmove" && event.which === 0) return mouseup();
         var clientX = event[$clientX];
@@ -180,12 +180,12 @@ function vbox(generator, $Y = "Y") {
         var deltax = clientX - saved_x;
         var deltay = clientY - saved_y;
         if (!direction) {
-            if (abs(deltax) < 3 && abs(deltay) < 3) return;
+            if (abs(deltax) < MOVElOCK_DELTA && abs(deltay) < MOVElOCK_DELTA) return;
             direction = abs(deltax) >= abs(deltay) ? -1 : 1;
         }
         if (direction < 0)
             return;
-        event.preventDefault();
+        event.moveLocked = true;
         __speed = _speed(deltay);
         _box[$scrollY](-deltay);
         saved_x = clientX;
@@ -215,7 +215,7 @@ function vbox(generator, $Y = "Y") {
             __speed = _speed();
             smooth();
         };
-        event.preventDefault();
+        if (_box.style.webkitOverflowScrolling) event.preventDefault();
         var canceltouchmove = ontouchmove(moving, function (event) {
             extendTouch(event);
             mousemove(event);
@@ -223,6 +223,6 @@ function vbox(generator, $Y = "Y") {
         var canceltouchcancel = ontouchcancel(moving, cancel);
         var canceltouchend = ontouchend(moving, cancel);
     });
-    _box.style.overflow = "hidden";
+    css(_box, "overflow:hidden;-webkit-overflow-scrolling:auto;over-flow:auto;");
     return _box;
 }

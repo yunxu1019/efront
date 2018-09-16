@@ -206,12 +206,12 @@ function slider(autoplay, circle = true) {
         reshape(-negative_index);
     };
     var mousemove = function (event) {
-        if (event.defaultPrevented) return;
+        if (event.moveLocked) return;
         if (event.type !== "touchmove" && event.which === 0) return mouseup();
         var deltax = event.clientX - saved_x;
         var deltay = event.clientY - saved_y;
         if (!direction) {
-            if (abs(deltax) < 3 && abs(deltay) < 3) return;
+            if (abs(deltax) < MOVElOCK_DELTA && abs(deltay) < MOVElOCK_DELTA) return;
             if (abs(deltay) - abs(deltax) > 0) { //垂直方向
                 direction = -1;
             } else { //水平方向
@@ -224,7 +224,7 @@ function slider(autoplay, circle = true) {
         if (!moving) {
             return;
         }
-        event.preventDefault();
+        event.moveLocked = true;
         // event.stopPropagation && event.stopPropagation();
         moveDeltaX(deltax, event);
     };

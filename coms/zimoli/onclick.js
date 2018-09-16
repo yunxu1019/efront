@@ -6,7 +6,7 @@ onmousedown(document, function (event) {
 });
 onmousemove(document, function (event) {
     var abs = Math.abs;
-    if (abs(event.clientX - saved_x) > 2 || abs(event.clientY - saved_y) > 2)
+    if (abs(event.clientX - saved_x) >= MOVElOCK_DELTA || abs(event.clientY - saved_y) >= MOVElOCK_DELTA)
         onclick.preventClick = preventClick = true;
 });
 var onclick = function (target, handler) {

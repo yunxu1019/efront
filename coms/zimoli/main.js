@@ -44,6 +44,8 @@ if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.pla
     renderPixelRatio *= devicePixelRatio;
     document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
 }
+modules.MOVElOCK_DELTA = 3 * renderPixelRatio;
+
 var retry = function (url, count) {
     setTimeout(function () {
         load(url, --count);

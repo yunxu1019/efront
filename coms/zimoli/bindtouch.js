@@ -20,7 +20,7 @@ function bindtouch(target, bindder, lockDirection = "x") {
         }
     };
     var mousemove = function (event) {
-        if (event.defaultPrevented) return;
+        if (event.moveLocked) return;
         if (event.type !== "touchmove" && event.which === 0) return mouseup();
         var clientX = event.clientX;
         var clientY = event.clientY;
@@ -28,7 +28,7 @@ function bindtouch(target, bindder, lockDirection = "x") {
         var deltay = clientY - saved_y;
         if (lockDirection) {
             if (!direction) {
-                if (abs(deltax) < 3 && abs(deltay) < 3) return;
+                if (abs(deltax) < MOVElOCK_DELTA && abs(deltay) < MOVElOCK_DELTA) return;
                 if (target.onmovestart) {
                     target.onmovestart();
                 }
@@ -36,9 +36,9 @@ function bindtouch(target, bindder, lockDirection = "x") {
                 direction = abs(deltax) >= abs(deltay) ? "x" : 'y';
             }
             if (direction !== lockDirection)
-                return;
+            return;
         }
-        event.preventDefault();
+        event.moveLocked = true;
         var { x = 0, y = 0 } = bindder();
         x += deltax, y += deltay;
         bindder({ x, y }, event);

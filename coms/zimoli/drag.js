@@ -28,11 +28,11 @@ function drag(target, event, overflow = false) {
     var extraStyles = extraTargets.map(e => ({ opacity: e.style.opacity, filter: e.style.filter }));
     var extraClones;
     var cancelmousemove = onmousemove(window, function (event) {
-        if (event.defaultPrevented) return;
+        if (event.moveLocked) return;
         if (!saved_delta.ing) {
             var abs = Math.abs;
             if (event.which !== 1) return clear();
-            if (abs(target.offsetLeft - event.clientX - saved_delta.x < 3) && abs(target.offsetTop - event.clientY - saved_delta.y) < 3) return;
+            if (abs(target.offsetLeft - event.clientX - saved_delta.x < MOVElOCK_DELTA) && abs(target.offsetTop - event.clientY - saved_delta.y) < MOVElOCK_DELTA) return;
             saved_delta.ing = true;
             if (!/absolute|fixed/.test(getComputedStyle(target).position)) {
                 clone = toCloneTarget(target);
@@ -49,7 +49,7 @@ function drag(target, event, overflow = false) {
             dispatch("dragstart", target);
         }
         drag.target = clone;
-        event.preventDefault();
+        event.moveLocked = true;
         var offsetLeft = saved_delta.x + event.clientX;
         var offsetTop = saved_delta.y + event.clientY;
         var {

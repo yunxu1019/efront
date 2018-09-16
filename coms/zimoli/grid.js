@@ -8,7 +8,10 @@ function grid(breakpoints) {
     }
     grid.breakpoints = breakpoints;
     grid.setAttribute("grid", "");
-    var cancelmove;
+    /**
+     * 适配指针
+     * @param {Event} event 
+     */
     var adaptCursor = function (event) {
         var position = getScreenPosition(grid);
         var clientX = event.clientX - position.left;
@@ -33,10 +36,16 @@ function grid(breakpoints) {
         }
     };
     var resizeInfo = null;
+    /**
+     * 调整大小
+     * @param {Event} event 
+     */
     var resizeView = function (event) {
         var editting = grid.editting;
         var { area, target, resize } = editting;
         if (!target) return;
+        var {path}=area;
+        var point=path[path.length-1];
         var style = target.style;
         for (var k in resize) {
             var [key, min, max, delta, extra] = resize[k];
@@ -49,6 +58,10 @@ function grid(breakpoints) {
                 style[extra] = parseInt(style[extra]) + origin - value + "px";
         }
     };
+    /**
+     * 监听指针移动
+     */
+    var cancelmove;
     onappend(grid, function () {
         grid.init();
         cancelmove && cancelmove();
@@ -64,52 +77,57 @@ function grid(breakpoints) {
         cancelmove();
         cancelmove = null;
     });
+    /**
+     * 指针按下
+     */
     onmousedown(grid, function (event) {
-        if (grid.direction) {
-            var position = getScreenPosition(grid);
-            var clientX = event.clientX - position.left;
-            var clientY = event.clientY - position.top;
-            var area = grid.nearby(clientX, clientY);
-            var [x_left, y_top, x_right, y_bottom] = area;
-            var resize = {};
-            var path = area.path;
-            var target_point = path[path.length - 1];
-            var target_element = target_point.target;
-            console.log(target_element);
-            var style = target_element.style;
-            if (clientY - y_top < 7) {
-                var top = area.top;
-                var point = top.top;
-                if (point) {
-                    resize.clientY = [
-                        "top", point.value + 20, area.bottom.value - 20, event.clientY - parseInt(style.top),
-                        "height"
-                    ];
-                }
-            } else if (y_bottom - clientY < 7) {
-                var bottom = area.bottom;
-                var point = bottom.bottom;
-                if (point) {
-                    resize.clientY = ["height", 20, point.value - area.top.value, event.clientY - parseInt(style.height)];
-                }
+        if (!grid.direction) return;
+        //调整大小
+        var position = getScreenPosition(grid);
+        var clientX = event.clientX - position.left;
+        var clientY = event.clientY - position.top;
+        var area = grid.nearby(clientX, clientY);
+        var [x_left, y_top, x_right, y_bottom] = area;
+        var resize = {};
+        var path = area.path;
+        var target_point = path[path.length - 1];
+        var target_element = target_point.target;
+        var style = target_element.style;
+        if (clientY - y_top < 7) {
+            //上边
+            var top = area.top;
+            var point = top.top;
+            if (point) {
+                resize.clientY = [
+                    "top", point.value + 20, area.bottom.value - 20, event.clientY - parseInt(style.top),
+                    "height"
+                ];
             }
-            if (clientX - x_left < 7) {
-                var left = area.left;
-                var point = left.left;
-                console.log(left, point)
-                if (point) {
-                    resize.clientX = ["left", point.value + 20, area.right.value - 20, event.clientX - parseInt(style.left), "width"];
-                }
-            } else if (x_right - clientX < 7) {
-                var right = area.right;
-                var point = right.right;
-                if (point) {
-                    resize.clientX = ["width", 20, point.value - area.left.value, event.clientX - parseInt(style.width)];
-                }
+        } else if (y_bottom - clientY < 7) {
+            //下边
+            var bottom = area.bottom;
+            var point = bottom.bottom;
+            if (point) {
+                resize.clientY = ["height", 20, point.value - area.top.value, event.clientY - parseInt(style.height)];
             }
-            grid.editting = { area, target: target_element, resize };
-            style.zIndex = 1;
         }
+        if (clientX - x_left < 7) {
+            //左边
+            var left = area.left;
+            var point = left.left;
+            if (point) {
+                resize.clientX = ["left", point.value + 20, area.right.value - 20, event.clientX - parseInt(style.left), "width"];
+            }
+        } else if (x_right - clientX < 7) {
+            //右边
+            var right = area.right;
+            var point = right.right;
+            if (point) {
+                resize.clientX = ["width", 20, point.value - area.left.value, event.clientX - parseInt(style.width)];
+            }
+        }
+        grid.editting = { area, target: target_element, resize };
+        style.zIndex = 1;
         var cancelup = onmouseup(window, function () {
             var target = grid.editting.target;
             if (target) target.style.zIndex = null;
@@ -169,6 +187,9 @@ var getRelativePoints = function (point) {
 var grid_prototype = {
     breakpoints: [],
     init() {
+        this.reshape();
+    },
+    reshape() {
         var that = this;
         var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(that.offsetWidth), current_b = Point(that.offsetHeight);
         // var xPoints = [];
@@ -203,7 +224,10 @@ var grid_prototype = {
                 point.map(append);
                 current_l = temp_l, current_t = temp_t, current_w = temp_w, current_h = temp_h, current_d = temp_d, current_r = temp_r, current_b = temp_b;
             } else {
-                var _div = div();
+                var _div = point.target;
+                if (!_div) {
+                    point.target = _div = div();
+                }
                 var current_value;
                 if (current_d === "x") {
                     if (next_point) {
@@ -216,26 +240,6 @@ var grid_prototype = {
                     }
                     point.top = current_t;
                     point.bottom = current_b;
-                    // bindToOrderedSpliters(xPoints,
-                    //     _div,
-                    //     point.value + current_value,
-                    //     "right"
-                    // );
-                    // bindToOrderedSpliters(xPoints,
-                    //     _div,
-                    //     point.value,
-                    //     "left"
-                    // );
-                    // bindToOrderedSpliters(yPoints,
-                    //     _div,
-                    //     current_t && current_t.value || 0,
-                    //     "top"
-                    // );
-                    // bindToOrderedSpliters(yPoints,
-                    //     _div,
-                    //     current_b,
-                    //     "bottom"
-                    // );
                     css(_div, {
                         left: point.value + "px",
                         top: current_t ? current_t.value + "px" : 0,
@@ -253,42 +257,17 @@ var grid_prototype = {
                     }
                     point.left = current_l;
                     point.right = current_r;
-                    // bindToOrderedSpliters(xPoints,
-                    //     _div,
-                    //     current_r,
-                    //     "right"
-                    // );
-                    // bindToOrderedSpliters(xPoints,
-                    //     _div,
-                    //     current_l && current_l.value || 0,
-                    //     "left"
-                    // );
-                    // bindToOrderedSpliters(yPoints,
-                    //     _div,
-                    //     point.value,
-                    //     "top"
-                    // );
-                    // bindToOrderedSpliters(yPoints,
-                    //     _div,
-                    //     point.value + current_value,
-                    //     "bottom"
-                    // );
                     css(_div, {
                         left: current_l ? current_l.value + "px" : 0,
                         top: point.value + "px",
                         width: current_w || 0,
                         height: current_value + "px"
                     });
-
                 }
                 appendChild(that, _div);
-                point.target = _div;
             }
         };
         append(this.breakpoints);
-        // this.xPoints = xPoints;
-        // this.yPoints = yPoints;
-        window.grid = this;
     },
     seprate(x) {
         saveToOrderedArray(this.breakpoints, Point(x));
