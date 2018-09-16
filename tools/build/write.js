@@ -6,15 +6,17 @@ var mkkingTree = {};
 var mkdir = function (dir, then) {
     if (mkkingTree[dir]) return mkkingTree[dir].push(then);
     else mkkingTree[dir] = [then];
-    fs.mkdir(dir, function (error) {
-        setTimeout(function () {
-            var thens = mkkingTree[dir];
-            thens && thens.forEach(e => e(error));
-        }, 10);
-    });
+    var done = function (error) {
+        var thens = mkkingTree[dir];
+        delete mkkingTree[dir];
+        thens && thens.forEach(e => e(error));
+    }
+    fs.exists(dir, function (exists) {
+        if (exists) done();
+        else fs.mkdir(dir, done);
+    })
 };
 var deepwr = function (dir, data) {
-    console.info(dir);
     var dirname = path.dirname(dir);
     var paths = [];
     return new Promise(function (ok, oh) {
