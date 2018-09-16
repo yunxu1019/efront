@@ -174,7 +174,6 @@ function vbox(generator, $Y = "Y") {
         cancelAnimationFrame(speed_timer);
         cancelAnimationFrame(decrease_timer);
         _speed(0);
-        lastmoveTime = new Date;
         saved_x = event[$clientX], saved_y = event[$clientY];
         direction = 0;
         cancelmousemove = onmousemove(window, mousemove);
@@ -211,7 +210,6 @@ function vbox(generator, $Y = "Y") {
         cancelAnimationFrame(speed_timer);
         cancelAnimationFrame(decrease_timer);
         extendTouch(event);
-        lastmoveTime = new Date;
         saved_x = event[$clientX], saved_y = event[$clientY];
         var moving = event.target;
         _speed(0);
