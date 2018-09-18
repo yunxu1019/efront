@@ -6,20 +6,20 @@ page.innerHTML = `<div class=user-info>
         <div class=level>LV.5</div>
     </div>
 </div>
-<div>
-    <div>本地音乐</div>
-    <div>喜欢·歌单</div>
-    <div>下载</div>
-    <div>最近</div>
+<div class=music-info>
+    <div><i>&#xe610;</i>本地音乐</div>
+    <div><i>&#xe616;</i>喜欢·歌单</div>
+    <div><i>&#xe606;</i>下载</div>
+    <div><i>&#xe64d;</i>最近</div>
 </div>
-<div>
-    <div>乐库</div>
-    <div>歌单</div>
-    <div>电台·酷群</div>
-    <div>猜你喜欢</div>
-    <div>每日推荐</div>
-    <div>音乐圈</div>
-</div>`;
+<div class=button-group >
+    <div><i style=background-color:#ffbd0d;>&#xe62c;</i>乐库</div>
+    <div><i style=background:#2bcda2;>&#xe68c;</i>歌单</div>
+    <div><i style=background:#3ab5f7;>&#xe6df;</i>电台·酷群</div>
+    <div><i style=background:#e76ce8;>&#xe634;</i>猜你喜欢</div>
+    <div><i style=background:#ff6565;>&#xeb85;</i>每日推荐</div>
+    <div><i style=background:#ff852c;>&#xe603;</i>音乐圈</div>
+</div>`.replace(/>\s+</g, "><");
 function main() {
     return page;
 }
