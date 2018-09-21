@@ -13,7 +13,7 @@ function button(texter, type) {
     } else {
         _texter = createElement(_label);
         if (isString(texter))
-            text(_texter, texter);
+            html(_texter, texter);
     }
     var button = createElement(btn, tracker, _texter);
     var hover = function () {
@@ -21,9 +21,6 @@ function button(texter, type) {
     };
     var active = function () {
         addClass(button, "active hover");
-    };
-    var resethover = function () {
-        removeClass(button, "hover");
     };
     var resetactive = function () {
         removeClass(button, "active");
@@ -63,10 +60,10 @@ function button(texter, type) {
         } else {
             removeClass(button, "space");
         }
-        return text(_texter, _text);
+        return html(_texter, _text);
     };
     button.getText = function () {
-        return text(_texter);
+        return html(_texter);
     };
     if (texter && texter.length === 2) {
         addClass(button, "space");
