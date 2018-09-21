@@ -142,10 +142,18 @@ function vbox(generator, $Y = "Y") {
         } else if (deltaY > 0 && b_height > 0) {
             if (!increaser_b.previousSibling) {
                 increaser_b.style.marginTop = 0;
+                increaser_b.style.marginBottom = 0;
+                increaser_b.style.height = "1px";
                 appendChild(_box, increaser_b);
-                var deltaMargin = _box.offsetHeight + _box.scrollTop - increaser_b.offsetTop - increaser_b.offsetHeight;
+                var deltaMargin = _box.offsetHeight - increaser_b.offsetTop;
                 if (deltaMargin > 0) {
                     increaser_b.style.marginTop = deltaMargin + "px";
+                    var paddingBottom = getComputedStyle(_box).paddingBottom;
+                    if (paddingBottom) {
+                        paddingBottom = "-" + paddingBottom;
+                        paddingBottom = paddingBottom.replace(/^\-{2}/, "");
+                    }
+                    increaser_b.style.marginBottom = paddingBottom;
                 }
             }
         }
