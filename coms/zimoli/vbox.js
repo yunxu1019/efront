@@ -140,12 +140,12 @@ function vbox(generator, $Y = "Y") {
                 _box.insertBefore(increaser_t, _box.childNodes[0] || null);
             }
         } else if (deltaY > 0 && b_height > 0) {
-            if (!increaser_b.previousSibling) {
+            if (!increaser_b.parentNode) {
                 increaser_b.style.marginTop = 0;
                 increaser_b.style.marginBottom = 0;
-                increaser_b.style.height = "1px";
+                increaser_b.style.height = 0;
                 appendChild(_box, increaser_b);
-                var deltaMargin = _box.offsetHeight - increaser_b.offsetTop;
+                var deltaMargin = _box.scrollHeight - increaser_b.offsetTop;
                 if (deltaMargin > 0) {
                     increaser_b.style.marginTop = deltaMargin + "px";
                     var paddingBottom = getComputedStyle(_box).paddingBottom;
