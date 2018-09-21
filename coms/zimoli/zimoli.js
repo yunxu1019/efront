@@ -80,7 +80,7 @@ function go(url, args, history_name) {
     }
     var pg = page_generators[url];
     var _with_elements = [].concat(pg.with);
-    var _pageback_listener = [].concat(pg.onback);
+    var _pageback_listener = pg.onback;
     var state = pg.state;
     state.with = function (element) {
         element && _with_elements.push(element);
@@ -231,6 +231,7 @@ var onback = function () {
         onback = current_page.onback();
     }
     if (onback === false) {
+        fixurl();
         return;
     }
     if (isString(onback)) {
