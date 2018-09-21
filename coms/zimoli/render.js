@@ -179,6 +179,21 @@ function renderElement(element, scope) {
     element.$scope = scope;
     if (element.renderid) return;
     var attrs = element.attributes;
+    var { tagName, parentNode, previousSibling } = element;
+    if (parentNode) {
+        if (!scope[tagName]) tagName = tagName.toLowerCase();
+        if (!scope[tagName])
+            tagName = tagName.replace(/(?:^|\-+)([a-z])/ig, (_, w) => w.toUpperCase());
+        if (!scope[tagName]) tagName = tagName.slice(0, 1).toLowerCase() + tagName.slice(1);
+        if (isFunction(scope[tagName])) var replacer = scope[tagName](element);
+        if (isElement(replacer) && element !== replacer) {
+            if (previousSibling) appendChild.after(replacer, previousSibling);
+            else appendChild(parentNode, replacer);
+            remove(element);
+            element = replacer;
+            element.$scope = scope;
+        }
+    }
     element.renders = [];
     [].slice.call(attrs, 0).map(function (attr) {
         var { name, value } = attr;
