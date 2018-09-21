@@ -189,7 +189,7 @@ function renderElement(element, scope) {
         if (isElement(replacer) && element !== replacer) {
             if (previousSibling) appendChild.after(replacer, previousSibling);
             else appendChild(parentNode, replacer);
-            remove(element);
+            if (element.parentNode === parentNode) remove(element);
             element = replacer;
             element.$scope = scope;
         }
