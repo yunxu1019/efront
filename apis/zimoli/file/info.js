@@ -1,8 +1,7 @@
 var fs = require("fs");
 var path = require("path");
-var rootDirectorys = [
-    "E:\\77"
-]
+var rootDirectorys = require("./root");
+var checkPermission = require("./checkPermission");
 function infos({ files = rootDirectorys, folder = "." }) {
     return new Promise(function (ok, oh) {
         if (!files.length) return ok([]);
@@ -16,6 +15,13 @@ function infos({ files = rootDirectorys, folder = "." }) {
         files.map(function (pathname) {
             var name = pathname;
             pathname = path.join(folder, pathname);
+            if (!checkPermission(pathname)) {
+                return resolve({
+                    name,
+                    pathname,
+                    access: false
+                });
+            }
             fs.exists(pathname, function (exists) {
                 if (!exists) {
                     return resolve({
