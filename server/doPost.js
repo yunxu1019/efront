@@ -135,6 +135,7 @@ function read(req, size) {
     });
 }
 var doPost = module.exports = function (req, res) {
+    res.setHeader("Content-Type", "application/json;charset:UTF-8");
     var url = req.url;
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
