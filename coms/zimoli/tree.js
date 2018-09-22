@@ -72,6 +72,8 @@ function appendTo(parent, datas) {
         if (data instanceof Object) {
             data.tab = tab;
             var item = new Item(data);
+            item.parent = parent;
+            item.root = parent.root;
             parent.push(item);
         }
     });
