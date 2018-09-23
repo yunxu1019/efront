@@ -3,10 +3,10 @@ var path = require("path");
 var proxy = require("./proxy");
 var root = "./apps/zimoli";
 var cacheRangeSize = 2 * 1024 * 1024;
-function doFile(req, res) {
+function doFile(req, res, realpath) {
     var [, start, end] = String(req.headers.range).match(/bytes=(\d*)\-(\d*)/);
     var url = proxy(req);
-    var filepath = path.join(root, url);
+    var filepath = realpath || path.join(root, url);
     fs.exists(filepath, function (exists) {
         if (!exists) {
             res.writeHead(404, {});
@@ -19,7 +19,6 @@ function doFile(req, res) {
                 res.end(String(err));
                 return;
             }
-
             if (stats.isDirectory()) {
                 res.writeHead(400, {});
                 res.end("folder");
