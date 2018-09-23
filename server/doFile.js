@@ -1,12 +1,21 @@
 var fs = require("fs");
 var path = require("path");
 var proxy = require("./proxy");
+var checkAccess = require("./checkAccess");
 var root = "./apps/zimoli";
 var cacheRangeSize = 2 * 1024 * 1024;
-function doFile(req, res, realpath) {
-    var [, start, end] = String(req.headers.range).match(/bytes=(\d*)\-(\d*)/);
+function doFile(req, res) {
     var url = proxy(req);
+    if (/^@/.test(url)) {
+        var realpath = decodeURIComponent(req.url.slice(1));
+    }
     var filepath = realpath || path.join(root, url);
+    if (!checkAccess(filepath)) {
+        res.writeHead(406, {});
+        res.end();
+        return;
+    }
+    var [, start, end] = String(req.headers.range).match(/bytes=(\d*)\-(\d*)/);
     fs.exists(filepath, function (exists) {
         if (!exists) {
             res.writeHead(404, {});

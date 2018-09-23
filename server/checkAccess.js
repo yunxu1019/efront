@@ -2,7 +2,7 @@
 var path = require("path");
 var loadjson = require("../process/loadjson");
 var configfilepath = "./data/shared.json";
-loadjson(configfilepath).then(function (json) {
+loadjson.async(configfilepath).then(function (json) {
     if (json instanceof Array) {
         rootDirectorys = json;
     }
