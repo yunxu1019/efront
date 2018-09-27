@@ -284,6 +284,7 @@ function slider(autoplay, circle = true) {
             extendTouch(e);
             saved_x = e.clientX;
             saved_y = e.clientY;
+            if (outter.style.webkitOverflowScrolling) e.preventDefault();
         });
         var ontouchmove = function (e) {
             extendTouch(e);
@@ -344,5 +345,6 @@ function slider(autoplay, circle = true) {
         cancel_resize && cancel_resize();
         cancel_resize = null;
     });
+    css(outter, "overflow:hidden;-webkit-overflow-scrolling:auto;over-flow:auto;");
     return outter;
 }
