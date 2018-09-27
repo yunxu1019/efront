@@ -15,7 +15,7 @@ function doFile(req, res) {
         res.end();
         return;
     }
-    var [, start, end] = String(req.headers.range).match(/bytes=(\d*)\-(\d*)/);
+    var [, start, end] = String(req.headers.range).match(/bytes=(\d*)\-(\d*)/) || [];
     fs.exists(filepath, function (exists) {
         if (!exists) {
             res.writeHead(404, {});
