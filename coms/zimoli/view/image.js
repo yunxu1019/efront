@@ -1,5 +1,5 @@
 var support = image.support = function (file) {
-    return /(\.gif|\.png|\.jpe?g)$/.test(file.pathname);
+    return /\.(?:gif|png|jpe?g)$/i.test(file.pathname);
 };
 function image(list, index = 0) {
     if (list.value.isFile) {
