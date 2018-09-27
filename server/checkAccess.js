@@ -4,7 +4,8 @@ var loadjson = require("../process/loadjson");
 var configfilepath = "./data/shared.json";
 loadjson.async(configfilepath).then(function (json) {
     if (json instanceof Array) {
-        rootDirectorys = json;
+        rootDirectorys.splice(0, rootDirectorys.length);
+        rootDirectorys.push.apply(rootDirectorys, json);
     }
 }).catch(function () {
 });
@@ -17,5 +18,5 @@ function checkAccess(fullpath) {
     }
     return false;
 }
-
+checkAccess.roots = rootDirectorys;
 module.exports = checkAccess;
