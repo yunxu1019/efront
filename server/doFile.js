@@ -5,11 +5,12 @@ var checkAccess = require("./checkAccess");
 var root = "./apps/zimoli";
 var cacheRangeSize = 2 * 1024 * 1024;
 function doFile(req, res) {
-    var url = proxy(req);
-    if (/^\/@/.test(url)) {
-        var realpath = decodeURIComponent(req.url.slice(2));
+    if (/^\/@/.test(req.url)) {
+        var filepath = decodeURIComponent(req.url.slice(2));
+    } else {
+        var url = proxy(req);
+        var filepath = path.join(root, url);
     }
-    var filepath = realpath || path.join(root, url);
     if (!checkAccess(filepath)) {
         res.writeHead(406, {});
         res.end();
