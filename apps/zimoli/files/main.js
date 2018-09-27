@@ -1,6 +1,99 @@
 titlebar("文件管理器");
-var page = div();
-page.initialStyle = "margin-left:100%;z-index:2";
+var page = createVboxWithState(state);
+page.innerHTML = `
+<list></list>
+`;
+
+var roots = [];
+var currentFolder = [];
+var request = function (value, folder) {
+    if (!request.rest) request.rest = [];
+    var { rest, loading } = request;
+    if (folder && folder !== request.folder) {
+        if (isNumber(loading)) {
+            clearTimeout(loading);
+        } else if (loading) {
+            loading.cancel();
+            loading = false;
+        }
+        rest.splice(0, rest.length);
+    };
+    if (value) {
+        rest.push(value);
+        request.folder = folder;
+    }
+    if (loading) return;
+    request.loading = setTimeout(function () {
+        var files = request.rest.splice(0, rest.length);
+        if (!files.length) return rest.loading = false;
+        request.loading = api("/file/info", {
+            files: files.map(function (file) {
+                return file.name;
+            }),
+            folder: request.folder
+        }).success(function (result) {
+            result.result.map(function (file, cx) {
+                extend(files[cx], file);
+            });
+            _list.refresh();
+            request.loading = false;
+            if (request.rest.length) request();
+        }).error(function () {
+            request.loading = false;
+            if (request.rest.length) request();
+        });
+    }, 200);
+}
+var _list = tree(function (data) {
+    var { value } = data;
+    var { name, isFolder } = value;
+    if (isFolder) {
+        return button("<span style=color:red>文件夹</span>" + name);
+    }
+    if (!value.isFile) {
+        request(value, value.folder);
+    }
+    return button(name);
+});
+onactive(_list, function (event) {
+    var { value, item } = event;
+    if (value.isFolder && !item.length) {
+        _list.add(value.children.map(function (name) {
+            return {
+                tab: data.tab + 1,
+                name,
+                folder: value.pathname
+            };
+        }), item);
+        item.closed = true;
+    } else if (value.isFile) {
+        if(view$image.support(item.value)){
+            var viewer = view$image(item);
+            popup(viewer);
+            ontouchend(viewer,e=>remove(viewer));
+        }
+    }
+})
+render(page, {
+    go,
+    List(a) {
+        return _list;
+    },
+    btn(a) {
+        return button(a);
+    }
+})
+page.initialStyle = "margin-left:100%;z-index:2;";
+onback(function () {
+})
+api("/file/info").success(function (response) {
+    roots = currentFolder = response.result;
+    roots.map(function (a) {
+        a.tab = 1;
+    })
+    _list.src(roots);
+    _list.go(0);
+});
 function main() {
     return page;
 }
