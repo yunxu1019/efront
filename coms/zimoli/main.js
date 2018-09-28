@@ -242,7 +242,8 @@ var executer = function (text, name, then, prebuild) {
         var argslength = functionArgs.length >> 1;
         prebuild && [].map.call(functionArgs.slice(0, argslength), k => k in prebuild && prevent_save++);
         try {
-            var exports = Function.apply(window, functionArgs.slice(argslength).concat(functionBody)).apply(window, args);
+            var allArgumentsNames = functionArgs.slice(argslength);
+            var exports = Function.apply(window, allArgumentsNames.concat(functionBody)).apply(window, args.concat([allArgumentsNames]));
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
