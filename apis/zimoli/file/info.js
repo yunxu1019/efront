@@ -6,13 +6,15 @@ function infos({ files = rootDirectorys, folder = "." }) {
     return new Promise(function (ok, oh) {
         if (!files.length) return ok([]);
         var results = [];
-        function resolve(a) {
-            results.push(a);
-            if (results.length >= files.length) {
+        var result_count = 0;
+        function resolve(fileInfo, cx) {
+            results[cx] = fileInfo;
+            result_count++;
+            if (result_count >= files.length) {
                 ok(results);
             }
         }
-        files.map(function (pathname) {
+        files.map(function (pathname, cx) {
             var name = pathname;
             pathname = path.join(folder, pathname);
             if (!checkPermission(pathname)) {
@@ -20,7 +22,7 @@ function infos({ files = rootDirectorys, folder = "." }) {
                     name,
                     pathname,
                     access: false
-                });
+                }, cx);
             }
             fs.exists(pathname, function (exists) {
                 if (!exists) {
@@ -28,7 +30,7 @@ function infos({ files = rootDirectorys, folder = "." }) {
                         name,
                         pathname,
                         exists
-                    });
+                    }, cx);
                 }
                 fs.stat(pathname, function (error, stats) {
                     if (error) {
@@ -36,7 +38,7 @@ function infos({ files = rootDirectorys, folder = "." }) {
                             name,
                             pathname,
                             error
-                        });
+                        }, cx);
                     } else {
                         var result = {
                             name,
@@ -52,10 +54,10 @@ function infos({ files = rootDirectorys, folder = "." }) {
                         if (result.isFolder) {
                             fs.readdir(pathname, function (error, children) {
                                 result.children = error || children;
-                                resolve(result);
+                                resolve(result, cx);
                             });
                         } else {
-                            resolve(result);
+                            resolve(result, cx);
                         }
                     }
                 })
