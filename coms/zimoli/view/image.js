@@ -27,5 +27,8 @@ function image(list, index = 0) {
     once("append")(viewer, function () {
         viewer.go(index);
     });
+    ontouchend(viewer, function () {
+        remove(viewer);
+    });
     return viewer;
 }
