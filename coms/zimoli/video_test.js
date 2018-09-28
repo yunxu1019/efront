@@ -1,4 +1,4 @@
 function video_test(){
-    var e=video("/lxm.mp4");
+    var e=video("/@"+encodeURIComponent("E:\\77\\mv\\ggw.mp4"));
     return e;
 }
