@@ -1,72 +1,47 @@
-var abs = Math.abs;
-var sqrt = Math.sqrt;
-var sign = Math.sign || function (a) {
-    return +a > 0 ? 1 : -a > 0 ? -1 : 0;
-};
-var pow = Math.pow;
-var box = createElement(div);
-css(box, "overflow:hidden;height:100%");
-var extendTouch = function (e) {
-    var touch = e.touches[0];
-    for (var k in touch) {
-        if (!(k in e)) e[k] = touch[k];
-    }
-    return e;
-};
-
-/**
- * vbox 纵向滑动框
- * 传入一个页面，将其重构为可纵向平滑滑动的页面
- * @param {Element|Function|string} generator 
- */
-function vbox(generator, $Y = "Y") {
-    if ($Y === "X") {
-        var $height = "width", $top = "left", $X = "Y";
-    } else if ($Y === "Y") {
-        var $height = "height", $top = "top", $X = "X";
-    }
-    var $Height = $height.charAt(0).toUpperCase() + $height.slice(1);
-    var $Top = $top.charAt(0).toUpperCase() + $top.slice(1);
-    var $scrollHeight = "scroll" + $Height;
-    var $scrollTop = "scroll" + $Top;
-    var $scrollY = "scroll" + $Y;
-    var $clientY = "client" + $Y;
-    var $clientX = "client" + $X;
-    var $offsetHeight = "offset" + $Height;
-    var $deltaY = "delta" + $Y;
-    var $stopY = "stop" + $Y;
-    var $wheelDeltaY = "wheelDelta" + $Y;
+function ybox(generator) {
+    var extendTouch = function (e) {
+        var touch = e.touches[0];
+        for (var k in touch) {
+            if (!(k in e)) e[k] = touch[k];
+        }
+        return e;
+    };
+    var abs = Math.abs;
+    var sqrt = Math.sqrt;
+    var sign = Math.sign || function (a) {
+        return +a > 0 ? 1 : -a > 0 ? -1 : 0;
+    };
     var _box;
     if (isNode(generator)) {
         _box = generator;
     } else {
-        _box = createElement(box);
+        _box = createElement(div);
     }
-    _box[$height] = function () {
-        return _box[$offsetHeight];
+    _box.height = function () {
+        return _box.offsetHeight;
     };
     isFunction(generator) && generator(_box);
     // totalHeight
-    _box[$Height] = _box[$Height] || function () {
-        return _box[$scrollHeight];
+    _box.Height = _box.Height || function () {
+        return _box.scrollHeight;
     };
     // currentTop
-    _box[$Top] = _box[$Top] || function (top) {
+    _box.Top = _box.Top || function (top) {
         if (isNumber(top)) {
-            _box[$scrollTop] = top;
+            _box.scrollTop = top;
         }
-        return _box[$scrollTop];
+        return _box.scrollTop;
     };
-    _box[$stopY] = _box[$stopY] || function (stopedY) {
+    _box.stopY = _box.stopY || function (stopedY) {
         if (isNumber(stopedY)) {
             return stopedY;
         }
-        return _box[$Top]();
+        return _box.Top();
     };
-    _box[$scrollY] = function (deltay, useIncrease = true) {
-        var top = _box[$Top]() + deltay;
-        var height = _box[$height]();
-        var scrollHeight = _box[$Height]();
+    _box.scrollY = function (deltay, useIncrease = true) {
+        var top = _box.Top() + deltay;
+        var height = _box.height();
+        var scrollHeight = _box.Height();
         if (top < 0) {
             // if (speed > 30) speed = 30;
             __speed = __speed >> 1;
@@ -80,7 +55,7 @@ function vbox(generator, $Y = "Y") {
             __speed = __speed >> 1;
             useIncrease && increase(top + height - scrollHeight);
         }
-        return _box[$Top](top);
+        return _box.Top(top);
     };
     var saved_x, saved_y, direction, __speed = 0;
     var smooth = function (useIncrease = true) {
@@ -92,7 +67,7 @@ function vbox(generator, $Y = "Y") {
             return;
         }
         speed_timer = requestAnimationFrame(() => smooth(useIncrease));
-        _box[$scrollY](-__speed, useIncrease);
+        _box.scrollY(-__speed, useIncrease);
         __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
     var increaser_t = createElement(div);
@@ -102,37 +77,37 @@ function vbox(generator, $Y = "Y") {
     var _speed = speed(time_splitter);
     var increase_height = 100 * renderPixelRatio / .75;
     var _decrease = function (increaser) {
-        var height = parseInt(increaser.style[$height]);
+        var height = parseInt(increaser.style.height);
         if (height > 1) {
-            var scrollTop = _box[$Top]();
+            var scrollTop = _box.Top();
             if (scrollTop > 0 && increaser_t === increaser) {
                 var deltaY = scrollTop > height ? height : scrollTop;
                 height -= deltaY;
-                _box[$Top](scrollTop - deltaY);
+                _box.Top(scrollTop - deltaY);
             }
-            var tH = _box[$Height]();
-            var bH = _box[$height]();
+            var tH = _box.Height();
+            var bH = _box.height();
             if (scrollTop + bH < tH && increaser_b === increaser) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
             }
             css(increaser, {
-                [$height]: (height > 16 ? (height * 2 + 6) / 3 : height >> 1) + "px"
+                height: (height > 16 ? (height * 2 + 6) / 3 : height >> 1) + "px"
             });
             return 1;
         }
-        height && _box[$Top](_box[$Top]() - height);
-        css(increaser, { [$height]: 0 });
+        height && _box.Top(_box.Top() - height);
+        css(increaser, { height: 0 });
         remove(increaser);
         return 0;
     };
     var decrease = function () {
         if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = requestAnimationFrame(decrease);
-        else if (_box[$stopY]() - _box[$Top]()) decrease_timer = requestAnimationFrame(decrease);
+        else if (_box.stopY() - _box.Top()) decrease_timer = requestAnimationFrame(decrease);
     };
     var increase = function (deltaY) {
-        var t_height = parseInt(increaser_t.style[$height]) || 0;
-        var b_height = parseInt(increaser_b.style[$height]) || 0;
+        var t_height = parseInt(increaser_t.style.height) || 0;
+        var b_height = parseInt(increaser_b.style.height) || 0;
         t_height -= deltaY;
         b_height += deltaY;
         if (deltaY < 0 && t_height > 0) {
@@ -162,19 +137,19 @@ function vbox(generator, $Y = "Y") {
         if (b_height < 0) b_height = 0;
         if (t_height < 0) t_height = 0;
         b_height && css(increaser_b, {
-            [$height]: b_height + "px"
+            height: b_height + "px"
         });
         t_height && css(increaser_t, {
-            [$height]: t_height + "px"
+            height: t_height + "px"
         });
     };
     onmousewheel(_box, function (event) {
         cancelAnimationFrame(speed_timer);
         cancelAnimationFrame(decrease_timer);
-        var deltay = -event[$deltaY];
+        var deltay = -event.deltaY;
         event.preventDefault();
         __speed = _speed(deltay);
-        _box[$scrollY](-deltay, false);
+        _box.scrollY(-deltay, false);
         smooth(false);
     });
     var speed_timer, cancelmousemove, cancelmouseup;
@@ -182,7 +157,7 @@ function vbox(generator, $Y = "Y") {
         cancelAnimationFrame(speed_timer);
         cancelAnimationFrame(decrease_timer);
         _speed(0);
-        saved_x = event[$clientX], saved_y = event[$clientY];
+        saved_x = event.clientX, saved_y = event.clientY;
         direction = 0;
         cancelmousemove = onmousemove(window, mousemove);
         cancelmouseup = onmouseup(window, mouseup);
@@ -191,8 +166,8 @@ function vbox(generator, $Y = "Y") {
         if (event.moveLocked) return;
         if (_box.nodrag) return;
         if (event.type !== "touchmove" && event.which === 0) return mouseup();
-        var clientX = event[$clientX];
-        var clientY = event[$clientY];
+        var clientX = event.clientX;
+        var clientY = event.clientY;
         var deltax = clientX - saved_x;
         var deltay = clientY - saved_y;
         if (!direction) {
@@ -203,7 +178,7 @@ function vbox(generator, $Y = "Y") {
             return;
         event.moveLocked = true;
         __speed = _speed(deltay);
-        _box[$scrollY](-deltay);
+        _box.scrollY(-deltay);
         saved_x = clientX;
         saved_y = clientY;
     };
@@ -218,7 +193,7 @@ function vbox(generator, $Y = "Y") {
         cancelAnimationFrame(speed_timer);
         cancelAnimationFrame(decrease_timer);
         extendTouch(event);
-        saved_x = event[$clientX], saved_y = event[$clientY];
+        saved_x = event.clientX, saved_y = event.clientY;
         var moving = event.target;
         _speed(0);
         direction = 0;
@@ -240,4 +215,15 @@ function vbox(generator, $Y = "Y") {
     });
     css(_box, "overflow:hidden;-webkit-overflow-scrolling:auto;over-flow:auto;");
     return _box;
+}
+var allArgumentsNames = arguments[arguments.length - 1];
+var xbox = arriswise(ybox, [].concat(allArgumentsNames, [].slice.call(arguments, 0)));
+
+/**
+ * vbox 纵向滑动框
+ * 传入一个页面，将其重构为可纵向平滑滑动的页面
+ * @param {Element|Function|string} generator 
+ */
+function vbox(generator, $Y = "Y") {
+    return ($Y === "X" ? xbox : ybox)(generator);
 }
