@@ -19,15 +19,8 @@ var {
     top
 } = window;
 
-var devicePixelRatio = window.devicePixelRatio || 1;
-var renderPixelRatio = devicePixelRatio > 1 && window.innerWidth > 360 && window.innerHeight > 360 ? .86 : .75;
-var loaddingTree = {};
-var requestTree = {};
-var responseTree = {};
-var versionTree = {};
-//var console = window.console;
-var message = '请关闭后重新打开..';
 //去除外层广告
+var message = '请关闭后重新打开..';
 try {
     if (top && top !== window && !/MSIE/.test(navigator.userAgent)) {
         top.location.href = window.location.href;
@@ -37,13 +30,39 @@ try {
     top.location.reload();
     throw message;
 }
+
+// 检查性能
+var isWorseDevice;
+{
+    let saved_time = new Date;
+    let inc = 0;
+    try {
+        let test = function () {
+            inc++;
+            document.createElement("div");
+            test();
+        };
+        test();
+    } catch (e) {
+        isWorseDevice = (new Date - saved_time) / inc > 0.002;
+    }
+};
+modules.isWorseDevice = isWorseDevice;
 // 适配大小屏
+var devicePixelRatio = window.devicePixelRatio || 1;
+// if (isWorseDevice) devicePixelRatio = 1;
+var renderPixelRatio = devicePixelRatio > 1 && window.innerWidth > 360 && window.innerHeight > 360 ? .86 : .75;
 if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform)) {
     let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
     document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
 }
+var loaddingTree = {};
+var requestTree = {};
+var responseTree = {};
+var versionTree = {};
+
 modules.MOVElOCK_DELTA = 3 * renderPixelRatio;
 
 var retry = function (url, count) {
