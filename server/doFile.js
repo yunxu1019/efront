@@ -92,7 +92,7 @@ function doFile(req, res) {
             }
             end = +end | 0;
             if (!end || end < 0) {
-                end = start + cacheRangeSize;
+                end = start + (req.headers.range ? cacheRangeSize : cacheTotalSize);
             }
             if (end - start > cacheTotalSize) {
                 end = start + cacheTotalSize;
