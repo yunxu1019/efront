@@ -3,7 +3,8 @@ var path = require("path");
 var proxy = require("./proxy");
 var checkAccess = require("./checkAccess");
 var root = "./apps/zimoli";
-var cacheRangeSize = 320 * 1024 * 1024;
+var cacheRangeSize = 2 * 1024 * 1024;
+var cacheTotalSize = 320 * 1024 * 1024;
 var cachePieceSize = 256 * 1024;
 var cacheCountLimit = 200;
 function pipe(h, start, end, res) {
@@ -93,8 +94,8 @@ function doFile(req, res) {
             if (!end || end < 0) {
                 end = start + cacheRangeSize;
             }
-            if (end - start > cacheRangeSize) {
-                end = start + cacheRangeSize;
+            if (end - start > cacheTotalSize) {
+                end = start + cacheTotalSize;
             }
             if (end > stats.size) {
                 end = stats.size;
