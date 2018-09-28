@@ -63,15 +63,18 @@ onactive(_list, function (event) {
                 tab: data.tab + 1,
                 name,
                 folder: value.pathname,
-                pathname: (value.pathname + "/" + name).replace(/\\/g, "/");
+                pathname: (value.pathname + "/" + name).replace(/\\/g, "/")
             };
         }), item);
         item.closed = true;
     } else if (value.isFile) {
         if (view$image.support(item.value)) {
             var viewer = view$image(item);
+        } else if (view$video.support(item.value)) {
+            var viewer = view$video(item);
+        }
+        if (viewer) {
             popup(viewer);
-            ontouchend(viewer, e => remove(viewer));
         }
     }
 })
