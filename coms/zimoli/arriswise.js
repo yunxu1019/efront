@@ -22,5 +22,6 @@ function arriswise(func, argumentsList = [], thisObj) {
         if (searched) return searched;
         return matched;
     });
+    console.log(newf);
     return Function.apply(null, argumentsList.slice(0, argumentsList.length >> 1).concat("return " + newf)).apply(thisObj, argumentsList.slice(argumentsList.length >> 1))
 }
