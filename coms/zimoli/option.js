@@ -16,7 +16,7 @@ function option(head, body, foot, splitter) {
         splitter = foot;
         foot = null;
     } else if (isString(head) && !splitter) {
-        splitter = 32 + head.length + head.replace(/[\w ]+/g, "").length * 16;
+        splitter = 32 + (head.length + head.replace(/[\w ]+/g, "").length) * 16;
     }
     if (splitter < 32) splitter *= 16;
     if (foot !== false) {
