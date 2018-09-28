@@ -46,14 +46,14 @@ var request = function (value, folder) {
 }
 var _list = tree(function (data) {
     var { value } = data;
-    var { name, isFolder } = value;
+    var { isFolder } = value;
     if (isFolder) {
-        return button("<span style=color:red>文件夹</span>" + name);
+        return role$folder(value);
     }
     if (!value.isFile) {
         request(value, value.folder);
     }
-    return button(name);
+    return role$file(value);
 });
 onactive(_list, function (event) {
     var { value, item } = event;
@@ -62,15 +62,16 @@ onactive(_list, function (event) {
             return {
                 tab: data.tab + 1,
                 name,
-                folder: value.pathname
+                folder: value.pathname,
+                pathname: (value.pathname + "/" + name).replace(/\\/g, "/");
             };
         }), item);
         item.closed = true;
     } else if (value.isFile) {
-        if(view$image.support(item.value)){
+        if (view$image.support(item.value)) {
             var viewer = view$image(item);
             popup(viewer);
-            ontouchend(viewer,e=>remove(viewer));
+            ontouchend(viewer, e => remove(viewer));
         }
     }
 })
