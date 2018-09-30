@@ -5,30 +5,23 @@ _label.className = "label";
 
 var btn = div();
 btn.tabIndex = 0;
-var isClickable = function () {
-    return +this.tabIndex === 0;
-};
-
 var hover = function () {
-    if (isClickable.call(this))
-        addClass(this, "hover");
+    addClass(this, "hover");
 };
 var active = function () {
-    if (isClickable.call(this))
-        addClass(this, "active hover");
+    addClass(this, "active hover");
 };
 var resetactive = function () {
-    if (isClickable.call(this))
-        removeClass(this, "active");
+    removeClass(this, "active");
 };
 var resetall = function () {
-    if (isClickable.call(this))
-        removeClass(this, "active hover");
+    removeClass(this, "active hover");
 };
 var mousedown = function () {
+    var that = this;
     var cancelmouseup = onmouseup(window, function () {
         cancelmouseup();
-        resetactive();
+        resetactive.call(that);
     });
     active.call(this);
 };
