@@ -155,10 +155,7 @@ var popup_as_single = function (element) {
     global(element);
 };
 var global = function (element) {
-    var release = onremove(element, function (event) {
-        cleanup.call(this, event);
-        release();
-    });
+    once("remove")(element, cleanup);
     appendChild(document.body, element);
     rootElements.push(element);
 }
