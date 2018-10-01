@@ -93,7 +93,7 @@ onback(function () {
 api("/file/info").success(function (response) {
     roots = currentFolder = response.result;
     roots.map(function (a) {
-        a.tab = 1;
+        a.tab = 0;
     })
     _list.src(roots);
     _list.go(0);
