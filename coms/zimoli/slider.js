@@ -338,7 +338,7 @@ function slider(autoplay, circle = true) {
     onappend(outter, function () {
         cancel_resize && cancel_resize();
         cancel_resize = onresize(window, function () {
-            if (player.ing) switchBy(0);
+            switchBy(0);
         });
     });
     onremove(outter, function () {
