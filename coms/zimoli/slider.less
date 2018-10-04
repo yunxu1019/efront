@@ -1,10 +1,12 @@
 &:active {
-    cursor: move;
+    // 没有这个必要，切换状态显得不自然
+    // cursor: move;
 }
 
 & {
     height: 100%;
     // min-height: 120px;
+    user-select: none;
     overflow: hidden;
     position: relative;
     width: 100%;
