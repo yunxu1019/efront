@@ -49,7 +49,7 @@ function leftCenter(_leftPage) {
     appendChild(leftLayer, leftPage);
     return layer;
 }
-layer.layer = function (child, old, history) {
+layer.layer = function (child, old) {
     remove(old);
     if (child === leftPage) {
         appendChild(leftLayer, child);
