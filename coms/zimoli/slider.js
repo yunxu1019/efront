@@ -340,6 +340,7 @@ function slider(autoplay, circle = true) {
         cancel_resize = onresize(window, function () {
             switchBy(0);
         });
+        if (isFinite(outter.index)) switchBy(0);
     });
     onremove(outter, function () {
         cancel_resize && cancel_resize();
