@@ -32,9 +32,7 @@ function transition(target, initialStyle, isLeave) {
             recoverStyle = savedStyle;
         }
         if (isLeave) {
-            transitionTimerStart = setTimeout(function () {
-                extend(target.style, initialStyle);
-            });
+            extend(target.style, initialStyle);
             transitionTimerEnd = setTimeout(function () {
                 target.style.transition = recoverStyle.transition;
             }, transitionDuration + 2);
