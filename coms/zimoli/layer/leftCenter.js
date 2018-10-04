@@ -1,0 +1,65 @@
+/**
+ * 在大屏上，两块布局同时显示，在小屏上，左边首先显示，右边第二步显示
+ * @param {Element} leftLayer 
+ * @param {Element} centerLayer 
+ */
+var leftPage;
+var layer = div();
+var leftLayer = div(), centerLayer = div();
+leftLayer.setAttribute("layer", "left");
+centerLayer.setAttribute("layer", "main");
+appendChild(layer, leftLayer, centerLayer);
+onappend(centerLayer, function () {
+    zimoli.switch("layer-left-center", layer);
+    var cancel_resize = onresize(window, reshape);
+    once("remove")(centerLayer, cancel_resize);
+});
+function reshape() {
+    var page = getCurrentPage() || leftPage;
+    if (page === leftPage) {
+        appendChild(leftLayer, page, false);
+    } else {
+        setCurrentPage(page);
+    }
+};
+
+function getCurrentPage() {
+    return layer.querySelector("[layer=main]>*") || layer.querySelector("[layer=left]>*");
+}
+function getCurrentLayer() {
+    var currentLayer = centerLayer.offsetLeft > 0 ? centerLayer : leftLayer;
+    return currentLayer;
+}
+
+function setCurrentPage(page) {
+    var currentLayer = getCurrentLayer();
+    if (page !== leftPage) {
+        if (currentLayer !== leftLayer) {
+            if (!leftPage.isMounted) appendChild(leftLayer, leftPage);
+        } else {
+            remove(leftPage, false);
+        }
+        appendChild(currentLayer, page, false);
+    } else if (!leftPage.isMounted) {
+        appendChild(leftLayer, leftPage, false);
+    }
+}
+function leftCenter(_leftPage) {
+    leftPage = _leftPage;
+    appendChild(leftLayer, leftPage);
+    return layer;
+}
+layer.layer = function (child, old, history) {
+    remove(old);
+    if (child === leftPage) {
+        appendChild(leftLayer, child);
+    } else if (child) {
+        var currentLayer = getCurrentLayer();
+        appendChild(getCurrentLayer(), child);
+        if (currentLayer === leftLayer) {
+            remove(leftPage);
+        }
+    } else {
+        appendChild(leftLayer, leftPage);
+    }
+};

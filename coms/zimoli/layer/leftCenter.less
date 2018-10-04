@@ -1,0 +1,41 @@
+& {
+    line-height: 1.6;
+    width: 1000px;
+    height: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+@left-width: 320px;
+&>[layer=left] {
+    width: @left-width;
+    height: 100%;
+    position: absolute;
+    overflow: hidden;
+}
+
+>[layer=main] {
+    position: absolute;
+    left: @left-width;
+    right: 0;
+    height: 100%;
+}
+
+@media all and (max-width:720px) {
+    &{
+        border-radius: 0;
+    }
+    &>[layer=main] {
+        display: none;
+    }
+    &>[layer=main]{
+        left: 0;
+        z-index: 1;
+    }
+    &>[layer=left] {
+        width: 100%;
+    }
+}
