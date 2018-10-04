@@ -91,11 +91,13 @@ function go(url, args, history_name) {
     };
     if (undefined === args || null === args) args = {};
     var _page = pg.call(state, args);
-    if (pg.className) _page.className = pg.className;
-    _page.with = _with_elements;
-    if (args.initialStyle) _page.initialStyle = args.initialStyle;
+    if (_page) {
+        if (pg.className) _page.className = pg.className;
+        _page.with = _with_elements;
+        if (args.initialStyle) _page.initialStyle = args.initialStyle;
+        _page.onback = _pageback_listener;
+    }
     addGlobal(_page, history_name);
-    _page.onback = _pageback_listener;
     pushstate(url, history_name);
     return _page;
 }
@@ -219,17 +221,32 @@ var fixurl = function () {
         if (!/#$/.test(location.href)) location.href = "#";
     }, 0);
 }
+var checkonback = function (elements) {
+    for (var cx = 0, dx = elements.length; cx < dx; cx++) {
+        var element = elements[cx];
+        var onback = element && element.onback;
+        if (isFunction(onback)) {
+            onback = element.onback();
+        }
+        if (onback === false || isString(onback)) {
+            break;
+        }
+    }
+    return onback;
+}
+put(":empty", function () {
+    return null;
+});
+
 var onback = function () {
     if (rootElements.length) {
         fixurl();
         remove(rootElements.pop());
         return;
     }
-    var current_page = global[current_history];
-    var onback = current_page && current_page.onback;
-    if (isFunction(onback)) {
-        onback = current_page.onback();
-    }
+    var onback = checkonback([
+        global[current_history],
+    ]);
     if (onback === false) {
         fixurl();
         return;
@@ -251,23 +268,31 @@ function addGlobal(element, name) {
         name = current_history;
     }
     if (isString(name)) {
-        if (global[name]) {
-            remove(global[name]);
+        if (global[name] === element) return;
+        if (isFunction(body.layer)) {
+            body.layer(element, global[name], history);
+        } else {
+            if (global[name]) {
+                remove(global[name]);
+            }
+            appendChild(body, element);
         }
-        appendChild(body, element);
         global[name] = element;
     } else if (isNode(name)) {
         appendChild(name, element);
     } else if (isFunction(name)) {
         name(element);
-    } else {
+    } else if (element) {
         popup(element);
         fixurl();
     }
 }
-var _switch = zimoli.switch = function (history_name) {
+var _switch = zimoli.switch = function (history_name, target_body, emptyState) {
     if (history_name)
         current_history = history_name;
+    if (target_body)
+        body = target_body;
+    if (emptyState !== false && !history[history_name]) history[history_name] = [emptyState || ":empty"];
 };
 zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
