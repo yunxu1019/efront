@@ -55,7 +55,6 @@ var bar = createBottomBar({
 });
 var pages = div();
 ontouchstart(pages, kugou$dragview);
-ontouchstart(bar, kugou$dragview);
 slider(pages, function (index, ratio) {
     if (index + 1 >= bar.childNodes.length) return;
     if (ratio === 1) {
@@ -71,6 +70,7 @@ onappend(pages, function () {
 });
 var page = createElement(div);
 appendChild(page, pages, bar);
+ontouchstart(page, kugou$dragview);
 extend(kugou$dragview, {
     page, pages
 });

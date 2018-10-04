@@ -1,7 +1,6 @@
 var dragview = function (event) {
     var { page, pages, menu } = dragview;
-    if (!isTargetOf(this, event.target)) return;
-    if (this === pages && pages.index !== 0 && !page.offsetLeft) return;
+    if (isTargetOf(pages,event.target) && pages.index !== 0 && !page.offsetLeft) return;
     var savedX = event.touches[0].clientX;
     var savedY = event.touches[0].clientY;
     var moving = null;
@@ -34,10 +33,15 @@ var dragview = function (event) {
     var cancelevents = function () {
         if (moving && moving !== -1) {
             var left = parseInt(page.style.left);
+            var disableClassName = "disable";
             if (moving.deltaX < 0 && left > page.offsetWidth * 0.3 || moving.deltaX > 0 && left > page.offsetWidth * 0.7 || !moving.deltaX && left > page.offsetWidth >> 1) {
-                transition(page, `marginLeft:-100px;left:${page.offsetWidth}px;transform:scale(.72);`, true);
+                transition(page, `marginLeft:-72px;left:90%;transform:scale(.72);`, true);
                 transition(menu, `transform:scale(1);`, true);
+                addClass(page, disableClassName);
+                removeClass(menu, disableClassName);
             } else {
+                addClass(menu, disableClassName);
+                removeClass(page, disableClassName);
                 transition(menu, `transform:scale(.72);`, true);
                 transition(page, "marginLeft:0;left:0;transform:scale(1);", true);
             }
