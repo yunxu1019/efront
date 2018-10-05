@@ -1,6 +1,6 @@
 var isIE8 = /MSIE\s*[2-8]/.test(navigator.userAgent);
 if (isIE8) {
-    var opacity = function (element, opacity) {
+    var main = function (element, opacity) {
         css(element, {
             filter: "Alpha(opacity=" + parseInt(opacity * 100) + ")",
         });
@@ -9,7 +9,7 @@ if (isIE8) {
         });
     };
 } else {
-    var opacity = function opacity(element, opacity) {
+    var main = function (element, opacity) {
         css(element, {
             opacity: opacity,
         });

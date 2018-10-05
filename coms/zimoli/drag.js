@@ -11,7 +11,7 @@ var toCloneTarget = function (target) {
     var clone = cloneVisible(target);
     var position = getScreenPosition(target);
     css(clone, `position:absolute;left:${position.left}px;top:${position.top}px;user-select:none;`);
-    opacity(target, 0);
+    setOpacity(target, 0);
     return clone;
 };
 function drag(target, event, overflow = false) {

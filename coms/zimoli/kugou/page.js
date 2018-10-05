@@ -38,7 +38,7 @@ var createBottomBar = function (buttonsConfig) {
             if (pages.index === this.index) return;
             var childNodes = btn.parentNode.childNodes;
             for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
-                childNodes[cx] !== this && opacity(childNodes[cx].home, 0);
+                childNodes[cx] !== this && setOpacity(childNodes[cx].home, 0);
             }
             pages.go(this.index);
         });

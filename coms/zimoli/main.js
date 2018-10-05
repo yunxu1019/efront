@@ -30,7 +30,6 @@ try {
     top.location.reload();
     throw message;
 }
-
 // 检查性能
 var isWorseDevice;
 {
@@ -323,9 +322,9 @@ var initIfNotDefined = function (defined, path, onload) {
     if (defined === void 0) requires_count++ , init(path, a => onload(a, hook(--requires_count)));
 }
 initIfNotDefined(Promise, "promise", promise => Promise = promise);
-initIfNotDefined([].map, "[].map", map => Array.prototype.map = map);
+initIfNotDefined([].map, "[].map", map => map);
 var removeGlobalProperty = function (property) {
-    Object.defineProperty ? Object.defineProperty(window, property, { get() { return null } }) : window[property] = null;
+    window[property] = null;
 };
 var onload = function () {
     window.onload = null;

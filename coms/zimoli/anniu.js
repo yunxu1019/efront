@@ -15,7 +15,7 @@ if("ontouchstart" in window){
         anu.style.display="none";
     }
 }
-opacity(anu, 0);
+setOpacity(anu, 0);
 
 function anniu() {
     var anniu = createElement(anu);
