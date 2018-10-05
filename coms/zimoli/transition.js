@@ -17,7 +17,7 @@ function transition(target, initialStyle, isLeave) {
         }
         String(initialStyle.transition).replace(/([\.\d]+)(m?)s/gi, function (m, d, t) {
             if (t) transitionDuration = Math.max(+d, transitionDuration);
-            transitionDuration = Math.max(d * 1000, transitionDuration);
+            else transitionDuration = Math.max(d * 1000, transitionDuration);
             return m;
         });
         transitionDuration = transitionDuration || 100;
