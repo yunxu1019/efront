@@ -66,10 +66,12 @@ function confirm() {
         })
         return btn;
     });
-
+    onclick(element, function () {
+        css(this, { zIndex: zIndex() });
+    });
     onmousedown(element, function (event) {
         drag(this, event);
-    })
+    });
     appendChild(option, buttons);
     setTimeout(function () {
         popup(element);
