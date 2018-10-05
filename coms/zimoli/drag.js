@@ -15,6 +15,7 @@ var toCloneTarget = function (target) {
     return clone;
 };
 function drag(target, event, overflow = false) {
+    event.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);
         target = target[0];
