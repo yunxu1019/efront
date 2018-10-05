@@ -1,3 +1,23 @@
+@font-face {
+    font-family: "kugouicons";
+    @font-path: "kugou/font/";
+    src: url('@{font-path}iconfont.eot?t=1496068931776');
+    /* IE9*/
+    src: url('@{font-path}iconfont.eot?t=1496068931776#iefix') format('embedded-opentype'),
+    /* IE6-IE8 */
+    url('@{font-path}iconfont.woff?t=1496068931776') format('woff'),
+    /* chrome, firefox */
+    url('@{font-path}iconfont.ttf?t=1496068931776') format('truetype'),
+    /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+    url('@{font-path}iconfont.svg?t=1496068931776#iconfont') format('svg');
+    /* iOS 4.1- */
+}
+
+i {
+    font-family: kugouicons;
+    font-style: normal;
+}
+
 & {
     position: absolute;
     left: 0px;
@@ -10,6 +30,21 @@
 }
 
 .bottom-bar {
+    .button {
+        position: absolute;
+        display: block;
+        background: transparent;
+        box-shadow: none;
+        font-size: 20px;
+        outline: none;
+        width: 50px;
+        &[type=left] {
+            left: 0;
+        }
+        &[type=right] {
+            right: 0;
+        }
+    }
     text-align: center;
     position: absolute;
     padding: 24px 64px 0 64px;
@@ -20,7 +55,10 @@
     width: auto;
     margin: 0;
     background-color: #0090ff;
-    color: rgba(255, 255, 255, .8);
+    color: rgba(255,
+    255,
+    255,
+    .8);
     >div {
         bottom: 0;
         font-size: 18px;
@@ -59,12 +97,13 @@
     bottom: 0px;
     height: auto;
 }
-&.disable:after{
+
+&.disable:after {
     content: "";
     display: block;
     position: absolute;
-    left:0;
-    top:0;
+    left: 0;
+    top: 0;
     bottom: 0;
     right: 0;
 }

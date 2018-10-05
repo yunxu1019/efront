@@ -53,10 +53,14 @@ var bar = createBottomBar({
     "看": "/kugou/view",
     "唱": "/kugou/sing",
 });
+var menu_btn = button("<i>&#xe6d4;</i>", "left");
+onclick(menu_btn, kugou$dragview.toChange);
+var search_btn = button("<i>&#xe60d;</i>", "right");
+appendChild(bar, menu_btn, search_btn);
 var pages = div();
 ontouchstart(pages, kugou$dragview);
 slider(pages, function (index, ratio) {
-    if (index + 1 >= bar.childNodes.length) return;
+    if (index + 3 >= bar.childNodes.length) return;
     if (ratio === 1) {
         state({
             page: index
@@ -71,6 +75,7 @@ onappend(pages, function () {
 var page = createElement(div);
 appendChild(page, pages, bar);
 ontouchstart(page, kugou$dragview);
+onclick(page, e => kugou$dragview.isRight && kugou$dragview.toLeft());
 extend(kugou$dragview, {
     page, pages
 });
