@@ -72,6 +72,7 @@ function confirm() {
     onmousedown(element, function (event) {
         drag(this, event);
     });
+    preventOverflowScrolling(element);
     appendChild(option, buttons);
     setTimeout(function () {
         popup(element);
