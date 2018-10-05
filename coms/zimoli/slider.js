@@ -6,7 +6,6 @@ var floor = Math.floor;
 var ceil = Math.ceil;
 var round = Math.round;
 var abs = Math.abs;
-var sign = Math.sign;
 var is_touch_enabled = "ontouchstart" in window;
 var extendTouch = function (e) {
     var touch = e.touches[0];
@@ -177,21 +176,15 @@ function slider(autoplay, circle = true) {
     };
     var moveDeltaX = function (deltax, event) {
         var width = outter.offsetWidth;
-        if (!_imageMain && deltax > 0) {
-            var current_Left = parseInt(_imageHelp.style.left);
+        var singleTarget = (!_imageMain || !_imageHelp) && (_imageMain || _imageHelp);
+        if (singleTarget) {
+            var current_Left = parseInt(singleTarget.style.left);
             var avail_deltaWidth = round(width >> 2);
-            if (current_Left + deltax >= avail_deltaWidth) {
+            if (current_Left + deltax > avail_deltaWidth) {
                 deltax = avail_deltaWidth - current_Left;
                 saved_x += deltax;
-            } else {
-                saved_x = event.clientX;
-            }
-            _speed(0);
-        } else if (!_imageHelp && deltax < 0) {
-            var current_Left = parseInt(_imageMain.style.left);
-            var avail_deltaWidth = -round(width >> 2);
-            if (current_Left + deltax <= avail_deltaWidth) {
-                deltax = avail_deltaWidth - current_Left;
+            } else if (current_Left + deltax < -avail_deltaWidth) {
+                deltax = -avail_deltaWidth - current_Left;
                 saved_x += deltax;
             } else {
                 saved_x = event.clientX;
