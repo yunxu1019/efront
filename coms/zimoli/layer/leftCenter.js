@@ -11,6 +11,7 @@ centerLayer.setAttribute("layer", "main");
 appendChild(layer, leftLayer, centerLayer);
 onappend(centerLayer, function () {
     zimoli.switch("layer-left-center", layer);
+    zimoli();
     var cancel_resize = onresize(window, reshape);
     once("remove")(centerLayer, cancel_resize);
 });
@@ -46,7 +47,6 @@ function setCurrentPage(page) {
 }
 function leftCenter(_leftPage) {
     leftPage = _leftPage;
-    appendChild(leftLayer, leftPage);
     return layer;
 }
 layer.layer = function (child, old) {
