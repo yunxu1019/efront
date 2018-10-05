@@ -5,6 +5,7 @@
  */
 var leftPage;
 var layer = div();
+preventOverflowScrolling(layer);
 var leftLayer = div(), centerLayer = div();
 leftLayer.setAttribute("layer", "left");
 centerLayer.setAttribute("layer", "main");
