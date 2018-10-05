@@ -1,4 +1,4 @@
-var _label = label();
+var _label = createElement("span");
 var track = createElement(div);
 track.className = "track";
 _label.className = "label";
