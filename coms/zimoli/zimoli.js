@@ -60,7 +60,7 @@ var location_pathname = location.pathname;
 var _zimoli_params_key = `_zimoli_parameters:${location_pathname}#`;
 var _zimoli_state_prefix = `_zimoli_page_state:${location_pathname}#`;
 
-function go(url, args, history_name) {
+function go(url, args, history_name, oldpagepath) {
     if (isNumber(url)) {
         if (!history_name)
             history_name = current_history;
@@ -70,11 +70,11 @@ function go(url, args, history_name) {
         }
     }
     if (!url) return true;
-    var stringified_args = JSON.stringify(args);
-    if (!stringified_args) localStorage.removeItem(_zimoli_params_key + url);
+    var stringified_args = JSON.stringify({ data: args, from: oldpagepath });
+    if (stringified_args.length === 2) localStorage.removeItem(_zimoli_params_key + url);
     else localStorage.setItem(_zimoli_params_key + url, stringified_args);
     if (!page_generators[url]) {
-        return zimoli(url, args, history_name);
+        return zimoli(url, args, history_name, oldpagepath);
     }
     if (isNode(history_name)) {
         if (history_name.activate === url) return;
@@ -92,15 +92,15 @@ function go(url, args, history_name) {
         _pageback_listener = handler;
     };
     if (undefined === args || null === args) args = {};
-    var _page = pg.call(state, args);
+    var _page = pg.call(state, args, oldpagepath);
     if (_page) {
         if (pg.className) _page.className = pg.className;
         _page.with = _with_elements;
         if (args.initialStyle) _page.initialStyle = args.initialStyle;
         _page.onback = _pageback_listener;
     }
+    pushstate(url, history_name, oldpagepath);
     addGlobal(_page, history_name);
-    pushstate(url, history_name);
     return _page;
 }
 var page_generators = {};
@@ -109,19 +109,22 @@ var page_generators = {};
  * 如果args是一个字符串，那么当下次指定一个相同的字符串时，此对象被新对象代替
  * 如果args是bool值true，那么当执行history.back()时，此对象被清除
  */
-function zimoli(page, args, history_name) {
+function zimoli(pagepath, args, history_name, oldpagepath) {
     if (arguments.length === 0) {
         exit_ing = false;
         history_name = current_history;
         var _history = history[history_name] || [];
-        page = _history[_history.length - 1] || "/main";
+        pagepath = _history[_history.length - 1] || "/main";
         try {
-            args = JSON.parse(localStorage.getItem(_zimoli_params_key + page)) || {};
+            var saveddata = JSON.parse(localStorage.getItem(_zimoli_params_key + pagepath)) || {};
         } catch (e) {
-            args = {};
+            var saveddata = {};
         }
+        var { data, from } = saveddata;
+        args = data;
+        oldpagepath = from;
     }
-    var _zimoli_state_key = _zimoli_state_prefix + page;
+    var _zimoli_state_key = _zimoli_state_prefix + pagepath;
     var state = function state(condition, setAsAdditional = condition !== null) {
         var state_string = localStorage.getItem(_zimoli_state_key);
         var state_object;
@@ -153,7 +156,7 @@ function zimoli(page, args, history_name) {
         return state_object;
     };
     state.state = state;
-    if (page_generators[page]) return go(page, args, history_name);
+    if (page_generators[pagepath]) return go(pagepath, args, history_name, oldpagepath);
     var _with_elements = [];
     state.with = function (element) {
         element && _with_elements.push(element);
@@ -161,12 +164,12 @@ function zimoli(page, args, history_name) {
     };
     state.path = function (url) {
         if (isString(url) && /^[^\\\/]/.test(url)) {
-            url = page.replace(/[^\/]*$/, url);
+            url = pagepath.replace(/[^\/]*$/, url);
         }
         return url;
     }
     state.go = function (url, args, history_name) {
-        return go(state.path(url), args, history_name);
+        return go(state.path(url), args, history_name, pagepath);
     };
 
     var _pageback_listener = [];
@@ -179,13 +182,13 @@ function zimoli(page, args, history_name) {
         state.with(realTitleBar);
         return realTitleBar;
     };
-    return init(page, function (pg) {
+    return init(pagepath, function (pg) {
         if (!pg) return;
         pg.with = _with_elements;
         pg.state = state;
         pg.onback = _pageback_listener;
-        page_generators[page] = pg;
-        return go(page, args, history_name);
+        page_generators[pagepath] = pg;
+        return go(pagepath, args, history_name, oldpagepath);
     }, state);
 }
 var global = {};
@@ -197,7 +200,7 @@ try {
     history = JSON.parse(localStorage.getItem(history_session_object_key)) || history;
 } catch (e) {
 }
-var pushstate = function (path_name, history_name) {
+var pushstate = function (path_name, history_name, oldpagepath) {
     if (!history_name) {
         history_name = current_history;
     }
@@ -206,6 +209,9 @@ var pushstate = function (path_name, history_name) {
         history[history_name] = [path_name];
     } else {
         var _history = history[history_name];
+        if (_history.indexOf(oldpagepath) < 0) {
+            _history.splice(_history[0] === ":empty", _history.length);
+        }
         for (var cx = 0, dx = _history.length; cx < dx; cx++) {
             if (_history[cx] === path_name) {
                 _history.splice(cx, dx - cx);
