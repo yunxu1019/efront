@@ -74,7 +74,7 @@ onactive(_list, function (event) {
             var viewer = view$video(item);
         }
         if (viewer) {
-            popup(viewer);
+            confirm(viewer, item.name,["关闭"]);
         }
     }
 })
