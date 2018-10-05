@@ -75,6 +75,10 @@ var comments = [
 ]
 appendChild(page, comments);
 render(page, settings);
+page.initialStyle = {
+    marginLeft: "100%",
+    zIndex: 2
+}
 function main() {
     return page;
 }
