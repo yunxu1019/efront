@@ -1,14 +1,18 @@
 var _onclick = on("click");
 var preventClick = false, saved_x, saved_y, lasttime_click;
-onmousedown(document, function (event) {
+function clickstart(event) {
     saved_x = event.clientX, saved_y = event.clientY;
     onclick.preventClick = preventClick = false;
-});
-onmousemove(document, function (event) {
+}
+function clickcancel(event) {
     var abs = Math.abs;
     if (abs(event.clientX - saved_x) >= MOVElOCK_DELTA || abs(event.clientY - saved_y) >= MOVElOCK_DELTA)
         onclick.preventClick = preventClick = true;
-});
+}
+onmousedown(document, clickstart);
+onmousemove(document, clickcancel);
+ontouchstart(document, clickstart);
+ontouchmove(document, clickcancel);
 var onclick = function (target, handler) {
 
     return _onclick(target, function (event) {
@@ -18,7 +22,6 @@ var onclick = function (target, handler) {
             // 阻止非人为点击，防止误操作
             return;
         }
-
         if (preventClick) return;
         return handler.call(this, event);
     });
