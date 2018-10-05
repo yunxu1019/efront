@@ -35,9 +35,9 @@ var dragview = function (event) {
         if (moving && moving !== -1) {
             var left = parseInt(page.style.left);
             if (moving.deltaX < 0 && left > page.offsetWidth * 0.3 || moving.deltaX > 0 && left > page.offsetWidth * 0.7 || !moving.deltaX && left > page.offsetWidth >> 1) {
-                dragview.toLeft();
-            } else {
                 dragview.toRight();
+            } else {
+                dragview.toLeft();
             }
         }
         offtouchmove();
