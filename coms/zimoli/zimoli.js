@@ -70,7 +70,9 @@ function go(url, args, history_name) {
         }
     }
     if (!url) return true;
-    localStorage.setItem(_zimoli_params_key + url, JSON.stringify(args) || null);
+    var stringified_args = JSON.stringify(args);
+    if (!stringified_args) localStorage.removeItem(_zimoli_params_key + url);
+    else localStorage.setItem(_zimoli_params_key + url, stringified_args);
     if (!page_generators[url]) {
         return zimoli(url, args, history_name);
     }
