@@ -205,30 +205,41 @@ var seek = function (url, tree, rebuild) {
     var temp = tree;
     var keeys = url.split(/[\\\/]+/);
     var curl = "";
-    for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
+    var temps = [];
+    search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         var key = keeys[cx];
         if (!(key in temp)) {
+            for (var cy = temps.length - 1; cy >= 0; cy--) {
+                if (key in temps[cy]) {
+                    let searched = seek.call(this, keeys.slice(cx).join("/"), temps[cy], rebuild);
+                    if (searched != undefined) {
+                        temp = searched;
+                        break search;
+                    }
+                }
+            }
             continue;
         }
         curl = path.join(curl, key);
         if (temp[key] === false) {
             loader.call(this, curl, temp, key, rebuild);
         }
+        temps.push(temp);
         temp = temp[key];
+        if (!temp) break;
     }
-    if (temp && !(temp instanceof Object)) {
+    if (!(temp instanceof Object)) {
         return temp;
     }
-    if (!key && (temp instanceof Buffer)) {
-        return curl.replace(/\\+/g, "/");
-    }
-    if (key && temp instanceof Function) {
+    if (temp instanceof Function) {
         return temp;
     }
     if (key && !(temp instanceof Buffer)) {
         return curl.replace(/\\+/g, "/") + "/";
     }
-    temp.stat = getVersion(path.join(String(this), curl));
+    if (temp instanceof Buffer && !temp.stat) {
+        temp.stat = getVersion(path.join(String(this), curl));
+    }
     return temp;
 };
 var seekAsync = function (url, tree, rebuild) {
@@ -237,32 +248,42 @@ var seekAsync = function (url, tree, rebuild) {
     var keeys = url.split(/[\\\/]+/);
     var curl = "";
     var that = this;
-    for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
+    var temps = [];
+    var research = function () {
+        return seekAsync.call(that, url, tree, rebuild);
+    };
+    search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         var key = keeys[cx];
         if (!(key in temp)) {
+            for (var cy = temps.length - 1; cy >= 0; cy--) {
+                if (key in temps[cy]) {
+                    let searched = seekAsync.call(that, keeys.slice(cx).join("/"), temps[cy], rebuild);
+                    if (searched instanceof Promise) {
+                        return searched.then(research);
+                    }
+                    if (searched !== undefined) {
+                        temp = searched;
+                        break search;
+                    }
+                }
+            }
             continue;
         }
         curl = path.join(curl, key);
         if (temp[key] === false) {
             asyncLoader.call(that, curl, temp, key, rebuild);
         }
-        if (temp[key] instanceof Promise) {
-            return temp[key].then(function () {
-                return seekAsync.call(that, url, tree, rebuild);
-            });
-        }
+        temps.push(temp);
         temp = temp[key];
-        if (!temp) {
-            break;
+        if (temp instanceof Promise) {
+            return temp.then(research);
         }
+        if (!temp) break;
     }
-    if (temp && !(temp instanceof Object)) {
+    if (!(temp instanceof Object)) {
         return temp;
     }
-    if (!key && (temp instanceof Buffer)) {
-        return curl.replace(/\\+/g, "/");
-    }
-    if (key && temp instanceof Function) {
+    if (temp instanceof Function) {
         return temp;
     }
     if (temp instanceof Error) {
@@ -271,7 +292,9 @@ var seekAsync = function (url, tree, rebuild) {
     if (key && !(temp instanceof Buffer)) {
         return curl.replace(/\\+/g, "/") + "/";
     }
-    temp.stat = getVersion(path.join(String(this), curl));
+    if (temp instanceof Buffer && !temp.stat) {
+        temp.stat = getVersion(path.join(String(this), curl));
+    }
     return temp;
 };
 
