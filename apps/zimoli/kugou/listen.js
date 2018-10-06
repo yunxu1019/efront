@@ -7,8 +7,8 @@ page.innerHTML = `<div class=user-info>
     </div>
 </div>
 <div class=music-info>
-    <btn ng-click=go('/zimoli/files/main') ><i>&#xe610;</i>本地音乐</btn>
-    <btn><i>&#xe616;</i>喜欢·歌单</btn>
+    <btn ng-click=go('/files/main') ><i>&#xe610;</i>本地音乐</btn>
+    <btn ng-click=go('/user/welcome')><i>&#xe616;</i>喜欢·歌单</btn>
     <btn><i>&#xe606;</i>下载</btn>
     <btn><i>&#xe64d;</i>最近</btn>
 </div>
