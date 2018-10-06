@@ -178,6 +178,7 @@ function renderElement(element, scope) {
     }
     element.$scope = scope;
     if (element.renderid) return;
+    if (children.length) renderElement(children, scope);
     var attrs = element.attributes;
     var { tagName, parentNode, previousSibling } = element;
     if (parentNode) {
@@ -203,7 +204,6 @@ function renderElement(element, scope) {
             directives[name].call(element, value);
         }
     });
-    if (children.length) renderElement(children, scope);
     if (element.renders.length) {
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
