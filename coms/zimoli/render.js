@@ -180,7 +180,7 @@ function renderElement(element, scope) {
     if (element.renderid) return;
     if (children.length) renderElement(children, scope);
     var attrs = element.attributes;
-    var { tagName, parentNode, previousSibling } = element;
+    var { tagName, parentNode, nextSibling } = element;
     if (parentNode) {
         if (!scope[tagName]) tagName = tagName.toLowerCase();
         if (!scope[tagName])
@@ -188,7 +188,7 @@ function renderElement(element, scope) {
         if (!scope[tagName]) tagName = tagName.slice(0, 1).toLowerCase() + tagName.slice(1);
         if (isFunction(scope[tagName])) var replacer = scope[tagName](element);
         if (isElement(replacer) && element !== replacer) {
-            if (previousSibling) appendChild.after(previousSibling, replacer);
+            if (nextSibling) appendChild.before(nextSibling, replacer);
             else appendChild(parentNode, replacer);
             if (element.parentNode === parentNode) remove(element);
             element = replacer;
