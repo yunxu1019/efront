@@ -53,7 +53,7 @@ function leftCenter(_leftPage) {
 layer.layer = function (child, old) {
     remove(old);
     if (child === leftPage) {
-        appendChild(leftLayer, child);
+        if (!leftPage.isMounted) appendChild(leftLayer, child);
     } else if (child) {
         var currentLayer = getCurrentLayer();
         appendChild(getCurrentLayer(), child);
@@ -63,6 +63,6 @@ layer.layer = function (child, old) {
             appendChild(leftLayer, leftPage);
         }
     } else {
-        appendChild(leftLayer, leftPage);
+        if (!leftPage.isMounted) appendChild(leftLayer, leftPage);
     }
 };
