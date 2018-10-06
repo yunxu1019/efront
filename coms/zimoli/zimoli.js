@@ -211,7 +211,6 @@ var pushstate = function (path_name, history_name, oldpagepath) {
     } else {
         var _history = history[history_name];
         if (_history.indexOf(oldpagepath) < 0) {
-            console.log(oldpagepath, path_name);
             _history.splice(_history[0] === ":empty", _history.length);
         }
         for (var cx = 0, dx = _history.length; cx < dx; cx++) {
