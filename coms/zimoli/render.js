@@ -9,6 +9,7 @@ var addRenderElement = function () {
         element.renderid = ++renderidOffset;
     }
     renderElements[element.renderid] = element;
+    rebuild(element);
 };
 var removeRenderElement = function () {
     var element = this;
