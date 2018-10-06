@@ -216,7 +216,7 @@ function render(element, scope) {
 }
 
 var digest = lazy(refresh);
-render.digest = digest;
+render.digest = render.render = render.refresh = digest;
 
 var eventsHandlers = "change,paste,resize,keydown,keypress,keyup,mousedown,mouseup,dragend,drop".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));
