@@ -208,7 +208,7 @@ function renderElement(element, scope) {
     if (element.renders.length) {
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
-        rebuild(element);
+        if (element.isMounted) rebuild(element);
     }
 }
 function render(element, scope) {
