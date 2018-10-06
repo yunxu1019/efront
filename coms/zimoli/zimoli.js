@@ -67,6 +67,7 @@ function go(url, args, history_name, oldpagepath) {
         if (isString(history_name)) {
             var _history = history[history_name] || [];
             url = _history[url < 1 ? _history.length + url - 1 : url];
+            oldpagepath = _history[_history.length - 1];
         }
     }
     if (!url) return true;
@@ -210,6 +211,7 @@ var pushstate = function (path_name, history_name, oldpagepath) {
     } else {
         var _history = history[history_name];
         if (_history.indexOf(oldpagepath) < 0) {
+            console.log(oldpagepath, path_name);
             _history.splice(_history[0] === ":empty", _history.length);
         }
         for (var cx = 0, dx = _history.length; cx < dx; cx++) {
