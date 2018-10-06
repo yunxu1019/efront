@@ -180,7 +180,7 @@ function renderElement(element, scope) {
     element.$scope = scope;
     if (element.renderid) return;
     if (children.length) renderElement(children, scope);
-    var attrs = element.attributes;
+    var attrs = [].slice.call(element.attributes, 0);
     var { tagName, parentNode, nextSibling } = element;
     if (parentNode) {
         if (!scope[tagName]) tagName = tagName.toLowerCase();
@@ -192,12 +192,24 @@ function renderElement(element, scope) {
             if (nextSibling) appendChild.before(nextSibling, replacer);
             else appendChild(parentNode, replacer);
             if (element.parentNode === parentNode) remove(element);
+            attrs.map(function (attr) {
+                var { name, value } = attr;
+                switch (name.toLowerCase()) {
+                    case "class":
+                        addClass(replacer, value);
+                        break;
+                    case "style":
+                        css(replacer, value);
+                        break;
+                    default:
+                }
+            });
             element = replacer;
             element.$scope = scope;
         }
     }
     element.renders = [];
-    [].slice.call(attrs, 0).map(function (attr) {
+    attrs.map(function (attr) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
         name = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
@@ -216,7 +228,7 @@ function render(element, scope) {
 }
 
 var digest = lazy(refresh);
-render.digest = render.render = render.refresh = digest;
+render.digest = render.apply = render.refresh = digest;
 
 var eventsHandlers = "change,paste,resize,keydown,keypress,keyup,mousedown,mouseup,dragend,drop".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));
