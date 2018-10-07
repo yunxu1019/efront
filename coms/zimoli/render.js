@@ -110,7 +110,7 @@ var directives = {
             onappend(comment, addRenderElement);
             onremove(comment, removeRenderElement);
             appendChild.after(this, comment);
-            rebuild(comment);
+            if (comment.isMounted) rebuild(comment);
         });
     },
     repeat(search) {
