@@ -90,7 +90,11 @@ function createKRC(krc) {
                         widthRatio = 1;
                     }
                     var word_first = ele.children[0];
-                    css(markerLabel, `left:${ele.children[0].offsetLeft}px;width:${word_ele.offsetLeft - word_first.offsetLeft + word_ele.offsetWidth * widthRatio}px;`);
+                    var targetLeft = (getScreenPosition(word_first).left - getScreenPosition(ele).left).toFixed(3);
+                    var targetWidth = (word_ele.offsetLeft - word_first.offsetLeft + word_ele.offsetWidth * widthRatio).toFixed(0);
+                    if (+targetLeft !== parseFloat(markerLabel.style.left) || +targetWidth !== parseInt(markerLabel.style.width)) {
+                        css(markerLabel, `left:${targetLeft}px;width:${targetWidth}px;`);
+                    }
                 }
                 css(firstChild, `margin-top:${marginTop | 0}px;`);
             }
