@@ -41,7 +41,7 @@ function autodragchildren(target, matcher, move) {
             })
             targets.with = extra.map(cloneVisible);
             extra.map(function (elem) {
-                opacity(elem, 0);
+                setOpacity(elem, 0);
             });
         } else {
             targets = cloneVisible(targets);
@@ -63,7 +63,7 @@ function autodragchildren(target, matcher, move) {
         var offdragstart = on("dragstart")(targetChild, function () {
             previousElements = previousElements.map(cloneCell);
             followedElements = followedElements.map(cloneCell);
-            opacity(targetBox, 0);
+            setOpacity(targetBox, 0);
             appendChild(document.body, previousElements);
             appendChild(document.body, followedElements);
         });
