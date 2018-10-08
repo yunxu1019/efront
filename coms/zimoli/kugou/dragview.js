@@ -54,6 +54,7 @@ dragview.toRight = function () {
     transition(menu, `transform:scale(1);`, true);
     addClass(page, disableClassName);
     removeClass(menu, disableClassName);
+    dragview.onchange instanceof Function&&dragview.onchange();
 };
 dragview.toLeft = function () {
     dragview.isRight = false;
@@ -62,6 +63,7 @@ dragview.toLeft = function () {
     removeClass(page, disableClassName);
     transition(menu, `transform:scale(.72);`, true);
     transition(page, "marginLeft:0;left:0;transform:scale(1);", true);
+    dragview.onchange instanceof Function && dragview.onchange();
 };
 dragview.toChange = function () {
     if (!dragview.isRight) {
@@ -69,4 +71,4 @@ dragview.toChange = function () {
     } else {
         dragview.toLeft();
     }
-}
+};
