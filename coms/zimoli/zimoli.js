@@ -169,8 +169,8 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         }
         return url;
     }
-    state.go = function (url, args, history_name) {
-        return go(state.path(url), args, history_name, pagepath);
+    state.go = function (url, args, _history_name) {
+        return go(state.path(url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
     };
 
     var _pageback_listener = [];
