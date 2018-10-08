@@ -38,6 +38,7 @@ function appendChild(parent, obj, transition) {
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var o = release(children[cx]);
             if (!o) continue;
+            if (o.removeTimer) clearTimeout(o.removeTimer);
             if (o.initialStyle && transition !== false) {
                 isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
             }
@@ -59,6 +60,7 @@ function insertBefore(alreadyMounted, obj, transition) {
     }
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
+        if (o.removeTimer) clearTimeout(o.removeTimer);
         parent.insertBefore(o, alreadyMounted);
         o.with && insertBefore(o, o.with, false);
         if (parent.isMounted)
@@ -78,6 +80,7 @@ function insertAfter(alreadyMounted, obj, transition) {
     }
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
+        if (o.removeTimer) clearTimeout(o.removeTimer);
         parent.insertBefore(o, alreadyMounted.nextSibling);
         o.with && insertBefore(o, o.with, false);
         if (parent.isMounted)
