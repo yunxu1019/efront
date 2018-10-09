@@ -12,7 +12,8 @@ var cwd = path.join(__dirname, "..");
 var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)?\s*(.*?)\1(\s*;)?\s*$/i;
 module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var data = String(buffer);
-    var commName = filename.match(/([\$_\w][\w]*)\.[tj]sx?$/i);
+    var commName = filename.match(/(?:^|[^\w])([\$_\w][\w]*)\.[tj]sx?$/i);
+    if (!commName) console.warn("文件名无法生成导出变量！", filename);
     commName = commName && commName[1];
     if (useInternalReg.test(data)) {
         data = data.replace(useInternalReg, function (match, quote, relative) {
@@ -58,6 +59,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
         } else if (!declares[commName]) {
             commName = commName[0].toUpperCase() + commName.slice(1);
             if (!declares[commName]) {
+                if (filename !== "main.js") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
                 commName = null;
             }
         }
