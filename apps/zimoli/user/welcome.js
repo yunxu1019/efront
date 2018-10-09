@@ -26,7 +26,7 @@ render(page, {
     go
 });
 page.initialStyle = {
-    transform: "scale(1.72)",
+    transform: "scale(1.36)",
     opacity: 0,
     zIndex: 2
 };

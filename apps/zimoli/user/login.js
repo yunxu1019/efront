@@ -16,6 +16,7 @@ var _pageCount = createElement(div);
 css(_pageCount, "white-space:nowrap;right:0;bottom:0;color:#888;right:0;position:absolute;height:50px;line-height:50px;padding:0 16px;");
 var register = anchor("忘记密码", "getPassword");
 vbox(_login);
+_login.initialStyle = 'marginLeft:100%;';
 
 appendChild(_login, _logoArea, _username, _password, _loginBtn, _pageCount, register);
 function login(dst_url, src_url) {

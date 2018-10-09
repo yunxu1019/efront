@@ -14,6 +14,7 @@ var options = group(
 );
 appendChild(page, options);
 titlebar("注册", ["提交"]);
+page.initialStyle = 'marginLeft:100%';
 function register() {
     return page;
 }
