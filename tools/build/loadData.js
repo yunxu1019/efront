@@ -3,12 +3,12 @@ var getBuildInfo = require("./getBuildInfo");
 var getBuildRoot = require("./getBuildRoot");
 var getDependence = require("./getDependence");
 var compile = require("./compile");
-var fs = require("fs");
 function build(pages_roots) {
     var responseTree = {};
+    var filterMap = {};
     var resolve;
     var builder = function (roots) {
-        roots = roots.filter(root => responseTree[root] ? false : responseTree[root] = true);
+        roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);
         if (!roots.length) return resolve();
         roots = roots.map(getBuildInfo).map(compile).map(function (promise) {
             return promise.then(function (response) {

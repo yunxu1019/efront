@@ -38,16 +38,17 @@ function getBuildInfo(url) {
                 destpath = path.join("comm", name);
                 break;
             case "/":
-                if (/\.html?$/.test(extt)) {
+                if (/\.html?$/i.test(extt)) {
                     builder = htmlbuilder;
                     destpath = path.join(name + extt);
-                } else if (!/\.[tj]sx?$/.test(extt)) {
+                } else if (!/\.[tj]sx?$/i.test(extt)) {
                     builder = noopbuilder;
                     destpath = path.join(name + extt);
                 } else {
                     extt = ".js";
                     builder = commbuilder;
                     destpath = path.join("page", name);
+                    url = url.replace(/\.[tj]sx?$/i, "");
                 }
                 fullpath = path.join(pages_root, name + extt);
                 break;

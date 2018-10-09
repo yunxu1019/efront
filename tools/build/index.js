@@ -48,14 +48,15 @@ if (public_app) {
     is_commponent_package = false;
     var toApplication = require("./toApplication");
     loadData([
-            pages_root,
-            "apps/favicon.ico",
-            "coms/zimoli/main.js",
-            "coms/zimoli/zimoli.js",
-            "coms/zimoli/[].map.js",
-            "coms/zimoli/promise.js",
-            "coms/zimoli/fastclick.js"
-        ].concat(environment.ccons_root))
+        pages_root,
+        "apps/index.html",
+        "apps/favicon.ico",
+        "coms/zimoli/main.js",
+        "coms/zimoli/zimoli.js",
+        "coms/zimoli/[].map.js",
+        "coms/zimoli/promise.js",
+        "coms/zimoli/fastclick.js"
+    ].concat(environment.ccons_root))
         .then(toApplication)
         .then(function (response) {
             return clean(public_path).then(function () {
