@@ -60,10 +60,30 @@ var location_pathname = location.pathname;
 var _zimoli_params_key = `_zimoli_parameters:${location_pathname}#`;
 var _zimoli_state_prefix = `_zimoli_page_state:${location_pathname}#`;
 
+function getReverseStyle(style) {
+    if (!(style instanceof Object)) {
+        style = parseKV(style, ";", ":");
+    }
+    var dest = {};
+    var replacer = function (m, d, t) {
+        if (t) return -d + t;
+        return +d ? 1 / d : m;
+    };
+    //如要是对放大系数进行求倒，对位移进行反向
+    for (var k in style) {
+        if (/transform|left|top|right|bottom|margin/i.test(k)) {
+            dest[k] = String(style[k]).replace(/(\-?\d*\.?\d+)(deg|p[xt]|r?em|[cm]m|%|)/ig, replacer);
+        } else {
+            dest[k] = style[k];
+        }
+    }
+    return dest;
+}
+
 function go(url, args, history_name, oldpagepath) {
+    if (!history_name)
+        history_name = current_history;
     if (isNumber(url)) {
-        if (!history_name)
-            history_name = current_history;
         if (isString(history_name)) {
             var _history = history[history_name] || [];
             url = _history[url < 1 ? _history.length + url - 1 : url];
@@ -98,10 +118,15 @@ function go(url, args, history_name, oldpagepath) {
         if (pg.className) _page.className = pg.className;
         _page.with = _with_elements;
         if (args.initialStyle) _page.initialStyle = args.initialStyle;
+        if (args.holdupStyle) _page.holdupStyle = args.holdupStyle;
+        if (_page.initialStyle && !_page.holdupStyle) {
+            _page.holdupStyle = getReverseStyle(_page.initialStyle);
+            _page.backupStyle = _page.initialStyle;
+        }
         _page.onback = _pageback_listener;
     }
-    pushstate(url, history_name, oldpagepath);
-    addGlobal(_page, history_name);
+    var isDestroy = pushstate(url, history_name, oldpagepath);
+    addGlobal(_page, history_name, isDestroy);
     return _page;
 }
 var page_generators = {};
@@ -202,6 +227,7 @@ try {
 } catch (e) {
 }
 var pushstate = function (path_name, history_name, oldpagepath) {
+    var isDestroy = false;
     if (!history_name) {
         history_name = current_history;
     }
@@ -212,10 +238,12 @@ var pushstate = function (path_name, history_name, oldpagepath) {
         var _history = history[history_name];
         if (_history.indexOf(oldpagepath) < 0) {
             _history.splice(_history[0] === ":empty", _history.length);
+            isDestroy = true;
         }
         for (var cx = 0, dx = _history.length; cx < dx; cx++) {
             if (_history[cx] === path_name) {
                 _history.splice(cx, dx - cx);
+                isDestroy = true;
                 break;
             }
         }
@@ -223,6 +251,7 @@ var pushstate = function (path_name, history_name, oldpagepath) {
         if (_history.length > 1) fixurl();
     }
     localStorage.setItem(history_session_object_key, JSON.stringify(history) || null);
+    return isDestroy;
 };
 var fixurl = function () {
     setTimeout(function () {
@@ -272,18 +301,20 @@ var onback = function () {
     } else { };
 };
 
-function addGlobal(element, name) {
+function addGlobal(element, name, isDestroy) {
     if (!name) {
         name = current_history;
     }
     if (isString(name)) {
         if (global[name] === element) return;
+        var oldElement = global[name];
+        if (oldElement) {
+            oldElement.initialStyle = isDestroy ? oldElement.backupStyle : oldElement.holdupStyle;
+        }
         if (isFunction(body.layer)) {
-            body.layer(element, global[name], history);
+            body.layer(element, oldElement, history);
         } else {
-            if (global[name]) {
-                remove(global[name]);
-            }
+            remove(oldElement);
             appendChild(body, element);
         }
         global[name] = element;
