@@ -14,15 +14,15 @@ var build = function () {
         sum += elem.offsetHeight;
     });
 };
+var fontSize = 16 * renderPixelRatio;
+var singleHeight = fontSize * 2.6 | 0;
 var _text = function (color, parameters) {
     var box = createElement(div);
-    var fontSize = 16 * renderPixelRatio;
     var boxWidth = 720 * renderPixelRatio;
     if (boxWidth > innerWidth) {
         boxWidth = +innerWidth;
     }
-    var singleHeight = fontSize * 2.6 | 0;
-    css(box, `width:${boxWidth}px;margin-left:-${boxWidth >> 1}px;transition:all 0.1s ease-out;left:50%;height:${singleHeight}pt;line-height:${singleHeight}pt;font-size:${fontSize}px;background-color:${color};position:absolute;color:#fff;text-align:center;`);
+    css(box, `width:${boxWidth}px;top:${singleHeight * alerts.length}px;margin-left:-${boxWidth >> 1}px;transition:all 0.1s ease-out;left:50%;height:${singleHeight}pt;line-height:${singleHeight}pt;font-size:${fontSize}px;background-color:${color};position:absolute;color:#fff;text-align:center;`);
     text(box, [].slice.call(parameters, 0).join(", "));
     box.initialStyle = `margin-top:-${singleHeight}px;opacity:0;`;
     return box;
@@ -82,7 +82,6 @@ function alert() {
         }, autoclose);
     }
     alerts.push(elem);
-    build();
     popup(elem);
     return elem;
 }
