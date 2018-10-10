@@ -31,6 +31,9 @@
     right: 0;
     height: auto;
     background-clip: content-box;
+    i {
+        margin-right: 12px;
+    }
     >div:not(.group) {
         height: 36px;
         line-height: 40px;
@@ -68,16 +71,19 @@
 }
 
 .setting-button {
+    i{
+        margin-right: 12px;
+    }
     padding: 0 16px;
     position: absolute;
     bottom: 0;
     height: 60px;
-    line-height: 60px;
     left: 0;
     right: 0;
     font-size: 14px;
     color: #ccc;
     >.button {
+        line-height: 60px;
         width: 100%;
         height: 100%;
         left: 0;
@@ -87,7 +93,7 @@
     .line(top, .2);
 }
 
-.button{
+.button {
     text-align: left;
     background: transparent;
     outline: none;
@@ -96,6 +102,7 @@
     box-shadow: none;
     display: block;
 }
+
 .user-info {
     width: 100%;
     height: 80px;
