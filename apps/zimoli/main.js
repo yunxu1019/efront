@@ -10,6 +10,7 @@ kugou$dragview.onchange = function () {
     _state.isRight = kugou$dragview.isRight;
     state(_state);
 };
+if (modules.IS_BAD_DEVICE) alert.warn("运行环境不佳，可能出现卡顿现象！");
 var view = layer$leftCenter(menu);
 menu.initialStyle = "transform:scale(.92)";
 css(menu, "background-image: linear-gradient(0deg, #0b3b5d, 5%, #031341, 90%, #235b71);height:100%;width:100%");

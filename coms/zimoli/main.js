@@ -46,7 +46,7 @@ var isBadDevice;
         isBadDevice = (new Date - saved_time) / inc > 0.002;
     }
 };
-modules.isBadDevice = isBadDevice;
+modules.IS_BAD_DEVICE = isBadDevice;
 // 适配大小屏
 var devicePixelRatio = window.devicePixelRatio || 1;
 // if (isBadDevice) devicePixelRatio = 1;
