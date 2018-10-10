@@ -28,8 +28,8 @@ var _text = function (color, parameters) {
     return box;
 };
 function alert() {
-    var color, text, autoclose = true, onclose;
-    var color_reg = /^#(?:\w6|\w3)$/;
+    var color = String(this), text, autoclose = true, onclose;
+    var color_reg = /^#(?:\w{6}|\w{3})$/;
     [].map.call(arguments, function (arg) {
         switch (typeof arg) {
             case "string":
@@ -58,7 +58,7 @@ function alert() {
     var elem;
 
     if (color_reg.test(color)) {
-        elem = _text(color, text);
+        elem = _text(color, [text]);
     } else {
         elem = _text(styles.log, arguments);
     }
@@ -86,5 +86,5 @@ function alert() {
     return elem;
 }
 for (var k in styles) {
-    alert[k] = new Function(`return this(${JSON.stringify(styles[k])},arguments);`);
+    alert[k] = new Function(`return this.apply(${JSON.stringify(styles[k])},arguments);`);
 }
