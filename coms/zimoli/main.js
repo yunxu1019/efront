@@ -31,7 +31,7 @@ try {
     throw message;
 }
 // 检查性能
-var isWorseDevice;
+var isBadDevice;
 {
     let saved_time = new Date;
     let inc = 0;
@@ -43,13 +43,13 @@ var isWorseDevice;
         };
         test();
     } catch (e) {
-        isWorseDevice = (new Date - saved_time) / inc > 0.002;
+        isBadDevice = (new Date - saved_time) / inc > 0.002;
     }
 };
-modules.isWorseDevice = isWorseDevice;
+modules.isBadDevice = isBadDevice;
 // 适配大小屏
 var devicePixelRatio = window.devicePixelRatio || 1;
-// if (isWorseDevice) devicePixelRatio = 1;
+// if (isBadDevice) devicePixelRatio = 1;
 var renderPixelRatio = devicePixelRatio > 1 && window.innerWidth > 360 && window.innerHeight > 360 ? .86 : .75;
 if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform)) {
     let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
