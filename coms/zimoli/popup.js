@@ -111,7 +111,7 @@ var popup_as_extra = function (element, target) {
     } else {
         extend(element.style, element.origin);
     }
-    css(element, `position:absolute;left:${position.left}px;`);
+    css(element, `position:absolute;`);
     var release1 = onremove(target, function () {
         remove(element);
     });
