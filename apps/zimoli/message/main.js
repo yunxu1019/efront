@@ -14,10 +14,39 @@ render(_list, {
     }
 });
 select(_titlebar.querySelector(".button.menu"), _list);
+var options = [
+    "聊天:chat",
+    "评论:comment",
+    "赞:praise",
+    "通知:inform",
+].map(function (a) {
+    var labels = a.split(":");
+    return { name: labels[0], url: labels[1] }
+});
+var _state = extend({ ing: 0 }, state());
 page.innerHTML = `
-<div></div>
-`;
+<div class='options'>
+${options.map((a, i) => `<btn -class={ing:state.ing===${i}} -click=go('${a.url}',${i})>${a.name}</btn>`).join("")}
+</div>
+<div class=page>
+</div>
+`.replace(/>\s+</g, "><");
+render(page, {
+    options,
+    state: _state,
+    btn: button,
+    page,
+    go(path, i) {
+        if (_state.ing === i) return;
+        _state.ing = i;
+        state(_state);
+        options.ing = options[i];
+        go(path, null, page);
+    }
+});
+
 page.initialStyle = 'marginLeft:100%;z-index:2';
 function main() {
+    go(options[_state.ing].url, null, page);
     return page;
 }
