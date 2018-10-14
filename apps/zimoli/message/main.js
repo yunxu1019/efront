@@ -15,10 +15,10 @@ render(_list, {
 });
 select(_titlebar.querySelector(".button.menu"), _list);
 var options = [
-    "聊天:chat",
-    "评论:comment",
-    "赞:praise",
-    "通知:inform",
+    "聊天:chatList",
+    "评论:commentList",
+    "赞:praiseList",
+    "通知:informList",
 ].map(function (a) {
     var labels = a.split(":");
     return { name: labels[0], url: labels[1] }
