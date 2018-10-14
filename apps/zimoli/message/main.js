@@ -41,12 +41,13 @@ render(page, {
         _state.ing = i;
         state(_state);
         options.ing = options[i];
-        go(path, null, page);
+        remove(listPage.children);
+        go(path, null, listPage);
     }
 });
-
+var listPage = page.querySelector(".page");
 page.initialStyle = 'marginLeft:100%;z-index:2';
 function main() {
-    go(options[_state.ing].url, null, page);
+    go(options[_state.ing].url, null, listPage);
     return page;
 }
