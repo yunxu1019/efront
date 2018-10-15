@@ -15,7 +15,7 @@ var build = function () {
     });
 };
 var fontSize = 16 * renderPixelRatio;
-var singleHeight = fontSize * 2.6 | 0;
+var singleHeight = fontSize * 3.125 | 0;
 var _text = function (color, parameters) {
     var box = createElement(div);
     var boxWidth = 720 * renderPixelRatio;
