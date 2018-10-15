@@ -24,6 +24,10 @@ var options = [
     return { name: labels[0], url: labels[1] }
 });
 var _state = extend({ ing: 0 }, state());
+onback(function () {
+    _state.ing = 0;
+    state(_state);
+});
 page.innerHTML = `
 <div class='options'>
 ${options.map((a, i) => `<btn -class={ing:state.ing===${i}} -click=go('${a.url}',${i})>${a.name}</btn>`).join("")}
@@ -48,6 +52,8 @@ render(page, {
 var listPage = page.querySelector(".page");
 page.initialStyle = 'marginLeft:100%;z-index:2';
 function main() {
+    remove(listPage.children, false);
+    listPage.activate = null;
     go(options[_state.ing].url, null, listPage);
     return page;
 }
