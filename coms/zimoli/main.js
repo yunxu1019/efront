@@ -20,15 +20,17 @@ var {
 } = window;
 
 //去除外层广告
-var message = '请关闭后重新打开..';
-try {
-    if (top && top !== window && !/MSIE/.test(navigator.userAgent)) {
-        top.location.href = window.location.href;
+if (window.PREVENT_FRAMEWORK_MODE !== false) {
+    var message = '请关闭后重新打开..';
+    try {
+        if (top && top !== window && !/MSIE/.test(navigator.userAgent)) {
+            top.location.href = window.location.href;
+        }
+    } catch (e) {
+        document.write(message);
+        top.location.reload();
+        throw message;
     }
-} catch (e) {
-    document.write(message);
-    top.location.reload();
-    throw message;
 }
 // 检查性能
 var isBadDevice;
@@ -61,7 +63,7 @@ var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
 var versionTree = {};
-
+var forceRequest = {};
 modules.MOVElOCK_DELTA = 3 * renderPixelRatio;
 
 var retry = function (url, count) {
@@ -288,7 +290,7 @@ var init = function (name, then, prebuild) {
     if (modules[name]) {
         return then(modules[name]);
     }
-    if (window[name]) {
+    if (!forceRequest[name] && window[name]) {
         modules[name] = window[name];
         return then(modules[name]);
     }
@@ -324,7 +326,7 @@ var initIfNotDefined = function (defined, path, onload) {
 initIfNotDefined(Promise, "promise", promise => Promise = promise);
 initIfNotDefined([].map, "[].map", map => map);
 var removeGlobalProperty = function (property) {
-    window[property] = null;
+    forceRequest[property] = true;
 };
 var onload = function () {
     window.onload = null;
