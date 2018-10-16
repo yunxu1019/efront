@@ -55,7 +55,11 @@ function getBuildInfo(url) {
             case "@":
                 builder = noopbuilder;
                 fullpath = path.join("apps", name + extt);
-                destpath = path.join("/", name + extt);
+                if (/^[^\.]/i.test(path.relative(pages_root, fullpath))) {
+                    destpath = path.relative(pages_root, fullpath);
+                } else {
+                    destpath = path.join("/", name + extt);
+                }
                 break;
             case "$":
                 builder = iconbuilder;

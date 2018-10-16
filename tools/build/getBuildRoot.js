@@ -1,12 +1,47 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
+var getBuildInfo = require("./getBuildInfo");
 var {
     comms_root,
     pages_root,
     COMS_PATH,
     PAGE_PATH
 } = require("./environment");
+var getScriptsUrlInHtmlFile = function (fileinfo) {
+    return new Promise(function (ok, oh) {
+        fs.readFile(fileinfo.fullpath, function (error, data) {
+            if (error) return ok([]);
+            var result = [];
+            String(data).replace(/<script\s.*?\bsrc=('.+?'|".+?"|.+?)[\s|>]/g, function (_, url) {
+                result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
+            });
+            ok(result.map(url => path.join(path.dirname(fileinfo.fullpath), url)));
+        });
+    });
+}
+var filterHtmlImportedJs = function (roots) {
+    var promises = roots.filter(function (url) {
+        return /\.html?$/i.test(url);
+    }).map(getBuildInfo).map(getScriptsUrlInHtmlFile);
+    return Promise.all(promises).then(function (datas) {
+        var urls = [].concat.apply([], datas);
+        var simpleJsMap = {};
+        urls.map(function (url) {
+            simpleJsMap[url] = true;
+        });
+        roots = roots.map(function (root) {
+            if (/^\/.*?\.js$/.test(root)) {
+                var fullpath = getBuildInfo(root).fullpath;
+                if (fullpath in simpleJsMap) {
+                    return "@" + path.relative(PAGE_PATH, fullpath).replace(/[\\\/]+/g, "/");
+                }
+            }
+            return root;
+        });
+        return roots;
+    });
+};
 var getBuildRoot = function (files) {
     var resolve;
     var result = [];
@@ -59,7 +94,10 @@ var getBuildRoot = function (files) {
         }).then(run);
     }
     return new Promise(function (ok) {
-        resolve = ok;
+        resolve = function (result) {
+            result = filterHtmlImportedJs(result);
+            ok(result);
+        };
         run();
     });
 };
