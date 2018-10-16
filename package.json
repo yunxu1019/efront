@@ -16,7 +16,7 @@
     "server": "node server/index",
     "test": "node tester/main",
     "electron": "node tester/main --electron",
-    "public": "node tools/public",
+    "public": "node tools/build",
     "build": "node tools/build"
   },
   "repository": {
