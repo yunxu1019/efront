@@ -17,7 +17,8 @@
     "test": "node tester/main",
     "electron": "node tester/main --electron",
     "public": "node tools/build",
-    "build": "node tools/build"
+    "build": "node tools/build",
+    "watch": "node tools/watch"
   },
   "repository": {
     "type": "git",
