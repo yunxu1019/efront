@@ -1,11 +1,11 @@
 "use strict";
 function toApplication(responseTree) {
     var versionTree = {};
-    for (var k in responseTree) {
-        if (/^@|^\/.*?\.[^\\\/]+$/.test(k)) continue;
+    Object.keys(responseTree).sort().forEach(function (k) {
+        if (/^@|^\/.*?\.[^\\\/]+$/.test(k)) return;
         var v = responseTree[k];
         versionTree[v.url] = v.version;
-    }
+    });
     delete versionTree["main"];
     delete versionTree["[].map"];
     delete versionTree["promise"];
@@ -36,7 +36,7 @@ function toApplication(responseTree) {
             }
             return script;
         })
-        .replace(/<\/head>/i, `<script>\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n</head>`);
+        .replace(/<\/head>/i, `<script compiledinfo="${new Date().toString()} by efront">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n</head>`);
     indexHtml.data = html;
     delete responseTree["main"];
     return responseTree;
