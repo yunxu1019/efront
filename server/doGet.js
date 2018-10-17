@@ -1,9 +1,10 @@
 "use strict";
 var filebuilder = require("../process/filebuilder");
+var env = process.env;
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
-var PUBLIC_PATH = process.env.PUBLIC_PATH || "./public";
-var APPS_PATH = process.env.APPS_PATH || process.env.PAGE_PATH || "./apps";
-var getfile = require("../process/cache")(process.env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, filebuilder, FILE_BUFFER_SIZE).async;
+var PUBLIC_PATH = env.PUBLIC_PATH;
+var APPS_PATH = env.PAGE_PATH;
+var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, filebuilder, FILE_BUFFER_SIZE).async;
 var path = require("path");
 var mimes = require("../process/mime");
 var message = require("../process/message");

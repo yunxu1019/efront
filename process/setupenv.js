@@ -128,8 +128,25 @@ module.exports = function (appname) {
                 env[key] = appname + "," + default_value;
             }
         }
-    })
+    });
     if (!env.PAGE) env.PAGE = appname;
+    extend(env, env, appname);
     return env;
 };
+
+var extend = function (dst, env, src) {
+    Object.assign(dst, {
+        COMS_PATH: env.COMS_PATH || env.COMM_PATH || "./coms",
+        PAGE_PATH: env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || "./apps",
+        APIS_PATH: env.APIS_PATH || env.AAPI_PATH || "./apis",
+        ICON_PATH: env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || "./cons",
+        PAGE: env.PAGE || env.APPS || src,
+        COMM: env.COMM || env.COMS || src,
+        AAPI: env.APIS || env.APIS || src,
+        IMAG: env.IMAG || env.IMGS || src,
+        ICON: env.ICON || env.CCON || env.CONS || env.ICONS || src,
+        PUBLIC_PATH: env.PUBLIC_PATH || "./public",
+    });
+};
+extend(process.env, process.env, "zimoli");
 process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug-brk|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0

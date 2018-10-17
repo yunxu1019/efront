@@ -5,24 +5,22 @@ var getpagefile = require("../process/cache");
 var commbuilder = require("../process/commbuilder");
 var iconbuilder = require("../process/iconbuilder");
 var aapibuilder = require("../process/aapibuilder");
-var imagbuilder = require("../process/imagbuilder");
-var getcommfile = require("../process/cache")(env.COMS_PATH || env.COMM_PATH || "./coms", commbuilder);
-var getpagefile = require("../process/cache")(env.APPS_PATH || env.PAGE_PATH || "./apps", commbuilder);
-var getaapifunc = require("../process/cache")(env.APIS_PATH || env.AAPI_PATH || "./apis", aapibuilder);
-var getimagfile = require("../process/cache")(env.IMGS_PATH || env.IMAG_PATH || "./imgs", imagbuilder);
-var geticonfile = require("../process/cache")(env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || "./cons", iconbuilder);
+var getcommfile = require("../process/cache")(env.COMS_PATH, commbuilder);
+var getpagefile = require("../process/cache")(env.PAGE_PATH, commbuilder);
+var getaapifunc = require("../process/cache")(env.APIS_PATH, aapibuilder);
+var geticonfile = require("../process/cache")(env.ICON_PATH, iconbuilder);
 var message = require("../process/message");
 var proxy = require("./proxy");
-var PAGE = env.PAGE || env.APPS || "zimoli";
-var COMM = env.COMM || env.COMS || "zimoli";
-var AAPI = env.APIS || env.APIS || "zimoli";
-var IMAG = env.IMAG || env.IMGS || "zimoli";
-var ICON = env.ICON || env.CCON || env.CONS || env.ICONS || "zimoli";
+var {
+    PAGE,
+    COMM,
+    AAPI,
+    ICON
+} = env;
 var ccons_root = "./" + ICON;
 var comms_root = "./" + COMM;
 var pages_root = "./" + PAGE;
 var aapis_root = "./" + AAPI;
-var imags_root = "./" + IMAG;
 var getfrompath = function (name, __root, getter, extt) {
     __root = __root.split(/,/);
     var body;
@@ -49,9 +47,6 @@ var getapi = function (name, _aapis_root = aapis_root) {
     return getfrompath(name, _aapis_root, getaapifunc, ".js");
 };
 
-var getimag = function (name, _imags_root = imags_root) {
-    return getfrompath(name, _imags_root, getimagfile, ".png");
-};
 var readdata = function (req, res, then, max_length) {
     var buff = [],
         length = 0;
@@ -143,7 +138,7 @@ var doPost = module.exports = function (req, res) {
     url = proxy(req);
     var match = url.match(
         ///// 1 //            2            //// 3 //     4      ////
-        /^\/(.*?)(comm|page|ccon|aa?pi|imag)\/(.*?)(?:\.js|\.png)?$/
+        /^\/(.*?)(comm|page|ccon|aa?pi)\/(.*?)(?:\.js|\.png)?$/
     );
     if (match) {
         var appc = match[1],
@@ -171,8 +166,6 @@ var doPost = module.exports = function (req, res) {
             case "ccon":
                 res.end(geticon(name, env.ICON));
                 break;
-            case "imag":
-                res.end(getimag(name, env.IMAG));
             default:
                 res.end();
         }

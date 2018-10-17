@@ -1,7 +1,9 @@
+require("../process/setupenv");
 var fs = require("fs");
 var path = require("path");
 var appname = process.env.APP;
 if (!appname) throw `请先设置app名称！如：${/win\d/i.test(process.platform) ? 'set' : 'export'} app=abc`;
+var { COMS_PATH, PAGE_PATH, PUBLIC_PATH } = process.env;
 function mkdirIfNotExists(dirname) {
     if (!fs.existsSync(dirname))
         fs.mkdirSync(dirname);
@@ -12,20 +14,18 @@ function throwMakeIfExists(dirname) {
     else fs.mkdirSync(dirname);
 }
 mkdirIfNotExists("_envs");
-mkdirIfNotExists("apis");
-mkdirIfNotExists("apps");
-mkdirIfNotExists("coms");
-mkdirIfNotExists("cons");
-mkdirIfNotExists("imgs");
-mkdirIfNotExists("public");
-throwMakeIfExists(path.join("apis", appname));
-throwMakeIfExists(path.join("imgs", appname));
+mkdirIfNotExists(PAGE_PATH);
+mkdirIfNotExists(COMS_PATH);
+mkdirIfNotExists(PUBLIC_PATH);
 var setupData = fs.readFileSync(path.join(__dirname, "../_envs/setup.bat"));
 setupData = Buffer.concat([new Buffer(`set APP=${appname}\r\n`), setupData]);
 fs.writeFileSync(path.join("_envs", "setup.bat"), setupData);
-copy(path.join(__dirname, "../coms/zimoli"), path.join("coms", "zimoli"));
-copy(path.join(__dirname, "../apps/zimoli"), path.join("apps", `${appname}`));
-copy(path.join(__dirname, "../cons/zimoli"), path.join("cons", `${appname}`));
+try {
+    fs.linkSync(path.join(__dirname, "../coms/zimoli"), path.join(COMS_PATH, "zimoli"));
+} catch (e) {
+    copy(path.join(__dirname, "../apps/zimoli"), path.join(COMS_PATH, `zimoli`));
+}
+copy(path.join(__dirname, "../apps/zimoli"), path.join(PAGE_PATH, `${appname}`));
 
 function copy(path1, path2) {
     fs.exists(path2, function (exists) {
