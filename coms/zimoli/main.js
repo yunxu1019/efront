@@ -16,11 +16,13 @@ var {
     localStorage,
     navigator,
     document,
-    top
+    top,
+    PREVENT_FRAMEWORK_MODE,
+    pixelDecoder // = d => d / 16 + "rem"
 } = window;
 
 //去除外层广告
-if (window.PREVENT_FRAMEWORK_MODE !== false) {
+if (PREVENT_FRAMEWORK_MODE !== false) {
     var message = '请关闭后重新打开..';
     try {
         if (top && top !== window && !/MSIE/.test(navigator.userAgent)) {
@@ -223,8 +225,9 @@ var executer = function (text, name, then, prebuild) {
         functionArgs = [];
         functionBody = text;
     }
+    if (!pixelDecoder) pixelDecoder = d => d * renderPixelRatio + "pt";
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    functionBody = functionBody.replace(/((?:\d*\.)?\d+)px/ig, (m, d) => (d !== '1' ? d * renderPixelRatio + "pt" : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
+    functionBody = functionBody.replace(/((?:\d*\.)?\d+)px/ig, (m, d) => (d !== '1' ? pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
