@@ -8,6 +8,8 @@ if (!process.cwd() === path.dirname(__dirname)) throw new Error("请在项目根
 var {
     PUBLIC_PATH,
     APP,
+    PAGE_PATH,
+    COMS_PATH,
     pages_root,
     comms_root
 } = environment;
@@ -21,7 +23,7 @@ var write = require("./write");
 var clean = require("./clean");
 var finish = require("./finish");
 var is_commponent_package;
-var resolve_component_file_path = function (public_path = PUBLIC_APP, source_paths = [""].concat(pages_root).concat(comms_root)) {
+var resolve_component_file_path = function (public_path = PUBLIC_APP, source_paths = [""].concat(pages_root, comms_root)) {
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
         var temp_path = source_paths[cx];
         var public_app = path.join(temp_path, public_path);
@@ -35,7 +37,7 @@ if (public_app) {
     console.log(public_app);
     is_commponent_package = true;
     var toComponent = require("./toComponent");
-    loadData(["coms/zimoli/[].map.js", public_app])
+    loadData([path.join(COMS_PATH, "/zimoli/[].map.js"), public_app])
         .then(toComponent)
         .then(function (response) {
             return write(response, PUBLIC_PATH);
@@ -49,13 +51,13 @@ if (public_app) {
     var toApplication = require("./toApplication");
     loadData([
         pages_root,
-        "apps/index.html",
-        "apps/favicon.ico",
-        "coms/zimoli/main.js",
-        "coms/zimoli/zimoli.js",
-        "coms/zimoli/[].map.js",
-        "coms/zimoli/promise.js",
-        "coms/zimoli/fastclick.js"
+        path.join(PAGE_PATH, "index.html"),
+        path.join(PAGE_PATH, "favicon.ico"),
+        path.join(COMS_PATH, "/zimoli/main.js"),
+        path.join(COMS_PATH, "/zimoli/zimoli.js"),
+        path.join(COMS_PATH, "/zimoli/[].map.js"),
+        path.join(COMS_PATH, "/zimoli/promise.js"),
+        path.join(COMS_PATH, "/zimoli/fastclick.js"),
     ].concat(environment.ccons_root))
         .then(toApplication)
         .then(function (response) {
