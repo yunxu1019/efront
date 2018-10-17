@@ -74,7 +74,7 @@ var getBuildRoot = function (files) {
                         }
                         if (/\.png$/i.test(file)) {
                             var name = path.parse(file).base.replace(/[\\\/]+/g, "/").replace(/\.png$/, "");
-                            return result.push("$" + name), ok();
+                            return result.push("." + name), ok();
                         }
                         console.warn(file, "skiped");
                         ok();

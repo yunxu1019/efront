@@ -2,7 +2,7 @@
 function toApplication(responseTree) {
     var versionTree = {};
     for (var k in responseTree) {
-        if (/@/.test(k)) continue;
+        if (/^@|^\/.*?\.[^\\\/]+$/.test(k)) continue;
         var v = responseTree[k];
         versionTree[v.url] = v.version;
     }
@@ -36,9 +36,7 @@ function toApplication(responseTree) {
             }
             return script;
         })
-        .replace(/<\/head>/i, function (match,) {
-            return `<script>\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n</head>`;
-        });
+        .replace(/<\/head>/i, `<script>\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n</head>`);
     indexHtml.data = html;
     delete responseTree["main"];
     return responseTree;

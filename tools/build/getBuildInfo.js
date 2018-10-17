@@ -16,7 +16,7 @@ BuildInfo.prototype = {
 }
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\$|@|)(.*?)(\.[tj]sx?|\.html?|\.png)?$/);
+    var match = url.match(/^(.*?)(\/|\.|@|)(.*?)(\.[tj]sx?|\.html?|\.png)?$/);
     var fullpath, destpath, builder;
     if (match) {
         var {
@@ -61,7 +61,7 @@ function getBuildInfo(url) {
                     destpath = path.join("/", name + extt);
                 }
                 break;
-            case "$":
+            case ".":
                 builder = iconbuilder;
                 extt = ".png";
                 fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
