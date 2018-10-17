@@ -22,7 +22,7 @@ function onloginResponse(c) {
                     Code: script
                 };
                 if (redirecturl) {
-                    cross("get", redirecturl[1]).done(go.bind(null, "/main", loginUserInfo));
+                    cross("get", redirecturl[1]).done(go.bind(null, "/chat/main", loginUserInfo));
                 } else if (ret && "0" != ret[1]) {
                     alert(message && message[1] || "登陆失败").then(function () {
                         location.reload();
@@ -33,7 +33,7 @@ function onloginResponse(c) {
                         text: "webwx_data_ticket 票据丢失",
                         cookie: document.cookie
                     })
-                    go("/main", loginUserInfo);
+                    go("/chat/main", loginUserInfo);
                 }
             });
             break;
