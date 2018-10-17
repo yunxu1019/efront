@@ -29,9 +29,15 @@ function toApplication(responseTree) {
         );
     var html = indexHtmlData.toString()
         .replace(/<!--[\s\S]*?-->/g, "")
-        .replace(/<title>(.*?)<\/title>/, `<title>${process.env.TITLE || "$1"}</title>`)
-        .replace(/<script[\s\w\"\']*>[\s\S]*<\/script>/, function () {
-            return `<script>\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>`;
+        .replace(/<title>(.*?)<\/title>/i, `<title>${process.env.TITLE || "$1"}</title>`)
+        .replace(/<script\s[\s\S]*?<\/script>/ig, function (script) {
+            if (/\bdeleteoncompile\b/i.test(script.replace(/(['"]).*?\1/g, ""))) {
+                return "";
+            }
+            return script;
+        })
+        .replace(/<\/head>/i, function (match,) {
+            return `<script>\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n</head>`;
         });
     indexHtml.data = html;
     delete responseTree["main"];
