@@ -3,14 +3,17 @@ var getBuildInfo = require("./getBuildInfo");
 var getBuildRoot = require("./getBuildRoot");
 var getDependence = require("./getDependence");
 var compile = require("./compile");
-function build(pages_roots) {
+function build(pages_roots, lastBuiltTime, dest_root) {
     var responseTree = {};
     var filterMap = {};
     var resolve;
     var builder = function (roots) {
         roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);
         if (!roots.length) return resolve();
-        roots = roots.map(getBuildInfo).map(compile).map(function (promise) {
+
+        roots = roots.map(getBuildInfo).map(function (buildInfo) {
+            return compile(buildInfo, lastBuiltTime, dest_root);
+        }).map(function (promise) {
             return promise.then(function (response) {
                 var {
                     url

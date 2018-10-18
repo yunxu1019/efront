@@ -32,6 +32,27 @@ var resolve_component_file_path = function (public_path = PUBLIC_APP, source_pat
     return "";
 };
 var public_app = resolve_component_file_path();
+var getBuiltVersion = function (filepath) {
+    return new Promise(function (ok) {
+        fs.exists(filepath, function (exists) {
+            if (!exists) return ok();
+            fs.stat(filepath, function (error, stats) {
+                if (error) return ok();
+                if (!stats.isFile()) return ok();
+                fs.readFile(filepath, function (error, data) {
+                    if (error) return ok();
+                    ok(data);
+                })
+            })
+        })
+    }).then(function (data) {
+        var version = /\bcompiledinfo\s*=\s*(['"`])(.*?GMT[+\-]\d{4})\b.*?\1/i.exec(data);
+        if (version) {
+            var timepart = version[2];
+            return new Date(timepart);
+        }
+    })
+};
 if (public_app) {
     //导出组件
     console.log(public_app);
@@ -49,23 +70,25 @@ if (public_app) {
     public_app = pages_root;
     is_commponent_package = false;
     var toApplication = require("./toApplication");
-    loadData([
-        pages_root,
-        path.join(PAGE_PATH, "index.html"),
-        path.join(PAGE_PATH, "favicon.ico"),
-        path.join(COMS_PATH, "/zimoli/main.js"),
-        path.join(COMS_PATH, "/zimoli/zimoli.js"),
-        path.join(COMS_PATH, "/zimoli/[].map.js"),
-        path.join(COMS_PATH, "/zimoli/promise.js"),
-        path.join(COMS_PATH, "/zimoli/fastclick.js"),
-    ].concat(environment.ccons_root))
-        .then(toApplication)
-        .then(function (response) {
-            return clean(public_path).then(function () {
-                return write(response, public_path);
-            });
-        })
-        .then(finish);
+    getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
+        loadData([
+            pages_root,
+            path.join(PAGE_PATH, "index.html"),
+            path.join(PAGE_PATH, "favicon.ico"),
+            path.join(COMS_PATH, "/zimoli/main.js"),
+            path.join(COMS_PATH, "/zimoli/zimoli.js"),
+            path.join(COMS_PATH, "/zimoli/[].map.js"),
+            path.join(COMS_PATH, "/zimoli/promise.js"),
+            path.join(COMS_PATH, "/zimoli/fastclick.js"),
+        ].concat(environment.ccons_root), lastBuildTime, public_path)
+            .then(toApplication)
+            .then(function (response) {
+                return clean(public_path).then(function () {
+                    return write(response, public_path);
+                });
+            })
+            .then(finish);
+    });
 } else {
     throw new Error(`要发布或打包的源路径不存在:${public_app}`);
 }
