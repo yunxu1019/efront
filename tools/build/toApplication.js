@@ -37,6 +37,21 @@ function toApplication(responseTree) {
             return script;
         })
         .replace(/<\/head>/i, `<script compiledinfo="${new Date().toString()} by efront">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n</head>`);
+    if (process.env.IN_WATCH_MODE) {
+        let WATCH_PORT = +process.env.WATCH_PORT;
+        html = html.replace(/(<\/head>)/i, `\r\n<script>
+        -function(){
+            var xhr=new XMLHttpRequest;
+            xhr.open("post","http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload");
+            xhr.timeout=0;
+            xhr.onreadystatechange=function(){
+                if(xhr.readyState===4&&xhr.status===200)
+                location.reload()|console.warn("reload..",new Date);
+            };
+            xhr.send("haha");
+        }();
+        </script>\r\n$1`);
+    }
     indexHtml.data = html;
     delete responseTree["main"];
     return responseTree;
