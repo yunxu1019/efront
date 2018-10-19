@@ -23,6 +23,9 @@ var window = {
     sessionStorage: {},
     localStorage: {},
     location: {},
+    RegExp,
+    encodeURIComponent,
+    decodeURIComponent,
     history: {},
     document: {
         createElement() { return {} },
