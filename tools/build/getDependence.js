@@ -1,6 +1,7 @@
 "use strict";
 function getDependence(responseData) {
     var { data = "" } = responseData;
+    data = String(data);
     var functionArgs;
     //依赖项名称部分的长度限制为36*36*18=23328
     var doublecount = parseInt(data.slice(0, 3), 36);

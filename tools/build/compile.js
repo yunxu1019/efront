@@ -84,7 +84,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                 return fs.readFile(destpath, function (error, buffer) {
                                     if (error) throw new Error(`读取已编译数据失败！url:${url}`);
                                     responsePath = _filepath;
-                                    responseText = buffer.toString();
+                                    responseText = buffer;
                                     responseVersion = crc([].map.call(responseText.toString(), e => e.charCodeAt(0))).toString(36) + (+stat.mtime).toString(36);
                                     resolve();
                                 });
