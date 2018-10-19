@@ -14,16 +14,20 @@ var PUBLIC_APP = /* process.argv[2] || */ APP;
 if (!PUBLIC_APP) throw new Error("请配置要发布的项目名称！");
 if (!PUBLIC_PATH) throw new Error("请指定输出路径！");
 var reload = 0;
+var loadData = require("./loadData");
+var write = require("./write");
+var clean = require("./clean");
+var _finish = require("./finish");
 function builder() {
     if (builder.ing) return reload++;
     builder.ing = true;
     reload = 0;
+    var savedTime = new Date;
+    var finish = function () {
+        _finish(new Date - savedTime);
+    };
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
-    var loadData = require("./loadData");
-    var write = require("./write");
-    var clean = require("./clean");
-    var finish = require("./finish");
     var is_commponent_package;
     var resolve_component_file_path = function (public_path = PUBLIC_APP, source_paths = [""].concat(pages_root, comms_root)) {
         for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
