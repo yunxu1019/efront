@@ -39,7 +39,8 @@ var lastLogLength = 0;
         var str = args.join(" ");
         var width = process.stderr.columns;
         var hasNewLine = /^(warn|error)$/.test(log);
-        hasNewLine ? process.stderr.write((lastLogLength ? "\r\n" : "") + str.trim() + "\r\n") : process.stderr.write(("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1) + "\r" + str);
+        var cleaner = ("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1);
+        hasNewLine ? process.stderr.write((lastLogLength ? cleaner : "") + str.trim() + "\r\n") : process.stderr.write(cleaner + "\r" + str);
         lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x00-\xff]/g, "").length;
     }
     console[log] = function (...args) {
