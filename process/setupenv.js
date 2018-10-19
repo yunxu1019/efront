@@ -137,16 +137,16 @@ module.exports = function (appname) {
 
 var extend = function (dst, env, src) {
     Object.assign(dst, {
-        COMS_PATH: env.COMS_PATH || env.COMM_PATH || env.coms_path || env.comm_path || "./coms",
-        PAGE_PATH: env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || env.apps_path || env.page_path || env.pages_path || "./apps",
-        APIS_PATH: env.APIS_PATH || env.AAPI_PATH || env.apis_path || env.aapi_path || "./apis",
-        ICON_PATH: env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || env.icon_path || env.cons_path || env.ccon_path || env.icons_path || "./cons",
-        PAGE: env.PAGE || env.APPS || env.page || env.apps || src,
-        COMM: env.COMM || env.COMS || env.comm || env.coms || src,
-        AAPI: env.APIS || env.AAPI || env.apis || env.aapi || src,
-        IMAG: env.IMAG || env.IMGS || env.imag || env.imgs || src,
-        ICON: env.ICON || env.CCON || env.CONS || env.ICONS || env.icon || env.ccon || env.cons || env.icons || src,
-        PUBLIC_PATH: env.PUBLIC_PATH || env.public_path || "./public",
+        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || env.coms_path || env.comm_path || "./coms",
+        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || env.apps_path || env.page_path || env.pages_path || "./apps",
+        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH || env.apis_path || env.aapi_path || "./apis",
+        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || env.icon_path || env.cons_path || env.ccon_path || env.icons_path || "./cons",
+        PAGE: dst.PAGE || env.PAGE || env.APPS || env.page || env.apps || src,
+        COMM: dst.COMM || env.COMM || env.COMS || env.comm || env.coms || src,
+        AAPI: dst.AAPI || env.APIS || env.AAPI || env.apis || env.aapi || src,
+        IMAG: dst.IMAG || env.IMAG || env.IMGS || env.imag || env.imgs || src,
+        ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS || env.icon || env.ccon || env.cons || env.icons || src,
+        PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || env.public_path || "./public",
     });
 };
 extend(process.env, process.env, "zimoli");
