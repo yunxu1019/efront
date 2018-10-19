@@ -66,7 +66,7 @@ var requestTree = {};
 var responseTree = {};
 var versionTree = {};
 var forceRequest = {};
-modules.MOVElOCK_DELTA = 3 * renderPixelRatio;
+modules.MOVELOCK_DELTA = 3 * renderPixelRatio;
 
 var retry = function (url, count) {
     setTimeout(function () {

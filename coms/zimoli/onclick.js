@@ -6,7 +6,7 @@ function clickstart(event) {
 }
 function clickcancel(event) {
     var abs = Math.abs;
-    if (abs(event.clientX - saved_x) >= MOVElOCK_DELTA || abs(event.clientY - saved_y) >= MOVElOCK_DELTA)
+    if (abs(event.clientX - saved_x) >= MOVELOCK_DELTA || abs(event.clientY - saved_y) >= MOVELOCK_DELTA)
         onclick.preventClick = preventClick = true;
 }
 onmousedown(document, clickstart);

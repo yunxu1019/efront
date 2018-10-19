@@ -171,7 +171,7 @@ function ybox(generator) {
         var deltax = clientX - saved_x;
         var deltay = clientY - saved_y;
         if (!direction) {
-            if (abs(deltax) < MOVElOCK_DELTA && abs(deltay) < MOVElOCK_DELTA) return;
+            if (abs(deltax) < MOVELOCK_DELTA && abs(deltay) < MOVELOCK_DELTA) return;
             direction = abs(deltax) >= abs(deltay) ? -1 : 1;
         }
         if (direction < 0)

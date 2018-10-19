@@ -12,7 +12,7 @@ var dragview = function (event) {
         var deltaY = savedY - event.touches[0].clientY;
 
         if (!moving) {
-            if (Math.abs(deltaX) < MOVElOCK_DELTA && Math.abs(deltaY) < MOVElOCK_DELTA) return;
+            if (Math.abs(deltaX) < MOVELOCK_DELTA && Math.abs(deltaY) < MOVELOCK_DELTA) return;
             if (deltaX > 0 && !parseInt(page.style.left) || Math.abs(deltaY) >= Math.abs(deltaX)) {
                 moving = -1;
             } else {

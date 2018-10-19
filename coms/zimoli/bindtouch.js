@@ -28,7 +28,7 @@ function bindtouch(target, bindder, lockDirection = "x") {
         var deltay = clientY - saved_y;
         if (lockDirection) {
             if (!direction) {
-                if (abs(deltax) < MOVElOCK_DELTA && abs(deltay) < MOVElOCK_DELTA) return;
+                if (abs(deltax) < MOVELOCK_DELTA && abs(deltay) < MOVELOCK_DELTA) return;
                 if (target.onmovestart) {
                     target.onmovestart();
                 }
