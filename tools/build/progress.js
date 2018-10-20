@@ -18,7 +18,7 @@ var loadData = require("./loadData");
 var write = require("./write");
 var clean = require("./clean");
 var _finish = require("./finish");
-function builder() {
+function builder(cleanAfterBuild = false) {
     if (builder.ing) return reload++;
     builder.ing = true;
     reload = 0;
@@ -64,7 +64,7 @@ function builder() {
         console.log(public_app);
         is_commponent_package = true;
         var toComponent = require("./toComponent");
-        loadData([path.join(COMS_PATH, "/zimoli/[].map.js"), public_app])
+        return loadData([path.join(COMS_PATH, "/zimoli/[].map.js"), public_app])
             .then(toComponent)
             .then(function (response) {
                 return write(response, PUBLIC_PATH);
@@ -76,7 +76,7 @@ function builder() {
         public_app = pages_root;
         is_commponent_package = false;
         var toApplication = require("./toApplication");
-        getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
+        return getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
             loadData([
                 pages_root,
                 path.join(PAGE_PATH, "index.html"),
@@ -89,9 +89,13 @@ function builder() {
             ].concat(environment.ccons_root), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {
-                    return clean(public_path).then(function () {
+                    var writeApplication = function () {
                         return write(response, public_path);
-                    });
+                    }
+                    if (cleanAfterBuild) {
+                        return clean(public_path).then(writeApplication);
+                    }
+                    return writeApplication();
                 })
                 .then(finish).then(function () {
                     builder.ing = false;

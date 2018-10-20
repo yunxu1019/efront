@@ -19,4 +19,5 @@ var listener = function (event, filename) {
 [].concat(pages_root, comms_root, ccons_root).forEach(function (rootpath) {
     fs.watch(rootpath, { recursive: true }, listener);
 });
+progress();
 console.info("efront watch ..");
