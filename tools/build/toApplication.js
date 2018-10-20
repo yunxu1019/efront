@@ -38,10 +38,10 @@ function toApplication(responseTree) {
             }
             return script;
         })
-        .replace(/<\/head>/i, `<script compiledinfo="${new Date().toString()} by efront">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n</head>`);
+        .replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo="${new Date().toString()} by efront">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
     if (process.env.IN_WATCH_MODE) {
         let WATCH_PORT = +process.env.WATCH_PORT;
-        html = html.replace(/(<\/head>)/i, `\r\n<script>
+        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script>
         -function(){
             var xhr=new XMLHttpRequest;
             xhr.open("post","http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload");
@@ -52,7 +52,7 @@ function toApplication(responseTree) {
             };
             xhr.send("haha");
         }();
-        </script>\r\n$1`);
+        </script>\r\n${head}`);
     }
     indexHtml.data = html;
     delete responseTree["main"];
