@@ -1,10 +1,12 @@
 "use strict";
+var crc = require("../../process/crc");
 function toApplication(responseTree) {
     var versionTree = {};
     Object.keys(responseTree).sort().forEach(function (k) {
-        if (/^@|^\/.*?\.[^\\\/]+$/.test(k)) return;
         var v = responseTree[k];
-        versionTree[v.url] = v.version;
+        if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
+        var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.version).toString(36);
+        versionTree[v.url] = responseVersion;
     });
     delete versionTree["main"];
     delete versionTree["[].map"];

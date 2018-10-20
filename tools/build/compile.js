@@ -1,5 +1,4 @@
 "use strict";
-var crc = require("../../process/crc");
 var fs = require("fs");
 var path = require("path");
 var window = {
@@ -74,7 +73,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                 if (error) throw new Error("加载" + url + "出错！");
                                 responsePath = _filepath;
                                 responseText = builder(buffer, name + extt, _filepath, []);
-                                responseVersion = crc([].map.call(responseText.toString(), e => e.charCodeAt(0))).toString(36) + (+stat.mtime).toString(36);
+                                responseVersion = stat.mtime;
                                 resolve();
                             });
                         };
@@ -85,7 +84,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                     if (error) throw new Error(`读取已编译数据失败！url:${url}`);
                                     responsePath = _filepath;
                                     responseText = buffer;
-                                    responseVersion = crc([].map.call(responseText.toString(), e => e.charCodeAt(0))).toString(36) + (+stat.mtime).toString(36);
+                                    responseVersion = stat.mtime;
                                     resolve();
                                 });
                             });
