@@ -98,9 +98,25 @@ var config = {
 }
 var builder;
 var path = require("path");
+var autoloader = function () {
+    var reloadCount = 0;
+    var reload = function () {
+        if (reloadCount > 10) return;
+        reloadCount++;
+        var xhr = new XMLHttpRequest;
+        xhr.open("post", "/reload");
+        xhr.timeout = 0;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) location.reload() | console.warn("reload..", new Date);
+        };
+        xhr.onerror = reload;
+        xhr.send("haha");
+    };
+    reload();
+};
 if (process.env.IN_TEST_MODE) builder = function (buff, name) {
-    if (/\b(index|default)\.html$/i.test(name) || /\.html?$/.test(name) && /^\s*!<Doctype/i.test(buff.slice(0, 100).toString())) {
-        buff = Buffer.from(String(buff).replace(/<script.*?>([\s\S]*?)<\/script>/i, `<script>-function(){var xhr=new XMLHttpRequest;xhr.open("post","/reload");xhr.timeout=0;xhr.onerror=function(){console.error("reload",new Date);location.reload();};xhr.onreadystatechange=function(){if(xhr.readyState===4)location.reload()|console.warn("reload..",new Date);};xhr.send("haha");}();\r\n$1</script>`));
+    if (/\b(index|default)\.html$/i.test(name) || /\.html?$/.test(name) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
+        buff = Buffer.from(String(buff).replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`));
     }
     return buff;
 };
