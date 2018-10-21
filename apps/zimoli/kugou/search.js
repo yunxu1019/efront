@@ -1,6 +1,5 @@
 
-titlebar("搜索");
-
+var _titlebar = titlebar("搜索");
 var inputBox = createWithClass(div, "input-box");
 var textInput = createWithClass(input, "input");
 appendChild(inputBox, textInput);
@@ -104,6 +103,7 @@ onremove(page, function () {
     state(_state);
 });
 updateHotKeyword();
+page.initialStyle = 'margin-left:100%;z-index:1;';
 function main() {
     return page;
 }
