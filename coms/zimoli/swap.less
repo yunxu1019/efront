@@ -1,0 +1,53 @@
+& {
+    width: 46px;
+    height: 24px;
+    border-radius: 12px;
+    border: none;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    vertical-align: middle;
+    background-color: #ccc;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+    &:before {
+        background-color: #26f;
+        transition: all .1s ease-out;
+        left: 50%;
+        top: 50%;
+        right: 50%;
+        bottom: 50%;
+        content: "";
+        position: absolute;
+        border-radius: inherit;
+    }
+    &:after {
+        border-radius: 11px;
+        content: "";
+        display: block;
+        margin-left: -22px;
+        left: 50%;
+        width: 22px;
+        height: 22px;
+        top: 50%;
+        margin-top: -11px;
+        background-color: #fff;
+        transition: margin-left .1s ease-out;
+        position: absolute;
+    }
+}
+
+&:checked {
+    &:before {
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+    &:after {
+        margin-left: 0;
+    }
+}
