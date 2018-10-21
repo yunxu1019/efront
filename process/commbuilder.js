@@ -59,7 +59,6 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
         } else if (!declares[commName]) {
             commName = commName[0].toUpperCase() + commName.slice(1);
             if (!declares[commName]) {
-                if (filename !== "main.js") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
                 commName = null;
             }
         }
@@ -115,6 +114,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
             } : code.body[0].expression
         }]
     } else {
+        if (!commName && filename !== "main.js") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
         code_body = code.body.concat(commName ? {
             "type": "ReturnStatement",
             "argument": lessData ? {
