@@ -1,12 +1,13 @@
 # efront 说明
 
-efront运行在node环境下，请在安装node环境后使用https://nodejs.org。
+efront运行在nodejs环境下，请在安装nodejs环境后使用[https://nodejs.org](https://nodejs.org)。
 
 ## 基本命令（适用于windows）
 
 ###    1. 下载安装
 
 从npm全局安装efront
+
 ```bat
 npm install -g efront
 ```
@@ -36,12 +37,24 @@ efront test
 默认将编译输出的目标代码保存到public目录
 可以把public目录的代码发布到任意服务器上
 ```bat
+set app=PROJECT_NAME
+set public_path=PUBLIC_PATH
 efront public
 ```
+其中`PUBLIC_PATH`为发布路径
+
 ###    5.生产环境启动
 开启本机服务器，并在访问端口时压缩输出
 ```bat
 efront start
+```
+
+###    6.Watch模式
+监测文件变化，自动编译更新的部分并输出到指定目录
+```bat
+set app=PROJECT_NAME
+set public_path=PUBLIC_PATH
+efront watch
 ```
 
 ## 目录说明
@@ -50,9 +63,7 @@ efront start
 02. apis 对外公开的接口，可通过https post方式访问
 03. apps 静态app页面通过get或post方式访问
 04. coms 组件库
-05. cons 图标库
-06. imgs 临时用于存放二进制对象，可能会在未来的版本删除
-07. public 静态资源发布目录，用于存放编译的目标文件
+05. public 静态资源发布目录，用于存放编译的目标文件
 
 ## 调试说明
 调试模式下仅支持启动一个辅进程
