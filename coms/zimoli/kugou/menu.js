@@ -5,7 +5,7 @@ menu.innerHTML = `
 </div>
 <div class=options-list>
 <btn ng-click=go('/message/main')><i>&#xe602;</i>消息中心</btn>
-<btn><i>&#xe647;</i>皮肤中心</btn>
+<btn ng-click=go('/skin/main')><i>&#xe647;</i>皮肤中心</btn>
 <btn><i>&#xe604;</i>会员中心</btn>
 <btn><i>&#xe651;</i>流量包月</btn>
 <btn><i>&#xe62a;</i>私人云盘</btn>
