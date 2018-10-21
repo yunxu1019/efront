@@ -7,19 +7,24 @@
     position: relative;
     border-radius: 3px;
     overflow: hidden;
+    padding-left: @left-width;
+    >div{
+        display: inline-block;
+        position: relative;
+        height: 100%;
+    }
 }
 
 @left-width: 320px;
 &>[layer=left] {
     width: @left-width;
+    margin-left: -@left-width;
     height: 100%;
-    position: absolute;
     overflow: hidden;
 }
 
 >[layer=main] {
-    position: absolute;
-    left: @left-width;
+    width: 100%;
     right: 0;
     height: 100%;
 }
@@ -27,11 +32,13 @@
 @media all and (max-width:720px) {
     &{
         border-radius: 0;
+        padding-left: 0;
     }
     &>[layer=main] {
         display: none;
     }
     &>[layer=left] {
+        margin-left: 0;
         width: 100%;
     }
 }
