@@ -346,4 +346,8 @@ remove.transition = transition;
 window.modules = modules;
 zimoli.setStorage = function (storage) {
     hostoryStorage = storage;
+    try {
+        history = JSON.parse(hostoryStorage.getItem(history_session_object_key)) || history;
+    } catch (e) {
+    }
 };
