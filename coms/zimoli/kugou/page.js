@@ -56,6 +56,9 @@ var bar = createBottomBar({
 var menu_btn = button("<i>&#xe6d4;</i>", "left");
 onclick(menu_btn, kugou$dragview.toChange);
 var search_btn = button("<i>&#xe60d;</i>", "right");
+onclick(search_btn, function () {
+    go("/kugou/search");
+});
 appendChild(bar, menu_btn, search_btn);
 var pages = div();
 ontouchstart(pages, kugou$dragview);

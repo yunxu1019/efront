@@ -1,0 +1,226 @@
+.song {
+    color: #fff;
+}
+
+.singer {
+    color: #ccc;
+}
+
+@main-color: #2292e4;
+&.pause .play:before {
+    content: "放";
+}
+
+&.play .play:before {
+    content: "停";
+}
+
+.avatar,
+&:after {
+    border-radius: 50%;
+    width: 72px;
+    height: 72px;
+    top: -12px;
+    left: 8px;
+    position: absolute;
+    background-size: cover;
+    border: 3px solid #000;
+    background-clip: content-box;
+}
+
+&.play .avatar {
+    opacity: 1; // animation-play-state: running;
+    // -webkit-animation-play-state: running;
+}
+
+@keyframes rotate {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.avatar {
+    opacity: .2;
+    transition: opacity .6s ease;
+    box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset; // animation: 25s rotate infinite linear;
+    // animation-play-state: paused;
+    // -webkit-animation-play-state: paused;
+}
+
+&:after {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+}
+
+&.play,
+&.pause {
+    height: 60px;
+}
+
+&>.track,
+&>.progress>.track {
+    position: absolute;
+    height: 60px;
+    width: 100%;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    z-index: -1;
+    &:after {
+        @size: 10000px;
+        @blank-size: 70px;
+        box-sizing: content-box;
+        content: "";
+        display: block;
+        background-color: transparent;
+        position: absolute;
+        width: @blank-size;
+        height: @blank-size;
+        border: @size solid #000;
+        margin: -@size - @blank-size/2;
+        top: 24px;
+        left: 44px;
+    }
+    &:after {
+        border-radius: 50%;
+    }
+}
+
+&>div.progress {
+    z-index: 1;
+    >.track:after,
+    >.avatar {
+        border-color: @main-color;
+        opacity: 1;
+        box-shadow: 0 0 6px -3px @main-color;
+    }
+    >.track {
+        transition: height .3s;
+        top: 12px;
+    }
+    >.avatar {
+        top: 0;
+    }
+    position: absolute;
+    left: 0;
+    overflow: hidden;
+    padding: 0;
+    height: 72px;
+    margin-top: -12px;
+}
+
+& {
+    z-index: 10;
+    height: 0;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    color: #fff;
+    left: 0;
+    right: 0;
+    padding: 0 0 0 78px;
+    background-color: transparent;
+    opacity: .95;
+    transition: height .3s ease-out, opacity .5s;
+    >div {
+        text-align: center;
+        line-height: 60px;
+        width: 50px;
+        vertical-align: top;
+        position: relative;
+        &.info,
+        &.next,
+        &.play {
+            z-index: 2;
+        }
+    }
+    >div.info {
+        width: calc(~'100% - 100px');
+        line-height: 30px;
+        text-align: left;
+        padding: 0 5px;
+        >div {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    }
+    >div {
+        display: inline-block;
+        height: 60px;
+    }
+}
+
+&.play+div,
+&.pause+div {
+    padding-bottom: 60px;
+}
+
+&.page {
+    height: 100%;
+    z-index: 10;
+    opacity: 1;
+    >div.progress>.track {
+        height: 3px;
+    }
+    >.krc {
+        margin-top: -90px;
+    }
+}
+
+&>.krc {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-top: 30px;
+    transition: margin-top .2s ease-out;
+    top: 50%;
+    height: 180px;
+    overflow: hidden;
+    width: auto;
+    line-height: 36px;
+}
+
+&>.background {
+    background-color: #000;
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+    bottom: -30px;
+    left: -30px;
+    right: -30px;
+    margin: 0;
+    width: auto;
+    height: auto;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    &:before {
+        content:"";
+        display: block;
+        position: absolute;
+        background: inherit;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        filter: blur(15px);
+    }
+    &:after {
+        background-color: #000;
+        opacity: .6;
+        content: "";
+        display: block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+}
