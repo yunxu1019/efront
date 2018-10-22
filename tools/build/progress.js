@@ -89,11 +89,20 @@ function builder(cleanAfterBuild = false) {
             ].concat(environment.ccons_root), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {
+                    for (var k in response) {
+                        if (!response[k].data) delete response[k];
+                    }
                     var writeApplication = function () {
                         return write(response, public_path);
-                    }
+                    };
                     if (cleanAfterBuild) {
                         return clean(public_path).then(writeApplication);
+                    }
+
+                    for (var k in response) {
+                        if (response[k].needed === false) {
+                            delete response[k];
+                        }
                     }
                     return writeApplication();
                 })

@@ -1,6 +1,7 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
+var getDepedence = require("./getDependence");
 var window = {
     setTimeout,
     setInterval,
@@ -51,10 +52,12 @@ function compile(buildInfo, lastBuildTime, destroot) {
     return new Promise(function (ok, oh) {
         var responseText,
             responsePath,
-            responseVersion;
+            responseVersion,
+            writeNeeded;
 
         var resolve = function () {
             Object.assign(buildInfo, {
+                needed: writeNeeded,
                 data: responseText,
                 realpath: responsePath,
                 version: responseVersion,
@@ -74,20 +77,44 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                 responsePath = _filepath;
                                 responseText = builder(buffer, name + extt, _filepath, []);
                                 responseVersion = stat.mtime;
+                                writeNeeded = true;
                                 resolve();
                             });
                         };
-                        if (lastBuildTime - stat.mtime > 10000 && !/[\/\\]index.html?$/i.test(destpath)) {
+                        var reader = function (hasless) {
                             fs.exists(destpath, function (exists) {
                                 if (!exists) return loader();
                                 return fs.readFile(destpath, function (error, buffer) {
                                     if (error) throw new Error(`读取已编译数据失败！url:${url}`);
+                                    if (hasless === false && getDepedence({ data: buffer }).indexOf("cless") >= 0) {
+                                        console.log(_filepath,hasless);
+                                        return loader();
+                                    }
+                                    writeNeeded = false;
                                     responsePath = _filepath;
                                     responseText = buffer;
                                     responseVersion = stat.mtime;
                                     resolve();
                                 });
                             });
+                        }
+                        if (lastBuildTime - stat.mtime > 10000 && !/[\/\\]index.html?$/i.test(destpath)) {
+                            if (/\.[tj]sx?$/i.test(_filepath)) {
+                                var less_file = _filepath.replace(/\.[tj]sx?$/i, ".less");
+                                fs.exists(less_file, function (exists) {
+                                    if (!exists) return reader(false);
+                                    fs.stat(less_file, function (error, stat) {
+                                        if (error) throw new Error(`读取less文件出错！lessfile:${less_file}`);
+                                        if (lastBuildTime - stat.mtime > 10000) {
+                                            reader(true);
+                                        } else {
+                                            loader();
+                                        }
+                                    })
+                                });
+                            } else {
+                                reader();
+                            }
                         } else {
                             loader();
                         }
