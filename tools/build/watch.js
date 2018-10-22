@@ -17,7 +17,9 @@ var listener = function (event, filename) {
     buildTicker = setTimeout(progress, 60);
 };
 [].concat(pages_root, comms_root, ccons_root).forEach(function (rootpath) {
-    fs.watch(rootpath, { recursive: true }, listener);
+    fs.exists(rootpath, function (exists) {
+        exists && fs.watch(rootpath, { recursive: true }, listener);
+    });
 });
-progress();
+progress(true);
 console.info("efront watch ..");
