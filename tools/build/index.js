@@ -1,3 +1,3 @@
 #!/usr/bin / env node
 require("../../process/console");
-require("./progress")(true);
+require("./progress")(true, true);

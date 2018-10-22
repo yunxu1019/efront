@@ -18,7 +18,7 @@ var loadData = require("./loadData");
 var write = require("./write");
 var clean = require("./clean");
 var _finish = require("./finish");
-function builder(cleanAfterBuild = false) {
+function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (builder.ing) return reload++;
     builder.ing = true;
     reload = 0;
@@ -77,6 +77,9 @@ function builder(cleanAfterBuild = false) {
         is_commponent_package = false;
         var toApplication = require("./toApplication");
         return getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
+            if (cleanBeforeBuild) {
+                lastBuildTime = 0;
+            }
             loadData([
                 pages_root,
                 path.join(PAGE_PATH, "index.html"),
@@ -90,7 +93,7 @@ function builder(cleanAfterBuild = false) {
                 .then(toApplication)
                 .then(function (response) {
                     for (var k in response) {
-                        if (!response[k].data) delete response[k];
+                        if (!response[k].realpath) delete response[k];
                     }
                     var writeApplication = function () {
                         return write(response, public_path);
