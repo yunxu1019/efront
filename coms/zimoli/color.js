@@ -7,12 +7,12 @@ function rotate_rgb(RGBA, theta) {
 	var [r, g, b, a] = RGBA;
 	var u = sqrt(3) / 3;
 	var pu = 1 / 3;
-	cosa = cos(theta);
-	sina = sin(theta);
-	vera = 1 - cosa;
-	red = round((cosa + pu * vera) * r + (pu * vera - u * sina) * g + (pu * vera + u * sina) * b);
-	green = round((pu * vera + u * sina) * r + (cosa + pu * vera) * g + (pu * vera - u * sina) * b);
-	blue = round((pu * vera - u * sina) * r + (pu * vera + u * sina) * g + (cosa + pu * vera) * b);
+	var cosa = cos(theta);
+	var sina = sin(theta);
+	var vera = 1 - cosa;
+	var red = round((cosa + pu * vera) * r + (pu * vera - u * sina) * g + (pu * vera + u * sina) * b);
+	var green = round((pu * vera + u * sina) * r + (cosa + pu * vera) * g + (pu * vera - u * sina) * b);
+	var blue = round((pu * vera - u * sina) * r + (pu * vera + u * sina) * g + (cosa + pu * vera) * b);
 	return [red, green, blue, a];
 }
 var trim16 = a => max(min(a | 0, 15), 0);
