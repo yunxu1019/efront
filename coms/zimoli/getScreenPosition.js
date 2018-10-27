@@ -2,7 +2,9 @@ function getScreenPosition(target) {
     if (!target) return;
     if (target.getBoundingClientRect) {
         var rect = target.getBoundingClientRect();
-        if (!(width in rect)) {
+        var { left, top, width, height, right, bottom } = rect;
+        rect = { left, top, width, height, right, bottom };
+        if (rect.width === undefined) {
             rect.width = rect.right - rect.left;
             rect.height = rect.bottom - rect.top;
         }
