@@ -318,8 +318,9 @@ var hook = function (requires_count) {
             });
         }
         init("zimoli", function (zimoli) {
-            zimoli();
+            modules.Promise = Promise;
             modules.hook_time = +new Date;
+            zimoli();
         });
     }
 };
