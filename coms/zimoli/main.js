@@ -325,7 +325,7 @@ var hook = function (requires_count) {
     }
 };
 var initIfNotDefined = function (defined, path, onload) {
-    if (defined === void 0) requires_count++ , init(path, a => onload(a, hook(--requires_count)));
+    if (defined === void 0) requires_count++ , init(path, a => onload(a) | hook(--requires_count));
 }
 initIfNotDefined(Promise, "promise", promise => Promise = promise);
 initIfNotDefined([].map, "[].map", map => map);
