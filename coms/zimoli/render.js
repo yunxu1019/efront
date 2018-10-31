@@ -6,9 +6,6 @@ var renderidOffset = 0;
 var addRenderElement = function () {
     var element = this;
     if (!isNode(element)) return;
-    if (!element.renderid) {
-        element.renderid = ++renderidOffset;
-    }
     renderElements[element.renderid] = element;
     rebuild(element);
 };
@@ -179,8 +176,8 @@ function renderElement(element, scope) {
         });
     }
     element.$scope = scope;
-    if (element.renderid) return;
     if (children.length) renderElement(children, scope);
+    if (element.renderid) return;
     var attrs = [].slice.call(element.attributes, 0);
     var { tagName, parentNode, nextSibling } = element;
     if (parentNode) {
@@ -219,9 +216,10 @@ function renderElement(element, scope) {
         }
     });
     if (element.renders.length) {
+        element.renderid = ++renderidOffset;
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
-        if (element.isMounted) rebuild(element);
+        if (element.isMounted) addRenderElement.call(element);
     }
 }
 function render(element, scope) {
