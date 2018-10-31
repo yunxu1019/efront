@@ -1,5 +1,6 @@
 
 
+var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = {};
 var renderidOffset = 0;
 var addRenderElement = function () {
