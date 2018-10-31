@@ -171,14 +171,14 @@ var directives = {
 function renderElement(element, scope) {
     var children = element.children;
     if (!children) {
-        return [].slice.call(element, 0).map(function (element) {
+        return [].concat.apply([], element).map(function (element) {
             return renderElement(element, scope);
         });
     }
     element.$scope = scope;
     if (children.length) renderElement(children, scope);
     if (element.renderid) return;
-    var attrs = [].slice.call(element.attributes, 0);
+    var attrs = [].concat.apply([], element.attributes);
     var { tagName, parentNode, nextSibling } = element;
     if (parentNode) {
         if (!scope[tagName]) tagName = tagName.toLowerCase();
