@@ -78,6 +78,7 @@ function insertAfter(alreadyMounted, obj, transition) {
     } else {
         var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
     }
+    children = children.reverse();
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         if (o.removeTimer) clearTimeout(o.removeTimer);
