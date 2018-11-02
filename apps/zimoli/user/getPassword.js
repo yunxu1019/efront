@@ -64,6 +64,7 @@ var ticker = function () {
     if (data.step === 2 && new Date() - data.sendTime <= data.waitTime) ticker.ing = requestAnimationFrame(ticker);
     render.refresh();
 };
+page.initialStyle=`z-index:1;margin-left:100%`;
 onremove(page, function () {
     cancelAnimationFrame(ticker.ing);
     state(null);
