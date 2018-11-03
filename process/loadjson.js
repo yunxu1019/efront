@@ -14,7 +14,11 @@ loadjson.async = function (url) {
                 if (stats.size > 2 * 1024 * 1024) return oh(new Error("文件过大!"));
                 fs.readFile(url, function (error, buffer) {
                     if (error) return oh(error);
-                    ok(new Function("return " + String(buffer))());
+                    try {
+                        ok(new Function("return " + String(buffer))());
+                    } catch (e) {
+                        oh(e);
+                    }
                 });
             });
         });

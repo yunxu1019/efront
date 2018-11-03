@@ -2,10 +2,8 @@
 var mime_data_file = require("path").join(__dirname, "../data/mime.json");
 var mimes = exports;
 var watch = require("../process/watch");
-var loadjson = require("../process/loadjson");
-
-function buildMime() {
-    var mime = loadjson(mime_data_file);
+var loadjson = require("../process/loadjson").async;
+function cust(mime) {
     for (var k in mimes) {
         if (!(k in mime)) {
             delete mimes[k];
@@ -20,10 +18,13 @@ function buildMime() {
             var exts = temp.slice(i + 1).split("|");
             for (var cy = 0, dy = exts.length; cy < dy; cy++) {
                 var value = exts[cy];
-                if (mimes[value]!==type) mimes[value] = type;
+                if (mimes[value] !== type) mimes[value] = type;
             }
         }
     }
+}
+function buildMime() {
+    loadjson(mime_data_file).then(cust).catch(console.error);
 };
 buildMime();
 watch(mime_data_file, buildMime);
