@@ -7,8 +7,7 @@ loadjson.async(configfilepath).then(function (json) {
         rootDirectorys.splice(0, rootDirectorys.length);
         rootDirectorys.push.apply(rootDirectorys, json);
     }
-}).catch(function () {
-});
+}).catch(console.warn);
 var rootDirectorys = [];
 
 function checkAccess(fullpath) {
