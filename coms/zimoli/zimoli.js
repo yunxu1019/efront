@@ -98,10 +98,6 @@ function go(url, args, history_name, oldpagepath) {
     if (!page_generators[url]) {
         return zimoli(url, args, history_name, oldpagepath);
     }
-    if (isNode(history_name)) {
-        if (history_name.activate === url) return;
-        history_name.activate = url;
-    }
     var pg = page_generators[url];
     var _with_elements = [].concat(pg.with);
     var _pageback_listener = pg.onback;
@@ -127,6 +123,12 @@ function go(url, args, history_name, oldpagepath) {
         _page.onback = _pageback_listener;
     }
     var isDestroy = pushstate(url, history_name, oldpagepath);
+    if (isNode(history_name)) {
+        if (history_name.activate === url && history_name.activateNode === _page) return;
+        else remove(history_name.activateNode);
+        history_name.activate = url;
+        history_name.activateNode = _page;
+    }
     addGlobal(_page, history_name, isDestroy);
     return _page;
 }
