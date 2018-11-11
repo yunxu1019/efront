@@ -38,6 +38,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
             return data + `;var ${realName},${commName}=${realName};`;
         });
     }
+    data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     data = typescript.transpile(data);
     var code = esprima.parse(data);
     var {
