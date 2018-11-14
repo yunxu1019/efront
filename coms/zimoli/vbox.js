@@ -1,11 +1,5 @@
 function ybox(generator) {
-    var extendTouch = function (e) {
-        var touch = e.touches[0];
-        for (var k in touch) {
-            if (!(k in e)) e[k] = touch[k];
-        }
-        return e;
-    };
+    var extendTouch = extendTouchEvent;
     var abs = Math.abs;
     var sqrt = Math.sqrt;
     var sign = Math.sign || function (a) {

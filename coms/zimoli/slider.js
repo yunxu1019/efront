@@ -7,13 +7,7 @@ var ceil = Math.ceil;
 var round = Math.round;
 var abs = Math.abs;
 var is_touch_enabled = "ontouchstart" in window;
-var extendTouch = function (e) {
-    var touch = e.touches[0];
-    for (var k in touch) {
-        if (!(k in e)) e[k] = touch[k];
-    }
-    return e;
-};
+var extendTouch = extendTouchEvent;
 var has_moving_instance;
 /**
  * 
