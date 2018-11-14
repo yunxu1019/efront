@@ -59,6 +59,9 @@ var mousemove = function (event) {
     }
 };
 
+var mouseup = function () {
+    moving = null;
+};
 var mousedown = function (event) {
     event.preventDefault();
     moving = {
@@ -67,13 +70,6 @@ var mousedown = function (event) {
         target: this.parentNode,
         thumb: this
     };
-    var cancel = function () {
-        moving = null;
-        offmousemove();
-        offmouseup();
-    };
-    var offmousemove = onmousemove(window, mousemove);
-    var offmouseup = onmouseup(window, cancel);
 };
 var scrollingTimer = 0;
 var scrollTimerTarget;
@@ -161,7 +157,11 @@ function scrollbar() {
     var _handler = div();
     _handler.className = "thumb";
     _scrollbar.Top = getTop;
-    onmousedown(_handler, mousedown);
+    autodragmove(_handler, {
+        start: mousedown,
+        move: mousemove,
+        end: mouseup
+    });
     onremove(_scrollbar, cancelscroll);
     onmousedown(_scrollbar, scrollerMousedown);
     appendChild(_scrollbar, _handler);
