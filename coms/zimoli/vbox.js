@@ -1,5 +1,4 @@
 function ybox(generator) {
-    var extendTouch = extendTouchEvent;
     var abs = Math.abs;
     var sqrt = Math.sqrt;
     var sign = Math.sign || function (a) {
@@ -147,15 +146,6 @@ function ybox(generator) {
         smooth(false);
     });
     var speed_timer, cancelmousemove, cancelmouseup;
-    onmousedown(_box, function (event) {
-        cancelAnimationFrame(speed_timer);
-        cancelAnimationFrame(decrease_timer);
-        _speed(0);
-        saved_x = event.clientX, saved_y = event.clientY;
-        direction = 0;
-        cancelmousemove = onmousemove(window, mousemove);
-        cancelmouseup = onmouseup(window, mouseup);
-    });
     var mousemove = function (event) {
         if (event.moveLocked) return;
         if (_box.nodrag) return;
@@ -176,36 +166,22 @@ function ybox(generator) {
         saved_x = clientX;
         saved_y = clientY;
     };
-    var mouseup = function () {
-        direction = 0;
-        cancelmousemove();
-        cancelmouseup();
-        smooth();
-    };
-
-    ontouchstart(_box, function (event) {
-        cancelAnimationFrame(speed_timer);
-        cancelAnimationFrame(decrease_timer);
-        extendTouch(event);
-        saved_x = event.clientX, saved_y = event.clientY;
-        var moving = event.target;
-        _speed(0);
-        direction = 0;
-        var cancel = function () {
+    autodragmove(_box,{
+        start(event){
+            _speed(0);
+            saved_x = event.clientX, saved_y = event.clientY;
             direction = 0;
-            canceltouchmove();
-            canceltouchend();
-            canceltouchcancel();
+        },
+        move:mousemove,
+        end(){
+            direction = 0;
             __speed = _speed();
             smooth();
-        };
+        }
+    });
+    
+    ontouchstart(_box, function (event) {
         if (_box.style.webkitOverflowScrolling) event.preventDefault();
-        var canceltouchmove = ontouchmove(moving, function (event) {
-            extendTouch(event);
-            mousemove(event);
-        });
-        var canceltouchcancel = ontouchcancel(moving, cancel);
-        var canceltouchend = ontouchend(moving, cancel);
     });
     css(_box, "overflow:hidden;-webkit-overflow-scrolling:auto;over-flow:auto;");
     return _box;

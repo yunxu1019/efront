@@ -6,9 +6,6 @@ var floor = Math.floor;
 var ceil = Math.ceil;
 var round = Math.round;
 var abs = Math.abs;
-var is_touch_enabled = "ontouchstart" in window;
-var extendTouch = extendTouchEvent;
-var has_moving_instance;
 /**
  * 
  * @param {Boolean|Array|Function} autoplay 
@@ -215,12 +212,6 @@ function slider(autoplay, circle = true) {
         // event.stopPropagation && event.stopPropagation();
         moveDeltaX(deltax, event);
     };
-    var mouseup = function () {
-        mousemove_remove();
-        mouseup_remove();
-        moving = has_moving_instance = false;
-        park();
-    };
     var stop_wheel_timer = 0;
     onmousewheel(outter, function (event) {
         if (!event.deltaX) return;
@@ -231,60 +222,23 @@ function slider(autoplay, circle = true) {
         var deltax = -event.deltaX;
         moveDeltaX(deltax, event);
     });
-    var mousemove_remove, mouseup_remove;
-    onmousedown(outter, function (event) {
-        cancelAnimationFrame(timer_animate);
-        clearTimeout(timer_playyer);
-        if (has_moving_instance) {
-            return;
-        }
-        has_moving_instance = true;
-        moving = true;
-        direction = 0;
-        _speed(0);
-        mousemove_remove = onmousemove(window, mousemove);
-        mouseup_remove = onmouseup(window, mouseup);
-        saved_x = event.clientX;
-        saved_y = event.clientY;
-    });
-
-    if (is_touch_enabled) {
-        var addEventListener = function (target, eventname, handle) {
-            target.addEventListener(eventname, handle);
-        };
-        var removeEventListener = function (target, eventname, handle) {
-            target.removeEventListener(eventname, handle);
-        };
-        addEventListener(outter, "touchstart", function (e) {
+    autodragmove(outter, {
+        start(event) {
             cancelAnimationFrame(timer_animate);
             clearTimeout(timer_playyer);
-            if (has_moving_instance) {
-                return;
-            }
-            has_moving_instance = true;
-            moving = e.target;
+            moving = true;
             direction = 0;
             _speed(0);
-            addEventListener(moving, "touchmove", ontouchmove);
-            addEventListener(moving, "touchcancel", ontouchend);
-            addEventListener(moving, "touchend", ontouchend);
-            extendTouch(e);
-            saved_x = e.clientX;
-            saved_y = e.clientY;
-            if (outter.style.webkitOverflowScrolling) e.preventDefault();
-        });
-        var ontouchmove = function (e) {
-            extendTouch(e);
-            mousemove(e);
-        };
-        var ontouchend = function (e) {
-            removeEventListener(moving, "touchmove", ontouchmove);
-            removeEventListener(moving, "touchcancel", ontouchend);
-            removeEventListener(moving, "touchend", ontouchend);
-            moving = has_moving_instance = false;
+            saved_x = event.clientX;
+            saved_y = event.clientY;
+        },
+        move: mousemove,
+        end() {
+            moving = false;
             park();
-        };
-    }
+        }
+    })
+
     outter.go = function (index) {
         if (outter.index === index) return;
         negative_index = -index;
