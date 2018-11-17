@@ -1,4 +1,4 @@
-function autodragmove(target, { start, move, end }) {
+function autodragmove(target, { start, move, end }, initialEvent) {
     var touchLocked = false;
     var offmousemove, offtouchmove, offmouseup, offtouchend, offtouchcancel;
     var mousemove = function (event) {
@@ -18,20 +18,39 @@ function autodragmove(target, { start, move, end }) {
         touchLocked = false;
         end instanceof Function && end.call(this, event);
     };
-    onmousedown(target, function (event) {
+    var hookmouse = function () {
         if (touchLocked) return;
         touchLocked = true;
         offmousemove = onmousemove(window, mousemove);
         offmouseup = onmouseup(window, cancel);
+    };
+    var hooktouch = function () {
+        if (touchLocked) return;
+        touchLocked = true;
+        offtouchmove = ontouchmove(target, touchmove);
+        offtouchend = ontouchend(target, cancel);
+        offtouchcancel = ontouchcancel(target, cancel);
+    };
+    if (!start) {
+        if (initialEvent) {
+            if (initialEvent.type === "mousedown") {
+                hookmouse();
+            } else {
+                hooktouch();
+            }
+        } else {
+            hookmouse();
+            hooktouch();
+        }
+        return;
+    }
+    onmousedown(target, function (event) {
+        hookmouse(event);
         start instanceof Function && start.call(this, event);
     });
     ontouchstart(target, function (event) {
-        if (touchLocked) return;
+        hooktouch(event);
         extendTouchEvent(event);
-        touchLocked = true;
-        offtouchmove = ontouchmove(event.target, touchmove);
-        offtouchend = ontouchend(target, cancel);
-        offtouchcancel = ontouchcancel(target, cancel);
         start instanceof Function && start.call(this, event);
     });
 }
