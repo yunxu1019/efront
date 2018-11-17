@@ -14,25 +14,24 @@ var toCloneTarget = function (target) {
     setOpacity(target, 0);
     return clone;
 };
-function drag(target, event, overflow = false) {
-    event.preventDefault();
+function drag(target, initialEvent, overflow = false) {
+    initialEvent.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);
         target = target[0];
     } else {
         var extraTargets = target.with ? [].concat(target.with) : [];
     }
-    var saved_delta = { x: target.offsetLeft - event.clientX, y: target.offsetTop - event.clientY };
+    var saved_delta = { x: target.offsetLeft - initialEvent.clientX, y: target.offsetTop - initialEvent.clientY };
     var clone;
     var saved_opacity = target.style.opacity;
     var saved_filter = target.style.filter;
     var extraStyles = extraTargets.map(e => ({ opacity: e.style.opacity, filter: e.style.filter }));
     var extraClones;
-    var cancelmousemove = onmousemove(window, function (event) {
+    var mousemove = function (event) {
         if (event.moveLocked) return;
         if (!saved_delta.ing) {
             var abs = Math.abs;
-            if (event.which !== 1) return clear();
             if (abs(target.offsetLeft - event.clientX - saved_delta.x < MOVELOCK_DELTA) && abs(target.offsetTop - event.clientY - saved_delta.y) < MOVELOCK_DELTA) return;
             saved_delta.ing = true;
             if (!/absolute|fixed/.test(getComputedStyle(target).position)) {
@@ -81,16 +80,26 @@ function drag(target, event, overflow = false) {
         cloneDeltaLeft += clone.offsetLeft;
         cloneDeltaTop += clone.offsetTop;
         extraClones.map(clone => css(clone, `left:${clone.offsetLeft + cloneDeltaLeft}px;top:${clone.offsetTop + cloneDeltaTop}px;`));
-    });
+    };
     var clear = function () {
         if (clone !== target) remove(clone), css(target, { opacity: saved_opacity, filter: saved_filter });
         remove(extraClones);
         extraTargets.map((target, cx) => css(target, extraStyles[cx]));
-        cancelmousemove();
-        cancelmouseup();
         if (saved_delta.ing) dispatch("dragend", target);
         drag.target = null;
         saved_delta = null;
     };
-    var cancelmouseup = onmouseup(window, clear);
+    autodragmove(target, {
+        move: mousemove,
+        end: clear
+    }, initialEvent);
 }
+drag.on = function (target) {
+    onmousedown(target, function (event) {
+        drag(this, event);
+    });
+    ontouchstart(target, function (event) {
+        extendTouchEvent(event);
+        drag(this, event);
+    });
+};
