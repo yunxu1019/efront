@@ -69,9 +69,7 @@ function confirm() {
     onclick(element, function () {
         css(this, { zIndex: zIndex() });
     });
-    onmousedown(element, function (event) {
-        drag(this, event);
-    });
+    drag.on(element);
     preventOverflowScrolling(element);
     appendChild(option, buttons);
     setTimeout(function () {
