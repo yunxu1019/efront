@@ -88,7 +88,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 path.join(COMS_PATH, "/zimoli/zimoli.js"),
                 path.join(COMS_PATH, "/zimoli/[].map.js"),
                 path.join(COMS_PATH, "/zimoli/promise.js"),
-                path.join(COMS_PATH, "/zimoli/fastclick.js"),
             ].concat(environment.ccons_root), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {

@@ -209,9 +209,6 @@ var replacePromise = function (promise) {
 var replaceArrayMap = function (map) {
     hook(--requires_count);
 };
-var replaceClickEvent = function (fastclick) {
-    hook(--requires_count);
-};
 
 var requires_count = 1;
 var is_commponent_package;
@@ -253,8 +250,6 @@ if (public_app) {
     init("promise", replacePromise);
     requires_count++;
     init("[].map", replaceArrayMap);
-    requires_count++;
-    init("fastclick", replaceClickEvent);
 }
 modules.put = function (name, module) {
     modules[name] = module;

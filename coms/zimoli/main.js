@@ -312,11 +312,6 @@ var hook = function (requires_count) {
     if (requires_count === 0) {
         "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
         loadResponseTreeFromStorage();
-        if ("ontouchstart" in window) {
-            init("fastclick", function (fastclick) {
-                new fastclick(document.body);
-            });
-        }
         init("zimoli", function (zimoli) {
             modules.Promise = Promise;
             modules.hook_time = +new Date;

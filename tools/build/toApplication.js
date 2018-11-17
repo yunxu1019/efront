@@ -11,7 +11,6 @@ function toApplication(responseTree) {
     delete versionTree["main"];
     delete versionTree["[].map"];
     delete versionTree["promise"];
-    delete versionTree["fastclick"];
     delete versionTree["/index.html"];
     delete versionTree["@index.html"];
     var mainScript = responseTree["main"].data;

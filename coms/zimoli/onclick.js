@@ -1,7 +1,9 @@
 var _onclick = on("click");
 var preventClick = false, saved_x, saved_y, lasttime_click;
+var needFireClick = false;
 function clickstart(event) {
     saved_x = event.clientX, saved_y = event.clientY;
+    needFireClick = true;
     onclick.preventClick = preventClick = false;
 }
 function clickcancel(event) {
@@ -9,13 +11,23 @@ function clickcancel(event) {
     if (abs(event.clientX - saved_x) >= MOVELOCK_DELTA || abs(event.clientY - saved_y) >= MOVELOCK_DELTA)
         onclick.preventClick = preventClick = true;
 }
-onmousedown(document, clickstart);
-onmousemove(document, clickcancel);
-ontouchstart(document, clickstart);
-ontouchmove(document, clickcancel);
+onmousedown(window, clickstart);
+onmousemove(window, clickcancel);
+ontouchstart(window, function (event) {
+    extendTouchEvent(event);
+    clickstart.call(this, event);
+});
+ontouchmove(window, function (event) {
+    extendTouchEvent(event);
+    clickcancel.call(this, event);
+});
 var onclick = function (target, handler) {
-
-    return _onclick(target, function (event) {
+    var offtouchend = ontouchend(target, function () {
+        dispatch(this, "click");
+    });
+    var offclick = _onclick(target, function (event) {
+        if (!needFireClick) return;
+        needFireClick = false;
         var saved_time = lasttime_click;
         lasttime_click = +new Date;
         if (lasttime_click - saved_time < 60) {
@@ -25,4 +37,9 @@ var onclick = function (target, handler) {
         if (preventClick) return;
         return handler.call(this, event);
     });
+
+    return function () {
+        offtouchend();
+        offclick();
+    };
 }
