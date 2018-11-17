@@ -1,4 +1,4 @@
-function autodragmove(target, { start, move, end }, initialEvent) {
+function moveupon(target, { start, move, end }, initialEvent) {
     var touchLocked = false;
     var offmousemove, offtouchmove, offmouseup, offtouchend, offtouchcancel;
     var mousemove = function (event) {
