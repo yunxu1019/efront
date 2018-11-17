@@ -89,7 +89,7 @@ function drag(target, initialEvent, overflow = false) {
         drag.target = null;
         saved_delta = null;
     };
-    autodragmove(target, {
+    moveupon(target, {
         move: mousemove,
         end: clear
     }, initialEvent);

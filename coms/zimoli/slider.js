@@ -222,7 +222,7 @@ function slider(autoplay, circle = true) {
         var deltax = -event.deltaX;
         moveDeltaX(deltax, event);
     });
-    autodragmove(outter, {
+    moveupon(outter, {
         start(event) {
             cancelAnimationFrame(timer_animate);
             clearTimeout(timer_playyer);

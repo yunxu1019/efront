@@ -166,7 +166,7 @@ function ybox(generator) {
         saved_x = clientX;
         saved_y = clientY;
     };
-    autodragmove(_box,{
+    moveupon(_box,{
         start(event){
             _speed(0);
             saved_x = event.clientX, saved_y = event.clientY;

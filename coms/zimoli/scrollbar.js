@@ -157,7 +157,7 @@ function scrollbar() {
     var _handler = div();
     _handler.className = "thumb";
     _scrollbar.Top = getTop;
-    autodragmove(_handler, {
+    moveupon(_handler, {
         start: mousedown,
         move: mousemove,
         end: mouseup
