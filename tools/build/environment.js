@@ -9,7 +9,7 @@ var {
     PUBLIC_PATH = process.env.PUBLIC_PATH || "./public"
 } = env;
 var PAGE = env.PAGE || "zimoli";
-var COMM = env.COMM || "zimoli," + PUBLIC_APP.replace(/\/$/, "");
+var COMM = env.COMM || PUBLIC_APP.replace(/\/$/, "") + ",zimoli";
 var ICON = env.ICON || PUBLIC_APP.replace(/\/$/, "");
 var AAPI = env.APIS || "zimoli";
 var PAGE_PATH = env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || "./apps";

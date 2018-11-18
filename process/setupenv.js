@@ -119,7 +119,7 @@ module.exports = function (appname) {
     else env = {};
     call("./_envs/app=" + appname + ".bat");
     cache[appname] = env;
-    "IMAG COMM ICON AAPI".split(/\s+/).forEach(function (key) {
+    "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
         if (!env[key]) {
             var default_value = process.env[key]
             if (appname === default_value) {
@@ -129,6 +129,7 @@ module.exports = function (appname) {
             }
         }
     });
+    if (!env.ICON) env.ICON = appname;
     if (!env.PAGE) env.PAGE = appname;
     extend(env, env, appname);
     extend(env, process.env, appname);

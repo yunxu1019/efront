@@ -13,10 +13,10 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
         fs.readFile(fileinfo.fullpath, function (error, data) {
             if (error) return ok([]);
             var result = [];
-            String(data).replace(/<script\s.*?\bsrc=('.+?'|".+?"|.+?)[\s|>]/g, function (_, url) {
+            String(data).replace(/<script\s.*?\bsrc=('.+?'|".+?"|.+?)[\s|>]/ig, function (_, url) {
                 result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
             });
-            ok(result.map(url => path.join(path.dirname(fileinfo.fullpath), url)));
+            ok(result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fileinfo.fullpath), url)));
         });
     });
 }
@@ -27,13 +27,17 @@ var filterHtmlImportedJs = function (roots) {
     return Promise.all(promises).then(function (datas) {
         var urls = [].concat.apply([], datas);
         var simpleJsMap = {};
-        urls.map(function (url) {
+        var regUrls = [];
+        urls.forEach(function (url) {
             simpleJsMap[url] = true;
+            if (/\*/.test(url)) regUrls.push(url);
         });
+        var urlsReg = regUrls.map(a => a.replace(/[.|\\\/^$:]/g, "\\$&").replace(/\*/g, ".*?")).join("|");
+        urlsReg = new RegExp(`(?:${urlsReg})$`, "i");
         roots = roots.map(function (root) {
-            if (/^\/.*?\.js$/.test(root)) {
+            if (/^\/.*?\.js$/i.test(root)) {
                 var fullpath = getBuildInfo(root).fullpath;
-                if (fullpath in simpleJsMap) {
+                if (fullpath in simpleJsMap || urlsReg.test(fullpath)) {
                     return "@" + path.relative(PAGE_PATH, fullpath).replace(/[\\\/]+/g, "/");
                 }
             }
@@ -54,7 +58,7 @@ var getBuildRoot = function (files) {
                 fs.stat(file, function (error, stat) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
-                        if (/\.less/.test(file)) return ok();
+                        if (/\.less/i.test(file)) return ok();
                         if (/^[^\.]/i.test(path.relative(pages_root, file))) {
                             var name = path.relative(pages_root, file).replace(/[\\\/]+/g, "/");
                             return result.push("/" + name), ok();
@@ -65,7 +69,7 @@ var getBuildRoot = function (files) {
                             } else {
                                 var name = path.relative(comms_root, file);
                             }
-                            name = name.replace(/[\\\/]+/g, "/").replace(/\.[tj]sx?$/, "");
+                            name = name.replace(/[\\\/]+/g, "/").replace(/\.[tj]sx?$/i, "");
                             return result.push(name), ok();
                         }
                         if (/^[^\.]/i.test(path.relative(PAGE_PATH, file))) {
@@ -73,7 +77,7 @@ var getBuildRoot = function (files) {
                             return result.push(name), ok();
                         }
                         if (/\.png$/i.test(file)) {
-                            var name = path.parse(file).base.replace(/[\\\/]+/g, "/").replace(/\.png$/, "");
+                            var name = path.parse(file).base.replace(/[\\\/]+/g, "/").replace(/\.png$/i, "");
                             return result.push("." + name), ok();
                         }
                         console.warn(file, "skiped");
