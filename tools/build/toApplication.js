@@ -32,8 +32,8 @@ function toApplication(responseTree) {
     var html = indexHtmlData.toString()
         .replace(/<!--[\s\S]*?-->/g, "")
         .replace(/<title>(.*?)<\/title>/i, `<title>${process.env.TITLE || "$1"}</title>`)
-        .replace(/<script\s[\s\S]*?<\/script>/ig, function (script) {
-            if (/(["'`])post\1\s*,\s*{['`"]}comm\/main\2/i.test(script)) {
+        .replace(/<script\b[\s\S]*?<\/script>/ig, function (script) {
+            if (/(["'`])post\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
                 isZimoliDetected = true;
                 return "";
             };
