@@ -133,14 +133,14 @@ Game.prototype = {
                 if (chessman2 === "") {
                     throw new Error("不能吃相临位置未翻开的棋子！");
                 }
-                if (/[兵卒]/.test(chessman1)) {
-                    if (!/[帥將]/.test(chessman2)) {
+                if (/[兵卒]/.test(chessman1.name)) {
+                    if (!/[帥將]/.test(chessman2.name)) {
                         throw new Error("兵卒只能吃將帥！");
                     }
                     this.setChessman(point1, null);
                     this.setChessman(point2, chessman1);
                 } else {
-                    if (/[帥將]/.test(chessman1) && /[兵卒]/.test(chessman2)) {
+                    if (/[帥將]/.test(chessman1.name) && /[兵卒]/.test(chessman2.name)) {
                         throw new Error("將帥不能吃兵卒！");
                     }
                     var delta_power = this.compare(chessman1, chessman2);
@@ -157,7 +157,7 @@ Game.prototype = {
                         throw new Error("无法吃比自己大的子");
                     }
                 }
-            } else if (/砲炮/.test(chessman1)) {
+            } else if (/砲炮/.test(chessman1.name)) {
                 //翻子吃子
                 if (chessman2 === null) {
                     throw new Error("不可以移动到远处的位置！");

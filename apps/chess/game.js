@@ -9,6 +9,7 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
         onclick(cell, function () {
             var step = null;
             if (cell === current_cell) {
+                removeClass(current_cell, "checked");
                 current_cell === null;
             } else if (current_cell) {
                 // 已选择过要走的棋子
@@ -17,6 +18,7 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                     }).error(function (error) {
                         alert(error);
                     });
+                    current_cell && removeClass(current_cell, "checked");
                     current_cell = null;
                 };
                 var step_count, delta_step;
@@ -63,7 +65,7 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                     }
                 } else {
                     // ...
-                    console.log(cell);
+                    console.log(cell.chessman);
                 }
             } else {
                 switch (cell.chessman) {
@@ -81,7 +83,9 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                         break;
                     default:
                         //选棋
+                        current_cell && removeClass(current_cell, "checked");
                         current_cell = cell;
+                        addClass(current_cell, "checked");
                 }
             }
         });
@@ -102,6 +106,7 @@ onremove(page, function () {
     watcher && watcher.abort();
     watcher = null;
     link_id = null;
+    clearTimeout(clock_timer);
 });
 var link_id;
 function watch() {
@@ -133,6 +138,7 @@ function watch() {
     });
 }
 onappend(page, function () {
+    current_cell = null;
     watch();
 });
 var player1_elem = createElement(div), player2_elem = createElement(div);
@@ -176,7 +182,7 @@ function update(game) {
         } else if (user_color === "黑") {
             css(player2_elem, "border-left:16px solid red;");
             css(player1_elem, "border-left:16px solid black;");
-        }else{
+        } else {
             css(player1_elem, "border-left:none;");
             css(player2_elem, "border-left:none;");
         }
