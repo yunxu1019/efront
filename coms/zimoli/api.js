@@ -92,7 +92,7 @@ var api = function (uri, parameters, prefix) {
             if (!navigator.onLine) {
                 onerror && onerror("请求网络失败，请确认网络连接正常！", -1);
             } else {
-                onerror && onerror("无法访问服务器！", xhr);
+                onerror && onerror(xhr.responseText || "无法访问服务器！", xhr);
             }
             prefix && console.error(prefix + "失败！");
         };
