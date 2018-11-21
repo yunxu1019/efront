@@ -17,6 +17,7 @@ var {
     navigator,
     document,
     top,
+    location,
     PREVENT_FRAMEWORK_MODE,
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
@@ -111,7 +112,7 @@ var load = function (name, count = 150) {
     xhr.send(version);
 };
 var flush_to_storage_timer = 0,
-    responseTree_storageKey = "zimoliAutoSavedResponseTree";
+    responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
 var saveResponseTreeToStorage = function () {
     var responseTextArray = [];
     for (var k in responseTree) {
