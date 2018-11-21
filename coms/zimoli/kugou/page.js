@@ -62,6 +62,7 @@ onclick(search_btn, function () {
 appendChild(bar, menu_btn, search_btn);
 var pages = div();
 ontouchstart(pages, kugou$dragview);
+onmousedown(pages, kugou$dragview);
 slider(pages, function (index, ratio) {
     if (index + 3 >= bar.childNodes.length) return;
     if (ratio === 1) {
@@ -78,6 +79,7 @@ onappend(pages, function () {
 var page = createElement(div);
 appendChild(page, pages, bar);
 ontouchstart(page, kugou$dragview);
+onmousedown(page, kugou$dragview);
 onclick(page, e => kugou$dragview.isRight && kugou$dragview.toLeft());
 extend(kugou$dragview, {
     page, pages
