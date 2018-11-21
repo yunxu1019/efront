@@ -32,14 +32,12 @@ function moveupon(target, { start, move, end }, initialEvent) {
         offtouchcancel = ontouchcancel(target, cancel);
     };
     if (!start) {
-        if (initialEvent) {
-            if (initialEvent.type === "mousedown") {
-                hookmouse();
-            } else {
-                hooktouch();
-            }
-        } else {
+        if (!initialEvent) throw new Error("请传入touchstartEvent或者mousedownEvent");
+        if (initialEvent.type === "mousedown") {
             hookmouse();
+        } else {
+            extendTouchEvent(initialEvent);
+            initialEvent.preventDefault();
             hooktouch();
         }
         return;
