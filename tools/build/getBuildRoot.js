@@ -33,7 +33,7 @@ var filterHtmlImportedJs = function (roots) {
             if (/\*/.test(url)) regUrls.push(url);
         });
         var urlsReg = regUrls.map(a => a.replace(/[.|\\\/^$:]/g, "\\$&").replace(/\*/g, ".*?")).join("|");
-        urlsReg = new RegExp(`(?:${urlsReg})$`, "i");
+        urlsReg = new RegExp(`^(?:${urlsReg})$`, "i");
         roots = roots.map(function (root) {
             if (/^\/.*?\.js$/i.test(root)) {
                 var fullpath = getBuildInfo(root).fullpath;
