@@ -145,11 +145,10 @@ function ybox(generator) {
         _box.scrollY(-deltay, false);
         smooth(false);
     });
-    var speed_timer, cancelmousemove, cancelmouseup;
+    var speed_timer;
     var mousemove = function (event) {
         if (event.moveLocked) return;
         if (_box.nodrag) return;
-        if (event.type !== "touchmove" && event.which === 0) return mouseup();
         var clientX = event.clientX;
         var clientY = event.clientY;
         var deltax = clientX - saved_x;

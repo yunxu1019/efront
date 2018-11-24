@@ -191,7 +191,6 @@ function slider(autoplay, circle = true) {
     };
     var mousemove = function (event) {
         if (event.moveLocked) return;
-        if (event.type !== "touchmove" && event.which === 0) return mouseup();
         var deltax = event.clientX - saved_x;
         var deltay = event.clientY - saved_y;
         if (!direction) {
