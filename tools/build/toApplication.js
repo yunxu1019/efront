@@ -46,16 +46,29 @@ function toApplication(responseTree) {
         html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo="${new Date().toString()} by efront">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
     if (process.env.IN_WATCH_MODE) {
         let WATCH_PORT = +process.env.WATCH_PORT;
-        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script>
+        let reloadVersion = +new Date();
+        let efrontReloadVersionAttribute = "efront-reload-version";
+        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script ${efrontReloadVersionAttribute}=${reloadVersion}>
         -function(){
-            var xhr=new XMLHttpRequest;
-            xhr.open("post","http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload");
-            xhr.timeout=0;
-            xhr.onreadystatechange=function(){
-                if(xhr.readyState===4&&xhr.status===200)
-                location.reload()|console.warn("reload..",new Date);
+            "use strict";
+            var load = function(url, onload, method){
+                var xhr = new XMLHttpRequest;
+                xhr.open(method, url);
+                xhr.timeout = 0;
+                xhr.onreadystatechange = function(){
+                    if(xhr.readyState === 4 && xhr.status === 200) onload(xhr);
+                };
+                xhr.send("haha");
             };
-            xhr.send("haha");
+            var checkUpdate = function(){
+                load(location.pathname + "?" + +new Date(), function(xhr){
+                    var version = xhr.responseText.match(/\\b${efrontReloadVersionAttribute}\\s*=\\s*(\\d+)\\b/);
+                    console.log(version)
+                    if( !version || +version[1] !== ${reloadVersion}) location.reload()|console.warn("reload..",new Date);
+                    else setTimeout(checkUpdate, 200);
+                }, "get");
+            };
+            load("http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload", checkUpdate, "post");
         }();
         </script>\r\n${head}`);
     }
