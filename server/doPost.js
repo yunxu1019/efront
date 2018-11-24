@@ -30,7 +30,7 @@ var getfrompath = function (name, __root, getter, extt) {
             var body = getter(__root[inc] + "/" + name, extt);
             inc++;
             if (body instanceof Promise) {
-                var error
+                var error;
                 body.catch(function (e) {
                     error = e;
                 }).then(function (body) {
@@ -150,13 +150,13 @@ var doPost = module.exports = function (req, res) {
                     else res.writeHead(404, {}) | res.end();
                     break;
                 case "comm":
-                    res.end(result);
+                    res.end(String(result));
                     break;
                 case "page":
-                    res.end(result);
+                    res.end(String(result));
                     break;
                 case "ccon":
-                    res.end(result);
+                    res.end(String(result));
                     break;
                 default:
                     res.end();

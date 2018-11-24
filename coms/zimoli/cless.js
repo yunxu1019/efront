@@ -25,12 +25,19 @@ function cless(commFactory, styleSheet, className) {
         keys(commFactory).map(k => result[k] = commFactory[k]);
         return result;
     }
-    if (commFactory) {
+    if (isNode(commFactory)) {
         try {
             addClass(commFactory, className);
         } catch (e) {
             console.error(e, "bindClassNameError");
         }
+    } else if (isString(commFactory)) {
+        var template = document.createElement("div");
+        template.innerHTML = commFactory;
+        [].forEach.call(template.children, function (child) {
+            addClass(child, className);
+        });
+        commFactory = template.innerHTML;
     }
     return commFactory;
 }

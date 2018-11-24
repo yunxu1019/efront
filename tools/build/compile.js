@@ -46,7 +46,7 @@ var window = {
 };
 window.window = window;
 function compile(buildInfo, lastBuildTime, destroot) {
-    var { fullpath, name, extt, url, builder, destpath } = buildInfo;
+    var { fullpath, name, url, builder, destpath } = buildInfo;
     destpath = path.join(destroot, destpath);
     var fullpath = fullpath.slice(0);
     return new Promise(function (ok, oh) {
@@ -62,7 +62,14 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 realpath: responsePath,
                 version: responseVersion,
             });
-            ok(buildInfo);
+            if (responseText instanceof Promise) {
+                responseText.then(function (data) {
+                    buildInfo.data = data;
+                    ok(buildInfo);
+                });
+            } else {
+                ok(buildInfo);
+            }
         };
         var get = function () {
             var _filepath = fullpath instanceof Array ? fullpath.shift() : fullpath;
@@ -75,7 +82,8 @@ function compile(buildInfo, lastBuildTime, destroot) {
                             fs.readFile(_filepath, function (error, buffer) {
                                 if (error) throw new Error("加载" + url + "出错！");
                                 responsePath = _filepath;
-                                responseText = builder(buffer, name + extt, _filepath, []);
+                                var filename = path.basename(_filepath);
+                                responseText = builder(buffer, filename, _filepath, []);
                                 responseVersion = stat.mtime;
                                 writeNeeded = true;
                                 resolve();
@@ -87,7 +95,6 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                 return fs.readFile(destpath, function (error, buffer) {
                                     if (error) throw new Error(`读取已编译数据失败！url:${url}`);
                                     if (hasless === false && getDepedence({ data: buffer }).indexOf("cless") >= 0) {
-                                        console.log(_filepath,hasless);
                                         return loader();
                                     }
                                     writeNeeded = false;

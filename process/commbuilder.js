@@ -9,12 +9,8 @@ less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
 var cwd = process.cwd();
-var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)?\s*(.*?)\1(\s*;)?\s*$/i;
-module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
-    var data = String(buffer);
-    var commName = filename.match(/(?:^|[^\w])([\$_\w][\w]*)\.[tj]sx?$/i);
-    if (!commName) console.warn("文件名无法生成导出变量！", filename);
-    commName = commName && commName[1];
+var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/i;
+var loadJsBody = function (data, filename, fullpath, lessdata, commName, className) {
     if (useInternalReg.test(data)) {
         data = data.replace(useInternalReg, function (match, quote, relative) {
             var realPath = path.join(path.dirname(fullpath), relative);
@@ -48,7 +44,6 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var globals = Object.keys(undeclares);
     var globalsmap = {};
     globals.forEach(g => globalsmap[g] = g);
-    var className = path.relative(cwd, fullpath).replace(/[\\\/\:\.]+/g, "-");
     if (commName) {
         //如果声明了main方法或main对象，默认用main作为返回值
         if (declares.main) {
@@ -63,20 +58,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 commName = null;
             }
         }
-        var lessFile = fullpath.replace(/\.[jt]sx?$/i, ".less"), lessData;
-        if (fs.existsSync(lessFile)) {
-            watchurls.push(lessFile);
-            if (fs.statSync(lessFile).isFile()) {
-                watchurls.push(lessFile);
-                less.render(`.${className}{${fs.readFileSync(lessFile).toString()}}`, {
-                    compress: !process.env.IN_TEST_MODE
-                }, function (err, data) {
-                    if (err) return console.warn(err);
-                    lessData = data.css;
-                });
-            }
-        }
-        if (lessData) {
+        if (lessdata) {
             if (!declares.cless) {
                 globalsmap.cless = "cless";
             } else {
@@ -93,7 +75,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
         code_body = [{
             "type": "ReturnStatement",
-            "argument": lessData ? {
+            "argument": lessdata ? {
                 "type": "CallExpression",
                 "callee": {
                     "type": "Identifier",
@@ -103,8 +85,8 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                     code.body[0].expression,
                     {
                         "type": "Literal",
-                        "value": lessData,
-                        "raw": JSON.stringify(lessData)
+                        "value": lessdata,
+                        "raw": JSON.stringify(lessdata)
                     },
                     {
                         "type": "Literal",
@@ -114,11 +96,13 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 ]
             } : code.body[0].expression
         }]
+    } else if (!commName) {
+        if (filename !== "main.js") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
+        code_body = code.body;
     } else {
-        if (!commName && filename !== "main.js") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
-        code_body = code.body.concat(commName ? {
+        code_body = code.body.concat({
             "type": "ReturnStatement",
-            "argument": lessData ? {
+            "argument": lessdata ? {
                 "type": "CallExpression",
                 "callee": {
                     "type": "Identifier",
@@ -131,8 +115,8 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                     },
                     {
                         "type": "Literal",
-                        "value": lessData,
-                        "raw": JSON.stringify(lessData)
+                        "value": lessdata,
+                        "raw": JSON.stringify(lessdata)
                     },
                     {
                         "type": "Literal",
@@ -144,7 +128,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                     "type": "Identifier",
                     "name": commName
                 }
-        } : []);
+        });
     }
     globals = Object.keys(globalsmap);
     if (process.env.IN_TEST_MODE) {
@@ -206,7 +190,72 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     } else if (length.length === 2) {
         length = "0" + length;
     }
-
     data = (_arguments.length ? length + _arguments : "") + data.replace(/[\u0100-\uffff]/g, m => "\\u" + (m.charCodeAt(0) > 0x1000 ? m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)));
     return data;
-}
+};
+var getFileData = function (fullpath) {
+    return new Promise(function (ok, oh) {
+        fs.exists(fullpath, function (exists) {
+            if (!exists) return ok(false);
+            fs.stat(fullpath, function (error, stat) {
+                if (error) return ok(error);
+                if (!stat.isFile()) return ok(false);
+                fs.readFile(fullpath, function (error, buffer) {
+                    if (error) return ok(error);
+                    ok(buffer);
+                });
+            })
+        });
+    });
+};
+module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
+    var commName = filename.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?)$/i);
+    if (!commName) console.warn("文件名无法生成导出变量！", filename);
+    commName = commName && commName[1];
+    var data = String(buffer);
+    var className = path.relative(cwd, fullpath).replace(/[\\\/\:\.]+/g, "-");
+    var lessData, jsData;
+    var promise;
+    if (/\.html?$/i.test(filename)) {
+        let lesspath = fullpath.replace(/\.html?$/i, ".less");
+        jsData = JSON.stringify(data.replace(/>\s+</g, "><"));
+        promise = getFileData(lesspath).then(function (lessdata) {
+            if (lessdata instanceof Buffer) {
+                less.render(`.${className}{${String(lessdata)}}`, {
+                    compress: !process.env.IN_TEST_MODE
+                }, function (err, data) {
+                    if (err) return console.warn(err);
+                    lessData = data.css;
+                });
+                watchurls.push(lesspath);
+            }
+            return loadJsBody(jsData, filename, fullpath, lessData, commName, className);
+        });
+    } else if (/\.[jt]sx?$/i.test(filename)) {
+        let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
+        let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
+        promise = Promise.all([lesspath, htmlpath].map(getFileData)).then(function ([lessdata, htmldata]) {
+            if (lessdata instanceof Buffer) {
+                less.render(`.${className}{${String(lessdata)}}`, {
+                    compress: !process.env.IN_TEST_MODE
+                }, function (err, data) {
+                    if (err) return console.warn(err);
+                    lessData = data.css;
+                });
+                watchurls.push(lesspath);
+            }
+            if (htmldata instanceof Buffer) {
+                jsData = `var ${commName}=` + JSON.stringify(htmldata.replace(/>\s+</g, "><")) + ";\r\n" + data;
+                watchurls.push(htmlpath);
+            } else {
+                jsData = data;
+            }
+            try {
+                return loadJsBody(jsData, filename, fullpath, lessData, commName, className);
+            } catch (e) {
+                console.error(fullpath, e);
+            }
+        });
+    }
+    return promise || data;
+};

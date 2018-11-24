@@ -69,7 +69,7 @@ var getBuildRoot = function (files) {
                             } else {
                                 var name = path.relative(comms_root, file);
                             }
-                            name = name.replace(/[\\\/]+/g, "/").replace(/\.[tj]sx?$/i, "");
+                            name = name.replace(/[\\\/]+/g, "/");
                             return result.push(name), ok();
                         }
                         if (/^[^\.]/i.test(path.relative(PAGE_PATH, file))) {
@@ -77,7 +77,7 @@ var getBuildRoot = function (files) {
                             return result.push(name), ok();
                         }
                         if (/\.png$/i.test(file)) {
-                            var name = path.parse(file).base.replace(/[\\\/]+/g, "/").replace(/\.png$/i, "");
+                            var name = path.parse(file).base.replace(/[\\\/]+/g, "/");
                             return result.push("." + name), ok();
                         }
                         console.warn(file, "skiped");

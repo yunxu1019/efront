@@ -244,10 +244,10 @@ var seek = function (url, tree, rebuild) {
     if (temp instanceof Function) {
         return temp;
     }
-    if (key && !(temp instanceof Buffer || temp instanceof Promise)) {
+    if (key && !(temp instanceof Buffer)) {
         return curl.replace(/\\+/g, "/") + "/";
     }
-    if ((temp instanceof Buffer || temp instanceof Promise) && !temp.stat) {
+    if ((temp instanceof Buffer) && !temp.stat) {
         temp.stat = getVersion(path.join(String(this), curl));
     }
     return temp;
@@ -302,7 +302,7 @@ var seekAsync = function (url, tree, rebuild) {
     if (key && !(temp instanceof Buffer)) {
         return curl.replace(/\\+/g, "/") + "/";
     }
-    if (temp instanceof Buffer && !temp.stat) {
+    if ((temp instanceof Buffer) && !temp.stat) {
         temp.stat = getVersion(path.join(String(this), curl));
     }
     return temp;
@@ -351,19 +351,25 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         extts = getExtts(extts);
         if (!Array.isArray(extts)) return seekAsync.call(seeker, url + extts, tree, rebuild);
         return new Promise(function (ok, oh) {
-            var index = 0;
+            var inc = 0;
             var run = function () {
-                if (index > extts) return ok();
-                var extt = extts[index];
-                index++;
+                if (inc > extts.length) return ok();
+                var extt = extts[inc];
                 var error;
-                seekAsync.call(seeker, url + extt, tree, rebuild).catch(function (e) {
-                    error = e;
-                }).then(function (result) {
-                    if (result) return ok(result);
-                    if (error) oh(error);
-                    else run();
-                });
+                var promise = seekAsync.call(seeker, url + extt, tree, rebuild);
+                if (promise instanceof Promise) {
+                    promise.catch(function (e) {
+                        error = e;
+                    }).then(function (result) {
+                        if (result instanceof Buffer) return ok(result);
+                        if (error) oh(error);
+                        else run();
+                    });
+                } else {
+                    if (promise instanceof Buffer || promise instanceof Function) return ok(promise);
+                    inc++;
+                    run();
+                }
             };
             run();
         });

@@ -16,7 +16,7 @@ function toApplication(responseTree) {
     var mainScript = responseTree["main"].data;
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
     var indexHtmlData = indexHtml.data;
-    var versionTreeName = /\.versionTree\s*=\s*(.*?)[,;$]/m.exec(mainScript)[1];
+    var versionTreeName = /\.versionTree\s*=\s*(.*?)\b/m.exec(mainScript)[1];
     var code = JSON.stringify(versionTree, null, "\t")//.replace(/[<>]/g, s => "\\x" + `0${s.charCodeAt(0).toString(16)}`.slice(-2));
     var versionVariableName;
     code = mainScript.toString()

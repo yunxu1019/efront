@@ -32,10 +32,24 @@ function getBuildInfo(url) {
         switch (type) {
             case "":
                 builder = commbuilder;
-                extt = ".js";
                 var $name = name.replace(/(\w)\$/g, "$1/");
-                fullpath = comms_root instanceof Array ? comms_root.map(a => path.join(a, $name + extt)) : path.join(comms_root, $name + extt);
+                fullpath = [];
+                extt = extt || [".js", ".html"];
+                if (!Array.isArray(extt)) {
+                    extt = [extt];
+                }
+                if (comms_root instanceof Array) {
+                    extt.forEach(function (ext) {
+                        comms_root.map(a => fullpath.push(path.join(a, $name + ext)));
+                    });
+                } else {
+                    extt.forEach(function (ext) {
+                        fullpath.push(path.join(comms_root, $name + ext));
+                    });
+                }
+                // console.log(fullpath)
                 destpath = path.join("comm", name);
+                url = url.replace(/\.([tj]sx?|html?)$/i, "");
                 break;
             case "/":
                 if (/\.html?$/i.test(extt)) {
@@ -66,6 +80,7 @@ function getBuildInfo(url) {
                 extt = ".png";
                 fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
                 destpath = path.join("ccon", name);
+                url = url.replace(/\.png$/i, "");
                 break;
             // case "_":
             //     builder = aapibuilder;
