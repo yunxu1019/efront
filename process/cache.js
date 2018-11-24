@@ -132,7 +132,15 @@ var loader = function (curl, temp, key, rebuild) {
                 if (rebuild instanceof Function) {
                     data = rebuild(data, key, durl, is_reload ? [] : durls);
                 }
-                if (!(data instanceof Buffer) && typeof data === "string") {
+                if (data instanceof Promise) {
+                    data.then(function (data) {
+                        if (typeof data === "string") {
+                            data = Buffer.from(data);
+                        }
+                        temp[key] = data;
+                    })
+                }
+                if (typeof data === "string") {
                     data = Buffer.from(data);
                 }
             } catch (e) {
@@ -174,14 +182,16 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                         if (rebuild instanceof Function) {
                             data = rebuild(data, key, durl, is_reload ? [] : durls);
                         }
-                        if (!(data instanceof Buffer) && typeof data === "string") {
-                            data = Buffer.from(data);
-                        }
                     } catch (e) {
                         console.warn("Build Faild:", curl, e);
                         data = e;
-                    }
+                    };
+                    return data;
+                }).then(function (data) {
                     is_reload && _reload_handlers.forEach(run => run());
+                    if (typeof data === "string") {
+                        data = Buffer.from(data);
+                    }
                     return temp[key] = data;
                 }).catch(function (error) {
                     temp[key] = error;
@@ -234,10 +244,10 @@ var seek = function (url, tree, rebuild) {
     if (temp instanceof Function) {
         return temp;
     }
-    if (key && !(temp instanceof Buffer)) {
+    if (key && !(temp instanceof Buffer || temp instanceof Promise)) {
         return curl.replace(/\\+/g, "/") + "/";
     }
-    if (temp instanceof Buffer && !temp.stat) {
+    if ((temp instanceof Buffer || temp instanceof Promise) && !temp.stat) {
         temp.stat = getVersion(path.join(String(this), curl));
     }
     return temp;
@@ -312,13 +322,23 @@ var unwatch = function (curl, temp) {
         }
     }
 };
+var getExtts = function (extts) {
+    if (extts instanceof Array && extts.length <= 1) extts = extts;
+    return extts || "";
+};
 /**
  * 根椐filesroot路径设置文件缓冲
  * @param {string} filesroot 
  */
 var cache = function (filesroot, rebuild, buffer_size_limit) {
-    var seeker = function (url) {
-        return seek.call(seeker, url, tree, rebuild);
+    var seeker = function (url, extts) {
+        extts = getExtts(extts);
+        if (!Array.isArray(extts)) return seek.call(seeker, url + extts, tree, rebuild);
+
+        for (var cx = 0, dx = extts.length; cx < dx; cx++) {
+            var result = seek.call(seeker, url + extts[cx], tree, rebuild);
+            if (result) return result;
+        }
     };
     var tree = fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {};
     seeker.toString = function () {
@@ -327,8 +347,26 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
     if (isFinite(buffer_size_limit) && buffer_size_limit >= 0) {
         seeker.buffer_size = buffer_size_limit | 0;
     }
-    var seekerAsync = function (url) {
-        return seekAsync.call(seeker, url, tree, rebuild);
+    var seekerAsync = function (url, extts = "") {
+        extts = getExtts(extts);
+        if (!Array.isArray(extts)) return seekAsync.call(seeker, url + extts, tree, rebuild);
+        return new Promise(function (ok, oh) {
+            var index = 0;
+            var run = function () {
+                if (index > extts) return ok();
+                var extt = extts[index];
+                index++;
+                var error;
+                seekAsync.call(seeker, url + extt, tree, rebuild).catch(function (e) {
+                    error = e;
+                }).then(function (result) {
+                    if (result) return ok(result);
+                    if (error) oh(error);
+                    else run();
+                });
+            };
+            run();
+        });
     };
     seeker.async = seekerAsync;
     seeker.new = cache;
