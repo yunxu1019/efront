@@ -86,10 +86,12 @@ var handle = {
     "/webhook"(req, res) {
         readdata(req, res, function (buff) {
             try {
-                var token = JSON.parse(buff.toString()).token;
+                var token = JSON.parse(String(buff)).token;
                 require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("./message").webhook();
-            } catch (e) { }
-            res.end();
+                res.end();
+            } catch (e) {
+                res.end(String(e));
+            }
         }, 200000);
     }
 };
