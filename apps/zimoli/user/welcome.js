@@ -11,7 +11,7 @@ var template = `<div>
     <btn>
         微博
     </btn>
-    <btn>
+    <btn ng-click=go("/login/qq")>
         QQ
     </btn>
     <btn>

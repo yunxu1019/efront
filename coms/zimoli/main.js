@@ -83,7 +83,8 @@ var load = function (name, count = 150) {
     var version = versionTree[url] || (+new Date).toString(32);
     switch (name.charAt(0)) {
         case "/":
-            url = "page" + name;
+            if (/^\/\//.test(name)) url = name;
+            else url = "page" + name;
             break;
         case "_":
             url = "aapi/" + name.slice(1).replace(/([A-Z])/g, "/$1").toLowerCase();
@@ -92,7 +93,8 @@ var load = function (name, count = 150) {
             url = "ccon/" + name.slice(1);
             break;
         default:
-            url = "comm/" + name;
+            if (/[\/\.\?\-]/.test(name)) url = name;
+            else url = "comm/" + name;
     }
     var xhr = XHR();
     xhr.open("POST", url);
