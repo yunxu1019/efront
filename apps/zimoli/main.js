@@ -1,7 +1,7 @@
 // 中文编码 utf-8
 "use strict";
 var menu = div();
-appendChild(menu, kugou$menu, kugou$page);
+appendChild(menu, kugou$menu, kugou$page, beian);
 var _state = state();
 if (_state.isRight) {
     kugou$dragview.toRight();
