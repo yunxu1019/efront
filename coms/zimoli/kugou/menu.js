@@ -33,3 +33,4 @@ var optionsList = menu.querySelector(".options-list");
 vbox(optionsList);
 kugou$dragview.menu = menu;
 ontouchstart(menu, kugou$dragview);
+onmousedown(menu, kugou$dragview);
