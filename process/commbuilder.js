@@ -218,7 +218,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var promise;
     if (/\.html?$/i.test(filename)) {
         let lesspath = fullpath.replace(/\.html?$/i, ".less");
-        jsData = JSON.stringify(data.replace(/>\s+</g, "><"));
+        jsData ="`"+ data.replace(/>\s+</g, "><")+"`";
         promise = getFileData(lesspath).then(function (lessdata) {
             if (lessdata instanceof Buffer) {
                 less.render(`.${className}{${String(lessdata)}}`, {
@@ -245,7 +245,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 watchurls.push(lesspath);
             }
             if (htmldata instanceof Buffer) {
-                jsData = `var ${commName}=` + JSON.stringify(String(htmldata).replace(/>\s+</g, "><")) + ";\r\n" + data;
+                jsData = `var ${commName}=\`` + String(htmldata).replace(/>\s+</g, "><") + "`;\r\n" + data;
                 watchurls.push(htmlpath);
             } else {
                 jsData = data;
