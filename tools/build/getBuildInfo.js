@@ -6,6 +6,12 @@ var htmlbuilder = require("../../process/filebuilder");
 var path = require("path");
 var env = require("./environment");
 var noopbuilder = a => a;
+var pagebuilder = function (buffer, filename) {
+    if (/^index.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 100).toString())) {
+        return htmlbuilder.apply(null, arguments);
+    }
+    return commbuilder.apply(null, arguments);
+};
 var BuildInfo = function (info) {
     Object.assign(this, info);
 };
@@ -53,7 +59,7 @@ function getBuildInfo(url) {
                 break;
             case "/":
                 if (/\.html?$/i.test(extt)) {
-                    builder = htmlbuilder;
+                    builder = pagebuilder;
                     destpath = path.join(name + extt);
                 } else if (!/\.[tj]sx?$/i.test(extt)) {
                     builder = noopbuilder;

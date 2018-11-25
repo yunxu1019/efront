@@ -43,6 +43,17 @@ var filterHtmlImportedJs = function (roots) {
             }
             return root;
         });
+        var urlsMap = {};
+        roots.forEach(function (name) {
+            urlsMap[name] = name.replace(/\.[tj]sx?$/i, ".js");
+        });
+        for (let cx = roots.length; cx >= 0; cx--) {
+            let url = roots[cx];
+            if (/\.html?$/i.test(url) && url.replace(/\.html?$/i, ".js") in urlsMap) {
+                roots.splice(cx, 1);
+            }
+        }
+
         return roots;
     });
 };
