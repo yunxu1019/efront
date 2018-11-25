@@ -245,7 +245,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 watchurls.push(lesspath);
             }
             if (htmldata instanceof Buffer) {
-                jsData = `var ${commName}=` + JSON.stringify(htmldata.replace(/>\s+</g, "><")) + ";\r\n" + data;
+                jsData = `var ${commName}=` + JSON.stringify(String(htmldata).replace(/>\s+</g, "><")) + ";\r\n" + data;
                 watchurls.push(htmlpath);
             } else {
                 jsData = data;
