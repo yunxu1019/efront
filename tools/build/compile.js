@@ -45,6 +45,7 @@ var window = {
     }
 };
 window.window = window;
+
 function compile(buildInfo, lastBuildTime, destroot) {
     var { fullpath, name, url, builder, destpath } = buildInfo;
     destpath = path.join(destroot, destpath);
@@ -106,7 +107,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                             });
                         }
                         if (lastBuildTime - stat.mtime > 10000 && !/[\/\\]index.html?$/i.test(destpath)) {
-                            if (/\.[tj]sx?$/i.test(_filepath)) {
+                            var statless = function () {
                                 var less_file = _filepath.replace(/\.[tj]sx?$/i, ".less");
                                 fs.exists(less_file, function (exists) {
                                     if (!exists) return reader(false);
@@ -119,6 +120,24 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                         }
                                     })
                                 });
+                            };
+                            if (/\.([tj]sx?|html?)$/i.test(_filepath)) {
+                                if (/\.[tj]sx?$/i.test(_filepath)) {
+                                    var html_file = _filepath.replace(/\.[tj]sx?$/i, ".html");
+                                    fs.exists(html_file, function (exists) {
+                                        if (!exists) return statless();
+                                        fs.stat(html_file, function (error, stat) {
+                                            if (error) throw new Error(`读取html文件出错！htmlfile:${html_file}`)
+                                            if (lastBuildTime - stat.mtime > 10000) {
+                                                statless();
+                                            } else {
+                                                loader();
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    statless();
+                                }
                             } else {
                                 reader();
                             }
