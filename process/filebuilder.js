@@ -25,7 +25,7 @@ var config = {
     preserveLineBreaks: false,
 
     // Omit attribute values from boolean attributes
-    collapseBooleanAttributes: true,
+    collapseBooleanAttributes: false,
 
     // Remove quotes around attributes when possible
     removeAttributeQuotes: true,
@@ -37,7 +37,7 @@ var config = {
     preventAttributesEscaping: false,
 
     // Replaces the doctype with the short (HTML5) doctype
-    useShortDoctype: true,
+    useShortDoctype: false,
 
     // Remove all attributes with whitespace-only values
     removeEmptyAttributes: true,
@@ -49,7 +49,7 @@ var config = {
     removeStyleLinkTypeAttributes: true,
 
     // Remove unrequired tags
-    removeOptionalTags: true,
+    removeOptionalTags: false,
 
     // Remove all elements with empty contents
     // removeEmptyElements: true,
@@ -61,7 +61,7 @@ var config = {
     keepClosingSlash: true,
 
     // Treat attributes in case sensitive manner (useful for custom HTML tags.)
-    caseSensitive: false,
+    caseSensitive: true,
 
     // Minify Javascript in script elements and on* attributes (uses UglifyJS)
     minifyJS: true,
@@ -94,7 +94,7 @@ var config = {
     // customAttrCollapse:/ /,
 
     // Type of quote to use for attribute values (' or ")
-    quoteCharacter: "",
+    quoteCharacter: "\"",
 }
 var builder;
 var path = require("path");
@@ -123,8 +123,8 @@ if (process.env.IN_TEST_MODE) builder = function (buff, name) {
 
 else builder = function (buff, name, fullpath) {
     try {
-        var relativePath = path.relative(fullpath, process.env.PUBLIC_PATH);
-        if (!/^\.\./.test(relativePath)) {
+        var relativePath = path.relative(process.env.PUBLIC_PATH, fullpath);
+        if (/^\.\./.test(relativePath)) {
             if (/\.html$/i.test(name)) {
                 buff = Buffer.from(htmlMinifier.minify(buff.toString(), config));
             } else if (/\.js$/i.test(name)) {
