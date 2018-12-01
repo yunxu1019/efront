@@ -47,7 +47,7 @@ var directives = {
     model(search) {
         var getter = createGetter(search).bind(this);
         if (/^input$/i.test(this.tagName) && /^checkbox$/i.test(this.type) || /^checkbox$/i.test(this.tagName)) {
-            this.renders.push(function (event) {
+            this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (this.checked != value) this.checked = value;
@@ -95,8 +95,7 @@ var directives = {
     "if"(search) {
         // 懒渲染
         var getter = createGetter(search).bind(this);
-        var cancelonappend = onappend(this, function () {
-            cancelonappend();
+        var initial = function () {
             var comment = document.createComment("-if:" + search);
             comment.renders = [function () {
                 if (getter()) {
@@ -109,7 +108,12 @@ var directives = {
             onremove(comment, removeRenderElement);
             appendChild.after(this, comment);
             if (comment.isMounted) rebuild(comment);
-        });
+        };
+        if (this.parentNode) {
+            initial();
+        } else {
+            once("append")(this, initial);
+        }
     },
     repeat(search) {
         // 懒渲染
