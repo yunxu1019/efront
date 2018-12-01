@@ -16,7 +16,7 @@ if (loadTime) {
 }
 loadTime++;
 sessionStorage.setItem(load_count, loadTime);
-var pagehash_reg=/#([\/\w]*)$/;
+var pagehash_reg = /#([\/\w]*)$/;
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
         if (exit_ing) return exit_ing = false, window_history.go(-1);

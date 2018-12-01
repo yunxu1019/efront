@@ -63,10 +63,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 console.info(`process ${worker.id} ended at ${Date()}`);
                 if (!counter && killing) {
                     count(counts);
-                    console.info("按 ctrl + c 退出!");
-                    setTimeout(function () {
-                        process.exit();
-                    });
+                    // console.info("按 ctrl + c 退出!");
+                    process.exit();
                 }
             });
             worker.on("message", message);
@@ -80,6 +78,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     process.on("SIGTERM", end);
     run();
 } else {
+    process.on("SIGINT", function () { });
+    process.on("SIGTERM", function () { });
 
     //子线程们
     process.on("message", function (msg, then) {
@@ -89,6 +89,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         switch (msg) {
             case "quit":
                 server.close();
+                then();
                 process.exit();
                 break;
             default:

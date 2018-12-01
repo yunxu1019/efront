@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-process.stdin.resume();
 require("../process/setupenv");
 require("../process/console");
 process.env.IN_TEST_MODE = true;
