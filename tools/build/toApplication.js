@@ -58,19 +58,25 @@ function toApplication(responseTree) {
                 xhr.onreadystatechange = function(){
                     if(xhr.readyState === 4 && xhr.status === 200) onload(xhr);
                 };
-                xhr.send("haha");
+                xhr.send("${reloadVersion}");
             };
-            var checkUpdate = function(){
-                load(location.pathname + "?" + +new Date(), function(xhr){
+            var reloader = function(){
+                load(location.pathname + "?time=" + +new Date(), function(xhr){
                     var version = xhr.responseText.match(/\\b${efrontReloadVersionAttribute}\\s*=\\s*(\\d+)\\b/);
-                    console.log(version)
-                    if( !version || +version[1] !== ${reloadVersion}) location.reload()|console.warn("reload..",new Date);
-                    else setTimeout(checkUpdate, 200);
+                    console.info("当前版本:${reloadVersion},目标版本:" + targetVersion + "正在重新加载,..");
+                    if( !version || +version[1] !== ${reloadVersion}) location.reload() | console.warn("reload..", new Date);
+                    else setTimeout(reloader, 200);
                 }, "get");
             };
-            load("http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload", checkUpdate, "post");
+            var targetVersion = ${reloadVersion};
+            var checkUpdate = function(xhr){
+                targetVersion = xhr.responseText||xhr.response;
+                reloader();
+            };
+            load("http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload/${reloadVersion}", checkUpdate, "post");
         }();
         </script>\r\n${head}`);
+        global.WATCH_PROJECT_VERSION = reloadVersion;
     }
     indexHtml.data = html;
     delete responseTree["main"];
