@@ -1,4 +1,6 @@
 "use strict";
+var cluster = require("cluster");
+var message = require("./message");
 var colors = {
     Reset: "\x1b[0m",
     Bright: "\x1b[1m",
@@ -35,18 +37,21 @@ var lastLogLength = 0;
     var fgColor = colors[fg] || "",
         bgColor = colors[bg] || "",
         reset = colors.Reset;
-    var logger = function (...args) {
-        var str = args.join(" ");
-        var width = process.stderr.columns;
-        var hasNewLine = /^(warn|error)$/.test(log);
-        var cleaner = ("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1);
-        hasNewLine ? process.stderr.write((lastLogLength ? cleaner : "") + str.trim() + "\r\n") : process.stderr.write(cleaner + "\r" + str);
-        lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x00-\xff]/g, "").length;
+    if (cluster.isMaster) {
+        var logger = function (...args) {
+            var label = colors.Bright + fgColor + bgColor + info + reset;
+            var time_stamp = colors.FgGray + new Date().toISOString() + reset;
+            var str = [label, time_stamp, ...args].join(" ");
+            var width = process.stderr.columns;
+            var hasNewLine = /^(warn|error)$/.test(log);
+            var cleaner = ("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1);
+            hasNewLine ? process.stderr.write((lastLogLength ? cleaner : "") + str.trim() + "\r\n") : process.stderr.write(cleaner + "\r" + str);
+            lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x00-\xff]/g, "").length;
+        };
+    } else {
+        var logger = function (...args) {
+            message.log({ log, args: args.map(a => String(a)) });
+        };
     }
-    console[log] = function (...args) {
-        return logger(
-            colors.Bright + fgColor + bgColor + info + reset,
-            colors.FgGray + new Date().toISOString() + reset,
-            ...args);
-    }
+    console[log] = logger;
 })
