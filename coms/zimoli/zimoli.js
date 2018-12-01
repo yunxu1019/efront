@@ -16,7 +16,7 @@ if (loadTime) {
 }
 loadTime++;
 sessionStorage.setItem(load_count, loadTime);
-
+var pagehash_reg=/#([\/\w]*)$/;
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
         if (exit_ing) return exit_ing = false, window_history.go(-1);
@@ -38,7 +38,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     backman();
 } else {
     onhashchange(window, function (event) {
-        if (/#$/.test(event.newURL || event.actionURL || location.href)) return;
+        if (pagehash_reg.test(event.newURL || event.actionURL || location.href)) return;
         if (exit_ing) return exit_ing = false, window_history.go(-1);
         event.preventDefault();
         if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) { }
@@ -259,7 +259,7 @@ var pushstate = function (path_name, history_name, oldpagepath) {
 var fixurl = function () {
     setTimeout(function () {
         exit_ing = void 0;
-        if (!/#$/.test(location.href)) location.href = "#";
+        if (!pagehash_reg.test(location.href)) location.href = "#";
     }, 0);
 }
 var checkonback = function (elements) {
