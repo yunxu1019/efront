@@ -11,8 +11,8 @@ var window_history_length = window_history.length;
 var load_count = "__zimoli_load_times";
 var loadTime = +sessionStorage.getItem(load_count) || 0;
 var hostoryStorage = sessionStorage;
-if (!loadTime) {
-    location.replace("#reload");
+if (loadTime) {
+    location.replace("#:reload");
 }
 loadTime++;
 sessionStorage.setItem(load_count, loadTime);
