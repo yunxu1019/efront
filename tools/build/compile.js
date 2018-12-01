@@ -108,7 +108,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                         }
                         if (lastBuildTime - stat.mtime > 10000 && !/[\/\\]index.html?$/i.test(destpath)) {
                             var statless = function () {
-                                var less_file = _filepath.replace(/\.[tj]sx?$/i, ".less");
+                                var less_file = _filepath.replace(/\.([tj]sx?|html?)$/i, ".less");
                                 fs.exists(less_file, function (exists) {
                                     if (!exists) return reader(false);
                                     fs.stat(less_file, function (error, stat) {
