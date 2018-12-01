@@ -12,6 +12,10 @@ var server = http.createServer(listener);
 server.once("error", function () {
     console.info("启动自动刷新服务失败！");
 });
+server.once("listening", function (event) {
+    var port = process.env.WATCH_PORT = server.address().port;
+    console.info(`watchport:${port}`);
+});
 module.exports = {
     run() {
         if (server.listening) return;
