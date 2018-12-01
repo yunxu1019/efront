@@ -110,7 +110,7 @@ var directives = {
             if (comment.isMounted) rebuild(comment);
         };
         if (this.parentNode) {
-            initial();
+            initial.call(this);
         } else {
             once("append")(this, initial);
         }
