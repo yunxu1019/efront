@@ -1,14 +1,14 @@
 var reloadListeners = [];
 var listener = function (req, res) {
     if (/^\/reload/i.test(req.url)) {
+        var origin = req.headers.origin;
+        origin && res.setHeader("Access-Control-Allow-Origin", origin);
         var version = /^\/reload\/(\d+)$/i.exec(req.url);
         if (version && +version[1] === global.WATCH_PROJECT_VERSION) {
-            var origin = req.headers.origin;
-            origin && res.setHeader("Access-Control-Allow-Origin", origin);
             return reloadListeners.push(res);
         }
     }
-    res.end();
+    res.end(String(global.WATCH_PROJECT_VERSION || ""));
 };
 var http = require("http");
 var server = http.createServer(listener);
