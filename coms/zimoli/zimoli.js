@@ -11,14 +11,20 @@ var window_history_length = window_history.length;
 var load_count = "__zimoli_load_times";
 var loadTime = +sessionStorage.getItem(load_count) || 0;
 var hostoryStorage = sessionStorage;
-if (loadTime) {
-    location.replace("#:reload");
+var pagehash_reg = /#([\/\w]*)$/;
+var hashchangecount = 0;
+if (!loadTime && pagehash_reg.test(location.href)) {
+    //第一次带hash加载
+    location.replace("#:");
 }
 loadTime++;
 sessionStorage.setItem(load_count, loadTime);
-var pagehash_reg = /#([\/\w]*)$/;
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
+        hashchangecount++;
+        // 如果是返回事件，一定不是第一次改变hash
+        // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
+        if (hashchangecount < 2) return;
         if (exit_ing) return exit_ing = false, window_history.go(-1);
         if (exit_ing === void 0 ? onback && onback() === true : exit_ing = void 0) { }
     };
@@ -38,6 +44,10 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     backman();
 } else {
     onhashchange(window, function (event) {
+        hashchangecount++;
+        // 如果是返回事件，一定不是第一次改变hash
+        // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
+        if (hashchangecount < 2) return;
         if (pagehash_reg.test(event.newURL || event.actionURL || location.href)) return;
         if (exit_ing) return exit_ing = false, window_history.go(-1);
         event.preventDefault();
