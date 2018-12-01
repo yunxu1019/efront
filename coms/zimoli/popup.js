@@ -99,17 +99,13 @@ var popup_with_mask = function (element, mask = createMask()) {
     return element;
 };
 var popup_as_extra = function (element, target) {
-    var position = getScreenPosition(target);
-    var maxHeight = Math.max(position.top, innerHeight - position.top - position.height);
-    var maxWidth = Math.max(position.left + position.width, innerWidth - position.left);
     if (!element.origin) {
         element.origin = {
             height: element.style.height,
             width: element.style.width,
-            minWidth: element.style.minWidth
+            minWidth: element.style.minWidth,
+            display: element.style.display
         };
-    } else {
-        extend(element.style, element.origin);
     }
     css(element, `position:absolute;`);
     var release1 = onremove(target, function () {
@@ -118,37 +114,62 @@ var popup_as_extra = function (element, target) {
     var release2 = onremove(element, function () {
         release1();
         release2();
+        if (document.removeEventListener) {
+            document.removeEventListener("scroll", reshape, true);
+            document.removeEventListener("resize", reshape);
+        }
     });
     global(element);
-    var height = element.offsetHeight;
-    //如果高度超出可视区，调整高度
-    if (height > maxHeight) {
-        css(element, `height:${maxHeight}px;`);
-    }
-    var aimedWidth = element.offsetWidth;
-    css(element, `min-width:auto;`);
-    //如果宽度不足其附着元素的宽度
-    if (aimedWidth < target.offsetWidth) {
-        aimedWidth = target.offsetWidth;
-    }
+    var reshape = function () {
+        extend(element.style, element.origin);
+        var position = getScreenPosition(target);
+        var maxHeight = Math.max(position.top, innerHeight - position.top - position.height);
+        var maxWidth = Math.max(position.left + position.width, innerWidth - position.left);
+        var height = element.offsetHeight;
+        //如果高度超出可视区，调整高度
+        if (height > maxHeight) {
+            css(element, `height:${maxHeight}px;`);
+        }
+        var aimedWidth = element.offsetWidth;
+        css(element, `min-width:auto;`);
+        //如果宽度不足其附着元素的宽度
+        if (aimedWidth < target.offsetWidth) {
+            aimedWidth = target.offsetWidth;
+        }
 
-    //如果宽度超出可视区，调整宽度
-    if (aimedWidth > maxWidth) {
-        aimedWidth = maxWidth;
+        //如果宽度超出可视区，调整宽度
+        if (aimedWidth > maxWidth) {
+            aimedWidth = maxWidth;
+        }
+        if (aimedWidth !== element.offsetWidth) {
+            css(element, `width:${aimedWidth}px`);
+        }
+        if (position.top + element.offsetHeight + position.height > innerHeight) {
+            css(element, `bottom:${innerHeight - position.top}px;top:auto;`);
+        } else {
+            css(element, `top:${position.top + position.height}px;bottom:auto;`);
+        }
+        if (position.left + element.offsetWidth > innerWidth) {
+            css(element, `right:${innerWidth - position.left - position.width}px;left:auto;`);
+        } else {
+            css(element, `left:${position.left}px;right:auto;`);
+        }
+        var offsetParent = target.offsetParent;
+        if (offsetParent) {
+            if (overlap(position, offsetParent) > 0) {
+                element.style.display = element.origin.display;
+            } else {
+                element.style.display = "none";
+            };
+        }
+
     }
-    if (aimedWidth !== element.offsetWidth) {
-        css(element, `width:${aimedWidth}px`);
+    if (document.addEventListener) {
+        document.addEventListener("scroll", reshape, true);
+        document.addEventListener("resize", reshape);
     }
-    if (position.top + element.offsetHeight + position.height > innerHeight) {
-        css(element, `bottom:${innerHeight - position.top}px;top:auto;`);
-    } else {
-        css(element, `top:${position.top + position.height}px;bottom:auto;`);
-    }
-    if (position.left + element.offsetWidth > innerWidth) {
-        css(element, `right:${innerWidth - position.left - position.width}px;left:auto;`);
-    } else {
-        css(element, `left:${position.left}px;right:auto;`);
-    }
+    reshape();
+
 };
 var popup_as_single = function (element) {
     css(element, `z-index:${zIndex()};`);
