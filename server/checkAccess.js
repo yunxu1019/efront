@@ -7,7 +7,9 @@ loadjson.async(configfilepath).then(function (json) {
         rootDirectorys.splice(0, rootDirectorys.length);
         rootDirectorys.push.apply(rootDirectorys, json);
     }
-}).catch(console.warn);
+}).catch(function () {
+    // 未配置网络路径
+});
 var rootDirectorys = [];
 
 function checkAccess(fullpath) {
