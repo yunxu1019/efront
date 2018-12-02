@@ -11,11 +11,11 @@ var window_history_length = window_history.length;
 var load_count = "__zimoli_load_times";
 var loadTime = +sessionStorage.getItem(load_count) || 0;
 var hostoryStorage = sessionStorage;
-var pagehash_reg = /#([\/\w]*)$/;
+var pagehash_reg = /#([\/\w\:@\.\_\(\)\+\-\*\$@!~_'\?,&~]*)$/;
 var hashchangecount = 0;
 if (!loadTime && pagehash_reg.test(location.href)) {
     //第一次带hash加载
-    location.replace("#:");
+    location.replace("##");
 }
 loadTime++;
 sessionStorage.setItem(load_count, loadTime);
@@ -24,7 +24,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         hashchangecount++;
         // 如果是返回事件，一定不是第一次改变hash
         // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
-        if (hashchangecount < 2) return;
+        if (hashchangecount < 2 && loadTime < 2) return;
         if (exit_ing) return exit_ing = false, window_history.go(-1);
         if (exit_ing === void 0 ? onback && onback() === true : exit_ing = void 0) { }
     };
@@ -47,8 +47,18 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         hashchangecount++;
         // 如果是返回事件，一定不是第一次改变hash
         // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
-        if (hashchangecount < 2) return;
-        if (pagehash_reg.test(event.newURL || event.actionURL || location.href)) return;
+        if (hashchangecount < 2 && loadTime < 2) return;
+        var targetUrl = event.newURL || event.actionURL || location.href;
+        if (pagehash_reg.test(targetUrl)) {
+            var currentHash = getCurrentHash();
+            if (currentHash && currentHash === targetUrl.slice(targetUrl.length - currentHash.length)) return;
+            var targetHashIndex = targetUrl.indexOf("#" + current_history);
+            if (targetHashIndex < 0) return;
+            var targetHash = targetUrl.slice(targetHashIndex + current_history.length + 1);
+            go(targetHash);
+            return;
+        }
+        if (exit_ing === 0) return exit_ing = void 0;
         if (exit_ing) return exit_ing = false, window_history.go(-1);
         event.preventDefault();
         if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) { }
@@ -150,7 +160,6 @@ var page_generators = {};
  */
 function zimoli(pagepath, args, history_name, oldpagepath) {
     if (arguments.length === 0) {
-        exit_ing = false;
         history_name = current_history;
         var _history = history[history_name] || [];
         pagepath = _history[_history.length - 1] || "/main";
@@ -208,6 +217,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         return url;
     }
     state.go = function (url, args, _history_name) {
+        // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
         return go(state.path(url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
     };
 
@@ -232,7 +242,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
 }
 var global = {};
 var history = {};
-var current_history = "default";
+var current_history = "";
 history[current_history] = [];
 var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
@@ -261,17 +271,32 @@ var pushstate = function (path_name, history_name, oldpagepath) {
             }
         }
         _history.push(path_name);
-        if (_history.length > 1) fixurl();
+        if (_history.length) fixurl();
     }
     hostoryStorage.setItem(history_session_object_key, JSON.stringify(history) || null);
     return isDestroy;
 };
+var getCurrentHash = function () {
+    var _historylist = history[current_history];
+    if (_historylist.length < 2) return "";
+    var targeturl = `#${current_history}${_historylist.length ? _historylist[_historylist.length - 1] : ""}`;
+    return targeturl;
+};
+
 var fixurl = function () {
-    setTimeout(function () {
-        exit_ing = void 0;
-        if (!pagehash_reg.test(location.href)) location.href = "#";
-    }, 0);
-}
+    if (fixurl.ing) return;
+    fixurl.ing = setTimeout(function () {
+        fixurl.ing = false;
+        var targeturl = getCurrentHash();
+        if (pagehash_reg.test(targeturl)) {
+            if (!pagehash_reg.test(location.href)) location.href = targeturl;
+            else if (location.hash !== targeturl) location.replace(targeturl);
+        } else if (pagehash_reg.test(location.href)) {
+            exit_ing = 0;
+            window_history.go(-1);
+        }
+    }, 20);
+};
 var checkonback = function (elements) {
     for (var cx = 0, dx = elements.length; cx < dx; cx++) {
         var element = elements[cx];
@@ -284,7 +309,7 @@ var checkonback = function (elements) {
         }
     }
     return onback;
-}
+};
 put(":empty", function () {
     return null;
 });
