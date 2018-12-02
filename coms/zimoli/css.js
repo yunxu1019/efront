@@ -77,7 +77,9 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
         }
     }
     var rowStyles = [];
-    stylesheet.innerHTML.replace(/^.*?\{([\s\S]*?)\}.*?$/, "$1").split(";").map(function (kv) {
+    var styleSheet = stylesheet.styleSheet;
+    var cssText = (styleSheet ? styleSheet.cssText : stylesheet.innerHTML).replace(/^[\s\S]*?\{([\s\S]*?)\}[\s\S]*?$/, "$1");
+    cssText.split(";").forEach(function (kv) {
         var k = kv.replace(/^(.*?)\:.*$/, "$1");
         if (k && !(k in styleobject)) rowStyles.push(kv);
     });
@@ -85,7 +87,6 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
         rowStyles.push(k + ":" + styleobject[k]);
     }
     var innerCss = `${targetSelector}{${rowStyles.join(";")}}`;
-    var styleSheet = stylesheet.styleSheet;
     if (styleSheet) {
         //IE
         styleSheet.cssText = innerCss;
