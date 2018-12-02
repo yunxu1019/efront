@@ -80,6 +80,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
 } else {
     process.on("SIGINT", function () { });
     process.on("SIGTERM", function () { });
+    process.on("uncaughtException", process.exit);
+    process.on("unhandledRejection", process.exit);
 
     //子线程们
     process.on("message", function (msg, then) {
