@@ -93,7 +93,7 @@ var load = function (name, count = 150) {
             url = "ccon/" + name.slice(1);
             break;
         default:
-            if (/[\/\.\?\-]/.test(name)) url = name;
+            if (/[\/\?\-]/.test(name)) url = name;
             else url = "comm/" + name;
     }
     var xhr = XHR();
@@ -310,7 +310,7 @@ var init = function (name, then, prebuild) {
     get(name, broadcast);
 };
 modules.init = init;
-var requires_count = 1;
+var requires_count = 3;
 var hook = function (requires_count) {
     if (requires_count === 0) {
         "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
@@ -323,7 +323,8 @@ var hook = function (requires_count) {
     }
 };
 var initIfNotDefined = function (defined, path, onload) {
-    if (defined === void 0) requires_count++ , init(path, a => onload(a) | hook(--requires_count));
+    if (defined === void 0) init(path, a => onload(a) | hook(--requires_count));
+    else hook(--requires_count);
 }
 initIfNotDefined(Promise, "promise", promise => Promise = promise);
 initIfNotDefined([].map, "[].map", map => map);
