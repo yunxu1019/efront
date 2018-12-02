@@ -5,28 +5,32 @@
 //main
 var body = document.body;
 var onbacks = [];
-var target_hash, exit_ing;
 var window_history = window.history;
 var window_history_length = window_history.length;
-var load_count = "__zimoli_load_times";
-var loadTime = +sessionStorage.getItem(load_count) || 0;
+var sessionSavedHashKey = "__zimoli_session_init_hash" + location.pathname;
+var sessionInitHash = sessionStorage.getItem(sessionSavedHashKey);
 var hostoryStorage = sessionStorage;
-var pagehash_reg = /#([\/\w\:@\.\_\(\)\+\-\*\$@!~_'\?,&~]*)$/;
+var pagehash_reg = /#([\/\w\:@\.\_\(\)\+\-\*\$@!~_'\?,&~%]+)$/;
+var locationInitHash = location.hash;
 var hashchangecount = 0;
-if (!loadTime && pagehash_reg.test(location.href)) {
-    //第一次带hash加载
+var isFirstTimeLoad = sessionInitHash === null;
+var isSimpleRefresh = sessionInitHash === locationInitHash;
+var isWithHashLoad = !!location.hash;
+var preventNextHashChange = false;
+window_history.scrollRestoration = 'manual'
+if (isWithHashLoad && !isSimpleRefresh) {
+    //带hash加载，吃掉hash
     location.replace("##");
 }
-loadTime++;
-sessionStorage.setItem(load_count, loadTime);
+
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
         hashchangecount++;
         // 如果是返回事件，一定不是第一次改变hash
         // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
-        if (hashchangecount < 2 && loadTime < 2) return;
-        if (exit_ing) return exit_ing = false, window_history.go(-1);
-        if (exit_ing === void 0 ? onback && onback() === true : exit_ing = void 0) { }
+        if (hashchangecount < 2) return;
+        if (preventNextHashChange) return preventNextHashChange = false, window_history.go(-1);
+        if (preventNextHashChange === void 0 ? onback && onback() === true : preventNextHashChange = void 0) { }
     };
     onselectstart(body, function (e) {
         return e.preventDefault();
@@ -47,21 +51,21 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
         hashchangecount++;
         // 如果是返回事件，一定不是第一次改变hash
         // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
-        if (hashchangecount < 2 && loadTime < 2) return;
-        var targetUrl = event.newURL || event.actionURL || location.href;
-        if (pagehash_reg.test(targetUrl)) {
+        var targetHash = location.hash;
+        sessionStorage.setItem(sessionSavedHashKey, targetHash);
+        if (pagehash_reg.test(targetHash)) {
             var currentHash = getCurrentHash();
-            if (currentHash && currentHash === targetUrl.slice(targetUrl.length - currentHash.length)) return;
-            var targetHashIndex = targetUrl.indexOf("#" + current_history);
+            if (currentHash && currentHash === targetHash) return;
+            var targetHashIndex = targetHash.indexOf("#" + current_history);
             if (targetHashIndex < 0) return;
-            var targetHash = targetUrl.slice(targetHashIndex + current_history.length + 1);
-            go(targetHash);
+            var targetpath = targetHash.slice(targetHashIndex + current_history.length + 1);
+            go(targetpath);
             return;
         }
-        if (exit_ing === 0) return exit_ing = void 0;
-        if (exit_ing) return exit_ing = false, window_history.go(-1);
+        if (hashchangecount < 2) return;
+        if (preventNextHashChange) return preventNextHashChange = false;
         event.preventDefault();
-        if (exit_ing === void 0 ? onback() === true : exit_ing = void 0) { }
+        onback();
     });
 }
 // body
@@ -292,10 +296,10 @@ var fixurl = function () {
             if (!pagehash_reg.test(location.href)) location.href = targeturl;
             else if (location.hash !== targeturl) location.replace(targeturl);
         } else if (pagehash_reg.test(location.href)) {
-            exit_ing = 0;
+            preventNextHashChange = true;
             window_history.go(-1);
         }
-    }, 20);
+    }, 0);
 };
 var checkonback = function (elements) {
     for (var cx = 0, dx = elements.length; cx < dx; cx++) {
@@ -330,11 +334,10 @@ var onback = function () {
     if (isString(onback)) {
         return go(onback);
     }
-    if (go(-1, onback) === true) {
+    if (go(-1) === true) {
         try {
             navigator.app.exitApp();
         } catch (e) {
-            if (window_history.length > 2) exit_ing = true, window_history.go(-1);
         };
     } else { };
 };
@@ -388,3 +391,4 @@ zimoli.setStorage = function (storage) {
     } catch (e) {
     }
 };
+zimoli.inithash = locationInitHash;
