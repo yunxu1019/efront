@@ -62,7 +62,6 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
             go(targetpath);
             return;
         }
-        if (hashchangecount < 2) return;
         if (preventNextHashChange) return preventNextHashChange = false;
         event.preventDefault();
         onback();
