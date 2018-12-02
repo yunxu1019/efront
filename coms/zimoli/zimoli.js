@@ -20,7 +20,7 @@ var preventNextHashChange = false;
 window_history.scrollRestoration = 'manual'
 if (isWithHashLoad && !isSimpleRefresh) {
     //带hash加载，吃掉hash
-    location.replace("##");
+    location.replace("#");
 }
 
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
