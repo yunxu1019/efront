@@ -178,11 +178,7 @@ function ybox(generator) {
             smooth();
         }
     });
-    
-    ontouchstart(_box, function (event) {
-        if (_box.style.webkitOverflowScrolling) event.preventDefault();
-    });
-    css(_box, "overflow:hidden;-webkit-overflow-scrolling:auto;over-flow:auto;");
+    preventOverflowScrolling(_box);
     return _box;
 }
 var allArgumentsNames = arguments[arguments.length - 1];
