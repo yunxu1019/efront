@@ -98,16 +98,18 @@ var directives = {
         var initial = function () {
             var comment = document.createComment("-if:" + search);
             comment.renders = [function () {
-                if (getter()) {
+                var result = getter();
+                if (result) {
                     if (!this.parentNode) appendChild.before(comment, this);
                 } else {
                     remove(this);
                 }
             }.bind(this)];
+            comment.renderid = ++renderidOffset;
             onappend(comment, addRenderElement);
             onremove(comment, removeRenderElement);
             appendChild.after(this, comment);
-            if (comment.isMounted) rebuild(comment);
+            rebuild(comment);
         };
         if (this.parentNode) {
             initial.call(this);
