@@ -232,7 +232,7 @@ var access = function (index, buffer) {
                 } while (read_size < 0xffffff);
                 index += upblank_size;
                 read_size -= upblank_size + downblank_size;
-                var buffer = new Buffer(read_size);
+                var buffer = Buffer.alloc(read_size);
                 fs.read(handle, buffer, 0, buffer.length, index, function (err, buffer) {
                     for (var cx = index, dx = index + read_size; cx < dx; cx += 8192) {
                         var access_array = access_cache[cx];
@@ -269,10 +269,10 @@ var access = function (index, buffer) {
                 } while (write_size < 0xffffff);
                 index += upblank_size;
                 write_size -= upblank_size + downblank_size;
-                var buffer = new Buffer(write_size);
+                var buffer = Buffer.alloc(write_size);
                 for (var cx = index, dx = index + write_size; cx < dx; cx += 8192) {
                     var access_array = access_cache[cx];
-                    var temp_buffer = new Buffer(0);
+                    var temp_buffer = Buffer.alloc(0);
                     access_array.forEach(function (buffered_array) {
                         var buffer = buffered_array.splice(2, 1)[0];
                         temp_buffer = merge_buffer(temp_buffer, buffer);
@@ -327,7 +327,7 @@ function Table(tablename) {
                         fs.close(that.inited);
                     });
                     that.inited = that.handle = handle;
-                    fs.read(handle, new Buffer(8192), 0, 8192, 0, function (error, length, buffer) {
+                    fs.read(handle, Buffer.alloc(8192), 0, 8192, 0, function (error, length, buffer) {
                         if (error) return oh(error);
                         if (length) {
                             that.index_array = [];
