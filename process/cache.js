@@ -162,8 +162,9 @@ var asyncLoader = function (curl, temp, key, rebuild) {
     var durl = path.resolve(root, curl);
     var durls = [durl];
     var load = function (loadType) {
-        var is_reload = loadType === "change";
-        console.info(root, curl, is_reload ? "change" : "load");
+        var is_change = loadType === "change";
+        var saved = is_change && temp[key];
+        saved = !(saved instanceof Promise) && saved;
         var pathname = path.join(root, curl);
         temp[key] = isdirAsync(pathname).then(function (isdir) {
             if (isdir) {
@@ -172,7 +173,11 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                 }
                 temp[key] = getdirAsync(pathname).then(function (dirs) {
                     temp[key] = dirs;
-                    is_reload && _reload_handlers.forEach(run => run());
+                    if (_reload_handlers.length) {
+                        is_change = saved && Object.keys(dirs).sort().join(",") !== Object.keys(saved).sort().join(",");
+                        is_change && _reload_handlers.forEach(run => run());
+                    }
+                    console.info(root, curl, is_change ? "change" : "load");
                 }).catch(function (error) {
                     temp[key] = error;
                 });
@@ -180,7 +185,7 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                 temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
                     try {
                         if (rebuild instanceof Function) {
-                            data = rebuild(data, key, durl, is_reload ? [] : durls);
+                            data = rebuild(data, key, durl, is_change ? [] : durls);
                         }
                     } catch (e) {
                         console.warn("Build Faild:", curl, e);
@@ -188,11 +193,15 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                     };
                     return data;
                 }).then(function (data) {
-                    is_reload && _reload_handlers.forEach(run => run());
                     if (typeof data === "string") {
                         data = Buffer.from(data);
                     }
-                    return temp[key] = data;
+                    temp[key] = data;
+                    if (_reload_handlers.length) {
+                        is_change = saved && (saved instanceof Buffer && Buffer.compare(saved, data) || String(saved) !== String(data));
+                        is_change && _reload_handlers.forEach(run => run());
+                    }
+                    console.info(root, curl, is_change ? "change" : "load");
                 }).catch(function (error) {
                     temp[key] = error;
                     console.error(error);

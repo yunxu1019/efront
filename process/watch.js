@@ -11,7 +11,7 @@ function watch(file, then) {
         return;
     };
     var timmer = 0;
-    var watchers = [fs.watch(file, function (a) {
+    var watchers = [fs.watch(file, function () {
         var args = arguments;
         clearTimeout(timmer);
         timmer = setTimeout(function () {
