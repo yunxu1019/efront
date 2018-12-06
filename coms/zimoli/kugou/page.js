@@ -80,7 +80,7 @@ var page = createElement(div);
 appendChild(page, pages, bar);
 ontouchstart(page, kugou$dragview);
 onmousedown(page, kugou$dragview);
-onclick(page, e => kugou$dragview.isRight && kugou$dragview.toLeft());
+onclick(page, e => e.target === page && kugou$dragview.isRight && kugou$dragview.toLeft());
 extend(kugou$dragview, {
     page, pages
 });
