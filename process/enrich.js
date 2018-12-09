@@ -1,35 +1,42 @@
 "use strict";
 var enrich = function enrich(obj) {
-    var _obj = Promise.resolve();
+    var _promise = Promise.resolve();
+    var _object = {};
     for (var k in obj) {
-        if (obj[k] instanceof Function)
-            _obj[k] = function () {
+        if (obj[k] instanceof Function) {
+            _promise[k] = function () {
                 var method = obj[k];
-                return function () {
+                var caller = function () {
+                    "use strict";
                     var args = arguments;
-                    return this.then(function (res) {
-                        return method.apply(_obj, args);
+                    return this.then(function () {
+                        return method.apply(_promise, args);
                     });
                 };
+                _object[k] = function () {
+                    return caller.apply(_promise, arguments);
+                };
+                return caller;
             }();
+        }
     }
-    _obj._enrich = function (promise) {
+    _promise._enrich = function (promise) {
         if (!promise._enrich) {
-            for (var k in _obj) promise[k] = _obj[k];
+            for (var k in _promise) promise[k] = _promise[k];
         }
         return promise;
     };
-    var then = _obj.then;
-    var _catch = _obj.catch;
-    _obj.then = function () {
-        var promise = then.apply(this, arguments);
+    var _then = _promise.then;
+    var _catch = _promise.catch;
+    _promise.then = function () {
+        var promise = _then.apply(this, arguments);
         return this._enrich(promise);
     };
-    _obj.catch = function () {
+    _promise.catch = function () {
         var promise = _catch.apply(this, arguments);
         return this._enrich(promise);
     }
-    return _obj;
+    return _object;
 };
 module.exports = enrich;
 
