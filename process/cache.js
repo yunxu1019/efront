@@ -161,7 +161,13 @@ var asyncLoader = function (curl, temp, key, rebuild) {
     var buffer_size = this.buffer_size;
     var durl = path.resolve(root, curl);
     var durls = [durl];
+    var _watch = function (_durls) {
+        durls.forEach(durl => watch(durl));
+        durls = _durls;
+        _durls.forEach(curl => watch(curl, load));
+    };
     var load = function (loadType) {
+        var durls = [durl];
         var is_change = loadType === "change";
         var saved = is_change && temp[key];
         saved = !(saved instanceof Promise) && saved;
@@ -177,15 +183,20 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                         is_change = saved && Object.keys(dirs).sort().join(",") !== Object.keys(saved).sort().join(",");
                         is_change && _reload_handlers.forEach(run => run());
                     }
+                    _watch(durls);
                     console.info(root, curl, is_change ? "change" : "load");
                 }).catch(function (error) {
                     temp[key] = error;
+                    _watch([]);
                 });
             } else {
                 temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
                     try {
                         if (rebuild instanceof Function) {
-                            data = rebuild(data, key, durl, is_change ? [] : durls);
+                            if (is_change) {
+                                durls.push(durl);
+                            }
+                            data = rebuild(data, key, durl, durls);
                         }
                     } catch (e) {
                         console.warn("Build Faild:", curl, e);
@@ -202,9 +213,11 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                         is_change && _reload_handlers.forEach(run => run());
                     }
                     console.info(root, curl, is_change ? "change" : "load");
+                    _watch(durls);
                 }).catch(function (error) {
                     temp[key] = error;
                     console.error(error);
+                    _watch([]);
                 });
             }
         }).catch(function (error) {
@@ -213,7 +226,6 @@ var asyncLoader = function (curl, temp, key, rebuild) {
         });
     };
     load();
-    durls.forEach(curl => watch(curl, load));
     return load;
 };
 /**
