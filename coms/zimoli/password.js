@@ -2,19 +2,29 @@ function password() {
     var element = div();
     var saved_value = element.value = "";
     var savedKeyCodes = [];
+    element.innerHTML = "<input/><insert></insert><holder></holder>";
+    var [_input, insert, holder] = element.children;
+    var text = document.createTextNode("");
+    element.insertBefore(text, _input);
     var build = function () {
         element.value = String.fromCharCode(...savedKeyCodes);
         if (!savedKeyCodes.length && element.placeholder) {
-            element.innerHTML = "<insert></insert><holder>" + element.placeholder + "</holder>";
-            return;
+            element.appendChild(holder);
+            holder.innerText = element.placeholder;
+            element.insertBefore(insert, holder);
+        } else {
+            holder.parentNode === element && element.removeChild(holder);
+            element.appendChild(insert);
         }
-        element.innerHTML = "●".repeat(savedKeyCodes.length) + "<insert></insert>";
-        element.scrollLeft = element.children[0].offsetLeft + 2;
+        text.nodeValue = "●".repeat(savedKeyCodes.length);
+        element.scrollLeft = insert.offsetLeft + 2;
     };
     element.onfocus = function () {
         saved_value = element.value;
+        build();
+        _input.focus();
     };
-    element.onblur = function () {
+    _input.onblur = function () {
         if (saved_value !== element.value) {
             dispatch(this, "change");
         }
@@ -33,6 +43,9 @@ function password() {
             default:
 
         }
+    };
+    element.onkeyup = function () {
+        build();
     };
     element.onkeypress = function (event) {
         savedKeyCodes.push(event.keyCode);
