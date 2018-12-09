@@ -123,6 +123,9 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
         req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
         req_access_method && res.setHeader("Access-Control-Allow-Method", req_access_method);
+        if (/^option/i.test(req.method)) {
+            return res.end();
+        }
         if (/^\/@/i.test(req.url)) {
             return doFile(req, res);
         }
@@ -141,7 +144,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             var color = parseInt(match[2], 16);
             return res.end(doPost.ccon(name, color));
         }
-        if (req.method === "GET") {
+        if (/^get/i.test(req.method)) {
             if (SSL_ENABLED && req.socket.localPort === 80) {
                 // 现代浏览器不会给http网站标记为不安全，并且火狐等浏览器对网站进行云检查以判断是否安全
                 // 没有必要自动转向https，所以请让以下代码胎死腹中
