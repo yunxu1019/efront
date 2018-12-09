@@ -1,8 +1,5 @@
 "use strict";
-var Database = require("./database/index");
-var database = global.database = new Database;
 var message = require("./message");
-// database.init();
 var _i18n = require("./i18n");
 /**
  * 读取参数
