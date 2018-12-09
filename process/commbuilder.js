@@ -10,30 +10,67 @@ var fs = require("fs");
 var path = require("path");
 var cwd = process.cwd();
 var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/i;
-var loadJsBody = function (data, filename, fullpath, lessdata, commName, className) {
-    if (useInternalReg.test(data)) {
-        data = data.replace(useInternalReg, function (match, quote, relative) {
+var loadUseBody = function (data, fullpath, watchurls, commName) {
+    if (!useInternalReg.test(data)) return data;
+    var loadurls = {};
+    data = data.replace(useInternalReg, function (match, quote, relative) {
+        loadurls[relative] = true;
+        return match;
+    });
+    return new Promise(function (ok, oh) {
+        var loaddingcount = 0;
+        var accessready = function () {
+            loaddingcount++;
+            if (loaddingcount < loadings.length) return;
+            var dataMap = {};
+            var loaddings = Object.keys(loadurls).map(function (key) {
+                var realpath = loadurls[key];
+                watchurls.push(realpath);
+                return getFileData(realpath).then(function (data) {
+                    dataMap[key] = data;
+                });
+            });
+            Promise.all(loaddings).then(function () {
+                data = data.replace(useInternalReg, function (match, quote, relative) {
+                    var data = dataMap[relative];
+                    var realPath = loadurls[relative];
+                    if (data instanceof Buffer) {
+                        data = String(data);
+                        if (/module.exports\s*=/.test(data)) {
+                            return data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName : "return ");
+                        }
+                        var realName = path.basename(realPath).replace(/\..*$/, "")
+                        return data + `;var ${realName},${commName}=${realName};`;
+                    }
+                    console.warn(`没有处理${match}`, fullpath);
+                    return match;
+                });
+
+                ok(data);
+            });
+        };
+        var loadings = Object.keys(loadurls).map(function (relative) {
             var realPath = path.join(path.dirname(fullpath), relative);
-            if (!fs.existsSync(realPath)) {
-                realPath = relative;
-            }
-            if (!fs.existsSync(realPath)) {
+            fs.access(realPath, function (err) {
+                if (!err) {
+                    loadurls[relative] = realPath;
+                    accessready();
+                    return;
+                }
                 realPath = path.join(__dirname, "..", relative);
-            } else {
-                watchurls.push(realPath);
-            }
-            if (!fs.existsSync(realPath) || !fs.statSync(realPath).isFile()) {
-                console.warn("没有处理include:" + filename, realPath);
-                return match;
-            }
-            var data = fs.readFileSync(realPath).toString();
-            if (/module.exports\s*=/.test(data)) {
-                return data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName : "return ");
-            }
-            var realName = path.basename(realPath).replace(/\..*$/, "")
-            return data + `;var ${realName},${commName}=${realName};`;
+                fs.access(realPath, function (err) {
+                    if (!err) {
+                        loadurls[relative] = realPath;
+                    } else {
+                        delete loadurls[relative];
+                    }
+                    accessready();
+                })
+            });
         });
-    }
+    })
+}
+var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     data = typescript.transpile(data);
     var code = esprima.parse(data);
@@ -218,7 +255,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var promise;
     if (/\.html?$/i.test(filename)) {
         let lesspath = fullpath.replace(/\.html?$/i, ".less");
-        jsData ="`"+ data.replace(/>\s+</g, "><")+"`";
+        jsData = "`" + data.replace(/>\s+</g, "><") + "`";
         promise = getFileData(lesspath).then(function (lessdata) {
             if (lessdata instanceof Buffer) {
                 less.render(`.${className}{${String(lessdata)}}`, {
@@ -229,12 +266,13 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 });
                 watchurls.push(lesspath);
             }
-            return loadJsBody(jsData, filename, fullpath, lessData, commName, className);
+            return loadJsBody(jsData, filename, lessData, commName, className);
         });
     } else if (/\.[jt]sx?$/i.test(filename)) {
         let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
         let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
-        promise = Promise.all([lesspath, htmlpath].map(getFileData)).then(function ([lessdata, htmldata]) {
+        let replace = loadUseBody(data, fullpath, watchurls, commName);
+        promise = Promise.all([lesspath, htmlpath].map(getFileData).concat(replace)).then(function ([lessdata, htmldata, data]) {
             if (lessdata instanceof Buffer) {
                 less.render(`.${className}{${String(lessdata)}}`, {
                     compress: !process.env.IN_TEST_MODE
@@ -251,7 +289,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 jsData = data;
             }
             try {
-                return loadJsBody(jsData, filename, fullpath, lessData, commName, className);
+                return loadJsBody(jsData, filename, lessData, commName, className);
             } catch (e) {
                 console.error(fullpath, e);
             }
