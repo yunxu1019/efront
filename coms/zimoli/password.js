@@ -38,10 +38,14 @@ function password() {
                 savedKeyCodes.pop();
                 build();
                 break;
+            case 13: // enter
+                event.preventDefault();
+                break;
             case 20: // capslock
                 break;
+            case 229://ime-mode
+                break;
             default:
-
         }
     };
     element.onkeyup = function () {
