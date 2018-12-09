@@ -10,7 +10,7 @@ var message_handlers_path = "./message";
 message_handlers_path = path.join(__dirname, message_handlers_path);
 var onmessage = function (msg, then) {
     if (!then) then = (result) => {
-        this.state === "online" && this.send("onresponse:" + JSON.stringify({
+        this.state === "online" | cluster.isMaster && this.send("onresponse:" + JSON.stringify({
             params: result,
             stamp
         }));
