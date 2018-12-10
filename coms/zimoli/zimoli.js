@@ -121,10 +121,8 @@ function go(url, args, history_name, oldpagepath) {
     if (!page_generators[url]) {
         return zimoli(url, args, history_name, oldpagepath);
     }
-    var pg = page_generators[url];
-    var _with_elements = [].concat(pg.with);
-    var _pageback_listener = pg.onback;
-    var state = pg.state;
+    var { pg, with: _with_elements, state, onback: _pageback_listener, prepares } = page_generators[url];
+    _with_elements = [].concat(_with_elements);
     state.with = function (element) {
         element && _with_elements.push(element);
         return _with_elements;
@@ -153,6 +151,12 @@ function go(url, args, history_name, oldpagepath) {
         history_name.activateNode = _page;
     }
     addGlobal(_page, history_name, isDestroy);
+    prepares.forEach(function (url) {
+        if (isNumber(url)) {
+            url = _history[url < 1 ? _history.length + url - 1 : url];
+        }
+        if (isString(url)) prepare(url);
+    });
     return _page;
 }
 var page_generators = {};
@@ -161,20 +165,8 @@ var page_generators = {};
  * 如果args是一个字符串，那么当下次指定一个相同的字符串时，此对象被新对象代替
  * 如果args是bool值true，那么当执行history.back()时，此对象被清除
  */
-function zimoli(pagepath, args, history_name, oldpagepath) {
-    if (arguments.length === 0) {
-        history_name = current_history;
-        var _history = history[history_name] || [];
-        pagepath = _history[_history.length - 1] || "/main";
-        try {
-            var saveddata = JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
-        } catch (e) {
-            var saveddata = {};
-        }
-        var { data, from } = saveddata;
-        args = data;
-        oldpagepath = from;
-    }
+function prepare(pagepath, ok) {
+    if (page_generators[pagepath]) return isFunction(ok) && ok();
     var _zimoli_state_key = _zimoli_state_prefix + pagepath;
     var state = function state(condition, setAsAdditional = condition !== null) {
         var state_string = hostoryStorage.getItem(_zimoli_state_key);
@@ -207,7 +199,6 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         return state_object;
     };
     state.state = state;
-    if (page_generators[pagepath]) return go(pagepath, args, history_name, oldpagepath);
     var _with_elements = [];
     state.with = function (element) {
         element && _with_elements.push(element);
@@ -223,7 +214,10 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
         return go(state.path(url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
     };
-
+    var prepares = [];
+    state.prepare = state.go.prepare = function (urls) {
+        prepares.push.apply(prepares, [].concat(urls).map(state.path));
+    };
     var _pageback_listener = [];
     state.onback = state.onrelease = state.ondestroy = function (handler) {
         //只能在page上使用
@@ -236,12 +230,35 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
     };
     return init(pagepath, function (pg) {
         if (!pg) return;
-        pg.with = _with_elements;
-        pg.state = state;
-        pg.onback = _pageback_listener;
-        page_generators[pagepath] = pg;
-        return go(pagepath, args, history_name, oldpagepath);
+        page_generators[pagepath] = {
+            pg,
+            state,
+            with: _with_elements,
+            onback: _pageback_listener,
+            prepares
+        };
+        return isFunction(ok) && ok();
     }, state);
+}
+
+function zimoli(pagepath, args, history_name, oldpagepath) {
+    if (arguments.length === 0) {
+        history_name = current_history;
+        var _history = history[history_name] || [];
+        pagepath = _history[_history.length - 1] || "/main";
+        try {
+            var saveddata = JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
+        } catch (e) {
+            var saveddata = {};
+        }
+        var { data, from } = saveddata;
+        args = data;
+        oldpagepath = from;
+    }
+    if (page_generators[pagepath]) return go(pagepath, args, history_name, oldpagepath);
+    return prepare(pagepath, function () {
+        return go(pagepath, args, history_name, oldpagepath);
+    });
 }
 var global = {};
 var history = {};

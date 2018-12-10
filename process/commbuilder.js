@@ -70,8 +70,23 @@ var loadUseBody = function (data, fullpath, watchurls, commName) {
         });
     })
 }
+var getRequiredPaths = function (data) {
+    var pathReg = /\bgo\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;
+    var requiredPaths = {};
+    var result = pathReg.exec(data);
+    while (result) {
+        requiredPaths[result[2]] = true;
+        result = pathReg.exec(data);
+    };
+    return Object.keys(requiredPaths);
+};
+
+var createExpression = function (expression) {
+    return esprima.parse(expression).body;
+};
 var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
+    var destpaths = getRequiredPaths(data);
     data = typescript.transpile(data);
     var code = esprima.parse(data);
     var {
@@ -95,44 +110,62 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 commName = null;
             }
         }
-        if (lessdata) {
-            if (!declares.cless) {
-                globalsmap.cless = "cless";
-            } else {
-                var random_variable;
-                do {
-                    random_variable = "cless_" + Math.random().toString(36)
-                } while (declares[random_variable]);
-                globalsmap.cless = random_variable;
-            }
+    }
+    if (lessdata) {
+        if (!declares.cless) {
+            globalsmap.cless = "cless";
+        } else {
+            var random_variable;
+            do {
+                random_variable = "cless_" + Math.random().toString(36)
+            } while (declares[random_variable]);
+            globalsmap.cless = random_variable;
+        }
+    }
+    var prepareCodeBody = [];
+    if (destpaths.length) {
+        console.log(destpaths);
+        var stringifiedpaths = destpaths.length === 1 ? JSON.stringify(destpaths[0]) : JSON.stringify(destpaths);
+        if (!declares.prepare) {
+            globalsmap.prepare = "prepare";
+            prepareCodeBody = createExpression(`prepare(${stringifiedpaths});`);
+        } else if (!declares.go) {
+            globalsmap.go = "go";
+            prepareCodeBody = createExpression(`go.prepare(${stringifiedpaths});`);
+        } else if (!declares.state) {
+            globalsmap.state = "state";
+            prepareCodeBody = createExpression(`state.prepare(${stringifiedpaths});`);
+        } else {
+            console.warn(`将不处理此文件的页面自动预载${filename}`);
         }
     }
     var code_body;
     if (code.body.length === 1 && /(ExpressionStatement)$/.test(code.body[0].type)) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
-        code_body = [{
-            "type": "ReturnStatement",
-            "argument": lessdata ? {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "Identifier",
-                    "name": globalsmap.cless
-                },
-                "arguments": [
-                    code.body[0].expression,
-                    {
-                        "type": "Literal",
-                        "value": lessdata,
-                        "raw": JSON.stringify(lessdata)
+        code_body = [
+            {
+                "type": "ReturnStatement",
+                "argument": lessdata ? {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "Identifier",
+                        "name": globalsmap.cless
                     },
-                    {
-                        "type": "Literal",
-                        "value": className,
-                        "raw": JSON.stringify(className)
-                    }
-                ]
-            } : code.body[0].expression
-        }]
+                    "arguments": [
+                        code.body[0].expression,
+                        {
+                            "type": "Literal",
+                            "value": lessdata,
+                            "raw": JSON.stringify(lessdata)
+                        },
+                        {
+                            "type": "Literal",
+                            "value": className,
+                            "raw": JSON.stringify(className)
+                        }
+                    ]
+                } : code.body[0].expression
+            }];
     } else if (!commName) {
         if (filename !== "main.js") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
         code_body = code.body;
@@ -167,6 +200,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 }
         });
     }
+    code_body = prepareCodeBody.concat(code_body);
     globals = Object.keys(globalsmap);
     if (process.env.IN_TEST_MODE) {
         code = {
