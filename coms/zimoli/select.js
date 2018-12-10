@@ -1,6 +1,5 @@
 var saved_list;
 var _remove = function () {
-    console.log(arguments)
     saved_list && remove(saved_list);
 };
 var preventDefault = function (event) {
