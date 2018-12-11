@@ -51,9 +51,19 @@ function indexOf(searchElement, fromIndex = 0) {
 function trim() {
     return String(this).replace(/^[\s\u00a0]+|[\s\u00a0]$/g, "");
 }
-
+var hasOwnProperty = {}.hasOwnProperty;
+var keys = function keys(object) {
+    var result = [];
+    for (var k in object) {
+        if (hasOwnProperty.call(object, k)) {
+            result.push(k);
+        }
+    }
+    return result;
+};
 Array.prototype.map = map;
 Array.prototype.forEach = forEach;
 Array.prototype.indexOf = indexOf;
 Array.prototype.filter = filter;
 String.prototype.trim = trim;
+Object.keys = keys;
