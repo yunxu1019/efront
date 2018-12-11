@@ -193,9 +193,6 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                 temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
                     try {
                         if (rebuild instanceof Function) {
-                            if (is_change) {
-                                durls.push(durl);
-                            }
                             data = rebuild(data, key, durl, durls);
                         }
                     } catch (e) {
