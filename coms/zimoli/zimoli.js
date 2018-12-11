@@ -104,24 +104,28 @@ function getReverseStyle(style) {
     return dest;
 }
 
-function go(url, args, history_name, oldpagepath) {
+function go(pagepath, args, history_name, oldpagepath) {
     if (!history_name)
         history_name = current_history;
-    if (isNumber(url)) {
+    if (isNumber(pagepath)) {
         if (isString(history_name)) {
             var _history = history[history_name] || [];
-            url = _history[url < 1 ? _history.length + url - 1 : url];
+            pagepath = _history[pagepath < 1 ? _history.length + pagepath - 1 : pagepath];
             oldpagepath = _history[_history.length - 1];
         }
     }
-    if (!url) return true;
+    if (!pagepath) return true;
     var stringified_args = JSON.stringify({ data: args, from: oldpagepath });
-    if (stringified_args.length === 2) hostoryStorage.removeItem(_zimoli_params_key + url);
-    else hostoryStorage.setItem(_zimoli_params_key + url, stringified_args);
-    if (!page_generators[url]) {
-        return zimoli(url, args, history_name, oldpagepath);
+    if (stringified_args.length === 2) hostoryStorage.removeItem(_zimoli_params_key + pagepath);
+    else hostoryStorage.setItem(_zimoli_params_key + pagepath, stringified_args);
+    if (!page_generators[pagepath]) {
+        return zimoli(pagepath, args, history_name, oldpagepath);
     }
-    var { pg, with: _with_elements, state, onback: _pageback_listener, prepares } = page_generators[url];
+    var page_object = page_generators[pagepath];
+    var { pg, with: _with_elements, state, onback: _pageback_listener, prepares } = page_object;
+    page_object.go = function (_url, args, _history_name) {
+        return go(state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
+    };
     _with_elements = [].concat(_with_elements);
     state.with = function (element) {
         element && _with_elements.push(element);
@@ -143,11 +147,11 @@ function go(url, args, history_name, oldpagepath) {
         }
         _page.onback = _pageback_listener;
     }
-    var isDestroy = pushstate(url, history_name, oldpagepath);
+    var isDestroy = pushstate(pagepath, history_name, oldpagepath);
     if (isNode(history_name)) {
-        if (history_name.activate === url && history_name.activateNode === _page) return;
+        if (history_name.activate === pagepath && history_name.activateNode === _page) return;
         else remove(history_name.activateNode);
-        history_name.activate = url;
+        history_name.activate = pagepath;
         history_name.activateNode = _page;
     }
     addGlobal(_page, history_name, isDestroy);
@@ -212,7 +216,9 @@ function prepare(pagepath, ok) {
     }
     state.go = function (url, args, _history_name) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
-        return go(state.path(url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
+        var go = page_generators[pagepath].go;
+        isFunction(go) && go(url, args, _history_name);
+
     };
     var prepares = [];
     state.prepare = state.go.prepare = function (urls) {
