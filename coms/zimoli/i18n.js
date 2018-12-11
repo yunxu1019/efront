@@ -84,8 +84,15 @@ var isAdjective = function () {
 function i18n(message, _source = source) {
     var _search = _source[navagatorLanguage] || source[navagatorLanguage];
     var checkSpell = _search[""];
+    if (isArray(message)) {
+        var args = arguments;
+        if (message.length === 1) message = message[0];
+        else return [].map.call(message, function (msg, cx) {
+            return (cx > 0 ? args[cx] : "") + i18n(msg);
+        }).join("");
+    }
     var translated = message.replace(/([\s\w]*)([^\s\w]|^)/g, function (match, message, quote) {
-        return message.toLowerCase().split(/\s+/).map(a => _search[a]).join("") + (_search[quote] || qoute || "");
+        return (message && message.toLowerCase().split(/\s+/).map(a => _search[a]).join("")) + (quote && _search[quote] || quote || "");
     });
     for (var k in checkSpell) {
         var [reg, rep] = checkSpell[k];
@@ -123,10 +130,29 @@ i18n.new = i18n.local = function (_source) {
         return i18n(a, source);
     }
 };
+i18n.loadSource = function (_source) {
+    if (arguments.length > 1) {
+        Object.keys(source).forEach(function (language, cx) {
+            extend(source[language], arguments[cx]);
+        });
+    } else {
+        for (let k in _source) {
+            let language = languageMap[k] || k;
+            if (language in source) {
+                extend(source[language], _source[k]);
+            } else {
+                throw new Error(`不支持的语言类型${k}`);
+            }
+        }
+    }
+    return i18n;
+};
 i18n.setLanguage = function (language) {
     language = languageMap[language] || language;
     if (language in source) {
-        return navagatorLanguage = language;
+        navagatorLanguage = language;
+    } else {
+        throw new Error(`不支持的语言类型${k}`);
     }
-    throw new Error(`不支持的语言类型${k}`);
+    return i18n;
 };
