@@ -8,6 +8,7 @@ var source = {
     "zh-CN": {
         name: '名称',
         password: "密码",
+        login: "登录",
         is: "是",
         or: "或",
         incorrect: "错误的",
@@ -92,7 +93,7 @@ function i18n(message, _source = source) {
         }).join("");
     }
     var translated = message.replace(/([\s\w]*)([^\s\w]|$)/g, function (match, message, quote) {
-        return (message && message.toLowerCase().split(/\s+/).map(a => _search[a]).join("")) + (quote && _search[quote] || quote || "");
+        return (message && message.toLowerCase().split(/\s+/).map(a => _search[a] || (console.warn(`未翻译，语言：${navagatorLanguage}，信息：${a}`), a)).join("")) + (quote && _search[quote] || quote || "");
     });
     for (var k in checkSpell) {
         var [reg, rep] = checkSpell[k];
