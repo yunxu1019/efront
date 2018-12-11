@@ -124,7 +124,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     }
     var prepareCodeBody = [];
     if (destpaths.length) {
-        console.log(destpaths);
         var stringifiedpaths = destpaths.length === 1 ? JSON.stringify(destpaths[0]) : JSON.stringify(destpaths);
         if (!declares.prepare) {
             globalsmap.prepare = "prepare";
@@ -253,7 +252,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             }
         });
     }
-    // console.log(data);
     var _arguments = [...globals, ...params].join();
     var length = (_arguments.length << 1).toString(36);
     if (length.length === 1) {
