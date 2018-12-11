@@ -3,7 +3,40 @@
  */
 var baseUrl = "api";
 var runner = null;
-var api = function (uri, parameters, prefix) {
+var api = function () {
+    var method, uri, parameters, prefix;
+    for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
+        let arg = arguments[cx];
+        switch (typeof arg) {
+            case "string":
+                if (!uri) {
+                    uri = arg;
+                    break;
+                }
+                if (!method) {
+                    if (/^\w+$/.test(uri)) {
+                        method = uri;
+                        uri = arg;
+                    } else if (/^\w+$/.test(arg)) {
+                        method = arg;
+                    }
+                    if (method) break;
+                }
+                if (parameters === void 0) {
+                    parameters = arg;
+                    break;
+                }
+                prefix = arg;
+                break;
+            case "object":
+                parameters = arg;
+                break;
+        }
+    }
+    if (!method) {
+        method = "post";
+    }
+
     if (!uri) {
         throw '不存在uri';
     }
@@ -12,10 +45,10 @@ var api = function (uri, parameters, prefix) {
         parameters = "";
     }
     prefix = prefix || "";
+    var url = baseUrl + uri;
     var req = function () {
         onstart && onstart();
         prefix && console.log("正在" + prefix);
-        var url = baseUrl + uri;
         var clear = function () {
             req.ing = false;
             api.count--;
@@ -26,7 +59,7 @@ var api = function (uri, parameters, prefix) {
             onend && onend();
         };
         var xhr = XHR();
-        xhr.open('post', url);
+        xhr.open(method, url);
         xhr.onreadystatechange = function () {
             if (xhr.readyState !== 4) return;
             switch (xhr.status) {
@@ -122,7 +155,9 @@ var api = function (uri, parameters, prefix) {
                     console.warn("不支持的数据格式", {}.toString.call(parameters));
             }
         }
-        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        for (let k in useXMLHttpRequestHeaders) {
+            xhr.setRequestHeader(k, useXMLHttpRequestHeaders[k]);
+        }
         var headers = api.headers;
         for (var k in headers) {
             xhr.setRequestHeader(k, headers[k]);
@@ -195,7 +230,25 @@ var api = function (uri, parameters, prefix) {
     };
     return req;
 };
+var useXMLHttpRequestHeaders = {
+    "X-Requested-With": "XMLHttpRequest"
+};
 
 api.setBaseUrl = function (url) {
     baseUrl = url;
+};
+api.setHeaders = function (object, notclear) {
+    if (notclear === false) {
+        useXMLHttpRequestHeaders = {};
+    }
+    extend(useXMLHttpRequestHeaders, object);
+};
+api.newBaseUrl = function (url) {
+    return function () {
+        var savedUrl = baseUrl;
+        baseUrl = url;
+        var req = api.apply(null, arguments);
+        baseUrl = savedUrl;
+        return req;
+    }
 };
