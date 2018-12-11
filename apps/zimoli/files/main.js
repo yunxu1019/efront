@@ -74,7 +74,7 @@ onactive(_list, function (event) {
             var viewer = view$video(item);
         }
         if (viewer) {
-            confirm(viewer, item.name,["关闭"]);
+            confirm(viewer, item.name, ["关闭"]);
         }
     }
 })
@@ -89,7 +89,8 @@ render(page, {
 })
 page.initialStyle = "margin-left:100%;z-index:2;";
 onback(function () {
-})
+});
+api = api.newBaseUrl("/api");
 api("/file/info").success(function (response) {
     roots = currentFolder = response.result;
     roots.map(function (a) {
