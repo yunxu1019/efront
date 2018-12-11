@@ -18,6 +18,16 @@ css("body", "background:url('images/background.jpg') no-repeat;background-size:c
 css(":after,:before,*", "box-sizing:border-box;");
 css(".titlebar", { backgroundColor: "rgb(44, 162, 249)" });
 zimoli.setStorage(localStorage);
+api.setBaseUrl("https://efront.cc/{//efront.cc:5989/}@");
+api.setHeaders({}, false);
+i18n.loadSource({
+    zh: {
+        "name": "用户名"
+    }
+})
+api.onerror = function (error) {
+    alert.error(i18n(JSON.parse(error).reason));
+};
 function main() {
     return view;
 }
