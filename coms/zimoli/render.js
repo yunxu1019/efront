@@ -205,7 +205,14 @@ function renderElement(element, scope) {
                     case "style":
                         css(replacer, value);
                         break;
+                    case "src":
+                    case "placeholder":
+                        replacer[name] = value;
+                        break;
                     default:
+                        if (!/[\-]/.test(name)) {
+                            replacer.setAttribute(name, value);
+                        }
                 }
             });
             element = replacer;
@@ -216,9 +223,9 @@ function renderElement(element, scope) {
     attrs.map(function (attr) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
-        name = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
-        if (directives.hasOwnProperty(name) && isFunction(directives[name])) {
-            directives[name].call(element, value);
+        var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
+        if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
+            directives[key].call(element, value);
         }
     });
     if (element.renders.length) {
