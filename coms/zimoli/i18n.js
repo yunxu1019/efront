@@ -91,7 +91,7 @@ function i18n(message, _source = source) {
             return (cx > 0 ? args[cx] : "") + i18n(msg);
         }).join("");
     }
-    var translated = message.replace(/([\s\w]*)([^\s\w]|^)/g, function (match, message, quote) {
+    var translated = message.replace(/([\s\w]*)([^\s\w]|$)/g, function (match, message, quote) {
         return (message && message.toLowerCase().split(/\s+/).map(a => _search[a]).join("")) + (quote && _search[quote] || quote || "");
     });
     for (var k in checkSpell) {
