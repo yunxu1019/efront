@@ -1,7 +1,10 @@
 "use strict";
 var enrich = function enrich(obj) {
     var _promise = Promise.resolve();
-    var _object = {};
+    var Base = function () {
+    };
+    Base.prototype = obj;
+    var _object = new Base;
     for (var k in obj) {
         if (obj[k] instanceof Function) {
             _promise[k] = function () {
