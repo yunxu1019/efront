@@ -103,6 +103,13 @@ var getVariables = function (ast) {
                         };
                         ast.computed = true;
                     }
+                } else {
+                    var {
+                        DeclaredVariables: d,
+                        unDeclaredVariables: u
+                    } = getVariables(ast.property);
+                    merge(unDeclaredVariables, u);
+                    merge(DeclaredVariables, d);
                 }
                 break;
             case "Property":
