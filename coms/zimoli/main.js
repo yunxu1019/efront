@@ -315,9 +315,9 @@ var hook = function (requires_count) {
     if (requires_count === 0) {
         "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
         loadResponseTreeFromStorage();
+        modules.Promise = Promise;
+        modules.hook_time = +new Date;
         init("zimoli", function (zimoli) {
-            modules.Promise = Promise;
-            modules.hook_time = +new Date;
             zimoli();
         });
     }
