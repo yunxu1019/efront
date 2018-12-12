@@ -94,11 +94,17 @@ var getAvailableLanguageName = function (k) {
     throw new Error(`不支持的语言类型${k}`);
 };
 
-var navagatorLanguage = getAvailableLanguageName(navigator.language ||/** ie~-10 */navigator.userLanguage || navigator.systemLanguage || navigator.browserLanguage);
+try {
+    var navagatorLanguage = getAvailableLanguageName(navigator.language ||/** ie~-10 */navigator.userLanguage || navigator.systemLanguage || navigator.browserLanguage || "zh-CN");
+} catch (e) {
+    var navagatorLanguage = "zh-CN";
+    console.error(e);
+}
 var isAdjective = function () {
 
 }
 function i18n(message, _source = source) {
+    if (!navagatorLanguage) return message;
     var _search = _source[navagatorLanguage] || source[navagatorLanguage];
     var checkSpell = _search[""];
     if (isArray(message)) {
