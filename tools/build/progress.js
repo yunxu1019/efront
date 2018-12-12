@@ -91,8 +91,23 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             ].concat(environment.ccons_root), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {
+                    var deletedMap = {};
                     for (var k in response) {
-                        if (!response[k].realpath) delete response[k];
+                        if (!response[k].realpath) {
+                            if (response[k].warn) deletedMap[k] = [];
+                            delete response[k];
+                        }
+                    }
+                    for (var k in response) {
+                        let dependence = response[k].dependence;
+                        dependence && dependence.forEach(function (key) {
+                            if (key in deletedMap) {
+                                deletedMap[key].push(k);
+                            }
+                        });
+                    }
+                    for (var k in deletedMap) {
+                        console.warn(k, "required by '", deletedMap[k].join(","), "' skiped");
                     }
                     var writeApplication = function () {
                         return write(response, public_path);

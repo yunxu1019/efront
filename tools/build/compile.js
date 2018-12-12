@@ -38,8 +38,15 @@ var window = {
     },
     state: {},
     screen: {},
+    init: {},
+    put: {},
     performance: {
     },
+    modules: {},
+    prepare: {},
+    MOVELOCK_DELTA: {},
+    renderPixelRatio: {},
+    XHR: {},
     Image: {},
     alert() {
     }
@@ -54,6 +61,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
         var responseText,
             responsePath,
             responseVersion,
+            responseWithWarning,
             writeNeeded;
 
         var resolve = function () {
@@ -62,6 +70,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 data: responseText,
                 realpath: responsePath,
                 version: responseVersion,
+                warn: responseWithWarning
             });
             if (responseText instanceof Promise) {
                 responseText.then(function (data) {
@@ -150,9 +159,9 @@ function compile(buildInfo, lastBuildTime, destroot) {
                         get();
                         return;
                     }
-                    if (!window[name]) console.warn(`没有发现文件：${url}`);
+                    if (!window[name]) responseWithWarning = `没有发现文件：${url}`;
                     else console.info(`${url} will be replaced by the global variables`);
-                    resolve(url);
+                    resolve();
                 }
             });
         }
