@@ -1,4 +1,4 @@
-titlebar("文件管理器");
+titlebar(i18n("文件管理器","File Manager"));
 var page = createVboxWithState(state);
 page.innerHTML = `
 <list></list>

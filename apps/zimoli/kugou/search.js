@@ -1,5 +1,5 @@
 
-var _titlebar = titlebar("搜索");
+var _titlebar = titlebar(i18n("搜索", 'Search'));
 var inputBox = createWithClass(div, "input-box");
 var textInput = createWithClass(input, "input");
 appendChild(inputBox, textInput);
@@ -32,7 +32,7 @@ var updateHotKeyword = function () {
     });
 };
 var searchIng = createElement(div);
-text(searchIng, "搜索中..");
+text(searchIng, i18n("搜索中..", "Searching"));
 var searchNoResult = createElement(div);
 text(searchNoResult, "没有找到匹配的项");
 var updateResultWithKeyword = function () {

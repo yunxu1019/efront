@@ -1,35 +1,36 @@
 var page = div();
-titlebar("找回密码");
+titlebar(i18n("找回密码", "Retrieve password"));
 page.innerHTML = `
 <div step=1 ng-if=data.step==1>
     <field>
-    <span>账号</span>
+    <span>${i18n("账号", "Account")}</span>
     <input ng-model=data.usercode />
     </field>
     <div class=option>
-        <btn ng-click='sendSMS()'>下一步</btn>
+        <btn ng-click='sendSMS()'>${i18n("下一步", "Next")}</btn>
     </div>
 </div>
 <div step=2 ng-if=data.step==2>
     <div>
-        已发送验证短信到<span ng-bind=mask(data.usercode)></span>
+        ${i18n("已发送验证短信到", "Verified SMS has been sent to")}<span ng-bind=mask(data.usercode)></span>
     </div>
     <group>
         <field>
-            <span>验证码</span>
+            <span>${i18n("验证码", "Identifying code")}</span>
             <input/>
             <div>
-                <btn ng-if='new Date-data.sendTime>data.waitTime' ng-click=resend()>重新发送</btn>
+                <btn ng-if='new Date-data.sendTime>data.waitTime' ng-click=resend()>${i18n("重新发送", "Resend")}</btn>
                 <span ng-if='new Date-data.sendTime<=data.waitTime'>
-                    <span ng-bind='String((data.sendTime-new Date+data.waitTime)/1000|0)'></span>秒后重新发送
+                ${i18n("<span ng-bind='String((data.sendTime-new Date+data.waitTime)/1000|0)'></span>秒后重新发送",
+        "Resend in <span ng-bind='String((data.sendTime-new Date+data.waitTime)/1000|0)'></span> seconds")}
                 </span>
             </div>
         </field>
-        <field><span>新密码</span><input/></field>
-        <field><span>确认密码</span><input/></field>
+        <field><span>${i18n("新密码", "New password")}</span><input/></field>
+        <field><span>${i18n("确认密码", "Verify password")}</span><input/></field>
     </group>
     <div class=option>
-        <btn ng-click='setPassword()'>确定</btn>
+        <btn ng-click='setPassword()'>${i18n("确定", "Confirm")}</btn>
     </div>
 </div>
 `.replace(/>\s+</g, "><");
@@ -64,7 +65,7 @@ var ticker = function () {
     if (data.step === 2 && new Date() - data.sendTime <= data.waitTime) ticker.ing = requestAnimationFrame(ticker);
     render.refresh();
 };
-page.initialStyle=`z-index:1;margin-left:100%`;
+page.initialStyle = `z-index:1;margin-left:100%`;
 onremove(page, function () {
     cancelAnimationFrame(ticker.ing);
     state(null);

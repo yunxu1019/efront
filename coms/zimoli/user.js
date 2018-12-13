@@ -1,4 +1,6 @@
 var user = enrich({
+    isLogin: false,
+    name: "",
     getName() {
     },
     Login(name, password) {

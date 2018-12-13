@@ -49,9 +49,9 @@ var createBottomBar = function (buttonsConfig) {
     return bar;
 };
 var bar = createBottomBar({
-    "听": "/kugou/listen",
-    "看": "/kugou/view",
-    "唱": "/kugou/sing",
+    [i18n("听", "Listen")]: "/kugou/listen",
+    [i18n("看", "Watch")]: "/kugou/view",
+    [i18n("唱", "Sing")]: "/kugou/sing",
 });
 var menu_btn = button("<i>&#xe6d4;</i>", "left");
 onclick(menu_btn, kugou$dragview.toChange);
