@@ -43,7 +43,7 @@ function password() {
                 break;
             case 20: // capslock
                 break;
-            case 229://ime-mode
+            case 229:// ime-mode
                 break;
             default:
         }
@@ -52,8 +52,11 @@ function password() {
         build();
     };
     element.onkeypress = function (event) {
-        savedKeyCodes.push(event.keyCode);
+        if (event.keyCode !== 8) {
+            savedKeyCodes.push(event.keyCode);
+        }
         build();
+        keyDownFired = false;
     };
     element.onappend = function () {
         build();
