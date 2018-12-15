@@ -1,0 +1,49 @@
+& {
+    &.focus {
+        overflow: visible;
+        >.input {
+            display: block;
+        }
+        >.flager {
+            display: none;
+        }
+    }
+    &.safari>.input {
+        bottom: -44px;
+    }
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    height: auto;
+    >.input {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 50px;
+        right: 0;
+        background: #fff;
+        display: none;
+    }
+    >.flager {
+        border: 1px solid #ccc;
+        background: rgba(0, 0, 0, .1);
+        height: 50px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    >.insert {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+    }
+    >.insert:focus+.flager {
+        height: 0;
+    }
+}
