@@ -108,7 +108,7 @@ try {
 var isAdjective = function () {
 
 }
-function i18n(message) {
+function i18n(message, _source) {
     if (!navigatorLanguage) return message;
     if (isArray(message)) {
         // i18n`abcd`;
@@ -124,13 +124,13 @@ function i18n(message) {
         for (let k in message) {
             if (!firstLanguage && isString(message[k])) firstLanguage = message[k];
             if (navigatorLanguage in message) return message[navigatorLanguage];
-            if (getAvailableLanguageName(k) === navigatorLanguage) return message[k];
+            if (getAvailableLanguageName(k) === navigatorLanguage && isString(message[k])) return message[k];
         }
-        if (firstLanguage) return i18n(firstLanguage)
+        if (firstLanguage) return i18n(firstLanguage);
         return firstLanguage;
     }
-    var _search = source[navigatorLanguage];
-    if (arguments.length > 1) {
+    var _search = _source && _source[navigatorLanguage] || source[navigatorLanguage];
+    if (arguments.length > 1 && isString(arguments[1])) {
         // i18n('zhString',"enString",...);
         if (navigatorLanguageIndex <= arguments.length) return arguments[navigatorLanguageIndex];
         return i18n(message);
