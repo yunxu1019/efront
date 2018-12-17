@@ -170,7 +170,7 @@ var asyncLoader = function (curl, temp, key, rebuild) {
         var durls = [durl];
         var is_change = loadType === "change";
         var saved = is_change && temp[key];
-        saved = !(saved instanceof Promise) && saved;
+        saved = !(saved instanceof Promise || saved instanceof Error) && saved;
         var pathname = path.join(root, curl);
         temp[key] = isdirAsync(pathname).then(function (isdir) {
             if (isdir) {
