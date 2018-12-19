@@ -107,7 +107,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                         });
                     }
                     for (var k in deletedMap) {
-                        console.warn(k, "required by '", deletedMap[k].join(","), "' skiped");
+                        console.warn(k, "required by '" + deletedMap[k].join(",") + "' skiped");
                     }
                     var writeApplication = function () {
                         return write(response, public_path);
