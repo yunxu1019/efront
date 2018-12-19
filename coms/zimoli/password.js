@@ -56,7 +56,6 @@ function password() {
             savedKeyCodes.push(event.keyCode);
         }
         build();
-        keyDownFired = false;
     };
     element.onappend = function () {
         build();
