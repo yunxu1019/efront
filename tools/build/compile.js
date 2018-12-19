@@ -48,6 +48,7 @@ var window = {
     renderPixelRatio: {},
     XHR: {},
     Image: {},
+    Promise: {},
     alert() {
     }
 };
