@@ -1,5 +1,20 @@
-& {
+&[ie] {
     width: 46px;
+    height: 24px;
+    margin: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    opacity: 0;
+    z-index: 1;
+    position: relative;
+    vertical-align: middle;
+    margin-right: -46px;
+}
+&[ie]+label,
+&:not([ie]) {
+    display: inline-block;
+    width: 46px;
+    margin: 0;
     height: 24px;
     border-radius: 12px;
     border: none;
@@ -40,7 +55,8 @@
     }
 }
 
-&:checked {
+&[ie]:checked+label,
+&:not([ie]):checked {
     &:before {
         left: 0;
         top: 0;
