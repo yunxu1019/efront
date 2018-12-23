@@ -23,10 +23,14 @@ var replace = function (dir, deep) {
     } else if (dir.match(/\.[tj]sx?$/i)) {
         var buffer = fs.readFileSync(dir);
         var replaceCount = 0;
-        var data = String(buffer).replace(/\bnew\s+Buffer\s*\(\s*(\d+)\s*\)/g, function (match, size) {
+        var data = String(buffer).replace(/\b(?:new\s+)?Buffer\s*\(\s*([^\(]*?)\s*\)/g, function (match, size) {
             replaceCount++;
-            console.log(dir, match);
-            return `Buffer.alloc(${size})`;
+            var result = match;
+            if (size.split(",").length === 2 || /(SIGNATURE|data|name|value)$/.test(size)) result = `Buffer.from(${size})`;
+            else if (/(length|size|num|width|height|\d+)$/i.test(size)) result = `Buffer.alloc(${size})`;
+            else replaceCount--;
+            console.log(dir, match, result);
+            return result;
         });
         replaceCount > 0 && fs.writeFileSync(dir, data);
     }
