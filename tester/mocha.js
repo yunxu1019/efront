@@ -6988,7 +6988,7 @@ exports.from = function from(value, encodingOrOffset, length) {
     if (len > value.byteLength - offset) {
       throw new RangeError('\'length\' is out of bounds');
     }
-    return new Buffer(value.slice(offset, offset + len));
+    return Buffer.from(value.slice(offset, offset + len));
   }
   if (Buffer.isBuffer(value)) {
     var out = Buffer.alloc(value.length);

@@ -156,7 +156,7 @@ module.exports = function(pxData, width, height, options, bpp) {
   var byteWidth = width * bpp;
   var rawPos = 0;
   var pxPos = 0;
-  var rawData = new Buffer((byteWidth + 1) * height);
+  var rawData = Buffer.alloc((byteWidth + 1) * height);
   var sel = filterTypes[0];
 
   for (var y = 0; y < height; y++) {
