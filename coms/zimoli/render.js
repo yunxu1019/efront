@@ -215,6 +215,7 @@ function renderElement(element, scope) {
                         }
                 }
             });
+            element.renderid = ++renderidOffset;
             element = replacer;
             element.$scope = scope;
         }
