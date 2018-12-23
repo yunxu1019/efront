@@ -184,6 +184,7 @@ function renderElement(element, scope) {
     element.$scope = scope;
     if (children.length) renderElement(children, scope);
     if (element.renderid) return;
+    element.renderid = true;
     var attrs = [].concat.apply([], element.attributes);
     var { tagName, parentNode, nextSibling } = element;
     if (parentNode) {
@@ -215,7 +216,6 @@ function renderElement(element, scope) {
                         }
                 }
             });
-            element.renderid = ++renderidOffset;
             element = replacer;
             element.$scope = scope;
         }
