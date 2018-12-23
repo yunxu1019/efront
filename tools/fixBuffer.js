@@ -26,7 +26,7 @@ var replace = function (dir, deep) {
         var data = String(buffer).replace(/\bnew\s+Buffer\s*\(\s*(\d+)\s*\)/g, function (match, size) {
             replaceCount++;
             console.log(dir, match);
-            return `Buffer.from(${size})`;
+            return `Buffer.alloc(${size})`;
         });
         replaceCount > 0 && fs.writeFileSync(dir, data);
     }
