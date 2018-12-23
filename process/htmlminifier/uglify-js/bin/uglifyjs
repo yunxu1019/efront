@@ -510,7 +510,7 @@ function done() {
 
         if (SOURCE_MAP) {
             if (ARGS.source_map_inline) {
-                var base64_string = new Buffer(SOURCE_MAP.toString()).toString('base64');
+                var base64_string = Buffer.from(SOURCE_MAP.toString()).toString('base64');
                 output += "\n//# sourceMappingURL=data:application/json;charset=utf-8;base64," + base64_string;
             } else {
                 fs.writeFileSync(ARGS.source_map, SOURCE_MAP, "utf8");

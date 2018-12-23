@@ -6935,9 +6935,9 @@ exports.alloc = function alloc(size, fill, encoding) {
     enc = undefined;
     _fill = 0;
   }
-  var buf = new Buffer(size);
+  var buf = Buffer.alloc(size);
   if (typeof _fill === 'string') {
-    var fillBuf = new Buffer(_fill, enc);
+    var fillBuf = Buffer.from(_fill, enc);
     var flen = fillBuf.length;
     var i = -1;
     while (++i < size) {
@@ -6958,7 +6958,7 @@ exports.allocUnsafe = function allocUnsafe(size) {
   if (size > MAX_LEN) {
     throw new RangeError('size is too large');
   }
-  return new Buffer(size);
+  return Buffer.alloc(size);
 }
 exports.from = function from(value, encodingOrOffset, length) {
   if (typeof Buffer.from === 'function' && (!global.Uint8Array || Uint8Array.from !== Buffer.from)) {
@@ -6968,12 +6968,12 @@ exports.from = function from(value, encodingOrOffset, length) {
     throw new TypeError('"value" argument must not be a number');
   }
   if (typeof value === 'string') {
-    return new Buffer(value, encodingOrOffset);
+    return Buffer.from(value, encodingOrOffset);
   }
   if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
     var offset = encodingOrOffset;
     if (arguments.length === 1) {
-      return new Buffer(value);
+      return Buffer.from(value);
     }
     if (typeof offset === 'undefined') {
       offset = 0;
@@ -6991,16 +6991,16 @@ exports.from = function from(value, encodingOrOffset, length) {
     return new Buffer(value.slice(offset, offset + len));
   }
   if (Buffer.isBuffer(value)) {
-    var out = new Buffer(value.length);
+    var out = Buffer.alloc(value.length);
     value.copy(out, 0, 0, value.length);
     return out;
   }
   if (value) {
     if (Array.isArray(value) || (typeof ArrayBuffer !== 'undefined' && value.buffer instanceof ArrayBuffer) || 'length' in value) {
-      return new Buffer(value);
+      return Buffer.from(value);
     }
     if (value.type === 'Buffer' && Array.isArray(value.data)) {
-      return new Buffer(value.data);
+      return Buffer.from(value.data);
     }
   }
 
@@ -7102,7 +7102,7 @@ function createBuffer (that, length) {
   } else {
     // Fallback: Return an object instance of the Buffer class
     if (that === null) {
-      that = new Buffer(length)
+      that = Buffer.alloc(length)
     }
     that.length = length
   }
@@ -7120,9 +7120,9 @@ function createBuffer (that, length) {
  * The `Uint8Array` prototype remains unmodified.
  */
 
-function Buffer (arg, encodingOrOffset, length) {
+function Buffer.alloc(arg, encodingOrOffset, length) {
   if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
-    return new Buffer(arg, encodingOrOffset, length)
+    return Buffer.alloc(arg, encodingOrOffset, length)
   }
 
   // Common case.
@@ -7162,7 +7162,7 @@ function from (that, value, encodingOrOffset, length) {
 }
 
 /**
- * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
+ * Functionally equivalent to Buffer.from(arg, encoding) but throws a TypeError
  * if value is a number.
  * Buffer.from(str[, encoding])
  * Buffer.from(array)
@@ -7230,7 +7230,7 @@ function allocUnsafe (that, size) {
 }
 
 /**
- * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
+ * Equivalent to Buffer.alloc(num), by default creates a non-zero-filled Buffer instance.
  * */
 Buffer.allocUnsafe = function (size) {
   return allocUnsafe(null, size)
@@ -8105,7 +8105,7 @@ Buffer.prototype.slice = function slice (start, end) {
     newBuf.__proto__ = Buffer.prototype
   } else {
     var sliceLen = end - start
-    newBuf = new Buffer(sliceLen, undefined)
+    newBuf = Buffer.from(sliceLen, undefined)
     for (var i = 0; i < sliceLen; ++i) {
       newBuf[i] = this[i + start]
     }
@@ -8654,7 +8654,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
   } else {
     var bytes = Buffer.isBuffer(val)
       ? val
-      : utf8ToBytes(new Buffer(val, encoding).toString())
+      : utf8ToBytes(Buffer.from(val, encoding).toString())
     var len = bytes.length
     for (i = 0; i < end - start; ++i) {
       this[i + start] = bytes[i % len]
@@ -14736,7 +14736,7 @@ var StringDecoder = exports.StringDecoder = function(encoding) {
 
   // Enough space to store all bytes of a single character. UTF-8 needs 4
   // bytes, but CESU-8 may require up to 6 (3 bytes per surrogate).
-  this.charBuffer = new Buffer(6);
+  this.charBuffer = Buffer.alloc(6);
   // Number of bytes received for the current incomplete multi-byte character.
   this.charReceived = 0;
   // Number of bytes expected for the current incomplete multi-byte character.
@@ -14750,7 +14750,7 @@ var StringDecoder = exports.StringDecoder = function(encoding) {
 // returned when calling write again with the remaining bytes.
 //
 // Note: Converting a Buffer containing an orphan surrogate to a String
-// currently works, but converting a String to a Buffer (via `new Buffer`, or
+// currently works, but converting a String to a Buffer.from(via `new Buffer`, or
 // Buffer#write) will replace incomplete surrogates with the unicode
 // replacement character. See https://codereview.chromium.org/121173009/ .
 StringDecoder.prototype.write = function(buffer) {

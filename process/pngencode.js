@@ -7,7 +7,7 @@ function getUInt32BE(integer) {
     return [integer >>> 24, integer >>> 16 & 0xff, integer >>> 8 & 0xff, integer & 0xff];
 }
 // -function getUInt32BE_test(integer){
-//     var buf=new Buffer(4);
+//     var buf=Buffer.alloc(4);
 //     buf.writeInt32BE(0x01020304);
 //     console.log(buf,Buffer.from(getUInt32BE(0x01020304)));
 //     var type=parseType("IHDR");

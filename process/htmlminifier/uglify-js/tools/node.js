@@ -42,7 +42,7 @@ function read_source_map(code) {
         UglifyJS.AST_Node.warn("inline source map not found");
         return null;
     }
-    return JSON.parse(new Buffer(match[2], "base64"));
+    return JSON.parse(Buffer.from(match[2], "base64"));
 }
 
 UglifyJS.minify = function(files, options) {
@@ -169,7 +169,7 @@ UglifyJS.minify = function(files, options) {
 
     var mappingUrlPrefix = "\n//# sourceMappingURL=";
     if (options.sourceMapInline) {
-        stream += mappingUrlPrefix + "data:application/json;charset=utf-8;base64," + new Buffer(source_map).toString("base64");
+        stream += mappingUrlPrefix + "data:application/json;charset=utf-8;base64," + Buffer.from(source_map).toString("base64");
     } else if (options.outSourceMap && typeof options.outSourceMap === "string" && options.sourceMapUrl !== false) {
         stream += mappingUrlPrefix + (typeof options.sourceMapUrl === "string" ? options.sourceMapUrl : options.outSourceMap);
     }

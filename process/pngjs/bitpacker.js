@@ -17,7 +17,7 @@ module.exports = function(data, width, height, options) {
   }
 
   var outBpp = constants.COLORTYPE_TO_BPP_MAP[options.colorType];
-  var outData = new Buffer(width * height * outBpp);
+  var outData = Buffer.alloc(width * height * outBpp);
   var inBpp = options.inputHasAlpha ? 4 : 3;
   var inIndex = 0;
   var outIndex = 0;
