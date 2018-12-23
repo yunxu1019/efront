@@ -3,6 +3,7 @@
  */
 var baseUrl = "api";
 var runner = null;
+var lazyRender = null;
 var api = function () {
     var method, uri, parameters, prefix;
     for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
@@ -57,6 +58,7 @@ var api = function () {
                 runner = null;
             }
             onend && onend();
+            isFunction(lazyRender) && lazyRender();
         };
         var xhr = XHR();
         xhr.open(method, url);
@@ -251,4 +253,7 @@ api.newBaseUrl = function (url) {
         baseUrl = savedUrl;
         return req;
     }
+};
+api.setLazyRender = function (render) {
+    lazyRender = render;
 };

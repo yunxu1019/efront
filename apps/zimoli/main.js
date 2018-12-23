@@ -36,6 +36,8 @@ api.setHeaders({}, false);
 api.onerror = function (error) {
     alert.error(i18n(JSON.parse(error).reason));
 };
+api.setLazyRender(render.refresh);
+user.setLoginPath("/user/welcome");
 function main() {
     return view;
 }

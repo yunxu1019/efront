@@ -122,7 +122,15 @@ function go(pagepath, args, history_name, oldpagepath) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
     var page_object = page_generators[pagepath];
-    var { pg, with: _with_elements, state, onback: _pageback_listener, prepares } = page_object;
+    var { pg, with: _with_elements, state, onback: _pageback_listener, prepares, roles } = page_object;
+    if (!checkroles(user.roles, roles)) {
+        // 检查权限
+        if (!user.isLogin && user.loginPath) {
+            return go(user.loginPath, [pagepath, args, history_name, oldpagepath]);
+        }
+        return alert(i18n("没有权限！", "No Access!"));
+    }
+
     page_object.go = function (_url, args, _history_name) {
         return go(state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
     };
@@ -234,10 +242,21 @@ function prepare(pagepath, ok) {
         state.with(realTitleBar);
         return realTitleBar;
     };
+    var roles = null;
+    state.login = function () {
+        // rolesA[role1,role2,...],rolesB,rolesC,...
+        // rolesA中的role1,role2,...等所有身份都必须具备才可以确定一种访问权限
+        // 符合rolesA,rolesB,rolesC任意一种权限都可以访问
+        if (!roles) roles = [];
+        for (var cx = 0, dx = arguments.length; cx < dx; cx++) {
+            roles.push(arguments[cx]);
+        }
+    };
     return init(pagepath, function (pg) {
         if (!pg) return;
         page_generators[pagepath] = {
             pg,
+            roles,
             state,
             with: _with_elements,
             onback: _pageback_listener,
@@ -302,6 +321,18 @@ var pushstate = function (path_name, history_name, oldpagepath) {
     hostoryStorage.setItem(history_session_object_key, JSON.stringify(history) || null);
     return isDestroy;
 };
+var popstate = function (path_name, history_name) {
+    if (!history_name) history_name = current_history;
+    if (!isString(history_name)) return;
+    if (!history[history_name]) return;
+    var _history = history[history_name];
+    for (var cx = 0, dx = _history.length; cx < dx; cx++) {
+        if (_history[cx] === path_name) {
+            _history.splice(cx, dx - cx);
+            break;
+        }
+    }
+};
 var getCurrentHash = function () {
     var _historylist = history[current_history];
     if (_historylist.length < 2) return "";
@@ -335,6 +366,36 @@ var checkonback = function (elements) {
         }
     }
     return onback;
+};
+var checkroles = function (userRoles, needRoles) {
+    if (!needRoles) return true;
+    if (!userRoles) return false;
+    var userRolesMap = {};
+    if (isString(userRoles)) {
+        userRolesMap[userRoles] = true;
+    } else if (userRoles instanceof Array) {
+        userRoles.forEach(role => userRolesMap[role] = true);
+    } else {
+        extend(userRolesMap, userRoles);
+    }
+    if (isString(needRoles)) {
+        if (userRoles[needRoles]) return true;
+    } else if (needRoles instanceof Array) {
+        if (!needRoles.length) return true;
+        role: for (let cx = 0, dx = needRoles.length; cx < dx; cx++) {
+            var roles = needRoles[cx];
+            if (isString(roles)) {
+                if (!userRolesMap[roles]) continue;
+            } else if (isArray(roles)) {
+                for (let cy = 0, dy = roles.length; cy < dy; cy++) {
+                    var role = roles[cy];
+                    if (!userRolesMap[role]) continue role;
+                }
+            }
+            return true;
+        }
+    }
+    return false;
 };
 put(":empty", function () {
     return null;
@@ -399,6 +460,10 @@ var _switch = zimoli.switch = function (history_name, target_body, emptyState) {
 };
 zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
+user.clean = zimoli.clean = function () {
+    var pathnames = [].concat.apply([], arguments);
+    pathnames.forEach(pathname => popstate(pathname));
+};
 rootElements.push = function () {
     [].push.apply(this, arguments);
     fixurl();

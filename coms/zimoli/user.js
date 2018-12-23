@@ -1,5 +1,8 @@
-var user = enrich({
+var proto = {
     isLogin: false,
+    roles: null,
+    targetUrl: null,
+    loginPath: null,
     name: "",
     getName() {
     },
@@ -8,9 +11,23 @@ var user = enrich({
             api("_session", {
                 name,
                 password
-            }).success(ok);
-        })
+            }).success(ok).error(function (result) {
+                oh(result);
+                alert.error(i18n(JSON.parse(result).reason));
+            });
+        }).then(function (result) {
+            proto.roles = result.roles || [];
+            proto.isLogin = true;
+            user.clean && user.clean(proto.loginPath);
+        });
     },
-    load(state) {
+    Logout() {
+        proto.roles = null;
+        proto.isLogin = false;
+        proto.name = "";
+    },
+    setLoginPath(pathname) {
+        proto.loginPath = pathname;
     }
-});
+}
+var user = enrich(proto);
