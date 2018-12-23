@@ -177,8 +177,20 @@ var page_generators = {};
  * 如果args是一个字符串，那么当下次指定一个相同的字符串时，此对象被新对象代替
  * 如果args是bool值true，那么当执行history.back()时，此对象被清除
  */
+var loading_tree = {};
 function prepare(pagepath, ok) {
     if (page_generators[pagepath]) return isFunction(ok) && ok();
+    if (loading_tree[pagepath]) {
+        if (isFunction(ok)) {
+            loading_tree[pagepath].push(ok);
+        }
+        return;
+    }
+    loading_tree[pagepath] = [];
+    if (isFunction(ok)) {
+        loading_tree[pagepath].push(ok);
+    }
+
     var _zimoli_state_key = _zimoli_state_prefix + pagepath;
     var state = function state(condition, setAsAdditional = condition !== null) {
         var state_string = hostoryStorage.getItem(_zimoli_state_key);
@@ -226,7 +238,6 @@ function prepare(pagepath, ok) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
         var go = page_generators[pagepath].go;
         isFunction(go) && go(url, args, _history_name);
-
     };
     var prepares = [];
     state.prepare = state.go.prepare = function (urls) {
@@ -262,7 +273,10 @@ function prepare(pagepath, ok) {
             onback: _pageback_listener,
             prepares
         };
-        return isFunction(ok) && ok();
+        loading_tree[pagepath] && loading_tree[pagepath].forEach(function (ok) {
+            return isFunction(ok) && ok();
+        });
+        delete loading_tree[pagepath];
     }, state);
 }
 
