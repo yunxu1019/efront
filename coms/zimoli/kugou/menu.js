@@ -20,7 +20,7 @@ menu.innerHTML = `
 <switch><i>&#xe62f;</i>${i18n("通知栏歌词", "KRC Notification")}</switch>
 </div>
 <div class=setting-button>
-<btn ng-click="go('/personal/setting')"><i>&#xe630;</i>${i18n("设置", "Settings")}</btn>
+<btn ng-click="go('/user/setting')"><i>&#xe630;</i>${i18n("设置", "Settings")}</btn>
 </div>
 `.replace(/>\s+</g, "><");
 render(menu, {
