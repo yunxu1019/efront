@@ -1,13 +1,13 @@
-<div class=user-info>
+<div ng-click="go('/user/profile')" class=user-info >
     <div><img src=images/avatar.png class=avatar /></div>
     <div class=info>
-        <div class=name>不枝雀</div>
+        <div ng-if=user.isLogin class=name ng-bind=user.name>不枝雀</div>
         <div class=level>LV.5</div>
     </div>
 </div>
 <div class=music-info>
     <btn ng-click="go('/files/main')"><i>&#xe610;</i>${i18n({zh:'本地音乐',en:'Local'})}</btn>
-    <btn ng-click="go('/collection/main')"><i>&#xe616;</i>${i18n({zh:'喜欢·歌单',en:'Favourite'})}</btn>
+    <btn ng-click="go('/collection/main')"><i>&#xe616;</i>${i18n({zh:'我的收藏',en:'Favourite'})}</btn>
     <btn><i>&#xe606;</i>${i18n('下载','Downloads')}</btn>
     <btn><i>&#xe64d;</i>${i18n('最近','Recent')}</btn>
 </div>

@@ -18,6 +18,7 @@ var proto = {
         }).then(function (result) {
             proto.roles = result.roles || [];
             proto.isLogin = true;
+            proto.name = result.name;
             user.clean && user.clean(proto.loginPath);
         });
     },

@@ -34,7 +34,11 @@ zimoli.setStorage(localStorage);
 api.setBaseUrl("https://efront.cc/{//efront.cc:5989/}@");
 api.setHeaders({}, false);
 api.onerror = function (error) {
-    alert.error(i18n(JSON.parse(error).reason));
+    try {
+        error = JSON.parse(error).reason
+    } catch (e) {
+    }
+    alert.error(i18n(error));
 };
 api.setLazyRender(render.refresh);
 user.setLoginPath("/user/welcome");

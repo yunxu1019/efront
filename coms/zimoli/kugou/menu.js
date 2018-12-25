@@ -1,7 +1,7 @@
 var menu = div();
 menu.innerHTML = `
 <div class=user-info ng-if=user.isLogin>
-    <div><img class=avatar src=images/avatar.png /></div><div class=info><div class=name>${user.name || ""}</div><div><span class=level>LV.5</span></div></div>
+    <div><img class=avatar src=images/avatar.png /></div><div class=info><div class=name ng-bind=user.name></div><div><span class=level>LV.5</span></div></div>
 </div>
 <div class=user-info ng-if=!user.isLogin>
     <btn class=login ng-click="go('/user/welcome')">${i18n("点击登录", "Sign in")}</btn>

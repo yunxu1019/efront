@@ -34,6 +34,7 @@ var setting_about = group(setting);
 var page = createVboxWithState(state);
 appendChild(page, beian, tbar, money_about, life_circle, live_connect, recived_gift, id_account, setting_about);
 css(page, "font-size:40px;color:#fff;");
+login();
 function main() {
     return page;
 }
