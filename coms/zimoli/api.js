@@ -187,7 +187,11 @@ var api = function () {
         return req;
     };
     req.onerror = function (_error) {
-        onerror = _error;
+        onerror = a => {
+            try { _error(a) } catch (e) {
+                isFunction(api.onerror) ? api.onerror(a) : alert.error(a);
+            }
+        };
         return req;
     };
     req.onupload = function (_onprogress) {
