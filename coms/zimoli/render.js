@@ -53,12 +53,18 @@ var directives = {
                 if (this.checked != value) this.checked = value;
             });
             var change = new Function(`with(this.$scope)${search}=this.checked`).bind(this);
-        } else if (/^(select|input|textarea)$/i.test(this.tagName)) {
+        } else if (("value" in this || this.getValue instanceof Function) && this.setValue instanceof Function) {
+            this.renders.push(function () {
+                var value = getter();
+                if (value === undefined) value = "";
+                if (this.value != value) this.setValue(value);
+            });
+            var change = new Function(`with(this.$scope)${search}=this.value`).bind(this);
+        } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (this.value != value) this.value = value;
-
             });
             var change = new Function(`with(this.$scope)${search}=this.value`).bind(this);
         } else {

@@ -60,5 +60,10 @@ function password() {
     element.onappend = function () {
         build();
     };
+    element.setValue = function (value) {
+        savedKeyCodes.splice(0, savedKeyCodes.length);
+        savedKeyCodes.push.apply(savedKeyCodes, String(value || "").split("").map(a => a.charCodeAt(0)));
+        build();
+    };
     return element;
 }
