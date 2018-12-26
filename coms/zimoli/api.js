@@ -4,6 +4,7 @@
 var baseUrl = "api";
 var runner = null;
 var lazyRender = null;
+var REQ = null;
 var api = function () {
     var method, uri, parameters, prefix;
     for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
@@ -60,8 +61,13 @@ var api = function () {
             onend && onend();
             isFunction(lazyRender) && lazyRender();
         };
-        var xhr = XHR();
-        xhr.open(method, url);
+        if (REQ) {
+            var xhr = REQ(method, url);
+        } else {
+            var xhr = XHR();
+            xhr.open(method, url);
+        }
+
         xhr.onreadystatechange = function () {
             if (xhr.readyState !== 4) return;
             switch (xhr.status) {
@@ -240,8 +246,9 @@ var useXMLHttpRequestHeaders = {
     "X-Requested-With": "XMLHttpRequest"
 };
 
-api.setBaseUrl = function (url) {
+api.setBaseUrl = function (url, cross) {
     baseUrl = url;
+    REQ = cross;
 };
 api.setHeaders = function (object, notclear) {
     if (notclear === false) {
