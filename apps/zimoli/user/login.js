@@ -28,11 +28,12 @@ render(page, {
             password
         }).success(function (result) {
             login.ing = false;
-            user.Login(result);
-            user.setSessionTime(60 * 60 * 1000 * 7 * 24);
-            user.saveSession(cross.getCookies(config.api_domain));
-            if (!go_args.length) go("profile");
-            else go.apply(null, go_args);
+            user.Login(result).then(function(){
+                user.setSessionTime(60 * 60 * 1000 * 7 * 24);
+                user.saveSession(cross.getCookies(config.api_domain));
+                if (!go_args.length) go("profile");
+                else go.apply(null, go_args);
+            });
         }).error(function (result) {
             login.ing = false;
             alert.error(i18n(JSON.parse(result).reason));
