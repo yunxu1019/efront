@@ -31,7 +31,7 @@ css("body", "background:url('images/background.jpg') no-repeat;background-size:c
 css(":after,:before,*", "box-sizing:border-box;");
 css(".titlebar", { backgroundColor: "rgb(44, 162, 249)" });
 zimoli.setStorage(localStorage);
-api.setBaseUrl("https://efront.cc/{//efront.cc:5989/}@");
+api.setBaseUrl(config.api_base, cross);
 api.setHeaders({}, false);
 api.onerror = function (error) {
     try {
@@ -42,6 +42,10 @@ api.onerror = function (error) {
 };
 api.setLazyRender(render.refresh);
 user.setLoginPath("/user/welcome");
+user.setStateFunction(state);
+user.loadSession().then(function (session) {
+    cross.addCookie(session, config.api_domain);
+});
 function main() {
     return view;
 }

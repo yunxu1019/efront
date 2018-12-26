@@ -61,25 +61,15 @@ var api = function () {
             onend && onend();
             isFunction(lazyRender) && lazyRender();
         };
-        if (REQ) {
-            var xhr = REQ(method, url);
-        } else {
-            var xhr = XHR();
-            xhr.open(method, url);
-        }
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState !== 4) return;
-            switch (xhr.status) {
-                case 0:
-                case 200:
-                case 304:
-                    xhr_onload(xhr);
-                    break;
-                default:
-                    xhr_onerror(xhr);
+        var xhr_onerror = function () {
+            setTimeout(clear);
+            if (!navigator.onLine) {
+                onerror && onerror("请求网络失败，请确认网络连接正常！", -1);
+            } else {
+                onerror && onerror(xhr.responseText || "无法访问服务器！", xhr);
             }
-        }
+            prefix && console.error(prefix + "失败！");
+        };
 
         var xhr_onload = function () {
             setTimeout(clear);
@@ -110,6 +100,25 @@ var api = function () {
                 onerror && onerror(prefix + "接口未返回信息！", 2);
             }
         };
+        if (REQ) {
+            var xhr = REQ(method, url).done(xhr_onload).error(xhr_onerror);
+        } else {
+            var xhr = XHR();
+            xhr.open(method, url);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState !== 4) return;
+                switch (xhr.status) {
+                    case 0:
+                    case 200:
+                    case 304:
+                        xhr_onload(xhr);
+                        break;
+                    default:
+                        xhr_onerror(xhr);
+                }
+            }
+        }
+
         if (xhr.upload) xhr.upload.onprogress = function (event) {
             onupload && onupload(event, xhr);
             req.up_total = event.total;
@@ -127,15 +136,6 @@ var api = function () {
         xhr.ontimeout = function () {
             setTimeout(clear);
             onerror && onerror("请求超时！");
-        };
-        var xhr_onerror = function () {
-            setTimeout(clear);
-            if (!navigator.onLine) {
-                onerror && onerror("请求网络失败，请确认网络连接正常！", -1);
-            } else {
-                onerror && onerror(xhr.responseText || "无法访问服务器！", xhr);
-            }
-            prefix && console.error(prefix + "失败！");
         };
         if (typeof parameters !== "string") {
             switch ({

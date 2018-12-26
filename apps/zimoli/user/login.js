@@ -11,6 +11,7 @@ page.innerHTML = `
 <a class=anchor ng-click=go('getPassword')>${i18n`Forgot password`}</a>
 `;
 var go_args;
+
 render(page, {
     login: {},
     go,
@@ -19,27 +20,28 @@ render(page, {
     btn: button,
     username: "",
     password: null,
-    guest() {
+    request(name, password) {
         var login = this.login;
         login.ing = true;
-        user.Login("guest", "123456").then(function () {
+        api("_session", {
+            name,
+            password
+        }).success(function (result) {
             login.ing = false;
+            user.Login(result);
+            user.setSessionTime(60 * 60 * 1000 * 7 * 24);
+            user.saveSession(cross.getCookies(config.api_domain));
             if (!go_args.length) go("profile");
             else go.apply(null, go_args);
-        }).catch(function () {
+        }).error(function (result) {
             login.ing = false;
+            alert.error(i18n(JSON.parse(result).reason));
         });
+
     },
     login() {
-        if (!this.username) return this.guest();
-        var login = this.login;
-        login.ing = true;
-        user.Login(this.username, this.password).then(function () {
-            login.ing = false;
-            go.apply(null, go_args);
-        }).catch(function () {
-            login.ing = false;
-        });
+        if (!this.username) this.request("guest", "123456");
+        else this.request(this.username, this.password);
     }
 });
 vbox(page);
