@@ -13,22 +13,24 @@ page.innerHTML = `
 var go_args;
 
 render(page, {
-    login: {},
+    loading: {},
     go,
     name: input,
     pswd: password,
     btn: button,
-    username: "",
+    username: user.name || "",
     password: null,
     request(name, password) {
-        var login = this.login;
+        var that = this;
+        var login = this.loading;
         login.ing = true;
         api("_session", {
             name,
             password
         }).success(function (result) {
             login.ing = false;
-            user.Login(result).then(function(){
+            user.Login(result).then(function () {
+                that.password = "";
                 user.setSessionTime(60 * 60 * 1000 * 7 * 24);
                 user.saveSession(cross.getCookies(config.api_domain));
                 if (!go_args.length) go("profile");
