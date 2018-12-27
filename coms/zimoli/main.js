@@ -239,8 +239,13 @@ var executer = function (text, name, then, prebuild) {
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
-        modules[name] = exports;
-        then(exports);
+        if (exports instanceof Promise) {
+            exports.then(function (exports) {
+                then(modules[name] = exports);
+            });
+        } else {
+            then(modules[name] = exports);
+        }
     } else init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
         // 如果构造该对象没有依赖预置树中的对象，保存这个对象到全局单例对象，否则保存这个对象到预置树
         if (modules[name]) return then(modules[name]);
@@ -254,9 +259,17 @@ var executer = function (text, name, then, prebuild) {
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
-        if (prevent_save) prebuild[name] = exports;
-        else modules[name] = exports;
-        then(exports);
+        if (exports instanceof Promise) {
+            exports.then(function (exports) {
+                if (prevent_save) prebuild[name] = exports;
+                else modules[name] = exports;
+                then(exports);
+            });
+        } else {
+            if (prevent_save) prebuild[name] = exports;
+            else modules[name] = exports;
+            then(exports);
+        }
     }, prebuild);
 };
 var noop = function (text, name, then) {

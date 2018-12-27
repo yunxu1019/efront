@@ -9,6 +9,11 @@ function cless(commFactory, styleSheet, className) {
     }
     className = className + " " + className.replace(/^.*?(\w*?)\-\w*?$/g, "$1");
     appendChild(document.getElementsByTagName("head")[0], style);
+    if (commFactory instanceof Promise) {
+        return commFactory.then(function (result) {
+            return cless(result, styleSheet, className);
+        });
+    }
     if (isFunction(commFactory)) {
         var result = function () {
             var commRelease = commFactory.apply(this || null, arguments);
