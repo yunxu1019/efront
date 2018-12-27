@@ -43,9 +43,29 @@ api.onerror = function (error) {
 api.setLazyRender(render.refresh);
 user.setLoginPath("/user/welcome");
 user.setStateFunction(state);
-user.loadSession().then(function (session) {
-    cross.addCookie(session, config.api_domain);
-});
-function main() {
+var mainView = function () {
     return view;
-}
+};
+var main = new Promise(function (ok, oh) {
+    var logout = function () {
+        user.Logout().then(function () {
+            ok(mainView);
+        }).catch(function () {
+            ok(mainView);
+        });
+    };
+    user.loadSession().then(function (session) {
+        if (!session) return ok(mainView);
+        cross.addCookie(session, config.api_domain);
+        api("get", "_session").success(function (result) {
+            if (result.ok && result.userCtx) {
+                ok(mainView);
+            } else {
+                logout();
+            }
+        }).error(function (error) {
+            logout();
+            alert.error(JSON.parse(error).reason);
+        });
+    });
+});
