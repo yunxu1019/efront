@@ -21,7 +21,7 @@ function _onappend(node, event) {
     if (isFunction(onappend)) {
         onappend.call(node, event);
     }
-    var children = node.childNodes;
+    var children = [].concat.apply([], node.childNodes);
     if (children) for (var cx = 0, dx = children.length; cx < dx; cx++) {
         _onappend(children[cx], event);
     }
