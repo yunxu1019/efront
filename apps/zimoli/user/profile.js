@@ -1,10 +1,27 @@
-titlebar("个人中心");
+var tbar = titlebar("个人中心");
 var avatar = createElement(div);
 css(avatar, "border-radius:50%;background-color:#ccc;width:60px;height:60px;");
 var avatarArea = createElement(div, avatar);
 css(avatarArea, "width:100%;height:120px;background-color:#fff;");
 var page = createVboxWithState(state);
 page.innerHTML = profile;
+
+on("scroll")(page, function () {
+    var deltaHeight = page.querySelector(".userinfo").offsetHeight - page.scrollTop;
+    var calcHeight = 30;
+    var titlebarHeight = tbar.offsetHeight;
+    var totalHeight = calcHeight + titlebarHeight;
+    var ratio;
+    if (deltaHeight < titlebarHeight) {
+        ratio = 1;
+    } else if (deltaHeight < totalHeight) {
+        ratio = (totalHeight - deltaHeight) / calcHeight;
+    } else {
+        ratio = 0;
+    }
+    tbar.style.backgroundColor = `rgba(${[44, 162, 249, ratio]})`;
+    tbar.style.color = `rgba(${[0xff, 0xff, 0xff, ratio]})`;
+});
 render(page, {
     user,
     group,
