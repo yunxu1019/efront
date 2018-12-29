@@ -25,6 +25,11 @@ on("scroll")(page, function () {
 render(page, {
     user,
     group,
+    editavatar() {
+        var editor = avatarEditor(this);
+        editor.initialStyle = "opacity:0;";
+        popup(editor);
+    },
     avatar() {
         return avatarArea;
     },
