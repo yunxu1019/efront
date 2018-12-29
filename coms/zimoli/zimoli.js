@@ -439,10 +439,7 @@ var onback = function () {
     } else { };
 };
 
-function addGlobal(element, name, isDestroy) {
-    if (!name) {
-        name = current_history;
-    }
+function addGlobal(element, name = current_history, isDestroy) {
     if (isString(name)) {
         if (global[name] === element) return;
         var oldElement = global[name];
@@ -461,8 +458,12 @@ function addGlobal(element, name, isDestroy) {
     } else if (isFunction(name)) {
         name(element);
     } else if (element) {
-        popup(element);
-        fixurl();
+        if (isFunction(body.layer)) {
+            body.layer(element);
+        } else {
+            appendChild(body, element);
+        }
+        rootElements.push(element);
     }
 }
 var _switch = zimoli.switch = function (history_name, target_body, emptyState) {
@@ -472,7 +473,7 @@ var _switch = zimoli.switch = function (history_name, target_body, emptyState) {
         body = target_body;
     if (emptyState !== false && !history[history_name]) history[history_name] = [emptyState || ":empty"];
 };
-zimoli.global = addGlobal;
+popup.global = zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
 user.clean = zimoli.clean = function () {
     var pathnames = [].concat.apply([], arguments);

@@ -177,7 +177,6 @@ var popup_as_single = function (element) {
 };
 var global = function (element) {
     once("remove")(element, cleanup);
-    appendChild(document.body, element);
-    rootElements.push(element);
+    popup.global ? popup.global(element, true) : appendChild(document.body, element);
 }
 var cleanup = new Cleanup(rootElements);
