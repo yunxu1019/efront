@@ -1,5 +1,5 @@
 <div ng-click="go('/user/profile')" class=user-info >
-    <div><img src=images/avatar.png class=avatar /></div>
+    <div><img ng-src="user.avatar" class=avatar /></div>
     <div class=info>
         <div ng-if=user.isLogin class=name ng-bind=user.name>不枝雀</div>
         <div class=level>LV.5</div>

@@ -1,10 +1,14 @@
 var state = function () { };
-var proto = {
+var emptyProto = {
+    name: "",
+    _id: "",
+    avatar: "images/avatar.png",
     isLogin: false,
-    roles: null,
+    roles: null
+};
+var proto = {
     targetUrl: null,
     loginPath: null,
-    name: "",
     session_time: 300000,
     setStateFunction(stateFunc) {
         if (!isFunction(stateFunc)) throw new Error("只能传入函数类型的参数");
@@ -25,6 +29,7 @@ var proto = {
         state({
             roles: proto.roles,
             name: proto.name,
+            _id: proto._id,
             session: session,
             session_time: +new Date() + proto.session_time
         });
@@ -35,16 +40,17 @@ var proto = {
         proto.roles = userinfo.roles || [];
         proto.isLogin = true;
         proto.name = userinfo.name;
+        proto._id = "org.couchdb.user:" + userinfo.name;
+        proto.avatar = `${cross.getCrossUrl(config.api_base)}_users/${proto._id}/avatar`;
         user.clean && user.clean(proto.loginPath);
     },
     Logout() {
-        proto.roles = null;
-        proto.isLogin = false;
-        proto.name = "";
+        extend(proto, emptyProto);
         this.saveSession("");
     },
     setLoginPath(pathname) {
         proto.loginPath = pathname;
     }
-}
+};
+extend(proto, emptyProto);
 var user = enrich(proto);
