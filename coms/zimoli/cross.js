@@ -91,6 +91,17 @@ function isChildPath(relative, path) {
 var digest = function () {
     if (cross.digest instanceof Function) cross.digest();
 };
+
+var getCrossUrl = function (domain, headers) {
+    var originDomain = getDomainPath(domain);
+    var _cookies = getCookies(originDomain);
+    var _headers = {};
+    if (_cookies) {
+        _headers.Cookie = _cookies;
+    }
+    extend(_headers, headers);
+    return `{//${originDomain}${serialize(_headers)}}@`;
+};
 function cross(method, url, headers) {
     var originDomain = getDomainPath(url);
     if (!originDomain) throw new Error("Unsupposed url format!");
@@ -207,5 +218,6 @@ function cross(method, url, headers) {
 }
 extend(cross, {
     getCookies,
-    addCookie
+    addCookie,
+    getCrossUrl
 });
