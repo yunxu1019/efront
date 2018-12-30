@@ -32,9 +32,11 @@ var directives = {
     },
     src(search) {
         var getter = createGetter(search).bind(this);
+        var anchor = document.createElement("a");
         this.renders.push(function () {
             var value = getter() || "";
-            if (this.src !== value) this.src = value;
+            anchor.href = value;
+            if (this.src !== anchor.href) this.src = anchor.href;
         });
     },
     bind(search) {
