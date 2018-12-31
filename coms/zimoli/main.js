@@ -49,7 +49,7 @@ var isBadDevice;
         test();
     } catch (e) {
     }
-    var SAFE_CIRCLE_DEPTH = modules.SAFE_CIRCLE_DEPTH = inc / (new Date - saved_time) | 0;
+    var SAFE_CIRCLE_DEPTH = modules.SAFE_CIRCLE_DEPTH =931|| inc / (new Date - saved_time) | 0;
     isBadDevice = SAFE_CIRCLE_DEPTH < 512;
 };
 modules.IS_BAD_DEVICE = isBadDevice;
@@ -240,7 +240,7 @@ var executer = function (text, name, then, prebuild) {
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
-        if (exports instanceof Promise) {
+        if (Promise && exports instanceof Promise) {
             exports.then(function (exports) {
                 then(modules[name] = exports);
             });

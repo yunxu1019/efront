@@ -69,11 +69,17 @@ var checkDeep = function () {
 var checkDeepDepth = function () {
     var a = [1];
     var b = [1];
+    console.log(SAFE_CIRCLE_DEPTH);
     console.log("checkDeepDepth data start", +new Date)
     for (var cx = 0, dx = 2 * SAFE_CIRCLE_DEPTH + 10; cx < dx; cx++) {
         if (cx === SAFE_CIRCLE_DEPTH + 3) {
-            a = new Array(SAFE_CIRCLE_DEPTH << 8).fill(a);
-            b = new Array(SAFE_CIRCLE_DEPTH << 8).fill(b);
+            var ta = a, tb = b;
+            a = [];
+            b = [];
+            for (var cx = 0, dx = SAFE_CIRCLE_DEPTH << 10; cx < dx; cx++) {
+                a.push(ta);
+                b.push(tb);
+            }
         } else if (cx > 2 * SAFE_CIRCLE_DEPTH) {
             a = [a, a];
             b = [b, b];

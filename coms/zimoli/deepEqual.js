@@ -3,15 +3,13 @@ var singleEqual = function (o1, o2) {
 };
 var deepEqualMarkLabel = "__zimo1i_deep_equal_mark_label";
 var restcompare = [];
-var ALLOW_CACHE_LENGTH = SAFE_CIRCLE_DEPTH * 1024;
+var ALLOW_CACHE_LENGTH = Math.min(SAFE_CIRCLE_DEPTH, 1024) * Math.min(SAFE_CIRCLE_DEPTH, 1024);
 var ALLOW_REST_DEPTH = 16;
-var count = 0, inc = 0;
+var count = 0, inc = ALLOW_CACHE_LENGTH;
 var checkMemery = function (msg) {
-    var used = count + restcompare.length;
-    if (used > ALLOW_CACHE_LENGTH) {
-        inc += used / ALLOW_CACHE_LENGTH | 0;
-        count = used % ALLOW_CACHE_LENGTH;
-        if (inc >= ALLOW_REST_DEPTH) {
+    if (count > inc) {
+        inc = (count / ALLOW_CACHE_LENGTH + 1 | 0) * ALLOW_CACHE_LENGTH;
+        if (inc >= ALLOW_REST_DEPTH * ALLOW_CACHE_LENGTH) {
             console.warn("对象过大，deepEqual未能完成比对");
             return false;
         }
@@ -40,6 +38,7 @@ var objectEqual = function (o1, o2, deep) {
     if (restkeys.length && !(o1[deepEqualMarkLabel] && o2[deepEqualMarkLabel])) {
         for (var cx = 0, dx = restkeys.length; cx < dx; cx++) {
             var k = restkeys[cx];
+            count += 3;
             if (!checkMemery("深层对象过多，deepEqual将消耗更多的内存")) return false;
             restcompare.push(o1[k], o2[k], deep + 1);
         }
@@ -49,7 +48,7 @@ var objectEqual = function (o1, o2, deep) {
         if (!(v1 instanceof Object && v2 instanceof Object)) return singleEqual(v1, v2);
     }
     try {
-        if (deep === 0 && o1.toString instanceof Function && o2.toString instanceof Function) return o1.toString() === o2.toString();
+        if (deep === 0 && o1.toString instanceof Function && o2.toString instanceof Function && !o1.join && !o2.join) return o1.toString() === o2.toString();
     } catch (e) {
         console.warn(e);
     }
@@ -73,8 +72,8 @@ function deepEqual(o1, o2) {
             delete v1[deepEqualMarkLabel];
             delete v2[deepEqualMarkLabel];
         }
-        restcompare = [];
-        inc = 0, count = 0;
+        restcompare.splice(0, restcompare.length);
+        inc = ALLOW_CACHE_LENGTH, count = 0;
         return result;
     } else {
         return singleEqual(o1, o2);
