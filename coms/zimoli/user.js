@@ -2,7 +2,7 @@ var state = function () { };
 var emptyProto = {
     name: "",
     _id: "",
-    avatar: "images/avatar.png",
+    avatar: null,
     isLogin: false,
     roles: null
 };

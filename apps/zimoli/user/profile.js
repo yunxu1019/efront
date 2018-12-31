@@ -33,6 +33,15 @@ render(page, {
     avatar() {
         return avatarArea;
     },
+    upload(file) {
+        if (!file) return console.info("未选择文件");
+        var ext = /\.(png|jpe?g|gif)/i.exec(file.name);
+        if (!ext) return alert.error("只能上传png,jpg,gif格式的文件");
+        var xhr = XHR();
+        xhr.open("put", user.avatar);
+        xhr.setRequestHeader("Content-type", "image/" + ext[1].toLowerCase());
+        xhr.send(file);
+    },
     go,
     option(elem) {
         return option(elem.title, elem.getAttribute("content"), 96);
