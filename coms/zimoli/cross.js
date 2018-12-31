@@ -1,5 +1,5 @@
 var cookiesMap = {};
-var domainReg = /^https?\:\/\/(.*?)(\/.*?)?(?:[\?#].*)?$/i;
+var domainReg = /^https?\:\/\/(.*?)\/(.*?)?([\?#].*)?$/i;
 var base = domainReg.test(location.href) ? "/" : "http://efront.cc/";
 var HeadersKeys = ["Content-Type"];
 var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
@@ -12,7 +12,7 @@ if (cookiesData) {
     }
 }
 function getDomainPath(url) {
-    return url.replace(domainReg, "$1$2");
+    return url.replace(domainReg, "$1/$2");
 }
 function getRequestProtocol(url) {
     if (/^https:/i.test(url)) {
@@ -100,7 +100,8 @@ var getCrossUrl = function (domain, headers) {
         _headers.Cookie = _cookies;
     }
     extend(_headers, headers);
-    return `{//${originDomain}${serialize(_headers)}}@`;
+    var spliter = encodeURIComponent("/");
+    return domain.replace(/^s?\/\//i, "http$&").replace(domainReg, `{${spliter + spliter}$1${spliter}${serialize(_headers)}}@$2$3`);
 };
 function cross(method, url, headers) {
     var originDomain = getDomainPath(url);

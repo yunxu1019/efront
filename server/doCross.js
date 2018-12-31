@@ -21,11 +21,11 @@ function parseUrl(hostpath, real) {
     if (slice_end < 0) slice_end = pathname.length;
     var jsonlike = pathname.slice(1, slice_end);
     var realpath = real ? real.slice(1) : pathname.slice(slice_end + 1) + (search || "");
-    var matchlike = /^%7b(s?)\/\/(.*?)\/(.*?)%7d$/i.exec(jsonlike);
+    var matchlike = /^%7b(s?)(\/|%2f)\2(.*?)\2(.*?)%7d$/i.exec(jsonlike);
     if (matchlike) {
         // {s//wx2.qq.com/k=v,k=v,k=v}
         var headers = {};
-        let [, s, host, header] = matchlike;
+        let [, s, , host, header] = matchlike;
         var hostpath = `http${s}://${host}/`;
         header.split(/[,&]/).forEach(function (kv) {
             var [k, v] = kv.split("=");
