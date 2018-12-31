@@ -32,11 +32,27 @@ var directives = {
     },
     src(search) {
         var getter = createGetter(search).bind(this);
-        var anchor = document.createElement("a");
+        var oldValue, pending;
+        var refresh = function () {
+            that.src = oldValue;
+            removeClass(that, "pending");
+            pending = 0;
+        };
+        var img = document.createElement("img");
+        var that = this;
         this.renders.push(function () {
             var value = getter() || "";
-            anchor.href = value;
-            if (this.src !== anchor.href) this.src = anchor.href;
+            if (value === oldValue) return;
+            oldValue = value;
+            if (!/img/i.test(this.tagName)) return this.src = value;
+            this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
+            img.src = value;
+            if (img.complete) {
+                this.src = value;
+            } else if (!pending) {
+                addClass(this, "pending");
+                pending = setTimeout(refresh);
+            }
         });
     },
     bind(search) {
@@ -132,14 +148,17 @@ var directives = {
     "class"(search) {
         var getter = createGetter(search).bind(this);
         var generatedClassNames = {};
+        var oldValue;
         this.renders.push(function () {
+            var className = getter();
+            if (deepEqual(oldValue, className)) return;
+            oldValue = className;
             var originalClassNames = [];
             this.className.split(/\s+/).map(function (k) {
                 if (k && !hasOwnProperty.call(generatedClassNames, k) && !hasOwnProperty.call(originalClassNames, k)) {
                     if (!/^\d+$/.test(k)) originalClassNames.push(originalClassNames[k] = k);
                 }
             });
-            var className = getter();
             var deltaClassNames = [];
             if (isString(className)) {
                 className.split(/\s+/).map(function (k) {
@@ -163,8 +182,11 @@ var directives = {
     },
     style(search) {
         var getter = createGetter(search).bind(this);
+        var oldValue;
         this.renders.push(function () {
             var stylesheet = getter();
+            if (deepEqual(oldValue, stylesheet)) return;
+            oldValue = stylesheet;
             if (isString(stylesheet)) {
                 stylesheet.replace(/[\s\u00a0]+/g, "").split(/;/).map(function (kv) {
                     var [k, v] = kv.split(":");
