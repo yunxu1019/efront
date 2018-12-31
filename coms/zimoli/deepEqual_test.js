@@ -50,8 +50,16 @@ var checkDoubleCircle = function () {
     c = { a: {} };
     c.a.a = c;
     a.a.a = a;
+    return deepEqual(a, b) && deepEqual(a, a.a) && deepEqual(c, a);
+};
+var checkMultiCircle = function () {
+    a = { a: {} };
+    b = { a: { a: { a } } };
+    c = { a: {} };
+    c.a.a = c;
+    a.a.a = a;
     // b与a出现环形的节点不一样
-    return !deepEqual(a, b) && deepEqual(a, a.a) && deepEqual(c, a);
+    return deepEqual(a, b) && deepEqual(a, a.a) && deepEqual(c, a);
 };
 var checkDeep = function () {
     var a = createDeepObject(SAFE_CIRCLE_DEPTH * 8, 1);
@@ -63,9 +71,9 @@ var checkDeepDepth = function () {
     var b = [1];
     console.log("checkDeepDepth data start", +new Date)
     for (var cx = 0, dx = 2 * SAFE_CIRCLE_DEPTH + 10; cx < dx; cx++) {
-        if (cx === 3) {
-            a = new Array(SAFE_CIRCLE_DEPTH << 4).fill(a);
-            b = new Array(SAFE_CIRCLE_DEPTH << 4).fill(b);
+        if (cx === SAFE_CIRCLE_DEPTH + 3) {
+            a = new Array(SAFE_CIRCLE_DEPTH << 8).fill(a);
+            b = new Array(SAFE_CIRCLE_DEPTH << 8).fill(b);
         } else if (cx > 2 * SAFE_CIRCLE_DEPTH) {
             a = [a, a];
             b = [b, b];
@@ -89,6 +97,7 @@ function deepEqual_test() {
         checkUnEqual(),
         checkCircle(),
         checkDoubleCircle(),
+        checkMultiCircle(),
         checkDeep(),
         checkDeepCircle(),
         checkDeepDepth(),
