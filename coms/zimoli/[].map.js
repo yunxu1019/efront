@@ -55,9 +55,9 @@ var hasOwnProperty = {}.hasOwnProperty;
 var keys = function keys(object) {
     var result = [];
     for (var k in object) {
-        if (hasOwnProperty.call(object, k)) {
-            result.push(k);
-        }
+        if (!hasOwnProperty.call(object, k)) break;
+        // 如果遇到非私有属性，说明私有属性已经遍历完
+        result.push(k);
     }
     return result;
 };
