@@ -48,8 +48,9 @@ var isBadDevice;
         };
         test();
     } catch (e) {
-        isBadDevice = (new Date - saved_time) / inc > 0.002;
     }
+    var SAFE_CIRCLE_DEPTH = modules.SAFE_CIRCLE_DEPTH = inc / (new Date - saved_time) | 0;
+    isBadDevice = SAFE_CIRCLE_DEPTH < 512;
 };
 modules.IS_BAD_DEVICE = isBadDevice;
 // 适配大小屏
