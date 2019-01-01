@@ -41,6 +41,10 @@ render(page, {
         xhr.open("put", user.avatar);
         xhr.setRequestHeader("Content-type", "image/" + ext[1].toLowerCase());
         xhr.send(file);
+        xhr.onload = function () {
+            alert("上传成功！");
+            user.refresh();
+        };
     },
     go,
     option(elem) {

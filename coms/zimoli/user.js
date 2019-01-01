@@ -4,8 +4,10 @@ var emptyProto = {
     _id: "",
     avatar: null,
     isLogin: false,
+    avatar: null,
     roles: null
 };
+var loadUserData;
 var proto = {
     targetUrl: null,
     loginPath: null,
@@ -41,8 +43,14 @@ var proto = {
         proto.isLogin = true;
         proto.name = userinfo.name;
         proto._id = "org.couchdb.user:" + userinfo.name;
-        proto.avatar = `${cross.getCrossUrl(config.api_base)}_users/${proto._id}/avatar`;
         user.clean && user.clean(proto.loginPath);
+        this.refresh();
+    },
+    setUserDataLoader(method) {
+        loadUserData = method;
+    },
+    refresh() {
+        loadUserData instanceof Function && loadUserData();
     },
     Logout() {
         extend(proto, emptyProto);

@@ -46,6 +46,22 @@ user.setStateFunction(state);
 var mainView = function () {
     return view;
 };
+
+user.setUserDataLoader(function () {
+    api("get", "/_users/" + user._id).success(function (result) {
+        for (var k in user) {
+            if (!(user[k] instanceof Function)) {
+                delete user[k];
+            }
+        }
+        extendIfNeeded(user, result);
+        if (result._attachments && result._attachments.avatar) {
+            user.avatar = `${cross.getCrossUrl(config.api_base)}_users/${result._id}/avatar?rev=${result._rev}`;
+        } else {
+            user.avatar = null;
+        }
+    });
+});
 var main = new Promise(function (ok, oh) {
     var logout = function () {
         user.Logout().then(function () {
