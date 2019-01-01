@@ -8,13 +8,13 @@ var template = `<div>
 </div>
 <div class=line><span>${i18n("其他登录方式", 'Other way to login')}</span></div>
 <div class=methods>
-    <btn>
+    <btn ng-click="go('/extra/pending',this.innerText)">
         ${i18n('微博', 'weblog')}
     </btn>
     <btn ng-click=go("/login/qq")>
         QQ
     </btn>
-    <btn>
+    <btn ng-click="go('/extra/pending',this.innerText)">
         ${i18n('微信', 'Wechat')}
     </btn>
 </div>

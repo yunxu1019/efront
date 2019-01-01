@@ -1,6 +1,12 @@
 titlebar(i18n("设置", "Settings"));
 var page = createVboxWithState(state);
+var opt = function () {
+    var elem = option.apply(null, arguments);
+    elem.setAttribute("ng-click", "go('/extra/pending',this.innerText)");
+    return elem;
+};
 var settings = extend({
+    go,
     useHello: {
         name: i18n("Hello酷狗问候音", "Hello Kugou greetings"),
         value: true,
@@ -44,14 +50,14 @@ var comments = [
     group(
         createSwitchOption(settings.useHello.name, "useHello.value"),
         function () {
-            var _option = option(settings.helloSrc.name, settings.helloSrc.value, 180);
+            var _option = opt(settings.helloSrc.name, settings.helloSrc.value, 180);
             _option.setAttribute("ng-if", "useHello.value")
             return _option;
         }()
     ),
     group(
-        option(i18n("皮肤中心", "Skin Store"), "", 180),
-        option(i18n("音质选择", "Tone quality"), "", 180),
+        opt(i18n("皮肤中心", "Skin Store"), "", 180),
+        opt(i18n("音质选择", "Tone quality"), "", 180),
         createSwitchOption(settings.autoDownloadAvatar.name, "autoDownloadAvatar.value"),
         createSwitchOption(settings.autoRotateAvatar.name, "autoRotateAvatar.value"),
         createSwitchOption(settings.autoSave.name, "autoSave.value"),
@@ -60,17 +66,17 @@ var comments = [
         createSwitchOption(settings.carLrc.name, "carLrc.value")
     ),
     group(
-        option(i18n("清除缓存", "Clear cache"), "441.2M", 180),
-        option(i18n("清空消息记录", "Clean up message records"), "", false, 180)
+        opt(i18n("清除缓存", "Clear cache"), "441.2M", 180),
+        opt(i18n("清空消息记录", "Clean up message records"), "", false, 180)
     ),
     group(
-        option(i18n("匹配通讯录", "Matching Contacts Book"), i18n("未匹配", "Unmatched"), 180),
-        option(i18n("消息与隐私设置", "Message and Privacy Settings"), "", 180)
+        opt(i18n("匹配通讯录", "Matching Contacts Book"), i18n("未匹配", "Unmatched"), 180),
+        opt(i18n("消息与隐私设置", "Message and Privacy Settings"), "", 180)
     ),
     group(
-        option(i18n("关于酷狗音乐", "About Kugou"), "", 180),
-        option(i18n("意见反馈", "Feedback"), "", 180),
-        option(i18n("给酷狗评分", "Scoring Kugou"), "", 180)
+        opt(i18n("关于酷狗音乐", "About Kugou"), "", 180),
+        opt(i18n("意见反馈", "Feedback"), "", 180),
+        opt(i18n("给酷狗评分", "Scoring Kugou"), "", 180)
     )
 ]
 appendChild(page, comments);
