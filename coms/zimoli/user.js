@@ -54,6 +54,9 @@ var proto = {
     },
     Logout() {
         extend(proto, emptyProto);
+        for (var k in user) {
+            if (!isFunction(user[k])) delete user[k];
+        }
         this.saveSession("");
     },
     setLoginPath(pathname) {
