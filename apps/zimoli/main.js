@@ -58,7 +58,7 @@ var main = new Promise(function (ok, oh) {
         if (!session) return ok(mainView);
         cross.addCookie(session, config.api_domain);
         api("get", "_session").success(function (result) {
-            if (result.ok && result.userCtx) {
+            if (result.ok && result.userCtx && result.userCtx.name) {
                 ok(mainView);
             } else {
                 logout();
