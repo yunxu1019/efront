@@ -40,6 +40,9 @@ function titlebar() {
     var _back = createElement(back);
     text(title, page_title || document.title);
     appendChild(bar, title);
+    var menu_group = div();
+    addClass(menu_group, "menus");
+    appendChild(bar, menu_group);
     if (use_back) {
         appendChild(bar, _back);
         addClass(_back, "back");
@@ -49,17 +52,24 @@ function titlebar() {
             return isString(button) ? btn(button) : button;
         });
         if (option_buttons.length > 1) {
-            var menu_group = div();
-            addClass(menu_group, "menus");
             appendChild(menu_group, option_buttons);
-            appendChild(bar, menu_group);
         } else if (option_buttons.length === 1) {
             var button = option_buttons[0];
             addClass(button, "menu");
-            appendChild(bar, button);
+            appendChild(menu_group, button);
         }
     } else if (isNode(option_buttons)) {
-        appendChild(bar, option_buttons);
+        appendChild(option_buttons, option_buttons);
+    } else if (option_buttons instanceof Object) {
+        option_buttons = Object.keys(option_buttons).map(function (key) {
+            var value = option_buttons[key];
+            var button = btn(key);
+            if (isFunction(value)) {
+                onclick(button, value);
+            }
+            return button;
+        });
+        appendChild(menu_group, option_buttons);
     }
     return bar;
 }
