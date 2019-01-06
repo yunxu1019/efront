@@ -123,6 +123,7 @@ var popup_as_extra = function (element, target) {
     var reshape = function () {
         extend(element.style, element.origin);
         var position = getScreenPosition(target);
+        var viewrect = getScreenPosition(element.offsetParent);
         var maxHeight = Math.max(position.top, innerHeight - position.top - position.height);
         var maxWidth = Math.max(position.left + position.width, innerWidth - position.left);
         var height = element.offsetHeight;
@@ -145,14 +146,14 @@ var popup_as_extra = function (element, target) {
             css(element, `width:${aimedWidth}px`);
         }
         if (position.top + element.offsetHeight + position.height > innerHeight) {
-            css(element, `bottom:${innerHeight - position.top}px;top:auto;`);
+            css(element, `bottom:${viewrect.height - position.top + viewrect.top}px;top:auto;`);
         } else {
-            css(element, `top:${position.top + position.height}px;bottom:auto;`);
+            css(element, `top:${position.top - viewrect.top + position.height}px;bottom:auto;`);
         }
         if (position.left + element.offsetWidth > innerWidth) {
-            css(element, `right:${innerWidth - position.left - position.width}px;left:auto;`);
+            css(element, `right:${viewrect.width + viewrect.left - position.left - position.width}px;left:auto;`);
         } else {
-            css(element, `left:${position.left}px;right:auto;`);
+            css(element, `left:${position.left - viewrect.left}px;right:auto;`);
         }
         var offsetParent = target.offsetParent;
         if (offsetParent) {
