@@ -19,6 +19,7 @@ onappend(centerLayer, function () {
 function reshape() {
     var page = getCurrentPage() || leftPage;
     if (page === leftPage) {
+        if (page.parentNode === page) return;
         appendChild(leftLayer, page, false);
     } else {
         setCurrentPage(page);
@@ -41,7 +42,7 @@ function setCurrentPage(page) {
         } else {
             remove(leftPage, false);
         }
-        appendChild(currentLayer, page, false);
+        if (page.parentNode !== currentLayer) appendChild(currentLayer, page, false);
     } else if (!leftPage.isMounted) {
         appendChild(leftLayer, leftPage, false);
     }
