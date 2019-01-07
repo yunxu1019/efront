@@ -12,6 +12,23 @@ function select(target, list) {
     }
     target.tabIndex = 0;
     onblur(target, _remove);
+    if (/select/i.test(target.tagName)) {
+        onmousedown(target, preventDefault);
+    }
+    if (!list) {
+        var allOptions = [].concat.apply([], target.querySelectorAll("option"));
+        list = selectList(allOptions, target.multiple);
+        if (!target.multiple) {
+            onclick(list, _remove);
+        }
+        on("change")(list, function (event) {
+            if (target.multiple) {
+            } else {
+                target.value = this.value;
+                dispatch(target, "change");
+            }
+        });
+    }
     onmousedown(list, preventDefault);
     css(list, {
         zIndex: zIndex()
@@ -30,7 +47,7 @@ function select(target, list) {
         else _remove();
     };
     onmousedown(target, mousedown);
-    onclick(target, function(){
+    onclick(target, function () {
         mousedown();
         mousedownfired = false;
     });
