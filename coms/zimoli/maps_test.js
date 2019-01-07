@@ -28,6 +28,6 @@ function maps_test() {
         });
         return btn;
     });
-    buttons[0].click();
+    buttons[3].click();
     return option(group(buttons), map, 8);
 }
