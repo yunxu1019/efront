@@ -1,5 +1,5 @@
 function field() {
     var result = option.apply(null, arguments);
-    result.removeAttribute("tabIndex");
+    result.removeAttribute("tabindex");
     return result;
 }
