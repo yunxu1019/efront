@@ -1,17 +1,17 @@
 var apiBase = `http://m.kugou.com/`;
 var apiMap = {
     plist: {
-        url:"plist/index",
-        selector:".panel-img-list>div>a",
-        build(a){
+        url: "plist/index",
+        selector: ".panel-img-list>div>a",
+        build(a) {
             var src = a.children[0].getAttribute("ssrc");
             var href = a.getAttribute("shref");
-            return {src,href};
+            return { src, href };
         }
     },
-    songList:{
-        url:"rank/list",
-        selector:".panel-songslist>div>a"
+    songList: {
+        url: "rank/list",
+        selector: ".panel-songslist>div>a"
     },
     rank: {
         url: "rank/list",
@@ -62,5 +62,12 @@ function kgapi(obj, extra) {
 for (var k in apiMap) {
     kgapi[k] = kgapi.bind(kgapi, apiMap[k]);
 }
+extend(kgapi, {
+    fanxingList() {
+        var url = `http://bjacshow.kugou.com/soa/followstar/m/listen?platform=1&pageNum=1&kugouId=627516233&from=1&version=9108&pageSize=8`;
+        return cross("get", url);
+    },
+
+})
 
 var kugouapi = kgapi;
