@@ -62,9 +62,10 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (public_app) {
         //导出组件
         console.log(public_app);
+        var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         is_commponent_package = true;
         var toComponent = require("./toComponent");
-        return loadData([path.join(COMS_PATH, "/zimoli/[].map.js"), public_app])
+        return loadData([path.join(COMS_PATH, "/zimoli/[].map.js"), public_app], 0, public_path)
             .then(toComponent)
             .then(function (response) {
                 return write(response, PUBLIC_PATH);
