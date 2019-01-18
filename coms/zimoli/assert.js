@@ -1,0 +1,1 @@
+"use tester/core/assert.js";
