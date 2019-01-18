@@ -94,12 +94,14 @@ function drag(target, initialEvent, overflow = false) {
         end: clear
     }, initialEvent);
 }
+var mousedrag = function (event) {
+    drag(this, event);
+};
+var touchdrag = function (event) {
+    extendTouchEvent(event);
+    drag(this, event);
+};
 drag.on = function (target) {
-    onmousedown(target, function (event) {
-        drag(this, event);
-    });
-    ontouchstart(target, function (event) {
-        extendTouchEvent(event);
-        drag(this, event);
-    });
+    onmousedown(target, mousedrag);
+    ontouchstart(target, touchdrag);
 };
