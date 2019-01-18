@@ -1,12 +1,3 @@
-function getMarginLeft(offsetLeft, offsetWidth, innerWidth) {
-    // -marginLeft/offsetWidth=(-marginLeft+offsetLeft)/innerWidth
-    // marginLeft/innerWidth-marginLeft/offsetWidth=offsetLeft/innerWidth
-    // marginLeft*offsetWidth-marginLeft*innerWidth=offsetLeft*offsetWidth
-    // marginLeft(offsetWidth-innerWidth)=offsetLeft*offsetWidth
-    // marginLeft=offsetLeft*offsetWidth/(offsetWidth-innerWidth)
-    if (offsetWidth === +innerWidth) return -offsetWidth / 2;
-    return offsetLeft * offsetWidth / (offsetWidth - innerWidth);
-}
 var toCloneTarget = function (target) {
     var clone = cloneVisible(target);
     var position = getScreenPosition(target);
@@ -14,7 +5,7 @@ var toCloneTarget = function (target) {
     setOpacity(target, 0);
     return clone;
 };
-function drag(target, initialEvent, overflow = false) {
+function drag(target, initialEvent, overflow) {
     initialEvent.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);
@@ -52,31 +43,9 @@ function drag(target, initialEvent, overflow = false) {
         event.moveLocked = true;
         var offsetLeft = saved_delta.x + event.clientX;
         var offsetTop = saved_delta.y + event.clientY;
-        var {
-            offsetHeight,
-            offsetWidth
-        } = target;
-        if (!overflow) {
-            if (offsetLeft + offsetWidth > innerWidth) {
-                offsetLeft = innerWidth - offsetWidth;
-            }
-            if (offsetTop + offsetHeight > innerHeight) {
-                offsetTop = innerHeight - offsetHeight;
-            }
-            if (offsetLeft < 0) {
-                offsetLeft = 0;
-            }
-            if (offsetTop < 0) {
-                offsetTop = 0;
-            }
-        }
-        var marginLeft = getMarginLeft(offsetLeft, offsetWidth, innerWidth);
-        var marginTop = getMarginLeft(offsetTop, offsetHeight, innerHeight);
-        var left = offsetLeft - marginLeft;
-        var top = offsetTop - marginTop;
         var cloneDeltaLeft = - clone.offsetLeft;
         var cloneDeltaTop = - clone.offsetTop;
-        css(clone, `left:${left * 100 / innerWidth}%;top:${top * 100 / innerHeight}%;margin-left:${marginLeft}px;margin-top:${marginTop}px`);
+        move.call(clone, offsetLeft, offsetTop, overflow);
         cloneDeltaLeft += clone.offsetLeft;
         cloneDeltaTop += clone.offsetTop;
         extraClones.map(clone => css(clone, `left:${clone.offsetLeft + cloneDeltaLeft}px;top:${clone.offsetTop + cloneDeltaTop}px;`));
