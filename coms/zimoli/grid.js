@@ -1,10 +1,69 @@
 var grids = [];
 
+var getFirstPoints = function (point) {
+    while (point && point.parent && point.parent.parent && point.parent.parent.value === point.value) {
+        point = point.parent.parent;
+    }
+    var rest = [point];
+    var result = [];
+    while (rest.length) {
+        var temp = rest.shift();
+        result.push(temp);
+        temp.forEach(function (a) {
+            if (a.length > 1 && a[0].value === point.value) {
+                rest.push(rest, a[0]);
+            }
+        });
+    }
+    return result;
+};
+var getLastPoints = function (point, side) {
+    while (point && point.parent && point.parent.parent && point.parent.parent[side] && point.parent.parent[side].value === point[side].value) {
+        point = point.parent.parent;
+    }
+    var rest = [point];
+    var result = [];
+    while (rest.length) {
+        var temp = rest.shift();
+        result.push(temp);
+        temp.forEach(function (a) {
+            var t = a[a.length - 1];
+            if (a.length > 1 && t[side] && t[side].value === point[side].value) {
+                rest.push(rest, a[a.length - 1]);
+            }
+        });
+    }
+    return result;
+};
+var getElementStylesFromPoints = function (points) {
+    var elements = points.map(function (a) {
+        if (a.target) {
+            return a.target;
+        } else {
+            return a.filter(b => !!b.target).map(a => a.target);
+        }
+    });
+    return [].concat.apply([], elements).map(e => e.style);
+};
+
+var generateResizeParameters = function (y, top, bottom, height, point_prev, point_next, event, resize) {
+    var nextPoints = getFirstPoints(point_next.direction !== y ? point_next.parent : point_next);
+    var prevPoints = getLastPoints(point_prev.direction !== y ? point_prev.parent : point_prev, bottom);
+    var clientY = "client" + y.toUpperCase();
+    resize[clientY] = [
+        nextPoints,
+        getElementStylesFromPoints(nextPoints),
+        top, point_prev.value + 20, point_next.value + 100, event[clientY] - point_next.value,
+        height,
+        getElementStylesFromPoints(prevPoints)
+    ];
+}
+
 function grid(breakpoints) {
     var grid = div();
     extend(grid, grid_prototype);
     if (!breakpoints) {
-        var breakpoints = createPoints([0, [0, 100, 200], 90, 230, [200, [230, 290], 300], 320]);
+        var breakpoints = createPoints([0, [0, 100, 200], 90, 230, [200, 230, [230, 290], 300], 320]);
     }
     grid.breakpoints = breakpoints;
     grid.setAttribute("grid", "");
@@ -42,20 +101,26 @@ function grid(breakpoints) {
      */
     var resizeView = function (event) {
         var editting = grid.editting;
-        var { area, target, resize } = editting;
-        if (!target) return;
-        var {path}=area;
-        var point=path[path.length-1];
-        var style = target.style;
-        for (var k in resize) {
-            var [key, min, max, delta, extra] = resize[k];
+        for (var k in editting) {
+            var [points, styles, key, min, max, delta, extra, rests] = editting[k];
             var value = event[k] - delta;
             if (value < min) value = min;
             if (value > max) value = max;
-            var origin = parseInt(style[key]);
-            style[key] = value + "px";
-            if (extra)
-                style[extra] = parseInt(style[extra]) + origin - value + "px";
+            points.forEach(p => p.value = value);
+            styles.forEach(function (style) {
+                if (extra) {
+                    var origin = parseInt(style[key]);
+                    style[extra] = parseInt(style[extra]) + origin - value + "px";
+                }
+                style[key] = value + "px";
+            });
+            if (rests) {
+                rests.forEach(function (style) {
+                    var origin = parseInt(style[key]) + parseInt(style[extra]);
+                    style[extra] = parseInt(style[extra]) - origin + value + "px";
+                });
+            }
+
         }
     };
     /**
@@ -98,17 +163,13 @@ function grid(breakpoints) {
             var top = area.top;
             var point = top.top;
             if (point) {
-                resize.clientY = [
-                    "top", point.value + 20, area.bottom.value - 20, event.clientY - parseInt(style.top),
-                    "height"
-                ];
+                generateResizeParameters("y", "top", "bottom", "height", point, target_point, event, resize);
             }
         } else if (y_bottom - clientY < 7) {
             //下边
             var bottom = area.bottom;
-            var point = bottom.bottom;
-            if (point) {
-                resize.clientY = ["height", 20, point.value - area.top.value, event.clientY - parseInt(style.height)];
+            if (bottom) {
+                generateResizeParameters("y", "top", "bottom", 'height', bottom.top, bottom, event, resize);
             }
         }
         if (clientX - x_left < 7) {
@@ -116,17 +177,16 @@ function grid(breakpoints) {
             var left = area.left;
             var point = left.left;
             if (point) {
-                resize.clientX = ["left", point.value + 20, area.right.value - 20, event.clientX - parseInt(style.left), "width"];
+                generateResizeParameters("x", "left", "right", "width", point, target_point, event, resize);
             }
         } else if (x_right - clientX < 7) {
             //右边
             var right = area.right;
-            var point = right.right;
-            if (point) {
-                resize.clientX = ["width", 20, point.value - area.left.value, event.clientX - parseInt(style.width)];
+            if (right) {
+                generateResizeParameters("x", "left", "right", "width", right.left, right, event, resize);
             }
         }
-        grid.editting = { area, target: target_element, resize };
+        grid.editting = resize;
         style.zIndex = 1;
         var cancelup = onmouseup(window, function () {
             var target = grid.editting.target;
