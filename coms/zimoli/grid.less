@@ -1,19 +1,26 @@
 & {
     >div {
-        border: 4px dashed #ccc;
+        border: 2px dashed #ccc;
         position: absolute;
         min-height: 20px;
         min-width: 20px;
-        &:hover {
-            border-color: #88f;
-        }
-        &:active {
+        &.resize {
             border-color: #66f;
             box-shadow: 0 0 6px -2px rgba(0, 0, 0, .3);
         }
+        .border(@side) {
+            &.border-@{side} {
+                border-@{side}: 2px solid #f6c;
+            }
+        }
+        .border(left);
+        .border(right);
+        .border(top);
+        .border(bottom);
     }
 }
-&{
+
+& {
     user-select: none;
     position: relative;
 }
