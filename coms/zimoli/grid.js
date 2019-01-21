@@ -1,6 +1,6 @@
 var grids = [];
 
-var getFirstPoints = function (point) {
+var getFirstPoints = function (point, side, direction) {
     while (point && point.parent && point.parent.parent && point.parent.parent.value === point.value) {
         point = point.parent.parent;
     }
@@ -17,7 +17,7 @@ var getFirstPoints = function (point) {
     }
     return result;
 };
-var getLastPoints = function (point, side) {
+var getLastPoints = function (point, side, direction) {
     while (point && point.parent && point.parent.parent && point.parent.parent[side] && point.parent.parent[side].value === point[side].value) {
         point = point.parent.parent;
     }
@@ -166,10 +166,6 @@ function grid(breakpoints) {
         var area = grid.nearby(clientX, clientY);
         var [x_left, y_top, x_right, y_bottom] = area;
         var resize = {};
-        var path = area.path;
-        var target_point = path[path.length - 1];
-        var target_element = target_point.target;
-        var style = target_element.style;
         if (clientY - y_top < 7) {
             //上边
             generateResizeParameters("y", "top", "bottom", "height", area.top, event, resize);
@@ -185,7 +181,6 @@ function grid(breakpoints) {
             generateResizeParameters("x", "left", "right", "width", area.right, event, resize);
         }
         grid.editting = resize;
-        style.zIndex = 1;
         var cancelup = onmouseup(window, function () {
             var target = grid.editting.target;
             if (target) target.style.zIndex = null;
@@ -245,14 +240,6 @@ var bindToOrderedSpliters = function (split_points, target, value, side) {
     }
     return split_points;
 };
-var getRelativePoints = function (point) {
-    var parent = point.parent;
-    var result = [];
-    if (parent) {
-
-    }
-    console.log(point);
-}
 var grid_prototype = {
     breakpoints: [],
     init() {
@@ -278,6 +265,7 @@ var grid_prototype = {
                     } else {
                         current_w = current_r.value - point.value + "px";
                     }
+                    point[0].top = current_t && current_t.top;
                 } else {
                     current_d = "x";
                     current_t = point;
@@ -285,10 +273,11 @@ var grid_prototype = {
                         current_h = next_point.value - point.value + "px";
                         current_b = next_point;
                         next_point.top = point;
-                        point.right = next_point;
+                        point.bottom = next_point;
                     } else {
                         current_h = current_b.value - point.value + "px";
                     }
+                    point[0].left = current_l && current_l.left;
                 }
                 point.map(append);
                 current_l = temp_l, current_t = temp_t, current_w = temp_w, current_h = temp_h, current_d = temp_d, current_r = temp_r, current_b = temp_b;
@@ -336,6 +325,7 @@ var grid_prototype = {
                 appendChild(that, _div);
             }
         };
+        this.breakpoints[0]
         append(this.breakpoints);
     },
     seprate(x) {
