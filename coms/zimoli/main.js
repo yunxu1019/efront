@@ -49,7 +49,7 @@ var isBadDevice;
         test();
     } catch (e) {
     }
-    var SAFE_CIRCLE_DEPTH = modules.SAFE_CIRCLE_DEPTH =931|| inc / (new Date - saved_time) | 0;
+    var SAFE_CIRCLE_DEPTH = modules.SAFE_CIRCLE_DEPTH = inc / (new Date - saved_time) | 0;
     isBadDevice = SAFE_CIRCLE_DEPTH < 512;
 };
 modules.IS_BAD_DEVICE = isBadDevice;
@@ -57,7 +57,7 @@ modules.IS_BAD_DEVICE = isBadDevice;
 var devicePixelRatio = window.devicePixelRatio || 1;
 // if (isBadDevice) devicePixelRatio = 1;
 var renderPixelRatio = devicePixelRatio > 1 && window.innerWidth > 360 && window.innerHeight > 360 ? .86 : .75;
-if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform)) {
+if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform) && navigator.maxTouchPoints > 0) {
     let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
