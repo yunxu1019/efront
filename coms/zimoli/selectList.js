@@ -36,6 +36,7 @@ function main(children, multiple) {
                 list.value.push(option.value);
             } else if (!firstValue) {
                 item.setAttribute("selected", "");
+                list.activeNode = item;
                 firstValue = true;
                 list.value = option.value
             }
