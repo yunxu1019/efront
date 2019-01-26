@@ -34,10 +34,9 @@ function select(target, list) {
         zIndex: zIndex()
     });
     onremove(list, () => saved_list = null);
-    var mousedownfired = false;
     var mousedown = function () {
         if (mousedownfired) return;
-        mousedownfired = true;
+        console.log("click","mousedown fired",mousedownfired);
         if (saved_list !== list) {
             _remove();
             if (document.activeElement !== target) target.focus();
@@ -47,9 +46,5 @@ function select(target, list) {
         else _remove();
     };
     onmousedown(target, mousedown);
-    onclick(target, function () {
-        mousedown();
-        mousedownfired = false;
-    });
     return target;
 }
