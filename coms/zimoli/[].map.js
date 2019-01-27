@@ -2,7 +2,8 @@
 var {
     Array,
     Function,
-    String
+    String,
+    Object
 } = this;
 var undefined;
 
