@@ -17,6 +17,19 @@ var prototype = {
         appendChild(this, [].slice.call(arguments, 0));
         return this;
     },
+    insertBefore(child, referer) {
+        if (referer) {
+            if (referer.parentNode !== this) throw new Error('The node before which the new node is to be inserted is not a child of this node');
+            appendChild.before(referer, child, false);
+        } else {
+            appendChild(this, child, false);
+        }
+        return child;
+    },
+    appendChild(child) {
+        appendChild(this, child, false);
+        return child;
+    },
     appendTo(target) {
         appendChild(target, this);
         return this;

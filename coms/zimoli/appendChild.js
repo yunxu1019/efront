@@ -1,5 +1,5 @@
 var slice = [].slice;
-
+var { appendChild: _appendChild, insertBefore: _insertBefore } = document.createElement('a');
 function release(node) {
     if (node === null || node === undefined) return node;
     return isFunction(node) ? node() : isNode(node) ? node : document.createTextNode(node);
@@ -42,7 +42,7 @@ function appendChild(parent, obj, transition) {
             if (o.initialStyle && transition !== false) {
                 isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
             }
-            parent.appendChild(o);
+            _appendChild.call(parent, o);
             o.with && appendChild(parent, o.with, false);
             if (parent.isMounted)
                 _onappend(o);
@@ -61,7 +61,7 @@ function insertBefore(alreadyMounted, obj, transition) {
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         if (o.removeTimer) clearTimeout(o.removeTimer);
-        parent.insertBefore(o, alreadyMounted);
+        _insertBefore.call(parent, o, alreadyMounted);
         o.with && insertBefore(o, o.with, false);
         if (parent.isMounted)
             _onappend(o);
@@ -82,7 +82,7 @@ function insertAfter(alreadyMounted, obj, transition) {
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         if (o.removeTimer) clearTimeout(o.removeTimer);
-        parent.insertBefore(o, alreadyMounted.nextSibling);
+        _insertBefore.call(parent, o, alreadyMounted.nextSibling);
         o.with && insertBefore(o, o.with, false);
         if (parent.isMounted)
             _onappend(o);
