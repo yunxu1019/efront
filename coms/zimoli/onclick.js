@@ -1,15 +1,15 @@
 var _onclick = on("click");
-var preventClick = false, saved_x, saved_y, lasttime_click;
+var saved_x, saved_y, lasttime_click;
 var needFireClick = false;
 function clickstart(event) {
     saved_x = event.clientX, saved_y = event.clientY;
     needFireClick = true;
-    onclick.preventClick = preventClick = false;
+    onclick.preventClick = false;
 }
 function clickcancel(event) {
     var abs = Math.abs;
     if (abs(event.clientX - saved_x) >= MOVELOCK_DELTA || abs(event.clientY - saved_y) >= MOVELOCK_DELTA)
-        onclick.preventClick = preventClick = true;
+        onclick.preventClick = true;
 }
 onmousedown(window, clickstart);
 onmousemove(window, clickcancel);
@@ -34,7 +34,7 @@ if (window.addEventListener) {
         needFireClick = false;
         var saved_time = lasttime_click;
         lasttime_click = event.timeStamp;
-        if (lasttime_click - saved_time < 60 || preventClick) {
+        if (lasttime_click - saved_time < 60 || onclick.preventClick) {
             // 阻止非人为点击，防止误操作
             event.preventDefault();
             event.stopPropagation();
