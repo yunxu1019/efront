@@ -41,10 +41,11 @@ var directives = {
         var img = document.createElement("img");
         var that = this;
         this.renders.push(function () {
-            var value = getter() || "";
+            var value = getter();
             if (value === oldValue) return;
             oldValue = value;
-            if (!/img/i.test(this.tagName)) return this.src = value;
+            value = value || "";
+            if (!/img/i.test(this.tagName) || !isString(value)) return this.src = value;
             this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
             img.src = value;
             if (img.complete) {
