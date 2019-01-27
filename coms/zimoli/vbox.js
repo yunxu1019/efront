@@ -32,23 +32,29 @@ function ybox(generator) {
         return _box.Top();
     };
     _box.scrollY = function (deltay, useIncrease = true) {
-        var top = _box.Top() + deltay;
+        var _Top = _box.Top();
+        var top = _Top + deltay;
         var height = _box.height();
         var scrollHeight = _box.Height();
         if (top < 0) {
             // if (speed > 30) speed = 30;
             __speed = __speed >> 1;
-            useIncrease && increase(top);
+            useIncrease && _Top <= 0 && increase(top);
             top = 0;
+            _Top = _box.Top(top);
         } else if (top + height > scrollHeight) {
             // if (speed > 30) speed = 30;
             if (top + height - scrollHeight > increase_height) {
                 top = increase_height + scrollHeight - height;
             }
             __speed = __speed >> 1;
-            useIncrease && increase(top + height - scrollHeight);
+            useIncrease && _Top + height >= scrollHeight && increase(top + height - scrollHeight);
+            _Top = _box.Top(top);
+        } else {
+            _Top = _box.Top(top);
+            increase(deltay, true);
         }
-        return _box.Top(top);
+        return _Top;
     };
     var saved_x, saved_y, direction, __speed = 0;
     var smooth = function (useIncrease = true) {
@@ -59,18 +65,20 @@ function ybox(generator) {
             decrease();
             return;
         }
-        speed_timer = requestAnimationFrame(() => smooth(useIncrease));
+        onclick.preventClick = true;
+        smooth_timer = requestAnimationFrame(() => smooth(useIncrease));
         _box.scrollY(-__speed, useIncrease);
         __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
-    var increaser_t = createElement(div);
-    var increaser_b = createElement(div);
+    var increaser_t = document.createElement("img");
+    increaser_t.style.display = "block";
+    var increaser_b = increaser_t.cloneNode();
     var decrease_timer = 0;
     var time_splitter = 16;
     var _speed = speed(time_splitter);
     var increase_height = 100 * renderPixelRatio / .75;
     var _decrease = function (increaser) {
-        var height = parseInt(increaser.style.height);
+        var height = parseInt(increaser.height);
         if (height > 1) {
             var scrollTop = _box.Top();
             if (scrollTop > 0 && increaser_t === increaser) {
@@ -84,34 +92,33 @@ function ybox(generator) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
             }
-            css(increaser, {
-                height: (height > 16 ? (height * 2 + 6) / 3 : height >> 1) + "px"
-            });
+            increaser.height = height > 16 ? (height * 2 + 6) / 3 : height >> 1;
             return 1;
         }
-        height && _box.Top(_box.Top() - height);
-        css(increaser, { height: 0 });
+        increaser.height = 0;
         remove(increaser);
         return 0;
     };
     var decrease = function () {
+        onclick.preventClick = true;
         if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = requestAnimationFrame(decrease);
         else if (_box.stopY() - _box.Top()) decrease_timer = requestAnimationFrame(decrease);
+        onclick.preventClick = false;
     };
-    var increase = function (deltaY) {
-        var t_height = parseInt(increaser_t.style.height) || 0;
-        var b_height = parseInt(increaser_b.style.height) || 0;
+    var increase = function (deltaY, minusOnly) {
+        var t_height = increaser_t.height || 0;
+        var b_height = increaser_b.height || 0;
         t_height -= deltaY;
         b_height += deltaY;
-        if (deltaY < 0 && t_height > 0) {
+        if (!minusOnly && deltaY < 0 && t_height > 0) {
             if (!increaser_t.nextSibling) {
                 _box.insertBefore(increaser_t, _box.childNodes[0] || null);
             }
-        } else if (deltaY > 0 && b_height > 0) {
-            if (!increaser_b.parentNode) {
+        } else if (!minusOnly && deltaY > 0 && b_height > 0) {
+            if (!increaser_b.previousSibling) {
                 increaser_b.style.marginTop = 0;
                 increaser_b.style.marginBottom = 0;
-                increaser_b.style.height = 0;
+                increaser_b.height = 0;
                 appendChild(_box, increaser_b);
                 var deltaMargin = _box.scrollHeight - increaser_b.offsetTop;
                 if (deltaMargin > 0) {
@@ -129,15 +136,11 @@ function ybox(generator) {
         if (t_height > increase_height) t_height = increase_height;
         if (b_height < 0) b_height = 0;
         if (t_height < 0) t_height = 0;
-        b_height && css(increaser_b, {
-            height: b_height + "px"
-        });
-        t_height && css(increaser_t, {
-            height: t_height + "px"
-        });
+        if (!minusOnly || b_height < increaser_b.height) increaser_b.height = b_height;
+        if (!minusOnly || t_height < increaser_t.height) increaser_t.height = t_height;
     };
     onmousewheel(_box, function (event) {
-        cancelAnimationFrame(speed_timer);
+        cancelAnimationFrame(smooth_timer);
         cancelAnimationFrame(decrease_timer);
         var deltay = -event.deltaY;
         event.preventDefault();
@@ -145,7 +148,7 @@ function ybox(generator) {
         _box.scrollY(-deltay, false);
         smooth(false);
     });
-    var speed_timer;
+    var smooth_timer;
     var mousemove = function (event) {
         if (event.moveLocked) return;
         if (_box.nodrag) return;
@@ -165,14 +168,16 @@ function ybox(generator) {
         saved_x = clientX;
         saved_y = clientY;
     };
-    moveupon(_box,{
-        start(event){
+    moveupon(_box, {
+        start(event) {
+            cancelAnimationFrame(smooth_timer);
+            cancelAnimationFrame(decrease_timer);
             _speed(0);
             saved_x = event.clientX, saved_y = event.clientY;
             direction = 0;
         },
-        move:mousemove,
-        end(){
+        move: mousemove,
+        end() {
             direction = 0;
             __speed = _speed();
             smooth();
