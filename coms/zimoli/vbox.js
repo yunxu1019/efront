@@ -100,10 +100,8 @@ function ybox(generator) {
         return 0;
     };
     var decrease = function () {
-        onclick.preventClick = true;
         if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = requestAnimationFrame(decrease);
         else if (_box.stopY() - _box.Top()) decrease_timer = requestAnimationFrame(decrease);
-        onclick.preventClick = false;
     };
     var increase = function (deltaY, minusOnly) {
         var t_height = increaser_t.height || 0;
