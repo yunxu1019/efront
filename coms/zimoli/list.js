@@ -1,8 +1,8 @@
 // 中文编码 utf8
 var _slider = createElement(div);
 function ylist(container, generator, $Y) {
-    var cache_height = 200;
-    var restHeight = 2000;
+    const cache_height = 200;
+    var restHeight = 200;
     var list = container || div();
     list.autoFix = true;
     var saved_itemIndex;
@@ -64,17 +64,18 @@ function ylist(container, generator, $Y) {
         if (index < 0) index = 0;
         var childrenMap = getChildrenMap();
         var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null, last_index = last_item && last_item.index;
-        while (offsetBottom - ratioTop <= list.offsetHeight + cache_height) {
+        while (offsetBottom - ratioTop <= list.clientHeight + cache_height) {
             var item = childrenMap[offset];
             if (!item) {
                 item = generator(offset);
                 if (!item) break;
                 item.index = offset;
                 if (last_index > index) {
-                    appendChild.before(last_item, item);
+                    list.insertBefore(item, last_item);
                 } else {
-                    appendChild(list, item);
+                    list.insertBefore(item, last_item && last_item.nextSibling);
                 }
+                last_item = item;
             }
             if (++offset - index > 600) throw new Error("多于600个元素需要绘制！");
             offsetBottom = item.offsetTop + item.offsetHeight;
@@ -97,17 +98,16 @@ function ylist(container, generator, $Y) {
     };
     //滚动一定的距离
     var scrollBy = function (deltaY) {
-        var children = list.children;
         var childrenMap = getChildrenMap();
         if (deltaY > 0) {
             var last_element = getLastElement();
             if (!last_element || !last_element.offsetHeight) return;
-            var offsetHeight = list.offsetHeight;
-            var offsetBottom = last_element.offsetHeight + last_element.offsetTop - offsetHeight - list.scrollTop;
-            offsetBottom += deltaY;
+            let { clientHeight, scrollTop } = list;
+            scrollTop = scrollTop + deltaY;
+            var offsetBottom = last_element.offsetHeight + last_element.offsetTop;
             var offset = last_element.index || 0;
             //追加元素到底部
-            while (offsetBottom <= offsetHeight + cache_height) {
+            while (offsetBottom <= scrollTop + clientHeight + cache_height) {
                 offset++;
                 var item = childrenMap[offset];
                 if (!item) {
@@ -116,16 +116,22 @@ function ylist(container, generator, $Y) {
                         restHeight = 0;
                         break;
                     } else if (!restHeight) {
-                        restHeight = 2000;
+                        restHeight = 200;
                     }
                     item.index = offset;
-                    appendChild(list, item);
+                    list.insertBefore(item, last_element.nextSibling);
                 }
-                if (!item.offsetHeight) break;
+                if (!item.offsetHeight) {
+                    console.warn(item, '!item.offsetHeight');
+                    break;
+                }
                 offsetBottom = item.offsetTop + item.offsetHeight;
+                last_element = item;
             }
             //移除顶部不可见的元素
-            var scrollTop = list.scrollTop + deltaY;
+            if (scrollTop > last_element.offsetTop + last_element.offsetHeightt - clientHeight) {
+                screenTop = last_element.offsetTop + last_element.offsetHeightt - clientHeight;
+            }
             var collection = [];
             for (var k in childrenMap) {
                 var item = childrenMap[k];
@@ -143,13 +149,13 @@ function ylist(container, generator, $Y) {
             //滚动到相应的位置
             list.scrollTop = scrollTop;
         } else {
-            var last_element = getFirstElement();
-            if (!last_element || !isFinite(last_element.offsetTop)) return;
-            offset = last_element.index || 0;
-            var offsetTop = last_element.offsetTop;
+            var flag_element = first_element = getFirstElement();
+            if (!flag_element || !isFinite(flag_element.offsetTop)) return;
+            offset = flag_element.index || 0;
+            var offsetTop = flag_element.offsetTop;
             var scrollTop = deltaY + list.scrollTop;
             //追加元素到顶部
-            while (scrollTop + last_element.offsetTop < cache_height) {
+            while (scrollTop + flag_element.offsetTop < cache_height) {
                 offset--;
                 if (!(offset >= 0)) {
                     break;
@@ -160,16 +166,20 @@ function ylist(container, generator, $Y) {
                     if (!item) break;
                     item.index = offset;
                     childrenMap[offset] = item;
-                    appendChild.before(children[0], item);
+                    list.insertBefore(item, first_element);
+                    first_element = item;
                 }
             }
             //滚动到相应位置
             //-list_scrollTop + lElem_offsetTop = -list_newScrollTop + lElem_newOffsetTop + deltaY
-            scrollTop = scrollTop + last_element.offsetTop - offsetTop;
+            scrollTop = scrollTop + first_element.offsetTop - offsetTop;
             list.scrollTop = scrollTop;
+            scrollTop = list.scrollTop;
             //移除不可见元素
-            while (children.length && children[children.length - 1].offsetTop > list.offsetHeight + scrollTop + cache_height) {
-                remove(children[children.length - 1]);
+            var last_element = getLastElement();
+            while (last_element && last_element.offsetTop > list.clientHeight + scrollTop + cache_height) {
+                remove(last_element);
+                last_element = getLastElement();
             }
         }
     };
