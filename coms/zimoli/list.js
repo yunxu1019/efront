@@ -102,12 +102,12 @@ function ylist(container, generator, $Y) {
         if (deltaY > 0) {
             var last_element = getLastElement();
             if (!last_element || !last_element.offsetHeight) return;
-            let { clientHeight, scrollTop } = list;
+            let { scrollTop } = list;
             scrollTop = scrollTop + deltaY;
             var offsetBottom = last_element.offsetHeight + last_element.offsetTop;
             var offset = last_element.index || 0;
             //追加元素到底部
-            while (offsetBottom <= scrollTop + clientHeight + cache_height) {
+            while (offsetBottom <= scrollTop + list.clientHeight + cache_height) {
                 offset++;
                 var item = childrenMap[offset];
                 if (!item) {
@@ -129,8 +129,8 @@ function ylist(container, generator, $Y) {
                 last_element = item;
             }
             //移除顶部不可见的元素
-            if (scrollTop > last_element.offsetTop + last_element.offsetHeightt - clientHeight) {
-                screenTop = last_element.offsetTop + last_element.offsetHeightt - clientHeight;
+            if (scrollTop > last_element.offsetTop + last_element.offsetHeightt - list.clientHeight) {
+                screenTop = last_element.offsetTop + last_element.offsetHeightt - list.clientHeight;
             }
             var collection = [];
             for (var k in childrenMap) {
@@ -155,7 +155,7 @@ function ylist(container, generator, $Y) {
             var offsetTop = flag_element.offsetTop;
             var scrollTop = deltaY + list.scrollTop;
             //追加元素到顶部
-            while (scrollTop + flag_element.offsetTop < cache_height) {
+            while (scrollTop < cache_height) {
                 offset--;
                 if (!(offset >= 0)) {
                     break;
@@ -167,17 +167,18 @@ function ylist(container, generator, $Y) {
                     item.index = offset;
                     childrenMap[offset] = item;
                     list.insertBefore(item, first_element);
+                    scrollTop += item.offsetHeight;
                     first_element = item;
                 }
             }
             //滚动到相应位置
             //-list_scrollTop + lElem_offsetTop = -list_newScrollTop + lElem_newOffsetTop + deltaY
-            scrollTop = scrollTop + first_element.offsetTop - offsetTop;
             list.scrollTop = scrollTop;
             scrollTop = list.scrollTop;
             //移除不可见元素
             var last_element = getLastElement();
-            while (last_element && last_element.offsetTop > list.clientHeight + scrollTop + cache_height) {
+            var { clientHeight } = list;
+            while (last_element && last_element.offsetTop > clientHeight + scrollTop + cache_height) {
                 remove(last_element);
                 last_element = getLastElement();
             }
@@ -207,18 +208,41 @@ function ylist(container, generator, $Y) {
         return index + scrolled;
     };
     vbox(list, $Y);
-    list.style.height = null;
-    list.style.whiteSpace = "nowrap";// 防止水平方向时过载
     return list;
 }
 var allArgumentsNames = arguments[arguments.length - 1];
 var xlist = arriswise(ylist, allArgumentsNames.concat([].slice.call(arguments, 0)));
+
+var getGenerator = function (container) {
+    if (!container) return;
+    var template = document.createElement("div");
+    appendChild(template, [].concat.apply([], container.childNodes));
+    container.insertBefore = _slider.insertBefore;
+    container.appendChild = _slider.appendChild;
+    on('changes')(container, function (event) {
+        if (event.changes.src) {
+            container.go(container.index() || 0);
+        };
+    });
+    return function (index) {
+        if (!container.src || index >= container.src.length) return;
+        var template1 = template.cloneNode();
+        template1.innerHTML = template.innerHTML;
+        if (!template1.childNodes.length) return template1;
+        var item = template1.childNodes[0];
+        item.with = [].concat.apply([], template1.childNodes).slice(1);
+        render(item, container.src[index]);
+        return item;
+    };
+}
+
+
 /**
  * 
  * @param {Boolean|Array|Function} generator 
  */
 function list() {
-    var generator, $Y = "Y", container;
+    var generator, $Y, container;
     {
         for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
             let arg = arguments[cx];
@@ -234,5 +258,14 @@ function list() {
             }
         }
     }
+    if (container && !generator) {
+        var generator = getGenerator(container);
+    }
+    if (!$Y) {
+        if (container) {
+            $Y = container.getAttribute("direction");
+        }
+    }
+    $Y = /[xh]$/i.test($Y) ? "X" : "Y";
     return ($Y === "X" ? xlist : ylist)(container, generator, $Y);
 }
