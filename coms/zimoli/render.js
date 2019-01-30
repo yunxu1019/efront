@@ -13,10 +13,18 @@ var removeRenderElement = function () {
     var element = this;
     delete renderElements[element.renderid];
 };
+
 function refresh() {
     for (var k in renderElements) {
         var element = renderElements[k];
+        var props = extend({}, element);
         rebuild(element);
+        changes = getChanges(element, props);
+        if (changes) {
+            event = createEvent('changes');
+            event.changes = changes;
+            dispatch(event, element);
+        }
     }
 }
 function rebuild(element) {
