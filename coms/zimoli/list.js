@@ -73,7 +73,7 @@ function ylist(container, generator, $Y) {
                 if (last_index > index) {
                     list.insertBefore(item, last_item);
                 } else {
-                    list.insertBefore(item, last_item && last_item.nextSibling);
+                    list.insertBefore(item, getNextSibling(last_item));
                 }
                 last_item = item;
             }
@@ -96,6 +96,20 @@ function ylist(container, generator, $Y) {
         if (!firstElement) return saved_itemIndex * restHeight;
         return firstElement.index * firstElement.offsetHeight + list.scrollTop;
     };
+    var getBottomElement = function (last_element) {
+        if (!last_element) return null;
+        var with_elements = last_element.with;
+        return with_elements && with_elements.length ? with_elements[with_elements.length - 1] : last_element;
+    };
+    var getNextSibling = function (last_element) {
+        var bottom_element = getBottomElement(last_element);
+        return bottom_element ? bottom_element.nextSibling : null;
+    };
+    var getOffsetHeight = function (element) {
+        var next = getNextSibling(element);
+        if (!next) return element.offsetHeight;
+        return next.offsetTop - element.offsetTop;
+    };
     //滚动一定的距离
     var scrollBy = function (deltaY) {
         var childrenMap = getChildrenMap();
@@ -104,7 +118,7 @@ function ylist(container, generator, $Y) {
             if (!last_element || !last_element.offsetHeight) return;
             let { scrollTop } = list;
             scrollTop = scrollTop + deltaY;
-            var offsetBottom = last_element.offsetHeight + last_element.offsetTop;
+            var offsetBottom = getOffsetHeight(last_element) + last_element.offsetTop;
             var offset = last_element.index || 0;
             //追加元素到底部
             while (offsetBottom <= scrollTop + list.clientHeight + cache_height) {
@@ -119,13 +133,13 @@ function ylist(container, generator, $Y) {
                         restHeight = 200;
                     }
                     item.index = offset;
-                    list.insertBefore(item, last_element.nextSibling);
+                    list.insertBefore(item, getNextSibling(last_element));
                 }
                 if (!item.offsetHeight) {
                     console.warn(item, '!item.offsetHeight');
                     break;
                 }
-                offsetBottom = item.offsetTop + item.offsetHeight;
+                offsetBottom = item.offsetTop + getOffsetHeight(item);
                 last_element = item;
             }
             //移除顶部不可见的元素
@@ -134,8 +148,8 @@ function ylist(container, generator, $Y) {
             }
             var collection = [];
             for (var k in childrenMap) {
-                var item = childrenMap[k];
-                if (item.offsetTop + item.offsetHeight + cache_height < scrollTop) {
+                let item = childrenMap[k];
+                if (item.offsetTop + getOffsetHeight(item) + cache_height < scrollTop) {
                     collection.push(item);
                 } else {
                     break;
@@ -143,7 +157,7 @@ function ylist(container, generator, $Y) {
             }
             if (collection.length) {
                 var item = collection[collection.length - 1];
-                scrollTop -= item.offsetTop + item.offsetHeight;
+                scrollTop -= item.offsetTop + getOffsetHeight(item);
                 remove(collection);
             }
             //滚动到相应的位置
@@ -167,7 +181,7 @@ function ylist(container, generator, $Y) {
                     item.index = offset;
                     childrenMap[offset] = item;
                     list.insertBefore(item, first_element);
-                    scrollTop += item.offsetHeight;
+                    scrollTop += getOffsetHeight(item);
                     first_element = item;
                 }
             }
@@ -232,6 +246,7 @@ var getGenerator = function (container) {
         var item = template1.childNodes[0];
         item.with = [].concat.apply([], template1.childNodes).slice(1);
         render(item, container.src[index]);
+        render(item.with, container.src[index]);
         return item;
     };
 }
