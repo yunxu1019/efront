@@ -72,7 +72,7 @@ function ybox(generator) {
         __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
     var increaser_t = document.createElement("img");
-    increaser_t.style.display = "block";
+    increaser_t.style = "display:block;opacity:0;";
     var increaser_b = increaser_t.cloneNode();
     var decrease_timer = 0;
     var time_splitter = 16;
@@ -93,10 +93,12 @@ function ybox(generator) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
             }
-            increaser.height = height > 16 ? (height * 2 + 6) / 3 : height >> 1;
+            increaser.height = height = height > 16 ? (height * 2 + 6) / 3 : height >> 1;
+            increaser.style.height = (height | 0) + "px";
             return 1;
         }
         increaser.height = 0;
+        increaser.style.height = 0;
         remove(increaser);
         return 0;
     };
@@ -118,6 +120,7 @@ function ybox(generator) {
                 increaser_b.style.marginTop = 0;
                 increaser_b.style.marginBottom = 0;
                 increaser_b.height = 0;
+                increaser_b.style.height = 0;
                 appendChild(_box, increaser_b);
                 var deltaMargin = _box.scrollHeight - increaser_b.offsetTop;
                 if (deltaMargin > 0) {
@@ -135,8 +138,8 @@ function ybox(generator) {
         if (t_height > increase_height) t_height = increase_height;
         if (b_height < 0) b_height = 0;
         if (t_height < 0) t_height = 0;
-        if (!minusOnly || b_height < increaser_b.height) increaser_b.height = b_height;
-        if (!minusOnly || t_height < increaser_t.height) increaser_t.height = t_height;
+        if (!minusOnly || b_height < increaser_b.height) increaser_b.height = b_height, increaser_b.style.height = b_height + "px";
+        if (!minusOnly || t_height < increaser_t.height) increaser_t.height = t_height, increaser_t.style.height = t_height + "px";
     };
     onmousewheel(_box, function (event) {
         cancelAnimationFrame(smooth_timer);
@@ -182,7 +185,7 @@ function ybox(generator) {
         } else if (_boxPosition.top < _boxParentPosition.top && deltay < 0) {
             var deltaScroll = _boxPosition.top - _boxParentPosition.top;
             deltaScroll = max(deltay, deltaScroll);
-            scrollY.call(offsetParent, deltaScroll);
+            scrollY.call(offsetParent, deltaScroll, false);
             deltay = deltay - deltaScroll;
         } else if (Top.call(_box) <= 0 && deltay < 0) {
             var top = Top.call(offsetParent);
