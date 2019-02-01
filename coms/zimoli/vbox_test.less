@@ -1,0 +1,34 @@
+&{
+    height:300px;
+    width:200px;
+    border: 6px solid green;
+    padding: 40px 20px;
+    position: relative;
+    &:after{
+        content:"vbox1";
+        display: block;
+        position: absolute;
+        top: 0;
+    }
+    >.vbox{
+        position: relative;
+        height: 420px;
+        border: 6px dotted blue;
+        padding: 40px 20px;
+        &:after{
+            content:"vbox2";
+            display: block;
+            position: absolute;
+            top: 0;
+        }
+        >span{
+            display: block;
+            padding: 40px 20px;
+            height: 1000px;
+            border: 6px dashed red;
+            &:after{
+                content:"content"
+            }
+        }
+    }
+}

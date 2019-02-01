@@ -4,6 +4,7 @@ function ybox(generator) {
     var sign = Math.sign || function (a) {
         return +a > 0 ? 1 : -a > 0 ? -1 : 0;
     };
+    var { min, max } = Math;
     var _box;
     if (isNode(generator)) {
         _box = generator;
@@ -11,7 +12,7 @@ function ybox(generator) {
         _box = createElement(div);
     }
     _box.height = function () {
-        return _box.offsetHeight;
+        return _box.clientHeight;
     };
     isFunction(generator) && generator(_box);
     // totalHeight
@@ -67,7 +68,7 @@ function ybox(generator) {
         }
         onclick.preventClick = true;
         smooth_timer = requestAnimationFrame(() => smooth(useIncrease));
-        _box.scrollY(-__speed, useIncrease);
+        scrollY.call(_box, -__speed, useIncrease);
         __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
     var increaser_t = document.createElement("img");
@@ -141,19 +142,70 @@ function ybox(generator) {
         cancelAnimationFrame(smooth_timer);
         cancelAnimationFrame(decrease_timer);
         var deltay = -event.deltaY;
+        if (event.moveLocked) return;
+        event.moveLocked = true;
         event.preventDefault();
         __speed = _speed(deltay);
-        _box.scrollY(-deltay, false);
+        scrollY.call(_box, -deltay, false);
         smooth(false);
     });
+    var scrollY = function (deltay, useIncrease) {
+        deltay = scrollOutside.call(this, deltay);
+        if (isFunction(this.scrollY)) return this.scrollY(deltay, useIncrease);
+        else this.scrollTop += deltay;
+        return this.scrollTop;
+    };
+    var Top = function () {
+        if (isFunction(this.Top)) return this.Top();
+        return this.scrollTop();
+    };
+    var height = function () {
+        if (isFunction(this.height)) return this.height();
+        return this.clientHeight;
+    };
+    var Height = function () {
+        if (isFunction(this.Height)) return this.Height();
+        return this.scrollHeight;
+    }
+    var scrollOutside = function (deltay) {
+        var _box = this;
+        if (_box.YScrollBoxId === 1) return deltay;
+        var offsetParent = _box.offsetParent;
+        if (!offsetParent) return deltay;
+        var _boxPosition = getScreenPosition(_box);
+        var _boxParentPosition = getScreenPosition(offsetParent);
+        if (_boxPosition.bottom > _boxParentPosition.bottom && deltay > 0) {
+            var deltaScroll = _boxPosition.bottom - _boxParentPosition.bottom;
+            deltaScroll = min(deltay, deltaScroll);
+            scrollY.call(offsetParent, deltaScroll, false);
+            deltay = deltay - deltaScroll;
+        } else if (_boxPosition.top < _boxParentPosition.top && deltay < 0) {
+            var deltaScroll = _boxPosition.top - _boxParentPosition.top;
+            deltaScroll = max(deltay, deltaScroll);
+            scrollY.call(offsetParent, deltaScroll);
+            deltay = deltay - deltaScroll;
+        } else if (Top.call(_box) <= 0 && deltay < 0) {
+            var top = Top.call(offsetParent);
+            scrollY.call(offsetParent, deltay, false);
+            deltaScroll = Top.call(offsetParent) - top;
+            deltay = deltay - deltaScroll;
+        } else if (Top.call(_box) + height.call(_box) >= Height.call(_box) && deltay > 0) {
+            var top = Top.call(offsetParent);
+            scrollY.call(offsetParent, deltay, false);
+            deltaScroll = Top.call(offsetParent) - top;
+            deltay = deltay - deltaScroll;
+        }
+        return scrollOutside.call(offsetParent, deltay);
+    };
     var smooth_timer;
     var mousemove = function (event) {
-        if (event.moveLocked) return;
-        if (_box.nodrag) return;
-        var clientX = event.clientX;
-        var clientY = event.clientY;
+        var { clientX, clientY } = event;
         var deltax = clientX - saved_x;
         var deltay = clientY - saved_y;
+        saved_x = clientX;
+        saved_y = clientY;
+        if (event.moveLocked) return;
+        if (_box.nodrag) return;
         if (!direction) {
             if (abs(deltax) < MOVELOCK_DELTA && abs(deltay) < MOVELOCK_DELTA) return;
             direction = abs(deltax) >= abs(deltay) ? -1 : 1;
@@ -162,10 +214,19 @@ function ybox(generator) {
             return;
         event.moveLocked = true;
         __speed = _speed(deltay);
-        _box.scrollY(-deltay);
-        saved_x = clientX;
-        saved_y = clientY;
+        scrollY.call(_box, -deltay, true);
     };
+    var initScrollId = function () {
+        var temp = this.parentNode;
+        var scrollId = 0;
+        while (temp && !scrollId) {
+            if (isFinite(temp.YScrollBoxId)) scrollId = temp.YScrollBoxId;
+            temp = temp.parentNode;
+        }
+        this.YScrollBoxId = +scrollId + 1;
+    }
+    if (_box.isMounted) initScrollId.call(_box);
+    on("append")(_box, initScrollId);
     moveupon(_box, {
         start(event) {
             cancelAnimationFrame(smooth_timer);
