@@ -106,8 +106,12 @@ function ylist(container, generator, $Y) {
         return bottom_element ? bottom_element.nextSibling : null;
     };
     var getOffsetHeight = function (element) {
-        var next = getNextSibling(element);
-        if (!next) return element.offsetHeight;
+        var temp = element;
+        do {
+            var next = getNextSibling(temp);
+            if (!next) return element.offsetHeight;
+            temp = next;
+        } while (next.offsetTop === element.offsetTop);
         return next.offsetTop - element.offsetTop;
     };
     //滚动一定的距离
@@ -181,7 +185,7 @@ function ylist(container, generator, $Y) {
                     item.index = offset;
                     childrenMap[offset] = item;
                     list.insertBefore(item, first_element);
-                    scrollTop += getOffsetHeight(item);
+                    scrollTop += flag_element.offsetTop - offsetTop;
                     first_element = item;
                 }
             }
