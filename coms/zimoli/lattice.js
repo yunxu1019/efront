@@ -78,8 +78,8 @@ function main() {
                 if (arg >= minWidth) {
                     maxWidth = arg;
                 } else {
-                    maxWidth = minWidth;
-                    minWidth = arg;
+                    maxWidth = minWidth * renderPixelRatio;
+                    minWidth = arg * renderPixelRatio;
                 }
             } else {
                 minWidth = arg;
@@ -87,7 +87,7 @@ function main() {
         }
     });
     if (isNode(element) && !minWidth) {
-        minWidth = +element.getAttribute("min-width");
+        minWidth = +element.getAttribute("min-width") * renderPixelRatio;
     }
     return lattice(element, minWidth, maxWidth, layers);
 }
