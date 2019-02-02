@@ -40,6 +40,7 @@ api.onerror = function (error) {
     }
     alert.error(i18n(error));
 };
+cross.digest = render.digest;
 api.setLazyRender(render.refresh);
 user.setLoginPath("/user/welcome");
 user.setStateFunction(state);
