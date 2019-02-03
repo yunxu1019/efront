@@ -148,7 +148,7 @@ function ylist(container, generator, $Y) {
             }
             //移除顶部不可见的元素
             if (scrollTop > last_element.offsetTop + last_element.offsetHeightt - list.clientHeight) {
-                screenTop = last_element.offsetTop + last_element.offsetHeightt - list.clientHeight;
+                scrollTop = last_element.offsetTop + last_element.offsetHeightt - list.clientHeight;
             }
             var collection = [];
             for (var k in childrenMap) {
@@ -167,7 +167,7 @@ function ylist(container, generator, $Y) {
             //滚动到相应的位置
             list.scrollTop = scrollTop;
         } else {
-            var flag_element = first_element = getFirstElement();
+            var first_element, flag_element = first_element = getFirstElement();
             if (!flag_element || !isFinite(flag_element.offsetTop)) return;
             offset = flag_element.index || 0;
             var offsetTop = flag_element.offsetTop;

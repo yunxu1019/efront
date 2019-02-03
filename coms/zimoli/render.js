@@ -19,9 +19,9 @@ function refresh() {
         var element = renderElements[k];
         var props = extend({}, element);
         rebuild(element);
-        changes = getChanges(element, props);
+        var changes = getChanges(element, props);
         if (changes) {
-            event = createEvent('changes');
+            var event = createEvent('changes');
             event.changes = changes;
             dispatch(event, element);
         }

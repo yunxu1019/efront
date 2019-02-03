@@ -35,7 +35,6 @@ function select(target, list) {
     });
     onremove(list, () => saved_list = null);
     var mousedown = function () {
-        if (mousedownfired) return;
         if (saved_list !== list) {
             _remove();
             if (document.activeElement !== target) target.focus();

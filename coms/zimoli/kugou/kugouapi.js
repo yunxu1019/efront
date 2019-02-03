@@ -33,7 +33,6 @@ var apiMap = {
     },
 };
 function kgapi(obj, extra) {
-    console.log(obj)
     var {
         url,
         selector,
@@ -46,7 +45,7 @@ function kgapi(obj, extra) {
     var xhr = cross("get", url);
     var decoder = function () {
         if (selector) {
-            var sandbox = getSandbox(xhr);
+            var sandbox = kugou$getSandbox(xhr);
             var data = sandbox.querySelector(selector);
         } else {
             var data = xhr.responseText || xhr.response;

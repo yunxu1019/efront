@@ -14,11 +14,11 @@ onappend(page, function () {
 var currentRequest;
 function main(params) {
     currentRequest && currentRequest.abort();
+    kugou$fxPlayer.stopLive("fxplayer-box");
     currentRequest = kugou$kugouapi.fanxingRoom(params).done(function (xhr) {
         if (!page.isMounted) return;
         var data = kugou$getJsonpData(xhr);
         scope.videosrc = data.httpflv[0];
-        kugou$fxPlayer.stopLive("fxplayer-box");
         kugou$fxPlayer.init({
             id: "fxplayer-box",
             url: scope.videosrc

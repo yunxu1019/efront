@@ -1,6 +1,27 @@
 /**
  * 繁星直播播放器
  */
+var self, importScripts, $, global, MessageChannel, {
+    TypeError,
+    Blob,
+    Worker,
+    MediaSource,
+    URL,
+    DataView,
+    Uint8Array,
+    ArrayBuffer,
+    Symbol,
+    Int16Array,
+    require,
+    ReferenceError,
+    Uint8ClampedArray,
+    FileReader,
+    Number,
+    HTMLVideoElement,
+    MediaError,
+    Z, S, E, k, O, w, L, A, W, R, T, D, x, C, I, P, U, B, F, M, j, q, K, H, N, z, G, Y, X, Q, et, tt
+} = self = window;
+
 function detectFlashObjectElement(a, h, c) {
     var container = document.getElementById(a)
         , v = "";
