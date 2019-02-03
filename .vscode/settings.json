@@ -1,0 +1,6 @@
+{
+    "javascript.suggest.autoImports": false,
+    "[bat]": {
+        "files.encoding": "gb18030"
+    }
+}

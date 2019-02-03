@@ -2,7 +2,6 @@ data/shared.json
 node_modules/
 nbproject/
 demos/
-.vscode/
 apps/fc/
 apps/yjkj/
 apps/daxia/
