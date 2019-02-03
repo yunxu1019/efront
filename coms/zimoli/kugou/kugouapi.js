@@ -64,9 +64,41 @@ for (var k in apiMap) {
 }
 extend(kgapi, {
     fanxingList() {
-        var url = `http://bjacshow.kugou.com/soa/followstar/m/listen?platform=1&pageNum=1&kugouId=627516233&from=1&version=9108&pageSize=8`;
+        // var url = `http://bjacshow.kugou.com/soa/followstar/m/listen?platform=1&pageNum=1&kugouId=627516233&from=1&version=9108&pageSize=8`;
+        var url = `http://gzacshow.kugou.com/mfx-listenindex/mo/liveAndVideo?${serialize({
+            appid: 1000,
+            channel: 1008,
+            device: "b9b94ac322a5b4c028ad8c515478a5299ecd48bb",
+            isDown: 0,
+            kugouId: 627516233,
+            livePage: 1,
+            platform: 2,
+            sign: "00b405ad75da69fb",
+            std_plat: 6,
+            token: "bb0bfed40c0b45c2504fba8bd9d782b340d03c96b036e1efa53c812bf61cec16",
+            version: 9118,
+            videoPage: 0
+        })}`;
         return cross("get", url);
     },
+    fanxingRoom({ roomId }) {
+        // var urlPC = `http://fanxing.kugou.com/${roomId}`;
+        // var urlMobile = `http://mfanxing.kugou.com/staticPub/rmobile/sharePage/normalRoom/views/index.html?roomId=${roomId}`;
+        var url = `https://fx1.service.kugou.com/video/pc/live/pull/v1/streamaddr.jsonp?${serialize({
+            roomId,
+            ch: "fx",
+            version: "1.0",
+            streamType: "1-2-3",
+            platform: 7,
+            ua: "fx-flash",
+            kugouId: 0,
+            layout: 1,
+            _: +new Date(),
+            jsonpcallback: 'jsonphttpsfx1servicekugoucomvideopclivepullv1streamaddrjsonproomId1312839chfxversion10streamType123platform7uafxflashkugouId0layout11549204845914jsonpcallback'
+
+        })}`;
+        return cross('get', url);
+    }
 
 })
 
