@@ -31,7 +31,8 @@ function rebuild(element) {
     element.renders.map(a => a.call(element));
 }
 var createGetter = function (search) {
-    return new Function(`try{with(this.$scope)return ${search}}catch(e){/*console.warn(String(e))*/}`);
+    var [withContext, searchContext] = search;
+    return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
 };
 var directives = {
     click(search) {
@@ -79,28 +80,28 @@ var directives = {
                 if (value === undefined) value = "";
                 if (this.checked != value) this.checked = value;
             });
-            var change = new Function(`with(this.$scope)${search}=this.checked`).bind(this);
+            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.checked`).bind(this);
         } else if (("value" in this || this.getValue instanceof Function) && this.setValue instanceof Function) {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (this.value != value) this.setValue(value);
             });
-            var change = new Function(`with(this.$scope)${search}=this.value`).bind(this);
+            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
         } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (this.value != value) this.value = value;
             });
-            var change = new Function(`with(this.$scope)${search}=this.value`).bind(this);
+            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
         } else {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (html(this) != value) html(this, value);
             });
-            var change = new Function("html", `with(this.$scope)${search}=html(this)`).bind(this, html);
+            var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=html(this)`).bind(this, html);
         }
         var onchange = lazy(change);
         eventsHandlers.map(on => on(this, onchange));
@@ -213,15 +214,24 @@ var directives = {
         });
     }
 };
-function renderElement(element, scope) {
+function renderElement(element, scope, parentScopes = []) {
+    if (parentScopes !== null && !isArray(parentScopes)) {
+        throw new Error('父级作用域链应以数组的类型传入');
+    }
     var children = element.children;
     if (!children) {
         return [].concat.apply([], element).map(function (element) {
-            return renderElement(element, scope);
+            return renderElement(element, scope, parentScopes);
         });
     }
     element.$scope = scope;
-    if (children.length) renderElement(children, scope);
+    if (parentScopes) {
+        if (element.renderid && !element.$parentScopes || element.$parentScopes && element.$parentScopes.length !== parentScopes.length) {
+            return new Error("父作用域链的长度必须相等着");
+        }
+        element.$parentScopes = parentScopes;
+    }
+    if (children.length) renderElement(children, scope, parentScopes);
     if (element.renderid) return;
     element.renderid = true;
     var attrs = [].concat.apply([], element.attributes);
@@ -260,12 +270,13 @@ function renderElement(element, scope) {
         }
     }
     element.renders = [];
+    var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
     attrs.map(function (attr) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
-            directives[key].call(element, value);
+            directives[key].call(element, [withContext, value]);
         }
     });
     if (element.renders.length) {
@@ -275,8 +286,8 @@ function renderElement(element, scope) {
         if (element.isMounted) addRenderElement.call(element);
     }
 }
-function render(element, scope) {
-    return renderElement(element, scope);
+function render(element, scope, parentScopes) {
+    return renderElement(element, scope, parentScopes);
 }
 
 var digest = lazy(refresh);
