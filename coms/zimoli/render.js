@@ -232,7 +232,7 @@ function renderElement(element, scope, parentScopes = []) {
         element.$parentScopes = parentScopes;
     }
     if (children.length) renderElement(children, scope, parentScopes);
-    if (element.renderid) return;
+    if (element.renderid) return scope;
     element.renderid = true;
     var attrs = [].concat.apply([], element.attributes);
     var { tagName, parentNode, nextSibling } = element;
@@ -285,6 +285,7 @@ function renderElement(element, scope, parentScopes = []) {
         onremove(element, removeRenderElement);
         if (element.isMounted) addRenderElement.call(element);
     }
+    return scope;
 }
 function render(element, scope, parentScopes) {
     return renderElement(element, scope, parentScopes);
