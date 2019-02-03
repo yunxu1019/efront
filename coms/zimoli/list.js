@@ -249,8 +249,9 @@ var getGenerator = function (container) {
         if (!template1.childNodes.length) return template1;
         var item = template1.childNodes[0];
         item.with = [].concat.apply([], template1.childNodes).slice(1);
-        render(item, container.src[index]);
-        render(item.with, container.src[index]);
+        var newScope = container.src[index];
+        render(item, newScope, [container.$scope]);
+        render(item.with, newScope, [container.$scope]);
         return item;
     };
 }
