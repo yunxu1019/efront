@@ -11,6 +11,7 @@ onappend(page, function () {
     var offresize = on("resize")(window, resize);
     onremove(page, offresize);
 });
+page.initialStyle='margin-left:100%;z-index:2';
 var currentRequest;
 function main(params) {
     currentRequest && currentRequest.abort();
