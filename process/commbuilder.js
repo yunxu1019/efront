@@ -287,7 +287,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var promise;
     if (/\.html?$/i.test(filename)) {
         let lesspath = fullpath.replace(/\.html?$/i, ".less");
-        jsData = "`" + data.replace(/>\s+</g, "><") + "`";
+        jsData = "`" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/, "\\$&") + "`";
         promise = getFileData(lesspath).then(function (lessdata) {
             if (lessdata instanceof Buffer) {
                 less.render(`.${className}{${String(lessdata)}}`, {
@@ -315,7 +315,16 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 watchurls.push(lesspath);
             }
             if (htmldata instanceof Buffer) {
-                jsData = `var ${commName}=\`` + String(htmldata).replace(/>\s+</g, "><") + "`;\r\n" + data;
+                var commHtmlName;
+                if (/^main/.test(commName)) {
+                    commHtmlName = 'Main';
+                } else {
+                    commHtmlName = commName[0].toUpperCase() + commName.slice(1);
+                    if (commHtmlName !== commName) {
+                        commHtmlName = `${commName},${commHtmlName},${commHtmlName}=${commName}`;
+                    }
+                }
+                jsData = `var ${commHtmlName}=\`` + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/, "\\$&") + "`;\r\n" + data;
                 watchurls.push(htmlpath);
             } else {
                 jsData = data;
