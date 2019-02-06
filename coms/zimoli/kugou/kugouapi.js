@@ -93,10 +93,47 @@ extend(kgapi, {
             kugouId: 0,
             layout: 1,
             _: +new Date(),
-            jsonpcallback: 'jsonphttpsfx1servicekugoucomvideopclivepullv1streamaddrjsonproomId1312839chfxversion10streamType123platform7uafxflashkugouId0layout11549204845914jsonpcallback'
+            jsonpcallback: 'jsonp'
 
         })}`;
         return cross('get', url);
+    },
+    login() {
+        `https://login-user.kugou.com/v1/login/?appid=2815&username=1019023330%40qq.com&pwd=0762cd14df7d2cf27c98029eed319930&code=&ticket=&clienttime=1549278496&expire_day=1&autologin=false&redirect_uri=&state=&callback=loginModule.loginCallback&login_ver=1&mobile=&mobile_code=&mid=a3c37c74b1a2d34ee7013adf87b8e93b&kguser_jv=180925`
+    },
+    getStreamAddress({ roomId }) {
+        return cross('get', `http://service.fanxing.com/video/mo/live/pull/v1/streamaddr.jsonp?${serialize({
+            roomId,
+            platform: /android/i.test(navigator.userAgent) ? 18 : 1,
+            version: 1000,
+            streamType: 3,
+            liveType: 1,
+            ch: 'fx',
+            ua: 'fx-mobile-h5',
+            kugouId: 0,
+            layout: 1,
+            jsonpcallback: 'jsonp_1549426347917_26819'
+        })}`);
+    },
+    getEnterRoomInfo({ roomId }) {
+        return cross('get',
+            `http://mo.fanxing.kugou.com/mfx/h5/share/live/getEnterRoomInfo?${serialize({
+                roomId,
+                kugouId: 0,
+                token: 0,
+                appid: 2815,
+                channel: 1,
+                platform: 207,
+                times: 1549282879713,
+                sign: "885d486fc4ead8307d79833d6151d735",
+                jsonpcallback: 'jsonp_1549282879714_60293'
+            })}`, {
+                Cookie: "mfxDid=edad4b6c-89b9-4cd4-ac0a-43e4a4a7cab1"
+            });
+    },
+
+    getPcRoomList() {
+        `http://acshow.kugou.com/show7/web/json/v2/cdn/room/getPcRoomList?jsonpcallback=jsonp_1549278831153_98001`
     }
 
 })
