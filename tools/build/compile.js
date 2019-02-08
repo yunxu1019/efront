@@ -37,18 +37,22 @@ var window = {
             addBehavior() { }
         }
     },
-    state: {},
     screen: {},
-    init: {},
-    put: {},
     performance: {
     },
-    modules: {},
-    prepare: {},
-    MOVELOCK_DELTA: 1,
-    SAFE_CIRCLE_DEPTH: 2,
-    renderPixelRatio: {},
-    XHR: {},
+    modules: {
+        state: {},
+        init: {},
+        put: {},
+        prepare: {},
+        MOVELOCK_DELTA: 1,
+        SAFE_CIRCLE_DEPTH: 2,
+        renderPixelRatio: {},
+        XHR: {},
+        calcPixel:{},
+        freePixel:{},
+        fromPixel:{},
+    },
     Image: {},
     Promise: {},
     alert() {
@@ -162,7 +166,8 @@ function compile(buildInfo, lastBuildTime, destroot) {
                         get();
                         return;
                     }
-                    if (!window[name]) responseWithWarning = `没有发现文件：${url}`;
+                    if(window.modules[name]) console.info(`${url} will be replaced by the builtin module`);
+                    else if (!window[name]) responseWithWarning = `没有发现文件：${url}`;
                     else console.info(`${url} will be replaced by the global variables`);
                     resolve();
                 }
