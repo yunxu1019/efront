@@ -23,7 +23,7 @@ function build(pages_roots, lastBuiltTime, dest_root) {
         });
         Promise.all(roots).then(function (datas) {
             var deps = {};
-            datas.map(getDependence).map(a => a.map(a => deps[a] = true));
+            datas.map(getDependence).map(a => a.concat(a.require).map(a => deps[a] = true));
             return Object.keys(deps);
         }).then(builder);
     };
