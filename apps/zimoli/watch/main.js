@@ -44,6 +44,7 @@ if (/iPhone|Android/.test(navigator.userAgent)) {
     };
 } else {
     var currentRequest;
+    remove(page.getElementsByTagName("video")[0]);
     var constructor = function (params) {
         currentRequest && currentRequest.abort();
         player.stopLive("fxplayer-box");
