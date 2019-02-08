@@ -77,6 +77,12 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     process.on("SIGINT", end);
     process.on("SIGTERM", end);
     run();
+    process.on("uncaughtException", function () {
+        console.error.apply(console, arguments);
+    });
+    process.on("unhandledRejection", function () {
+        console.error.apply(console, arguments);
+    });
 } else {
     process.on("SIGINT", function () { });
     process.on("SIGTERM", function () { });

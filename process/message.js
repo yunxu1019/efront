@@ -10,10 +10,12 @@ var message_handlers_path = "./message";
 message_handlers_path = path.join(__dirname, message_handlers_path);
 var onmessage = function (msg, then) {
     if (!then) then = (result) => {
-        this.state === "online" | cluster.isMaster && this.send("onresponse:" + JSON.stringify({
+        !this.isDead() && (this.state === "online" || cluster.isMaster) && this.send("onresponse:" + JSON.stringify({
             params: result,
             stamp
-        }));
+        }), (error) => {
+            if (error) console.error(error, `message[${key}]:${this.id}`);
+        });
     };
     var index = msg.indexOf(":");
     var run, args, key, stamp;
