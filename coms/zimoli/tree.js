@@ -100,7 +100,7 @@ function tree(constructor) {
         var _div = button(span);
         addClass(_div, "tab" + com.tab);
         css(_div, {
-            "padding-left": com.tab * 10 * renderPixelRatio + 'pt'
+            "padding-left": fromPixel(com.tab * 10)
         });
         com.target = _div;
         onclick(_div, function () {

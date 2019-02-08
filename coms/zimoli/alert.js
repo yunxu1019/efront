@@ -14,17 +14,17 @@ var build = function () {
         sum += elem.offsetHeight;
     });
 };
-var fontSize = 16 * renderPixelRatio;
+var fontSize = 16;
 var singleHeight = fontSize * 3.125 | 0;
 var _text = function (color, parameters) {
     var box = createElement(div);
-    var boxWidth = 720 * renderPixelRatio;
+    var boxWidth = 720;
     if (boxWidth > innerWidth) {
         boxWidth = +innerWidth;
     }
-    css(box, `width:${boxWidth}px;top:${singleHeight * alerts.length}px;margin-left:-${boxWidth >> 1}px;transition:all 0.1s ease-out;left:50%;height:${singleHeight}pt;line-height:${singleHeight}pt;font-size:${fontSize}px;background-color:${color};position:absolute;color:#fff;text-align:center;`);
+    css(box, `width:${fromPixel(boxWidth)};top:${fromPixel(singleHeight * alerts.length)};margin-left:-${fromPixel(boxWidth >> 1)};transition:all 0.1s ease-out;left:50%;height:${fromPixel(singleHeight)};line-height:${fromPixel(singleHeight)};font-size:${fromPixel(fontSize)};background-color:${color};position:absolute;color:#fff;text-align:center;`);
     text(box, [].slice.call(parameters, 0).join(", "));
-    box.initialStyle = `margin-top:-${singleHeight}px;opacity:0;`;
+    box.initialStyle = `margin-top:-${fromPixel(singleHeight)};opacity:0;`;
     return box;
 };
 function alert() {

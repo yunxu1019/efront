@@ -61,8 +61,51 @@ if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.pla
     let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=${ratio},maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
-    document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
 }
+var initPixelDecoder = function () {
+    if (pixelDecoder instanceof Function) return;
+    var maxRenderWidth = +document.body.getAttribute('max-render');
+    if (!maxRenderWidth) {
+        /**
+         * 从px到pt
+         */
+        modules.fromPixel = pixelDecoder = d => d * renderPixelRatio + "pt";
+        /**
+         * 从offset到px
+         */
+        modules.freePixel = d => d * .75 / renderPixelRatio;
+        /**
+         * 从pixel到offset
+         */
+        modules.calcPixel = d => d * renderPixelRatio / .75;
+        document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
+    } else {
+        /**
+         * 从px到rem
+         */
+        modules.fromPixel = pixelDecoder = d => d / 16 + "rem";
+        /**
+         * 从offset到px
+         */
+        modules.freePixel = d => window.innerWidth < maxRenderWidth ? d * .75 / renderPixelRatio : d * .75 / (window.innerWidth / maxRenderWidth * renderPixelRatio);
+        /**
+         * 从pixel到offset
+         */
+        modules.calcPixel = d => window.innerWidth < maxRenderWidth ? d * renderPixelRatio / .75 : d * renderPixelRatio / (window.innerWidth / maxRenderWidth * .75);
+        init("css", function (css) {
+            var onresize = function () {
+                css("html", {
+                    fontSize: window.innerWidth < maxRenderWidth ? 16 * renderPixelRatio + "pt" : window.innerWidth / maxRenderWidth * 16 * renderPixelRatio + "pt"
+                });
+            };
+            onresize();
+            init("on", function (on) {
+                on("resize")(window, onresize);
+            });
+        });
+    }
+};
+
 var loaddingTree = {};
 var requestTree = {};
 var responseTree = {};
@@ -229,7 +272,6 @@ var executer = function (text, name, then, prebuild) {
         functionArgs = [];
         functionBody = text;
     }
-    if (!pixelDecoder) pixelDecoder = d => d * renderPixelRatio + "pt";
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
     functionBody = functionBody.replace(/((?:\d*\.)?\d+)px/ig, (m, d) => (d !== '1' ? pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
     if (!functionArgs.length) {
@@ -347,6 +389,7 @@ var removeGlobalProperty = function (property) {
 };
 var onload = function () {
     window.onload = null;
+    initPixelDecoder();
     hook(--requires_count);
 };
 modules.put = function (name, module) {

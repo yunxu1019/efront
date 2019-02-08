@@ -30,10 +30,10 @@ function option(head, body, foot, splitter) {
     }
     var divide = function (headWidth) {
         css(_head, {
-            width: (+headWidth + 1) * renderPixelRatio + "pt"
+            width: fromPixel(+headWidth + 1)
         });
         css(_body, {
-            left: headWidth * renderPixelRatio + "pt"
+            left: fromPixel(headWidth * renderPixelRatio)
         });
     };
     splitter && divide(splitter);

@@ -77,7 +77,7 @@ function ybox(generator) {
     var decrease_timer = 0;
     var time_splitter = 16;
     var _speed = speed(time_splitter);
-    var increase_height = 100 * renderPixelRatio / .75;
+    var increase_height = calcPixel(100);
     var _decrease = function (increaser) {
         var height = parseInt(increaser.height);
         if (height > 1) {

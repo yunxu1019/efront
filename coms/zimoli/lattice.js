@@ -10,7 +10,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     var boxCount;
     var resize = function () {
         var _layers = layers || _box.src || [];
-        var clientWidth = _box.clientWidth;
+        var clientWidth = freePixel(_box.clientWidth);
         boxCount = clientWidth / minWidth | 0;
         if (boxCount >= _layers.length) addClass(_box, complete_class);
         else removeClass(_box, complete_class);
@@ -22,7 +22,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         var objs = layers.slice(offset, offset + boxCount).map(function (a) {
             css(a, {
                 width: (1000000 / boxCount | 0) / 10000 + "%",
-                maxWidth: maxWidth * renderPixelRatio + "pt",
+                maxWidth: fromPixel(maxWidth),
             });
             return a;
         });
@@ -35,7 +35,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     var build = function (element) {
         css(element, {
             width: (1000000 / boxCount | 0) / 10000 + "%",
-            maxWidth: maxWidth * renderPixelRatio + "pt",
+            maxWidth: fromPixel(maxWidth),
         });
         if (element.with) {
             element.with.forEach(build);
@@ -78,8 +78,8 @@ function main() {
                 if (arg >= minWidth) {
                     maxWidth = arg;
                 } else {
-                    maxWidth = minWidth * renderPixelRatio;
-                    minWidth = arg * renderPixelRatio;
+                    maxWidth = minWidth;
+                    minWidth = arg;
                 }
             } else {
                 minWidth = arg;
@@ -87,7 +87,7 @@ function main() {
         }
     });
     if (isNode(element) && !minWidth) {
-        minWidth = +element.getAttribute("min-width") * renderPixelRatio;
+        minWidth = +element.getAttribute("min-width");
     }
     return lattice(element, minWidth, maxWidth, layers);
 }

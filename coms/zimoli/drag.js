@@ -48,7 +48,7 @@ function drag(target, initialEvent, overflow) {
         move.call(clone, offsetLeft, offsetTop, overflow);
         cloneDeltaLeft += clone.offsetLeft;
         cloneDeltaTop += clone.offsetTop;
-        extraClones.map(clone => css(clone, `left:${clone.offsetLeft + cloneDeltaLeft}px;top:${clone.offsetTop + cloneDeltaTop}px;`));
+        extraClones.map(clone => css(clone, `left:${fromPixel(clone.offsetLeft + cloneDeltaLeft)};top:${fromPixel(clone.offsetTop + cloneDeltaTop)};`));
     };
     var clear = function () {
         if (clone !== target) remove(clone), css(target, { opacity: saved_opacity, filter: saved_filter });
