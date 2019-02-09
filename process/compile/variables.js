@@ -12,7 +12,7 @@ var ieSpecialWords = Object.assign({
 }, keywords);
 var merge = function (dst, o) {
     for (var k in o) {
-        dst[k] = dst[k] || o[k];
+        dst[k] = o[k] === true ? true : dst[k] || o[k];
     }
 };
 var getVariables = function (ast) {
@@ -184,6 +184,8 @@ var getVariables = function (ast) {
                     ast.type = "EmptyStatement";
                     break;
                 }
+            // case "UnaryExpression":
+            //     if (ast.operator === "typeof") break;
             default:
                 for (var k in ast) {
                     var {
