@@ -18,8 +18,7 @@ var self, importScripts, $, global, MessageChannel, {
     FileReader,
     Number,
     HTMLVideoElement,
-    MediaError,
-    Z, S, E, k, O, w, L, A, W, R, T, D, x, C, I, P, U, B, F, M, j, q, K, H, N, z, G, Y, X, Q, et, tt
+    MediaError
 } = self = window;
 
 function detectFlashObjectElement(a, h, c) {
