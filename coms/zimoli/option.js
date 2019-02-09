@@ -7,8 +7,8 @@ addClass(_itemBody, "body");
 var _itemFoot = div();
 addClass(_itemFoot, "foot");
 
-function option(head, body, foot, splitter) {
-    var box = createElement(_itemBox);
+function option(head, body, foot, splitter, container) {
+    var box = container || createElement(_itemBox);
     var _head = createElement(_itemHead, head);
     var _body = createElement(_itemBody, body);
     appendChild(box, _body, _head);
@@ -39,4 +39,35 @@ function option(head, body, foot, splitter) {
     splitter && divide(splitter);
     var btn = button(box);
     return btn;
+}
+
+function main(arg0) {
+    var head, body, foot, splitter, container;
+    if (arguments.length === 1 && isNode(arg0)) {
+        container = arg0;
+        var [head = null, body = null, foot = null] = container.children;
+        splitter = container.getAttribute("")
+        return option(head, body, foot, splitter, container);
+    }
+    [].forEach.call(arguments, function (arg) {
+        if (isNode(arg)) {
+            if (!head) {
+                head = arg;
+            } else if (!body) {
+                body = arg;
+            } else if (!foot) {
+                foot = arg;
+            } else if (!container) {
+                container = head;
+                head = body;
+                body = foot;
+                foot = arg;
+            }
+            return;
+        }
+        if (isFinite(arg)) {
+            splitter = +arg;
+        }
+    });
+    return option(head, body, foot, splitter, container);
 }
