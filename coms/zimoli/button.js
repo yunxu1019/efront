@@ -48,12 +48,16 @@ function button(texter, type) {
     var _texter;
     if (isNode(texter)) {
         _texter = texter;
+        if (_texter.tagName && !texter.with && !type && _texter.childNodes.length) {
+            var button = _texter;
+            appendChild.before(button.childNodes[0], tracker);
+        }
     } else {
         _texter = createElement(_label);
         if (isString(texter))
             html(_texter, texter);
     }
-    var button = createElement(btn, tracker, _texter);
+    button = button || createElement(btn, tracker, _texter);
     onremove(button, resetall);
     onmouseover(button, hover);
     onmouseleave(button, mouseleave);

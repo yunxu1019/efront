@@ -2,7 +2,8 @@ titlebar("直播");
 var page = div();
 page.innerHTML = Main;
 var scope = render(page, {
-    videosrc: ''
+    videosrc: '',
+    option
 });
 var resize = function () {
     player.resize("fxplayer-box", page.clientWidth, page.clientWidth * .75);
@@ -51,6 +52,7 @@ if (/iPhone|Android/.test(navigator.userAgent)) {
         currentRequest = kugou$kugouapi.fanxingRoom(params).done(function (xhr) {
             if (!page.isMounted) return;
             var data = kugou$getJsonpData(xhr);
+            if (!data.sid) return alert("直播已结束！");
             scope.videosrc = data.httpflv[0];
             player.init({
                 id: "fxplayer-box",
@@ -63,6 +65,7 @@ if (/iPhone|Android/.test(navigator.userAgent)) {
     var main = new Promise(function (ok) {
         init('kugou$fxPlayer', function (kugou$fxPlayer) {
             player = kugou$fxPlayer;
+            player.enableLog(false);
             ok(constructor);
         })
     })
