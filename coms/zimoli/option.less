@@ -1,4 +1,4 @@
-&>.container {
+& {
     width: 100%;
     position: absolute;
     top: 0;
@@ -16,7 +16,6 @@
         height: 100%;
         top: 0;
         bottom: 0;
-        background-color: inherit;
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 100%;
@@ -68,20 +67,14 @@
     box-shadow: none;
 }
 
-&+& {
-    >.container>.body {
-        border-top: 1px solid #ccc;
-    }
+&+&>.body {
+    border-top: 1px solid #ccc;
 }
 
-&.active {
-    >.container>.body {
-        border-top-color: transparent;
-    }
+&.active>.body {
+    border-top-color: transparent;
 }
 
-&.active+& {
-    >.container>.body {
-        border-top-color: transparent;
-    }
+&.active+&>.body {
+    border-top-color: transparent;
 }

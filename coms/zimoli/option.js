@@ -1,5 +1,4 @@
 var _itemBox = div();
-addClass(_itemBox, "container");
 var _itemHead = div();
 addClass(_itemHead, "head");
 var _itemBody = div();
@@ -7,33 +6,22 @@ addClass(_itemBody, "body");
 var _itemFoot = div();
 addClass(_itemFoot, "foot");
 
-function option(head, body, foot, splitter, container) {
+function option(head = div(), body = div(), foot, splitter, container) {
     var box = container || createElement(_itemBox);
-    var _head = createElement(_itemHead, head);
-    var _body = createElement(_itemBody, body);
+    var _head = head;
+    var _body = body;
     appendChild(box, _body, _head);
-    if (isNumber(foot)) {
-        splitter = foot;
-        foot = null;
-    } else if (isString(head) && !splitter) {
-        splitter = 32 + (head.length + head.replace(/[\w ]+/g, "").length) * 16;
+    if (foot) {
+        appendChild(box, foot);
     }
     if (splitter < 32) splitter *= 16;
-    if (foot !== false) {
-        if (!foot) {
-            foot = icon("next", 0xcccccc);
-            addClass(foot, "next");
-            addClass(box, "has-next");
-        }
-        var _foot = createElement(_itemFoot, foot);
-        appendChild(box, _foot);
-    }
+
     var divide = function (headWidth) {
         css(_head, {
             width: fromPixel(+headWidth + 1)
         });
         css(_body, {
-            left: fromPixel(headWidth * renderPixelRatio)
+            left: fromPixel(headWidth)
         });
     };
     splitter && divide(splitter);
@@ -46,18 +34,18 @@ function main(arg0) {
     if (arguments.length === 1 && isNode(arg0)) {
         container = arg0;
         var [head = null, body = null, foot = null] = container.children;
-        splitter = container.getAttribute("")
+        splitter = container.getAttribute("split") || undefined;
         return option(head, body, foot, splitter, container);
     }
     [].forEach.call(arguments, function (arg) {
-        if (isNode(arg)) {
-            if (!head) {
+        if (isNode(arg) || isString(arg)) {
+            if (head === void 0) {
                 head = arg;
-            } else if (!body) {
+            } else if (body === void 0) {
                 body = arg;
-            } else if (!foot) {
+            } else if (foot === void 0) {
                 foot = arg;
-            } else if (!container) {
+            } else if (container === void 0 && isNode(arg)) {
                 container = head;
                 head = body;
                 body = foot;
@@ -65,9 +53,22 @@ function main(arg0) {
             }
             return;
         }
+        if (typeof arg === "boolean") {
+            foot = arg;
+            return;
+        }
         if (isFinite(arg)) {
             splitter = +arg;
         }
     });
-    return option(head, body, foot, splitter, container);
+    if (foot === true) {
+        foot = icon("next", 0xcccccc);
+        addClass(foot, "next");
+        addClass(box, "has-next");
+    }
+    if (foot) foot = createElement(_itemFoot, foot);
+    if (isString(head) && !splitter) {
+        splitter = 32 + (head.length + head.replace(/[\w ]+/g, "").length) * 16;
+    }
+    return option(createElement(_itemHead, head), createElement(_itemBody, body), foot, splitter, container);
 }
