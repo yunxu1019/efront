@@ -18,13 +18,9 @@ var fontSize = 16;
 var singleHeight = fontSize * 3.125 | 0;
 var _text = function (color, parameters) {
     var box = createElement(div);
-    var boxWidth = 720;
-    if (boxWidth > innerWidth) {
-        boxWidth = +innerWidth;
-    }
-    css(box, `width:${fromPixel(boxWidth)};top:${fromPixel(singleHeight * alerts.length)};margin-left:-${fromPixel(boxWidth >> 1)};transition:all 0.1s ease-out;left:50%;height:${fromPixel(singleHeight)};line-height:${fromPixel(singleHeight)};font-size:${fromPixel(fontSize)};background-color:${color};position:absolute;color:#fff;text-align:center;`);
+    css(box, `top:${fromPixel(singleHeight * alerts.length)};height:${fromPixel(singleHeight)};line-height:${fromPixel(singleHeight)};font-size:${fromPixel(fontSize)};background-color:${color};max-width: 720px; left:0;right:0;margin:0 auto;transition: all 0.2s ease-out;position:absolute;color:#fff;text-align:center;`);
     text(box, [].slice.call(parameters, 0).join(", "));
-    box.initialStyle = `margin-top:-${fromPixel(singleHeight)};opacity:0;`;
+    box.initialStyle = `margin:-${fromPixel(singleHeight)} auto;opacity:0;`;
     return box;
 };
 function alert() {
