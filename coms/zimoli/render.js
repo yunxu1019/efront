@@ -51,7 +51,7 @@ var directives = {
         var that = this;
         this.renders.push(function () {
             var value = getter();
-            if (value === oldValue) return;
+            if (deepEqual(value, oldValue)) return;
             oldValue = value;
             value = value || "";
             if (!/img/i.test(this.tagName) || !isString(value)) return this.src = value;
@@ -67,39 +67,51 @@ var directives = {
     },
     bind(search) {
         var getter = createGetter(search).bind(this);
+        var oldValue;
         this.renders.push(function () {
             var value = getter();
+            if (deepEqual(value, oldValue)) return;
+            oldValue = value;
             if (text(this) !== value) text(this, value);
         });
     },
     model(search) {
         var getter = createGetter(search).bind(this);
+        var oldValue;
         if (/^input$/i.test(this.tagName) && /^checkbox$/i.test(this.type) || /^checkbox$/i.test(this.tagName)) {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
-                if (this.checked != value) this.checked = value;
+                if (deepEqual(oldValue, value)) return;
+                oldValue = value;
+                this.checked = value;
             });
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.checked`).bind(this);
         } else if (("value" in this || this.getValue instanceof Function) && this.setValue instanceof Function) {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
-                if (this.value != value) this.setValue(value);
+                if (deepEqual(oldValue, value)) return;
+                oldValue = value;
+                this.setValue(value);
             });
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
         } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
-                if (this.value != value) this.value = value;
+                if (deepEqual(oldValue, value)) return;
+                oldValue = value;
+                this.value = value;
             });
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
         } else {
             this.renders.push(function () {
                 var value = getter();
                 if (value === undefined) value = "";
-                if (html(this) != value) html(this, value);
+                if (deepEqual(oldValue, value)) return;
+                oldValue = value;
+                html(this, value);
             });
             var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=html(this)`).bind(this, html);
         }
@@ -108,8 +120,12 @@ var directives = {
     },
     hide(search) {
         var getter = createGetter(search).bind(this);
+        var oldValue;
         this.renders.push(function () {
-            if (getter()) {
+            var value = getter();
+            if (deepEqual(oldValue, value)) return;
+            oldValue = value;
+            if (value) {
                 this.style.display = "none";
             } else {
                 this.style.display = "";
@@ -118,8 +134,12 @@ var directives = {
     },
     show(search) {
         var getter = createGetter(search).bind(this);
+        var oldValue;
         this.renders.push(function () {
-            if (getter()) {
+            var value = getter();
+            if (deepEqual(oldValue, value)) return;
+            oldValue = value;
+            if (value) {
                 this.style.display = "";
             } else {
                 this.style.display = "none";
