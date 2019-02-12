@@ -10,7 +10,7 @@ function option(head = div(), body = div(), foot, splitter, container) {
     var box = container && !/^option$/i.test(container.tagName) ? container : createElement(_itemBox);
     var _head = head;
     var _body = body;
-    appendChild(box, _body, _head);
+    appendChild(box, _head, _body);
     if (foot) {
         appendChild(box, foot);
     }
@@ -21,7 +21,7 @@ function option(head = div(), body = div(), foot, splitter, container) {
             width: fromPixel(+headWidth + 1)
         });
         css(_body, {
-            left: fromPixel(headWidth)
+            width: 'auto'
         });
     };
     splitter && divide(splitter);
