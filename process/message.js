@@ -9,14 +9,6 @@ var message_handlers_path = "./message";
 // 子进程可通过message的属性访问主进程中的方法
 message_handlers_path = path.join(__dirname, message_handlers_path);
 var onmessage = function (msg, then) {
-    if (!then) then = (result) => {
-        !this.isDead() && (this.state === "online" || cluster.isMaster) && this.send("onresponse:" + JSON.stringify({
-            params: result,
-            stamp
-        }), (error) => {
-            if (error) console.error(error, `message[${key}]:${this.id}`);
-        });
-    };
     var index = msg.indexOf(":");
     var run, args, key, stamp;
     if (index < 0) {
@@ -28,11 +20,20 @@ var onmessage = function (msg, then) {
         args = msg.slice(index + 1);
     }
     if (run instanceof Function) {
+        var notSupport = () => console.info('Not Support', `message[${key}]:${this.id}`);
         if (args) {
             var { params, stamp } = JSON.parse(args);
+            if (!then) then = stamp ? (result) => {
+                !this.isDead() && (this.state === "online" || cluster.isMaster) && this.send("onresponse:" + JSON.stringify({
+                    params: result,
+                    stamp
+                }), (error) => {
+                    if (error) console.error(error, `message[${key}]:${this.id}`);
+                });
+            } : notSupport;
             run.call(onmessage, params, then, stamp);
         } else {
-            run.call(onmessage, null, then);
+            run.call(onmessage, null, then || notSupport);
         }
     }
 };
@@ -51,13 +52,15 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE !== "1") {
     // 发送对主进程方法的访问消息
     var send = function (key, params, then) {
         var stamp;
-        do {
-            stamp = Math.random().toString("36").slice(2);
-        } while (stamp in callback_maps);
-        callback_maps[stamp] = function () {
-            delete callback_maps[stamp];
-            then instanceof Function && then.apply(null, arguments);
-        };
+        if (then instanceof Function) {
+            do {
+                stamp = Math.random().toString("36").slice(2);
+            } while (stamp in callback_maps);
+            callback_maps[stamp] = function () {
+                delete callback_maps[stamp];
+                then.apply(null, arguments);
+            };
+        }
         process.send([key, JSON.stringify({
             params, stamp
         })].join(":"));
@@ -84,6 +87,20 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE !== "1") {
             };
         }
     });
+    process.on("message", function (msg, then) {
+        var index = msg.indexOf(":");
+        if (index > 0) {
+            var key = msg.slice(0, index),
+                value = msg.slice(index + 1);
+
+        } else {
+            var key = msg,
+                value = void 0;
+        }
+        var data = value ? JSON.parse(value) : void 0;
+        if (key in onmessage) onmessage[key](data);
+    });
+
     module.exports = new Proxy(onmessage, {
         get: function (o, k) {
             if (!(k in o) && ("on" + k) in o) {

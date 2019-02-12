@@ -91,27 +91,12 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
 
     //子线程们
     process.on("message", function (msg, then) {
-        if (!(then instanceof Function)) {
-            then = function () { };
-        }
         switch (msg) {
             case "quit":
                 server.close();
-                then();
+                then instanceof Function && then();
                 process.exit();
                 break;
-            default:
-                var index = msg.indexOf(":");
-                if (index > 0) {
-                    var key = msg.slice(0, index),
-                        value = msg.slice(index + 1);
-
-                } else {
-                    var key = msg,
-                        value = void 0;
-                }
-                var data = value ? JSON.parse(value) : void 0;
-                if (key in message) message[key](data);
         }
     });
     // 仅做开发使用的简易服务器
