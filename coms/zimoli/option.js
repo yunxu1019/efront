@@ -7,7 +7,7 @@ var _itemFoot = div();
 addClass(_itemFoot, "foot");
 
 function option(head = div(), body = div(), foot, splitter, container) {
-    var box = container || createElement(_itemBox);
+    var box = container && !/^option$/i.test(container.tagName) ? container : createElement(_itemBox);
     var _head = head;
     var _body = body;
     appendChild(box, _body, _head);
@@ -35,6 +35,9 @@ function main(arg0) {
         container = arg0;
         var [head = null, body = null, foot = null] = container.children;
         splitter = container.getAttribute("split") || undefined;
+        if (head) addClass(head, "head");
+        if (body) addClass(body, "body");
+        if (foot) addClass(foot, "foot");
         return option(head, body, foot, splitter, container);
     }
     [].forEach.call(arguments, function (arg) {
