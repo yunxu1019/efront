@@ -3,6 +3,8 @@ var page = div();
 page.innerHTML = Main;
 var scope = render(page, {
     videosrc: '',
+    room: {},
+    button,
     option
 });
 var resize = function () {
@@ -32,6 +34,7 @@ var player = {
 if (/iPhone|Android/.test(navigator.userAgent)) {
     var currentRequest;
     var main = function (params) {
+        scope.room = params;
         currentRequest && currentRequest.abort();
         var videoElement = page.getElementsByTagName("video")[0];
         videoElement.poster = params.imgPath;
@@ -47,6 +50,7 @@ if (/iPhone|Android/.test(navigator.userAgent)) {
     var currentRequest;
     remove(page.getElementsByTagName("video")[0]);
     var constructor = function (params) {
+        scope.room = params;
         currentRequest && currentRequest.abort();
         player.stopLive("fxplayer-box");
         currentRequest = kugou$kugouapi.fanxingRoom(params).done(function (xhr) {
