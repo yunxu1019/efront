@@ -64,14 +64,19 @@ function main(arg0) {
             splitter = +arg;
         }
     });
-    if (foot === true) {
+    var hasNext = "";
+    if (foot === true || foot === undefined) {
         foot = icon("next", 0xcccccc);
         addClass(foot, "next");
-        addClass(box, "has-next");
+        hasNext = true;
     }
     if (foot) foot = createElement(_itemFoot, foot);
     if (isString(head) && !splitter) {
         splitter = 32 + (head.length + head.replace(/[\w ]+/g, "").length) * 16;
     }
-    return option(createElement(_itemHead, head), createElement(_itemBody, body), foot, splitter, container);
+    var box = option(createElement(_itemHead, head), createElement(_itemBody, body), foot, splitter, container);
+    if (hasNext) {
+        addClass(box, "has-next")
+    }
+    return box;
 }
