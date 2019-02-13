@@ -63,7 +63,16 @@ if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.pla
     renderPixelRatio *= devicePixelRatio;
 }
 var initPixelDecoder = function () {
-    if (pixelDecoder instanceof Function) return;
+    if (pixelDecoder instanceof Function) {
+        modules.fromPixel = pixelDecoder;
+        modules.freePixel = window.freePixel || function () {
+            throw new Error("您在window上实现了pixelDecoder，请手动实现相应的freePixel!");
+        };
+        modules.calcPixel = window.calcPixel || function () {
+            throw new Error("您在window上实现了pixelDecoder，请手动实现相应的calcPixel!");
+        };
+        return;
+    }
     var maxRenderWidth = +document.body.getAttribute('max-render');
     if (!maxRenderWidth) {
         /**
