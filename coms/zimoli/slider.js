@@ -1,6 +1,6 @@
 // 中文编码 utf8
 var _slider = createElement(div);
-addClass(_slider, "slider");
+addClass(_slider, "slider-item");
 var container = createElement(div);
 var floor = Math.floor;
 var ceil = Math.ceil;
@@ -33,8 +33,6 @@ function slider(autoplay, circle = true) {
     };
     if (isFunction(autoplay) || isArray(autoplay)) {
         outter.src = autoplay;
-    } else {
-        css(outter, 'height:' + (innerWidth * .375 * .75) + 'pt');
     }
     var generator = function (index, ratio) {
         var src = outter.src;
@@ -69,7 +67,7 @@ function slider(autoplay, circle = true) {
         _speed = speed(1);
     var reshape = function (index, ising) {
         outter.index = current_index = index;
-        var width = outter.offsetWidth || +innerWidth;
+        var width = outter.clientWidth || +innerWidth;
         var indexLeft = floor(index);
         var indexRight = indexLeft + 1;
         _imageMain = generator(indexLeft, indexLeft - index);
@@ -114,7 +112,7 @@ function slider(autoplay, circle = true) {
     };
     var animate = function () {
         cancelAnimationFrame(timer_animate);
-        var width = outter.offsetWidth;
+        var width = outter.clientWidth;
         if (abs(current_index + negative_index) < 1.25 / width)
             return reshape(-negative_index, false);
         timer_animate = requestAnimationFrame(animate);
@@ -166,10 +164,10 @@ function slider(autoplay, circle = true) {
         return enabled;
     };
     var moveDeltaX = function (deltax, event) {
-        var width = outter.offsetWidth;
+        var width = outter.clientWidth;
         var singleTarget = (!_imageMain || !_imageHelp) && (_imageMain || _imageHelp);
         if (singleTarget) {
-            var current_Left = parseInt(singleTarget.style.left);
+            var current_Left = singleTarget.offsetLeft;
             var avail_deltaWidth = round(width >> 2);
             if (current_Left + deltax > avail_deltaWidth) {
                 deltax = avail_deltaWidth - current_Left;
