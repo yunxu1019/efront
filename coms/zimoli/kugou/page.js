@@ -19,6 +19,7 @@ var createBottomBar = function (buttonsConfig) {
                 bar.active && removeClass(bar.active, "active");
                 addClass(this, "active");
                 bar.active = this;
+                search_btn.getElementsByTagName("info")[0].innerHTML = this.searchInfo;
             }
         }
         css(line, { left: ((-button_count / 2 + pages.index) * this.offsetWidth) + "px" });
@@ -27,9 +28,10 @@ var createBottomBar = function (buttonsConfig) {
     };
     var index = 0;
     for (var k in buttonsConfig) {
-        var o = buttonsConfig[k];
+        var [url, info] = buttonsConfig[k].split(":");
         var btn = createElement(btnArea);
-        btn.url = o;
+        btn.url = url;
+        btn.searchInfo = info;
         btn.active = active;
         btn.container = createElement(div);
         btn.index = index++;
@@ -49,22 +51,26 @@ var createBottomBar = function (buttonsConfig) {
     return bar;
 };
 var bar = createBottomBar({
-    [i18n("听", "Listen")]: "/kugou/listen",
-    [i18n("看", "Watch")]: "/kugou/view",
-    [i18n("唱", "Sing")]: "/kugou/sing",
+    [i18n("我", "Mine")]: "/kugou/mine:搜索",
+    [i18n("听", "Listen")]: "/kugou/listen:搜索",
+    [i18n("看", "Watch")]: "/kugou/view:请输入房间号、主播昵称",
+    [i18n("唱", "Sing")]: "/kugou/sing:今天想唱什么歌",
 });
 var menu_btn = button("<i>&#xe6d4;</i>", "left");
 onclick(menu_btn, kugou$dragview.toChange);
-var search_btn = button("<i>&#xe60d;</i>", "right");
+var plus_btn = button("<i>&#xe632;</i>", "right");
+onclick(plus_btn, function () {
+});
+var search_btn = button("<i>&#xe60d;</i> <info>搜索</info>", "search");
 onclick(search_btn, function () {
     go("/kugou/search");
 });
-appendChild(bar, menu_btn, search_btn);
+appendChild(bar, menu_btn, plus_btn, search_btn);
 var pages = div();
 ontouchstart(pages, kugou$dragview);
 onmousedown(pages, kugou$dragview);
 slider(pages, function (index, ratio) {
-    if (index + 3 >= bar.childNodes.length) return;
+    if (index + 4 >= bar.childNodes.length) return;
     if (ratio === 1) {
         state({
             page: index
@@ -74,7 +80,9 @@ slider(pages, function (index, ratio) {
     return b && b.active(ratio);
 });
 onappend(pages, function () {
-    pages.go(state().page || 0);
+    var index = state().page;
+    if (!isFinite(index)) index = 1;
+    pages.go(index);
 });
 var page = createElement(div);
 appendChild(page, pages, bar);

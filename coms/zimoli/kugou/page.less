@@ -30,6 +30,18 @@ i {
 }
 
 .bottom-bar {
+    text-align: center;
+    cursor: default;
+    position: absolute;
+    padding: 24px 64px 0 64px;
+    top: 0px;
+    right: 0;
+    left: 0;
+    height: 100px;
+    width: auto;
+    margin: 0;
+    background-color: #0090ff;
+    color: rgba(255, 255, 255, .8);
     .button {
         position: absolute;
         display: block;
@@ -38,28 +50,27 @@ i {
         font-size: 20px;
         outline: none;
         width: 50px;
+        top: 24px;
         &[type=left] {
             left: 0;
         }
         &[type=right] {
             right: 0;
         }
+        &[type=search] {
+            display: block;
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            width: auto;
+            border-radius: 16px;
+            height: 28px;
+            font-size: 16px;
+            line-height: 28px;
+            top: 64px;
+            background: rgba(255, 255, 255, .2);
+        }
     }
-    text-align: center;
-    cursor: default;
-    position: absolute;
-    padding: 24px 64px 0 64px;
-    top: 0px;
-    right: 0;
-    left: 0;
-    height: 64px;
-    width: auto;
-    margin: 0;
-    background-color: #0090ff;
-    color: rgba(255,
-    255,
-    255,
-    .8);
     >div {
         bottom: 0;
         font-size: 18px;
@@ -75,6 +86,7 @@ i {
         &.line {
             margin-left: 50%;
             height: 0;
+            margin-top: -40px;
             &:before {
                 content: "";
                 position: absolute;
@@ -90,11 +102,11 @@ i {
     }
 }
 
-.slider {
+&>.slider {
     position: absolute;
     left: 0px;
     right: 0px;
-    top: 64px;
+    top: 100px;
     bottom: 0px;
     height: auto;
 }
