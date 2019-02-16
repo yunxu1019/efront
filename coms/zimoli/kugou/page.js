@@ -59,7 +59,7 @@ var bar = createBottomBar({
 var menu_btn = button("<i>&#xe6d4;</i>", "left");
 onclick(menu_btn, kugou$dragview.toChange);
 var plus_btn = button("<i>&#xe632;</i>", "right");
-select(plus_btn,kugou$plusmenu());
+select(plus_btn, kugou$plusmenu());
 var search_btn = button("<i>&#xe60d;</i> <info>搜索</info>", "search");
 onclick(search_btn, function () {
     go("/kugou/search");
