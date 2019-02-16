@@ -441,7 +441,7 @@ var onback = function () {
     } else { };
 };
 
-function addGlobal(element, name = current_history, isDestroy) {
+function addGlobal(element, name = null, isDestroy) {
     if (isString(name)) {
         if (global[name] === element) return;
         var oldElement = global[name];

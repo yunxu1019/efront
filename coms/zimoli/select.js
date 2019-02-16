@@ -43,6 +43,11 @@ function select(target, list) {
         }
         else _remove();
     };
-    onmousedown(target, mousedown);
+    onclick(list, function (event) {
+        if (!event.defaultPrevented) {
+            _remove();
+        }
+    });
+    onclick(target, mousedown);
     return target;
 }

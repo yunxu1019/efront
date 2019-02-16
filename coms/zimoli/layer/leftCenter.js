@@ -59,7 +59,7 @@ layer.layer = function (child, old) {
         var currentLayer = getCurrentLayer();
         appendChild(currentLayer, child);
         if (currentLayer === leftLayer) {
-            remove(leftPage);
+            if (arguments.length > 1) remove(leftPage);
         } else if (!leftPage.isMounted) {
             appendChild(leftLayer, leftPage);
         }
