@@ -6,9 +6,11 @@ var scope = {
     lattice
 };
 render(page, scope);
-kugou$kugouapi.fanxingList().done(function (response) {
-    var res = JSON.parse(response.responseText);
-    scope.src = res.data.list;
+once("append")(page, function () {
+    kugou$kugouapi.fanxingList().done(function (response) {
+        var res = JSON.parse(response.responseText);
+        scope.src = res.data.list;
+    });
 });
 function main() {
     return page;
