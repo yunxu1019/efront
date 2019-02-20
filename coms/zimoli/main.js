@@ -96,15 +96,16 @@ var initPixelDecoder = function () {
         /**
          * 从offset到px
          */
-        modules.freePixel = d => window.innerWidth < maxRenderWidth ? d * .75 / renderPixelRatio : d * .75 / (window.innerWidth / maxRenderWidth * renderPixelRatio);
+        modules.freePixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * .75 / renderPixelRatio : d * .75 / (window.innerWidth / maxRenderWidth * renderPixelRatio);
         /**
          * 从pixel到offset
          */
-        modules.calcPixel = d => window.innerWidth < maxRenderWidth ? d * renderPixelRatio / .75 : d * renderPixelRatio / (window.innerWidth / maxRenderWidth * .75);
+        modules.calcPixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * renderPixelRatio / .75 : d * renderPixelRatio / (window.innerWidth / maxRenderWidth * .75);
         init("css", function (css) {
             var onresize = function () {
+                var fontSize = window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? 16 * renderPixelRatio + "pt" : window.innerWidth / maxRenderWidth * renderPixelRatio * 16 + "pt";
                 css("html", {
-                    fontSize: window.innerWidth < maxRenderWidth ? 16 * renderPixelRatio + "pt" : window.innerWidth / maxRenderWidth * 16 * renderPixelRatio + "pt"
+                    fontSize
                 });
             };
             onresize();
@@ -282,7 +283,7 @@ var executer = function (text, name, then, prebuild) {
         functionBody = text;
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    functionBody = functionBody.replace(/((?:\d*\.)?\d+)px/ig, (m, d) => (d !== '1' ? pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
+    functionBody = functionBody.replace(/((?:\d*\.)?\d+)px(\s*\))?/ig, (m, d, quote) => (d !== '1' ? quote ? renderPixelRatio * d + "pt" + quote : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
