@@ -13,7 +13,7 @@ function transition(target, initialStyle, isLeave) {
     } else if (initialStyle instanceof Object) {
         let transitionDuration = 100;
         if (!initialStyle.transition) {
-            initialStyle.transition = "all .2s ease-out";
+            initialStyle.transition = "all .3s ease-out";
         }
         String(initialStyle.transition).replace(/([\.\d]+)(m?)s/gi, function (m, d, t) {
             if (t) transitionDuration = Math.max(+d, transitionDuration);
