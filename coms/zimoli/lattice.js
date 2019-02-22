@@ -17,21 +17,29 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         if (boxCount < 1) boxCount = 1, addClass(_box, inadequate_class);
         else removeClass(_box, inadequate_class);
     };
-    var _box = layers ? list(element, function (index) {
-        var offset = boxCount * index;
-        var objs = layers.slice(offset, offset + boxCount).map(function (a) {
-            css(a, {
-                width: (1000000 / boxCount | 0) / 10000 + "%",
-                maxWidth: fromPixel(maxWidth),
+    if (layers) {
+        var _box = list(element, function (index) {
+            var offset = boxCount * index;
+            var objs = layers.slice(offset, offset + boxCount).map(function (a) {
+                css(a, {
+                    width: (1000000 / boxCount | 0) / 10000 + "%",
+                    maxWidth: fromPixel(maxWidth),
+                });
+                return a;
             });
-            return a;
-        });
-        if (!objs.length) return false;
-        var _container = div();
-        appendChild(_container, objs);
-        return _container;
-    }) : list(element);
-    var insertBefore = _box.insertBefore;
+            if (!objs.length) return false;
+            var _container = div();
+            appendChild(_container, objs);
+            return _container;
+        })
+    } else {
+        var _box = list(element);
+        var insertBefore = _box.insertBefore;
+        _box.insertBefore = function (element) {
+            build(element);
+            return insertBefore.apply(_box, arguments);
+        };
+    }
     var build = function (element) {
         css(element, {
             width: (1000000 / boxCount | 0) / 10000 + "%",
@@ -40,10 +48,6 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         if (element.with) {
             element.with.forEach(build);
         }
-    };
-    _box.insertBefore = function (element) {
-        build(element);
-        return insertBefore.apply(_box, arguments);
     };
     onappend(_box, function () {
         resize();
