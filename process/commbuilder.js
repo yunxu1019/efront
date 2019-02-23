@@ -111,7 +111,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             }
         }
     }
-    if (lessdata) {
+    var hasless = typeof lessdata === "string";
+    if (hasless) {
         if (!declares.cless) {
             globalsmap.cless = "cless";
         } else {
@@ -144,7 +145,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         code_body = [
             {
                 "type": "ReturnStatement",
-                "argument": lessdata ? {
+                "argument": hasless ? {
                     "type": "CallExpression",
                     "callee": {
                         "type": "Identifier",
@@ -171,7 +172,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     } else {
         code_body = code.body.concat({
             "type": "ReturnStatement",
-            "argument": lessdata ? {
+            "argument": hasless ? {
                 "type": "CallExpression",
                 "callee": {
                     "type": "Identifier",
@@ -310,7 +311,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                     compress: !process.env.IN_TEST_MODE
                 }, function (err, data) {
                     if (err) return console.warn(err);
-                    lessData = data.css;
+                    lessData = data.css || "";
                 });
                 watchurls.push(lesspath);
             }
