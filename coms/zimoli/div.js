@@ -1,6 +1,16 @@
-var block = createElement("div");
-css("div", "box-sizing:border-box;-webkit-tap-highlight-color:rgba(255,255,255,0);-moz-box-sizing: border-box;-webkit-box-sizing: border-box;-o-box-sizing: border-box;-ms-box-sizing: border-box;")
-
-function div() {
-    return createElement(block);
+function div(elem) {
+    if (isNode(elem) && /div/i.test(node.tagName)) return elem;
+    var div = createElement("div");
+    if (elem) {
+        if (isString(elem)) {
+            div.innerHTML = elem;
+        } else if (isArray(elem)) {
+            appendChild(div, elem);
+        } else if (isElement(elem)) {
+            appendChild(div, [].concat.apply([], elem.children));
+        } else if (isNode(elem)) {
+            appendChild(div, elem);
+        }
+    }
+    return div;
 }
