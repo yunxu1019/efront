@@ -2,5 +2,6 @@
     "javascript.suggest.autoImports": false,
     "[bat]": {
         "files.encoding": "gb18030"
-    }
+    },
+    "editor.acceptSuggestionOnCommitCharacter": false
 }
