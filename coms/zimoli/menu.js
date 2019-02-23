@@ -9,7 +9,6 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
     var menu_box = div();
     var menu_items = lattice(btns, 100);
     menu_items.nodrag = true;
-    addClass(menu_items, "lattice");
     var menu_extra = button("");
     addClass(menu_extra, "more");
     onappend(menu_items, function () {
@@ -25,7 +24,7 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
         css(clone, `display:block;width:100%;height:28px;overflow:hidden;box-shadow:none;text-align:left;padding-left:20px`);
         return clone;
     });
-    css(extra_list, "min-width:180px;border:1px solid #000;background:#fff;padding:8px 0;");
+    css(extra_list, "min-width:180px;width:auto;height:auto;border:1px solid #000;background:#fff;padding:8px 0;");
     extra_list.go(0);
     select(menu_extra, extra_list);
     appendChild(menu_box, menu_items, menu_extra);
