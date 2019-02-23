@@ -1,6 +1,6 @@
 
 function cless(commFactory, styleSheet, className) {
-    var style = createElement("style");
+    var style = document.createElement("style");
     style.type = "text/css";
     if (style.styleSheet) {
         style.styleSheet.cssText = styleSheet;
