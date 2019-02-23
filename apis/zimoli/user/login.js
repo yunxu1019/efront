@@ -1,4 +1,5 @@
-function userLogin({ path }, { message }) {
+var message = require("../../../process/message");
+function userLogin({ path }) {
     return new Promise(function (ok, oh) {
         message.count({
             path: path || "/",
