@@ -231,17 +231,19 @@ function ylist(container, generator, $Y) {
 var allArgumentsNames = arguments[arguments.length - 1];
 var xlist = arriswise(ylist, allArgumentsNames.concat([].slice.call(arguments, 0)));
 
+var getGeneratorFromArray = function (source) {
+    return function (index) {
+        if (index >= source.length) return null;
+        return block(source[index]);
+    }
+};
+
 var getGenerator = function (container) {
     if (!container) return;
     var template = document.createElement("div");
     appendChild(template, [].concat.apply([], container.childNodes));
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
-    on('changes')(container, function (event) {
-        if (event.changes.src) {
-            container.go(container.index() || 0);
-        };
-    });
     return function (index) {
         if (!container.src || index >= container.src.length) return;
         var template1 = template.cloneNode();
@@ -254,7 +256,7 @@ var getGenerator = function (container) {
         render(item.with, newScope, [container.$scope]);
         return item;
     };
-}
+};
 
 
 /**
@@ -278,14 +280,30 @@ function list() {
             }
         }
     }
-    if (container && !generator) {
+    var bindSrc = null;
+    if (container instanceof Array) {
+        generator = getGeneratorFromArray(container);
+        bindSrc = container;
+        container = div();
+    } else if (container && !generator) {
         var generator = getGenerator(container);
+        on('changes')(container, function (event) {
+            if (event.changes.src) {
+                container.go(container.index() || 0);
+            };
+        });
     }
+
     if (!$Y) {
         if (container) {
             $Y = container.getAttribute("direction");
         }
     }
     $Y = /[xh]$/i.test($Y) ? "X" : "Y";
-    return ($Y === "X" ? xlist : ylist)(container, generator, $Y);
+    var list = ($Y === "X" ? xlist : ylist)(container, generator, $Y);
+    if (bindSrc) {
+        list.src = bindSrc;
+        container.go(container.index() || 0);
+    }
+    return list;
 }
