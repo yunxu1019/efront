@@ -12,7 +12,14 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         var _layers = layers || _box.src || [];
         var clientWidth = freePixel(_box.clientWidth);
         boxCount = clientWidth / minWidth | 0;
-        if (boxCount >= _layers.length) addClass(_box, complete_class);
+        if (minCount >= _layers.length) {
+            boxCount = minCount;
+        }
+        if (boxCount >= _layers.length) {
+            boxCount = _layers.length;
+            var minCount = clientWidth / maxWidth | 0;
+            addClass(_box, complete_class);
+        }
         else removeClass(_box, complete_class);
         if (boxCount < 1) boxCount = 1, addClass(_box, inadequate_class);
         else removeClass(_box, inadequate_class);
