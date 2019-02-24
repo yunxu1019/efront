@@ -54,7 +54,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
     var styleobject = {};
     var stylesheet = stylesheet_Map[targetSelector];
     if (!stylesheet) {
-        stylesheet = createElement("style")
+        stylesheet = document.createElement("style");
         stylesheet.type = "text/css";
         stylesheet_Map[targetSelector] = stylesheet;
         appendChild(document.getElementsByTagName("head")[0], stylesheet);
