@@ -137,7 +137,7 @@ function i18n(message, _source) {
     }
     // i18n("abcd");
     var checkSpell = _search[""];
-    var translated = message.replace(/([\s\w]*)([^\s\w]|$)/g, function (match, message, quote) {
+    var translated = _search[message] || message.replace(/([\s\w]*)([^\s\w]|$)/g, function (match, message, quote) {
         var result = (message && message.toLowerCase().split(/\s+/).map(a => _search[a] || (console.warn(`未翻译，语言：${navigatorLanguage}，信息：${a}`), a)).join(" ")) + (quote && _search[quote] || quote || "");
         return result.charAt(0).toUpperCase() + result.slice(1);
     });
