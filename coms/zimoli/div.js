@@ -1,5 +1,5 @@
 function div(elem) {
-    if (isNode(elem) && /div/i.test(node.tagName)) return elem;
+    if (isNode(elem) && /div/i.test(elem.tagName)) return elem;
     var div = createElement("div");
     if (elem) {
         if (isString(elem)) {
