@@ -18,6 +18,7 @@ var {
     document,
     top,
     location,
+    console,
     PREVENT_FRAMEWORK_MODE,
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
@@ -121,6 +122,8 @@ var requestTree = {};
 var responseTree = {};
 var versionTree = {};
 var forceRequest = {};
+var circleTree = {};
+var hasOwnProperty = {}.hasOwnProperty;
 modules.MOVELOCK_DELTA = 3 * renderPixelRatio;
 
 var retry = function (url, count) {
@@ -268,7 +271,7 @@ modules.start_time = +new Date;
 function modules() { }
 modules.modules = modules;
 var penddingTree = {};
-var executer = function (text, name, then, prebuild) {
+var getArgs = function (text) {
     var functionArgs, functionBody;
     //依赖项名称部分的长度限制为36*36*18=23328
     var doublecount = parseInt(text.slice(0, 3), 36);
@@ -284,6 +287,10 @@ var executer = function (text, name, then, prebuild) {
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
     functionBody = functionBody.replace(/((?:\d*\.)?\d+)px(\s*\))?/ig, (m, d, quote) => (d !== '1' ? quote ? renderPixelRatio * d + "pt" + quote : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
+    return [functionArgs, functionBody];
+};
+var executer = function (text, name, then, prebuild, parents) {
+    var [functionArgs, functionBody] = getArgs(text);
     if (!functionArgs.length) {
         if (modules[name] && !prebuild) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
@@ -299,7 +306,39 @@ var executer = function (text, name, then, prebuild) {
         } else {
             then(modules[name] = exports);
         }
-    } else init(functionArgs.slice(0, functionArgs.length >> 1), function (args) {
+        return;
+    }
+
+    var requires = functionArgs.slice(0, functionArgs.length >> 1);
+    if (!parents) {
+        parents = [];
+    }
+    var index = parents.indexOf(name);
+    if (index >= 0) {
+        if (!circleTree[name]) {
+            var circle = parents.slice(index).concat(name);
+            parents.forEach(key => circleTree[key] = circle);
+        }
+
+    }
+    if (circleTree[name]) {
+        var circle = circleTree[name];
+        if (!circle[name]) {
+            circle[name] = text;
+        }
+        if (!circle[-1]) {
+            circle[-1] = 0
+        }
+        circle[-1]++;
+        if (!circle[-2]) circle[-2] = [];
+        circle[-2].push([text, name, then, prebuild, parents]);
+        if (circle[-1] < circle.length) {
+            return;
+        }
+        return killCircle(circle);
+    }
+
+    init(requires, function (args) {
         // 如果构造该对象没有依赖预置树中的对象，保存这个对象到全局单例对象，否则保存这个对象到预置树
         if (modules[name]) return then(modules[name]);
         else if (prebuild && name in prebuild) return then(prebuild[name]);
@@ -323,7 +362,12 @@ var executer = function (text, name, then, prebuild) {
             else modules[name] = exports;
             then(exports);
         }
-    }, prebuild);
+    }, prebuild, parents.concat(name));
+};
+var killCircle = function (circle) {
+    // 文件存在环形引用
+    circle.map(key => modules[key] = delete circleTree[key]);
+    console.error(`代码文件存在环形引用，未能成功加载:[ ${circle.join(" >> ")} ]`);
 };
 var noop = function (text, name, then) {
     then(text);
@@ -340,23 +384,24 @@ var broadcast = function (text, name) {
     var thens = penddingTree[name];
     delete penddingTree[name];
     for (var cx = 0, dx = thens.length; cx < dx; cx++) {
-        var [then, prebuild] = thens[cx];
-        adapter(text, name, then, prebuild);
+        var [then, prebuild, parents] = thens[cx];
+        adapter(text, name, then, prebuild, parents);
     }
 };
-var init = function (name, then, prebuild) {
+var init = function (name, then, prebuild, parents) {
     if (name instanceof Array) {
         return Promise.all(name.map(function (argName) {
             if (prebuild && argName in prebuild) {
                 return prebuild[argName];
             }
+            if (name === 'undefined') return void 0;
             return new Promise(function (ok, oh) {
-                init(argName, ok, prebuild);
+                init(argName, ok, prebuild, parents);
             });
         })).then(function (args) {
             (then instanceof Function) && then(args);
         }).catch(function (e) {
-            window.console.error(e);
+            console.error(e);
         });
     }
     if (modules[name]) {
@@ -367,10 +412,10 @@ var init = function (name, then, prebuild) {
         return then(modules[name]);
     }
     if (penddingTree[name]) {
-        return penddingTree[name].push([then, prebuild]);
+        return penddingTree[name].push([then, prebuild, parents]);
     }
     penddingTree[name] = [
-        [then, prebuild]
+        [then, prebuild, parents]
     ];
     // return 
     get(name, broadcast);
