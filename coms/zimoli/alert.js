@@ -19,7 +19,7 @@ var singleHeight = fontSize * 3.125 | 0;
 var _text = function (color, parameters) {
     var box = div();
     css(box, `top:${fromPixel(singleHeight * alerts.length)};height:0;line-height:${fromPixel(singleHeight)};left:0;right:0;font-size:${fromPixel(fontSize)}; transition: all 0.2s ease-out;position:absolute;color:#fff;text-align:center;`);
-    box.innerHTML=`<div style='width: 720px;max-width:100%;display:inline-block;height:${fromPixel(singleHeight)};background-color:${color};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
+    box.innerHTML = `<div style='width: 720px;max-width:100%;display:inline-block;height:${fromPixel(singleHeight)};background-color:${color};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
     box.initialStyle = `margin:-${fromPixel(singleHeight)} auto;opacity:0;`;
     return box;
 };
@@ -56,7 +56,7 @@ function alert() {
     if (color_reg.test(color)) {
         elem = _text(color, [text]);
     } else {
-        elem = _text(styles.log, arguments);
+        elem = _text(styles.log, [text]);
     }
     var _onclose = function (event) {
         if (onclose) {
