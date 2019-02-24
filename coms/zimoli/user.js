@@ -4,7 +4,6 @@ var emptyProto = {
     _id: "",
     avatar: null,
     isLogin: false,
-    avatar: null,
     roles: null
 };
 var loadUserData;

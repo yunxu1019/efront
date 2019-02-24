@@ -55,33 +55,25 @@ function concat(threads, f, oks, ohs) {
 }
 
 function Promise(executor) {
-    var PromiseFulfillReactions = [], //thens
-        PromiseRejectReactions = [], //catches
-        oked, ohed, resolved;
+    var PromiseFulfillReactions = this.PromiseFulfillReactions = [], //thens
+        PromiseRejectReactions = this.PromiseRejectReactions = [], //catches
+        oked = this.oked, ohed = this.ohed, resolved;
 
-    function run(threads, args) {
-        do {
-            var next = threads.shift();
-            if (next instanceof Function) {
-                next.apply(null, args);
-            }
-        } while (threads.length);
-        PromiseRejectReactions.splice(0);
-        PromiseFulfillReactions.splice(0);
-    }
 
-    function ResolvingFunctions_resolve(result) { //ok
+
+
+    var ResolvingFunctions_resolve = (result) => { //ok
         if (isPromise(result)) {
             result.then(ResolvingFunctions_resolve).catch(ResolvingFunctions_reject);
         } else {
-            oked = arguments;
-            run(PromiseFulfillReactions, oked);
+            oked = this.oked = arguments;
+            this.run(PromiseFulfillReactions, oked);
         }
     }
 
-    function ResolvingFunctions_reject(e) { //oh
-        ohed = arguments;
-        run(PromiseRejectReactions, ohed);
+    var ResolvingFunctions_reject = (e) => { //oh
+        ohed = this.ohed = arguments;
+        this.run(PromiseRejectReactions, ohed);
     }
 
     setTimeout(function () {
@@ -91,18 +83,30 @@ function Promise(executor) {
             ResolvingFunctions_reject(e);
         }
     }, 0);
-    this.then = function (f) {
-        var _promise = concat(PromiseFulfillReactions, f, PromiseFulfillReactions, PromiseRejectReactions);
-        oked && run(PromiseFulfillReactions, oked);
-        ohed && run(PromiseRejectReactions, ohed);
+}
+Promise.prototype = {
+    then(f) {
+        var _promise = concat(this.PromiseFulfillReactions, f, this.PromiseFulfillReactions, this.PromiseRejectReactions);
+        this.oked && this.run(this.PromiseFulfillReactions, this.oked);
+        this.ohed && this.run(this.PromiseRejectReactions, this.ohed);
         return _promise;
-    };
-    this.catch = function (f) {
-        var _promise = concat(PromiseRejectReactions, f, PromiseFulfillReactions, PromiseRejectReactions);
-        ohed && run(PromiseRejectReactions, ohed);
-        oked && run(PromiseFulfillReactions, oked);
+    },
+    catch(f) {
+        var _promise = concat(this.PromiseRejectReactions, f, this.PromiseFulfillReactions, this.PromiseRejectReactions);
+        this.ohed && this.run(this.PromiseRejectReactions, this.ohed);
+        this.oked && this.run(this.PromiseFulfillReactions, this.oked);
         return _promise;
-    };
+    },
+    run(threads, args) {
+        do {
+            var next = threads.shift();
+            if (next instanceof Function) {
+                next.apply(null, args);
+            }
+        } while (threads.length);
+        this.PromiseRejectReactions.splice(0);
+        this.PromiseFulfillReactions.splice(0);
+    }
 }
 Promise.all = function (penddings) {
     return new Promise(function (ok, oh) {

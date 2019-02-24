@@ -313,6 +313,7 @@ var executer = function (text, name, then, prebuild, parents) {
     if (!parents) {
         parents = [];
     }
+    if (!parents.indexOf) console.log(parents);
     var index = parents.indexOf(name);
     if (index >= 0) {
         if (!circleTree[name]) {
@@ -390,6 +391,7 @@ var broadcast = function (text, name) {
 };
 var init = function (name, then, prebuild, parents) {
     if (name instanceof Array) {
+        if (!Promise) console.log(name, Promise, preLoad, parents);
         return Promise.all(name.map(function (argName) {
             if (prebuild && argName in prebuild) {
                 return prebuild[argName];
@@ -424,6 +426,7 @@ modules.init = init;
 var requires_count = 3;
 var hook = function (requires_count) {
     if (requires_count === 0) {
+        initPixelDecoder();
         "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
         loadResponseTreeFromStorage();
         modules.Promise = Promise;
@@ -444,7 +447,6 @@ var removeGlobalProperty = function (property) {
 };
 var onload = function () {
     window.onload = null;
-    initPixelDecoder();
     hook(--requires_count);
 };
 modules.put = function (name, module) {
