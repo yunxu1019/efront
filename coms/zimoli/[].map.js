@@ -68,3 +68,9 @@ Array.prototype.indexOf = indexOf;
 Array.prototype.filter = filter;
 String.prototype.trim = trim;
 Object.keys = keys;
+Function.prototype.bind = function (context) {
+    var args = [].concat.apply([], arguments).slice(1);
+    return () => {
+        return this.apply(context, args.concat.apply(args, arguments));
+    };
+};
