@@ -424,12 +424,28 @@ var init = function (name, then, prebuild, parents) {
 };
 modules.init = init;
 var requires_count = 3;
+var wrapRenderDigest = function (_then) {
+    return function (f) {
+        var promise = _then.call(this, function () {
+            if (modules.render && modules.render.digest instanceof Function) {
+                modules.render.digest();
+            }
+            return f instanceof Function && f.apply(this, arguments);
+        });
+        return promise;
+    };
+};
 var hook = function (requires_count) {
     if (requires_count === 0) {
         initPixelDecoder();
         "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
         loadResponseTreeFromStorage();
         modules.Promise = Promise;
+        var promisePrototype = Promise.prototype;
+        var { then: _then, catch: _catch, finally: _finally } = promisePrototype;
+        promisePrototype.then = wrapRenderDigest(_then);
+        promisePrototype.catch = wrapRenderDigest(_catch);
+        promisePrototype.finally = wrapRenderDigest(_finally);
         modules.hook_time = +new Date;
         init("zimoli", function (zimoli) {
             zimoli();
