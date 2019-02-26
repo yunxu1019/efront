@@ -49,6 +49,10 @@ var prototype = {
             dispatch(this, "click");
         }
         return this;
+    },
+    render(scope) {
+        render(this, scope);
+        return this;
     }
 }
 
