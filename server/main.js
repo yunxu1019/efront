@@ -113,7 +113,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         var req_access_method = req.headers["access-control-request-method"];
         req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
         req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
-        req_access_method && res.setHeader("Access-Control-Allow-Method", req_access_method);
+        req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
         if (/^option/i.test(req.method)) {
             return res.end();
         }
