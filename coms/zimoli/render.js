@@ -93,7 +93,7 @@ var directives = {
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
-                this.setValue(value);
+                if (this.getValue() !== value) this.setValue(value);
             });
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
         } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
@@ -102,7 +102,7 @@ var directives = {
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
-                this.value = value;
+                if (this.value !== value) this.value = value;
             });
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
         } else {
@@ -111,7 +111,7 @@ var directives = {
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
-                html(this, value);
+                if (html(this) !== value) html(this, value);
             });
             var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=html(this)`).bind(this, html);
         }
