@@ -47,6 +47,7 @@
 .avatar {
     opacity: .2;
     transition: opacity .6s ease;
+    box-sizing: border-box;
     box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset; // animation: 25s rotate infinite linear;
     // animation-play-state: paused;
     // -webkit-animation-play-state: paused;
@@ -202,7 +203,7 @@
     background-repeat: no-repeat;
     background-position: center;
     &:before {
-        content:"";
+        content: "";
         display: block;
         position: absolute;
         background: inherit;
