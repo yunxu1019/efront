@@ -107,24 +107,19 @@ var createControls = function () {
 };
 var player = function (box = div()) {
     box.playing = false;
-    var timer = 0;
     var updater = function () {
         if (box.process instanceof Function) {
             if (box.process(box.audio.currentTime, box.audio.duration) == false) {
                 return;
             };
         }
-        timer = requestAnimationFrame(updater);
     };
-
     box.play = function (hash = this.hash) {
         this.playCss && this.playCss();
-        cancelAnimationFrame(timer);
         if (hash === this.hash) {
             if (this.playing) return;
             this.audio.play();
             this.playing = true;
-            timer = requestAnimationFrame(updater);
             return;
         }
         box.pause();
@@ -135,6 +130,7 @@ var player = function (box = div()) {
         box.playing = true;
         var audio = document.createElement("audio");
         if (audio.play) {
+            audio.ontimeupdate = updater;
             audio.play();//安卓4以上的播放功能要在用户事件中调用;
         } else {
             // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
@@ -150,10 +146,8 @@ var player = function (box = div()) {
             audio.src = data.url;
         });
         this.audio = audio;
-        timer = requestAnimationFrame(updater);
     };
     box.pause = function () {
-        cancelAnimationFrame(timer);
         this.audio && this.audio.pause && this.audio.pause();
         this.playing = false;
         this.pauseCss && this.pauseCss();
