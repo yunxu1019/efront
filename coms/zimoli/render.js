@@ -34,6 +34,79 @@ var createGetter = function (search) {
     var [withContext, searchContext] = search;
     return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
 };
+var initialComment = function (renders, type, expression) {
+    var comment = document.createComment(`${type} ${expression}`);
+    comment.renders = renders;
+    comment.renderid = ++renderidOffset;
+    onappend(comment, addRenderElement);
+    onremove(comment, removeRenderElement);
+    appendChild.after(this, comment);
+    remove(this);
+    rebuild(comment);
+    return comment;
+};
+
+var createRepeat = function (search) {
+    // 懒渲染
+    // throw new Error("repeat is not supported! use list component instead");
+
+    var [context, expression] = search;
+    var reg =
+        // /////////////////////////////////////////// i //       r       /////////////////////////  o  ///// a ///////////////////// t /////
+        /^(?:let\b|var\b|const\b)?\s*(?:[\(\{\[]\s*)?(.+?)((?:\s*,\s*.+?)*)?(?:\s*[\)\}\]]\s*|\s+)(in|of)\s+(.+?)(\s+?:track\s*by\s+(.+?))?$/i;
+    var res = reg.exec(expression);
+    if (!res) throw new Error(`no recognition for repeat expression: ${expression} `);
+    var [_, i, k, r, s, t] = res;
+    var keyName, itemName, indexName, trackBy = t, srcName = s;
+    switch (r) {
+        case "in":
+            if (i) itemName = i;
+            if (k) {
+                var [keyName, indexName] = k.split(/,/).map(a => a.trim()).filter(a => !!a);
+            }
+            break;
+        case "of":
+            if (i) itemName = i;
+            if (k) {
+                keyName = i;
+                var [itemName, indexName] = k.split(/,/).map(a => a.trim()).filter(a => !!a);
+            }
+            break;
+    }
+    // 懒渲染
+    var getter = createGetter([context, srcName]).bind(this);
+    var element = this, clonedElements = [], savedValue;
+    var renders = [function () {
+        var result = getter();
+        if (deepEqual.shallow(savedValue, result)) return;
+        savedValue = result;
+        remove(clonedElements);
+        if (!result) return clonedElements = [];
+        var keys = Object.keys(result);
+        if (keys.length > 600) {
+            throw new Error("数据量过大，取消绘制！");
+        }
+        var $parentScopes = element.$parentScopes || [];
+        clonedElements = keys.map(function (key, cx) {
+            var clone = element.cloneNode();
+            clone.renderid = this.renderid;
+            clone.innerHTML = element.innerHTML;
+            clone.$parentScopes = $parentScopes.concat(element.$scope);
+            renderElement(clone, {
+                [keyName || '$key']: key,
+                [itemName || '$item']: result[key],
+                [indexName || '$index']: cx
+            }, clone.$parentScopes);
+            return clone;
+        }, this);
+        appendChild.before(this, clonedElements);
+    }];
+    if (this.parentNode) {
+        initialComment.call(this, renders, 'repeat', expression);
+    } else {
+        once("append")(this, initialComment.bind(this, renders, "repeat", expression));
+    }
+};
 var directives = {
     click(search) {
         var getter = createGetter(search);
@@ -149,31 +222,29 @@ var directives = {
     "if"(search) {
         // 懒渲染
         var getter = createGetter(search).bind(this);
-        var initial = function () {
-            var comment = document.createComment("-if:" + search);
-            comment.renders = [function () {
-                var result = getter();
-                if (result) {
-                    if (!this.parentNode) appendChild.before(comment, this);
-                } else {
-                    remove(this);
-                }
-            }.bind(this)];
-            comment.renderid = ++renderidOffset;
-            onappend(comment, addRenderElement);
-            onremove(comment, removeRenderElement);
-            appendChild.after(this, comment);
-            rebuild(comment);
-        };
+        var element = this;
+        var renders = [function () {
+            var result = getter();
+            if (result) {
+                if (!element.parentNode) appendChild.before(this, element);
+            } else {
+                remove(element);
+            }
+        }];
         if (this.parentNode) {
-            initial.call(this);
+            initialComment.call(this, renders, "if", search[1]);
         } else {
-            once("append")(this, initial);
+            once("append")(this, initialComment.bind(this, renders, "if", search[1]));
         }
     },
     repeat(search) {
-        // 懒渲染
-        throw new Error("repeat is not supported! use list component instead");
+        createRepeat.call(this, search);
+    },
+    for(search) {
+        createRepeat.call(this, search);
+    },
+    each(search) {
+        createRepeat.call(this, search);
     },
     "class"(search) {
         var getter = createGetter(search).bind(this);
@@ -295,6 +366,7 @@ function renderElement(element, scope, parentScopes = []) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
+
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
             directives[key].call(element, [withContext, value]);
         }

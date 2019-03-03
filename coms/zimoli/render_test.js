@@ -14,6 +14,22 @@ function render_test() {
     <div ng-show='modelName'>ng-show=<span v-bind=modelName></span></div>
     <div v-if='modelName'>v-if=<span v-bind=modelName></span></div>
     <div ng-if='modelName'>ng-if=<span v-bind=modelName></span></div>
+    <table>
+        <thead>
+            <tr>
+                <td style="width:30%;display:inline-block">-bind=o</td>
+                <td style="width:30%;display:inline-block">-bind=k</td>
+                <td style="width:30%;display:inline-block">-bind=i</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='(o,k,i) in classNames'>
+                <td -bind=o style="width:30%;display:inline-block"></td>
+                <td -bind=k style="width:30%;display:inline-block"></td>
+                <td -bind=i style="width:30%;display:inline-block"></td>
+            </tr>
+        </tbody>
+    </table>
     `);
     render(element, {
         showModel: false,
