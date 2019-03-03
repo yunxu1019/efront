@@ -18,6 +18,7 @@ var checkMemery = function (msg) {
     return true;
 }
 var objectEqual = function (o1, o2, deep) {
+    if (o1 === o2) return true;
     if (o1.constructor !== o2.constructor) return false;
     var keys1 = Object.keys(o1), keys2 = Object.keys(o2);
     if (keys1.length !== keys2.length) return false;
@@ -56,6 +57,7 @@ var objectEqual = function (o1, o2, deep) {
 };
 function shallowEqual(o1, o2) {
     // 浅层比对，对内层对象不进行递归比对
+    if (o1 === o2) return true;
     if (o1 instanceof Object && o2 instanceof Object) {
         var keys1 = Object.keys(o1), keys2 = Object.keys(o2);
         if (keys1.length !== keys2.length) return false;
@@ -68,6 +70,7 @@ function shallowEqual(o1, o2) {
     return singleEqual(o1, o2);
 }
 function deepEqual(o1, o2) {
+    if (ol === o2) return true;
     if (o1 instanceof Object && o2 instanceof Object) {
         var result = objectEqual(o1, o2, 0);
         if (result) for (var cx = 0; cx < restcompare.length; cx += 3) {
