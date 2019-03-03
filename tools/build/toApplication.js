@@ -29,7 +29,14 @@ function toApplication(responseTree) {
             }
         );
     var isZimoliDetected = false;
+    var poweredByComment;
+    var ReleaseTime = new Date().toString();
     var html = indexHtmlData.toString()
+        .replace(/^\s*(<!doctype[\s\S]*?>\s*)<!--([\s\S]+)-->/i, function (_, doctype, message) {
+            // `${doctype}<!--${message}\r\n${efrontReloadVersionAttribute}-->`
+            poweredByComment = _;
+            return ""
+        })
         .replace(/<!--[\s\S]*?-->/g, "")
         .replace(/<title>(.*?)<\/title>/i, `<title>${process.env.TITLE || "$1"}</title>`)
         .replace(/<script\b[\s\S]*?<\/script>/ig, function (script) {
@@ -43,7 +50,7 @@ function toApplication(responseTree) {
             return script;
         });
     if (isZimoliDetected)
-        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo="${new Date().toString()} by efront">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
+        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo="${ReleaseTime} by efront">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
     if (process.env.IN_WATCH_MODE) {
         let WATCH_PORT = +process.env.WATCH_PORT;
         let reloadVersion = +new Date();
@@ -77,6 +84,9 @@ function toApplication(responseTree) {
         }();
         </script>\r\n${head}`);
         global.WATCH_PROJECT_VERSION = reloadVersion;
+    }
+    if (poweredByComment) {
+        html = html.replace(/^\s*(?:<!doctype[\s\S]*?>)?/i, poweredByComment);
     }
     indexHtml.data = html;
     delete responseTree["main"];
