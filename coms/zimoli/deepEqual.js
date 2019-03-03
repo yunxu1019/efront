@@ -54,6 +54,19 @@ var objectEqual = function (o1, o2, deep) {
     }
     return true;
 };
+function shallowEqual(o1, o2) {
+    // 浅层比对，对内层对象不进行递归比对
+    if (o1 instanceof Object && o2 instanceof Object) {
+        var keys1 = Object.keys(o1), keys2 = Object.keys(o2);
+        if (keys1.length !== keys2.length) return false;
+        keys1.sort(), keys2.sort();
+        for (var cx = 0, dx = keys1.length; cx < dx; cx++) {
+            if (!singleEqual(ol[keys1], o2[keys2])) return false;
+        }
+        return true;
+    }
+    return singleEqual(o1, o2);
+}
 function deepEqual(o1, o2) {
     if (o1 instanceof Object && o2 instanceof Object) {
         var result = objectEqual(o1, o2, 0);
@@ -79,3 +92,4 @@ function deepEqual(o1, o2) {
         return singleEqual(o1, o2);
     }
 }
+deepEqual.shallow = shallowEqual;
