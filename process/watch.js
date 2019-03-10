@@ -24,4 +24,7 @@ function watch(file, then) {
     })];
     watch_tree[file] = watchers;
 }
+watch.close = function () {
+    Object.keys(watch_tree).forEach(watch);
+};
 module.exports = watch;
