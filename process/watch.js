@@ -3,13 +3,16 @@ var start_time = 0;
 var fs = require("fs");
 var watch_tree = {};
 function watch(file, then) {
-    watch_tree[file] && watch_tree[file].forEach(function (watcher) {
-        watcher.close();
-    });
     if (!(then instanceof Function)) {
+        watch_tree[file] && watch_tree[file].forEach(function (watcher) {
+            watcher.close();
+        });
         delete watch_tree[file];
         return;
     };
+    if (watch_tree[file]) {
+        return watch_tree[file].push(then);
+    }
     var timmer = 0;
     var watchers = [fs.watch(file, function () {
         var args = arguments;
