@@ -21,6 +21,23 @@ var {
     console,
     PREVENT_FRAMEWORK_MODE,
     startPath: efrontPath = "zimoli",
+    request = function (url, onload, onerror) {
+        var version = versionTree[url] || (+new Date).toString(32);
+        var xhr = XHR();
+        xhr.open("POST", url);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                var status = xhr.status;
+                if (status === 0 || status === 200 || status === 304) {
+                    onload(xhr.responseText);
+                } else {
+                    onerror(xhr.responseText);
+                }
+            }
+        };
+        xhr.send(version);
+
+    },
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
 
@@ -127,18 +144,11 @@ var circleTree = {};
 var hasOwnProperty = {}.hasOwnProperty;
 modules.MOVELOCK_DELTA = 3 * renderPixelRatio;
 
-var retry = function (url, count) {
-    setTimeout(function () {
-        load(url, --count);
-    }, parseInt(Math.random()) * 200);
-    return count;
-};
 var XHR = function () {
     return new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
 };
-var load = function (name, count = 150) {
+var loaddata = function (name) {
     var url;
-    var version = versionTree[url] || (+new Date).toString(32);
     switch (name.charAt(0)) {
         case "/":
             if (/^\/\//.test(name)) url = name;
@@ -154,22 +164,20 @@ var load = function (name, count = 150) {
             if (/[\/\?\-]/.test(name)) url = name;
             else url = "comm/" + name;
     }
-    var xhr = XHR();
-    xhr.open("POST", url);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            var status = xhr.status;
-            if (status === 0 || status === 200 || status === 304) {
-                responseTree[name] = xhr.responseText;
-                flush(name);
-            } else if (count <= 0) {
-                throw new Error("加载" + name + "出错！");
-            } else {
-                count = retry(name, count || 0);
-            }
-        }
+    var count = 20;
+    var run = function () {
+        count--;
+        if (count < 0) {
+            throw new Error("加载" + name + "出错！");
+        };
+        request(url, function (responseText) {
+            responseTree[name] = responseText;
+            flush(name);
+        }, function () {
+            setTimeout(run, parseInt(Math.random() * (20 - count) * 20));
+        });
     };
-    xhr.send(version);
+    run();
 };
 var flush_to_storage_timer = 0,
     responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
@@ -264,7 +272,7 @@ var get = function (url, then) {
         loaddingTree[url].push(then);
     } else {
         loaddingTree[url] = [then];
-        load(url);
+        loaddata(url);
     }
 };
 modules.start_time = +new Date;
@@ -475,7 +483,7 @@ modules.loaddingTree = loaddingTree;
 modules.setGetMethod = function (_get) {
     get = _get;
 };
-modules.load = load;
+modules.load = loaddata;
 modules.XHR = XHR;
 modules.renderPixelRatio = renderPixelRatio;
 if (document.body) onload();
