@@ -457,7 +457,7 @@ var hook = function (requires_count) {
         promisePrototype.finally = wrapRenderDigest(_finally);
         modules.hook_time = +new Date;
         init(efrontPath, function (zimoli) {
-            zimoli();
+            if (zimoli instanceof Function) zimoli();
         });
     }
 };
