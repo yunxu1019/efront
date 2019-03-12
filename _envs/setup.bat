@@ -3,7 +3,8 @@ rem ƒ¨»œ”¶”√
 if not defined app set APP=zimoli
 set AAPI=zimoli
 set ICON=zimoli
-set COMM=zimoli
+if %app%==zimoli set COMM=zimoli
+if not %app%==zimoli set COMM=%app%,zimoli
 rem database
 set DB_HOST=localhost
 set DB_PORT=3306

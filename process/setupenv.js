@@ -20,8 +20,8 @@ var reg_if =
     //09 exist
     //10 defined
     //11 command
-    ////////////////   1  ///   2  /////            3            ///// 4 /// 5 /////            6             ///// 7 /////////// 8 // 9 ///////////////10 //////   11   ///
-    /^\s*@?\s*if\s+(\/i\s+)?(not\s+)?(?:(cmdextversion|errorlevel)\s+(.+?)|(.+?)\s*(==|equ|neq|lss|leq|gtr|geq)\s*(.+?)|exist\s+(["])(.+?)\8|defined\s+(.+?))\s+([\s\S]*?)$/i;
+    ////////////////   1  ///   2  //////           3            ///// 4 /// 5 ///////            6             /////// 7 /////////// 8 // 9 ///////////////10 //////   11   ///
+    /^\s*@?\s*if\s+(\/i\s+)?(not\s+)?(?:(cmdextversion|errorlevel)\s+(.+?)|(.+?)\s*\b(==|equ|neq|lss|leq|gtr|geq)\b\s*(.+?)|exist\s+(["])(.+?)\8|defined\s+(.+?))\s+([\s\S]*?)$/i;
 var if_conditions = {
     "==": (a, b) => a == b,
     "equ": (a, b) => a == b,
@@ -32,6 +32,12 @@ var if_conditions = {
     "geq": (a, b) => a >= b
 };
 var env = process.env;
+for (var k in env) {
+    var upperKey = k.toUpperCase();
+    var lowerKey = k.toLowerCase();
+    env[upperKey] = env[k];
+    env[lowerKey] = env[k];
+}
 var call = function (file, args = []) {
     file = path.normalize(file.replace(/[\\]+/ig, "/"));
     if (!fs.existsSync(file)) {
@@ -96,10 +102,10 @@ var get = function (text) {
     }
     var match = text.match(reg_set);
     if (match) {
-        var k = match[1],
+        var k = match[1].toUpperCase(),
             v = env[k] || match[3] || process.env[k];
         if (v)
-            return env[k.toUpperCase()] = /^path\.|path$/i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v;
+            return env[k] = /^path\.|path$/i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v;
         else
             return delete env[k]
     }
@@ -138,16 +144,16 @@ module.exports = function (appname) {
 
 var extend = function (dst, env, src) {
     Object.assign(dst, {
-        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || env.coms_path || env.comm_path || "./coms",
-        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || env.apps_path || env.page_path || env.pages_path || "./apps",
-        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH || env.apis_path || env.aapi_path || "./apis",
-        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || env.icon_path || env.cons_path || env.ccon_path || env.icons_path || "./cons",
-        PAGE: dst.PAGE || env.PAGE || env.APPS || env.page || env.apps || src,
-        COMM: dst.COMM || env.COMM || env.COMS || env.comm || env.coms || src,
-        AAPI: dst.AAPI || env.APIS || env.AAPI || env.apis || env.aapi || src,
-        IMAG: dst.IMAG || env.IMAG || env.IMGS || env.imag || env.imgs || src,
-        ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS || env.icon || env.ccon || env.cons || env.icons || src,
-        PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || env.public_path || "./public",
+        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || "./coms",
+        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || "./apps",
+        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH || "./apis",
+        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || "./cons",
+        PAGE: dst.PAGE || env.PAGE || env.APPS || src,
+        COMM: dst.COMM || env.COMM || env.COMS || src,
+        AAPI: dst.AAPI || env.APIS || env.AAPI || src,
+        IMAG: dst.IMAG || env.IMAG || env.IMGS || src,
+        ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS || src,
+        PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || "./public",
     });
 };
 extend(process.env, process.env, "zimoli");
