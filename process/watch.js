@@ -4,9 +4,7 @@ var fs = require("fs");
 var watch_tree = {};
 function watch(file, then) {
     if (!(then instanceof Function)) {
-        watch_tree[file] && watch_tree[file].forEach(function (watcher) {
-            watcher.close();
-        });
+        watch_tree[file] && watch_tree[file][0].close();
         delete watch_tree[file];
         return;
     };
@@ -19,13 +17,15 @@ function watch(file, then) {
         clearTimeout(timmer);
         timmer = setTimeout(function () {
             try {
-                then.apply(null, args);
+                watchers.splice(1, watchers.length).forEach(function (watch) {
+                    watch.apply(null, args);
+                });
             } catch (e) {
                 console.error("执行失败！", e.message);
             }
         }, 80);
     })];
-    watch_tree[file] = watchers;
+    watch_tree[file] = watchers.concat(then);
 }
 watch.close = function () {
     Object.keys(watch_tree).forEach(watch);
