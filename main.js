@@ -1,14 +1,45 @@
 #!/usr/bin/env node
-// 中文编码 utf-8
-var isTestMode = process.argv.indexOf("test") >= 0;
-var isHelpMode = process.argv.indexOf("help") >= 0;
-var isPublicMode = process.argv.indexOf("public") >= 0 || process.argv.indexOf("build") >= 0;
-var isWatchMode = process.argv.indexOf("watch") >= 0;
-var isServerMode = process.argv.indexOf("server") >= 0;
-var isInitCommand = process.argv.indexOf("init") >= 0;
+var path = require('path');
+require("./process/console");
+var configs = function () {
+    var config = {};
+    process.argv.forEach(function (key) {
+        key = key.toLowerCase();
+        config[key] = true;
+    });
+    return config;
+}();
+
+var setenv = function (evn) {
+    Object.assign(process.env, evn);
+};
+
+
+var isTestMode = configs.test;
+var isHelpMode = configs.help;
+var isPublicMode = configs.build || configs.public;
+var isWatchMode = configs.watch;
+var isServerMode = configs.server || configs.serve;
+var isInitCommand = configs.init;
+var isDocsCommand = configs.doc || configs.docs;
+var isDemoCommand = configs.demo || configs.zimoli;
 var loadModule = process.argv.slice(2).filter(e => /^https?\:\/\/|\/|\.[tj]sx?$/i.test(e));
 if (isHelpMode) {
     console.log("these commands can be used: test server public init watch");
+} else if (isDocsCommand) {
+    setenv({
+        public_path: path.join(__dirname, "apps"),
+        app: "docs"
+    });
+    require("./process/setupenv");
+    require("./server/main");
+} else if (isDemoCommand) {
+    setenv({
+        public_path: path.join(__dirname, "apps"),
+        app: "zimoli"
+    });
+    require("./process/setupenv");
+    require("./server/main");
 } else if (isTestMode) {
     require("./tester/main");
 } else if (isServerMode) {
@@ -23,6 +54,5 @@ if (isHelpMode) {
     require("./process/efront")(loadModule[0]);
 } else {
     require("./process/setupenv");
-    require("./process/console");
     var server = require(/*sdf*/"./server/main");
 }

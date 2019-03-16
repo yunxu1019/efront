@@ -57,6 +57,22 @@ set public_path=PUBLIC_PATH
 efront watch
 ```
 
+###    7.启动Demo，可以在浏览器查看效果
+```bat
+efront demo
+```
+
+###   8.组件库举例服务器，可以在浏览器查看一级组件
+```bat
+efront docs
+```
+
+###   9.直接将当前目录作为服务器目录
+```
+efront
+```
+
+
 ## 目录说明
 
 01. _envs 环境配置存放位置

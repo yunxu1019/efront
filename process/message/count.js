@@ -1,4 +1,10 @@
 "use strict";
+var count = require("../count");
+var counts = count() || {};
+process.on('exit', function () {
+    count(counts);
+});
+
 module.exports = function count({ path, update }, then) {
     if (update) {
         if (!counts[path]) {
@@ -7,7 +13,7 @@ module.exports = function count({ path, update }, then) {
         counts[path]++;
     }
     if (!counts[path]) {
-        return then(0);
+        return then && then(0);
     }
-    then(counts[path]);
+    then && then(counts[path]);
 }

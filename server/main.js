@@ -12,9 +12,6 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var quitting = [];
     var workers = [];
     var cpus = require('os').cpus();
-    var count = require("../process/count");
-    var counts = count() || {};
-    global.counts = counts;
     var end = function () {
         quitting = quitting.concat(workers);
         workers = [];
@@ -62,7 +59,6 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 counter--;
                 console.info(`process ${worker.id} ended at ${Date()}`);
                 if (!counter && killing) {
-                    count(counts);
                     // console.info("按 ctrl + c 退出!");
                     process.exit();
                 }

@@ -15,6 +15,15 @@
                 "/main"
             ],
             "program": "${workspaceFolder}\\main.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "demo:Zimoli",
+            "args": [
+                "demo"
+            ],
+            "program": "${workspaceFolder}\\main.js"
         }
     ]
 }

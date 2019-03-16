@@ -32,6 +32,9 @@ var if_conditions = {
     "geq": (a, b) => a >= b
 };
 var env = process.env;
+if (!env.cd && !env.CD) {
+    env.cd = process.cwd();
+}
 for (var k in env) {
     var upperKey = k.toUpperCase();
     var lowerKey = k.toLowerCase();
@@ -157,4 +160,4 @@ var extend = function (dst, env, src) {
     });
 };
 extend(process.env, process.env, "zimoli");
-process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug-brk|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0
+process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0
