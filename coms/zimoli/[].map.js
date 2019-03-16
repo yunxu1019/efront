@@ -68,6 +68,12 @@ Array.prototype.indexOf = indexOf;
 Array.prototype.filter = filter;
 String.prototype.trim = trim;
 Object.keys = keys;
+Object.create = function (object) {
+    function ExtendedClass() {
+    };
+    ExtendedClass.prototype = object;
+    return new ExtendedClass;
+};
 Function.prototype.bind = function (context) {
     var args = [].concat.apply([], arguments).slice(1);
     return () => {
