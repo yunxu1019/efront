@@ -1,4 +1,8 @@
-titlebar(i18n("文件管理器","File Manager"));
+var tbar = titlebar(i18n("文件管理器", "File Manager"), {
+    [i18n("管理", "Table View")]() {
+        go("/files/info");
+    }
+});
 var page = createVboxWithState(state);
 page.innerHTML = `
 <list></list>

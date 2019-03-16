@@ -46,7 +46,39 @@ function encodeStructure(array) {
         body
     };
 }
+
+var cache = {};
+var encodeParams = function (params) {
+    if (!(params instanceof Object)) return params;
+};
+function main(url, params, formulator) {
+    var data = [];
+    init(url, function (response) {
+        extend(data, response);
+    });
+    return data;
+}
+
+var loadingArray={
+    isLoading(){
+    }
+};
+
 var data = {
     decodeStructure,
-    encodeStructure
+    encodeStructure,
+    /**
+     * 返回一个被延长生命周期的对象
+     * @param {} dataId 
+     */
+    getInstauce(dataId) {
+
+    },
+    /**
+     * 设置一个被延长生命周期的对象
+     * @param {*} dataId 
+     * @param {*} isLocalStorageEnabled 
+     */
+    setInstance(dataId, isLocalStorageEnabled = false) {
+    }
 };
