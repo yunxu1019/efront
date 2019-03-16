@@ -53,6 +53,11 @@ if (isHelpMode) {
 } else if (loadModule.length > 0) {
     require("./process/efront")(loadModule[0]);
 } else {
+    var fullpath = process.cwd();
+    setenv({
+        public_path: path.dirname(fullpath),
+        app: path.basename(fullpath)
+    });
     require("./process/setupenv");
-    var server = require(/*sdf*/"./server/main");
+    require("./server/main");
 }
