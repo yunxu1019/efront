@@ -1,15 +1,20 @@
 var setupenv = require("../process/setupenv");
 var env = process.env;
+var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var getpagefile = require("../process/cache");
 var commbuilder = require("../process/commbuilder");
 var iconbuilder = require("../process/iconbuilder");
 var aapibuilder = require("../process/aapibuilder");
+var filebuilder = require("../process/filebuilder");
 var getcommfile = require("../process/cache")(env.COMS_PATH, commbuilder).async;
 var getpagefile = require("../process/cache")(env.PAGE_PATH, commbuilder).async;
 var getaapifunc = require("../process/cache")(env.APIS_PATH, aapibuilder).async;
 var geticonfile = require("../process/cache")(env.ICON_PATH, iconbuilder).async;
+var getonlyfile = require("../process/cache")(env.FILE_PATH || env.PAGE_PATH, filebuilder, FILE_BUFFER_SIZE).async;
+
 var {
     PAGE,
+    FILE = PAGE,
     COMM,
     AAPI,
     ICON
@@ -18,6 +23,7 @@ var ccons_root = "./" + ICON;
 var comms_root = "./" + COMM;
 var pages_root = "./" + PAGE;
 var aapis_root = "./" + AAPI;
+var files_root = "./" + FILE;
 var getfrompath = function (name, __root, getter, extt) {
     __root = __root.split(/,/);
     return new Promise(function (ok) {
@@ -64,19 +70,25 @@ var getapi = function (name, env) {
     return getfrompath(name, _aapis_root, getaapifunc, ".js");
 };
 
+var getfile = function (name, env) {
+    var _files_root = env.FILE || env.PAGE || files_root;
+    return getfrompath(name, _files_root, getonlyfile, [""]);
+};
+
 var managers = {
     comm: getcomm,
     api: getapi,
     aapi: getapi,
     page: getpage,
     ccon: geticon,
+    file: getfile,
     color: iconbuilder.color
 }
 
 var exports = module.exports = function (url, callback) {
     var match = url.match(
-        ///// 1 //        2           //// 3 //     4      ////
-        /^\/(.*?)(comm|page|ccon|aa?pi)\/(.*?)(?:\.js|\.png)?$/
+        ///// 1 //        2           //// 3 //     4      /////////////////////
+        /^\/(.*?)(comm|page|ccon|aa?pi)\/(.*?)(?:\.js|\.png)?(?:(?:\?|\#).*?)?$/i
     );
     if (match) {
         var appc = match[1],
@@ -87,16 +99,17 @@ var exports = module.exports = function (url, callback) {
         var manager = managers[type];
         if (!manager) return res.end();
         var result = manager(name, env);
-        var response = function (result) {
-            callback(result, type);
-        };
-        if (result instanceof Promise) {
-            result.then(response)
-        } else {
-            response(result);
-        }
     } else {
-        callback();
+        url = url.replace(/[\?\#].*?$/, '');
+        var result = managers.file(url, {});
+    }
+    var response = function (result) {
+        callback(result);
+    };
+    if (result instanceof Promise) {
+        result.then(response)
+    } else {
+        response(result);
     }
 };
 Object.assign(exports, managers);
