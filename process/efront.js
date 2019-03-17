@@ -12,8 +12,12 @@ var mainLoaderPromise = new Promise(function (ok, oh) {
 });
 function fromComponent(base) {
     var packer = require("./finalpacker");
+    var requestInternet = fromInternet("");
     var request = function (url, onsuccess, onerror) {
         var isdestroied = false;
+        if (/^https?\:\/\//i.test(url)) {
+            return requestInternet(url, onsuccess, onerror);
+        }
         var abort = function () {
             isdestroied = true;
         };
@@ -42,18 +46,18 @@ function fromInternet(mainfilepath) {
     var URL = require("url");
     var reg = /^(https?)\:\/\//i;
     function request(url, onsuccess, onerror) {
-        if (!reg.test(protocal)) {
+        if (!reg.test(url)) {
             url = mainfilepath.replace(/\/[^\/]*$/, url.replace(/^\/?/, "/"));
         }
         var _url = URL.parse(url);
-        var req = /^https/i.test(_url.protocol) ? https : http;
+        var req = /^https?/i.test(_url.protocol) ? https : http;
         var onend = function () {
             var index = requestHandles.indexOf(abort);
             if (index >= 0) {
                 requestHandles.splice(index, 1);
             }
         };
-        var request = req.request(Object.assign({ method }, _url), function (res) {
+        var request = req.request(Object.assign({ method: "get" }, _url), function (res) {
             var result = [];
             var size = 0;
             res.on("data", function (buffer) {
@@ -74,6 +78,7 @@ function fromInternet(mainfilepath) {
                 onerror(event);
             });
         });
+        request.end();
         var abort = request.abort.bind(request);
         requestHandles.push(abort);
     }
