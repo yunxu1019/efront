@@ -19,7 +19,6 @@ function watch(file, then) {
         timmer = setTimeout(function () {
             try {
                 watchers.slice(1, watchers.length).forEach(function (watch) {
-                    console.log(args);
                     watch.apply(null, args);
                 });
             } catch (e) {
