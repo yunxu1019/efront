@@ -12,20 +12,22 @@ function watch(file, then) {
         return watch_tree[file].push(then);
     }
     var timmer = 0;
-    var watchers = [fs.watch(file, function () {
-        var args = arguments;
+    var watchers = [fs.watch(file, function (changeType) {
+        if (changeType !== "change") return;
         clearTimeout(timmer);
+        var args = arguments;
         timmer = setTimeout(function () {
             try {
-                watchers.splice(1, watchers.length).forEach(function (watch) {
+                watchers.slice(1, watchers.length).forEach(function (watch) {
+                    console.log(args);
                     watch.apply(null, args);
                 });
             } catch (e) {
                 console.error("执行失败！", e.message);
             }
         }, 80);
-    })];
-    watch_tree[file] = watchers.concat(then);
+    }), then];
+    watch_tree[file] = watchers;
 }
 watch.close = function () {
     Object.keys(watch_tree).forEach(watch);
