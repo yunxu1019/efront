@@ -28,7 +28,7 @@ function refresh() {
     }
 }
 function rebuild(element) {
-    element.renders.map(a => a.call(element));
+    element.renders.forEach(a => a.call(element));
 }
 var createGetter = function (search) {
     var [withContext, searchContext] = search;
@@ -166,7 +166,7 @@ var directives = {
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
-                if (this.getValue() !== value) this.setValue(value);
+                if ((this.getValue instanceof Function ? this.getValue() : this.value) !== value) this.setValue(value);
             });
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
         } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
