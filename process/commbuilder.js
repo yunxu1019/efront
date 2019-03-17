@@ -279,14 +279,16 @@ var getFileData = function (fullpath) {
     });
 };
 module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
-    var commName = filename.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?)$/i);
+    var commName = filename.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?|json)$/i);
     if (!commName) console.warn("文件名无法生成导出变量！", filename);
     commName = commName && commName[1];
     var data = String(buffer);
     var className = path.relative(cwd, fullpath).replace(/[\\\/\:\.]+/g, "-");
     var lessData, jsData;
     var promise;
-    if (/\.html?$/i.test(filename)) {
+    if (/\.json$/.test(filename)) {
+        data = "return " + data.toString();
+    } else if (/\.html?$/i.test(filename)) {
         let lesspath = fullpath.replace(/\.html?$/i, ".less");
         jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
         promise = getFileData(lesspath).then(function (lessdata) {
@@ -301,7 +303,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
             }
             return loadJsBody(jsData, filename, lessData, commName, className);
         });
-    } else if (/\.[jt]sx?$/i.test(filename)) {
+    } else if (/\.(?:[jt]sx?)$/i.test(filename)) {
         let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
         let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
         let replace = loadUseBody(data, fullpath, watchurls, commName);

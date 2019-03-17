@@ -57,7 +57,7 @@ var geticon = function (name, env) {
 var getcomm = function (name, env) {
     var _comms_root = env.COMM || comms_root;
     name = name.replace(/(\w)\$/g, "$1/");
-    return getfrompath(name, _comms_root, getcommfile, [".js", ".html"]);
+    return getfrompath(name, _comms_root, getcommfile, [".js", ".json", ".html"]);
 };
 
 var getpage = function (name, env) {
