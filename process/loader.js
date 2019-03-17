@@ -36,7 +36,6 @@ var {
             }
         };
         xhr.send(version);
-
     },
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
@@ -72,6 +71,7 @@ var isBadDevice;
     isBadDevice = SAFE_CIRCLE_DEPTH < 512;
 };
 modules.IS_BAD_DEVICE = isBadDevice;
+var FILE_NAME_REG = /^[^\/][\/\?\-\.\+]|[\.\-\+\?][^\/]*?$/;
 // 适配大小屏
 var devicePixelRatio = window.devicePixelRatio || 1;
 // if (isBadDevice) devicePixelRatio = 1;
@@ -149,10 +149,10 @@ var XHR = function () {
 };
 var loaddata = function (name) {
     var url;
-    switch (name.charAt(0)) {
+    if (FILE_NAME_REG.test(name)) url = name;
+    else switch (name.charAt(0)) {
         case "/":
-            if (/^\/\//.test(name)) url = name;
-            else url = "page" + name;
+            url = "page" + name;
             break;
         case "_":
             url = "aapi/" + name.slice(1).replace(/([A-Z])/g, "/$1").toLowerCase();
@@ -161,8 +161,7 @@ var loaddata = function (name) {
             url = "ccon/" + name.slice(1);
             break;
         default:
-            if (/[\/\?\-\.]/.test(name)) url = name;
-            else url = "comm/" + name;
+            url = "comm/" + name;
     }
     var count = 20;
     var run = function () {
@@ -374,6 +373,16 @@ var executer = function (text, name, then, prebuild, parents) {
         }
     }, prebuild, parents.concat(name));
 };
+var JSON_parser = function (text, name, then) {
+    init('JSON', function (JSON) {
+        var data = modules[name] || JSON.parse(text);
+        if (!/\?/.test(name)) {
+            modules[name] = data;
+        }
+        then(data);
+    });
+};
+
 var killCircle = function (circle) {
     // 文件存在环形引用
     circle.map(key => modules[key] = delete circleTree[key]);
@@ -384,7 +393,13 @@ var noop = function (text, name, then) {
 };
 var broadcast = function (text, name) {
     var adapter;
-    switch (name.charAt(0)) {
+    if (FILE_NAME_REG.test(name)) {
+        if (/\.json([\#\?].*?)?$/i.test(name)) {
+            adapter = JSON_parser;
+        } else if (FILE_NAME_REG.test(name)) {
+            adapter = noop;
+        }
+    } else switch (name.charAt(0)) {
         case ".":
             adapter = noop;
             break;
