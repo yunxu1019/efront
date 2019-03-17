@@ -161,7 +161,7 @@ var loaddata = function (name) {
             url = "ccon/" + name.slice(1);
             break;
         default:
-            if (/[\/\?\-]/.test(name)) url = name;
+            if (/[\/\?\-\.]/.test(name)) url = name;
             else url = "comm/" + name;
     }
     var count = 20;
@@ -466,7 +466,7 @@ var initIfNotDefined = function (defined, path, onload) {
     else hook(--requires_count);
 }
 initIfNotDefined(Promise, "promise", promise => Promise = promise);
-initIfNotDefined([].map, "[].map", map => map);
+initIfNotDefined([].map, "[]map", map => map);
 var removeGlobalProperty = function (property) {
     forceRequest[property] = true;
 };
