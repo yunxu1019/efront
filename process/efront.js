@@ -100,6 +100,7 @@ function efront(getLoader) {
     Object.assign(window, {
         console,
         require,
+        Buffer,
         setTimeout(f, timerout) {
             var args = [].slice.call(arguments, 2);
             var handle = setTimeout(function () {
