@@ -4,8 +4,12 @@ var fs = require("fs");
 var watch_tree = {};
 function watch(file, then) {
     if (!(then instanceof Function)) {
-        watch_tree[file] && watch_tree[file][0].close();
-        delete watch_tree[file];
+        var watcher = watch_tree[file];
+        if (watcher) {
+            delete watch_tree[file];
+            watcher.splice(1, watcher.length);
+            watcher[0].close();
+        }
         return;
     };
     if (watch_tree[file]) {
