@@ -86,6 +86,7 @@ var managers = {
 }
 
 var exports = module.exports = function (url, callback) {
+    debugger;
     var match = url.match(
         ///// 1 //        2           //// 3 //     4      /////////////////////
         /^\/(.*?)(comm|page|ccon|aa?pi)\/(.*?)(?:\.js|\.png)?(?:(?:\?|\#).*?)?$/i
@@ -104,7 +105,7 @@ var exports = module.exports = function (url, callback) {
         var result = managers.file(url, {});
     }
     var response = function (result) {
-        callback(result);
+        callback(result, type);
     };
     if (result instanceof Promise) {
         result.then(response)
