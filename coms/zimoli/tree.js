@@ -95,13 +95,15 @@ function tree(constructor) {
             span = constructor(com);
         } else {
             span = div();
-            html(span, `<b>${com.name}</b>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
+            html(span, `${"<t></t>".repeat(com.tab)}<b>${com.name}</b>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
+        }
+        if (com.length) {
+            addClass(com, com.closed ? "closed" : "open");
+        } else {
+            addClass(com, "empty");
         }
         var _div = button(span);
         addClass(_div, "tab" + com.tab);
-        css(_div, {
-            "padding-left": fromPixel(com.tab * 10)
-        });
         com.target = _div;
         onclick(_div, function () {
             if (!active(banner, com.value, com)) {
