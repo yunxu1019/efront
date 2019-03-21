@@ -450,12 +450,13 @@ modules.init = init;
 var requires_count = 3;
 var wrapRenderDigest = function (_then) {
     return function (f) {
-        var promise = _then.call(this, function () {
+        if (f instanceof Function) var promise = _then.call(this, function () {
             if (modules.render && modules.render.digest instanceof Function) {
                 modules.render.digest();
             }
-            return f instanceof Function && f.apply(this, arguments);
+            return f.apply(this, arguments);
         });
+        else promise = _then.apply(this, arguments);
         return promise;
     };
 };
