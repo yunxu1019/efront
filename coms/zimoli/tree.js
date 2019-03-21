@@ -97,13 +97,21 @@ function tree(constructor) {
             span = div();
             html(span, `${"<t></t>".repeat(com.tab)}<b>${com.name}</b>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
         }
-        if (com.length) {
-            addClass(com, com.closed ? "closed" : "open");
-        } else {
-            addClass(com, "empty");
-        }
         var _div = button(span);
         addClass(_div, "tab" + com.tab);
+        if (com.length) {
+            addClass(_div, com.closed ? "closed" : "open");
+        } else {
+            addClass(_div, "empty");
+        }
+        if (com.checked || com.is_checked) {
+            addClass(_div, "checked");
+        } else if (com.selected || com.is_selected) {
+            addClass(_div, "selected");
+        }
+        if (com.actived || com.is_actived) {
+            addClass(_div, "actived");
+        }
         com.target = _div;
         onclick(_div, function () {
             if (!active(banner, com.value, com)) {
