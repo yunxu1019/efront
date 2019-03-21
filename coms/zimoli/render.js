@@ -3,6 +3,7 @@
 var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = {};
 var renderidOffset = 0;
+var renderidClosed = 0;
 var addRenderElement = function () {
     var element = this;
     if (!isNode(element)) return;
@@ -78,10 +79,10 @@ var createRepeat = function (search) {
     var element = this, clonedElements = [], savedValue;
     var renders = [function () {
         var result = getter();
+        result = result instanceof Array ? result.slice(0) : Object.assign({}, result);
         if (deepEqual.shallow(savedValue, result)) return;
         savedValue = result;
         remove(clonedElements);
-        if (!result) return clonedElements = [];
         var keys = Object.keys(result);
         if (keys.length > 600) {
             throw new Error("数据量过大，取消绘制！");
@@ -89,8 +90,8 @@ var createRepeat = function (search) {
         var $parentScopes = element.$parentScopes || [];
         clonedElements = keys.map(function (key, cx) {
             var clone = element.cloneNode();
-            clone.renderid = this.renderid;
             clone.innerHTML = element.innerHTML;
+            clone.renderid = 0;
             clone.$parentScopes = $parentScopes.concat(element.$scope);
             renderElement(clone, {
                 [keyName || '$key']: key,
@@ -105,6 +106,39 @@ var createRepeat = function (search) {
         initialComment.call(this, renders, 'repeat', expression);
     } else {
         once("append")(this, initialComment.bind(this, renders, "repeat", expression));
+    }
+};
+var structures = {
+    "if"(search) {
+        // 懒渲染
+        var getter = createGetter(search).bind(this);
+        var element = this;
+        var renders = [function () {
+            var result = getter();
+            if (result) {
+                if (!element.parentNode) appendChild.before(this, element);
+                if (element.renderid < 0) {
+                    element.renderid = 0;
+                    renderElement(element);
+                }
+            } else {
+                remove(element);
+            }
+        }];
+        if (this.parentNode) {
+            initialComment.call(this, renders, "if", search[1]);
+        } else {
+            once("append")(this, initialComment.bind(this, renders, "if", search[1]));
+        }
+    },
+    repeat(search) {
+        createRepeat.call(this, search);
+    },
+    for(search) {
+        createRepeat.call(this, search);
+    },
+    each(search) {
+        createRepeat.call(this, search);
     }
 };
 var directives = {
@@ -219,33 +253,7 @@ var directives = {
             }
         });
     },
-    "if"(search) {
-        // 懒渲染
-        var getter = createGetter(search).bind(this);
-        var element = this;
-        var renders = [function () {
-            var result = getter();
-            if (result) {
-                if (!element.parentNode) appendChild.before(this, element);
-            } else {
-                remove(element);
-            }
-        }];
-        if (this.parentNode) {
-            initialComment.call(this, renders, "if", search[1]);
-        } else {
-            once("append")(this, initialComment.bind(this, renders, "if", search[1]));
-        }
-    },
-    repeat(search) {
-        createRepeat.call(this, search);
-    },
-    for(search) {
-        createRepeat.call(this, search);
-    },
-    each(search) {
-        createRepeat.call(this, search);
-    },
+
     "class"(search) {
         var getter = createGetter(search).bind(this);
         var generatedClassNames = {};
@@ -305,26 +313,23 @@ var directives = {
         });
     }
 };
-function renderElement(element, scope, parentScopes = []) {
-    if (parentScopes !== null && !isArray(parentScopes)) {
-        throw new Error('父级作用域链应以数组的类型传入');
-    }
+
+function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes) {
     var children = element.children;
     if (!children) {
         return [].concat.apply([], element).map(function (element) {
             return renderElement(element, scope, parentScopes);
         });
     }
-    element.$scope = scope;
-    if (parentScopes) {
-        if (element.renderid && !element.$parentScopes || element.$parentScopes && element.$parentScopes.length !== parentScopes.length) {
-            return new Error("父作用域链的长度必须相等着");
-        }
-        element.$parentScopes = parentScopes;
+    if (!isNumber(element.renderid)) {
+        renderStructure(element, scope, parentScopes);
+    }
+    if (element.renderid < 0) {
+        return scope;
     }
     if (children.length) renderElement(children, scope, parentScopes);
     if (element.renderid) return scope;
-    element.renderid = true;
+    element.renderid = -2;
     var attrs = [].concat.apply([], element.attributes);
     var { tagName, parentNode, nextSibling } = element;
     if (parentNode) {
@@ -366,7 +371,6 @@ function renderElement(element, scope, parentScopes = []) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
-
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
             directives[key].call(element, [withContext, value]);
         }
@@ -378,6 +382,32 @@ function renderElement(element, scope, parentScopes = []) {
         if (element.isMounted) addRenderElement.call(element);
     }
     return scope;
+}
+function renderStructure(element, scope, parentScopes = []) {
+    // 处理结构流
+    if (parentScopes !== null && !isArray(parentScopes)) {
+        throw new Error('父级作用域链应以数组的类型传入');
+    }
+    element.$scope = scope;
+    if (parentScopes) {
+        if (element.renderid && !element.$parentScopes || element.$parentScopes && element.$parentScopes.length !== parentScopes.length) {
+            return new Error("父作用域链的长度必须相等着");
+        }
+        element.$parentScopes = parentScopes;
+    }
+    var attrs = [].concat.apply([], element.attributes);
+    var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
+    attrs.map(function (attr) {
+        var { name, value } = attr;
+        var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
+        if (structures.hasOwnProperty(key) && isFunction(structures[key])) {
+            if (element.renderid) {
+                throw new Error(`请不要在同一元素上使用两次结构属性${attrs.map(a => a.name)}!`);
+            }
+            element.renderid = -1;
+            structures[key].call(element, [withContext, value]);
+        }
+    });
 }
 function render(element, scope, parentScopes) {
     return renderElement(element, scope, parentScopes);
