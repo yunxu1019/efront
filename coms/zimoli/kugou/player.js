@@ -40,7 +40,11 @@ var createControls = function () {
         }
     });
     var player_page = false;
-    onclick(box, function () {
+    onclick(box, function (event) {
+        var { target } = event;
+        if (target === play || target === next || target === prev || target === song) {
+            return;
+        }
         player_page = !player_page;
         if (player_page) {
             addClass(box, "page");
@@ -77,20 +81,23 @@ var createControls = function () {
     };
     bindtouch(box, function (value) {
         if (value) {
+            box.touching = true;
             var { x } = value;
             var audio = box.audio;
             box.process(x / box.offsetWidth * audio.duration, audio.duration);
         }
         return { x: progress.offsetWidth };
     });
-    box.onmovestart = function () {
-        box.pause();
-    };
-    box.onmoveend = function () {
-        var audio = box.audio;
-        audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth
-        box.play();
-    };
+    moveupon(box, {
+        start() {
+        },
+        end() {
+            if (!box.touching) return;
+            var audio = box.audio;
+            audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth
+            box.touching = false;
+        }
+    })
     if (document.body.children.length) {
         appendChild.before(document.body.children[0], box);
     } else {
@@ -108,7 +115,7 @@ var createControls = function () {
 var player = function (box = div()) {
     box.playing = false;
     var updater = function () {
-        if (box.process instanceof Function) {
+        if (box.process instanceof Function && !box.touching) {
             if (box.process(box.audio.currentTime, box.audio.duration) == false) {
                 return;
             };
@@ -118,8 +125,8 @@ var player = function (box = div()) {
         this.playCss && this.playCss();
         if (hash === this.hash) {
             if (this.playing) return;
-            this.audio.play();
             this.playing = true;
+            this.audio && this.audio.play instanceof Function && this.audio.play();
             return;
         }
         box.pause();
@@ -148,8 +155,8 @@ var player = function (box = div()) {
         this.audio = audio;
     };
     box.pause = function () {
-        this.audio && this.audio.pause && this.audio.pause();
         this.playing = false;
+        this.audio && this.audio.pause instanceof Function && this.audio.pause();
         this.pauseCss && this.pauseCss();
     };
     return box;
