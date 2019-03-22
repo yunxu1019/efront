@@ -3,8 +3,8 @@ var esprima = require("../../process/esprima");
 var esmangle = require("../../process/esmangle/esmangle");
 var scanner = require("../../process/compile/scanner");
 function toComponent(responseTree) {
-    var array_map = responseTree["[].map"];
-    delete responseTree["[].map"];
+    var array_map = responseTree["[]map"];
+    delete responseTree["[]map"];
     var resultMap = {}, result = [];
     for (var k in responseTree) {
         var dependence = responseTree[k].dependence;
@@ -17,13 +17,17 @@ function toComponent(responseTree) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, ...module_body] = result[cx];
             var ok = true;
-            module_body.forEach(function (k) {
+            module_body.slice(0, module_body.length >> 1).forEach(function (k) {
                 if (!resultMap[k] && responseTree[k]) ok = false;
-                if (!responseTree[k] && !resultMap[k]) resultMap[k] = dest.length + 1, dest.push(k);
+                if (!responseTree[k].data && !resultMap[k]) resultMap[k] = dest.length + 1, dest.push(k);
             });
+            if (!responseTree[k].data) {
+                result.splice(cx, 1);
+                continue;
+            }
             if (ok) {
                 var this_module_params = {};
-                var setMatchedConstString = function (match, type, k) {
+                var setMatchedConstString = function (match, type, k, isProp) {
 
                     if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
                     if (k.length < 3) return match;
@@ -39,6 +43,7 @@ function toComponent(responseTree) {
                     }
                     var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
                     var $key = $$_efront_map_string_key + key;
+
                     if (!resultMap[$key]) {
                         dest.push(k);
                         resultMap[$key] = dest.length;
@@ -48,7 +53,7 @@ function toComponent(responseTree) {
                         module_body.splice(module_body.length >> 1, 0, $key);
                         module_body.splice(module_body.length - 1, 0, $key);
                     }
-                    return type === "." ? `[${$key}]` : " " + $key + " ";
+                    return (isProp || type === ".") ? `[${$key}]` : " " + $key + " ";
                 };
                 var setMatchedConstRegExp = function (match, type, k) {
                     var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_")
@@ -68,11 +73,14 @@ function toComponent(responseTree) {
                 var code_blocks = scanner(module_string);
                 module_string = code_blocks.map(function (block) {
                     var block_string = module_string.slice(block.start, block.end);
+                    var reg = /\s*[\:\(]/iy;
+                    reg.lastIndex = block.end;
+                    var isProp = reg.test(module_string);
                     if (block.type === block.single_quote_scanner) {
-                        return setMatchedConstString(block_string, "'", block_string);
+                        return setMatchedConstString(block_string, "'", block_string, isProp);
                     }
                     if (block.type === block.double_quote_scanner) {
-                        return setMatchedConstString(block_string, "\"", block_string);
+                        return setMatchedConstString(block_string, "\"", block_string, isProp);
                     }
                     if (block.type === block.regexp_quote_scanner) {
                         return setMatchedConstRegExp(block_string, "", block_string);

@@ -65,7 +65,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         is_commponent_package = true;
         var toComponent = require("./toComponent");
-        return loadData([path.join(COMS_PATH, "/zimoli/[].map.js"), public_app], 0, public_path)
+        return loadData([path.join(COMS_PATH, "/zimoli/[]map.js"), public_app], 0, public_path)
             .then(toComponent)
             .then(function (response) {
                 return write(response, PUBLIC_PATH);
@@ -87,7 +87,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 path.join(PAGE_PATH, "favicon.ico"),
                 path.join(COMS_PATH, "/zimoli/main.js"),
                 path.join(COMS_PATH, "/zimoli/zimoli.js"),
-                path.join(COMS_PATH, "/zimoli/[].map.js"),
+                path.join(COMS_PATH, "/zimoli/[]map.js"),
                 path.join(COMS_PATH, "/zimoli/promise.js"),
             ].concat(environment.ccons_root), lastBuildTime, public_path)
                 .then(toApplication)

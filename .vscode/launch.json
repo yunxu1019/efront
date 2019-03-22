@@ -7,6 +7,18 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Slider",
+            "env": {
+                "app": "slider.js"
+            },
+            "args": [
+                "build"
+            ],
+            "program": "${workspaceFolder}\\main.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Reptile",
             "env": {
                 "app": "reptile"
