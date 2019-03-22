@@ -1,7 +1,7 @@
 // 中文编码 utf8
-var _slider = createElement(div);
+var _slider = document.createElement("div");
 addClass(_slider, "slider-item");
-var container = createElement(div);
+var container = document.createElement("div");
 var floor = Math.floor;
 var ceil = Math.ceil;
 var round = Math.round;
@@ -11,7 +11,7 @@ var abs = Math.abs;
  * @param {Boolean|Array|Function} autoplay 
  */
 function slider(autoplay, circle = true) {
-    var outter = createElement(container);
+    var outter = container.cloneNode();
     {
         for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
             let arg = arguments[cx];
@@ -24,10 +24,10 @@ function slider(autoplay, circle = true) {
             }
         }
     }
-    var _imageMain = createElement(_slider);
-    var _imageHelp = createElement(_slider);
+    var _imageMain = _slider.cloneNode();
+    var _imageHelp = _slider.cloneNode();
     outter.src = function (index) {
-        var block = createElement(_slider);
+        var block = _slider.cloneNode();
         text(block, index);
         return block;
     };
