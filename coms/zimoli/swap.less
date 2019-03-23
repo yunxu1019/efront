@@ -10,6 +10,7 @@
     vertical-align: middle;
     margin-right: -46px;
 }
+
 &[ie]+label,
 &:not([ie]) {
     display: inline-block;
@@ -50,8 +51,11 @@
         top: 50%;
         margin-top: -11px;
         background-color: #fff;
-        transition: margin-left .1s ease-out;
+        transition: margin-left .2s ease-out, width .2s ease-out;
         position: absolute;
+    }
+    &:active:after {
+        width: 32px;
     }
 }
 
@@ -65,5 +69,8 @@
     }
     &:after {
         margin-left: 0;
+    }
+    &:active:after {
+        margin-left: -10px;
     }
 }
