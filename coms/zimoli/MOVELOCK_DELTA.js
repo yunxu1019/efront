@@ -1,1 +1,1 @@
-3 * renderPixelRatio;
+3
