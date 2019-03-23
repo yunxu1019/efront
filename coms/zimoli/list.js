@@ -6,6 +6,7 @@ function ylist(container, generator, $Y) {
     var list = container || div();
     list.autoFix = true;
     var saved_itemIndex;
+    addClass(list, 'list-' + $Y.toLowerCase());
     onappend(list, function () {
         if (saved_itemIndex !== void 0) scrollTo(saved_itemIndex);
     });
