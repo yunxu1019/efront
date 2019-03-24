@@ -267,8 +267,9 @@ var render = function (value, models = "年月日", message = "") {
     return container;
 };
 
-function main(value, title) {
+function main(value, title, models = "年月日") {
     value = parseDate(value);
-    var datebox = render(value, "年月日", title);
+    var datebox = render(value, models, title);
+    addClass(datebox, 'date-' + models.length);
     return datebox;
 }
