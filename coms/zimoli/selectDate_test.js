@@ -1,8 +1,7 @@
 var page = div();
 page.innerHTML = selectDate_test;
 render(page, {
-    select(element) {
-        console.log(selectDate);
+    input(element) {
         select(element, selectDate());
         return element;
     }

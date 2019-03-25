@@ -21,14 +21,14 @@ function select(target, list) {
         if (!target.multiple) {
             onclick(list, _remove);
         }
-        on("change")(list, function (event) {
-            if (target.multiple) {
-            } else {
-                target.value = this.value;
-                dispatch(target, "change");
-            }
-        });
     }
+    on("change")(list, function (event) {
+        if (target.multiple) {
+        } else {
+            target.value = this.value;
+            dispatch(target, "change");
+        }
+    });
     onmousedown(list, preventDefault);
     css(list, {
         zIndex: zIndex()

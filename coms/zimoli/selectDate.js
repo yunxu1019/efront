@@ -30,7 +30,7 @@ var genLength = function (number, length) {
 var bindValue = function () {
     var date = {};
     var defineProperty = function (key, get, set) {
-        date[key] = function (arg) {
+        var m = date[key] = function (arg) {
             if (arguments.length > 0) {
                 return set.call(this, arg);
             }
@@ -72,6 +72,7 @@ var bindValue = function () {
                 return this['set' + _model[c]](trim.call(this, v - i));
             }
         );
+        date[m].format = _format[c] || "";
     });
     return function bindValue(_date) {
         for (var k in date) _date[k] = date[k];
@@ -226,7 +227,7 @@ var render = function (value, models = "年月日", message = "") {
     onclick(container, function (event) {
         var target = event.target;
         if (!target.className) return;
-        event.preventDefault();
+        var preventDefault = true;
         var {
             className,
             tagName,
@@ -255,7 +256,12 @@ var render = function (value, models = "年月日", message = "") {
             case "iing":
                 value[_ing](target.getAttribute("value"));
                 _index++;
-                if (_index >= models.length) _index--;
+                if (_index >= models.length) {
+                    _index--;
+                    preventDefault = false;
+                    container.value = map.call(models, (model, index) => `${value[model]()}${index + 1 < models.length ? value[model].format : ''}`).join("");
+                    dispatch("change", container);
+                }
                 break;
             case "val":
                 var val = target.innerText.trim().split(/\s+/);
@@ -263,6 +269,9 @@ var render = function (value, models = "年月日", message = "") {
                 break;
         }
         build(_index);
+        if (preventDefault) {
+            event.preventDefault();
+        }
     });
     return container;
 };
@@ -270,6 +279,7 @@ var render = function (value, models = "年月日", message = "") {
 function main(value, title, models = "年月日") {
     value = parseDate(value);
     var datebox = render(value, models, title);
+    datebox.value = value;
     addClass(datebox, 'date-' + models.length);
     return datebox;
 }
