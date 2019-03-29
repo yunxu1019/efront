@@ -303,7 +303,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
 }
 var global = {};
 var history = {};
-var current_history = "";
+var current_history = "zimoli";
 history[current_history] = [];
 var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
@@ -469,7 +469,7 @@ function addGlobal(element, name = null, isDestroy) {
     }
 }
 var _switch = zimoli.switch = function (history_name, target_body, emptyState) {
-    if (history_name)
+    if (isString(history_name))
         current_history = history_name;
     if (target_body)
         body = target_body;
