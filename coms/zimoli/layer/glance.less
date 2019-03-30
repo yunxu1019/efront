@@ -1,0 +1,48 @@
+& {
+    line-height: 1.6;
+    width: 1440px;
+    height: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+    padding-left: @left-width;
+    box-sizing: border-box;
+    >div {
+        box-sizing: border-box;
+        display: block;
+        position: relative;
+        height: 100%;
+    }
+}
+
+@left-width: 320px;
+&>[layer=left] {
+    background-color: #222d32;
+    color: white;
+    width: @left-width;
+    margin-left: -@left-width;
+    height: 100%;
+    float: left;
+    overflow: hidden;
+}
+
+&>[layer=main] {
+    width: 100%;
+    right: 0;
+    height: 100%;
+}
+
+>[layer=top] {
+    height: 60px;
+    width: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+@media all and (max-width:720px) {
+    & {
+        border-radius: 0;
+        padding-left: 0;
+    }
+}
