@@ -208,7 +208,7 @@ function ylist(container, generator, $Y) {
     list.Height = function () {
         var firstElement = getFirstElement();
         if (!firstElement) return restHeight;
-        return firstElement.index * firstElement.offsetHeight + list.offsetHeight + list.scrollTop + restHeight;
+        return firstElement.index * firstElement.offsetHeight + list.clientHeight + list.scrollTop + restHeight;
     };
     list.Top = function (y) {
         if (isFinite(y)) {
