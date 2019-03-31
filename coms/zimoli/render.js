@@ -324,6 +324,11 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (!isNumber(element.renderid)) {
         renderStructure(element, scope, parentScopes);
     }
+    var elementid = element.getAttribute("renderid") || element.getAttribute("elementid") || element.getAttribute("id");
+    if (elementid && scope[elementid]) {
+        throw new Error("同一个id不能使用两次:" + elementid);
+    }
+    if (elementid) scope[elementid] = element;
     if (element.renderid < 0) {
         return scope;
     }
@@ -381,6 +386,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         onremove(element, removeRenderElement);
         if (element.isMounted) addRenderElement.call(element);
     }
+    if (elementid) scope[elementid] = element;
     return scope;
 }
 function renderStructure(element, scope, parentScopes = []) {
