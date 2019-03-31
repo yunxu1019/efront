@@ -143,7 +143,9 @@ var forceRequest = {};
 var circleTree = {};
 var hasOwnProperty = {}.hasOwnProperty;
 modules.MOVELOCK_DELTA = 3 * renderPixelRatio;
-
+modules.debug = function () {
+    document.addEventListener("blur", e => e.stopPropagation());
+};
 var XHR = function () {
     return new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
 };
