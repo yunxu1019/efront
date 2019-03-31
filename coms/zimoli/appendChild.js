@@ -94,3 +94,18 @@ function insertAfter(alreadyMounted, obj, transition) {
 
 appendChild.before = insertBefore;
 appendChild.after = insertAfter;
+/**
+ * 相当于 insertBefore
+ */
+appendChild.insert = function (parent, element, relative = parent.childNodes[0] || null) {
+    if (!relative) {
+        appendChild(parent, element);
+    } else {
+        insertBefore(relative, element);
+    }
+};
+appendChild.replace = function (alreadyMounted, element) {
+    if (!alreadyMounted || !alreadyMounted.parentNode) return;
+    insertBefore(alreadyMounted, element);
+    remove(alreadyMounted);
+};
