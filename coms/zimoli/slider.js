@@ -263,12 +263,12 @@ function slider(autoplay, circle = true) {
         return outter;
     };
     outter.next = function (count = 1) {
-        current_index -= .1;
+        current_index += .1;
         switchBy(count);
         return outter;
     };
     outter.prev = function (count = 1) {
-        current_index += .1;
+        current_index -= .1;
         switchBy(-count);
         return outter;
     };
