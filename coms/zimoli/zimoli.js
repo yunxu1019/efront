@@ -488,6 +488,7 @@ rootElements.push = function () {
 appendChild.transition = transition;
 remove.transition = transition;
 window.modules = modules;
+zimoli.prepare = prepare;
 zimoli.setStorage = function (storage) {
     hostoryStorage = storage;
     try {
