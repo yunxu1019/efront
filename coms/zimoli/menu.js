@@ -38,6 +38,9 @@ function inlineMenu(nodes) {
     menu.go(0);
     return menu;
 }
+function verticalMenu(nodes) {
+
+}
 var getNodes = function (elem) {
     var nodes = [];
     var deep = 0;
@@ -61,19 +64,26 @@ var getNodes = function (elem) {
     [].forEach.call(elem.children, run);
     return nodes;
 };
+
 function main(elem) {
     if (isElement(elem)) {
         var nodes = getNodes(elem);
         var mode = elem.getAttribute('mode');
         var elem;
-        switch (mode) {
+        switch (mode && mode.toLowerCase()) {
+            case "i":
+            case "c":
             case "inline":
                 elem = inlineMenu(nodes);
                 break;
+            case "x":
+            case "y":
             case "vertical":
                 elem = inlineMenu(nodes);
                 break;
-            case "herional":
+            case "h":
+            case "x":
+            case "horizontal":
                 elem = menu(nodes);
                 break;
             default:

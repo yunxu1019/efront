@@ -4,6 +4,5 @@ render(page, {
     menu
 });
 function main() {
-    console.log(page);
     return page;
 }
