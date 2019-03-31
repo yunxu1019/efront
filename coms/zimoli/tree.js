@@ -10,6 +10,7 @@ function Item(value) {
         this.name = value.name;
         this.tab = value.tab;
         this.test = value.test;
+        this.closed = value.closed;
     }
     this.count = 0;
 }
@@ -41,7 +42,7 @@ function getTreeFromArray(array) {
     }
     return root;
 }
-function getArrayFromTree(root, skipClosed) {
+function getArrayFromTree(root, skipClosed = true) {
     var path = [root], pathcx = [0];
     var result = [];
     loop: while (pathcx.length) {
