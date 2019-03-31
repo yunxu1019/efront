@@ -8,6 +8,10 @@ var columns = `首页
 插画配图
 `.replace(/^\s+|\s+$/g, "").split(/\s+/);
 var menu_buttons = columns.map(a => button(a));
+var menus = {
+    '首页':{
+    }
+}
 function main() {
     return menu(menu_buttons);
 }

@@ -30,3 +30,57 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
     appendChild(menu_box, menu_items, menu_extra);
     return menu_box;
 }
+
+
+function inlineMenu(nodes) {
+    var menu = tree();
+    menu.src(nodes);
+    menu.go(0);
+    return menu;
+}
+var getNodes = function (elem) {
+    var nodes = [];
+    var deep = 0;
+    var run = function (node) {
+        var nodeName = node.children.length > 1 ? node.children[0].innerHTML : node.innerHTML;
+        deep++;
+        if (nodeName) {
+            nodes.push({
+                name: nodeName,
+                tab: deep,
+                closed: true
+            });
+        }
+        if (node.children.length > 1) {
+
+            [].forEach.call(node.children[1].children, run);
+        }
+        deep--;
+    };
+    [].forEach.call(elem.children, run);
+    return nodes;
+};
+function main(elem) {
+    if (isElement(elem)) {
+        var nodes = getNodes(elem);
+        var mode = elem.getAttribute('mode');
+        var elem;
+        switch (mode) {
+            case "inline":
+                elem = inlineMenu(nodes);
+                break;
+            case "vertical":
+                elem = inlineMenu(nodes);
+                break;
+            case "herional":
+                elem = menu(nodes);
+                break;
+            default:
+                elem = menu(nodes);
+        }
+        return elem;
+    } else {
+        return menu.apply(null, arguments);
+    }
+
+}
