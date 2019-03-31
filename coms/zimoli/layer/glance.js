@@ -8,11 +8,48 @@ function main(mainPath, historyName = "glance") {
     if (mainPath instanceof Object) {
         var { left: leftPath, top: topPath, main: mainPath } = mainPath;
     }
+    var [leftLayer, topLayer, mainLayer] = layer.children;
     once("append")(layer, function () {
-        leftPath && zimoli.go(leftPath, null, layer.children[0]);
-        topPath && zimoli.go(topPath, null, layer.children[1]);
-        zimoli.switch(historyName, layer.children[2], mainPath);
+        zimoli.switch(historyName, layer, mainPath);
         zimoli();
+        if (leftPath) {
+            zimoli.prepare(leftPath, function () {
+                var page = zimoli.go(leftPath, null, leftLayer);
+                page.setAttribute('layer', 'left');
+                appendChild.replace(leftLayer, page);
+                leftLayer = page;
+            });
+        }
+        if (topPath) {
+            zimoli.prepare(topPath, function (page) {
+                var page = zimoli.go(topPath, null, topLayer);
+                page.setAttribute('layer', 'top');
+                appendChild.replace(topLayer, page);
+                topLayer = page;
+            });
+        }
     });
+    var closed = false;
+    var bindClass = function () {
+        if (closed) {
+            addClass(layer, 'close');
+            removeClass(layer, 'open');
+        } else {
+            addClass(layer, 'open');
+            removeClass(layer, 'close');
+        }
+    }
+    layer.closeLeft = function () {
+        closed = true;
+        bindClass();
+    };
+    layer.openLeft = function () {
+        closed = false;
+        bindClass();
+    };
+    layer.switchLeft = function () {
+        closed = !closed;
+        bindClass();
+    };
     return layer;
 }
