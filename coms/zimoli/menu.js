@@ -48,6 +48,7 @@ var getNodes = function (elem) {
             nodes.push({
                 name: nodeName,
                 tab: deep,
+                class: node.className,
                 closed: true
             });
         }

@@ -11,6 +11,7 @@ function Item(value) {
         this.tab = value.tab;
         this.test = value.test;
         this.closed = value.closed;
+        this.class = value.class;
     }
     this.count = 0;
 }
@@ -112,6 +113,9 @@ function tree(constructor) {
         }
         if (com.actived || com.is_actived) {
             addClass(_div, "actived");
+        }
+        if (com.class) {
+            addClass(_div, com.class);
         }
         com.target = _div;
         onclick(_div, function () {

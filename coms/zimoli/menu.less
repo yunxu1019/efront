@@ -30,6 +30,7 @@
     color: #fff;
     background: transparent;
     border-right: 1px solid #18333c;
+
     &::after {
         content: "";
         position: absolute;
@@ -47,6 +48,7 @@
 }
 
 body:active & {
+
     // 仅在拖动过程中使用动画
     >.lattice {
         >div>div {
@@ -63,9 +65,11 @@ body:active & {
     top: 0;
     bottom: 0;
     width: auto;
+
     &.complete {
         right: 0;
     }
+
     &.lack {
         >div {
             opacity: 0;
@@ -83,4 +87,49 @@ body:active & {
 
 &[mode=inline] {
     height: auto;
+    box-shadow: none;
+
+    .tab1 {
+        &.open {
+            color: #fff;
+            background: #1e282c;
+            border-left-color: #3c8dbc;
+        }
+
+        border-left: 3px solid transparent;
+        display: block;
+        height: 44px;
+        line-height: 44px;
+        font-size: 14px;
+        color: #b8c7ce;
+    }
+
+    .button {
+        box-shadow: none;
+
+        >b {
+            font-weight: normal;
+        }
+
+        &:not(.tab1) {
+            display: block;
+            height: 30px;
+            line-height: 30px;
+            font-size: 14px;
+            background: #2c3b41;
+            color: #8aa4af;
+        }
+
+        i {
+            margin-right: 10px;
+        }
+
+
+        &.hover {
+            text-shadow: none;
+            color: #fff;
+        }
+
+    }
+
 }
