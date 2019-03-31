@@ -96,7 +96,7 @@ function tree(constructor) {
             span = constructor(com);
         } else {
             span = div();
-            html(span, `${"<t></t>".repeat(com.tab)}<b>${com.name}</b>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
+            html(span, `${"<t></t>".repeat(com.tab)}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
         }
         var _div = button(span);
         addClass(_div, "tab" + com.tab);
