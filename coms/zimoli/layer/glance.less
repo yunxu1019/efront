@@ -9,7 +9,8 @@
     overflow: hidden;
     padding-left: @left-width;
     box-sizing: border-box;
-    transition: padding-left 0.2s ease-out;
+    overflow: visible;
+    transition: padding-left 0.2s ease-out, margin-left .2s ease-out;
 }
 
 @left-width: 320px;
@@ -21,7 +22,6 @@
     margin-left: -@left-width;
     height: 100%;
     float: left;
-    overflow: hidden;
 }
 
 
@@ -36,9 +36,16 @@
     padding-left: 0 !important;
 }
 
+@media all and(min-width:961px) {
+    &.open {
+        margin-left: 0 !important;
+    }
+}
+
 @media all and (max-width:960px) {
-    &:not(.open) {
+    & {
         border-radius: 0;
         padding-left: 0 !important;
+        margin-left: 0;
     }
 }
