@@ -98,6 +98,11 @@ var initPixelDecoder = function () {
          * 从px到pt
          */
         modules.fromPixel = pixelDecoder = d => d * renderPixelRatio + "pt";
+
+        /**
+         * 从offset到pt
+         */
+        modules.fromOffset = pixelDecoder;
         /**
          * 从offset到px
          */
@@ -113,9 +118,13 @@ var initPixelDecoder = function () {
          */
         modules.fromPixel = pixelDecoder = d => d / 16 + "rem";
         /**
+         * 从offset到rem
+         */
+        modules.fromOffset = d => freePixel(d) / 16 + "rem";
+        /**
          * 从offset到px
          */
-        modules.freePixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * .75 / renderPixelRatio : d * .75 / (window.innerWidth / maxRenderWidth * renderPixelRatio);
+        var freePixel = modules.freePixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * .75 / renderPixelRatio : d * .75 / (window.innerWidth / maxRenderWidth * renderPixelRatio);
         /**
          * 从pixel到offset
          */
