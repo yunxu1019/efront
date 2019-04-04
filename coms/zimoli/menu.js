@@ -34,6 +34,11 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
 
 function inlineMenu(nodes) {
     var menu = tree();
+    onactive(menu, function (e) {
+        if (e.path) {
+            e.value.href && zimoli.go(e.value.href);
+        }
+    });
     menu.src(nodes);
     menu.go(0);
     return menu;
@@ -51,12 +56,12 @@ var getNodes = function (elem) {
             nodes.push({
                 name: nodeName,
                 tab: deep,
+                href: node.getAttribute("path"),
                 class: node.className,
                 closed: true
             });
         }
         if (node.children.length > 1) {
-
             [].forEach.call(node.children[1].children, run);
         }
         deep--;
