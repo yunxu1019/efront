@@ -7,10 +7,32 @@ var dragview = function (dragview) {
             savedX = event.clientX;
             savedY = event.clientY;
             offsetWidth = menu.offsetWidth;
+            var { target } = event;
             moving = null;
+            if (/(input|textarea)/i.test(target.tagName)) {
+                moving = false;
+            } else {
+                var { childNodes } = target;
+                for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
+                    var child = childNodes[cx];
+                    if (child.nodeType === 3) {
+                        moving = false;
+                        break;
+                    }
+                }
+                if (moving !== false) do {
+                    var contentEditbale = target.getAttribute("contenteditable") !== null;
+                    if (contentEditbale) {
+                        moving = false;
+                        break;
+                    }
+                    target = target.parentNode;
+                } while (target.nodeType == 1);
+            }
             page.style.transition = 'none';
         },
         move(event) {
+            if (moving === false) return;
             if (event.moveLocked) return;
             var deltaX = savedX - event.clientX;
             var deltaY = savedY - event.clientY;
