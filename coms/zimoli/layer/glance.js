@@ -1,46 +1,49 @@
-var dragview = function (event) {
-    var { page, pages, menu } = dragview;
-    if (isTargetOf(pages, event.target) && pages.index !== 0 && !page.offsetLeft) return;
-    var savedX = event.clientX;
-    var savedY = event.clientY;
-    var moving = null;
-    moveupon(event.target, {
+var dragview = function (dragview) {
+    var savedX, savedY, moving, offsetWidth;
+    var { page, menu } = dragview;
+
+    moveupon(page, {
+        start(event) {
+            savedX = event.clientX;
+            savedY = event.clientY;
+            offsetWidth = menu.offsetWidth;
+            moving = null;
+            page.style.transition = 'none';
+        },
         move(event) {
             if (event.moveLocked) return;
             var deltaX = savedX - event.clientX;
             var deltaY = savedY - event.clientY;
-
             if (!moving) {
                 if (Math.abs(deltaX) < MOVELOCK_DELTA && Math.abs(deltaY) < MOVELOCK_DELTA) return;
-                if (deltaX > 0 && !parseInt(page.style.left) || Math.abs(deltaY) >= Math.abs(deltaX)) {
+                if (Math.abs(deltaY) >= Math.abs(deltaX)) {
                     moving = -1;
                 } else {
                     moving = {
-                        restX: page.offsetLeft - savedX
+                        restX: (parseInt(page.style.left) || 0) - savedX
                     };
                 }
             }
             if (moving === -1) return;
             event.moveLocked = true;
-            page.style.marginLeft = 0;
             moving.deltaX = deltaX;
             var left = event.clientX + moving.restX;
             page.style.left = left + "px";
-            var scale = ((page.offsetWidth - left / 2.6) / page.offsetWidth);
-            page.style.transform = "scale(" + scale + ")";
-            menu.style.transform = "scale(" + (1.72 - scale) + ")";
         },
         end() {
+            page.style.transition = '';
             if (moving && moving !== -1) {
                 var left = parseInt(page.style.left);
-                if (moving.deltaX < 0 && left > page.offsetWidth * 0.3 || moving.deltaX > 0 && left > page.offsetWidth * 0.7 || !moving.deltaX && left > page.offsetWidth >> 1) {
+                if (moving.deltaX < 0 && left > offsetWidth * 0.3 || moving.deltaX > 0 && left > offsetWidth * 0.7 || !moving.deltaX && left > offsetWidth >> 1) {
+                    page.style.left = 0;
                     dragview.toRight();
                 } else {
                     dragview.toLeft();
+                    page.style.left = 0;
                 }
             }
         }
-    }, event);
+    });
 }
 
 
@@ -64,6 +67,7 @@ function main(mainPath, historyName = "glance") {
                 page.setAttribute('layer', 'left');
                 appendChild.replace(leftLayer, page);
                 leftLayer = page;
+                dragview({ page: layer, toLeft: layer.closeLeft, toRight: layer.openLeft, menu: leftLayer });
             });
         }
         if (topPath) {
@@ -82,7 +86,6 @@ function main(mainPath, historyName = "glance") {
         return delta <= 0;
     };
     var bindClass = function () {
-        if (isClosed() === closed) return;
         if (closed) {
             var collapse = parseInt(getComputedStyle(layer).paddingLeft) === 0;
             addClass(layer, 'close');
@@ -100,7 +103,7 @@ function main(mainPath, historyName = "glance") {
                 if (!collapse) {
                     css(layer, 'margin-left:0');
                 }
-            },20);
+            }, 20);
         }
     };
     layer.closeLeft = function () {
@@ -111,7 +114,6 @@ function main(mainPath, historyName = "glance") {
         closed = false;
         bindClass();
     };
-    onmousedown(layer, e => dragview(e, { menu: leftLayer, page: layer }))
     layer.switchLeft = function () {
         closed = !isClosed();
         bindClass();
