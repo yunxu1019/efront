@@ -3,6 +3,8 @@
 .vscode
 *.tgz
 public*
+apps/cityfun*
+coms/cityfun*
 coms/kugou*
 coms/ppt*
 coms/sciter*
