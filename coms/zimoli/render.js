@@ -2,7 +2,7 @@
 
 var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = {};
-var renderidOffset = 0;
+var renderidOffset = 10;
 var renderidClosed = 0;
 var addRenderElement = function () {
     var element = this;
@@ -334,7 +334,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     if (children.length) renderElement(children, scope, parentScopes);
     if (element.renderid) return scope;
-    element.renderid = -2;
+    element.renderid = 1;
     var attrs = [].concat.apply([], element.attributes);
     var { tagName, parentNode, nextSibling } = element;
     if (parentNode) {
