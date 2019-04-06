@@ -13,7 +13,7 @@ var enrich = function enrich(obj) {
                     "use strict";
                     var args = arguments;
                     return this.then(function () {
-                        return method.apply(_promise, args);
+                        return method.apply(_object, args);
                     });
                 };
                 _object[k] = function () {
