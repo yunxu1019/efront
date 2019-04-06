@@ -2,7 +2,7 @@ function password() {
     var element = div();
     var saved_value = element.value = "";
     var savedKeyCodes = [];
-    element.innerHTML = "<input/><insert></insert><holder></holder>";
+    element.innerHTML = "<input type=password /><insert></insert><holder></holder>";
     var [_input, insert, holder] = element.children;
     var text = document.createTextNode("");
     element.insertBefore(text, _input);
@@ -41,7 +41,6 @@ function password() {
                 build();
                 break;
             case 13: // enter
-                event.preventDefault();
                 break;
             case 20: // capslock
                 break;
@@ -54,7 +53,7 @@ function password() {
         build();
     };
     element.onkeypress = function (event) {
-        if (event.keyCode !== 8) {
+        if (event.keyCode !== 8 && event.keyCode !== 13) {
             savedKeyCodes.push(event.keyCode);
         }
         build();
