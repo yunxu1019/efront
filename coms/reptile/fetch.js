@@ -1,8 +1,22 @@
 var https = require("https");
 var http = require("http");
-function fetch(href) {
+var url = require("url");
+function fetch() {
+    var method = 'get', href = '', headers;
+    [].forEach.call(arguments, function (arg) {
+        if (arg instanceof Object) {
+            headers = arg;
+        } else if (/:/.test(arg)) {
+            href = arg;
+        } else if (/^\w+$/.test(arg)) {
+            method = arg;
+        }
+    });
     return new Promise(function (ok, oh) {
-        (/^https/i.test(href) ? https : http).get(href, function (res) {
+        var req = (/^https/i.test(href) ? https : http).request(Object.assign({
+            method,
+            headers,
+        }, url.parse(href)), function (res) {
             var result = [];
             res.on("data", function (buff) {
                 result.push(buff);
@@ -12,6 +26,10 @@ function fetch(href) {
                 ok(data);
             });
             res.once("error", oh);
-        }).end();
+        });
+        for (var k in headers) {
+            req.setHeader(k, headers[k]);
+        }
+        req.end();
     });
 }
