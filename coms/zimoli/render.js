@@ -31,9 +31,12 @@ function refresh() {
 function rebuild(element) {
     element.renders.forEach(a => a.call(element));
 }
-var createGetter = function (search) {
+var createGetter = function (search, usetry = true) {
     var [withContext, searchContext] = search;
-    return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
+    if (usetry) {
+        return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
+    }
+    return new Function(`${withContext}with(this.$scope)return ${searchContext}`);
 };
 var initialComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
@@ -311,11 +314,11 @@ var directives = {
 };
 var emiters = {
     on(key, search) {
-        var getter = createGetter(search);
+        var getter = createGetter(search, false);
         on(key)(this, getter);
     },
     once(key, search) {
-        var getter = createGetter(search);
+        var getter = createGetter(search, false);
         once(key)(this, getter);
     }
 };
