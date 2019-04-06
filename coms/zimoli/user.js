@@ -11,14 +11,17 @@ var proto = {
     targetUrl: null,
     loginPath: null,
     session_time: 300000,
+    session: "",
     setStateFunction(stateFunc) {
         if (!isFunction(stateFunc)) throw new Error("只能传入函数类型的参数");
         state = stateFunc;
+        this.loadSession().saveSession();
     },
     loadSession() {
         var object = state() || {};
         if (object.session && !(new Date() > object.session_time)) {
             proto.session_time = object.session_time;
+            proto.session = object.session;
             this.Login(object);
         }
         return object.session || "";
@@ -26,7 +29,7 @@ var proto = {
     setSessionTime(session_time) {
         proto.session_time = session_time;
     },
-    saveSession(session) {
+    saveSession(session = this.session) {
         state({
             roles: proto.roles,
             name: proto.name,
@@ -34,6 +37,7 @@ var proto = {
             session: session,
             session_time: +new Date() + proto.session_time
         });
+        this.session = session;
     },
     getName() {
     },
