@@ -20,11 +20,13 @@ function password() {
         element.scrollLeft = insert.offsetLeft + 2;
     };
     element.onfocus = function () {
+        addClass(element, 'focus');
         saved_value = element.value;
         build();
         _input.focus();
     };
     _input.onblur = function () {
+        removeClass(element, 'focus');
         if (saved_value !== element.value) {
             dispatch(this, "change");
         }
