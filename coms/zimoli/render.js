@@ -142,10 +142,6 @@ var structures = {
     }
 };
 var directives = {
-    click(search) {
-        var getter = createGetter(search);
-        onclick(this, getter);
-    },
     src(search) {
         var getter = createGetter(search).bind(this);
         var oldValue, pending;
@@ -313,6 +309,17 @@ var directives = {
         });
     }
 };
+var emiters = {
+    on(key, search) {
+        var getter = createGetter(search);
+        on(key)(this, getter);
+    },
+    once(key, search) {
+        var getter = createGetter(search);
+        once(key)(this, getter);
+    }
+};
+emiters.v = emiters.ng = emiters.on;
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes) {
     var children = element.children;
@@ -372,12 +379,16 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     element.renders = [];
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
+    var emiter_reg = /^(v|ng|on|once)\-/i
     attrs.map(function (attr) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
             directives[key].call(element, [withContext, value]);
+        } else if (emiter_reg.test(name)) {
+            var ngon = emiter_reg.exec(name)[1].toLowerCase();
+            emiters[ngon].call(element, key, [withContext, value]);
         }
     });
     if (element.renders.length) {
