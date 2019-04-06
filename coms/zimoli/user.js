@@ -1,4 +1,5 @@
-var state = function () { };
+var USERINFO = 'userinfo';
+var userInstance = data.getInstauce(USERINFO);
 var emptyProto = {
     name: "",
     _id: "",
@@ -14,11 +15,9 @@ var proto = {
     session: "",
     setStateFunction(stateFunc) {
         if (!isFunction(stateFunc)) throw new Error("只能传入函数类型的参数");
-        state = stateFunc;
-        this.loadSession().saveSession();
     },
     loadSession() {
-        var object = state() || {};
+        var object = userInstance;
         if (object.session && !(new Date() > object.session_time)) {
             proto.session_time = object.session_time;
             proto.session = object.session;
@@ -30,16 +29,15 @@ var proto = {
         proto.session_time = session_time;
     },
     saveSession(session = this.session) {
-        state({
+        this.session = session;
+        data.setInstance(USERINFO, {
             roles: proto.roles,
             name: proto.name,
             _id: proto._id,
             session: session,
+            isLogin: !!session,
             session_time: +new Date() + proto.session_time
         });
-        this.session = session;
-    },
-    getName() {
     },
     Login(userinfo) {
         proto.roles = userinfo.roles || [];
@@ -66,5 +64,5 @@ var proto = {
         proto.loginPath = pathname;
     }
 };
-extend(proto, emptyProto);
+extend(proto, emptyProto, userInstance);
 var user = enrich(proto);
