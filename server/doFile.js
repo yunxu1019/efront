@@ -2,12 +2,13 @@ var fs = require("fs");
 var path = require("path");
 var proxy = require("./proxy");
 var checkAccess = require("./checkAccess");
-var root = "./apps/zimoli";
+var encode62 = require("../process/crypt/encode62");
+var root = process.env.PUBLIC_PATH;
 var cacheRangeSize = 2 * 1024 * 1024;
 var cacheTotalSize = 320 * 1024 * 1024;
 var cachePieceSize = 256 * 1024;
 var cacheCountLimit = 200;
-function pipe(h, start, end, res) {
+function pipe(h, start, end, res, sign) {
     var inc = start;
     var timeout = false;
     var safeend = function () {
@@ -42,6 +43,11 @@ function pipe(h, start, end, res) {
             if (size < chunk.length) {
                 chunk = chunk.slice(0, size);
             }
+            if (sign) {
+                var signoffset = inc % sign.length;
+                var signcurrent = sign.slice(signoffset) + sign.slice(0, signoffset);
+                chunk = encode62.decode(chunk, signcurrent);
+            }
             res.write(chunk);
             inc = ind;
             run();
@@ -54,15 +60,20 @@ function pipe(h, start, end, res) {
 function doFile(req, res) {
     if (/^\/@/.test(req.url)) {
         var filepath = decodeURIComponent(req.url.slice(2));
+        if (!checkAccess(filepath)) {
+            res.writeHead(406, {});
+            res.end();
+            return;
+        }
     } else {
         var url = proxy(req);
         var filepath = path.join(root, url);
     }
-    if (!checkAccess(filepath)) {
-        res.writeHead(406, {});
-        res.end();
-        return;
+    if (/\!(\w+)(\.\w*?)$/.test(filepath)) {
+        var [, filepath, code, extend] = /^([\s\S]*)\!(\w+)(\.\w*?)$/.exec(filepath);
+        filepath = filepath + extend;
     }
+
     var [, start, end] = String(req.headers.range).match(/bytes=(\d*)\-(\d*)/) || [];
     fs.exists(filepath, function (exists) {
         if (!exists) {
@@ -100,6 +111,14 @@ function doFile(req, res) {
             if (end > stats.size) {
                 end = stats.size;
             }
+            if (code) {
+                var sign = encode62.timedecode(code);
+                if (!sign) {
+                    res.writeHead(404, {});
+                    saveend();
+                    return;
+                }
+            }
             fs.open(filepath, "r", function (error, h) {
                 if (error) {
                     res.writeHead(403, {});
@@ -112,7 +131,7 @@ function doFile(req, res) {
                     "Content-Range": `bytes ${start}-${end - 1}/${stats.size}`,
                     "Last-Modified": stats.mtime.toUTCString(),
                 });
-                pipe(h, start, end, res);
+                pipe(h, start, end, res, sign);
             });
         })
     });
