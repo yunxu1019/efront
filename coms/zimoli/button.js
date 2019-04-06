@@ -3,7 +3,7 @@ var track = createElement(div);
 track.className = "track";
 _label.className = "label";
 
-var btn = div();
+var btn = document.createElement('button');
 btn.tabIndex = 0;
 var hover = function () {
     addClass(this, "hover");
