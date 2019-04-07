@@ -16,7 +16,7 @@ function password() {
             holder.parentNode === element && element.removeChild(holder);
             element.appendChild(insert);
         }
-        text.nodeValue = "●".repeat(savedKeyCodes.length);
+        text.nodeValue = savedKeyCodes.map(e => "●").join("");
         element.scrollLeft = insert.offsetLeft + 2;
     };
     element.onfocus = function () {
