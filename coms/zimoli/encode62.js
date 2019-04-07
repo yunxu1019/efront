@@ -14,18 +14,18 @@ var encode62 = {
     },
     timeencode(string) {
         var { time_delta } = this;
-        var time_stamp = +new Date();
+        var time_stamp = +new Date() - ((time_delta / 6) | 0);
         var time_rest = time_stamp % time_delta;
-        var time_rest_str=time_rest.toString(36);
-        var time_delta_str=time_delta.toString(36);
-        return this.encode(string, time_stamp.toString(36))+repeat("0",time_delta_str.length- time_rest_str.length) + time_rest_str;
+        var time_rest_str = time_rest.toString(36);
+        var time_delta_str = time_delta.toString(36);
+        return this.encode(string, time_stamp.toString(36)) + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
     },
     timeupdate(string) {
         var { time_delta } = this;
         var time_rest = string.slice(string.length - time_delta.toString(36).length, string.length);
         var time_start = parseInt((new Date() - parseInt(time_rest, 36)) / time_delta) * time_delta;
         var time_stamp = time_start + parseInt(time_rest, 36);
-        if (time_stamp + (time_delta >> 1) > +new Date) {
+        if (time_stamp + (time_delta >> 1) > +new Date()) {
             return string;
         } else {
             return this.timeencode(this.timedecode(string));
