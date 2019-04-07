@@ -1,6 +1,6 @@
 var layer = layer$glance({
     left: '/frame/left',
-    main: "/photos/list",
+    main: "/photo/list",
     top: "/frame/top"
 });
 config;
