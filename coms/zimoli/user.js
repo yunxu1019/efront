@@ -3,6 +3,7 @@ var userInstance = data.getInstauce(USERINFO);
 var emptyProto = {
     name: "",
     _id: "",
+    _passport: '',
     avatar: null,
     isLogin: false,
     roles: null
@@ -35,6 +36,7 @@ var proto = {
             name: proto.name,
             _id: proto._id,
             session: session,
+            _passport: this._passport,
             isLogin: !!session,
             session_time: +new Date() + proto.session_time
         });
