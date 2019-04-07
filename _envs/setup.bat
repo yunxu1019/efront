@@ -26,8 +26,8 @@ rem 前文已配置的所有参数可用 app=%app%.bat 重写
 @for %%i in (%app%) do @call "%~DP0app=%%i"
 
 rem 应用发布路径
-if %cd%\_envs\==%~dp0 set default_public_path="%~dp0..\public"
-if not %cd%\_envs\==%~dp0 set default_public_path=".\"
+if "%cd%\_envs\"=="%~dp0" set default_public_path="%~dp0..\public"
+if not "%cd%\_envs\"=="%~dp0" set default_public_path=".\"
 if not defined public_path set PUBLIC_PATH=%default_public_path%
 if not defined apis_path set APIS_PATH="%~dp0..\apis"
 if not defined apps_path set APPS_PATH="%~dp0..\apps"

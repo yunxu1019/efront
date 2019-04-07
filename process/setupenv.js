@@ -20,8 +20,8 @@ var reg_if =
     //09 exist
     //10 defined
     //11 command
-    ////////////////   1  ///   2  //////           3            ///// 4 /// 5 ///////            6             /////// 7 /////////// 8 // 9 ///////////////10 //////   11   ///
-    /^\s*@?\s*if\s+(\/i\s+)?(not\s+)?(?:(cmdextversion|errorlevel)\s+(.+?)|(.+?)\s*\b(==|equ|neq|lss|leq|gtr|geq)\b\s*(.+?)|exist\s+(["])(.+?)\8|defined\s+(.+?))\s+([\s\S]*?)$/i;
+    ////////////////   1  ///   2  //////           3            ///// 4 /// 5 /////                 6                  ///// 7 /////////// 8 // 9 ///////////////10 //////   11   ///
+    /^\s*@?\s*if\s+(\/i\s+)?(not\s+)?(?:(cmdextversion|errorlevel)\s+(.+?)|(.+?)\s*(\=\=|\b(?:equ|neq|lss|leq|gtr|geq)\b)\s*(.+?)|exist\s+(["])(.+?)\8|defined\s+(.+?))\s+([\s\S]*?)$/i;
 var if_conditions = {
     "==": (a, b) => a == b,
     "equ": (a, b) => a == b,
