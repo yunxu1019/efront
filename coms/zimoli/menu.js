@@ -35,9 +35,7 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
 function inlineMenu(nodes) {
     var menu = tree();
     onactive(menu, function (e) {
-        if (e.path) {
-            e.value.href && zimoli.go(e.value.href);
-        }
+        e.value.href && zimoli.go(e.value.href);
     });
     menu.src(nodes);
     menu.go(0);
