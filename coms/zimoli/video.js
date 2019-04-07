@@ -10,6 +10,15 @@ function video(src) {
             var video = document.createElement("video");
         }
     }
+    video.isPlaying = video.autoplay;
+    onclick(video, function (e) {
+        this.isPlaying = !this.isPlaying;
+        if (this.isPlaying) {
+            this.play();
+        } else {
+            this.pause();
+        }
+    });
     // video.autoplay = true;
     on("dblclick")(video, function () {
         requestFullScreen(video);
