@@ -16,7 +16,9 @@ var encode62 = {
         var { time_delta } = this;
         var time_stamp = +new Date();
         var time_rest = time_stamp % time_delta;
-        return this.encode(string, time_stamp.toString(36)) + time_rest.toString(36).padStart(time_delta.toString(36).length, '0');
+        var time_rest_str=time_rest.toString(36);
+        var time_delta_str=time_delta.toString(36);
+        return this.encode(string, time_stamp.toString(36))+repeat("0",time_delta_str.length- time_rest_str.length) + time_rest_str;
     },
     timeupdate(string) {
         var { time_delta } = this;

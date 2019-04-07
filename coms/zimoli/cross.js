@@ -101,7 +101,7 @@ var getCrossUrl = function (domain, headers) {
     }
     extend(_headers, headers);
     var spliter = encodeURIComponent("/");
-    return domain.replace(/^s?\/\//i, "http$&").replace(domainReg, base + `{${spliter + spliter}$1${spliter}${serialize(_headers)}}@$2$3`);
+    return domain.replace(/^s?\/\//i, "http$&").replace(domainReg, base + `%7B${spliter + spliter}$1${spliter}${serialize(_headers)}%7D@$2$3`);
 };
 function cross(method, url, headers) {
     var originDomain = getDomainPath(url);
