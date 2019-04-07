@@ -71,7 +71,7 @@ var isBadDevice;
     isBadDevice = SAFE_CIRCLE_DEPTH < 512;
 };
 modules.IS_BAD_DEVICE = isBadDevice;
-var FILE_NAME_REG = /^[^\/].*?[\/\?\-\.\+]|[\.\-\+\?][^\/]*?$/;
+var FILE_NAME_REG = /^[^\/].*?[\/\?\-\.\+]|(?:[^\/]\.|[\-\+\?])[^\/]*?$/;
 // 适配大小屏
 var devicePixelRatio = window.devicePixelRatio || 1;
 // if (isBadDevice) devicePixelRatio = 1;
