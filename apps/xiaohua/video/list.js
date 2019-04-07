@@ -1,6 +1,6 @@
 var page = div();
 page.innerHTML = list;
-passport = encode62.timeencode(encode62.decode62(user._passport, user.session));
+var passport = encode62.timeencode(encode62.decode62(user._passport, user.session));
 var scope = render(page, {
     videos: [
     ],
@@ -11,10 +11,7 @@ var scope = render(page, {
             return "!" + passport + m;
         });
     },
-    video(element) {
-        onclick(element, e => element.play());
-        return video(element);
-    },
+    video,
     list
 });
 function main() {
