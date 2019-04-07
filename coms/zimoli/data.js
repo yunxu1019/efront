@@ -71,9 +71,9 @@ var data = {
         if (!instanceDataMap[instanceId]) {
             const data = instanceDataMap[instanceId] = new LoadingArray;
             const storageId = instanceId + pagePathName;
-            Object.assign(data, JSON.parse(localStorage.getItem(storageId)));
+            extend(data, JSON.parse(localStorage.getItem(storageId)));
             if (!onlyFromLocalStorage) {
-                Object.assign(data, JSON.parse(sessionStorage.getItem(storageId)));
+                extend(data, JSON.parse(sessionStorage.getItem(storageId)));
             }
             data.is_loading = false;
         }
@@ -106,6 +106,6 @@ var data = {
                 delete instance[k];
             }
         });
-        Object.assign(instance, data);
+        extend(instance, data);
     }
 };
