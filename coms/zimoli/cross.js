@@ -113,7 +113,7 @@ function cross(method, url, headers) {
     }
     extend(_headers, headers);
     var xhr = new XHR;
-    xhr.open(method, getCrossUrl(url, headers));
+    xhr.open(method, getCrossUrl(url, _headers));
     HeadersKeys.map(function (k) {
         if (_headers[k]) xhr.setRequestHeader(k, _headers[k]);
         delete _headers[k];
