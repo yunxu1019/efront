@@ -1,7 +1,7 @@
 var dragview = function (dragview) {
     var savedX, savedY, moving, offsetWidth;
     var { page, menu } = dragview;
-
+    preventOverflowScrolling(page);
     moveupon(page, {
         start(event) {
             savedX = event.clientX;
