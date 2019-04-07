@@ -95,12 +95,13 @@ var createRepeat = function (search) {
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
             clone.renderid = 0;
-            clone.$parentScopes = $parentScopes.concat(element.$scope);
-            renderElement(clone, {
+            clone.$parentScopes = $parentScopes;
+            var $scope = extend(Object.create(element.$scope), {
                 [keyName || '$key']: key,
                 [itemName || '$item']: result[key],
                 [indexName || '$index']: cx
-            }, clone.$parentScopes);
+            });
+            renderElement(clone, $scope, clone.$parentScopes);
             return clone;
         }, this);
         appendChild.before(this, clonedElements);
