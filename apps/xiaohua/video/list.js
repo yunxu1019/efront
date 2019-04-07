@@ -5,8 +5,7 @@ var scope = render(page, {
     videos: [
     ],
     encode(src) {
-        return "/@/data/videos/02.mp4";
-        return "/@/data/videos" + src.replace(/\.?[^\.]+$/, function (m) {
+        return "/@/data/xiaohua/videos" + src.replace(/\.?[^\.]+$/, function (m) {
             passport = encode62.timeupdate(passport);
             return "!" + passport + m;
         });
