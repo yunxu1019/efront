@@ -171,7 +171,8 @@ var api = function () {
             xhr.setRequestHeader(k, headers[k]);
         }
         req.up_scale = 0;
-        xhr.send(parameters || "");
+        if (parameters) xhr.send(parameters);
+        else xhr.send();
         req.abort = req.cancel = function () {
             xhr.abort();
         };
