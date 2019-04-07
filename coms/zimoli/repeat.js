@@ -7,7 +7,7 @@ function repeat(string, time) {
         throw new Error("占用内存过大！");
     }
     var result = [];
-    while (--time > 0) {
+    while (--time >= 0) {
         result.push(string);
     }
     return result.join("");
