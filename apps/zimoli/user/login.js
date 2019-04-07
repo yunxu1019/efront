@@ -1,15 +1,7 @@
 
 titlebar(i18n`login`);
 var page = div();
-page.innerHTML = `
-<name placeholder=${i18n`name`} ng-model='username'></name>
-<pswd placeholder=${i18n`password`} ng-model='password'></pswd>
-<btn ng-if='!login.ing' ng-click=login()>
-<span ng-if='!username'>${i18n(`游客`, "Guest")}</span>${i18n`login`}</btn>
-<btn ng-if='login.ing' class='busy'>
-<span ng-if='!username'>${i18n(`游客`, "Guest")}</span>${i18n('登录中', 'Logon')}</btn>
-<a class=anchor ng-click=go('getPassword')>${i18n`Forgot password`}</a>
-`;
+page.innerHTML = login;
 var go_args;
 
 render(page, {
@@ -17,7 +9,7 @@ render(page, {
     go,
     name: input,
     pswd: password,
-    btn: button,
+    button,
     username: user.name || "",
     password: null,
     request(name, password) {
@@ -51,7 +43,7 @@ vbox(page);
 page.initialStyle = 'marginLeft:100%;';
 var [_username, _password, _loginBtn] = page.children;
 
-function login(args) {
+function main(args) {
     go_args = args instanceof Array ? args : [];
     return page;
 }
