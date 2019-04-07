@@ -24,6 +24,7 @@ var isInitCommand = configs.init;
 var isDocsCommand = configs.doc || configs.docs;
 var isDemoCommand = configs.demo || configs.zimoli;
 var loadModule = process.argv.slice(2).filter(e => /^https?\:\/\/|\/|\.[tj]sx?$/i.test(e));
+var isStartCommand = configs.start || configs.run;
 if (isHelpMode) {
     console.log("these commands can be used: test server public init watch");
 } else if (isDocsCommand) {
@@ -52,6 +53,9 @@ if (isHelpMode) {
     require("./tools/watch");
 } else if (loadModule.length > 0) {
     require("./process/efront")(loadModule[0]);
+} else if (isStartCommand) {
+    require("./process/setupenv");
+    require("./server/main");
 } else {
     var fullpath = process.cwd();
     setenv({
