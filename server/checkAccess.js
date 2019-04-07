@@ -5,7 +5,7 @@ var configfilepath = "./data/shared.json";
 loadjson.async(configfilepath).then(function (json) {
     if (json instanceof Array) {
         rootDirectorys.splice(0, rootDirectorys.length);
-        rootDirectorys.push.apply(rootDirectorys, json.apply(function (dir) {
+        rootDirectorys.push.apply(rootDirectorys, json.map(function (dir) {
             return path.normalize(dir);
         }));
     }
