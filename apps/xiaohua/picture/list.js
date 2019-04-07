@@ -1,4 +1,4 @@
-var page = div();
+var page = createVboxWithState(state);
 page.innerHTML = list;
 var passport = encode62.timeencode(encode62.decode62(user._passport, user.session));
 var scope = render(page, {
