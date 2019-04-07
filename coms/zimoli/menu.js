@@ -56,7 +56,7 @@ var getNodes = function (elem) {
             nodes.push({
                 name: nodeName,
                 tab: deep,
-                href: node.getAttribute("path"),
+                href: node.getAttribute("path") || node.getAttribute("href"),
                 class: node.className,
                 closed: true
             });
