@@ -70,6 +70,7 @@ var call = function (file, args = []) {
             return args[i];
         })
         .replace(/%~dp\d/ig, path.join(path.resolve(path.parse(file).dir), "./"))
+        .replace(/\\/g, '/')
         .trim()
         .split(/[\r\n]+\s*/g)
         .forEach(get);
@@ -89,7 +90,7 @@ var get = function (text) {
         .replace(/%(.*?)%/ig, function (match, env_name) {
             if (!env_name) return "%";
             return env[env_name.toUpperCase()];
-        });
+        }).replace(/\\/g, "/");
     var match = text.match(reg_if);
     if (match) {
         var [matched_text, ignorecase, not, label, level, condition_left, condition_symbol, condition_right, qoute, exist, defined, command] = match;
@@ -144,7 +145,15 @@ module.exports = function (appname) {
     extend(env, process.env, appname);
     return env;
 };
+var normalize = function (o) {
+    for (var k in o) {
+        var v = o[k];
+        if (/[\/\\]/.test(v)) {
+            o[k] = path.normalize(v);
+        }
 
+    }
+};
 var extend = function (dst, env, src) {
     Object.assign(dst, {
         COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || "./coms",
@@ -158,6 +167,7 @@ var extend = function (dst, env, src) {
         ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS || src,
         PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || "./public",
     });
+    normalize(dst);
 };
 extend(process.env, process.env, "zimoli");
 process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0
