@@ -162,12 +162,14 @@ var directives = {
             value = value || "";
             if (!/img/i.test(this.tagName) || !isString(value)) return this.src = value;
             this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
-            img.src = value;
-            if (img.complete) {
-                this.src = value;
-            } else if (!pending) {
-                addClass(this, "pending");
-                pending = setTimeout(refresh);
+            if (value) {
+                img.src = value;
+                if (img.complete) {
+                    this.src = value;
+                } else if (!pending) {
+                    addClass(this, "pending");
+                    pending = setTimeout(refresh);
+                }
             }
         });
     },

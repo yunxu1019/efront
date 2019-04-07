@@ -38,7 +38,7 @@ render(page, {
         var ext = /\.(png|jpe?g|gif)/i.exec(file.name);
         if (!ext) return alert.error("只能上传png,jpg,gif格式的文件");
         var xhr = XHR();
-        xhr.open("put", user.avatar);
+        xhr.open("put", user.avatarref);
         xhr.setRequestHeader("Content-type", "image/" + ext[1].toLowerCase());
         xhr.send(file);
         xhr.onload = function () {

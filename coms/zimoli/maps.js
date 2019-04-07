@@ -23,6 +23,53 @@ function y2lat(y, z) {
     return (180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))));
 }
 
+class Vector extends Array {
+    length = 3;
+}
+
+
+
+var rotate = function (vector, theta, points) {
+
+};
+
+class EarthAxis {
+    alpha = 0;// 赤道法线的角度
+    theta = 0;// 本初子午线的角度
+    radius = 1;
+    zoom = 12;
+    src = [];
+    res = [];
+    matrix = [
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ];
+    rotate(direction, ) {
+    }
+    to2d(Points) {
+        return []
+    }
+    getRotation() {
+
+        return {
+            vector: [, ,],
+            theta: 0
+        };
+    }
+    // 正球坐标转换
+    get3d(coord) {
+        var [lng, lat] = coord;
+        var alpha = lat / Math.PI;
+        var theta = lng / Math.PI;
+        var z = Math.sin(alpha);
+        var r = Math.cos(alpha);
+        var x = Math.cos(theta) * r;
+        var y = Math.sin(theta) * r;
+        return [x, y, z];
+    }
+}
 
 function maps(config = {}) {
     var canvas = document.createElement("canvas");
@@ -62,15 +109,15 @@ function maps(config = {}) {
     onmousewheel(canvas, function (event) {
         var hwidth = this.width / 2;
         var hheight = this.height / 2;
-        var layerx = event.offsetX || event.layerX || hwidth;
-        var layery = event.offsetY || event.layerY || hheight;
+        var layerx = event.layerX || event.offsetX || hwidth;
+        var layery = event.layerY || event.offsetY || hheight;
         var scale = map.Scale();
         if (event.deltaY < 0) {
             scale += 0.125;
         } else {
             scale -= 0.125;
         }
-        map.Scale(scale);
+        map.Scale(scale, layerx, layery);
     });
 
     return canvas;
@@ -123,7 +170,7 @@ maps.prototype = {
     Layer() {
 
     },
-    Scale(scale) {
+    Scale(scale, x, y) {
         if (isFinite(scale)) {
             var map = this;
             var { canvas, context } = map;
@@ -131,8 +178,15 @@ maps.prototype = {
                 width,
                 height
             } = canvas;
+            if (x === undefined) {
+                x = width >> 1;
+            }
+            if (y === undefined) {
+                y = height >> 1;
+            }
+
             var zoom = map.Zoom();
-            var saved_value = zoom * scale;
+            var saved_value = zoom;
             if (scale >= 2) {
                 zoom += 1;
                 scale -= 1;
@@ -147,17 +201,21 @@ maps.prototype = {
                 scale = 1;
                 zoom = 23;
             }
-            if (zoom !== this.zoom) map.Zoom(zoom);
-            var dest_scale = zoom * scale / saved_value;
+            var dest_scale = Math.pow(2, zoom - saved_value);
             if (dest_scale !== 1) {
                 var dwidth = width * dest_scale;
                 var dheight = height * dest_scale;
-                var imagedata = context.getImageData(0, 0, width, height);
-                context.putImageData(imagedata, 0, 0, (width - dwidth) >> 1, (height - dheight) >> 1, dwidth, dheight);
 
+                var dw = dwidth >> 1;
+                var dh = dheight >> 1;
+                var tempCanvas = this.canvas.cloneNode();
+                tempCanvas.getContext("2d").putImageData(context.getImageData(0, 0, width, height), 0, 0);
+                context.clearRect(0, 0, width, height);
+                context.drawImage(tempCanvas, 0, 0, width, height, x - dw, y - dh, dwidth, dheight);
+                this.center = [this.center[0] - (dw >> 1), this.center[1] - (dh >> 1)]
             }
             this.scale = +scale;
-            this.refresh();
+            // if (zoom !== saved_value) map.Zoom(zoom);
         }
         return this.scale;
     },
@@ -172,6 +230,9 @@ maps.prototype = {
         var y = centery + (layery - offsetHeight / 2) / 256;
         var lng = +map.x2lng(x, zoom).toFixed(6), lat = +map.y2lat(y, zoom).toFixed(6);
         return [lng, lat];
+    },
+    freeze() {
+        this.loadings.splice(0, this.loadings.length).map(this.destroyImage);
     },
     Center(lng, lat) {
         if (isFinite(lng) && isFinite(lat)) {
@@ -251,7 +312,7 @@ maps.prototype = {
         return grids;
     },
     refresh() {
-        this.loadings.splice(0, this.loadings.length).map(this.destroyImage);
+        this.freeze();
         var grid = this.getGrid();
         var { zoom } = grid;
         grid.map(([x, y]) => {

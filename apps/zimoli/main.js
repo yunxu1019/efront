@@ -56,10 +56,11 @@ user.setUserDataLoader(function () {
             }
         }
         extendIfNeeded(user, result);
+        user.avatarref = `${cross.getCrossUrl(config.api_base)}_users/${result._id}/avatar?rev=${result._rev}`;
         if (result._attachments && result._attachments.avatar) {
-            user.avatar = `${cross.getCrossUrl(config.api_base)}_users/${result._id}/avatar?rev=${result._rev}`;
+            user.avatar = user.avatarref;
         } else {
-            user.avatar = null;
+            user.avatar = '';
         }
     });
 });
