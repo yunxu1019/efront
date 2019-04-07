@@ -1,6 +1,6 @@
 {
   "name": "efront",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "a complete environment for front end",
   "main": "main.js",
   "directories": {
@@ -12,7 +12,7 @@
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "start": "node main",
+    "start": "node main start",
     "server": "node server/index",
     "test": "node tester/main",
     "electron": "node tester/main --electron",
