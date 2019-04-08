@@ -14,7 +14,8 @@ var encode62 = {
     },
     timeencode(string) {
         var { time_delta } = this;
-        var time_stamp = +new Date() - ((time_delta / 6) | 0);
+        var time_free = time_delta / 6 | 0;
+        var time_stamp = +new Date() - time_free;
         var time_rest = time_stamp % time_delta;
         var time_rest_str = time_rest.toString(36);
         var time_delta_str = time_delta.toString(36);
@@ -38,7 +39,7 @@ var encode62 = {
         var src = this.src;
         var result = result.replace(/\w/g, function (w, cx) {
             var code = map[w];
-            if (!code) return w;
+            if (!isNumber(code)) return w;
             var s = code ^ (sign.charCodeAt(cx % sign.length) % src.length);
             return src[s];
         });

@@ -46,7 +46,7 @@ Object.assign(encode62, {
         var src = this.src;
         var result = result.replace(/\w/g, function (w, cx) {
             var code = map[w];
-            if (!code) return w;
+            if (typeof code !== 'number') return w;
             var s = code ^ (sign.charCodeAt(cx % sign.length) % src.length);
             return src[s];
         });
@@ -59,7 +59,7 @@ Object.assign(encode62, {
         var src = this.src;
         var result = result.replace(/\w/g, function (w, cx) {
             var code = map[w];
-            if (!code) return w;
+            if (typeof code !== 'number') return w;
             var s = code ^ (sign.charCodeAt(cx % sign.length) % src.length);
             return src[s];
         });
