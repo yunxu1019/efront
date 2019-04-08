@@ -3,6 +3,8 @@ var path = require("path");
 var proxy = require("./proxy");
 var checkAccess = require("./checkAccess");
 var encode62 = require("../process/crypt/encode62");
+var mimes = require("../process/mime");
+
 var { IN_TEST_MODE, PAGE_PATH, PUBLIC_PATH } = process.env;
 var root = IN_TEST_MODE ? PAGE_PATH : PUBLIC_PATH;
 var cacheRangeSize = 2 * 1024 * 1024;
@@ -126,12 +128,21 @@ function doFile(req, res) {
                     res.end(String(error));
                     return fs.closeSync(h);
                 }
-                res.writeHead(end === stats.size && start === 0 ? 200 : 206, {
+
+                var extend = filepath.match(/\.([^\.]*?)$/);
+                var headers = {
                     "Accept-Ranges": "bytes",
                     "Content-Length": end - start,
                     "Content-Range": `bytes ${start}-${end - 1}/${stats.size}`,
-                    "Last-Modified": stats.mtime.toUTCString(),
-                });
+                    "Last-Modified": stats.mtime.toUTCString()
+                };
+                if (extend) {
+                    var mime = mimes[extend[1]];
+                    if (mime) {
+                        headers['Content-Type'] = mime;
+                    }
+                }
+                res.writeHead(end === stats.size && start === 0 ? 200 : 206, headers);
                 pipe(h, start, end, res, sign);
             });
         })
