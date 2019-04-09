@@ -62,7 +62,7 @@ function pipe(h, start, end, res, sign) {
 
 function doFile(req, res) {
     if (/^\/@/.test(req.url)) {
-        var filepath = decodeURIComponent(req.url.slice(2));
+        var filepath = req.url.slice(2);
         if (!checkAccess(filepath)) {
             res.writeHead(406, {});
             res.end();
