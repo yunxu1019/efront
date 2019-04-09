@@ -58,7 +58,7 @@ function cross(req, res, referer) {
             method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
         var is_proxy = false;
-        if (/^https?:\/\/[^\/]*\/\{/i.test(_headers.referer) && !headers.referer) {
+        if (/^https?\:\/\/[^\/]*\/\{/i.test(_headers.referer) && !headers.referer) {
             headers.referer = hostpath + parseUrl(_headers.referer).realpath;
             is_proxy = true;
         }

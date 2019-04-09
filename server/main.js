@@ -120,7 +120,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         if (/^\/\{/i.test(req.url)) {
             return doCross(req, res);
         }
-        if (/^https?:\/\/[^\/]*\/\{/i.test(req.headers.referer)) {
+        if (/^https?\:\/\/[^\/]*\/\{/i.test(req.headers.referer)) {
             return doCross(req, res, req.headers.referer);
         }
         if (req.headers.range) {
