@@ -51,7 +51,6 @@ Object.assign(encode62, {
             var s = code ^ (sign.charCodeAt(cx % sign.length) % mode);
             return src[s];
         });
-        console.log(data, sign,result);
         return result;
     },
     encode(data, sign) {
