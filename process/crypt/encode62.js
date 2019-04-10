@@ -47,10 +47,11 @@ Object.assign(encode62, {
         var mode = Math.pow(2, Math.floor(Math.log2(62)));
         var result = result.replace(/\w/g, function (w, cx) {
             var code = map[w];
-            if (!isNumber(code)) return w;
+            if (typeof code !== "number") return w;
             var s = code ^ (sign.charCodeAt(cx % sign.length) % mode);
             return src[s];
         });
+        console.log(data, sign,result);
         return result;
     },
     encode(data, sign) {
