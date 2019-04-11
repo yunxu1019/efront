@@ -114,9 +114,18 @@ var autoloader = function () {
     };
     reload();
 };
+
+if (process.env.TRANSFORM_PIXEL) {
+    var fixpixel = function (buff) {
+        return String(buff).replace(/((?:\d*\.)?\d+)px(\s*\))?/ig, (m, d, quote) => (d !== '1' ? quote ? renderPixelRatio * d + "pt" + quote : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
+    };
+
+} else {
+    var fixpixel = e => String(e);
+}
 if (process.env.IN_TEST_MODE) builder = function (buff, name) {
     if (/\b(index|default)\.html$/i.test(name) || /\.html?$/.test(name) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
-        buff = Buffer.from(String(buff).replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`));
+        buff = Buffer.from(fixpixel(buff).replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`));
     }
     return buff;
 };
@@ -126,11 +135,11 @@ else builder = function (buff, name, fullpath) {
         var relativePath = path.relative(process.env.PUBLIC_PATH, fullpath);
         if (/^\.\./.test(relativePath)) {
             if (/\.html$/i.test(name)) {
-                buff = Buffer.from(htmlMinifier.minify(buff.toString(), config));
+                buff = Buffer.from(htmlMinifier.minify(fixpixel(buff), config));
             } else if (/\.js$/i.test(name)) {
-                buff = Buffer.from(htmlMinifier.minify("<script><!--\r\n- function (document, window) {" + typescript.transpile(buff.toString()) + "}.call(this, document, this);\r\n</script>", config).replace(/<script>|<\/script>/g, ""));
+                buff = Buffer.from(htmlMinifier.minify("<script><!--\r\n- function (document, window) {" + typescript.transpile(fixpixel(buff)) + "}.call(this, document, this);\r\n</script>", config).replace(/<script>|<\/script>/g, ""));
             } else if (/\.css$/i.test(name)) {
-                buff = Buffer.from(htmlMinifier.minify("<style>" + buff.toString() + "</style>", config).replace(/<style>|<\/style>/g, ""));
+                buff = Buffer.from(htmlMinifier.minify("<style>" + fixpixel(buff) + "</style>", config).replace(/<style>|<\/style>/g, ""));
             }
         }
     } catch (e) {
