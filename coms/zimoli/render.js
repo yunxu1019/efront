@@ -101,6 +101,7 @@ var createRepeat = function (search) {
                 [itemName || '$item']: result[key],
                 [indexName || '$index']: cx
             });
+            clone.$scope = $scope;
             renderElement(clone, $scope, clone.$parentScopes);
             return clone;
         }, this);

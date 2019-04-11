@@ -23,7 +23,7 @@ function render_test() {
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat='(o,k,i) in classNames'>
+            <tr ng-repeat='(o,k,i) in classNames' ng-class='k'>
                 <td -bind=o style="width:30%;display:inline-block"></td>
                 <td -bind=k style="width:30%;display:inline-block"></td>
                 <td -bind=i style="width:30%;display:inline-block"></td>
