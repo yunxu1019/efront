@@ -72,7 +72,8 @@ function ybox(generator) {
         __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
     var increaser_t = document.createElement("img");
-    css(increaser_t, "display:block;opacity:0;");
+    css(increaser_t, "opacity:0;");
+    addClass(increaser_t, 'y-insert');
     var increaser_b = increaser_t.cloneNode();
     var decrease_timer = 0;
     var time_splitter = 16;
