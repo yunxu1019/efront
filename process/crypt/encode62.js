@@ -44,11 +44,11 @@ Object.assign(encode62, {
         var result = String(data);
         sign = String(sign);
         var src = this.src;
-        var mode = Math.pow(2, Math.floor(Math.log2(62)));
         var result = result.replace(/\w/g, function (w, cx) {
             var code = map[w];
             if (typeof code !== "number") return w;
-            var s = code ^ (sign.charCodeAt(cx % sign.length) % mode);
+            var s = code ^ (sign.charCodeAt(cx % sign.length) % src.length);
+            if (s >= src.length) return w;
             return src[s];
         });
         return result;
