@@ -99,6 +99,13 @@ var popup_with_mask = function (element, mask = createMask()) {
     return element;
 };
 var popup_as_extra = function (element, target) {
+    if (/inline|cell/i.test(getComputedStyle(target).display)) {
+        popup_as_yextra(global, element, target);
+    } else {
+        popup_as_xextra(global, element, target);
+    }
+};
+var popup_as_yextra = function (global, element, target) {
     if (!element.origin) {
         element.origin = {
             height: element.style.height,
@@ -172,6 +179,8 @@ var popup_as_extra = function (element, target) {
     reshape();
 
 };
+var allArgumentsNames = arguments[arguments.length - 1];
+var popup_as_xextra = arriswise(popup_as_yextra, allArgumentsNames.concat([].slice.call(arguments, 0)));
 var popup_as_single = function (element) {
     css(element, `z-index:${zIndex()};`);
     global(element);
