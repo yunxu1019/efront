@@ -30,7 +30,7 @@ function password() {
         if (saved_value !== element.value) {
             dispatch(this, "change");
         }
-    }
+    };
     element.type = "text";
     element.tabIndex = 0;
     // element.contentEditable = true;
@@ -49,10 +49,19 @@ function password() {
             default:
         }
     };
-    element.onkeyup = function () {
+    var keyPressFired = false, inputFired = false;
+    element.oninput = function (event) {
+        if (keyPressFired) return;
+        var keyCode = event.data.charCodeAt(0);
+        inputFired = true;
+        if (keyCode !== 8 && keyCode !== 13) {
+            savedKeyCodes.push(keyCode);
+        }
         build();
     };
     element.onkeypress = function (event) {
+        if (inputFired) return;
+        keyPressFired = true;
         if (event.keyCode !== 8 && event.keyCode !== 13) {
             savedKeyCodes.push(event.keyCode);
         }
