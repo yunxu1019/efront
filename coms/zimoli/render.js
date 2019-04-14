@@ -357,55 +357,59 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (element.renderid < 0) {
         return element;
     }
-    if (children.length) renderElement(children, scope, parentScopes);
-    if (element.renderid) return element;
+    var isFirstRender = !element.renderid;
     element.renderid = 1;
-    var attrs = [].concat.apply([], element.attributes);
-    var { tagName, parentNode, nextSibling } = element;
-    // 替换元素
-    if (!scope[tagName]) tagName = tagName.toLowerCase();
-    if (!scope[tagName])
-        tagName = tagName.replace(/(?:^|\-+)([a-z])/ig, (_, w) => w.toUpperCase());
-    if (!scope[tagName]) tagName = tagName.slice(0, 1).toLowerCase() + tagName.slice(1);
-    if (isFunction(scope[tagName])) {
-        var attrsMap = {};
-        var replacer = scope[tagName](element);
-        if (isElement(replacer) && element !== replacer) {
-            if (nextSibling) appendChild.before(nextSibling, replacer);
-            else if (parentNode) appendChild(parentNode, replacer);
-            if (element.parentNode === parentNode) remove(element);
-            attrs.map(function (attr) {
-                var { name, value } = attr;
-                switch (name.toLowerCase()) {
-                    case "class":
-                        addClass(replacer, value);
-                        break;
-                    case "style":
-                        css(replacer, value);
-                        break;
-                    case "src":
-                    case "placeholder":
-                        replacer[name] = value;
-                        break;
-                    default:
-                        if (!/[\-]/.test(name)) {
-                            replacer.setAttribute(name, value);
-                        } else {
-                            attrsMap[name] = attr;
-                        }
-                }
-            });
-            element = replacer;
-            element.$scope = scope;
-        }
-        [].concat.apply([], element.attributes).forEach(attr => {
-            if (attrsMap[attr.name]) {
-                delete attrsMap[attr.name];
+    if (isFirstRender) {
+        var attrs = [].concat.apply([], element.attributes);
+        var { tagName, parentNode, nextSibling } = element;
+        // 替换元素
+        if (!scope[tagName]) tagName = tagName.toLowerCase();
+        if (!scope[tagName])
+            tagName = tagName.replace(/(?:^|\-+)([a-z])/ig, (_, w) => w.toUpperCase());
+        if (!scope[tagName]) tagName = tagName.slice(0, 1).toLowerCase() + tagName.slice(1);
+        if (isFunction(scope[tagName])) {
+            var attrsMap = {};
+            var replacer = scope[tagName](element);
+            if (isElement(replacer) && element !== replacer) {
+                if (nextSibling) appendChild.before(nextSibling, replacer);
+                else if (parentNode) appendChild(parentNode, replacer);
+                if (element.parentNode === parentNode) remove(element);
+                attrs.map(function (attr) {
+                    var { name, value } = attr;
+                    switch (name.toLowerCase()) {
+                        case "class":
+                            addClass(replacer, value);
+                            break;
+                        case "style":
+                            css(replacer, value);
+                            break;
+                        case "src":
+                        case "placeholder":
+                            replacer[name] = value;
+                            break;
+                        default:
+                            if (!/[\-]/.test(name)) {
+                                replacer.setAttribute(name, value);
+                            } else {
+                                attrsMap[name] = attr;
+                            }
+                    }
+                });
+                element = replacer;
+                element.$scope = scope;
             }
-            attrsMap[attr.name] = attr;
-        });
-        attrs = Object.keys(attrsMap).map(key => attrsMap[key]);
+            [].concat.apply([], element.attributes).forEach(attr => {
+                if (attrsMap[attr.name]) {
+                    delete attrsMap[attr.name];
+                }
+                attrsMap[attr.name] = attr;
+            });
+            attrs = Object.keys(attrsMap).map(key => attrsMap[key]);
+        }
     }
+    if (element.children.length) renderElement(element.children, scope, parentScopes);
+    if (!isFirstRender) return element;
+
     // 解析属性
     element.renders = [];
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
