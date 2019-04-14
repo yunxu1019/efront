@@ -1,17 +1,19 @@
-var listX = list(function (data, index) {
+var listX = list(function (index) {
+    if(index>100)return;
     var item = div();
     css(item, `height:100%;width:${Math.random() * 110 + 30}px;border:1px solid;`);
-    text(item, data);
+    text(item, index);
     return item;
 }, "X");
 onappend(listX, function () {
     listX.go(0);
 });
 css(listX, "width:360px;height:160px;");
-var listY = list(function (data, index) {
+var listY = list(function (index) {
+    if(index>100)return;
     var item = div();
     css(item, `width:100%;height:${Math.random() * 110 + 30}px;border:1px solid;`);
-    text(item, data);
+    text(item, index);
     return item;
 }, "Y");
 onappend(listY, function () {

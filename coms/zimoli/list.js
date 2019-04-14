@@ -42,6 +42,16 @@ function ylist(container, generator, $Y) {
         }
         return null;
     };
+    var getLastVisibleElement = function () {
+        var children = list.children;
+        for (var cx = children.length - 1; cx >= 0; cx--) {
+            var child = children[cx]
+            if (isFinite(child.index) && child.offsetTop < list.scrollTop + list.clientHeight) {
+                return child;
+            }
+        }
+        return null;
+    };
     //元素表
     var getChildrenMap = function () {
         var children = list.children;
@@ -148,8 +158,8 @@ function ylist(container, generator, $Y) {
                 last_element = item;
             }
             //移除顶部不可见的元素
-            if (scrollTop > last_element.offsetTop + last_element.offsetHeightt - list.clientHeight) {
-                scrollTop = last_element.offsetTop + last_element.offsetHeightt - list.clientHeight;
+            if (scrollTop > last_element.offsetTop + last_element.offsetHeight - list.clientHeight) {
+                scrollTop = last_element.offsetTop + last_element.offsetHeight - list.clientHeight;
             }
             var collection = [];
             for (var k in childrenMap) {
@@ -202,6 +212,31 @@ function ylist(container, generator, $Y) {
                 last_element = getLastElement();
             }
         }
+    };
+    list.stopY = function () {
+        var firstElement = getFirstVisibleElement();
+        if (!firstElement) return saved_itemIndex;
+        var scrolled_t = (list.scrollTop - firstElement.offsetTop) / firstElement.offsetHeight;
+        var last_y = currentY();
+        if (scrolled_t > .5) {
+            var target_ty = last_y + (1 - scrolled_t) * firstElement.offsetHeight;
+        } else {
+            var target_ty = last_y - scrolled_t * firstElement.offsetHeight;
+        }
+        var lastElement = getLastVisibleElement();
+        var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop) / lastElement.offsetHeight;
+        if (scrolled_b > .5) {
+            var target_by = last_y + (1 - scrolled_b) * lastElement.offsetHeight;
+        } else {
+            var target_by = last_y - scrolled_b * lastElement.offsetHeight;
+        }
+        var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
+
+        var resultY = this.Top(Math.abs(target_y - last_y) > 1 ? (target_y + last_y) >> 1 : target_y);
+        if (resultY === last_y) {
+            target_y = resultY;
+        }
+        return target_y;
     };
     //导出方法
     list.go = scrollTo;
