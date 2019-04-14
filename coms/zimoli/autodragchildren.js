@@ -1,23 +1,23 @@
-var recover = function (element) {
-    moveMargin(element, 0);
-};
-var moveMargin = function (element, movePixels) {
-    if (element.moved === movePixels) return;
-    element.moved = movePixels;
-    element.moving = new Date;
-    css(element, {
-        transition: "margin .1s",
-        userSelect: "none",
-        marginLeft: movePixels ? movePixels + "px" : "",
-        marginRight: movePixels ? -movePixels + "px" : ""
-    });
-    if (isArray(element.with)) {
-        element.with.map(function (element) {
-            moveMargin(element, movePixels);
+var hookx = function (matcher, move, event) {
+    var recover = function (element) {
+        moveMargin(element, 0);
+    };
+    var moveMargin = function (element, movePixels) {
+        if (element.moved === movePixels) return;
+        element.moved = movePixels;
+        element.moving = new Date;
+        css(element, {
+            transition: "margin .1s",
+            userSelect: "none",
+            marginLeft: movePixels ? movePixels + "px" : "",
+            marginRight: movePixels ? -movePixels + "px" : ""
         });
-    }
-};
-var hook = function (matcher, move, event) {
+        if (isArray(element.with)) {
+            element.with.map(function (element) {
+                moveMargin(element, movePixels);
+            });
+        }
+    };
     var cloneCell = function (element) {
         var targets = getTargetIn(matcher, element);
         if (isArray(targets)) {
@@ -149,6 +149,18 @@ var hook = function (matcher, move, event) {
         }
     });
 };
+var allArgumentsNames = arguments[arguments.length - 1];
+var hooky = arriswise(hookx, allArgumentsNames.concat([].slice.call(arguments, 0)));
+var hook = function (target) {
+    var sample = target.firstChild;
+    if (!sample) return;
+    if (/cell|inline/i.test(getComputedStyle(target).display)) {
+        hookx.apply(this,arguments);
+    } else {
+        hooky.apply(this,arguments);
+    }
+};
+
 function autodragchildren(target, matcher, move) {
     onmousedown(target, hook.bind(target, matcher, move));
     ontouchstart(target, hook.bind(target, matcher, move));
