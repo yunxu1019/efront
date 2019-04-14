@@ -1,0 +1,39 @@
+& {
+    display: inline-block;
+    width: auto;
+    background-color: #fff;
+    box-shadow: 0 0 20px -6px rgba(0, 0, 0, .6);
+    line-height: 28px;
+    padding: 6px 0;
+
+    >btn {
+        display: block;
+        position: relative;
+        padding: 0 16px;
+        border-radius: 0;
+        background-color: inherit;
+        color: inherit;
+        box-shadow: none;
+        text-align: inherit;
+
+        &.has-children {
+            padding: 0 24px 0 16px;
+
+            &:after {
+                content: ">";
+                display: block;
+                width: 20px;
+                height: 20px;
+                line-height: 20px;
+                font-size: 18px;
+                transform: scaleX(.6);
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                margin-top: -10px;
+                text-align: right;
+            }
+        }
+
+    }
+}

@@ -42,9 +42,35 @@ function inlineMenu(nodes) {
     return menu;
 }
 function verticalMenu(nodes) {
-
+    return menuList(nodes);
 }
-var getNodes = function (elem) {
+var getArrayNodes = function (elem) {
+    var nodes = [];
+    var deep = 0;
+    var run = function (node) {
+        var nodeName = node.children.length > 1 ? node.children[0].innerHTML : node.innerHTML;
+        deep++;
+        if (nodeName) {
+            nodes.push({
+                name: nodeName,
+                tab: deep,
+                href: node.getAttribute("path") || node.getAttribute("href"),
+                class: node.className,
+                closed: true
+            });
+        }
+        var index = nodes.length - 1;
+        if (node.children.length > 1) {
+            [].forEach.call(node.children[1].children, run);
+        }
+        nodes[index].children = nodes.splice(index + 1, nodes.length - index);
+        deep--;
+    };
+    [].forEach.call(elem.children, run);
+    return nodes;
+};
+
+var getTreeNodes = function (elem) {
     var nodes = [];
     var deep = 0;
     var run = function (node) {
@@ -68,12 +94,13 @@ var getNodes = function (elem) {
     return nodes;
 };
 
-function main(elem) {
+function main(elem, mode) {
     if (isElement(elem)) {
-        var nodes = getNodes(elem);
+        var nodes = getArrayNodes(elem);
         var mode = elem.getAttribute('mode');
+        mode = mode && mode.toLowerCase() || "horizonal";
         var elem;
-        switch (mode && mode.toLowerCase()) {
+        switch (mode) {
             case "i":
             case "c":
             case "inline":
@@ -82,7 +109,7 @@ function main(elem) {
             case "x":
             case "y":
             case "vertical":
-                elem = inlineMenu(nodes);
+                elem = verticalMenu(nodes);
                 break;
             case "h":
             case "x":
@@ -90,11 +117,14 @@ function main(elem) {
                 elem = menu(nodes);
                 break;
             default:
+                elem.setAttribute("mode", "horizonal");
                 elem = menu(nodes);
         }
-        return elem;
     } else {
-        return menu.apply(null, arguments);
+        mode = mode || "horizonal";
+        elem = menu.apply(null, arguments);
     }
+    elem.setAttribute('mode', mode);
+    return elem;
 
 }

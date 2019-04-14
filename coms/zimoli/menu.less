@@ -1,12 +1,5 @@
 & {
-    overflow: hidden;
-    text-overflow: hidden;
-    height: 40px;
-    position: relative;
-    border: 1px solid #18333c;
-    background-color: #18333c;
-    box-shadow: inset 0 0 12px #51ddf6, inset 0px -120px 120px -120px #51ddf6;
-    border-right: none;
+
 }
 
 &>div.lack+div.more {
@@ -85,10 +78,20 @@ body:active & {
     width: 100%;
 }
 
+&[mode=horizonal]{
+    overflow: hidden;
+    text-overflow: hidden;
+    height: 40px;
+    position: relative;
+    border: 1px solid #18333c;
+    background-color: #18333c;
+    box-shadow: inset 0 0 12px #51ddf6, inset 0px -120px 120px -120px #51ddf6;
+    border-right: none;
+}
+
 &[mode=inline] {
     height: auto;
     box-shadow: none;
-
     .tab1 {
         &.open {
             color: #fff;
