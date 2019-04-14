@@ -157,10 +157,6 @@ function ylist(container, generator, $Y) {
                 offsetBottom = item.offsetTop + getOffsetHeight(item);
                 last_element = item;
             }
-            //移除顶部不可见的元素
-            if (scrollTop > last_element.offsetTop + last_element.offsetHeight - list.clientHeight) {
-                scrollTop = last_element.offsetTop + last_element.offsetHeight - list.clientHeight;
-            }
             var collection = [];
             for (var k in childrenMap) {
                 let item = childrenMap[k];
