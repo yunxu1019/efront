@@ -270,7 +270,7 @@ var getGeneratorFromArray = function (source) {
     }
 };
 
-var getGenerator = function (container) {
+var getGenerator = function (container, parsedSrc) {
     if (!container) return;
     var template = document.createElement("div");
     appendChild(template, [].concat.apply([], container.childNodes));
@@ -283,10 +283,21 @@ var getGenerator = function (container) {
         if (!template1.childNodes.length) return template1;
         var item = template1.childNodes[0];
         item.with = [].concat.apply([], template1.childNodes).slice(1);
-        var newScope = container.src[index];
-        render(item, newScope, [container.$scope]);
-        render(item.with, newScope, [container.$scope]);
-        return item;
+        var { keyName, itemName, indexName } = parsedSrc;
+        if (parsedSrc) {
+            var newScope = extend(Object.create(container.$scope), {
+                [keyName || '$key']: index,
+                [itemName || '$item']: container.src[index],
+                [indexName || '$index']: index
+            });
+            var newItem = render(item, newScope);
+            newItem.with = render(item.with, newScope);
+        } else {
+            var newScope = container.src[index];
+            var newItem = render(item, newScope, [container.$scope]);
+            newItem.with = render(item.with, newScope, [container.$scope]);
+        }
+        return newItem;
     };
 };
 
@@ -318,20 +329,32 @@ function list() {
         bindSrc = container;
         container = div();
     } else if (container && !generator) {
-        var generator = getGenerator(container);
-        on('changes')(container, function (event) {
-            if (event.changes.src) {
-                container.go(container.index() || 0);
-            };
-        });
+        var src = container.getAttribute("src") || container.getAttribute("ng-src");
+        if (src) {
+            var parsedSrc = render.parseRepeat(src);
+            if (!parsedSrc) {
+                container.setAttribute("ng-src", src);
+                container.removeAttribute("src");
+                var generator = getGenerator(container, src);
+            } else {
+                container.setAttribute("ng-src", parsedSrc.srcName);
+                container.removeAttribute("src");
+                var generator = getGenerator(container, parsedSrc);
+            }
+            on('changes')(container, function (event) {
+                if (event.changes.src) {
+                    container.go(container.index() || 0);
+                };
+            });
+        }
     }
 
     if (!$Y) {
         if (container) {
-            $Y = container.getAttribute("direction");
+            $Y = container.getAttribute("direction") || container.tagName;
         }
     }
-    $Y = /[xh]$/i.test($Y) ? "X" : "Y";
+    $Y = /^[xh]|[xh]$/i.test($Y) ? "X" : "Y";
     var list = ($Y === "X" ? xlist : ylist)(container, generator, $Y);
     if (bindSrc) {
         list.src = bindSrc;
