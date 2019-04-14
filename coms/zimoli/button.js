@@ -48,9 +48,13 @@ function button(texter, type) {
     var _texter;
     if (isNode(texter)) {
         _texter = texter;
-        if (_texter.tagName && !texter.with && !type && _texter.children) {
+        if (_texter.tagName && !type) {
             var button = _texter;
-            appendChild.before(button.childNodes[0], tracker);
+            if (button.childNodes.length) {
+                appendChild.before(button.childNodes[0], tracker);
+            } else {
+                appendChild(button, tracker);
+            }
         }
     } else {
         _texter = createElement(_label);
