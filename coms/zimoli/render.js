@@ -49,17 +49,12 @@ var initialComment = function (renders, type, expression) {
     rebuild(comment);
     return comment;
 };
-
-var createRepeat = function (search) {
-    // 懒渲染
-    // throw new Error("repeat is not supported! use list component instead");
-
-    var [context, expression] = search;
+var parseRepeat = function (expression) {
     var reg =
         // /////////////////////////////////////////// i //       r       /////////////////////////  o  ///// a ///////////////////// t /////
         /^(?:let\b|var\b|const\b)?\s*(?:[\(\{\[]\s*)?(.+?)((?:\s*,\s*.+?)*)?(?:\s*[\)\}\]]\s*|\s+)(in|of)\s+(.+?)(\s+?:track\s*by\s+(.+?))?$/i;
     var res = reg.exec(expression);
-    if (!res) throw new Error(`no recognition for repeat expression: ${expression} `);
+    if (!res) return res;
     var [_, i, k, r, s, t] = res;
     var keyName, itemName, indexName, trackBy = t, srcName = s;
     switch (r) {
@@ -77,6 +72,22 @@ var createRepeat = function (search) {
             }
             break;
     }
+    return {
+        keyName,
+        itemName,
+        indexName,
+        trackBy,
+        srcName
+    }
+};
+var createRepeat = function (search) {
+    // 懒渲染
+    // throw new Error("repeat is not supported! use list component instead");
+
+    var [context, expression] = search;
+    var res = parseRepeat(expression);
+    if (!res) throw new Error(`no recognition for repeat expression: ${expression} `);
+    var { keyName, itemName, indexName, srcName } = res;
     // 懒渲染
     var getter = createGetter([context, srcName]).bind(this);
     var element = this, clonedElements = [], savedValue;
@@ -356,32 +367,44 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (!scope[tagName])
         tagName = tagName.replace(/(?:^|\-+)([a-z])/ig, (_, w) => w.toUpperCase());
     if (!scope[tagName]) tagName = tagName.slice(0, 1).toLowerCase() + tagName.slice(1);
-    if (isFunction(scope[tagName])) var replacer = scope[tagName](element);
-    if (isElement(replacer) && element !== replacer) {
-        if (nextSibling) appendChild.before(nextSibling, replacer);
-        else if (parentNode) appendChild(parentNode, replacer);
-        if (element.parentNode === parentNode) remove(element);
-        attrs.map(function (attr) {
-            var { name, value } = attr;
-            switch (name.toLowerCase()) {
-                case "class":
-                    addClass(replacer, value);
-                    break;
-                case "style":
-                    css(replacer, value);
-                    break;
-                case "src":
-                case "placeholder":
-                    replacer[name] = value;
-                    break;
-                default:
-                    if (!/[\-]/.test(name)) {
-                        replacer.setAttribute(name, value);
-                    }
+    if (isFunction(scope[tagName])) {
+        var attrsMap = {};
+        var replacer = scope[tagName](element);
+        if (isElement(replacer) && element !== replacer) {
+            if (nextSibling) appendChild.before(nextSibling, replacer);
+            else if (parentNode) appendChild(parentNode, replacer);
+            if (element.parentNode === parentNode) remove(element);
+            attrs.map(function (attr) {
+                var { name, value } = attr;
+                switch (name.toLowerCase()) {
+                    case "class":
+                        addClass(replacer, value);
+                        break;
+                    case "style":
+                        css(replacer, value);
+                        break;
+                    case "src":
+                    case "placeholder":
+                        replacer[name] = value;
+                        break;
+                    default:
+                        if (!/[\-]/.test(name)) {
+                            replacer.setAttribute(name, value);
+                        } else {
+                            attrsMap[name] = attr;
+                        }
+                }
+            });
+            element = replacer;
+            element.$scope = scope;
+        }
+        [].concat.apply([], element.attributes).forEach(attr => {
+            if (attrsMap[attr.name]) {
+                delete attrsMap[attr.name];
             }
+            attrsMap[attr.name] = attr;
         });
-        element = replacer;
-        element.$scope = scope;
+        attrs = Object.keys(attrsMap).map(key => attrsMap[key]);
     }
     // 解析属性
     element.renders = [];
@@ -392,7 +415,11 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (/^(?:class|style|src)$/i.test(name)) return;
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
+            var savedLength = element.renders.length;
             directives[key].call(element, [withContext, value]);
+            element.renders.slice(savedLength).forEach(function (e) {
+                e.call(this);
+            }, element);
         } else if (emiter_reg.test(name)) {
             var ngon = emiter_reg.exec(name)[1].toLowerCase();
             emiters[ngon].call(element, key, [withContext, value]);
@@ -439,6 +466,6 @@ function render(element, scope, parentScopes) {
 
 var digest = lazy(refresh);
 render.digest = render.apply = render.refresh = digest;
-
+render.parseRepeat = parseRepeat;
 var eventsHandlers = "change,paste,resize,keydown,keypress,keyup,mousedown,mouseup,touchend,touchcancel,touchstart,dragend,drop,click".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));
