@@ -1,4 +1,4 @@
-var hookx = function (matcher, move, event) {
+var hookx = function (matcher, move, event, targetChild) {
     var recover = function (element) {
         moveMargin(element, 0);
     };
@@ -49,7 +49,7 @@ var hookx = function (matcher, move, event) {
         return targets;
     };
     if (event.target === this) return;
-    var targetChild = getTargetIn(matcher, event.target);
+    // var targetChild = getTargetIn(matcher, event.target);
     if (!targetChild) return;
     drag(targetChild, event);
     if (isArray(targetChild)) {
@@ -151,14 +151,17 @@ var hookx = function (matcher, move, event) {
 };
 var allArgumentsNames = arguments[arguments.length - 1];
 var hooky = arriswise(hookx, allArgumentsNames.concat([].slice.call(arguments, 0)));
-var hook = function (target) {
-    var sample = target.firstChild;
-    if (!sample) return;
-    if (/cell|inline/i.test(getComputedStyle(target).display)) {
-        hookx.apply(this,arguments);
+var hook = function (matcher, move, event) {
+    if (event.target === this) return;
+    var targetChild = getTargetIn(matcher, event.target);
+    if (!targetChild) return;
+    var run;
+    if (/cell|inline/i.test(getComputedStyle(targetChild instanceof Array ? targetChild[0] : targetChild).display)) {
+        run = hookx;
     } else {
-        hooky.apply(this,arguments);
+        run = hooky;
     }
+    run.call(this, matcher, move, event, targetChild);
 };
 
 function autodragchildren(target, matcher, move) {
