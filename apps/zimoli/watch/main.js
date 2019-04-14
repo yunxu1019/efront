@@ -6,7 +6,7 @@ var scope = render(page, {
     room: {},
     button,
     option
-});
+}).$scope;
 var resize = function () {
     player.resize("fxplayer-box", page.clientWidth, page.clientWidth * .75);
 };

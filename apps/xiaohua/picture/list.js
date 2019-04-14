@@ -15,7 +15,7 @@ var scope = render(page, {
         return video(element);
     },
     list
-});
+}).$scope;
 function main() {
     api("/images/_find", {
         selector: {

@@ -17,7 +17,7 @@ var scope = render(page, {
     },
     "a-video":video,
     list
-});
+}).$scope;
 function main() {
     api("/videos/_find", {
         selector: {
