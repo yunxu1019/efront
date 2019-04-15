@@ -96,24 +96,25 @@ var getTreeNodes = function (elem) {
 
 function main(elem, mode) {
     if (isElement(elem)) {
-        var nodes = getArrayNodes(elem);
         var mode = elem.getAttribute('mode');
         mode = mode && mode.toLowerCase() || "horizonal";
-        var elem;
         switch (mode) {
             case "i":
             case "c":
             case "inline":
+                var nodes = getTreeNodes(elem);
                 elem = inlineMenu(nodes);
                 break;
             case "x":
             case "y":
             case "vertical":
+                var nodes = getArrayNodes(elem);
                 elem = verticalMenu(nodes);
                 break;
             case "h":
             case "x":
             case "horizontal":
+                var nodes = getArrayNodes(elem);
                 elem = menu(nodes);
                 break;
             default:
