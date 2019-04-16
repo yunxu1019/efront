@@ -1,5 +1,5 @@
 var cloneProperties = "font,color,textShadow,opacity,writingMode,blockSize,wordSpacing,letterSpacing,whiteSpace".split(",");
-var cloneProperties2 = "font,color,borderRadius,borderWidth,borderColor,borderStyle,verticalAlign,textAlign,textShadow,background,opacity,padding,boxShadow,overflow,position,writingMode,blockSize,wordSpacing,letterSpacing,textIndent,lineHeight,display".split(",");
+var cloneProperties2 = "font,color,borderRadius,borderWidth,borderColor,borderStyle,verticalAlign,textAlign,textShadow,background,opacity,padding,boxShadow,overflow,position,writingMode,blockSize,wordSpacing,letterSpacing,textIndent,lineHeight,display,appearance,webkitAppearance,mozAppearance".split(",");
 var copyStyle = function (srcStyle, dstStyle, cloneProperties = cloneProperties2) {
     for (var cx = 0, dx = cloneProperties.length; cx < dx; cx++) {
         var k = cloneProperties[cx];
@@ -38,7 +38,19 @@ var cloneVisible = function (td) {
                 var copy = document.createElement(td.tagName);
                 copyStyle(style, copy.style);
                 result.appendChild(copy);
-                [].slice.call(td.childNodes, 0).map(clone);
+                if (/^(?:select|input|textarea)$/i.test(copy.tagName)) {
+                    if (/select/i.test(copy.tagName)) {
+                        var selector = `option[value="${String(td.value === null || td.value === undefined ? '' : td.value).replace(/"/g, "\\\"")}"]`;
+                        var opt = td.querySelector(selector);
+                        if (opt) {
+                            copy.innerHTML = opt.outerHTML;
+                        } else {
+                            copy.innerHTML = td.innerHTML;
+                        }
+                    }
+                    copy.placeholder = td.placeholder;
+                    copy.value = td.value;
+                } else[].slice.call(td.childNodes, 0).map(clone);
             }
             var { left, top, width, height } = getScreenPosition(td);
         }
@@ -91,7 +103,7 @@ function cloneCell(node, parentPosition) {
     if (style.overflow === "hidden") {
         if (node.offsetHeight === 0 || node.offsetWidth === 0) return;
     }
-    var clone = createElement(node.tagName);
+    var clone = document.createElement(node.tagName);
     var children = node.childNodes;
     var cloneStyle = clone.style;
     copyStyle(style, cloneStyle);
