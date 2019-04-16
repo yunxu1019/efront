@@ -6,7 +6,7 @@ var toCloneTarget = function (target) {
     return clone;
 };
 function drag(target, initialEvent, overflow) {
-    initialEvent.preventDefault();
+    !/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) && initialEvent.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);
         target = target[0];
