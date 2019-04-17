@@ -53,7 +53,7 @@ function move(offsetLeft, offsetTop, overflow = false) {
     var marginTop = getMarginLeft(offsetTop, offsetHeight, clientHeight);
     var left = offsetLeft - marginLeft;
     var top = offsetTop - marginTop;
-    css(this, `left:${left * 100 / clientWidth}%;top:${top * 100 / clientHeight}%;margin-left:${fromPixel(marginLeft)};margin-top:${fromPixel(marginTop)}`);
+    css(this, `left:${left * 100 / clientWidth}%;top:${top * 100 / clientHeight}%;margin-left:${fromOffset(marginLeft)};margin-top:${fromOffset(marginTop)}`);
 }
 move.getPosition = function (target) {
     var {
