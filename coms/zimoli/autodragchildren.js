@@ -66,10 +66,17 @@ var hookx = function (matcher, move, event, targetChild) {
         appendChild(document.body, previousElements);
         appendChild(document.body, followedElements);
     });
-    var offdragend = on("dragend")(targetChild, function () {
+
+    var offall = function () {
         canceldragmove();
         offdragstart();
         offdragend();
+        offtouchend();
+        offmouseup();
+    };
+    var offtouchend = on("touchend")(event.target, offall);
+    var offmouseup = on("mouseup")(window, offall);
+    var offdragend = on("dragend")(targetChild, function () {
         css(targetBox, { opacity: saved_opacity, filter: saved_filter });
         remove(previousElements);
         remove(followedElements);
@@ -152,6 +159,7 @@ var hookx = function (matcher, move, event, targetChild) {
 var allArgumentsNames = arguments[arguments.length - 1];
 var hooky = arriswise(hookx, allArgumentsNames.concat([].slice.call(arguments, 0)));
 var hook = function (matcher, move, event) {
+    if (is_dragging) return;
     if (event.target === this) return;
     var targetChild = getTargetIn(matcher, event.target);
     if (!targetChild) return;
