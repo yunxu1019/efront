@@ -5,7 +5,14 @@ var toCloneTarget = function (target) {
     setOpacity(target, 0);
     return clone;
 };
+var appendChild = function (a, b) {
+    a.appendChild(b);
+};
+var remove = function (a) {
+    a.parentNode && a.parentNode.removeChild(a);
+};
 function drag(target, initialEvent, overflow) {
+
     !/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) && initialEvent.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);
@@ -32,7 +39,7 @@ function drag(target, initialEvent, overflow) {
                 clone = target;
             }
             extraClones = extraTargets.map(toCloneTarget);
-            appendChild(document.body, extraClones);
+            extraClones.map(c => document.body.appendChild(c));
             saved_delta.x += clone.offsetLeft - target.offsetLeft;
             saved_delta.y += clone.offsetTop - target.offsetTop;
             clone.style.zIndex = zIndex();
