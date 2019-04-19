@@ -10,6 +10,25 @@ var copyStyle = function (srcStyle, dstStyle, cloneProperties = cloneProperties2
         }
     }
 };
+var cloneChildren = function (td, copy, clone) {
+    switch (String(copy.tagName).toLowerCase()) {
+        case "select":
+            var selector = `option[value="${String(td.value === null || td.value === undefined ? '' : td.value).replace(/"/g, "\\\"")}"]`;
+            var opt = td.querySelector && td.querySelector(selector);
+            if (opt) {
+                copy.innerHTML = opt.outerHTML;
+            } else {
+                copy.innerHTML = td.innerHTML;
+            }
+            break;
+        case "img":
+            copy.src = td.src;
+            break;
+        default:
+            [].forEach.call(td.childNodes, clone);
+    }
+
+};
 var cloneVisible = function (td) {
     var result = document.createElement("clone");
     var _left, _top, _right, _bottom;
@@ -38,19 +57,7 @@ var cloneVisible = function (td) {
                 var copy = document.createElement(td.tagName);
                 copyStyle(style, copy.style);
                 result.appendChild(copy);
-                if (/^(?:select|input|textarea)$/i.test(copy.tagName)) {
-                    if (/select/i.test(copy.tagName)) {
-                        var selector = `option[value="${String(td.value === null || td.value === undefined ? '' : td.value).replace(/"/g, "\\\"")}"]`;
-                        var opt = td.querySelector(selector);
-                        if (opt) {
-                            copy.innerHTML = opt.outerHTML;
-                        } else {
-                            copy.innerHTML = td.innerHTML;
-                        }
-                    }
-                    copy.placeholder = td.placeholder;
-                    copy.value = td.value;
-                } else[].slice.call(td.childNodes, 0).map(clone);
+                cloneChildren(td, copy, clone);
             }
             var { left, top, width, height } = getScreenPosition(td);
         }
@@ -104,7 +111,6 @@ function cloneCell(node, parentPosition) {
         if (node.offsetHeight === 0 || node.offsetWidth === 0) return;
     }
     var clone = document.createElement(node.tagName);
-    var children = node.childNodes;
     var cloneStyle = clone.style;
     copyStyle(style, cloneStyle);
     var screenPosition = getScreenPosition(node);
@@ -120,11 +126,10 @@ function cloneCell(node, parentPosition) {
     cloneStyle.width = screenPosition.width + "px";
     cloneStyle.height = screenPosition.height + "px";
     cloneStyle.boxSizing = "border-box";
-    for (var cx = 0, dx = children.length; cx < dx; cx++) {
-        var child = children[cx];
+    cloneChildren(node, clone, function (child) {
         var childClone = cloneCell(child, screenPosition);
         if (childClone) clone.appendChild(childClone);
-    }
+    });
     return clone;
 }
 cloneVisible.cell = cloneCell;
