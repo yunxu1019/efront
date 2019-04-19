@@ -57,7 +57,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
         stylesheet = document.createElement("style");
         stylesheet.type = "text/css";
         stylesheet_Map[targetSelector] = stylesheet;
-        appendChild(document.getElementsByTagName("head")[0], stylesheet);
+        document.getElementsByTagName("head")[0].appendChild(stylesheet);
     };
     if (typeof oStyle === "string") {
         if (typeof oValue === "string") {
