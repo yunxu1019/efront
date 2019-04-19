@@ -590,6 +590,23 @@ function block_code_scanner2(index, blocks) {
     return index;
 };
 
+function lookback_scanner(blockIndex, blocks) {
+    if (!blocks.length || blockIndex >= blocks.length) return -1;
+    var tempIndex = blocks[blockIndex].end;
+    while (blockIndex-- > 0) {
+        var tempBlock = blocks[blockIndex];
+        var type = tempBlock.type;
+        if (type === single_comment_scanner || type === multi_comment_scanner) continue;
+        if (type !== block_code_scanner) break;
+        var tempLastIndex = tempBlock.start;
+        tempIndex = Math.min(tempBlock.end, tempIndex);
+        while (tempIndex >= tempLastIndex && /\s/.test(this[tempIndex])) tempIndex--;
+        if (tempIndex > tempLastIndex) break;
+    }
+    if (blockIndex < 0) tempIndex = blockIndex;
+    return tempIndex;
+}
+
 var scanner = module.exports = function (s) {
     var blocks = [];
     var s = String(s);
@@ -608,6 +625,7 @@ function Block(scanner, start, end) {
     this.end = end;
 }
 Block.prototype = {
+    lookback_scanner,
     block_code_scanner,
     double_quote_scanner,
     regexp_quote_scanner,

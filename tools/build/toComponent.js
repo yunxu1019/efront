@@ -71,11 +71,12 @@ function toComponent(responseTree) {
                 }
                 var module_string = module_body[module_body.length - 1]
                 var code_blocks = scanner(module_string);
-                module_string = code_blocks.map(function (block) {
+                var extentReg = /\s*[\:\(]/y, prefixReg = /[,\{]/y;
+                module_string = code_blocks.map(function (block, index, blocks) {
                     var block_string = module_string.slice(block.start, block.end);
-                    var reg = /\s*[\:\(]/iy;
-                    reg.lastIndex = block.end;
-                    var isProp = reg.test(module_string);
+                    extentReg.lastIndex = block.end;
+                    prefixReg.lastIndex = block.lookback_scanner.call(module_string, index, blocks);
+                    var isProp = extentReg.test(module_string) && prefixReg.test(module_string);
                     if (block.type === block.single_quote_scanner) {
                         return setMatchedConstString(block_string, "'", block_string, isProp);
                     }
