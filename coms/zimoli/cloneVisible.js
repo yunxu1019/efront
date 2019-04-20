@@ -13,9 +13,11 @@ var copyStyle = function (srcStyle, dstStyle, cloneProperties = cloneProperties2
 var cloneChildren = function (td, copy, clone) {
     switch (String(copy.tagName).toLowerCase()) {
         case "input":
+        case "textarea":
             copy.placeholder = td.placeholder;
+            copy.value=td.value;
             break;
-        case "select":
+            case "select":
             var selector = `option[value="${String(td.value === null || td.value === undefined ? '' : td.value).replace(/"/g, "\\\"")}"]`;
             var opt = td.querySelector && td.querySelector(selector);
             if (opt) {
@@ -23,6 +25,7 @@ var cloneChildren = function (td, copy, clone) {
             } else {
                 copy.innerHTML = td.innerHTML;
             }
+            copy.value=td.value;
             break;
         case "img":
             copy.src = td.src;
