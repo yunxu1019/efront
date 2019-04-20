@@ -9,7 +9,7 @@ var appendChild = function (a, b) {
     a.appendChild(b);
 };
 var remove = function (a) {
-    a.parentNode && a.parentNode.removeChild(a);
+    a && a.parentNode && a.parentNode.removeChild(a);
 };
 function drag(target, initialEvent, overflow) {
 
