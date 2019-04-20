@@ -12,6 +12,9 @@ var copyStyle = function (srcStyle, dstStyle, cloneProperties = cloneProperties2
 };
 var cloneChildren = function (td, copy, clone) {
     switch (String(copy.tagName).toLowerCase()) {
+        case "input":
+            copy.placeholder = td.placeholder;
+            break;
         case "select":
             var selector = `option[value="${String(td.value === null || td.value === undefined ? '' : td.value).replace(/"/g, "\\\"")}"]`;
             var opt = td.querySelector && td.querySelector(selector);
