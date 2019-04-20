@@ -37,6 +37,7 @@ var cloneVisible = function (td) {
     var _left, _top, _right, _bottom;
     var span = document.createElement("x");
     var clone = function (td) {
+        if (!td) return;
         if (td.nodeType === 3) {
             var copy = span.cloneNode();
             copy.appendChild(td.cloneNode());
