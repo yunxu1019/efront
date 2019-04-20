@@ -20,6 +20,9 @@ function main(fields, types) {
     }).$scope;
     autodragchildren(page, page, function (src, dst) {
         var fields = scope.fields;
+        if (dst >= fields.length) {
+            dst = fields.length - 1;
+        }
         var field = fields.splice(src, 1)[0];
         fields.splice(dst, 0, field);
         console.log(JSON.stringify(scope.fields));
