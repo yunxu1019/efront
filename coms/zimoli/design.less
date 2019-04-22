@@ -2,8 +2,9 @@
     padding: 16px 0;
     position: relative;
 }
-
-&>div {
+&>.options,
+&>.fields>div {
+    text-align: right;
     padding: 0 16px;
     display: block;
     line-height: 40px;
@@ -28,12 +29,14 @@
     }
 
     >btn {
-        padding:  0 6px;
+        padding: 0 6px;
         border-radius: 0 3px 3px 0;
     }
 }
-
-
+&>.fields{
+    max-height: 400px;
+    overflow: hidden;
+}
 i {
     font-style: normal;
     display: inline-block;

@@ -18,7 +18,9 @@ function main(fields, types) {
         },
         types
     }).$scope;
-    autodragchildren(page, page, function (src, dst) {
+    var [options, fieldsContainer] = page.children;
+    vbox(fieldsContainer);
+    autodragchildren(fieldsContainer, fieldsContainer, function (src, dst) {
         var fields = scope.fields;
         if (dst >= fields.length) {
             dst = fields.length - 1;
