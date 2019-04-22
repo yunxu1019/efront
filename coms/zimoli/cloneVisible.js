@@ -15,9 +15,9 @@ var cloneChildren = function (td, copy, clone) {
         case "input":
         case "textarea":
             copy.placeholder = td.placeholder;
-            copy.value=td.value;
+            copy.value = td.value;
             break;
-            case "select":
+        case "select":
             var selector = `option[value="${String(td.value === null || td.value === undefined ? '' : td.value).replace(/"/g, "\\\"")}"]`;
             var opt = td.querySelector && td.querySelector(selector);
             if (opt) {
@@ -25,7 +25,7 @@ var cloneChildren = function (td, copy, clone) {
             } else {
                 copy.innerHTML = td.innerHTML;
             }
-            copy.value=td.value;
+            copy.value = td.value;
             break;
         case "img":
             copy.src = td.src;
@@ -35,12 +35,29 @@ var cloneChildren = function (td, copy, clone) {
     }
 
 };
+var isMaybeVisible = function (node) {
+    if (!node || !node.parentNode || node.nodeType > 3 || node.nodeType == 2) return;
+    var style = node.style;
+    if (!style) {
+        node = node.parentNode;
+    }
+    style = getComputedStyle(node);
+    if (style.display === "none") return;
+    if (style.visibility === "hidden" || style.visibility === "collapse") return;
+    if (+style.opacity === 0) return;
+    if (style.position === "fixed") return;
+    if (style.overflow === "hidden") {
+        if (node.offsetHeight === 0 || node.offsetWidth === 0) return;
+    }
+    if(!overlap(node,node.parentNode))return;
+    return true;
+}
 var cloneVisible = function (td) {
     var result = document.createElement("clone");
     var _left, _top, _right, _bottom;
     var span = document.createElement("x");
     var clone = function (td) {
-        if (!td) return;
+        if (!isMaybeVisible(td)) return;
         if (td.nodeType === 3) {
             var copy = span.cloneNode();
             copy.appendChild(td.cloneNode());
@@ -109,14 +126,8 @@ function cloneCell(node, parentPosition) {
     if (!node || node.nodeType > 3 || node.nodeType == 2) return;
     var style = node.style;
     if (!style) return node.cloneNode();
+    if (!isMaybeVisible(node)) return;
     style = getComputedStyle(node);
-    if (style.display === "none") return;
-    if (style.visibility === "hidden" || style.visibility === "collapse") return;
-    if (+style.opacity === 0) return;
-    if (style.position === "fixed") return;
-    if (style.overflow === "hidden") {
-        if (node.offsetHeight === 0 || node.offsetWidth === 0) return;
-    }
     var clone = document.createElement(node.tagName);
     var cloneStyle = clone.style;
     copyStyle(style, cloneStyle);
