@@ -8,9 +8,6 @@ var toCloneTarget = function (target) {
 var appendChild = function (a, b) {
     a.appendChild(b);
 };
-var remove = function (a) {
-    a && a.parentNode && a.parentNode.removeChild(a);
-};
 function drag(target, initialEvent, overflow) {
 
     !/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) && initialEvent.preventDefault();
