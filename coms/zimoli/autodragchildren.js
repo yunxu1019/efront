@@ -59,107 +59,110 @@ var hookx = function (matcher, move, event, targetChild) {
     var saved_opacity = targetBox.style.opacity;
     var saved_filter = targetBox.style.filter;
     var previousElements = getPreviousElementSiblings(targetChild), followedElements = getFollowedElementSiblings(targetChild);
+    var offall = function () {
+        offmousup();
+        offtouchend();
+        offdragstart();
+        offtouchconcel();
+    };
+    var offtouchconcel = on("touchconcel")(targetChild, offall);
+    var offtouchend = on("touchend")(targetChild, offall);
+    var offmousup = on("mouseup")(window, offall);
     var offdragstart = on("dragstart")(targetChild, function () {
         previousElements = previousElements.map(cloneCell);
         followedElements = followedElements.map(cloneCell);
         setOpacity(targetBox, 0);
         appendChild(document.body, previousElements);
         appendChild(document.body, followedElements);
-    });
-
-    var offall = function () {
-        canceldragmove();
-        offdragstart();
-        offdragend();
-        offtouchend();
-        offmouseup();
-    };
-    var offtouchend = on("touchend")(event.target, offall);
-    var offmouseup = on("mouseup")(window, offall);
-    var offdragend = on("dragend")(targetChild, function () {
-        css(targetBox, { opacity: saved_opacity, filter: saved_filter });
-        remove(previousElements);
-        remove(followedElements);
-        var dst, appendSibling, delta;
-        var src = previousElements.length;
-        if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
-            if (!previousElements[cx]) {
-                dst = 0;
-                delta = 0;
-                appendSibling = appendChild.before;
-            } else if (!previousElements[cx].moved) {
-                dst = previousElements.length - cx;
-                delta = -1;
-                appendSibling = appendChild.after;
-                break;
+        var offall = function () {
+            offdragmove();
+            offdragend();
+        };
+        var offdragend = on("dragend")(targetChild, function () {
+            offall();
+            css(targetBox, { opacity: saved_opacity, filter: saved_filter });
+            remove(previousElements);
+            remove(followedElements);
+            var dst, appendSibling, delta;
+            var src = previousElements.length;
+            if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
+                if (!previousElements[cx]) {
+                    dst = 0;
+                    delta = 0;
+                    appendSibling = appendChild.before;
+                } else if (!previousElements[cx].moved) {
+                    dst = previousElements.length - cx;
+                    delta = -1;
+                    appendSibling = appendChild.after;
+                    break;
+                }
             }
-        }
 
-        if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
-            if (!followedElements[cx]) {
-                dst = followedElements.length + previousElements.length;
-                delta = 0;
-                appendSibling = appendChild.after;
-            } else if (!followedElements[cx].moved) {
-                dst = previousElements.length + cx;
-                delta = 1;
-                appendSibling = appendChild.before;
-                break;
+            if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
+                if (!followedElements[cx]) {
+                    dst = followedElements.length + previousElements.length;
+                    delta = 0;
+                    appendSibling = appendChild.after;
+                } else if (!followedElements[cx].moved) {
+                    dst = previousElements.length + cx;
+                    delta = 1;
+                    appendSibling = appendChild.before;
+                    break;
+                }
             }
-        }
-        previousElements.map(recover);
-        followedElements.map(recover);
-        if (appendSibling) {
-            var children = this.parentNode.children;
-            var srcElement = children[src];
-            var dstElement = children[dst + delta];
-            isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
-            appendSibling(dstElement, srcElement);
-        }
-    });
-    var canceldragmove = on("dragmove")(targetChild, function () {
-        var dragTarget = drag.target;
-        if (dragTarget) {
-            var area = overlap(dragTarget, targetBox);
-            if (area > 0) {
-                var dragPosition = getScreenPosition(dragTarget);
-                var dragPositionLeft = dragPosition.left;
-                var currentTime = new Date;
-                previousElements.map(function (element) {
-                    if (currentTime - element.moving < 100) return;
-                    var elementPosition = getScreenPosition(element);
-                    var elementCenter = elementPosition.left + elementPosition.width / 2;
-                    if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
-                        recover(element);
-                    } else {
-                        moveMargin(element, dragPosition.width);
-                    }
-                });
-                var dragPositionRight = dragPosition.left + dragPosition.width;
-                followedElements.map(function (element) {
-                    if (currentTime - element.moving < 100) return;
-                    var elementPosition = getScreenPosition(element);
-                    var elementCenter = elementPosition.left + elementPosition.width / 2;
-                    if (elementCenter - (element.moved || 0) <= dragPositionRight) {
-                        moveMargin(element, -dragPosition.width);
-                    } else {
-                        recover(element);
-                    }
-                });
+            previousElements.map(recover);
+            followedElements.map(recover);
+            if (appendSibling) {
+                var children = this.parentNode.children;
+                var srcElement = children[src];
+                var dstElement = children[dst + delta];
+                isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
+                appendSibling(dstElement, srcElement);
+            }
+        });
+        var offdragmove = on("dragmove")(targetChild, function () {
+            var dragTarget = drag.target;
+            if (dragTarget) {
+                var area = overlap(dragTarget, targetBox);
+                if (area > 0) {
+                    var dragPosition = getScreenPosition(dragTarget);
+                    var dragPositionLeft = dragPosition.left;
+                    var currentTime = new Date;
+                    previousElements.map(function (element) {
+                        if (currentTime - element.moving < 100) return;
+                        var elementPosition = getScreenPosition(element);
+                        var elementCenter = elementPosition.left + elementPosition.width / 2;
+                        if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
+                            recover(element);
+                        } else {
+                            moveMargin(element, dragPosition.width);
+                        }
+                    });
+                    var dragPositionRight = dragPosition.left + dragPosition.width;
+                    followedElements.map(function (element) {
+                        if (currentTime - element.moving < 100) return;
+                        var elementPosition = getScreenPosition(element);
+                        var elementCenter = elementPosition.left + elementPosition.width / 2;
+                        if (elementCenter - (element.moved || 0) <= dragPositionRight) {
+                            moveMargin(element, -dragPosition.width);
+                        } else {
+                            recover(element);
+                        }
+                    });
+                } else {
+                    previousElements.map(recover);
+                    followedElements.map(recover);
+                }
             } else {
                 previousElements.map(recover);
                 followedElements.map(recover);
             }
-        } else {
-            previousElements.map(recover);
-            followedElements.map(recover);
-        }
+        });
     });
 };
 var allArgumentsNames = arguments[arguments.length - 1];
 var hooky = arriswise(hookx, allArgumentsNames.concat([].slice.call(arguments, 0)));
 var hook = function (matcher, move, event) {
-    if (is_dragging) return;
     if (event.target === this) return;
     var targetChild = getTargetIn(matcher, event.target);
     if (!targetChild) return;
