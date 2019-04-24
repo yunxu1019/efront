@@ -62,13 +62,11 @@ function cross(req, res, referer) {
             headers.referer = hostpath + parseUrl(_headers.referer).realpath;
             is_proxy = true;
         }
-        {
-            for (let key in headers) {
-                let k = key.toLowerCase();
-                if (k !== key) {
-                    headers[k] = headers[key];
-                    delete headers[key];
-                }
+        for (let key in headers) {
+            let k = key.toLowerCase();
+            if (k !== key) {
+                headers[k] = headers[key];
+                delete headers[key];
             }
         }
         headersKeys.forEach(function (key) {
