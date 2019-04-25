@@ -9,8 +9,8 @@ var appendChild = function (a, b) {
     a.appendChild(b);
 };
 function drag(target, initialEvent, overflow) {
-
-    !/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) && initialEvent.preventDefault();
+    if(/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName))return;
+    initialEvent.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);
         target = target[0];
