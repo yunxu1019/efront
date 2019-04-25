@@ -9,7 +9,7 @@ var reflect = {
     Left: "Top",
     top: "left",
     left: "top",
-    Right: "bottom",
+    Right: "Bottom",
     Bottom: "Right",
     right: "bottom",
     bottom: "right"
