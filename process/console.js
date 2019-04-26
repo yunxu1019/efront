@@ -38,9 +38,38 @@ var lastLogLength = 0;
         bgColor = colors[bg] || "",
         reset = colors.Reset;
     if (cluster.isMaster) {
+        var toLength = function (n) {
+            n = String(n);
+            if (n.length < 2) {
+                n = '0' + n;
+            }
+            return n;
+        };
+        var formatDate = function () {
+            var year = this.getFullYear();
+            var month = this.getMonth() + 1;
+            var date = this.getDate();
+            var hours = this.getHours();
+            var minutes = this.getMinutes();
+            var seconds = this.getSeconds();
+            var milli = this.getMilliseconds();
+            milli = toLength(milli);
+            if (milli.length < 3) {
+                milli = '0' + milli;
+            }
+            var offset = -this.getTimezoneOffset() / 60;
+            if (offset > 0) {
+                offset = '+' + toLength(offset);
+            } else if (offset < 0) {
+                offset = '-' + toLength(-offset);
+            } else {
+                offset = '';
+            }
+            return `${[year, month, date].map(toLength).join('-')}T${[hours, minutes, seconds].map(toLength).join(':')}.${milli}Z${offset}`;
+        };
         var logger = function (...args) {
             var label = colors.Bright + fgColor + bgColor + info + reset;
-            var time_stamp = colors.FgGray + new Date().toISOString() + reset;
+            var time_stamp = colors.FgGray + formatDate.call(new Date) + reset;
             var str = [label, time_stamp, ...args].join(" ");
             var width = process.stderr.columns;
             var hasNewLine = /^(warn|error)$/.test(log);
