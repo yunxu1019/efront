@@ -4,10 +4,15 @@ var loadjson = module.exports = function loadjson(url) {
     var data = fs.readFileSync(url);
     return new Function("return " + String(data))();
 };
-loadjson.async = function (url) {
+loadjson.async = function (url,ignoreIfNotExist) {
     return new Promise(function (ok, oh) {
         fs.exists(url, function (exists) {
-            if (!exists) return oh(new Error(`文件不存在!${url}`));
+            if (!exists) {
+                if(!ignoreIfNotExist){
+                    return oh(new Error(`文件不存在!${url}`));
+                }
+                return;
+            };
             fs.stat(url, function (error, stats) {
                 if (error) return oh(error);
                 if (!stats.isFile()) return oh(new Erorr(`路径所指向的不是文件${url}`));
