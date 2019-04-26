@@ -30,6 +30,8 @@ if (isHelpMode) {
 } else if (isDocsCommand) {
     setenv({
         public_path: path.join(__dirname, "apps"),
+        coms_path: path.join(__dirname, "coms"),
+        page_path: path.join(__dirname, "apps"),
         app: "docs"
     });
     require("./process/setupenv");
@@ -37,6 +39,8 @@ if (isHelpMode) {
 } else if (isDemoCommand) {
     setenv({
         public_path: path.join(__dirname, "apps"),
+        page_path: path.join(__dirname, "apps"),
+        coms_path: path.join(__dirname, "coms"),
         app: "zimoli"
     });
     require("./process/setupenv");
