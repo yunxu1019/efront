@@ -30,7 +30,7 @@ var onmessage = function (msg, then) {
                 }), (error) => {
                     if (error) console.error(error, `message[${key}]:${this.id}`);
                 });
-            } : notSupport;
+            } : null;
             run.call(onmessage, params, then, stamp);
         } else {
             run.call(onmessage, null, then || notSupport);

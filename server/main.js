@@ -172,5 +172,5 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     }
     process.title = `服务器地址：${require("../process/getLocalIP")()} 端口：${+process.env.HTTP_PORT || 80}`;
 
-    cluster.isWorker && message.count("boot");
+    message.count("boot");
 }
