@@ -154,6 +154,7 @@ function efront(getLoader) {
     return window;
 }
 module.exports = function (mainpath) {
+    mainpath = mainpath.replace(/\.[tj]sx?$/i, '');
     var unload = function () {
         Object.keys(intervalHandles).map(clearInterval);
         Object.keys(timeoutHandles).map(clearTimeout);
@@ -167,6 +168,7 @@ module.exports = function (mainpath) {
                 if (/^https?\:\/\//i.test(mainpath)) {
                     getLoader = fromInternet.bind(null, mainpath);
                 } else {
+                    console.log(mainpath);
                     getLoader = fromComponent.bind(null, mainpath);
                 }
                 var window = efront(getLoader);

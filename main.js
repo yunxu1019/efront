@@ -23,7 +23,7 @@ var isServerMode = configs.server || configs.serve;
 var isInitCommand = configs.init;
 var isDocsCommand = configs.doc || configs.docs;
 var isDemoCommand = configs.demo || configs.zimoli;
-var loadModule = process.argv.slice(2).filter(e => /^https?\:\/\/|\/|\.[tj]sx?$/i.test(e));
+var loadModule = process.argv.slice(2).filter(e => /\/|_test$|\.[tj]sx?$/i.test(e));
 var isStartCommand = configs.start || configs.run;
 if (isHelpMode) {
     console.log("these commands can be used: test server public init watch");
