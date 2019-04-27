@@ -57,6 +57,22 @@ function main(filepath) {
         },
         writeSync(buff, offset) {
             return this.open('w').write(buff, offset).close();
+        },
+        rmdir(){
+            return new Promise(function (ok, oh) {
+                fs.rmdir(filepath, function (err) {
+                    if (err) return oh(err);
+                    else ok();
+                });
+            });
+        },
+        unlink() {
+            return new Promise(function (ok, oh) {
+                fs.unlink(filepath, function (err) {
+                    if (err) return oh(err);
+                    else ok();
+                });
+            });
         }
 
     });
