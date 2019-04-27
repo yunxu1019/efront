@@ -1,7 +1,6 @@
 "use strict";
 var fs = require("fs"),
-    path = require("path"),
-    enrich = require("../process/enrich");
+    path = require("path");
 
 var src_path = "E:\\";
 var filesystem = enrich({
@@ -112,4 +111,3 @@ var filesystem = enrich({
 function find(full_path) {
     return filesystem.path(full_path);
 }
-module.exports = find;
