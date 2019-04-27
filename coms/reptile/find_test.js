@@ -63,7 +63,7 @@ it("getfiles", function () {
 it("readtree", function () {
     this.timeout(2000000);
     return find("E:\\77").readtree().then(function (result) {
-        // console.log(result);
+        console.log(result);
     });
 });
 it("getmulti", function () {

@@ -7,10 +7,10 @@ var filesystem = enrich({
     path(full_path) {
         this._full_path = full_path;
     },
-    mkdir(full_path=tihs._full_path){
-        return new Promise(function(ok,oh){
-            fs.mkdir(full_path,function(error){
-                if(error)oh(error);
+    mkdir(full_path = tihs._full_path) {
+        return new Promise(function (ok, oh) {
+            fs.mkdir(full_path, function (error) {
+                if (error) oh(error);
                 else ok();
             });
         });
@@ -39,12 +39,13 @@ var filesystem = enrich({
     getfiles(full_path = this._full_path) {
         if (!this._files_map) this._files_map = {};
         var that = this;
+        var searcher = this.searcher;
         if (full_path instanceof Array) {
-            return Promise.all(full_path.map(function (full_path) {
+            return queue.call(function (full_path) {
                 return that.getfiles(full_path);
-            })).then(function (stats) {
+            }, full_path).then(function (stats) {
                 var _dirs = {}, _files = {};
-                stats.filter(a => a).forEach(function ({ dirs, files }) {
+                stats.filter(a => !!a).forEach(function ({ dirs, files }) {
                     for (var k in dirs) {
                         if (!_dirs[k]) _dirs[k] = dirs[k];
                     }
@@ -60,6 +61,14 @@ var filesystem = enrich({
             return that.exists(full_path).then(function (exists) {
                 return exists && that.stat(full_path).then(function (stat) {
                     if (stat.isFile()) {
+                        if (searcher instanceof Function) {
+                            return Promise.resolve(searcher.call(that, full_path, stat)).then(function (res) {
+                                if (res === false) {
+                                    return false;
+                                }
+                                return { files: { [full_path]: stat }, dirs: {} };
+                            });
+                        }
                         return { files: { [full_path]: stat }, dirs: {} };
                     } else {
                         return { dirs: { [full_path]: stat }, files: {} };
@@ -72,9 +81,9 @@ var filesystem = enrich({
         var file_map = {};
         var that = this;
         var reader = function (full_path) {
-            if (!full_path.length) return file_map;
+            if (!full_path || !full_path.length) return file_map;
             return that.getfiles(full_path).then(function (result) {
-                if (!result) return [];
+                if (!result) [];
                 var { dirs, files } = result;
                 Object.keys(files).forEach(function (key) {
                     var file_stat = files[key];
@@ -83,30 +92,34 @@ var filesystem = enrich({
                     file_map[hash].push(key);
                 });
                 var nexts = [];
-                return Promise.all(Object.keys(dirs).map(function (key) {
+
+                return queue.call(function (key) {
                     return that.readdir(key).then(function (names) {
                         names.map(function (name) {
                             nexts.push(path.join(key, name));
                         });
                     });
-                })).then(function (dirs) {
-                    return nexts;
+                }, Object.keys(dirs)).then(function () {
+                    return reader(nexts);
                 });
-            }).then(reader);
+            });
         };
         return reader(full_path);
     },
-    getmulti(full_path){
-        return this.readtree().then(function(tree){
-            var result={};
-            for(var key in tree){
-                if(tree[key].length>1){
-                    result[key]=tree[key];
+    search(searcher) {
+        this.searcher = searcher;
+    },
+    getmulti(full_path) {
+        return this.readtree().then(function (tree) {
+            var result = {};
+            for (var key in tree) {
+                if (tree[key].length > 1) {
+                    result[key] = tree[key];
                 }
             }
             return result;
         });
-    }
+    },
 });
 function find(full_path) {
     return filesystem.path(full_path);
