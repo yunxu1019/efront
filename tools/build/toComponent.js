@@ -33,7 +33,7 @@ function toComponent(responseTree) {
                     if (k.length < 3) return match;
                     switch (type) {
                         case "'":
-                            k = k.replace(/(')(.*?)\1/, function (match, quote, string) {
+                            k = k.replace(/^(['"])(.*?)\1$/, function (match, quote, string) {
                                 return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
                             });
                             break;
