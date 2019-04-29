@@ -45,13 +45,13 @@ var window = {
         init: {},
         put: {},
         prepare: {},
-        MOVELOCK_DELTA: 1,
-        SAFE_CIRCLE_DEPTH: 2,
+        MOVELOCK_DELTA: 3,
+        SAFE_CIRCLE_DEPTH: 300,
         renderPixelRatio: {},
         XHR: {},
-        calcPixel:{},
-        freePixel:{},
-        fromPixel:{},
+        calcPixel: {},
+        freePixel: {},
+        fromPixel: {},
     },
     Image: {},
     Promise: {},
@@ -69,7 +69,8 @@ function compile(buildInfo, lastBuildTime, destroot) {
             responsePath,
             responseVersion,
             responseWithWarning,
-            writeNeeded;
+            writeNeeded,
+            moduleValue;
 
         var resolve = function () {
             Object.assign(buildInfo, {
@@ -77,6 +78,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 data: responseText,
                 realpath: responsePath,
                 version: responseVersion,
+                builtin: moduleValue,
                 warn: responseWithWarning
             });
             if (responseText instanceof Promise) {
@@ -166,9 +168,10 @@ function compile(buildInfo, lastBuildTime, destroot) {
                         get();
                         return;
                     }
-                    if(window.modules[name]) console.info(`${url} will be replaced by the builtin module`);
+                    if (window.modules[name]) console.info(`${url} will be replaced by the builtin module`);
                     else if (!window[name]) responseWithWarning = `没有发现文件：${url}`;
                     else console.info(`${url} will be replaced by the global variables`);
+                    moduleValue = window.modules[name];
                     resolve();
                 }
             });
