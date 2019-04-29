@@ -26,7 +26,7 @@ function _onappend(node, event) {
         _onappend(children[cx], event);
     }
 }
-_onappend(document.documentElement);
+if (!document.body) once('load')(window, () => _onappend(document.documentElement));
 
 function appendChild(parent, obj, transition) {
     if (transition === false) {
