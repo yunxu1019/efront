@@ -7,16 +7,15 @@ onkeydown(document, function (e) {
     }
 });
 var windowFactory = function () {
-    var window = createElement(div);
+    var window = document.createElement("div");
     css(window, `height:100px;width:100px;position:absolute;background-color:#fff;left:${rootElements.length << 4}px;top:${rootElements.length << 4}px;`);
     return window;
 };
 var loadingFactory = function () {
-    var element = createElement(div);
+    var element = document.createElement("div");
     css(element, `height:100px;width:100px;position:absolute;background-color:#fff;`);
     return element;
 }
-put("/popup/window", windowFactory);
 /**
  * 弹出子窗口的函数
  * @param {string} path 窗口路径的唯一索引
@@ -73,7 +72,7 @@ var popup_view = function (element, target) {
     return popup_as_single(element);
 };
 var createMask = function () {
-    var mask = createElement(div);
+    var mask = document.createElement("div");
     css(mask, `position:absolute;position:fixed;z-index:${zIndex()};left:0;right:0;bottom:0;top:0;width:auto;height:auto;background-color:rgba(0,0,0,0.2)`);
     mask.className = "popup-factory mask";
     mask.isMask = true;
