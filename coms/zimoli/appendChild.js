@@ -27,7 +27,7 @@ function _onappend(node, event) {
     }
 }
 if (!document.body) once('load')(window, () => _onappend(document.documentElement));
-
+else _onappend(document.documentElement);
 function appendChild(parent, obj, transition) {
     if (transition === false) {
         var children = [].concat(obj);
