@@ -77,6 +77,10 @@ if (is_addEventListener_enabled) {
                         handlers.splice(cx, 1);
                     }
                 }
+                if (!handlers.length) {
+                    element[handler_path] = null;
+                    element[on_event_path] = null;
+                }
             };
             return remove;
         }
