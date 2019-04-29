@@ -2,12 +2,17 @@ var escodegen = require("../../process/escodegen/escodegen");
 var esprima = require("../../process/esprima");
 var esmangle = require("../../process/esmangle/esmangle");
 var scanner = require("../../process/compile/scanner");
+var typescript = require("../../process/typescript/typescript");
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
     delete responseTree["[]map"];
     var resultMap = {}, result = [];
     for (var k in responseTree) {
-        var dependence = responseTree[k].dependence;
+        var response = responseTree[k];
+        var dependence = response.dependence;
+        if (!response.data && /^(number|function|string)$/.test(typeof response.builtin)) {
+            response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
+        }
         result.push([k].concat(dependence).concat(dependence.args).concat(responseTree[k].toString().slice(dependence.offset)));
     }
     var dest = [], last_result_length = result.length;
@@ -33,6 +38,7 @@ function toComponent(responseTree) {
                     if (k.length < 3) return match;
                     switch (type) {
                         case "'":
+                        case "\"":
                             k = k.replace(/^(['"])(.*?)\1$/, function (match, quote, string) {
                                 return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
                             });
@@ -71,12 +77,18 @@ function toComponent(responseTree) {
                 }
                 var module_string = module_body[module_body.length - 1]
                 var code_blocks = scanner(module_string);
-                var extentReg = /\s*[\:\(]/y, prefixReg = /[,\{]/y;
+                var extentReg = /\s*[\:\(]/gy, prefixReg = /[,\{]/gy;
                 module_string = code_blocks.map(function (block, index, blocks) {
                     var block_string = module_string.slice(block.start, block.end);
-                    extentReg.lastIndex = block.end;
-                    prefixReg.lastIndex = block.lookback_scanner.call(module_string, index, blocks);
-                    var isProp = extentReg.test(module_string) && prefixReg.test(module_string);
+                    var isPropEnd = (
+                        extentReg.lastIndex = block.end,
+                        extentReg.exec(module_string)
+                    );
+                    var isPropStart = (
+                        prefixReg.lastIndex = block.start - 1,
+                        prefixReg.exec(module_string)
+                    );
+                    var isProp = !!(isPropStart && isPropEnd);
                     if (block.type === block.single_quote_scanner) {
                         return setMatchedConstString(block_string, "'", block_string, isProp);
                     }
@@ -88,7 +100,7 @@ function toComponent(responseTree) {
                     }
                     return module_string.slice(block.start, block.end);
                 }).join("").replace(/(\.)\s*((?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_a-z\u0100-\u2027\u2030-\uffff])(?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_\w\u0100-\u2027\u2030-\uffff])*)/ig, setMatchedConstString);
-
+                module_string = typescript.transpile(module_string);
                 var module_code = esprima.parse(`function ${k.replace(/^.*?([\$_a-z]\w*)\.[tj]sx?$/ig, "$1")}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
                 module_code = esmangle.optimize(module_code, null);
                 module_code = esmangle.mangle(module_code);

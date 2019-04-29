@@ -168,10 +168,9 @@ function compile(buildInfo, lastBuildTime, destroot) {
                         get();
                         return;
                     }
-                    if (window.modules[name]) console.info(`${url} will be replaced by the builtin module`);
+                    if (window.modules[name]) console.info(`${url} will be replaced by the builtin module`), moduleValue = window.modules[name];
                     else if (!window[name]) responseWithWarning = `没有发现文件：${url}`;
                     else console.info(`${url} will be replaced by the global variables`);
-                    moduleValue = window.modules[name];
                     resolve();
                 }
             });
