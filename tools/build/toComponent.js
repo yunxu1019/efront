@@ -111,7 +111,22 @@ function toComponent(responseTree) {
         last_result_length = result.length;
     }
     var PUBLIC_APP = k;
-    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(window)).call([${dest}],function(a,c){return this[c+1]=a instanceof Array?a[a.length-1].apply(this[0],a.slice(0,a.length-1).map(function(a){return this[a]},this)):a},[window])[${dest.length - 1}]`;
+    var realize = function (a, c) {
+        if (!(a instanceof Array)) return this[c + 1] = a;
+        var g = a.slice(0, a.length - 1)
+            .map(function (a) {
+                return this[a];
+            }, this);
+        var f = a[a.length - 1];
+        var l = /^function[^\(]*?\(([^\)]+?)\)/.exec(f);
+        if (l) {
+            l = l[1].split(',');
+            g = g.concat([l.concat(l)]);
+        }
+        return this[c + 1] = f.apply(this[0], g);
+    };
+
+    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(window)).call([${dest}],${realize.toString().replace(/\s+/g, ' ')},[window])[${dest.length - 1}]`;
     // var tester_path = responseTree[PUBLIC_APP].realpath.replace(/\.[tj]sx?$/, "_test.js");
     // if (tester_path) {
     //     try {
