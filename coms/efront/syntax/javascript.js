@@ -22,7 +22,7 @@ var IdentifierPartReg = /[\$_a-zA-Z0-9]|[\xAA\xB5\xB7\xBA\xC0-\xD6\xD8-\xF6\xF8-
 var IdentifierEndReg = new RegExp(`(?!${IdentifierPartReg.source})`, "yg");
 var PunctuatorsReg = /\+\+|\-\-|\|\||&&|~|\?|,|;|\:|(?:\+|\-|\!|\*\*?|\/|\=|%|\||\^|&|>>?>?|<<?)\=?|[\.]|\=\>/yg;
 // var RegularStartReg=/(?<=[[|,+=*~?:&\^{\(\/><;%\-]|(?:[)};:{]|[^\.\s]\s+)(?:(?:continue|break)(?:\s+[\w\u0100-\u2027\u2030-\uffff]+?)?|return|case|void|typeof|delete|instanceof|in|new|else|throw|extends|debugger)|^)\//g;
-var ConditionStartReg = /(?<=(?<!\.\s*)(?:if|with|for|while))\s*(?=\()/yg
+var ConditionStartReg = /(?<=(?<!\.\s*))(?:if|with|for|while)\s*\(/yg
 var NumericLiteralReg = /\d*\.?\d+(?:[eE]\d+)?|0x[0-9af]+|0o[0-7]+|0b[0-1]+/yg;
 var BooleanLiteralReg = /false|true/yg;
 var NullLiteralReg = /null/yg;
@@ -48,8 +48,8 @@ instanceof
 `.trim().split(/\s+|,/g).join("|"), "yg");
 var ProgramCodeBlockReg =
     new RegExp(
-        /////1///2///3/// 4  ///  5 ///6 ///////////////             7             ///          8                ///          9             ///           10       ///               11                                 //////////////////////////////             12            ///           13          ////     14   ///////////////////   
-        `${/(')|(")|(`)|(\/\/)|(\/\*)|(\/)/.source}|(?:${/(?<!\.\s*)/.source}(?:(${NumericLiteralReg.source})|(${BooleanLiteralReg.source})|(${NullLiteralReg.source})|(${KeyWordReg.source}))|((?:${IdentifierStartReg.source}).*?))${IdentifierEndReg.source}|(${ConditionStartReg.source})|(${PunctuatorsReg.source})|${/([\(\{\[])|[\)\}\]]/.source}`, "yg");
+        // //1///2///3/// 4  ///  5 ///6 ////////////             12            ///////////////////////////////             7             ///          8                ///          9             ///           10       ////               11                   ////////////////////////////           13           //////   14   ///////////////////   
+        `${/(')|(")|(`)|(\/\/)|(\/\*)|(\/)/.source}|(${ConditionStartReg.source})|(?:${/(?<!\.\s*)/.source}(?:(${NumericLiteralReg.source})|(${BooleanLiteralReg.source})|(${NullLiteralReg.source})|(${KeyWordReg.source}))|((?:${IdentifierStartReg.source}).*?))${IdentifierEndReg.source}|(${PunctuatorsReg.source})|${/([\(\{\[])|[\)\}\]]/.source}`, "yg");
 // var ProgramCodeBlockReg = /\}|(')|(")|(`)|(\/\/)|(\/\*)|function\(|((?<=[[|,+=*~?:&\^{\(\/><;%\-]|(?:[)};:{]|[^\.\s]\s+)(?:(?:continue|break)(?:\s+[\w\u0100-\u2027\u2030-\uffff]+?)?|return|case)|^)\/)|(\{)/g;
 var regExpressionsTree = {
     [SingleLineComment]: /(?=[\r\n\u2028\u2029])/g,
@@ -64,7 +64,7 @@ var regExpressionsTree = {
     [Boolean]: IdentifierEndReg,
     [Keyword]: IdentifierEndReg,
     [Punctuator]: /(?=[\s\S])/yg,
-    [Condition]: /(\()|(\{)|\)/g,
+    [Condition]: [/([\{\[\(])|\)/g, ProgramCodeBlock],
     [ProgramCodeBlock]: [{
         skipBlank(dataString) {
             var reg = /\s+/yg;
@@ -150,12 +150,12 @@ var regExpressionsTree = {
         SingleLineComment/*4*/,
         MultiLinesComment/*5*/,
         RegularExpression/*6*/,
+        Condition/*12*/,
         Numeric/*7*/,
         Boolean/*8*/,
         Null/*9*/,
         Keyword/*10*/,
         Identifier/*11*/,
-        Condition/*12*/,
         Punctuator/*13*/,
         ProgramCodeBlock/*14*/
     ],
@@ -246,6 +246,9 @@ Block.prototype = {
     },
     isFunctionDeclaration() {
         return this.type === Keyword && this.getSource() === "function" && (!this.prev || !(this.prev.type == Punctuator || this.prev.type == Keyword) || !BeforeFunctionReg.test(this.prev.getSource()));
+    },
+    isIdentifier() {
+        return this.type === Identifier;
     },
     isKeyWord() {
 

@@ -3,9 +3,9 @@ var compile = compile$Scanner.scan;
 var javascript = syntax$javascript;
 var assert = basic$assert;
 var _assert = function (string, expectStart, expectEnd) {
+    console.log('Assert:', string);
     var testResult = compile(string, javascript);
     var type = String(this);
-    console.log('Assert:', string);
     if (arguments.length === 2) {
         assert(testResult, expectStart);
     } else {
@@ -115,7 +115,7 @@ function TestRegularExpression() {
     Assert(`continue c/b/g`, 10, 14);
     Assert(`return/b/g`, 6, 10);
     Assert(`i.test(b)/b/g`, { 4: { type: { name: "Punctuator" } } });
-    Assert(`if(a)/b/g`, 5, 9);
+    Assert(`if((a))/b/g`, 7, 11);
     Assert(`while(c)/b/g`, 8, 12);
     Assert(`for(c)/b/g`, 6, 10);
     Assert(`.for(c)/b/g`, { 3: { type: { name: "Punctuator" } }, 5: { type: { name: "Punctuator" } } });
@@ -140,7 +140,7 @@ function TestRegularExpression() {
         }
     });
     Assert(`if(1)break b/c/.test("")`, {
-        4: {
+        3: {
             type: { name: 'RegularExpression', value: 5 },
             start: 12,
             end: 15
