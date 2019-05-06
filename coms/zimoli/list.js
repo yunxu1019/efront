@@ -346,6 +346,7 @@ function list() {
                     container.go(container.index() || 0);
                 };
             });
+            bindSrc = true;
         }
     }
 
@@ -356,8 +357,10 @@ function list() {
     }
     $Y = /^[xh]|[xh]$/i.test($Y) ? "X" : "Y";
     var list = ($Y === "X" ? xlist : ylist)(container, generator, $Y);
-    if (bindSrc) {
+    if (bindSrc instanceof Array) {
         list.src = bindSrc;
+        container.go(container.index() || 0);
+    } else if (bindSrc === true) {
         container.go(container.index() || 0);
     }
     return list;
