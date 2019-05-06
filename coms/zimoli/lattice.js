@@ -10,7 +10,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     var boxCount;
     var resize = function () {
         var _layers = layers || _box.src || [];
-        var clientWidth = freePixel(_box.clientWidth);
+        var clientWidth = parseFloat(freePixel(_box.clientWidth));
         boxCount = clientWidth / minWidth | 0;
         if (minCount >= _layers.length) {
             boxCount = minCount;
@@ -59,6 +59,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     onappend(_box, function () {
         resize();
         mountedLattices.push(_box);
+        [].forEach.call(_box.children, build);
     });
     onremove(_box, function () {
         for (var cx = mountedLattices.length - 1; cx >= 0; cx--) {
@@ -100,5 +101,5 @@ function main() {
     if (isNode(element) && !minWidth) {
         minWidth = +element.getAttribute("min-width");
     }
-    return lattice(element, minWidth, maxWidth, layers);
+    return lattice(element, minWidth || 100, maxWidth, layers);
 }
