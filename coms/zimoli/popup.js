@@ -98,7 +98,14 @@ var popup_with_mask = function (element, mask = createMask()) {
     return element;
 };
 var popup_as_extra = function (element, target) {
-    if (/inline|cell/i.test(getComputedStyle(target).display)) {
+    var offsetParent = target.offsetParent;
+    if (offsetParent) {
+        if (offsetParent.clientHeight / target.offsetHeight < offsetParent.clientWidth / target.offsetWidth) {
+            popup_as_yextra(global, element, target);
+        } else {
+            popup_as_xextra(global, element, target);
+        }
+    } else if (/inline|cell/i.test(getComputedStyle(target).display)) {
         popup_as_yextra(global, element, target);
     } else {
         popup_as_xextra(global, element, target);
