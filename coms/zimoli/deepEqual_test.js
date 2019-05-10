@@ -106,6 +106,6 @@ function deepEqual_test() {
         checkMultiCircle(),
         checkDeep(),
         checkDeepCircle(),
-        checkDeepDepth(),
+        // checkDeepDepth(),
     );
 }
