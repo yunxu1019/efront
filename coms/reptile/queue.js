@@ -9,7 +9,7 @@ function queue(list, count = 1, context = null) {
             if (cx >= list.length && loaded_count >= list.length) return ok(result);
             var saved_cx = cx;
             var args = list[cx++];
-            Promise.resolve(f.call(context, args)).then(function (data) {
+            Promise.resolve(f.call(context, args, cx, list)).then(function (data) {
                 result[saved_cx] = data;
             }).catch(function () {
                 error_count++;
