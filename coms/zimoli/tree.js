@@ -86,15 +86,23 @@ function appendTo(parent, datas) {
         parent = parent.parent;
     }
 }
-function tree(constructor) {
+function tree() {
+    var element, generagor;
+    [].forEach.call(arguments, function (arg) {
+        if (isNode(arg)) {
+            element = arg;
+        } else if (arg instanceof Function) {
+            generagor = arg;
+        }
+    });
     var dom = [], root = null;
-    var banner = list(function (index) {
+    var banner = list(element, function (index) {
         var coms = dom;
         if (index >= coms.length) return;
         var com = coms[index];
         var span;
-        if (isFunction(constructor)) {
-            span = constructor(com);
+        if (isFunction(generagor)) {
+            span = generagor(com);
         } else {
             span = div();
             html(span, `${repeat("<t></t>", com.tab)}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
@@ -127,14 +135,14 @@ function tree(constructor) {
         })
         return _div;
     });
-
-    banner.src = function (src) {
+    
+    banner.setData = function (src) {
         if (isArray(src)) {
             root = getTreeFromArray(src);
             dom = getArrayFromTree(root);
         }
     };
-    banner.add = function (data, parent = root) {
+    banner.addData = function (data, parent = root) {
         appendTo(parent, data);
         dom = getArrayFromTree(root);
     };

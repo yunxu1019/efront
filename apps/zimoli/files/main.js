@@ -62,7 +62,7 @@ var _list = tree(function (data) {
 onactive(_list, function (event) {
     var { value, item } = event;
     if (value.isFolder && !item.length) {
-        _list.add(value.children.map(function (name) {
+        _list.addData(value.children.map(function (name) {
             return {
                 tab: data.tab + 1,
                 name,
@@ -100,7 +100,7 @@ api("/file/info").success(function (response) {
     roots.map(function (a) {
         a.tab = 0;
     })
-    _list.src(roots);
+    _list.setData(roots);
     _list.go(0);
 });
 function main() {

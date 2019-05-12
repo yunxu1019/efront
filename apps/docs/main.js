@@ -22,7 +22,7 @@ onkeydown(commNameInput, function (event) {
     }
 });
 api("/getAllComponents").success(function (result) {
-    leftArea.src(result.result);
+    leftArea.setData(result.result);
     leftArea.go(state().scroll);
 }).error(function (err) {
     alert(err);
