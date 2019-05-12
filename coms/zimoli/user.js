@@ -1,5 +1,5 @@
 var USERINFO = 'userinfo';
-var userInstance = data.getInstauce(USERINFO);
+var userInstance = data.getInstance(USERINFO);
 var emptyProto = {
     name: "",
     _id: "",
