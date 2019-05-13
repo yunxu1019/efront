@@ -18,18 +18,18 @@ var removeRenderElement = function () {
 function refresh() {
     for (var k in renderElements) {
         var element = renderElements[k];
-        var props = extend({}, element);
         rebuild(element);
-        var changes = getChanges(element, props);
-        if (changes) {
-            var event = createEvent('changes');
-            event.changes = changes;
-            dispatch(event, element);
-        }
     }
 }
 function rebuild(element) {
+    var props = extend({}, element);
     element.renders.forEach(a => a.call(element));
+    var changes = getChanges(element, props);
+    if (changes) {
+        var event = createEvent('changes');
+        event.changes = changes;
+        dispatch(event, element);
+    }
 }
 var createGetter = function (search, usetry = true) {
     var [withContext, searchContext] = search;
