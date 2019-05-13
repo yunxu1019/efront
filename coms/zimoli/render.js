@@ -170,6 +170,11 @@ var directives = {
         var that = this;
         this.renders.push(function () {
             var value = getter();
+            if (value instanceof Array) {
+                value = value.slice(0, value.length);
+            } else if (value instanceof Object) {
+                value = Object.assign({}, value);
+            }
             if (deepEqual(value, oldValue)) return;
             oldValue = value;
             value = value || "";
@@ -419,16 +424,13 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (/^(?:class|style|src)$/i.test(name)) return;
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
-            var savedLength = element.renders.length;
             directives[key].call(element, [withContext, value]);
-            element.renders.slice(savedLength).forEach(function (e) {
-                e.call(this);
-            }, element);
         } else if (emiter_reg.test(name)) {
             var ngon = emiter_reg.exec(name)[1].toLowerCase();
             emiters[ngon].call(element, key, [withContext, value]);
         }
     });
+    rebuild(element);
     if (element.renders.length) {
         element.renderid = ++renderidOffset;
         onappend(element, addRenderElement);

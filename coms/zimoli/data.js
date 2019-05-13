@@ -63,7 +63,7 @@ const formulaters = {
         }
         return data;
     },
-    'function'(formulate, data, params?) {
+    'function'(formulate, data, params) {
         return formulate(data, params);
     }
 };
@@ -233,7 +233,6 @@ var data = {
     asyncInstance(id, params, parser) {
         privates.loadAfterConfig(id, params).then((data) => {
             this.setInstance(id, data);
-            console.log(data);
         });
         return this.getInstance(id);
     },
