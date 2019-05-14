@@ -1,6 +1,4 @@
-& {
-
-}
+& {}
 
 &>div.lack+div.more {
     width: 100%;
@@ -78,7 +76,7 @@ body:active & {
     width: 100%;
 }
 
-&[mode=horizonal]{
+&[mode=horizonal] {
     overflow: hidden;
     text-overflow: hidden;
     height: 40px;
@@ -92,6 +90,9 @@ body:active & {
 &[mode=inline] {
     height: auto;
     box-shadow: none;
+    padding: 0;
+    margin: 0;
+
     .tab1 {
         &.open {
             color: #fff;

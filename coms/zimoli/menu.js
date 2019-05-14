@@ -33,16 +33,39 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
 
 
 function inlineMenu(nodes) {
-    var menu = tree();
-    onactive(menu, function (e) {
-        e.value.href && zimoli.go(e.value.href);
-    });
-    menu.src(nodes);
-    menu.go(0);
-    return menu;
+    var container = this;
+
+    var src = container.getAttribute("src") || container.getAttribute("ng-src") || container.getAttribute("v-src");
+    if (src) {
+        var parsedSrc = render.parseRepeat(src);
+        if (!parsedSrc) {
+            container.removeAttribute("src");
+            var generator = getGenerator(container);
+        } else {
+            container.removeAttribute("src");
+            var generator = getGenerator(container, parsedSrc);
+        }
+        container.setAttribute("ng-src", parsedSrc ? parsedSrc.srcName : src);
+        on('changes')(container, function (event) {
+            if (event.changes.src) {
+                container.setData(this.src);
+                container.go(container.index() || 0);
+            };
+        });
+        tree(container, generator);
+    } else {
+        container = tree(this);
+        container.innerHTML = "";
+        container.setData(nodes);
+    }
+    container.go(0);
+    return container;
 }
 function verticalMenu(nodes) {
-    return menuList(nodes);
+    var menu = menuList.call(this, nodes, function (item) {
+        active(menu, item, this);
+    });
+    return menu;
 }
 var getArrayNodes = function (elem) {
     var nodes = [];
@@ -103,13 +126,13 @@ function main(elem, mode) {
             case "c":
             case "inline":
                 var nodes = getTreeNodes(elem);
-                elem = inlineMenu(nodes);
+                elem = inlineMenu.call(elem, nodes);
                 break;
             case "x":
             case "y":
             case "vertical":
                 var nodes = getArrayNodes(elem);
-                elem = verticalMenu(nodes);
+                elem = verticalMenu.call(elem, nodes);
                 break;
             case "h":
             case "x":
@@ -118,8 +141,7 @@ function main(elem, mode) {
                 elem = menu(nodes);
                 break;
             default:
-                elem.setAttribute("mode", "horizonal");
-                elem = menu(nodes);
+                throw new Error(`不支持的菜单类型：${mode}`);
         }
     } else {
         mode = mode || "horizonal";
