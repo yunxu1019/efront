@@ -1,7 +1,8 @@
 var page = div();
 page.innerHTML = left;
 render(page, {
-    menu
+    ylist: menu,
+    menus: data.asyncInstance('menus'),
 });
 function main() {
     return page;

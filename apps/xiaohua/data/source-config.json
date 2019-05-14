@@ -1,0 +1,7 @@
+{
+    "href": "./data/",
+    "seek": "docs",
+    "items": [
+        "get menus.json#name=F_Name&icon=F_Icon&id=_id 菜单列表 menus"
+    ]
+}

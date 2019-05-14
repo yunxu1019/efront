@@ -3,35 +3,12 @@
     小花
     <span class="dashboard_text">专属站</span>
 </div>
-<menu class="sidebar-menu" mode=inline>
-    <li class="header">导航</li>
-    <li class="treeview" href="/photo/list">
+<ylist ng-src="menu in menus" class="sidebar-menu">
+    <div class="treeview" href="/photo/list">
         <span>
-            <i class="fa fa-photo"></i>
-            <span>相册</span>
-            <span class="label label-primary pull-right">new</span>
+            <i class="fa" ng-class="menu.icon"></i>
+            <span ng-bind="menu.name">相册</span>
+            <!-- <span class="label label-primary pull-right">new</span> -->
         </span>
-    </li>
-    <li class="treeview" href="/video/list">
-        <span>
-            <i class="fa fa-play"></i>
-            <span>视频</span>
-        </span>
-    </li>
-    <li class="treeview" href="/picture/list">
-        <span>
-            <i class="fa fa-image"></i>
-            <span>图片</span>
-        </span>
-    </li>
-    <li class="treeview" href="/audio/list">
-        <span>
-            <i class="fa fa-music"></i>
-            <span>声音</span>
-        </span>
-    </li>
-    <li class="header">常用</li>
-    <li><span><i class="fa fa-angle-right text-red"></i> <span>Important</span></span></li>
-    <li><span><i class="fa fa-angle-right text-yellow"></i> <span>Warning</span></span></li>
-    <li><span><i class="fa fa-angle-right text-aqua"></i> <span>Information</span></span></li>
-</menu>
+    </div>
+</ylist>

@@ -4,6 +4,7 @@ new Promise(function (ok) {
         api_domain: "efront.cc:5989",
         api_base: "http://efront.cc:5989/",
     };
+    data.loadConfig("data/source-config.json");
     user.setLoginPath("/user/login");
     user.avatar = 'images/avatar.jpg';
     user.name = '小花';
