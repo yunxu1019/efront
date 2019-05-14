@@ -144,8 +144,8 @@ var popup_as_yextra = function (global, element, target) {
         if (height > maxHeight) {
             css(element, `height:${maxHeight}px;`);
         }
+        css(element, `min-width:auto;width:auto;`);
         var aimedWidth = element.offsetWidth;
-        css(element, `min-width:auto;`);
         //如果宽度不足其附着元素的宽度
         if (aimedWidth < target.offsetWidth) {
             aimedWidth = target.offsetWidth;
