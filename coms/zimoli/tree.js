@@ -9,6 +9,8 @@ function Item(value) {
     if (value instanceof Object) {
         this.name = value.name;
         this.tab = value.tab;
+        this.icon = name.icon;
+        this.color = name.color;
         this.test = value.test;
         this.closed = value.closed;
         this.class = value.class;
@@ -41,6 +43,45 @@ function getTreeFromArray(array) {
         var item = path.pop();
         path[path.length - 1].count += item.count || item.length || 1;
     }
+    return root;
+}
+
+function getTreeFromData(array) {
+    var root = [];
+    root.tab = -Infinity;
+    root.count = 0;
+    var map = {};
+    array = array.filter(a => !!a);
+    array.forEach(function (data) {
+        map[data.id] = new Item(data);
+    });
+    array.forEach(function (data) {
+        if (!data) return;
+        var parent = map[data.parentId];
+        if (parent) {
+            var item = map[data.id];
+            delete map[data.id];
+            if (parent) {
+                parent.push(item);
+            }
+        }
+    });
+    var items = Object.keys(map).map(a => map[a]);
+    root.push.apply(root, items);
+    var tab = 0;
+    var run = function (item, parent) {
+        item.tab = tab;
+        var total = 0;
+        item.parent = parent;
+        item.root = root;
+        if (item.length) {
+            tab++;
+            item.forEach(item => total += run(item, parent));
+            tab--;
+        }
+        return item.total = total || 1;
+    };
+    run(root);
     return root;
 }
 function getArrayFromTree(root, skipClosed = true) {
@@ -87,12 +128,12 @@ function appendTo(parent, datas) {
     }
 }
 function tree() {
-    var element, generagor;
+    var element, generator;
     [].forEach.call(arguments, function (arg) {
         if (isNode(arg)) {
             element = arg;
         } else if (arg instanceof Function) {
-            generagor = arg;
+            generator = arg;
         }
     });
     var dom = [], root = null;
@@ -101,8 +142,10 @@ function tree() {
         if (index >= coms.length) return;
         var com = coms[index];
         var span;
-        if (isFunction(generagor)) {
-            span = generagor(com);
+        if (isFunction(generator)) {
+            span = document.createElement('div');
+            span.innerHTML = repeat("<t></t>", com.tab);
+            span.appendChild(generator(index));
         } else {
             span = div();
             html(span, `${repeat("<t></t>", com.tab)}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
@@ -135,10 +178,15 @@ function tree() {
         })
         return _div;
     });
-    
+
     banner.setData = function (src) {
         if (isArray(src)) {
-            root = getTreeFromArray(src);
+            if (src[0] && 'tab' in src[0]) {
+                root = getTreeFromArray(src);
+            } else {
+                root = getTreeFromData(src);
+                console.log(root);
+            }
             dom = getArrayFromTree(root);
         }
     };
