@@ -170,12 +170,12 @@ var directives = {
         var that = this;
         this.renders.push(function () {
             var value = getter();
+            if (deepEqual(value, oldValue)) return;
             if (value instanceof Array) {
                 value = value.slice(0, value.length);
             } else if (value instanceof Object) {
                 value = Object.assign({}, value);
             }
-            if (deepEqual(value, oldValue)) return;
             oldValue = value;
             value = value || "";
             if (!/img/i.test(this.tagName) || !isString(value)) return this.src = value;
