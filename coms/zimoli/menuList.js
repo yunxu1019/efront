@@ -1,12 +1,15 @@
-function main(items) {
-    var page = div();
+function main(items, active) {
+    var page = this;
+    if (!isNode(page)) {
+        var page = div();
+    }
     page.innerHTML = menuList;
+    var clone = page.cloneNode();
+    clone.innerHTML = page.innerHTML;
     render(page, {
         btn: button,
         menus: items,
-        open(item) {
-
-        },
+        open: active,
         popMenu(item, event) {
             clearTimeout(page.releaseTimer);
             if (page.active) {
@@ -14,7 +17,7 @@ function main(items) {
                 remove(page.active);
             }
             if (!item.children || !item.children.length) return;
-            var menu = modules.menuList(item.children);
+            var menu = modules.menuList.call(clone, item.children, active);
             var release = function () {
                 clear();
                 menu.releaseTimer = setTimeout(function () {
