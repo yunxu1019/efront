@@ -192,7 +192,6 @@ var privates = {
                     console.log(`跳过了缺少参数的请求:${api.uid} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
                     return Promise.resolve();
                 }
-                url = appendUrlParams(url, transformedParams);
             }
             return this.loadIgnoreConfig(api.method, url, params);
         });
