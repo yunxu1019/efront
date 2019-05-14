@@ -14,10 +14,12 @@ function build(pages_roots, lastBuiltTime, dest_root) {
         roots = roots.map(getBuildInfo).map(function (buildInfo) {
             return compile(buildInfo, lastBuiltTime, dest_root);
         }).map(function (promise) {
+            var date = new Date;
             return promise.then(function (response) {
                 var {
                     url
                 } = response;
+                response.time = new Date - date;
                 return responseTree[url] = response;
             });
         });
@@ -29,6 +31,11 @@ function build(pages_roots, lastBuiltTime, dest_root) {
     };
     return new Promise(function (ok) {
         resolve = function () {
+            var times = Object.keys(responseTree)
+                .sort((k1, k2) => responseTree[k2].time - responseTree[k1].time)
+                .slice(0, 3)
+                .map(key => responseTree[key]).map(({ url, time }) => ({ url, time }));
+            console.log(times);
             ok(responseTree);
         };
         getBuildRoot(pages_roots instanceof Array ? pages_roots : [pages_roots]).then(builder);
