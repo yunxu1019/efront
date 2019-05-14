@@ -7,6 +7,8 @@ var window = {
     setInterval,
     Array,
     parseInt,
+    console: {
+    },
     parseFloat,
     String,
     Object,
