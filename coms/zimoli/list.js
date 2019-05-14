@@ -287,7 +287,7 @@ function list() {
                     generator = arg;
                     break;
                 default:
-                    container = arg;
+                    if (isNode(arg)) container = arg;
             }
         }
     }
