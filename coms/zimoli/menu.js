@@ -34,30 +34,9 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
 
 function inlineMenu(nodes) {
     var container = this;
-
-    var src = container.getAttribute("src") || container.getAttribute("ng-src") || container.getAttribute("v-src");
-    if (src) {
-        var parsedSrc = render.parseRepeat(src);
-        if (!parsedSrc) {
-            container.removeAttribute("src");
-            var generator = getGenerator(container);
-        } else {
-            container.removeAttribute("src");
-            var generator = getGenerator(container, parsedSrc);
-        }
-        container.setAttribute("ng-src", parsedSrc ? parsedSrc.srcName : src);
-        on('changes')(container, function (event) {
-            if (event.changes.src) {
-                container.setData(this.src);
-                container.go(container.index() || 0);
-            };
-        });
-        tree(container, generator);
-    } else {
-        container = tree(this);
-        container.innerHTML = "";
-        container.setData(nodes);
-    }
+    container = tree(this);
+    container.innerHTML = "";
+    container.setData(nodes);
     container.go(0);
     return container;
 }
@@ -121,24 +100,56 @@ function main(elem, mode) {
     if (isElement(elem)) {
         var mode = elem.getAttribute('mode');
         mode = mode && mode.toLowerCase() || "horizonal";
+        var src = elem.getAttribute("src") || elem.getAttribute("ng-src") || elem.getAttribute("v-src");
+        if (src) {
+            var parsedSrc = render.parseRepeat(src);
+            if (!parsedSrc) {
+                elem.removeAttribute("src");
+                var generator = getGenerator(elem);
+            } else {
+                elem.removeAttribute("src");
+                var generator = getGenerator(elem, parsedSrc);
+            }
+            elem.setAttribute("ng-src", parsedSrc ? parsedSrc.srcName : src);
+        }
+
         switch (mode) {
             case "i":
             case "c":
             case "inline":
-                var nodes = getTreeNodes(elem);
-                elem = inlineMenu.call(elem, nodes);
-                break;
-            case "x":
-            case "y":
-            case "vertical":
-                var nodes = getArrayNodes(elem);
-                elem = verticalMenu.call(elem, nodes);
+                if (elem) {
+                    on('changes')(elem, function (event) {
+                        if (event.changes.src) {
+                            elem.setData(this.src);
+                            elem.go(elem.index() || 0);
+                        };
+                    });
+                    tree(elem, generator);
+                } else {
+                    var nodes = getTreeNodes(elem);
+                    elem = inlineMenu.call(elem, nodes);
+                }
                 break;
             case "h":
             case "x":
-            case "horizontal":
-                var nodes = getArrayNodes(elem);
-                elem = menu(nodes);
+            case "horizonal":
+                var direction = 'x';
+            case "v":
+            case "y":
+            case "vertical":
+                var emit = function (item) {
+                    active(menu, item, this);
+                };
+                if (src) {
+                    on("changes")(elem, function (event) {
+                        if (event.changes.src) {
+                            menuList.call(elem, getTreeFromData(this.src), emit, generator, direction);
+                        };
+                    });
+                } else {
+                    var nodes = getArrayNodes(elem);
+                    elem = menuList.call(elem, nodes, emit);
+                }
                 break;
             default:
                 throw new Error(`不支持的菜单类型：${mode}`);
