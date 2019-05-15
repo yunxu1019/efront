@@ -11,6 +11,8 @@ function main(items, active, generator, direction = 'y') {
             remove(page.active);
         }
         if (!item.children || !item.children.length) return;
+        var clone = template.cloneNode();
+        clone.innerHTML = template.innerHTML;
         var menu = modules.menuList.call(clone, item.children, active, generator);
         var release = function () {
             clear();
@@ -39,10 +41,10 @@ function main(items, active, generator, direction = 'y') {
         });
     }
 
-    var clone = page.cloneNode();
-    clone.className = '';
-    clone.removeAttribute('mode');
-    clone.innerHTML = page.innerHTML;
+    var template = page.cloneNode();
+    template.className = '';
+    template.removeAttribute('mode');
+    template.innerHTML = page.innerHTML;
     if (!generator || !page.children.length) {
         page.innerHTML = menuList;
         render(page, {
