@@ -98,8 +98,21 @@ var popup_with_mask = function (element, mask = createMask()) {
     return element;
 };
 var popup_as_extra = function (element, target) {
-    var offsetParent = target.offsetParent;
-    if (offsetParent) {
+    var { offsetParent, nextSibling, previousSibling } = target;
+    if (
+        nextSibling
+        && (
+            nextSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
+            || target.offsetLeft - nextSibling.offsetLeft >= nextSibling.offsetWidth / 2
+        )
+        || previousSibling
+        && (
+            previousSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
+            || target.offsetLeft - previousSibling.offsetLeft >= previousSibling.offsetWidth / 2
+        )
+    ) {
+        popup_as_yextra(global, element, target);
+    } else if (offsetParent) {
         if (offsetParent.clientHeight / target.offsetHeight < offsetParent.clientWidth / target.offsetWidth) {
             popup_as_yextra(global, element, target);
         } else {
