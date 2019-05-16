@@ -129,10 +129,14 @@ var structures = {
         // 懒渲染
         var getter = createGetter(search).bind(this);
         var element = this;
+        var savedValue;
         var renders = [function () {
             var result = getter();
+            result = !!result;
+            if (savedValue === result) return;
+            savedValue = result;
             if (result) {
-                if (!element.parentNode) appendChild.before(this, element);
+                appendChild.before(this, element);
                 if (element.renderid < 0) {
                     element.renderid = 0;
                     renderElement(element);
