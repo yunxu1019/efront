@@ -1,7 +1,7 @@
 {
-    "href": "./data/",
+    "href": "http://efront.cc:5989/",
     "seek": "docs",
     "items": [
-        "get menus.json#name=F_Name&icon=F_Icon&id=_id 菜单列表 menus"
+        "get ./data/menus.json#name=F_Name&icon=F_Icon&id=_id 菜单列表 menus"
     ]
 }

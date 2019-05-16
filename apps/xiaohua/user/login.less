@@ -103,13 +103,14 @@ input,
 
 form {
     position: relative;
+    transform: rotateY(0deg);
     margin: -72px auto;
     top: 50%;
     width: 520px;
     max-width: 100%;
     display: block;
 
-    &:before {
+    &.login-form:before {
         content: "";
         box-sizing: border-box;
         display: block;
@@ -134,4 +135,37 @@ form {
 
     }
 
+}
+
+.btn-groups {
+    white-space: nowrap;
+
+    button {
+        width: 80px;
+        height: 36px;
+        line-height: 36px;
+    }
+
+    button+button {
+        margin-left: 20px;
+    }
+}
+
+.setting-form {
+    padding: 24px 0 0 0;
+}
+
+.setting {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 46px;
+    height: 46px;
+    margin: 0;
+    font-size: 28px;
+    line-height: 40px;
+    background: transparent;
+}
+form+form{
+    margin-top: -244px;
 }

@@ -2,16 +2,32 @@
 var page = div();
 page.innerHTML = login;
 var go_args;
-
+var forms = page.querySelectorAll('form');
+forms[0].initialStyle = {
+    opacity: 0,
+    transform: 'rotateY(180deg)',
+    transition: 'transform .5s,opacity .5s',
+};
+forms[1].initialStyle = {
+    opacity: 0,
+    transform: 'rotateY(-180deg)',
+    transition: 'transform .5s,opacity .5s',
+};
+forms[1].leave
 render(page, {
     loading: {},
     go,
     user,
+    input,
     name: input,
     pswd: password,
     button,
     username: user.name || "",
     password: null,
+    settings: {
+        show: false,
+        data: 'data/source-config.json',
+    },
     request(name, password) {
         var that = this;
         var login = this.loading;
