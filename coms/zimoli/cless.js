@@ -5,7 +5,7 @@ function cless(commFactory, styleSheet, className) {
     if (style.styleSheet) {
         style.styleSheet.cssText = styleSheet;
     } else {
-        style.innerHTML = styleSheet
+        style.innerHTML = styleSheet;
     }
     className = className + " " + className.replace(/^.*?(\w*?)\-\w*?$/g, "$1");
     appendChild(document.getElementsByTagName("head")[0], style);

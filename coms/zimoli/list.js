@@ -82,6 +82,8 @@ function ylist(container, generator, $Y) {
                 item.index = offset;
                 if (last_index > index) {
                     list.insertBefore(item, last_item);
+                    last_item = item;
+                    last_index = index;
                 } else {
                     list.insertBefore(item, getNextSibling(last_item));
                 }
