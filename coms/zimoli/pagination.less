@@ -1,13 +1,16 @@
 & {
     white-space: nowrap;
+    display: inline-block;
 
     >xlist {
         width: auto;
         display: inline-block;
+        text-overflow: clip;
         min-width: 40px;
-        background: #fff;
         text-align: center;
         max-width: 400px;
+        position: relative;
+        overflow: hidden;
         vertical-align: top;
     }
 
