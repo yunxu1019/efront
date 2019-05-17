@@ -13,7 +13,6 @@ function main(page, items, active, generator, direction = 'y') {
         var page = div();
     }
     var main = this;
-    console.log(this);
     function popMenu(item, event) {
         if (page.active) {
             clear();
