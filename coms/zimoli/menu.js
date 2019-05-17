@@ -41,7 +41,7 @@ function inlineMenu(nodes) {
     return container;
 }
 function verticalMenu(nodes) {
-    var menu = menuList.call(this, nodes, function (item) {
+    var menu = menuList(this, nodes, function (item) {
         active(menu, item, this);
     });
     return menu;
@@ -143,12 +143,12 @@ function main(elem, mode) {
                 if (src) {
                     on("changes")(elem, function (event) {
                         if (event.changes.src) {
-                            menuList.call(elem, getTreeFromData(this.src), emit, generator, direction);
+                            menuList(elem, getTreeFromData(this.src), emit, generator, direction);
                         };
                     });
                 } else {
                     var nodes = getArrayNodes(elem);
-                    elem = menuList.call(elem, nodes, emit);
+                    elem = menuList(elem, nodes, emit);
                 }
                 break;
             default:

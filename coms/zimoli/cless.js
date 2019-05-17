@@ -16,7 +16,7 @@ function cless(commFactory, styleSheet, className) {
     }
     if (isFunction(commFactory)) {
         var result = function () {
-            var commRelease = commFactory.apply(this || null, arguments);
+            var commRelease = commFactory.apply(result, arguments);
             if (commRelease) {
                 try {
                     addClass(commRelease, className);

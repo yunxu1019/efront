@@ -8,11 +8,12 @@ var release = function () {
 var clear = function () {
     clearTimeout(releaseTimer);
 };
-function main(items, active, generator, direction = 'y') {
-    var page = this;
+function main(page, items, active, generator, direction = 'y') {
     if (!isNode(page)) {
         var page = div();
     }
+    var main = this;
+    console.log(this);
     function popMenu(item, event) {
         if (page.active) {
             clear();
@@ -21,9 +22,9 @@ function main(items, active, generator, direction = 'y') {
         if (!item.children || !item.children.length) return;
         var clone = template.cloneNode();
         clone.innerHTML = template.innerHTML;
-        var menu = modules.menuList.call(clone, item.children, active, generator);
+        var menu = main(clone, item.children, active, generator);
         mounted_menus.push(menu);
-        
+
         page.active = menu;
         popup(menu, event.target);
         var offleave0 = on("mouseleave")(event.target, release);
