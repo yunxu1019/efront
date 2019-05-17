@@ -1,5 +1,5 @@
-function main() {
-    var page = div();
+function main(element) {
+    var page = element || div();
     page.innerHTML = pagination;
     render(page, {
         xlist: list,
