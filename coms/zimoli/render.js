@@ -45,7 +45,6 @@ var initialComment = function (renders, type, expression) {
     onappend(comment, addRenderElement);
     onremove(comment, removeRenderElement);
     appendChild.after(this, comment);
-    remove(this);
     rebuild(comment);
     return comment;
 };
@@ -349,11 +348,13 @@ var emiters = {
 emiters.v = emiters.ng = emiters.on;
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes) {
-    var children = element.children;
-    if (!children) {
+    if (!isNode(element) && element.length) {
         return [].concat.apply([], element).map(function (element) {
             return renderElement(element, scope, parentScopes);
         });
+    }
+    if (!isElement(element)) {
+        return element;
     }
     if (!isNumber(element.renderid)) {
         renderStructure(element, scope, parentScopes);
@@ -379,7 +380,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (isFunction(scope[tagName])) {
             var attrsMap = {};
             var replacer = scope[tagName](element);
-            if (isElement(replacer) && element !== replacer) {
+            if (isNode(replacer) && element !== replacer) {
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
