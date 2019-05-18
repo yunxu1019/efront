@@ -3,6 +3,8 @@ var prototype = {
     dragable: true,
     resizable: true,
     closeable: true,
+    showTitle: true,
+    viewTitle: '',
     left: 0,
     top: 0,
     add(element) {
@@ -17,25 +19,27 @@ var prototype = {
         return this;
     },
     setTitle(arg) {
-        var scope = this.scope;
-        if (!this.titleElement) {
+        var scope = this.$scope;
+        if (!this.titleElements) {
             this.titleElements = generate(viewTitle);
             scope.showTitle = true;
-            appendChild(this, this.titleElements);
+            appendChild(this, [].concat.apply([], this.titleElements));
         }
         switch (typeof arg) {
             case "object":
                 extend(scope, arg);
                 break;
             case "boolean":
-                scope.show = arg;
+                this.showTitle = arg;
                 break;
             case "number":
                 scope.color = rgba(arg);
             case "string":
-                scope.title = arg;
+                scope.viewTitle = arg;
         }
-        render(this.titleElements, scope);
+        console.log(this.viewTitle);
+
+        render(this);
         return this;
     },
 
@@ -73,9 +77,8 @@ var prototype = {
 }
 function view() {
     var window = div();
-    extend(window, prototype);
     drag.on(window);
-    window.scope = window;
-    on("dragend")(window, window.dragend);
+    extend(window, prototype);
+    render(window, window);
     return window;
 }
