@@ -45,6 +45,7 @@ var initialComment = function (renders, type, expression) {
     onappend(comment, addRenderElement);
     onremove(comment, removeRenderElement);
     appendChild.after(this, comment);
+    if (!/if/i.test(type)) remove(this);
     rebuild(comment);
     return comment;
 };
