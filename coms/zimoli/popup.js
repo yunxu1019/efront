@@ -113,7 +113,7 @@ var popup_as_extra = function (element, target) {
     ) {
         popup_as_yextra(global, element, target);
     } else if (offsetParent) {
-        if (offsetParent.clientHeight / target.offsetHeight < offsetParent.clientWidth / target.offsetWidth) {
+        if (offsetParent.clientHeight - target.offsetHeight - element.offsetHeight > offsetParent.clientWidth - target.offsetWidth - element.offsetWidth) {
             popup_as_yextra(global, element, target);
         } else {
             popup_as_xextra(global, element, target);
