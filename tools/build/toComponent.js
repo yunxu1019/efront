@@ -133,7 +133,7 @@ function toComponent(responseTree) {
         var l = /^function[^\(]*?\(([^\)]+?)\)/.exec(f);
         if (l) {
             l = l[1].split(',');
-            g = g.concat([l.concat(l)]);
+            g = g.concat([l]);
         }
         return this[c + 1] = f.apply(this[0], g);
     };
