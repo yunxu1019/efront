@@ -1,5 +1,6 @@
 "use strict";
 var URL = require("url");
+var Http2ServerResponse = require("http2").Http2ServerResponse;
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 var options = {};
 -function () {
@@ -93,6 +94,10 @@ function cross(req, res, referer) {
             if (headers.location) {
                 headers["cross-location"] = headers.location;
                 delete headers.location;
+            }
+            if (res instanceof Http2ServerResponse) {
+                delete headers["transfer-encoding"];
+                delete headers["connection"];
             }
             res.writeHead(response.statusCode, headers);
             response.pipe(res);
