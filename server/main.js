@@ -97,7 +97,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     });
     // 仅做开发使用的简易服务器
     var http = require("http");
-    var https = require("https");
+    var http2 = require("http2");
     // build mime
     var doGet = require("./doGet");
     var doPost = require("./doPost");
@@ -160,7 +160,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     if (SSL_PFX_PATH) {
         var fs = require("fs");
         if (fs.existsSync(SSL_PFX_PATH)) {
-            https.createServer({
+            http2.createSecureServer({
                 pfx: fs.readFileSync(SSL_PFX_PATH),
                 passphrase: process.env["PASSWORD.SSL_PFX"]
             }, requestListener).on("listening", function () {
