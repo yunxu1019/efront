@@ -162,6 +162,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         if (fs.existsSync(SSL_PFX_PATH)) {
             http2.createSecureServer({
                 pfx: fs.readFileSync(SSL_PFX_PATH),
+                allowHTTP1: true,
                 passphrase: process.env["PASSWORD.SSL_PFX"]
             }, requestListener).on("listening", function () {
                 SSL_ENABLED = +process.env.IN_TEST_MODE === 1;
@@ -171,6 +172,9 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         }
     }
     process.title = `服务器地址：${require("../process/getLocalIP")()} 端口：${+process.env.HTTP_PORT || 80}`;
+    process.on('exit', function (event) {
+        if (event instanceof Error) console.error(event);
+    })
 
     message.count("boot");
 }
