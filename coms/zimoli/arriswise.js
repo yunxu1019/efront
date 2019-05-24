@@ -23,11 +23,10 @@ var rep = function (matched) {
 };
 function arriswise(func, argumentsList = [], thisObj) {
     var newf = String(func).replace(regexps, rep);
-    argumentsList = argumentsList.map(function (arg) {
+    return Function.apply(null, argumentsList.slice(0, argumentsList.length >> 1).concat("return " + newf)).apply(thisObj, argumentsList.slice(argumentsList.length >> 1).map(function (arg) {
         if (isString(arg)) {
             return arg.replace(regexps, rep);
         }
         return arg;
-    });
-    return Function.apply(null, argumentsList.slice(0, argumentsList.length >> 1).concat("return " + newf)).apply(thisObj, argumentsList.slice(argumentsList.length >> 1))
+    }));
 }
