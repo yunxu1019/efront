@@ -132,7 +132,7 @@ function main(elem, mode) {
             case "y":
             case "vertical":
                 var emit = function (item) {
-                    active(elem, item, this);
+                    active(elem, item, item.value);
                 };
                 if (src) {
                     on("changes")(elem, function (event) {
