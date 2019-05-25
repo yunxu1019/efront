@@ -6,7 +6,12 @@ function getTreeFromData(array) {
     var map = {};
     array = array.filter(a => !!a);
     array.forEach(function (data) {
-        map[data.id] = new Item(data);
+        var item = new Item(data);
+        if (data.id) {
+            map[data.id] = item;
+        } else {
+            root.push(item);
+        }
     });
     array.forEach(function (data) {
         if (!data) return;
