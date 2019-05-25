@@ -58,9 +58,12 @@ function main(page, items, active, generator, direction = 'y') {
             btn: button,
             menus: items,
             hasIcon: hasIcon(),
-            open: active,
+            open(menu, event) {
+                active(menu, event);
+            },
             popMenu,
         });
+        vbox(page);
         page.renders.unshift(function () {
             this.$scope.hasIcon = hasIcon();
         });
