@@ -7,11 +7,16 @@ function Item(value) {
         return String(value);
     };
     this.children = this;
+    if (value.children instanceof Array) {
+        var children = value.children.map(item => new Item(item));
+        children.forEach(item => item.parent = item);
+        this.push.apply(this, children);
+    }
     if (value instanceof Object) {
         this.name = value.name;
         this.tab = value.tab;
-        this.icon = name.icon;
-        this.color = name.color;
+        this.icon = value.icon;
+        this.color = value.color;
         this.test = value.test;
         this.closed = value.closed;
         this.class = value.class;
