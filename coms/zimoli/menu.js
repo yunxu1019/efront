@@ -40,12 +40,6 @@ function inlineMenu(nodes) {
     container.go(0);
     return container;
 }
-function verticalMenu(nodes) {
-    var menu = menuList(this, nodes, function (item) {
-        active(menu, item, this);
-    });
-    return menu;
-}
 var getArrayNodes = function (elem) {
     var nodes = [];
     var deep = 0;
@@ -138,7 +132,7 @@ function main(elem, mode) {
             case "y":
             case "vertical":
                 var emit = function (item) {
-                    active(menu, item, this);
+                    active(elem, item, this);
                 };
                 if (src) {
                     on("changes")(elem, function (event) {
