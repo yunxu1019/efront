@@ -286,6 +286,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
     if (arguments.length === 0) {
         history_name = current_history;
         var _history = history[history_name] || [];
+        root_path = _history[0] || "/main";
         pagepath = _history[_history.length - 1] || "/main";
         try {
             var saveddata = JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
@@ -310,6 +311,7 @@ try {
     history = JSON.parse(hostoryStorage.getItem(history_session_object_key)) || history;
 } catch (e) {
 }
+var root_path;
 var pushstate = function (path_name, history_name, oldpagepath) {
     var isDestroy = false;
     if (!history_name) {
@@ -321,7 +323,7 @@ var pushstate = function (path_name, history_name, oldpagepath) {
     } else {
         var _history = history[history_name];
         if (_history.indexOf(oldpagepath) < 0) {
-            _history.splice(_history[0] === ":empty", _history.length);
+            _history.splice(root_path === _history[0], _history.length);
             isDestroy = true;
         }
         for (var cx = 0, dx = _history.length; cx < dx; cx++) {
@@ -473,7 +475,7 @@ var _switch = zimoli.switch = function (history_name, target_body, emptyState) {
         current_history = history_name;
     if (target_body)
         body = target_body;
-    if (emptyState !== false && !history[history_name]) history[history_name] = [emptyState || ":empty"];
+    if (emptyState !== false && !history[history_name]) root_path = (history[history_name] = [].concat(emptyState || ":empty"))[0];
 };
 popup.global = zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
