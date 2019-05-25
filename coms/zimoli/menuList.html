@@ -1,5 +1,5 @@
 <btn ng-repeat="menu in menus" ng-click="open(menu)" ng-mouseenter="popMenu(menu,event)"
     ng-class="{'has-children':menu.children&&menu.children.length}">
-    <i ng-class="menu.icon"></i>
+    <i ng-class="menu.icon" ng-if='hasIcon'></i>
     <span ng-model="menu.name"></span>
 </btn>

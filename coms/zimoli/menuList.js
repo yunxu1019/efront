@@ -45,11 +45,24 @@ function main(page, items, active, generator, direction = 'y') {
     template.innerHTML = page.innerHTML;
     if (!generator || !page.children.length) {
         page.innerHTML = menuList;
+        var hasIcon = function () {
+            var menus = items;
+            for (var menu of menus) {
+                if (menu.icon) {
+                    return true;
+                }
+            }
+            return false;
+        };
         render(page, {
             btn: button,
             menus: items,
+            hasIcon: hasIcon(),
             open: active,
             popMenu,
+        });
+        page.renders.unshift(function () {
+            this.$scope.hasIcon = hasIcon();
         });
     } else {
         list(page, function (index) {
