@@ -1,17 +1,19 @@
 
-function cless(commFactory, styleSheet, className) {
-    var style = document.createElement("style");
-    style.type = "text/css";
-    if (style.styleSheet) {
-        style.styleSheet.cssText = styleSheet;
+function cless(commFactory, innerCss, className) {
+    var stylesheet = document.createElement("style");
+    stylesheet.type = "text/css";
+    stylesheet.savedText = innerCss;
+    innerCss = color.transform(innerCss);
+    if (stylesheet.styleSheet) {
+        stylesheet.styleSheet.cssText = innerCss;
     } else {
-        style.innerHTML = styleSheet;
+        stylesheet.innerHTML = innerCss;
     }
     className = className + " " + className.replace(/^.*?(\w*?)\-\w*?$/g, "$1");
-    appendChild(document.getElementsByTagName("head")[0], style);
+    appendChild(document.getElementsByTagName("head")[0], stylesheet);
     if (commFactory instanceof Promise) {
         return commFactory.then(function (result) {
-            return cless(result, styleSheet, className);
+            return cless(result, innerCss, className);
         });
     }
     if (isFunction(commFactory)) {
