@@ -12,12 +12,12 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         var _layers = layers || _box.src || [];
         var clientWidth = parseFloat(freePixel(_box.clientWidth));
         boxCount = clientWidth / minWidth | 0;
-        if (minCount >= _layers.length) {
-            boxCount = minCount;
-        }
         if (boxCount >= _layers.length) {
             boxCount = _layers.length;
-            var minCount = clientWidth / maxWidth | 0;
+            var minCount = Math.ceil(clientWidth / maxWidth);
+            if (minCount >= _layers.length) {
+                boxCount = minCount;
+            }
             addClass(_box, complete_class);
         }
         else removeClass(_box, complete_class);
@@ -56,6 +56,11 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
             element.with.forEach(build);
         }
     };
+    on("changes")(_box, function ({ changes }) {
+        if (changes.src) {
+            this.resize();
+        }
+    });
     onappend(_box, function () {
         resize();
         mountedLattices.push(_box);
@@ -99,7 +104,7 @@ function main() {
         }
     });
     if (isNode(element) && !minWidth) {
-        minWidth = +element.getAttribute("min-width");
+        minWidth = +(element.getAttribute("min-width") || element.getAttribute("item-width"));
     }
     return lattice(element, minWidth || 100, maxWidth, layers);
 }
