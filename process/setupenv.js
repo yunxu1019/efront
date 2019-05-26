@@ -2,8 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 var gbk2utf8 = require("./gbk2utf8");
-var map = {};
-var reg_set = /^\s*@?\s*(?:set|setx)\s+(.*?)\s*=\s*(['"`]?)([\s\S]*)\2$/im
+var reg_set = /^\s*@?\s*(?:set|setx)\s+(.*?)\s*=\s*(['"`]?)([\s\S]*)\2$/im;
 var reg_call = /^\s*@?\s*call\s+(["]?)(.+?)\1([\s\S]*)$/i;
 var reg_for = /^\s*@?\s*for\s+([%\w]+)\s+in\s*\((.*?)\)\s*do\s+(.*?)$/i;
 
@@ -63,8 +62,11 @@ var call = function (file, args = []) {
         }
         file = _file;
     }
-    gbk2utf8(
-        fs.readFileSync(file)
+    var data = fs.readFileSync(file);
+    (
+        /^\s*@\s*chcp\s*65001\b/i.test(data.slice(0, 100).toString())
+            ? String(data)
+            : gbk2utf8(data)
     )
         .replace(/%(\d)/g, function (match, i) {
             return args[i];
