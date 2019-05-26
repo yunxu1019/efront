@@ -1,5 +1,6 @@
 & {
     padding: 60px 0 0 0;
+    position: relative;
 }
 
 .navbar-header {
@@ -80,4 +81,24 @@
     &:hover {
         color: #4b646f;
     }
+}
+
+&>.setting {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: transparent;
+    text-align: left;
+    line-height: 40px;
+    height: 40px;
+
+    i {
+        float: right;
+        height: 40px;
+        opacity: .9;
+        line-height: inherit;
+    }
+
+    padding: 0 16px
 }

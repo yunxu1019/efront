@@ -3,12 +3,6 @@
     小花
     <span class="dashboard_text">专属站</span>
 </div>
-<ylist ng-src="menu in menus" class="sidebar-menu">
-    <div class="treeview" href="/photo/list">
-        <span>
-            <i class="fa" ng-class="menu.icon"></i>
-            <span ng-bind="menu.name">相册</span>
-            <!-- <span class="label label-primary pull-right">new</span> -->
-        </span>
-    </div>
+<ylist ng-src="menu in menus" class="sidebar-menu" ng-active="open(event)">
 </ylist>
+<btn class="setting" ng-click="go('/user/setting')"><i class="fa fa-gear"></i>设置</btn>
