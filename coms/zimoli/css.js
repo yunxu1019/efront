@@ -33,12 +33,14 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
     if (typeof oStyle === "string") {
         if (typeof oValue === "string") {
             styleobject[transformNodeKey(oStyle)] = oValue;
+            return;
         } else {
             try {
-                targetNode.style.cssText += ";" + oStyle;
+                oStyle = parseKV(oStyle, ';', ':');
             } catch (e) { }
         }
-    } else if (oStyle instanceof Object) {
+    }
+    if (oStyle instanceof Object) {
         for (var k in oStyle) {
             styleobject[transformNodeKey(k)] = oStyle[k];
         }
