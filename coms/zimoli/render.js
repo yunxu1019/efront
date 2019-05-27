@@ -319,20 +319,7 @@ var directives = {
             var stylesheet = getter();
             if (deepEqual(oldValue, stylesheet)) return;
             oldValue = stylesheet;
-            if (isString(stylesheet)) {
-                stylesheet.replace(/[\s\u00a0]+/g, "").split(/;/).map(function (kv) {
-                    var [k, v] = kv.split(":");
-                    if (this.style[k] !== v) {
-                        this.style[k] = v;
-                    }
-                }, this);
-            } else if (stylesheet instanceof Object) {
-                for (var k in stylesheet) {
-                    if (this.style[k] !== stylesheet[k]) {
-                        this.style[k] = stylesheet[k];
-                    }
-                }
-            }
+            css(this, stylesheet);
         });
     }
 };

@@ -51,7 +51,6 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
  * @param {string|} oValue 
  */
 var cssTargetSelector = function (targetSelector, oStyle, oValue) {
-    var styleobject = {};
     var stylesheet = stylesheet_Map[targetSelector];
     if (!stylesheet) {
         stylesheet = document.createElement("style");
@@ -59,6 +58,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
         stylesheet_Map[targetSelector] = stylesheet;
         document.getElementsByTagName("head")[0].appendChild(stylesheet);
     };
+    var styleobject = {};
     if (typeof oStyle === "string") {
         if (typeof oValue === "string") {
             var key = transformCssKey(oStyle);
@@ -88,13 +88,18 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
     }
     var innerCss = `${targetSelector}{${rowStyles.join(";")}}`;
     innerCss = color.transform(innerCss);
+    cssTargetStyleSheet(stylesheet, innerCss);
+};
+
+function cssTargetStyleSheet(stylesheet, innerCss) {
     if (styleSheet) {
         //IE
         styleSheet.cssText = innerCss;
     } else {
         stylesheet.innerHTML = innerCss;
     }
-};
+}
+
 /**
  * 函数的入口
  * @param {string|Element} target 
@@ -102,6 +107,12 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
  * @param {|string} oValue 
  */
 var css = function (target, oStyle, oValue) {
-    if (isNode(target)) cssTargetNode(target, oStyle, oValue);
+    if (isNode(target)) {
+        if (/^style$/i.test(target.tagName)) {
+            cssTargetStyleSheet(target, oStyle, oValue);
+        } else {
+            cssTargetNode(target, oStyle, oValue);
+        }
+    }
     else if (isString(target)) cssTargetSelector(target, oStyle, oValue);
 };
