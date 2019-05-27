@@ -4,7 +4,7 @@ render(page, {
     btn: button,
     user,
     logout() {
-        user.Logout().then(e => location.reload(0));
+        user.Logout();
     },
     input() {
         return input();
