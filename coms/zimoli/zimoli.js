@@ -304,7 +304,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
 }
 var global = {};
 var history = {};
-var current_history = "zimoli";
+var current_history, default_history = current_history = "zimoli";
 history[current_history] = [];
 var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
@@ -470,7 +470,7 @@ function addGlobal(element, name = null, isDestroy) {
         rootElements.push(element);
     }
 }
-var _switch = zimoli.switch = function (history_name, target_body, emptyState) {
+var _switch = zimoli.switch = function (history_name = default_history, target_body = document.body, emptyState) {
     if (isString(history_name))
         current_history = history_name;
     if (target_body)

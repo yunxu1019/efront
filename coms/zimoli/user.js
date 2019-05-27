@@ -56,11 +56,15 @@ var proto = {
         loadUserData instanceof Function && loadUserData();
     },
     Logout() {
-        extend(proto, emptyProto);
-        for (var k in user) {
-            if (!isFunction(user[k])) delete user[k];
-        }
+        delete user.isLogin;
+        delete user.roles;
+        delete user._passport;
+        proto._passport = "";
+        proto.roles = null;
+        proto.isLogin = false;
         this.saveSession("");
+        modules.zimoli.switch();
+        modules.zimoli();
     },
     setLoginPath(pathname) {
         proto.loginPath = pathname;
