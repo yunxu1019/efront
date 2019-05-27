@@ -118,7 +118,7 @@ function doFile(req, res) {
                 var sign = encode62.timedecode(code);
                 if (!sign) {
                     res.writeHead(404, {});
-                    saveend();
+                    res.end();
                     return;
                 }
             }
