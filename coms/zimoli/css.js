@@ -94,6 +94,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
 };
 
 function cssTargetStyleSheet(stylesheet, innerCss) {
+    var styleSheet = stylesheet.styleSheet;
     if (styleSheet) {
         //IE
         styleSheet.cssText = innerCss;
