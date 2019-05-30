@@ -3,6 +3,28 @@ var fs = require("fs");
 var watch = require("../process/watch");
 var path = require("path");
 var versionTree = {};
+var loading_queue = [], loading_count = 0;
+var runPromiseInQueue = function () {
+    if (loading_count > 6) return;
+    if (loading_queue.length) {
+        loading_count++;
+        loading_queue.shift()();
+    }
+};
+var delPromiseInQueue = function (a) {
+    loading_count--;
+    runPromiseInQueue();
+    return a;
+};
+var getPromiseInQueue = function (runner) {
+    var promise = new Promise(function (ok) {
+        loading_queue.push(ok);
+    }).then(function () {
+        return new Promise(runner);
+    }).then(delPromiseInQueue, delPromiseInQueue);
+    runPromiseInQueue();
+    return promise;
+}
 /**
  * 取文件夹
  * @param {string} pathname 
@@ -15,7 +37,8 @@ var getdir = function (pathname) {
     return directory;
 };
 var getdirAsync = function (pathname) {
-    return new Promise(function (ok, oh) {
+    return getPromiseInQueue(function (ok, oh) {
+
         fs.readdir(pathname, function (error, files) {
             if (error) oh(error);
             else {
@@ -28,30 +51,10 @@ var getdirAsync = function (pathname) {
         });
     });
 };
-/**
- * 取文件
- * @param {string} url 
- */
-var getfile = function (pathname, buffer_size) {
-    if (isFinite(buffer_size) && getVersion(pathname).size > buffer_size)
-        return getFileHead(pathname, buffer_size);
-    return fs.readFileSync(pathname);
-};
-var getFileHead = function (pathname, buffer_size) {
-    var h = fs.openSync(pathname, "r");
-    var chunk = Buffer.alloc(buffer_size);
-    var length = fs.readSync(h, chunk, 0, chunk.length, 0);
-    if (length < chunk.length) {
-        chunk = chunk.slice(0, length);
-    }
-    chunk.location = pathname;
-    fs.closeSync(h);
-    return chunk;
-};
 var getfileAsync = function (pathname, buffer_size) {
     if (isFinite(buffer_size) && getVersion(pathname).size > buffer_size)
         return getFileHeadAsync(pathname, buffer_size);
-    return new Promise(function (ok, oh) {
+    return getPromiseInQueue(function (ok, oh) {
         fs.readFile(pathname, function (error, data) {
             if (error) oh(error);
             else ok(data);
@@ -59,7 +62,7 @@ var getfileAsync = function (pathname, buffer_size) {
     });
 };
 var getFileHeadAsync = function (pathname, buffer_size) {
-    return new Promise(function (ok, oh) {
+    return getPromiseInQueue(function (ok, oh) {
         fs.open(pathname, "r", function (err, h) {
             if (err) {
                 return oh(err);
@@ -79,18 +82,10 @@ var getFileHeadAsync = function (pathname, buffer_size) {
         });
     });
 };
-/**
- * 是不是文件夹
- * @param {string} url 
- */
-var isdir = function (pathname) {
-    var stat = fs.statSync(pathname);
-    if (stat.isDirectory()) return true;
-    else return versionTree[pathname] = stat, false;
-};
+
 
 var isdirAsync = function (pathname) {
-    return new Promise(function (ok, oh) {
+    return getPromiseInQueue(function (ok, oh) {
         fs.stat(pathname, function (error, stats) {
             if (error) oh(error);
             else if (stats.isDirectory()) ok(true);
@@ -105,56 +100,6 @@ var isdirAsync = function (pathname) {
 var getVersion = function (pathname) {
     return versionTree[pathname];
 };
-/**
- * 加载器
- * @param {string} curl 
- * @param {object} temp 
- * @param {string} key 
- * @param {function} rebuild 
- */
-var loader = function (curl, temp, key, rebuild) {
-    var root = String(this);
-    var buffer_size = this.buffer_size;
-    var durl = path.resolve(root, curl);
-    var durls = [durl];
-    var load = function (loadType) {
-        var is_reload = loadType === "change";
-        console.info(root, curl, is_reload ? "change" : "load");
-        var pathname = path.join(root, curl);
-        if (isdir(pathname)) {
-            if (temp[key]) {
-                unwatch(pathname, temp[key]);
-            }
-            temp[key] = getdir(pathname);
-        } else {
-            var data = getfile(pathname, buffer_size);
-            try {
-                if (rebuild instanceof Function) {
-                    data = rebuild(data, key, durl, is_reload ? [] : durls);
-                }
-                if (data instanceof Promise) {
-                    data.then(function (data) {
-                        if (typeof data === "string") {
-                            data = Buffer.from(data);
-                        }
-                        temp[key] = data;
-                    })
-                }
-                if (typeof data === "string") {
-                    data = Buffer.from(data);
-                }
-            } catch (e) {
-                console.warn("Build Faild:", curl, e);
-                data = e;
-            }
-            temp[key] = data;
-        }
-        is_reload && _reload_handlers.forEach(run => run());
-    };
-    load();
-    durls.forEach(curl => watch(curl, load));
-    return load;
-};
 
 var asyncLoader = function (curl, temp, key, rebuild) {
     var root = String(this);
@@ -166,17 +111,18 @@ var asyncLoader = function (curl, temp, key, rebuild) {
         durls = _durls;
         _durls.forEach(curl => watch(curl, load));
     };
+    var pathname = path.join(root, curl);
     var load = function (loadType) {
         var durls = [durl];
         var is_change = loadType === "change";
         var saved = is_change && temp[key];
         saved = !(saved instanceof Promise || saved instanceof Error) && saved;
-        var pathname = path.join(root, curl);
+
         temp[key] = isdirAsync(pathname).then(function (isdir) {
+            if (temp[key]) {
+                unwatch(pathname, temp[key]);
+            }
             if (isdir) {
-                if (temp[key]) {
-                    unwatch(pathname, temp[key]);
-                }
                 temp[key] = getdirAsync(pathname).then(function (dirs) {
                     temp[key] = dirs;
                     if (_reload_handlers.length) {
@@ -225,51 +171,7 @@ var asyncLoader = function (curl, temp, key, rebuild) {
     load();
     return load;
 };
-/**
- * 取数据
- * @param {string} url 
- */
-var seek = function (url, tree, rebuild) {
-    var temp = tree;
-    var keeys = url.split(/[\\\/]+/);
-    var curl = "";
-    var temps = [];
-    search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
-        var key = keeys[cx];
-        if (!(key in temp)) {
-            for (var cy = temps.length - 1; cy >= 0; cy--) {
-                if (key in temps[cy]) {
-                    let searched = seek.call(this, keeys.slice(cx).join("/"), temps[cy], rebuild);
-                    if (searched != undefined) {
-                        temp = searched;
-                        break search;
-                    }
-                }
-            }
-            continue;
-        }
-        curl = path.join(curl, key);
-        if (temp[key] === false) {
-            loader.call(this, curl, temp, key, rebuild);
-        }
-        temps.push(temp);
-        temp = temp[key];
-        if (!temp) break;
-    }
-    if (!(temp instanceof Object)) {
-        return temp;
-    }
-    if (temp instanceof Function) {
-        return temp;
-    }
-    if (key && !(temp instanceof Buffer)) {
-        return curl.replace(/\\+/g, "/") + "/";
-    }
-    if ((temp instanceof Buffer) && !temp.stat) {
-        temp.stat = getVersion(path.join(String(this), curl));
-    }
-    return temp;
-};
+
 var seekAsync = function (url, tree, rebuild) {
     var temp = tree;
     if (!temp) return new Error('file system error');
@@ -350,13 +252,6 @@ var getExtts = function (extts) {
  */
 var cache = function (filesroot, rebuild, buffer_size_limit) {
     var seeker = function (url, extts) {
-        extts = getExtts(extts);
-        if (!Array.isArray(extts)) return seek.call(seeker, url + extts, tree, rebuild);
-
-        for (var cx = 0, dx = extts.length; cx < dx; cx++) {
-            var result = seek.call(seeker, url + extts[cx], tree, rebuild);
-            if (result) return result;
-        }
     };
     var tree = fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {};
     seeker.toString = function () {
