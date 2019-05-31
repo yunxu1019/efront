@@ -5,7 +5,7 @@ var path = require("path");
 var versionTree = {};
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
-    if (loading_count > 6) return;
+    if (loading_count > 2) return;
     if (loading_queue.length) {
         loading_count++;
         loading_queue.shift()();
