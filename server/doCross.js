@@ -95,6 +95,8 @@ function cross(req, res, referer) {
                 headers["cross-location"] = headers.location;
                 delete headers.location;
             }
+            delete headers["access-control-allow-origin"];
+            delete headers["access-control-allow-methods"];
             if (res instanceof Http2ServerResponse) {
                 delete headers["transfer-encoding"];
                 delete headers["connection"];
