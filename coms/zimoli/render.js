@@ -409,7 +409,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (!isFirstRender) return element;
 
     // 解析属性
-    element.renders = [];
+    element.renders = element.renders ? [].concat(element.renders) : [];
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
     var emiter_reg = /^(v|ng|on|once)\-/i
     attrs.map(function (attr) {
