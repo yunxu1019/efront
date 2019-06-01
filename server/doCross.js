@@ -44,7 +44,7 @@ function cross(req, res, referer) {
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
             if (/head|get/i.test(req.method)) {
-                var redirect = "/" + encodeURIComponent(jsonlike) + "@" + realpath;
+                var redirect = "/" + encodeURI(jsonlike) + "@" + realpath;
                 res.writeHead(302, {
                     "Location": redirect
                 });
