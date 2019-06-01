@@ -35,7 +35,7 @@ function parseUrl(hostpath, real) {
     } else {
         var { url: hostpath, token, headers = {} } = JSON.parse(decodeURIComponent(jsonlike));
         if (!token) throw new Error("验证身份失败！");
-        hostpath = encodeURI(hostpath);
+        hostpath = escape(hostpath);
     }
     return { jsonlike, realpath, hostpath, headers };
 }
@@ -44,7 +44,7 @@ function cross(req, res, referer) {
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
             if (/head|get/i.test(req.method)) {
-                var redirect = "/" + encodeURI(jsonlike) + "@" + realpath;
+                var redirect = "/" + escape(jsonlike) + "@" + realpath;
                 res.writeHead(302, {
                     "Location": redirect
                 });

@@ -94,7 +94,7 @@ var adapter = function (data, url, req, res) {
  * doGet
  */
 module.exports = function (req, res) {
-    req.url = decodeURI(req.url);
+    req.url = unescape(req.url);
     var url = proxy(req);
     url = url.replace(/[\?#][\s\S]*/g, "");
     var data = getfile(url);
