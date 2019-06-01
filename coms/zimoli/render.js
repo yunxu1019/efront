@@ -323,6 +323,31 @@ var directives = {
         });
     }
 };
+// property binder
+var binders = {
+    _(attr, search) {
+        var getter = createGetter(search).bind(this);
+        var oldValue;
+        this.renders.push(function () {
+            var value = getter();
+            if (deepEqual(value, oldValue)) return;
+            oldValue = value;
+            if (this[attr] !== value) {
+                this[attr] = value;
+            }
+        });
+    },
+    ""(attr, search) {
+        var getter = createGetter(search).bind(this);
+        var oldValue;
+        this.renders.push(function () {
+            var value = getter();
+            if (deepEqual(value, oldValue)) return;
+            oldValue = value;
+            if (this.getAttribute(attr) !== value) this.setAttribute(attr, value);
+        });
+    }
+}
 var emiters = {
     on(key, search) {
         var getter = createGetter(search, false);
@@ -421,6 +446,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         } else if (emiter_reg.test(name)) {
             var ngon = emiter_reg.exec(name)[1].toLowerCase();
             emiters[ngon].call(element, key, [withContext, value]);
+        } else if (/^[\_\@]/.test(name)) {
+            binders._.call(element, name.replace(/^[\_\@]/, ""), [withContext, value]);
+        } else if (/\.$/.test(name)) {
+            binders[""].call(element, name.replace(/[\.]$/, ""), [withContext, value]);
         }
     });
     rebuild(element);
