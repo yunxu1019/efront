@@ -6,6 +6,14 @@ onkeydown(document, function (e) {
         remove(rootElements[rootElements.length - 1]);
     }
 });
+var setInitialStyle = function (element) {
+    element.initialStyle = {
+        opacity: 0,
+        transform: "scaleZ(2)"
+    };
+    // element.style.transform = "scaleZ(1)";
+    element.style.transition = "opacity 3s, transform 3s ease-out";
+};
 var setPosition = function (element) {
     css(element, {
         marginLeft: fromPixel(-element.offsetWidth / 2),
@@ -49,6 +57,7 @@ var popup_path = function (path = "", parameters, target) {
         element = windowFactory();
         path = path.replace(/^#/, "");
         popup.go(path, parameters, element);
+        setInitialStyle(element);
         popup_with_mask(element, target);
     }
     // 2 has view control has no mask
@@ -56,6 +65,7 @@ var popup_path = function (path = "", parameters, target) {
         element = windowFactory();
         path = path.replace(/^@/, "");
         popup.go(path, parameters, element);
+        setInitialStyle(element);
         popup_as_single(element);
     }
     // 1 has mask has no control
@@ -63,12 +73,14 @@ var popup_path = function (path = "", parameters, target) {
         element = loadingFactory();
         path = path.replace(/^!/, "");
         popup.go(path, parameters, element);
+        setInitialStyle(element);
         popup_with_mask(element);
     }
     // 0 has no mask no control
     else {
         element = loadingFactory();
         popup.go(path, parameters, element);
+        setInitialStyle(element);
         popup_as_single(element);
     }
     element.style.opacity = 0;
@@ -85,17 +97,15 @@ var popup_view = function (element, target) {
     if (isNode(target)) {
         if (target.isMask) {
             popup_with_mask(element, target);
-            setPosition(element);
             return element;
         }
         return popup_as_extra(element, target);
     }
     if (target) {
         popup_with_mask(element);
-        setPosition(element);
+    } else {
+        popup_as_single(element);
     }
-    popup_as_single(element);
-    setPosition(element);
     return element;
 };
 var createMask = function () {
