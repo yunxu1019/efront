@@ -43,7 +43,7 @@ function appendChild(parent, obj, transition) {
                 isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
             }
             _appendChild.call(parent, o);
-            o.with && appendChild(parent, o.with, false);
+            o.with && appendChild(parent, o.with, transition);
             if (parent.isMounted)
                 _onappend(o);
         }
@@ -62,7 +62,7 @@ function insertBefore(alreadyMounted, obj, transition) {
         var o = release(children[cx]);
         if (o.removeTimer) clearTimeout(o.removeTimer);
         _insertBefore.call(parent, o, alreadyMounted);
-        o.with && insertBefore(alreadyMounted, o.with, false);
+        o.with && insertBefore(alreadyMounted, o.with, transition);
         if (parent.isMounted)
             _onappend(o);
         if (o.initialStyle && transition !== false) {
@@ -83,7 +83,7 @@ function insertAfter(alreadyMounted, obj, transition) {
         var o = release(children[cx]);
         if (o.removeTimer) clearTimeout(o.removeTimer);
         _insertBefore.call(parent, o, alreadyMounted.nextSibling);
-        o.with && insertBefore(alreadyMounted.nextSibling, o.with, false);
+        o.with && insertBefore(alreadyMounted.nextSibling, o.with, transition);
         if (parent.isMounted)
             _onappend(o);
         if (o.initialStyle && transition !== false) {
