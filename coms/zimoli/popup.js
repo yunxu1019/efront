@@ -7,12 +7,18 @@ onkeydown(document, function (e) {
     }
 });
 var setInitialStyle = function (element) {
+    element.style.transform = "scale(1)";
     element.initialStyle = {
         opacity: 0,
-        transform: "scaleZ(2)"
+        transform: "scale(2)",
+        transition: "opacity .3s ease-out, transform .3s ease-out"
     };
-    // element.style.transform = "scaleZ(1)";
-    element.style.transition = "opacity 3s, transform 3s ease-out";
+    once('append')(element, function () {
+        this.initialStyle = {
+            opacity: 0,
+            transition: "opacity .2s, transform .3s ease-out"
+        };
+    });
 };
 var setPosition = function (element) {
     css(element, {
@@ -56,31 +62,31 @@ var popup_path = function (path = "", parameters, target) {
         // mask
         element = windowFactory();
         path = path.replace(/^#/, "");
-        popup.go(path, parameters, element);
         setInitialStyle(element);
+        popup.go(path, parameters, element);
         popup_with_mask(element, target);
     }
     // 2 has view control has no mask
     else if (/^@/.test(path)) {
         element = windowFactory();
         path = path.replace(/^@/, "");
-        popup.go(path, parameters, element);
         setInitialStyle(element);
+        popup.go(path, parameters, element);
         popup_as_single(element);
     }
     // 1 has mask has no control
     else if (/^!/.test(path)) {
         element = loadingFactory();
         path = path.replace(/^!/, "");
-        popup.go(path, parameters, element);
         setInitialStyle(element);
+        popup.go(path, parameters, element);
         popup_with_mask(element);
     }
     // 0 has no mask no control
     else {
         element = loadingFactory();
-        popup.go(path, parameters, element);
         setInitialStyle(element);
+        popup.go(path, parameters, element);
         popup_as_single(element);
     }
     element.style.opacity = 0;
