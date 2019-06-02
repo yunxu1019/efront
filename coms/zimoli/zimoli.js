@@ -482,6 +482,7 @@ var _switch = zimoli.switch = function (history_name = default_history, target_b
 };
 popup.global = zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
+popup.prepare = prepare;
 user.clean = zimoli.clean = function () {
     var pathnames = [].concat.apply([], arguments);
     pathnames.forEach(pathname => popstate(pathname));

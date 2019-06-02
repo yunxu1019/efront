@@ -6,6 +6,14 @@ onkeydown(document, function (e) {
         remove(rootElements[rootElements.length - 1]);
     }
 });
+var setPosition = function (element) {
+    css(element, {
+        marginLeft: fromPixel(-element.offsetWidth / 2),
+        marginTop: fromPixel(-element.offsetHeight / 2),
+        left: "50%",
+        top: "50%"
+    });
+};
 var windowFactory = function () {
     var window = document.createElement("div");
     css(window, `height:100px;width:100px;position:absolute;background-color:#fff;left:${rootElements.length << 4}px;top:${rootElements.length << 4}px;`);
@@ -13,7 +21,7 @@ var windowFactory = function () {
 };
 var loadingFactory = function () {
     var element = document.createElement("div");
-    css(element, `height:100px;width:100px;position:absolute;background-color:#fff;`);
+    css(element, `position:absolute;background-color:#fff;`);
     return element;
 }
 /**
@@ -33,30 +41,44 @@ var popup = function (path) {
     throw new Error(`path isn't valid:${path}`);
 };
 var popup_path = function (path = "", parameters, target) {
+    if (!popup.go || !popup.prepare) throw new Error("当前环境无法使用");
     // 3 has mask has view control
-    if (!popup.go) throw new Error("当前环境无法使用");
+    var element;
     if (/^#/.test(path)) {
         // mask
-        var element = windowFactory();
-        popup.go(path.replace(/^#/, ""), parameters, element);
-        return popup_with_mask(element, target);
+        element = windowFactory();
+        path = path.replace(/^#/, "");
+        popup.go(path, parameters, element);
+        popup_with_mask(element, target);
     }
     // 2 has view control has no mask
-    if (/^@/.test(path)) {
-        var element = windowFactory();
-        popup.go(path.replace(/^@/, ""), parameters, element);
-        return popup_as_single(element);
+    else if (/^@/.test(path)) {
+        element = windowFactory();
+        path = path.replace(/^@/, "");
+        popup.go(path, parameters, element);
+        popup_as_single(element);
     }
     // 1 has mask has no control
-    if (/^!/.test(path)) {
-        var element = loadingFactory();
-        popup.go(path.replace(/^!/, ""), parameters, element);
-        return popup_with_mask(element);
+    else if (/^!/.test(path)) {
+        element = loadingFactory();
+        path = path.replace(/^!/, "");
+        popup.go(path, parameters, element);
+        popup_with_mask(element);
     }
     // 0 has no mask no control
-    var element = loadingFactory();
-    popup.go(path, parameters, element);
-    return popup_as_single(element);
+    else {
+        element = loadingFactory();
+        popup.go(path, parameters, element);
+        popup_as_single(element);
+    }
+    element.style.opacity = 0;
+    popup.prepare(path, function () {
+        setTimeout(function () {
+            setPosition(element);
+            element.style.opacity = 1;
+        })
+    });
+    return element;
 };
 
 var popup_view = function (element, target) {
