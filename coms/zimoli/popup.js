@@ -76,7 +76,7 @@ var popup_path = function (path = "", parameters, target) {
         setTimeout(function () {
             setPosition(element);
             element.style.opacity = 1;
-        })
+        });
     });
     return element;
 };
@@ -84,14 +84,19 @@ var popup_path = function (path = "", parameters, target) {
 var popup_view = function (element, target) {
     if (isNode(target)) {
         if (target.isMask) {
-            return popup_with_mask(element, target);
+            popup_with_mask(element, target);
+            setPosition(element);
+            return element;
         }
         return popup_as_extra(element, target);
     }
     if (target) {
-        return popup_with_mask(element);
+        popup_with_mask(element);
+        setPosition(element);
     }
-    return popup_as_single(element);
+    popup_as_single(element);
+    setPosition(element);
+    return element;
 };
 var createMask = function () {
     var mask = document.createElement("div");
