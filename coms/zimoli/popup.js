@@ -94,6 +94,8 @@ var popup_with_mask = function (element, mask = createMask()) {
     css(element, `z-index:${zIndex()};`);
     if (mask.isMounted) {
         global(element);
+    } else {
+        global(mask);
     }
     return element;
 };
