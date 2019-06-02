@@ -353,6 +353,9 @@ var popstate = function (path_name, history_name) {
 };
 var getCurrentHash = function () {
     var _historylist = history[current_history];
+    if (rootElements.length) {
+        return `#${current_history}`;
+    }
     if (_historylist.length < 2) return "";
     var targeturl = `#${current_history}${_historylist.length ? _historylist[_historylist.length - 1] : ""}`;
     return targeturl;
