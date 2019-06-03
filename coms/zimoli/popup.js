@@ -6,19 +6,9 @@ onkeydown(document, function (e) {
         remove(rootElements[rootElements.length - 1]);
     }
 });
+var animationStyle = "opacity:0;transform:scale(1.2);transition:.1s opacity ease-out,.2s transform ease-out;";
 var setInitialStyle = function (element) {
-    element.style.transform = "scale(1)";
-    element.initialStyle = {
-        opacity: 0,
-        transform: "scale(2)",
-        transition: "opacity .3s ease-out, transform .3s ease-out"
-    };
-    once('append')(element, function () {
-        this.initialStyle = {
-            opacity: 0,
-            transition: "opacity .2s, transform .3s ease-out"
-        };
-    });
+    element.initialStyle = animationStyle;
 };
 var setPosition = function (element) {
     css(element, {
@@ -116,7 +106,8 @@ var popup_view = function (element, target) {
 };
 var createMask = function () {
     var mask = document.createElement("div");
-    css(mask, `position:absolute;position:fixed;z-index:${zIndex()};left:0;right:0;bottom:0;top:0;width:auto;height:auto;background-color:rgba(0,0,0,0.2)`);
+    mask.initialStyle = animationStyle;
+    css(mask, `position:absolute;position:fixed;z-index:${zIndex()};left:0;right:0;bottom:0;top:0;width:auto;height:auto;background:#000;opacity:0.2;transform:scale(1);`);
     mask.className = "popup-factory mask";
     mask.isMask = true;
     return mask;
