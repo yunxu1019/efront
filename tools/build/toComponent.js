@@ -138,7 +138,7 @@ function toComponent(responseTree) {
         return this[c + 1] = f.apply(this[0], g);
     };
 
-    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(window)).call([${dest}],${realize.toString().replace(/\s+/g, ' ')},[window])[${dest.length - 1}]`;
+    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(this.window||global)).call([${dest}],${realize.toString().replace(/\s+/g, ' ').replace(/(\W)\s+/g, "$1").replace(/\s+(\W)/g, "$1")},[this.window||global])[${dest.length - 1}]`;
     // var tester_path = responseTree[PUBLIC_APP].realpath.replace(/\.[tj]sx?$/, "_test.js");
     // if (tester_path) {
     //     try {
