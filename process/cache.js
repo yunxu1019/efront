@@ -253,7 +253,12 @@ var getExtts = function (extts) {
 var cache = function (filesroot, rebuild, buffer_size_limit) {
     var seeker = function (url, extts) {
     };
-    var tree = fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {};
+    if (/,/.test(filesroot)) {
+        filesroot = filesroot.split(",");
+        var tree = filesroot.map(filesroot => fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {});
+    } else {
+        var tree = [fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {}];
+    }
     seeker.toString = function () {
         return filesroot;
     };
@@ -262,14 +267,22 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
     }
     var seekerAsync = function (url, extts = "") {
         extts = getExtts(extts);
-        if (!Array.isArray(extts)) return seekAsync.call(seeker, url + extts, tree, rebuild);
+        if (!Array.isArray(extts)) {
+            extts = [extts];
+        }
         return new Promise(function (ok, oh) {
-            var inc = 0;
+            var cy = 0;
+            var cx = 0;
             var run = function () {
-                if (inc > extts.length) return ok();
-                var extt = extts[inc];
+                if (cx >= extts.length) {
+                    cy++;
+                    if (cy >= tree.length) return ok();
+                    cx = 0;
+                }
+                var tree1 = tree[cy];
+                var extt = extts[cx];
                 var error;
-                var promise = seekAsync.call(seeker, url + extt, tree, rebuild);
+                var promise = seekAsync.call(seeker, url + extt, tree1, rebuild);
                 if (promise instanceof Promise) {
                     promise.catch(function (e) {
                         error = e;
@@ -280,7 +293,8 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                     });
                 } else {
                     if (promise instanceof Buffer || promise instanceof Function) return ok(promise);
-                    inc++;
+                    if (promise instanceof Object) return ok(promise);
+                    cx++;
                     run();
                 }
             };
