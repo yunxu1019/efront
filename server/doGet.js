@@ -64,11 +64,12 @@ var adapter = function (data, url, req, res) {
         return res.end(String(data));
     }
     if (data instanceof Object) {
-        if (!data["index.html"]) {
-            if (url[url.length - 1] !== "/") data = getfile(path.join(process.env.APP, url));
-            else data = "index.html" in data ? getfile(url + "/index.html") : getfile(process.env.APP + url + "index.html");
-        } else {
+        if (data["index.html"]) {
             data = data["index.html"];
+        } else {
+            if (url[url.length - 1] !== "/") url = url + "/";
+            if ("index.html" in data) data = getfile(url + "index.html")
+            else data = getfile(process.env.APP + url + "index.html");
         }
         if (data instanceof Buffer) {
             return response(data, "index.html", req, res);

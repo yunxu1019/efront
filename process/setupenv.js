@@ -156,19 +156,30 @@ var normalize = function (o) {
 
     }
 };
+var bootConfig = {
+    COMS_PATH: "./coms",
+    PAGE_PATH: "./apps",
+    APIS_PATH: "./apis",
+    ICON_PATH: "./cons",
+};
+
 var extend = function (dst, env, src) {
-    Object.assign(dst, {
-        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || "./coms",
-        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || "./apps",
-        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH || "./apis",
-        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || "./cons",
+    var obj = {
+        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || bootConfig.COMS_PATH,
+        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || bootConfig.PAGE_PATH,
+        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH || bootConfig.APIS_PATH,
+        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || bootConfig.ICON_PATH,
         PAGE: dst.PAGE || env.PAGE || env.APPS || src,
         COMM: dst.COMM || env.COMM || env.COMS || src,
         AAPI: dst.AAPI || env.APIS || env.AAPI || src,
         IMAG: dst.IMAG || env.IMAG || env.IMGS || src,
         ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS || src,
         PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || "./public",
-    });
+    };
+    for (var k in bootConfig) {
+        obj[k] = obj[k].split(",").map(a => a === ":" ? path.join(__dirname, "..", bootConfig[k]) : a).join(",");
+    }
+    Object.assign(dst, obj);
     normalize(dst);
 };
 extend(process.env, process.env, "zimoli");
