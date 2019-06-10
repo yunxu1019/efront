@@ -179,9 +179,11 @@ var seekAsync = function (url, tree, rebuild) {
     var curl = "";
     var that = this;
     var temps = [];
+
     var research = function () {
         return seekAsync.call(that, url, tree, rebuild);
     };
+
     search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         var key = keeys[cx];
         if (!(key in temp)) {
@@ -260,8 +262,8 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         var tree = [fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {}];
     }
     seeker.toString = function () {
-        return filesroot;
-    };
+        return this;
+    }.bind(filesroot[0]);
     if (isFinite(buffer_size_limit) && buffer_size_limit >= 0) {
         seeker.buffer_size = buffer_size_limit | 0;
     }
@@ -273,10 +275,14 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         return new Promise(function (ok, oh) {
             var cy = 0;
             var cx = 0;
+            var result;
             var run = function () {
                 if (cx >= extts.length) {
                     cy++;
-                    if (cy >= tree.length) return ok();
+                    if (cy >= tree.length) return ok(result);
+                    seeker.toString = function () {
+                        return this;
+                    }.bind(filesroot[cy]);
                     cx = 0;
                 }
                 var tree1 = tree[cy];
@@ -293,10 +299,11 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                     });
                 } else {
                     if (promise instanceof Buffer || promise instanceof Function) return ok(promise);
-                    if (promise instanceof Object) return ok(promise);
+                    if (promise instanceof Object && !result) result = promise;
                     cx++;
                     run();
                 }
+
             };
             run();
         });
