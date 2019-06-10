@@ -37,7 +37,7 @@ var filterHtmlImportedJs = function (roots) {
         roots = roots.map(function (root) {
             if (/^\/.*?\.js$/i.test(root)) {
                 var fullpath = getBuildInfo(root).fullpath;
-                if (fullpath in simpleJsMap || urlsReg.test(fullpath)) {
+                if (fullpath in simpleJsMap || (fullpath instanceof Array ? fullpath.findIndex(urlsReg.test, urlsReg) >= 0 : urlsReg.test(fullpath))) {
                     return "@" + path.relative(PAGE_PATH, fullpath).replace(/[\\\/]+/g, "/");
                 }
             }
