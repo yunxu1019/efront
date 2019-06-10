@@ -10,14 +10,19 @@ var {
 } = env;
 var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || PUBLIC_APP.replace(/\/$/, "") + ",zimoli";
-var ICON = env.ICON || PUBLIC_APP.replace(/\/$/, "");
+var ICON = env.ICON;
 var AAPI = env.APIS || "zimoli";
 var PAGE_PATH = env.PAGE_PATH;
 var COMS_PATH = env.COMS_PATH;
 var ICON_PATH = env.ICON_PATH;
-var ccons_root = /,/.test(ICON) ? ICON.split(/,/).map(a => path.join(ICON_PATH, a)) : path.join(ICON_PATH, ICON);
-var comms_root = /,/.test(COMM) ? COMM.split(/,/).map(a => path.join(COMS_PATH, a)) : path.join(COMS_PATH, COMM);
-var pages_root = path.join(PAGE_PATH, PAGE);
+console.log(COMS_PATH);
+var comms_root = [].concat.apply([], COMS_PATH.split(",").map(function (COMS_PATH) {
+    return COMM.split(/,/).map(a => path.join(COMS_PATH, a));
+}));
+var ccons_root = [].concat.apply([], ICON_PATH.split(",").map(function (ICON_PATH) {
+    return ICON.split(/,/).map(a => path.join(ICON_PATH, a));
+}));
+var pages_root = PAGE_PATH.split(",").map(PAGE_PATH => path.join(PAGE_PATH, PAGE));
 var aapis_root = "./apis/" + AAPI;
 module.exports = {
     comms_root,

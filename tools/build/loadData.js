@@ -3,7 +3,7 @@ var getBuildInfo = require("./getBuildInfo");
 var getBuildRoot = require("./getBuildRoot");
 var getDependence = require("./getDependence");
 var compile = require("./compile");
-function build(pages_roots, lastBuiltTime, dest_root) {
+function build(pages_root, lastBuiltTime, dest_root) {
     var responseTree = {};
     var filterMap = {};
     var resolve;
@@ -38,7 +38,7 @@ function build(pages_roots, lastBuiltTime, dest_root) {
             console.log(times);
             ok(responseTree);
         };
-        getBuildRoot(pages_roots instanceof Array ? pages_roots : [pages_roots]).then(builder);
+        getBuildRoot([].concat(pages_root || [])).then(builder);
     });
 }
 // function build2() {

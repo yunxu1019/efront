@@ -9,16 +9,20 @@ var {
     PAGE_PATH
 } = require("./environment");
 var getScriptsUrlInHtmlFile = function (fileinfo) {
-    return new Promise(function (ok, oh) {
-        fs.readFile(fileinfo.fullpath, function (error, data) {
-            if (error) return ok([]);
-            var result = [];
-            String(data).replace(/<script\s.*?\bsrc=('.+?'|".+?"|.+?)[\s|>]/ig, function (_, url) {
-                result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
+    return Promise.all(
+        [].concat(fileinfo.fullpath).map(function (fullpath) {
+            return new Promise(function (ok, oh) {
+                fs.readFile(fullpath, function (error, data) {
+                    if (error) return ok([]);
+                    var result = [];
+                    String(data).replace(/<script\s.*?\bsrc=('.+?'|".+?"|.+?)[\s|>]/ig, function (_, url) {
+                        result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
+                    });
+                    ok(result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fullpath), url)));
+                });
             });
-            ok(result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fileinfo.fullpath), url)));
-        });
-    });
+        })
+    );
 }
 var filterHtmlImportedJs = function (roots) {
     var promises = roots.filter(function (url) {
@@ -26,19 +30,23 @@ var filterHtmlImportedJs = function (roots) {
     }).map(getBuildInfo).map(getScriptsUrlInHtmlFile);
     return Promise.all(promises).then(function (datas) {
         var urls = [].concat.apply([], datas);
+        urls = [].concat.apply([], urls);
         var simpleJsMap = {};
         var regUrls = [];
         urls.forEach(function (url) {
             simpleJsMap[url] = true;
             if (/\*/.test(url)) regUrls.push(url);
         });
-        var urlsReg = regUrls.map(a => a.replace(/[.|\\\/^$:]/g, "\\$&").replace(/\*/g, ".*?")).join("|");
+        var urlsReg = regUrls.map(a => a.replace(/[\.\|\\\/\^\$\:]/g, "\\$&").replace(/\*/g, ".*?")).join("|");
         urlsReg = new RegExp(`^(?:${urlsReg})$`, "i");
         roots = roots.map(function (root) {
             if (/^\/.*?\.js$/i.test(root)) {
                 var fullpath = getBuildInfo(root).fullpath;
-                if (fullpath in simpleJsMap || (fullpath instanceof Array ? fullpath.findIndex(urlsReg.test, urlsReg) >= 0 : urlsReg.test(fullpath))) {
-                    return "@" + path.relative(PAGE_PATH, fullpath).replace(/[\\\/]+/g, "/");
+                for (var fpath of [].concat(fullpath)) {
+                    if (fpath in simpleJsMap || urlsReg.test(fpath)) {
+                        console.log(fpath);
+                        return "@" + path.relative(PAGE_PATH.split(",")[0], fpath).replace(/[\\\/]+/g, "/");
+                    }
                 }
             }
             return root;
@@ -53,7 +61,6 @@ var filterHtmlImportedJs = function (roots) {
                 roots.splice(cx, 1);
             }
         }
-
         return roots;
     });
 };
@@ -70,22 +77,24 @@ var getBuildRoot = function (files) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less/i.test(file)) return ok();
-                        if (/^[^\.]/i.test(path.relative(pages_root, file))) {
-                            var name = path.relative(pages_root, file).replace(/[\\\/]+/g, "/");
-                            return result.push("/" + name), ok();
-                        }
-                        if (/^[^\.]/i.test(path.relative(COMS_PATH, file))) {
-                            if (comms_root instanceof Array) {
-                                var name = path.parse(file).base;
-                            } else {
-                                var name = path.relative(comms_root, file);
+                        for (var page of pages_root) {
+                            if (/^[^\.]/i.test(path.relative(page, file))) {
+                                var name = path.relative(page, file).replace(/[\\\/]+/g, "/");
+                                return result.push("/" + name), ok();
                             }
-                            name = name.replace(/[\\\/]+/g, "/");
-                            return result.push(name), ok();
                         }
-                        if (/^[^\.]/i.test(path.relative(PAGE_PATH, file))) {
-                            var name = "@" + path.relative(PAGE_PATH, file).replace(/[\\\/]+/g, "/");
-                            return result.push(name), ok();
+                        for (var comm of comms_root) {
+                            if (/^[^\.]/i.test(path.relative(comm, file))) {
+                                var name = path.parse(file).base;
+                                name = name.replace(/[\\\/]+/g, "/");
+                                return result.push(name), ok();
+                            }
+                        }
+                        for (var page of PAGE_PATH.split(',')) {
+                            if (/^[^\.]/i.test(path.relative(page, file))) {
+                                var name = "@" + path.relative(page, file).replace(/[\\\/]+/g, "/");
+                                return result.push(name), ok();
+                            }
                         }
                         if (/\.png$/i.test(file)) {
                             var name = path.parse(file).base.replace(/[\\\/]+/g, "/");

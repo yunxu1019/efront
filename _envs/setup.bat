@@ -1,10 +1,6 @@
 REM 中文编码gb2312
 rem 默认应用
 if not defined app set APP=zimoli
-set AAPI=zimoli
-set ICON=zimoli
-if %app%==zimoli set COMM=zimoli
-if not %app%==zimoli set COMM=%app%,zimoli
 rem database
 set DB_HOST=localhost
 set DB_PORT=3306
@@ -30,7 +26,7 @@ if "%cd%\_envs\"=="%~dp0" set default_public_path="%~dp0..\public"
 if "%cd%/_envs/"=="%~dp0" set default_public_path="%~dp0../public"
 if not defined default_public_path set default_public_path=".\"
 if not defined public_path set PUBLIC_PATH=%default_public_path%
-if not defined apis_path set APIS_PATH="%~dp0..\apis"
-if not defined apps_path set APPS_PATH="%~dp0..\apps"
-if not defined apps_path set COMS_PATH="%~dp0..\coms"
-if not defined icons_path set ICONS_PATH="%~dp0..\cons"
+REM if not defined apis_path set APIS_PATH="%~dp0..\apis"
+REM if not defined apps_path set APPS_PATH="%~dp0..\apps"
+REM if not defined coms_path set COMS_PATH="%~dp0..\coms"
+REM if not defined icons_path set ICONS_PATH="%~dp0..\cons"

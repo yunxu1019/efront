@@ -70,14 +70,17 @@ function getBuildInfo(url) {
                     destpath = path.join("page", name);
                     url = url.replace(/\.[tj]sx?$/i, "");
                 }
-                fullpath = path.join(pages_root, name + extt);
+                fullpath = pages_root.map(page => path.join(page, name + extt));
                 break;
             case "@":
                 builder = noopbuilder;
                 fullpath = path.join("apps", name + extt);
-                if (/^[^\.]/i.test(path.relative(pages_root, fullpath))) {
-                    destpath = path.relative(pages_root, fullpath);
-                } else {
+                for (var page of pages_root) {
+                    if (/^[^\.]/i.test(path.relative(page, fullpath))) {
+                        destpath = path.relative(page, fullpath);
+                    }
+                }
+                if (!destpath) {
                     destpath = path.join("/", name + extt);
                 }
                 break;

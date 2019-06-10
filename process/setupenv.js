@@ -123,6 +123,7 @@ var get = function (text) {
 };
 call("./_envs/setup.bat");
 call(path.join(__dirname, "../_envs/setup.bat"));
+
 if (!env.PAGE) env.PAGE = env.APP;
 var cache = {};
 module.exports = function (appname) {
@@ -141,10 +142,22 @@ module.exports = function (appname) {
             }
         }
     });
-    if (!env.ICON) env.ICON = appname;
-    if (!env.PAGE) env.PAGE = appname;
     extend(env, env, appname);
     extend(env, process.env, appname);
+    if (!env.PAGE) env.PAGE = appname;
+    for (var k in bootConfig) {
+        env[k] = env[k] ? (
+            env[k].split(",").map(a => a === ":" ? path.join(__dirname, "..", bootConfig[k]) : a).join(",")
+        ) : bootConfig[k];
+    }
+    if (!env.PAGE_PATH) {
+        env.PAGE_PATH = "./apps";
+    }
+    console.log(env.PAGE_PATH);
+    if (!env.PUBLIC_PATH) {
+        env.PUBLIC_PATH = "./public";
+    }
+
     return env;
 };
 var normalize = function (o) {
@@ -158,27 +171,23 @@ var normalize = function (o) {
 };
 var bootConfig = {
     COMS_PATH: "./coms",
-    PAGE_PATH: "./apps",
     APIS_PATH: "./apis",
-    ICON_PATH: "./cons",
+    ICON_PATH: "",
 };
 
 var extend = function (dst, env, src) {
     var obj = {
-        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || bootConfig.COMS_PATH,
-        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || bootConfig.PAGE_PATH,
-        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH || bootConfig.APIS_PATH,
-        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || bootConfig.ICON_PATH,
-        PAGE: dst.PAGE || env.PAGE || env.APPS || src,
-        COMM: dst.COMM || env.COMM || env.COMS || src,
-        AAPI: dst.AAPI || env.APIS || env.AAPI || src,
-        IMAG: dst.IMAG || env.IMAG || env.IMGS || src,
-        ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS || src,
-        PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || "./public",
+        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH,
+        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH,
+        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH,
+        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH,
+        PAGE: dst.PAGE || env.PAGE || env.APPS,
+        COMM: dst.COMM || env.COMS || env.COMM,
+        AAPI: dst.AAPI || env.APIS || env.AAPI,
+        IMAG: dst.IMAG || env.IMAG || env.IMGS,
+        ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS,
+        PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH,
     };
-    for (var k in bootConfig) {
-        obj[k] = obj[k].split(",").map(a => a === ":" ? path.join(__dirname, "..", bootConfig[k]) : a).join(",");
-    }
     Object.assign(dst, obj);
     normalize(dst);
 };

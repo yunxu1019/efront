@@ -61,7 +61,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     };
     if (public_app) {
         //导出组件
-        console.log(public_app);
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         is_commponent_package = true;
         var toComponent = require("./toComponent");
@@ -71,7 +70,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 return write(response, PUBLIC_PATH);
             })
             .then(finish);
-    } else if (fs.existsSync(pages_root) && fs.statSync(pages_root).isDirectory()) {
+    } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         public_app = pages_root;
@@ -81,15 +80,14 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             if (cleanBeforeBuild) {
                 lastBuildTime = 0;
             }
-            loadData([
-                pages_root,
-                path.join(PAGE_PATH, "index.html"),
-                path.join(PAGE_PATH, "favicon.ico"),
-                path.join(COMS_PATH, "/zimoli/main.js"),
-                path.join(COMS_PATH, "/zimoli/zimoli.js"),
-                path.join(COMS_PATH, "/zimoli/[]map.js"),
-                path.join(COMS_PATH, "/zimoli/promise.js"),
-            ].concat(environment.ccons_root), lastBuildTime, public_path)
+            loadData(pages_root.concat(
+                path.join(__dirname, "../../apps", "index.html"),
+                path.join(__dirname, "../../apps", "favicon.ico"),
+                path.join(__dirname, "../../coms", "/zimoli/main.js"),
+                path.join(__dirname, "../../coms", "/zimoli/zimoli.js"),
+                path.join(__dirname, "../../coms", "/zimoli/[]map.js"),
+                path.join(__dirname, "../../coms", "/zimoli/promise.js")
+            ).concat(environment.ccons_root || []), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {
                     var deletedMap = {};
