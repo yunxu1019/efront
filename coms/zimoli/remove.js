@@ -28,7 +28,7 @@ function remove(node, transition) {
             _onremove(node);
             node.parentNode && node.parentNode.removeChild(node);
             if (node.with) {
-                remove(node.with, false);
+                remove(node.with, transition);
             }
         }
     }
