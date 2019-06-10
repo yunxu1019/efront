@@ -24,6 +24,7 @@ apps/x6*
 apis/chess*
 _envs/app=fc.bat
 _envs/app=kugou.bat
+_envs/cert
 cons/*.zip
 cons/font_*
 node_modules*
