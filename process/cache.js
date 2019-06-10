@@ -255,12 +255,8 @@ var getExtts = function (extts) {
 var cache = function (filesroot, rebuild, buffer_size_limit) {
     var seeker = function (url, extts) {
     };
-    if (/,/.test(filesroot)) {
-        filesroot = filesroot.split(",");
-        var tree = filesroot.map(filesroot => fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {});
-    } else {
-        var tree = [fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {}];
-    }
+    filesroot = filesroot.split(",");
+    var tree = filesroot.map(filesroot => fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {});
     seeker.toString = function () {
         return this;
     }.bind(filesroot[0]);
