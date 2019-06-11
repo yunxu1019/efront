@@ -256,7 +256,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
     var seeker = function (url, extts) {
     };
     filesroot = filesroot.split(",");
-    var tree = filesroot.map(filesroot => fs.existsSync(filesroot) && fs.statSync(filesroot).isDirectory() && getdir(filesroot) || {});
+    var tree = filesroot.map(froot => fs.existsSync(froot) && fs.statSync(froot).isDirectory() && getdir(froot) || {});
     seeker.toString = function () {
         return this;
     }.bind(filesroot[0]);
@@ -299,7 +299,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                     cx++;
                     run();
                 }
-
+                
             };
             run();
         });

@@ -15,7 +15,6 @@ var AAPI = env.APIS || "zimoli";
 var PAGE_PATH = env.PAGE_PATH;
 var COMS_PATH = env.COMS_PATH;
 var ICON_PATH = env.ICON_PATH;
-console.log(COMS_PATH);
 var comms_root = [].concat.apply([], COMS_PATH.split(",").map(function (COMS_PATH) {
     return COMM.split(/,/).map(a => path.join(COMS_PATH, a));
 }));

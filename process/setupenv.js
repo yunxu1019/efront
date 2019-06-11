@@ -111,7 +111,7 @@ var get = function (text) {
         var k = match[1].toUpperCase(),
             v = env[k] || match[3];
         if (v)
-            return env[k] = /^path\.|path$/i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v;
+            return env[k] = /^path\.|path$/i.test(k) ? path.normalize(v.replace(/[\\]+/g, "/")) : v || "";
         else
             return delete env[k]
     }
@@ -124,7 +124,7 @@ var get = function (text) {
 call("./_envs/setup.bat");
 call(path.join(__dirname, "../_envs/setup.bat"));
 
-if (!env.PAGE) env.PAGE = env.APP;
+if (!env.PAGE) env.PAGE = env.APP || "";
 var cache = {};
 module.exports = function (appname) {
     appname = appname.replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
@@ -143,7 +143,11 @@ module.exports = function (appname) {
         }
     });
     extend(env, env, appname);
-    extend(env, process.env, appname);
+    extend(env, process.env);
+    pollyfill(env, appname);
+    return env;
+};
+var pollyfill = function (env, appname) {
     if (!env.PAGE) env.PAGE = appname;
     for (var k in bootConfig) {
         env[k] = env[k] ? (
@@ -153,12 +157,9 @@ module.exports = function (appname) {
     if (!env.PAGE_PATH) {
         env.PAGE_PATH = "./apps";
     }
-    console.log(env.PAGE_PATH);
     if (!env.PUBLIC_PATH) {
         env.PUBLIC_PATH = "./public";
     }
-
-    return env;
 };
 var normalize = function (o) {
     for (var k in o) {
@@ -175,21 +176,22 @@ var bootConfig = {
     ICON_PATH: "",
 };
 
-var extend = function (dst, env, src) {
+var extend = function (dst, env) {
     var obj = {
-        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH,
-        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH,
-        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH,
-        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH,
-        PAGE: dst.PAGE || env.PAGE || env.APPS,
-        COMM: dst.COMM || env.COMS || env.COMM,
-        AAPI: dst.AAPI || env.APIS || env.AAPI,
-        IMAG: dst.IMAG || env.IMAG || env.IMGS,
-        ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS,
-        PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH,
+        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || "",
+        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || "",
+        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH || "",
+        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || "",
+        PAGE: dst.PAGE || env.PAGE || env.APPS || "",
+        COMM: dst.COMM || env.COMS || env.COMM || "",
+        AAPI: dst.AAPI || env.APIS || env.AAPI || "",
+        IMAG: dst.IMAG || env.IMAG || env.IMGS || "",
+        ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS || "",
+        PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || "",
     };
     Object.assign(dst, obj);
     normalize(dst);
 };
-extend(process.env, process.env, "zimoli");
+extend(process.env, process.env);
+pollyfill(process.env, "zimoli");
 process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0
