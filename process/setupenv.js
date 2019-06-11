@@ -143,6 +143,7 @@ module.exports = function (appname) {
         }
     });
     extend(env, env, appname);
+    if (!env.PAGE) env.PAGE = appname;
     extend(env, process.env);
     pollyfill(env, appname);
     return env;
