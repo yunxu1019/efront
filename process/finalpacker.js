@@ -67,6 +67,7 @@ var getpage = function (name, env) {
 
 var getapi = function (name, env) {
     var _aapis_root = env.AAPI || aapis_root;
+    console.log(name, _aapis_root);
     return getfrompath(name, _aapis_root, getaapifunc, ".js");
 };
 
