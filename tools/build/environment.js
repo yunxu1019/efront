@@ -18,9 +18,10 @@ var ICON_PATH = env.ICON_PATH;
 var comms_root = [].concat.apply([], COMS_PATH.split(",").map(function (COMS_PATH) {
     return COMM.split(/,/).map(a => path.join(COMS_PATH, a));
 }));
-var ccons_root = [].concat.apply([], ICON_PATH.split(",").map(function (ICON_PATH) {
+var ccons_root = ICON && ICON_PATH ? [].concat.apply([], ICON_PATH.split(",").map(function (ICON_PATH) {
     return ICON.split(/,/).map(a => path.join(ICON_PATH, a));
-}));
+})) : [];
+
 var pages_root = [].concat.apply([], PAGE_PATH.split(",").map(function (PAGE_PATH) {
     return PAGE.split(/,/).map(a => path.join(PAGE_PATH, a));
 }));
