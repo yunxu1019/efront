@@ -253,21 +253,23 @@ var getExtts = function (extts) {
  * @param {string} filesroot 
  */
 var cache = function (filesroot, rebuild, buffer_size_limit) {
-    var seeker = function (url, extts) {
+    var sk = function (url, extts) {
     };
     filesroot = filesroot.split(",");
     var tree = filesroot.map(froot => fs.existsSync(froot) && fs.statSync(froot).isDirectory() && getdir(froot) || {});
-    seeker.toString = function () {
-        return this;
-    }.bind(filesroot[0]);
     if (isFinite(buffer_size_limit) && buffer_size_limit >= 0) {
-        seeker.buffer_size = buffer_size_limit | 0;
+        sk.buffer_size = buffer_size_limit | 0;
     }
     var seekerAsync = function (url, extts = "") {
         extts = getExtts(extts);
         if (!Array.isArray(extts)) {
             extts = [extts];
         }
+        var seeker = new Function();
+        seeker.toString = function () {
+            return this;
+        }.bind(filesroot[0]);
+        seeker.buffer_size = sk.buffer_size;
         return new Promise(function (ok, oh) {
             var cy = 0;
             var cx = 0;
@@ -299,14 +301,14 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                     cx++;
                     run();
                 }
-                
+
             };
             run();
         });
     };
-    seeker.async = seekerAsync;
-    seeker.new = cache;
-    return seeker;
+    sk.async = seekerAsync;
+    sk.new = cache;
+    return sk;
 }
 var _reload_handlers = [];
 cache.onreload = function (handler) {
