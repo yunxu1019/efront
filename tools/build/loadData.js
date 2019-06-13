@@ -10,7 +10,6 @@ function build(pages_root, lastBuiltTime, dest_root) {
     var builder = function (roots) {
         roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);
         if (!roots.length) return resolve();
-
         roots = roots.map(getBuildInfo).map(function (buildInfo) {
             return compile(buildInfo, lastBuiltTime, dest_root);
         }).map(function (promise) {
@@ -35,7 +34,7 @@ function build(pages_root, lastBuiltTime, dest_root) {
                 .sort((k1, k2) => responseTree[k2].time - responseTree[k1].time)
                 .slice(0, 3)
                 .map(key => responseTree[key]).map(({ url, time }) => ({ url, time }));
-            console.log(times);
+            console.log("\r\n", times);
             ok(responseTree);
         };
         getBuildRoot([].concat(pages_root || [])).then(builder);

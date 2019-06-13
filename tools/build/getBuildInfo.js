@@ -7,7 +7,7 @@ var path = require("path");
 var env = require("./environment");
 var noopbuilder = a => a;
 var pagebuilder = function (buffer, filename) {
-    if (/^index.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 100).toString())) {
+    if (/^index\.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 100).toString())) {
         return htmlbuilder.apply(null, arguments);
     }
     return commbuilder.apply(null, arguments);
@@ -22,7 +22,7 @@ BuildInfo.prototype = {
 }
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|@|)(.*?)(\.[tj]sx?|\.html?|\.png)?$/);
+    var match = url.match(/^(.*?)(\/|\.|@|)(.+?)(\.[tj]sx?|\.html?|\.png)?$/);
     var fullpath, destpath, builder;
     if (match) {
         var {
@@ -40,7 +40,7 @@ function getBuildInfo(url) {
                 builder = commbuilder;
                 var $name = name.replace(/(\w)\$/g, "$1/");
                 fullpath = [];
-                extt = extt || [".js", ".html"];
+                extt = extt || [".js", ".ts", ".html"];
                 if (!Array.isArray(extt)) {
                     extt = [extt];
                 }
@@ -53,7 +53,6 @@ function getBuildInfo(url) {
                         fullpath.push(path.join(comms_root, $name + ext));
                     });
                 }
-                // console.log(fullpath)
                 destpath = path.join("comm", name);
                 url = url.replace(/\.([tj]sx?|html?)$/i, "");
                 break;
@@ -96,17 +95,20 @@ function getBuildInfo(url) {
             //     extt = ".js";
             //     fullpath = path.join(aapis_root, name + extt);
             //     break;
+            default:
+                throw new Error("类型不被支持!")
         }
+        return new BuildInfo({
+            appc,
+            type,
+            extt,
+            builder,
+            fullpath,
+            destpath,
+            name,
+            url
+        });
     }
-    return new BuildInfo({
-        appc,
-        type,
-        extt,
-        builder,
-        fullpath,
-        destpath,
-        name,
-        url
-    });
+    console.warn("路径不支持", url);
 }
 module.exports = getBuildInfo;

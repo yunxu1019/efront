@@ -15,7 +15,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
                 fs.readFile(fullpath, function (error, data) {
                     if (error) return ok([]);
                     var result = [];
-                    String(data).replace(/<script\s.*?\bsrc=('.+?'|".+?"|.+?)[\s|>]/ig, function (_, url) {
+                    String(data).replace(/<script\s[^\>]*?\bsrc=('.+?'|".+?"|.+?)[\s|\>]/ig, function (_, url) {
                         result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
                     });
                     ok(result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fullpath), url)));
@@ -27,7 +27,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
 var filterHtmlImportedJs = function (roots) {
     var promises = roots.filter(function (url) {
         return /\.html?$/i.test(url);
-    }).map(getBuildInfo).map(getScriptsUrlInHtmlFile);
+    }).map(getBuildInfo).filter(a => !!a).map(getScriptsUrlInHtmlFile);
     return Promise.all(promises).then(function (datas) {
         var urls = [].concat.apply([], datas);
         urls = [].concat.apply([], urls);
@@ -44,7 +44,6 @@ var filterHtmlImportedJs = function (roots) {
                 var fullpath = getBuildInfo(root).fullpath;
                 for (var fpath of [].concat(fullpath)) {
                     if (fpath in simpleJsMap || urlsReg.test(fpath)) {
-                        console.log(fpath);
                         return "@" + path.relative(PAGE_PATH.split(",")[0], fpath).replace(/[\\\/]+/g, "/");
                     }
                 }

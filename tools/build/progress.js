@@ -81,12 +81,13 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 lastBuildTime = 0;
             }
             loadData(pages_root.concat(
+                environment.pages_root,
                 path.join(__dirname, "../../apps", "index.html"),
                 path.join(__dirname, "../../apps", "favicon.ico"),
-                path.join(__dirname, "../../coms", "/zimoli/main.js"),
-                path.join(__dirname, "../../coms", "/zimoli/zimoli.js"),
-                path.join(__dirname, "../../coms", "/zimoli/[]map.js"),
-                path.join(__dirname, "../../coms", "/zimoli/promise.js")
+                path.join(__dirname, "../../coms", "zimoli/main.js"),
+                path.join(__dirname, "../../coms", "zimoli/zimoli.js"),
+                path.join(__dirname, "../../coms", "zimoli/[]map.js"),
+                path.join(__dirname, "../../coms", "zimoli/promise.js")
             ).concat(environment.ccons_root || []), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {

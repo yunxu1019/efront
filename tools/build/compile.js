@@ -64,7 +64,6 @@ window.window = window;
 
 function compile(buildInfo, lastBuildTime, destroot) {
     var { fullpath, name, url, builder, destpath } = buildInfo;
-    if(!destpath)console.log(destpath);
     destpath = path.join(destroot, destpath);
     var fullpath = fullpath.slice(0);
     return new Promise(function (ok, oh) {
