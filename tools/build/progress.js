@@ -81,9 +81,8 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 lastBuildTime = 0;
             }
             loadData(pages_root.concat(
+                environment.PAGE_PATH.split(",").map(a => path.join(a, "index.html")),
                 environment.pages_root,
-                path.join(__dirname, "../../apps", "index.html"),
-                path.join(__dirname, "../../apps", "favicon.ico"),
                 path.join(__dirname, "../../coms", "zimoli/main.js"),
                 path.join(__dirname, "../../coms", "zimoli/zimoli.js"),
                 path.join(__dirname, "../../coms", "zimoli/[]map.js"),
