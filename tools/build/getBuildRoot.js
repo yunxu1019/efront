@@ -63,6 +63,10 @@ var filterHtmlImportedJs = function (roots) {
         return roots;
     });
 };
+var getPathInFolder = function (folder, filepath) {
+    let rel = path.relative(folder, filepath);
+    return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
+};
 var getBuildRoot = function (files) {
     var resolve;
     var result = [];
@@ -77,21 +81,24 @@ var getBuildRoot = function (files) {
                     if (stat.isFile()) {
                         if (/\.less/i.test(file)) return ok();
                         for (var page of pages_root) {
-                            if (/^[^\.]/i.test(path.relative(page, file))) {
-                                var name = path.relative(page, file).replace(/[\\\/]+/g, "/");
+                            var rel = getPathInFolder(page, file);
+                            if (rel) {
+                                var name = rel.replace(/[\\\/]+/g, "/");
                                 return result.push("/" + name), ok();
                             }
                         }
                         for (var comm of comms_root) {
-                            if (/^[^\.]/i.test(path.relative(comm, file))) {
+                            var rel = getPathInFolder(comm, file);
+                            if (rel) {
                                 var name = path.parse(file).base;
                                 name = name.replace(/[\\\/]+/g, "/");
                                 return result.push(name), ok();
                             }
                         }
                         for (var page of PAGE_PATH.split(',')) {
-                            if (/^[^\.]/i.test(path.relative(page, file))) {
-                                var name = "@" + path.relative(page, file).replace(/[\\\/]+/g, "/");
+                            var rel = getPathInFolder(page, file);
+                            if (rel) {
+                                var name = "@" + rel.replace(/[\\\/]+/g, "/");
                                 return result.push(name), ok();
                             }
                         }
