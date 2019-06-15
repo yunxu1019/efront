@@ -14,7 +14,7 @@
     >.foot {
         display: table-cell;
         position: relative;
-        vertical-align: middle;
+        vertical-align: top;
     }
 
     >.head {
@@ -79,14 +79,20 @@
     box-shadow: none;
 }
 
-&+&>.body {
-    border-top: 1px solid rgba(0, 0, 0, .1);
+&+& {
+    margin-top: -1px;
+    >.body {
+        box-shadow: 0 1px 0 0 rgba(0, 0, 0, .1) inset;
+    }
 }
 
+
 &.active>.body {
+    box-shadow: none;
     border-top-color: transparent;
 }
 
 &.active+&>.body {
+    box-shadow: none;
     border-top-color: transparent;
 }
