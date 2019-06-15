@@ -8,6 +8,7 @@
     color: #333;
     right: 0;
     display: table;
+
     >.head,
     >.body,
     >.foot {
@@ -15,6 +16,7 @@
         position: relative;
         vertical-align: middle;
     }
+
     >.head {
         text-align: start;
         font-size: 16px;
@@ -29,9 +31,11 @@
         max-width: 100%;
         white-space: nowrap;
     }
+
     &.has-next>.body {
         padding-right: 40px;
     }
+
     >.body {
         right: 0;
         top: 0;
@@ -44,6 +48,7 @@
         text-align: right;
         overflow: hidden;
     }
+
     >.foot {
         position: absolute;
         right: 0;
@@ -53,6 +58,7 @@
         text-align: right;
         padding-right: 16px;
         height: 100%;
+
         >.next {
             height: 16px;
             width: 16px;
@@ -74,7 +80,7 @@
 }
 
 &+&>.body {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid rgba(0, 0, 0, .1);
 }
 
 &.active>.body {
