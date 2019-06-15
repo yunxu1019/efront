@@ -20,7 +20,7 @@ var setPosition = function (element) {
 };
 var windowFactory = function () {
     var window = document.createElement("div");
-    css(window, `height:100px;width:100px;position:absolute;background-color:#fff;left:${rootElements.length << 4}px;top:${rootElements.length << 4}px;`);
+    css(window, `min-height:10px;min-width:10px;position:absolute;background-color:#fff;left:${rootElements.length << 4}px;top:${rootElements.length << 4}px;`);
     return window;
 };
 var loadingFactory = function () {
