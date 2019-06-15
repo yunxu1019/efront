@@ -1,11 +1,19 @@
 & {
     box-sizing: border-box;
     cursor: text;
-    border: 1px solid #ced4da;
+    border: 1px solid rgba(0, 0, 0, .2);
     padding: 0 6px;
-    height: 36px;
+    height: 28px;
+    line-height: 26px;
     border-radius: 3px;
     font-size: 16px;
+    -webkit-appearance: none;
+    box-shadow: none;
+    outline: none;
+
+    &:focus {
+        border: 1px solid rgba(0, 100, 255, .9);
+    }
 }
 
 &::-ms-clear {
@@ -15,15 +23,19 @@
 &::-webkit-inner-spin-button {
     display: none;
 }
-&::-webkit-inner-spin-button{
+
+&::-webkit-inner-spin-button {
     display: none;
 }
-&::-webkit-calendar-picker-indicator{
+
+&::-webkit-calendar-picker-indicator {
     display: none;
 }
-&::-webkit-calendar-picker-indicator:hover{
+
+&::-webkit-calendar-picker-indicator:hover {
     display: none;
 }
-&::-webkit-clear-button{
+
+&::-webkit-clear-button {
     display: none;
 }
