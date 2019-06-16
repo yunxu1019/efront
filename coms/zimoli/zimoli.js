@@ -126,7 +126,7 @@ function go(pagepath, args, history_name, oldpagepath) {
     if (!checkroles(user.roles, roles)) {
         // 检查权限
         if (!user.isLogin && user.loginPath) {
-            return go(user.loginPath, [pagepath, args, history_name, oldpagepath]);
+            return go(user.loginPath, null, history_name, oldpagepath);
         }
         return alert(i18n("没有权限！", "No Access!"));
     }
@@ -265,8 +265,7 @@ function prepare(pagepath, ok) {
             roles.push(arguments[cx]);
         }
     };
-    return init(pagepath, function (pg) {
-        if (!pg) return;
+    var emit = function (pg) {
         page_generators[pagepath] = {
             pg,
             roles,
@@ -279,6 +278,11 @@ function prepare(pagepath, ok) {
             return isFunction(ok) && ok();
         });
         delete loading_tree[pagepath];
+    };
+    return init(pagepath, function (pg) {
+        if (!pg) return;
+        if (roles) return prepare(user.loginPath, () => emit(pg));
+        emit(pg);
     }, state);
 }
 
