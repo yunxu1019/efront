@@ -21,7 +21,19 @@ var scope = render(page, {
     },
     list
 }).$scope;
+onappend(page, function () {
+    data.setInstance("option-buttons", [{
+        icon: "fa-plus",
+        name: "添加",
+        tip: "",
+        path: '/photo/edit'
+    },]);
+});
+onremove(page, function () {
+    data.setInstance("option-buttons", []);
+})
 function main() {
+
     api("/photos/_find", {
         selector: {
         },
