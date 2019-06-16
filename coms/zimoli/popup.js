@@ -53,31 +53,39 @@ var popup_path = function (path = "", parameters, target) {
         element = windowFactory();
         path = path.replace(/^#/, "");
         setInitialStyle(element);
-        popup.go(path, parameters, element);
-        popup_with_mask(element, target);
+        popup.prepare(path, function () {
+            popup.go(path, parameters, element);
+            popup_with_mask(element, target);
+        });
     }
     // 2 has view control has no mask
     else if (/^@/.test(path)) {
         element = windowFactory();
         path = path.replace(/^@/, "");
         setInitialStyle(element);
-        popup.go(path, parameters, element);
-        popup_as_single(element);
+        popup.prepare(path, function () {
+            popup.go(path, parameters, element);
+            popup_as_single(element);
+        })
     }
     // 1 has mask has no control
     else if (/^!/.test(path)) {
         element = loadingFactory();
         path = path.replace(/^!/, "");
         setInitialStyle(element);
-        popup.go(path, parameters, element);
-        popup_with_mask(element);
+        popup.prepare(path, function () {
+            popup.go(path, parameters, element);
+            popup_with_mask(element);
+        });
     }
     // 0 has no mask no control
     else {
         element = loadingFactory();
         setInitialStyle(element);
-        popup.go(path, parameters, element);
-        popup_as_single(element);
+        popup.prepare(path, function () {
+            popup.go(path, parameters, element);
+            popup_as_single(element);
+        });
     }
     element.style.opacity = 0;
     popup.prepare(path, function () {
