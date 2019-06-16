@@ -1,9 +1,45 @@
 & {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    user-select: none;
-    background-color: #fff;
-    width: 200px;
-    height: 100px;
+    padding: 10px 0 4px 0;
+    max-width: 360px;
+    width: 100%;
+    height: auto;
+}
+
+&>.body,
+&>:not(:first-child):not(:last-child) {
+    padding: 16px 10px;
+    background: #f2f4f6;
+}
+
+&>.head,
+&>:first-child {
+    line-height: 40px;
+    color: #333;
+    padding: 0 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, .16);
+    background: #fff;
+}
+
+
+&>.foot,
+&>:last-child {
+    text-align: right;
+    line-height: 46px;
+    padding: 0 16px;
+    border-top: 1px solid rgba(0, 0, 0, .16);
+    background: #fff;
+
+    .button {
+        padding: 0 20px;
+        min-width: 60px;
+        vertical-align: middle;
+
+        &+.button {
+            margin-left: 10px;
+        }
+    }
+}
+
+input {
+    width: 100%;
 }

@@ -75,8 +75,13 @@ var prototype = {
         return this;
     }
 }
-function view() {
-    var window = div();
+function view(element) {
+    var window = element || document.createElement("form");
+    if (/form/i.test(window.tagName)) {
+        on("submit")(window, function (event) {
+            event.preventDefault();
+        });
+    }
     drag.on(window);
     extend(window, prototype);
     render(window, window);
