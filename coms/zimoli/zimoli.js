@@ -122,39 +122,11 @@ function go(pagepath, args, history_name, oldpagepath) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
     var page_object = page_generators[pagepath];
-    var { pg, with: _with_elements, state, onback: _pageback_listener, prepares, roles } = page_object;
-    if (!checkroles(user.roles, roles)) {
-        // 检查权限
-        if (!user.isLogin && user.loginPath) {
-            return go(user.loginPath, null, history_name, oldpagepath);
-        }
-        return alert(i18n("没有权限！", "No Access!"));
-    }
-
+    var _page = create(pagepath, args);
+    console.log(_page);
     page_object.go = function (_url, args, _history_name) {
-        return go(state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
+        return go(this.state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
     };
-    _with_elements = [].concat(_with_elements);
-    state.with = function (element) {
-        element && _with_elements.push(element);
-        return _with_elements;
-    };
-    state.onback = function (handler) {
-        _pageback_listener = handler;
-    };
-    if (undefined === args || null === args) args = {};
-    var _page = pg.call(state, args, oldpagepath);
-    if (_page) {
-        if (pg.className) _page.className = pg.className;
-        _page.with = _with_elements;
-        if (args.initialStyle) _page.initialStyle = args.initialStyle;
-        if (args.holdupStyle) _page.holdupStyle = args.holdupStyle;
-        if (_page.initialStyle && !_page.holdupStyle) {
-            _page.holdupStyle = getReverseStyle(_page.initialStyle);
-            _page.backupStyle = _page.initialStyle;
-        }
-        _page.onback = _pageback_listener;
-    }
     var isDestroy = pushstate(pagepath, history_name, oldpagepath);
     if (isNode(history_name)) {
         if (history_name.activate === pagepath && history_name.activateNode === _page) return;
@@ -163,7 +135,7 @@ function go(pagepath, args, history_name, oldpagepath) {
         history_name.activateNode = _page;
     }
     addGlobal(_page, history_name, isDestroy);
-    prepares.forEach(function (url) {
+    page_object.prepares.forEach(function (url) {
         if (isNumber(url)) {
             url = _history[url < 1 ? _history.length + url - 1 : url];
         }
@@ -284,6 +256,43 @@ function prepare(pagepath, ok) {
         if (roles) return prepare(user.loginPath, () => emit(pg));
         emit(pg);
     }, state);
+}
+function create(pagepath, args) {
+    var page_object = pagepath instanceof Object ? pagepath : page_generators[pagepath];
+    if (!page_object) {
+        throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
+    }
+    var { pg, with: _with_elements, state, onback: _pageback_listener, roles } = page_object;
+    if (!checkroles(user.roles, roles)) {
+        // 检查权限
+        if (!user.isLogin && user.loginPath) {
+            return create(user.loginPath);
+        }
+        return alert(i18n("没有权限！", "No Access!"));
+    }
+    _with_elements = [].concat(_with_elements);
+    state.with = function (element) {
+        element && _with_elements.push(element);
+        return _with_elements;
+    };
+    state.onback = function (handler) {
+        _pageback_listener = handler;
+    };
+    if (undefined === args || null === args) args = {};
+    var _page = pg.call(state, args, oldpagepath);
+    if (_page) {
+        if (pg.className) _page.className = pg.className;
+        _page.with = _with_elements;
+        if (args.initialStyle) _page.initialStyle = args.initialStyle;
+        if (args.holdupStyle) _page.holdupStyle = args.holdupStyle;
+        if (_page.initialStyle && !_page.holdupStyle) {
+            _page.holdupStyle = getReverseStyle(_page.initialStyle);
+            _page.backupStyle = _page.initialStyle;
+        }
+        _page.onback = _pageback_listener;
+    }
+    return _page;
+
 }
 
 function zimoli(pagepath, args, history_name, oldpagepath) {
@@ -487,6 +496,7 @@ var _switch = zimoli.switch = function (history_name = default_history, target_b
 popup.global = zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
 popup.prepare = prepare;
+go.create = popup.create = zimoli.create = create;
 user.clean = zimoli.clean = function () {
     var pathnames = [].concat.apply([], arguments);
     pathnames.forEach(pathname => popstate(pathname));
