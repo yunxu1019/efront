@@ -32,6 +32,7 @@ function password() {
         }
     };
     element.type = "text";
+    element.nodrag = true;
     element.tabIndex = 0;
     // element.contentEditable = true;
     element.onkeydown = function (event) {
@@ -58,6 +59,9 @@ function password() {
             savedKeyCodes.push(keyCode);
         }
         build();
+    };
+    element.onmousedown = function () {
+        if (!element.disabled) element.focus();
     };
     element.onkeypress = function (event) {
         if (inputFired) return;
