@@ -76,11 +76,11 @@ var loadUseBody = function (data, fullpath, watchurls, commName) {
     return bindLoadings(useInternalReg, data, fullpath, replacer);
 }
 var getRequiredPaths = function (data) {
-    var pathReg = /\bgo\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;
+    var pathReg = /\b(?:go|popup)\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;
     var requiredPaths = {};
     var result = pathReg.exec(data);
     while (result) {
-        requiredPaths[result[2]] = true;
+        requiredPaths[result[2].replace(/^[@#!]+/, "")] = true;
         result = pathReg.exec(data);
     };
     return Object.keys(requiredPaths);
