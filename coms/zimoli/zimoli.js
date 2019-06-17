@@ -123,9 +123,8 @@ function go(pagepath, args, history_name, oldpagepath) {
     }
     var page_object = page_generators[pagepath];
     var _page = create(pagepath, args);
-    console.log(_page);
     page_object.go = function (_url, args, _history_name) {
-        return go(this.state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
+        return go(page_object.state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
     };
     var isDestroy = pushstate(pagepath, history_name, oldpagepath);
     if (isNode(history_name)) {
