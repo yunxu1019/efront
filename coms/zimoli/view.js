@@ -37,9 +37,7 @@ var prototype = {
             case "string":
                 scope.viewTitle = arg;
         }
-        console.log(this.viewTitle);
-
-        render(this);
+        render(this.titleElements, this);
         return this;
     },
 
@@ -84,6 +82,5 @@ function view(element) {
     }
     drag.on(window);
     extend(window, prototype);
-    render(window, window);
     return window;
 }
