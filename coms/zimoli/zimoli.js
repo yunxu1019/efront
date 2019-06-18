@@ -122,25 +122,31 @@ function go(pagepath, args, history_name, oldpagepath) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
     var page_object = page_generators[pagepath];
-    var _page = create(pagepath, args);
     page_object.go = function (_url, args, _history_name) {
         return go(page_object.state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
     };
-    var isDestroy = pushstate(pagepath, history_name, oldpagepath);
-    if (isNode(history_name)) {
-        if (history_name.activate === pagepath && history_name.activateNode === _page) return;
-        else remove(history_name.activateNode);
-        history_name.activate = pagepath;
-        history_name.activateNode = _page;
-    }
-    addGlobal(_page, history_name, isDestroy);
-    page_object.prepares.forEach(function (url) {
-        if (isNumber(url)) {
-            url = _history[url < 1 ? _history.length + url - 1 : url];
+    var fullfill = function () {
+        var _page = create(pagepath, args);
+        var isDestroy = pushstate(pagepath, history_name, oldpagepath);
+        if (isNode(history_name)) {
+            if (history_name.activate === pagepath && history_name.activateNode === _page) return;
+            else remove(history_name.activateNode);
+            history_name.activate = pagepath;
+            history_name.activateNode = _page;
         }
-        if (isString(url)) prepare(url);
-    });
-    return _page;
+        addGlobal(_page, history_name, isDestroy);
+        page_object.prepares.forEach(function (url) {
+            if (isNumber(url)) {
+                url = _history[url < 1 ? _history.length + url - 1 : url];
+            }
+            if (isString(url)) prepare(url);
+        });
+        if (_page) {
+            _page.$reload = fullfill;
+        }
+        return _page;
+    };
+    return fullfill();
 }
 var page_generators = {};
 /**

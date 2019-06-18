@@ -19,7 +19,7 @@ var setPosition = function (element) {
     });
 };
 var windowFactory = function (window) {
-    css(window, `min-height:10px;min-width:10px;position:absolute;background-color:#fff;left:${rootElements.length << 4}px;top:${rootElements.length << 4}px;`);
+    css(window, `min-height:10px;min-width:10px;position:absolute;background-color:#fff;`);
     return window;
 };
 var loadingFactory = function (element) {
@@ -49,49 +49,55 @@ var popup_path = function (path = "", parameters, target) {
     if (/^#/.test(path)) {
         // mask
         path = path.replace(/^#/, "");
-        popup.prepare(path, function () {
+        var load = function () {
+            remove(element && element.mask);
             element = popup.create(path, parameters);
             windowFactory(element);
             setInitialStyle(element);
             popup_with_mask(element, target);
-        });
+        };
     }
     // 2 has view control has no mask
     else if (/^@/.test(path)) {
         path = path.replace(/^@/, "");
-        popup.prepare(path, function () {
+        var load = function () {
             element = popup.create(path, parameters);
             windowFactory(element);
             setInitialStyle(element);
             popup_as_single(element);
-        });
+        };
     }
     // 1 has mask has no control
     else if (/^!/.test(path)) {
         path = path.replace(/^!/, "");
-        popup.prepare(path, function () {
+        var load = function () {
             element = popup.create(path, parameters);
             loadingFactory(element);
             setInitialStyle(element);
             popup_with_mask(element);
-        });
+        };
     }
     // 0 has no mask no control
     else {
-        popup.prepare(path, function () {
+        var load = function () {
             element = popup.create(path, parameters);
             loadingFactory(element);
             setInitialStyle(element);
             popup_as_single(element);
-        });
+        };
     }
-    popup.prepare(path, function () {
+    var fullfill = function () {
+        remove(element);
+        load();
+        if (!element) throw new Error(`路径不存在:${path}`);
         element.style.opacity = 0;
+        element.$reload = fullfill;
         setTimeout(function () {
             setPosition(element);
             element.style.opacity = 1;
         });
-    });
+    };
+    popup.prepare(path, fullfill);
     return element;
 };
 
@@ -249,5 +255,5 @@ var popup_as_single = function (element) {
 var global = function (element) {
     once("remove")(element, cleanup);
     popup.global ? popup.global(element, true) : appendChild(document.body, element);
-}
+};
 var cleanup = new Cleanup(rootElements);
