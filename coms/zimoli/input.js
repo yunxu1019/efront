@@ -3,20 +3,30 @@ function input(element) {
     if (element && /input/i.test(element.tagName)) {
         var type = element.getAttribute("type");
         if (type) {
+            var format;
             switch (type.toLowerCase()) {
                 case "date":
-                    select(element, selectDate("年月日", input.value));
+                    format = "年月日";
                     break;
                 case "month":
-                    select(element, selectDate("年月", input.value));
+                    format = "年月";
                     break;
                 case "time":
-                    select(element, selectDate("时分", input.value));
+                    format = "时分";
                     break;
                 case "datetime":
-                    select(element, selectDate("年月日时分秒", input.value));
-                    element.readonly = "readonly";
+                    format = "年月日时分秒";
                     break;
+            }
+            if (format) {
+                element.getValue = function () {
+                    return new Date(this.value);
+                };
+                element.setValue = function (value) {
+                    this.value = new Date(value).toLocaleString(undefined, { hour12: false })
+                };
+                select(element, selectDate(format, input.value));
+                element.readonly = "readonly";
             }
         }
         return element;
