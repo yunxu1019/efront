@@ -479,15 +479,6 @@ var initIfNotDefined = function (defined, path, onload) {
     if (defined === void 0) init(path, a => onload(a) | hook(--requires_count));
     else hook(--requires_count);
 }
-initIfNotDefined(Promise, "promise", promise => Promise = promise);
-initIfNotDefined([].map, "[]map", map => map);
-var removeGlobalProperty = function (property) {
-    forceRequest[property] = true;
-};
-var onload = function () {
-    window.onload = null;
-    hook(--requires_count);
-};
 var modules = {
     start_time: +new Date,
     IS_BAD_DEVICE: isBadDevice,
@@ -509,6 +500,16 @@ var modules = {
     setGetMethod(_get) {
         get = _get;
     },
+};
+modules.modules = modules;
+initIfNotDefined(Promise, "promise", promise => Promise = promise);
+initIfNotDefined([].map, "[]map", map => map);
+var removeGlobalProperty = function (property) {
+    forceRequest[property] = true;
+};
+var onload = function () {
+    window.onload = null;
+    hook(--requires_count);
 };
 if (document.body) onload();
 else window.onload = onload;
