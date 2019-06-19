@@ -7,24 +7,24 @@ function input(element) {
             switch (type.toLowerCase()) {
                 case "date":
                     format = "年月日";
-                    break;
-                case "month":
-                    format = "年月";
-                    break;
-                case "time":
-                    format = "时分";
+                    element.getValue = function () {
+                        return new Date(this.value);
+                    };
+                    element.setValue = function (value) {
+                        this.value = new Date(value).toLocaleDateString();
+                    };
                     break;
                 case "datetime":
                     format = "年月日时分秒";
+                    element.getValue = function () {
+                        return new Date(this.value);
+                    };
+                    element.setValue = function (value) {
+                        this.value = new Date(value).toLocaleString(undefined, { hour12: false });
+                    };
                     break;
             }
             if (format) {
-                element.getValue = function () {
-                    return new Date(this.value);
-                };
-                element.setValue = function (value) {
-                    this.value = new Date(value).toLocaleString(undefined, { hour12: false })
-                };
                 select(element, selectDate(format, input.value));
                 element.readonly = "readonly";
             }
