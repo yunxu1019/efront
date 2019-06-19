@@ -67,10 +67,9 @@ var isBadDevice;
         test();
     } catch (e) {
     }
-    var SAFE_CIRCLE_DEPTH = modules.SAFE_CIRCLE_DEPTH = inc / (new Date - saved_time) | 0;
+    var SAFE_CIRCLE_DEPTH = inc / (new Date - saved_time) | 0;
     isBadDevice = SAFE_CIRCLE_DEPTH < 512;
 };
-modules.IS_BAD_DEVICE = isBadDevice;
 var FILE_NAME_REG = /^[^\/].*?[\/\?\-\.\+]|(?:[^\/]\.|[\-\+\?])[^\/]*?$/;
 // 适配大小屏
 var devicePixelRatio = window.devicePixelRatio || 1;
@@ -151,10 +150,6 @@ var versionTree = {};
 var forceRequest = {};
 var circleTree = {};
 var hasOwnProperty = {}.hasOwnProperty;
-modules.MOVELOCK_DELTA = 3 * renderPixelRatio;
-modules.debug = function () {
-    document.addEventListener("blur", e => e.stopPropagation());
-};
 var XHR = function () {
     return new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
 };
@@ -285,10 +280,6 @@ var get = function (url, then) {
         loaddata(url);
     }
 };
-modules.start_time = +new Date;
-
-function modules() { }
-modules.modules = modules;
 var penddingTree = {};
 var getArgs = function (text) {
     var functionArgs, functionBody;
@@ -311,20 +302,14 @@ var getArgs = function (text) {
 var executer = function (text, name, then, prebuild, parents) {
     var [functionArgs, functionBody] = getArgs(text);
     if (!functionArgs.length) {
-        if (modules[name] && !prebuild) return then(modules[name]);
-        else if (prebuild && name in prebuild) return then(prebuild[name]);
+        if (prebuild && hasOwnProperty.call(prebuild, name)) return then(prebuild[name]);
+        if (hasOwnProperty.call(modules, name) && !prebuild) return then(modules[name]);
         try {
             var exports = Function.call(window, functionBody).call(window);
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
-        if (Promise && exports instanceof Promise) {
-            exports.then(function (exports) {
-                then(modules[name] = exports);
-            });
-        } else {
-            then(modules[name] = exports);
-        }
+        then(modules[name] = exports);
         return;
     }
 
@@ -360,28 +345,20 @@ var executer = function (text, name, then, prebuild, parents) {
 
     init(requires, function (args) {
         // 如果构造该对象没有依赖预置树中的对象，保存这个对象到全局单例对象，否则保存这个对象到预置树
-        if (modules[name]) return then(modules[name]);
-        else if (prebuild && name in prebuild) return then(prebuild[name]);
+        if (prebuild && hasOwnProperty.call(prebuild, name)) return then(prebuild[name]);
         var prevent_save = 0;
         var argslength = functionArgs.length >> 1;
         prebuild && [].map.call(functionArgs.slice(0, argslength), k => k in prebuild && prevent_save++);
+        if (!prevent_save && hasOwnProperty.call(modules, name)) return then(modules[name]);
         try {
             var allArgumentsNames = functionArgs.slice(argslength);
             var exports = Function.apply(window, allArgumentsNames.concat(functionBody)).apply(window, args.concat([allArgumentsNames]));
         } catch (e) {
             throw new Error(`[${name}] ${e}`);
         }
-        if (exports instanceof Promise) {
-            exports.then(function (exports) {
-                if (prevent_save) prebuild[name] = exports;
-                else modules[name] = exports;
-                then(exports);
-            });
-        } else {
-            if (prevent_save) prebuild[name] = exports;
-            else modules[name] = exports;
-            then(exports);
-        }
+        if (prevent_save) prebuild[name] = exports;
+        else modules[name] = exports;
+        then(exports);
     }, prebuild, parents.concat(name));
 };
 var JSON_parser = function (text, name, then) {
@@ -424,7 +401,17 @@ var broadcast = function (text, name) {
         adapter(text, name, then, prebuild, parents);
     }
 };
+var bindthen = function (callback) {
+    return function (data) {
+        if (Promise && data instanceof Promise) {
+            data.then(callback);
+        } else {
+            callback(data);
+        }
+    };
+};
 var init = function (name, then, prebuild, parents) {
+    then = bindthen(then);
     if (name instanceof Array) {
         if (!Promise) console.log(name, Promise, preLoad, parents);
         return Promise.all(name.map(function (argName) {
@@ -457,7 +444,7 @@ var init = function (name, then, prebuild, parents) {
     // return 
     get(name, broadcast);
 };
-modules.init = init;
+
 var requires_count = 3;
 var wrapRenderDigest = function (_then) {
     return function (f) {
@@ -501,17 +488,27 @@ var onload = function () {
     window.onload = null;
     hook(--requires_count);
 };
-modules.put = function (name, module) {
-    modules[name] = module;
+var modules = {
+    start_time: +new Date,
+    IS_BAD_DEVICE: isBadDevice,
+    MOVELOCK_DELTA: 3 * renderPixelRatio,
+    SAFE_CIRCLE_DEPTH,
+    init,
+    versionTree,
+    responseTree,
+    loaddingTree,
+    load: loaddata,
+    XHR,
+    renderPixelRatio,
+    debug() {
+        document.addEventListener("blur", e => e.stopPropagation());
+    },
+    put(name, module) {
+        modules[name] = module;
+    },
+    setGetMethod(_get) {
+        get = _get;
+    },
 };
-modules.versionTree = versionTree;
-modules.responseTree = responseTree;
-modules.loaddingTree = loaddingTree;
-modules.setGetMethod = function (_get) {
-    get = _get;
-};
-modules.load = loaddata;
-modules.XHR = XHR;
-modules.renderPixelRatio = renderPixelRatio;
 if (document.body) onload();
 else window.onload = onload;
