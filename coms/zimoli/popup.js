@@ -181,7 +181,7 @@ var popup_as_yextra = function (global, element, target) {
             display: element.style.display
         };
     }
-    css(element, `position:absolute;`);
+    css(element, `position:absolute;z-index:${zIndex()}`);
     var release1 = onremove(target, function () {
         remove(element);
     });
