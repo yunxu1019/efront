@@ -128,6 +128,7 @@ function cross(method, url, headers) {
             switch (xhr.status) {
                 case 0:
                 case 200:
+                case 201:
                 case 304:
                     onload(xhr);
                     break;
