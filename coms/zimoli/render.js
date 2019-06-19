@@ -208,42 +208,50 @@ var directives = {
     model(search) {
         var getter = createGetter(search).bind(this);
         var oldValue;
+        var getstr = this.getValue instanceof Function ? "this.getValue()" : "";
+        var setter = this.setValue instanceof Function ? function () {
+            var value = getter();
+            if (value === undefined) value = "";
+            if (deepEqual(oldValue, value)) return;
+            oldValue = value;
+            this.setValue(value);
+        } : null;
         if (/^input$/i.test(this.tagName) && /^checkbox$/i.test(this.type) || /^checkbox$/i.test(this.tagName)) {
-            this.renders.push(function () {
+            this.renders.push(setter || function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
                 this.checked = value;
             });
-            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.checked`).bind(this);
+            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=${getstr || "this.checked"}`).bind(this);
         } else if (("value" in this || this.getValue instanceof Function) && this.setValue instanceof Function) {
-            this.renders.push(function () {
+            this.renders.push(setter || function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
                 if ((this.getValue instanceof Function ? this.getValue() : this.value) !== value) this.setValue(value);
             });
-            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
+            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=${getstr || "this.value"}`).bind(this);
         } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
-            this.renders.push(function () {
+            this.renders.push(setter || function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
                 if (this.value !== value) this.value = value;
             });
-            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=this.value`).bind(this);
+            var change = new Function(`${search[0]}with(this.$scope)${search[1]}=${getstr || "this.value"}`).bind(this);
         } else {
-            this.renders.push(function () {
+            this.renders.push(setter || function () {
                 var value = getter();
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
                 if (html(this) !== value) html(this, value);
             });
-            var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=html(this)`).bind(this, html);
+            var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=${getstr || "html(this)"}`).bind(this, html);
         }
         var onchange = lazy(change);
         eventsHandlers.map(on => on(this, onchange));
