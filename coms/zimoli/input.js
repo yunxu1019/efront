@@ -11,7 +11,8 @@ function input(element) {
                         return new Date(this.value);
                     };
                     element.setValue = function (value) {
-                        this.value = new Date(value).toLocaleDateString();
+                        var date = new Date(value);
+                        this.value = [date.getFullYear(), date.getMonth() + 1, date.getDate()].map(a => a < 10 ? '0' + a : a).join("-");
                     };
                     break;
                 case "datetime":
