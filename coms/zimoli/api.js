@@ -110,6 +110,12 @@ var api = function () {
                 switch (xhr.status) {
                     case 0:
                     case 200:
+                    case 201:
+                    case 202:
+                    case 203:
+                    case 204:
+                    case 205:
+                    case 206:
                     case 304:
                         xhr_onload(xhr);
                         break;
