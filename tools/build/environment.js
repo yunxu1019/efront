@@ -1,5 +1,6 @@
 var setupenv = require("../../process/setupenv");
 var path = require("path");
+var fs = require("fs");
 var {
     APP
 } = process.env;
@@ -17,14 +18,14 @@ var COMS_PATH = env.COMS_PATH;
 var ICON_PATH = env.ICON_PATH;
 var comms_root = [].concat.apply([], COMS_PATH.split(",").map(function (COMS_PATH) {
     return COMM.split(/,/).map(a => path.join(COMS_PATH, a));
-}));
+})).filter(fs.existsSync);
 var ccons_root = ICON && ICON_PATH ? [].concat.apply([], ICON_PATH.split(",").map(function (ICON_PATH) {
     return ICON.split(/,/).map(a => path.join(ICON_PATH, a));
-})) : [];
+})).filter(fs.existsSync) : [];
 
 var pages_root = [].concat.apply([], PAGE_PATH.split(",").map(function (PAGE_PATH) {
     return PAGE.split(/,/).map(a => path.join(PAGE_PATH, a));
-}));
+})).filter(fs.existsSync);
 var aapis_root = "./apis/" + AAPI;
 module.exports = {
     comms_root,
