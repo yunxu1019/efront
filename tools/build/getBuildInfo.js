@@ -40,7 +40,7 @@ function getBuildInfo(url) {
                 builder = commbuilder;
                 var $name = name.replace(/(\w)\$/g, "$1/");
                 fullpath = [];
-                extt = extt || [".js", ".ts", ".html"];
+                extt = extt || [".js", ".ts",".json", ".html"];
                 if (!Array.isArray(extt)) {
                     extt = [extt];
                 }
@@ -54,7 +54,7 @@ function getBuildInfo(url) {
                     });
                 }
                 destpath = path.join("comm", name);
-                url = url.replace(/\.([tj]sx?|html?)$/i, "");
+                url = url.replace(/\.([tj]sx?|json|html?)$/i, "");
                 break;
             case "/":
                 if (/\.html?$/i.test(extt)) {
@@ -64,7 +64,7 @@ function getBuildInfo(url) {
                     builder = noopbuilder;
                     destpath = path.join(name + extt);
                 } else {
-                    extt = ".js";
+                    extt = extt || "";
                     builder = commbuilder;
                     destpath = path.join("page", name);
                     url = url.replace(/\.[tj]sx?$/i, "");
@@ -73,8 +73,8 @@ function getBuildInfo(url) {
                 break;
             case "@":
                 builder = noopbuilder;
-                fullpath = path.join("apps", name + extt);
                 for (var page of pages_root) {
+                    fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
                         destpath = path.relative(page, fullpath);
                     }
