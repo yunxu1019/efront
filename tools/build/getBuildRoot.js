@@ -15,7 +15,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
                 fs.readFile(fullpath, function (error, data) {
                     if (error) return ok([]);
                     var result = [];
-                    String(data).replace(/<script\s[^\>]*?\bsrc=('.+?'|".+?"|.+?)[\s|\>]/ig, function (_, url) {
+                    String(data).replace(/<script\s[^\>]*?\bsrc\=('.+?'|".+?"|.+?)[\s|\>]/ig, function (_, url) {
                         result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
                     });
                     ok(result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fullpath), url)));
@@ -79,20 +79,24 @@ var getBuildRoot = function (files) {
                 fs.stat(file, function (error, stat) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
-                        if (/\.less/i.test(file)) return ok();
-                        for (var page of pages_root) {
-                            var rel = getPathInFolder(page, file);
-                            if (rel) {
-                                var name = rel.replace(/[\\\/]+/g, "/");
-                                return result.push("/" + name), ok();
+                        if (/\.less$/i.test(file)) return ok();
+                        if(/\.([tj]sx?|html)$/i.test(file)){
+                            for (var page of pages_root) {
+                                var rel = getPathInFolder(page, file);
+                                if (rel) {
+                                    var name = rel.replace(/[\\\/]+/g, "/");
+                                    return result.push("/" + name), ok();
+                                }
                             }
                         }
-                        for (var comm of comms_root) {
-                            var rel = getPathInFolder(comm, file);
-                            if (rel) {
-                                var name = path.parse(file).base;
-                                name = name.replace(/[\\\/]+/g, "/");
-                                return result.push(name), ok();
+                        if(/\.([tj]sx?|html|json)$/i.test(file)){
+                            for (var comm of comms_root) {
+                                var rel = getPathInFolder(comm, file);
+                                if (rel) {
+                                    var name = path.parse(file).base;
+                                    name = name.replace(/[\\\/]+/g, "/");
+                                    return result.push(name), ok();
+                                }
                             }
                         }
                         for (var page of PAGE_PATH.split(',')) {

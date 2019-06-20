@@ -40,7 +40,7 @@ function getBuildInfo(url) {
                 builder = commbuilder;
                 var $name = name.replace(/(\w)\$/g, "$1/");
                 fullpath = [];
-                extt = extt || [".js", ".ts",".json", ".html"];
+                extt = extt || [".js", ".ts", ".json", ".html"];
                 if (!Array.isArray(extt)) {
                     extt = [extt];
                 }
