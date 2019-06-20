@@ -52,7 +52,7 @@ var filterHtmlImportedJs = function (roots) {
         });
         var urlsMap = {};
         roots.forEach(function (name) {
-            urlsMap[name] = name.replace(/\.[tj]sx?$/i, ".js");
+            urlsMap[name.replace(/\.[tj]sx?$/i, ".js")] = true;
         });
         for (let cx = roots.length; cx >= 0; cx--) {
             let url = roots[cx];
