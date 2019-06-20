@@ -126,7 +126,7 @@ function go(pagepath, args, history_name, oldpagepath) {
         return go(page_object.state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
     };
     var fullfill = function () {
-        var _page = create(pagepath, args);
+        var _page = create(pagepath, args, oldpagepath);
         var isDestroy = pushstate(pagepath, history_name, oldpagepath);
         if (isNode(history_name)) {
             if (history_name.activate === pagepath && history_name.activateNode === _page) return;
@@ -262,7 +262,7 @@ function prepare(pagepath, ok) {
         emit(pg);
     }, state);
 }
-function create(pagepath, args) {
+function create(pagepath, args, from) {
     var page_object = pagepath instanceof Object ? pagepath : page_generators[pagepath];
     if (!page_object) {
         throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
@@ -284,7 +284,7 @@ function create(pagepath, args) {
         _pageback_listener = handler;
     };
     if (undefined === args || null === args) args = {};
-    var _page = pg.call(state, args, oldpagepath);
+    var _page = pg.call(state, args, from);
     if (_page) {
         if (pg.className) _page.className = pg.className;
         _page.with = _with_elements;
