@@ -13,6 +13,7 @@ function getInitReferenced(dependence, args, data, sliceFrom) {
 }
 
 function getDependence(responseData) {
+    if (responseData.type !== "" && responseData.type !== "/") return [];
     var { data = "" } = responseData;
     data = String(data);
     var functionArgs;
