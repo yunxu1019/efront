@@ -15,11 +15,12 @@ var createDelete = function () {
 };
 var touchstart = function (event) {
     var target = getTargetIn(this, event.target);
-    cancelAnimationFrame(target.scrollTimer);
-    saved_x = null;
     if (currentOpen && currentOpen !== target) {
         scrollToRight.call(currentOpen);
     }
+    if (!target) return;
+    cancelAnimationFrame(target.scrollTimer);
+    saved_x = null;
     currentOpen = target;
     if (!target.querySelector(".ylife-touch-delete")) {
         css(target, {
@@ -31,9 +32,9 @@ var touchstart = function (event) {
 };
 var moving = false;
 var touchmove = function (event) {
-    if (!saved_x) return saved_x = event.touches[0].clientX, saved_y = event.touches[0].clientY, moving = false, 0;
-    var delta_x = event.touches[0].clientX - saved_x;
-    var delta_y = event.touches[0].clientY - saved_y;
+    if (!saved_x) return saved_x = event.clientX, saved_y = event.clientY, moving = false, 0;
+    var delta_x = event.clientX - saved_x;
+    var delta_y = event.clientY - saved_y;
     if (!moving) {
         if (Math.abs(delta_x) < 2 && Math.abs(delta_y) < 2) return;
         if (Math.abs(delta_y) < Math.abs(delta_x)) {
@@ -48,8 +49,8 @@ var touchmove = function (event) {
     if (delta_x + marginLeft > 0) {
         delta_x = -marginLeft;
     }
-    else if (delta_x + marginLeft < -85) {
-        delta_x = -85 - marginLeft;
+    else if (delta_x + marginLeft < - calcPixel(85)) {
+        delta_x = -calcPixel(85) - marginLeft;
     }
     marginLeft += delta_x;
     saved_x += delta_x;
@@ -57,6 +58,7 @@ var touchmove = function (event) {
     currentOpen.scrollLeft = -marginLeft;
 };
 var scrollTo = function (targetLeft) {
+    if (!this) return;
     cancelAnimationFrame(this.scrollTimer);
     var that = this;
     var reshape = function () {
@@ -66,11 +68,11 @@ var scrollTo = function (targetLeft) {
         if (Math.abs(thisTimeLeft - currentLeft) < 3) {
             thisTimeLeft = targetLeft;
         } else {
-            that.scrollTimer = requestAnimationFrame(reshape, 20);
+            that.scrollTimer = requestAnimationFrame(reshape);
         }
         that.scrollLeft = thisTimeLeft;
     };
-    this.scrollTimer = requestAnimationFrame(reshape, 20);
+    this.scrollTimer = requestAnimationFrame(reshape);
 };
 var scrollToLeft = function () {
     this.setAttribute("touch-delete", "open");
@@ -83,10 +85,10 @@ var scrollToRight = function () {
 var touchend = function () {
     var marginLeft = -parseInt(currentOpen.scrollLeft) || 0;
     moving = false;
-    if (direction < 0 && marginLeft < -20) {
+    if (direction < 0 && marginLeft < -calcPixel(20)) {
         scrollToLeft.call(currentOpen);
     }
-    else if (direction > 0 && marginLeft > -currentOpen.offsetWidth + 20) {
+    else if (direction > 0 && marginLeft > -currentOpen.offsetWidth + calcPixel(20)) {
         scrollToRight.call(currentOpen);
     }
     else if (marginLeft < currentOpen.offsetWidth - currentOpen.scrollWidth >> 1) {
@@ -100,9 +102,14 @@ function touchList(listElement) {
     on("scroll")(listElement, function () {
         currentOpen && scrollToRight.call(this);
     });
-    ontouchstart(listElement, touchstart);
-    ontouchmove(listElement, touchmove);
-    ontouchend(listElement, touchend);
-    ontouchcancel(listElement, touchend);
+    moveupon(listElement, {
+        start: touchstart,
+        move: touchmove,
+        end: touchend
+    })
+    // ontouchstart(listElement, touchstart);
+    // ontouchmove(listElement, touchmove);
+    // ontouchend(listElement, touchend);
+    // ontouchcancel(listElement, touchend);
     return listElement;
 }
