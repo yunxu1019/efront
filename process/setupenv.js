@@ -30,6 +30,7 @@ var if_conditions = {
     "gtr": (a, b) => a > b,
     "geq": (a, b) => a >= b
 };
+
 var env = process.env;
 if (!env.cd && !env.CD) {
     env.cd = process.cwd();
@@ -40,6 +41,7 @@ for (var k in env) {
     env[upperKey] = env[k];
     env[lowerKey] = env[k];
 }
+
 var call = function (file, args = []) {
     file = path.normalize(file.replace(/[\\]+/ig, "/"));
     if (!fs.existsSync(file)) {
@@ -77,6 +79,7 @@ var call = function (file, args = []) {
         .split(/[\r\n]+\s*/g)
         .forEach(get);
 };
+
 var get = function (text) {
     match = text.match(reg_for)
     if (match) {
@@ -121,12 +124,15 @@ var get = function (text) {
     }
     return text;
 };
+
 call("./_envs/setup.bat");
 call(path.join(__dirname, "../_envs/setup.bat"));
 
-if (!env.PAGE) env.PAGE = env.APP || "";
 var cache = {};
-module.exports = function (appname) {
+var setup = module.exports = function (appname) {
+    if (!appname) {
+        appname = process.env.APP || "zimoli";
+    }
     appname = appname.replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
     if (cache[appname]) return cache[appname];
     else env = {};
@@ -151,9 +157,15 @@ module.exports = function (appname) {
 var pollyfill = function (env, appname) {
     if (!env.PAGE) env.PAGE = appname;
     for (var k in bootConfig) {
+        var bootfull = path.join(__dirname, "..", bootConfig[k]);
+        var bootpath = path.relative(bootConfig[k], bootfull);
+        if (bootpath) {
+            bootfull = bootConfig[k] + "," + bootfull;
+        }
+        bootpath = bootfull;
         env[k] = env[k] ? (
-            env[k].split(",").map(a => a === ":" ? path.join(__dirname, "..", bootConfig[k]) : a).join(",")
-        ) : bootConfig[k];
+            env[k].split(",").map(a => a === ":" ? bootpath : a).join(",")
+        ) : bootfull;
     }
     if (!env.PAGE_PATH) {
         env.PAGE_PATH = "./apps";
@@ -193,6 +205,13 @@ var extend = function (dst, env) {
     Object.assign(dst, obj);
     normalize(dst);
 };
-extend(process.env, process.env);
-pollyfill(process.env, "zimoli");
-process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0
+process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0;
+if (env.APP) {
+    let _tmp = setup(env.APP);
+    pollyfill(_tmp, "zimoli");
+    for (var k in _tmp) {
+        if (/\_PATH$/i.test(k)) {
+            process.env[k] = _tmp[k];
+        }
+    }
+}
