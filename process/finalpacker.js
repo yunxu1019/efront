@@ -89,14 +89,14 @@ var managers = {
 var exports = module.exports = function (url, callback) {
     var match = url.match(
         ///// 1 //        2           //// 3 //     4      /////////////////////
-        /^\/(.*?)(comm|page|ccon|aa?pi)\/(.*?)(?:\.js|\.png)?(?:(?:\?|\#).*?)?$/i
+        /^\/(?:(.*?)\/)?(comm|page|ccon|aa?pi)\/(.*?)(?:\.js|\.png)?(?:(?:\?|\#).*?)?$/i
     );
     if (match) {
         var appc = match[1],
             type = match[2],
             name = match[3],
             extt = match[4];
-        var env = appc ? setupenv(appc) : {};
+        var env = setupenv(appc);
         var manager = managers[type];
         if (!manager) return res.end();
         var result = manager(name, env);
