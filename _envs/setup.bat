@@ -19,7 +19,7 @@ REM set KEY.REQUEST_SECRET=%efront通信密钥%
 @if exist "%~dp0cert\private.bat" @call "%~dp0cert\private"
 
 rem 前文已配置的所有参数可用 app=%app%.bat 重写
-@for %%i in (%app%) do @call "%~DP0app=%%i"
+REM @for %%i in (%app%) do @call "%~DP0app=%%i"
 
 rem 应用发布路径
 REM if "%cd%\_envs\"=="%~dp0" set default_public_path="%~dp0..\public"
