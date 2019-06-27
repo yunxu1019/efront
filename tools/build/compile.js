@@ -125,7 +125,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                     resolve();
                                 });
                             });
-                        }
+                        };
                         if (lastBuildTime - stat.mtime > 10000 && !/[\/\\]index.html?$/i.test(destpath)) {
                             var statless = function () {
                                 var less_file = _filepath.replace(/\.([tj]sx?|html?)$/i, ".less");

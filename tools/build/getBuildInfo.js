@@ -29,6 +29,7 @@ function getBuildInfo(url) {
             comms_root,
             ccons_root,
             pages_root,
+            PAGE_PATH,
             // aapis_root
         } = env;
         var appc = match[1],
@@ -73,7 +74,7 @@ function getBuildInfo(url) {
                 break;
             case "@":
                 builder = noopbuilder;
-                for (var page of pages_root) {
+                for (var page of PAGE_PATH.split(",")) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
                         destpath = path.relative(page, fullpath);
