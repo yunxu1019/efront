@@ -22,7 +22,7 @@ BuildInfo.prototype = {
 }
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|@|)(.+?)(\.[tj]sx?|\.html?|\.png)?$/);
+    var match = url.match(/^(.*?)(\/|\.|@|\:|)(.+?)(\.[tj]sx?|\.html?|\.png)?$/);
     var fullpath, destpath, builder;
     if (match) {
         var {
@@ -77,7 +77,7 @@ function getBuildInfo(url) {
                 for (var page of PAGE_PATH.split(",")) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
-                        destpath = path.relative(page, fullpath);
+                        destpath = path.relative(pages_root[0], fullpath);
                         break bigloop;
                     }
                 }

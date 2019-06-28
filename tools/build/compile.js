@@ -69,18 +69,23 @@ function compile(buildInfo, lastBuildTime, destroot) {
     return new Promise(function (ok, oh) {
         var responseText,
             responsePath,
+            responseTime = 0,
             responseVersion,
             responseWithWarning,
             writeNeeded,
             moduleValue;
 
         var resolve = function () {
+            if (responseText instanceof Buffer) {
+                responseTime = responseText.time || 0;
+            }
             Object.assign(buildInfo, {
                 needed: writeNeeded,
                 data: responseText,
                 realpath: responsePath,
                 version: responseVersion,
                 builtin: moduleValue,
+                time: responseTime,
                 warn: responseWithWarning
             });
             if (responseText instanceof Promise) {
@@ -107,7 +112,14 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                 responseText = builder(buffer, filename, _filepath, []);
                                 responseVersion = stat.mtime;
                                 writeNeeded = true;
-                                resolve();
+                                if (responseText instanceof Promise) {
+                                    responseText.then(function (res) {
+                                        responseText = res;
+                                        resolve();
+                                    });
+                                } else {
+                                    resolve();
+                                }
                             });
                         };
                         var reader = function (hasless) {

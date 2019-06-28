@@ -352,7 +352,11 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     if (promise) {
         promise = promise.then(function () {
             try {
-                return loadJsBody(jsData, filename, lessData, commName, className);
+                var timeStart = new Date;
+                var data = loadJsBody(jsData, filename, lessData, commName, className);
+                data = Buffer.from(data);
+                data.time = new Date - timeStart;
+                return data;
             } catch (e) {
                 console.error(fullpath, e);
             }

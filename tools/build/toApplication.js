@@ -1,5 +1,8 @@
 "use strict";
 var crc = require("../../process/crc");
+var path = require("path");
+var fs = require("fs");
+var environment = require("./environment");
 function toApplication(responseTree) {
     var versionTree = {};
     Object.keys(responseTree).sort().forEach(function (k) {
@@ -15,6 +18,20 @@ function toApplication(responseTree) {
     delete versionTree["@index.html"];
     var mainScript = responseTree["main"].data;
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
+    if (!indexHtml) {
+        var htmlPath = path.join(__dirname, "../../apps", "index.html");
+        indexHtml = {
+            time: 0,
+            needed: true,
+            fullpath: htmlPath,
+            data: fs.readFileSync(htmlPath),
+            realpath: htmlPath,
+            version: fs.statSync(htmlPath).mtime,
+            destpath: path.join("index.html"),
+        };
+        responseTree["/index.html"] = indexHtml;
+
+    }
     var indexHtmlData = indexHtml.data;
     var versionTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
     var code = JSON.stringify(versionTree, null, "\t")//.replace(/[<>]/g, s => "\\x" + `0${s.charCodeAt(0).toString(16)}`.slice(-2));

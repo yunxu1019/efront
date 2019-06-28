@@ -13,12 +13,10 @@ function build(pages_root, lastBuiltTime, dest_root) {
         roots = roots.map(getBuildInfo).map(function (buildInfo) {
             return compile(buildInfo, lastBuiltTime, dest_root);
         }).map(function (promise) {
-            var date = new Date;
             return promise.then(function (response) {
                 var {
                     url
                 } = response;
-                response.time = new Date - date;
                 return responseTree[url] = response;
             });
         });

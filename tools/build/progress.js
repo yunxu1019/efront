@@ -81,9 +81,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 lastBuildTime = 0;
             }
             var indexHTML = pages_root.map(a => path.join(a, "index.html")).filter(fs.existsSync);
-            if (!indexHTML.length) {
-                indexHTML.push(path.join(__dirname, "../../apps", "index.html"));
-            }
             loadData(pages_root.concat(
                 indexHTML,
                 environment.pages_root,
