@@ -80,8 +80,12 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             if (cleanBeforeBuild) {
                 lastBuildTime = 0;
             }
+            var indexHTML = pages_root.map(a => path.join(a, "index.html")).filter(fs.existsSync);
+            if (!indexHTML.length) {
+                indexHTML.push(path.join(__dirname, "../../apps", "index.html"));
+            }
             loadData(pages_root.concat(
-                environment.PAGE_PATH.split(",").map(a => path.join(a, "index.html")),
+                indexHTML,
                 environment.pages_root,
                 path.join(__dirname, "../../coms", "zimoli/main.js"),
                 path.join(__dirname, "../../coms", "zimoli/zimoli.js"),

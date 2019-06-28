@@ -5,7 +5,6 @@ var getBuildInfo = require("./getBuildInfo");
 var {
     comms_root,
     pages_root,
-    COMS_PATH,
     PAGE_PATH
 } = require("./environment");
 var getScriptsUrlInHtmlFile = function (fileinfo) {
@@ -80,7 +79,7 @@ var getBuildRoot = function (files) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
-                        if(/\.([tj]sx?|html)$/i.test(file)){
+                        if (/\.([tj]sx?|html)$/i.test(file)) {
                             for (var page of pages_root) {
                                 var rel = getPathInFolder(page, file);
                                 if (rel) {
@@ -89,7 +88,7 @@ var getBuildRoot = function (files) {
                                 }
                             }
                         }
-                        if(/\.([tj]sx?|html|json)$/i.test(file)){
+                        if (/\.([tj]sx?|html|json)$/i.test(file)) {
                             for (var comm of comms_root) {
                                 var rel = getPathInFolder(comm, file);
                                 if (rel) {
@@ -99,7 +98,14 @@ var getBuildRoot = function (files) {
                                 }
                             }
                         }
-                        for (var page of PAGE_PATH.split(',')) {
+                        for (var page of pages_root) {
+                            var rel = getPathInFolder(page, file);
+                            if (rel) {
+                                var name = "/" + rel.replace(/[\\\/]+/g, "/");
+                                return result.push(name), ok();
+                            }
+                        }
+                        for (var page of PAGE_PATH.split(",")) {
                             var rel = getPathInFolder(page, file);
                             if (rel) {
                                 var name = "@" + rel.replace(/[\\\/]+/g, "/");

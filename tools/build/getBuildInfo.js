@@ -29,14 +29,14 @@ function getBuildInfo(url) {
             comms_root,
             ccons_root,
             pages_root,
-            PAGE_PATH,
+            PAGE_PATH
             // aapis_root
         } = env;
         var appc = match[1],
             type = match[2],
             name = match[3],
             extt = match[4] || "";
-        switch (type) {
+        bigloop: switch (type) {
             case "":
                 builder = commbuilder;
                 var $name = name.replace(/(\w)\$/g, "$1/");
@@ -78,6 +78,7 @@ function getBuildInfo(url) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
                         destpath = path.relative(page, fullpath);
+                        break bigloop;
                     }
                 }
                 if (!destpath) {
