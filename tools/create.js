@@ -18,14 +18,10 @@ mkdirIfNotExists(COMS_PATH);
 mkdirIfNotExists(PUBLIC_PATH);
 mkdirIfNotExists(path.join(PAGE_PATH, `${appname}`));
 var setupData = [
-    `set app=${appname}`,
-    `set PAGE_PATH=${PAGE_PATH}`,
-    `set COMS_PATH=${COMS_PATH}`,
-    `set public_path=${PUBLIC_PATH}`
+    `if not defined app set app=${appname}`,
 ].join("\r\n");
 setupData = Buffer.from(setupData);
 fs.writeFileSync(path.join("_envs", "setup.bat"), setupData);
-copy(path.join(__dirname, "../coms/zimoli"), path.join(COMS_PATH, `zimoli`));
 var hasindex = false;
 fs.readdirSync(path.join(__dirname, "../apps/zimoli")).map(function (name) {
     hasindex = hasindex || /^index.html$/i.test(name);
