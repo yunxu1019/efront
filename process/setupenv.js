@@ -134,6 +134,7 @@ var setup = module.exports = function (appname) {
         appname = process.env.APP || "zimoli";
     }
     appname = appname.replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
+    appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
     else env = {};
     call("./_envs/app=" + appname + ".bat");

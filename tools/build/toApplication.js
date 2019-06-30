@@ -4,19 +4,33 @@ var path = require("path");
 var fs = require("fs");
 var environment = require("./environment");
 function toApplication(responseTree) {
+    var isFileMode = /\.html?$/i.test(environment.APP);
     var versionTree = {};
-    Object.keys(responseTree).sort().forEach(function (k) {
-        var v = responseTree[k];
-        if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
-        var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.version).toString(36);
-        versionTree[v.url] = responseVersion;
-    });
-    delete versionTree["main"];
-    delete versionTree["[].map"];
-    delete versionTree["promise"];
-    delete versionTree["/index.html"];
-    delete versionTree["@index.html"];
     var mainScript = responseTree["main"].data;
+    if (isFileMode) {
+        Object.keys(responseTree).sort().forEach(function (k) {
+            var v = responseTree[k];
+            if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
+            versionTree[v.url] = String(v.data);
+        });
+        delete versionTree["/index.html"];
+        delete versionTree["@index.html"];
+        for (var k in versionTree) {
+            delete responseTree[k];
+        }
+    } else {
+        Object.keys(responseTree).sort().forEach(function (k) {
+            var v = responseTree[k];
+            if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
+            var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.version).toString(36);
+            versionTree[v.url] = responseVersion;
+        });
+        delete versionTree["main"];
+        delete versionTree["[]map"];
+        delete versionTree["promise"];
+        delete versionTree["/index.html"];
+        delete versionTree["@index.html"];
+    }
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
     if (!indexHtml) {
         var htmlPath = path.join(__dirname, "../../apps", "index.html");
@@ -30,19 +44,23 @@ function toApplication(responseTree) {
             destpath: path.join("index.html"),
         };
         responseTree["/index.html"] = indexHtml;
-
     }
     var indexHtmlData = indexHtml.data;
-    var versionTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
-    var code = JSON.stringify(versionTree, null, "\t")//.replace(/[<>]/g, s => "\\x" + `0${s.charCodeAt(0).toString(16)}`.slice(-2));
+    if (isFileMode) {
+        var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
+    } else {
+        var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
+    }
+    var code = JSON.stringify(versionTree, null, "\t").replace(/\-\-\>/g, s => "-- >");
+
     var versionVariableName;
     code = mainScript.toString()
         .replace(/\.send\((.*?)\)/g, (match, data) => (versionVariableName = data || "", ".send()"))
         .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"?"+` + versionVariableName})`)
         .replace(
-            new RegExp(versionTreeName + "(\s*)=(\s*)\{.*?\}"),
+            new RegExp(xTreeName + "(\s*)=(\s*)\{.*?\}"),
             function (m, s1, s2) {
-                return versionTreeName + `${s1}=${s2}${code}`;
+                return xTreeName + `${s1}=${s2}${code}`;
             }
         );
     var isZimoliDetected = false;

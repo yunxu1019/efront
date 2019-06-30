@@ -10,7 +10,7 @@ var {
     pages_root,
     comms_root
 } = environment;
-var PUBLIC_APP = /* process.argv[2] || */ APP;
+var PUBLIC_APP = /* process.argv[2] || */ APP.replace(/\.html?$/i, "");
 if (!PUBLIC_APP) throw new Error("请配置要发布的项目名称！");
 if (!PUBLIC_PATH) throw new Error("请指定输出路径！");
 var reload = 0;
