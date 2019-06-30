@@ -122,9 +122,6 @@ function go(pagepath, args, history_name, oldpagepath) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
     var page_object = page_generators[pagepath];
-    page_object.go = function (_url, args, _history_name) {
-        return go(page_object.state.path(_url), args, _history_name, isString(history_name) ? pagepath : oldpagepath);
-    };
     var fullfill = function () {
         var _page = create(pagepath, args, oldpagepath);
         var isDestroy = pushstate(pagepath, history_name, oldpagepath);
@@ -213,9 +210,10 @@ function prepare(pagepath, ok) {
     }
     state.go = function (url, args, _history_name) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
-        var to = page_generators[pagepath] ? page_generators[pagepath].go : function (_url, args, _history_name) {
+        var to = function (_url, args, _history_name) {
             return go(state.path(_url), args, _history_name, ":empty");
         };
+        to = page_generators[pagepath] ? page_generators[pagepath].go || to : to;
         isFunction(to) && to(url, args, _history_name);
     };
     var prepares = [];
