@@ -46,8 +46,10 @@ function getBuildInfo(url) {
                     extt = [extt];
                 }
                 if (comms_root instanceof Array) {
-                    extt.forEach(function (ext) {
-                        comms_root.map(a => fullpath.push(path.join(a, $name + ext)));
+                    comms_root.map(function (a) {
+                        extt.forEach(function (ext) {
+                            fullpath.push(path.join(a, $name + ext))
+                        });
                     });
                 } else {
                     extt.forEach(function (ext) {
