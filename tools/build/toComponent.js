@@ -10,6 +10,9 @@ function toComponent(responseTree) {
     for (var k in responseTree) {
         var response = responseTree[k];
         var dependence = response.dependence;
+        if (response.data instanceof Buffer) {
+            response.data = String(response.data);
+        }
         if (!response.data && /^(number|function|string)$/.test(typeof response.builtin)) {
             response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
         }
@@ -77,7 +80,7 @@ function toComponent(responseTree) {
                 }
                 var module_string = module_body[module_body.length - 1]
                 var code_blocks = scanner(module_string);
-                var extentReg = /\s*[\:\(]/gy, prefixReg = /[,\{]/gy;
+                var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{}]/gy;
                 module_string = code_blocks.map(function (block, index, blocks) {
                     var block_string = module_string.slice(block.start, block.end);
                     var isPropEnd = (
@@ -138,7 +141,7 @@ function toComponent(responseTree) {
         return this[c + 1] = f.apply(this[0], g);
     };
 
-    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map}}.call(this.window||global)).call([${dest}],${realize.toString().replace(/\s+/g, ' ').replace(/(\W)\s+/g, "$1").replace(/\s+(\W)/g, "$1")},[this.window||global])[${dest.length - 1}]`;
+    var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([].map||function(){${array_map.data}}.call(this.window||global)).call([${dest}],${realize.toString().replace(/\s+/g, ' ').replace(/(\W)\s+/g, "$1").replace(/\s+(\W)/g, "$1")},[this.window||global])[${dest.length - 1}]`;
     // var tester_path = responseTree[PUBLIC_APP].realpath.replace(/\.[tj]sx?$/, "_test.js");
     // if (tester_path) {
     //     try {
