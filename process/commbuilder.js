@@ -339,7 +339,12 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                         commHtmlName = `${commName},${commHtmlName},${commHtmlName}=${commName}`;
                     }
                 }
-                jsData = `\r\nvar ${commHtmlName}=\`` + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`;\r\n" + data;
+                htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`"
+                if (data) {
+                    jsData = `\r\nvar ${commHtmlName}={toString:()=>${htmldata}};\r\n` + data;
+                } else {
+                    jsData = htmldata;
+                }
                 watchurls.push(htmlpath);
             } else {
                 jsData = String(data);
