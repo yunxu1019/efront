@@ -13,7 +13,6 @@ var {
     clearTimeout,
     Date,
     Math,
-    localStorage,
     navigator,
     document,
     top,
@@ -460,9 +459,9 @@ var wrapRenderDigest = function (_then) {
 };
 var hook = function (requires_count) {
     if (requires_count === 0) {
-        initPixelDecoder();
         "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
         loadResponseTreeFromStorage();
+        initPixelDecoder();
         modules.Promise = Promise;
         var promisePrototype = Promise.prototype;
         var { then: _then, catch: _catch, finally: _finally } = promisePrototype;
@@ -502,6 +501,17 @@ var modules = {
     },
 };
 modules.modules = modules;
+try {
+    var localStorage = window.localStorage;
+} catch (e) {
+    localStorage = {
+        getItem() { },
+        setItem() { },
+        clear() { }
+    };
+    modules.localStorage = modules.sessionStorage = localStorage;
+}
+
 initIfNotDefined(Promise, "promise", promise => Promise = promise);
 initIfNotDefined([].map, "[]map", map => map);
 var removeGlobalProperty = function (property) {
