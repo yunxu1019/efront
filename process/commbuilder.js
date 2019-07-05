@@ -313,7 +313,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     var lessData, jsData;
     var promise;
     if (/\.json$/.test(filename)) {
-        data = "return " + data.toString();
+        data = "return " + JSON.stringify(new Function("return " + data.toString())());
     } else if (/\.html?$/i.test(filename)) {
         let lesspath = fullpath.replace(/\.html?$/i, ".less");
         jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
