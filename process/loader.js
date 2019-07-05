@@ -19,7 +19,7 @@ var {
     location,
     console,
     PREVENT_FRAMEWORK_MODE,
-    startPath: efrontPath = "zimoli",
+    startPath: efrontPath,
     request = function (url, onload, onerror) {
         var version = versionTree[url] || (+new Date).toString(32);
         var xhr = XHR();
@@ -469,6 +469,7 @@ var hook = function (requires_count) {
         promisePrototype.catch = wrapRenderDigest(_catch);
         promisePrototype.finally = wrapRenderDigest(_finally);
         modules.hook_time = +new Date;
+        efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
         init(efrontPath, function (zimoli) {
             if (zimoli instanceof Function) zimoli();
         });
