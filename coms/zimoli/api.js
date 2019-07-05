@@ -102,6 +102,17 @@ var api = function () {
         };
         if (REQ) {
             var xhr = REQ(method, url).done(xhr_onload).error(xhr_onerror);
+            var setRequestHeader = xhr.setRequestHeader;
+            var setted_headers = {};
+            xhr.setRequestHeader = function (key, value) {
+                if (setted_headers[key]) {
+                    if (setted_headers[key] === value) return;
+                    console.warn('屏蔽了重复设置', key);
+                    return;
+                }
+                setted_headers[key] = value;
+                setRequestHeader.call(xhr, key, value);
+            };
         } else {
             var xhr = XHR();
             xhr.open(method, url);
