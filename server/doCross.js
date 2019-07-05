@@ -62,6 +62,8 @@ function cross(req, res, referer) {
         if (/^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(_headers.referer) && !headers.referer) {
             headers.referer = hostpath + parseUrl(_headers.referer).realpath;
             is_proxy = true;
+        } else if (_headers.referer) {
+            headers.referer = hostpath;
         }
         for (let key in headers) {
             let k = key.toLowerCase();
