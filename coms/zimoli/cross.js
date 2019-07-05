@@ -173,7 +173,7 @@ function cross(method, url, headers) {
         digest();
     };
     var onloads = [], onerrors = [];
-    xhr.done = function (on, asqueue = true) {
+    xhr.done = xhr.success = function (on, asqueue = true) {
         if (asqueue) {
             onloads.push(on);
         } else {
