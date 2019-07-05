@@ -80,7 +80,7 @@ function main(mainPath, historyName = "glance") {
         var { left: leftPath, top: topPath, main: mainPath } = mainPath;
     }
     var [leftLayer, topLayer] = layer.children;
-    once("append")(layer, function () {
+    on("append")(layer, function () {
         zimoli.switch(historyName, layer, mainPath);
         zimoli();
         if (leftPath) {

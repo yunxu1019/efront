@@ -63,8 +63,6 @@ var proto = {
         proto.roles = null;
         proto.isLogin = false;
         this.saveSession("");
-        modules.zimoli.switch();
-        modules.zimoli();
     },
     setLoginPath(pathname) {
         proto.loginPath = pathname;

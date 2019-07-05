@@ -15,7 +15,10 @@ render(page, {
         }
     },
     logout() {
-        user.Logout();
+        user.Logout().then(function () {
+            zimoli.switch();
+            zimoli();
+        });
     },
     input() {
         return input();
