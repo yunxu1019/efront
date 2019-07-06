@@ -340,7 +340,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                     }
                 }
                 htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`"
-                htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+\</g, "<").replace(/\<\!\-\-.*?\-\-\>/);
+                htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+\</g, "<").replace(/\<\!\-\-.*?\-\-\>/g, "");
                 if (data) {
                     jsData = `\r\nvar ${commHtmlName}={toString:()=>${htmldata}};\r\n` + data;
                 } else {
