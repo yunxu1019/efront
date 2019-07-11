@@ -93,11 +93,11 @@ var createRepeat = function (search) {
     var element = this, clonedElements = [], savedValue;
     var renders = [function () {
         var result = getter();
-        result = result instanceof Array ? result.slice(0) : Object.assign({}, result);
+        result = result instanceof Array ? result.slice(0) : extend({}, result);
         if (deepEqual.shallow(savedValue, result)) return;
         savedValue = result;
         remove(clonedElements);
-        var keys = Object.keys(result);
+        var keys = result instanceof Array ? result.map((_, i) => i) : Object.keys(result);
         if (keys.length > 600) {
             throw new Error("数据量过大，取消绘制！");
         }
@@ -178,7 +178,7 @@ var directives = {
             if (value instanceof Array) {
                 value = value.slice(0, value.length);
             } else if (value instanceof Object) {
-                value = Object.assign({}, value);
+                value = extend({}, value);
             }
             oldValue = value;
             value = value || "";
