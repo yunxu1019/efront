@@ -101,6 +101,3 @@ efront
  * `PUBLIC_PATH` 发布的目标根路径，最终生成的代码路径为`PUBLIC_PATH\APP`，如果此项被指定为`PAGE_PATH`，efront将禁用发布功能，在执行`efront start`后，可以通过浏览器访问压缩版本的代码
  * `PAGE` 页面文件存放的路径，默认为应用名`APP`
  * `COMM` 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
-
-# 项目实例
-[grinch](https://www.npmjs.com/package/grinch)
