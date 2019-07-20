@@ -63,7 +63,10 @@ function shallowEqual(o1, o2) {
         if (keys1.length !== keys2.length) return false;
         keys1.sort(), keys2.sort();
         for (var cx = 0, dx = keys1.length; cx < dx; cx++) {
-            if (!singleEqual(o1[keys1], o2[keys2])) return false;
+            var key1 = keys1[cx];
+            var key2 = keys2[cx];
+            if (key1 !== key2) return false;
+            if (!singleEqual(o1[key1], o2[key2])) return false;
         }
         return true;
     }
