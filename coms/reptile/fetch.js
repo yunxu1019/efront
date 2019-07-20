@@ -13,7 +13,7 @@ function fetch() {
         }
     });
     return new Promise(function (ok, oh) {
-        var req = (/^https/i.test(href) ? https : http).request(Object.assign({
+        var req = (/^https/i.test(href) ? https : http).request(extend({
             method,
             headers,
         }, url.parse(href)), function (res) {

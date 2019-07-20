@@ -99,7 +99,7 @@ function transpile(data, trans) {
     if (data instanceof Array) {
         return data.map(a => transpile(a, trans));
     }
-    data = Object.assign({}, data);
+    data = extend({}, data);
     for (var k in trans) {
         var v = trans[k];
         if (v in data && !(k in data)) {
