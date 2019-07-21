@@ -115,6 +115,11 @@ function cross(method, url, headers) {
     }
     extend(_headers, headers);
     var xhr = new XHR;
+    var abort = xhr.abort;
+    xhr.abort = function () {
+        xhr.onreadystatechange = null;
+        abort.call(this);
+    };
     xhr.open(method, getCrossUrl(url, _headers));
     HeadersKeys.map(function (k) {
         if (_headers[k]) xhr.setRequestHeader(k, _headers[k]);
