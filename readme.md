@@ -99,5 +99,6 @@ efront
  * `PAGE_PATH` 页面文件所存放的根路径，默认为`./apps`
  * `COMM_PATH` 组件文件所存放的根路径，如果存在多个，可以用 `,` 分割，可以使用 `:` 指定为`efront`所提供的组件的路径，默认为`./coms`
  * `PUBLIC_PATH` 发布的目标根路径，最终生成的代码路径为`PUBLIC_PATH\APP`，如果此项被指定为`PAGE_PATH`，efront将禁用发布功能，在执行`efront start`后，可以通过浏览器访问压缩版本的代码
+ * `PUBLIC_EXTT` 发布的目标代码的扩展名，默认无扩展名
  * `PAGE` 页面文件存放的路径，默认为应用名`APP`
  * `COMM` 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
