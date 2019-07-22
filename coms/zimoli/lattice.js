@@ -58,6 +58,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     };
     on("changes")(_box, function ({ changes }) {
         if (changes.src) {
+            boxCount = 0;
             this.resize();
         }
     });
