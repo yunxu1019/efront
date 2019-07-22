@@ -56,7 +56,7 @@ function getBuildInfo(url) {
                         fullpath.push(path.join(comms_root, $name + ext));
                     });
                 }
-                destpath = path.join("comm", name);
+                destpath = path.join("comm", name + env.EXTT);
                 url = url.replace(/\.([tj]sx?|json|html?)$/i, "");
                 break;
             case "/":
@@ -69,7 +69,7 @@ function getBuildInfo(url) {
                 } else {
                     extt = extt || "";
                     builder = commbuilder;
-                    destpath = path.join("page", name);
+                    destpath = path.join("page", name + env.EXTT);
                     url = url.replace(/\.[tj]sx?$/i, "");
                 }
                 fullpath = pages_root.map(page => path.join(page, name + extt));

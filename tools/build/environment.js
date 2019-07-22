@@ -7,7 +7,8 @@ var {
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : process.env;
 var {
-    PUBLIC_PATH = process.env.PUBLIC_PATH || "./public"
+    PUBLIC_PATH = process.env.PUBLIC_PATH || "./public",
+    EXTT
 } = env;
 var PAGE = env.PAGE || "zimoli";
 var COMM = env.COMM || PUBLIC_APP.replace(/\/$/, "") + ",zimoli";
@@ -39,5 +40,6 @@ module.exports = {
     PUBLIC_PATH,
     PAGE_PATH,
     COMS_PATH,
+    EXTT,
     APP
 }

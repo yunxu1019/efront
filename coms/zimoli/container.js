@@ -5,5 +5,5 @@ var change = function ({ changes }) {
 };
 function container(element) {
     on("changes")(element, change);
-    return comment;
+    return element;
 }

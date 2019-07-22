@@ -192,15 +192,16 @@ var bootConfig = {
 
 var extend = function (dst, env) {
     var obj = {
-        COMS_PATH: dst.COMS_PATH || env.COMS_PATH || env.COMM_PATH || "",
-        PAGE_PATH: dst.PAGE_PATH || env.APPS_PATH || env.PAGE_PATH || env.PAGES_PATH || "",
-        APIS_PATH: dst.APIS_PATH || env.APIS_PATH || env.AAPI_PATH || "",
-        ICON_PATH: dst.ICON_PATH || env.ICON_PATH || env.CONS_PATH || env.CCON_PATH || env.ICONS_PATH || "",
-        PAGE: dst.PAGE || env.PAGE || env.APPS || "",
-        COMM: dst.COMM || env.COMS || env.COMM || "",
-        AAPI: dst.AAPI || env.APIS || env.AAPI || "",
-        IMAG: dst.IMAG || env.IMAG || env.IMGS || "",
-        ICON: dst.ICON || env.ICON || env.CCON || env.CONS || env.ICONS || "",
+        EXTT: dst.EXTT || dst.PUBLIC_EXTT || dst.PUBLIC_EXT || dst.EXTT_NAME || dst.EXT_NAME || dst.EXT || env.EXTT || '',
+        COMS_PATH: dst.COMS_PATH || dst.COMM_PATH || env.COMS_PATH || "",
+        PAGE_PATH: dst.PAGE_PATH || dst.PAGES_PATH || dst.APPS_PATH || env.PAGE_PATH || "",
+        APIS_PATH: dst.APIS_PATH || dst.AAPI_PATH || env.APIS_PATH || "",
+        ICON_PATH: dst.ICON_PATH || dst.CONS_PATH || dst.CCON_PAT || dst.ICONS_PATHH || env.ICON_PATH || "",
+        PAGE: dst.PAGE || dst.APPS || env.PAGE || "",
+        COMM: dst.COMM || dst.COMS || env.COMM || "",
+        AAPI: dst.AAPI || dst.APIS || env.AAPI || "",
+        IMAG: dst.IMAG || dst.IMGS || env.IMAG || "",
+        ICON: dst.ICON || dst.CCON || dst.CONS || dst.ICONS || env.ICON || "",
         PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || "",
     };
     Object.assign(dst, obj);
