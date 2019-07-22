@@ -1,12 +1,8 @@
 
-`efront`是一套前后端通用编码环境，既可以用来开发纯前端代码，又可以用来开发纯后端代码，当然也可以开发前后端耦合在一起的项目。
-`efront`提供了一套纯前端组件库[zimoli](./coms/zimoli)，也提供了一套后端代码库[reptile](./coms/reptile)，您可以通过`efront`的`build`命令，将`efront`所提供的单一组件导出到外部项目使用。
-
-
 # 基本命令（适用于windows）
 
 ##    1. 下载安装
-运行在nodejs环境下，请在安装nodejs环境后使用[https://nodejs.org](https://nodejs.org)。
+efront 运行在nodejs环境下，请在安装nodejs环境后使用[https://nodejs.org](https://nodejs.org)。
 从npm全局安装efront
 
 ```bat
