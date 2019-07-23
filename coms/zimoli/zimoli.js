@@ -211,7 +211,7 @@ function prepare(pagepath, ok) {
     state.go = function (url, args, _history_name) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
         var to = function (_url, args, _history_name) {
-            return go(state.path(_url), args, _history_name, ":empty");
+            return go(state.path(_url), args, _history_name, pagepath);
         };
         to = page_generators[pagepath] ? page_generators[pagepath].go || to : to;
         isFunction(to) && to(url, args, _history_name);
