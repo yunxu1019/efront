@@ -33,7 +33,7 @@ function script(url, judger) {
     script.src = url;
     setTimeout(function () {
         if (!script.parentNode) {
-            appendChild(document.body, script);
+            appendChild(document.head, script);
         }
     });
     return script;
