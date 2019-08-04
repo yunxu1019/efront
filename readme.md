@@ -98,3 +98,8 @@ efront
  * `PUBLIC_EXTT` 发布的目标代码的扩展名，默认无扩展名
  * `PAGE` 页面文件存放的路径，默认为应用名`APP`
  * `COMM` 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
+
+# 功能选项
+* efront 默认禁用了首页的缓存功能，如果要禁用，可以在头部script中加入 `window.preventCache=false;`
+* efront 默认禁止在iframe中运行，如果要开启，可以在头部script中加入 `window.PREVENT_FRAMEWORK_MODE=false;`
+* efront 默认的初始化脚本是`zimoli('/main');`，可以在body标签上加上`main-path=...`属性指定初始化脚本的路径
