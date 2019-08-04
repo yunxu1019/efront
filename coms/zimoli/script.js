@@ -1,6 +1,6 @@
 function script(url, judger) {
     var script = document.createElement("script");
-    var ok = oh = function () { };
+    var oh, ok = oh = function () { };
     var needcallback = !!judger;
     var clear = function () {
         remove(script);
