@@ -112,6 +112,7 @@ var asyncLoader = function (curl, temp, key, rebuild) {
         _durls.forEach(curl => watch(curl, load));
     };
     var pathname = path.join(root, curl);
+    var that = this;
     var load = function (loadType) {
         var durls = [durl];
         var is_change = loadType === "change";
@@ -139,7 +140,7 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                 temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
                     try {
                         if (rebuild instanceof Function) {
-                            data = rebuild(data, key, durl, durls);
+                            data = rebuild(data, that.getURL(), durl, durls);
                         }
                     } catch (e) {
                         console.warn("Build Faild:", curl, e);
@@ -269,6 +270,9 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         seeker.toString = function () {
             return this;
         }.bind(filesroot[0]);
+        seeker.getURL = function () {
+            return url;
+        };
         seeker.buffer_size = sk.buffer_size;
         return new Promise(function (ok, oh) {
             var cy = 0;

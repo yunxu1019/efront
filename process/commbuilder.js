@@ -172,7 +172,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 } : code.body[0].expression
             }];
     } else if (!commName) {
-        if (filename !== "main.js") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
+        if (filename !== "main") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
         code_body = code.body;
     } else {
         code_body = code.body.concat({
@@ -305,16 +305,16 @@ var renderLessData = function (data = '', lesspath, watchurls, className) {
     });
 };
 module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
-    var commName = filename.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?|json)$/i);
-    if (!commName) console.warn("文件名无法生成导出变量！", filename);
+    var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?|json)$/i);
+    if (!commName) console.warn("文件名无法生成导出变量！", fullpath);
     commName = commName && commName[1];
     var data = String(buffer);
-    var className = path.relative(cwd, fullpath).replace(/[\\\/\:\.]+/g, "-");
+    var className = filename.replace(/[\\\/\:\.]+/g, "-");
     var lessData, jsData;
     var promise;
-    if (/\.json$/.test(filename)) {
+    if (/\.json$/.test(fullpath)) {
         data = "return " + JSON.stringify(new Function("return " + data.toString())());
-    } else if (/\.html?$/i.test(filename)) {
+    } else if (/\.html?$/i.test(fullpath)) {
         let lesspath = fullpath.replace(/\.html?$/i, ".less");
         jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
         promise = getFileData(lesspath).then(function (lessdata) {
@@ -324,7 +324,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 });
             }
         });
-    } else if (/\.(?:[jt]sx?)$/i.test(filename)) {
+    } else if (/\.(?:[jt]sx?)$/i.test(fullpath)) {
         let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
         let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
         let replace = loadUseBody(data, fullpath, watchurls, commName);

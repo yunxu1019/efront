@@ -9,7 +9,8 @@ function cless(commFactory, innerCss, className) {
     } else {
         stylesheet.innerHTML = innerCss;
     }
-    className = className + " " + className.replace(/^.*?(\w*?)\-\w*?$/g, "$1");
+    var shortName = className.replace(/^.*?(\w*?)$/g, "$1");
+    if (shortName !== className) className = className + " " + shortName;
     appendChild(document.getElementsByTagName("head")[0], stylesheet);
     if (commFactory instanceof Promise) {
         return commFactory.then(function (result) {
