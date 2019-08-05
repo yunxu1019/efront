@@ -29,7 +29,6 @@ var dragview = function (dragview) {
                     target = target.parentNode;
                 } while (target.nodeType == 1);
             }
-            page.style.transition = 'none';
         },
         move(event) {
             if (moving === false) return;
