@@ -43,9 +43,11 @@ var dragview = function (dragview) {
                     moving = {
                         restX: (parseInt(page.style.left) || 0) - savedX
                     };
+                    page.style.transition = 'none';
                 }
             }
             if (moving === -1) return;
+
             event.moveLocked = true;
             moving.deltaX = deltaX;
             var left = event.clientX + moving.restX;
