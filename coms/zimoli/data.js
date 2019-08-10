@@ -229,6 +229,12 @@ var data = {
         _configfileurl = defaultConfigFile;
         configPormise = null;
     },
+    fromURL(url) {
+        privates.loadIgnoreConfig('get', url).then((data) => {
+            this.setInstance(url, data);
+        });
+        return this.getInstance(url);
+    },
     asyncInstance(id, params, parser) {
         privates.loadAfterConfig(id, params).then((data) => {
             this.setInstance(id, data);
