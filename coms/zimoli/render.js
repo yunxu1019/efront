@@ -22,7 +22,11 @@ function refresh() {
     }
 }
 function rebuild(element) {
-    var props = extend({}, element);
+    var props = {};
+    Object.keys(element).forEach(function (key) {
+        var data = element[key];
+        props[key] = data instanceof Object && !isFunction(data) && !isDate(data) && !isNode(data) ? extend(data instanceof Array ? [] : {}, data) : data;
+    });
     element.renders.forEach(a => a.call(element));
     var changes = getChanges(element, props);
     if (changes) {
