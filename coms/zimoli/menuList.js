@@ -39,12 +39,16 @@ function main(page, items, active, generator, direction = 'y') {
         });
     }
 
-    var template = page.cloneNode();
-    template.className = '';
-    template.removeAttribute('mode');
-    template.innerHTML = page.innerHTML;
-    if (!generator || !page.children.length) {
+    var template = page.tempalte || page.cloneNode();
+    if (!page.tempalte) {
+        template.className = '';
+        template.removeAttribute('mode');
+        template.innerHTML = page.innerHTML;
+        page.tempalte = template;
+    }
+    if (!generator || !page.children.length || page.menutype === 1) {
         page.innerHTML = menuList;
+        page.menutype = 1;
         var hasIcon = function () {
             var menus = items;
             for (var menu of menus) {

@@ -313,6 +313,7 @@ function list() {
             }
             on('changes')(container, function (event) {
                 if (event.changes.src) {
+                    remove(container.children);
                     container.go(container.index() || 0);
                 };
             });
