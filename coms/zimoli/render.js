@@ -34,10 +34,9 @@ function rebuild(element) {
 var createGetter = function (search, usetry = true) {
     var [withContext, searchContext] = search;
     if (/\?\./.test(searchContext)) {
-        var dist = "";
-
+        var dist;
         searchContext.split(/\?\./).forEach(function (search) {
-            if (dist.length) {
+            if (dist) {
                 dist = `(${dist})!==void 0&&(${dist})!==null?(${dist}).${search}:null`
             } else {
                 dist = search;
