@@ -108,7 +108,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                             fs.readFile(_filepath, function (error, buffer) {
                                 if (error) throw new Error("加载" + url + "出错！");
                                 responsePath = _filepath;
-                                responseText = builder(buffer, buildInfo.destpath.replace(/\..*$/, ""), _filepath, []);
+                                responseText = builder(buffer, buildInfo.destpath.replace(/\..*$/, "").replace(/[^\w]/g, a => "_" + a.charCodeAt(0).toString(36)), _filepath, []);
                                 responseVersion = stat.mtime;
                                 writeNeeded = true;
                                 if (responseText instanceof Promise) {
