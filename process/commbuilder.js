@@ -310,6 +310,9 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
     commName = commName && commName[1];
     var data = String(buffer);
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
+    var shortName = className.replace(/^.*?(\w*?)$/g, "$1");
+    var lessName = /\s/.test(className) ? className.split(/\s+/)[0] : className;
+    if (shortName !== className) className = className + " " + shortName;
     var lessData, jsData;
     var promise;
     if (/\.json$/.test(fullpath)) {
@@ -319,7 +322,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
         jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
         promise = getFileData(lesspath).then(function (lessdata) {
             if (lessdata instanceof Buffer) {
-                return renderLessData(lessdata, lesspath, watchurls, className).then(function (data) {
+                return renderLessData(lessdata, lesspath, watchurls, lessName).then(function (data) {
                     lessData = data;
                 });
             }
@@ -351,7 +354,7 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
                 jsData = String(data);
             }
             if (lessdata instanceof Buffer) {
-                return renderLessData(lessdata, lesspath, watchurls, className).then(data => lessData = data);
+                return renderLessData(lessdata, lesspath, watchurls, lessName).then(data => lessData = data);
             }
         });
     }

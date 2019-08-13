@@ -61,7 +61,11 @@ var window = {
     }
 };
 window.window = window;
-
+var componentIncreasedId = 0;
+function getComponentId() {
+    componentIncreasedId++;
+    return componentIncreasedId.toString(26).replace(/\d/g, a => String.fromCharCode('q'.charCodeAt(0) + +a));
+}
 function compile(buildInfo, lastBuildTime, destroot) {
     var { fullpath, name, url, builder, destpath } = buildInfo;
     destpath = path.join(destroot, destpath);
@@ -108,7 +112,9 @@ function compile(buildInfo, lastBuildTime, destroot) {
                             fs.readFile(_filepath, function (error, buffer) {
                                 if (error) throw new Error("加载" + url + "出错！");
                                 responsePath = _filepath;
-                                responseText = builder(buffer, buildInfo.destpath.replace(/\..*$/, "").replace(/[^\w]/g, a => "_" + a.charCodeAt(0).toString(36)), _filepath, []);
+                                var id = buildInfo.destpath.replace(/\..*$/, "").replace(/[^\w]/g, a => "_" + a.charCodeAt(0).toString(36) + "-");
+                                id = '/' + getComponentId() + ' ' + id.replace(/^[\s\S]*?(\w*)$/, "$1");
+                                responseText = builder(buffer, id, _filepath, []);
                                 responseVersion = stat.mtime;
                                 writeNeeded = true;
                                 if (responseText instanceof Promise) {

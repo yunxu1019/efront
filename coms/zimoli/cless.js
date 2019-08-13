@@ -9,8 +9,6 @@ function cless(commFactory, innerCss, className) {
     } else {
         stylesheet.innerHTML = innerCss;
     }
-    var shortName = className.replace(/^.*?(\w*?)$/g, "$1");
-    if (shortName !== className) className = className + " " + shortName;
     appendChild(document.getElementsByTagName("head")[0], stylesheet);
     if (commFactory instanceof Promise) {
         return commFactory.then(function (result) {
