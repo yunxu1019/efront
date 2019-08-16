@@ -77,23 +77,6 @@ var start_time = +new Date / 1000 | 0;
     }
 }();
 
-// 检查性能
-var isBadDevice;
-{
-    let saved_time = new Date;
-    let inc = 0;
-    try {
-        let test = function () {
-            inc++;
-            document.createElement("div");
-            test();
-        };
-        test();
-    } catch (e) {
-    }
-    var SAFE_CIRCLE_DEPTH = inc / (new Date - saved_time) | 0;
-    isBadDevice = SAFE_CIRCLE_DEPTH < 512;
-};
 var FILE_NAME_REG = /^[^\/].*?[\/\?\-\.\+]|(?:[^\/]\.|[\-\+\?])[^\/]*?$/;
 // 适配大小屏
 var devicePixelRatio = window.devicePixelRatio || 1;
@@ -506,9 +489,8 @@ var initIfNotDefined = function (defined, path, onload) {
 }
 var modules = {
     start_time,
-    IS_BAD_DEVICE: isBadDevice,
     MOVELOCK_DELTA: 3 * renderPixelRatio,
-    SAFE_CIRCLE_DEPTH,
+    SAFE_CIRCLE_DEPTH: 300,
     init,
     versionTree,
     responseTree,
