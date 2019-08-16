@@ -66,7 +66,8 @@ function main(arg0) {
     });
     var hasNext = "";
     if (foot === true || foot === undefined) {
-        foot = icon("next", 0xcccccc);
+        foot = document.createElement("span");
+        foot.innerHTML = "&gt;";
         addClass(foot, "next");
         hasNext = true;
     }
