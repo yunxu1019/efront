@@ -1,6 +1,7 @@
 var saved_list;
 var _remove = function () {
     saved_list && remove(saved_list);
+    saved_list = null;
 };
 var preventDefault = function (event) {
     event.preventDefault();
