@@ -40,6 +40,9 @@ var scan_blank = function (str, start) {
 var _safeparse = function (str, start) {
     start = scan_blank(str, start);
     switch (str.charAt(start)) {
+        case "]":
+        case "}":
+            return start;
         case "\"":
             start = scan_string(str, start);
             break;
@@ -52,6 +55,7 @@ var _safeparse = function (str, start) {
                 if (start === false)
                     return start;
                 start = scan_blank(str, start);
+                if (str.charAt(start) === "}") return start + 1;
                 if (str.charAt(start) !== ":")
                     return false;
                 start++;
