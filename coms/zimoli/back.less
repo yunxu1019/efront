@@ -1,5 +1,21 @@
-&{
-    >i{
-        font-style: normal;
+& {
+    >i {
+        &:before {
+            content  : "‹";
+            font-size: 2em;
+        }
+
+        position   : absolute;
+        left       : 10px;
+        top        :50%;
+        height     : 20px;
+        line-height: 20px;
+        margin-top : -12px;
+    }
+
+    >span {
+        vertical-align: top;
+        display       : inline-block;
+        margin-left   : 10px;
     }
 }
