@@ -37,16 +37,18 @@ function rebuild(element) {
 }
 var createGetter = function (search, usetry = true) {
     var [withContext, searchContext] = search;
-    if (/\?\./.test(searchContext)) {
-        var dist;
-        searchContext.split(/\?\./).forEach(function (search) {
-            if (dist) {
-                dist = `(${dist})!==void 0&&(${dist})!==null?(${dist}).${search}:null`
-            } else {
-                dist = search;
-            }
+    if (/\?\.(?=[^\d])/.test(searchContext)) {
+        searchContext = searchContext.replace(/([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}]|\?\.(?=[^\d]))+/g, function (context) {
+            var dist;
+            context.split(/\?\.(?=[^\d])/).forEach(function (search) {
+                if (dist) {
+                    dist = `(${dist})!==void 0&&(${dist})!==null?(${dist}).${search}:null`
+                } else {
+                    dist = search;
+                }
+            });
+            return dist;
         });
-        searchContext = dist;
     }
     if (usetry) {
         return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
