@@ -1,35 +1,35 @@
 & {
-    width: 100%;
+    width   : 100%;
     position: relative;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    padding: 0 !important;
-    color: #333;
-    right: 0;
-    display: table;
+    top     : 0;
+    left    : 0;
+    bottom  : 0;
+    padding : 0 !important;
+    color   : #333;
+    right   : 0;
+    display : table;
 
     >.head,
     >.body,
     >.foot {
-        display: table-cell;
-        position: relative;
+        display       : table-cell;
+        position      : relative;
         vertical-align: middle;
     }
 
     >.head {
-        text-align: start;
-        font-size: 16px;
-        padding: 0 16px;
-        left: 0;
-        min-width: 61px;
-        height: 100%;
-        top: 0;
-        bottom: 0;
-        overflow: hidden;
+        text-align   : start;
+        font-size    : 16px;
+        padding      : 0 16px;
+        left         : 0;
+        min-width    : 61px;
+        height       : 100%;
+        top          : 0;
+        bottom       : 0;
+        overflow     : hidden;
         text-overflow: ellipsis;
-        max-width: 100%;
-        white-space: nowrap;
+        max-width    : 100%;
+        white-space  : nowrap;
     }
 
     &.has-next>.body {
@@ -37,53 +37,59 @@
     }
 
     >.body {
-        right: 0;
-        top: 0;
-        bottom: 0;
-        height: 100%;
-        width: 100%;
-        font-size: 16px;
-        padding-left: 1px;
+        right        : 0;
+        top          : 0;
+        bottom       : 0;
+        height       : 100%;
+        width        : 100%;
+        font-size    : 16px;
+        padding-left : 1px;
         padding-right: 16px;
-        text-align: right;
-        overflow: hidden;
+        text-align   : right;
+        overflow     : hidden;
     }
 
     >.foot {
-        position: absolute;
-        right: 0;
-        min-width: 40px;
-        top: 0;
-        bottom: 0;
-        text-align: right;
+        position     : absolute;
+        right        : 0;
+        min-width    : 40px;
+        top          : 0;
+        bottom       : 0;
+        text-align   : right;
         padding-right: 16px;
-        height: 100%;
+        height       : 100%;
 
         >.next {
-            height: 16px;
-            width: 16px;
-            top: 50%;
-            display: block;
+            height     : 16px;
+            width      : 16px;
+            top        : 50%;
+            display    : block;
             line-height: 16px;
-            transform: scaleX(.6);
-            margin-top: -8px;
-            position: absolute;
-            right: 10px;
+            margin-top : -9px;
+            opacity    : .6;
+            position   : absolute;
+            right      : 10px;
+
+            &:after {
+                content  : "›";
+                font-size: 20px;
+            }
         }
     }
 }
 
 & {
-    width: 100%;
-    position: relative;
-    background: transparent;
-    height: 44px;
+    width      : 100%;
+    position   : relative;
+    background : transparent;
+    height     : 44px;
     line-height: 44px;
-    box-shadow: none;
+    box-shadow : none;
 }
 
 &+& {
     margin-top: -1px;
+
     >.body {
         box-shadow: 0 1px 0 0 rgba(0, 0, 0, .1) inset;
     }
@@ -91,11 +97,11 @@
 
 
 &.active>.body {
-    box-shadow: none;
+    box-shadow      : none;
     border-top-color: transparent;
 }
 
 &.active+&>.body {
-    box-shadow: none;
+    box-shadow      : none;
     border-top-color: transparent;
 }

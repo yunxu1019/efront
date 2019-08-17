@@ -67,7 +67,6 @@ function main(arg0) {
     var hasNext = "";
     if (foot === true || foot === undefined) {
         foot = document.createElement("span");
-        foot.innerHTML = "&gt;";
         addClass(foot, "next");
         hasNext = true;
     }
