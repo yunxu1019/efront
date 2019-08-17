@@ -176,6 +176,9 @@ module.exports = function (mainpath) {
                 window.startPath = mainpath;
                 mainLoaderPromise.then(function (loader) {
                     vm.runInContext(`-function(){${loader}}.call(this)`, window);
+                }).catch(function (e) {
+                    console.log(e);
+                    console.error("启动失败");
                 });
             };
         }
