@@ -1,1 +1,2 @@
-"use process/loader.js"
+"use ./forceUpdate.js";
+"use process/loader.js";

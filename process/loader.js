@@ -20,7 +20,6 @@ var {
     console,
     PREVENT_FRAMEWORK_MODE,
     startPath: efrontPath,
-    preventCache = true,
     request = function (url, onload, onerror) {
         var version = versionTree[url] || (+new Date).toString(32);
         var xhr = XHR();
@@ -54,28 +53,6 @@ if (PREVENT_FRAMEWORK_MODE !== false) {
     }
 }
 var start_time = +new Date / 1000 | 0;
--function () {
-    if (!preventCache) return;
-    var page_time = location.search.replace(/^.*?[\?&]\=([^&]+).*?$/i, "$1");
-    page_time = parseInt(page_time, 36) || 0;
-    var mode_time = 315360000;
-    var mark_time = start_time % mode_time;
-    var delta_time = 6;
-
-    if (mark_time - page_time > delta_time
-        || mark_time + mode_time > page_time
-        && mark_time < delta_time
-        && page_time + delta_time > mode_time) {
-        var search = location.search.split(/([\?&])\=[^&]+&?/i).join("&").replace(/^[\?&]+|[\?&]+$/g, "");
-        if (search) {
-            search += "&=" + mark_time.toString(36);
-        } else {
-            search = "=" + mark_time.toString(36);
-        }
-        location.replace("?" + search);
-        throw '重新加载';
-    }
-}();
 
 var FILE_NAME_REG = /^[^\/].*?[\/\?\-\.\+]|(?:[^\/]\.|[\-\+\?])[^\/]*?$/;
 // 适配大小屏
