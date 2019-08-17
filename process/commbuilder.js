@@ -64,13 +64,15 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
     });
 };
 var loadUseBody = function (data, fullpath, watchurls, commName) {
-    var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/i;
+    var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/img;
     var replacer = function (data, realPath) {
         watchurls.push(realPath);
+        var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
+        if (!commName) commName = realName;
         if (/module.exports\s*=/.test(data)) {
             return data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName : "return ");
         }
-        var realName = path.basename(realPath).replace(/\..*$/, "");
+        console.log(commName, realName);
         return data + `;var ${realName},${commName}=${realName};`;
     };
     return bindLoadings(useInternalReg, data, fullpath, replacer);
