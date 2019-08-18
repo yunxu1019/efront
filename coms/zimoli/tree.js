@@ -45,7 +45,9 @@ function getArrayFromTree(root, skipClosed = true) {
             if (elem.length) {
                 path.push(elem);
                 pathcx.push(0);
-                max_deep = pathcx.length;
+                if (pathcx.length > max_deep) {
+                    max_deep = pathcx.length;
+                }
             }
         }
     }
