@@ -72,7 +72,6 @@ var loadUseBody = function (data, fullpath, watchurls, commName) {
         if (/module.exports\s*=/.test(data)) {
             return data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName : "return ");
         }
-        console.log(commName, realName);
         return data + `;var ${realName},${commName}=${realName};`;
     };
     return bindLoadings(useInternalReg, data, fullpath, replacer);
