@@ -38,8 +38,10 @@ function transition(target, initialStyle, isLeave) {
             }, transitionDuration + 2);
         } else {
             extend(target.style, initialStyle);
+            target.style.transition = "none";
             transitionTimerStart = setTimeout(function () {
                 delete recoverStyle.transition;
+                target.style.transition = initialStyle.transition;
                 extend(target.style, recoverStyle);
             });
             transitionTimerEnd = setTimeout(function (transition) {
