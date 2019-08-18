@@ -28,6 +28,7 @@ function getTreeFromArray(array) {
 function getArrayFromTree(root, skipClosed = true) {
     var path = [root], pathcx = [0];
     var result = [];
+    var max_deep = 1;
     loop: while (pathcx.length) {
         var pathindex = pathcx.length - 1;
         var cx = pathcx[pathindex];
@@ -44,9 +45,11 @@ function getArrayFromTree(root, skipClosed = true) {
             if (elem.length) {
                 path.push(elem);
                 pathcx.push(0);
+                max_deep = pathcx.length;
             }
         }
     }
+    result.deep = max_deep;
     return result;
 }
 function appendTo(parent, datas) {
@@ -78,21 +81,24 @@ function tree() {
         }
     });
     var dom = [], root = null;
+    var changed_index;
+    var saved_top, saved_offset, saved_margin;
     var banner = list(element, function (index) {
         var coms = dom;
         if (index >= coms.length) return;
         var com = coms[index];
         var span;
         if (!com) return;
+        var tabs = new Array(com.tab + 1).join("<t></t>");
         if (isFunction(generator)) {
             var elem = generator(index, com);
             if (!elem) return;
             span = document.createElement('div');
-            span.innerHTML = new Array(com.tab + 1).join("<t></t>");
+            span.innerHTML = tabs;
             span.appendChild(elem);
         } else {
             span = div();
-            html(span, `${repeat("<t></t>", com.tab)}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
+            html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
         }
         var _div = button(span);
         addClass(_div, "tab" + com.tab);
@@ -112,16 +118,59 @@ function tree() {
         if (com.class) {
             addClass(_div, com.class);
         }
+        _div.style.zIndex = coms.deep - com.tab;
         com.target = _div;
+        if (index === changed_index) {
+            saved_top = _div;
+        }
+        if (index === chaned_offset) {
+            saved_offset = _div;
+        }
         onclick(_div, function () {
             if (!active(banner, com.value, com)) {
                 return;
             };
             com.closed = !com.closed;
-            refresh();
-        })
+            changed_index = index;
+            chaned_offset = com.length + index;
+            var run = function () {
+                refresh();
+                if (!com.closed && com.length && saved_offset) {
+                    var change_elem = saved_top.nextSibling;
+                    if (!change_elem) return;
+                    var margin_top;
+                    if (!saved_offset) {
+                        margin_top = saved_top.offsetHeight + saved_top.offsetTop - banner.scrollHeight;
+                    } else {
+                        margin_top = saved_top.offsetHeight + saved_top.offsetTop - saved_offset.offsetTop - saved_offset.offsetHeight;
+                    }
+                    transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" });
+                };
+            };
+            if (com.closed && com.length) {
+                var bottom = com[com.length - 1].target;
+                var top = com[0].target;
+                if (!top) return run();
+                var marginTop;
+                if (!bottom) {
+                    marginTop = top.offsetTop - banner.scrollHeight;
+                } else {
+                    marginTop = top.offsetTop - bottom.offsetTop - bottom.offsetHeight;
+                }
+                var res = transition(top, {
+                    transition: 'margin-top .2s ease-out',
+                    marginTop: marginTop + "px"
+                }, true);
+                if (res) setTimeout(run, res);
+                else run();
+            } else {
+                run();
+            }
+        });
+
         return _div;
     });
+
 
     banner.setData = function (src) {
         if (isArray(src)) {
@@ -129,7 +178,6 @@ function tree() {
                 root = getTreeFromArray(src);
             } else {
                 root = getTreeFromData(src);
-                console.log(root);
             }
             dom = getArrayFromTree(root);
         }
