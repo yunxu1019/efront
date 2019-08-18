@@ -4,6 +4,5 @@ function main(elem, scope) {
     if (scope instanceof Object) {
         render(item, { menu: scope })
     }
-    on('append')(item,console.log)
     return item;
 }
