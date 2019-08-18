@@ -6,8 +6,12 @@ var getGenerator = function (container, parsedSrc) {
     appendChild(template, [].concat.apply([], container.childNodes));
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
-    return function (index) {
-        if (!container.src || index >= container.src.length) return;
+    return function (index, com) {
+        if (!com) {
+            if (!container.src || index >= container.src.length) return;
+            com = container.src[index];
+        }
+        if (!com) return;
         var template1 = template.cloneNode();
         template1.innerHTML = template.innerHTML;
         if (!template1.childNodes.length) return template1;
@@ -17,7 +21,7 @@ var getGenerator = function (container, parsedSrc) {
             var { keyName, itemName, indexName } = parsedSrc;
             var newScope = extend(Object.create(container.$scope), {
                 [keyName || '$key']: index,
-                [itemName || '$item']: container.src[index],
+                [itemName || '$item']: com,
                 [indexName || '$index']: index
             });
             var newItem = render(item, newScope);

@@ -118,7 +118,12 @@ function main(elem, mode) {
                             elem.go(elem.index() || 0);
                         };
                     });
-                    tree(elem, generator);
+                    tree(elem, function (index, item) {
+                        var e = generator(index, item);
+                        if (!e || e.children.length) return e;
+                        var m = menuItem(e, item);
+                        return m;
+                    });
                 } else {
                     var nodes = getTreeNodes(elem);
                     elem = inlineMenu.call(elem, nodes);

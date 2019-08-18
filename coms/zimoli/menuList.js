@@ -59,7 +59,11 @@ function main(page, items, active, generator, direction = 'y') {
             return false;
         };
         render(page, {
-            btn: button,
+            "menu-item": function () {
+                return button(
+                    menuItem.apply(null, arguments)
+                );
+            },
             menus: items,
             hasIcon: hasIcon(),
             open(menu, event) {

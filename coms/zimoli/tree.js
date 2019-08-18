@@ -1,4 +1,3 @@
-
 function getTreeFromArray(array) {
     var root = [];
     root.tab = -Infinity;
@@ -84,10 +83,13 @@ function tree() {
         if (index >= coms.length) return;
         var com = coms[index];
         var span;
+        if (!com) return;
         if (isFunction(generator)) {
+            var elem = generator(index, com);
+            if (!elem) return;
             span = document.createElement('div');
             span.innerHTML = repeat("<t></t>", com.tab);
-            span.appendChild(generator(index));
+            span.appendChild(elem);
         } else {
             span = div();
             html(span, `${repeat("<t></t>", com.tab)}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
