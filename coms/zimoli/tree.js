@@ -88,7 +88,7 @@ function tree() {
             var elem = generator(index, com);
             if (!elem) return;
             span = document.createElement('div');
-            span.innerHTML = repeat("<t></t>", com.tab);
+            span.innerHTML = new Array(com.tab + 1).join("<t></t>");
             span.appendChild(elem);
         } else {
             span = div();
