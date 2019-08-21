@@ -14,7 +14,7 @@ var scan_string = function (str, start) {
 var scan_number = function (str, start) {
     if (str.charAt(start) === "-")
         start++;
-    var reg = /(?:0|[1-9]\d*)(?:\.\d*)?/g;
+    var reg = /(?:0|[1-9]\d*)(?:\.\d*)?(e\-?\d+)?/g;
     reg.lastIndex = start;
     var match = reg.exec(str);
     if (!match)

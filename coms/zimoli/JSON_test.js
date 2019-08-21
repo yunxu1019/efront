@@ -26,4 +26,8 @@ modules.init("JSON", function (JSON) {
     parse('[{"a":[1]}]');
     parse('[{"a":[1]},{}]');
     parse('[{"a":[1]},{},[]]');
+    parse('1e2');
+    parse('1e-2');
+    parse('1.3e-2');
+    parse('-1.3e-2');
 })
