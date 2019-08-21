@@ -19,7 +19,7 @@ function toComponent(responseTree) {
         result.push([k].concat(dependence).concat(dependence.args).concat(responseTree[k].toString().slice(dependence.offset)));
     }
     var dest = [], last_result_length = result.length;
-    var $$_efront_map_string_key = "$$_efront_map_const_string_key__";
+    var $$_efront_map_string_key = "$$__efront_const";
 
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
@@ -51,7 +51,7 @@ function toComponent(responseTree) {
                             break;
                     }
                     var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
-                    var $key = $$_efront_map_string_key + key;
+                    var $key = $$_efront_map_string_key + "_string_" + key;
 
                     if (!resultMap[$key]) {
                         dest.push(k);
@@ -66,7 +66,7 @@ function toComponent(responseTree) {
                 };
                 var setMatchedConstRegExp = function (match, type, k) {
                     var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_")
-                    var $key = $$_efront_map_string_key + key;
+                    var $key = $$_efront_map_string_key + "_regexp_" + key;
                     if (!resultMap[$key]) {
                         dest.push(k.toString());
                         resultMap[$key] = dest.length;
