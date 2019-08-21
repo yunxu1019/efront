@@ -110,7 +110,7 @@ function double_quote_scanner2(index) {
 // }, count);//1200+
 // console.log(t1, t2);
 function regexp_quote_scanner(index) {
-    var reg = /[^\\]\/[imgy]*/g;
+    var reg = /[^\\]\/[\w]*/g;
     reg.lastIndex = index + 1;
     var res = reg.exec(this);
     return res ? res.index + res[0].length : this.length;
@@ -338,7 +338,7 @@ function block_code_scanner(index, blocks = []) {
                     // switch(a){case 1:break
                     //switch case break,while continue,break abcd;
                     var tempIndex = lookback.call(this, index - 1);
-                    isReg = tempIndex < 0 || /[[|,+=*~?:&\^{\(\/><;%\-]/.test(this[tempIndex]);
+                    isReg = tempIndex < 0 || /[[|,+=*~?:&\^{\(\/><;%\-!]/.test(this[tempIndex]);
                     if (!isReg && tempIndex >= 8) {
                         var last_pice = this.slice(Math.max(tempIndex - 50, 0), tempIndex + 1);
                         isReg = /([)};:{]|[^\.\s]\s+)(continue|break|return|case)$/.test(last_pice);
