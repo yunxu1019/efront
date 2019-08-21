@@ -62,19 +62,19 @@ var keys = function keys(object) {
     }
     return result;
 };
-Array.prototype.map = map;
-Array.prototype.forEach = forEach;
-Array.prototype.indexOf = indexOf;
-Array.prototype.filter = filter;
-String.prototype.trim = trim;
-Object.keys = keys;
-Object.create = function (object) {
+if (![].map) Array.prototype.map = map;
+if (![].forEach) Array.prototype.forEach = forEach;
+if (![].indexOf) Array.prototype.indexOf = indexOf;
+if (![].filter) Array.prototype.filter = filter;
+if (!"".trim) String.prototype.trim = trim;
+if (!Object.keys) Object.keys = keys;
+if (!Object.create) Object.create = function (object) {
     function ExtendedClass() {
     };
     ExtendedClass.prototype = object;
     return new ExtendedClass;
 };
-Function.prototype.bind = function (context) {
+if (!function () { }.bind) Function.prototype.bind = function (context) {
     var args = [].concat.apply([], arguments).slice(1);
     return () => {
         return this.apply(context, args.concat.apply(args, arguments));
