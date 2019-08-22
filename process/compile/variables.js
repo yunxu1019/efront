@@ -171,6 +171,10 @@ var getVariables = function (ast) {
                 break;
             case "":
             case "LabeledStatement":
+                var {
+                    DeclaredVariables,
+                    unDeclaredVariables
+                } = getVariables(ast.body);
             case "BreakStatement":
             case "ContinueStatement":
                 break;
