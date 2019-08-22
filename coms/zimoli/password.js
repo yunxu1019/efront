@@ -17,7 +17,7 @@ function password() {
             element.appendChild(insert);
         }
         text.nodeValue = savedKeyCodes.map(e => "●").join("");
-        element.scrollLeft = insert.offsetLeft + 2;
+        element.scrollLeft = insert.offsetLeft + insert.offsetWidth + element.clientTop + 2;
     };
     element.onfocus = function () {
         addClass(element, 'focus');
@@ -34,7 +34,6 @@ function password() {
     element.type = "text";
     element.nodrag = true;
     element.tabIndex = 0;
-    // element.contentEditable = true;
     element.onkeydown = function (event) {
         switch (event.keyCode) {
             case 8: // backspace
