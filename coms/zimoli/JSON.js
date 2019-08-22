@@ -155,7 +155,11 @@ var stringify = function (object, filter, space) {
     }
     return object;
 };
-var JSON = {
-    parse: parse,
-    stringify: stringify
-};
+if (this.JSON) {
+    var JSON = this.JSON;
+} else {
+    var JSON = {
+        parse: parse,
+        stringify: stringify
+    };
+}
