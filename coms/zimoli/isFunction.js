@@ -4,6 +4,6 @@
  */
 
 
-function isFunction(o){
-    return o instanceof Function;
+function isFunction(o) {
+    return typeof o === 'function';
 }

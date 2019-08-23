@@ -5,5 +5,5 @@
 
 
 function isNumber(o) {
-    return typeof o === "number";
+    return typeof o === "number" || o instanceof Number;
 }
