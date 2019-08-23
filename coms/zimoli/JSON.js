@@ -1,6 +1,5 @@
 var stringify_failed_error_message = "stringify json failed!";
 var parse_failed_error_message = "parse json failed!";
-var circle_private_key = "__circle_private_key_" + +new Date;
 var scan_string = function (str, start) {
     if (str.charAt(start) !== "\"")
         return false;
@@ -226,11 +225,7 @@ var getString = function (object, filter, space) {
     }
     return result;
 };
-if (this.JSON) {
-    var JSON = this.JSON;
-} else {
-    var JSON = {
-        parse: parse,
-        stringify: stringify
-    };
-}
+var JSON = {
+    parse: parse,
+    stringify: stringify
+};
