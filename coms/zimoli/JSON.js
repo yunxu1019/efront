@@ -133,22 +133,16 @@ var toString = function (object) {
  * @param {object} object 
  * @param {function} filter 
  */
-var getString = function (source, filter, space) {
+var getString = function (object, filter, space) {
     var hasFilter = isFunction(filter);
-    var objects = [source], keys = [[0]], key = '', result = [];
-    var inc = 0;
     var pop = function () {
         objects.pop();
         keys.pop();
     };
-    do {
-        if (inc++ > 0x1fffff) throw new Error(inc);
-        var object = objects[objects.length - 1];
+    var get = function (object) {
         if (object instanceof Date) {
             object = object.toISOString();
         }
-        var key1 = keys[keys.length - 1];
-        var [cx, ks] = key1;
         if (hasFilter) {
             var object1 = filter(key, object);
             if (object1 instanceof Object && object !== object1) {
@@ -156,57 +150,80 @@ var getString = function (source, filter, space) {
             }
             object = object1;
         }
-        if (object === null) {
-            result.push("null");
-            pop();
-        } else if (isFunction(object) || object === undefined) {
-            if (!ks && objects.length > 1) {
-                result.push('null');
-            }
-            pop();
-        } else if (isString(object)) {
-            result.push(toString(object));
-            pop();
-        } else if (isNumber(object) || isBoolean(object)) {
-            result.push(String(object));
-            pop();
-        } else if (object instanceof Object) {
-            if (!(object instanceof Array) && !ks) {
-                key1[1] = ks = Object.keys(object);
-            }
-
-            if (cx === 0) {
-                result.push(ks ? "{" : "[");
-            }
-            var dx = (ks ? ks : object).length;
-            if (cx < dx) {
-                key = ks ? ks[cx] : cx;
-                if (cx > 0) result.push(',');
-                space && result.push('\n', new Array(objects.length + 1).join(space));
-                if (ks) {
-                    result.push(toString(key) + ":")
-                    if (space) result.push(" ");
-                };
-                var v = object[key];
+        switch (typeof object) {
+            case "object":
+                if (object === null) {
+                    return 'null';
+                }
+                if (object instanceof Boolean || object instanceof Number) {
+                    object = object.valueOf();
+                    return String(object);
+                }
+                if (object instanceof String) {
+                    return toString(object);
+                }
+                if (object instanceof Object) {
+                    return object;
+                }
+            case "number":
+                if (isNaN(object) || object === Infinity) {
+                    object = null;
+                }
+            case "boolean":
+                return String(object);
+            case "string":
+                return toString(object);
+            default:
+                if (!ks && objects.length > 1) {
+                    return 'null';
+                }
+        }
+    };
+    var key = '', cx, ks, result = [], objects = [], keys = [[0]];
+    object = get(object);
+    if (object instanceof Object) objects.push(object);
+    else if (object) result.push(object);
+    while (objects.length) {
+        var object = objects[objects.length - 1];
+        var key1 = keys[keys.length - 1];
+        var [cx, ks] = key1;
+        if (!(object instanceof Array) && !ks) {
+            key1[1] = ks = Object.keys(object);
+        }
+        var str = "";
+        if (cx === 0) {
+            str += (ks ? "{" : "[");
+        }
+        var dx = (ks ? ks : object).length;
+        while (cx < dx) {
+            key = ks ? ks[cx] : cx;
+            if (cx > 0) str += (',');
+            if (space) str += ('\n' + new Array(objects.length + 1).join(space));
+            if (ks) {
+                str += (toString(key) + ":");
+                if (space) str += (" ");
+            };
+            var v = get(object[key]);
+            if (v instanceof Object) {
                 key1[0] = cx + 1;
                 if (objects.indexOf(v) >= 0) throw stringify_failed_error_message;
                 objects.push(v);
                 keys.push([0]);
+                break;
+            } else {
+                str += (v);
             }
-            if (cx === dx) {
-                if (dx > 0) {
-                    space && result.push('\n', new Array(objects.length).join(space))
-                }
-                result.push(ks ? '}' : ']');
-                pop();
+            cx++;
+        }
+        if (cx === dx) {
+            if (dx > 0) {
+                if (space) str += ('\n' + new Array(objects.length).join(space))
             }
-        } else {
-            if (!ks && objects.length > 1) {
-                result.push('null');
-            }
+            str += (ks ? '}' : ']');
             pop();
         }
-    } while (objects.length);
+        result.push(str);
+    }
     return result;
 };
 if (this.JSON) {

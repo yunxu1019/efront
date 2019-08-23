@@ -10,7 +10,7 @@ var createDeepObject = function (deep, width, leaf = {}) {
     }
     return origin;
 }
-var checkUnEqual = function () {
+var checkUnEqual = function (deepEqual) {
     return !deepEqual({}, { a: 1 })
         && !deepEqual(0, 1)
         && !deepEqual(0, [])
@@ -37,14 +37,14 @@ var checkUnEqual = function () {
         && !deepEqual([1], new String("1"))
         ;
 };
-var checkCircle = function () {
+var checkCircle = function (deepEqual) {
     var a = {};
     var b = {};
     a.a = a;
     b.a = b;
     return deepEqual(a, b);
 };
-var checkDoubleCircle = function () {
+var checkDoubleCircle = function (deepEqual) {
     a = { a: {} };
     b = { a };
     c = { a: {} };
@@ -52,7 +52,7 @@ var checkDoubleCircle = function () {
     a.a.a = a;
     return deepEqual(a, b) && deepEqual(a, a.a) && deepEqual(c, a);
 };
-var checkMultiCircle = function () {
+var checkMultiCircle = function (deepEqual) {
     a = { a: {} };
     b = { a: { a: { a } } };
     c = { a: {} };
@@ -61,12 +61,12 @@ var checkMultiCircle = function () {
     // b与a出现环形的节点不一样
     return deepEqual(a, b) && deepEqual(a, a.a) && deepEqual(c, a);
 };
-var checkDeep = function () {
+var checkDeep = function (deepEqual) {
     var a = createDeepObject(SAFE_CIRCLE_DEPTH * 8, 1);
     var b = createDeepObject(SAFE_CIRCLE_DEPTH * 8, 1);
     return deepEqual(a, b);
 };
-var checkDeepDepth = function () {
+var checkDeepDepth = function (deepEqual) {
     var a = [1];
     var b = [1];
     console.log(SAFE_CIRCLE_DEPTH);
@@ -91,21 +91,21 @@ var checkDeepDepth = function () {
     console.log("checkDeepDepth data end", +new Date)
     return deepEqual(a, b);
 }
-var checkDeepCircle = function () {
+var checkDeepCircle = function (deepEqual) {
     var a = createDeepObject(10, 3);
-    var b = createDeepObject(10, 3);
+    var b = createDeepObject(13, 3);
     a = createDeepObject(1, 3, a);
     b = createDeepObject(1, 3, b);
     return deepEqual(a, b);
 };
-function deepEqual_test() {
+function deepEqual_test(deep = deepEqual) {
     console.log(
-        checkUnEqual(),
-        checkCircle(),
-        checkDoubleCircle(),
-        checkMultiCircle(),
-        checkDeep(),
-        checkDeepCircle(),
-        // checkDeepDepth(),
+        checkUnEqual(deep),
+        checkCircle(deep),
+        checkDoubleCircle(deep),
+        checkMultiCircle(deep),
+        checkDeep(deep),
+        checkDeepCircle(deep),
+        // checkDeepDepth(deep),
     );
 }
