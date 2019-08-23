@@ -5,8 +5,6 @@ var environment = require("./environment");
 var {
     PUBLIC_PATH,
     APP,
-    PAGE_PATH,
-    COMS_PATH,
     pages_root,
     comms_root
 } = environment;
@@ -129,7 +127,9 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 });
         });
     } else {
-        throw new Error(`要发布或打包的源路径不存在:${public_app}`);
+        console.error(
+            new Error(`要发布或打包的源路径不存在:${public_app}`)
+        );
     }
 }
 module.exports = builder;
