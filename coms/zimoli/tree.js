@@ -85,7 +85,10 @@ function tree() {
     });
     var dom = [], root = null;
     var changed_index;
-    var saved_top, saved_offset;
+    var saved_top, saved_offset, timer = 0, timeout = function () {
+        clearTimeout(timer);
+        timer = setTimeout.apply(this, arguments);
+    };
     var banner = list(element, function (index) {
         var coms = dom;
         if (index >= coms.length) return;
@@ -174,7 +177,7 @@ function tree() {
                     setState(false);
                     z0();
                     var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" });
-                    setTimeout(z1, res);
+                    timeout(z1, res);
                 };
             };
             if (com.closed && com.length) {
@@ -193,7 +196,7 @@ function tree() {
                     transition: 'margin-top .2s ease-out',
                     marginTop: marginTop + "px"
                 }, true);
-                if (res) setTimeout(run, res);
+                if (res) timeout(run, res);
                 else run();
             } else {
 
