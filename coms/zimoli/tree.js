@@ -39,6 +39,7 @@ function getArrayFromTree(root, skipClosed = true) {
             continue loop;
         }
         var elem = item[cx];
+        elem.parent = item;
         result.push(elem);
         pathcx[pathindex] = ++cx;
         if (!skipClosed || !elem.closed) {
