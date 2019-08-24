@@ -8,34 +8,34 @@
 
 &>div>div,
 &>div>div>div {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-    height: 100%;
+    position  : relative;
+    display   : inline-block;
+    width     : 100%;
+    height    : 100%;
     background: transparent;
 }
 
 &>.more {
-    position: absolute;
-    right: 0;
-    width: 40px;
-    height: 100%;
-    color: #fff;
-    background: transparent;
+    position    : absolute;
+    right       : 0;
+    width       : 40px;
+    height      : 100%;
+    color       : #fff;
+    background  : transparent;
     border-right: 1px solid #18333c;
 
     &::after {
-        content: "";
-        position: absolute;
-        display: block;
-        @size: 8px;
-        width: @size;
-        height: @size;
-        right: 20px;
-        top: 50%;
-        margin: -@size/2;
-        box-sizing: border-box;
-        border-top: 2px solid;
+        content      : "";
+        position     : absolute;
+        display      : block;
+        @size        : 8px;
+        width        : @size;
+        height       : @size;
+        right        : 20px;
+        top          : 50%;
+        margin       : -@size/2;
+        box-sizing   : border-box;
+        border-top   : 2px solid;
         border-bottom: 2px solid;
     }
 }
@@ -45,19 +45,19 @@ body:active & {
     // 仅在拖动过程中使用动画
     >.lattice {
         >div>div {
-            @time: .1s;
+            @time     : .1s;
             transition: margin @time;
         }
     }
 }
 
 &>.lattice {
-    right: 40px;
+    right   : 40px;
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: auto;
+    left    : 0;
+    top     : 0;
+    bottom  : 0;
+    width   : auto;
 
     &.complete {
         right: 0;
@@ -83,36 +83,68 @@ body:active & {
 }
 
 &[mode=horizonal] {
-    display: block;
-    overflow: hidden;
-    text-overflow: hidden;
-    height: 40px;
-    position: relative;
-    border: 1px solid #18333c;
+    display         : block;
+    overflow        : hidden;
+    text-overflow   : hidden;
+    height          : 40px;
+    position        : relative;
+    border          : 1px solid #18333c;
     background-color: #18333c;
-    box-shadow: inset 0 0 12px #51ddf6, inset 0px -120px 120px -120px #51ddf6;
-    border-right: none;
+    box-shadow      : inset 0 0 12px #51ddf6, inset 0px -120px 120px -120px #51ddf6;
+    border-right    : none;
 }
 
 &[mode=inline] {
-    height: auto;
+    height    : auto;
     box-shadow: none;
-    padding: 0;
-    margin: 0;
+    padding   : 0;
+    margin    : 0;
 
     .tab1 {
         &.open {
-            color: #fff;
+            color     : #fff;
             background: #1e282c;
+
+            &:after {
+                text-indent: -13px;
+            }
+        }
+
+        &.checked {
             border-left-color: #3c8dbc;
         }
 
+        &:after {
+            writing-mode: vertical-rl;
+            text-indent : -8px;
+            content     : "×";
+            font-size   : 24px;
+            line-height : 24px;
+            height      : 6px;
+            overflow    : hidden;
+            display     : block;
+            position    : absolute;
+            right       : 10px;
+            top         : 50%;
+            margin-top  : -3px;
+            color       : #fff;
+            transition  : text-indent .2s ease-out;
+        }
+
+        &.closed:after {
+            text-indent: -8px;
+        }
+
+        &.empty:after {
+            display: none;
+        }
+
         border-left: 3px solid transparent;
-        display: block;
-        height: 44px;
+        display    : block;
+        height     : 44px;
         line-height: 44px;
-        font-size: 14px;
-        color: #b8c7ce;
+        font-size  : 14px;
+        color      : #b8c7ce;
     }
 
     >.button {
@@ -123,12 +155,12 @@ body:active & {
         }
 
         &:not(.tab1) {
-            display: block;
-            height: 36px;
+            display    : block;
+            height     : 36px;
             line-height: 36px;
-            font-size: 14px;
-            background: #2c3b41;
-            color: #8aa4af;
+            font-size  : 14px;
+            background : #2c3b41;
+            color      : #8aa4af;
         }
 
         i {
@@ -138,7 +170,7 @@ body:active & {
 
         &.hover {
             text-shadow: none;
-            color: #fff;
+            color      : #fff;
         }
 
     }

@@ -84,7 +84,7 @@ function tree() {
     });
     var dom = [], root = null;
     var changed_index;
-    var saved_top, saved_offset, saved_margin;
+    var saved_top, saved_offset;
     var banner = list(element, function (index) {
         var coms = dom;
         if (index >= coms.length) return;
@@ -104,11 +104,6 @@ function tree() {
         }
         var _div = button(span);
         addClass(_div, "tab" + com.tab);
-        if (com.length) {
-            addClass(_div, com.closed ? "closed" : "open");
-        } else {
-            addClass(_div, "empty");
-        }
         if (com.checked || com.is_checked) {
             addClass(_div, "checked");
         } else if (com.selected || com.is_selected) {
@@ -120,10 +115,25 @@ function tree() {
         if (com.class) {
             addClass(_div, com.class);
         }
+        var setState = function (closed = com.closed) {
+            removeClass(com.target, 'open empty closed');
+            if (com.length) {
+                if (closed) {
+                    addClass(com.target, 'closed')
+                } else {
+                    addClass(com.target, 'open')
+                }
+            } else {
+                addClass(com.target, 'empty');
+            }
+        };
         _div.style.zIndex = 1;
         com.target = _div;
         if (index === changed_index) {
             saved_top = _div;
+            setState(true);
+        } else {
+            setState();
         }
         if (index === chaned_offset) {
             saved_offset = _div;
@@ -135,6 +145,7 @@ function tree() {
             com.closed = !com.closed;
             changed_index = index;
             chaned_offset = com.length + index;
+
             var z0 = function () {
                 com.forEach(function (e) {
                     if (e.target) e.target.style.zIndex = 0;
@@ -144,10 +155,13 @@ function tree() {
                 com.forEach(function (e) {
                     if (e.target) e.target.style.zIndex = 1;
                 });
+                setState();
             };
             var run = function () {
+                // debugger;
+
                 refresh();
-                if (!com.closed && com.length && saved_offset) {
+                if (!com.closed && com.length && saved_top) {
                     var change_elem = saved_top.nextSibling;
                     if (!change_elem) return;
                     var margin_top;
@@ -156,6 +170,7 @@ function tree() {
                     } else {
                         margin_top = saved_top.offsetHeight + saved_top.offsetTop - saved_offset.offsetTop - saved_offset.offsetHeight;
                     }
+                    setState(false);
                     z0();
                     var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" });
                     setTimeout(z1, res);
@@ -163,6 +178,7 @@ function tree() {
             };
             if (com.closed && com.length) {
                 z0();
+                setState(true);
                 var bottom = com[com.length - 1].target;
                 var top = com[0].target;
                 if (!top) return run();
@@ -179,6 +195,7 @@ function tree() {
                 if (res) setTimeout(run, res);
                 else run();
             } else {
+
                 run();
             }
         });
