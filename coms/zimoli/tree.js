@@ -84,7 +84,7 @@ function tree() {
         }
     });
     var dom = [], root = null;
-    var changed_index;
+    var changed_index, changed_offset;
     var saved_top, saved_offset, timer = 0, timeout = function () {
         clearTimeout(timer);
         timer = setTimeout.apply(this, arguments);
@@ -139,7 +139,7 @@ function tree() {
         } else {
             setState();
         }
-        if (index === chaned_offset) {
+        if (index === changed_offset) {
             saved_offset = _div;
         }
         onclick(_div, function () {
@@ -148,7 +148,7 @@ function tree() {
             };
             com.closed = !com.closed;
             changed_index = index;
-            chaned_offset = com.length + index;
+            changed_offset = com.length + index;
 
             var z0 = function () {
                 com.forEach(function (e) {
