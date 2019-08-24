@@ -120,7 +120,7 @@ function tree() {
         if (com.class) {
             addClass(_div, com.class);
         }
-        _div.style.zIndex = coms.deep - com.tab;
+        _div.style.zIndex = 1;
         com.target = _div;
         if (index === changed_index) {
             saved_top = _div;
@@ -135,6 +135,16 @@ function tree() {
             com.closed = !com.closed;
             changed_index = index;
             chaned_offset = com.length + index;
+            var z0 = function () {
+                com.forEach(function (e) {
+                    if (e.target) e.target.style.zIndex = 0;
+                })
+            };
+            var z1 = function () {
+                com.forEach(function (e) {
+                    if (e.target) e.target.style.zIndex = 1;
+                });
+            };
             var run = function () {
                 refresh();
                 if (!com.closed && com.length && saved_offset) {
@@ -146,10 +156,13 @@ function tree() {
                     } else {
                         margin_top = saved_top.offsetHeight + saved_top.offsetTop - saved_offset.offsetTop - saved_offset.offsetHeight;
                     }
-                    transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" });
+                    z0();
+                    var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" });
+                    setTimeout(z1, res);
                 };
             };
             if (com.closed && com.length) {
+                z0();
                 var bottom = com[com.length - 1].target;
                 var top = com[0].target;
                 if (!top) return run();
