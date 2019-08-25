@@ -153,7 +153,7 @@ var loaddata = function (name) {
         default:
             url = "comm/" + name;
     }
-    var count = 20;
+    var count = /msie\s?[2-8]/i.test(navigator.userAgent) ? 20 : 2;
     var run = function () {
         count--;
         if (count < 0) {
