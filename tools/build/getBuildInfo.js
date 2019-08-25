@@ -7,7 +7,7 @@ var path = require("path");
 var env = require("./environment");
 var noopbuilder = a => a;
 var pagebuilder = function (buffer, filename) {
-    if (/^index\.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 100).toString())) {
+    if (/^index\.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 2000).toString().replace(/<!--[\s\S]*?--!?>/g, ""))) {
         return htmlbuilder.apply(null, arguments);
     }
     return commbuilder.apply(null, arguments);
