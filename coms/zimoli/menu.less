@@ -110,7 +110,9 @@ body:active & {
             }
         }
 
-        &.checked {
+        &.checked,
+        &.actived,
+        &.selected {
             border-left-color: #3c8dbc;
         }
 
@@ -150,6 +152,7 @@ body:active & {
     >.button {
         box-shadow: none;
 
+
         >b {
             font-weight: normal;
         }
@@ -161,6 +164,11 @@ body:active & {
             font-size  : 14px;
             background : #2c3b41;
             color      : #8aa4af;
+            &.checked,
+            &.actived,
+            &.selected {
+                color: #fff;
+            }
         }
 
         i {
