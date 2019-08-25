@@ -7,6 +7,7 @@ function toApplication(responseTree) {
     var isFileMode = /\.html?$/i.test(environment.APP);
     var versionTree = {};
     var mainScript = responseTree["main"].data;
+    var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
     if (isFileMode) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
@@ -31,7 +32,6 @@ function toApplication(responseTree) {
         delete versionTree["/index.html"];
         delete versionTree["@index.html"];
     }
-    var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
     if (!indexHtml) {
         var htmlPath = path.join(__dirname, "../../apps", "index.html");
         indexHtml = {
