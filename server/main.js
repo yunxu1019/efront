@@ -11,7 +11,10 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var killing;
     var quitting = [];
     var workers = [];
-    var cpus = require('os').cpus();
+    var cpus = require('os').cpus().map(a => 0);
+    if (process.env.IN_TEST_MODE) {
+        cpus = [0];
+    }
     var end = function () {
         quitting = quitting.concat(workers);
         workers = [];
