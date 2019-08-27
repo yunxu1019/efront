@@ -1,5 +1,5 @@
 {
-    "base:docs http://efront.cc:5989/": {
-        "menus": "get ./data/menus.json#name=F_Name&icon=F_Icon&id=_id 菜单列表 "
+    "http://efront.cc:5989/": {
+        "menus": "get:docs ./data/menus.json#name=F_Name&icon=F_Icon&id=_id 菜单列表 "
     }
 }

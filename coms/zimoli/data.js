@@ -120,7 +120,7 @@ function seek(data, seeker) {
 }
 
 function parseConfig(api) {
-    // `method url?key=value&key=value#vid&vname&vicon name id?key1&key3 comment`
+    // `method url(?key=value(&key=value)*)?(#vid(&vname(&vicon)?)?)? name id(?key1)?(&key3)* comment?`
     var { method, url, id, name, comment } = api;
     var required = [];
     id.replace(/\?(.+?)$/, function (m, s) {
@@ -152,20 +152,18 @@ function createApiMap(data) {
     const reg = /^(https?\:\/\/|\.?\/)/i;
     const apiMap = {};
     var hasOwnProperty = {}.hasOwnProperty;
+    var href;
     function checkApi(api) {
         if (!reg.test(api.url)) {
-            if (reg.test(data.href)) {
+            if (reg.test(href)) {
                 if (api.url === '.') {
-                    api.url = data.href;
+                    api.url = href;
                 } else {
-                    api.url = data.href + api.url;
+                    api.url = href + api.url;
                 }
             }
         }
         api.method = api.method.toLowerCase();
-        if (data.seek) {
-            api.method += ":" + data.seek;
-        }
         if (hasOwnProperty.call(apiMap, api.id)) {
             const lastApi = apiMap[api.id];
             console.warn(`多次设置的id相同的api:%c${api.id}`, 'color:red');
@@ -174,7 +172,17 @@ function createApiMap(data) {
         apiMap[api.id] = api;
         return api;
     }
-    data.items = formulaters.string('method url name id comment', data.items).map(parseConfig).map(checkApi);
+    var items1 = data;
+    for (var key in items1) {
+        var [base] = key.split(/\s+/).filter(a => reg.test(a));
+        if (!base) continue;
+        href = base;
+        var item1 = items1[key];
+        var items = Object.keys(item1).map(function (k1) {
+            return k1 + " " + item1[k1];
+        });
+        formulaters.string('id method url name comment', items).map(parseConfig).map(checkApi);
+    }
     return apiMap;
 }
 var _configfileurl;
@@ -226,8 +234,11 @@ var data = {
     decodeStructure,
     encodeStructure,
     loadConfig(defaultConfigFile) {
-        _configfileurl = defaultConfigFile;
-        configPormise = null;
+        if (defaultConfigFile) {
+            _configfileurl = defaultConfigFile;
+            configPormise = null;
+        }
+        return privates.getConfigPromise();
     },
     fromURL(url) {
         privates.loadIgnoreConfig('get', url).then((data) => {
