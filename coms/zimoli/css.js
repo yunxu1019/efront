@@ -22,6 +22,7 @@ var transformCssKey = function (key) {
     });
     return key;
 };
+var isWorseIE = /msie\s+[2-8]/i.test(navigator.userAgent);
 /**
  * 将样式绑定到dom元素
  * @param {Element} targetNode 
@@ -41,8 +42,23 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
         }
     }
     if (oStyle instanceof Object) {
-        for (var k in oStyle) {
-            styleobject[transformNodeKey(k)] = oStyle[k];
+        if (isWorseIE) {
+
+            for (var k in oStyle) {
+                var key = transformNodeKey(k);
+                if (key in styleobject) {
+                    try {
+                        styleobject[key] = oStyle[k];
+                    } catch (e) {
+                        console.warn(key, oStyle[k], "无效");
+                    }
+                }
+            }
+        } else {
+            for (var k in oStyle) {
+                var key = transformNodeKey(k);
+                if (key in styleobject) styleobject[key] = oStyle[k];
+            }
         }
     }
 };

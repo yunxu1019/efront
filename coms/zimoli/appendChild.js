@@ -1,5 +1,7 @@
 var slice = [].slice;
 var { appendChild: _appendChild, insertBefore: _insertBefore } = document.createElement('a');
+var isWorseIE = /msie\s+[2-8]/i.test(navigator.userAgent);
+
 function release(node) {
     if (node === null || node === undefined) return node;
     return isFunction(node) ? node() : isNode(node) ? node : document.createTextNode(node);
@@ -42,7 +44,15 @@ function appendChild(parent, obj, transition) {
             if (o.initialStyle && transition !== false) {
                 isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
             }
-            _appendChild.call(parent, o);
+            if (isWorseIE) {
+                try {
+                    _appendChild.call(parent, o);
+                } catch (e) {
+                    console.error("appendChild", parent.tagName, o.tagName);
+                }
+            } else {
+                _appendChild.call(parent, o);
+            }
             o.with && appendChild(parent, o.with, transition);
             if (parent.isMounted)
                 _onappend(o);
