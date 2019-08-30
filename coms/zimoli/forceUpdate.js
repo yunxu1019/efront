@@ -22,7 +22,6 @@ while (true) {
             search = "=" + mark_time.toString(36);
         }
         location.replace("?" + search);
-        throw "重新加载！";
     }
     break;
 }
