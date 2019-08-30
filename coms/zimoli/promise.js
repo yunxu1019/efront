@@ -4,6 +4,9 @@ var setTimeout = window.setTimeout;
 var Function = window.Function;
 var console = window.console;
 var Error = window.Error;
+var isFunction = function (f) {
+    return typeof f === "function";
+};
 if (window.Promise) {
     var Promise = window.Promise;
 } else {
