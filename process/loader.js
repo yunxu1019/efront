@@ -76,7 +76,7 @@ var initPixelDecoder = function () {
         return;
     }
     var maxRenderWidth = +document.body.getAttribute('max-render');
-    if (!maxRenderWidth) {
+    if (!maxRenderWidth || /msie\s+[2-8]/i.test(navigator.userAgent)) {
         /**
          * 从px到pt
          */
@@ -290,10 +290,11 @@ var executer = function (text, name, then, prebuild, parents) {
         if (hasOwnProperty.call(modules, name) && !prebuild) return then(modules[name]);
         try {
             var exports = Function.call(window, functionBody).call(window);
+            then(modules[name] = exports);
         } catch (e) {
-            throw new Error(`[${name}] ${e}`);
+            console.log(`[${name}]`);
+            console.error(e);
         }
-        then(modules[name] = exports);
         return;
     }
 
@@ -337,12 +338,13 @@ var executer = function (text, name, then, prebuild, parents) {
         try {
             var allArgumentsNames = functionArgs.slice(argslength);
             var exports = Function.apply(window, allArgumentsNames.concat(functionBody)).apply(window, args.concat([allArgumentsNames]));
+            if (prevent_save) prebuild[name] = exports;
+            else modules[name] = exports;
+            then(exports);
         } catch (e) {
-            throw new Error(`[${name}] ${e}`);
+            console.log(`[${name}]`);
+            console.error(e);
         }
-        if (prevent_save) prebuild[name] = exports;
-        else modules[name] = exports;
-        then(exports);
     }, prebuild, parents.concat(name));
 };
 var JSON_parser = function (text, name, then) {
@@ -408,9 +410,7 @@ var init = function (name, then, prebuild, parents) {
             });
         })).then(function (args) {
             (then instanceof Function) && then(args);
-        }).catch(function (e) {
-            console.error(e);
-        });
+        }).catch(console.error);
     }
     if (modules[name]) {
         return then(modules[name]);
