@@ -11,10 +11,10 @@ if (window.Promise) {
     var Promise = window.Promise;
 } else {
     var isPromise = function (pendding) {
-        return pendding instanceof Promise || isFunction(pendding.then) && isFunction(pendding.catch);
+        return pendding instanceof Promise || pendding && isFunction(pendding.then) && isFunction(pendding.catch);
     };
 
-    function concat(threads, f, oks, ohs) {
+    var concat = function (threads, f, oks, ohs) {
         var _oked, _ohed, _ok, _oh, removeed;
         var runable = function (ok, oh) {
             if (_oked) {
@@ -60,7 +60,7 @@ if (window.Promise) {
         return _promise;
     }
 
-    function Promise(executor) {
+    var Promise = function (executor) {
         var PromiseFulfillReactions = this.PromiseFulfillReactions = [], //thens
             PromiseRejectReactions = this.PromiseRejectReactions = [], //catches
             oked = this.oked, ohed = this.ohed, resolved;
@@ -191,4 +191,5 @@ if (window.Promise) {
             ok.apply(null, args);
         });
     };
+
 }
