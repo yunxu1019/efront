@@ -8,7 +8,7 @@ if (window.Promise) {
     var Promise = window.Promise;
 } else {
     var isPromise = function (pendding) {
-        return pendding instanceof Promise;
+        return pendding instanceof Promise || pendding.then instanceof Function && pendding.catch instanceof Function;
     };
 
     function concat(threads, f, oks, ohs) {
