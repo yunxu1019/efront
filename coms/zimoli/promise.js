@@ -4,7 +4,7 @@ var setTimeout = window.setTimeout;
 var Function = window.Function;
 var console = window.console;
 var Error = window.Error;
-if (!window.Promise) {
+if (window.Promise) {
     var Promise = window.Promise;
 } else {
     var isPromise = function (pendding) {
