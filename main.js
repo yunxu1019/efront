@@ -25,47 +25,53 @@ var isDocsCommand = configs.doc || configs.docs;
 var isDemoCommand = configs.demo || configs.zimoli;
 var loadModule = process.argv.slice(2).filter(e => /\/|_test$|\.[tj]sx?$/i.test(e));
 var isStartCommand = configs.start || configs.run;
-if (isHelpMode) {
-    console.log("these commands can be used: test server public init watch");
-} else if (isDocsCommand) {
-    setenv({
-        public_path: path.join(__dirname, "apps"),
-        coms_path: path.join(__dirname, "coms"),
-        page_path: path.join(__dirname, "apps"),
-        app: "docs"
-    });
-    require("./process/setupenv");
-    require("./server/main");
-} else if (isDemoCommand) {
-    setenv({
-        public_path: path.join(__dirname, "apps"),
-        page_path: path.join(__dirname, "apps"),
-        coms_path: path.join(__dirname, "coms"),
-        app: "zimoli"
-    });
-    require("./process/setupenv");
-    require("./server/main");
-} else if (isTestMode) {
-    require("./tester/main");
-} else if (isServerMode) {
-    require("./server/index");
-} else if (isPublicMode) {
-    require("./tools/build");
-} else if (isInitCommand) {
-    require("./tools/create");
-} else if (isWatchMode) {
-    require("./tools/watch");
-} else if (loadModule.length > 0) {
-    require("./process/efront")(loadModule[0]);
-} else if (isStartCommand) {
-    require("./process/setupenv");
-    require("./server/main");
-} else {
-    var fullpath = process.cwd();
-    setenv({
-        public_path: path.dirname(fullpath),
-        app: path.basename(fullpath)
-    });
-    require("./process/setupenv");
-    require("./server/main");
+try {
+
+    if (isHelpMode) {
+        console.log("these commands can be used: test server public init watch");
+    } else if (isDocsCommand) {
+        setenv({
+            public_path: path.join(__dirname, "apps"),
+            coms_path: path.join(__dirname, "coms"),
+            page_path: path.join(__dirname, "apps"),
+            app: "docs"
+        });
+        require("./process/setupenv");
+        require("./server/main");
+    } else if (isDemoCommand) {
+        setenv({
+            public_path: path.join(__dirname, "apps"),
+            page_path: path.join(__dirname, "apps"),
+            coms_path: path.join(__dirname, "coms"),
+            app: "zimoli"
+        });
+        require("./process/setupenv");
+        require("./server/main");
+    } else if (isTestMode) {
+        require("./tester/main");
+    } else if (isServerMode) {
+        require("./server/index");
+    } else if (isPublicMode) {
+        require("./tools/build");
+    } else if (isInitCommand) {
+        require("./tools/create");
+    } else if (isWatchMode) {
+        require("./tools/watch");
+    } else if (loadModule.length > 0) {
+        require("./process/efront")(loadModule[0]);
+    } else if (isStartCommand) {
+        require("./process/setupenv");
+        require("./server/main");
+    } else {
+        var fullpath = process.cwd();
+        setenv({
+            public_path: path.dirname(fullpath),
+            app: path.basename(fullpath)
+        });
+        require("./process/setupenv");
+        require("./server/main");
+    }
+} catch (e) {
+    console.error(e);
+    process.exit(1);
 }
