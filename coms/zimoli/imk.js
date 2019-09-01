@@ -9,8 +9,8 @@ on("mouseenter")(page, function () {
         var { layerX: x, layerY: y } = event;
         var dx = x - r;
         var dy = y - r;
-        page.style.borderRadius = [-dx * r - dy * r, dx * r + dy * r, dx * r + dy * r, -dx * r + dy * r]
-            .map(a => Math.abs(r - a / r).toFixed(2)).map(a => Math.max(a, 2) + "px").join(" ")
+        page.style.borderRadius = [-dx - dy, dx + dy, dx + dy, -dx + dy]
+            .map(a => Math.abs(r - a).toFixed(2)).map(a => Math.max(a, 2) + "px").join(" ")
     });
     var offmouseleave = on('mouseleave')(page, function (event) {
         page.style.transition = "";
