@@ -62,6 +62,8 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         is_commponent_package = true;
         var toComponent = require("./toComponent");
+        process.env.IN_TEST_MODE = 1;
+        require("../../process/compile/variables").computed = true;
         return loadData([path.join(__dirname, "../../coms", "zimoli/[]map.js"), public_app], 0, public_path)
             .then(toComponent)
             .then(function (response) {

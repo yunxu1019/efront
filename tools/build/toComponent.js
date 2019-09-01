@@ -7,6 +7,7 @@ function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
     delete responseTree["[]map"];
     var result = [];
+    var crypt_code = new Date / 1000 ^ Math.random() * 3600;
     for (var k in responseTree) {
         var response = responseTree[k];
         var dependence = response.dependence;
@@ -23,6 +24,7 @@ function toComponent(responseTree) {
 
     var $$_efront_map_string_key = "$$__efront_const";
     var getEfrontKey = function (k, type) {
+        k = String(k);
         var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
         var $key = $$_efront_map_string_key + "_" + type + "_" + key;
         if (!destMap[$key]) {
@@ -31,10 +33,33 @@ function toComponent(responseTree) {
         }
         return $key;
     };
+    var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call".split(",");
+    var encoded = true;
+
+    var encode = function (source) {
+        if (!encoded) return source;
+        source = eval(source);
+        if (!~strings.indexOf(source)) {
+            var temp = source.split('').reverse();
+            for (var cx = 0, dx = temp.length; cx < dx; cx++) {
+                var t = temp[cx].charCodeAt(0);
+                if (t > 39 && t < 127) {
+                    t = ((crypt_code - t) % 87) + 40;
+                } else if (t >= 0x1000) {
+                    t = (crypt_code & 0xff) ^ t;
+                }
+                temp[cx] = t;
+            }
+            temp = String.fromCharCode.apply(String, temp);
+            if (!~strings.indexOf(temp)) source = temp;
+        }
+        source = JSON.stringify(source).replace(/[\u1000-\uffff]/g, a => "\\u" + a.charCodeAt(0).toString(16));
+        return source;
+    };
+
     var saveCode = function (module_body, k) {
         var this_module_params = {};
         var setMatchedConstString = function (match, type, k, isProp) {
-
             if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
             if (k.length < 3) return match;
             switch (type) {
@@ -48,6 +73,7 @@ function toComponent(responseTree) {
                     k = "\"" + k + "\"";
                     break;
             }
+            k = encode(k);
             var $key = getEfrontKey(k, 'string');
 
             if (!this_module_params[$key]) {
@@ -65,7 +91,7 @@ function toComponent(responseTree) {
                 module_body.splice(module_body.length - 1, 0, $key);
             }
             return type + " " + $key + " ";
-        }
+        };
         var module_string = module_body[module_body.length - 1];
         var code_blocks = scanner(module_string);
         var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{}]/gy;
@@ -91,6 +117,7 @@ function toComponent(responseTree) {
             }
             return module_string.slice(block.start, block.end);
         }).join("").replace(/(\.)\s*((?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_a-z\u0100-\u2027\u2030-\uffff])(?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_\w\u0100-\u2027\u2030-\uffff])*)/ig, setMatchedConstString);
+
         module_string = typescript.transpile(module_string);
         var module_code = esprima.parse(`function ${k.replace(/^.*?([\$_a-z]\w*)\.[tj]sx?$/ig, "$1")}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
         module_code = esmangle.optimize(module_code, null);
@@ -109,19 +136,16 @@ function toComponent(responseTree) {
         destMap[k] = dest.length;
     };
     saveCode([String(array_map.data)], "map");
-
-    var strings = "map,slice,length,split,concat,exec";
     var freg = /^function[^\(]*?\(([^\)]+?)\)/;
-    strings.split(",").map(function (str) {
+    strings.map(function (str) {
         return getEfrontKey(`"${str}"`, "string");
     }).concat(
         getEfrontKey("/" + freg.source + "/", "regexp")
     );
-    ['Array'].forEach(function (str) {
-        if (!destMap[str]) {
-            dest.push(str);
-            destMap[str] = dest.length;
-        }
+    var $charCodeAt = 'charCodeAt'.split("").reverse().map(a => `"${a}"`);
+    var $fromCharCode = 'fromCharCode'.split("").reverse().map(a => `"${a}"`);
+    ['Array', 'String', crypt_code].concat($charCodeAt, $fromCharCode).forEach(function (str) {
+        getEfrontKey(str, 'global');
     });
 
     while (result.length) {
@@ -144,18 +168,47 @@ function toComponent(responseTree) {
         if (last_result_length === result.length) throw new Error(`处理失败！`);
         last_result_length = result.length;
     }
+
     var PUBLIC_APP = k;
+    console.log(destMap[getEfrontKey('"call"',"string")]);
+
     var realize = `function (a, c,s) {
-        if (!(a instanceof s[${destMap['Array'] - 1}])) return this[c + 1] = a;
-        var t = this,
+        var x=s[${destMap[getEfrontKey(`"indexOf"`, "string")] - 1}],
         m=s[${destMap[getEfrontKey(`"length"`, "string")] - 1}],
         n=s[${destMap[getEfrontKey(`"slice"`, "string")] - 1}],
-        p=s[${destMap[getEfrontKey(`"map"`, "string")] - 1}],
-        r=s[${destMap[getEfrontKey(`/${freg.source}/`, 'regexp')] - 1}],
         e=s[${destMap[getEfrontKey(`"exec"`, "string")] - 1}],
         q=s[${destMap[getEfrontKey(`"split"`, "string")] - 1}],
         o=s[${destMap[getEfrontKey(`"concat"`, "string")] - 1}],
         y=s[${destMap[getEfrontKey(`"apply"`, "string")] - 1}],
+        v=s[${destMap[getEfrontKey(`"reverse"`, "string")] - 1}],
+        z=s[${destMap[getEfrontKey(`"string"`, "string")] - 1}],
+        w=s[${destMap[getEfrontKey(`"join"`, "string")] - 1}],
+        u,p=[x,m,n,q,o,y,e,v,z,w,s[${destMap[getEfrontKey(`"call"`, "string") ]- 1}]],
+        h=s[${destMap[getEfrontKey(crypt_code, 'global')] - 1}],
+        j=s[${destMap[getEfrontKey('String', 'global')] - 1}],
+        $=[${$fromCharCode.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}],
+        _=[${$charCodeAt.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}][v]()[w]('');
+        if (!(a instanceof s[${destMap[getEfrontKey('Array', 'global')] - 1}])){${
+        encoded ? `
+            if(typeof a===z&&!~p[x](a)){
+                    u=a[q]('')[v]();
+                    for(i=0,k=u[m];i<k;i++){
+                        t=u[i][_](0);
+                        if(t>39&&t<127){
+                            t=((h-t)%87)+40;
+                        }else if(t>=4096){
+                            t=(h&255)^t;
+                        }
+                        u[i]=t;
+                    }
+                    u=j[$[v]()[w]('')][y](j,u);
+                    if(!~p[x](u))a=u;
+                }`: ''
+        }
+            return this[c + 1] = a;
+        }
+        var t = this,
+        r=s[${destMap[getEfrontKey(`/${freg.source}/`, 'regexp')] - 1}],
         g =[],i=0,k=a[m]-1, f = a[k],l = r[e](f);
         for(;i<k;i++)g[i]=t[a[i]];
         if (l) {

@@ -95,27 +95,36 @@ function getTranspile(url) {
     return transpile;
 }
 
-function transpile(data, trans) {
-    if (data instanceof Array) {
-        return data.map(a => transpile(a, trans));
+function transpile(src, trans) {
+    if (src instanceof Array) {
+        return src.map(a => transpile(a, trans));
     }
-    data = extend({}, data);
+    data = extend({}, src);
     for (var k in trans) {
         var v = trans[k];
-        if (v in data && !(k in data)) {
-            data[k] = data[v];
-            delete data[v];
+        if (!(k in data)) {
+            if (v in data) {
+                data[k] = data[v];
+                delete data[v];
+            } else {
+                data[k] = seek(src, v);
+            }
         }
     }
     return data;
 }
 
 function seek(data, seeker) {
-    seeker && seeker.split(".").forEach(function (key) {
-        if (data !== null && data !== undefined && key in data) {
-            data = data[key];
-        }
-    });
+    if (data && data.querySelector) {
+        return seeker ? data : data.querySelector(seeker);
+    }
+    if (seeker) {
+        seeker.split(".").forEach(function (key) {
+            if (data !== null && data !== undefined && key in data) {
+                data = data[key];
+            }
+        });
+    }
     return data;
 }
 
@@ -145,8 +154,35 @@ function parseConfig(api) {
         required
     };
 }
+
+var parseData = function (sourceText) {
+    if (/^\s*([\{\[]|"|true|\d|false|null)/.test(sourceText)) {
+        return JSON.parse(sourceText);
+    } else {
+        var doc = document.implementation.createHTMLDocument("");
+        if (/^<!doctype/i.test(sourceText)) {
+            doc.documentElement.innerHTML = sourceText;
+        } else {
+            doc.body.innerHTML = sourceText;
+        }
+        return doc;
+    }
+}
 function isEmptyParam(param) {
     return param === null || param === undefined || param === '' || typeof param === 'number' && !isFinite(param);
+}
+function fixApi(api, href) {
+    if (!reg.test(api.url)) {
+        if (href) {
+            if (api.url === '.') {
+                api.url = href;
+            } else {
+                api.url = href + api.url;
+            }
+        }
+    }
+    api.method = api.method.toLowerCase();
+
 }
 function createApiMap(data) {
     const reg = /^(https?\:\/\/|\.?\/)/i;
@@ -154,16 +190,7 @@ function createApiMap(data) {
     var hasOwnProperty = {}.hasOwnProperty;
     var href;
     function checkApi(api) {
-        if (!reg.test(api.url)) {
-            if (reg.test(href)) {
-                if (api.url === '.') {
-                    api.url = href;
-                } else {
-                    api.url = href + api.url;
-                }
-            }
-        }
-        api.method = api.method.toLowerCase();
+        fixApi(api, href);
         if (hasOwnProperty.call(apiMap, api.id)) {
             const lastApi = apiMap[api.id];
             console.warn(`多次设置的id相同的api:%c${api.id}`, 'color:red');
@@ -176,7 +203,7 @@ function createApiMap(data) {
     for (var key in items1) {
         var [base] = key.split(/\s+/).filter(a => reg.test(a));
         if (!base) continue;
-        href = base;
+        href = /(https?\:)?|\.?\//i.test(base) ? base : '';
         var item1 = items1[key];
         var items = Object.keys(item1).map(function (k1) {
             return k1 + " " + item1[k1];
@@ -216,13 +243,16 @@ var privates = {
         method = method.toLowerCase();
         return new Promise(function (ok, oh) {
             cross(method, url).send(params).done(e => ok(
-                transpile(seek(JSON.parse(e.response || e.responseText), seeker), getTranspile(url)))
+                transpile(seek(parseData(e.response || e.responseText), seeker), getTranspile(url)))
             ).error(oh);
         });
     },
 
     getConfigPromise() {
         if (!configPormise) {
+            if (!_configfileurl) {
+                throw new Error("没有指定配置文件的路径，请使用data.loadConfig加载配置");
+            }
             configPormise = this.loadIgnoreConfig('get', _configfileurl)
                 .then(createApiMap);
         }
@@ -245,6 +275,9 @@ var data = {
             this.setInstance(url, data);
         });
         return this.getInstance(url);
+    },
+    from(config) {
+
     },
     asyncInstance(id, params, parser) {
         privates.loadAfterConfig(id, params).then((data) => {

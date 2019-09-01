@@ -94,14 +94,16 @@ var getVariables = function (ast) {
                 } = getVariables(ast.object);
                 if (ast.property.type === "Identifier") {
                     //用以兼容IE5-9
-                    var name = ast.property.name
-                    if (name in ieSpecialWords) {
-                        ast.property = {
-                            "type": "Literal",
-                            "value": name,
-                            "raw": "\"" + name + "\""
-                        };
-                        ast.computed = true;
+                    if (!ast.computed) {
+                        var name = ast.property.name
+                        if (name in ieSpecialWords || getVariables.computed) {
+                            ast.property = {
+                                "type": "Literal",
+                                "value": name,
+                                "raw": JSON.stringify(name)
+                            };
+                            ast.computed = true;
+                        }
                     }
                 } else {
                     var {
@@ -118,15 +120,17 @@ var getVariables = function (ast) {
                     unDeclaredVariables
                 } = getVariables(ast.value);
                 if (ast.key.type === "Identifier") {
-                    //用以兼容IE5-9
-                    var name = ast.key.name;
-                    if (name in ieSpecialWords) {
-                        ast.key = {
-                            "type": "Literal",
-                            "value": name,
-                            "raw": "\"" + name + "\""
+                    if (!ast.key.computed) {
+                        //用以兼容IE5-9
+                        var name = ast.key.name;
+                        if (name in ieSpecialWords || getVariables.computed) {
+                            ast.key = {
+                                "type": "Literal",
+                                "value": name,
+                                "raw": JSON.stringify(name)
+                            }
+                            if (getVariables.computed) ast.computed = true;
                         }
-                        // ast.computed = true;
                     }
                 }
                 ast.shorthand = false; //让esmangle兼容shorthand
