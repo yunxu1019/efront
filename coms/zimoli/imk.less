@@ -1,0 +1,23 @@
+& {
+    position     : absolute;
+    position     : fixed;
+    width        : 20px;
+    height       : 20px;
+    background   : red;
+    border-radius: 50%;
+    color        : white;
+    top          : 0;
+    right        : 0;
+    z-index      : 805306367;
+    transition   : border-radius .2s ease;
+
+    &:hover {
+        transform : scale(1);
+        box-shadow: 0 0 12px -3px rgba(0, 0, 0, .3);
+    }
+
+    &:active {
+        transform : scale(.9);
+        box-shadow: 0 0 12px -3px rgba(0, 0, 0, .6);
+    }
+}
