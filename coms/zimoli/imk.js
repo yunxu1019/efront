@@ -10,7 +10,7 @@ on("mouseenter")(page, function () {
         var dx = x - r;
         var dy = y - r;
         page.style.borderRadius = [-dx - dy, dx + dy, dx + dy, -dx + dy]
-            .map(a => Math.abs(r - a).toFixed(2)).map(a => Math.max(a, 2) + "px").join(" ")
+            .map(a => Math.abs(r - a).toFixed(2)).map(a => fromOffset(Math.max(a, 2))).join(" ")
     });
     var offmouseleave = on('mouseleave')(page, function (event) {
         page.style.transition = "";
