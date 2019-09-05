@@ -6,7 +6,14 @@ function release(node) {
     if (node === null || node === undefined) return node;
     return isFunction(node) ? node() : isNode(node) ? node : document.createTextNode(node);
 }
-
+function isMounted(parent) {
+    if ("isMounted" in parent) return parent.isMounted;
+    var temp = parent;
+    while (temp && temp !== document.documentElement) {
+        temp = temp.parentNode;
+    }
+    return parent.isMounted = !!temp;
+}
 function _onappend(node, event) {
     if (node.isMounted) return;
     if (node.nodeType === 1 || node.nodeType === 8) node.isMounted = true;
@@ -28,8 +35,6 @@ function _onappend(node, event) {
         _onappend(children[cx], event);
     }
 }
-if (!document.body) once('load')(window, () => _onappend(document.documentElement));
-else _onappend(document.documentElement);
 function appendChild(parent, obj, transition) {
     if (transition === false) {
         var children = [].concat(obj);
@@ -54,8 +59,7 @@ function appendChild(parent, obj, transition) {
                 _appendChild.call(parent, o);
             }
             o.with && appendChild(parent, o.with, transition);
-            if (parent.isMounted)
-                _onappend(o);
+            if (isMounted(parent)) _onappend(o);
         }
     }
     return parent;
@@ -73,8 +77,7 @@ function insertBefore(alreadyMounted, obj, transition) {
         if (o.removeTimer) clearTimeout(o.removeTimer);
         _insertBefore.call(parent, o, alreadyMounted);
         o.with && insertBefore(alreadyMounted, o.with, transition);
-        if (parent.isMounted)
-            _onappend(o);
+        if (isMounted(parent)) _onappend(o);
         if (o.initialStyle && transition !== false) {
             isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
         }
@@ -94,7 +97,7 @@ function insertAfter(alreadyMounted, obj, transition) {
         if (o.removeTimer) clearTimeout(o.removeTimer);
         _insertBefore.call(parent, o, alreadyMounted.nextSibling);
         o.with && insertBefore(alreadyMounted.nextSibling, o.with, transition);
-        if (parent.isMounted)
+        if (isMounted(parent))
             _onappend(o);
         if (o.initialStyle && transition !== false) {
             isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
