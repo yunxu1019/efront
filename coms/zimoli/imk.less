@@ -1,23 +1,57 @@
-& {
+&.closed imk {
+    background  : red;
+    border-color: red;
+}
+
+imk {
     position     : absolute;
     position     : fixed;
     width        : 20px;
     height       : 20px;
-    background   : red;
     border-radius: 50%;
-    color        : white;
     top          : 0;
     right        : 0;
     z-index      : 805306367;
     transition   : border-radius .2s ease;
+    display      : block;
+    background   : white;
+    border       : 0 solid white;
 
     &:hover {
         transform : scale(1);
+        background: transparent;
         box-shadow: 0 0 12px -3px rgba(0, 0, 0, .3);
     }
 
-    &:active {
-        transform : scale(.9);
-        box-shadow: 0 0 12px -3px rgba(0, 0, 0, .6);
+
+
+    &.active {
+        transition  : border .7s ease-out !important;
+        transform   : scale(.9);
+        box-shadow  : 0 0 12px -3px rgba(0, 0, 0, .6);
+        border-width: 0 !important;
+
     }
+}
+
+
+& {
+    position  : absolute;
+    left      : 0;
+    right     : 0;
+    bottom    : 0;
+    top       : 0;
+    width     : auto;
+    height    : auto;
+    background: #283f58;
+}
+
+&:not(.closed)+body {
+    transform  : scale(.9) translate(0, -100%);
+}
+
+&+body {
+    transition: transform .2s ease;
+    position  : relative;
+    background: inherit;
 }
