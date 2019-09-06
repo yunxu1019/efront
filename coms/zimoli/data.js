@@ -48,6 +48,7 @@ function encodeStructure(array) {
 }
 const pagePathName = location.pathname;
 const instanceDataMap = {};
+const cachedLoadingPromise = {};
 const formulaters = {
     'string'(formulate, data) {
         if (data instanceof Array) {
@@ -116,7 +117,21 @@ function transpile(src, trans) {
 
 function seek(data, seeker) {
     if (data && data.querySelector) {
-        return seeker ? data : data.querySelector(seeker);
+        if (!seeker) return data;
+        var reg = /^(\[\]|,)|(\[\]|,)$/g;
+        if (reg.test(seeker)) {
+            return [].concat.apply([], data.querySelectorAll(seeker.replace(reg, '')));
+        }
+        var reg = /[\|\?\!\/]/;
+        if (reg.test(seeker)) {
+            var [selector, prop] = seeker.split(reg);
+        } else {
+            var selector = seeker;
+        }
+        if (selector) {
+            data = data.querySelector(selector);
+        }
+        return prop ? data.getAttribute(prop) || data[prop] : data;
     }
     if (seeker) {
         seeker.split(".").forEach(function (key) {
@@ -158,15 +173,14 @@ function parseConfig(api) {
 var parseData = function (sourceText) {
     if (/^\s*([\{\[]|"|true|\d|false|null)/.test(sourceText)) {
         return JSON.parse(sourceText);
-    } else {
-        var doc = document.implementation.createHTMLDocument("");
-        if (/^<!doctype/i.test(sourceText)) {
-            doc.documentElement.innerHTML = sourceText;
-        } else {
-            doc.body.innerHTML = sourceText;
-        }
-        return doc;
     }
+    var doc = document.implementation.createHTMLDocument("");
+    if (/^<!doctype/i.test(sourceText)) {
+        doc.documentElement.innerHTML = sourceText;
+    } else {
+        doc.body.innerHTML = sourceText;
+    }
+    return doc;
 }
 function isEmptyParam(param) {
     return param === null || param === undefined || param === '' || typeof param === 'number' && !isFinite(param);
@@ -174,8 +188,8 @@ function isEmptyParam(param) {
 function fixApi(api, href) {
     if (!reg.test(api.url)) {
         if (href) {
-            if (api.url === '.') {
-                api.url = href;
+            if (/^\.([\?\#][\s\S]*)?$/.test(api.url)) {
+                api.url = href + api.url.replace(/^\./, "");
             } else {
                 api.url = href + api.url;
             }
@@ -184,8 +198,8 @@ function fixApi(api, href) {
     api.method = api.method.toLowerCase();
 
 }
+const reg = /^(https?\:\/\/|\.?\/)/i;
 function createApiMap(data) {
-    const reg = /^(https?\:\/\/|\.?\/)/i;
     const apiMap = {};
     var hasOwnProperty = {}.hasOwnProperty;
     var href;
@@ -239,12 +253,29 @@ var privates = {
         });
     },
     loadIgnoreConfig(method, url, params) {
-        var [method, seeker] = method.split(":");
-        method = method.toLowerCase();
-        return new Promise(function (ok, oh) {
-            cross(method, url).send(params).done(e => ok(
-                transpile(seek(parseData(e.response || e.responseText), seeker), getTranspile(url)))
-            ).error(oh);
+        var spliterIndex = /[\:\|\/\~\!\?]/.exec(method);
+        if (spliterIndex) spliterIndex = spliterIndex.index;
+        else spliterIndex = method.length;
+        var realmethod = method.slice(0, spliterIndex).toLowerCase();
+        var uri = url.replace(/#[\s\S]*$/, "");
+        if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
+        var id = realmethod + " " + uri.replace(/\?[\s\S]*$/, "");
+        var promise = cachedLoadingPromise[id];
+        var temp = JSON.stringify(params);
+        var currentTime = +new Date;
+        if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
+            var promise = new Promise(function (ok, oh) {
+                cross(realmethod, uri).send(params).done(e => {
+                    ok(e.response || e.responseText)
+                }).error(oh);
+            });
+            promise.search = search;
+            promise.params = temp;
+            promise.time = currentTime;
+            cachedLoadingPromise[id] = promise;
+        }
+        return promise.then(function (response) {
+            return transpile(seek(parseData(response), method.slice(spliterIndex + 1)), getTranspile(url));
         });
     },
 
