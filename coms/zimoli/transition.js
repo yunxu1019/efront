@@ -48,7 +48,7 @@ function transition(target, initialStyle, isLeave) {
                 return function () {
                     target.style.transition = transition;
                 };
-            }(recoverStyle.transition), transitionDuration);
+            }(recoverStyle.transition || ''), transitionDuration);
         }
         target.transitionTimerStart = transitionTimerStart;
         target.transitionTimerEnd = transitionTimerEnd;
