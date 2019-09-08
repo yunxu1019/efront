@@ -37,7 +37,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     });
     var frame = createElement("iframe");
     css(frame, "display:none");
-    appendChild(body, frame);
+    appendChild.insert(body, frame);
     var doc = frame.contentWindow.document;
     var backman = function (isloaded) {
         doc.open();
@@ -443,18 +443,18 @@ function addGlobal(element, name = null, isDestroy) {
             body.layer(element, oldElement, history);
         } else {
             remove(oldElement);
-            appendChild(body, element);
+            appendChild.insert(body, element);
         }
         global[name] = element;
     } else if (isNode(name)) {
-        appendChild(name, element);
+        appendChild.insert(name, element);
     } else if (isFunction(name)) {
         name(element);
     } else if (element) {
         if (isFunction(body.layer)) {
             body.layer(element);
         } else {
-            appendChild(body, element);
+            appendChild.insert(body, element);
         }
         rootElements.push(element);
     }
