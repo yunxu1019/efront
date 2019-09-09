@@ -443,18 +443,21 @@ function addGlobal(element, name = null, isDestroy) {
             body.layer(element, oldElement, history);
         } else {
             remove(oldElement);
-            appendChild.insert(body, element);
+            if (isDestroy) appendChild.insert(body, element);
+            else appendChild(body, element);
         }
         global[name] = element;
     } else if (isNode(name)) {
-        appendChild.insert(name, element);
+        if (isDestroy) appendChild.insert(name, element);
+        else appendChild(name, element);
     } else if (isFunction(name)) {
         name(element);
     } else if (element) {
         if (isFunction(body.layer)) {
             body.layer(element);
         } else {
-            appendChild.insert(body, element);
+            if (isDestroy) appendChild.insert(body, element);
+            else appendChild(body, element);
         }
         rootElements.push(element);
     }
