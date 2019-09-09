@@ -10,30 +10,22 @@ var createItem = function (img_src, str) {
     appendChild(item, image, label);
     return item;
 };
-cross("get", "http://m.kugou.com/plist/index").done(function (xhr) {
-    var bodyHTML = String(xhr.responseText || xhr.responseText || "").replace(RegBodyExp, "$1").replace(RegScriptExp, "").replace(/\son/ig, " no").replace(/\s(src|href)/g, " s$1");
-    var sandbox = createElement(div);
-    sandbox.innerHTML = bodyHTML;
-    var items = [].map.call(sandbox.querySelector(".panel-img-list").children, function (child) {
-        var anchor = child.children[0];
-        var href = anchor.getAttribute("shref");
-        var img_src = anchor.getElementsByTagName("img")[0].getAttribute("_src");
-        var text = anchor.getElementsByTagName("p")[0].innerText.replace(/^\s*|\s*$/g, "");
+data.asyncInstance("plist-index").loading_promise.then(function (data) {
+    var items = data.map(d => {
         var item = createItem(
-            img_src,
-            text
+            d.src,
+            d.name
         );
         onclick(item, function () {
             go("detail", {
-                _text: text,
-                href
+                _text: d.name,
+                href: d.href
             });
         });
         return item;
     });
     appendChild(page, items);
 });
-text(page);
 function main() {
     return page;
 }

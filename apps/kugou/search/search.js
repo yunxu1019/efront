@@ -4,6 +4,7 @@ var inputBox = createWithClass(div, "input-box");
 var textInput = createWithClass(input, "input");
 appendChild(inputBox, textInput);
 var page = createVboxWithState(state);
+page.initialStyle='margin-left:100%';
 appendChild(page, inputBox);
 var hot_keywords = [/*热搜*/], history_keywords = state().keywords || [];
 var keywords_pad = createWithClass(div, "keyword-pad");
