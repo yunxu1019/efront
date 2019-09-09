@@ -118,6 +118,7 @@ function transpile(src, trans) {
 function seek(data, seeker) {
     if (data && data.querySelector) {
         if (!seeker) return data;
+        seeker = unescape(seeker);
         var reg = /^(\[\]|,)|(\[\]|,)$/g;
         if (reg.test(seeker)) {
             return [].concat.apply([], data.querySelectorAll(seeker.replace(reg, '')));
