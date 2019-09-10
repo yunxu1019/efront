@@ -132,7 +132,14 @@ function seek(data, seeker) {
         if (selector) {
             data = data.querySelector(selector);
         }
-        return prop ? data.getAttribute(prop) || data[prop] : data;
+        if (data && prop) {
+            data = data.getAttribute(prop) || data[prop];
+            if (isString(data) && /\|/.test(seeker)) {
+                data = data.trim();
+            }
+            return data;
+        }
+        return data;
     }
     if (seeker) {
         seeker.split(".").forEach(function (key) {
@@ -312,10 +319,12 @@ var data = {
 
     },
     asyncInstance(id, params, parser) {
-        privates.loadAfterConfig(id, params).then((data) => {
+        var data = this.getInstance(id);
+        data.loading_promise = privates.loadAfterConfig(id, params).then((data) => {
             this.setInstance(id, data);
+            return data;
         });
-        return this.getInstance(id);
+        return data;
     },
     /**
      * 返回一个延长生命周期的内存对象
