@@ -21,14 +21,16 @@ var setupData = [
     `if not defined app set app=${appname}`,
 ].join("\r\n");
 setupData = Buffer.from(setupData);
-fs.writeFileSync(path.join("_envs", "setup.bat"), setupData);
-var hasindex = false;
-fs.readdirSync(path.join(__dirname, "../apps/zimoli")).map(function (name) {
-    hasindex = hasindex || /^index.html$/i.test(name);
-    copy(path.join(__dirname, "../apps/zimoli/", name), path.join(PAGE_PATH, `${appname}`, name));
-});
-if (!hasindex) copy(path.join(__dirname, "../apps/index.html"), path.join(PAGE_PATH, `${appname}/index.html`));
-
+function from(srcname = 'kugou') {
+    fs.writeFileSync(path.join("_envs", "setup.bat"), setupData);
+    var hasindex = false;
+    fs.readdirSync(path.join(__dirname, `../apps/${srcname}`)).map(function (name) {
+        hasindex = hasindex || /^index.html$/i.test(name);
+        copy(path.join(__dirname, `../apps/${srcname}/`, name), path.join(PAGE_PATH, `${appname}`, name));
+    });
+    if (!hasindex) copy(path.join(__dirname, "../apps/index.html"), path.join(PAGE_PATH, `${appname}/index.html`));
+}
+module.exports = from;
 function copy(path1, path2) {
     fs.exists(path2, function (exists) {
         if (exists) console.error(`目标路径已存在：${path2}`);
