@@ -100,7 +100,7 @@ function transpile(src, trans) {
     if (src instanceof Array) {
         return src.map(a => transpile(a, trans));
     }
-    data = extend({}, src);
+    data = extend({}, src && src.querySelector ? null : src);
     for (var k in trans) {
         var v = trans[k];
         if (!(k in data)) {
