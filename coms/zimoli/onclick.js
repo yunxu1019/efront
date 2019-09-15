@@ -23,6 +23,8 @@ ontouchmove(window, function (event) {
 });
 if (window.addEventListener) {
     window.addEventListener("touchend", function (event) {
+        if (!needFireClick) return;
+        if (event.touches.length > 1) return;
         var target = event.target;
         var touch = event.changedTouches[0];
         var clickEvent = document.createEvent("MouseEvents");
