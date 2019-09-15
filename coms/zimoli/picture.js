@@ -143,6 +143,7 @@ function picture(url, to = 0) {
             },
             move(event) {
                 event.moveLocked = this.locked;
+                event.preventDefault();
                 if (event.touches && saved_event.touches) {
                     if (event.touches.length !== saved_event.touches.length) {
                         saved_event = event;
