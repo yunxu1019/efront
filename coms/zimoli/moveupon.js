@@ -10,6 +10,7 @@ function moveupon(target, { start, move, end }, initialEvent) {
         move instanceof Function && move.call(this, event);
     };
     var cancel = function (event) {
+        if (event.touches && event.touches.length) return;
         offmousemove && offmousemove();
         offmouseup && offmouseup();
         offtouchmove && offtouchmove();
