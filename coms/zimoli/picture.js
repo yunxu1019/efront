@@ -20,7 +20,7 @@ function picture(url, to = 0) {
             image.complete = true;
         }
         if (img.complete) {
-            onload();
+            once("append")(img, onload);
         } else {
             img.onload = onload;
         }
