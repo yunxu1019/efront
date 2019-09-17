@@ -4,9 +4,11 @@ function speed(time_splitter = 1) {
         if (arguments.length) {
             var now = new Date;
             var deltat = now - lastmoveTime;
-            lastmoveTime = now;
-            if (deltay) speed = speed ? (speed + deltay * time_splitter / deltat) / 2 : deltay * time_splitter / deltat;
-            else if (deltay === 0) speed = 0;
+            if (deltat) {
+                lastmoveTime = now;
+                if (deltay) speed = speed ? (speed + deltay * time_splitter / deltat) / 2 : deltay * time_splitter / deltat;
+                else if (deltay === 0) speed = 0;
+            }
         }
         return speed;
     };

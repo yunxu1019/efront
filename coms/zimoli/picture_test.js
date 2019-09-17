@@ -1,6 +1,6 @@
 function picture_test() {
     var p = picture([
-        "zimoli/images/avatar.png",
+        "/docs/images/cat.jpg",
         "zimoli/images/avatar.png",
         "zimoli/images/avatar.png",
         "zimoli/images/avatar.png",

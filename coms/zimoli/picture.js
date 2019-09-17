@@ -18,7 +18,7 @@ function picture(url, to = 0) {
             loaded_x = x;
             loaded_y = y;
             image.complete = true;
-        }
+        };
         if (img.complete) {
             once("append")(img, onload);
         } else {
@@ -64,12 +64,12 @@ function picture(url, to = 0) {
                 backgroundSize: [image.width * scaled + "px", image.height * scaled + "px"].join(" ")
             };
         };
-        var scale = function (layerx, layery, scale = 1) {
+        var scale = function (layerx, layery) {
             if (!image.locked) return;
-            var ratio = scale / scaled;
-            x = layerx - (layerx - image.offsetWidth / 2 + image.width / 2 * scaled) * ratio;
-            y = layery - (layery - image.offsetHeight / 2 + image.height / 2 * scaled) * ratio;
-            scaled = ratio;
+            scaled = 1;
+            var ratio = scaled / loaded_scale;
+            x = (loaded_x - layerx) * ratio + layerx;
+            y = (loaded_y - layery) * ratio + layery;
             css(image, get_style());
         };
         var touch = function ([x1, y1, x2, y2], [m1, n1, m2, n2]) {
@@ -87,13 +87,33 @@ function picture(url, to = 0) {
             y = (y - centery) * scale + centern;
             css(image, get_style());
         };
-        var move = function (deltax, deltay) {
-            x += deltax, y += deltay;
-            css(image, get_style());
-        };
-        var recover = function () {
+        var get_change = function () {
             var change;
-            if (scaled <= loaded_scale) {
+            var side_x, side_y;
+            side_x = Math.max(0, image.offsetWidth - image.width * scaled) / 2;
+            side_y = Math.max(0, image.offsetHeight - image.height * scaled) / 2;
+            if (x > side_x) {
+                x = (x - side_x) / 2 + side_x;
+                change = true;
+            }
+            if (y > side_y) {
+                y = (y - side_y) / 2 + side_y;
+                change = true;
+            }
+            var min_x = image.offsetWidth - image.width * scaled - side_x;
+            var min_y = image.offsetHeight - image.height * scaled - side_y;
+            if (x < min_x) {
+                x = min_x;
+                change = true;
+            }
+            if (y < min_y) {
+                y = min_y
+                change = true;
+            }
+            return change;
+        };
+        var recover = function (change) {
+            if (scaled <= loaded_scale * 1.2) {
                 scaled = loaded_scale;
                 x = loaded_x;
                 y = loaded_y;
@@ -105,40 +125,33 @@ function picture(url, to = 0) {
                 y = (y - image.offsetHeight / 2) * 2 / scaled + image.offsetHeight / 2;
                 scaled = 2;
             }
-            if (x > loaded_x) {
-                x = loaded_x;
-                change = true;
-            }
-            if (y > loaded_y) {
-                y = loaded_y;
-                change = true;
-            }
-            var min_x = image.offsetWidth - image.width * scaled - loaded_x;
-            var min_y = image.offsetHeight - image.height * scaled - loaded_y;
-            if (x < min_x) {
-                x = min_x;
-                change = true;
-            }
-            if (y < min_y) {
-                y = min_y
-                change = true;
-            }
+            change = get_change() || change;
             if (change) {
                 var a = transition(image, get_style(), true);
-                setTimeout(function () {
-                    if (scaled === loaded_scale) {
+                if (scaled === loaded_scale) {
+                    setTimeout(function () {
                         css(image, get_empty());
                         image.locked = false;
-                    }
-                }, a || 0);
+                    }, a || 0);
+                }
             }
         };
+        var move = inertia(function (deltax, deltay) {
+            x += deltax, y += deltay;
+            css(image, get_style());
+            if (get_change()) return false;
+        });
         var saved_event;
 
         moveupon(image, {
             start(event) {
                 saved_event = event;
                 event.moveLocked = this.locked;
+                if (!this.locked) {
+                    x = loaded_x;
+                    y = loaded_y;
+                }
+                move.reset();
                 // console.log(e);
             },
             move(event) {
@@ -176,7 +189,7 @@ function picture(url, to = 0) {
             },
             end(event) {
                 event.moveLocked = this.locked;
-                if (this.locked) recover();
+                if (this.locked) move.smooth(recover);
             }
         });
         css(image, {
