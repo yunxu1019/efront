@@ -185,5 +185,3 @@ function table(rowsGenerator) {
     );
     return table;
 }
-table.tr = tr;
-table.td = td;
