@@ -14,6 +14,10 @@ var check = function (root) {
         "history": true,
         "Image": true,
         "self": true,
+        "modules": true,
+        "init": true,
+        "put": true,
+        "state": true
     }, needs = {};
     var list = function () {
         Object.keys(needs).filter(k => !map[k]).forEach(function (k) {

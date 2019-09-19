@@ -1,4 +1,4 @@
-it("getIndexFromOrderedArray_test", function () {
+function getIndexFromOrderedArray_test() {
     if (getIndexFromOrderedArray([0, 0, 0], 0) !== 3) {
         throw new Error("expect getIndexFromOrderedArray([0,0,0],0) to be equal 3")
     }
@@ -11,4 +11,4 @@ it("getIndexFromOrderedArray_test", function () {
     if (getIndexFromOrderedArray([1, 2, 3], 2) !== 2) {
         throw new Error("expect getIndexFromOrderedArray([1,2,3],2) to be equal 2")
     }
-});
+}

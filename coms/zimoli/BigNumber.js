@@ -32,17 +32,17 @@ function BigNumber(value) {
             value = String(value);
         case "string":
             value = value.replace(/\s+/, "");
-            if (isNaN(string)) {
+            if (isNaN(value)) {
                 throw new Error("数字格式不正确！");
             }
-            if (/^\-/.test(string)) {
+            if (/^\-/.test(value)) {
                 this.signature = "-";
-                string = string.slice(1);
+                value = value.slice(1);
             } else {
                 this.signature = "";
             }
-            string = string.replace(/^0+/, "").replace(/\.(.*?)0+$/, ".$1");//删除多余的0
-            if (!isFinite(string)) {
+            value = value.replace(/^0+/, "").replace(/\.(.*?)0+$/, ".$1");//删除多余的0
+            if (!isFinite(value)) {
                 this.integter_part = Infinity;
                 this.decimal_part = 0;
             } else {
@@ -81,7 +81,7 @@ extend(prototype, {
             return this.signature + "Infinity";
         }
         else {
-            var integter_part = getIntegerPartFromString(this.integter_part.map(a => getIntegerString(a)).join(""), width).join(spliter);
+            var result = getIntegerPartFromString(this.integter_part.map(a => getIntegerString(a)).join(""), width).join(spliter);
             if (this.decimal_part && this.decimal_part.length) {
                 result += "." + getDecimalPartFromString(this.decimal_part.map(a => getIntegerString(a)).join(""), width).join(spliter);
             }
