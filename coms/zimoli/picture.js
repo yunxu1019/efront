@@ -2,7 +2,7 @@
 function picture(url, to = 0) {
     var urls = [].concat(url);
 
-    images = urls.map(url => {
+    var images = urls.map(url => {
         var image = div();
         var img = new Image;
         img.src = url;
