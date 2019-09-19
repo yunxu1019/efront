@@ -55,7 +55,7 @@ var vectorPlus = function (vector1, vector2) {
 var crossMultiply = function (A, B) {
     var [xa, ya, za] = A;
     var [xb, yb, zb] = B;
-    return [ya * zb - yb * za, za * xb - zb * xa, xa * yb - yz * xb];
+    return [ya * zb - yb * za, za * xb - zb * xa, xa * yb - ya * xb];
 };
 var innerMultiply = function (A, B) {
     var [xa, ya, za] = A;
