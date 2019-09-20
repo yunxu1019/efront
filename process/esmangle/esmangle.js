@@ -50,15 +50,15 @@
         }
       };
     }();
-  require.define('/node_modules/esmangle/lib/esmangle.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/esmangle.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var esshorten, common, Options, Syntax, Pass, annotateDirective;
-      esshorten = require('/node_modules/esshorten/lib/esshorten.js', module);
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      Options = require('/node_modules/esmangle/lib/options.js', module);
-      Pass = require('/node_modules/esmangle/lib/pass.js', module);
-      annotateDirective = require('/node_modules/esmangle/lib/annotate-directive.js', module);
+      esshorten = require('/esshorten/lib/esshorten.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      Options = require('/esmangle/lib/options.js', module);
+      Pass = require('/esmangle/lib/pass.js', module);
+      annotateDirective = require('/esmangle/lib/annotate-directive.js', module);
       Syntax = common.Syntax;
       function recover(tree, useDirectiveStatement) {
         function trailingIf(node) {
@@ -174,13 +174,13 @@
         }
         return recover(tree, options.get('directive'));
       }
-      exports.version = require('/node_modules/esmangle/package.json', module).version;
+      exports.version = require('/esmangle/package.json', module).version;
       exports.mangle = esshorten.mangle;
       exports.optimize = optimize;
       exports.pass = Pass;
     }());
   });
-  require.define('/node_modules/esmangle/package.json', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/package.json', function (module, exports, __dirname, __filename) {
     module.exports = {
       '_from': 'esmangle@latest',
       '_id': 'esmangle@1.0.1',
@@ -264,12 +264,12 @@
       'version': '1.0.1'
     };
   });
-  require.define('/node_modules/esmangle/lib/annotate-directive.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/annotate-directive.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common;
       Name = 'annotate-directive';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function isDirective(stmt) {
         var expr;
@@ -386,13 +386,13 @@
       module.exports = annotateDirective;
     }());
   });
-  require.define('/node_modules/esmangle/lib/common.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/common.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Syntax, isArray, arrayFrom, arrayOf, has, sameValue, estraverse, escope, esutils;
-      estraverse = require('/node_modules/estraverse/estraverse.js', module);
-      escope = require('/node_modules/escope/escope.js', module);
-      esutils = require('/node_modules/esutils/lib/utils.js', module);
+      estraverse = require('/estraverse/estraverse.js', module);
+      escope = require('/escope/escope.js', module);
+      esutils = require('/esutils/lib/utils.js', module);
       Syntax = estraverse.Syntax;
       isArray = Array.isArray;
       if (!isArray) {
@@ -742,17 +742,17 @@
       exports.isScopedDeclaration = isScopedDeclaration;
     }());
   });
-  require.define('/node_modules/esutils/lib/utils.js', function (module, exports, __dirname, __filename) {
+  require.define('/esutils/lib/utils.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
-      exports.code = require('/node_modules/esutils/lib/code.js', module);
-      exports.keyword = require('/node_modules/esutils/lib/keyword.js', module);
+      exports.code = require('/esutils/lib/code.js', module);
+      exports.keyword = require('/esutils/lib/keyword.js', module);
     }());
   });
-  require.define('/node_modules/esutils/lib/keyword.js', function (module, exports, __dirname, __filename) {
+  require.define('/esutils/lib/keyword.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
-      var code = require('/node_modules/esutils/lib/code.js', module);
+      var code = require('/esutils/lib/code.js', module);
       function isStrictModeReservedWordES6(id) {
         switch (id) {
         case 'implements':
@@ -827,7 +827,7 @@
       };
     }());
   });
-  require.define('/node_modules/esutils/lib/code.js', function (module, exports, __dirname, __filename) {
+  require.define('/esutils/lib/code.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Regex;
@@ -885,7 +885,7 @@
       };
     }());
   });
-  require.define('/node_modules/escope/escope.js', function (module, exports, __dirname, __filename) {
+  require.define('/escope/escope.js', function (module, exports, __dirname, __filename) {
     (function (factory, global) {
       'use strict';
       function namespace(str, obj) {
@@ -909,7 +909,7 @@
           factory(exports, global, estraverse);
         });
       } else if (typeof exports !== 'undefined') {
-        factory(exports, global, require('/node_modules/escope/node_modules/estraverse/estraverse.js', module));
+        factory(exports, global, require('/escope/node_modules/estraverse/estraverse.js', module));
       } else {
         factory(namespace('escope', global), global, global.estraverse);
       }
@@ -1575,7 +1575,7 @@
       exports.analyze = analyze;
     }, this));
   });
-  require.define('/node_modules/escope/node_modules/estraverse/estraverse.js', function (module, exports, __dirname, __filename) {
+  require.define('/escope/node_modules/estraverse/estraverse.js', function (module, exports, __dirname, __filename) {
     (function clone(exports) {
       'use strict';
       var Syntax, isArray, VisitorOption, VisitorKeys, objectCreate, objectKeys, BREAK, SKIP, REMOVE;
@@ -2342,7 +2342,7 @@
         });
         return tree;
       }
-      exports.version = require('/node_modules/escope/node_modules/estraverse/package.json', module).version;
+      exports.version = require('/escope/node_modules/estraverse/package.json', module).version;
       exports.Syntax = Syntax;
       exports.traverse = traverse;
       exports.replace = replace;
@@ -2356,7 +2356,7 @@
       return exports;
     }(exports));
   });
-  require.define('/node_modules/escope/node_modules/estraverse/package.json', function (module, exports, __dirname, __filename) {
+  require.define('/escope/node_modules/estraverse/package.json', function (module, exports, __dirname, __filename) {
     module.exports = {
       '_from': 'estraverse@^2.0.0',
       '_id': 'estraverse@2.0.0',
@@ -2420,7 +2420,7 @@
       'version': '2.0.0'
     };
   });
-  require.define('/node_modules/estraverse/estraverse.js', function (module, exports, __dirname, __filename) {
+  require.define('/estraverse/estraverse.js', function (module, exports, __dirname, __filename) {
     (function (root, factory) {
       'use strict';
       if (typeof define === 'function' && define.amd) {
@@ -3037,12 +3037,12 @@
       exports.Controller = Controller;
     }));
   });
-  require.define('/node_modules/esmangle/lib/pass.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var query, Registry, pass, post, common;
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      query = require('/node_modules/esmangle/lib/query.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      query = require('/esmangle/lib/query.js', module);
       Registry = {};
       Registry.__direct = {};
       function initialize(kind, passes) {
@@ -3057,37 +3057,37 @@
         Registry.__direct[pass.passName] = pass;
       }
       pass = [
-        require('/node_modules/esmangle/lib/pass/hoist-variable-to-arguments.js', module),
-        require('/node_modules/esmangle/lib/pass/transform-dynamic-to-static-property-access.js', module),
-        require('/node_modules/esmangle/lib/pass/transform-dynamic-to-static-property-definition.js', module),
-        require('/node_modules/esmangle/lib/pass/transform-immediate-function-call.js', module),
-        require('/node_modules/esmangle/lib/pass/transform-logical-association.js', module),
-        require('/node_modules/esmangle/lib/pass/reordering-function-declarations.js', module),
-        require('/node_modules/esmangle/lib/pass/remove-unused-label.js', module),
-        require('/node_modules/esmangle/lib/pass/remove-empty-statement.js', module),
-        require('/node_modules/esmangle/lib/pass/remove-wasted-blocks.js', module),
-        require('/node_modules/esmangle/lib/pass/transform-to-compound-assignment.js', module),
-        require('/node_modules/esmangle/lib/pass/transform-to-sequence-expression.js', module),
-        require('/node_modules/esmangle/lib/pass/transform-branch-to-expression.js', module),
-        require('/node_modules/esmangle/lib/pass/transform-typeof-undefined.js', module),
-        require('/node_modules/esmangle/lib/pass/reduce-sequence-expression.js', module),
-        require('/node_modules/esmangle/lib/pass/reduce-branch-jump.js', module),
-        require('/node_modules/esmangle/lib/pass/reduce-multiple-if-statements.js', module),
-        require('/node_modules/esmangle/lib/pass/dead-code-elimination.js', module),
-        require('/node_modules/esmangle/lib/pass/remove-side-effect-free-expressions.js', module),
-        require('/node_modules/esmangle/lib/pass/remove-context-sensitive-expressions.js', module),
-        require('/node_modules/esmangle/lib/pass/tree-based-constant-folding.js', module),
-        require('/node_modules/esmangle/lib/pass/concatenate-variable-definition.js', module),
-        require('/node_modules/esmangle/lib/pass/drop-variable-definition.js', module),
-        require('/node_modules/esmangle/lib/pass/remove-unreachable-branch.js', module),
-        require('/node_modules/esmangle/lib/pass/eliminate-duplicate-function-declarations.js', module)
+        require('/esmangle/lib/pass/hoist-variable-to-arguments.js', module),
+        require('/esmangle/lib/pass/transform-dynamic-to-static-property-access.js', module),
+        require('/esmangle/lib/pass/transform-dynamic-to-static-property-definition.js', module),
+        require('/esmangle/lib/pass/transform-immediate-function-call.js', module),
+        require('/esmangle/lib/pass/transform-logical-association.js', module),
+        require('/esmangle/lib/pass/reordering-function-declarations.js', module),
+        require('/esmangle/lib/pass/remove-unused-label.js', module),
+        require('/esmangle/lib/pass/remove-empty-statement.js', module),
+        require('/esmangle/lib/pass/remove-wasted-blocks.js', module),
+        require('/esmangle/lib/pass/transform-to-compound-assignment.js', module),
+        require('/esmangle/lib/pass/transform-to-sequence-expression.js', module),
+        require('/esmangle/lib/pass/transform-branch-to-expression.js', module),
+        require('/esmangle/lib/pass/transform-typeof-undefined.js', module),
+        require('/esmangle/lib/pass/reduce-sequence-expression.js', module),
+        require('/esmangle/lib/pass/reduce-branch-jump.js', module),
+        require('/esmangle/lib/pass/reduce-multiple-if-statements.js', module),
+        require('/esmangle/lib/pass/dead-code-elimination.js', module),
+        require('/esmangle/lib/pass/remove-side-effect-free-expressions.js', module),
+        require('/esmangle/lib/pass/remove-context-sensitive-expressions.js', module),
+        require('/esmangle/lib/pass/tree-based-constant-folding.js', module),
+        require('/esmangle/lib/pass/concatenate-variable-definition.js', module),
+        require('/esmangle/lib/pass/drop-variable-definition.js', module),
+        require('/esmangle/lib/pass/remove-unreachable-branch.js', module),
+        require('/esmangle/lib/pass/eliminate-duplicate-function-declarations.js', module)
       ];
       post = [
-        require('/node_modules/esmangle/lib/post/transform-static-to-dynamic-property-access.js', module),
-        require('/node_modules/esmangle/lib/post/transform-infinity.js', module),
-        require('/node_modules/esmangle/lib/post/rewrite-boolean.js', module),
-        require('/node_modules/esmangle/lib/post/rewrite-conditional-expression.js', module),
-        require('/node_modules/esmangle/lib/post/omit-parens-in-void-context-iife.js', module)
+        require('/esmangle/lib/post/transform-static-to-dynamic-property-access.js', module),
+        require('/esmangle/lib/post/transform-infinity.js', module),
+        require('/esmangle/lib/post/rewrite-boolean.js', module),
+        require('/esmangle/lib/post/rewrite-conditional-expression.js', module),
+        require('/esmangle/lib/post/omit-parens-in-void-context-iife.js', module)
       ];
       initialize('pass', pass);
       initialize('post', post);
@@ -3108,12 +3108,12 @@
       ];
     }());
   });
-  require.define('/node_modules/esmangle/lib/post/omit-parens-in-void-context-iife.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/post/omit-parens-in-void-context-iife.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'omit-parens-in-void-context-iife';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function isIIFE(node) {
         var callee;
@@ -3173,12 +3173,12 @@
       module.exports = main;
     }());
   });
-  require.define('/node_modules/esmangle/lib/post/rewrite-conditional-expression.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/post/rewrite-conditional-expression.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'rewrite-conditional-expression';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function rewrite(node) {
         var test, consequent, alternate;
@@ -3212,12 +3212,12 @@
       module.exports = rewriteConditionalExpression;
     }());
   });
-  require.define('/node_modules/esmangle/lib/post/rewrite-boolean.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/post/rewrite-boolean.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'rewrite-boolean';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function isBooleanLiteral(node) {
         return node.type === Syntax.Literal && typeof node.value === 'boolean';
@@ -3268,12 +3268,12 @@
       module.exports = rewriteBoolean;
     }());
   });
-  require.define('/node_modules/esmangle/lib/post/transform-infinity.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/post/transform-infinity.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common;
       Name = 'transform-infinity';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function transformInfinity(tree, options) {
         var result, modified;
@@ -3309,12 +3309,12 @@
       module.exports = transformInfinity;
     }());
   });
-  require.define('/node_modules/esmangle/lib/post/transform-static-to-dynamic-property-access.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/post/transform-static-to-dynamic-property-access.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common;
       Name = 'transform-static-to-dynamic-property-access';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function transformStaticToDynamicPropertyAccess(tree, options) {
         var result, modified;
@@ -3377,13 +3377,13 @@
       module.exports = transformStaticToDynamicPropertyAccess;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/eliminate-duplicate-function-declarations.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/eliminate-duplicate-function-declarations.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, Map, common, modified;
       Name = 'eliminate-duplicate-function-declarations';
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      Map = require('/node_modules/esmangle/lib/map.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      Map = require('/esmangle/lib/map.js', module);
       Syntax = common.Syntax;
       function unique(map, root) {
         return common.replace(root, {
@@ -3492,7 +3492,7 @@
       module.exports = main;
     }());
   });
-  require.define('/node_modules/esmangle/lib/map.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/map.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Map;
@@ -3569,14 +3569,14 @@
       module.exports = Map;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/remove-unreachable-branch.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/remove-unreachable-branch.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, escope, evaluator, modified;
       Name = 'remove-unreachable-branch';
-      escope = require('/node_modules/escope/escope.js', module);
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      evaluator = require('/node_modules/esmangle/lib/evaluator.js', module);
+      escope = require('/escope/escope.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      evaluator = require('/esmangle/lib/evaluator.js', module);
       Syntax = common.Syntax;
       function handleIfStatement(func, node) {
         var test, body, decl;
@@ -3736,11 +3736,11 @@
       module.exports = removeUnreachableBranch;
     }());
   });
-  require.define('/node_modules/esmangle/lib/evaluator.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/evaluator.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Syntax, common;
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function isConstant(node, allowRegExp) {
         if (node.type === Syntax.Literal) {
@@ -4018,14 +4018,14 @@
       exports.booleanCondition = booleanCondition;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/drop-variable-definition.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/drop-variable-definition.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified, escope, evaluator;
       Name = 'drop-variable-definition';
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      escope = require('/node_modules/escope/escope.js', module);
-      evaluator = require('/node_modules/esmangle/lib/evaluator.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      escope = require('/escope/escope.js', module);
+      evaluator = require('/esmangle/lib/evaluator.js', module);
       Syntax = common.Syntax;
       function getCandidates(scope) {
         var i, iz, j, jz, identifiers, slots, v;
@@ -4184,12 +4184,12 @@
       module.exports = dropVariableDefinition;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/concatenate-variable-definition.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/concatenate-variable-definition.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'concatenate-variable-definition';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function concatenateVariableDefinition(tree, options) {
         var result;
@@ -4233,13 +4233,13 @@
       module.exports = concatenateVariableDefinition;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/tree-based-constant-folding.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/tree-based-constant-folding.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, evaluator, modified;
       Name = 'tree-based-constant-folding';
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      evaluator = require('/node_modules/esmangle/lib/evaluator.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      evaluator = require('/esmangle/lib/evaluator.js', module);
       Syntax = common.Syntax;
       function isModifiedConstant(node) {
         if (common.SpecialNode.isUndefined(node)) {
@@ -4373,14 +4373,14 @@
       module.exports = treeBasedConstantFolding;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/remove-context-sensitive-expressions.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/remove-context-sensitive-expressions.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, evaluator, escope, modified;
       Name = 'remove-context-sensitive-expressions';
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      evaluator = require('/node_modules/esmangle/lib/evaluator.js', module);
-      escope = require('/node_modules/escope/escope.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      evaluator = require('/esmangle/lib/evaluator.js', module);
+      escope = require('/escope/escope.js', module);
       Syntax = common.Syntax;
       function Transformer(trans, booleanFunction, voidFunction, scope) {
         this.transform = trans;
@@ -4636,14 +4636,14 @@
       module.exports = removeContextSensitiveExpressions;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/remove-side-effect-free-expressions.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/remove-side-effect-free-expressions.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, escope, evaluator, modified;
       Name = 'remove-side-effect-free-expressions';
-      escope = require('/node_modules/escope/escope.js', module);
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      evaluator = require('/node_modules/esmangle/lib/evaluator.js', module);
+      escope = require('/escope/escope.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      evaluator = require('/esmangle/lib/evaluator.js', module);
       Syntax = common.Syntax;
       function reduce(node, scope, parent, isResultNeeded) {
         var i, iz, expr, result, prev;
@@ -4743,12 +4743,12 @@
       module.exports = removeSideEffectFreeExpressions;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/dead-code-elimination.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/dead-code-elimination.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, status, modified;
       Name = 'dead-code-elimination';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function JumpTarget(node, status, type) {
         this.node = node;
@@ -5146,12 +5146,12 @@
       module.exports = deadCodeElimination;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/reduce-multiple-if-statements.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/reduce-multiple-if-statements.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'reduce-multiple-if-statements';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function reduceMultipleIfStatements(tree, options) {
         var result;
@@ -5180,12 +5180,12 @@
       module.exports = reduceMultipleIfStatements;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/reduce-branch-jump.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/reduce-branch-jump.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'reduce-branch-jump';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function reduceLast(ary, index) {
         var node, left;
@@ -5310,14 +5310,14 @@
       module.exports = reduceBranchJump;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/reduce-sequence-expression.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/reduce-sequence-expression.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, evaluator, escope, modified;
       Name = 'reduce-sequence-expression';
-      escope = require('/node_modules/escope/escope.js', module);
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      evaluator = require('/node_modules/esmangle/lib/evaluator.js', module);
+      escope = require('/escope/escope.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      evaluator = require('/esmangle/lib/evaluator.js', module);
       Syntax = common.Syntax;
       function reduce(node) {
         var i, iz, j, jz, expr, result;
@@ -5449,13 +5449,13 @@
       module.exports = reduceSequenceExpression;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/transform-typeof-undefined.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/transform-typeof-undefined.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, escope, modified;
       Name = 'transform-typeof-undefined';
-      escope = require('/node_modules/escope/escope.js', module);
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      escope = require('/escope/escope.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function isUndefinedStringLiteral(node) {
         return node.type === Syntax.Literal && node.value === 'undefined';
@@ -5510,12 +5510,12 @@
       module.exports = transformTypeofUndefined;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/transform-branch-to-expression.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/transform-branch-to-expression.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'transform-branch-to-expression';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function transformBranchToExpression(tree, options) {
         var result, preserveCompletionValue;
@@ -5613,12 +5613,12 @@
       module.exports = transformBranchToExpression;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/transform-to-sequence-expression.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/transform-to-sequence-expression.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'transform-to-sequence-expression';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function transform(node) {
         var i, iz, expressions, stmt, prev, body;
@@ -5713,13 +5713,13 @@
       module.exports = transformToSequenceExpression;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/transform-to-compound-assignment.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/transform-to-compound-assignment.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, escope, modified;
       Name = 'transform-to-compound-assignment';
-      escope = require('/node_modules/escope/escope.js', module);
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      escope = require('/escope/escope.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function equals(lhs, rhs) {
         if (lhs.type !== rhs.type) {
@@ -5811,12 +5811,12 @@
       module.exports = transformToCompoundAssignment;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/remove-wasted-blocks.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/remove-wasted-blocks.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'remove-wasted-blocks';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function flattenBlockStatement(body) {
         var i, iz, j, jz, result, stmt, inner, ok;
@@ -5882,12 +5882,12 @@
       module.exports = removeWastedBlocks;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/remove-empty-statement.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/remove-empty-statement.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'remove-empty-statement';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function remove(array) {
         var i, iz, node, result;
@@ -5957,13 +5957,13 @@
       module.exports = removeEmptyStatement;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/remove-unused-label.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/remove-unused-label.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, Map, common, scope, modified;
       Name = 'remove-unused-label';
-      common = require('/node_modules/esmangle/lib/common.js', module);
-      Map = require('/node_modules/esmangle/lib/map.js', module);
+      common = require('/esmangle/lib/common.js', module);
+      Map = require('/esmangle/lib/map.js', module);
       Syntax = common.Syntax;
       function Scope(upper) {
         this.set = new Map;
@@ -6044,12 +6044,12 @@
       module.exports = removeUnusedLabel;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/reordering-function-declarations.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/reordering-function-declarations.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'reordering-function-declarations';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function reordering(array) {
         var i, iz, node, directives, declarations, others;
@@ -6097,12 +6097,12 @@
       module.exports = reorderingFunctionDeclarations;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/transform-logical-association.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/transform-logical-association.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'transform-logical-association';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function transformLogicalAssociation(tree, options) {
         var result;
@@ -6133,12 +6133,12 @@
       module.exports = transformLogicalAssociation;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/transform-immediate-function-call.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/transform-immediate-function-call.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'transform-immediate-function-call';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function isEmptyFunctionCall(call) {
         var callee, i, iz, stmt;
@@ -6196,12 +6196,12 @@
       module.exports = transformImmediateFunctionCall;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/transform-dynamic-to-static-property-definition.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/transform-dynamic-to-static-property-definition.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'transform-dynamic-to-static-property-definition';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function transformDynamicToStaticPropertyDefinition(tree, options) {
         var result;
@@ -6238,12 +6238,12 @@
       module.exports = transformDynamicToStaticPropertyDefinition;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/transform-dynamic-to-static-property-access.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/transform-dynamic-to-static-property-access.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, modified;
       Name = 'transform-dynamic-to-static-property-access';
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function transformDynamicToStaticPropertyAccess(tree, options) {
         var result;
@@ -6280,13 +6280,13 @@
       module.exports = transformDynamicToStaticPropertyAccess;
     }());
   });
-  require.define('/node_modules/esmangle/lib/pass/hoist-variable-to-arguments.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/pass/hoist-variable-to-arguments.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Name, Syntax, common, escope, modified;
       Name = 'hoist-variable-to-arguments';
-      escope = require('/node_modules/escope/escope.js', module);
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      escope = require('/escope/escope.js', module);
+      common = require('/esmangle/lib/common.js', module);
       Syntax = common.Syntax;
       function hoist(callee) {
         function hoisting(ident) {
@@ -6399,11 +6399,11 @@
       module.exports = hoistVariableToArguments;
     }());
   });
-  require.define('/node_modules/esmangle/lib/query.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/query.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var common;
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       exports.get = function get(root, query) {
         var i, iz, name, node;
         node = root;
@@ -6426,11 +6426,11 @@
       };
     }());
   });
-  require.define('/node_modules/esmangle/lib/options.js', function (module, exports, __dirname, __filename) {
+  require.define('/esmangle/lib/options.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var common;
-      common = require('/node_modules/esmangle/lib/common.js', module);
+      common = require('/esmangle/lib/common.js', module);
       function extend(result, update) {
         var prop, lhs, rhs;
         for (prop in update) {
@@ -6477,16 +6477,16 @@
       module.exports = Options;
     }());
   });
-  require.define('/node_modules/esshorten/lib/esshorten.js', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/lib/esshorten.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var escope, estraverse, esutils, utility, version, assert, Syntax, Map;
-      escope = require('/node_modules/escope/escope.js', module);
-      estraverse = require('/node_modules/esshorten/node_modules/estraverse/estraverse.js', module);
-      esutils = require('/node_modules/esshorten/node_modules/esutils/lib/utils.js', module);
-      utility = require('/node_modules/esshorten/lib/utility.js', module);
-      Map = require('/node_modules/esshorten/lib/map.js', module);
-      version = require('/node_modules/esshorten/package.json', module).version;
+      escope = require('/escope/escope.js', module);
+      estraverse = require('/esshorten/node_modules/estraverse/estraverse.js', module);
+      esutils = require('/esshorten/node_modules/esutils/lib/utils.js', module);
+      utility = require('/esshorten/lib/utility.js', module);
+      Map = require('/esshorten/lib/map.js', module);
+      version = require('/esshorten/package.json', module).version;
       Syntax = estraverse.Syntax;
       assert = function assert(cond, message) {
         if (!cond) {
@@ -6677,7 +6677,7 @@
       exports.generateNextName = utility.generateNextName;
     }());
   });
-  require.define('/node_modules/esshorten/package.json', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/package.json', function (module, exports, __dirname, __filename) {
     module.exports = {
       '_from': 'esshorten@~1.1.0',
       '_id': 'esshorten@1.1.1',
@@ -6744,7 +6744,7 @@
       'version': '1.1.1'
     };
   });
-  require.define('/node_modules/esshorten/lib/map.js', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/lib/map.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Map;
@@ -6821,7 +6821,7 @@
       module.exports = Map;
     }());
   });
-  require.define('/node_modules/esshorten/lib/utility.js', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/lib/utility.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var isArray, NameSequence, ZeroSequenceCache;
@@ -6891,18 +6891,18 @@
       exports.deepCopy = deepCopy;
     }());
   });
-  require.define('/node_modules/esshorten/node_modules/esutils/lib/utils.js', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/node_modules/esutils/lib/utils.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
-      exports.ast = require('/node_modules/esshorten/node_modules/esutils/lib/ast.js', module);
-      exports.code = require('/node_modules/esshorten/node_modules/esutils/lib/code.js', module);
-      exports.keyword = require('/node_modules/esshorten/node_modules/esutils/lib/keyword.js', module);
+      exports.ast = require('/esshorten/node_modules/esutils/lib/ast.js', module);
+      exports.code = require('/esshorten/node_modules/esutils/lib/code.js', module);
+      exports.keyword = require('/esshorten/node_modules/esutils/lib/keyword.js', module);
     }());
   });
-  require.define('/node_modules/esshorten/node_modules/esutils/lib/keyword.js', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/node_modules/esutils/lib/keyword.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
-      var code = require('/node_modules/esshorten/node_modules/esutils/lib/code.js', module);
+      var code = require('/esshorten/node_modules/esutils/lib/code.js', module);
       function isStrictModeReservedWordES6(id) {
         switch (id) {
         case 'implements':
@@ -7023,7 +7023,7 @@
       };
     }());
   });
-  require.define('/node_modules/esshorten/node_modules/esutils/lib/code.js', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/node_modules/esutils/lib/code.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var ES6Regex, ES5Regex, NON_ASCII_WHITESPACES, IDENTIFIER_START, IDENTIFIER_PART, ch;
@@ -7109,7 +7109,7 @@
       };
     }());
   });
-  require.define('/node_modules/esshorten/node_modules/esutils/lib/ast.js', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/node_modules/esutils/lib/ast.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       function isExpression(node) {
@@ -7225,7 +7225,7 @@
       };
     }());
   });
-  require.define('/node_modules/esshorten/node_modules/estraverse/estraverse.js', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/node_modules/estraverse/estraverse.js', function (module, exports, __dirname, __filename) {
     (function clone(exports) {
       'use strict';
       var Syntax, isArray, VisitorOption, VisitorKeys, objectCreate, objectKeys, BREAK, SKIP, REMOVE;
@@ -7991,7 +7991,7 @@
         });
         return tree;
       }
-      exports.version = require('/node_modules/esshorten/node_modules/estraverse/package.json', module).version;
+      exports.version = require('/esshorten/node_modules/estraverse/package.json', module).version;
       exports.Syntax = Syntax;
       exports.traverse = traverse;
       exports.replace = replace;
@@ -8005,7 +8005,7 @@
       return exports;
     }(exports));
   });
-  require.define('/node_modules/esshorten/node_modules/estraverse/package.json', function (module, exports, __dirname, __filename) {
+  require.define('/esshorten/node_modules/estraverse/package.json', function (module, exports, __dirname, __filename) {
     module.exports = {
       '_from': 'estraverse@~4.1.1',
       '_id': 'estraverse@4.1.1',
@@ -8066,5 +8066,5 @@
       'version': '4.1.1'
     };
   });
-  require('/node_modules/esmangle/lib/esmangle.js');
-}.call(this, this));
+  global.esmangle = require('/esmangle/lib/esmangle.js');
+}.call(this, this));module.exports = this.esmangle;

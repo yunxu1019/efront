@@ -50,12 +50,12 @@
         }
       };
     }();
-  require.define('/node_modules/escodegen/escodegen.js', function (module, exports, __dirname, __filename) {
+  require.define('/escodegen/escodegen.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var Syntax, Precedence, BinaryPrecedence, SourceNode, estraverse, esutils, base, indent, json, renumber, hexadecimal, quotes, escapeless, newline, space, parentheses, semicolons, safeConcatenation, directive, extra, parse, sourceMap, sourceCode, preserveBlankLines, FORMAT_MINIFY, FORMAT_DEFAULTS;
-      estraverse = require('/node_modules/estraverse/estraverse.js', module);
-      esutils = require('/node_modules/esutils/lib/utils.js', module);
+      estraverse = require('/estraverse/estraverse.js', module);
+      esutils = require('/esutils/lib/utils.js', module);
       Syntax = estraverse.Syntax;
       function isExpression(node) {
         return CodeGenerator.Expression.hasOwnProperty(node.type);
@@ -2125,7 +2125,7 @@
         extra = options;
         if (sourceMap) {
           if (!exports.browser) {
-            SourceNode = require('/node_modules/source-map/source-map.js', module).SourceNode;
+            SourceNode = require('/source-map/source-map.js', module).SourceNode;
           } else {
             SourceNode = global.sourceMap.SourceNode;
           }
@@ -2164,7 +2164,7 @@
         semicolons: false
       };
       FORMAT_DEFAULTS = getDefaultOptions().format;
-      exports.version = require('/node_modules/escodegen/package.json', module).version;
+      exports.version = require('/escodegen/package.json', module).version;
       exports.generate = generate;
       exports.attachComments = estraverse.attachComments;
       exports.Precedence = updateDeeply({}, Precedence);
@@ -2173,7 +2173,7 @@
       exports.FORMAT_DEFAULTS = FORMAT_DEFAULTS;
     }());
   });
-  require.define('/node_modules/escodegen/package.json', function (module, exports, __dirname, __filename) {
+  require.define('/escodegen/package.json', function (module, exports, __dirname, __filename) {
     module.exports = {
       '_from': 'escodegen@latest',
       '_id': 'escodegen@1.12.0',
@@ -2258,14 +2258,14 @@
       'version': '1.12.0'
     };
   });
-  require.define('/node_modules/source-map/source-map.js', function (module, exports, __dirname, __filename) {
-    exports.SourceMapGenerator = require('/node_modules/source-map/lib/source-map-generator.js', module).SourceMapGenerator;
-    exports.SourceMapConsumer = require('/node_modules/source-map/lib/source-map-consumer.js', module).SourceMapConsumer;
-    exports.SourceNode = require('/node_modules/source-map/lib/source-node.js', module).SourceNode;
+  require.define('/source-map/source-map.js', function (module, exports, __dirname, __filename) {
+    exports.SourceMapGenerator = require('/source-map/lib/source-map-generator.js', module).SourceMapGenerator;
+    exports.SourceMapConsumer = require('/source-map/lib/source-map-consumer.js', module).SourceMapConsumer;
+    exports.SourceNode = require('/source-map/lib/source-node.js', module).SourceNode;
   });
-  require.define('/node_modules/source-map/lib/source-node.js', function (module, exports, __dirname, __filename) {
-    var SourceMapGenerator = require('/node_modules/source-map/lib/source-map-generator.js', module).SourceMapGenerator;
-    var util = require('/node_modules/source-map/lib/util.js', module);
+  require.define('/source-map/lib/source-node.js', function (module, exports, __dirname, __filename) {
+    var SourceMapGenerator = require('/source-map/lib/source-map-generator.js', module).SourceMapGenerator;
+    var util = require('/source-map/lib/util.js', module);
     var REGEX_NEWLINE = /(\r?\n)/;
     var NEWLINE_CODE = 10;
     var isSourceNode = '$$$isSourceNode$$$';
@@ -2518,7 +2518,7 @@
     };
     exports.SourceNode = SourceNode;
   });
-  require.define('/node_modules/source-map/lib/util.js', function (module, exports, __dirname, __filename) {
+  require.define('/source-map/lib/util.js', function (module, exports, __dirname, __filename) {
     function getArg(aArgs, aName, aDefaultValue) {
       if (aName in aArgs) {
         return aArgs[aName];
@@ -2815,11 +2815,11 @@
     }
     exports.computeSourceURL = computeSourceURL;
   });
-  require.define('/node_modules/source-map/lib/source-map-generator.js', function (module, exports, __dirname, __filename) {
-    var base64VLQ = require('/node_modules/source-map/lib/base64-vlq.js', module);
-    var util = require('/node_modules/source-map/lib/util.js', module);
-    var ArraySet = require('/node_modules/source-map/lib/array-set.js', module).ArraySet;
-    var MappingList = require('/node_modules/source-map/lib/mapping-list.js', module).MappingList;
+  require.define('/source-map/lib/source-map-generator.js', function (module, exports, __dirname, __filename) {
+    var base64VLQ = require('/source-map/lib/base64-vlq.js', module);
+    var util = require('/source-map/lib/util.js', module);
+    var ArraySet = require('/source-map/lib/array-set.js', module).ArraySet;
+    var MappingList = require('/source-map/lib/mapping-list.js', module).MappingList;
     function SourceMapGenerator(aArgs) {
       if (!aArgs) {
         aArgs = {};
@@ -3083,8 +3083,8 @@
     };
     exports.SourceMapGenerator = SourceMapGenerator;
   });
-  require.define('/node_modules/source-map/lib/mapping-list.js', function (module, exports, __dirname, __filename) {
-    var util = require('/node_modules/source-map/lib/util.js', module);
+  require.define('/source-map/lib/mapping-list.js', function (module, exports, __dirname, __filename) {
+    var util = require('/source-map/lib/util.js', module);
     function generatedPositionAfter(mappingA, mappingB) {
       var lineA = mappingA.generatedLine;
       var lineB = mappingB.generatedLine;
@@ -3121,8 +3121,8 @@
     };
     exports.MappingList = MappingList;
   });
-  require.define('/node_modules/source-map/lib/array-set.js', function (module, exports, __dirname, __filename) {
-    var util = require('/node_modules/source-map/lib/util.js', module);
+  require.define('/source-map/lib/array-set.js', function (module, exports, __dirname, __filename) {
+    var util = require('/source-map/lib/util.js', module);
     var has = Object.prototype.hasOwnProperty;
     var hasNativeMap = typeof Map !== 'undefined';
     function ArraySet() {
@@ -3187,8 +3187,8 @@
     };
     exports.ArraySet = ArraySet;
   });
-  require.define('/node_modules/source-map/lib/base64-vlq.js', function (module, exports, __dirname, __filename) {
-    var base64 = require('/node_modules/source-map/lib/base64.js', module);
+  require.define('/source-map/lib/base64-vlq.js', function (module, exports, __dirname, __filename) {
+    var base64 = require('/source-map/lib/base64.js', module);
     var VLQ_BASE_SHIFT = 5;
     var VLQ_BASE = 1 << VLQ_BASE_SHIFT;
     var VLQ_BASE_MASK = VLQ_BASE - 1;
@@ -3237,7 +3237,7 @@
       aOutParam.rest = aIndex;
     };
   });
-  require.define('/node_modules/source-map/lib/base64.js', function (module, exports, __dirname, __filename) {
+  require.define('/source-map/lib/base64.js', function (module, exports, __dirname, __filename) {
     var intToCharMap = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'.split('');
     exports.encode = function (number) {
       if (0 <= number && number < intToCharMap.length) {
@@ -3274,12 +3274,12 @@
       return -1;
     };
   });
-  require.define('/node_modules/source-map/lib/source-map-consumer.js', function (module, exports, __dirname, __filename) {
-    var util = require('/node_modules/source-map/lib/util.js', module);
-    var binarySearch = require('/node_modules/source-map/lib/binary-search.js', module);
-    var ArraySet = require('/node_modules/source-map/lib/array-set.js', module).ArraySet;
-    var base64VLQ = require('/node_modules/source-map/lib/base64-vlq.js', module);
-    var quickSort = require('/node_modules/source-map/lib/quick-sort.js', module).quickSort;
+  require.define('/source-map/lib/source-map-consumer.js', function (module, exports, __dirname, __filename) {
+    var util = require('/source-map/lib/util.js', module);
+    var binarySearch = require('/source-map/lib/binary-search.js', module);
+    var ArraySet = require('/source-map/lib/array-set.js', module).ArraySet;
+    var base64VLQ = require('/source-map/lib/base64-vlq.js', module);
+    var quickSort = require('/source-map/lib/quick-sort.js', module).quickSort;
     function SourceMapConsumer(aSourceMap, aSourceMapURL) {
       var sourceMap = aSourceMap;
       if (typeof aSourceMap === 'string') {
@@ -3841,7 +3841,7 @@
     };
     exports.IndexedSourceMapConsumer = IndexedSourceMapConsumer;
   });
-  require.define('/node_modules/source-map/lib/quick-sort.js', function (module, exports, __dirname, __filename) {
+  require.define('/source-map/lib/quick-sort.js', function (module, exports, __dirname, __filename) {
     function swap(ary, x, y) {
       var temp = ary[x];
       ary[x] = ary[y];
@@ -3872,7 +3872,7 @@
       doQuickSort(ary, comparator, 0, ary.length - 1);
     };
   });
-  require.define('/node_modules/source-map/lib/binary-search.js', function (module, exports, __dirname, __filename) {
+  require.define('/source-map/lib/binary-search.js', function (module, exports, __dirname, __filename) {
     exports.GREATEST_LOWER_BOUND = 1;
     exports.LEAST_UPPER_BOUND = 2;
     function recursiveSearch(aLow, aHigh, aNeedle, aHaystack, aCompare, aBias) {
@@ -3917,18 +3917,18 @@
       return index;
     };
   });
-  require.define('/node_modules/esutils/lib/utils.js', function (module, exports, __dirname, __filename) {
+  require.define('/esutils/lib/utils.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
-      exports.ast = require('/node_modules/esutils/lib/ast.js', module);
-      exports.code = require('/node_modules/esutils/lib/code.js', module);
-      exports.keyword = require('/node_modules/esutils/lib/keyword.js', module);
+      exports.ast = require('/esutils/lib/ast.js', module);
+      exports.code = require('/esutils/lib/code.js', module);
+      exports.keyword = require('/esutils/lib/keyword.js', module);
     }());
   });
-  require.define('/node_modules/esutils/lib/keyword.js', function (module, exports, __dirname, __filename) {
+  require.define('/esutils/lib/keyword.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
-      var code = require('/node_modules/esutils/lib/code.js', module);
+      var code = require('/esutils/lib/code.js', module);
       function isStrictModeReservedWordES6(id) {
         switch (id) {
         case 'implements':
@@ -4049,7 +4049,7 @@
       };
     }());
   });
-  require.define('/node_modules/esutils/lib/code.js', function (module, exports, __dirname, __filename) {
+  require.define('/esutils/lib/code.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       var ES6Regex, ES5Regex, NON_ASCII_WHITESPACES, IDENTIFIER_START, IDENTIFIER_PART, ch;
@@ -4135,7 +4135,7 @@
       };
     }());
   });
-  require.define('/node_modules/esutils/lib/ast.js', function (module, exports, __dirname, __filename) {
+  require.define('/esutils/lib/ast.js', function (module, exports, __dirname, __filename) {
     (function () {
       'use strict';
       function isExpression(node) {
@@ -4251,7 +4251,7 @@
       };
     }());
   });
-  require.define('/node_modules/estraverse/estraverse.js', function (module, exports, __dirname, __filename) {
+  require.define('/estraverse/estraverse.js', function (module, exports, __dirname, __filename) {
     (function clone(exports) {
       'use strict';
       var Syntax, VisitorOption, VisitorKeys, BREAK, SKIP, REMOVE;
@@ -4966,7 +4966,7 @@
         });
         return tree;
       }
-      exports.version = require('/node_modules/estraverse/package.json', module).version;
+      exports.version = require('/estraverse/package.json', module).version;
       exports.Syntax = Syntax;
       exports.traverse = traverse;
       exports.replace = replace;
@@ -4980,7 +4980,7 @@
       return exports;
     }(exports));
   });
-  require.define('/node_modules/estraverse/package.json', function (module, exports, __dirname, __filename) {
+  require.define('/estraverse/package.json', function (module, exports, __dirname, __filename) {
     module.exports = {
       '_from': 'estraverse@^4.2.0',
       '_id': 'estraverse@4.3.0',
@@ -5042,5 +5042,5 @@
       'version': '4.3.0'
     };
   });
-  require('/node_modules/escodegen/escodegen.js');
-}.call(this, this));
+  global.escodegen = require('/escodegen/escodegen.js');
+}.call(this, this));module.exports = this.escodegen;
