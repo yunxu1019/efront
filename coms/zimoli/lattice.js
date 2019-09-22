@@ -56,12 +56,6 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
             element.with.forEach(build);
         }
     };
-    on("changes")(_box, function ({ changes }) {
-        if (changes.src) {
-            boxCount = 0;
-            this.resize();
-        }
-    });
     onappend(_box, function () {
         resize();
         mountedLattices.push(_box);
