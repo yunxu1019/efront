@@ -169,7 +169,7 @@ function tree() {
                     var change_elem = saved_top.nextSibling;
                     if (!change_elem) return;
                     var margin_top;
-                    if (!saved_offset) {
+                    if (!saved_offset || !saved_offset.offsetTop) {
                         margin_top = saved_top.offsetHeight + saved_top.offsetTop - banner.scrollHeight;
                     } else {
                         margin_top = saved_top.offsetHeight + saved_top.offsetTop - saved_offset.offsetTop - saved_offset.offsetHeight;
