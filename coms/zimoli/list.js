@@ -35,7 +35,7 @@ function ylist(container, generator, $Y) {
         var children = list.children;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx]
-            if (isFinite(child.index) && getTargetTop(child) + child.offsetHeight >= list.scrollTop) {
+            if (isFinite(child.index) && child.offsetTop + child.offsetHeight >= list.scrollTop) {
                 return child;
             }
         }
@@ -198,7 +198,7 @@ function ylist(container, generator, $Y) {
                 }
             }
             //滚动到相应位置
-            //-list_scrollTop + lElem_offsetTop = -list_newScrollTop + lElem_newOffsetTop + deltaY
+            //-list_scrollTop + lElem_offsetTop = -list_newScrollTop + lElem_newoffsetTop + deltaY
             list.scrollTop = scrollTop;
             scrollTop = list.scrollTop;
             //移除不可见元素
@@ -210,15 +210,15 @@ function ylist(container, generator, $Y) {
             }
         }
     };
-    var paddingTop = 0;
-    once("append")(list, () => paddingTop = parseInt(getComputedStyle(list).paddingTop));
-    var getTargetTop = function (element) {
-        return element.offsetTop - paddingTop;
-    };
+    var paddingTop = 0, paddingBottom = 0;
+    once("append")(list, () => {
+        paddingTop = parseInt(getComputedStyle(list).paddingTop);
+        paddingBottom = parseInt(getComputedStyle(list).paddingBottom);
+    });
     list.stopY = function () {
         var firstElement = getFirstVisibleElement();
         if (!firstElement) return saved_itemIndex;
-        var scrolled_t = (list.scrollTop - getTargetTop(firstElement)) / firstElement.offsetHeight;
+        var scrolled_t = (list.scrollTop + paddingTop - firstElement.offsetTop) / firstElement.offsetHeight;
         var last_y = currentY();
         if (scrolled_t > .5) {
             var target_ty = last_y + (1 - scrolled_t) * firstElement.offsetHeight;
@@ -226,11 +226,11 @@ function ylist(container, generator, $Y) {
             var target_ty = last_y - scrolled_t * firstElement.offsetHeight;
         }
         var lastElement = getLastVisibleElement();
-        var scrolled_b = (paddingTop + list.scrollTop + list.clientHeight - lastElement.offsetTop) / lastElement.offsetHeight;
+        var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop) / lastElement.offsetHeight;
         if (scrolled_b > .5) {
-            var target_by = last_y + (1 - scrolled_b) * lastElement.offsetHeight;
+            var target_by = last_y + (1 - scrolled_b) * lastElement.offsetHeight + paddingBottom;
         } else {
-            var target_by = last_y - scrolled_b * lastElement.offsetHeight;
+            var target_by = last_y - scrolled_b * lastElement.offsetHeight + paddingBottom;
         }
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
         var resultY = this.Top(Math.abs(target_y - last_y) > 1 ? (target_y + last_y) >> 1 : target_y);
