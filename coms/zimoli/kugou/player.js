@@ -9,6 +9,29 @@ var getSingerAvatar = function () {
 };
 var oncanplay = on("canplay"), ondataloaded = on("loadeddata");
 
+on("keydown")(window, function (event) {
+    if (!player.audio) return;
+    switch (event.keyCode || event.which) {
+        case 13:
+        case 27:
+        case 32:
+            if (player.playing) player.pause();
+            else player.play();
+            break;
+        case 37:
+            // left
+            break;
+        case 39:
+            // right
+            break;
+        case 38:
+            // up
+            break;
+        case 40:
+            // down
+            break;
+    }
+})
 var createControls = function () {
     var box = createWithClass(div, "player-box");
     var play = createWithClass(div, "play");
