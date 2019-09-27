@@ -210,14 +210,12 @@ function ylist(container, generator, $Y) {
             }
         }
     };
-    var paddingTop = 0, paddingBottom = 0;
-    once("append")(list, () => {
-        paddingTop = parseInt(getComputedStyle(list).paddingTop);
-        paddingBottom = parseInt(getComputedStyle(list).paddingBottom);
-    });
     list.stopY = function () {
         var firstElement = getFirstVisibleElement();
         if (!firstElement) return saved_itemIndex;
+        var paddingTop = parseInt(getComputedStyle(list).paddingTop);
+        var paddingBottom = parseInt(getComputedStyle(list).paddingBottom);
+
         var scrolled_t = (list.scrollTop + paddingTop - firstElement.offsetTop) / firstElement.offsetHeight;
         var last_y = currentY();
         if (scrolled_t > .5) {
@@ -226,12 +224,13 @@ function ylist(container, generator, $Y) {
             var target_ty = last_y - scrolled_t * firstElement.offsetHeight;
         }
         var lastElement = getLastVisibleElement();
-        var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop) / lastElement.offsetHeight;
+        var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop - paddingBottom) / lastElement.offsetHeight;
         if (scrolled_b > .5) {
-            var target_by = last_y + (1 - scrolled_b) * lastElement.offsetHeight + paddingBottom;
+            var target_by = last_y + (1 - scrolled_b) * lastElement.offsetHeight;
         } else {
-            var target_by = last_y - scrolled_b * lastElement.offsetHeight + paddingBottom;
+            var target_by = last_y - scrolled_b * lastElement.offsetHeight;
         }
+        console.log(last_y, target_by, target_ty);
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
         var resultY = this.Top(Math.abs(target_y - last_y) > 1 ? (target_y + last_y) >> 1 : target_y);
         if (resultY === last_y) {
