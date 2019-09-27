@@ -230,7 +230,6 @@ function ylist(container, generator, $Y) {
         } else {
             var target_by = last_y - scrolled_b * lastElement.offsetHeight;
         }
-        console.log(last_y, target_by, target_ty);
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
         var resultY = this.Top(Math.abs(target_y - last_y) > 1 ? (target_y + last_y) >> 1 : target_y);
         if (resultY === last_y) {
