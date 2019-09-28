@@ -15,6 +15,7 @@ on("keydown")(window, function (event) {
         case 13:
         case 27:
         case 32:
+            if (event.repeat) break;
             if (player.playing) player.pause();
             else player.play();
             break;
