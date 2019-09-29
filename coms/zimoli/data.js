@@ -96,9 +96,9 @@ function getTranspile(url) {
     return transpile;
 }
 
-function transpile(src, trans) {
+function transpile(src, trans, apiMap) {
     if (src instanceof Array) {
-        return src.map(a => transpile(a, trans));
+        return src.map(a => transpile(a, trans, apiMap));
     }
     data = extend({}, src && src.querySelector ? null : src);
     for (var k in trans) {
@@ -108,14 +108,44 @@ function transpile(src, trans) {
                 data[k] = data[v];
                 delete data[v];
             } else {
-                data[k] = seek(src, v);
+                data[k] = seek(src, v, apiMap);
             }
         }
     }
     return data;
 }
+function getParamsFromUrl(url, s = "?") {
+    var index = url.indexOf(s);
+    if (index < 0 || index >= url.length - 1) return;
+    return parseKV(url.slice(index + 1));
+}
+function getUrlParamsForApi(api, url) {
+    var r = /([\s\S]*?)/.source;
+    var cap = [];
+    var base = api.url.replace(/[\?\#][\s\S]*$/, '')
+        .replace(/[\.\*\+\-\[\]\{\}\(\)\\\/\!\<\>\^]/g, '\\$&')
+        .replace(/\:\w+/, function (a) {
+            cap.push(a.slice(1));
+            return r;
+        });
+    var params = {};
+    url = url.replace(/[\?#]*$/g, function (match) {
+        match.split(/[&#\?]+/).forEach(function (s) {
+            var [k, v] = s.split("=");
+            params[k] = v;
+        });
+        return ''
+    }).replace(new RegExp(`^${base}$`, 'ig'), function () {
+        var args = arguments;
 
-function seek(data, seeker) {
+        cap.forEach(function (a, cx) {
+            params[a] = args[cx + 1];
+        });
+    });
+    params = serialize(params);
+    return api.id + "?" + params;
+}
+function seek(data, seeker, apiMap = {}) {
     if (data && data.querySelector) {
         if (!seeker) return data;
         seeker = unescape(seeker);
@@ -133,9 +163,17 @@ function seek(data, seeker) {
             data = data.querySelector(selector);
         }
         if (data && prop) {
+            var reg1 = /\:/;
+            if (reg1.test(prop)) {
+                var [prop, next] = prop.split(reg1);
+                next = apiMap[next];
+            }
             data = data.getAttribute(prop) || data[prop];
             if (isString(data) && /\|/.test(seeker)) {
                 data = data.trim();
+            }
+            if (next) {
+                data = getUrlParamsForApi(next, data);
             }
             return data;
         }
@@ -155,7 +193,7 @@ function parseConfig(api) {
     // `method url(?key=value(&key=value)*)?(#vid(&vname(&vicon)?)?)? name id(?key1)?(&key3)* comment?`
     var { method, url, id, name, comment } = api;
     var required = [];
-    id.replace(/\?(.+?)$/, function (m, s) {
+    id = id.replace(/\?(.+?)$/, function (m, s) {
         s = s.split('&');
         s.forEach(function (p) {
             if (p) {
@@ -167,6 +205,12 @@ function parseConfig(api) {
             }
         });
         return '';
+    });
+    url.replace(/[\?\#][\s\S]*$/, '').replace(/\:\w+/g, function (p) {
+        if (!required[p]) {
+            required.push(p);
+            required[p] = p;
+        }
     });
     return {
         method,
@@ -239,35 +283,78 @@ var configPormise;
 var privates = {
     loadAfterConfig(serviceId, params) {
         return this.getApi(serviceId).then((api) => {
-            let url = api.url;
-            if (api.reauired) {
-                var lacks = api.reauired;
-                if (!params) {
-                    lacks = lacks.filter(a => isEmptyParam(params[a]));
-                }
-                if (lacks.length) {
-                    console.log(`跳过了缺少参数的请求:${api.uid} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
-                    return Promise.resolve();
+            if (/\?/.test(serviceId)) {
+                params = Object.assign({}, getParamsFromUrl(serviceId), params);
+                serviceId = serviceId.replace(/\?[\s\S]*$/, '');
+            }
+            if (/\:/.test(serviceId)) {
+                var params1 = Object.assign({}, params);
+                var temp = getParamsFromUrl(serviceId, ":");
+                for (var k in temp) {
+                    var v = temp[k];
+                    if (v in params) {
+                        params1[k] = params[v];
+                    }
+                    if (!(v in temp)) {
+                        delete params1[v];
+                    }
                 }
             }
-            return this.loadIgnoreConfig(api.method, url, params);
+            return this.fromApi(api, params);
         });
     },
+    fromApi(api, params) {
+        let url = api.url;
+        if (api.reauired) {
+            var lacks = api.reauired;
+            if (!params) {
+                lacks = lacks.filter(a => isEmptyParam(params[a]));
+            }
+            if (lacks.length) {
+                console.log(`跳过了缺少参数的请求:${api.uid} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
+                return Promise.resolve();
+            }
+        }
+        return this.loadIgnoreConfig(api.method, url, params, api.root);
+    },
     getApi(serviceId) {
+        serviceId = serviceId.replace(/[\?\:][\s\S]*$/, "");
         return this.getConfigPromise().then((apiMap) => {
             const api = apiMap[serviceId];
             if (!api) { throw new Error(`没有找到对应的接口 id ${serviceId}.`); }
-            return api;
+            return Object.assign({}, api, { root: apiMap });
         });
     },
-    loadIgnoreConfig(method, url, params) {
+    loadIgnoreConfig(method, url, params, apiMap) {
         var spliterIndex = /[\:\|\/\~\!\?]/.exec(method);
         if (spliterIndex) spliterIndex = spliterIndex.index;
         else spliterIndex = method.length;
         var realmethod = method.slice(0, spliterIndex).toLowerCase();
         var uri = url.replace(/#[\s\S]*$/, "");
+        params = Object.assign({}, params);
         if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
-        var id = realmethod + " " + uri.replace(/\?[\s\S]*$/, "");
+        var rest = [];
+        baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:\w+/, function (d) {
+            d = d.slice(1);
+            rest.push(d);
+            return params[d] || '';
+        });
+        var hasOwnProperty = {}.hasOwnProperty;
+        if (search) {
+            var searchParams = parseKV(search);
+            for (var k in searchParams) {
+                if (hasOwnProperty.call(searchParams, k) && hasOwnProperty.call(params, k)) {
+                    searchParams[k] = params[k];
+                    rest.push(k);
+                }
+            }
+            search = serialize(searchParams);
+            uri = baseuri + "?" + search;
+        } else {
+            uri = baseuri;
+        }
+        rest.forEach(k => delete params[k]);
+        var id = realmethod + " " + baseuri;
         var promise = cachedLoadingPromise[id];
         var temp = JSON.stringify(params);
         var currentTime = +new Date;
@@ -283,7 +370,7 @@ var privates = {
             cachedLoadingPromise[id] = promise;
         }
         return promise.then(function (response) {
-            return transpile(seek(parseData(response), method.slice(spliterIndex + 1)), getTranspile(url));
+            return transpile(seek(parseData(response), method.slice(spliterIndex + 1)), getTranspile(url), apiMap);
         });
     },
 
@@ -309,14 +396,43 @@ var data = {
         }
         return privates.getConfigPromise();
     },
+    enrich(config = configPormise) {
+        if (!config) return;
+        if (isString(config)) {
+            config = privates.loadIgnoreConfig('get', url).then(createApiMap);
+        } else if (!(config instanceof Promise)) {
+            if (!(config instanceof Object)) return;
+            config = Promise.resolve(config);
+        }
+        return enrich({
+            from(id, params) {
+                return config.then(function (data) {
+                    var a = data[id];
+                    return privates.fromApi(a, params);
+                });
+            },
+            queue(ids, params, cb) {
+                ids = ids.slice(0);
+                config.then(function (res) {
+                    return new Promise(function (ok) {
+                        var run = function (res) {
+                            if (!ids.length) return ok(res);
+                            var id = ids.pop();
+                            a = data[id];
+                            privates.fromApi(a, res).then(run);
+                        };
+                        run(params);
+                    });
+
+                })
+            },
+        });
+    },
     fromURL(url) {
         privates.loadIgnoreConfig('get', url).then((data) => {
             this.setInstance(url, data);
         });
         return this.getInstance(url);
-    },
-    from(config) {
-
     },
     asyncInstance(id, params, parser) {
         var data = this.getInstance(id);
