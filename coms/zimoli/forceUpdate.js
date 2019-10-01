@@ -1,4 +1,4 @@
-var { window, location, preventCache = true, parseInt, Date } = this;
+var { window, location, preventCache = true, parseInt, navigator, Date } = this;
 var start_time = +new Date / 1000 | 0;
 while (true) {
     if (!preventCache) {
@@ -21,7 +21,7 @@ while (true) {
         } else {
             search = "=" + mark_time.toString(36);
         }
-        location.replace("?" + search);
+        if (!/iOS|iPhone|iPad/.test(navigator.userAgent)) location.replace(location.pathname + "?" + search);
     }
     break;
 }
