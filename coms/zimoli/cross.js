@@ -114,6 +114,12 @@ function cross(method, url, headers) {
         _headers.Cookie = _cookies;
     }
     extend(_headers, headers);
+    if (/^[mc]/i.test(method)) {
+        _headers["User-Agent"] = /^m/i.test(method)
+            ? "Efront/1.9 (iPhone) Safari/602.1"
+            : "Efront/1.9 (Windows) Chrome/77.0.3865.90";
+        method = method.slice(1);
+    }
     var xhr = new XHR;
     var abort = xhr.abort;
     xhr.abort = function () {
