@@ -331,7 +331,7 @@ var privates = {
         else spliterIndex = method.length;
         var realmethod = method.slice(0, spliterIndex).toLowerCase();
         var uri = url.replace(/#[\s\S]*$/, "");
-        params = Object.assign({}, params);
+        params = extend({}, params);
         if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
         baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:\w+/, function (d) {
@@ -380,7 +380,7 @@ var privates = {
                 throw new Error("没有指定配置文件的路径，请使用data.loadConfig加载配置");
             }
             configPormise = this.loadIgnoreConfig('get', _configfileurl)
-                .then(createApiMap);
+            .then(createApiMap);
         }
         return configPormise;
     },
@@ -396,7 +396,7 @@ var data = {
         }
         return privates.getConfigPromise();
     },
-    enrich(config = configPormise) {
+    enrich(config = configPormise, userAgent) {
         if (!config) return;
         if (isString(config)) {
             config = privates.loadIgnoreConfig('get', url).then(createApiMap);
