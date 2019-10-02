@@ -102,8 +102,12 @@ body:active & {
 
     &[browser=firefox] {
         .tab1 {
-            &:after {
-                padding: 2px 0;
+            &.open:after {
+                text-indent: -8.6px;
+            }
+
+            &.closed:after {
+                text-indent: -4.1px;
             }
         }
     }
@@ -126,7 +130,7 @@ body:active & {
             background: #1e282c;
 
             &:after {
-                text-indent: -11.1px;
+                text-indent: -10.8px;
             }
         }
 
@@ -157,7 +161,7 @@ body:active & {
         }
 
         &.closed:after {
-            text-indent: -6.1px;
+            text-indent: -6px;
         }
 
         &.empty:after {
