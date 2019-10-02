@@ -21,7 +21,7 @@ while (true) {
         } else {
             search = "=" + mark_time.toString(36);
         }
-        if (!/iOS|iPhone|iPad/.test(navigator.userAgent)) location.replace(location.pathname + "?" + search);
+        if (!/Safari|Firefox/.test(navigator.userAgent)) location.replace(location.pathname + "?" + search);
     }
     break;
 }
