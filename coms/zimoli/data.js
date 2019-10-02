@@ -77,8 +77,6 @@ class LoadingArray extends Array {
     is_readonly = null;
     loading_promise = null;
 }
-
-
 function getTranspile(url) {
     var transpile;
     var keys = ['id', 'name', 'icon'];
@@ -380,7 +378,7 @@ var privates = {
                 throw new Error("没有指定配置文件的路径，请使用data.loadConfig加载配置");
             }
             configPormise = this.loadIgnoreConfig('get', _configfileurl)
-            .then(createApiMap);
+                .then(createApiMap);
         }
         return configPormise;
     },
@@ -436,6 +434,7 @@ var data = {
     },
     asyncInstance(id, params, parser) {
         var data = this.getInstance(id);
+        data.is_loading = true;
         data.loading_promise = privates.loadAfterConfig(id, params).then((data) => {
             this.setInstance(id, data);
             return data;
