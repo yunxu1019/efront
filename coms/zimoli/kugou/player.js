@@ -81,7 +81,8 @@ var createControls = function () {
     box.playCss = playCss;
     box.apply = function (data) {
         text(singer, data.choricSinger);
-        text(song, data.songName)
+        text(song, data.songName);
+        document.title = data.songName;
         css(avatar, {
             backgroundImage: `url('${data.imgUrl.replace(/\{size\}/g, 200)}')`
         });
