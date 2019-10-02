@@ -100,13 +100,33 @@ body:active & {
     padding   : 0;
     margin    : 0;
 
+    &[browser=firefox] {
+        .tab1 {
+            &:after {
+                padding: 2px 0;
+            }
+        }
+    }
+
+    &[browser=safari] {
+        .tab1 {
+            &.open:after {
+                text-indent: -5.6px;
+            }
+
+            &.closed:after {
+                text-indent: -1.1px;
+            }
+        }
+    }
+
     .tab1 {
         &.open {
             color     : #fff;
             background: #1e282c;
 
             &:after {
-                text-indent: -13px;
+                text-indent: -11.1px;
             }
         }
 
@@ -118,23 +138,26 @@ body:active & {
 
         &:after {
             writing-mode: vertical-rl;
-            text-indent : -8px;
             content     : "×";
-            font-size   : 24px;
-            line-height : 24px;
-            height      : 6px;
+            box-sizing  : border-box;
+            font-family : Arial, Helvetica, sans-serif;
+            font-size   : 20px;
+            height      : 5px;
+            line-height : 12px;
+            font-weight : 100;
             overflow    : hidden;
             display     : block;
+            text-align  : start;
             position    : absolute;
             right       : 10px;
             top         : 50%;
-            margin-top  : -3px;
+            margin-top  : -2.5px;
             color       : #fff;
             transition  : text-indent .2s ease-out;
         }
 
         &.closed:after {
-            text-indent: -8px;
+            text-indent: -6.1px;
         }
 
         &.empty:after {
@@ -164,6 +187,7 @@ body:active & {
             font-size  : 14px;
             background : #2c3b41;
             color      : #8aa4af;
+
             &.checked,
             &.actived,
             &.selected {

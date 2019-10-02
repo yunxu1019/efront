@@ -92,6 +92,13 @@ var getTreeNodes = function (elem) {
 
 function main(elem, mode) {
     if (isElement(elem)) {
+        var os = /Firefox|Chrome|MSIE|Safari/i.exec(navigator.userAgent);
+        if (os) {
+            os = os[0].toLowerCase();
+        } else {
+            os = 'unknown';
+        }
+        elem.setAttribute('browser', os);
         var mode = elem.getAttribute('mode');
         mode = mode && mode.toLowerCase() || "horizonal";
         var src = elem.getAttribute("src") || elem.getAttribute("ng-src") || elem.getAttribute("v-src");
