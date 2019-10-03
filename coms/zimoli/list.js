@@ -6,8 +6,13 @@ function ylist(container, generator, $Y) {
     list.autoFix = true;
     var saved_itemIndex;
     addClass(list, 'list-' + $Y.toLowerCase());
-    onappend(list, function () {
-        if (saved_itemIndex !== void 0) scrollTo(saved_itemIndex);
+    if (!list.renders) {
+        list.renders = [];
+    }
+    list.renders.push(function () {
+        var a = saved_itemIndex;
+        saved_itemIndex = void 0;
+        if (a !== void 0) scrollTo(a);
     });
     //取底部元素
     var getLastElement = function () {
@@ -65,7 +70,7 @@ function ylist(container, generator, $Y) {
     }
     //设置当前下标
     var scrollTo = function (itemIndex) {
-        if (!list.isMounted) {
+        if (!list.offsetHeight || !list.offsetWidth) {
             saved_itemIndex = itemIndex;
             return;
         }

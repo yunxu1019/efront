@@ -14,11 +14,18 @@ var removeRenderElement = function () {
     var element = this;
     delete renderElements[element.renderid];
 };
-
+var needFrefresh;
 function refresh() {
-    for (var k in renderElements) {
-        var element = renderElements[k];
-        rebuild(element);
+    var refreshCount = 0;
+    do {
+        needFrefresh = false;
+        for (var k in renderElements) {
+            var element = renderElements[k];
+            rebuild(element);
+        }
+    } while (needFrefresh && ++refreshCount <= 10);
+    if (refreshCount > 10) {
+        console.warn("render canceld..");
     }
 }
 function rebuild(element) {
@@ -285,6 +292,7 @@ var directives = {
             } else {
                 this.style.display = "";
             }
+            needFrefresh = true;
         });
     },
     show(search) {
@@ -299,6 +307,7 @@ var directives = {
             } else {
                 this.style.display = "none";
             }
+            needFrefresh = true;
         });
     },
 
@@ -309,6 +318,7 @@ var directives = {
         this.renders.push(function () {
             var className = getter();
             if (deepEqual(oldValue, className)) return;
+            needFrefresh = true;
             oldValue = className;
             var originalClassNames = [];
             this.className.split(/\s+/).map(function (k) {
@@ -344,6 +354,7 @@ var directives = {
             var stylesheet = getter();
             if (deepEqual(oldValue, stylesheet)) return;
             oldValue = stylesheet;
+            needFrefresh = true;
             css(this, stylesheet);
         });
     }
@@ -520,5 +531,5 @@ function render(element, scope, parentScopes) {
 var digest = lazy(refresh);
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
-var eventsHandlers = "change,paste,resize,keydown,keypress,keyup,mousedown,mouseup,touchend,touchcancel,touchstart,dragend,drop,click".split(",").map(k => on(k));
+var eventsHandlers = "render,change,paste,resize,keydown,keypress,keyup,mousedown,mouseup,touchend,touchcancel,touchstart,dragend,drop,click".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));

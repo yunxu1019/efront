@@ -35,6 +35,7 @@ function transition(target, initialStyle, isLeave) {
             extend(target.style, initialStyle);
             transitionTimerEnd = setTimeout(function () {
                 target.style.transition = recoverStyle.transition;
+                if (transition.render instanceof Function) transition.render();
             }, transitionDuration + 2);
         } else {
             extend(target.style, initialStyle);
@@ -47,6 +48,7 @@ function transition(target, initialStyle, isLeave) {
             transitionTimerEnd = setTimeout(function (transition) {
                 return function () {
                     target.style.transition = transition;
+                    if (transition.render instanceof Function) transition.render();
                 };
             }(recoverStyle.transition || ''), transitionDuration);
         }

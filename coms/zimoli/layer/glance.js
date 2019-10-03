@@ -130,6 +130,9 @@ function main(mainPath, historyName = "glance") {
             }, 20);
         }
     };
+    on("transitionend")(layer, function () {
+        dispatch(window, 'render');
+    });
     layer.closeLeft = function () {
         closed = true;
         bindClass();

@@ -165,6 +165,7 @@ function cross(method, url, headers) {
                 default:
                     onerror(xhr);
             }
+            dispatch(window, 'render');
         }
     };
     setTimeout(function () {
