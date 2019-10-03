@@ -99,7 +99,6 @@ function main(mainPath, historyName = "glance") {
                 page.setAttribute('layer', 'top');
                 appendChild.replace(topLayer, page);
                 topLayer = page;
-                css(layer, { paddingTop: fromOffset(topLayer.offsetHeight) });
             });
         }
     });
