@@ -1,9 +1,11 @@
 var _onclick = on("click");
 var saved_x, saved_y, lasttime_click;
 var needFireClick = false;
+var touchendFired = false;
 function clickstart(event) {
     saved_x = event.clientX, saved_y = event.clientY;
     needFireClick = true;
+    touchendFired = false;
     onclick.preventClick = false;
 }
 function clickcancel(event) {
@@ -22,7 +24,6 @@ ontouchmove(window, function (event) {
     clickcancel.call(this, event);
 });
 if (window.addEventListener) {
-    var touchendFired = false;
     window.addEventListener("touchend", function (event) {
         if (!needFireClick) return;
         if (event.touches.length > 1) return;
@@ -39,7 +40,7 @@ if (window.addEventListener) {
         needFireClick = false;
         var saved_time = lasttime_click;
         lasttime_click = event.timeStamp;
-        if (lasttime_click - saved_time < 60 || onclick.preventClick||touchendFired&&!event.touchend) {
+        if (lasttime_click - saved_time < 60 || onclick.preventClick || touchendFired && !event.touchend) {
             // 阻止非人为点击，防止误操作
             event.preventDefault();
             event.stopPropagation();
