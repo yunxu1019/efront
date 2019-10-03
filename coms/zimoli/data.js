@@ -332,7 +332,7 @@ var privates = {
         params = extend({}, params);
         if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
-        baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:\w+/, function (d) {
+        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:\w+/, function (d) {
             d = d.slice(1);
             rest.push(d);
             return params[d] || '';
@@ -397,7 +397,7 @@ var data = {
     enrich(config = configPormise, userAgent) {
         if (!config) return;
         if (isString(config)) {
-            config = privates.loadIgnoreConfig('get', url).then(createApiMap);
+            config = privates.loadIgnoreConfig('get', config).then(createApiMap);
         } else if (!(config instanceof Promise)) {
             if (!(config instanceof Object)) return;
             config = Promise.resolve(config);
@@ -416,7 +416,7 @@ var data = {
                         var run = function (res) {
                             if (!ids.length) return ok(res);
                             var id = ids.pop();
-                            a = data[id];
+                            var a = data[id];
                             privates.fromApi(a, res).then(run);
                         };
                         run(params);
