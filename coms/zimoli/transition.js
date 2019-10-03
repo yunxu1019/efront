@@ -1,3 +1,16 @@
+var transitionKey = 'transition';
+var bodyStyle = document.body.style;
+if (!transitionKey in document.body.style) {
+    if ('mozTransition' in document.body.style) transitionKey = 'mozTransition';
+    else if ('webkitTransition' in bodyStyle) {
+        transitionKey = 'webkitTransition';
+    }
+    else if ('msTransition' in bodyStyle) {
+        transitionKey = 'msTransition';
+    } else {
+        transitionKey = '';
+    }
+}
 function transition(target, initialStyle, isLeave) {
     if (!target) return;
     var { recoverStyle, transitionTimerStart, transitionTimerEnd } = target;
@@ -13,14 +26,15 @@ function transition(target, initialStyle, isLeave) {
     } else if (initialStyle instanceof Object) {
         let transitionDuration = 100;
         if (!initialStyle.transition) {
-            initialStyle.transition = "all .3s ease-out";
+            initialStyle.transition = "all .3s ease";
         }
+        if (transitionKey.length > 10) initialStyle[transitionKey] = initialStyle.transition;
         String(initialStyle.transition).replace(/([\.\d]+)(m?)s/gi, function (m, d, t) {
             if (t) transitionDuration = Math.max(+d, transitionDuration);
             else transitionDuration = Math.max(d * 1000, transitionDuration);
             return m;
         });
-        transitionDuration = transitionDuration || 100;
+        transitionDuration = transitionKey ? transitionDuration || 260 : 0;
         if (!recoverStyle) {
             let savedStyle = {};
             {
@@ -34,21 +48,19 @@ function transition(target, initialStyle, isLeave) {
         if (isLeave) {
             extend(target.style, initialStyle);
             transitionTimerEnd = setTimeout(function () {
-                target.style.transition = recoverStyle.transition;
-                if (transition.render instanceof Function) transition.render();
+                if (transitionKey) target.style[transitionKey] = recoverStyle.transition;
             }, transitionDuration + 2);
         } else {
             extend(target.style, initialStyle);
-            target.style.transition = "none";
+            if (transitionKey) target.style[transitionKey] = "none";
             transitionTimerStart = setTimeout(function () {
                 delete recoverStyle.transition;
-                target.style.transition = initialStyle.transition;
+                if (transitionKey) target.style[transitionKey] = initialStyle.transition;
                 extend(target.style, recoverStyle);
             });
             transitionTimerEnd = setTimeout(function (transition) {
                 return function () {
-                    target.style.transition = transition;
-                    if (transition.render instanceof Function) transition.render();
+                    if (transitionKey) target.style[transitionKey] = transition;
                 };
             }(recoverStyle.transition || ''), transitionDuration);
         }

@@ -92,7 +92,6 @@ var getTreeNodes = function (elem) {
 
 function main(elem, mode) {
     if (isElement(elem)) {
-        alert(navigator.userAgent)
         // var os = /Samsung|Firefox|Chrome|MSIE|Safari/i.exec(navigator.userAgent);
         // if (os) {
         //     os = os[0].toLowerCase();
