@@ -129,7 +129,8 @@ function main(mainPath, historyName = "glance") {
             }, 20);
         }
     };
-    on("transitionend")(layer, function () {
+    on("transitionend")(layer, function (event) {
+        if (event.target !== this) return;
         dispatch(window, 'render');
     });
     layer.closeLeft = function () {
