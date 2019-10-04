@@ -18,8 +18,9 @@ function Item(value) {
         this.icon = value.icon;
         this.color = value.color;
         this.test = value.test;
-        this.closed = value.closed;
+        this.closed = value.closed || value.is_closed || value.isClosed;
         this.class = value.class;
+        this.actived = value.actived || value.is_active || value.is_actived || value.active || value.isActive;
     }
     this.count = 0;
 }
