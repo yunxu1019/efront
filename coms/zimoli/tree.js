@@ -143,8 +143,13 @@ function tree() {
         if (index === changed_offset) {
             saved_offset = _div;
         }
+        com.closed = com.isClosed();
         onclick(_div, function () {
             if (!active(banner, com.value, com)) {
+                return;
+            };
+            if (com.isClosed() === com.closed) {
+                refresh();
                 return;
             };
             changed_index = index;

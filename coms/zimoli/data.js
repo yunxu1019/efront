@@ -95,6 +95,7 @@ function getTranspile(url) {
 }
 
 function transpile(src, trans, apiMap) {
+    if (!trans) return src;
     if (src instanceof Array) {
         return src.map(a => transpile(a, trans, apiMap));
     }
@@ -225,10 +226,10 @@ var parseData = function (sourceText) {
         return JSON.parse(sourceText);
     }
     var doc = document.implementation.createHTMLDocument("");
-    if (/^<!doctype/i.test(sourceText)) {
+    if (/^\s*\</i.test(sourceText)) {
         doc.documentElement.innerHTML = sourceText;
     } else {
-        doc.body.innerHTML = sourceText;
+        return sourceText;
     }
     return doc;
 }
@@ -327,7 +328,8 @@ var privates = {
         var spliterIndex = /[\:\|\/\~\!\?]/.exec(method);
         if (spliterIndex) spliterIndex = spliterIndex.index;
         else spliterIndex = method.length;
-        var realmethod = method.slice(0, spliterIndex).toLowerCase();
+        var coinmethod = method.slice(0, spliterIndex).toLowerCase()
+        var realmethod = coinmethod.replace(/\W+$/g, '');
         var uri = url.replace(/#[\s\S]*$/, "");
         params = extend({}, params);
         if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
@@ -368,6 +370,7 @@ var privates = {
             cachedLoadingPromise[id] = promise;
         }
         return promise.then(function (response) {
+            if (/\*$/.test(coinmethod)) return response;
             return transpile(seek(parseData(response), method.slice(spliterIndex + 1)), getTranspile(url), apiMap);
         });
     },
@@ -426,17 +429,19 @@ var data = {
             },
         });
     },
-    fromURL(url) {
-        privates.loadIgnoreConfig('get', url).then((data) => {
-            this.setInstance(url, data);
+    fromURL(url, parse) {
+        var data = this.getInstance(url);
+        data.loading_promise = privates.loadIgnoreConfig('get', url).then((data) => {
+            this.setInstance(url, parse instanceof Function ? parse(data) : data);
+            return data;
         });
-        return this.getInstance(url);
+        return data;
     },
-    asyncInstance(id, params, parser) {
+    asyncInstance(id, params, parse) {
         var data = this.getInstance(id);
         data.is_loading = true;
         data.loading_promise = privates.loadAfterConfig(id, params).then((data) => {
-            this.setInstance(id, data);
+            this.setInstance(id, parse instanceof Function ? parse(data) : data);
             return data;
         });
         return data;
