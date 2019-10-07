@@ -74,7 +74,7 @@ var dragview = function (dragview) {
  * 左侧为菜单
  * 菜单在小屏上收起，可以点击按钮打开
  */
-function main(mainPath, historyName = "glance") {
+function main(mainPath, historyName = "") {
     var layer = div();
     layer.innerHTML = glance;
     if (mainPath instanceof Object) {
