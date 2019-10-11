@@ -43,6 +43,7 @@ function picture(url, to = 0) {
                 // white space
                 image.locked = false;
             }
+            console.log(layerx, layery, image.locked)
             if (image.locked) {
                 scale(layerx, layery);
             } else {
@@ -145,6 +146,9 @@ function picture(url, to = 0) {
 
         moveupon(image, {
             start(event) {
+                if (!min_scale) onload.call(image);
+
+
                 saved_event = event;
                 event.moveLocked = this.locked;
                 if (!this.locked) {
