@@ -1,1 +1,1 @@
-var rootElements = [];
+[];
