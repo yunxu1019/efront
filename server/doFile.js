@@ -15,9 +15,10 @@ function pipe(h, start, end, res, sign) {
     var timeout = false;
     var safeend = function () {
         timeout = true;
+        fs.close(h, function () {
+            cacheCountLimit++;
+        });
         res.end();
-        fs.closeSync(h);
-        cacheCountLimit++;
     };
     cacheCountLimit--;
     if (cacheCountLimit < 0) {
@@ -29,7 +30,8 @@ function pipe(h, start, end, res, sign) {
         clearTimeout(halfend);
         safeend();
     };
-    var run = function () {
+    var run = function (err) {
+        if (err) return safeend();
         var ind = inc + cachePieceSize;
         if (ind > end) ind = end;
         var chunk = Buffer.alloc(ind - inc);
@@ -50,9 +52,8 @@ function pipe(h, start, end, res, sign) {
                 var signcurrent = sign.slice(signoffset) + sign.slice(0, signoffset);
                 chunk = encode62.decode(chunk, signcurrent);
             }
-            res.write(chunk);
             inc = inc + size;
-            run();
+            res.write(chunk, run);
         });
     };
     run();
