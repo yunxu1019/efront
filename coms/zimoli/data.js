@@ -190,7 +190,7 @@ function seek(data, seeker, apiMap = {}) {
 
 function parseConfig(api) {
     // `method url(?key=value(&key=value)*)?(#vid(&vname(&vicon)?)?)? name id(?key1)?(&key3)* comment?`
-    var { method, url, id, name, comment } = api;
+    var { method = "", url = "", id = "", name = "", comment } = api;
     var required = [];
     id = id.replace(/\?(.+?)$/, function (m, s) {
         s = s.split('&');
