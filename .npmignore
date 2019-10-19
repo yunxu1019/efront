@@ -29,3 +29,5 @@ cons/*.zip
 cons/font_*
 node_modules*
 tools/*.c
+data/shared.json
+data/count.json
