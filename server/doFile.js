@@ -95,7 +95,7 @@ function doFile(req, res) {
                 return;
             }
             start = +start | 0;
-            if (!start || start < 0 || req.headers["if-range"] !== stats.mtime.toUTCString()) {
+            if (!start || start < 0 || req.headers["if-range"] && req.headers["if-range"] !== stats.mtime.toUTCString()) {
                 start = 0;
             }
             if (start > stats.size || end && end < start || start < 0) {
