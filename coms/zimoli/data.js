@@ -387,6 +387,13 @@ var privates = {
     },
 
 };
+var instanceId = 0;
+var getInstanceId = function () {
+    if (instanceId++ === instanceId) {
+        instanceId = 1;
+    }
+    return instanceId;
+}
 var data = {
     decodeStructure,
     encodeStructure,
@@ -430,18 +437,32 @@ var data = {
         });
     },
     fromURL(url, parse) {
-        var data = this.getInstance(url);
+        var id = parse instanceof Function ? getInstanceId() : 0;
+        if (id) this.removeInstance(id);
+        var data = this.getInstance(id || url);
         data.loading_promise = privates.loadIgnoreConfig('get', url).then((data) => {
-            this.setInstance(url, parse instanceof Function ? parse(data) : data);
+            if (id) {
+                this.setInstance(id, parse(data), false);
+                this.removeInstance(id);
+            } else {
+                this.setInstance(url, data);
+            }
             return data;
         });
         return data;
     },
-    asyncInstance(id, params, parse) {
-        var data = this.getInstance(id);
+    asyncInstance(sid, params, parse) {
+        var id = parse instanceof Function ? getInstanceId() : 0;
+        if (id) this.removeInstance(id);
+        var data = this.getInstance(id || sid);
         data.is_loading = true;
-        data.loading_promise = privates.loadAfterConfig(id, params).then((data) => {
-            this.setInstance(id, parse instanceof Function ? parse(data) : data);
+        data.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
+            if (id) {
+                this.setInstance(id, parse(data), false);
+                this.removeInstance(id);
+            } else {
+                this.setInstance(sid, data);
+            }
             return data;
         });
         return data;
@@ -463,6 +484,11 @@ var data = {
         }
         return instanceDataMap[instanceId];
 
+    },
+    removeInstance(instanceId) {
+        delete instanceDataMap[instanceId];
+        localStorage.removeItem(instanceId);
+        sessionStorage.removeItem(instanceId);
     },
     /**
      * 设置一个延长生命周期的数据对象
