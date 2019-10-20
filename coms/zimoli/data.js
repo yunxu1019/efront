@@ -404,11 +404,16 @@ var data = {
         }
         return privates.getConfigPromise();
     },
-    from(ref, para, pars) {
+    from(ref, params, parse) {
+        if (params instanceof Function) {
+            parse = params;
+            params = {};
+        }
+
         if (/^\.*\/|\.\w+$/.test(ref)) {
-            return this.fromURL(ref, para);
+            return this.fromURL(ref, parse);
         } else {
-            return this.asyncInstance(ref, para, pars);
+            return this.asyncInstance(ref, params, parse);
         }
     },
 
@@ -460,13 +465,13 @@ var data = {
         return data;
     },
     asyncInstance(sid, params, parse) {
-        var id = parse instanceof Function ? getInstanceId() : 0;
+        var id = parse instanceof Function || params ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var data = this.getInstance(id || sid);
         data.is_loading = true;
         data.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
             if (id) {
-                this.setInstance(id, parse(data), false);
+                this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(sid, data);
