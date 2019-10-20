@@ -46,8 +46,11 @@ function transition(target, initialStyle, isLeave) {
             recoverStyle = savedStyle;
         }
         if (isLeave) {
-            extend(target.style, initialStyle);
+            transitionTimerStart = setTimeout(function () {
+                extend(target.style, initialStyle);
+            });
             transitionTimerEnd = setTimeout(function () {
+                console.log(target.style.opacity);
                 if (transitionKey) target.style[transitionKey] = recoverStyle.transition;
             }, transitionDuration + 2);
         } else {
