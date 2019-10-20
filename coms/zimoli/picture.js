@@ -43,7 +43,6 @@ function picture(url, to = 0) {
                 // white space
                 image.locked = false;
             }
-            console.log(layerx, layery, image.locked)
             if (image.locked) {
                 scale(layerx, layery);
             } else {
@@ -143,12 +142,17 @@ function picture(url, to = 0) {
             if (get_change()) return false;
         });
         var saved_event;
-
+        on("mousewheel")(image, function (event) {
+            var { layerX, layerY, deltaY } = event;
+            if (!deltaY) return;
+            this.locked = true;
+            var scale = Math.pow(0.99, deltaY);
+            var s = 100, t = s * scale;
+            touch([layerX - s, layerY - s, layerX + s, layerY + s], [layerX - t, layerY - t, layerX + t, layerY + t]);
+        });
         moveupon(image, {
             start(event) {
-                if (!min_scale) onload.call(image);
-
-
+                if (!min_scale || !(1 / min_scale)) onload.call(img);
                 saved_event = event;
                 event.moveLocked = this.locked;
                 if (!this.locked) {
@@ -156,7 +160,6 @@ function picture(url, to = 0) {
                     y = loaded_y;
                 }
                 move.reset();
-                // console.log(e);
             },
             move(event) {
                 event.moveLocked = this.locked;
@@ -189,7 +192,6 @@ function picture(url, to = 0) {
                     deltay = event.clientY - saved_event.clientY;
                 move(deltax, deltay);
                 saved_event = event;
-                // console.log(e);
             },
             end(event) {
                 event.moveLocked = this.locked;
