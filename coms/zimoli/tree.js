@@ -148,10 +148,6 @@ function tree() {
             if (!active(banner, com.value, com)) {
                 return;
             };
-            if (com.isClosed() === com.closed) {
-                refresh();
-                return;
-            };
             changed_index = index;
             changed_offset = com.length + index;
 
