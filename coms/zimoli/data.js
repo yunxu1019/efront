@@ -334,7 +334,7 @@ var privates = {
         params = extend({}, params);
         if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
-        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:\w+/, function (d) {
+        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z]\w*/i, function (d) {
             d = d.slice(1);
             rest.push(d);
             return params[d] || '';
@@ -404,6 +404,14 @@ var data = {
         }
         return privates.getConfigPromise();
     },
+    from(ref, para, pars) {
+        if (/^\.*\/|\.\w+$/.test(ref)) {
+            return this.fromURL(ref, para);
+        } else {
+            return this.asyncInstance(ref, para, pars);
+        }
+    },
+
     enrich(config = configPormise, userAgent) {
         if (!config) return;
         if (isString(config)) {
