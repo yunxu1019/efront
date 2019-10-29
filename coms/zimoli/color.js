@@ -2,10 +2,11 @@
  * Created by jams on 2016/5/13.
  */
 
-var { min, max, sin, cos, round, sqrt, random, PI } = Math;
+var { min, max, sin, cos, round, sqrt, random, PI, abs = a => a < 0 ? -a : a } = Math;
 // 色相
 function rotate_rgb(RGBA, theta) {
 	var [r, g, b, a] = RGBA;
+	if (isNaN(theta)) return [r, g, b, a];
 	var u = sqrt(3) / 3;
 	var pu = 1 / 3;
 	var cosa = cos(theta);
@@ -32,7 +33,7 @@ function rotate_rgb(RGBA, theta) {
 	red += dr;
 	green += dg;
 	blue += db;
-	return [round(red), round(green), round(blue), a];
+	return [red, green,blue, a];
 }
 // 对比度
 function contrast_rgb(RGBA, ratio) {
@@ -43,11 +44,11 @@ function contrast_rgb(RGBA, ratio) {
 	var red = ratio * r;
 	var green = ratio * g;
 	var blue = ratio * b;
-	return [round(red), round(green), round(blue), a];
+	return [red, green, blue, a];
 }
 
-var trim16 = a => max(min(a | 0, 15), 0);
-var trim256 = a => max(min(a | 0, 255), 0);
+var trim16 = a => max(min(round(a), 15), 0);
+var trim256 = a => max(min(round(a), 255), 0);
 var hex256 = function (num) {
 	num = trim256(num);
 	if (num < 16) return "0" + num.toString(16);
@@ -60,10 +61,62 @@ var hex16 = function (num) {
 function color(rgba) {
 	return parse(rgba);
 }
+function rgb2hsl([r, g, b]) {
+	r /= 255;
+	g /= 255;
+	b /= 255;
+	var _max = max(r, g, b), _min = min(r, g, b);
+	var h, s, l;
+	if (_max === _min) {
+		h = NaN;
+	} else if (_max === r) {
+		if (g >= b) {
+			h = 60 * (g - b) / (_max - _min);
+		} else {
+			h = 360 + 60 * (g - b) / (_max - _min);
+		}
+	} else if (_max === g) {
+		h = 120 + 60 * (b - r) / (_max - _min);
+	} else if (_max === b) {
+		h = 240 + 60 * (r - g) / (_max - _min);
+	}
+	l = (_max + _min) / 2;
+	if (_max === _min) {
+		s = NaN;
+	} else {
+		if (l < .5) {
+			s = (_max - _min) / (_max + _min);
+		} else {
+			s = (_max - _min) / (2 - (_max + _min))
+		}
+	}
+	return [h, s, l];
+}
+function t2rgb(t, p, q) {
+	if (t < 0) t += 1;
+	if (t > 1) t -= 1;
+	if (t < 1 / 6) return p + (q - p) * 6 * t;
+	if (t < .5) return q;
+	if (t < 2 / 3) return p + (q - p) * 6 * (2 / 3 - t);
+	return p;
+}
+function hsl2rgb([h, s, l]) {
+	var q = l < .5 ? l * (1 + s) : l + s - l * s;
+	var p = 2 * l - q;
+	h /= 360;
+	var r = h + 1 / 3;
+	var g = h;
+	var b = h - 1 / 3;
+	return [r, g, b].map(t => t2rgb(t, p, q));
+}
 function parse(color) {
-	if (rgbReg.test(color)) {
-		var [_, R, G, B, a] = rgbReg.exec(color);
+	if (hslReg.test(color)) {
+		var [_, H, S, L, a] = hslReg.exec(color);
+		[R, G, B] = hsl2rgb([H, S, L]);
 		return [R, G, B, a || 1];
+	} else if (rgbReg.test(color)) {
+		var [_, R, G, B, a] = rgbReg.exec(color);
+		return [R > 255 ? 255 : R, G > 255 ? 255 : G, B > 255 ? 255 : B, a || 1];
 	} else if (rgbHex.test(color)) {
 		var [_, R, G, B, A] = rgbHex.exec(color).map(a => parseInt(a + a, 16));
 		return [R, G, B, A >= 0 ? A / 0xff : 1];
@@ -118,23 +171,26 @@ function angle(c1, c2) {
 	var theta = Math.asin(e > 1 ? 1 : e < -1 ? -1 : e);
 	var phi = Math.acos(d > 1 ? 1 : d < -1 ? -1 : d);
 	if (theta < 0) {
-		if (phi > 0) {
-			theta = Math.PI * 2 + theta;
-		} else {
-			theta = Math.PI - theta;
-		}
+		theta = Math.PI * 2 - phi;
 	} else {
 		theta = phi;
 	}
 	return theta;
 }
+function equal(c1, c2) {
+	if (!isColor(c1) || !isColor(c2)) return false;
+	var [r1, g1, b1, a1] = parse(c1);
+	var [r2, g2, b2, a2] = parse(c2);
+	return abs(r1 - r2) < 1 && abs(g1 - g2) < 1 && abs(b1 - b2) < 1 && abs(a1 - a2) < .01;
+}
+var hslReg = /^hsla?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:,\s*([\d\.]+))?\)$/i;
 var rgbReg = /^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:,\s*([\d\.]+))?\)$/i;
 var rgbHex = /^#([\da-f])([\da-f])([\da-f])([\da-f])?$/i;
 var rgbHex2 = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})?$/i;
 var rotated_base_color = "#d16969";
 var colorReg = /rgba?\s*\([\,\.\d]+\)|#[\da-f]{3,8}/ig;
 function isColor(text) {
-	return rgbReg.test(text) || rgbHex.test(text) || rgbHex2.test(text);
+	return rgbReg.test(text) || rgbHex.test(text) || rgbHex2.test(text) || hslReg.test(text);
 }
 var replacer = function (match) {
 	if (!isColor(match)) return match;
@@ -161,8 +217,11 @@ extend(color, {
 	contrast(color, ratio) {
 		return doWith(contrast_rgb, color, ratio);
 	},
+	rgb2hsl,
+	hsl2rgb,
 	angle,
 	parse,
+	equal,
 	stringify,
 	isColor,
 	transform(text) {
