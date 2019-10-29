@@ -1,7 +1,24 @@
 var saved_list;
 var _remove = function () {
-    saved_list && remove(saved_list);
-    saved_list = null;
+    var removing_list = saved_list;
+    if (removing_list) {
+        var target = this;
+        setTimeout(function () {
+            if (removing_list !== saved_list) return remove(removing_list);
+            var { activeElement } = document;
+            if (!getTargetIn(removing_list, activeElement)) {
+                remove(removing_list);
+                if (removing_list === saved_list) saved_list = null;
+            } else {
+                once('blur')(activeElement, function () {
+                    setTimeout(function () {
+                        if (document.activeElement === target) return;
+                        _remove();
+                    })
+                });
+            }
+        });
+    }
 };
 var preventDefault = function (event) {
     event.preventDefault();
@@ -30,7 +47,11 @@ function select(target, list) {
             }
         });
         onmousedown(list, preventDefault);
-        onremove(list, () => saved_list = null);
+        onremove(list, () => {
+            if (saved_list === list) {
+                saved_list = null;
+            }
+        });
     };
     if (list) {
         var initList = function () {
