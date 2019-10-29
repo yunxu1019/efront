@@ -2,7 +2,7 @@ function getTargetIn(match, childTarget) {
     if (!isFunction(match)) {
         if (isNode(match)) {
             var parentNode = match;
-            match = target => target.parentNode === parentNode;
+            match = target => target === parentNode;
         }
     }
     while (childTarget) {
