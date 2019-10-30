@@ -21,12 +21,14 @@ var rep = function (matched) {
     if (searched) return searched;
     return matched;
 };
+var replaceArg=function(arg){
+    if (isString(arg)) {
+        return arg.replace(regexps, rep);
+    }
+    return arg;
+};
 function arriswise(func, argumentsList = [], thisObj) {
     var newf = String(func).replace(regexps, rep);
-    return Function.apply(null, argumentsList.slice(0, argumentsList.length >> 1).concat("return " + newf)).apply(thisObj, argumentsList.slice(argumentsList.length >> 1).map(function (arg) {
-        if (isString(arg)) {
-            return arg.replace(regexps, rep);
-        }
-        return arg;
-    }));
+    return Function.apply(null, argumentsList.slice(0, argumentsList.length >> 1).map(replaceArg).concat("return " + newf))
+    .apply(thisObj, argumentsList.slice(argumentsList.length >> 1).map(replaceArg));
 }
