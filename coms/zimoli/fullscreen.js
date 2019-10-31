@@ -2,8 +2,8 @@ var fullscreen = {
     is() {
         if (/chrome/i.test(navigator.userAgent)) {//webkit
             return window.innerHeight === screen.height && window.innerWidth === screen.width
-                || window.outerHeight > screen.availHeight
-                || window.outerWidth > screen.availWidth;
+                || (screen.height - window.outerHeight <= 16 && window.outerWidth <= window.innerWidth)
+                || (screen.width - window.outerWidth <= 16 && window.outerHeight <= window.innerHeight);
         } else {//IE 9+  fireFox
             return window.outerHeight === screen.height && window.outerWidth === screen.width;
         }
