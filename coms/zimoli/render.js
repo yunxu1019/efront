@@ -2,11 +2,13 @@
 
 var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = {};
+window.renderElements = renderElements;
 var renderidOffset = 10;
 var renderidClosed = 0;
 var addRenderElement = function () {
     var element = this;
     if (!isNode(element)) return;
+    if (element.renderid === 1) element.renderid = ++renderidOffset;
     renderElements[element.renderid] = element;
     rebuild(element);
 };
@@ -42,14 +44,16 @@ function rebuild(element) {
         dispatch(event, element);
     }
 }
+var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}]|\?\.(?=[^\d]))+/g;
 var createGetter = function (search, usetry = true) {
     var [withContext, searchContext] = search;
     if (/\?\.(?=[^\d])/.test(searchContext)) {
-        searchContext = searchContext.replace(/([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}]|\?\.(?=[^\d]))+/g, function (context) {
+        searchContext = searchContext.replace(variableReg, function (context) {
             var dist;
             context.split(/\?\.(?=[^\d])/).forEach(function (search) {
                 if (dist) {
-                    dist = `(${dist})!==void 0&&(${dist})!==null?(${dist}).${search}:null`
+                    if (/[\=]/.test(dist)) dist = `(${dist})`;
+                    dist = `${dist}!==void 0&&${dist}!==null?${dist}.${search}:null`
                 } else {
                     dist = search;
                 }
@@ -58,7 +62,7 @@ var createGetter = function (search, usetry = true) {
         });
     }
     if (usetry) {
-        return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
+        return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){console.warn(String(e))}`);
     }
     return new Function(`${withContext}with(this.$scope)return ${searchContext}`);
 };
@@ -104,7 +108,7 @@ var parseRepeat = function (expression) {
         srcName
     }
 };
-var createRepeat = function (search) {
+var createRepeat = function (search, id = 0) {
     // 懒渲染
     // throw new Error("repeat is not supported! use list component instead");
 
@@ -129,7 +133,7 @@ var createRepeat = function (search) {
         clonedElements = keys.map(function (key, cx) {
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
-            clone.renderid = 0;
+            clone.renderid = id;
             clone.$parentScopes = $parentScopes;
             var $scope = extend(Object.create(element.$scope), {
                 [keyName || '$key']: key,
@@ -148,32 +152,122 @@ var createRepeat = function (search) {
         once("append")(this, initialComment.bind(this, renders, "repeat", expression));
     }
 };
+var createIf = function (search, id = 0) {
+    // 懒渲染
+    var getter = createGetter(search).bind(this);
+    var element = this;
+    var savedValue;
+    var renders = [function () {
+        var result = getter();
+        result = !!result;
+        if (savedValue === result) return;
+        savedValue = result;
+        if (result) {
+            appendChild.before(this, element);
+            if (element.renderid < 0) {
+                element.renderid = id;
+                renderElement(element);
+                // console.log(element, element.renderid);
+                on('remove')(element, e =>
+                    console.log(element, id, element.renders, element.renderid)
+                );
+            }
+        } else {
+            remove(element);
+        }
+    }];
+    if (this.parentNode) {
+        initialComment.call(this, renders, "if", search[1]);
+    } else {
+        once("append")(this, initialComment.bind(this, renders, "if", search[1]));
+    }
+};
+var parseIfWithRepeat = function (ifExpression, repeatExpression) {
+    var repeater = parseRepeat(repeatExpression);
+    if (!repeater) {
+        throw new Error(`不能识别repeat表达式：${repeat}`);
+    }
+    var pair = [];
+    var rest = [], savedIndex = 0;
+    var reg = /[\(\)]|&&|;/g;
+    reg.lastIndex = 0;
+    var run = function () {
+        var res = reg.exec(ifExpression);
+        var { lastIndex } = reg;
+        if (res) {
+            switch (res[0]) {
+                case "(":
+                    pair.push(lastIndex);
+                    break;
+                case ")":
+                    pair.pop();
+                    break;
+                case ";":
+                case "&&":
+                    if (!pair.length) {
+                        rest.push(ifExpression.slice(savedIndex, lastIndex - 2));
+                        savedIndex = lastIndex;
+                    }
+                    break;
+            }
+        } else {
+            rest.push(ifExpression.slice(savedIndex, ifExpression.length));
+            savedIndex = ifExpression.length;
+        }
+    };
+    var inc = 0;
+    while (reg.lastIndex < ifExpression.length) {
+        if (inc++ > 100) throw new Error("请不要在if表达式中使用太多的条件!");
+        if (reg.lastIndex < savedIndex) break;
+        run();
+    }
+    var beforeRepeat = [], afterRepeat = [];
+    rest.forEach(function (result) {
+        var match = false;
+        result.replace(variableReg, function (variable) {
+            var name = /^[^\.]+/.exec(variable)[0];
+            if (name) {
+                name = name.replace(/\s/g, '');
+                if (name === repeater.srcName || name === repeater.itemName || name === repeater.indexName) {
+                    match = true;
+                }
+            }
+        });
+        if (match) {
+            afterRepeat.push(result);
+        } else {
+            beforeRepeat.push(result);
+        }
+    });
+    return {
+        before: beforeRepeat.filter(a => !!a),
+        after: afterRepeat.filter(a => !!a)
+    };
+};
+
+var createStructure = function ({ name: ifkey, value: ifexp } = {}, { name: forkey, value: repeat } = {}, context) {
+    var element = this;
+    if (!ifexp) return structures.repeat.call(element, [context, repeat]);
+    if (!repeat) return structures.if.call(element, [context, ifexp]);
+    var { before, after } = parseIfWithRepeat(ifexp, repeat);
+    if (!after.length) {
+        element.removeAttribute(ifkey);
+    } else {
+        element.setAttribute(ifkey, after.join("&&"));
+    }
+
+    if (before.length > 0) {
+        // 懒渲染
+        createIf.call(element, [context, before.join("&&")], null);
+    } else {
+        element.removeAttribute(forkey);
+        createRepeat.call(element, [context, repeat], null);
+    }
+};
+
 var structures = {
     "if"(search) {
-        // 懒渲染
-        var getter = createGetter(search).bind(this);
-        var element = this;
-        var savedValue;
-        var renders = [function () {
-            var result = getter();
-            result = !!result;
-            if (savedValue === result) return;
-            savedValue = result;
-            if (result) {
-                appendChild.before(this, element);
-                if (element.renderid < 0) {
-                    element.renderid = 0;
-                    renderElement(element);
-                }
-            } else {
-                remove(element);
-            }
-        }];
-        if (this.parentNode) {
-            initialComment.call(this, renders, "if", search[1]);
-        } else {
-            once("append")(this, initialComment.bind(this, renders, "if", search[1]));
-        }
+        createIf.call(this, search);
     },
     repeat(search) {
         createRepeat.call(this, search);
@@ -468,7 +562,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     if (element.children.length) renderElement(element.children, scope, parentScopes);
     if (!isFirstRender) return element;
-
     // 解析属性
     element.renders = element.renders ? [].concat(element.renders) : [];
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
@@ -490,7 +583,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     });
     rebuild(element);
     if (element.renders.length) {
-        element.renderid = ++renderidOffset;
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
         if (element.isMounted) addRenderElement.call(element);
@@ -512,17 +604,34 @@ function renderStructure(element, scope, parentScopes = []) {
     }
     var attrs = [].concat.apply([], element.attributes);
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
+    attrs = attrs.filter(a => structures.hasOwnProperty(a.name.replace(/^(ng|V|.*?)\-/i, '').toLowerCase()));
+    var types = {};
+    if (attrs.length > 2) throw new Error(`请不要在同一元素上使用三次及以上的结构属性:${attrs.map(a => a.name)}`);
     attrs.map(function (attr) {
-        var { name, value } = attr;
+        var { name } = attr;
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (structures.hasOwnProperty(key) && isFunction(structures[key])) {
-            if (element.renderid) {
-                throw new Error(`请不要在同一元素上使用两次结构属性${attrs.map(a => a.name)}!`);
+            if (element.renderid <= -2) {
+                if (/^if$/i.test(key)) {
+                    if (types.if) {
+                        throw new Error(`请不要在同一元素上使用多次if结构!`);
+                    }
+                } else {
+                    if (types.repeat) {
+                        throw new Error(`请不要在同一元素上使用多次repeat类型的属性!`);
+                    }
+                }
             }
-            element.renderid = -1;
-            structures[key].call(element, [withContext, value]);
+            if (/^if$/i.test(key)) {
+                types.if = attr;
+            } else {
+                types.repeat = attr;
+            }
+            if (!element.renderid) element.renderid = -1;
+            else element.renderid = -2;
         }
     });
+    if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
 function render(element, scope, parentScopes) {
     return renderElement(element, scope, parentScopes);
