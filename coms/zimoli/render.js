@@ -221,7 +221,7 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     rest.forEach(function (result) {
         var match = false;
         result.replace(variableReg, function (variable) {
-            var name = /^[^\.]+/.exec(variable)[0];
+            var name = /^[^\.\?\s]+/.exec(variable)[0];
             if (name) {
                 name = name.replace(/\s/g, '');
                 if (name === repeater.srcName || name === repeater.itemName || name === repeater.indexName) {
