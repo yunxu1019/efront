@@ -62,7 +62,7 @@ var createGetter = function (search, usetry = true) {
         });
     }
     if (usetry) {
-        return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){console.warn(String(e))}`);
+        return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
     }
     return new Function(`${withContext}with(this.$scope)return ${searchContext}`);
 };
