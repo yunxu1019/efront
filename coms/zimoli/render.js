@@ -167,10 +167,6 @@ var createIf = function (search, id = 0) {
             if (element.renderid < 0) {
                 element.renderid = id;
                 renderElement(element);
-                // console.log(element, element.renderid);
-                on('remove')(element, e =>
-                    console.log(element, id, element.renders, element.renderid)
-                );
             }
         } else {
             remove(element);
