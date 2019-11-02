@@ -44,7 +44,7 @@ function rebuild(element) {
         dispatch(event, element);
     }
 }
-var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}]|\?\.(?=[^\d]))+/g;
+var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\.(?=[^\d])|\s*\.\s*)+/g;
 var createGetter = function (search, usetry = true) {
     var [withContext, searchContext] = search;
     if (/\?\.(?=[^\d])/.test(searchContext)) {
