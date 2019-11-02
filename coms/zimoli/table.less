@@ -29,14 +29,17 @@ table {
         right: 0;
         background-color: rgba(0, 0, 0, .1);
     }
+    >*{
+        position: relative;
+    }
 }
 
 & {
     text-align: center;
-    line-height: 40px;
     border-collapse: collapse;
     >thead {
         user-select: none;
+        line-height: 36px;
         >tr {
             >td,
             >th {
@@ -48,6 +51,7 @@ table {
         }
     }
     >tbody {
+        line-height: 32px;
         >tr {
             >td,
             >th {
@@ -58,7 +62,7 @@ table {
         >tr:nth-child(even) {
             >td,
             >th {
-                background-color: #ccc;
+                background-color: #eee;
             }
         }
         >tr:nth-child(odd) {
