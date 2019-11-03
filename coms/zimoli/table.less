@@ -1,8 +1,10 @@
 &.dragging {
+box-shadow: 0 0 20px -6px #00000033;
     >thead,
     >tbody,
     & {
         >tr {
+
             >th,
             >td {}
         }
@@ -20,55 +22,74 @@ table {
 
 .y-ing {
     &:before {
-        content: "";
-        display: block;
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        background-color: rgba(0, 0, 0, .1);
+        content         : "";
+        display         : block;
+        position        : absolute;
+        left            : 0;
+        top             : 0;
+        bottom          : 0;
+        right           : 0;
+        background-color: rgba(0, 0, 0, .06);
     }
-    >*{
+
+    >* {
         position: relative;
     }
 }
 
 & {
-    text-align: center;
+    text-align     : center;
     border-collapse: collapse;
+
     >thead {
         user-select: none;
         line-height: 36px;
+
         >tr {
+
             >td,
             >th {
-                position: relative;
-                color: #fff;
+                position        : relative;
+                color           : #fff;
                 background-color: #999;
-                width: 100px;
+                width           : 100px;
             }
         }
     }
+
     >tbody {
         line-height: 32px;
+
         >tr {
+
             >td,
             >th {
                 position: relative;
-                width: 100px;
+                width   : 100px;
             }
-        }
-        >tr:nth-child(even) {
-            >td,
-            >th {
-                background-color: #eee;
+
+            &:nth-child(even) {
+
+                >td,
+                >th {
+                    background-color: #eee;
+                }
             }
-        }
-        >tr:nth-child(odd) {
-            >td,
-            >th {
-                background-color: #fff;
+
+            &:nth-child(odd) {
+
+                >td,
+                >th {
+                    background-color: #fff;
+                }
+            }
+
+            &:hover {
+
+                >td,
+                >th {
+                    background: #dddddd;
+                }
             }
         }
     }

@@ -112,6 +112,7 @@ function table(elem) {
     var activeCols = [];
     onmousemove(tableElement, adaptTarget);
     onmousemove(tableElement, function (event) {
+        if (!getTargetIn(thead, event.target)) return;
         var tds = getTargetIn(cellMatchManager, event.target);
         if (!isArray(tds)) tds = [];
         tds.map(function (td) {
