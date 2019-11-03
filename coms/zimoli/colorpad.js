@@ -185,7 +185,6 @@ function main(e) {
                 z = angle;
             }
             [x, y] = c2xy(z2c(z), value);
-            console.log(z, x, y, value)
             render();
         }
     });

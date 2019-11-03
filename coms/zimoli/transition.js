@@ -50,7 +50,6 @@ function transition(target, initialStyle, isLeave) {
                 extend(target.style, initialStyle);
             });
             transitionTimerEnd = setTimeout(function () {
-                console.log(target.style.opacity);
                 if (transitionKey) target.style[transitionKey] = recoverStyle.transition;
             }, transitionDuration + 2);
         } else {
