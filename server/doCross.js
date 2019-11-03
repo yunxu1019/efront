@@ -90,7 +90,6 @@ function cross(req, res, referer) {
             rejectUnauthorized: false// 放行证书不可用的网站
         }, URL.parse($url), options), function (response) {
             var headers = response.headers;
-            headers.origin && (headers["Access-Control-Allow-Credentials"] = true);
             var setCookie = headers["set-cookie"];
             if (setCookie && !is_proxy) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
             if (headers.location) {
