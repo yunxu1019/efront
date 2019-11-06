@@ -152,8 +152,22 @@ var page_generators = {};
  * 如果args是bool值true，那么当执行history.back()时，此对象被清除
  */
 var loading_tree = {};
-function prepare(pagepath, ok) {
-    if (page_generators[pagepath]) return isFunction(ok) && ok();
+function prepare(pagepath, ok, needroles) {
+    if (page_generators[pagepath]) {
+        if (isFunction(ok)) {
+            if (needroles === undefined) {
+                needroles = page_generators[pagepath].roles;
+            }
+            if (!needroles) {
+                ok(page_generators[pagepath]);
+            } else {
+                prepare(user.loginPath, _ => {
+                    ok(page_generators[pagepath]);
+                });
+            }
+        }
+        return;
+    }
     if (loading_tree[pagepath]) {
         if (isFunction(ok)) {
             loading_tree[pagepath].push(ok);
@@ -230,7 +244,7 @@ function prepare(pagepath, ok) {
         state.with(realTitleBar);
         return realTitleBar;
     };
-    var roles = null;
+    var roles = needroles || null;
     state.login = function () {
         // rolesA[role1,role2,...],rolesB,rolesC,...
         // rolesA中的role1,role2,...等所有身份都必须具备才可以确定一种访问权限
@@ -241,17 +255,31 @@ function prepare(pagepath, ok) {
         }
     };
     var emit = function (pg) {
-        page_generators[pagepath] = {
-            pg,
-            roles,
-            state,
-            with: _with_elements,
-            onback: _pageback_listener,
-            prepares
-        };
-        loading_tree[pagepath] && loading_tree[pagepath].forEach(function (ok) {
-            return isFunction(ok) && ok();
-        });
+        if (pg) {
+            page_generators[pagepath] = {
+                pg,
+                roles,
+                state,
+                with: _with_elements,
+                onback: _pageback_listener,
+                prepares
+            };
+        }
+        var res = page_generators[pagepath];
+        var emiters = loading_tree[pagepath];
+        if (emiters) {
+            var noRoles = !res.roles;
+            while (emiters.length) {
+                var ok = emiters.shift();
+                if (isFunction(ok)) {
+                    ok(res)
+                }
+                if (noRoles && res.roles) {
+                    prepare(user.loginPath, () => emit())
+                    return;
+                }
+            }
+        }
         delete loading_tree[pagepath];
     };
     return init(pagepath, function (pg) {
