@@ -152,17 +152,15 @@ var page_generators = {};
  * 如果args是bool值true，那么当执行history.back()时，此对象被清除
  */
 var loading_tree = {};
-function prepare(pagepath, ok, needroles) {
+function prepare(pagepath, ok) {
     if (page_generators[pagepath]) {
         if (isFunction(ok)) {
-            if (needroles === undefined) {
-                needroles = page_generators[pagepath].roles;
-            }
-            if (!needroles) {
-                ok(page_generators[pagepath]);
+            var res = page_generators[pagepath];
+            if (!res.roles) {
+                ok(res);
             } else {
                 prepare(user.loginPath, _ => {
-                    ok(page_generators[pagepath]);
+                    ok(res);
                 });
             }
         }
@@ -244,7 +242,7 @@ function prepare(pagepath, ok, needroles) {
         state.with(realTitleBar);
         return realTitleBar;
     };
-    var roles = needroles || null;
+    var roles = res || null;
     state.login = function () {
         // rolesA[role1,role2,...],rolesB,rolesC,...
         // rolesA中的role1,role2,...等所有身份都必须具备才可以确定一种访问权限
