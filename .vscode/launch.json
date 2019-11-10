@@ -14,7 +14,7 @@
             "args": [
                 "build"
             ],
-            "program": "${workspaceFolder}\\main.js"
+            "program": "${workspaceFolder}/main.js"
         },
         {
             "type": "node",
@@ -24,9 +24,9 @@
                 "app": "reptile"
             },
             "args": [
-                "/main"
+                "m3u8Download_test"
             ],
-            "program": "${workspaceFolder}\\main.js"
+            "program": "${workspaceFolder}/main.js"
         },
         {
             "type": "node",
@@ -35,7 +35,7 @@
             "args": [
                 "demo"
             ],
-            "program": "${workspaceFolder}\\main.js"
+            "program": "${workspaceFolder}/main.js"
         }
     ]
 }
