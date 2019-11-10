@@ -22,7 +22,7 @@ page.innerHTML = `
                 <btn ng-if='new Date-data.sendTime>data.waitTime' ng-click=resend()>${i18n("重新发送", "Resend")}</btn>
                 <span ng-if='new Date-data.sendTime<=data.waitTime'>
                 ${i18n("<span ng-bind='String((data.sendTime-new Date+data.waitTime)/1000|0)'></span>秒后重新发送",
-        "Resend in <span ng-bind='String((data.sendTime-new Date+data.waitTime)/1000|0)'></span> seconds")}
+    "Resend in <span ng-bind='String((data.sendTime-new Date+data.waitTime)/1000|0)'></span> seconds")}
                 </span>
             </div>
         </field>
@@ -63,7 +63,7 @@ render(page, {
 })
 var ticker = function () {
     if (data.step === 2 && new Date() - data.sendTime <= data.waitTime) ticker.ing = requestAnimationFrame(ticker);
-    render.refresh();
+    dispatch(window, "render");
 };
 page.initialStyle = `z-index:1;margin-left:100%`;
 onremove(page, function () {

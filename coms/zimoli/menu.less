@@ -100,13 +100,50 @@ body:active & {
     padding   : 0;
     margin    : 0;
 
+    // &[browser=samsung] {
+    //     .tab1 {
+    //         &.open s {
+    //             overflow   : visible;
+    //             text-indent: -6.6pt;
+    //         }
+    //         &.closed s{
+    //             overflow   : visible;
+    //             text-indent: 3.1pt;
+    //         }
+    //     }
+    // }
+
+    // &[browser=firefox] {
+    //     .tab1 {
+    //         &.open s {
+    //             text-indent: -8.6px;
+    //         }
+
+    //         &.closed s {
+    //             text-indent: -4.1px;
+    //         }
+    //     }
+    // }
+
+    // &[browser=safari] {
+    //     .tab1 {
+    //         &.open s {
+    //             text-indent: -5.6px;
+    //         }
+
+    //         &.closed s {
+    //             text-indent: -1.1px;
+    //         }
+    //     }
+    // }
+
     .tab1 {
         &.open {
             color     : #fff;
             background: #1e282c;
 
-            &:after {
-                text-indent: -13px;
+            & s:after {
+                top: -10px;
             }
         }
 
@@ -116,28 +153,41 @@ body:active & {
             border-left-color: #3c8dbc;
         }
 
-        &:after {
-            writing-mode: vertical-rl;
-            text-indent : -8px;
-            content     : "×";
-            font-size   : 24px;
-            line-height : 24px;
-            height      : 6px;
-            overflow    : hidden;
-            display     : block;
-            position    : absolute;
-            right       : 10px;
-            top         : 50%;
-            margin-top  : -3px;
-            color       : #fff;
-            transition  : text-indent .2s ease-out;
+        & s {
+            display   : block;
+            height    : 5px;
+            width     : 20px;
+            right     : 10px;
+            position  : absolute;
+            overflow  : hidden;
+            top       : 50%;
+            margin-top: -2.5px;
         }
 
-        &.closed:after {
-            text-indent: -8px;
+        & s:after {
+            content    : "×";
+            box-sizing : border-box;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size  : 20px;
+            line-height: 20px;
+            height     : 20px;
+            padding    : 0;
+            font-weight: normal;
+            text-align : center;
+            display    : block;
+            text-align : start;
+            position   : absolute;
+            right      : 0;
+            left       : 0;
+            color      : #fff;
+            transition : top .2s ease-out;
         }
 
-        &.empty:after {
+        &.closed s:after {
+            top: -5px;
+        }
+
+        &.empty s {
             display: none;
         }
 
@@ -164,6 +214,7 @@ body:active & {
             font-size  : 14px;
             background : #2c3b41;
             color      : #8aa4af;
+
             &.checked,
             &.actived,
             &.selected {

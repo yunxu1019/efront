@@ -2,21 +2,22 @@ function moveupon(target, { start, move, end }, initialEvent) {
     var touchLocked = false;
     var offmousemove, offtouchmove, offmouseup, offtouchend, offtouchcancel;
     var mousemove = function (event) {
-        move instanceof Function && move.call(this, event);
+        move instanceof Function && move.call(target, event);
     };
 
     var touchmove = function (event) {
         extendTouchEvent(event);
-        move instanceof Function && move.call(this, event);
+        move instanceof Function && move.call(target, event);
     };
     var cancel = function (event) {
+        if (event.touches && event.touches.length) return;
         offmousemove && offmousemove();
         offmouseup && offmouseup();
         offtouchmove && offtouchmove();
         offtouchcancel && offtouchcancel();
         offtouchend && offtouchend();
         touchLocked = false;
-        end instanceof Function && end.call(this, event);
+        end instanceof Function && end.call(target, event);
     };
     var hookmouse = function () {
         if (touchLocked) return;

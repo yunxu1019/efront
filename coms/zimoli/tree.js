@@ -42,7 +42,7 @@ function getArrayFromTree(root, skipClosed = true) {
         elem.parent = item;
         result.push(elem);
         pathcx[pathindex] = ++cx;
-        if (!skipClosed || !elem.closed) {
+        if (!skipClosed || !elem.isClosed()) {
             if (elem.length) {
                 path.push(elem);
                 pathcx.push(0);
@@ -104,22 +104,23 @@ function tree() {
             span.appendChild(elem);
         } else {
             span = div();
-            html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.closed && com.length ? " <a>(" + com.count + ")</a>" : ""}`);
+            html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.isClosed() && com.length ? " <a>" + com.count + "</a>" : ""}`);
         }
         var _div = button(span);
         addClass(_div, "tab" + com.tab);
-        if (com.checked || com.is_checked) {
+        if (com.isChecked()) {
             addClass(_div, "checked");
-        } else if (com.selected || com.is_selected) {
+        } else if (com.isSelected()) {
             addClass(_div, "selected");
         }
-        if (com.actived || com.is_actived) {
+        if (com.isActive()) {
             addClass(_div, "actived");
         }
-        if (com.class) {
-            addClass(_div, com.class);
+        var class1 = com.getClass();
+        if (class1) {
+            addClass(_div, class1);
         }
-        var setState = function (closed = com.closed) {
+        var setState = function (closed = com.isClosed()) {
             removeClass(com.target, 'open empty closed');
             if (com.length) {
                 if (closed) {
@@ -142,11 +143,11 @@ function tree() {
         if (index === changed_offset) {
             saved_offset = _div;
         }
+        com.closed = com.isClosed();
         onclick(_div, function () {
             if (!active(banner, com.value, com)) {
                 return;
             };
-            com.closed = !com.closed;
             changed_index = index;
             changed_offset = com.length + index;
 
@@ -165,11 +166,11 @@ function tree() {
                 // debugger;
 
                 refresh();
-                if (!com.closed && com.length && saved_top) {
+                if (!com.isClosed() && com.length && saved_top) {
                     var change_elem = saved_top.nextSibling;
                     if (!change_elem) return;
                     var margin_top;
-                    if (!saved_offset) {
+                    if (!saved_offset || !saved_offset.offsetTop) {
                         margin_top = saved_top.offsetHeight + saved_top.offsetTop - banner.scrollHeight;
                     } else {
                         margin_top = saved_top.offsetHeight + saved_top.offsetTop - saved_offset.offsetTop - saved_offset.offsetHeight;
@@ -180,7 +181,7 @@ function tree() {
                     timeout(z1, res);
                 };
             };
-            if (com.closed && com.length) {
+            if (com.isClosed() && com.length) {
                 z0();
                 setState(true);
                 var bottom = com[com.length - 1].target;

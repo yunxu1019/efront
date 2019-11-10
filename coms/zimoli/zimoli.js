@@ -297,7 +297,6 @@ function create(pagepath, args, from) {
     return _page;
 
 }
-
 function zimoli(pagepath, args, history_name, oldpagepath) {
     if (arguments.length === 0) {
         history_name = current_history;
@@ -370,7 +369,7 @@ var popstate = function (path_name, history_name) {
 var getCurrentHash = function () {
     var _historylist = history[current_history];
     if (rootElements.length) {
-        return `#${current_history}`;
+        return `#${current_history}/`;
     }
     if (_historylist.length < 2) return "";
     var targeturl = `#${current_history}${_historylist.length ? _historylist[_historylist.length - 1] : ""}`;
@@ -491,5 +490,8 @@ zimoli.setStorage = function (storage) {
         history = JSON.parse(hostoryStorage.getItem(history_session_object_key)) || history;
     } catch (e) {
     }
+};
+zimoli.getCurrentHistory = function () {
+    return history[current_history];
 };
 zimoli.inithash = locationInitHash;

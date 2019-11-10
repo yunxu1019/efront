@@ -1,5 +1,5 @@
 function Item(value) {
-    this.value = value;
+    this.value = value instanceof Object ? value : Object.create(value);
     this.valueOf = function () {
         return value;
     };
@@ -18,9 +18,23 @@ function Item(value) {
         this.icon = value.icon;
         this.color = value.color;
         this.test = value.test;
-        this.closed = value.closed;
-        this.class = value.class;
     }
     this.count = 0;
 }
-Item.prototype = [];
+Item.prototype = extend([], {
+    isClosed() {
+        return this.value.closed;
+    },
+    isActive() {
+        return this.value.active || this.value.actived;
+    },
+    isSelected() {
+        return this.value.selected;
+    },
+    isChecked() {
+        return this.value.checked;
+    },
+    getClass() {
+        return this.value.class;
+    }
+});

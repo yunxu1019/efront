@@ -5,6 +5,7 @@ function parseKV(string, spliter = "&", equals = "=") {
         var kvs = string.split(spliter)
         for (var cx = 0, dx = kvs.length; cx < dx; cx++) {
             var kv = kvs[cx];
+            if (!kv) continue;
             var index = kv.indexOf(equals);
             object[decode(kv.slice(0, index))] = decode(kv.slice(index + 1));
         }

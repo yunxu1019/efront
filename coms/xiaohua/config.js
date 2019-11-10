@@ -18,7 +18,6 @@ new Promise(function (ok) {
         alert.error(i18n(error));
     };
     cross.digest = render.digest;
-    api.setLazyRender(render.refresh);
     if (!user.isLogin) {
         var logout = function () {
             user.Logout();

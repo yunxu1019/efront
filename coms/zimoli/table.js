@@ -1,4 +1,3 @@
-var tableContainer = createElement("table");
 
 var recover = function (element) {
     moveMargin(element, 0);
@@ -108,12 +107,12 @@ var adaptTarget = function (event) {
 var tdElementReg = /^t[hd]$/i;
 var trElementReg = /^tr$/i;
 
-function table(rowsGenerator) {
-    var tableElement = createElement(tableContainer);
+function table(elem) {
+    var tableElement = isNode(elem) ? elem : document.createElement("table");
     var activeCols = [];
-    var adapter = {};
     onmousemove(tableElement, adaptTarget);
     onmousemove(tableElement, function (event) {
+        if (!getTargetIn(thead, event.target)) return;
         var tds = getTargetIn(cellMatchManager, event.target);
         if (!isArray(tds)) tds = [];
         tds.map(function (td) {
@@ -134,7 +133,6 @@ function table(rowsGenerator) {
         });
     })
     var table = list(tableElement);
-    table.innerHTML = `<thead><tr><td colspan=2><span>1</span></td><td rowspan=2><span>th1</span></td><td>th3</td><td>th4</td></tr><tr><td>th3</td><td>th4</td></tr></thead><tbody><tr><td rowspan=2>td1</td><td>td2</td><td>td3</td><td>td4</td></tr><tr><td rowspan=2>td1</td><td>td2</td></tr></tbody>`;
     var [thead, tbody] = table.children;
     var cellMatchManager = function (element) {
         if (table.resizing) return false;
@@ -185,5 +183,3 @@ function table(rowsGenerator) {
     );
     return table;
 }
-table.tr = tr;
-table.td = td;

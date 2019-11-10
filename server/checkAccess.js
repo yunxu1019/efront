@@ -19,7 +19,7 @@ function checkAccess(fullpath) {
     fullpath = path.resolve(fullpath);
     for (var cx = 0, dx = rootDirectorys.length; cx < dx; cx++) {
         var relpath = path.relative(fullpath, rootDirectorys[cx]);;
-        if (/^\.\.?[\/\\]|^$/.test(relpath)) return true;
+        if (/^\.\.?[\/\\]|^$|^\.\.?$/.test(relpath)) return true;
     }
     return false;
 }

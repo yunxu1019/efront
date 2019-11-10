@@ -266,7 +266,22 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     } else if (length.length === 2) {
         length = "0" + length;
     }
-    data = (_arguments.length ? length + _arguments : "") + data.replace(/[\u0100-\uffff]/g, m => "\\u" + (m.charCodeAt(0) > 0x1000 ? m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)));
+    data = (_arguments.length ? length + _arguments : "") + data
+        .replace(
+            /[\u0100-\uffff]/g,
+            m => "\\u" + (m.charCodeAt(0) > 0x1000
+                ? m.charCodeAt(0).toString(16)
+                : 0 + m.charCodeAt(0).toString(16)
+            )
+        )
+        .replace(/\#([\da-f]{8}|[\da-f]{4}\b)/gi, function (m, a) {
+            switch (a.length) {
+                case 4:
+                    return `rgba(${a.slice(0, 3).split("").map(a => parseInt(a + a, 16))},${(parseInt(a[3], 16) / 15).toFixed(4)})`;
+                case 8:
+                    return `rgba(${a.slice(0, 6).replace(/\w{2}/g, a => parseInt(a, 16) + ",")}${(parseInt(a.slice(6), 16) / 255).toFixed(4)})`;
+            }
+        });
     return data;
 };
 var getFileData = function (fullpath) {

@@ -3,6 +3,7 @@
         "slider-src": "get:[].mod-slider>.swipe-wrap>div  .#src=img!src&href=a!href",
         "songs-list": "get:[].panel-songslist>li          .#id=!id&.panel-songs-item-name>span!innerText",
         "rank-list": "get:[].panel-img-list>li            rang/list#href=a!href&src=img!_src&name=p!innerText",
+        "rank-info": "get:[].panel-img-list>li            rank/info/:id#href=a!href&src=img!_src&name=p!innerText",
         "plist-index": "get:[].panel-img-list>li          plist/index#href=a!href&src=img!_src&name=.panel-img-content-first|innerText&count=.panel-img-content-sub|innerText",
         "singer-class": "get:[].bd%20li                   singer/class#href=a!href&name=a!innerText",
         "search-hot": "get                                api/v3/search/hot?format=json&plat=0&count=30",

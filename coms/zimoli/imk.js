@@ -45,7 +45,7 @@ function main() {
 
             var timing = setTimeout(() => {
                 this.closed = !this.closed;
-                render.refresh();
+                dispatch(window, 'render');
             }, 699);
             addClass(imk, "active");
             var clean = function () {

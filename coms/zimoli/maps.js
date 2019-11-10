@@ -239,15 +239,15 @@ maps.prototype = {
             this.center = [+lng, +lat];
             this.refresh();
         } else if (lng instanceof Object) {
-            if (issearching in lng) return;
-            ing.issearching = true;
+            if ("issearching" in lng) return;
+            lng.issearching = true;
             if (lng instanceof Array) {
                 var [lng, lat] = lng;
             } else {
                 var { lng, lat } = lng;
             }
             this.Center(lng, lat);
-            delete ing.issearching;
+            delete lng.issearching;
         }
         return this.center;
     },

@@ -3,7 +3,9 @@
  */
 var baseUrl = "api";
 var runner = null;
-var lazyRender = null;
+var lazyRender = function () {
+    dispatch(window, 'render');
+};
 var REQ = null;
 var api = function () {
     var method, uri, parameters, prefix;

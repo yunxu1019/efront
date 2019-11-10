@@ -74,7 +74,7 @@ var dragview = function (dragview) {
  * 左侧为菜单
  * 菜单在小屏上收起，可以点击按钮打开
  */
-function main(mainPath, historyName = "glance") {
+function main(mainPath, historyName = "") {
     var layer = div();
     layer.innerHTML = glance;
     if (mainPath instanceof Object) {
@@ -99,7 +99,6 @@ function main(mainPath, historyName = "glance") {
                 page.setAttribute('layer', 'top');
                 appendChild.replace(topLayer, page);
                 topLayer = page;
-                css(layer, { paddingTop: fromOffset(topLayer.offsetHeight) });
             });
         }
     });
@@ -130,6 +129,10 @@ function main(mainPath, historyName = "glance") {
             }, 20);
         }
     };
+    on("transitionend")(layer, function (event) {
+        if (event.target !== this) return;
+        dispatch(window, 'render');
+    });
     layer.closeLeft = function () {
         closed = true;
         bindClass();

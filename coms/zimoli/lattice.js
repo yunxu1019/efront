@@ -8,6 +8,7 @@ var complete_class = "complete";
 var inadequate_class = "lack";
 function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     var boxCount;
+
     var resize = function () {
         var _layers = layers || _box.src || [];
         var clientWidth = parseFloat(freePixel(_box.clientWidth));
@@ -56,16 +57,8 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
             element.with.forEach(build);
         }
     };
-    on("changes")(_box, function ({ changes }) {
-        if (changes.src) {
-            boxCount = 0;
-            this.resize();
-        }
-    });
     onappend(_box, function () {
-        resize();
         mountedLattices.push(_box);
-        [].forEach.call(_box.children, build);
     });
     onremove(_box, function () {
         for (var cx = mountedLattices.length - 1; cx >= 0; cx--) {
@@ -74,7 +67,11 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
             }
         }
     });
-    _box.resize = function () {
+    var savedClientWidth = 0;
+    _box.resize = lazy(function () {
+        if (savedClientWidth === _box.clientWidth) return;
+        savedClientWidth = _box.clientWidth;
+
         var savedCount = boxCount;
         var index = _box.index();
         var realIndex = index * boxCount;
@@ -83,7 +80,9 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         index = realIndex / boxCount;
         remove(_box.children);
         _box.go(index);
-    };
+    });
+    if (!_box.renders) _box.renders = [];
+    _box.renders.unshift(_box.resize);
     return _box;
 }
 function main() {

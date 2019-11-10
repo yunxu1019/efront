@@ -20,7 +20,7 @@ var isHelpMode = configs.help;
 var isPublicMode = configs.build || configs.public;
 var isWatchMode = configs.watch;
 var isServerMode = configs.server || configs.serve;
-var isInitCommand = configs.init;
+var isInitCommand = configs.init || configs.from;
 var isDocsCommand = configs.doc || configs.docs;
 var isDemoCommand = configs.demo || configs.zimoli;
 var loadModule = process.argv.slice(2).filter(e => /\/|_test$|\.[tj]sx?$/i.test(e));
@@ -28,7 +28,7 @@ var isStartCommand = configs.start || configs.run;
 try {
 
     if (isHelpMode) {
-        console.log("these commands can be used: test server public init watch");
+        console.log("these commands can be used: test server public init watch from");
     } else if (isDocsCommand) {
         setenv({
             public_path: path.join(__dirname, "apps"),
@@ -43,7 +43,7 @@ try {
             public_path: path.join(__dirname, "apps"),
             page_path: path.join(__dirname, "apps"),
             coms_path: path.join(__dirname, "coms"),
-            app: "zimoli"
+            app: "kugou"
         });
         require("./process/setupenv");
         require("./server/main");
@@ -54,7 +54,14 @@ try {
     } else if (isPublicMode) {
         require("./tools/build");
     } else if (isInitCommand) {
-        require("./tools/create");
+        if (configs.from) {
+            var index = process.argv.map(a => a.toLowerCase()).indexOf('from');
+            var appname = process.argv[index + 1];
+            if (!appname) {
+                throw new Error("语法：efront from APPNAME \r\n APPNAME为zimoli,kugou之一")
+            }
+        }
+        require("./tools/create")(appname);
     } else if (isWatchMode) {
         require("./tools/watch");
     } else if (loadModule.length > 0) {

@@ -45,17 +45,17 @@ var checkCircle = function (deepEqual) {
     return deepEqual(a, b);
 };
 var checkDoubleCircle = function (deepEqual) {
-    a = { a: {} };
-    b = { a };
-    c = { a: {} };
+    var a = { a: {} };
+    var b = { a };
+    var c = { a: {} };
     c.a.a = c;
     a.a.a = a;
     return deepEqual(a, b) && deepEqual(a, a.a) && deepEqual(c, a);
 };
 var checkMultiCircle = function (deepEqual) {
-    a = { a: {} };
-    b = { a: { a: { a } } };
-    c = { a: {} };
+    var a = { a: {} };
+    var b = { a: { a: { a } } };
+    var c = { a: {} };
     c.a.a = c;
     a.a.a = a;
     // b与a出现环形的节点不一样

@@ -12,8 +12,8 @@ var setInitialStyle = function (element) {
 };
 var setPosition = function (element) {
     css(element, {
-        marginLeft: fromPixel(-element.offsetWidth / 2),
-        marginTop: fromPixel(-element.offsetHeight / 2),
+        marginLeft: fromOffset(-element.offsetWidth / 2),
+        marginTop: fromOffset(-element.offsetHeight / 2),
         left: "50%",
         top: "50%"
     });

@@ -28,7 +28,7 @@ menu.initialStyle = "transform:scale(.92)";
 css(menu, "background-image: linear-gradient(0deg, #0b3b5d, 5%, #031341, 90%, #235b71);height:100%;width:100%");
 css("body", "background:url('images/background.jpg') no-repeat;background-size:cover;");
 css(":after,:before,*", "box-sizing:border-box;");
-css(".titlebar", { backgroundColor: "rgb(44, 162, 249)" });
+css(".titlebar", { backgroundColor: "rgb(44, 162, 249,.7)" });
 zimoli.setStorage(localStorage);
 api.setBaseUrl(config.api_base, cross);
 api.setHeaders({}, false);
@@ -40,7 +40,6 @@ api.onerror = function (error) {
     alert.error(i18n(error));
 };
 cross.digest = render.digest;
-api.setLazyRender(render.refresh);
 user.setLoginPath("/user/welcome");
 user.setStateFunction(state);
 var mainView = function () {
