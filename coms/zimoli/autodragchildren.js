@@ -9,8 +9,8 @@ var hookx = function (matcher, move, event, targetChild) {
         css(element, {
             transition: movePixels !== false ? "margin .1s" : '',
             userSelect: "none",
-            marginLeft: movePixels ? movePixels + "px" : "",
-            marginRight: movePixels ? -movePixels + "px" : ""
+            marginLeft: movePixels ? fromOffset(movePixels) : "",
+            marginRight: movePixels ? fromOffset(-movePixels) : ""
         });
         if (isArray(element.with)) {
             element.with.map(function (element) {

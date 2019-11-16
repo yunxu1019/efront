@@ -1,7 +1,7 @@
 var toCloneTarget = function (target) {
     var clone = cloneVisible(target);
     var position = getScreenPosition(target);
-    css(clone, `position:absolute;left:${position.left}px;top:${position.top}px;user-select:none;`);
+    css(clone, `position:absolute;left:${fromOffset(position.left)};top:${fromOffset(position.top)};user-select:none;`);
     setOpacity(target, 0);
     return clone;
 };
@@ -52,7 +52,7 @@ function drag(target, initialEvent, overflow) {
         move.call(clone, offsetLeft, offsetTop, overflow);
         cloneDeltaLeft += clone.offsetLeft;
         cloneDeltaTop += clone.offsetTop;
-        extraClones.map(clone => css(clone, `left:${fromPixel(clone.offsetLeft + cloneDeltaLeft)};top:${fromPixel(clone.offsetTop + cloneDeltaTop)};`));
+        extraClones.map(clone => css(clone, `left:${fromOffset(clone.offsetLeft + cloneDeltaLeft)};top:${fromOffset(clone.offsetTop + cloneDeltaTop)};`));
         dispatch("dragmove", target);
     };
     var clear = function () {
