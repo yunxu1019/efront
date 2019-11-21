@@ -59,6 +59,7 @@ var getTdsByCol = function (table, start, end) {
     return [].concat.apply([], getRowsOfTdsByCol(table, start, end));
 };
 var resizeTarget = function (event) {
+    event.moveLocked = true;
     var { resizing } = this;
     var { restX, target } = resizing;
     var targetX = event.clientX - restX;
@@ -74,7 +75,6 @@ var getFirstSingleColCell = function (table, col) {
     }
 }
 var adaptTarget = function (event) {
-    if (event.which === 1 && this.resizing) return event.preventDefault(), resizeTarget.call(this, event);
     if (event.which) return;
     var target = event.target;
     while (target && !tdElementReg.test(target.tagName)) {
@@ -111,6 +111,10 @@ function table(elem) {
     var tableElement = isNode(elem) ? elem : document.createElement("table");
     var activeCols = [];
     onmousemove(tableElement, adaptTarget);
+    moveupon(tableElement, {
+        start() { },
+        move: resizeTarget,
+    });
     onmousemove(tableElement, function (event) {
         if (!getTargetIn(thead, event.target)) return;
         var tds = getTargetIn(cellMatchManager, event.target);
@@ -131,9 +135,10 @@ function table(elem) {
         activeCols.map(function (td) {
             removeClass(td, "y-ing");
         });
-    })
+    });
     var table = list(tableElement);
-    var [thead, tbody] = table.children;
+    var [thead] = table.getElementsByTagName("thead");
+    var [tbody] = table.getElementsByTagName("tbody");
     var cellMatchManager = function (element) {
         if (table.resizing) return false;
         if (!tdElementReg.test(element.tagName)) return false;
