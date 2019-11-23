@@ -192,8 +192,10 @@ var getVariables = function (ast) {
                     ast.type = "EmptyStatement";
                     break;
                 }
-            // case "UnaryExpression":
-            //     if (ast.operator === "typeof") break;
+            case "UnaryExpression":
+                if (ast.operator === "typeof" && ast.argument.type === 'Identifier') {
+                    break;
+                }
             default:
                 for (var k in ast) {
                     var {
