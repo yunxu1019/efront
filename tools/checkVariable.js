@@ -6,6 +6,7 @@ var typescript = require("../process/typescript/typescript");
 var check = function (root) {
     var rest = [].concat.apply([], arguments);
     var map = {
+        devicePixelRatio: 1,
         "screen": true,
         "window": true,
         "document": true,
