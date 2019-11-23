@@ -287,7 +287,7 @@ var executer = function (text, name, then, prebuild, parents) {
     var [functionArgs, functionBody] = getArgs(text);
     if (!functionArgs.length) {
         if (prebuild && hasOwnProperty.call(prebuild, name)) return then(prebuild[name]);
-        if (hasOwnProperty.call(modules, name) && !prebuild) return then(modules[name]);
+        if (hasOwnProperty.call(modules, name)) return then(modules[name]);
         try {
             var exports = Function.call(window, functionBody).call(window);
             then(modules[name] = exports);
