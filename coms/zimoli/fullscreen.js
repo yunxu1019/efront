@@ -1,18 +1,30 @@
+var hasTarget = function () {
+    return !!(document.fullscreenElement || document.msFullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement);
+};
 var fullscreen = {
+    allow: function () {
+        switch (null) {
+            case document.fullscreenElement:
+            case document.msFullscreenElement:
+            case document.mozFullScreenElement:
+            case document.webkitFullscreenElement:
+                return true;
+        }
+        return hasTarget();
+    }(),
     is() {
         if (/chrome/i.test(navigator.userAgent)) {//webkit
-            var innerHeight = window.innerHeight / devicePixelRatio;
-            var innerWidth = window.innerWidth / devicePixelRatio;
+            var ratio = renderPixelRatio > 1 ? devicePixelRatio : 1;
+            var innerHeight = window.innerHeight / ratio;
+            var innerWidth = window.innerWidth / ratio;
             return window.innerHeight === screen.height && window.innerWidth === screen.width
                 || screen.height - window.outerHeight <= 16 && screen.width <= innerWidth && window.outerWidth <= innerWidth
                 || screen.width - window.outerWidth <= 16 && screen.height <= innerHeight && window.outerHeight <= innerHeight
         } else {//IE 9+  fireFox
-            return window.outerHeight === screen.height && window.outerWidth === screen.width;
+            return window.outerHeight === screen.height && window.outerWidth === screen.width && innerHeight === screen.height && innerWidth === screen.width;
         }
     },
-    hasTarget() {
-        return !!(document.fullscreenElement || document.msFullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement);
-    },
+    hasTarget,
     exec(element) {
         requestFullScreen(element);
     },
