@@ -430,14 +430,25 @@ var init = function (name, then, prebuild, parents) {
 };
 
 var requires_count = 3;
+var wrapper = function (f) {
+    return function () {
+        var r = f.apply(this, arguments);
+        if (modules.render && modules.render.digest instanceof Function) {
+            modules.render.digest();
+        }
+        return r;
+    };
+}
 var wrapRenderDigest = function (_then) {
-    return function (f) {
-        if (f instanceof Function) var promise = _then.call(this, function () {
-            if (modules.render && modules.render.digest instanceof Function) {
-                modules.render.digest();
-            }
-            return f.apply(this, arguments);
-        });
+    return function (f, f2) {
+        var args = [];
+        if (f2 instanceof Function) {
+            args[1] = f2;
+        }
+        if (f instanceof Function) {
+            args[0] = f;
+        }
+        if (f instanceof Function) var promise = _then.apply(this, args.map(wrapper));
         else promise = _then.apply(this, arguments);
         return promise;
     };
