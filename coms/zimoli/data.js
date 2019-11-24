@@ -361,8 +361,10 @@ var privates = {
         if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
             var promise = new Promise(function (ok, oh) {
                 cross(realmethod, uri).send(params).done(e => {
-                    ok(e.response || e.responseText)
-                }).error(oh);
+                    ok(e.response || e.responseText);
+                }).error(e => {
+                    oh(JSON.parse(e.response || e.responseText || e.statusText || e.status));
+                });
             });
             promise.search = search;
             promise.params = temp;
@@ -469,7 +471,7 @@ var data = {
         if (id) this.removeInstance(id);
         var data = this.getInstance(id || sid);
         data.is_loading = true;
-        data.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
+        var p = data.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
             if (id) {
                 this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
                 this.removeInstance(id);
@@ -478,6 +480,14 @@ var data = {
             }
             return data;
         });
+        p.catch(function (e) {
+            data.is_errored = true;
+            if (e instanceof Object) {
+                Object.assign(data, e);
+            } else {
+                data.error = e;
+            }
+        })
         return data;
     },
     /**
