@@ -62,9 +62,9 @@ var createGetter = function (search, usetry = true) {
         });
     }
     if (usetry) {
-        return new Function(`try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
+        return new Function('event', `try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
     }
-    return new Function(`${withContext}with(this.$scope)return ${searchContext}`);
+    return new Function("event", `${withContext}with(this.$scope)return ${searchContext}`);
 };
 var initialComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
