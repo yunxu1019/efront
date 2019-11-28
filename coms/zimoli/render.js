@@ -477,11 +477,17 @@ var binders = {
 var emiters = {
     on(key, search) {
         var getter = createGetter(search, false);
-        on(key)(this, getter);
+        on(key)(this, function (e) {
+            getter.call(this, e);
+            digest();
+        });
     },
     once(key, search) {
         var getter = createGetter(search, false);
-        once(key)(this, getter);
+        once(key)(this, function (e) {
+            getter.call(this, e);
+            digest();
+        });
     }
 };
 emiters.v = emiters.ng = emiters.on;
@@ -636,5 +642,5 @@ function render(element, scope, parentScopes) {
 var digest = lazy(refresh);
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
-var eventsHandlers = "render,change,paste,resize,keydown,keypress,keyup,mousedown,mouseup,touchend,touchcancel,touchstart,dragend,drop,click".split(",").map(k => on(k));
+var eventsHandlers = "render,change,paste,resize,keydown,keypress,keyup".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));
