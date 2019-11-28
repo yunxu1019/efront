@@ -15,6 +15,7 @@ var check = function (root) {
         "XMLHttpRequest": true,
         "history": true,
         "Image": true,
+        "Event": true,
         "self": true,
         "modules": true,
         "init": true,
