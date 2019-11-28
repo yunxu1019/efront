@@ -109,13 +109,18 @@ var popup_view = function (element, target) {
         }
         return popup_as_extra(element, target);
     }
-    if (target) {
+    if (target instanceof Event) {
+        popup_to_event(element, target);
+    } else if (target instanceof Array) {
+        popup_to_point(element, target);
+    } else if (target) {
         popup_with_mask(element);
     } else {
         popup_as_single(element);
     }
     return element;
 };
+
 var createMask = function () {
     var mask = document.createElement("div");
     mask.initialStyle = animationStyle;
@@ -251,6 +256,22 @@ var popup_as_xextra = arriswise(popup_as_yextra, allArgumentsNames.concat([].sli
 var popup_as_single = function (element) {
     css(element, `z-index:${zIndex()};`);
     global(element);
+};
+var popup_to_point = function (element, [x, y]) {
+    css(element, {
+        position: 'absolute',
+        left: fromPixel(x),
+        top: fromPixel(y)
+    });
+    popup_as_single(element);
+};
+var popup_to_event = function (element, { clientX, clientY }) {
+    css(element, {
+        position: 'absolute',
+        left: fromOffset(clientX),
+        top: fromOffset(clientY)
+    });
+    popup_as_single(element);
 };
 var global = function (element) {
     once("remove")(element, cleanup);
