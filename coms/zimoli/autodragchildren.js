@@ -19,7 +19,7 @@ var hookx = function (matcher, move, event, targetChild) {
         }
     };
     var cloneCell = function (element) {
-        var targets = getTargetIn(matcher, element);
+        var targets = getTargetIn(matcher, element, false);
         if (isArray(targets)) {
             var extra = targets.slice(1);
             targets = cloneVisible(targets[0]);
@@ -255,7 +255,7 @@ var allArgumentsNames = arguments[arguments.length - 1];
 var hooky = arriswise(hookx, allArgumentsNames.concat([].slice.call(arguments, 0)));
 var hook = function (matcher, move, event) {
     if (event.target === this) return;
-    var targetChild = getTargetIn(matcher, event.target);
+    var targetChild = getTargetIn(matcher, event.target, false);
     if (!targetChild) return;
     var run;
     if (/cell|inline/i.test(getComputedStyle(targetChild instanceof Array ? targetChild[0] : targetChild).display)) {
