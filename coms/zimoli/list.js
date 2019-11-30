@@ -25,6 +25,18 @@ function ylist(container, generator, $Y) {
         }
         return null;
     };
+    //取底部元素
+    var getIndexedElement = function (index) {
+        var children = list.children;
+        for (var cx = children.length - 1; cx >= 0; cx--) {
+            var child = children[cx]
+            if (isFinite(child.index) && child.index === index) {
+                return child;
+            }
+        }
+        return null;
+    };
+
     //取顶部元素
     var getFirstElement = function () {
         var children = list.children;
@@ -78,34 +90,55 @@ function ylist(container, generator, $Y) {
         var ratio = itemIndex - index;
         if (index < 0) index = 0;
         var childrenMap = getChildrenMap();
-        var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null, last_index = last_item && last_item.index;
+        var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null, last_index = last_item && last_item.index || offset;
+        var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
         while (offsetBottom - ratioTop <= list.clientHeight + cache_height) {
             var item = childrenMap[offset];
             if (!item) {
                 item = generator(offset);
-                if (!item) break;
-                item.index = offset;
-                if (last_index > index) {
-                    list.insertBefore(item, last_item);
-                    last_item = item;
+                if (!item) {
+                    if (delta < 0) break;
+                    delta = -1;
+                    offset = index - 1;
+                    bottom_item = getIndexedElement(offsetb);
+                    last_item = getIndexedElement(index);
                     last_index = index;
+                    continue;
+                }
+                item.index = offset;
+                if (last_index > offset) {
+                    list.insertBefore(item, last_item);
                 } else {
                     list.insertBefore(item, getNextSibling(last_item));
                 }
+                last_index = offset;
                 last_item = item;
             }
-            if (++offset - index > 600) throw new Error("多于600个元素需要绘制！");
-            offsetBottom = item.offsetTop + item.offsetHeight;
-            if (ratio && !ratioTop) {
-                ratioTop = +(ratio * getFirstVisibleElement().offsetHeight).toFixed(0);
+            if (delta > 0) {
+                offset++;
+                offsetb = offset;
+                bottom_item = item;
+                if (!top_item) top_item = item;
+            } else {
+                offset--;
+                offsett = offset;
+                if (!bottom_item) bottom_item = item;
+                top_item = item;
             }
+            offsetBottom = bottom_item.offsetTop + bottom_item.offsetHeight;
+            ratioTop = top_item.offsetTop + top_item.offsetHeight * (ratio || 1);
+            if (count++ > 600) throw new Error("多于600个元素需要绘制！");
         }
         for (var k in childrenMap) {
-            if (!(k <= offset && k >= index)) {
+            k = +k;
+            if (!(k <= offsetb && k >= offsett)) {
                 remove(childrenMap[k]);
             }
         }
-        list.scrollTop = ratioTop;
+        var indexed_item = getIndexedElement(index) || bottom_item;
+        if (indexed_item) {
+            list.scrollTop = indexed_item.offsetTop + indexed_item.offsetHeight * (ratio || 1);
+        }
     };
     //计算当前高度
     var currentY = function () {
@@ -265,6 +298,10 @@ function ylist(container, generator, $Y) {
         var scrolled = (list.scrollTop - firstElement.offsetTop) / firstElement.offsetHeight;
         return index + scrolled;
     };
+    list.topIndex = function () {
+        var element = getFirstElement();
+        return element ? element.index : 0;
+    };
     vbox(list, $Y);
     return list;
 }
@@ -320,8 +357,9 @@ function list() {
             }
             on('changes')(container, function (event) {
                 if (event.changes.src) {
+                    var index = container.index();
                     remove(container.children);
-                    container.go(container.index() || 0);
+                    container.go(index || 0);
                 };
             });
             bindSrc = true;
