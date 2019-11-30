@@ -59,8 +59,9 @@ var getTdsByCol = function (table, start, end) {
     return [].concat.apply([], getRowsOfTdsByCol(table, start, end));
 };
 var resizeTarget = function (event) {
-    event.moveLocked = true;
     var { resizing } = this;
+    if (!resizing) return;
+    event.moveLocked = true;
     var { restX, target } = resizing;
     var targetX = event.clientX - restX;
     target.style.width = targetX + "px";
