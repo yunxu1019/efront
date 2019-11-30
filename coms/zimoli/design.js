@@ -1,12 +1,19 @@
+var field_Id = 0;
 function main(fields, types) {
     var page = form();
     page.innerHTML = design;
     var scope = render(page, {
         select,
         fields,
+        list,
         btn: button,
         add() {
-            this.fields.push({});
+            this.fields.push({
+                id: ++field_Id
+            });
+            setTimeout(() => {
+                fieldsContainer.go(this.fields.length);
+            })
         },
         remove(field) {
             var fields = this.fields;
@@ -19,15 +26,18 @@ function main(fields, types) {
         types
     }).$scope;
     var [options, fieldsContainer] = page.children;
-    vbox(fieldsContainer);
+    // vbox(fieldsContainer);
     autodragchildren(fieldsContainer, fieldsContainer, function (src, dst) {
+        var offset = fieldsContainer.topIndex();
+        src += offset; dst += offset;
         var fields = scope.fields;
         if (dst >= fields.length) {
             dst = fields.length - 1;
         }
         var field = fields.splice(src, 1)[0];
         fields.splice(dst, 0, field);
-        console.log(JSON.stringify(scope.fields));
+        render.refresh();
+        console.log(JSON.stringify(fields));
     });
     return page;
 }

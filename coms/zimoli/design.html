@@ -1,9 +1,9 @@
 <div class="options">
     <btn class="add" ng-click=add()><i>+</i>添加</btn>
 </div>
-<div class="fields">
-    <div ng-repeat='(field,cx) in fields'>
-        <span ng-bind='+cx+1'></span>
+<list ng-src='(field,cx) in fields' class="fields">
+    <div>
+        <span ng-bind='field.id'></span>
         <input placeholder="请输入字段名称" ng-model=field.name />
         <select aria-placeholder="" ng-model=field.type>
             <option value="">请选择字段类型</option>
@@ -11,4 +11,4 @@
         </select>
         <btn ng-click=remove(field)>移除</btn>
     </div>
-</div>
+</list>
