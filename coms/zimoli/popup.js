@@ -92,7 +92,8 @@ var popup_path = function (path = "", parameters, target) {
         if (!element) throw new Error(`路径不存在:${path}`);
         element.style.opacity = 0;
         element.$reload = fullfill;
-        setTimeout(function () {
+        if (element.parentNode) setPosition(element);
+        else once('append')(element, function () {
             setPosition(element);
             element.style.opacity = 1;
         });
@@ -143,7 +144,7 @@ var popup_with_mask = function (element, mask = createMask()) {
     element.mask = mask;
     onremove(element, mask.clean);
     css(element, `z-index:${zIndex()};`);
-    if (mask.isMounted) {
+    if (mask.parentNode) {
         global(element);
     } else {
         global(mask);
