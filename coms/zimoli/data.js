@@ -399,6 +399,7 @@ var getInstanceId = function () {
 var data = {
     decodeStructure,
     encodeStructure,
+    loading_count: 0,
     loadConfig(defaultConfigFile) {
         if (defaultConfigFile) {
             _configfileurl = defaultConfigFile;
@@ -411,12 +412,14 @@ var data = {
             parse = params;
             params = {};
         }
-
-        if (/^\.*\/|\.\w+$/.test(ref)) {
-            return this.fromURL(ref, parse);
-        } else {
-            return this.asyncInstance(ref, params, parse);
-        }
+        if (ref instanceof Object) {
+            return this.fromApi(ref, params)
+        } else
+            if (/^\.*\/|\.\w+$/.test(ref)) {
+                return this.fromURL(ref, parse);
+            } else {
+                return this.asyncInstance(ref, params, parse);
+            }
     },
 
     enrich(config = configPormise, userAgent) {
@@ -451,6 +454,23 @@ var data = {
             },
         });
     },
+    fromApi(api, params, parse) {
+        var id = parse instanceof Function ? getInstanceId() : 0;
+        if (id) this.removeInstance(id);
+        var url = api.url;
+        var data = this.getInstance(id || url);
+        data.loading_promise = privates.fromApi(api, params).then((data) => {
+            if (id) {
+                this.setInstance(id, parse(data), false);
+                this.removeInstance(id);
+            } else {
+                this.setInstance(url, data);
+            }
+            return data;
+        });
+        return data;
+
+    },
     fromURL(url, parse) {
         var id = parse instanceof Function ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
@@ -469,26 +489,30 @@ var data = {
     asyncInstance(sid, params, parse) {
         var id = parse instanceof Function || params ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
-        var data = this.getInstance(id || sid);
-        data.is_loading = true;
-        var p = data.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
+        var response = this.getInstance(id || sid);
+        response.is_loading = true;
+        this.loading_count++;
+
+        var p = response.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
             if (id) {
                 this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(sid, data);
             }
+            this.loading_count--;
             return data;
         });
-        p.catch(function (e) {
-            data.is_errored = true;
+        p.catch((e) => {
+            this.loading_count--;
+            response.is_errored = true;
             if (e instanceof Object) {
-                Object.assign(data, e);
+                Object.assign(response, e);
             } else {
-                data.error = e;
+                response.error = e;
             }
         })
-        return data;
+        return response;
     },
     /**
      * 返回一个延长生命周期的内存对象
