@@ -1,3 +1,3 @@
 function cancelFullScreen() {
-    (document.exitFullscreen || document.mozCancelFullScreen || document.webkitCancelFullScreen || noop).call(document);
+    (document.exitFullscreen || document.msExitFullscreen || document.mozCancelFullScreen || document.webkitCancelFullScreen || noop).call(document);
 }

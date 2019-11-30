@@ -21,7 +21,7 @@ var fullscreen = {
                 || screen.height - window.outerHeight <= 16 && screen.width <= innerWidth && window.outerWidth <= innerWidth
                 || screen.width - window.outerWidth <= 16 && screen.height <= innerHeight && window.outerHeight <= innerHeight
         } else {//IE 9+  fireFox
-            return window.outerHeight === screen.height && window.outerWidth === screen.width && innerHeight === screen.height && innerWidth === screen.width;
+            return window.outerHeight === screen.height && window.outerWidth === screen.width;
         }
     },
     hasTarget,
