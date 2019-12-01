@@ -363,7 +363,11 @@ var privates = {
                 cross(realmethod, uri).send(params).done(e => {
                     ok(e.response || e.responseText);
                 }).error(e => {
-                    oh(JSON.parse(e.response || e.responseText || e.statusText || e.status));
+                    try {
+                        oh(JSON.parse(e.response || e.responseText || e.statusText || e.status));
+                    } catch (error) {
+                        oh(error);
+                    }
                 });
             });
             promise.search = search;
@@ -504,7 +508,7 @@ var data = {
             return data;
         });
         p.catch((e) => {
-            this.loading_count--;
+            data.loading_count--;
             response.is_errored = true;
             if (e instanceof Object) {
                 Object.assign(response, e);
