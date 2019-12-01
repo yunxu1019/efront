@@ -233,9 +233,6 @@ var parseData = function (sourceText) {
     }
     return doc;
 }
-function isEmptyParam(param) {
-    return param === null || param === undefined || param === '' || typeof param === 'number' && !isFinite(param);
-}
 function fixApi(api, href) {
     if (!reg.test(api.url)) {
         if (href) {
@@ -307,7 +304,7 @@ var privates = {
         if (api.reauired) {
             var lacks = api.reauired;
             if (!params) {
-                lacks = lacks.filter(a => isEmptyParam(params[a]));
+                lacks = lacks.filter(a => isEmpty(params[a]));
             }
             if (lacks.length) {
                 console.log(`跳过了缺少参数的请求:${api.uid} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
@@ -362,9 +359,9 @@ var privates = {
             var promise = new Promise(function (ok, oh) {
                 cross(realmethod, uri).send(params).done(e => {
                     ok(e.response || e.responseText);
-                }).error(e => {
+                }).error(xhr => {
                     try {
-                        oh(JSON.parse(e.response || e.responseText || e.statusText || e.status));
+                        oh(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
                     } catch (error) {
                         oh(error);
                     }
