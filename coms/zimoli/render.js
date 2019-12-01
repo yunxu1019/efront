@@ -579,8 +579,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             emiters[ngon].call(element, key, [withContext, value]);
         } else if (/^[\_\@]/.test(name)) {
             binders._.call(element, name.replace(/^[\_\@]/, ""), [withContext, value]);
-        } else if (/\.$/.test(name)) {
-            binders[""].call(element, name.replace(/[\.]$/, ""), [withContext, value]);
+        } else if (/[\.\:]$/.test(name)) {
+            binders[""].call(element, name.replace(/[\:\.]$/, ""), [withContext, value]);
         }
     });
     rebuild(element);
