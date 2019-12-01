@@ -153,6 +153,7 @@ var page_generators = {};
  */
 var loading_tree = {};
 function prepare(pagepath, ok) {
+    var pgpath = /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
     if (page_generators[pagepath]) {
         if (isFunction(ok)) {
             var res = page_generators[pagepath];
@@ -280,7 +281,7 @@ function prepare(pagepath, ok) {
         }
         delete loading_tree[pagepath];
     };
-    return init(pagepath, function (pg) {
+    return init(pgpath, function (pg) {
         if (!pg) return;
         if (roles) return prepare(user.loginPath, () => emit(pg));
         emit(pg);
