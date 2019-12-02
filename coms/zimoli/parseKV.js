@@ -7,7 +7,8 @@ function parseKV(string, spliter = "&", equals = "=") {
             var kv = kvs[cx];
             if (!kv) continue;
             var index = kv.indexOf(equals);
-            object[decode(kv.slice(0, index))] = decode(kv.slice(index + 1));
+            if (index < 0) index = kv.length;
+            object[decode(kv.slice(0, index))] = index === kv.length ? undefined : decode(kv.slice(index + 1));
         }
     }
     return object;
