@@ -3,6 +3,14 @@
  */
 var getOptions = function () {
 };
+var renderModel = function (field, data) {
+    var ipt = this;
+    ipt.setAttribute("ng-model", "data[field.key]");
+    render(ipt, {
+        field,
+        data
+    });
+};
 var constructors = {
     input,
     date(field) {
@@ -11,43 +19,27 @@ var constructors = {
         select(elem, picker);
         return elem;
     },
-    radio() {
+    select,
+    "repeat"(elem, field_type) {
         var elem = input();
-        elem.setAttribute("type", "radio");
-        return elem;
-    },
-    select(field) {
-        var elem = input();
-        return elem;
-    },
-    tree(field) {
-        var elem = input();
-        return elem;
-    },
-    text(field, data) {
-        var ipt = input();
-        ipt.setAttribute("ng-model", "data[field.key]");
-        render(ipt, {
-            field,
-            data
-        });
-        return ipt;
-    },
-    'checkbox'() {
-        var elem = input();
-        elem.setAttribute("type", "checkbox");
-        return elem;
-    },
-    'multi-select'() {
-        var elem = input();
-        return elem;
-    },
-    'multi-tree'() {
-        var elem = input();
-        return elem;
-    },
-    "range"() {
-        var elem = input();
+        elem.renders = [function () {
+            var { field, data } = this.$scope;
+            var { status } = this;
+            var valid = this.value === data[field_type];
+            if (!this.dirty) {
+                status = 'clean';
+            } else if (isEmpty(this.value)) {
+                if (field.is_required) {
+                    status = 'required';
+                } else {
+                    status = 'empty';
+                }
+            } else {
+                status = valid ? 'pass' : 'error';
+            }
+            this.status = status;
+            this.valid = valid;
+        }];
         return elem;
     },
     "none"() {
@@ -72,27 +64,40 @@ function main(elem) {
         if (!field || !data) return;
         var run = function () {
             if (data !== elem.data || field !== elem.field || readonly !== elem.readonly) return;
+            var field_type = field.type || field.editor;
+            if (/\?/.test(field_type)) {
+                var [field_type, field_ref] = field_type.split("?");
+            }
+            var type = elem.getAttribute('type');
+            if (type !== field_type) {
+                elem.setAttribute("type", field_type);
+            }
             if (readonly) {
                 elem.innerHTML = '<span ng-bind=get()></span>';
-                var type = elem.getAttribute('type');
-                if (type !== field.type) {
-                    elem.setAttribute("type", field.type);
-                }
                 render(elem, {
                     get() {
-                        var type = field.type || field.editor;
-                        var editor = readonly_types[type];
-                        if (editor) {
-                            return editor(field, data);
+                        var create = readonly_types[field_type];
+                        if (create) {
+                            return create(field, data, field_ref);
                         }
                         return data[field.key];
                     }
                 });
             } else {
-                var editor = constructors[field.type];
-                var input = editor ? editor(field, data) : input();
-                remove(elem.children);
-                if (input) appendChild(elem, input);
+                var create = constructors[field_type];
+                var ipt = create ? create(elem, field_ref) : input();
+                if (ipt) {
+                    if (ipt !== elem) appendChild(elem, ipt);
+                    renderModel.call(ipt, field, data);
+                    var saved_sataus;
+                    ipt.renders.push(function () {
+                        var { valid, status } = this;
+                        if (elem.valid !== valid) elem.valid = valid;
+                        if (saved_sataus === status) return;
+                        saved_sataus = status;
+                        elem.setAttribute('status', saved_sataus);
+                    });
+                }
             }
         };
         if (data.loading_promise || field.loading_promise) {
