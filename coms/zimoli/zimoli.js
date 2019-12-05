@@ -112,6 +112,10 @@ function go(pagepath, args, history_name, oldpagepath) {
             var _history = history[history_name] || [];
             pagepath = _history[pagepath < 1 ? _history.length + pagepath - 1 : pagepath];
             oldpagepath = _history[_history.length - 1];
+            if (arguments.length === 1) {
+                args = JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
+                args = args.data;
+            }
         }
     }
     if (!pagepath) return true;
