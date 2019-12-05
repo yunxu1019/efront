@@ -19,6 +19,7 @@
     overflow        : hidden;
 }
 
+
 @keyframes busy-loading {
     0% {
         margin-left: -130%;
@@ -191,3 +192,12 @@
 .type(dark, #333, #000);
 .type(white, #fff, #666);
 .type(danger, #c46, #fff);
+
+&[disabled] {
+    >.track {
+        opacity: .5;
+        background-color: #ccc;
+        box-shadow: none;
+    }
+    text-shadow: none;
+}
