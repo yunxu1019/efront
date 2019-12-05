@@ -369,6 +369,9 @@ var directives = {
         }
         var onchange = lazy(change);
         eventsHandlers.map(on => on(this, onchange));
+        eventsHandlers.map(on => on(this, function () {
+            if (!this.dirty) this.dirty = true, this.setAttribute('dirty', '');
+        }));
     },
     hide(search) {
         var getter = createGetter(search).bind(this);
@@ -470,7 +473,15 @@ var binders = {
             var value = getter();
             if (deepEqual(value, oldValue)) return;
             oldValue = value;
-            if (this.getAttribute(attr) !== value) this.setAttribute(attr, value);
+            if (value === true || value === '') {
+                if (!this.hasAttribute(attr)) {
+                    this.setAttribute(attr, '');
+                }
+            } else if (value === false || value === null) {
+                if (this.hasAttribute(attr)) {
+                    this.removeAttribute(attr);
+                }
+            } else if (this.getAttribute(attr) !== value) this.setAttribute(attr, value);
         });
     }
 }
@@ -577,10 +588,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         } else if (emiter_reg.test(name)) {
             var ngon = emiter_reg.exec(name)[1].toLowerCase();
             emiters[ngon].call(element, key, [withContext, value]);
-        } else if (/^[\_\@]/.test(name)) {
-            binders._.call(element, name.replace(/^[\_\@]/, ""), [withContext, value]);
-        } else if (/[\.\:]$/.test(name)) {
-            binders[""].call(element, name.replace(/[\:\.]$/, ""), [withContext, value]);
+        } else if (/^[\_\@\:\.]/.test(name)) {
+            binders._.call(element, name.replace(/^[\_\@\:\.]/, ""), [withContext, value]);
+        } else if (/[\_\@\:\.]$/.test(name)) {
+            binders[""].call(element, name.replace(/[\_\@\:\.]$/, ""), [withContext, value]);
         }
     });
     rebuild(element);
@@ -642,5 +653,6 @@ function render(element, scope, parentScopes) {
 var digest = lazy(refresh);
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
-var eventsHandlers = "render,change,paste,resize,keydown,keypress,keyup".split(",").map(k => on(k));
+var eventsHandlers = "change,paste,resize,keydown,keypress,keyup".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));
+on("render")(window, digest);
