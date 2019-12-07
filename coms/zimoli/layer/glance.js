@@ -82,25 +82,31 @@ function main(mainPath, historyName = "") {
     }
     var [leftLayer, topLayer] = layer.children;
     on("append")(layer, function () {
+        var index = 2;
         zimoli.switch(historyName, layer, mainPath);
-        zimoli();
-        if (leftPath) {
-            zimoli.prepare(leftPath, function () {
+        var hook = function () {
+            if (--index !== 0) return;
+            if (leftPath) {
                 var page = zimoli.go(leftPath, null, leftLayer);
                 page.setAttribute('layer', 'left');
                 appendChild.replace(leftLayer, page);
                 leftLayer = page;
                 dragview({ page: layer, toLeft: layer.closeLeft, toRight: layer.openLeft, menu: leftLayer });
-            });
-        }
-        if (topPath) {
-            zimoli.prepare(topPath, function (page) {
+            }
+            if (topPath) {
                 var page = zimoli.go(topPath, null, topLayer);
                 page.setAttribute('layer', 'top');
                 appendChild.replace(topLayer, page);
                 topLayer = page;
-            });
-        }
+            }
+            zimoli();
+        };
+        if (leftPath) {
+            zimoli.prepare(leftPath, hook);
+        } else hook();
+        if (topPath) {
+            zimoli.prepare(topPath, hook);
+        } else hook();
     });
     var closed = false;
     var isClosed = function () {
