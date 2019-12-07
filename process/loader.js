@@ -335,6 +335,7 @@ var executer = function (text, name, then, prebuild, parents) {
         var argslength = functionArgs.length >> 1;
         prebuild && [].map.call(functionArgs.slice(0, argslength), k => k in prebuild && prevent_save++);
         if (!prevent_save && hasOwnProperty.call(modules, name)) return then(modules[name]);
+        if (prevent_save && /^\w+$/.test(name)) console.warn('组件对象', name, "在多实例的模式下运行！");
         try {
             var allArgumentsNames = functionArgs.slice(argslength);
             var exports = Function.apply(window, allArgumentsNames.concat(functionBody)).apply(window, args.concat([allArgumentsNames]));
