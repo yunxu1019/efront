@@ -26,5 +26,5 @@ var checkroles = function (userRoles, needRoles) {
             return true;
         }
     }
-    return false;
+    return needRoles === true;
 };

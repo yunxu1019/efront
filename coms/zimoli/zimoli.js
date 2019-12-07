@@ -103,6 +103,23 @@ function getReverseStyle(style) {
     }
     return dest;
 }
+var getZimoliParams = function (pagepath) {
+    try {
+        return JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
+    } catch (e) {
+        console.warn("存储空间被破坏")
+    }
+    return {};
+};
+var setZimoliParams = function (pagepath, args) {
+    try {
+        var stringified_args = JSON.stringify(args);
+        if (stringified_args.length === 2) hostoryStorage.removeItem(_zimoli_params_key + pagepath);
+        else hostoryStorage.setItem(_zimoli_params_key + pagepath, stringified_args);
+    } catch (e) {
+        console.warn("写入存储空间失败！", e);
+    }
+};
 
 function go(pagepath, args, history_name, oldpagepath) {
     if (!history_name)
@@ -113,15 +130,20 @@ function go(pagepath, args, history_name, oldpagepath) {
             pagepath = _history[pagepath < 1 ? _history.length + pagepath - 1 : pagepath];
             oldpagepath = _history[_history.length - 1];
             if (arguments.length === 1) {
-                args = JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
-                args = args.data;
+                args = getZimoliParams(pagepath).data;
             }
         }
     }
+    if (pagepath instanceof Object) {
+        var { path: pagepath, need, roles = need, data: args, options } = pagepath;
+    } else {
+        var { roles, options } = getZimoliParams(pagepath);
+    }
     if (!pagepath) return true;
-    var stringified_args = JSON.stringify({ data: args, from: oldpagepath });
-    if (stringified_args.length === 2) hostoryStorage.removeItem(_zimoli_params_key + pagepath);
-    else hostoryStorage.setItem(_zimoli_params_key + pagepath, stringified_args);
+    setZimoliParams(pagepath, { data: args, from: oldpagepath, options, roles });
+    prepare(pagepath, function (res) {
+        if (!res.roles || res.roles === true) res.roles = !!roles;
+    });
     if (!page_generators[pagepath]) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
@@ -144,6 +166,18 @@ function go(pagepath, args, history_name, oldpagepath) {
         });
         if (_page) {
             _page.$reload = fullfill;
+        }
+        if (isString(pagepath)) {
+            var event = createEvent("zimoli");
+            event.$reload = fullfill;
+            event.zimoli = {
+                path: pagepath,
+                roles,
+                data: args,
+                target: _page,
+                options
+            };
+            dispatch(window, event);
         }
         return _page;
     };
@@ -291,18 +325,18 @@ function prepare(pagepath, ok) {
         emit(pg);
     }, state);
 }
-function create(pagepath, args, from) {
+function create(pagepath, args, from, needroles) {
     var page_object = pagepath instanceof Object ? pagepath : page_generators[pagepath];
     if (!page_object) {
         throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
     }
     var { pg, with: _with_elements, state, onback: _pageback_listener, roles } = page_object;
-    if (!checkroles(user.roles, roles)) {
+    if (!checkroles(user.roles, roles) || !checkroles(user.roles, needroles)) {
         // 检查权限
         if (!user.isLogin && user.loginPath) {
             return create(user.loginPath);
         }
-        return alert(i18n("没有权限！", "No Access!"));
+        return alert(i18n("没有权限！", "No Access!"), 0);
     }
     _with_elements = [].concat(_with_elements);
     state.with = function (element) {
