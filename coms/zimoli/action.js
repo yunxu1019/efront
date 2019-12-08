@@ -1,12 +1,6 @@
 function main(config, item) {
     return new Promise(function (ok, oh) {
         if (!config) return ok();
-        if (isString(config)) {
-            init("zimoli", function (zimoli) {
-                zimoli.go(config, item);
-            });
-            return;
-        }
         if (config instanceof Object) {
             if (config.modal) {
                 var path = isString(config.modal) ? config.modal : config.modal.path;
