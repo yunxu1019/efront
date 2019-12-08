@@ -128,8 +128,17 @@ function main(elem, mode) {
                     tree(elem, function (index, item) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
-                        var m = menuItem(e, item);
+                        var m = menuItem(e, item, elem.useIcon);
                         return m;
+                    });
+                    elem.renders.push(function () {
+                        var src = this.src;
+                        for (var cx = 0, dx = src; cx < dx; cx++) {
+                            if (src[cx].icon) {
+                                break;
+                            }
+                        }
+                        elem.useIcon = true;
                     });
                 } else {
                     var nodes = getTreeNodes(elem);
