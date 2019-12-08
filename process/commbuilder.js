@@ -63,18 +63,22 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
         });
     });
 };
-var loadUseBody = function (data, fullpath, watchurls, commName) {
+var loadUseBody = function (source, fullpath, watchurls, commName) {
     var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/img;
     var replacer = function (data, realPath) {
         watchurls.push(realPath);
         var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
+        if (!new RegExp(useInternalReg.source, 'ig').test(source)) {
+            commName = realName;
+        }
         if (!commName) commName = realName;
         if (/module.exports\s*=/.test(data)) {
-            return data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName : "return ");
+            data = data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName + " =" : "return ");
+            return data;
         }
         return data + `;var ${realName},${commName}=${realName};`;
     };
-    return bindLoadings(useInternalReg, data, fullpath, replacer);
+    return bindLoadings(useInternalReg, source, fullpath, replacer);
 }
 var getRequiredPaths = function (data) {
     var pathReg = /\b(?:go|popup)\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;
