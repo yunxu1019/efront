@@ -170,20 +170,27 @@ function toComponent(responseTree) {
     }
 
     var PUBLIC_APP = k;
-    console.log(destMap[getEfrontKey('"call"',"string")]);
-
+    var string_r = `x=s[${destMap[getEfrontKey(`"indexOf"`, "string")] - 1}],
+    m=s[${destMap[getEfrontKey(`"length"`, "string")] - 1}],
+    n=s[${destMap[getEfrontKey(`"slice"`, "string")] - 1}],
+    e=s[${destMap[getEfrontKey(`"exec"`, "string")] - 1}],
+    q=s[${destMap[getEfrontKey(`"split"`, "string")] - 1}],
+    o=s[${destMap[getEfrontKey(`"concat"`, "string")] - 1}],
+    y=s[${destMap[getEfrontKey(`"apply"`, "string")] - 1}],
+    v=s[${destMap[getEfrontKey(`"reverse"`, "string")] - 1}],
+    z=s[${destMap[getEfrontKey(`"string"`, "string")] - 1}],
+    w=s[${destMap[getEfrontKey(`"join"`, "string")] - 1}]`;
+    -function () {
+        string_r = string_r.split(',');
+        for (var cx = 0, dx = string_r.length; cx < dx; cx++) {
+            var rest = string_r.splice(Math.random() * dx | 0, 1);
+            string_r.splice.apply(string_r, [cx, 0].concat(rest));
+        }
+        string_r = string_r.join(',');
+    }();
     var realize = `function (a, c,s) {
-        var x=s[${destMap[getEfrontKey(`"indexOf"`, "string")] - 1}],
-        m=s[${destMap[getEfrontKey(`"length"`, "string")] - 1}],
-        n=s[${destMap[getEfrontKey(`"slice"`, "string")] - 1}],
-        e=s[${destMap[getEfrontKey(`"exec"`, "string")] - 1}],
-        q=s[${destMap[getEfrontKey(`"split"`, "string")] - 1}],
-        o=s[${destMap[getEfrontKey(`"concat"`, "string")] - 1}],
-        y=s[${destMap[getEfrontKey(`"apply"`, "string")] - 1}],
-        v=s[${destMap[getEfrontKey(`"reverse"`, "string")] - 1}],
-        z=s[${destMap[getEfrontKey(`"string"`, "string")] - 1}],
-        w=s[${destMap[getEfrontKey(`"join"`, "string")] - 1}],
-        u,p=[x,m,n,q,o,y,e,v,z,w,s[${destMap[getEfrontKey(`"call"`, "string") ]- 1}]],
+        var ${string_r},
+        u,p=[x,m,n,q,o,y,e,v,z,w,s[${destMap[getEfrontKey(`"call"`, "string")] - 1}]],
         h=s[${destMap[getEfrontKey(crypt_code, 'global')] - 1}],
         j=s[${destMap[getEfrontKey('String', 'global')] - 1}],
         $=[${$fromCharCode.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}],
@@ -229,6 +236,15 @@ function toComponent(responseTree) {
     }`;
     var simplie_compress = function (str) {
         return str.toString().replace(/\s+/g, ' ').replace(/(\W)\s+/g, "$1").replace(/\s+(\W)/g, "$1")
+        .replace(/\b[a-z]\b/ig, a => {
+            var c = a.charCodeAt(0);
+            if (c >= 96) {
+                c = ((crypt_code - c) % 26) + 65;
+            } else {
+                c = ((crypt_code - c) % 26) + 96;
+            }
+            return String.fromCharCode(c);
+        });
     };
 
     var template = `this["${PUBLIC_APP.replace(/([a-zA-Z_\$][\w\_\$]*)\.js$/, "$1")}"]=([/*${new Date().toString()} by efront*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${dest.length - 1}]`;
