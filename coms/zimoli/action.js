@@ -2,7 +2,9 @@ function main(config, item) {
     return new Promise(function (ok, oh) {
         if (!config) return ok();
         if (isString(config)) {
-            zimoli.go(config, item);
+            init("zimoli", function (zimoli) {
+                zimoli.go(config, item);
+            });
             return;
         }
         if (config instanceof Object) {
@@ -13,14 +15,12 @@ function main(config, item) {
                 }
                 var args = extend({}, config.modal instanceof Object ? config.modal : { path: config.modal },
                     config.params ? { params } : { item });
-                zimoli.prepare(path, function () {
-                    var page = popup(path, args);
-                    ok(page);
+                init("zimoli", function (zimoli) {
+                    zimoli.prepare(path, function () {
+                        var page = popup(path, args);
+                        ok(page);
+                    });
                 });
-                return;
-            }
-            if (config.path) {
-                zimoli.go(config);
                 return;
             }
             if (config.actionId) {

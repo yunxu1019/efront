@@ -267,6 +267,19 @@ function prepare(pagepath, ok) {
         to = page_generators[pagepath] ? page_generators[pagepath].go || to : to;
         isFunction(to) && to(url, args, _history_name);
     };
+
+    init('action', function (action) {
+        state.action = function (menu, item) {
+            if (isString(menu)) {
+                return state.go(menu, item);
+            }
+            if (menu.path) {
+                menu = Object.assign({}, menu, { path: state.path(menu.path) });
+                return go(menu, undefined, undefined, pagepath);
+            }
+            return action(menu);
+        };
+    });
     var prepares = [];
     state.prepare = state.go.prepare = function (urls) {
         prepares.push.apply(prepares, [].concat(urls).map(state.path));
