@@ -273,7 +273,7 @@ function prepare(pagepath, ok) {
             if (isString(menu)) {
                 return state.go(menu, item);
             }
-            if (menu.path) {
+            if (menu && menu.path) {
                 menu = Object.assign({}, menu, { path: state.path(menu.path) });
                 return go(menu, undefined, undefined, pagepath);
             }
