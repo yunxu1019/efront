@@ -1,3 +1,3 @@
-function isEmpty(param) {
-    return param === null || param === undefined || param === '' || typeof param === 'number' && !isFinite(param);
+function isEmpty(value) {
+    return value === '' || value === null || value === undefined || typeof value === 'number' && !isFinite(value) || value instanceof Array && value.length === 0;
 }
