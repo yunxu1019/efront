@@ -1,37 +1,41 @@
 & {
-    padding: 10px 0 4px 0;
-    max-width: 360px;
-    width: 100%;
-    height: auto;
+    padding  : 10px 0 4px 0;
+    max-width: 100%;
+    width    : 360px;
+    height   : auto;
+    overflow : hidden;
 }
 
 &>.body,
 &>:not(:first-child):not(:last-child) {
-    padding: 16px 10px;
-    background: #f2f4f6;
+    padding      : 10px 0;
+    background   : #f2f4f6;
+    overflow     : auto;
+    margin-right : -20px;
+    padding-right: 20px;
 }
 
 &>.head,
 &>:first-child {
-    line-height: 40px;
-    color: #333;
-    padding: 0 16px;
+    line-height  : 40px;
+    color        : #333;
+    padding      : 0 16px;
     border-bottom: 1px solid rgba(0, 0, 0, .16);
-    background: #fff;
+    background   : #fff;
 }
 
 
 &>.foot,
 &>:last-child {
-    text-align: right;
+    text-align : right;
     line-height: 46px;
-    padding: 0 16px;
-    border-top: 1px solid rgba(0, 0, 0, .16);
-    background: #fff;
+    padding    : 0 16px;
+    border-top : 1px solid rgba(0, 0, 0, .16);
+    background : #fff;
 
     .button {
-        padding: 0 20px;
-        min-width: 60px;
+        padding       : 0 20px;
+        min-width     : 60px;
         vertical-align: middle;
 
         &+.button {
