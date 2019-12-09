@@ -72,6 +72,7 @@ function main(elem) {
             if (type !== field_type) {
                 elem.setAttribute("type", field_type);
             }
+            remove(elem.children);
             if (readonly) {
                 elem.innerHTML = '<span ng-bind=get()></span>';
                 render(elem, {
