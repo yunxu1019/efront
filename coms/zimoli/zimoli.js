@@ -157,16 +157,6 @@ function go(pagepath, args, history_name, oldpagepath) {
             history_name.activate = pagepath;
             history_name.activateNode = _page;
         }
-        addGlobal(_page, history_name, isDestroy);
-        page_object.prepares.forEach(function (url) {
-            if (isNumber(url)) {
-                url = _history[url < 1 ? _history.length + url - 1 : url];
-            }
-            if (isString(url)) prepare(url);
-        });
-        if (_page) {
-            _page.$reload = fullfill;
-        }
         if (isString(pagepath)) {
             var event = createEvent("zimoli");
             event.$reload = fullfill;
@@ -178,6 +168,16 @@ function go(pagepath, args, history_name, oldpagepath) {
                 options
             };
             dispatch(window, event);
+        }
+        addGlobal(_page, history_name, isDestroy);
+        page_object.prepares.forEach(function (url) {
+            if (isNumber(url)) {
+                url = _history[url < 1 ? _history.length + url - 1 : url];
+            }
+            if (isString(url)) prepare(url);
+        });
+        if (_page) {
+            _page.$reload = fullfill;
         }
         return _page;
     };
