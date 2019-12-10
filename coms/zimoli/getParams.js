@@ -17,7 +17,7 @@ function getParams(data, fields) {
             }
             if (field.delete_onsubmit) return;
             var value = data[field.key];
-            if (isEmpty(value) && !field.delete_onempty) {
+            if (!isEmpty(value) || !field.delete_onempty) {
                 params[field.key] = value;
             }
         });
