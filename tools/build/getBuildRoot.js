@@ -79,15 +79,6 @@ var getBuildRoot = function (files) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
-                        if (/\.([tj]sx?|html)$/i.test(file)) {
-                            for (var page of pages_root) {
-                                var rel = getPathInFolder(page, file);
-                                if (rel) {
-                                    var name = rel.replace(/[\\\/]+/g, "/");
-                                    return result.push("/" + name), ok();
-                                }
-                            }
-                        }
                         if (/\.([tj]sx?|html|json)$/i.test(file)) {
                             for (var comm of comms_root) {
                                 var rel = getPathInFolder(comm, file);
@@ -95,6 +86,15 @@ var getBuildRoot = function (files) {
                                     var name = path.parse(file).base;
                                     name = name.replace(/[\\\/]+/g, "/");
                                     return result.push(name), ok();
+                                }
+                            }
+                        }
+                        if (/\.([tj]sx?|html)$/i.test(file)) {
+                            for (var page of pages_root) {
+                                var rel = getPathInFolder(page, file);
+                                if (rel) {
+                                    var name = rel.replace(/[\\\/]+/g, "/");
+                                    return result.push("/" + name), ok();
                                 }
                             }
                         }
