@@ -6,7 +6,7 @@ var {
     PUBLIC_PATH,
     APP,
     pages_root,
-    comms_root
+    public_app
 } = environment;
 var PUBLIC_APP = /* process.argv[2] || */ APP.replace(/\.html?$/i, "");
 if (!PUBLIC_APP) throw new Error("请配置要发布的项目名称！");
@@ -26,16 +26,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     };
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
-    var is_commponent_package;
-    var resolve_component_file_path = function (public_path = PUBLIC_APP, source_paths = [""].concat(pages_root, comms_root)) {
-        for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
-            var temp_path = source_paths[cx];
-            var public_app = path.join(temp_path, public_path);
-            if (fs.existsSync(public_app) && fs.statSync(public_app).isFile()) return public_app;
-        }
-        return "";
-    };
-    var public_app = resolve_component_file_path();
+
     var getBuiltVersion = function (filepath) {
         return new Promise(function (ok) {
             fs.exists(filepath, function (exists) {
@@ -59,7 +50,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     };
     if (public_app) {
         //导出组件
-        var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
+        var public_path = path.join(PUBLIC_PATH, public_app);
         is_commponent_package = true;
         var toComponent = require("./toComponent");
         process.env.IN_TEST_MODE = 1;
@@ -85,9 +76,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 indexHTML,
                 environment.pages_root,
                 path.join(__dirname, "../../coms", "zimoli/main.js"),
-                path.join(__dirname, "../../coms", "zimoli/zimoli.js"),
-                path.join(__dirname, "../../coms", "zimoli/[]map.js"),
-                path.join(__dirname, "../../coms", "zimoli/promise.js")
             ).concat(environment.ccons_root || []), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {

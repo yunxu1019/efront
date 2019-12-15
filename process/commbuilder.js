@@ -176,39 +176,41 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                     ]
                 } : code.body[0].expression
             }];
-    } else if (!commName) {
-        if (filename !== "main") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
-        code_body = code.body;
     } else {
-        code_body = code.body.concat({
-            "type": "ReturnStatement",
-            "argument": hasless ? {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "Identifier",
-                    "name": globalsmap.cless
-                },
-                "arguments": [
-                    {
+        code_body = code.body;
+        if (undeclares.module) {
+            commName = "module.exports";
+        } else if (undeclares.exports) {
+            commName = "exports";
+        }
+        if (commName) {
+            code_body = code.body.concat({
+                "type": "ReturnStatement",
+                "argument": hasless ? {
+                    "type": "CallExpression",
+                    "callee": {
                         "type": "Identifier",
-                        "name": commName
+                        "name": globalsmap.cless
                     },
-                    {
-                        "type": "Literal",
-                        "value": lessdata,
-                        "raw": JSON.stringify(lessdata)
-                    },
-                    {
-                        "type": "Literal",
-                        "value": className,
-                        "raw": JSON.stringify(className)
-                    }
-                ]
-            } : {
-                    "type": "Identifier",
-                    "name": commName
-                }
-        });
+                    "arguments": [
+                        esprima.parse(commName).body[0].expression,
+                        {
+                            "type": "Literal",
+                            "value": lessdata,
+                            "raw": JSON.stringify(lessdata)
+                        },
+                        {
+                            "type": "Literal",
+                            "value": className,
+                            "raw": JSON.stringify(className)
+                        }
+                    ]
+                } : esprima.parse(commName).body[0].expression
+
+            });
+        } else {
+            if (filename !== "main") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
+        }
     }
     code_body = prepareCodeBody.concat(code_body);
     globals = Object.keys(globalsmap);

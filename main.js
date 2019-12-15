@@ -3,7 +3,7 @@ var path = require('path');
 require("./process/console");
 var configs = function () {
     var config = {};
-    process.argv.forEach(function (key) {
+    process.argv.slice(2).forEach(function (key, cx) {
         key = key.toLowerCase();
         config[key] = true;
     });
@@ -23,7 +23,7 @@ var isServerMode = configs.server || configs.serve;
 var isInitCommand = configs.init || configs.from;
 var isDocsCommand = configs.doc || configs.docs;
 var isDemoCommand = configs.demo || configs.zimoli;
-var loadModule = process.argv.slice(2).filter(e => /\/|_test$|\.[tj]sx?$/i.test(e));
+var loadModule = process.argv.slice(2).filter(e => /[\/\\]|_test$|\.[tj]sx?$/i.test(e));
 var isStartCommand = configs.start || configs.run;
 try {
 
@@ -52,6 +52,28 @@ try {
     } else if (isServerMode) {
         require("./server/index");
     } else if (isPublicMode) {
+        if (loadModule.length === 1) {
+            var app_Name = loadModule[0], module_Name;
+            if (/:[^\\\/]*$/.test(app_Name)) {
+                module_Name = /\:([^\\\/]*)$/.exec(app_Name)[1];
+                var [export_to, export_as] = module_Name.split("=");
+                if (export_as === undefined) {
+                    export_as = export_to;
+                }
+                app_Name = app_Name.slice(0, app_Name.length - module_Name.length - 1);
+                process.env.EXPORT_TO = export_to;
+                process.env.EXPORT_AS = export_as;
+            }
+            var module_Name = process.argv.slice(3).filter(a => /^([^\\\/\.\:]+)$/.test(a));
+            if (module_Name.length === 1) {
+                process.env.EXPORT_TO = module_Name[0];
+            }
+            process.env.APP = app_Name;
+
+        }
+        if (module_Name.length === 1) {
+            process.argv.EXPORT_TO = module_Name[0];
+        }
         require("./tools/build");
     } else if (isInitCommand) {
         if (configs.from) {

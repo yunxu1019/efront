@@ -2,7 +2,9 @@ var setupenv = require("../../process/setupenv");
 var path = require("path");
 var fs = require("fs");
 var {
-    APP
+    APP,
+    EXPORT_AS,
+    EXPORT_TO,
 } = process.env;
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : process.env;
@@ -23,10 +25,31 @@ var comms_root = [].concat.apply([], COMS_PATH.split(",").map(function (COMS_PAT
 var ccons_root = ICON && ICON_PATH ? [].concat.apply([], ICON_PATH.split(",").map(function (ICON_PATH) {
     return ICON.split(/,/).map(a => path.join(ICON_PATH, a));
 })).filter(fs.existsSync) : [];
-
 var pages_root = [].concat.apply([], PAGE_PATH.split(",").map(function (PAGE_PATH) {
     return PAGE.split(/,/).map(a => path.join(PAGE_PATH, a));
 })).filter(fs.existsSync);
+var resolve_component_file_path = function (public_path = APP, source_paths = [""].concat(pages_root, comms_root)) {
+    for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
+        var temp_path = source_paths[cx];
+        var public_app = path.join(temp_path, public_path);
+        if (fs.existsSync(public_app) && fs.statSync(public_app).isFile()) return public_app;
+    }
+    return "";
+};
+var public_app = resolve_component_file_path().replace(/\\/g, '/');
+if (public_app && !pages_root.length) {
+    var temp = path.resolve(APP), parent = path.dirname(temp);
+    pages_root.push(parent);
+    if (/^index(\.[jt]sx?)?$/i.test(path.basename(temp))) pages_root.push(path.dirname(parent));
+    while (temp && temp !== parent) {
+        temp = parent;
+        pages_root.push(path.join(parent, 'node_modules'));
+        parent = path.dirname(temp);
+    }
+    pages_root = pages_root.filter(fs.existsSync);
+}
+
+if (EXPORT_TO === undefined) EXPORT_TO = public_app.replace(/\.[tj]sx?$/i, '').replace(/(\w+)\/index$/i, "$1").replace(/[\s\S]*\/([^\\\/]+)$/, "$1");
 var aapis_root = "./apis/" + AAPI;
 module.exports = {
     comms_root,
@@ -41,5 +64,8 @@ module.exports = {
     PAGE_PATH,
     COMS_PATH,
     EXTT,
+    public_app,
+    EXPORT_TO,
+    EXPORT_AS,
     APP
 }

@@ -1,11 +1,18 @@
 "use strict";
-function getInitReferenced(dependence, args, data, sliceFrom) {
-    var indexOfInit = dependence.indexOf("init");
-    if (indexOfInit < 0) return;
-    var initRef = args[indexOfInit];
-    var initReg = new RegExp(`${initRef}${/\s*\((['"`])([_$\w]+)\1\s*[,\)]/.source}`, 'g');
+var path = require("path");
+function getInitReferenced(dependence, args, data, sliceFrom, realpath) {
+    var requires = ["init", "require"].map(a => dependence.indexOf(a)).filter(a => ~a);
+    if (!requires.length) return;
+    var initReg = new RegExp(`(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
     var required = [];
-    data.slice(sliceFrom).replace(initReg, function (match, quote, reference) {
+    var map = dependence.requiredMap = {};
+    data.slice(sliceFrom).replace(initReg, function (match, quote, refer) {
+        if (/^[\.\/]/.test(refer)) {
+            var reference = path.resolve(path.dirname(realpath), refer);
+        } else {
+            reference = refer;
+        }
+        map[refer] = reference;
         required.push(reference);
         return match;
     });
@@ -30,7 +37,7 @@ function getDependence(responseData) {
     var dependence = functionArgs.slice(0, functionArgs.length >> 1);
     dependence.args = functionArgs.slice(functionArgs.length >> 1);
     dependence.offset = dependenceNamesOffset || 0;
-    dependence.require = getInitReferenced(dependence, dependence.args, data, dependenceNamesOffset) || [];
+    dependence.require = getInitReferenced(dependence, dependence.args, data, dependenceNamesOffset, responseData.realpath) || [];
     return responseData.dependence = dependence;
 };
 

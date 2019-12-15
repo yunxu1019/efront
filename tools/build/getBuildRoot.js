@@ -66,15 +66,47 @@ var getPathInFolder = function (folder, filepath) {
     let rel = path.relative(folder, filepath);
     return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
 };
-var getBuildRoot = function (files) {
+function paddExtension(file) {
+    return new Promise(function (ok, oh) {
+        var extt = ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx'];
+        var parets = [""].concat(pages_root);
+        var prefix = 0;
+        var aftfix = 0;
+
+        var run = function () {
+            var f = path.join(parets[prefix], file) + extt[aftfix++];
+            fs.exists(f, function (exists) {
+                if (exists) ok(f);
+                else if (aftfix >= extt.length) {
+                    if (prefix + 1 < pages_root.length) {
+                        prefix++;
+                        aftfix = 0;
+                        run();
+                    } else {
+                        oh(`路径${file}不存在`);
+                    }
+                }
+                else run();
+            });
+        };
+        run();
+    });
+}
+var getBuildRoot = function (files, matchFileOnly) {
+    files = [].concat(files || []);
+    var indexMap = {};
+    files.forEach((f, cx) => indexMap[f] = cx);
     var resolve;
     var result = [];
     var run = function () {
         if (!files.length) return resolve(result);
-        var file = files.shift();
-        new Promise(function (ok, oh) {
-            fs.exists(file, function (exists) {
-                if (!exists) return oh(`路径${file}不存在`);
+        var file1 = files.shift();
+        var save = function (f) {
+            indexMap[f] = indexMap[file1];
+            result.push(f);
+        }
+        paddExtension(file1).then(function (file) {
+            return new Promise(function (ok, oh) {
                 fs.stat(file, function (error, stat) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
@@ -85,7 +117,7 @@ var getBuildRoot = function (files) {
                                 if (rel) {
                                     var name = path.parse(file).base;
                                     name = name.replace(/[\\\/]+/g, "/");
-                                    return result.push(name), ok();
+                                    return save(name), ok();
                                 }
                             }
                         }
@@ -94,7 +126,7 @@ var getBuildRoot = function (files) {
                                 var rel = getPathInFolder(page, file);
                                 if (rel) {
                                     var name = rel.replace(/[\\\/]+/g, "/");
-                                    return result.push("/" + name), ok();
+                                    return save("/" + name), ok();
                                 }
                             }
                         }
@@ -102,22 +134,53 @@ var getBuildRoot = function (files) {
                             var rel = getPathInFolder(page, file);
                             if (rel) {
                                 var name = "/" + rel.replace(/[\\\/]+/g, "/");
-                                return result.push(name), ok();
+                                return save(name), ok();
                             }
                         }
                         for (var page of PAGE_PATH.split(",")) {
                             var rel = getPathInFolder(page, file);
                             if (rel) {
                                 var name = "@" + rel.replace(/[\\\/]+/g, "/");
-                                return result.push(name), ok();
+                                return save(name), ok();
                             }
                         }
                         if (/\.png$/i.test(file)) {
                             var name = path.parse(file).base.replace(/[\\\/]+/g, "/");
-                            return result.push("." + name), ok();
+                            return save("." + name), ok();
                         }
                         console.warn(file, "skiped");
                         ok();
+                    } else if (matchFileOnly) {
+                        var f = path.join(file, 'package.json');
+                        var read = function (f) {
+                            return paddExtension(f).then(function (file) {
+                                indexMap[file] = indexMap[file1];
+                                files.push(file);
+                            });
+                        };
+                        fs.exists(f, function (exists) {
+                            if (exists) {
+                                fs.readFile(f, function (error, data) {
+                                    if (error) {
+                                        oh(error);
+                                        return;
+                                    }
+                                    var d = JSON.parse(
+                                        String(data)
+                                    );
+                                    var f = path.join(file, d.main);
+                                    read(f).then(ok).catch(function () {
+                                        oh(`${f}不存在！`);
+                                    });
+                                })
+                            } else {
+                                f = path.join(file, 'index');
+                                read(f).then(ok).catch(function () {
+                                    oh(`${file}不存在！`)
+                                });
+                            }
+                        });
+
                     } else {
                         fs.readdir(file, function (error, names) {
                             if (error) return oh(error);
@@ -135,8 +198,11 @@ var getBuildRoot = function (files) {
     }
     return new Promise(function (ok) {
         resolve = function (result) {
-            result = filterHtmlImportedJs(result);
-            ok(result);
+            result.sort(function (a, b) {
+                return indexMap[a] - indexMap[b];
+            });
+            var res = filterHtmlImportedJs(result);
+            ok(res);
         };
         run();
     });
