@@ -17,7 +17,7 @@ var setenv = function (evn) {
 
 var isTestMode = configs.test;
 var isHelpMode = configs.help;
-var isPublicMode = configs.build || configs.public;
+var isPublicMode = configs.build || configs.public || configs.release || configs.publish;
 var isWatchMode = configs.watch;
 var isServerMode = configs.server || configs.serve;
 var isInitCommand = configs.init || configs.from;
@@ -56,23 +56,26 @@ try {
             var app_Name = loadModule[0], module_Name;
             if (/:[^\\\/]*$/.test(app_Name)) {
                 module_Name = /\:([^\\\/]*)$/.exec(app_Name)[1];
-                var [export_to, export_as] = module_Name.split("=");
-                if (export_as === undefined) {
-                    export_as = export_to;
-                }
                 app_Name = app_Name.slice(0, app_Name.length - module_Name.length - 1);
-                process.env.EXPORT_TO = export_to;
-                process.env.EXPORT_AS = export_as;
-            }
-            var module_Name = process.argv.slice(3).filter(a => /^([^\\\/\.\:]+)$/.test(a));
-            if (module_Name.length === 1) {
-                process.env.EXPORT_TO = module_Name[0];
             }
             process.env.APP = app_Name;
-
         }
-        if (module_Name.length === 1) {
-            process.argv.EXPORT_TO = module_Name[0];
+        if (configs.release || configs.publish) {
+            process.env.RELEASE = 1;
+        }
+        var module_Name = module_Name || process.argv.slice(3).filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
+        if (module_Name) {
+            var [export_to, export_as] = module_Name.split("=");
+            if (export_as === undefined) {
+                if (!/exports|return$/.test(export_to)) export_as = export_to;
+            }
+            if (export_to) {
+                process.env.EXPORT_TO = export_to;
+            }
+            if (export_as) {
+                process.env.EXPORT_AS = export_as;
+            }
+            process.env.EXPORT_TO = module_Name;
         }
         require("./tools/build");
     } else if (isInitCommand) {

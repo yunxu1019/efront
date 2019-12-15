@@ -3,7 +3,7 @@ var esprima = require("../../process/esprima");
 var esmangle = require("../../process/esmangle/esmangle");
 var scanner = require("../../process/compile/scanner");
 var typescript = require("../../process/typescript/typescript");
-var { public_app, EXPORT_TO: EXPORT_TO, EXPORT_AS } = require("./environment");
+var { public_app, EXPORT_TO: EXPORT_TO, EXPORT_AS, include_required } = require("./environment");
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
     delete responseTree["[]map"];
@@ -53,7 +53,7 @@ function toComponent(responseTree) {
         source = JSON.stringify(source).replace(/[\u1000-\uffff]/g, a => "\\u" + a.charCodeAt(0).toString(16));
         return source;
     };
-
+    var has_outside_require = false;
     var saveCode = function (module_body, k, reqMap) {
         var this_module_params = {};
         var setMatchedConstString = function (match, type, k, isProp) {
@@ -66,9 +66,12 @@ function toComponent(responseTree) {
                     k = k.replace(/^(['"])(.*?)\1$/, function (match, quote, string) {
                         return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
                     });
-                    var refer = eval(k);
-                    if (reqMap && refer in reqMap && reqMap[refer] in destMap) {
-                        return destMap[reqMap[refer]];
+                    if (include_required) {
+                        var refer = eval(k);
+                        if (reqMap && refer in reqMap) {
+                            if (destMap[reqMap[refer]]) return destMap[reqMap[refer]];
+                            else has_outside_require = true;
+                        }
                     }
                     break;
                 case ".":
@@ -161,7 +164,9 @@ function toComponent(responseTree) {
         });
     }
     saveCode([String(array_map.data)], "map");
-    saveOnly("[]", 'init', 'require');
+    if (include_required) {
+        saveOnly("[]", 'init', 'require');
+    }
     var freg = /^function[^\(]*?\(([^\)]+?)\)/;
     strings.map(function (str) {
         return getEfrontKey(`"${str}"`, "string");
@@ -179,7 +184,9 @@ function toComponent(responseTree) {
             var ok = true;
             module_body.slice(0, module_body.length >> 1).concat(required).forEach(function (k) {
                 if (!destMap[k] && responseTree[k]) ok = false;
-                if (!responseTree[k].data && !destMap[k]) destMap[k] = dest.length + 1, dest.push(k);
+                if (responseTree[k] && !responseTree[k].data && !destMap[k]) {
+                    saveOnly(k, k);
+                }
             });
             if (!responseTree[k].data) {
                 result.splice(cx, 1);
@@ -245,7 +252,7 @@ function toComponent(responseTree) {
         }
             return this[c + 1] = a;
         }
-        if(!a[m])return T[c+1]=function(i){return T[i]};
+        if(!a[m])return T[c+1]=function(i){return ${has_outside_require ? `i[m]?s[${destMap[getEfrontKey("require", "global")] - 1}](i):` : ''}T[i]};
         if(~[E,M][x](c+1))return T[c+1]=s[c][0];
         var r=s[${destMap[getEfrontKey(`/${freg.source}/`, 'regexp')] - 1}],I,
         g =[],i=0,k=a[m]-1, f = a[k],l = r[e](f);
@@ -282,7 +289,19 @@ function toComponent(responseTree) {
 
     var template = `([/*${new Date().toString()} by efront*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]`;
     if (EXPORT_TO) {
-        template = `this["${EXPORT_TO}"]=` + template;
+        switch (EXPORT_TO) {
+            case 'return':
+                template = "return " + template;
+                break;
+            case 'exports':
+            case 'module.exports':
+                template = "module.exports=" + template;
+                break;
+            default:
+                template = `this["${EXPORT_TO}"]=` + template;
+                responseTree[PUBLIC_APP].destpath = EXPORT_TO;
+
+        }
     }
     if (EXPORT_AS) {
         template += `["${EXPORT_AS}"]`;
@@ -300,9 +319,8 @@ function toComponent(responseTree) {
     //     }
     // }
     responseTree[PUBLIC_APP].data = template;
-    if (EXPORT_TO) responseTree[PUBLIC_APP].destpath = EXPORT_TO;
     return Object.assign({
-        [public_app]: responseTree[PUBLIC_APP]
+        [PUBLIC_APP]: responseTree[PUBLIC_APP]
     });
 }
 module.exports = toComponent;

@@ -3,6 +3,7 @@ var getBuildInfo = require("./getBuildInfo");
 var getBuildRoot = require("./getBuildRoot");
 var getDependence = require("./getDependence");
 var compile = require("./compile");
+var { include_required } = require("./environment");
 function build(pages_root, lastBuiltTime, dest_root) {
     var responseTree = {};
     var filterMap = {};
@@ -23,12 +24,13 @@ function build(pages_root, lastBuiltTime, dest_root) {
         Promise.all(roots).then(function (datas) {
             var deps = {};
             return Promise.all(datas.map(getDependence).map(function (a) {
+                if (!include_required) return a.map(k => deps[k] = true);
                 return getBuildRoot(a.require || [], true).then(function (required) {
                     var reqMap = {};
                     a.required = required.map((k) => k.replace(/\.([tj]sx?|html?|json)$/i, ''));
                     var map = a.requiredMap;
                     a.require.forEach((k, cx) => reqMap[k] = cx);
-                    map && Object.keys(map).forEach(k => map[k] = a.required[reqMap[map[k]]]);
+                    map && Object.keys(map).forEach(k => map[k] = a.required[reqMap[map[k]]] || '');
                     return a.concat(required).map(k => deps[k] = true);
                 });
             })).then(function () {

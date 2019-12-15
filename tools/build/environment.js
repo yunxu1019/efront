@@ -5,6 +5,7 @@ var {
     APP,
     EXPORT_AS,
     EXPORT_TO,
+    RELEASE,
 } = process.env;
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : process.env;
@@ -67,5 +68,6 @@ module.exports = {
     public_app,
     EXPORT_TO,
     EXPORT_AS,
+    include_required: !!RELEASE || !public_app,
     APP
 }

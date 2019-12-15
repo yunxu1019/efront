@@ -193,15 +193,17 @@ var getBuildRoot = function (files, matchFileOnly) {
                 });
             });
         }).catch(function (e) {
-            console.error(e, "\r\n");
+            if (!matchFileOnly) console.error(e, "\r\n");
+            else console.info(e);
         }).then(run);
     }
     return new Promise(function (ok) {
         resolve = function (result) {
-            result.sort(function (a, b) {
-                return indexMap[a] - indexMap[b];
+            var res = [];
+            result.forEach(function (a) {
+                return res[indexMap[a]] = a;
             });
-            var res = filterHtmlImportedJs(result);
+            var res = filterHtmlImportedJs(res);
             ok(res);
         };
         run();
