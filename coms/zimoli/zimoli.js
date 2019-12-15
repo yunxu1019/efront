@@ -120,7 +120,7 @@ var setZimoliParams = function (pagepath, args) {
         console.warn("写入存储空间失败！", e);
     }
 };
-var fullfill_is_dispatched = false;
+var fullfill_is_dispatched = 0;
 function go(pagepath, args, history_name, oldpagepath) {
     if (!history_name)
         history_name = current_history;
@@ -149,13 +149,13 @@ function go(pagepath, args, history_name, oldpagepath) {
     }
     var page_object = page_generators[pagepath];
     var fullfill = function () {
-        if (fullfill_is_dispatched) return;
-        fullfill_is_dispatched = true;
+        if (fullfill_is_dispatched > 0) return;
+        fullfill_is_dispatched = 1;
         try {
             var _page = create(pagepath, args, oldpagepath);
             var isDestroy = pushstate(pagepath, history_name, oldpagepath);
             if (isNode(history_name)) {
-                if (history_name.activate === pagepath && history_name.activateNode === _page) return;
+                if (history_name.activate === pagepath && history_name.activateNode === _page) return fullfill_is_dispatched--;
                 else remove(history_name.activateNode);
                 history_name.activate = pagepath;
                 history_name.activateNode = _page;
@@ -185,7 +185,7 @@ function go(pagepath, args, history_name, oldpagepath) {
         } catch (e) {
             console.error(e);
         }
-        fullfill_is_dispatched = false;
+        fullfill_is_dispatched = 0
         return _page;
     };
     return fullfill();
