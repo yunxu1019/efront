@@ -1,6 +1,7 @@
 "use strict";
 var window = this;
 var {
+    RegExp,
     Object,
     parseInt,
     XMLHttpRequest,
@@ -333,15 +334,68 @@ var executer = function (text, name, then, prebuild, parents) {
         if (prebuild && hasOwnProperty.call(prebuild, name)) return then(prebuild[name]);
         var prevent_save = 0;
         var argslength = functionArgs.length >> 1;
-        prebuild && [].map.call(functionArgs.slice(0, argslength), k => k in prebuild && prevent_save++);
+        prebuild && [].forEach.call(requires, k => k in prebuild && prevent_save++);
         if (!prevent_save && hasOwnProperty.call(modules, name)) return then(modules[name]);
         if (prevent_save && /^\w+$/.test(name)) console.warn('组件对象', name, "在多实例的模式下运行！");
         try {
             var allArgumentsNames = functionArgs.slice(argslength);
-            var exports = Function.apply(window, allArgumentsNames.concat(functionBody)).apply(window, args.concat([allArgumentsNames]));
-            if (prevent_save) prebuild[name] = exports;
-            else modules[name] = exports;
-            then(exports);
+            var indexOf_exports = requires.indexOf("exports"), indexOf_module = requires.indexOf("module"), indexOf_require = requires.indexOf("require");
+            var _this = window;
+            if (~indexOf_exports) {
+                _this = args[indexOf_exports];
+            } else if (~indexOf_module) {
+                _this = args[indexOf_module].exports;
+            }
+            var hire = function () {
+                var exports = Function.apply(window, allArgumentsNames.concat(functionBody)).apply(_this, args.concat([allArgumentsNames]));
+                if (prevent_save) prebuild[name] = exports;
+                else modules[name] = exports;
+                then(exports);
+            };
+            if (~indexOf_require) {
+                var require_arg = requires[indexOf_require];
+                var require_reg = new RegExp(`${require_arg}${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
+                var is_page = /[\/\\]/.test(name);
+                if (is_page) {
+                    var require_base = name.replace(/[^\\\/]+$/, '');
+                } else {
+                    var require_base = /\w[\$]/.test(name) ? name.replace(/\$[^\$]+$/, '$') : '';
+                }
+                var required = [], required_map = {};
+                functionBody.replace(require_reg, function (match, quote, refer) {
+                    if (/^\.\.?[\\\/]/.test(refer)) {
+                        while (/^\.\.[\/\\]/.test(refer)) {
+                            name = is_page ? name.replace(/[^\/\\]+[\/\\]$/, '') : name.replace(/[^\$]\$$/, '');
+                            refer = refer.slice(3);
+                        }
+                        if (!is_page) {
+                            refer = refer.replace(/[\/\\]/g, "$");
+                        }
+                        refer = refer.replace(/^\.\//, "");
+                        var reference = require_base + refer;
+                    } else {
+                        reference = refer;
+                    }
+                    required_map[refer] = required.length;
+                    required.push(reference);
+                    return match;
+                });
+                args[indexOf_require] = function (refer) {
+                    return required_map[refer];
+                };
+                if (required.length) {
+                    init(required, function (args) {
+                        required.forEach(function (refer, cx) {
+                            required_map[refer] = args[cx];
+                        });
+                        hire();
+                    }, prebuild, parents.concat(name));
+                } else {
+                    hire();
+                }
+                return;
+            }
+            hire();
         } catch (e) {
             console.log(`[${name}]`);
             console.error(e);
@@ -401,11 +455,14 @@ var init = function (name, then, prebuild, parents) {
     then = bindthen(then);
     if (name instanceof Array) {
         if (!Promise) console.log(name, Promise, preLoad, parents);
+        var exports = {}, module = { exports };
         return Promise.all(name.map(function (argName) {
             if (prebuild && argName in prebuild) {
                 return prebuild[argName];
             }
-            if (name === 'undefined') return void 0;
+            if (argName === "module") return module;
+            if (argName === "exports") return exports;
+            if (argName === 'undefined' || argName === "require") return void 0;
             return new Promise(function (ok, oh) {
                 init(argName, ok, prebuild, parents);
             });
