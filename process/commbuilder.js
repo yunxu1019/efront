@@ -35,6 +35,7 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
                     if (data instanceof Buffer) {
                         return replacer(data.toString(), realPath);
                     }
+                    if (/^\s*(['"`])use\s+strict\1\s*;?\s*$/.test(match)) return match;
                     console.warn(`没有处理${match}`, fullpath);
                     return match;
                 });
@@ -209,7 +210,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
 
             });
         } else {
-            if (filename !== "main") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
+            if (path.basename(filename).toLowerCase() !== "main") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
         }
     }
     code_body = prepareCodeBody.concat(code_body);
