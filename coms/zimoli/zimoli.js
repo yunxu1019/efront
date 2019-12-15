@@ -120,7 +120,7 @@ var setZimoliParams = function (pagepath, args) {
         console.warn("写入存储空间失败！", e);
     }
 };
-
+var fullfill_is_dispatched = false;
 function go(pagepath, args, history_name, oldpagepath) {
     if (!history_name)
         history_name = current_history;
@@ -149,36 +149,43 @@ function go(pagepath, args, history_name, oldpagepath) {
     }
     var page_object = page_generators[pagepath];
     var fullfill = function () {
-        var _page = create(pagepath, args, oldpagepath);
-        var isDestroy = pushstate(pagepath, history_name, oldpagepath);
-        if (isNode(history_name)) {
-            if (history_name.activate === pagepath && history_name.activateNode === _page) return;
-            else remove(history_name.activateNode);
-            history_name.activate = pagepath;
-            history_name.activateNode = _page;
-        }
-        if (isString(pagepath)) {
-            var event = createEvent("zimoli");
-            event.$reload = fullfill;
-            event.zimoli = {
-                path: pagepath,
-                roles,
-                data: args,
-                target: _page,
-                options
-            };
-            dispatch(window, event);
-        }
-        addGlobal(_page, history_name, isDestroy);
-        page_object.prepares.forEach(function (url) {
-            if (isNumber(url)) {
-                url = _history[url < 1 ? _history.length + url - 1 : url];
+        if (fullfill_is_dispatched) return;
+        fullfill_is_dispatched = true;
+        try {
+            var _page = create(pagepath, args, oldpagepath);
+            var isDestroy = pushstate(pagepath, history_name, oldpagepath);
+            if (isNode(history_name)) {
+                if (history_name.activate === pagepath && history_name.activateNode === _page) return;
+                else remove(history_name.activateNode);
+                history_name.activate = pagepath;
+                history_name.activateNode = _page;
             }
-            if (isString(url)) prepare(url);
-        });
-        if (_page) {
-            _page.$reload = fullfill;
+            if (isString(pagepath)) {
+                var event = createEvent("zimoli");
+                event.$reload = fullfill;
+                event.zimoli = {
+                    path: pagepath,
+                    roles,
+                    data: args,
+                    target: _page,
+                    options
+                };
+                dispatch(window, event);
+            }
+            addGlobal(_page, history_name, isDestroy);
+            page_object.prepares.forEach(function (url) {
+                if (isNumber(url)) {
+                    url = _history[url < 1 ? _history.length + url - 1 : url];
+                }
+                if (isString(url)) prepare(url);
+            });
+            if (_page) {
+                _page.$reload = fullfill;
+            }
+        } catch (e) {
+            console.error(e);
         }
+        fullfill_is_dispatched = false;
         return _page;
     };
     return fullfill();
@@ -270,14 +277,16 @@ function prepare(pagepath, ok) {
 
     init('action', function (action) {
         state.action = function (menu, item) {
+            var res;
             if (isString(menu)) {
-                return state.go(menu, item);
-            }
-            if (menu && menu.path) {
+                res = state.go(menu, item);
+            } else if (menu && menu.path) {
                 menu = Object.assign({}, menu, { path: state.path(menu.path) });
-                return go(menu, undefined, undefined, pagepath);
+                res = go(menu, undefined, undefined, pagepath);
+            } else {
+                res = action(menu);
             }
-            return action(menu);
+            return Promise.resolve(res);
         };
     });
     var prepares = [];
