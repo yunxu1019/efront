@@ -2,6 +2,8 @@
 var URL = require("url");
 var Http2ServerResponse = require("http2").Http2ServerResponse;
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
+var privateKeys = Object.create(null);
+"Cookie,Connection,Referer,Host,Origin".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
 var options = {};
 -function () {
     var fs = require("fs");
@@ -78,6 +80,14 @@ function cross(req, res, referer) {
                 headers[key] = _headers[key];
             }
         });
+        for (var k in _headers) {
+            if ({}.hasOwnProperty.call(privateKeys, k)) {
+                continue;
+            }
+            if (!headers[k] && _headers[k]) {
+                headers[k] = _headers[k];
+            }
+        }
         var http;
         if (/^https\:/i.test(hostpath)) {
             http = require("https");
