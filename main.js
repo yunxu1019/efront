@@ -75,7 +75,6 @@ try {
             if (export_as) {
                 process.env.EXPORT_AS = export_as;
             }
-            process.env.EXPORT_TO = module_Name;
         }
         require("./tools/build");
     } else if (isInitCommand) {
