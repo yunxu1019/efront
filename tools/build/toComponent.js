@@ -10,6 +10,7 @@ function toComponent(responseTree) {
     var result = [];
     var crypt_code = new Date / 1000 ^ Math.random() * 3600;
     for (var k in responseTree) {
+        if (!{}.hasOwnProperty.call(responseTree, k)) continue;
         var response = responseTree[k];
         var dependence = response.dependence;
         if (response.data instanceof Buffer) {
@@ -20,8 +21,7 @@ function toComponent(responseTree) {
         }
         result.push([k, dependence.required, dependence.requiredMap].concat(dependence).concat(dependence.args).concat(responseTree[k].toString().slice(dependence.offset)));
     }
-    var destMap = {
-    }, dest = [], last_result_length = result.length, origin_result_length = last_result_length;
+    var destMap = Object.create(null), dest = [], last_result_length = result.length, origin_result_length = last_result_length;
 
     var $$_efront_map_string_key = "$$__efront_const";
     var getEfrontKey = function (k, type) {
@@ -68,7 +68,7 @@ function toComponent(responseTree) {
                     });
                     if (include_required) {
                         var refer = eval(k);
-                        if (reqMap && refer in reqMap) {
+                        if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                             if (destMap[reqMap[refer]]) return destMap[reqMap[refer]];
                             else has_outside_require = true;
                         }
@@ -182,11 +182,11 @@ function toComponent(responseTree) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, required, reqMap, ...module_body] = result[cx];
             var ok = true;
-            module_body.slice(0, module_body.length >> 1).concat(required).forEach(function (k) {
-                if (!destMap[k] && responseTree[k]) ok = false;
+            module_body.slice(0, module_body.length >> 1).concat(required || []).forEach(function (k) {
                 if (responseTree[k] && !responseTree[k].data && !destMap[k]) {
                     saveOnly(k, k);
                 }
+                if (!destMap[k] && responseTree[k]) ok = false;
             });
             if (!responseTree[k].data) {
                 result.splice(cx, 1);
@@ -198,7 +198,11 @@ function toComponent(responseTree) {
                 saveCode(module_body, k, reqMap);
             }
         }
-        if (last_result_length === result.length) throw new Error(`处理失败！`);
+
+        if (last_result_length === result.length) {
+            console.log(result.map(a => a[0]));
+            throw new Error(`处理失败！`);
+        }
         last_result_length = result.length;
     }
     saveOnly(`[${crypt_code}]`, 'module');

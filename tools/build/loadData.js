@@ -26,7 +26,7 @@ function build(pages_root, lastBuiltTime, dest_root) {
             return Promise.all(datas.map(getDependence).map(function (a) {
                 if (!include_required) return a.map(k => deps[k] = true);
                 return getBuildRoot(a.require || [], true).then(function (required) {
-                    var reqMap = {};
+                    var reqMap = Object.create(null);
                     a.required = required.map((k) => k.replace(/\.([tj]sx?|html?|json)$/i, ''));
                     var map = a.requiredMap;
                     a.require.forEach((k, cx) => reqMap[k] = cx);

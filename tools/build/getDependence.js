@@ -2,10 +2,10 @@
 var path = require("path");
 function getInitReferenced(dependence, args, data, sliceFrom, realpath) {
     var requires = ["init", "require"].map(a => dependence.indexOf(a)).filter(a => ~a);
-    if (!requires.length) return;
+    if (!requires.length) return [];
     var initReg = new RegExp(`(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
     var required = [];
-    var map = dependence.requiredMap = {};
+    var map = dependence.requiredMap = Object.create(null);
     data.slice(sliceFrom).replace(initReg, function (match, quote, refer) {
         if (/^[\.\/]/.test(refer)) {
             var reference = path.resolve(path.dirname(realpath), refer);
