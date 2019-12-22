@@ -141,11 +141,13 @@ var setup = module.exports = function (appname) {
     cache[appname] = env;
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
         if (!env[key]) {
-            var default_value = process.env[key] || "zimoli";
+            var default_value = process.env[key];
             if (appname === default_value) {
                 env[key] = default_value;
             } else if (default_value) {
                 env[key] = appname + "," + default_value;
+            } else {
+                env[key] = appname + ",";
             }
         }
     });

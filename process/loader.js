@@ -55,7 +55,7 @@ if (PREVENT_FRAMEWORK_MODE !== false) {
 }
 var start_time = +new Date / 1000 | 0;
 
-var FILE_NAME_REG = /^[^\/].*?[\/\?\-\.\+]|(?:[^\/]\.|[\-\+\?])[^\/]*?$/;
+var FILE_NAME_REG = /^https?\:|\.(html?|css|asp|jsp|php)$/i;
 // 适配大小屏
 var devicePixelRatio = window.devicePixelRatio || 1;
 // if (isBadDevice) devicePixelRatio = 1;
@@ -142,6 +142,9 @@ var loaddata = function (name) {
     var url;
     if (FILE_NAME_REG.test(name)) url = name;
     else switch (name.charAt(0)) {
+        case ":":
+            url = "node/" + name.slice(1);
+            break;
         case "/":
             url = "page" + name;
             break;
@@ -284,6 +287,34 @@ var getArgs = function (text) {
     functionBody = functionBody.replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt") + (quote || ""));
     return [functionArgs, functionBody];
 };
+var get_relatives = function (name, required) {
+    var required_base = name.replace(/[^\/\$]+$/, "");
+    required_base = required_base.replace(/^\.?[\/\$]+/, "");
+    var is_page = /^\//.test(name);
+    return required.map(r => {
+        var base = required_base;
+        if (/^\.*[\/]/.test(r)) {
+            r = r.replace(/^\.\//, '');
+            while (/\.\.[\/\$]/.test(r)) {
+                base = base.replace(/[^\/\$]*[\/\$]$/, '');
+                r = r.slice(3);
+            }
+            base = base.replace(/^[\/\$]/, '');
+            if (/^\//.test(r)) {
+                base = '';
+                r = r.slice(1);
+            }
+            if (is_page) {
+                base = "/" + base;
+            } else {
+                base = base.replace(/\//g, "$");
+                r = r.replace(/\//g, '$');
+            }
+            return base + r;
+        }
+        return r.replace(/\//g, '$');
+    });
+};
 var executer = function (text, name, then, prebuild, parents) {
     var [functionArgs, functionBody] = getArgs(text);
     if (!functionArgs.length) {
@@ -338,9 +369,33 @@ var executer = function (text, name, then, prebuild, parents) {
         if (!prevent_save && hasOwnProperty.call(modules, name)) return then(modules[name]);
         if (prevent_save && /^\w+$/.test(name)) console.warn('组件对象', name, "在多实例的模式下运行！");
         try {
-            var allArgumentsNames = functionArgs.slice(argslength);
-            var indexOf_exports = requires.indexOf("exports"), indexOf_module = requires.indexOf("module"), indexOf_require = requires.indexOf("require");
+            var allArgumentsNames = functionArgs.slice(argslength, argslength << 1);
+            var indexOf_exports = requires.indexOf("exports"),
+                indexOf_module = requires.indexOf("module"),
+                indexOf_require = requires.indexOf("require"),
+                indexOf_define = requires.indexOf("define");
             var _this = window;
+            if (~indexOf_define) {
+                _this = args[indexOf_define];
+                args[indexOf_define] = function (m_name, requires, exec) {
+                    if (m_name instanceof Function) {
+                        exec = m_name;
+                        return exec.call(_this);
+                    }
+                    if (m_name instanceof Array) {
+                        exec = requires;
+                        requires = m_name;
+                        m_name = name;
+                    }
+                    if (!/^\//.test(m_name)) {
+                        m_name = m_name.replace(/\//g, '$');
+                    }
+                    init(get_relatives(m_name, requires), function (args) {
+                        return exec.apply(_this, args);
+                    }, prebuild, m_name === name ? parents : parents.concat(m_name), prebuild);
+                };
+                args[indexOf_define].amd = true;
+            }
             if (~indexOf_exports) {
                 _this = args[indexOf_exports];
             } else if (~indexOf_module) {
@@ -353,41 +408,14 @@ var executer = function (text, name, then, prebuild, parents) {
                 then(exports);
             };
             if (~indexOf_require) {
-                var require_arg = requires[indexOf_require];
-                var require_reg = new RegExp(`${require_arg}${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
-                var is_page = /[\/\\]/.test(name);
-                if (is_page) {
-                    var require_base = name.replace(/[^\\\/]+$/, '');
-                } else {
-                    var require_base = /\w[\$]/.test(name) ? name.replace(/\$[^\$]+$/, '$') : '';
-                }
-                var required = [], required_map = {};
-                functionBody.replace(require_reg, function (match, quote, refer) {
-                    if (/^\.\.?[\\\/]/.test(refer)) {
-                        while (/^\.\.[\/\\]/.test(refer)) {
-                            name = is_page ? name.replace(/[^\/\\]+[\/\\]$/, '') : name.replace(/[^\$]\$$/, '');
-                            refer = refer.slice(3);
-                        }
-                        if (!is_page) {
-                            refer = refer.replace(/[\/\\]/g, "$");
-                        }
-                        refer = refer.replace(/^\.\//, "");
-                        var reference = require_base + refer;
-                    } else {
-                        reference = refer;
-                    }
-                    required_map[refer] = required.length;
-                    required.push(reference);
-                    return match;
-                });
+                var required = functionArgs[argslength << 1];
                 args[indexOf_require] = function (refer) {
-                    return required_map[refer];
+                    return required[refer];
                 };
-                if (required.length) {
+                if (required) {
+                    required = get_relatives(name, required.split(';'));
                     init(required, function (args) {
-                        required.forEach(function (refer, cx) {
-                            required_map[refer] = args[cx];
-                        });
+                        required = args;
                         hire();
                     }, prebuild, parents.concat(name));
                 } else {
@@ -460,9 +488,10 @@ var init = function (name, then, prebuild, parents) {
             if (prebuild && argName in prebuild) {
                 return prebuild[argName];
             }
+            if (argName === "global") return window;
             if (argName === "module") return module;
-            if (argName === "exports") return exports;
-            if (argName === 'undefined' || argName === "require") return void 0;
+            if (argName === "exports" || argName === "define") return exports;
+            if (argName === 'undefined' || argName === "require" || argName === "define") return void 0;
             return new Promise(function (ok, oh) {
                 init(argName, ok, prebuild, parents);
             });

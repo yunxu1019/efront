@@ -12,12 +12,19 @@ var ieSpecialWords = Object.assign({
 }, keywords);
 var merge = function (dst, o) {
     for (var k in o) {
+        if (o[k] instanceof Array) {
+            if (!(dst[k] instanceof Array)) {
+                dst[k] = [];
+            }
+            dst[k] = dst[k].concat(o[k]);
+        }
         dst[k] = o[k] === true ? true : dst[k] || o[k];
     }
 };
 var getVariables = function (ast) {
-    var DeclaredVariables = {},
-        unDeclaredVariables = {};
+    var DeclaredVariables = Object.create(null),
+        unDeclaredVariables = Object.create(null);
+    var required = [];
     if (ast instanceof Object) {
         switch (ast.type) {
             case "VariableDeclaration":
@@ -64,7 +71,7 @@ var getVariables = function (ast) {
                     unDeclaredVariables: u
                 } = getVariables(ast.init);
                 for (var k in u) {
-                    u[k] = "initer";
+                    if (!(u[k] instanceof Array)) u[k] = "initer";
                 }
                 for (var k in d) {
                     d[k] = "initer";
@@ -182,15 +189,37 @@ var getVariables = function (ast) {
             case "BreakStatement":
             case "ContinueStatement":
                 break;
+            case "CallExpression":
+                if (ast.callee.name === "require") {
+                    var argument = ast.arguments[0];
+                    if (argument.type === 'Literal') {
+                        required.push(argument);
+                        unDeclaredVariables.require = required;
+                        break;
+                    }
+                }
+                for (var k in ast) {
+                    var {
+                        DeclaredVariables: d,
+                        unDeclaredVariables: u
+                    } = getVariables(ast[k]);
+                    merge(DeclaredVariables, d);
+                    merge(unDeclaredVariables, u);
+                }
+
+                break;
+
             case "ExpressionStatement":
                 //去除测试脚本
                 var expression = ast.expression;
-                if (expression.type === "CallExpression" && expression.callee.type === "Identifier" && expression.callee.name.toLowerCase() === "describe") {
-                    for (var k in ast) {
-                        delete ast[k];
+                if (expression.type === "CallExpression" && expression.callee.type === "Identifier") {
+                    if (expression.callee.name.toLowerCase() === "describe") {
+                        for (var k in ast) {
+                            delete ast[k];
+                        }
+                        ast.type = "EmptyStatement";
+                        break;
                     }
-                    ast.type = "EmptyStatement";
-                    break;
                 }
             case "UnaryExpression":
                 if (ast.operator === "typeof" && ast.argument.type === 'Identifier') {

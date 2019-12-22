@@ -11,7 +11,6 @@ var getpagefile = require("../process/cache")(env.PAGE_PATH, commbuilder).async;
 var getaapifunc = require("../process/cache")(env.APIS_PATH, aapibuilder).async;
 var geticonfile = require("../process/cache")(env.ICON_PATH || require("path").join(__dirname, "../cons"), iconbuilder).async;
 var getonlyfile = require("../process/cache")(env.FILE_PATH || env.PAGE_PATH, filebuilder, FILE_BUFFER_SIZE).async;
-
 var {
     PAGE,
     FILE = PAGE,
@@ -28,8 +27,13 @@ var getfrompath = function (name, __root, getter, extt) {
     __root = __root.split(/,/);
     return new Promise(function (ok) {
         var inc = 0;
-        var run = function () {
-            if (inc >= __root.length) return ok("");
+        var res = '';
+        var run = function (result) {
+            if (result instanceof Buffer || result instanceof Function) return ok(result);
+            if (typeof result === "string") {
+                res = commbuilder(`require("${result}")`, 'index.js', 'index.js', []);
+            }
+            if (inc >= __root.length) return res instanceof Promise ? res.then(ok) : ok(res);
             var body = getter(__root[inc] + "/" + name, extt);
             inc++;
             if (body instanceof Promise) {
@@ -38,12 +42,10 @@ var getfrompath = function (name, __root, getter, extt) {
                     error = e;
                 }).then(function (body) {
                     if (error) return ok(error);
-                    if (body instanceof Buffer || body instanceof Function) ok(body);
-                    else run();
+                    run(body);
                 });
             } else {
-                if (body instanceof Buffer || body instanceof Function) ok(body);
-                else run();
+                run(body);
             }
         };
         run();
@@ -57,17 +59,16 @@ var geticon = function (name, env) {
 var getcomm = function (name, env) {
     var _comms_root = env.COMM || comms_root;
     name = name.replace(/(\w)\$/g, "$1/");
-    return getfrompath(name, _comms_root, getcommfile, [".js", ".ts", ".json", ".html"]);
+    return getfrompath(name, _comms_root, getcommfile, [".js", ".ts", ".json", ".html", '']);
 };
 
 var getpage = function (name, env) {
     var _pages_root = env.PAGE || pages_root;
-    return getfrompath(name, _pages_root, getpagefile, [".js", ".ts", ".html"]);
+    return getfrompath(name, _pages_root, getpagefile, [".js", ".ts", ".html", '']);
 };
 
 var getapi = function (name, env) {
     var _aapis_root = env.AAPI || aapis_root;
-    console.log(name, _aapis_root);
     return getfrompath(name, _aapis_root, getaapifunc, ".js");
 };
 

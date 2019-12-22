@@ -104,6 +104,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         DeclaredVariables: declares,
         unDeclaredVariables: undeclares
     } = getvariables(code);
+    var { require: required } = undeclares;
     var globals = Object.keys(undeclares);
     var globalsmap = {};
     globals.forEach(g => globalsmap[g] = g);
@@ -215,6 +216,19 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     }
     code_body = prepareCodeBody.concat(code_body);
     globals = Object.keys(globalsmap);
+    var required_map = {}, required_paths = [];
+    if (required instanceof Array) required.forEach((r, cx) => {
+        if (typeof r.value !== "string") return;
+        r.value = r.value.replace(/\\/g, '/');
+        if (!required_map[r.value]) {
+            required_map[r.value] = required_paths.length;
+            required_paths.push(r.value);
+        }
+        if (!getvariables.computed) {
+            r.value = required_map[r.value];
+        }
+        r.raw = String(r.value);
+    });
     if (process.env.IN_TEST_MODE) {
         code = {
             "type": "Program",
@@ -266,7 +280,11 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             }
         });
     }
-    var _arguments = [...globals, ...params].join();
+    var _arguments = [...globals, ...params];
+    if (required_paths.length >= 1) {
+        _arguments.push(required_paths.join(';'));
+    }
+    _arguments = _arguments.join(',');
     var length = (_arguments.length << 1).toString(36);
     if (length.length === 1) {
         length = "00" + length;

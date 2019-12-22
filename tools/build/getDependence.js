@@ -1,23 +1,58 @@
 "use strict";
-var path = require("path");
-function getInitReferenced(dependence, args, data, sliceFrom, realpath) {
-    var requires = ["init", "require"].map(a => dependence.indexOf(a)).filter(a => ~a);
-    if (!requires.length) return [];
-    var initReg = new RegExp(`(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
-    var required = [];
+// var path = require("path");
+// function getInitReferenced(dependence, args, data, sliceFrom, realpath) {
+//     var requires = ["init", "require"].map(a => dependence.indexOf(a)).filter(a => ~a);
+//     if (!requires.length) return [];
+//     var initReg = new RegExp(`(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
+//     var required = [];
+//     var map = dependence.requiredMap = Object.create(null);
+//     data.slice(sliceFrom).replace(initReg, function (match, quote, refer) {
+//         if (/^[\.\/]/.test(refer)) {
+//             var reference = path.resolve(path.dirname(realpath), refer);
+//         } else {
+//             reference = refer;
+//         }
+//         map[refer] = reference;
+//         required.push(reference);
+//         return match;
+//     });
+//     return required;
+// }
+var get_relatives = function (name, required, dependence) {
+    var required_base = name.replace(/[^\/\$]+$/, "");
+    required_base = required_base.replace(/^\.?[\/\$]+/, "");
+    var is_page = /^\//.test(name);
     var map = dependence.requiredMap = Object.create(null);
-    data.slice(sliceFrom).replace(initReg, function (match, quote, refer) {
-        if (/^[\.\/]/.test(refer)) {
-            var reference = path.resolve(path.dirname(realpath), refer);
+
+    return required.map(r => {
+        var r1 = r;
+        var base = required_base;
+        if (/^\.*[\/]/.test(r1)) {
+            r1 = r1.replace(/^\.\//, '');
+            while (/\.\.[\/\$]/.test(r1)) {
+                base = base.replace(/[^\/\$]*[\/\$]$/, '');
+                r1 = r1.slice(3);
+            }
+            base = base.replace(/^[\/\$]/, '');
+            if (/^\//.test(r1)) {
+                base = '';
+                r1 = r1.slice(1);
+            }
+            if (is_page) {
+                base = "/" + base;
+            } else {
+                base = base.replace(/\//g, "$");
+                r1 = r1.replace(/\//g, '$');
+            }
+            var r2 = base + r1;
         } else {
-            reference = refer;
+            var r2 = r1.replace(/\//g, '$');
         }
-        map[refer] = reference;
-        required.push(reference);
-        return match;
+        map[r] = r2;
+        return r2;
     });
-    return required;
-}
+};
+
 
 function getDependence(responseData) {
     if (responseData.type !== "" && responseData.type !== "/") return [];
@@ -34,10 +69,12 @@ function getDependence(responseData) {
     } else {
         functionArgs = [];
     }
-    var dependence = functionArgs.slice(0, functionArgs.length >> 1);
-    dependence.args = functionArgs.slice(functionArgs.length >> 1);
+    var argslength = functionArgs.length >> 1;
+    var dependence = functionArgs.slice(0, argslength);
+    dependence.args = functionArgs.slice(argslength, argslength << 1);
+    var required = functionArgs[argslength << 1];
     dependence.offset = dependenceNamesOffset || 0;
-    dependence.require = getInitReferenced(dependence, dependence.args, data, dependenceNamesOffset, responseData.realpath) || [];
+    dependence.require = required ? get_relatives(responseData.url, required.split(";"), dependence) : [];
     return responseData.dependence = dependence;
 };
 

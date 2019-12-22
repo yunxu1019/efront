@@ -104,7 +104,7 @@ var getBuildRoot = function (files, matchFileOnly) {
         var save = function (f) {
             indexMap[f] = indexMap[file1];
             result.push(f);
-        }
+        };
         paddExtension(file1).then(function (file) {
             return new Promise(function (ok, oh) {
                 fs.stat(file, function (error, stat) {

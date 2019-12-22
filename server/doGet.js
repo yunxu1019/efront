@@ -68,7 +68,6 @@ var adapter = function (data, url, req, res) {
             data = data["index.html"];
         } else {
             if (url[url.length - 1] !== "/") url = url + "/";
-
             if ("index.html" in data) data = getfile(url + "index.html")
             else data = getfile(process.env.APP + url + "index.html");
         }
@@ -99,8 +98,8 @@ module.exports = function (req, res) {
     req.url = unescape(req.url);
     var url = proxy(req);
     url = url.replace(/[\?#][\s\S]*/g, "");
-    
-    var data = getfile(url);
+
+    var data = getfile(url, ['', '/index.html']);
     if (!data || data === "/") {
         data = getfile(path.join(process.env.APP, url));
         if (!data) {

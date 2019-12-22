@@ -184,10 +184,14 @@ var seekAsync = function (url, tree, rebuild) {
     var research = function () {
         return seekAsync.call(that, url, tree, rebuild);
     };
-
     search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         var key = keeys[cx];
+        if (key === '' || key === '.') continue;
         if (!(key in temp)) {
+            if (!that.buffer_size) {
+                temp = undefined;
+                break;
+            }
             for (var cy = temps.length - 1; cy >= 0; cy--) {
                 if (key in temps[cy]) {
                     let searched = seekAsync.call(that, keeys.slice(cx).join("/"), temps[cy], rebuild);
@@ -223,7 +227,8 @@ var seekAsync = function (url, tree, rebuild) {
         return temp;
     }
     if (key && !(temp instanceof Buffer)) {
-        return curl.replace(/\\+/g, "/") + "/";
+        if (that.buffer_size > 0) return curl.replace(/\\+/g, "/") + "/";
+        return temp;
     }
     if ((temp instanceof Buffer) && !temp.stat) {
         temp.stat = getVersion(path.join(String(this), curl));
@@ -257,7 +262,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
     var sk = function (url, extts) {
     };
     filesroot = filesroot.split(",");
-    var tree = filesroot.map(froot => fs.existsSync(froot) && fs.statSync(froot).isDirectory() && getdir(froot) || {});
+    var tree = filesroot.map(froot => fs.existsSync(froot) && fs.statSync(froot).isDirectory() && getdir(froot) || Object.create(null));
     if (isFinite(buffer_size_limit) && buffer_size_limit >= 0) {
         sk.buffer_size = buffer_size_limit | 0;
     }
@@ -300,8 +305,32 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                         else run();
                     });
                 } else {
+
                     if (promise instanceof Buffer || promise instanceof Function) return ok(promise);
-                    if (promise instanceof Object && !result) result = promise;
+                    if (promise instanceof Object && !result) {
+                        var package_file = "package.json";
+                        if (package_file in promise) {
+                            if (promise[package_file] === false) {
+                                seekAsync.call(seeker, url + extt + "/" + package_file, tree1, a => JSON.parse(String(a))).catch(oh).then(run);
+                                return;
+                            }
+                            var package_data = promise[package_file];
+                            if (package_data instanceof Object && package_data.main) {
+                                console.log(url, package_data.module, package_data.main);
+                                result = path.join(url, package_data.main).replace(/\\/g, '/');
+                            }
+                        } else {
+                            var seek_index = 'index';
+                            var index = extts.findIndex(a => seek_index + a in promise);
+                            if (~index) {
+                                result = path.join(url, seek_index + extts[index]).replace(/\\/g, '/');
+                            } else {
+                                if (typeof promise === 'string') result = promise;
+                            }
+                        }
+
+
+                    }
                     cx++;
                     run();
                 }
