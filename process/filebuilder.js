@@ -123,8 +123,8 @@ if (process.env.TRANSFORM_PIXEL) {
 } else {
     var fixpixel = e => String(e);
 }
-if (process.env.IN_TEST_MODE) builder = function (buff, name) {
-    if (/\b(index|default)\.html$/i.test(name) || /\.html?$/.test(name) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
+if (process.env.IN_TEST_MODE) builder = function (buff, name, fullpath) {
+    if (/\b(index|default)\.html$/i.test(fullpath) || /\.html?$/.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
         buff = Buffer.from(fixpixel(buff).replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`));
     }
     return buff;
