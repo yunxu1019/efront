@@ -147,7 +147,7 @@ var setup = module.exports = function (appname) {
             } else if (default_value) {
                 env[key] = appname + "," + default_value;
             } else {
-                env[key] = appname + ",";
+                env[key] = appname + "," + ",zimoli";
             }
         }
     });

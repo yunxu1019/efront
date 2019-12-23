@@ -96,8 +96,8 @@ try {
     } else {
         var fullpath = process.cwd();
         setenv({
-            public_path: path.dirname(fullpath),
-            app: path.basename(fullpath)
+            public_path: fullpath,
+            app: "./"
         });
         require("./process/setupenv");
         require("./server/main");
