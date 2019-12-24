@@ -149,8 +149,6 @@ function go(pagepath, args, history_name, oldpagepath) {
     }
     var page_object = page_generators[pagepath];
     var fullfill = function () {
-        if (fullfill_is_dispatched > 0) return;
-        fullfill_is_dispatched = 1;
         try {
             var _page = create(pagepath, args, oldpagepath);
             var isDestroy = pushstate(pagepath, history_name, oldpagepath);
@@ -161,6 +159,8 @@ function go(pagepath, args, history_name, oldpagepath) {
                 history_name.activateNode = _page;
             }
             if (isString(pagepath)) {
+                if (fullfill_is_dispatched > 0) return;
+                fullfill_is_dispatched = 1;
                 var event = createEvent("zimoli");
                 event.$reload = fullfill;
                 event.zimoli = {
@@ -171,6 +171,7 @@ function go(pagepath, args, history_name, oldpagepath) {
                     options
                 };
                 dispatch(window, event);
+                fullfill_is_dispatched = 0;
             }
             addGlobal(_page, history_name, isDestroy);
             page_object.prepares.forEach(function (url) {
@@ -185,7 +186,6 @@ function go(pagepath, args, history_name, oldpagepath) {
         } catch (e) {
             console.error(e);
         }
-        fullfill_is_dispatched = 0
         return _page;
     };
     return fullfill();
