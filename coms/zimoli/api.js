@@ -167,9 +167,15 @@ var api = function () {
                     parameters = temp;
                     break;
                 case "[object Object]":
+                case "[object Array]":
                     parameters = JSON.stringify(parameters);
+                    if (parameters === "{}" || parameters === "[]") {
+                        parameters = "";
+                        break;
+                    }
+                    if (!/get/i.test(method)) xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                    break;
                 case "[object Undefined]":
-                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
                     break;
                 case "[object FormData]":
                     break;
@@ -258,7 +264,7 @@ var api = function () {
     return req;
 };
 var useXMLHttpRequestHeaders = {
-    "X-Requested-With": "XMLHttpRequest"
+    // "X-Requested-With": "XMLHttpRequest"
 };
 
 api.setBaseUrl = function (url, cross) {
