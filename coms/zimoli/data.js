@@ -495,17 +495,17 @@ var data = {
         this.loading_count++;
 
         var p = response.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
+            this.loading_count--;
             if (id) {
                 this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(sid, data);
             }
-            this.loading_count--;
             return data;
         });
         p.catch((e) => {
-            data.loading_count--;
+            this.loading_count--;
             response.is_errored = true;
             if (e instanceof Object) {
                 Object.assign(response, e);
