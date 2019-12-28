@@ -54,8 +54,7 @@ function select(target, list) {
         });
     };
     if (list) {
-        var initList = function () {
-        };
+        var initList = bindEvent;
     } else {
         var savedOptions;
         var initList = function () {
