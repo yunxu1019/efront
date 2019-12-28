@@ -574,7 +574,7 @@ var modules = {
     XHR,
     renderPixelRatio,
     debug() {
-        document.addEventListener("blur", e => e.stopPropagation());
+        document.addEventListener("blur", e => e.stopPropagation(), true);
     },
     put(name, module) {
         modules[name] = module;
