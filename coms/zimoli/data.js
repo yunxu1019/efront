@@ -314,8 +314,8 @@ var privates = {
         return this.loadIgnoreConfig(api.method, url, params, api.root);
     },
     getApi(serviceId) {
-        serviceId = serviceId.replace(/[\?\:][\s\S]*$/, "");
         return this.getConfigPromise().then((apiMap) => {
+            serviceId = serviceId.replace(/[\?\:][\s\S]*$/, "");
             const api = apiMap[serviceId];
             if (!api) { throw new Error(`没有找到对应的接口 id ${serviceId}.`); }
             return Object.assign({}, api, { root: apiMap });
