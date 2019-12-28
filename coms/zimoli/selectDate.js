@@ -226,7 +226,7 @@ var render = function (value, models = "年月日", message = "") {
     build(_index);
     onclick(container, function (event) {
         var target = event.target;
-        if (!target.className) return;
+        if (!target.className) return event.preventDefault();
         var preventDefault = true;
         var {
             className,
