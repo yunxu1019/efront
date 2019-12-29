@@ -42,10 +42,12 @@ function test(test, count) {
 // }, count);//1202+
 // console.log(t1, t2);
 function single_quote_scanner(index) {
-    var reg = /[^\\]'/g;
-    reg.lastIndex = index;
-    var res = reg.exec(this);
-    return res ? res.index + 2 : this.length;
+    var reg = /\\[\s\S]|'/g;
+    reg.lastIndex = index + 1;
+    do {
+        var res = reg.exec(this);
+    } while (res && res[0].length > 1);
+    return res ? res.index + 1 : this.length;
 }
 
 function single_quote_scanner2(index) {
@@ -76,10 +78,12 @@ function single_quote_scanner2(index) {
 // }, count);//1128+
 // console.log(t1, t2);
 function double_quote_scanner(index) {
-    var reg = /[^\\]"/g;
-    reg.lastIndex = index;
-    var res = reg.exec(this);
-    return res ? res.index + 2 : this.length;
+    var reg = /\\[\s\S]|"/g;
+    reg.lastIndex = index + 1;
+    do {
+        var res = reg.exec(this);
+    } while (res && res.length > 1);
+    return res ? res.index + 1 : this.length;
 }
 
 function double_quote_scanner2(index) {
@@ -110,9 +114,11 @@ function double_quote_scanner2(index) {
 // }, count);//1200+
 // console.log(t1, t2);
 function regexp_quote_scanner(index) {
-    var reg = /[^\\]\/[\w]*/g;
+    var reg = /\\[\s\S]|\/[\w]*/g;
     reg.lastIndex = index + 1;
-    var res = reg.exec(this);
+    do {
+        var res = reg.exec(this);
+    } while (res && res[0][0] === "\\");
     return res ? res.index + res[0].length : this.length;
 }
 
@@ -143,17 +149,20 @@ function regexp_quote_scanner2(index) {
 // console.log(t1, t2);
 
 function template_quote_scanner(index, blocks) {
-    while (++index < this.length) {
-        var reg = /[^\\]`|\$\{/g;
+    index++;
+    while (index < this.length) {
+        var reg = /\\[\s\S]|`|\$\{/g;
         reg.lastIndex = index;
         var res = reg.exec(this);
         if (!res) {
             return this.length;
         }
         if (res[0] === "${") {
-            index = block_code_scanner.call(this, res.index + 2, blocks);
+            index = block_code_scanner.call(this, res.index + 2, blocks) + 1;
+        } else if (res[0].length === 1) {
+            return res.index + 1;
         } else {
-            return res.index + 2;
+            index = reg.lastIndex;
         }
     }
     return index;
