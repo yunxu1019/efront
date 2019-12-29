@@ -47,8 +47,13 @@ var constructors = {
     }
 };
 var readonly_types = {
-    "date"() {
-
+    "date"(field, data) {
+        var string = data[field.key];
+        var value = new Date(string);
+        var toFixed = function (a) {
+            return a > 9 ? a : "0" + a;
+        };
+        return +value ? [value.getFullYear(), value.getMonth() + 1, value.getDate()].map(toFixed).join('-') : string;
     },
     "size"(field, data) {
         var f = data[field.key];
