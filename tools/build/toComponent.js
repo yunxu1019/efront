@@ -124,7 +124,7 @@ function toComponent(responseTree) {
         }).join("").replace(/(\.)\s*((?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_a-z\u0100-\u2027\u2030-\uffff])(?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_\w\u0100-\u2027\u2030-\uffff])*)/ig, setMatchedConstString);
 
         module_string = typescript.transpile(module_string);
-        var module_code = esprima.parse(`function ${k.replace(/^.*?([\$_a-z]\w*?)(\/index)?(\.[tj]sx)?$/ig, "$1")}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
+        var module_code = esprima.parse(`function f(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
         if (encoded) {
             module_code = esmangle.optimize(module_code, null);
             module_code = esmangle.mangle(module_code);
