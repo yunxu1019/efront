@@ -200,9 +200,13 @@ var getBuildRoot = function (files, matchFileOnly) {
     return new Promise(function (ok) {
         resolve = function (result) {
             var res = [];
-            result.forEach(function (a) {
-                return res[indexMap[a]] = a;
-            });
+            if (matchFileOnly) {
+                result.forEach(function (a) {
+                    return res[indexMap[a]] = a;
+                });
+            } else {
+                res = result;
+            }
             var res = filterHtmlImportedJs(res);
             ok(res);
         };

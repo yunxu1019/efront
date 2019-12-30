@@ -74,7 +74,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             var indexHTML = pages_root.map(a => path.join(a, "index.html")).filter(fs.existsSync);
             loadData(pages_root.concat(
                 indexHTML,
-                environment.pages_root,
                 path.join(__dirname, "../../coms", "zimoli/main.js"),
             ).concat(environment.ccons_root || []), lastBuildTime, public_path)
                 .then(toApplication)

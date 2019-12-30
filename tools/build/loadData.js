@@ -29,7 +29,7 @@ function build(pages_root, lastBuiltTime, dest_root) {
                     var reqMap = Object.create(null);
                     a.required = required.map((k) => k.replace(/\.([tj]sx?|html?|json)$/i, ''));
                     var map = a.requiredMap;
-                    a.require.forEach((k, cx) => reqMap[k] = cx);
+                    if (a.require) a.require.forEach((k, cx) => reqMap[k] = cx);
                     map && Object.keys(map).forEach(k => map[k] = a.required[reqMap[map[k]]] || '');
                     return a.concat(required).map(k => deps[k] = true);
                 });
