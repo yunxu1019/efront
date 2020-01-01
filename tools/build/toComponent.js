@@ -200,8 +200,7 @@ function toComponent(responseTree) {
         }
 
         if (last_result_length === result.length) {
-            console.log(result.map(a => a[0]));
-            throw new Error(`处理失败！`);
+            throw new Error(`存在环形引用：[${result.map(a => a[0]).join('|')}]，处理失败！`);
         }
         last_result_length = result.length;
     }
