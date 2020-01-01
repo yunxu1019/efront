@@ -60,7 +60,8 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             .then(function (response) {
                 return write(response, PUBLIC_PATH);
             })
-            .then(finish);
+            .then(finish)
+            .catch(console.error);
     } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
@@ -113,7 +114,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 .then(finish).then(function () {
                     builder.ing = false;
                     if (reload) builder();
-                });
+                }).catch(console.error);
         });
     } else {
         console.error(
