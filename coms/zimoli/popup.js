@@ -122,33 +122,32 @@ var popup_view = function (element, target) {
     return element;
 };
 
+css(".mask", `position:absolute;position:fixed;left:0;right:0;bottom:0;top:0;width:auto;height:auto;background:#000;opacity:0.2;transform:scale(1);`);
 var createMask = function () {
     var mask = document.createElement("div");
     mask.initialStyle = animationStyle;
-    css(mask, `position:absolute;position:fixed;z-index:${zIndex()};left:0;right:0;bottom:0;top:0;width:auto;height:auto;background:#000;opacity:0.2;transform:scale(1);`);
-    mask.className = "popup-factory mask";
+    css(mask, `z-index:${zIndex()}`);
+    mask.className = "mask";
     mask.isMask = true;
     return mask;
 };
 var popup_with_mask = function (element, mask = createMask()) {
-    if (!mask.with) {
-        mask.with = [element];
-    } else if (mask.with instanceof Array) {
-        mask.with.push(element);
-    } else {
-        mask.with = [mask.with, element];
-    }
-    if (!mask.clean) {
-        mask.clean = new Cleanup(mask.with);
-    }
-    element.mask = mask;
     onremove(element, mask.clean);
     css(element, `z-index:${zIndex()};`);
     if (mask.parentNode) {
         global(element);
-    } else {
-        global(mask);
     }
+    if (!element.with) {
+        element.with = [mask];
+    } else if (element.with instanceof Array) {
+        if (!~element.with.indexOf(element)) element.with.push(mask);
+    } else {
+        if (element.with !== element) element.with = [element.with, mask];
+    }
+    if (!mask.clean) {
+        mask.clean = new Cleanup(element.with);
+    }
+    if (!element.parentNode) global(element);
     return element;
 };
 var popup_as_extra = function (element, target) {
