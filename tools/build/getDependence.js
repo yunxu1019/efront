@@ -1,23 +1,15 @@
 "use strict";
-// var path = require("path");
-// function getInitReferenced(dependence, args, data, sliceFrom, realpath) {
-//     var requires = ["init", "require"].map(a => dependence.indexOf(a)).filter(a => ~a);
-//     if (!requires.length) return [];
-//     var initReg = new RegExp(`(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
-//     var required = [];
-//     var map = dependence.requiredMap = Object.create(null);
-//     data.slice(sliceFrom).replace(initReg, function (match, quote, refer) {
-//         if (/^[\.\/]/.test(refer)) {
-//             var reference = path.resolve(path.dirname(realpath), refer);
-//         } else {
-//             reference = refer;
-//         }
-//         map[refer] = reference;
-//         required.push(reference);
-//         return match;
-//     });
-//     return required;
-// }
+function getInitReferenced(dependence, args, data, sliceFrom) {
+    var requires = ["init"].map(a => dependence.indexOf(a)).filter(a => ~a);
+    if (!requires.length) return [];
+    var initReg = new RegExp(`(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
+    var required = [];
+    data.slice(sliceFrom).replace(initReg, function (match, quote, refer) {
+        required.push(refer);
+        return match;
+    });
+    return required;
+}
 var get_relatives = function (name, required, dependence) {
     var required_base = name.replace(/[^\/\$]+$/, "");
     required_base = required_base.replace(/^\.?[\/\$]+/, "");
@@ -73,8 +65,15 @@ function getDependence(responseData) {
     var dependence = functionArgs.slice(0, argslength);
     dependence.args = functionArgs.slice(argslength, argslength << 1);
     var required = functionArgs[argslength << 1];
+    var required1 = getInitReferenced(dependence, dependence.args, data, dependencesCount || 0);
     dependence.offset = dependenceNamesOffset || 0;
-    dependence.require = required ? get_relatives(responseData.url, required.split(";"), dependence) : [];
+    if (required) {
+        required = required.split(";");
+    }
+    if (required1) {
+        required = required ? required.concat(required1) : required1;
+    }
+    dependence.require = required ? get_relatives(responseData.url, required, dependence) : [];
     return responseData.dependence = dependence;
 };
 

@@ -67,9 +67,11 @@ var getPathInFolder = function (folder, filepath) {
     return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
 };
 function paddExtension(file) {
+
     return new Promise(function (ok, oh) {
         var extt = ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx'];
-        var parets = [""].concat(pages_root);
+        var parets = [""].concat(/[\/\\]/.test(file) ? pages_root : comms_root);
+        file = file.replace(/\$/g, '/');
         var prefix = 0;
         var aftfix = 0;
 
@@ -78,7 +80,7 @@ function paddExtension(file) {
             fs.exists(f, function (exists) {
                 if (exists) ok(f);
                 else if (aftfix >= extt.length) {
-                    if (prefix + 1 < pages_root.length) {
+                    if (prefix + 1 < parets.length) {
                         prefix++;
                         aftfix = 0;
                         run();
@@ -194,7 +196,7 @@ var getBuildRoot = function (files, matchFileOnly) {
             });
         }).catch(function (e) {
             if (!matchFileOnly) console.error(e, "\r\n");
-            else console.info(e);
+            else console.warn(e + ",", '已跳过');
         }).then(run);
     }
     return new Promise(function (ok) {
