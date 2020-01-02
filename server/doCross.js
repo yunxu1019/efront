@@ -41,6 +41,16 @@ function parseUrl(hostpath, real) {
     }
     return { jsonlike, realpath, hostpath, headers };
 }
+// https://github.com/nodejs/node/blob/02a0c74861c3107e6a9a1752e91540f8d4c49a76/lib/_http_common.js :204
+const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/
+/**
+ * Verifies that the given val is a valid HTTP token
+ * per the rules defined in RFC 7230
+ * See https://tools.ietf.org/html/rfc7230#section-3.2.6
+ */
+function checkIsHttpToken(val) {
+    return tokenRegExp.test(val);
+}
 function cross(req, res, referer) {
     try {
         if (referer) {
@@ -84,7 +94,7 @@ function cross(req, res, referer) {
             if ({}.hasOwnProperty.call(privateKeys, k)) {
                 continue;
             }
-            if (!headers[k] && _headers[k]) {
+            if (!headers[k] && _headers[k] && checkIsHttpToken(k)) {
                 headers[k] = _headers[k];
             }
         }
