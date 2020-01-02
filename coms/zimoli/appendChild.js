@@ -47,7 +47,7 @@ function appendChild(parent, obj, transition) {
             if (!o) continue;
             if (o.removeTimer) clearTimeout(o.removeTimer);
             if (o.initialStyle && transition !== false) {
-                isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
+                isFunction(appendChild.transition) && appendChild.transition(o);
             }
             if (isWorseIE) {
                 try {
@@ -79,7 +79,7 @@ function insertBefore(alreadyMounted, obj, transition) {
         o.with && insertBefore(alreadyMounted, o.with, transition);
         if (isMounted(parent)) _onappend(o);
         if (o.initialStyle && transition !== false) {
-            isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
+            isFunction(appendChild.transition) && appendChild.transition(o);
         }
     }
 }
@@ -100,7 +100,7 @@ function insertAfter(alreadyMounted, obj, transition) {
         if (isMounted(parent))
             _onappend(o);
         if (o.initialStyle && transition !== false) {
-            isFunction(appendChild.transition) && appendChild.transition(o, o.initialStyle);
+            isFunction(appendChild.transition) && appendChild.transition(o);
         }
     }
 }

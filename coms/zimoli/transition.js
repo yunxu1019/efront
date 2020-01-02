@@ -11,8 +11,13 @@ if (!transitionKey in document.body.style) {
         transitionKey = '';
     }
 }
-function transition(target, initialStyle, isLeave) {
+function transition(target, isLeave, _initialStyle = target.initialStyle) {
     if (!target) return;
+    if (isLeave instanceof Object && (_initialStyle === true || !_initialStyle)) {
+        _initialStyle = isLeave;
+        isLeave = arguments[2];
+    }
+    var initialStyle = _initialStyle || target.initialStyle;
     var { recoverStyle, transitionTimerStart, transitionTimerEnd } = target;
     clearTimeout(transitionTimerStart);
     clearTimeout(transitionTimerEnd);
@@ -21,7 +26,7 @@ function transition(target, initialStyle, isLeave) {
     }
     if (target instanceof Array) {
         target.map(function (target) {
-            transition(target, initialStyle, isLeave);
+            transition(target, isLeave, _initialStyle);
         });
     } else if (initialStyle instanceof Object) {
         let transitionDuration = 100;
@@ -70,7 +75,7 @@ function transition(target, initialStyle, isLeave) {
         target.transitionTimerEnd = transitionTimerEnd;
         target.recoverStyle = recoverStyle;
         if (target.with) {
-            transition(target.with, initialStyle, isLeave);
+            transition(target.with, isLeave, _initialStyle);
         }
         return transitionDuration;
     }

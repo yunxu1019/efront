@@ -378,6 +378,20 @@ function create(pagepath, args, from, needroles) {
         if (_page.initialStyle && !_page.holdupStyle) {
             _page.holdupStyle = getReverseStyle(_page.initialStyle);
             _page.backupStyle = _page.initialStyle;
+            if (_page.with) {
+                var run = function (a) {
+                    if (!a.initialStyle) {
+                        a.holdupStyle = _page.holdupStyle;
+                        a.backupStyle = _page.backupStyle;
+                        a.initialStyle = _page.initialStyle;
+                    }
+                }
+                if (_page.with instanceof Array) {
+                    _page.with.forEach(run);
+                } else if (_page.with) {
+                    run(_page.with);
+                }
+            }
         }
         _page.onback = _pageback_listener;
     }
@@ -517,13 +531,21 @@ var onback = function () {
         };
     } else { };
 };
+function setWithStyle(target, isDestroy) {
+    target.initialStyle = (isDestroy ? target.backupStyle : target.holdupStyle) || target.initialStyle;
+    if (target.with instanceof Array) {
+        target.with.forEach(a => setWithStyle(a, isDestroy));
+    } else if (target.with) {
+        setWithStyle(target.with, isDestroy);
+    }
 
+}
 function addGlobal(element, name = null, isDestroy) {
     if (isString(name)) {
         if (global[name] === element) return;
         var oldElement = global[name];
         if (oldElement) {
-            oldElement.initialStyle = isDestroy ? oldElement.backupStyle : oldElement.holdupStyle;
+            setWithStyle(oldElement, isDestroy);
         }
         if (isFunction(body.layer)) {
             body.layer(element, oldElement, history);

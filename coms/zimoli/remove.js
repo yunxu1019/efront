@@ -14,7 +14,7 @@ function remove(node, transition) {
         if (!node) continue;
         if (node.removeTimer) clearTimeout(node.removeTimer);
         if (node.initialStyle && transition !== false && isFunction(remove.transition)) {
-            var duration = remove.transition(node, node.initialStyle, true);
+            var duration = remove.transition(node, true);
             if (duration) {
                 node.removeTimer = setTimeout(function (node) {
                     return function () {
