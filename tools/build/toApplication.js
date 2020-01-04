@@ -67,7 +67,7 @@ function toApplication(responseTree) {
     var poweredByComment;
     var ReleaseTime = new Date().toString();
     var html = indexHtmlData.toString()
-        .replace(/^\s*(<!doctype[\s\S]*?>\s*)<!--([\s\S]+)-->/i, function (_, doctype, message) {
+        .replace(/^\s*(<!doctype[^>]*?>\s*)?<!--([\s\S]*?)-->/i, function (_, doctype, message) {
             // `${doctype}<!--${message}\r\n${efrontReloadVersionAttribute}-->`
             poweredByComment = _;
             return ""
@@ -84,6 +84,7 @@ function toApplication(responseTree) {
             }
             return script;
         });
+
     if (isZimoliDetected)
         html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo="${ReleaseTime} by efront">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
     if (process.env.IN_WATCH_MODE) {
