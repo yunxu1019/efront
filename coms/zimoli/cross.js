@@ -1,6 +1,6 @@
 var cookiesMap = {};
 var domainReg = /^https?\:\/\/(.*?)\/(.*?)?([\?#].*)?$/i;
-var base = domainReg.test(location.href) ? "/" : "http://efront.cc/";
+var base = domainReg.test(location.href) ? window.cross_host || '/' : "http://efront.cc/";
 var HeadersKeys = ["Content-Type"];
 var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
 var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
