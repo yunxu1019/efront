@@ -1,6 +1,15 @@
 var cookiesMap = {};
-var domainReg = /^https?\:\/\/(.*?)\/(.*?)?([\?#].*)?$/i;
-var base = domainReg.test(location.href) ? window.cross_host || '/' : "http://efront.cc/";
+var domainReg = /^https?\:\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
+var { cross_host } = this;
+if (cross_host) {
+    if (!domainReg.test(cross_host)) {
+        console.error("cross_host格式不正确", cross_host);
+        cross_host = "/";
+    } else {
+        cross_host = (/^https/.test(cross_host) ? "https://" : "http://") + cross_host.replace(domainReg, '$1/');
+    }
+}
+var base = domainReg.test(location.href) ? cross_host || '/' : "http://efront.cc/";
 var HeadersKeys = ["Content-Type"];
 var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
 var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
