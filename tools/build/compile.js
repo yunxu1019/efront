@@ -63,9 +63,10 @@ var window = {
 };
 window.window = window;
 var componentIncreasedId = 0;
+var { class_prefix } = require("./environment");
 function getComponentId() {
     componentIncreasedId++;
-    return componentIncreasedId.toString(26).replace(/\d/g, a => String.fromCharCode('q'.charCodeAt(0) + +a));
+    return class_prefix + componentIncreasedId.toString(26).replace(/\d/g, a => String.fromCharCode('q'.charCodeAt(0) + +a));
 }
 function compile(buildInfo, lastBuildTime, destroot) {
     var { fullpath, name, url, builder, destpath } = buildInfo;

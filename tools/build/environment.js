@@ -6,6 +6,7 @@ var {
     EXPORT_AS,
     EXPORT_TO,
     RELEASE,
+    PREFIX
 } = process.env;
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : process.env;
@@ -54,6 +55,7 @@ if (EXPORT_TO === undefined) EXPORT_TO = public_app.replace(/\.[tj]sx?$/i, '').r
 var aapis_root = "./apis/" + AAPI;
 module.exports = {
     comms_root,
+    class_prefix: PREFIX || '',
     ccons_root,
     pages_root,
     aapis_root,
