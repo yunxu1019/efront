@@ -23,7 +23,7 @@ function toApplication(responseTree) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
-            var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.version).toString(36);
+            var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
             versionTree[v.url] = responseVersion;
         });
         delete versionTree["main"];
