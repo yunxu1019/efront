@@ -1,4 +1,11 @@
 
+# efront 思想
+1. 每个文件只导出一份数据，这一份数据可以是 number,string,function,object,bigint,null,undefined 中的任意一种
+2. 文件名即变量名，在其他文件中引用当前文件导出的变量，只要使用当前文件的文件名（不含后缀）即可
+3. 无环形引用（相互调用：a引用b，b引用a；首尾引用：a引用b，b引用...c，c引用a）
+4. 减少异步io的时间，应用启动过程只加载有用代码，启动完成后等待用户操作的同时预加载下一步的代码
+5. 版本局部更新，异步加载的每一份代码拥有一个独立的版本号，在版本信息无变化时不重复加载
+
 # 基本命令（适用于windows）
 
 ##    1. 下载安装
@@ -52,6 +59,9 @@ set app=PROJECT_NAME.html
 ```bat
 set app=PROJECT_NAME.js
 ```
+* 目前版本的efront提供对 commonjs中的require语法和es6中的import语法 的不完全支持（不支持异步环形调用），对于符合要求的相关项目，可以进行编译发布。
+* 如果要发布含有require语法的组件，并希望将组件及所有依赖项合并输出，那么可以将上面的`efront public`替换为`efront publish`
+
 ##    5.生产环境启动
 开启本机服务器，并在访问端口时压缩输出
 ```bat
@@ -98,8 +108,10 @@ efront
  * `PUBLIC_EXTT` 发布的目标代码的扩展名，默认无扩展名
  * `PAGE` 页面文件存放的路径，默认为应用名`APP`
  * `COMM` 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
+ * `PREFIX` 发布时指定组件className前缀，默认无前缀
 
 # 功能选项
+* efront 启动的服务器，默认提供跨域中转的功能，可以在index.html的头部脚本中设置`window.cross_host='https://somehost/'`指定一个具体的efront服务器实例供cross方法使用
 * efront 默认禁用了首页的缓存功能，如果要启用，可以在头部script中加入 `window.preventCache=false;`
 * efront 默认禁止在iframe中运行，如果要开启，可以在头部script中加入 `window.PREVENT_FRAMEWORK_MODE=false;`
 * efront 默认的初始化脚本是`zimoli('/main');`，可以在body标签上加上`main-path=...`属性指定初始化脚本的路径
