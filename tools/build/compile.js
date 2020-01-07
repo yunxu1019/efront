@@ -69,6 +69,7 @@ function getComponentId() {
 }
 function compile(buildInfo, lastBuildTime, destroot) {
     var { fullpath, name, url, builder, destpath } = buildInfo;
+    var componentId = getComponentId();
     destpath = path.join(destroot, destpath);
     var fullpath = fullpath.slice(0);
     return new Promise(function (ok, oh) {
@@ -114,7 +115,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                 if (error) throw new Error("加载" + url + "出错！");
                                 responsePath = _filepath;
                                 var id = buildInfo.destpath.replace(/\..*$/, "").replace(/[^\w]/g, a => "_" + a.charCodeAt(0).toString(36) + "-");
-                                id = '/' + getComponentId() + ' ' + id.replace(/^[\s\S]*?(\w*)$/, "$1");
+                                id = '/' + componentId + ' ' + id.replace(/^[\s\S]*?(\w*)$/, "$1");
                                 responseText = builder(buffer, id, _filepath, []);
                                 responseVersion = stat.mtime;
                                 writeNeeded = true;

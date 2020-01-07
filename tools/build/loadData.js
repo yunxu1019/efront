@@ -11,7 +11,7 @@ function build(pages_root, lastBuiltTime, dest_root) {
     var builder = function (roots) {
         roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);
         if (!roots.length) return resolve();
-        roots = roots.map(getBuildInfo).map(function (buildInfo) {
+        roots = roots.sort().map(getBuildInfo).map(function (buildInfo) {
             return compile(buildInfo, lastBuiltTime, dest_root);
         }).map(function (promise) {
             return promise.then(function (response) {
