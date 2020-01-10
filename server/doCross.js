@@ -111,9 +111,9 @@ function cross(req, res, referer) {
         }, URL.parse($url), options), function (response) {
             var headers = response.headers;
             var setCookie = headers["set-cookie"];
-            if (setCookie && !is_proxy) headers["cross-cookie"] = setCookie, delete headers["set-cookie"];
+            if (setCookie && !is_proxy) headers["efront-cookie"] = setCookie, delete headers["set-cookie"];
             if (headers.location) {
-                headers["cross-location"] = headers.location;
+                headers["efront-location"] = headers.location;
                 delete headers.location;
             }
             delete headers["access-control-allow-origin"];

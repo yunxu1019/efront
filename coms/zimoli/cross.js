@@ -144,7 +144,7 @@ function cross(method, url, headers) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.getResponseHeader) {
-                var cookie = xhr.getResponseHeader("cross-cookie");
+                var cookie = xhr.getResponseHeader("efront-cookie");
                 addCookie(cookie, originDomain);
             }
             switch (xhr.status) {
@@ -157,7 +157,7 @@ function cross(method, url, headers) {
                 case 302:
                 case 301:
                     if (xhr.isRedirected > 2) break;
-                    var location = xhr.getResponseHeader("cross-location");
+                    var location = xhr.getResponseHeader("efront-location");
                     if (!domainReg.test(location)) {
                         if (/^\//.test(location)) {
                             location = originDomain.replace(/\/.*$/, location);
