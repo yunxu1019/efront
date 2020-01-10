@@ -76,6 +76,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             loadData(pages_root.concat(
                 indexHTML,
                 path.join(__dirname, "../../coms", "zimoli/main.js"),
+                path.join(__dirname, "../../coms", "zimoli/zimoli.js"),
             ).concat(environment.ccons_root || []), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {
