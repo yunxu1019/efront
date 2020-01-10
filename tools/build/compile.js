@@ -10,6 +10,11 @@ var window = {
     console: {
     },
     parseFloat,
+    Boolean,
+    Number,
+    Event: {},
+    unescape,
+    escape,
     String,
     Object,
     Math,
