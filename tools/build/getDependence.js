@@ -2,7 +2,7 @@
 function getInitReferenced(dependence, args, data, sliceFrom) {
     var requires = ["init"].map(a => dependence.indexOf(a)).filter(a => ~a);
     if (!requires.length) return [];
-    var initReg = new RegExp(`\b(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
+    var initReg = new RegExp(`\\b(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`])([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
     var required = [];
     data.slice(sliceFrom).replace(initReg, function (match, quote, refer) {
         required.push(refer);
