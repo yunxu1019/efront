@@ -462,7 +462,7 @@ var binders = {
             if (deepEqual(value, oldValue)) return;
             oldValue = value;
             if (this[attr] !== value) {
-                this[attr] = value;
+                this[attr] = this[attr.replace(/\-[a-z]/g, a => a.toUpperCase())] = value;
             }
         });
     },
