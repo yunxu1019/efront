@@ -111,16 +111,12 @@ function cross(req, res, referer) {
         }, URL.parse($url), options), function (response) {
             var headers = response.headers;
             var setCookie = headers["set-cookie"];
-            var header_keys = [];
-            if (setCookie && !is_proxy) headers["efront-cookie"] = setCookie, delete headers["set-cookie"], header_keys.push("efront-cookie");
+            if (setCookie && !is_proxy) headers["efront-cookie"] = setCookie, delete headers["set-cookie"];
             if (headers.location) {
                 headers["efront-location"] = headers.location;
-                header_keys.push("efront-location");
                 delete headers.location;
             }
-            if (header_keys.length) {
-                headers["Access-Control-Expose-Headers"] = header_keys.join();
-            }
+            headers["Access-Control-Expose-Headers"] = ["efront-location", "efront-cookie"].join();
             delete headers["access-control-allow-origin"];
             delete headers["access-control-allow-methods"];
             if (res instanceof Http2ServerResponse) {
