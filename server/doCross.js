@@ -51,6 +51,12 @@ const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/
 function checkIsHttpToken(val) {
     return tokenRegExp.test(val);
 }
+/**
+ * 
+ * @param {*} req 
+ * @param {http.ServerResponse} res 
+ * @param {*} referer 
+ */
 function cross(req, res, referer) {
     try {
         if (referer) {
@@ -123,26 +129,28 @@ function cross(req, res, referer) {
                 delete headers["transfer-encoding"];
                 delete headers["connection"];
             }
-            res.writeHead(response.statusCode, headers);
-            response.pipe(res);
-        });
-        request.setTimeout(36000/*support for wechat long pull*/);
-        request.on("error", function (e) {
-            try {
-                res.writeHead(403, {});
-                res.end(String(e));
-            } catch{
+            if (!closed) {
+                res.writeHead(response.statusCode, headers);
+                response.pipe(res);
+            } else {
+                response.destroy();
                 res.end();
             }
         });
-        req.pipe(request);
-    } catch (e) {
-        try {
+        var closed = false;
+        req.on("close", function (e) {
+            closed = true;
+        });
+        request.setTimeout(36000/*support for wechat long pull*/);
+        request.on("error", function (e) {
+            closed = true;
             res.writeHead(403, {});
             res.end(String(e));
-        } catch{
-            res.end();
-        }
+        });
+        req.pipe(request);
+    } catch (e) {
+        res.writeHead(403, {});
+        res.end(String(e));
     }
 }
 module.exports = cross;
