@@ -128,13 +128,21 @@ function cross(req, res, referer) {
         });
         request.setTimeout(36000/*support for wechat long pull*/);
         request.on("error", function (e) {
-            res.writeHead(403, {});
-            res.end(String(e));
+            try {
+                res.writeHead(403, {});
+                res.end(String(e));
+            } catch{
+                res.end();
+            }
         });
         req.pipe(request);
     } catch (e) {
-        res.writeHead(403, {});
-        res.end(String(e));
+        try {
+            res.writeHead(403, {});
+            res.end(String(e));
+        } catch{
+            res.end();
+        }
     }
 }
 module.exports = cross;
