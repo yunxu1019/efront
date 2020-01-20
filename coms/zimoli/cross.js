@@ -178,9 +178,13 @@ function cross(method, url, headers) {
         }
     };
     setTimeout(function () {
-        if (jsondata && !datas) {
+        if (!isEmpty(jsondata) && isEmpty(datas)) {
             datas = JSON.stringify(jsondata);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            if (datas === "{}" || datas === "[]") {
+                datas = '';
+            } else {
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            }
         }
         send.call(xhr, datas);
     }, 0);
@@ -208,7 +212,7 @@ function cross(method, url, headers) {
     var datas = "";
     var jsondata = null;
     xhr.json = xhr.data = xhr.send = function (data, value) {
-        if (!jsondata) jsondata = {};
+        if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = {};
         if (data instanceof Object) {
             extend(jsondata, data);
         } else if (value) {
