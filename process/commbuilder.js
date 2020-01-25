@@ -92,6 +92,16 @@ var getRequiredPaths = function (data) {
     return Object.keys(requiredPaths);
 };
 
+var convertColor = function (a) {
+    return a.replace(/\#([\da-f]{8}|[\da-f]{4}\b)/gi, function (m, a) {
+        switch (a.length) {
+            case 4:
+                return `rgba(${a.slice(0, 3).split("").map(a => parseInt(a + a, 16))},${(parseInt(a[3], 16) / 15).toFixed(4)})`;
+            case 8:
+                return `rgba(${a.slice(0, 6).replace(/\w{2}/g, a => parseInt(a, 16) + ",")}${(parseInt(a.slice(6), 16) / 255).toFixed(4)})`;
+        }
+    });
+};
 var createExpression = function (expression) {
     return esprima.parse(expression).body;
 };
@@ -298,15 +308,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 ? m.charCodeAt(0).toString(16)
                 : 0 + m.charCodeAt(0).toString(16)
             )
-        )
-        .replace(/\#([\da-f]{8}|[\da-f]{4}\b)/gi, function (m, a) {
-            switch (a.length) {
-                case 4:
-                    return `rgba(${a.slice(0, 3).split("").map(a => parseInt(a + a, 16))},${(parseInt(a[3], 16) / 15).toFixed(4)})`;
-                case 8:
-                    return `rgba(${a.slice(0, 6).replace(/\w{2}/g, a => parseInt(a, 16) + ",")}${(parseInt(a.slice(6), 16) / 255).toFixed(4)})`;
-            }
-        });
+        );
+    data = convertColor(data);
     return data;
 };
 var getFileData = function (fullpath) {
@@ -336,7 +339,7 @@ var renderLessData = function (data = '', lesspath, watchurls, className) {
     return Promise.resolve(lessresult).then(function (lessdata) {
         watchurls.push(lesspath);
         var lessData;
-        less.render(`.${className}{${String(lessdata)}}`, {
+        less.render(`.${className}{${convertColor(String(lessdata))}}`, {
             compress: !process.env.IN_TEST_MODE
         }, function (err, data) {
             if (err) return console.warn(err);
