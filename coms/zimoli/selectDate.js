@@ -281,5 +281,6 @@ function main(models = "年月日", value, title) {
     var datebox = render(value, models, title);
     datebox.value = value;
     addClass(datebox, 'date-' + models.length);
+    onmousedown(datebox, e => e.preventDefault());
     return datebox;
 }
