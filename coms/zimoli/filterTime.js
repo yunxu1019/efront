@@ -1,6 +1,4 @@
-function getSplitedDate(date) {
-    return [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds(), date.getDay()];
-}
+
 function fixLength(minute, length = 2) {
     minute = String(minute);
     if (minute.length >= length) return minute;
