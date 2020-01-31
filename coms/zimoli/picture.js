@@ -1,10 +1,15 @@
 
-function picture(url, to = 0) {
+function picture(url, to = 0, key) {
     var urls = [].concat(url);
 
     var images = urls.map(url => {
         var image = div();
         var img = new Image;
+        if (url instanceof Object) {
+            if (key) {
+                url = seek(url, key);
+            }
+        }
         img.src = url;
         var onload = function () {
             img.onload = null;
