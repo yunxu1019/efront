@@ -134,6 +134,9 @@ function slider(autoplay, circle = true) {
             negative_index = round(negative_index);
         }
         animate();
+        var event = createEvent("park");
+        event.index = -negative_index;
+        dispatch(outter, event);
         if (player.ing) play();
     };
     var play = function () {
