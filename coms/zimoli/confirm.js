@@ -11,7 +11,7 @@ function confirm() {
     var message, title, options, callback, selected = 0;
     [].map.call(arguments, function (arg) {
         if (isNode(arg)) {
-            if (isString(message)) {
+            if (isString(message) || isNode(message)) {
                 title = message;
             }
             message = arg;
@@ -35,6 +35,8 @@ function confirm() {
     var [head, body, option] = element.children;
     if (isString(title)) {
         head.innerHTML = title;
+    } else if (isNode(title)) {
+        head.appendChild(title);
     }
     if (isString(message)) {
         body.innerHTML = message;
@@ -59,6 +61,7 @@ function confirm() {
         }
     }
     var buttons = options.map(function (label, index, options) {
+        if (isNode(label)) return label;
         var btn = button(label);
         onclick(btn, function () {
             if (isFunction(callback) && callback(label, index, options) === false) return;
