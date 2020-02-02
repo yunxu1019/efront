@@ -8,9 +8,11 @@ var defaultOptions = {
     请: ["完成", "取消"],
 }
 function confirm() {
-    var message, title, options, callback, selected = 0;
+    var message, title, options, callback, closable = true, selected = 0;
     [].map.call(arguments, function (arg) {
-        if (isNode(arg)) {
+        if (typeof arg === "boolean") {
+            closable = arg;
+        } else if (isNode(arg)) {
             if (isString(message) || isNode(message)) {
                 title = message;
             }
@@ -33,6 +35,15 @@ function confirm() {
     var element = div();
     element.innerHTML = `<div class=head></div><div class=body></div><div class=option></div>`;
     var [head, body, option] = element.children;
+    if (closable) {
+        var closebtn = document.createElement("i");
+        closebtn.title = "关闭";
+        closebtn.className = "close";
+        onclick(closebtn,function () {
+            remove(element);
+        });
+        appendChild(head, closebtn);
+    }
     if (isString(title)) {
         head.innerHTML = title;
     } else if (isNode(title)) {
@@ -72,6 +83,9 @@ function confirm() {
     onclick(element, function () {
         css(this, { zIndex: zIndex() });
     });
+    on('dblclick')(head, function () {
+
+    })
     drag.on(element);
     preventOverflowScrolling(element);
     appendChild(option, buttons);

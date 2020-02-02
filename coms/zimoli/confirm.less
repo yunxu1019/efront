@@ -1,46 +1,76 @@
 & {
-    position: absolute;
-    margin: 0 auto;
-    top: 50%;
-    max-width: 100%;
-    max-height: 100%;
-    overflow: auto;
-    cursor: default;
+    position        : absolute;
+    margin          : 0 auto;
+    top             : 50%;
+    max-width       : 100%;
+    max-height      : 100%;
+    overflow        : auto;
+    cursor          : default;
     background-color: #fff;
-    border:1px solid #0001;
-    box-shadow: 0 0 16px -6px rgba(0, 0, 0, .2);
+    border          : 1px solid #0001;
+    box-shadow      : 0 0 16px -6px rgba(0, 0, 0, .2);
 }
 
 &>.head {
-    line-height: 50px;
-    position: relative;
+    line-height : 50px;
+    position    : relative;
     padding-left: 16px;
-    position: sticky;
-    top: 0;
-    background: inherit;
-    z-index: 2;
+    position    : sticky;
+    top         : 0;
+    background  : inherit;
+    z-index     : 2;
+
+    .close {
+        display    : block;
+        position   : absolute;
+        height     : 32px;
+        line-height: 32px;
+        right      : 0;
+        top        : 0;
+        width      : 44px;
+        text-align : center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 28px;
+
+
+        &:hover {
+            background: #f00;
+            color     : #fff;
+        }
+
+        &:active {
+            background: #f008;
+        }
+
+        &:after {
+            content: "×";
+        }
+    }
 }
 
 &>.body {
     padding: 0 16px;
+
     >* {
         max-width: 100%;
     }
 }
 
 &>.option {
-    position: sticky;
-    bottom: 0;
-    background: inherit;
-    text-align: center;
-    padding: 10px;
+    position   : sticky;
+    bottom     : 0;
+    background : inherit;
+    text-align : center;
+    padding    : 10px;
     white-space: nowrap;
+
     >div {
-        display: inline-block;
-        width: auto;
+        display  : inline-block;
+        width    : auto;
         min-width: 80px;
-        position: relative;
+        position : relative;
     }
+
     >div+div {
         margin-left: 10px;
     }
