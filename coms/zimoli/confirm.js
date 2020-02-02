@@ -39,7 +39,7 @@ function confirm() {
         var closebtn = document.createElement("i");
         closebtn.title = "关闭";
         closebtn.className = "close";
-        onclick(closebtn,function () {
+        onclick(closebtn, function () {
             remove(element);
         });
         appendChild(head, closebtn);
@@ -89,7 +89,9 @@ function confirm() {
     drag.on(element);
     preventOverflowScrolling(element);
     appendChild(option, buttons);
+    element.initialStyle = "transform:scale(.9);opacity:0;transition:transform .3s,opacity .2s";
     setTimeout(function () {
+        if (element.parentNode) return;
         popup(element);
         css(element, {
             marginLeft: fromOffset(-element.offsetWidth / 2),
