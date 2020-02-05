@@ -3,7 +3,7 @@
  */
 onkeydown(document, function (e) {
     if (e.which === 27 && rootElements.length) {
-        remove(rootElements[rootElements.length - 1]);
+        history.back();
     }
 });
 var animationStyle = "opacity:0;transform:scale(1.2);transition:.1s opacity ease-out,.2s transform ease-out;";
