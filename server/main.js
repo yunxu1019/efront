@@ -8,7 +8,6 @@ var message = require("../process/message");
 if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var watch = require("../process/watch");
     var counter = 0;
-    var killing;
     var quitting = [];
     var workers = [];
     var cpus = require('os').cpus().map(a => 0);
@@ -18,7 +17,6 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var end = function () {
         quitting = quitting.concat(workers);
         workers = [];
-        killing = true;
         exit();
     };
     var exit = function () {
@@ -61,7 +59,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 }
                 counter--;
                 console.info(`process ${worker.id} ended at ${Date()}`);
-                if (!counter && killing) {
+                console.error("counter" + counter);
+                if (!counter && !workers.length) {
                     // console.info("按 ctrl + c 退出!");
                     process.exit();
                 }
@@ -152,10 +151,16 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     };
     // create server
     var server = http.createServer(requestListener);
-    server.on("error", function () {
-        // console.info("server is already running!");
+    server.once("error", function () {
+        server.removeAllListeners();
+        console.error("服务器启动失败!");
+        server.close(function () {
+            process.exit();
+        });
     });
     server.on("listening", function () {
+        var address = server.address();
+        process.title = `服务器地址：${require("../process/getLocalIP")()} 端口：${address.port}`;
         // console.info("server start success!");
     });
     server.setTimeout(0);
@@ -175,10 +180,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
             }).listen(+process.env.HTTPS_PORT || 443).setTimeout(0);
         }
     }
-    process.title = `服务器地址：${require("../process/getLocalIP")()} 端口：${+process.env.HTTP_PORT || 80}`;
     process.on('exit', function (event) {
         if (event instanceof Error) console.error(event);
     })
-
     message.count("boot");
 }
