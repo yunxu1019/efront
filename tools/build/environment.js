@@ -45,9 +45,10 @@ if (public_app && !pages_root.length) {
     if (/^index(\.[jt]sx?)?$/i.test(path.basename(temp))) pages_root.push(path.dirname(parent));
     while (temp && temp !== parent) {
         temp = parent;
-        pages_root.push(path.join(parent, 'node_modules'));
+        comms_root.push(path.join(parent, 'node_modules'));
         parent = path.dirname(temp);
     }
+    comms_root = comms_root.filter(fs.existsSync);
     pages_root = pages_root.filter(fs.existsSync);
 }
 
