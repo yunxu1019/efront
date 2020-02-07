@@ -59,7 +59,6 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
                 }
                 counter--;
                 console.info(`process ${worker.id} ended at ${Date()}`);
-                console.error("counter" + counter);
                 if (!counter && !workers.length) {
                     // console.info("按 ctrl + c 退出!");
                     process.exit();
