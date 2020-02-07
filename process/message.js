@@ -87,7 +87,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE !== "1") {
             };
         }
     });
-    process.on("message", function (msg, then) {
+    var processMessageListener = function (msg, then) {
         var index = msg.indexOf(":");
         if (index > 0) {
             var key = msg.slice(0, index),
@@ -99,7 +99,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE !== "1") {
         }
         var data = value ? JSON.parse(value) : void 0;
         if (key in onmessage) onmessage[key](data);
-    });
+    };
+    process.on("message", processMessageListener);
 
     module.exports = new Proxy(onmessage, {
         get: function (o, k) {
