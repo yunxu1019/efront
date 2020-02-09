@@ -3,9 +3,10 @@ function chooseFile(accept, multiple) {
     form.innerHTML = `<input type='file'${accept ? ` accept="${accept}"` : ''}${multiple ? ' multiple' : ''} />`;
     var [input] = form.children;
     var result = new Promise(function (ok, oh) {
-        ok(input.nodeValue);
         on("change")(input, function () {
-            ok(this.files);
+            setTimeout(() => {
+                ok(this.files);
+            }, 100);
         });
     });
     input.click();
