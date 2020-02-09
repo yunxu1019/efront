@@ -150,6 +150,7 @@ function picture(url, to = 0, key) {
         on("mousewheel")(image, function (event) {
             var { layerX, layerY, deltaY } = event;
             if (!deltaY) return;
+            event.preventDefault();
             this.locked = true;
             var scale = Math.pow(0.99, deltaY);
             var s = 100, t = s * scale;
