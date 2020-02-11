@@ -6,6 +6,7 @@ var layer = layer$glance({
 config;
 login();
 css("*,:before,:after", 'box-sizing:border-box');
+on("dragover")(window, e => e.preventDefault());
 
 var main = function () {
     return layer;

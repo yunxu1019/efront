@@ -52,7 +52,7 @@ onappend(page, function () {
         name: "添加",
         tip: "",
         do() {
-            chooseFile().then(e => upload(e, '/@/data/xiaohua/photo/'));
+            chooseFile().then(e => upload(e, '/@/data/xiaohua/photos/'));
         },
     },]);
 });
@@ -65,7 +65,7 @@ function main() {
         selector: {
         },
         skip: 0,
-        limit: 21,
+        limit: 600,
         "sort": [{ 'year': "desc" }]
     }).success(function (data) {
         scope.videos = data.docs;
