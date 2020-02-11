@@ -207,7 +207,7 @@ function ylist(container, generator, $Y) {
             }
             if (collection.length) {
                 var item = collection[collection.length - 1];
-                scrollTop -= item.offsetTop + getOffsetHeight(item);
+                scrollTop -= item.offsetTop + getOffsetHeight(item) - parseInt(getComputedStyle(list).paddingTop);
                 remove(collection);
             }
             //滚动到相应的位置
