@@ -1,6 +1,6 @@
 function queue(list, count = 1, context = null) {
     var f = this;
-    if (list instanceof Function && f instanceof Array) {
+    if (list instanceof Function) {
         f = list;
         list = this;
     }
