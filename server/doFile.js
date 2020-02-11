@@ -151,13 +151,25 @@ function doDeleteFile(req, res, filepath) {
 }
 
 function doPutFile(req, res, filepath, code) {
-    fs.exists(filepath, function (exists) {
-        if (exists) {
+    fs.exists(path.dirname(filepath), function (exists) {
+        if (!exists) {
             res.writeHead(403, {});
-            res.end(`File already exists.`);
+            res.end(`Directory not exists.`);
             return;
         }
-        var w = fs.createWriteStream(filepath);
+        fs.exists(filepath, function (exists) {
+            if (exists) {
+                res.writeHead(403, {});
+                res.end(`File already exists.`);
+                return;
+            }
+        });
+
+        if (cacheCountLimit <= 1) {
+            res.writeHead(403, {});
+            res.end("");
+            return;
+        }
         if (code) {
             var sign = encode62.timedecode(code);
             if (!sign) {
@@ -166,6 +178,16 @@ function doPutFile(req, res, filepath, code) {
                 return;
             }
         }
+        cacheCountLimit--;
+        var w = fs.createWriteStream(filepath);
+        var fired = false;
+        var safeend = function () {
+            if (fired) return;
+            cacheCountLimit++;
+            fired = true;
+            w.close();
+            res.end(filepath);
+        };
         var inc = 0;
         req.on("data", function (chunk) {
             if (sign) {
@@ -178,9 +200,9 @@ function doPutFile(req, res, filepath, code) {
         });
         req.on("end", function () {
             w.end('');
-            res.end(filepath);
         });
-
+        req.on("error", safeend);
+        req.on("close", safeend);
     });
 }
 
