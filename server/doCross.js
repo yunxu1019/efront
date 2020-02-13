@@ -4,7 +4,17 @@ var Http2ServerResponse = require("http2").Http2ServerResponse;
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 var privateKeys = Object.create(null);
 "Cookie,Connection,Referer,Host,Origin".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
-var options = {};
+var options = {
+    record_path: process.env.record_path
+};
+
+if (options.record_path) {
+    let { record_path } = options.record_path;
+    let parseKV = require("../process/parseKV");
+    if (/\=/.test(record_path)) {
+        options.record_path = parseKV(record_path);
+    }
+}
 -function () {
     var fs = require("fs");
     var path = require("path");
@@ -131,7 +141,55 @@ function cross(req, res, referer) {
             }
             if (!closed) {
                 res.writeHead(response.statusCode, headers);
-                response.pipe(res);
+                let { record_path } = options;
+                let { pathname, hostname } = URL.parse($url);
+                if (record_path instanceof Object) {
+                    record_path = record_path[hostname];
+                    if (!record_path) {
+                        console.warn("skiped", $url);
+                    }
+                }
+                if (record_path) {
+                    let fs = require("fs");
+                    let path = require("path");
+                    if (/[\/\\]$/.test(pathname)) {
+                        pathname = path.join(pathname, 'index.html');
+                    }
+                    let fullpath = path.join(record_path, pathname);
+                    response.pipe(res);
+                    var buffers = [];
+                    response.on("data", function (data) {
+                        buffers.push(data);
+                    });
+                    response.on("end", function () {
+                        fs.mkdir(path.dirname(fullpath), { recursive: true }, function (error) {
+                            if (error) {
+                                console.error("创建文件夹失败", error);
+                            }
+                            var stream = fs.createWriteStream(fullpath);
+                            var data = Buffer.concat(buffers);
+                            var write = function (error, data) {
+                                if (error) {
+                                    console.error(fullpath, error);
+                                    return;
+                                }
+                                console.info('grap', fullpath);
+                                stream.write(data);
+                                stream.end();
+                            };
+                            switch (response.headers["content-encoding"]) {
+                                case "gzip":
+                                    require("zlib").gunzip(data, write);
+                                    break;
+                                default:
+                                    write(null, data);
+                            }
+                            // console.log(data);
+                        });
+                    })
+                } else {
+                    response.pipe(res);
+                }
             } else {
                 response.destroy();
                 res.end();

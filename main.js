@@ -25,10 +25,21 @@ var isDocsCommand = configs.doc || configs.docs;
 var isDemoCommand = configs.demo || configs.zimoli;
 var loadModule = process.argv.slice(2).filter(e => /[\/\\]|_test$|\.[tj]sx?$/i.test(e));
 var isStartCommand = configs.start || configs.run;
+var isRobber = configs.bug || configs.record || configs.robber;
 try {
 
     if (isHelpMode) {
         console.log("these commands can be used: test server public init watch from");
+    } else if (isRobber) {
+        var fullpath = process.cwd();
+
+        setenv({
+            public_path: fullpath,
+            record_path: fullpath,
+            app: "./"
+        });
+
+        require("./server/main");
     } else if (isDocsCommand) {
         setenv({
             public_path: path.join(__dirname, "apps"),
