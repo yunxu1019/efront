@@ -142,6 +142,11 @@ function cross(req, res, referer) {
             if (!closed) {
                 res.writeHead(response.statusCode, headers);
                 let { record_path } = options;
+                try {
+                    $url = decodeURI($url);
+                } catch (e) {
+                    $url = escape($url);
+                }
                 let { pathname, hostname } = URL.parse($url);
                 if (record_path instanceof Object) {
                     record_path = record_path[hostname];
