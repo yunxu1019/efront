@@ -147,6 +147,9 @@ function toComponent(responseTree) {
             if (!encoded) {
                 data = `\r\n/** ${dest.length + 1}${data.length > 100 ? ' ' + k : ''} */ ` + data;
             }
+            if (/^[\$_a-z]\w*$/i.test(data) && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true)$/.test(data)) {
+                data = `typeof ${data}!=="undefined"?${data}:void 0`;
+            }
             dest.push(data);
             destMap[k] = dest.length;
         } else {
