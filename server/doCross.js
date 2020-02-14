@@ -154,7 +154,7 @@ function cross(req, res, referer) {
                         console.warn("skiped", $url);
                     }
                 }
-                if (record_path) {
+                if (record_path && response.statusCode === 200) {
                     let fs = require("fs");
                     let path = require("path");
                     if (/[\/\\]$/.test(pathname)) {
@@ -186,7 +186,13 @@ function cross(req, res, referer) {
                                 case "gzip":
                                     require("zlib").gunzip(data, write);
                                     break;
+                                case null:
+                                case "":
+                                case undefined:
+                                    write(null, data);
+                                    break;
                                 default:
+                                    console.warn(response.headers["content-encoding"], "not support!");
                                     write(null, data);
                             }
                             // console.log(data);
