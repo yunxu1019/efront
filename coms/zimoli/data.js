@@ -331,10 +331,10 @@ var privates = {
         params = extend({}, params);
         if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
-        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z]\w*/i, function (d) {
+        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w\.]*/i, function (d) {
             d = d.slice(1);
             rest.push(d);
-            return params[d] || '';
+            return seek(params, d) || '';
         });
         var hasOwnProperty = {}.hasOwnProperty;
         if (search) {
