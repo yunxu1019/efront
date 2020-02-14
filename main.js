@@ -26,6 +26,7 @@ var isDemoCommand = configs.demo || configs.zimoli;
 var loadModule = process.argv.slice(2).filter(e => /[\/\\]|_test$|\.[tj]sx?$/i.test(e));
 var isStartCommand = configs.start || configs.run;
 var isRobber = configs.bug || configs.record || configs.robber;
+var isLone = configs.lone;
 try {
 
     if (isHelpMode) {
@@ -40,6 +41,30 @@ try {
         });
 
         require("./server/main");
+    } else if (isLone) {
+        let fs = require("fs");
+        let currentpath = process.cwd(), config = {
+            page_path: currentpath,
+            comm: "./,zimoli",
+            coms_path: '',
+            app: './',
+            page: './'
+        };
+        fs.readdir(currentpath, function (error, names) {
+            if (error) return console.error(error);
+            var coms_path = [];
+            names.filter(function (name) {
+                return fs.statSync(name).isDirectory()
+            }).forEach(function (name) {
+                if (/lib|com|fun|dep/.test(name)) {
+                    coms_path.push( name);
+                }
+            });
+            coms_path.push(':');
+            config.coms_path = coms_path.join(',');
+        });
+        setenv(config);
+        require("./tester/main");
     } else if (isDocsCommand) {
         setenv({
             public_path: path.join(__dirname, "apps"),
