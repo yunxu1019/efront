@@ -74,8 +74,8 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
 
         var savedCount = boxCount;
         var index = _box.index();
-        var realIndex = index * boxCount;
         resize();
+        var realIndex = index * (savedCount || 1);
         if (savedCount === boxCount) return;
         index = realIndex / boxCount;
         remove(_box.children);
