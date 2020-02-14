@@ -21,6 +21,10 @@ var merge = function (dst, o) {
         dst[k] = o[k] === true ? true : dst[k] || o[k];
     }
 };
+var regrep = function (v) {
+    return v.replace(/\\[\s\S]|\//g, r => r === "/" ? '\\/' : r);
+};
+
 var getVariables = function (ast) {
     var DeclaredVariables = Object.create(null),
         unDeclaredVariables = Object.create(null);
@@ -225,6 +229,14 @@ var getVariables = function (ast) {
                 if (ast.operator === "typeof" && ast.argument.type === 'Identifier') {
                     break;
                 }
+            case "Literal":
+                if (ast.regex) {
+                    ast.regex.pattern = regrep(ast.regex.pattern);
+                    ast.value = new RegExp(ast.regex.pattern, ast.regex.flags);
+                    ast.raw = String(ast.value);
+                    break;
+                }
+            // break;
             default:
                 for (var k in ast) {
                     var {
