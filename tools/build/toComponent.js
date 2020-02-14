@@ -166,7 +166,7 @@ function toComponent(responseTree) {
             destMap[key] = destMap[k];
         });
     }
-    saveCode([String(array_map.data)], "map");
+    if (array_map) saveCode([String(array_map.data)], "map");
     if (include_required) {
         saveOnly("[]", 'init', 'require');
     }
