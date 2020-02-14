@@ -1,1 +1,1 @@
-"use ../../process/praseKV.js"
+"use ../../process/parseKV.js"
