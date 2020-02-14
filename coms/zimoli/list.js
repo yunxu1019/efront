@@ -82,12 +82,13 @@ function ylist(container, generator, $Y) {
     }
     //设置当前下标
     var scrollTo = function (itemIndex) {
+
         if (!list.offsetHeight || !list.offsetWidth) {
             saved_itemIndex = itemIndex;
             return;
         }
         var index = itemIndex | 0;
-        var ratio = itemIndex - index;
+        var ratio = itemIndex - index || 0;
         if (index < 0) index = 0;
         var childrenMap = getChildrenMap();
         var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null, last_index = last_item && last_item.index || offset;
@@ -126,7 +127,7 @@ function ylist(container, generator, $Y) {
                 top_item = item;
             }
             offsetBottom = bottom_item.offsetTop + bottom_item.offsetHeight;
-            ratioTop = top_item.offsetTop + top_item.offsetHeight * (ratio || 1);
+            ratioTop = top_item.offsetTop + top_item.offsetHeight * ratio;
             if (count++ > 600) throw new Error("多于600个元素需要绘制！");
         }
         for (var k in childrenMap) {
@@ -137,7 +138,7 @@ function ylist(container, generator, $Y) {
         }
         var indexed_item = getIndexedElement(index) || bottom_item;
         if (indexed_item) {
-            list.scrollTop = indexed_item.offsetTop + indexed_item.offsetHeight * (ratio || 1);
+            list.scrollTop = indexed_item.offsetTop + indexed_item.offsetHeight * ratio - parseInt(getComputedStyle(list).paddingTop);
         }
     };
     //计算当前高度
