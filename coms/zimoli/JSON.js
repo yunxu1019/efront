@@ -3,11 +3,14 @@ var parse_failed_error_message = "parse json failed!";
 var scan_string = function (str, start) {
     if (str.charAt(start) !== "\"")
         return false;
-    var reg = /[^\\]"/g;
-    reg.lastIndex = start;
-    var match = reg.exec(str);
-    if (!match)
-        return false;
+    var reg = /\\[\s\S]|"/g;
+    reg.lastIndex = start + 1;
+    while (reg.lastIndex < str.length) {
+        var match = reg.exec(str);
+        if (!match)
+            return false;
+        if (match[0] === "\"") break;
+    }
     return reg.lastIndex;
 };
 var scan_number = function (str, start) {
@@ -107,7 +110,8 @@ var _safeparse = function (str, start) {
 };
 var parse = function (string) {
     string = String(string);
-    if (_safeparse(string, 0) === string.length) {
+    var parsed = _safeparse(string, 0);
+    if (parsed === string.length) {
         return new Function("return " + string)();
     } else {
         throw parse_failed_error_message;
