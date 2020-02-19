@@ -323,8 +323,8 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                             }
                             var package_data = promise[package_file];
                             if (package_data instanceof Object && package_data.main) {
-                                console.log(url, package_data.module, package_data.main);
-                                result = path.join(url, package_data.main).replace(/\\/g, '/');
+                                var roots = package_data.main.split(/[\/\\]+/).filter(a => a && a !== '.' && !/\:$/.test(a));
+                                if (roots[0] in promise) result = path.join(url, roots.join('/')).replace(/\\/g, '/');
                             }
                         } else {
                             var seek_index = 'index';
@@ -334,8 +334,8 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                             } else {
                                 if (typeof promise === 'string') result = promise;
                             }
-                            matchParent = true;
                         }
+                        matchParent = true;
                     }
                     cx++;
                     run();
