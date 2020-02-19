@@ -89,7 +89,7 @@ var adapter = function (data, url, req, res) {
         return res.end();
     }
     res.writeHead(404, {});
-    res.end(String(data));
+    res.end("not found");
 }
 /**
  * doGet
@@ -102,15 +102,7 @@ module.exports = function (req, res) {
     }
     var url = proxy(req);
     url = url.replace(/[\?#][\s\S]*/g, "");
-
-    var data = getfile(url, ['', '/index.html']);
-    if (!data || data === "/") {
-        data = getfile(path.join(process.env.APP, url));
-        if (!data) {
-            res.writeHead(404, {});
-            return res.end();
-        }
-    }
+    var data = getfile(url, ['','index.html']);
     if (data instanceof Promise) {
         return data.then(function (data) {
             adapter(data, url, req, res);
