@@ -226,10 +226,6 @@ var seekAsync = function (url, tree, rebuild) {
     if (temp instanceof Error) {
         return temp;
     }
-    if (key && !(temp instanceof Buffer)) {
-        if (that.buffer_size > 0) return curl.replace(/\\+/g, "/") + "/";
-        return temp;
-    }
     if ((temp instanceof Buffer) && !temp.stat) {
         temp.stat = getVersion(path.join(String(this), curl));
     }
@@ -282,11 +278,22 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         return new Promise(function (ok, oh) {
             var cy = 0;
             var cx = 0;
-            var result;
+            var result, matchParent;
             var run = function () {
                 if (cx >= extts.length) {
                     cy++;
-                    if (cy >= tree.length) return ok(result);
+                    if (cy >= tree.length) {
+                        if (result === undefined) {
+                            if (matchParent) {
+                                url = url.replace(/\\/g, '/');
+                                if (!/\/$/.test(url)) {
+                                    url += '/';
+                                    result = url;
+                                }
+                            }
+                        }
+                        return ok(result);
+                    }
                     seeker.toString = function () {
                         return this;
                     }.bind(filesroot[cy]);
@@ -327,9 +334,8 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                             } else {
                                 if (typeof promise === 'string') result = promise;
                             }
+                            matchParent = true;
                         }
-
-
                     }
                     cx++;
                     run();
