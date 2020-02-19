@@ -31,3 +31,4 @@ node_modules*
 tools/*.c
 data/shared.json
 data/count.json
+data/images/logo.pptx
