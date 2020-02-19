@@ -41,7 +41,6 @@ api.onerror = function (error) {
 };
 cross.digest = render.digest;
 user.setLoginPath("/user/welcome");
-user.setStateFunction(state);
 var mainView = function () {
     return view;
 };
