@@ -42,7 +42,11 @@ function parseUrl(hostpath, real) {
         var hostpath = `http${s}://${host}/`;
         header.split(/[,&]/).forEach(function (kv) {
             var [k, v] = kv.split("=");
-            if (k && v) headers[decodeURIComponent(k)] = decodeURIComponent(v);
+            if (k && v) try {
+                headers[decodeURIComponent(k)] = decodeURIComponent(v);
+            } catch (e) {
+                headers[unescape(k)] = unescape(v);
+            }
         });
     } else {
         var { url: hostpath, token, headers = {} } = JSON.parse(decodeURIComponent(jsonlike));
@@ -72,7 +76,7 @@ function cross(req, res, referer) {
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
             if (/head|get/i.test(req.method)) {
-                var redirect = "/" + escape(jsonlike) + "@" + realpath;
+                var redirect = "/" + unescape(jsonlike) + "@" + realpath;
                 res.writeHead(302, {
                     "Location": redirect
                 });
