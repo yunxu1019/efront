@@ -4,6 +4,9 @@ var urlProxyMap = {
 if (!/\/$/.test(urlProxyMap["/"])) {
     urlProxyMap["/"] += "/";
 }
+Object.keys(urlProxyMap).forEach(function (key) {
+    urlProxyMap[key] = urlProxyMap[key].replace(/\/\.\//g, '/');
+});
 urlProxyMap[""] = urlProxyMap["/"];
 var URL = require("url");
 function getProxyURL(req) {
