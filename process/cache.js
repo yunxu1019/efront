@@ -2,6 +2,7 @@
 var fs = require("fs");
 var watch = require("../process/watch");
 var path = require("path");
+var zlib = require("zlib");
 var versionTree = {};
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
@@ -57,7 +58,18 @@ var getfileAsync = function (pathname, buffer_size) {
     return getPromiseInQueue(function (ok, oh) {
         fs.readFile(pathname, function (error, data) {
             if (error) oh(error);
-            else ok(data);
+            else {
+                zlib.gzip(data, function (error, result) {
+                    if (error) {
+                        oh(error);
+                    } else if (data.length > result.length) {
+                        result.origin_size = data.length;
+                        ok(result);
+                    } else {
+                        ok(data);
+                    }
+                });
+            }
         });
     });
 };

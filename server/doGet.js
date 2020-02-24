@@ -36,11 +36,13 @@ var response = function (data, url, req, res) {
         var status = 200;
         if (data.stat) {
             headers["Last-Modified"] = data.stat.mtime.toUTCString();
-            if (data.length < data.stat.size) {
+            if ((data.origin_size || data.length) < data.stat.size) {
                 headers["Accept-Ranges"] = "bytes";
                 headers["Content-Range"] = "bytes 0-" + (data.length - 1) + "/" + data.stat.size;
                 headers["Content-Length"] = data.length;
                 status = 206;
+            } else if (data.origin_size > data.length) {
+                headers["Content-Encoding"] = "gzip";
             }
         }
         res.writeHead(status, headers);
@@ -102,7 +104,7 @@ module.exports = function (req, res) {
     }
     var url = proxy(req);
     url = url.replace(/[\?#][\s\S]*/g, "");
-    var data = getfile(url, ['','index.html']);
+    var data = getfile(url, ['', 'index.html']);
     if (data instanceof Promise) {
         return data.then(function (data) {
             adapter(data, url, req, res);
