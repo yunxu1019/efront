@@ -19,7 +19,7 @@ var proxy = require("./proxy");
 var response = function (data, url, req, res) {
     message.count({ path: url, update: true });
     var requiredVersion = req.headers["if-modified-since"];
-    if (requiredVersion && data.stat && new Date(requiredVersion) - data.stat.mtime >= 0) {
+    if (requiredVersion && data.stat && new Date(requiredVersion) - new Date(data.stat.mtime.toUTCString()) >= 0) {
         res.writeHead(304, {});
     }
     else {
