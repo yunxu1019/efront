@@ -1,10 +1,25 @@
 "use strict";
+var zlib = require("zlib");
 var filebuilder = require("../process/filebuilder");
 var env = process.env;
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = env.PUBLIC_PATH;
 var APPS_PATH = env.PAGE_PATH;
-var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, filebuilder, FILE_BUFFER_SIZE).async;
+var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, function (data) {
+    data = filebuilder(data);
+    return new Promise(function (ok, oh) {
+        zlib.gzip(data, function (error, result) {
+            if (error) {
+                oh(error);
+            } else if (data.length > result.length) {
+                result.origin_size = data.length;
+                ok(result);
+            } else {
+                ok(data);
+            }
+        });
+    });
+}, FILE_BUFFER_SIZE).async;
 var path = require("path");
 var mimes = require("../process/mime");
 var message = require("../process/message");
@@ -41,9 +56,10 @@ var response = function (data, url, req, res) {
                 headers["Content-Range"] = "bytes 0-" + (data.length - 1) + "/" + data.stat.size;
                 headers["Content-Length"] = data.length;
                 status = 206;
-            } else if (data.origin_size > data.length) {
-                headers["Content-Encoding"] = "gzip";
             }
+        }
+        if (data.origin_size > data.length) {
+            headers["Content-Encoding"] = "gzip";
         }
         res.writeHead(status, headers);
         res.write(data);
