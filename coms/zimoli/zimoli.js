@@ -483,6 +483,7 @@ var fixurl = function () {
         fixurl.ing = false;
         var targeturl = getCurrentHash();
         if (pagehash_reg.test(targeturl)) {
+            targeturl = location.href.replace(/\#[\s\S]*$/, '') + targeturl;
             if (!pagehash_reg.test(location.href)) location.href = targeturl;
             else if (location.hash !== targeturl) location.replace(targeturl);
         } else if (pagehash_reg.test(location.href)) {
