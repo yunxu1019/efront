@@ -5,8 +5,8 @@ var env = process.env;
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = env.PUBLIC_PATH;
 var APPS_PATH = env.PAGE_PATH;
-var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, function (data) {
-    data = filebuilder(data);
+var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, function () {
+    var data = filebuilder.apply(this, arguments);
     return new Promise(function (ok, oh) {
         zlib.gzip(data, function (error, result) {
             if (error) {
