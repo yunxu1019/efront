@@ -1,6 +1,6 @@
 {
   "name": "efront",
-  "version": "1.11.14",
+  "version": "1.12.0",
   "description": "A complete environment for frontend developers",
   "main": "main.js",
   "directories": {
