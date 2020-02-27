@@ -320,11 +320,16 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                             if (promise[package_file] === false) {
                                 seekAsync.call(seeker, url + extt + "/" + package_file, tree1, a => JSON.parse(String(a))).catch(oh).then(run);
                                 return;
+                            } else if (promise[package_file] instanceof Buffer) {
+                                promise[package_file] = JSON.parse(promise[package_file].toString());
                             }
                             var package_data = promise[package_file];
                             if (package_data instanceof Object && package_data.main) {
                                 var roots = package_data.main.split(/[\/\\]+/).filter(a => a && a !== '.' && !/\:$/.test(a));
-                                if (roots[0] in promise) result = path.join(url, roots.join('/')).replace(/\\/g, '/');
+                                if (roots[0] in promise) {
+                                    result = path.join(url, roots.join('/')).replace(/\\/g, '/');
+                                    return ok(result);
+                                }
                             }
                         } else {
                             var seek_index = 'index';
