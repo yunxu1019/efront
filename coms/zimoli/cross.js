@@ -2,7 +2,7 @@ var cookiesMap = {};
 //               //  1   //////// 2 /////// 3 ////    4  //
 var domainReg = /^(https?)\:\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
 var { efrontURI, cross_host = efrontURI } = this;
-var location_host = location.href.replace(domainReg, '$1://$2');
+var location_host = location.href.replace(domainReg, '$1://$2/');
 if (cross_host) {
     if (!domainReg.test(cross_host)) {
         console.error("cross_host格式不正确", cross_host);
