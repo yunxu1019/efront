@@ -236,15 +236,34 @@ var parseData = function (sourceText) {
 function fixApi(api, href) {
     if (!reg.test(api.url)) {
         if (href) {
+            var paramReg = /(?:\?([\s\S]*?))?(?:#([\s\S]*))?$/;
+            if (/[\?#]/.test(href)) {
+                var [, extraSearch, extraHash] = paramReg.exec(href);
+                href = href.replace(paramReg, '');
+            }
             if (/^\.([\?\#][\s\S]*)?$/.test(api.url)) {
                 api.url = href + api.url.replace(/^\./, "");
             } else {
                 api.url = href + api.url;
             }
+            if (extraSearch || extraHash) {
+                if (/[\?#]/.test(api.url)) {
+                    var [, search, hash] = paramReg.exec(api.url);
+                }
+                var url = api.url.replace(paramReg, '');
+                if (extraSearch) {
+                    search = search ? extraSearch + '&' + search : extraSearch;
+                }
+                if (extraHash) {
+                    hash = hash ? extraHash + '&' + hash : extraHash;
+                }
+                if (search) url += '?' + search;
+                if (hash) url += "#" + hash;
+                api.url = url;
+            }
         }
     }
-    api.method = api.method.toLowerCase();
-
+    api.method = api.method.replace(/^\w+/, a => a.toLowerCase());
 }
 const reg = /^(https?\:\/\/|\.?\/)/i;
 function createApiMap(data) {
