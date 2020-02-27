@@ -1,12 +1,14 @@
 var cookiesMap = {};
-var domainReg = /^https?\:\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
-var { cross_host } = this;
+//               //  1   //////// 2 /////// 3 ////    4  //
+var domainReg = /^(https?)\:\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
+var { efrontURI, cross_host = efrontURI } = this;
+var location_host = location.href.replace(domainReg, '$1://$2');
 if (cross_host) {
     if (!domainReg.test(cross_host)) {
         console.error("cross_host格式不正确", cross_host);
         cross_host = "/";
     } else {
-        cross_host = (/^https/.test(cross_host) ? "https://" : "http://") + cross_host.replace(domainReg, '$1/');
+        cross_host = (/^https/.test(cross_host) ? "https://" : "http://") + cross_host.replace(domainReg, '$2/');
     }
 }
 var base = domainReg.test(location.href) ? cross_host || '/' : "http://efront.cc/";
@@ -21,7 +23,7 @@ if (cookiesData) {
     }
 }
 function getDomainPath(url) {
-    return url.replace(domainReg, "$1/$2");
+    return url.replace(domainReg, "$2/$3");
 }
 function getRequestProtocol(url) {
     if (/^https:/i.test(url)) {
@@ -102,6 +104,7 @@ var digest = function () {
 };
 
 var getCrossUrl = function (domain, headers) {
+    if (location_host === domain.slice(0, location_host.length)) return domain;
     var originDomain = getDomainPath(domain);
     var _cookies = getCookies(originDomain);
     var _headers = {};
@@ -112,7 +115,7 @@ var getCrossUrl = function (domain, headers) {
     var spliter = encodeURIComponent("/");
     return domain
         .replace(/^s?\/\//i, "http$&")
-        .replace(domainReg, base + `%7B${/^(https\:|s\/\/)/i.test(domain) ? "s" : ""}${spliter + spliter}$1${spliter}${serialize(_headers)}%7D@$2$3`);
+        .replace(domainReg, base + `%7B${/^(https\:|s\/\/)/i.test(domain) ? "s" : ""}${spliter + spliter}$2${spliter}${serialize(_headers)}%7D@$3$4`);
 };
 function cross(method, url, headers) {
     var originDomain = getDomainPath(url);
