@@ -1,0 +1,7 @@
+{
+    "https://live.ixigua.com/?_signature": {
+        "room-info": "get:script#SSR_HYDRATED_DATA :roomId#text=!innerHTML",
+        "follow":"post api/room/follow ",
+        "unfollow":"post api/room/unfollow"
+    }
+}
