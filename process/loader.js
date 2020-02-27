@@ -19,6 +19,7 @@ var {
     top,
     location,
     console,
+    efrontURI,
     PREVENT_FRAMEWORK_MODE,
     startPath: efrontPath,
     request = function (url, onload, onerror) {
@@ -141,21 +142,24 @@ var XHR = function () {
 var loaddata = function (name) {
     var url;
     if (FILE_NAME_REG.test(name)) url = name;
-    else switch (name.charAt(0)) {
-        case ":":
-            url = "node/" + name.slice(1);
-            break;
-        case "/":
-            url = "page" + name;
-            break;
-        case "_":
-            url = "aapi/" + name.slice(1).replace(/([A-Z])/g, "/$1").toLowerCase();
-            break;
-        case ".":
-            url = "ccon/" + name.slice(1);
-            break;
-        default:
-            url = "comm/" + name;
+    else {
+        switch (name.charAt(0)) {
+            case ":":
+                url = "node/" + name.slice(1);
+                break;
+            case "/":
+                url = "page" + name;
+                break;
+            case "_":
+                url = "aapi/" + name.slice(1).replace(/([A-Z])/g, "/$1").toLowerCase();
+                break;
+            case ".":
+                url = "ccon/" + name.slice(1);
+                break;
+            default:
+                url = "comm/" + name;
+        }
+        if (efrontURI) url = efrontURI + url;
     }
     var count = /msie\s?[2-8]/i.test(navigator.userAgent) ? 20 : 2;
     var run = function () {
