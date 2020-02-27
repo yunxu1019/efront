@@ -67,16 +67,12 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
             }
         }
     });
-    var savedClientWidth = 0;
     _box.resize = lazy(function () {
-        if (savedClientWidth === _box.clientWidth) return;
-        savedClientWidth = _box.clientWidth;
-
         var savedCount = boxCount;
         var index = _box.index();
         resize();
-        var realIndex = index * (savedCount || 1);
         if (savedCount === boxCount) return;
+        var realIndex = index * (savedCount || 1);
         index = realIndex / boxCount || 0;
         remove(_box.children);
         _box.go(index);
