@@ -33,7 +33,7 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
                     var data = dataMap[relative];
                     var realPath = loadurls[relative];
                     if (data instanceof Buffer) {
-                        return replacer(data.toString(), realPath);
+                        return replacer(data, realPath);
                     }
                     if (/^\s*(['"`])use\s+strict\1\s*;?\s*$/.test(match)) return match;
                     console.warn(`没有处理${match}`, fullpath);
@@ -69,6 +69,11 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
     var replacer = function (data, realPath) {
         watchurls.push(realPath);
         var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
+        realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
+        if (/\.pem$/i.test(realPath)) {
+            return `var ${realName}=\`${data.toString()}\`;`;
+        }
+        data = data.toString();
         if (!new RegExp(useInternalReg.source, 'ig').test(source)) {
             commName = realName;
         }
