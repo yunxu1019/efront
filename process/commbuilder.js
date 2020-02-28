@@ -70,8 +70,11 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
         watchurls.push(realPath);
         var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
         realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
-        if (/\.pem$/i.test(realPath)) {
+        if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(realPath)) {
             return `var ${realName}=\`${data.toString()}\`;`;
+        }
+        if (/\.json$/i.test(realPath)) {
+            return `var ${realName}=${data};`;
         }
         data = data.toString();
         if (!new RegExp(useInternalReg.source, 'ig').test(source)) {
