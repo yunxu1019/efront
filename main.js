@@ -27,44 +27,62 @@ var loadModule = process.argv.slice(2).filter(e => /[\/\\]|_test$|\.[tj]sx?$/i.t
 var isStartCommand = configs.start || configs.run;
 var isRobber = configs.bug || configs.record || configs.robber;
 var isLone = configs.lone;
-try {
-
-    if (isHelpMode) {
-        console.log("these commands can be used: test server public init watch from");
-    } else if (isRobber) {
-        var fullpath = process.cwd();
-
-        setenv({
-            public_path: fullpath,
-            record_path: fullpath,
-            app: "./"
-        });
-
-        require("./server/main");
-    } else if (isLone) {
-        let fs = require("fs");
-        let currentpath = process.cwd(), config = {
-            page_path: currentpath,
-            comm: "./,zimoli",
-            coms_path: '',
-            app: './',
-            page: './'
-        };
+var detectEnvironment = function () {
+    let fs = require("fs");
+    let currentpath = process.cwd(), config = {
+        page_path: currentpath,
+        comm: "./,zimoli",
+        coms_path: '',
+        app: './',
+        page: './',
+    };
+    var env_path = [];
+    return new Promise(function (ok) {
         fs.readdir(currentpath, function (error, names) {
             if (error) return console.error(error);
             var coms_path = [];
             names.filter(function (name) {
                 return fs.statSync(name).isDirectory()
             }).forEach(function (name) {
-                if (/lib|com|fun|dep/.test(name)) {
-                    coms_path.push( name);
+                if (/src|source/.test(name)) {
+                    config.page_path = name;
+                    coms_path.push(name);
+                } else if (/lib|com|fun|dep/.test(name)) {
+                    coms_path.push(name);
+                } else if (/env|conf/.test(name)) {
+                    env_path.push(name);
                 }
             });
             coms_path.push(':');
             config.coms_path = coms_path.join(',');
+            var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
+            env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
+            if (1 !== env_path.length) {
+                setenv(config);
+            } else {
+                process.env.config_path = env_path[0];
+                require("./process/setupenv");
+            }
+            ok();
         });
-        setenv(config);
-        require("./tester/main");
+    });
+};
+try {
+
+    if (isHelpMode) {
+        console.log("these commands can be used: test server public init watch from");
+    } else if (isRobber) {
+        var fullpath = process.cwd();
+        setenv({
+            public_path: fullpath,
+            record_path: fullpath,
+            app: "./"
+        });
+        require("./server/main");
+    } else if (isLone) {
+        detectEnvironment().then(function () {
+            require("./tester/main");
+        }).catch(error);
     } else if (isDocsCommand) {
         setenv({
             public_path: path.join(__dirname, "apps"),
@@ -125,7 +143,9 @@ try {
     } else if (isWatchMode) {
         require("./tools/watch");
     } else if (loadModule.length > 0) {
-        require("./process/efront")(loadModule[0]);
+        detectEnvironment().then(function () {
+            require("./process/efront")(loadModule[0]);
+        }).catch(console.error);
     } else if (isStartCommand) {
         require("./process/setupenv");
         require("./server/main");

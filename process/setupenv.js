@@ -2,7 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 var gbk2utf8 = require("./gbk2utf8");
-var reg_set = /^\s*@?\s*(?:set|setx)\s+(.*?)\s*=\s*(['"`]?)([\s\S]*)\2$/im;
+var reg_set = /^\s*@?\s*(?:set|setx|export)\s+(.*?)\s*=\s*(['"`]?)([\s\S]*)\2$/im;
 var reg_call = /^\s*@?\s*call\s+(["]?)(.+?)\1([\s\S]*)$/i;
 var reg_for = /^\s*@?\s*for\s+([%\w]+)\s+in\s*\((.*?)\)\s*do\s+(.*?)$/i;
 
@@ -54,7 +54,7 @@ var call = function (file, args = []) {
         }
         fs.readdirSync(_dir).forEach(function (name) {
             if (!_file) {
-                if (name.startsWith(_name) && /\.(bat|cmd)$/i.test(name)) {
+                if (name.startsWith(_name) && /\.(bat|cmd|sh)$/i.test(name)) {
                     _file = path.join(_dir, name);
                 }
             }
@@ -125,8 +125,8 @@ var get = function (text) {
     return text;
 };
 
-call("./_envs/setup.bat");
-call(path.join(__dirname, "../_envs/setup.bat"));
+call("./_envs/setup");
+call(path.join(__dirname, "../_envs/setup"));
 
 var cache = {};
 var setup = module.exports = function (appname) {
