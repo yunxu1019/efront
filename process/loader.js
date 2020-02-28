@@ -381,7 +381,7 @@ var executer = function (text, name, then, prebuild, parents) {
             var _this = window;
             if (~indexOf_define) {
                 _this = args[indexOf_define];
-                args[indexOf_define] = function (m_name, requires, exec) {
+                args[indexOf_define] = args[indexOf_require] || function (m_name, requires, exec) {
                     if (m_name instanceof Function) {
                         exec = m_name;
                         return exec.call(_this);
@@ -412,7 +412,18 @@ var executer = function (text, name, then, prebuild, parents) {
                 then(exports);
             };
             if (~indexOf_require) {
+                var require = args[indexOf_require];
                 var required = functionArgs[argslength << 1];
+                if (require) {
+                    if (required) {
+                        required = get_relatives(name, required.split(';'));
+                        args[indexOf_require] = function (i) {
+                            return require(required[i]);
+                        };
+                    }
+                    hire();
+                    return;
+                }
                 args[indexOf_require] = function (refer) {
                     return required[refer];
                 };
@@ -492,10 +503,9 @@ var init = function (name, then, prebuild, parents) {
             if (prebuild && argName in prebuild) {
                 return prebuild[argName];
             }
-            if (argName === "global") return window;
             if (argName === "module") return module;
-            if (argName === "exports" || argName === "define") return exports;
-            if (argName === 'undefined' || argName === "require" || argName === "define") return void 0;
+            if (argName === "exports") return exports;
+            if (/^(?:window|require|define|global)$/) return window[argName];
             return new Promise(function (ok, oh) {
                 init(argName, ok, prebuild, parents);
             });
