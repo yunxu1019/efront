@@ -1,7 +1,6 @@
 console.log("西瓜视频");
-var _signature = "blSUNAAgEBGEH-JoDPVngm5UlCAADAF";
+var _signature = "kW-zdAAgEB57JMUoHGvgvJFvs2AAM9D";
 data.loadConfig(efrontURI + 'ixigua.json');
-
 function follow(roomId = 171493, unfollow) {
     var room = data.from("room-info", { _signature, roomId });
     return room.loading_promise.then(function () {
@@ -9,11 +8,17 @@ function follow(roomId = 171493, unfollow) {
         var json = JSON.parse(room.text);
         var { anchorInfo } = json || {};
         if (anchorInfo) {
-            return data.from(unfollow ? "unfollow" : "follow", {
-                ToUserId: anchorInfo.id,
-                _signature
+            data.from("is-followed", {
+                anchor_id: anchorInfo.id
             }).loading_promise.then(function (res) {
-                console.log(anchorInfo.name, roomId);
+                if (res.data) return console.log("跳过", anchorInfo.name, roomId);
+                return data.from(unfollow ? "unfollow" : "follow", {
+                    ToUserId: anchorInfo.id,
+                    _signature
+                }).loading_promise
+                    .then(function (res) {
+                        console.log(anchorInfo.name, roomId);
+                    });
             }).catch(function () {
 
             });
@@ -22,14 +27,12 @@ function follow(roomId = 171493, unfollow) {
 }
 
 if (!sessionStorage.id) {
-    sessionStorage.id = 2555;
+    sessionStorage.id = 238;
 }
 function run() {
     var id = +sessionStorage.id;
-    if (id > 1000000) return;
+    if (id > 171493) return;
     follow(id++).then(run).catch(run);
     sessionStorage.id = id;
 }
-for(var i=0;i<10;i++)run();
-
-// console.log(room);
+for (var i = 0; i < 100; i++)run();

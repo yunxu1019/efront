@@ -2,6 +2,7 @@
     "https://live.ixigua.com/?_signature": {
         "room-info": "get:script#SSR_HYDRATED_DATA :roomId#text=!innerHTML",
         "follow":"post api/room/follow ",
+        "is-followed":"get api/room/is_followed?anchor_id ",
         "unfollow":"post api/room/unfollow"
     }
 }
