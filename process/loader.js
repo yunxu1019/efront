@@ -505,7 +505,7 @@ var init = function (name, then, prebuild, parents) {
             }
             if (argName === "module") return module;
             if (argName === "exports") return exports;
-            if (/^(?:window|require|define|global)$/) return window[argName];
+            if (/^(?:window|require|define|global)$/.test(argName)) return window[argName];
             return new Promise(function (ok, oh) {
                 init(argName, ok, prebuild, parents);
             });
