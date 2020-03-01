@@ -26,6 +26,15 @@ function follow(roomId = 171493, unfollow) {
     });
 }
 
+function sendGift() {
+    data.from("send-gift", {
+        RoomID: "6799273621991721732",
+        GiftID: 794,
+        Count: 1,
+        AnchorID: "2502117767781981",
+    });
+}
+
 if (!sessionStorage.id) {
     sessionStorage.id = 238;
 }
