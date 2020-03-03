@@ -85,7 +85,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
             oStyle.replace(/^;+|;+$/g, "").split(/;+/).map(function (kv) {
                 var [k, v] = kv.split(":");
                 delete styleobject[k];
-                if (k && v) styleobject[k] = v;
+                if (k) styleobject[k] = v || '';
             });
         }
     } else if (oStyle instanceof Object) {
@@ -102,7 +102,9 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
         if (k && !(k in styleobject)) rowStyles.push(kv);
     });
     for (var k in styleobject) {
-        rowStyles.push(k + ":" + styleobject[k]);
+        if (styleobject[k]) {
+            rowStyles.push(k + ":" + styleobject[k]);
+        }
     }
     var innerCss = `${targetSelector}{${rowStyles.join(";")}}`;
     innerCss = color.transform(innerCss);
