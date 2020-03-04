@@ -21,8 +21,8 @@ function cast(target, type, data) {
     }
     if (!(target instanceof Object)) throw new Error("cast只能使用在对象上！");
 
-    type = `care(${type})`;
     var datakey = `cast(${type})`;
+    type = `care(${type})`;
     if (target[type] instanceof Array) {
         target[type].forEach(function (listener) {
             if (listener instanceof Function) {
