@@ -10,9 +10,6 @@ function care(target, type, listener) {
     if (!target[type]) {
         target[type] = [];
     }
-    if (!target[type]) {
-        target[type] = [];
-    }
     var listeners = target[type];
     if (listener instanceof Function && !~listeners.indexOf(listener)) {
         if (listeners.length > 600) throw new Error("请不要在同一个对象上使用过多的同类型的care!");
