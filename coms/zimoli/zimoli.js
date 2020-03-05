@@ -197,11 +197,14 @@ var page_generators = {};
  * 如果args是bool值true，那么当执行history.back()时，此对象被清除
  */
 var loading_tree = {};
-function prepare(pagepath, ok) {
-    var pgpath = /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
-    if (page_generators[pagepath]) {
+var getpgpath = function (pagepath) {
+    return /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
+};
+function prepare(pgpath, ok) {
+    var pgpath = getpgpath(pgpath);
+    if (page_generators[pgpath]) {
         if (isFunction(ok)) {
-            var res = page_generators[pagepath];
+            var res = page_generators[pgpath];
             if (!res.roles) {
                 ok(res);
             } else {
@@ -212,18 +215,18 @@ function prepare(pagepath, ok) {
         }
         return;
     }
-    if (loading_tree[pagepath]) {
+    if (loading_tree[pgpath]) {
         if (isFunction(ok)) {
-            loading_tree[pagepath].push(ok);
+            loading_tree[pgpath].push(ok);
         }
         return;
     }
-    loading_tree[pagepath] = [];
+    loading_tree[pgpath] = [];
     if (isFunction(ok)) {
-        loading_tree[pagepath].push(ok);
+        loading_tree[pgpath].push(ok);
     }
 
-    var _zimoli_state_key = _zimoli_state_prefix + pagepath;
+    var _zimoli_state_key = _zimoli_state_prefix + pgpath;
     var state = function state(condition, setAsAdditional = condition !== null) {
         var state_string = hostoryStorage.getItem(_zimoli_state_key);
         var state_object;
@@ -262,16 +265,16 @@ function prepare(pagepath, ok) {
     };
     state.path = function (url) {
         if (isString(url) && /^[^\\\/]/.test(url)) {
-            url = pagepath.replace(/[^\/]*$/, url);
+            url = pgpath.replace(/[^\/]*$/, url);
         }
         return url;
     }
     state.go = function (url, args, _history_name) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
         var to = function (_url, args, _history_name) {
-            return go(state.path(_url), args, _history_name, pagepath);
+            return go(state.path(_url), args, _history_name, pgpath);
         };
-        to = page_generators[pagepath] ? page_generators[pagepath].go || to : to;
+        to = page_generators[pgpath] ? page_generators[pgpath].go || to : to;
         isFunction(to) && to(url, args, _history_name);
     };
 
@@ -282,7 +285,7 @@ function prepare(pagepath, ok) {
                 res = state.go(menu, item);
             } else if (menu && menu.path) {
                 menu = Object.assign({}, menu, { path: state.path(menu.path) });
-                res = go(menu, undefined, undefined, pagepath);
+                res = go(menu, undefined, undefined, pgpath);
             } else {
                 res = action(menu);
             }
@@ -315,7 +318,7 @@ function prepare(pagepath, ok) {
     };
     var emit = function (pg) {
         if (pg) {
-            page_generators[pagepath] = {
+            page_generators[pgpath] = {
                 pg,
                 roles,
                 state,
@@ -324,31 +327,32 @@ function prepare(pagepath, ok) {
                 prepares
             };
         }
-        var res = page_generators[pagepath];
-        var emiters = loading_tree[pagepath];
+        var res = page_generators[pgpath];
+        var emiters = loading_tree[pgpath];
         if (emiters) {
             var noRoles = !res.roles;
             while (emiters.length) {
                 var ok = emiters.shift();
                 if (isFunction(ok)) {
-                    ok(res)
+                    ok(res);
                 }
                 if (noRoles && res.roles) {
-                    prepare(user.loginPath, () => emit())
+                    prepare(user.loginPath, () => emit());
                     return;
                 }
             }
         }
-        delete loading_tree[pagepath];
+        delete loading_tree[pgpath];
     };
     return init(pgpath, function (pg) {
+
         if (!pg) return;
         if (roles) return prepare(user.loginPath, () => emit(pg));
         emit(pg);
     }, state);
 }
 function create(pagepath, args, from, needroles) {
-    var page_object = pagepath instanceof Object ? pagepath : page_generators[pagepath];
+    var page_object = pagepath instanceof Object ? pagepath : page_generators[getpgpath(pagepath)];
     if (!page_object) {
         throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
     }

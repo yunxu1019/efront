@@ -13,11 +13,9 @@ function main(config, item) {
                 }
                 var args = extend({}, config.modal instanceof Object ? config.modal : { path: config.modal },
                     config.params ? { params } : {}, item ? { item } : {});
-                init("zimoli", function (zimoli) {
-                    zimoli.prepare(path, function () {
-                        var page = popup(path, args);
-                        ok(page);
-                    });
+                popup.prepare(path, function () {
+                    var page = popup(path, args);
+                    ok(page);
                 });
                 return;
             }
