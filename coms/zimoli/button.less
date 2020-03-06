@@ -142,14 +142,15 @@ a&,
     color      : @default-color;
     cursor     : pointer;
     outline    : none;
-    .clear(){
+
+    .clear() {
         >.track {
             box-shadow: none;
             background: none;
         }
     }
 
-    
+
     &:hover,
     &.hover {
         text-shadow: none;
@@ -157,7 +158,7 @@ a&,
         color      : lighten(@default-color, 10%);
         .clear();
     }
-    
+
     &.active,
     &:active {
         text-shadow: none;
@@ -193,7 +194,7 @@ a&,
 .type(candidate, #61d5a6, #fff);
 .type(inactive, #94a5bd, #fff);
 .type(disabled, #ccc, #fff);
-.type(dark, #333, #000);
+.type(dark, #000, #fff);
 .type(white, #fff, #666);
 .type(danger, #c46, #fff);
 
