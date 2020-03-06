@@ -1,27 +1,38 @@
 & {
-    padding  : 10px 0 4px 0;
-    max-width: 100%;
-    width    : 360px;
-    height   : auto;
-    overflow : hidden;
+    padding   : 50px 0 4px 0;
+    max-width : 100%;
+    width     : 360px;
+    height    : auto;
+    overflow  : hidden;
+    box-sizing: border-box;
 }
 
 &>.body,
 &>:not(:first-child):not(:last-child) {
-    padding      : 10px 0;
-    background   : #f2f4f6;
-    overflow     : auto;
+    padding   : 10px 0;
+    background: #f2f4f6;
+    overflow  : auto;
+    
+    position  : relative;
+    box-sizing: border-box;
 }
 
 &>.head,
 &>:first-child {
+    background   : #fff;
+    z-index      : 1;
+    margin-top   : -50px;
+    position     : relative;
     line-height  : 40px;
     color        : #333;
-    padding      : 0 16px;
+    padding      : 10px 16px 0 16px;
     border-bottom: 1px solid rgba(0, 0, 0, .16);
-    background   : #fff;
 }
 
+&>.foot {
+    white-space: nowrap;
+    overflow   : auto;
+}
 
 &>.foot,
 &>:last-child {
