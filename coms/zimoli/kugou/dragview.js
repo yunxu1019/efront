@@ -13,11 +13,11 @@ var dragview = function (event) {
 
             if (!moving) {
                 if (Math.abs(deltaX) < MOVELOCK_DELTA && Math.abs(deltaY) < MOVELOCK_DELTA) return;
-                if (deltaX > 0 && !parseInt(page.style.left) || Math.abs(deltaY) >= Math.abs(deltaX)) {
+                if (deltaX > 0 && !freeOffset(page.style.left || 0) || Math.abs(deltaY) >= Math.abs(deltaX)) {
                     moving = -1;
                 } else {
                     moving = {
-                        restX: page.offsetLeft - savedX
+                        restX: page.offsetLeft - savedX || 0
                     };
                 }
             }
@@ -26,14 +26,14 @@ var dragview = function (event) {
             page.style.marginLeft = 0;
             moving.deltaX = deltaX;
             var left = event.clientX + moving.restX;
-            page.style.left = left + "px";
+            page.style.left = fromOffset(left);
             var scale = ((page.offsetWidth - left / 2.6) / page.offsetWidth);
             page.style.transform = "scale(" + scale + ")";
             menu.style.transform = "scale(" + (1.72 - scale) + ")";
         },
         end() {
             if (moving && moving !== -1) {
-                var left = parseInt(page.style.left);
+                var left = freeOffset(page.style.left || 0);
                 if (moving.deltaX < 0 && left > page.offsetWidth * 0.3 || moving.deltaX > 0 && left > page.offsetWidth * 0.7 || !moving.deltaX && left > page.offsetWidth >> 1) {
                     dragview.toRight();
                 } else {

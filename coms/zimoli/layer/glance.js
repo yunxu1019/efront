@@ -41,7 +41,7 @@ var dragview = function (dragview) {
                     moving = -1;
                 } else {
                     moving = {
-                        restX: (parseInt(page.style.left) || 0) - savedX
+                        restX: freeOffset(page.style.left || 0) - savedX
                     };
                     page.style.transition = 'none';
                 }
@@ -51,12 +51,12 @@ var dragview = function (dragview) {
             event.moveLocked = true;
             moving.deltaX = deltaX;
             var left = event.clientX + moving.restX;
-            page.style.left = left + "px";
+            page.style.left = fromOffset(left);
         },
         end() {
             page.style.transition = '';
             if (moving && moving !== -1) {
-                var left = parseInt(page.style.left);
+                var left = freeOffset(page.style.left || 0);
                 if (moving.deltaX < 0 && left > offsetWidth * 0.3 || moving.deltaX > 0 && left > offsetWidth * 0.7 || !moving.deltaX && left > offsetWidth >> 1) {
                     page.style.left = 0;
                     dragview.toRight();
