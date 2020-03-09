@@ -30,8 +30,5 @@ function cast(target, type, data) {
             }
         });
         target[datakey] = data;
-        if (listener instanceof Function) {
-            target[type].push(listener);
-        }
     }
 }
