@@ -3,7 +3,7 @@ function main() {
     page.innerHTML = playList;
     render(page, {
         btn: button,
-        musicList,
+        musicList: kugou$musicList,
         list(elem) {
         }
     });
