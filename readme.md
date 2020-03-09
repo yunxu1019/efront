@@ -267,10 +267,16 @@ render(){
 ```html
 <!-- efront/(zimoli) 使用 render(element,scope)功能 -->
 <component1 ng-bind="expression"></component1>
+<!--  efront/(zimoli) 使用 render(element,scope)功能 设置 js对象属性 element[key]=value -->
 <image _src="expression" />
 <image .src="expression" />
 <image :src="expression" />
 <image @src="expression" />
+<!--  efront/(zimoli) 使用 render(element,scope)功能 设置 元素属性 element.setAttribute(key,value) -->
+<image src_="expression" />
+<image src.="expression" />
+<image src:="expression" />
+<image src@="expression" />
 ```
 
 4. 双向/逆向/事件绑定
@@ -280,7 +286,7 @@ render(){
 <input ng-model="expression" />
 <button ng-click="expression" ></button>
 <!-- angular 2+ -->
-<component1 [ngModel]="expression" ></component1>
+<component1 [(ngModel)]="expression" ></component1>
 <component1 (click)="expression" ></component1>
 ```
 
@@ -385,7 +391,7 @@ class ComponentName extends Component {
 ```html
 <!-- vue --> 
 <template>
-    <component><component>
+    <component></component>
 </template>
 <script>
    var component = Vue.component("component-name",{/* config*/});
