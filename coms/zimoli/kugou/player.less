@@ -13,7 +13,8 @@
 }
 
 &.play .play:before {
-    content: "■";
+    content    : "█";
+    font-family: 宋体;
 }
 
 .avatar,
@@ -138,25 +139,32 @@
     opacity         : .95;
     transition      : height .3s ease-out, opacity .5s;
 
-    >div {
+    >btn {
         text-align    : center;
         line-height   : 60px;
         width         : 50px;
+        height        : 60px;
         vertical-align: top;
         position      : relative;
+        background    : transparent;
 
         &.info,
+        &.prev,
+        &.list,
         &.next,
         &.play {
             z-index: 2;
         }
     }
 
-    >div.info {
-        width      : calc(~'100% - 100px');
-        line-height: 30px;
-        text-align : left;
-        padding    : 0 5px;
+    >.info {
+        width       : 100%;
+        margin-right: -200px;
+        line-height : 30px;
+        text-align  : left;
+        padding     : 0 5px;
+        z-index     : 2;
+        position    : relative;
 
         >div {
             text-overflow: ellipsis;
@@ -188,6 +196,10 @@
     >.krc {
         margin-top: -90px;
     }
+
+    >.track {
+        display: none;
+    }
 }
 
 &>.krc {
@@ -209,7 +221,7 @@
 }
 
 &>.background {
-    background-color: #000;
+    background-color   : #000;
     opacity            : 1;
     transition         : opacity 1s ease-in;
     position           : absolute;
@@ -224,7 +236,7 @@
     background-size    : cover;
     background-repeat  : no-repeat;
     background-position: center;
-    
+
     &:before {
         content   : "";
         display   : block;
@@ -236,16 +248,36 @@
         bottom    : 0;
         filter    : blur(15px);
     }
-    
+
     &:after {
         background-color: #000;
-        opacity : .6;
-        content : "";
-        display : block;
-        position: absolute;
-        left    : 0;
-        right   : 0;
-        top     : 0;
-        bottom  : 0;
+        opacity         : .6;
+        content         : "";
+        display         : block;
+        position        : absolute;
+        left            : 0;
+        right           : 0;
+        top             : 0;
+        bottom          : 0;
     }
+}
+
+>.list {
+    &:before {
+        content: "≡";
+    }
+}
+
+>.prev {
+    &:before {
+        content: "◁";
+    }
+}
+
+>.next {
+    &:before {
+        content: "▷";
+    }
+
+    &:after {}
 }

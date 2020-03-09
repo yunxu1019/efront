@@ -10,14 +10,17 @@ var getSingerAvatar = function () {
 var oncanplay = on("canplay"), ondataloaded = on("loadeddata");
 
 on("keydown")(window, function (event) {
-    if (!player.audio) return;
+    var { target } = event;
+    if (/^(input|select|textarea)$/i.test(target.tagName)) return;
+    var $scope = player.$scope;
+    if (!$scope.audio) return;
     switch (event.keyCode || event.which) {
         case 13:
         case 27:
         case 32:
             if (event.repeat) break;
-            if (player.playing) player.pause();
-            else player.play();
+            if ($scope.playing) $scope.pause();
+            else $scope.play();
             break;
         case 37:
             // left
@@ -25,81 +28,43 @@ on("keydown")(window, function (event) {
         case 39:
             // right
             break;
+        case 33:
+        //page up
         case 38:
             // up
+            $scope.page = true;
             break;
+        case 34:
+        //page down
         case 40:
             // down
+            $scope.page = false;
             break;
+        case 221:
+            // ]
+
+            break;
+        case 219:
+            // [
+            break;
+
+        default: console.log(event.keyCode);
     }
 })
 var createControls = function () {
     var box = createWithClass(div, "player-box");
-    var play = createWithClass(div, "play");
-    var next = createWithClass(div, "next");
-    var prev = createWithClass(div, "prev");
-    var song = createWithClass(div, "song");
-    var singer = createWithClass(div, "singer");
-    var info = createWithClass(div, "info");
-    var track = createWithClass(div, "track");
-    var progress = createWithClass(div, "progress");
-    var background = createWithClass(div, "background");
-    progress.innerHTML = "<div class=track></div><div class=avatar></div>";
-    appendChild(info, song, singer);
-    var avatar = createWithClass(div, "avatar");
-    appendChild(box, background, progress, track, avatar, info, play, next);
-    var pauseCss = function () {
-        removeClass(box, "play");
-        addClass(box, "pause");
-    };
-    var playCss = function () {
-        removeClass(box, "pause");
-        addClass(box, "play");
-    };
-    onclick(play, function () {
-        if (box.playing) {
-            box.pause();
-        } else {
-            box.play();
-        }
-    });
-    var player_page = false;
-    onclick(box, function (event) {
-        var { target } = event;
-        if (target === play || target === next || target === prev || target === song) {
-            return;
-        }
-        player_page = !player_page;
-        if (player_page) {
-            addClass(box, "page");
-        } else {
-            removeClass(box, "page");
-        }
-    });
+    box.setAttribute("ng-class", "{play:playing,pause:!playing,page:page}")
+    box.innerHTML = Player;
+    var [background, progress, track, avatar] = box.children;
 
-    box.pauseCss = pauseCss;
-    box.playCss = playCss;
-    box.apply = function (data) {
-        text(singer, data.choricSinger);
-        text(song, data.songName);
-        document.title = data.songName;
-        css(avatar, {
-            backgroundImage: `url('${data.imgUrl.replace(/\{size\}/g, 200)}')`
-        });
-        css(background, {
-            backgroundImage: `url('${data.imgUrl.replace(/\{size\}/g, 200)}')`
-        })
-    };
-    box.reset = function () {
-        playCss();
-    };
     box.process = function (currentTime, duration) {
         if (currentTime === duration) {
             box.pause();
             return false;
         }
-        if (krc_pad && krc_pad.process instanceof Function) {
-            krc_pad.process(currentTime, duration);
+        var $scope = box.$scope;
+        if ($scope && $scope.krcpad && $scope.krcpad.process instanceof Function) {
+            $scope.krcpad.process(currentTime, duration);
         }
         css(avatar, `transform:rotate(${currentTime * 6}deg);-webkit-transform:rotate(${currentTime * 6}deg);`);
         css(progress, `width:${(currentTime * 100 / duration)}%;`);
@@ -108,7 +73,7 @@ var createControls = function () {
         if (value) {
             box.touching = true;
             var { x } = value;
-            var audio = box.audio;
+            var audio = box.$scope.audio;
             box.process(x / box.offsetWidth * audio.duration, audio.duration);
         }
         return { x: progress.offsetWidth };
@@ -118,7 +83,7 @@ var createControls = function () {
         },
         end() {
             if (!box.touching) return;
-            var audio = box.audio;
+            var audio = this.$scope.audio;
             audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth
             box.touching = false;
         }
@@ -128,61 +93,82 @@ var createControls = function () {
     } else {
         appendChild(document.body, box);
     }
-    var krc_pad;
-    box.krc = function (data) {
-        remove(krc_pad);
-        krc_pad = kugou$krc(data);
-        addClass(krc_pad, "krc")
-        appendChild(box, krc_pad);
-    };
     return box;
 };
 var player = function (box = div()) {
-    box.playing = false;
     var updater = function () {
         if (box.process instanceof Function && !box.touching) {
-            if (box.process(box.audio.currentTime, box.audio.duration) == false) {
+            var audio = box.$scope.audio;
+            if (box.process(audio.currentTime, audio.duration) == false) {
                 return;
             };
         }
     };
-    box.play = function (hash = this.hash) {
-        this.playCss && this.playCss();
-        if (hash === this.hash) {
-            if (this.playing) return;
-            this.playing = true;
-            this.audio && this.audio.play instanceof Function && this.audio.play();
-            return;
+    render(box, {
+        btn: button,
+        krc: kugou$krc,
+        hash: '',
+        info: {},
+        page: false,
+        fullPage() {
+            this.page = !this.page;
+        },
+        pause() {
+            this.playing = false;
+            this.audio && this.audio.pause instanceof Function && this.audio.pause();
+        },
+        playList() {
+            if (!this.activeList) {
+                this.activeList = kugou$playList();
+            }
+            var list = this.activeList;
+            if (!list.parentNode) popup(list);
+            else remove(list);
+        },
+        play(hash = this.hash) {
+            this.playCss && this.playCss();
+            if (hash === this.hash) {
+                if (this.playing) return;
+                this.playing = true;
+                this.audio && this.audio.play instanceof Function && this.audio.play();
+                return;
+            }
+            box.pause();
+            /**
+             * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
+             */
+            this.playing = false;
+            var audio = document.createElement("audio");
+            if (audio.play) {
+                audio.ontimeupdate = updater;
+                audio.play();//安卓4以上的播放功能要在用户事件中调用;
+            } else {
+                // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
+                audio = document.createElement("embed");
+                audio.type = "audio/mpeg";
+                audio.autostart = true;
+                return alert("暂不支持在您的浏览器中播放！");
+            }
+            getMusicInfo(hash).done((xhr) => {
+                var data = JSON.parse(xhr.responseText);
+                if (data.imgUrl) {
+                    data.avatar = data.imgUrl.replace(/\{size\}/ig, 200);
+                    data.avatarUrl = `url('${data.avatar}')`;
+                }
+                extend(this.info, data);
+                cast(this.krcpad, data);
+                audio.src = data.url;
+                document.title = data.songName;
+                this.playing = true;
+            });
+            this.audio = audio;
         }
-        box.pause();
-        box.reset();
-        /**
-         * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
-         */
-        box.playing = true;
-        var audio = document.createElement("audio");
-        if (audio.play) {
-            audio.ontimeupdate = updater;
-            audio.play();//安卓4以上的播放功能要在用户事件中调用;
-        } else {
-            // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
-            audio = document.createElement("embed");
-            audio.type = "audio/mpeg";
-            audio.autostart = true;
-            return alert("暂不支持在您的浏览器中播放！");
-        }
-        getMusicInfo(hash).done(function (xhr) {
-            var data = JSON.parse(xhr.responseText);
-            box.apply(data);
-            box.krc(data);
-            audio.src = data.url;
-        });
-        this.audio = audio;
-    };
+    });
+    box.play = function (hash) {
+        this.$scope.play(hash);
+    }
     box.pause = function () {
-        this.playing = false;
-        this.audio && this.audio.pause instanceof Function && this.audio.pause();
-        this.pauseCss && this.pauseCss();
+        this.$scope.pause();
     };
     return box;
 }(createControls());
