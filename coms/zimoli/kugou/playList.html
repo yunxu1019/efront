@@ -1,0 +1,8 @@
+<div class="head">
+    播放列表（<span ng-bind="musicList.length"></span>）<btn>添加</btn>
+</div>
+<list class="body" ng-src="p in musicList">
+    <item>
+        <span ng-bind="p.name"></span>
+    </item>
+</list>

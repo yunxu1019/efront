@@ -24,9 +24,9 @@ function bindtouch(target, bindder, lockDirection = "x") {
                     return;
             }
             event.moveLocked = true;
-            var { x = 0, y = 0 } = bindder();
+            var { x = 0, y = 0 } = bindder.call(this);
             x += deltax, y += deltay;
-            bindder({ x, y }, event);
+            bindder.call(this, { x, y }, event);
             saved_x = clientX;
             saved_y = clientY;
         },
