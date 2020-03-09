@@ -1,8 +1,6 @@
 "use strict";
 var window = this;
 var {
-    RegExp,
-    Object,
     parseInt,
     XMLHttpRequest,
     ActiveXObject,
@@ -20,6 +18,7 @@ var {
     location,
     console,
     efrontURI,
+    parseFloat,
     PREVENT_FRAMEWORK_MODE,
     startPath: efrontPath,
     request = function (url, onload, onerror) {
@@ -75,6 +74,12 @@ var initPixelDecoder = function () {
         modules.calcPixel = window.calcPixel || function () {
             throw new Error("您在window上实现了pixelDecoder，请手动实现相应的calcPixel!");
         };
+        modules.fromOffset = window.fromOffset || function () {
+            throw new Error("您在window上实现了pixelDecoder，请手动实现相应的fromOffset!");
+        };
+        modules.freeOffset = window.freeOffset || function () {
+            throw new Error("您在window上实现了pixelDecoder，请手动实现相应的freeOffset!");
+        };
         return;
     }
     var maxRenderWidth = +document.body.getAttribute('max-render');
@@ -87,15 +92,19 @@ var initPixelDecoder = function () {
         /**
          * 从offset到pt
          */
-        modules.fromOffset = pixelDecoder;
+        modules.fromOffset = d => pixelDecoder(freePixel(d));
+        /**
+         * 从pt 到 offset
+         */
+        modules.freeOffset = d => calcPixel(parseFloat(d) / renderPixelRatio);
         /**
          * 从offset到px
          */
-        modules.freePixel = d => d * .75 / renderPixelRatio;
+        var freePixel = modules.freePixel = d => d * .75 / renderPixelRatio;
         /**
          * 从pixel到offset
          */
-        modules.calcPixel = d => d * renderPixelRatio / .75;
+        var calcPixel = modules.calcPixel = d => d * renderPixelRatio / .75;
         document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
     } else {
         /**
@@ -107,13 +116,17 @@ var initPixelDecoder = function () {
          */
         modules.fromOffset = d => freePixel(d) / 16 + "rem";
         /**
+         * 从rem 到 offset
+         */
+        modules.freeOffset = d => calcPixel(parseFloat(d) * 16);
+        /**
          * 从offset到px
          */
         var freePixel = modules.freePixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * .75 / renderPixelRatio : d * .75 / (window.innerWidth / maxRenderWidth * renderPixelRatio);
         /**
          * 从pixel到offset
          */
-        modules.calcPixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * renderPixelRatio / .75 : d * renderPixelRatio / (window.innerWidth / maxRenderWidth * .75);
+        var calcPixel = modules.calcPixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * renderPixelRatio / .75 : d * renderPixelRatio / (window.innerWidth / maxRenderWidth * .75);
         init("css", function (css) {
             var onresize = function () {
                 var fontSize = window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? 16 * renderPixelRatio + "pt" : window.innerWidth / maxRenderWidth * renderPixelRatio * 16 + "pt";
