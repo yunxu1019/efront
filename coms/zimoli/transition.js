@@ -13,6 +13,9 @@ if (!transitionKey in document.body.style) {
 }
 function transition(target, isLeave, _initialStyle = target.initialStyle) {
     if (!target) return;
+    if (typeof isLeave === "string") {
+        isLeave = parseKV(isLeave, ';', ":");
+    }
     if (isLeave instanceof Object && (_initialStyle === true || !_initialStyle)) {
         _initialStyle = isLeave;
         isLeave = arguments[2];
