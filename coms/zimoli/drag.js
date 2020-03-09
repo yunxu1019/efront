@@ -9,7 +9,7 @@ var appendChild = function (a, b) {
     a.appendChild(b);
 };
 function drag(target, initialEvent, overflow) {
-    if(/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName))return;
+    if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName)) return;
     initialEvent.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);
@@ -34,6 +34,7 @@ function drag(target, initialEvent, overflow) {
                 appendChild(document.body, clone);
             } else {
                 clone = target;
+                extraTargets = [];
             }
             extraClones = extraTargets.map(toCloneTarget);
             extraClones.map(c => document.body.appendChild(c));
