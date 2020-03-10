@@ -29,13 +29,15 @@ var genLength = function (number, length) {
  */
 var bindValue = function () {
     var date = {};
-    var defineProperty = function (key, get, set) {
+    var defineProperty = function (key, get, set, c) {
         var m = date[key] = function (arg) {
             if (arguments.length > 0) {
                 return set.call(this, arg);
             }
             return get.call(this);
         };
+        m.format = _format[c] || "";
+
     };
     map.call(model, function (m, c) {
         var i = m === "月" ? 1 : 0;
@@ -71,8 +73,7 @@ var bindValue = function () {
             function set(v) {
                 return this['set' + _model[c]](trim.call(this, v - i));
             }
-        );
-        date[m].format = _format[c] || "";
+            , c);
     });
     return function bindValue(_date) {
         for (var k in date) _date[k] = date[k];
