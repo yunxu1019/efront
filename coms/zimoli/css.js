@@ -3,14 +3,33 @@
  * 2017-5-1 18:33:41
  */
 var stylesheet_Map = {};
+var documentStyle = document.documentElement.style;
+var stylePrefix = function (documentStyle) {
+    if ("-webkit-transform" in documentStyle) return "-webkit-";
+    if ("-moz-transform" in documentStyle) return "-moz-";
+    if ("msImeAlign" in documentStyle || "msTransform" in documentStyle) return "-ms-";
+    if ("-o-transform" in documentStyle) return "-o-";
+    return "";
+}(documentStyle);
+var nodePrefix = stylePrefix.slice(1, stylePrefix.length - 1);
 /**
  * 将中划线转成驼峰式
  * @param {string} key 
  */
 var transformNodeKey = function (key) {
-    return key.replace(/^\-+/, "").replace(/\-+(\w)/g, function (m, w) {
+    key = key.replace(/^\-+/, "").replace(/\-+(\w)/g, function (m, w) {
         return w.toUpperCase();
     });
+    if (/^(?:webkit|moz|ms|o)[A-Z]/.test(key)) {
+        key = key.replace(/^(?:webkit|moz|ms|o)([A-Z])/, (_, m) => m.toLowerCase());
+    }
+    if (nodePrefix && !(key in documentStyle)) {
+        var temp = nodePrefix + key.replace(/^[a-z]/, m => m.toUpperCase());
+        if (temp in documentStyle) {
+            key = temp;
+        }
+    }
+    return key;
 };
 /**
  * 将驼峰式命名转成中划线命名
@@ -20,6 +39,15 @@ var transformCssKey = function (key) {
     key = key.replace(/[A-Z]/g, function (m) {
         return "-" + m.toLowerCase();
     });
+    if (/^\-?(?:webkit|moz|ms|o)\-/.test(key)) {
+        key = key.replace(/^\-?(?:webkit|moz|ms|o)\-/, '');
+    }
+    if (nodePrefix && !(key in documentStyle)) {
+        var temp = stylePrefix + key;
+        if (temp in documentStyle) {
+            key = temp;
+        }
+    }
     return key;
 };
 var isWorseIE = /msie\s+[2-8]/i.test(navigator.userAgent);
@@ -75,7 +103,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
         stylesheet.type = "text/css";
         stylesheet_Map[targetSelector] = stylesheet;
         document.getElementsByTagName("head")[0].appendChild(stylesheet);
-    };
+    }
     var styleobject = {};
     if (typeof oStyle === "string") {
         if (typeof oValue === "string") {
