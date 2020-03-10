@@ -184,9 +184,13 @@ Hello World 目标代码 | &gt;30kb | &gt;30kb | ≈20kb;| ≈1kb;
 
 ### 4. efront/lib
 
-* --component
-* --component
-* --component
+* page
+  * --page1
+  * --page2
+* component
+  * --component1
+  * --component2
+  * --component3
 
 ## 语法对比
 
