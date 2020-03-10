@@ -20,9 +20,6 @@ function option(head = div(), body = div(), foot, splitter, container) {
         css(_head, {
             width: fromPixel(+headWidth + 1)
         });
-        css(_body, {
-            width: 'auto'
-        });
     };
     splitter && divide(splitter);
     var btn = button(box);
