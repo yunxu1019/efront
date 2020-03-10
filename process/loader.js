@@ -301,7 +301,7 @@ var getArgs = function (text) {
         functionBody = text;
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    functionBody = functionBody.replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt") + (quote || ""));
+    functionBody = functionBody.replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt") + (quote || ""));
     return [functionArgs, functionBody];
 };
 var get_relatives = function (name, required) {
@@ -622,7 +622,7 @@ try {
     modules.localStorage = modules.sessionStorage = localStorage;
 }
 
-initIfNotDefined(Promise, "promise", promise => Promise = promise);
+initIfNotDefined(Promise, "Promise", promise => Promise = promise);
 initIfNotDefined([].map, "[]map", map => map);
 var removeGlobalProperty = function (property) {
     forceRequest[property] = true;
