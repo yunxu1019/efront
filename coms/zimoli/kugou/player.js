@@ -2,10 +2,10 @@ var getMusicInfo = function (hash) {
     return cross("get", `http://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=${hash}&from=mkugou`);
 };
 var getLrc = function () {
-    `http://m.kugou.com/app/i/krc.php?cmd=100&keyword=%E9%99%88%E6%98%9F%E3%80%81%E5%BC%A0%E7%BF%94%E8%BD%A9%20-%20%E5%86%B3%E4%B8%8D%E5%9B%9E%E5%A4%B4&hash=77AFF2715498A86AA28AC2DAA29C3FEB&timelength=280000&d=0.2984004589282503`;
+    return `http://m.kugou.com/app/i/krc.php?cmd=100&keyword=%E9%99%88%E6%98%9F%E3%80%81%E5%BC%A0%E7%BF%94%E8%BD%A9%20-%20%E5%86%B3%E4%B8%8D%E5%9B%9E%E5%A4%B4&hash=77AFF2715498A86AA28AC2DAA29C3FEB&timelength=280000&d=0.2984004589282503`;
 };
 var getSingerAvatar = function () {
-    `http://tools.mobile.kugou.com/api/v1/singer_header/get_by_hash?hash=77AFF2715498A86AA28AC2DAA29C3FEB&size=200&format=jsonp&callback=kgJSONP857041635`;
+    return `http://tools.mobile.kugou.com/api/v1/singer_header/get_by_hash?hash=77AFF2715498A86AA28AC2DAA29C3FEB&size=200&format=jsonp&callback=kgJSONP857041635`;
 };
 var oncanplay = on("canplay"), ondataloaded = on("loadeddata");
 
@@ -15,8 +15,6 @@ on("keydown")(window, function (event) {
     var $scope = player.$scope;
     if (!$scope.audio) return;
     switch (event.keyCode || event.which) {
-        case 13:
-        case 27:
         case 32:
             if (event.repeat) break;
             if ($scope.playing) $scope.pause();
@@ -29,13 +27,15 @@ on("keydown")(window, function (event) {
             // right
             break;
         case 33:
-        //page up
+        // page up
         case 38:
+        case 13:// enter
             // up
             $scope.page = true;
             break;
+        case 27:// esc
         case 34:
-        //page down
+        // page down
         case 40:
             // down
             $scope.page = false;
@@ -50,10 +50,21 @@ on("keydown")(window, function (event) {
 
         default: console.log(event.keyCode);
     }
-})
+});
+var fixTime = time => (time < 10 ? '0' : '') + (time | 0) % 60;
+var filterTime = function (a, t) {
+    if (a > t) a = t;
+    var res = [];
+    while (t > 1) {
+        res.unshift(a % 60);
+        a = a / 60 | 0;
+        t = t / 60 | 0;
+    }
+    return res.map(fixTime).join(":");
+}
 var createControls = function () {
     var box = createWithClass(div, "player-box");
-    box.setAttribute("ng-class", "{play:playing,pause:!playing,page:page}")
+    box.setAttribute("ng-class", "{play:playing,pause:!playing,page:page}");
     box.innerHTML = Player;
     var [background, progress, track, avatar] = box.children;
 
@@ -62,12 +73,18 @@ var createControls = function () {
             box.pause();
             return false;
         }
+        if (currentTime > duration) {
+            currentTime = duration;
+        }
         var $scope = box.$scope;
         if ($scope && $scope.krcpad && $scope.krcpad.process instanceof Function) {
             $scope.krcpad.process(currentTime, duration);
         }
-        css(avatar, `transform:rotate(${currentTime * 6}deg);-webkit-transform:rotate(${currentTime * 6}deg);`);
-        css(progress, `width:${(currentTime * 100 / duration)}%;`);
+        $scope.currentTime = filterTime(currentTime, duration);
+        $scope.totalTime = filterTime(duration, duration);
+        $scope.currentRotate = `rotate(${currentTime * 6}deg)`;
+        $scope.currentProcess = `width:${(currentTime * 100 / duration).toFixed(2)}%;`;
+        render.refresh();
     };
     bindtouch(box, function (value) {
         if (value) {
@@ -84,10 +101,10 @@ var createControls = function () {
         end() {
             if (!box.touching) return;
             var audio = this.$scope.audio;
-            audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth
+            audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth;
             box.touching = false;
         }
-    })
+    });
     if (document.body.children.length) {
         appendChild.before(document.body.children[0], box);
     } else {
@@ -99,15 +116,16 @@ var player = function (box = div()) {
     var updater = function () {
         if (box.process instanceof Function && !box.touching) {
             var audio = box.$scope.audio;
-            if (box.process(audio.currentTime, audio.duration) == false) {
+            if (box.process(audio.currentTime, audio.duration) === false) {
                 return;
-            };
+            }
         }
     };
     render(box, {
         btn: button,
         krc: kugou$krc,
         hash: '',
+        currentTime: "00:00",
         info: {},
         page: false,
         fullPage() {
@@ -115,7 +133,7 @@ var player = function (box = div()) {
         },
         pause() {
             this.playing = false;
-            this.audio && this.audio.pause instanceof Function && this.audio.pause();
+            if (this.audio && this.audio.pause instanceof Function) this.audio.pause();
         },
         playList() {
             if (!this.activeList) {
@@ -126,11 +144,11 @@ var player = function (box = div()) {
             else remove(list);
         },
         play(hash = this.hash) {
-            this.playCss && this.playCss();
+            if (this.playCss) this.playCss();
             if (hash === this.hash) {
                 if (this.playing) return;
                 this.playing = true;
-                this.audio && this.audio.play instanceof Function && this.audio.play();
+                if (this.audio && this.audio.play instanceof Function) this.audio.play();
                 return;
             }
             box.pause();
@@ -166,7 +184,7 @@ var player = function (box = div()) {
     });
     box.play = function (hash) {
         this.$scope.play(hash);
-    }
+    };
     box.pause = function () {
         this.$scope.pause();
     };
