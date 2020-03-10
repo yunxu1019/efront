@@ -62,7 +62,16 @@ function toApplication(responseTree) {
             function (m, s1, s2) {
                 return xTreeName + `${s1}=${s2}${code}`;
             }
-        );
+        )
+        // .replace(/[\<\>]/g, function (a) {
+        //     switch (a) {
+        //         case "<": return "&lt;";
+        //         case ">": return "&gt;";
+        //     }
+        //     return a;
+        // })
+        ;
+
     var isZimoliDetected = false;
     var poweredByComment;
     var ReleaseTime = new Date().toString();
@@ -70,7 +79,7 @@ function toApplication(responseTree) {
         .replace(/^\s*(<!doctype[^>]*?>\s*)?<!--([\s\S]*?)-->/i, function (_, doctype, message) {
             // `${doctype}<!--${message}\r\n${efrontReloadVersionAttribute}-->`
             poweredByComment = _;
-            return ""
+            return "";
         })
         .replace(/<!--[\s\S]*?-->/g, "")
         .replace(/<title>(.*?)<\/title>/i, `<title>${process.env.TITLE || "$1"}</title>`)
@@ -78,8 +87,8 @@ function toApplication(responseTree) {
             if (/(["'`])post\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
                 isZimoliDetected = true;
                 return "";
-            };
-            if (/\bdeleteoncompile\b/i.test(script.replace(/(['"]).*?\1/g, ""))) {
+            }
+            if (/\bdeleteoncompile\b/i.test(script)) {
                 return "";
             }
             return script;
