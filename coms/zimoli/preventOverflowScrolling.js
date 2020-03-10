@@ -1,7 +1,4 @@
-var iosOverflowScrolling = document.createElement("div");
-css(iosOverflowScrolling, "-webkit-overflow-scrolling:auto");
-iosOverflowScrolling = iosOverflowScrolling.style.webkitOverflowScrolling;
-if (iosOverflowScrolling) {
+if ("webkitOverflowScrolling" in document.documentElement.style) {
     var preventOverflowScrolling = function (target) {
         ontouchmove(target, event => event.preventDefault());
     };
