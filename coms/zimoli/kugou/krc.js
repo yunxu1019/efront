@@ -14,7 +14,6 @@ function krc(list = div()) {
                 var content = fromBase64(krc.content);
                 content = content.slice(4).map((a, i) => a ^ secret[i % 16]);
                 var bufff = inflate(content.slice(2));
-                var saved_time = new Date;
                 var krc = decodeUTF8(bufff);
                 remove(list.children);
                 var children = createKRC(krc);
@@ -72,22 +71,27 @@ function createKRC(krc) {
             if (ele && firstChild && firstChild.isMounted) {
                 var marginTop = (firstChild.parentNode.offsetHeight - ele.offsetHeight >> 1) - ele.offsetTop + firstChild.offsetTop;
                 if (index > 0) {
-                    krcList.slice(0, index).map(function (a) {
-                        removeClass(a, "active after")
-                        addClass(a, "before");
-                    });
-                    removeClass(ele, "after before");
-                    addClass(ele, "active");
+                    if(krcList.index!==index){
+                        krcList.index = index;
+                        krcList.slice(0, index).map(function (a, cx, arr) {
+                            removeClass(a, "active after after-active before-active");
+                            addClass(a, "before");
+                        });
+                        removeClass(ele, "after before after-active before-active");
+                        addClass(krcList[index - 1], 'before-active');
+                        addClass(ele, "active");
+                        krcList.slice(index + 1).map(function (a) {
+                            removeClass(a, "before active after-active before-active");
+                            addClass(a, "after");
+                        });
+                        if (index + 2 < krcList.length) addClass(krcList[index + 1], 'after-active');
+                    }
                     var word_ele = ele.children[current_row_index];
-                    krcList.slice(index + 1).map(function (a) {
-                        removeClass(a, "before active");
-                        addClass(a, "after");
-                    });
                     if (markerLabel.parentNode !== ele) {
                         appendChild(ele, markerLabel);
                     }
                     var rowData = current_words.map(a => a.label).join("");
-                    if (text(markerLabel) != rowData) {
+                    if (text(markerLabel) !== rowData) {
                         text(markerLabel, rowData);
                     }
                     var widthRatio = (current_row_offset - current_row_word.value) / current_row_word.timeLength;
