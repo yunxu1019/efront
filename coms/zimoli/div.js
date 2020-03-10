@@ -1,6 +1,6 @@
 function div(elem) {
     if (isNode(elem) && /div/i.test(elem.tagName)) return elem;
-    var div = createElement("div");
+    var div = document.createElement("div");
     if (elem) {
         if (isString(elem)) {
             div.innerHTML = elem;
