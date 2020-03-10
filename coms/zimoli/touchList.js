@@ -5,7 +5,7 @@ var createDelete = function () {
     _div.innerHTML = template;
     _div = _div.children[0];
     remove(_div);
-    var height = this.offsetHeight + "px"
+    var height = this.offsetHeight + "px";
     css(_div, {
         height,
         lineHeight: height
@@ -14,7 +14,7 @@ var createDelete = function () {
     return _div;
 };
 var touchstart = function (event) {
-    var target = getTargetIn(this, event.target);
+    var target = getTargetIn(this, event.target, false);
     if (currentOpen && currentOpen !== target) {
         scrollToRight.call(currentOpen);
     }
@@ -99,14 +99,17 @@ var touchend = function () {
     }
 };
 function touchList(listElement) {
+    var saved_y = listElement.scrollTop;
     on("scroll")(listElement, function () {
-        currentOpen && scrollToRight.call(this);
+        if (this.scrollTop === saved_y) return;
+        saved_y = this.scrollTop;
+        if (currentOpen) scrollToRight.call(this);
     });
     moveupon(listElement, {
         start: touchstart,
         move: touchmove,
         end: touchend
-    })
+    });
     // ontouchstart(listElement, touchstart);
     // ontouchmove(listElement, touchmove);
     // ontouchend(listElement, touchend);
