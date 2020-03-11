@@ -71,7 +71,7 @@ function createKRC(krc) {
             if (ele && firstChild && firstChild.isMounted) {
                 var marginTop = (firstChild.parentNode.offsetHeight - ele.offsetHeight >> 1) - ele.offsetTop + firstChild.offsetTop;
                 if (index > 0) {
-                    if(krcList.index!==index){
+                    if (krcList.index !== index) {
                         krcList.index = index;
                         krcList.slice(0, index).map(function (a, cx, arr) {
                             removeClass(a, "active after after-active before-active");
@@ -88,7 +88,7 @@ function createKRC(krc) {
                     }
                     var word_ele = ele.children[current_row_index];
                     if (markerLabel.parentNode !== ele) {
-                        appendChild(ele, markerLabel);
+                        ele.insertBefore(markerLabel, ele.firstChild);
                     }
                     var rowData = current_words.map(a => a.label).join("");
                     if (text(markerLabel) !== rowData) {
@@ -101,8 +101,8 @@ function createKRC(krc) {
                     var word_first = ele.children[0];
                     var targetLeft = (getScreenPosition(word_first).left - getScreenPosition(ele).left).toFixed(3);
                     var targetWidth = (word_ele.offsetLeft - word_first.offsetLeft + word_ele.offsetWidth * widthRatio).toFixed(0);
-                    if (+targetLeft !== parseFloat(markerLabel.style.left) || +targetWidth !== parseInt(markerLabel.style.width)) {
-                        css(markerLabel, `left:${targetLeft}px;width:${targetWidth}px;`);
+                    if (+targetWidth !== parseInt(markerLabel.style.width)) {
+                        css(markerLabel, `width:${targetWidth}px;`);
                     }
                 }
                 css(firstChild, `margin-top:${marginTop | 0}px;`);
