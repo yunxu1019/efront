@@ -221,24 +221,25 @@
     right: 0;
     transition: margin-top .2s ease-out;
     overflow: hidden;
-    height: 16px;
-    top: 0;
     width: auto;
-    font-size: 8px;
-    text-align: left;
-    line-height: 16px;
-    padding-left: 84px;
     z-index: 1;
 }
 
 &:not(.page)>.krc {
+    top: 0;
+    height: 16px;
+    font-size: 8px;
+    text-align: left;
+    line-height: 16px;
+    padding-left: 84px;
+
     .active,
     .active+.after {
         margin-right: 10px;
         float: left;
     }
 
-    .after-active {
+    .after-active+.after {
         clear: both;
     }
 
