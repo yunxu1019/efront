@@ -156,10 +156,8 @@ function main(elem, mode) {
                     active(elem, item, item.value);
                 };
                 if (src) {
-                    on("changes")(elem, function (event) {
-                        if (event.changes.src) {
-                            menuList(elem, getTreeFromData(this.src), emit, generator, direction);
-                        };
+                    care(elem, function (src) {
+                        menuList(elem, getTreeFromData(src), emit, generator, direction);
                     });
                 } else {
                     var nodes = getArrayNodes(elem);

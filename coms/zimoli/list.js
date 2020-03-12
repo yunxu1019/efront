@@ -356,12 +356,10 @@ function list() {
                 container.removeAttribute("src");
                 var generator = getGenerator(container, parsedSrc);
             }
-            on('changes')(container, function (event) {
-                if (event.changes.src) {
-                    var index = container.index();
-                    remove(container.children);
-                    container.go(index || 0);
-                };
+            care(container, function () {
+                var index = container.index();
+                remove(container.children);
+                container.go(index || 0);
             });
             bindSrc = true;
         }
