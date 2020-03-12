@@ -14,7 +14,7 @@ var _remove = function () {
                     setTimeout(function () {
                         if (document.activeElement === target) return;
                         _remove();
-                    })
+                    });
                 });
             }
         });
@@ -24,7 +24,7 @@ var preventDefault = function (event) {
     event.preventDefault();
 };
 var lastTimeClick = 0;
-function select(target, list) {
+function select(target, list, autoRemoveList) {
     if (!target) {
         target = createElement(div);
     }
@@ -41,12 +41,15 @@ function select(target, list) {
                 dispatch(target, "change");
             }
         });
-        onclick(list, function (event) {
-            if (!event.defaultPrevented) {
-                _remove();
-            }
-        });
-        onmousedown(list, preventDefault);
+        if (autoRemoveList !== false) {
+            onclick(list, function (event) {
+                if (!event.defaultPrevented) {
+                    _remove();
+                }
+            });
+        } else {
+            onmousedown(list, preventDefault);
+        }
         onremove(list, () => {
             if (saved_list === list) {
                 saved_list = null;
