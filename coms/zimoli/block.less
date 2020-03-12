@@ -1,3 +1,39 @@
 & {
     display: block;
+    position: relative;
+    background: #f2f4f6;
+}
+
+>.bg {
+    border: 1px solid rgba(0, 0, 0, .1);
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
+
+    &:after {
+        margin: -75pt -75pt;
+        width: 225pt;
+        height: 150pt;
+        right: 0;
+        bottom: 0;
+    }
+
+    &:before {
+        width: 45pt;
+        height: 75pt;
+        margin: -41.25pt -26.25pt;
+        left: 0;
+        top: 0;
+    }
+
+    &:after,
+    &:before {
+        content: "";
+        background-color: rgba(90, 200, 250, 0.1);
+        position: absolute;
+        border-radius: 50%;
+    }
 }
