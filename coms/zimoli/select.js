@@ -24,7 +24,7 @@ var preventDefault = function (event) {
     event.preventDefault();
 };
 var lastTimeClick = 0;
-function select(target, list, autoRemoveList) {
+function select(target, list, removeOnSelect) {
     if (!target) {
         target = createElement(div);
     }
@@ -41,13 +41,12 @@ function select(target, list, autoRemoveList) {
                 dispatch(target, "change");
             }
         });
-        if (autoRemoveList !== false) {
+        if (removeOnSelect !== false) {
             onclick(list, function (event) {
                 if (!event.defaultPrevented) {
                     _remove();
                 }
             });
-        } else {
             onmousedown(list, preventDefault);
         }
         onremove(list, () => {
