@@ -86,10 +86,10 @@ function createKRC(krc) {
                         });
                         if (index + 2 < krcList.length) addClass(krcList[index + 1], 'after-active');
                     }
-                    var word_ele = ele.children[current_row_index];
                     if (markerLabel.parentNode !== ele) {
                         ele.insertBefore(markerLabel, ele.firstChild);
                     }
+                    var word_ele = ele.children[current_row_index+1];
                     var rowData = current_words.map(a => a.label).join("");
                     if (text(markerLabel) !== rowData) {
                         text(markerLabel, rowData);
@@ -98,8 +98,7 @@ function createKRC(krc) {
                     if (widthRatio > 1) {
                         widthRatio = 1;
                     }
-                    var word_first = ele.children[0];
-                    var targetLeft = (getScreenPosition(word_first).left - getScreenPosition(ele).left).toFixed(3);
+                    var word_first = ele.children[1];
                     var targetWidth = (word_ele.offsetLeft - word_first.offsetLeft + word_ele.offsetWidth * widthRatio).toFixed(0);
                     if (+targetWidth !== parseInt(markerLabel.style.width)) {
                         css(markerLabel, `width:${targetWidth}px;`);
