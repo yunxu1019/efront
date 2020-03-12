@@ -6,11 +6,16 @@ if (is_addEventListener_enabled) {
         var on_event_path = "on" + k;
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
         function addhandler(element, handler) {
+            if (k === 'changes' && !element.needchanges) element.needchanges = 0;
+            element.needchanges++;
             if (handler instanceof Array) {
+                handler = handler.slice(0);
                 handler.map(function (handler) {
                     this.addEventListener(k, handler);
                 }, element);
+
                 var remove = function () {
+                    element.needchanges--;
                     handler.map(function (handler) {
                         this.removeEventListener(k, handler);
                     }, element);
@@ -18,6 +23,7 @@ if (is_addEventListener_enabled) {
             } else {
                 element.addEventListener(k, handler);
                 var remove = function () {
+                    element.needchanges--;
                     element.removeEventListener(k, handler);
                 };
             }
@@ -31,6 +37,8 @@ if (is_addEventListener_enabled) {
         var on_event_path = "on" + k;
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
         function addhandler(element, handler, firstmost = false) {
+            if (k === 'changes' && !element.needchanges) element.needchanges = 0;
+            element.needchanges++;
             // 仅在hack事件中使用firstmost参数
             if (!(on_event_path in element)) {
                 if (element === window && on_event_path in document) {
@@ -71,6 +79,7 @@ if (is_addEventListener_enabled) {
                 };
             }
             var remove = function () {
+                element.needchanges--;
                 var handlers = element[handler_path];
                 for (var cx = handlers.length - 1; cx >= 0; cx--) {
                     if (handlers[cx] === handler) {

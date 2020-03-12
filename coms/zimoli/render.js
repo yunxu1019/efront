@@ -31,6 +31,10 @@ function refresh() {
     }
 }
 function rebuild(element) {
+    if (!element.needchanges) {
+        element.renders.forEach(a => a.call(element));
+        return;
+    }
     var props = {};
     Object.keys(element).forEach(function (key) {
         var data = element[key];
@@ -106,7 +110,7 @@ var parseRepeat = function (expression) {
         indexName,
         trackBy,
         srcName
-    }
+    };
 };
 var createRepeat = function (search, id = 0) {
     // 懒渲染
@@ -296,7 +300,7 @@ var directives = {
             }
             oldValue = value;
             value = value || "";
-            if (!/img/i.test(this.tagName) || !isString(value)) return this.src = value;
+            if (!/img/i.test(this.tagName) || !isString(value)) return this.src = value, cast(this, value);
             this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
             if (value) {
                 img.src = value;
