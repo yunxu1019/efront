@@ -105,11 +105,7 @@ var createControls = function () {
             box.touching = false;
         }
     });
-    if (document.body.children.length) {
-        appendChild.before(document.body.children[0], box);
-    } else {
-        appendChild(document.body, box);
-    }
+    appendChild.before(document.body, box);
     return box;
 };
 var player = function (box = div()) {

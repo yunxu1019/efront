@@ -12,19 +12,22 @@
     url('@{font-path}iconfont.svg?t=1496068931776#iconfont') format('svg');
     /* iOS 4.1- */
 }
+
 i {
     font-family: kugouicons;
     font-style: normal;
 }
 
-[layer=main]{
+>[layer=main] {
     background-color: #f2f6f9;
 }
-&{
+
+& {
     width: 1200px;
     user-select: none;
 }
-[layer=main]:empty:before {
+
+>[layer=main]:empty:before {
     color: #bbb;
     content: "efront.cc";
     font-style: italic;
@@ -36,4 +39,44 @@ i {
     text-align: right;
     font-size: 16px;
     position: absolute;
+}
+
+.player+body>& {
+    >[layer=left]>:not(.titlebar) {
+        >.menu {
+            .setting-button {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    >[layer] {
+
+        >.vbox,
+        :not(.vbox)>.vbox {
+            padding-bottom: 0;
+        }
+    }
+
+    transition: padding-bottom .2s ease-out;
+}
+
+.player.play+body>&,
+.player.pause+body>& {
+    >[layer=left]>:not(.titlebar) {
+        >.menu {
+            .setting-button {
+                margin-bottom: 60px;
+            }
+        }
+
+    }
+
+    >[layer] {
+
+        >.vbox,
+        :not(.vbox)>.vbox {
+            padding-bottom: 60px;
+        }
+    }
 }
