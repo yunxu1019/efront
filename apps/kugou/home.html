@@ -1,0 +1,7 @@
+<slider elementid=pages class="pages"></slider>
+<titlebar class="title-bar">
+    <tag type=white ng-repeat="t in tags" ng-click="pages.go(t.index)" ng-class="{activate:t===tags.active}" ng-bind=t.innerText></tag>
+    <btn class="search-btn" ng-click="go('/search/search')">
+        <icon class="search-icon"></icon>
+    </btn>
+</titlebar>

@@ -1,3 +1,4 @@
+var musicList = kugou$musicList;
 var getMusicInfo = function (hash) {
     return data.from("song-info", { hash });
 };
@@ -133,6 +134,8 @@ var player = function (box = div()) {
         page: false,
         source: [],
         canvas: dance,
+        activeList: kugou$playList(),
+        index: 0,
         fullPage() {
             this.page = !this.page;
         },
@@ -140,24 +143,36 @@ var player = function (box = div()) {
             this.playing = false;
             if (this.audio && this.audio.pause instanceof Function) this.audio.pause();
         },
-        playList() {
-            if (!this.activeList) {
-                this.activeList = kugou$playList();
-            }
-            var list = this.activeList;
-            if (!list.parentNode) popup(list);
-            else remove(list);
+        sbtn(elem) {
+            button(elem);
+            select(elem, this.activeList, false);
         },
         draw(buf) {
             if (box.offsetHeight <= calcPixel(80)) {
-                var ratio = 1 / box.offsetWidth * buf.length;
-                for (var cx = calcPixel(11) * ratio | 0, dx = calcPixel(77) * ratio | 0; cx < dx; cx++) {
+                var ratio = 1 / freePixel(box.offsetWidth) * buf.length;
+                for (var cx = 11 * ratio | 0, dx = 77 * ratio; cx < dx; cx++) {
                     buf[cx] += 0.3333;
                 }
             }
             if (this.dance) cast(this.dance, buf);
         },
         play(hash = this.hash) {
+            if (typeof hash === "number") {
+                if (hash < 0) {
+                    hash = this.hash + musicList.length;
+                }
+                if (!musicList.length) return;
+                if (hash >= musicList.length) {
+                    hash = hash % musicList.length;
+                }
+                hash = musicList[hash];
+                if (!hash) return;
+                hash = hash.hash;
+            } else {
+                for (var cx = kugou$musicList.length - 1; cx >= 0; cx--) {
+                    if (kugou$musicList[cx].hash === hash) kugou$musicList.splice(cx, 1);
+                }
+            }
             if (this.playCss) this.playCss();
             if (hash === this.hash) {
                 if (this.playing) return;
@@ -182,23 +197,26 @@ var player = function (box = div()) {
                 _audio.autostart = true;
                 return alert("暂不支持在您的浏览器中播放！");
             }
-            getMusicInfo(hash).loading_promise.then((data) => {
+            getMusicInfo(hash).loading_promise.then((response) => {
                 if (hash !== this.hash) return;
-                if (data.imgUrl) {
-                    data.avatar = data.imgUrl.replace(/\{size\}/ig, 200);
-                    data.avatarUrl = `url('${data.avatar}')`;
+                if (response.imgUrl) {
+                    response.avatar = response.imgUrl.replace(/\{size\}/ig, 200);
+                    response.avatarUrl = `url('${response.avatar}')`;
                 }
                 var index = kugou$musicList.map(a => a.hash).indexOf(hash);
+                var distlist = kugou$musicList.slice(0);
                 if (index >= 0) {
-                    kugou$musicList.splice(index, 1);
+                    this.index = index;
+                    distlist.splice(index, 1, response);
+                } else {
+                    this.index = 0;
+                    distlist.unshift(response);
                 }
-                data.hash = hash;
-                kugou$musicList.unshift(data);
-
-                extend(this.info, data);
-                cast(this.krcpad, data);
-                _audio.src = cross.getCrossUrl(data.url);
-
+                response.hash = hash;
+                extend(this.info, response);
+                cast(this.krcpad, response);
+                _audio.src = cross.getCrossUrl(response.url);
+                data.setInstance('musicList', distlist, true);
                 if (AudioContext) {
                     var context = new AudioContext;
                     var source = context.createMediaElementSource(_audio);

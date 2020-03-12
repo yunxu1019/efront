@@ -1,5 +1,6 @@
 {
     "http://m.kugou.com/": {
+        "song-info": "get                                 app/i/getSongInfo.php?cmd=playInfo&from=mkugou&hash",
         "slider-src": "get:[].mod-slider>.swipe-wrap>div  .#src=img!src&href=a!href",
         "songs-list": "get:[].panel-songslist>li          .#id=!id&.panel-songs-item-name>span!innerText",
         "rank-list": "get:[].panel-img-list>li            rang/list#href=a!href&src=img!_src&name=p!innerText",

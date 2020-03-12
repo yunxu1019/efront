@@ -69,7 +69,7 @@ function start() {
         this.context = context;
         recorder.onaudioprocess = (e) => {
             var buffer = copyData(e);
-            cast(this, buffer);
+            castonaudio(this, buffer);
             this.onprocess instanceof Function && this.onprocess(buffer);
         };
         this.running = true;
@@ -86,7 +86,8 @@ function copyData(audioProcessingEvent) {
     var outputBuffer = audioProcessingEvent.outputBuffer;
     var distBuffer = [];
     // Loop through the output channels (in this case there is only one)
-    for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
+    var { numberOfChannels } = inputBuffer;
+    for (var channel = 0; channel < numberOfChannels; channel++) {
         var inputData = inputBuffer.getChannelData(channel);
         var outputData = outputBuffer.getChannelData(channel);
 
@@ -94,15 +95,15 @@ function copyData(audioProcessingEvent) {
         for (var cx = 0, dx = inputData.length; cx < dx; cx++) {
             // make output equal to the same as the input
             outputData[cx] = inputData[cx];
-            if (!distBuffer[cx]) distBuffer[cx] = outputData[cx];
-            else distBuffer[cx] += outputBuffer[cx];
+            if (!distBuffer[cx]) distBuffer[cx] = inputData[cx];
+            else distBuffer[cx] += inputData[cx];
 
             // add noise to each output sample
             // outputData[cx] += ((Math.random() * 2) - 1) * 0.2;
 
         }
     }
-    return distBuffer;
+    return distBuffer.map(a => a / numberOfChannels);
 }
 class Source {
     running = false;
@@ -129,7 +130,7 @@ class Source {
         var createScript = context.createScriptProcessor || context.createJavaScriptNode;
         var recorder = createScript.apply(context, [0, 1, 1]);
 
-        return this.audioPromise = Promise.resolve([recorder, source, context])
+        return this.audioPromise = Promise.resolve([recorder, source, context]);
     }
     start = start;
     stop = stop;
@@ -180,6 +181,7 @@ var audio = {
     Monitor,
     Source,
     Context,
+    copyData,
     getGlobalContext() {
         return globalContext;
     },

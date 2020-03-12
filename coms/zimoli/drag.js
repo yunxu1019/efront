@@ -10,6 +10,7 @@ var appendChild = function (a, b) {
 };
 function drag(target, initialEvent, overflow) {
     if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName)) return;
+    if (target.dragable === false) return;
     initialEvent.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);

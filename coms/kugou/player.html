@@ -16,9 +16,9 @@
         <span class="singer" ng-bind=info.singerName></span>
     </div>
 </div>
-<btn class="prev"></btn>
+<btn class="prev" ng-click=play(index-1)></btn>
 <btn class="play" ng-click="playing?pause():play()"></btn>
-<btn class="next"></btn>
-<btn class="list" ng-click="playList()"></btn>
+<btn class="next" ng-click=play(index+1)></btn>
+<sbtn class="list"></sbtn>
 <krc elementid=krcpad></krc>
 <canvas elementid="dance"></canvas>

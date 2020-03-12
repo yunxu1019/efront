@@ -1,52 +1,89 @@
 .title-bar {
-    position        : absolute;
+    position: absolute;
     background-color: #fffb;
-    left            : 0;
-    right           : 0;
-    top             : 0;
-    opacity         : .98;
-    height          : 50px;
-    line-height     : 50px;
-    text-align      : center;
-    font-size       : 16px;
-    padding         : 0 10px;
-    box-shadow      : 0 2px 2px -2px rgba(0, 0, 0, .1);
-    backdrop-filter : blur(20px);
-    z-index         : 1;
-    padding-right   : 60px;
-    cursor          : default;
+    left: 0;
+    right: 0;
+    top: 0;
+    opacity: .98;
+    height: 44px;
+    line-height: 44px;
+    font-size: 16px;
+    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .1);
+    backdrop-filter: blur(20px);
+    z-index: 1;
+    padding: 0 10px;
+    padding-right: 60px;
+    cursor: default;
+    white-space: nowrap;
 
-    >div {
-        width    : 25%;
-        max-width: 100px;
-        color    : #333;
-        display  : inline-block;
+    >tag {
+        width: 25%;
+        max-width: 80px;
+        height: 44px;
+        line-height: 42px;
+        color: #333;
+        display: inline-block;
+        text-align: center;
+        box-shadow: none;
+        background: transparent;
 
-        &.active {
+        &.hover {
+            background-color: #22a2c422;
+        }
+
+        &.activate {
             color: #2292e4;
         }
     }
 
     .search-btn {
-        position        : absolute;
-        right           : 0;
-        width           : 50px;
-        height          : 100%;
+        position: absolute;
+        right: 0;
+        width: 50px;
+        height: 100%;
         background-color: #2292e4;
     }
 
     .search-icon {
-        background-size: 16px auto;
+        display: inline-block;
+        height: 44px;
+        width: 24px;
+        vertical-align: middle;
+        background: url('http://m.kugou.com/v3/static/images/index/search.png') no-repeat center/ 16px auto;
     }
 }
 
 &>.pages {
     height: 100%;
+    display: block;
 }
 
 & {
-    height    : 100%;
-    font-size : 16px;
-    width     : auto;
+    height: 100%;
+    font-size: 16px;
+    width: auto;
     background: inherit;
+}
+
+.player+body>& {
+    >* {
+
+        >.vbox,
+        :not(.vbox)>.vbox {
+            padding-bottom: 0;
+        }
+    }
+
+    transition: padding-bottom .2s ease-out;
+}
+
+.player.play+body>&,
+.player.pause+body>& {
+    >* {
+
+        >.vbox,
+        :not(.vbox)>.vbox {
+            padding-bottom: 60px;
+        }
+    }
 }

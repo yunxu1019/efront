@@ -1,50 +1,59 @@
 & {
-    padding   : 50px 0 4px 0;
-    max-width : 100%;
-    width     : 360px;
-    height    : auto;
-    overflow  : hidden;
+    padding: 46px 0 4px 0;
+    max-width: 100%;
+    width: 360px;
+    height: auto;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
 &>.body,
 &>:not(:first-child):not(:last-child) {
-    padding   : 10px 0;
+    padding: 10px 0;
     background: #f2f4f6;
-    overflow  : auto;
-    
-    position  : relative;
+    overflow: auto;
+    display: block;
+    width: 100%;
+    position: relative;
     box-sizing: border-box;
+}
+
+&>.body:nth-child(2) {
+
+    &:nth-last-child(2),
+    &:nth-last-child(1) {
+        height: 100%;
+    }
 }
 
 &>.head,
 &>:first-child {
-    background   : #fff;
-    z-index      : 1;
-    margin-top   : -50px;
-    position     : relative;
-    line-height  : 40px;
-    color        : #333;
-    padding      : 10px 16px 0 16px;
+    background: #fff;
+    z-index: 1;
+    margin-top: -44px;
+    position: relative;
+    line-height: 40px;
+    color: #333;
+    padding: 2px 16px 0 16px;
     border-bottom: 1px solid rgba(0, 0, 0, .16);
 }
 
 &>.foot {
     white-space: nowrap;
-    overflow   : auto;
+    overflow: auto;
 }
 
 &>.foot,
-&>:last-child {
-    text-align : right;
+&>:last-child:not(:nth-child(2)) {
+    text-align: right;
     line-height: 46px;
-    padding    : 0 16px;
-    border-top : 1px solid rgba(0, 0, 0, .16);
-    background : #fff;
+    padding: 0 16px;
+    border-top: 1px solid rgba(0, 0, 0, .16);
+    background: #fff;
 
     .button {
-        padding       : 0 20px;
-        min-width     : 60px;
+        padding: 0 20px;
+        min-width: 60px;
         vertical-align: middle;
 
         &+.button {
