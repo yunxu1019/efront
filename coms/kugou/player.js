@@ -152,7 +152,7 @@ var player = function (box = div()) {
             if (box.offsetHeight <= calcPixel(80)) {
                 var ratio = 1 / box.offsetWidth * buf.length;
                 for (var cx = calcPixel(11) * ratio | 0, dx = calcPixel(77) * ratio | 0; cx < dx; cx++) {
-                    buf[cx] += 4 / 15;
+                    buf[cx] += 0.3333;
                 }
             }
             if (this.dance) cast(this.dance, buf);
