@@ -1,5 +1,5 @@
 var getMusicInfo = function (hash) {
-    return cross("get", `http://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=${hash}&from=mkugou`);
+    return data.from("song-info", { hash });
 };
 var getLrc = function () {
     return `http://m.kugou.com/app/i/krc.php?cmd=100&keyword=%E9%99%88%E6%98%9F%E3%80%81%E5%BC%A0%E7%BF%94%E8%BD%A9%20-%20%E5%86%B3%E4%B8%8D%E5%9B%9E%E5%A4%B4&hash=77AFF2715498A86AA28AC2DAA29C3FEB&timelength=280000&d=0.2984004589282503`;
@@ -34,6 +34,13 @@ on("keydown")(window, function (event) {
             $scope.page = true;
             break;
         case 27:// esc
+            if ($scope.activeList) {
+                var elem = $scope.activeList;
+                if (elem.parentNode) {
+                    remove(elem);
+                    break;
+                }
+            }
         case 34:
         // page down
         case 40:
@@ -61,12 +68,12 @@ var filterTime = function (a, t) {
         t = t / 60 | 0;
     }
     return res.map(fixTime).join(":");
-}
+};
 var createControls = function () {
     var box = createWithClass(div, "player-box");
     box.setAttribute("ng-class", "{play:playing,pause:!playing,page:page}");
     box.innerHTML = Player;
-    var [background, progress, track, avatar] = box.children;
+    var [background, progress] = box.children;
 
     box.process = function (currentTime, duration) {
         if (currentTime === duration) {
@@ -124,6 +131,8 @@ var player = function (box = div()) {
         currentTime: "00:00",
         info: {},
         page: false,
+        source: [],
+        canvas: dance,
         fullPage() {
             this.page = !this.page;
         },
@@ -139,6 +148,15 @@ var player = function (box = div()) {
             if (!list.parentNode) popup(list);
             else remove(list);
         },
+        draw(buf) {
+            if (box.offsetHeight <= calcPixel(80)) {
+                var ratio = 1 / box.offsetWidth * buf.length;
+                for (var cx = calcPixel(11) * ratio | 0, dx = calcPixel(77) * ratio | 0; cx < dx; cx++) {
+                    buf[cx] += 4 / 15;
+                }
+            }
+            if (this.dance) cast(this.dance, buf);
+        },
         play(hash = this.hash) {
             if (this.playCss) this.playCss();
             if (hash === this.hash) {
@@ -147,35 +165,62 @@ var player = function (box = div()) {
                 if (this.audio && this.audio.play instanceof Function) this.audio.play();
                 return;
             }
+            this.hash = hash;
             box.pause();
             /**
              * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
              */
             this.playing = false;
-            var audio = document.createElement("audio");
-            if (audio.play) {
-                audio.ontimeupdate = updater;
-                audio.play();//安卓4以上的播放功能要在用户事件中调用;
+            var _audio = document.createElement("audio");
+            if (_audio.play) {
+                _audio.ontimeupdate = updater;
+                _audio.play();//安卓4以上的播放功能要在用户事件中调用;
             } else {
                 // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
-                audio = document.createElement("embed");
-                audio.type = "audio/mpeg";
-                audio.autostart = true;
+                _audio = document.createElement("embed");
+                _audio.type = "audio/mpeg";
+                _audio.autostart = true;
                 return alert("暂不支持在您的浏览器中播放！");
             }
-            getMusicInfo(hash).done((xhr) => {
-                var data = JSON.parse(xhr.responseText);
+            getMusicInfo(hash).loading_promise.then((data) => {
+                if (hash !== this.hash) return;
                 if (data.imgUrl) {
                     data.avatar = data.imgUrl.replace(/\{size\}/ig, 200);
                     data.avatarUrl = `url('${data.avatar}')`;
                 }
+                var index = kugou$musicList.map(a => a.hash).indexOf(hash);
+                if (index >= 0) {
+                    kugou$musicList.splice(index, 1);
+                }
+                data.hash = hash;
+                kugou$musicList.unshift(data);
+
                 extend(this.info, data);
                 cast(this.krcpad, data);
-                audio.src = data.url;
-                document.title = data.songName;
+                _audio.src = cross.getCrossUrl(data.url);
+
+                if (AudioContext) {
+                    var context = new AudioContext;
+                    var source = context.createMediaElementSource(_audio);
+                    var createScript = context.createScriptProcessor || context.createJavaScriptNode;
+                    var script = createScript.apply(context, [0, 2, 2]);
+                    script.onaudioprocess = (e) => {
+                        if (this.audio !== _audio) {
+                            script.onaudioprocess = null;
+                            script.disconnect();
+                            source.disconnect();
+                        }
+                        var buf = audio.copyData(e);
+                        this.draw(buf);
+                    };
+                    source.connect(script);
+                    script.connect(context.destination);
+                    this.source = source;
+                }
                 this.playing = true;
+                render.refresh();
             });
-            this.audio = audio;
+            this.audio = _audio;
         }
     });
     box.play = function (hash) {
