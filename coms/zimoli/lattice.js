@@ -76,7 +76,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         index = realIndex / boxCount || 0;
         remove(_box.children);
         _box.go(index);
-    });
+    }, 0);
     if (!_box.renders) _box.renders = [];
     _box.renders.unshift(_box.resize);
     return _box;
