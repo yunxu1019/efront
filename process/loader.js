@@ -126,7 +126,7 @@ var initPixelDecoder = function () {
         /**
          * 从pixel到offset
          */
-        var calcPixel = modules.calcPixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * renderPixelRatio / .75 : d * renderPixelRatio / (window.innerWidth / maxRenderWidth * .75);
+        var calcPixel = modules.calcPixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * renderPixelRatio / .75 : d * renderPixelRatio / (maxRenderWidth / window.innerWidth * .75);
         init("css", function (css) {
             var onresize = function () {
                 var fontSize = window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? 16 * renderPixelRatio + "pt" : window.innerWidth / maxRenderWidth * renderPixelRatio * 16 + "pt";
