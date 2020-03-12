@@ -46,6 +46,7 @@ function select(target, list) {
                 _remove();
             }
         });
+        onmousedown(list, preventDefault);
         onremove(list, () => {
             if (saved_list === list) {
                 saved_list = null;
