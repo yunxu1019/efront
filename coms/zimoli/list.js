@@ -296,7 +296,7 @@ function ylist(container, generator, $Y) {
         var firstElement = getFirstVisibleElement();
         if (!firstElement) return saved_itemIndex;
         var index = firstElement.index;
-        var scrolled = (list.scrollTop - firstElement.offsetTop) / firstElement.offsetHeight;
+        var scrolled = (list.scrollTop - firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop)) / firstElement.offsetHeight;
         return index + scrolled;
     };
     list.topIndex = function () {
