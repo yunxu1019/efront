@@ -5,7 +5,7 @@ var createDelete = function () {
     _div.innerHTML = template;
     _div = _div.children[0];
     remove(_div);
-    var height = this.offsetHeight + "px";
+    var height = this.clientHeight + "px";
     css(_div, {
         height,
         lineHeight: height
@@ -76,7 +76,7 @@ var scrollTo = function (targetLeft) {
 };
 var scrollToLeft = function () {
     this.setAttribute("touch-delete", "open");
-    scrollTo.call(this, this.scrollWidth - this.offsetWidth);
+    scrollTo.call(this, this.scrollWidth - this.clientWidth);
 };
 var scrollToRight = function () {
     this.setAttribute("touch-delete", "close");
@@ -88,10 +88,10 @@ var touchend = function () {
     if (direction < 0 && marginLeft < -calcPixel(20)) {
         scrollToLeft.call(currentOpen);
     }
-    else if (direction > 0 && marginLeft > -currentOpen.offsetWidth + calcPixel(20)) {
+    else if (direction > 0 && marginLeft > -currentOpen.clientWidth + calcPixel(20)) {
         scrollToRight.call(currentOpen);
     }
-    else if (marginLeft < currentOpen.offsetWidth - currentOpen.scrollWidth >> 1) {
+    else if (marginLeft < currentOpen.clientWidth - currentOpen.scrollWidth >> 1) {
         scrollToLeft.call(currentOpen);
     }
     else {
