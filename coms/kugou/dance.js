@@ -1,3 +1,4 @@
+var activeDevice;
 function draw(buffer) {
     var canvas = this;
     var context = canvas.getContext("2d");

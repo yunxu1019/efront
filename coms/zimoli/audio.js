@@ -69,7 +69,7 @@ function start() {
         this.context = context;
         recorder.onaudioprocess = (e) => {
             var buffer = copyData(e);
-            castonaudio(this, buffer);
+            cast(this, buffer);
             this.onprocess instanceof Function && this.onprocess(buffer);
         };
         this.running = true;
