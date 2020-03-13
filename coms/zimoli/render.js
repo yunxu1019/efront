@@ -16,18 +16,16 @@ var removeRenderElement = function () {
     var element = this;
     delete renderElements[element.renderid];
 };
-var needFrefresh;
-function refresh() {
-    var refreshCount = 0;
-    do {
-        needFrefresh = false;
-        for (var k in renderElements) {
-            var element = renderElements[k];
+function refresh(root) {
+    for (var k in renderElements) {
+        var element = renderElements[k];
+        if (root && root.renders) {
+            if (
+                getTargetIn(root, element)
+            ) rebuild(element);
+        } else {
             rebuild(element);
         }
-    } while (needFrefresh && ++refreshCount <= 10);
-    if (refreshCount > 10) {
-        console.warn("render canceld..");
     }
 }
 function rebuild(element) {
@@ -389,7 +387,6 @@ var directives = {
             } else {
                 this.style.display = "";
             }
-            needFrefresh = true;
         });
     },
     show(search) {
@@ -404,7 +401,6 @@ var directives = {
             } else {
                 this.style.display = "none";
             }
-            needFrefresh = true;
         });
     },
 
@@ -415,7 +411,6 @@ var directives = {
         this.renders.push(function () {
             var className = getter();
             if (deepEqual(oldValue, className)) return;
-            needFrefresh = true;
             oldValue = className;
             var originalClassNames = [];
             this.className.split(/\s+/).map(function (k) {
@@ -451,7 +446,6 @@ var directives = {
             var stylesheet = getter();
             if (deepEqual(oldValue, stylesheet)) return;
             oldValue = stylesheet;
-            needFrefresh = true;
             css(this, stylesheet);
         });
     }
