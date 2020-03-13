@@ -160,6 +160,12 @@ var player = function (box = div()) {
             if (this.dance) cast(this.dance, buf);
         },
         play(hash = musicList.active_hash) {
+            if (hash === musicList.active_hash && this.audio) {
+                if (this.playing) return;
+                this.playing = true;
+                if (this.audio.play instanceof Function) this.audio.play();
+                return;
+            }
             if (typeof hash === "number") {
                 if (hash < 0) {
                     hash = hash + musicList.length;
@@ -175,13 +181,6 @@ var player = function (box = div()) {
                 for (var cx = kugou$musicList.length - 1; cx >= 0; cx--) {
                     if (kugou$musicList[cx].hash === hash) kugou$musicList.splice(cx, 1);
                 }
-            }
-            if (this.playCss) this.playCss();
-            if (hash === musicList.active_hash && this.audio) {
-                if (this.playing) return;
-                this.playing = true;
-                if (this.audio.play instanceof Function) this.audio.play();
-                return;
             }
             box.pause();
             /**
