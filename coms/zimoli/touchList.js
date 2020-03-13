@@ -1,5 +1,5 @@
 var saved_x, saved_y, direction, currentOpen;
-var template = `<div onclick='this.parentNode.parentNode.removeChild(this.parentNode);' class='ylife-touch-delete' style='left:100%;margin: 0;padding:0;display: block;position:absolute;width:85px;top:0;background-color: rgb(230,54,67);color:#fff;text-align: center;font-size: 18px;'>删除</div>`;
+var template = `<div class='ylife-touch-delete' style='left:100%;margin: 0;padding:0;display: block;position:absolute;width:85px;top:0;background-color: rgb(230,54,67);color:#fff;text-align: center;font-size: 18px;'>删除</div>`;
 var createDelete = function () {
     var _div = div();
     _div.innerHTML = template;
@@ -27,6 +27,9 @@ var touchstart = function (event) {
             overflow: "hidden"
         });
         var $delete = createDelete.call(target);
+        on("click")($delete, function () {
+            remove(this.parentNode);
+        });
         appendChild(target, $delete);
     }
 };
