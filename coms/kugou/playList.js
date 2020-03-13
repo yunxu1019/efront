@@ -7,7 +7,7 @@ function main() {
         btn: button,
         list(elem) {
             elem = list(elem);
-            autodragchildren(elem,elem);
+            // autodragchildren(elem,elem);
         },
         song: kugou$song,
         padding,

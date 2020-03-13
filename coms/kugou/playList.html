@@ -3,6 +3,6 @@
 </div>
 <list class="body" ng-src="(p,i) in musicList" min-width=480>
     <padding>
-        <song ng-click="play(i)" ng-src=p></song>
+        <song ng-click="play(i)" ng-class="{activate:p.hash===musicList.active_hash}" ng-src=p></song>
     </padding>
 </list>

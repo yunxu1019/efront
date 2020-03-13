@@ -14,7 +14,7 @@ on("keydown")(window, function (event) {
     var { target } = event;
     if (/^(input|select|textarea)$/i.test(target.tagName)) return;
     var $scope = player.$scope;
-    if (!$scope.audio) return;
+    if (!$scope.audio && !kugou$musicList.active_hash) return;
     switch (event.keyCode || event.which) {
         case 32:
             if (event.repeat) break;
@@ -23,8 +23,10 @@ on("keydown")(window, function (event) {
             break;
         case 37:
             // left
+            $scope.play($scope.index - 1);
             break;
         case 39:
+            $scope.play($scope.index + 1);
             // right
             break;
         case 33:
@@ -145,7 +147,7 @@ var player = function (box = div()) {
         },
         sbtn(elem) {
             button(elem);
-            select(elem, this.activeList, false);
+            select(elem, this.activeList, null);
         },
         draw(buf) {
             if (box.offsetHeight <= calcPixel(80)) {
@@ -156,10 +158,10 @@ var player = function (box = div()) {
             }
             if (this.dance) cast(this.dance, buf);
         },
-        play(hash = this.hash) {
+        play(hash = musicList.active_hash) {
             if (typeof hash === "number") {
                 if (hash < 0) {
-                    hash = this.hash + musicList.length;
+                    hash = hash + musicList.length;
                 }
                 if (!musicList.length) return;
                 if (hash >= musicList.length) {
@@ -174,13 +176,12 @@ var player = function (box = div()) {
                 }
             }
             if (this.playCss) this.playCss();
-            if (hash === this.hash) {
+            if (hash === musicList.active_hash && this.audio) {
                 if (this.playing) return;
                 this.playing = true;
-                if (this.audio && this.audio.play instanceof Function) this.audio.play();
+                if (this.audio.play instanceof Function) this.audio.play();
                 return;
             }
-            this.hash = hash;
             box.pause();
             /**
              * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
@@ -197,14 +198,19 @@ var player = function (box = div()) {
                 _audio.autostart = true;
                 return alert("暂不支持在您的浏览器中播放！");
             }
+            musicList.active_hash = hash;
+            render.refresh();
             getMusicInfo(hash).loading_promise.then((response) => {
-                if (hash !== this.hash) return;
+                if (hash !== musicList.active_hash) return;
                 if (response.imgUrl) {
                     response.avatar = response.imgUrl.replace(/\{size\}/ig, 200);
                     response.avatarUrl = `url('${response.avatar}')`;
                 }
                 var index = kugou$musicList.map(a => a.hash).indexOf(hash);
                 var distlist = kugou$musicList.slice(0);
+                distlist.forEach(function (info) {
+                    delete info.activate;
+                });
                 if (index >= 0) {
                     this.index = index;
                     distlist.splice(index, 1, response);
@@ -213,6 +219,8 @@ var player = function (box = div()) {
                     distlist.unshift(response);
                 }
                 response.hash = hash;
+                response.activate = true;
+                distlist.active_hash = hash;
                 extend(this.info, response);
                 cast(this.krcpad, response);
                 _audio.src = cross.getCrossUrl(response.url);

@@ -1,4 +1,21 @@
 & {
     height: 50px;
-    padding:10px;
+    padding: 10px;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+&.activate {
+    &:after {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        line-height: 20px;
+        color: #2292e4;
+        content: "playing..";
+        display: inline-block;
+        margin-top: -10px;
+    }
 }

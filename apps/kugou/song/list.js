@@ -6,6 +6,7 @@ var scope = {
     padding,
     list: zimoli$lattice,
     song: kugou$song,
+    musicList: kugou$musicList,
     play(info) {
         kgplayer.play(info.hash);
     }

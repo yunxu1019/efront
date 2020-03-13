@@ -41,12 +41,14 @@ function select(target, list, removeOnSelect) {
                 dispatch(target, "change");
             }
         });
-        if (removeOnSelect !== false) {
+        if (removeOnSelect !== false && removeOnSelect !== null) {
             onclick(list, function (event) {
                 if (!event.defaultPrevented) {
                     _remove();
                 }
             });
+        }
+        if (removeOnSelect === null) {
             onmousedown(list, preventDefault);
         }
         onremove(list, () => {
