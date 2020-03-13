@@ -28,6 +28,7 @@ var touchstart = function (event) {
         });
         var $delete = createDelete.call(target);
         on("click")($delete, function () {
+            dispatch(this.parentNode, 'delete');
             remove(this.parentNode);
         });
         appendChild(target, $delete);
