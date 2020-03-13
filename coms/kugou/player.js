@@ -136,7 +136,7 @@ var player = function (box = div()) {
         info: {},
         page: false,
         source: [],
-        canvas: dance,
+        canvas: kugou$dance,
         activeList: kugou$playList(),
         index: 0,
         fullPage() {
