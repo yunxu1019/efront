@@ -94,7 +94,6 @@ var createControls = function () {
         $scope.totalTime = filterTime(duration, duration);
         $scope.currentRotate = `rotate(${currentTime * 6}deg)`;
         $scope.currentProcess = `width:${(currentTime * 100 / duration).toFixed(2)}%;`;
-        render.refresh();
     };
     bindtouch(box, function (value) {
         if (value) {
@@ -126,6 +125,8 @@ var player = function (box = div()) {
                 return;
             }
         }
+        render.refresh(box);
+
     };
     render(box, {
         btn: button,
