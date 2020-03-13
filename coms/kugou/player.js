@@ -34,21 +34,14 @@ on("keydown")(window, function (event) {
         case 38:
         case 13:// enter
             // up
-            $scope.page = true;
+            $scope.fullPage(true);
             break;
-        case 27:// esc
-            if ($scope.activeList) {
-                var elem = $scope.activeList;
-                if (elem.parentNode) {
-                    remove(elem);
-                    break;
-                }
-            }
+
         case 34:
         // page down
         case 40:
             // down
-            $scope.page = false;
+            $scope.fullPage(false);
             break;
         case 221:
             // ]
@@ -58,7 +51,7 @@ on("keydown")(window, function (event) {
             // [
             break;
 
-        default: console.log(event.keyCode);
+        // default: console.log(event.keyCode);
     }
 });
 var fixTime = time => (time < 10 ? '0' : '') + (time | 0) % 60;
@@ -126,8 +119,12 @@ var player = function (box = div()) {
             }
         }
         render.refresh(box);
-
     };
+    var backer = document.createElement("back");
+    onremove(backer, function () {
+        var $scope = box.$scope;
+        $scope.page = false;
+    });
     render(box, {
         btn: button,
         krc: kugou$krc,
@@ -139,8 +136,13 @@ var player = function (box = div()) {
         canvas: kugou$dance,
         activeList: kugou$playList(),
         index: 0,
-        fullPage() {
-            this.page = !this.page;
+        fullPage(state = !this.page) {
+            if (state) {
+                rootElements.mount(backer);
+                this.page = state;
+            } else {
+                rootElements.unmount(backer);
+            }
         },
         pause() {
             this.playing = false;
@@ -160,13 +162,8 @@ var player = function (box = div()) {
             if (this.dance) cast(this.dance, buf);
         },
         play(hash = musicList.active_hash) {
-            if (hash === musicList.active_hash && this.audio) {
-                if (this.playing) return;
-                this.playing = true;
-                if (this.audio.play instanceof Function) this.audio.play();
-                return;
-            }
-            if (typeof hash === "number") {
+            var isPlayback = typeof hash === "number";
+            if (isPlayback) {
                 if (hash < 0) {
                     hash = hash + musicList.length;
                 }
@@ -177,11 +174,17 @@ var player = function (box = div()) {
                 hash = musicList[hash];
                 if (!hash) return;
                 hash = hash.hash;
-            } else {
-                for (var cx = kugou$musicList.length - 1; cx >= 0; cx--) {
-                    if (kugou$musicList[cx].hash === hash) kugou$musicList.splice(cx, 1);
-                }
             }
+            if (hash === musicList.active_hash && this.audio) {
+                if (this.playing) return box.pause();
+                this.playing = true;
+                if (this.audio.play instanceof Function) this.audio.play();
+                return;
+            }
+            if (!isPlayback) for (var cx = kugou$musicList.length - 1; cx >= 0; cx--) {
+                if (kugou$musicList[cx].hash === hash) kugou$musicList.splice(cx, 1);
+            }
+
             box.pause();
             /**
              * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
