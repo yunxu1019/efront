@@ -1,5 +1,8 @@
 function lazy(call, wait) {
     return function timer() {
+        if (arguments.length) {
+            return call.apply(this, arguments);
+        }
         if (timer.ing) return timer.ing = true;
         wait = +wait;
         var fire = function () {
