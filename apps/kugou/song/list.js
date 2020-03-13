@@ -2,7 +2,7 @@ var page = div();
 page.innerHTML = list;
 var scope = {
     slider,
-    songs,
+    songs: [],
     padding,
     list: zimoli$lattice,
     song: kugou$song,
