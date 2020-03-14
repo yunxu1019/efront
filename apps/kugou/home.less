@@ -1,6 +1,6 @@
 .title-bar {
     position: absolute;
-    background-color: #fffb;
+    // background-color: #fffb;
     left: 0;
     right: 0;
     top: 0;
@@ -15,13 +15,15 @@
     padding-right: 60px;
     cursor: default;
     white-space: nowrap;
+    background-color: #1f4a3bd4;
 
     >tag {
         width: 25%;
         max-width: 80px;
         height: 44px;
         line-height: 42px;
-        color: #333;
+        // color: #333;
+        color: #fff;
         display: inline-block;
         text-align: center;
         box-shadow: none;
@@ -32,7 +34,7 @@
         }
 
         &.activate {
-            color: #2292e4;
+            color: #ffffff88;
         }
     }
 
@@ -41,7 +43,7 @@
         right: 0;
         width: 50px;
         height: 100%;
-        background-color: #2292e4;
+        background: transparent;
     }
 
     .search-icon {
@@ -85,5 +87,30 @@
         :not(.vbox)>.vbox {
             padding-bottom: 60px;
         }
+    }
+}
+
+.search-box {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding-right: 4px;
+}
+
+@media(max-width:520px) {
+    .search-box {
+        display: none;
+    }
+}
+
+@media(min-width:521px) {
+    .title-bar {
+        padding-right: 232px;
+    }
+
+    .search-btn {
+        display: none;
     }
 }

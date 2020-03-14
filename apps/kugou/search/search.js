@@ -1,5 +1,4 @@
-
-css(titlebar("搜索"), { backgroundColor: "rgb(44, 162, 249,.7)" });
+titlebar("搜索");
 var inputBox = createWithClass(div, "input-box");
 var textInput = createWithClass(input, "input");
 appendChild(inputBox, textInput);

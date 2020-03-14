@@ -2,7 +2,7 @@ var activeDevice;
 function line(buffer, style, width = devicePixelRatio) {
     var canvas = this;
     var context = canvas.getContext("2d");
-    context.strokeStyle = style || "rgba(60,180,255,1)";
+    context.strokeStyle = style || "#00bd7bd4";
     context.lineWidth = width;
     context.moveTo.apply(context, buffer[0]);
     context.beginPath();
@@ -20,7 +20,7 @@ function draw(buffer) {
     if (canvas.height !== canvas.offsetHeight * devicePixelRatio) canvas.height = canvas.offsetHeight * devicePixelRatio;
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.beginPath();
-    context.strokeStyle = "rgba(60,180,255,1)";
+    context.strokeStyle = "#00bd7bd4";
     context.lineWidth = devicePixelRatio;
     var max = 2;
     var v = (this.volume >= 0 ? this.volume : 1) * buffer.length - .5;
@@ -42,7 +42,7 @@ function draw(buffer) {
             }
         });
         context.lineWidth = 1;
-        context.strokeStyle = "rgba(60,180,255,.6)";
+        context.strokeStyle = "#00bd7bd4";
         context.stroke();
         if (this === activeDevice) {
             context.beginPath();

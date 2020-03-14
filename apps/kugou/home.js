@@ -27,8 +27,9 @@ page.innerHTML = home;
 render(page, {
     go,
     tags,
-    tag:button,
-    btn:button,
+    tag: button,
+    btn: button,
+    input,
     slider(elem) {
         var pages = slider(elem, function (index, ratio) {
             if (ratio === 1) {

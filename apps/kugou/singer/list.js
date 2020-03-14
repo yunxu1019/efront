@@ -1,5 +1,4 @@
 var _titlebar = titlebar(" ");
-css(_titlebar, "background:#2ca2f9;");
 var tbar = _titlebar.children[0];
 var page = createVboxWithState(state);
 page.initialStyle = 'margin-left:100%';

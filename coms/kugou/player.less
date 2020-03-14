@@ -83,6 +83,7 @@
     height: 60px;
 }
 
+
 &>.track,
 &>.progress>.track {
     position: absolute;
@@ -145,6 +146,7 @@
     z-index: 10;
     height: 0;
     width: 100%;
+    user-select: none;
     position: fixed;
     bottom: 0;
     color: #fff;
@@ -212,7 +214,7 @@
     }
 
     >.track {
-        display: none;
+        // display: none;
     }
 }
 
@@ -383,7 +385,32 @@
     height: 72px;
     z-index: 1;
     bottom: 0;
+    pointer-events: none;
+
+    &+.avatar {
+        border-color: transparent;
+        z-index: 1;
+    }
 }
+
+// & {
+//     >.track {
+//         height: 60px;
+//         margin-top: 0;
+//         border-top: 0 solid #666;
+//         transition: margin-top .2s ease-out, border-top .2s ease-out, height .2s ease-out;
+//     }
+// }
+
+// &.effect {
+//     opacity: 1;
+
+//     >.track {
+//         height: 420px;
+//         margin-top: -360px;
+//         border-top: 360px solid #666;
+//     }
+// }
 
 &:not(.page)>canvas {
     top: -12px;

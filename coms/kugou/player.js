@@ -67,7 +67,7 @@ var filterTime = function (a, t) {
 };
 var createControls = function () {
     var box = createWithClass(div, "player-box");
-    box.setAttribute("ng-class", "{play:playing,pause:!playing,page:page}");
+    box.setAttribute("ng-class", "{play:playing===true,pause:playing===false,page:page,effect:effect}");
     box.innerHTML = Player;
     var [background, progress] = box.children;
 
@@ -131,10 +131,11 @@ var createControls = function () {
             if (deltaTop) {
                 this.deltaTop = 0;
                 if (windowHeight - currentHeight <= 30) {
+                    $scope.playing = !!$scope.playing;
                     $scope.fullPage(true);
                 }
                 else if (currentHeight <= 10 || currentHeight <= 50 && deltaTop > 0) {
-                    delete $scope.playing;
+                    $scope.playing = +$scope.playing;
                     removeClass(this, 'pause play page');
                     $scope.fullPage(false);
                 }
@@ -186,12 +187,16 @@ var player = function (box = div()) {
         hash: '',
         currentTime: "00:00",
         info: {},
+        effect: false,
         playing: null,
         page: false,
         source: [],
         canvas: kugou$dance,
         activeList: kugou$playList(),
         index: 0,
+        effectPage(effect = !this.effect) {
+            this.effect = effect;
+        },
         fullPage(state = !this.page) {
             if (state) {
                 rootElements.mount(backer);
@@ -321,14 +326,19 @@ var player = function (box = div()) {
                     var source = context.createMediaElementSource(_audio);
                     var createScript = context.createScriptProcessor || context.createJavaScriptNode;
                     var script = createScript.apply(context, [0, 2, 2]);
+                    var audioBuffer;
+                    var draw = lazy(_ => this.draw(audioBuffer), false);
+                    var last_id = 0;
                     script.onaudioprocess = (e) => {
+                        audioBuffer = audio.copyData(e);
                         if (this.audio !== _audio) {
                             script.onaudioprocess = null;
                             script.disconnect();
                             source.disconnect();
+                        } else if (last_id !== _audio.currentTime) {
+                            last_id = _audio.currentTime;
+                            draw();
                         }
-                        var buf = audio.copyData(e);
-                        this.draw(buf);
                     };
                     source.connect(script);
                     script.connect(context.destination);
