@@ -1,6 +1,6 @@
 var alertError = alert.bind(null, 'error');
 var Context = window.webkitAudioContext || window.AudioContext;
-var globalContext = new Context;
+var globalContext = Context && new Context;
 
 var reportError = function (error) {
     switch (error.code || error.name) {
