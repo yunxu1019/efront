@@ -29,6 +29,7 @@ function bindtouch(target, bindder, lockDirection = "x") {
                 }
                 if (direction !== lockDirection)
                     return;
+                if (direction === "y" && deltay === 0 || direction === "x" && deltax === 0) return;
             }
             event.moveLocked = true;
             var { x = 0, y = 0 } = bindder.call(this);
