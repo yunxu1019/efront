@@ -1,6 +1,7 @@
 var abs = Math.abs;
 function bindtouch(target, bindder, lockDirection = "x") {
     var direction, saved_x, saved_y;
+    lockDirection = lockDirection.toLowerCase();
     moveupon(target, {
         start(event) {
             saved_x = event.clientX, saved_y = event.clientY;
@@ -18,7 +19,13 @@ function bindtouch(target, bindder, lockDirection = "x") {
                     if (target.onmovestart) {
                         target.onmovestart();
                     }
-                    direction = abs(deltax) >= abs(deltay) ? "x" : 'y';
+                    if (abs(deltax) * .618 >= abs(deltay)) {
+                        direction = "x";
+                    } else if (abs(deltax) <= .618 * abs(deltay)) {
+                        direction = "y";
+                    } else {
+                        return;
+                    }
                 }
                 if (direction !== lockDirection)
                     return;
@@ -35,4 +42,4 @@ function bindtouch(target, bindder, lockDirection = "x") {
         }
     });
 
-}
+} 
