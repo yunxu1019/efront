@@ -1,4 +1,18 @@
 var activeDevice;
+function line(buffer, style, width = devicePixelRatio) {
+    var canvas = this;
+    var context = canvas.getContext("2d");
+    context.strokeStyle = style || "rgba(60,180,255,1)";
+    context.lineWidth = width;
+    context.moveTo.apply(context, buffer[0]);
+    context.beginPath();
+    var { width, height } = canvas;
+    for (var cx = 1, dx = buffer.length; cx < dx; cx++) {
+        var [x, y] = buffer[cx];
+        context.lineTo(x * width, y * height);
+    }
+    context.stroke();
+}
 function draw(buffer) {
     var canvas = this;
     var context = canvas.getContext("2d");
@@ -13,25 +27,31 @@ function draw(buffer) {
     var x1 = 0, y1 = canvas.height / 2;
     context.moveTo(x1, y1);
     var ratio = canvas.width / buffer.length;
-    [].forEach.call(buffer, function (db, cx) {
-        var x = cx * ratio;
-        var y = canvas.height / 2 - db / max * canvas.height;
-        context.lineTo(x, y);
-        if (cx <= v && cx + 1 > v) {
-            context.stroke();
-            context.beginPath();
-        }
-    });
-    context.lineWidth = 1;
-    context.strokeStyle = "rgba(60,180,255,.6)";
-    context.stroke();
-    if (this === activeDevice) {
-        context.beginPath();
-        context.moveTo(v * ratio, 0);
-        context.lineTo(v * ratio, canvas.height);
+    if (buffer[0] instanceof Array) {
+        line.call(this, buffer);
+    } else if (buffer[0] instanceof Object) {
+        buffer.forEach(a => line.call(this, a.data, a.color, a.width));
+    } else {
+        [].forEach.call(buffer, function (db, cx) {
+            var x = cx * ratio;
+            var y = canvas.height / 2 - db / max * canvas.height;
+            context.lineTo(x, y);
+            if (cx <= v && cx + 1 > v) {
+                context.stroke();
+                context.beginPath();
+            }
+        });
         context.lineWidth = 1;
-        context.strokeStyle = "#ffffff";
+        context.strokeStyle = "rgba(60,180,255,.6)";
         context.stroke();
+        if (this === activeDevice) {
+            context.beginPath();
+            context.moveTo(v * ratio, 0);
+            context.lineTo(v * ratio, canvas.height);
+            context.lineWidth = 1;
+            context.strokeStyle = "#ffffff";
+            context.stroke();
+        }
     }
 }
 

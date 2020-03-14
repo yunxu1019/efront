@@ -86,25 +86,81 @@ var createControls = function () {
         $scope.currentTime = filterTime(currentTime, duration);
         $scope.totalTime = filterTime(duration, duration);
         $scope.currentRotate = `rotate(${currentTime * 6}deg)`;
+        $scope.currentTheta = ((currentTime * 6 + 90) % 180 - 90) / 180 * Math.PI;
         $scope.currentProcess = `width:${(currentTime * 100 / duration).toFixed(2)}%;`;
+        render.refresh(box);
     };
     bindtouch(box, function (value) {
         if (value) {
-            box.touching = true;
+            this.touching = true;
             var { x } = value;
             var audio = box.$scope.audio;
-            box.process(x / box.offsetWidth * audio.duration, audio.duration);
+            this.process(x / box.offsetWidth * audio.duration, audio.duration);
         }
         return { x: progress.offsetWidth };
-    });
+    }, "x");
+    bindtouch(box, function (value) {
+        var top = getScreenPosition(box).top;
+        if (value) {
+            if (!this.deltaTop) {
+                addClass(this, "dragging");
+            }
+            var { y } = value;
+            if (y < 0) y = 0;
+            if (window.innerHeight - y >= 80) {
+                this.$scope.fullPage(true);
+            } else {
+                this.$scope.fullPage(false);
+            }
+            css(this, {
+                transition: 'opacity .5s ease-out',
+                height: fromOffset(window.innerHeight - y)
+            });
+            this.deltaTop = y - top;
+        }
+        return { y: getScreenPosition(box).top };
+    }, 'y');
     moveupon(box, {
         start() {
         },
         end() {
+            var currentHeight = calcPixel(this.offsetHeight), windowHeight = calcPixel(window.innerHeight);
+            var $scope = this.$scope;
+            var { deltaTop } = this;
+            removeClass(this, "dragging");
+            if (deltaTop) {
+                this.deltaTop = 0;
+                if (windowHeight - currentHeight <= 30) {
+                    $scope.fullPage(true);
+                }
+                else if (currentHeight <= 10 || currentHeight <= 50 && deltaTop > 0) {
+                    delete $scope.playing;
+                    removeClass(this, 'pause play page');
+                    $scope.fullPage(false);
+                }
+                else if (currentHeight >= 50 && currentHeight <= 90 || currentHeight <= 50 && deltaTop < 0) {
+                    $scope.fullPage(false);
+                    $scope.page = false;
+                    $scope.playing = !!$scope.playing;
+                }
+                else if (deltaTop < 0) {
+                    $scope.playing = !!$scope.playing;
+                    $scope.fullPage(true);
+                }
+                else if (deltaTop > 0) {
+                    $scope.playing = !!$scope.playing;
+                    $scope.fullPage(false);
+                }
+                render.refresh();
+            }
+            css(this, {
+                transition: '',
+                height: ''
+            });
             if (!box.touching) return;
-            var audio = this.$scope.audio;
+            var audio = $scope.audio;
             audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth;
-            box.touching = false;
+            this.touching = false;
         }
     });
     appendChild.before(document.body, box);
@@ -118,7 +174,6 @@ var player = function (box = div()) {
                 return;
             }
         }
-        render.refresh(box);
     };
     var backer = document.createElement("back");
     onremove(backer, function () {
@@ -131,6 +186,7 @@ var player = function (box = div()) {
         hash: '',
         currentTime: "00:00",
         info: {},
+        playing: null,
         page: false,
         source: [],
         canvas: kugou$dance,
@@ -147,19 +203,48 @@ var player = function (box = div()) {
         pause() {
             this.playing = false;
             if (this.audio && this.audio.pause instanceof Function) this.audio.pause();
+            render.refresh(box);
         },
         sbtn(elem) {
             button(elem);
             select(elem, this.activeList, null);
         },
         draw(buf) {
+            buf = buf.map(a => a * 2 / 9 + 0.6);
+            var width = freePixel(box.offsetWidth);
+            var height = 72;
+            var ratio = 1 / width * buf.length;
+            var buf = [].map.call(buf, (y, i) => [i / buf.length, y]);
+            var { sin, cos, abs } = Math;
+            var { currentTheta } = this;
             if (box.offsetHeight <= calcPixel(80)) {
-                var ratio = 1 / freePixel(box.offsetWidth) * buf.length;
-                for (var cx = 11 * ratio | 0, dx = 77 * ratio; cx < dx; cx++) {
-                    buf[cx] += 0.3333;
+                var centerx = 44 / width, centery = .5;
+                var start = 11 * ratio | 0, end = 77 * ratio | 0;
+                for (var cx = start, dx = end; cx < dx; cx++) {
+                    var [x, y] = buf[cx];
+                    y -= 0.1;
+                    if (currentTheta) {
+                        x = (x - centerx) * width;
+                        y = (y - centery) * height;
+                        y = y * cos(x / 66 * Math.PI);
+                        var x1 = cos(currentTheta) * x - sin(currentTheta) * y,
+                            y1 = cos(currentTheta) * y + sin(currentTheta) * x;
+                        buf[cx][0] = x1 / width + centerx;
+                        buf[cx][1] = y1 / height + centery;
+                    } else {
+                        buf[cx][1] = y;
+                    }
                 }
+                cast(this.dance, [{
+                    data: buf.slice(0, start),
+                }, {
+                    data: buf.slice(start, end)
+                }, {
+                    data: buf.slice(end)
+                }]);
+            } else {
+                if (this.dance) cast(this.dance, buf);
             }
-            if (this.dance) cast(this.dance, buf);
         },
         play(hash = musicList.active_hash) {
             var isPlayback = typeof hash === "number";
@@ -176,7 +261,7 @@ var player = function (box = div()) {
                 hash = hash.hash;
             }
             if (hash === musicList.active_hash && this.audio) {
-                if (this.playing) return box.pause();
+                if (this.playing) return this.pause();
                 this.playing = true;
                 if (this.audio.play instanceof Function) this.audio.play();
                 return;
@@ -185,7 +270,7 @@ var player = function (box = div()) {
                 if (kugou$musicList[cx].hash === hash) kugou$musicList.splice(cx, 1);
             }
 
-            box.pause();
+            this.pause();
             /**
              * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
              */
@@ -203,7 +288,10 @@ var player = function (box = div()) {
             }
             musicList.active_hash = hash;
             render.refresh();
+            this.playing = true;
+
             getMusicInfo(hash).loading_promise.then((response) => {
+                if (!this.playing) return;
                 if (hash !== musicList.active_hash) return;
                 if (response.imgUrl) {
                     response.avatar = response.imgUrl.replace(/\{size\}/ig, 200);
@@ -246,7 +334,6 @@ var player = function (box = div()) {
                     script.connect(context.destination);
                     this.source = source;
                 }
-                this.playing = true;
                 render.refresh();
             });
             this.audio = _audio;
