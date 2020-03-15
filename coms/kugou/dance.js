@@ -1,9 +1,7 @@
 var activeDevice;
-function line(buffer, style, width = devicePixelRatio) {
+function line(buffer, style, lineWidth = window.devicePixelRatio || 1) {
     var canvas = this;
     var context = canvas.getContext("2d");
-    context.strokeStyle = style || "#00bd7bd4";
-    context.lineWidth = width;
     context.moveTo.apply(context, buffer[0]);
     context.beginPath();
     var { width, height } = canvas;
@@ -11,6 +9,8 @@ function line(buffer, style, width = devicePixelRatio) {
         var [x, y] = buffer[cx];
         context.lineTo(x * width, y * height);
     }
+    context.strokeStyle = style || "#00bd7bd4";
+    context.lineWidth = lineWidth;
     context.stroke();
 }
 function draw(buffer) {
@@ -21,7 +21,7 @@ function draw(buffer) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.beginPath();
     context.strokeStyle = "#00bd7bd4";
-    context.lineWidth = devicePixelRatio;
+    context.lineWidth = window.devicePixelRatio || 1;
     var max = 2;
     var v = (this.volume >= 0 ? this.volume : 1) * buffer.length - .5;
     var x1 = 0, y1 = canvas.height / 2;
