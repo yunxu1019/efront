@@ -220,18 +220,27 @@ function parseConfig(api) {
         required
     };
 }
-
+var isWorseIE = /msie\s+[2-9]/i.test(navigator.userAgent);
 var parseData = function (sourceText) {
     if (/^\s*([\{\[]|"|true|\d|false|null)/.test(sourceText)) {
         return JSON.parse(sourceText);
     }
-    var doc = document.implementation.createHTMLDocument("");
     if (/^\s*\</i.test(sourceText)) {
-        doc.documentElement.innerHTML = sourceText;
-    } else {
-        return sourceText;
+        var doc = document.implementation.createHTMLDocument('');
+        if (isWorseIE) {
+
+            sourceText = sourceText
+                .replace(/<!--[\s\S]*?-->|<\[CDATA\[[\s\S]*?\]\]>/ig, '')
+                .replace(/^[\s\S]*?<html>([\s\S]*)<\/html>[\s\S]*?$/i, '$1')
+                .replace(/^[\s\S]*?<body>([\s\S]*?)$/i, '$1')
+                .replace(/<\/body>[\s\S]*?$/, '');
+            doc.body.innerHTML = sourceText;
+        } else {
+            doc.documentElement.innerHTML = sourceText;
+        }
+        return doc;
     }
-    return doc;
+    return sourceText;
 }
 function fixApi(api, href) {
     if (!reg.test(api.url)) {
