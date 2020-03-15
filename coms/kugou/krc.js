@@ -1,4 +1,5 @@
 var secret = [64, 71, 97, 119, 94, 50, 116, 71, 81, 54, 49, 45, 206, 210, 110, 105];
+var isTrident = /Trident/i.test(navigator.userAgent);
 function krc(list = div()) {
     care(list, function (info) {
 
@@ -71,8 +72,7 @@ function createKRC(krc) {
             if (ele && firstChild && firstChild.isMounted) {
                 var marginTop = (firstChild.parentNode.offsetHeight - ele.offsetHeight >> 1) - ele.offsetTop + firstChild.offsetTop;
                 if (index > 0) {
-                    if (krcList.index !== index) {
-                        krcList.index = index;
+                    if (markerLabel.parentNode !== ele) {
                         krcList.slice(0, index).map(function (a, cx, arr) {
                             removeClass(a, "active after after-active before-active");
                             addClass(a, "before");
@@ -85,11 +85,12 @@ function createKRC(krc) {
                             addClass(a, "after");
                         });
                         if (index + 2 < krcList.length) addClass(krcList[index + 1], 'after-active');
-                    }
-                    if (markerLabel.parentNode !== ele) {
+                        if (isTrident) {
+                            css(markerLabel, `left:${fromOffset(ele.children[0].offsetLeft)}`);
+                        };
                         ele.insertBefore(markerLabel, ele.firstChild);
                     }
-                    var word_ele = ele.children[current_row_index+1];
+                    var word_ele = ele.children[current_row_index + 1];
                     var rowData = current_words.map(a => a.label).join("");
                     if (text(markerLabel) !== rowData) {
                         text(markerLabel, rowData);
@@ -100,8 +101,8 @@ function createKRC(krc) {
                     }
                     var word_first = ele.children[1];
                     var targetWidth = (word_ele.offsetLeft - word_first.offsetLeft + word_ele.offsetWidth * widthRatio).toFixed(0);
-                    if (+targetWidth !== parseInt(markerLabel.style.width)) {
-                        css(markerLabel, `width:${targetWidth}px;`);
+                    if (+targetWidth !== freeOffset(markerLabel.style.width)) {
+                        css(markerLabel, `width:${fromOffset(targetWidth)}`);
                     }
                 }
                 css(firstChild, `margin-top:${marginTop | 0}px;`);
