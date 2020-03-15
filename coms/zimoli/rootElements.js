@@ -4,9 +4,6 @@ rootElements.pop = function (elem) {
         var index = rootElements.lastIndexOf(elem);
         if (~index) {
             rootElements.splice(index, 1);
-            if (rootElements.length === 0) {
-                history.back();
-            }
         }
         return;
     }
