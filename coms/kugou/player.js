@@ -180,6 +180,7 @@ var player = function (box = div()) {
     onremove(backer, function () {
         var $scope = box.$scope;
         $scope.page = false;
+        render.refresh();
     });
     render(box, {
         btn: button,
