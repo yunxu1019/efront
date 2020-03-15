@@ -64,6 +64,7 @@ if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.pla
     let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
     document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=1,maximum-scale=${ratio}`);
     renderPixelRatio *= devicePixelRatio;
+    devicePixelRatio = 1;
 }
 var initPixelDecoder = function () {
     if (pixelDecoder instanceof Function) {
@@ -599,6 +600,7 @@ var modules = {
     loaddingTree,
     load: loaddata,
     XHR,
+    devicePixelRatio,
     renderPixelRatio,
     debug() {
         document.addEventListener("blur", e => e.stopPropagation(), true);
