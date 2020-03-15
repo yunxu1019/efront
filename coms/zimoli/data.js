@@ -299,11 +299,11 @@ var privates = {
     loadAfterConfig(serviceId, params) {
         return this.getApi(serviceId).then((api) => {
             if (/\?/.test(serviceId)) {
-                params = Object.assign({}, getParamsFromUrl(serviceId), params);
+                params = extend({}, getParamsFromUrl(serviceId), params);
                 serviceId = serviceId.replace(/\?[\s\S]*$/, '');
             }
             if (/\:/.test(serviceId)) {
-                var params1 = Object.assign({}, params);
+                var params1 = extend({}, params);
                 var temp = getParamsFromUrl(serviceId, ":");
                 for (var k in temp) {
                     var v = temp[k];
@@ -337,7 +337,7 @@ var privates = {
             serviceId = serviceId.replace(/[\?\:][\s\S]*$/, "");
             const api = apiMap[serviceId];
             if (!api) { throw new Error(`没有找到对应的接口 id ${serviceId}.`); }
-            return Object.assign({}, api, { root: apiMap });
+            return extend({}, api, { root: apiMap });
         });
     },
     loadIgnoreConfig(method, url, params, apiMap) {
@@ -527,7 +527,7 @@ var data = {
             this.loading_count--;
             response.is_errored = true;
             if (e instanceof Object) {
-                Object.assign(response, e);
+                extend(response, e);
             } else {
                 response.error = e;
             }
