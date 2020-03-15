@@ -28,7 +28,7 @@ data.asyncInstance("songs-list").loading_promise.then(function (data) {
     });
     scope.songs = songs;
     render.refresh();
-});
+}).catch(console.log);
 render(page, scope);
 
 function main() {

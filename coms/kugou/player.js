@@ -276,11 +276,37 @@ var player = function (box = div()) {
             }
 
             this.pause();
+
             /**
              * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
              */
             this.playing = false;
             var _audio = document.createElement("audio");
+            if (!/iPhone/.test(navigator.platform) && audio.Context) {
+                // ios设备目前未找到可视化方案
+                var context = new audio.Context;
+                var source = context.createMediaElementSource(_audio);
+                var createScript = context.createScriptProcessor || context.createJavaScriptNode;
+                var script = createScript.apply(context, [0, 2, 2]);
+                var audioBuffer;
+                var draw = lazy(_ => this.draw(audioBuffer), false);
+                var last_id = 0;
+                script.onaudioprocess = (e) => {
+                    audioBuffer = audio.copyData(e);
+                    if (this.audio !== _audio) {
+                        script.onaudioprocess = null;
+                        script.disconnect();
+                        source.disconnect();
+                    } else if (last_id !== _audio.currentTime) {
+                        last_id = _audio.currentTime;
+                    }
+                    draw(audioBuffer);
+                };
+                source.connect(script);
+                script.connect(context.destination);
+
+                this.source = source;
+            }
             if (_audio.play) {
                 _audio.ontimeupdate = updater;
                 _audio.play();//安卓4以上的播放功能要在用户事件中调用;
@@ -320,30 +346,9 @@ var player = function (box = div()) {
                 extend(this.info, response);
                 cast(this.krcpad, response);
                 _audio.src = cross.getCrossUrl(response.url);
+                _audio.play();
                 data.setInstance('musicList', distlist, true);
-                if (AudioContext) {
-                    var context = new AudioContext;
-                    var source = context.createMediaElementSource(_audio);
-                    var createScript = context.createScriptProcessor || context.createJavaScriptNode;
-                    var script = createScript.apply(context, [0, 2, 2]);
-                    var audioBuffer;
-                    var draw = lazy(_ => this.draw(audioBuffer), false);
-                    var last_id = 0;
-                    script.onaudioprocess = (e) => {
-                        audioBuffer = audio.copyData(e);
-                        if (this.audio !== _audio) {
-                            script.onaudioprocess = null;
-                            script.disconnect();
-                            source.disconnect();
-                        } else if (last_id !== _audio.currentTime) {
-                            last_id = _audio.currentTime;
-                            draw();
-                        }
-                    };
-                    source.connect(script);
-                    script.connect(context.destination);
-                    this.source = source;
-                }
+
                 render.refresh();
             });
             this.audio = _audio;
