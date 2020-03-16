@@ -9,7 +9,7 @@ function main(params, from) {
     var page = createVboxWithState(state);
     page.initialStyle = 'margin-left:100%';
     page.innerHTML = search;
-    $scope = render(page, {
+    var $scope = render(page, {
         titlebar,
         back,
         btn: button,
