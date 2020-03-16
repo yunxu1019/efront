@@ -590,9 +590,17 @@ user.clean = zimoli.clean = function () {
     var pathnames = [].concat.apply([], arguments);
     pathnames.forEach(pathname => popstate(pathname));
 };
+var rootElements_push = rootElements.push;
+var rootElements_splice = rootElements.splice;
 rootElements.push = function () {
-    [].push.apply(this, arguments);
+    var length = rootElements_push.apply(this, arguments);
     fixurl();
+    return length;
+};
+rootElements.splice = function () {
+    var element = rootElements_splice.apply(this, arguments);
+    fixurl();
+    return element;
 };
 appendChild.transition = transition;
 remove.transition = transition;
