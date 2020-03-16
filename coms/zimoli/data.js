@@ -223,9 +223,13 @@ function parseConfig(api) {
 var isWorseIE = /msie\s+[2-9]/i.test(navigator.userAgent);
 var parseData = function (sourceText) {
     if (/^\s*([\{\[]|"|true|\d|false|null)/.test(sourceText)) {
-        return JSON.parse(sourceText);
+        // JSON 格式
+        try {
+            return JSON.parse(sourceText);
+        } catch (e) { console.log(e); }
     }
     if (/^\s*\</i.test(sourceText)) {
+        // XML 格式
         var doc = document.implementation.createHTMLDocument('');
         if (isWorseIE) {
 
@@ -239,6 +243,12 @@ var parseData = function (sourceText) {
             doc.documentElement.innerHTML = sourceText;
         }
         return doc;
+    }
+    if (/^[\s\_\.\w\$]+\s*\([\s\S]*\)\s*;?\s*$/.test(sourceText)) {
+        // JOSNP 格式
+        try {
+            return JSON.parse(sourceText.replace(/^[^\(]+\(([\s\S]*)\)[^\)]*$/, "$1"));
+        } catch (e) { console.log(e); }
     }
     return sourceText;
 }
@@ -306,40 +316,50 @@ var _configfileurl;
 var configPormise;
 var privates = {
     loadAfterConfig(serviceId, params) {
-        return this.getApi(serviceId).then((api) => {
-            if (/\?/.test(serviceId)) {
-                params = extend({}, getParamsFromUrl(serviceId), params);
-                serviceId = serviceId.replace(/\?[\s\S]*$/, '');
-            }
-            if (/\:/.test(serviceId)) {
-                var params1 = extend({}, params);
-                var temp = getParamsFromUrl(serviceId, ":");
-                for (var k in temp) {
-                    var v = temp[k];
-                    if (v in params) {
-                        params1[k] = params[v];
-                    }
-                    if (!(v in temp)) {
-                        delete params1[v];
-                    }
-                }
-            }
+        var promise = this.getApi(serviceId).then((api) => {
+            params = this.pack(serviceId, params);
             return this.fromApi(api, params);
         });
+        return promise;
+    },
+    pack(serviceId, params) {
+        if (/\?/.test(serviceId)) {
+            params = extend({}, getParamsFromUrl(serviceId), params);
+            serviceId = serviceId.replace(/\?[\s\S]*$/, '');
+        }
+        if (/\:/.test(serviceId)) {
+            var params1 = extend({}, params);
+            var temp = getParamsFromUrl(serviceId, ":");
+            for (var k in temp) {
+                var v = temp[k];
+                if (v in params) {
+                    params1[k] = params[v];
+                }
+                if (!(v in temp)) {
+                    delete params1[v];
+                }
+            }
+        }
+        return params;
     },
     fromApi(api, params) {
         let url = api.url;
-        if (api.reauired) {
-            var lacks = api.reauired;
-            if (!params) {
+        if (this.validApi(api, params)) return this.loadIgnoreConfig(api.method, url, params, api.root);
+        return Promise.resolve();
+    },
+
+    validApi(api, params) {
+        if (api.required) {
+            var lacks = api.required;
+            if (params) {
                 lacks = lacks.filter(a => isEmpty(params[a]));
             }
             if (lacks.length) {
-                console.log(`跳过了缺少参数的请求:${api.uid} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
-                return Promise.resolve();
+                console.log(`跳过了缺少参数的请求:${api.id} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
+                return false;
             }
         }
-        return this.loadIgnoreConfig(api.method, url, params, api.root);
+        return true;
     },
     getApi(serviceId) {
         return this.getConfigPromise().then((apiMap) => {
@@ -349,7 +369,7 @@ var privates = {
             return extend({}, api, { root: apiMap });
         });
     },
-    loadIgnoreConfig(method, url, params, apiMap) {
+    prepare(method, url, params) {
         var spliterIndex = /[\:\|\/\~\!\?]/.exec(method);
         if (spliterIndex) spliterIndex = spliterIndex.index;
         else spliterIndex = method.length;
@@ -378,7 +398,12 @@ var privates = {
         } else {
             uri = baseuri;
         }
+
         rest.forEach(k => delete params[k]);
+        return { method: realmethod, coinmethod, selector: method.slice(spliterIndex + 1), baseuri, uri, params };
+    },
+    loadIgnoreConfig(method, url, params, apiMap) {
+        var { method: realmethod, uri, baseuri, coinmethod, selector, params } = this.prepare(method, url, params);
         var id = realmethod + " " + baseuri;
         var promise = cachedLoadingPromise[id];
         var temp = JSON.stringify(params);
@@ -402,7 +427,7 @@ var privates = {
         }
         return promise.then(function (response) {
             if (/\*$/.test(coinmethod)) return response;
-            return transpile(seek(parseData(response), method.slice(spliterIndex + 1)), getTranspile(url), apiMap);
+            return transpile(seek(parseData(response), selector), getTranspile(url), apiMap);
         });
     },
 
@@ -516,6 +541,7 @@ var data = {
         return data;
     },
     asyncInstance(sid, params, parse) {
+        // 不同参数的请求互不影响
         var id = parse instanceof Function || params ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var response = this.getInstance(id || sid);
@@ -542,6 +568,63 @@ var data = {
             }
         })
         return response;
+    },
+    lazyInstance(sid, params1, parse) {
+        // 不论参数是否一样，后一个请求都会覆盖前一个请求
+        var id = "." + sid;
+        var instance = this.getInstance(id);
+        var promise1 = instance.loading_promise;
+        if (promise1) {
+            var params = promise1.params;
+            if (deepEqual.shallow(params1, params)) {
+                return;
+            }
+        }
+        promise1 = instance.loading_promise = new Promise(function (ok) {
+            setTimeout(ok, 360);
+        }).then(function () {
+            if (promise1 !== instance.loading_promise) throw outdate;
+            return privates.getApi(sid);
+        }).then(function (api) {
+            var outdate = new Error("outdate canceled.");
+            if (promise1 !== instance.loading_promise) throw outdate;
+            if (instance.loading) {
+                instance.loading.abort();
+            }
+            var params = privates.pack(sid, params1);
+            if (!privates.validApi(api, params)) throw outdate;
+
+            var { method, uri, params, selector } = privates.prepare(api.method, api.url, params);
+            var promise = new Promise(function (ok, oh) {
+                instance.loading = cross(method, uri).send(params).done(xhr => {
+                    if (instance.loading !== xhr) return oh(outdate);
+                    instance.loading = null;
+                    ok(xhr.responseText || xhr.response);
+                }).error(xhr => {
+                    if (instance.loading !== xhr) return oh(outdate);
+                    instance.loading = null;
+                    try {
+                        oh(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
+                    } catch (error) {
+                        oh(error);
+                    }
+                });
+            }).then(function (response) {
+                return transpile(seek(parseData(response), selector), getTranspile(api.url), api.root);
+            });
+            return promise;
+        }).then((data) => {
+            if (instance.loading_promise !== promise1) return;
+            if (id) {
+                this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
+                this.removeInstance(id);
+            } else {
+                this.setInstance(sid, data);
+            }
+        });
+        promise1.catch(function () { });
+        promise1.params = params1;
+        return instance;
     },
     /**
      * 返回一个延长生命周期的内存对象
