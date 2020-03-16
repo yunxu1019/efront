@@ -138,7 +138,6 @@ function cross(method, url, headers) {
         xhr.onreadystatechange = null;
         abort.call(this);
     };
-    xhr.open(method, getCrossUrl(url, _headers));
     HeadersKeys.map(function (k) {
         if (_headers[k]) xhr.setRequestHeader(k, _headers[k]);
         delete _headers[k];
@@ -180,15 +179,28 @@ function cross(method, url, headers) {
             dispatch(window, 'render');
         }
     };
+    var setRequestHeader = xhr.setRequestHeader;
+    var realHeaders = Object.create(null);
+    xhr.setRequestHeader = function (key, value) {
+        realHeaders[key] = value;
+    };
     setTimeout(function () {
         if (!isEmpty(jsondata) && isEmpty(datas)) {
-            datas = JSON.stringify(jsondata);
-            if (datas === "{}" || datas === "[]") {
-                datas = '';
+            if (/^(get|head|trace)$/i.test(method)) {
+                url = url.replace(/#[\s\S]*/, '');
+                datas = serialize(jsondata);
+                url += (/\?/.test(url) ? "&" : "?") + datas;
             } else {
-                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                datas = JSON.stringify(jsondata);
+                if (datas === "{}" || datas === "[]") {
+                    datas = '';
+                } else {
+                    realHeaders["Content-Type"] = "application/json;charset=UTF-8";
+                }
             }
         }
+        xhr.open(method, getCrossUrl(url, _headers));
+        Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
         send.call(xhr, datas);
     }, 0);
     var onload = function (xhr) {
@@ -219,7 +231,7 @@ function cross(method, url, headers) {
         if (data instanceof Object) {
             extend(jsondata, data);
         } else if (value) {
-            extend(jsondata, { [data]: value })
+            extend(jsondata, { [data]: value });
         } else if (isString(data) && value !== false) {
             var data = /^\{/.test(data) ? JSON.parse(data) : parseKV(data, "&", "=");
             extend(jsondata, data);
