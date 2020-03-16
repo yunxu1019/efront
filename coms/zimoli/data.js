@@ -75,6 +75,7 @@ class LoadingArray extends Array {
     error_message = null;
     is_loading = true;
     is_readonly = null;
+    loading = null;
     loading_promise = null;
 }
 function getTranspile(url) {
@@ -577,11 +578,11 @@ var data = {
         if (promise1) {
             var params = promise1.params;
             if (deepEqual.shallow(params1, params)) {
-                return;
+                return instance;
             }
         }
         promise1 = instance.loading_promise = new Promise(function (ok) {
-            setTimeout(ok, 360);
+            setTimeout(ok, 600);
         }).then(function () {
             if (promise1 !== instance.loading_promise) throw outdate;
             return privates.getApi(sid);
@@ -617,13 +618,11 @@ var data = {
             if (instance.loading_promise !== promise1) return;
             if (id) {
                 this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
-                this.removeInstance(id);
             } else {
                 this.setInstance(sid, data);
             }
         });
         promise1.catch(function () { });
-        promise1.params = params1;
         return instance;
     },
     /**
@@ -671,7 +670,7 @@ var data = {
         if (instance === data) { return; }
         instance.splice(0, instance.length);
         Object.keys(old).forEach(function (k) {
-            if (instance[k] === old[k]) {
+            if (instance[k] === old[k] && !(k in new LoadingArray)) {
                 delete instance[k];
             }
         });

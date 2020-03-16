@@ -104,5 +104,5 @@ function main() {
     if (isNode(element) && !minWidth) {
         minWidth = +(element.getAttribute("min-width") || element.getAttribute("item-width"));
     }
-    return lattice(element, minWidth || 100, maxWidth, layers);
+    return lattice(element, minWidth || 240, maxWidth, layers);
 }

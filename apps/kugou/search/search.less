@@ -1,31 +1,88 @@
 & {
     padding-top: 50px;
-    position   : absolute;
-    left       : 0;
-    top        : 0;
-    right      : 0;
-    bottom     : 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     background: inherit;
+}
+.button{
+    padding: 0 10px;
+}
+
+.empty{
+    color: #666;
+    display: block;
+    padding: 50px 10px;
+    text-align: center;
+}
+
+&+.titlebar {
+    >.loading {
+        position: absolute;
+        height: 44px;
+        top: 0px;
+        right: 60px;
+        line-height: 44px;
+        text-align: right;
+        vertical-align: middle;
+        width: auto;
+        &:after {
+            content: "⇵";
+        }
+    }
+
+    >btn {
+        right: 0;
+    }
+
+    ::-moz-input-placeholder {
+        color: #fffc;
+    }
+
+    ::-ms-input-placeholder {
+        color: #fffc;
+    }
+
+    ::-webkit-input-placeholder {
+        color: #fffc;
+    }
+
+    >.input {
+        vertical-align: middle;
+        text-align: center;
+        background: #00000011;
+        transition: background-color .1s;
+        color: #fff;
+
+
+        &:focus {
+            background: #00000066;
+            text-align: left;
+        }
+
+    }
 }
 
 .input-box {
-    height  : 50px;
+    height: 50px;
     position: relative;
-    padding : 10px 12px;
+    padding: 10px 12px;
 
     >input {
-        height       : 30px;
-        border       : none;
-        width        : 100%;
+        height: 30px;
+        border: none;
+        width: 100%;
         border-radius: 3px;
-        font-size    : 14px;
-        padding      : 0 10px;
+        font-size: 14px;
+        padding: 0 10px;
     }
 }
 
 .keyword-pad {
     >div {
-        padding         : 10px 12px;
+        padding: 10px 12px;
         background-color: #fff;
     }
 
@@ -40,7 +97,7 @@
     }
 
     >div {
-        padding         : 10px 12px;
+        padding: 10px 12px;
         background-color: #fff;
     }
 

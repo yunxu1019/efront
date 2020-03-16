@@ -301,7 +301,7 @@ var player = function (box = div()) {
                     } else if (last_id !== _audio.currentTime) {
                         last_id = _audio.currentTime;
                     }
-                    draw(audioBuffer);
+                    draw();
                 };
                 source.connect(script);
                 script.connect(context.destination);

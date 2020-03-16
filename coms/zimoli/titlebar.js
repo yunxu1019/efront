@@ -6,7 +6,8 @@ function btn(element) {
 }
 
 
-function titlebar() {
+function titlebar(elem) {
+    if (isElement(elem)) return elem;
     var page_title, option_buttons, use_back;
     {
         for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
