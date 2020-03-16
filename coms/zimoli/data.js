@@ -401,10 +401,10 @@ var privates = {
         }
 
         rest.forEach(k => delete params[k]);
-        return { method: realmethod, coinmethod, selector: method.slice(spliterIndex + 1), baseuri, uri, params };
+        return { method: realmethod, coinmethod, selector: method.slice(spliterIndex + 1), search, baseuri, uri, params };
     },
     loadIgnoreConfig(method, url, params, apiMap) {
-        var { method: realmethod, uri, baseuri, coinmethod, selector, params } = this.prepare(method, url, params);
+        var { method: realmethod, uri, baseuri, coinmethod, search, selector, params } = this.prepare(method, url, params);
         var id = realmethod + " " + baseuri;
         var promise = cachedLoadingPromise[id];
         var temp = JSON.stringify(params);
@@ -581,13 +581,13 @@ var data = {
                 return instance;
             }
         }
+        var outdate = new Error("outdate canceled.");
         promise1 = instance.loading_promise = new Promise(function (ok) {
             setTimeout(ok, 600);
         }).then(function () {
             if (promise1 !== instance.loading_promise) throw outdate;
             return privates.getApi(sid);
         }).then(function (api) {
-            var outdate = new Error("outdate canceled.");
             if (promise1 !== instance.loading_promise) throw outdate;
             if (instance.loading) {
                 instance.loading.abort();

@@ -6,9 +6,9 @@ var musics = [
         url: "https://sharefs.yun.kugou.com/202003060919/fa3c377688123a4ab831e7b71cc57cca/G010/M08/04/03/qoYBAFUPHRuAKf9eABJXel7fMJ4237.m4a"
     }
 ]
-var { mediaDevices } = navigator;
+var { mediaDevices: _mediaDevices } = navigator;
 var load = function () {
-    mediaDevices.enumerateDevices().then(function (devices1) {
+    _mediaDevices.enumerateDevices().then(function (devices1) {
         devices1 = devices1.filter(a => !/^(?:default|communications)$/.test(a.deviceId) && !/videoinput/.test(a.kind));;
         var mounted = {};
         devices.splice(0, devices.length).forEach(a => mounted[a.deviceId] = a);
@@ -29,10 +29,10 @@ var load = function () {
         render.digest();
     });
 }
-if (!mediaDevices) {
+if (!_mediaDevices) {
     console.info("当前环境不支持mediaDevices！");
 } else {
-    mediaDevices.ondevicechange = load;
+    _mediaDevices.ondevicechange = load;
     load();
 }
 var activeDevice = null;
@@ -77,7 +77,7 @@ var joinedStream = context.createChannelMerger(2);
 function main(page) {
     if (!page) {
         page = view();
-        page.innerHTML = MediaDevices;
+        page.innerHTML = mediaDevices;
     }
     var $scope = {
         devices,
