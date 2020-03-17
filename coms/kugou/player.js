@@ -283,9 +283,10 @@ var player = function (box = div()) {
              */
             this.playing = false;
             var _audio = document.createElement("audio");
-            if (!/iPhone/.test(navigator.platform) && audio.Context) {
+            var hasContext = !/iPhone/.test(navigator.platform) && audio.Context;
+            if (hasContext) {
                 // ios设备目前未找到可视化方案
-                var context = new audio.Context;
+                var context = new AudioContext;
                 var source = context.createMediaElementSource(_audio);
                 var createScript = context.createScriptProcessor || context.createJavaScriptNode;
                 var script = createScript.apply(context, [0, 2, 2]);
@@ -346,7 +347,7 @@ var player = function (box = div()) {
                 distlist.active_hash = hash;
                 extend(this.info, response);
                 cast(this.krcpad, response);
-                _audio.src = cross.getCrossUrl(response.url);
+                _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
                 _audio.play();
                 data.setInstance('musicList', distlist, true);
 
