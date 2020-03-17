@@ -30,6 +30,12 @@ var cloneChildren = function (td, copy, clone) {
         case "img":
             copy.src = td.src;
             break;
+        case "svg":
+            copy.innerHTML = td.innerHTML;
+            [].forEach.call(td.attributes || [], a => {
+                copy.setAttribute(a.name, a.value);
+            });
+            break;
         default:
             [].forEach.call(td.childNodes, clone);
     }
@@ -49,7 +55,7 @@ var isMaybeVisible = function (node) {
     if (style.overflow === "hidden") {
         if (node.offsetHeight === 0 || node.offsetWidth === 0) return;
     }
-    if(!overlap(node,node.parentNode))return;
+    if (!overlap(node, node.parentNode)) return;
     return true;
 }
 var cloneVisible = function (td) {
@@ -119,6 +125,7 @@ var cloneVisible = function (td) {
             height: height + "px"
         });
     });
+    result.innerHTML = result.innerHTML;
     return result;
 };
 
