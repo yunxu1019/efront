@@ -26,7 +26,7 @@ var isDemoCommand = configs.demo || configs.zimoli;
 var loadModule = process.argv.slice(2).filter(e => /[\/\\]|_test$|\.[tj]sx?$/i.test(e));
 var isStartCommand = configs.start || configs.run;
 var isRobber = configs.bug || configs.record || configs.robber;
-var isLone = configs.lone;
+var isLone = configs.lone || configs.live;
 var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
@@ -44,12 +44,14 @@ var detectEnvironment = function () {
             names.filter(function (name) {
                 return fs.statSync(name).isDirectory()
             }).forEach(function (name) {
-                if (/src|source|page/.test(name)) {
+                if (/page/i.test(name)) {
+                    config.page_path = name;
+                } else if (/src|source/i.test(name)) {
                     config.page_path = name;
                     coms_path.push(name);
-                } else if (/lib|com|fun|dep/.test(name)) {
+                } else if (/lib|com|fun|dep/i.test(name)) {
                     coms_path.push(name);
-                } else if (/env|conf/.test(name)) {
+                } else if (/env|conf/i.test(name)) {
                     env_path.push(name);
                 }
             });
