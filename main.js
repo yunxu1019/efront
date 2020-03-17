@@ -82,7 +82,7 @@ try {
     } else if (isLone) {
         detectEnvironment().then(function () {
             require("./tester/main");
-        }).catch(error);
+        }).catch(console.error);
     } else if (isDocsCommand) {
         setenv({
             public_path: path.join(__dirname, "apps"),
