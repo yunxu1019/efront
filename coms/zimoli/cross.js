@@ -1,6 +1,6 @@
 var cookiesMap = {};
-//               //  1   //////// 2 /////// 3 ////    4  //
-var domainReg = /^(https?)\:\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
+//               /////  1   ////////// 2 /////// 3 ////    4  //
+var domainReg = /^(?:(https?)\:)?\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
 var { efrontURI, cross_host = efrontURI } = this;
 var location_host = location.href.replace(domainReg, '$1://$2/');
 if (cross_host) {
@@ -8,7 +8,7 @@ if (cross_host) {
         console.error("cross_host格式不正确", cross_host);
         cross_host = "/";
     } else {
-        cross_host = (/^https/.test(cross_host) ? "https://" : "http://") + cross_host.replace(domainReg, '$2/');
+        cross_host = (/^https/.test(location_host) ? "https://" : "http://") + cross_host.replace(domainReg, '$2/');
     }
 }
 var base = domainReg.test(location.href) ? cross_host || '/' : "http://efront.cc/";
