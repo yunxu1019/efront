@@ -1,21 +1,21 @@
 @default-color: #0092cc;
 
 & {
-    font-size       : 14px;
-    width           : auto;
-    line-height     : 28px;
+    font-size: 14px;
+    width: auto;
+    line-height: 28px;
     background-color: @default-color;
-    color           : #ffffff;
-    border-radius   : 2px;
-    box-shadow      : 0 -1px 2px rgba(0, 0, 0, 0.2) inset;
-    position        : relative;
-    border          : none;
-    margin          : 0;
-    display         : inline-block;
-    white-space     : nowrap;
-    text-align      : center;
-    cursor          : default;
-    overflow        : hidden;
+    color: #ffffff;
+    border-radius: 2px;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2) inset;
+    position: relative;
+    border: none;
+    margin: 0;
+    display: inline-block;
+    white-space: nowrap;
+    text-align: center;
+    cursor: default;
+    overflow: hidden;
 }
 
 
@@ -38,19 +38,19 @@
 }
 
 &>input {
-    position          : absolute;
-    opacity           : 0;
+    position: absolute;
+    opacity: 0;
     -webkit-appearance: none;
-    border            : none;
-    outline           : none;
-    display           : block;
-    left              : 0;
-    right             : 0;
-    top               : 0;
-    width             : 100%;
-    height            : 100%;
-    bottom            : 0;
-    cursor            : pointer;
+    border: none;
+    outline: none;
+    display: block;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    cursor: pointer;
 }
 
 // &>.label {
@@ -69,18 +69,18 @@
 
 &>.track {
     border-radius: inherit;
-    transition   : opacity .1s ease-in, background-color .1s, box-shadow .1s;
-    width        : 100%;
-    height       : 100%;
-    position     : absolute;
-    left         : 0;
-    top          : 0;
-    opacity      : 0;
-    filter       : Alpha(opacity=0);
+    transition: opacity .1s ease-in, background-color .1s, box-shadow .1s;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    filter: Alpha(opacity=0);
 }
 
 &.space>.label {
-    padding-left  : 5px;
+    padding-left: 5px;
     letter-spacing: 5px;
 }
 
@@ -89,17 +89,17 @@
 
     >.track {
         background-color: #ffffff;
-        opacity         : .1;
-        box-shadow      : inset 0 0 6px 6px #51ddf6, inset 100px -160px 200px -200px #51ddf6, inset 0 0 1000px 1000px #000;
-        filter          : Alpha(opacity=10);
+        opacity: .1;
+        box-shadow: inset 0 0 6px 6px #51ddf6, inset 100px -160px 200px -200px #51ddf6, inset 0 0 1000px 1000px #000;
+        filter: Alpha(opacity=10);
     }
 }
 
 &.active {
     >.track {
         background-color: #000000;
-        opacity         : .2;
-        filter          : Alpha(opacity=20);
+        opacity: .2;
+        filter: Alpha(opacity=20);
     }
 
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.3) inset;
@@ -107,7 +107,7 @@
 
 &:focus {
     box-shadow: 0 0 2px #4aa9b1;
-    z-index   : 1;
+    z-index: 1;
 }
 
 &.busy {
@@ -115,33 +115,33 @@
 
     >.track {
         background-color: #999;
-        opacity         : .3;
-        box-shadow      : none;
+        opacity: .3;
+        box-shadow: none;
     }
 
     &:before {
-        content   : "";
-        display   : block;
-        transform : rotate(25deg);
-        width     : 20px;
-        height    : 200%;
-        top       : -50%;
-        position  : absolute;
+        content: "";
+        display: block;
+        transform: rotate(25deg);
+        width: 20px;
+        height: 200%;
+        top: -50%;
+        position: absolute;
         background: #fff;
-        opacity   : .1;
-        animation : busy-loading 3s linear 0s infinite;
+        opacity: .1;
+        animation: busy-loading 3s linear 0s infinite;
     }
 }
 
 a&,
 &[type$=anchor] {
-    padding    : 0;
-    box-shadow : none;
+    padding: 0;
+    box-shadow: none;
     text-shadow: none;
-    background : none;
-    color      : @default-color;
-    cursor     : pointer;
-    outline    : none;
+    background: none;
+    color: @default-color;
+    cursor: pointer;
+    outline: none;
 
     .clear() {
         >.track {
@@ -154,25 +154,25 @@ a&,
     &:hover,
     &.hover {
         text-shadow: none;
-        box-shadow : none;
-        color      : lighten(@default-color, 10%);
+        box-shadow: none;
+        color: lighten(@default-color, 10%);
         .clear();
     }
 
     &.active,
     &:active {
         text-shadow: none;
-        box-shadow : none;
-        color      : darken(@default-color, 10%);
+        box-shadow: none;
+        color: darken(@default-color, 10%);
         .clear();
     }
 }
 
 .type(@type, @color, @colortext) {
     &[type="@{type}"] {
-        color           : @colortext;
+        color: @colortext;
         background-color: @color;
-        border-radius   : 3px;
+        border-radius: 3px;
     }
 
     a&[type="@{type}"],
@@ -197,12 +197,13 @@ a&,
 .type(dark, #000, #fff);
 .type(white, #fff, #666);
 .type(danger, #c46, #fff);
+.type(grey, #F2F4F5, #333);
 
 &[disabled] {
     >.track {
-        opacity         : .5;
+        opacity: .5;
         background-color: #ccc;
-        box-shadow      : none;
+        box-shadow: none;
     }
 
     text-shadow: none;
