@@ -142,3 +142,5 @@ efront
 # 相关链接
 
 [与前端框架对比](apps/docs/compare.md)
+
+[【导购】阿里云服务器](https://www.aliyun.com/minisite/goods?userCode=4gklptno)
