@@ -240,6 +240,8 @@ function main(e) {
         if (!color.equal(valuehsl, hsl.value)) hsl.value = valuehsl;
         bg.style.borderColor = value;
         val.style.color = c4rgb(r, g, b);
+        elem.value = value;
+        dispatch(elem, 'change');
         // console.log(value, hex.value, valuergb, valuehsl);
     };
     var trim = function (a) {
