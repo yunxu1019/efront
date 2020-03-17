@@ -80,7 +80,6 @@ function view(element) {
             event.preventDefault();
         });
     }
-    drag.on(window);
     extend(window, prototype);
     return window;
 }
