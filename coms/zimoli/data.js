@@ -207,6 +207,7 @@ function parseConfig(api) {
         return '';
     });
     url.replace(/[\?\#][\s\S]*$/, '').replace(/\:\w+/g, function (p) {
+        p = p.slice(1);
         if (!required[p]) {
             required.push(p);
             required[p] = p;
@@ -380,7 +381,7 @@ var privates = {
         params = extend({}, params);
         if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
-        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w\.]*/i, function (d) {
+        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/i, function (d) {
             d = d.slice(1);
             rest.push(d);
             return seek(params, d) || '';
@@ -551,6 +552,7 @@ var data = {
 
         var p = response.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
             this.loading_count--;
+            response.is_loading = false;
             if (id) {
                 this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
                 this.removeInstance(id);
@@ -560,8 +562,10 @@ var data = {
             return data;
         });
         p.catch((e) => {
+            console.log(e);
             this.loading_count--;
             response.is_errored = true;
+            response.is_loading = false;
             if (e instanceof Object) {
                 extend(response, e);
             } else {
@@ -669,8 +673,9 @@ var data = {
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) { return; }
         instance.splice(0, instance.length);
+        var sample = new LoadingArray;
         Object.keys(old).forEach(function (k) {
-            if (instance[k] === old[k] && !(k in new LoadingArray)) {
+            if (instance[k] === old[k] && !(k in sample)) {
                 delete instance[k];
             }
         });
