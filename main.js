@@ -44,7 +44,7 @@ var detectEnvironment = function () {
             names.filter(function (name) {
                 return fs.statSync(name).isDirectory()
             }).forEach(function (name) {
-                if (/src|source/.test(name)) {
+                if (/src|source|page/.test(name)) {
                     config.page_path = name;
                     coms_path.push(name);
                 } else if (/lib|com|fun|dep/.test(name)) {
