@@ -292,22 +292,29 @@ var directives = {
             var value = getter();
             if (deepEqual(value, oldValue)) return;
             if (value instanceof Array) {
-                value = value.slice(0, value.length);
+                value = extend([], value);
             } else if (value instanceof Object) {
                 value = extend({}, value);
             }
             oldValue = value;
             value = value || "";
-            if (!/img/i.test(this.tagName) || !isString(value)) return this.src = value, cast(this, value);
-            this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
-            if (value) {
-                img.src = value;
-                if (img.complete) {
-                    this.src = value;
-                } else if (!pending) {
-                    addClass(this, "pending");
-                    pending = setTimeout(refresh);
+            if (/^img$/i.test(this.tagName)) {
+                this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
+                if (!isString(value)) {
+                    return;
                 }
+                if (value) {
+                    img.src = value;
+                    if (img.complete) {
+                        this.src = value;
+                    } else if (!pending) {
+                        addClass(this, "pending");
+                        pending = setTimeout(refresh);
+                    }
+                }
+            } else {
+                this.src = value;
+                cast(this, value);
             }
         });
     },
