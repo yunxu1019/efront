@@ -3,7 +3,6 @@
     width: 80px;
     display: inline-block;
     background: #fff;
-    color: #409EFF;
     vertical-align: top;
     position: relative;
     text-align: center;
@@ -13,7 +12,13 @@
 }
 
 >.plus {
-    >div:first-child {
+    color: #409EFF;
+    display: block;
+    background: transparent;
+    box-sizing: border-box;
+    box-shadow: none;
+
+    >div.icon {
         font-family: 'Times New Roman', Times, "宋体", sans-serif;
         font-weight: 600;
         padding-top: 18px;

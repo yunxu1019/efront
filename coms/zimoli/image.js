@@ -3,6 +3,7 @@ function main(elem = div()) {
     elem.innerHTML = image;
     render(elem, {
         hasInstance: false,
+        btn: button,
         choose() {
             chooseFile('image/*').then((file) => {
                 var f = file[0];
