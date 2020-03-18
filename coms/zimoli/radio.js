@@ -1,6 +1,5 @@
 function main(elem = document.createElement("radio-group")) {
     care(elem, function (field) {
-        console.log(field, 'field');
         elem.innerHTML = radio;
         var { options } = field;
         if (options instanceof Array) {
