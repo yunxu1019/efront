@@ -162,9 +162,13 @@ var hookx = function (matcher, move, event, targetChild) {
     }
     // 仅修改Margin就可以实现拖拽效果
     function draglist() {
+        var style = targetBox.style;
+        var savedStyle = { overflow: style.overflow, display: style.display };
+        css(targetBox, "overflow:hidden;display:block");
         var offall = function () {
             offdragmove();
             offdragend();
+            css(targetBox, savedStyle);
         };
         var offdragend = on("dragend")(targetChild, function () {
             offall();
