@@ -15,7 +15,7 @@ var cloneChildren = function (td, copy, clone) {
         case "input":
         case "textarea":
             copy.placeholder = td.placeholder;
-            copy.value = td.value;
+            copy.setAttribute("value",td.value);
             break;
         case "select":
             var selector = `option[value="${String(td.value === null || td.value === undefined ? '' : td.value).replace(/"/g, "\\\"")}"]`;
