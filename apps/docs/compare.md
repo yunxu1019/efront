@@ -11,7 +11,7 @@
 Hello World 目标代码 | &gt;30kb | &gt;30kb | ≈20kb;| ≈1kb;
 开发语言             | ts/html/less/sass/scss | jsx/css/js/ts/html | vue/html/css/js | js/html/less/ts
 导出组件依赖项|angular|react|vue|无
-官方路由 | angular-router | react-router | vue-router | zimoli
+官方路由 | angular-router, 使用前需要注册路径 | react-router, 使用前需要注册路径 | vue-router, 使用前需要注册路径| zimoli，使用前无需注册路径
 跨域实现 | 配置浏览器或服务器 | 配置浏览器或服务器| 配置浏览器或服务器 | 开发环境内置
 代码加载方案 | 一次加载/或访问时加载 | 一次加载/或访问时加载 | 一次加载/或访问时加载 | 依赖加载/自动预加载/动态路径访问时加载
 跳转传参 | 略 | 略 | 略 | `go`(pagepath,&nbsp;params)
@@ -55,7 +55,7 @@ Hello World 目标代码 | &gt;30kb | &gt;30kb | ≈20kb;| ≈1kb;
 
 ### 1. 条件结构
 
-```html
+```xml
 <!-- angular 1.x -->
 <component1 ng-if="expression" ></component1>
 <!-- angular 2+ -->
@@ -69,12 +69,12 @@ render(){
 }
 ```
 
-```html
+```xml
 <!-- vue 以 v- 开头--> 
 <component1 v-if="expression"></component1>
 ```
 
-```html
+```xml
 <!-- efront/(zimoli) 使用 render(element,scope)功能 -->
 <component1 ng-if="expression"> </component1>
 <!-- 或者 -->
@@ -86,7 +86,7 @@ render(){
 
 ### 2. 循环结构
 
-```html
+```xml
 <!-- angular 1.x -->
 <component1 ng-repeat="(item,index) in expression" ></component1>
 <!-- angular 1.x -->
@@ -104,14 +104,14 @@ render(){
 }
 ```
 
-```html
+```xml
 <!-- vue 以 v- 开头--> 
 <component1 v-for="(item,index) in expression"></component1>
 <!-- vue 以 v- 开头--> 
 <component1 v-for="item in expression"></component1>
 ```
 
-```html
+```xml
 <!-- efront/(zimoli) 使用 render(element,scope)功能 -->
 <component1 ng-repeat="(item,index) in expression"></component1>
 <component1 v-for="(item,index) in expression"></component1>
@@ -121,7 +121,7 @@ render(){
 
 ### 3. 数据绑定
 
-```html
+```xml
 <!-- angular 1.x -->
 <component1 ng-bind="expression" ></component1>
 <image ng-src="expression" />
@@ -140,14 +140,14 @@ render(){
 }
 ```
 
-```html
+```xml
 <!-- vue 以 v- 开头--> 
 <component1 >{{expression}}</component1>
 <image v-bind:src="expression" />
 <image :src="expression" />
 ```
 
-```html
+```xml
 <!-- efront/(zimoli) 使用 render(element,scope)功能 -->
 <component1 ng-bind="expression"></component1>
 <!--  efront/(zimoli) 使用 render(element,scope)功能 设置 js对象属性 element[key]=value -->
@@ -164,7 +164,7 @@ render(){
 
 ### 4. 双向/逆向/事件绑定
 
-```html
+```xml
 <!-- angular 1.x -->
 <input ng-model="expression" />
 <button ng-click="expression" ></button>
@@ -180,13 +180,13 @@ render(){
 }
 ```
 
-```html
+```xml
 <!-- vue 以 v- 开头-->
 <component1 v-model="expression" ></component1>
 <component1 v-on:click="expression" ></component1>
 ```
 
-```html
+```xml
 <!-- efront/(zimoli) 使用 render(element,scope)功能 -->
 <component1 ng-model="expression"></component1>
 <component1 ng-click="expression"></component1>
@@ -283,7 +283,6 @@ class ComponentName extends Component {
 <script>
 <style></style>
 ```
-
 
 ```javascript
 // efront/(zimoli) 使用 render(element,scope)功能
