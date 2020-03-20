@@ -22,7 +22,7 @@ var seek = function (object, seeker) {
     if (seeker instanceof Object) {
         var dist = {};
         for (var k in seeker) {
-            var o = seek(object, seeker[o]);
+            var o = seek(object, seeker[k]);
             if (o === undefined) return;
             dist[k] = o;
         }
