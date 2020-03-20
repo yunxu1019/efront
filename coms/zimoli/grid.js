@@ -73,7 +73,7 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
 }
 
 function grid(breakpoints) {
-    var grid = div();
+    var grid = this || div();
     extend(grid, grid_prototype);
     if (!breakpoints) {
         var breakpoints = createPoints([0, [0, 100, 200], 90, 230, [200, 230, [230, 290], 300], 320]);
@@ -364,3 +364,13 @@ var grid_prototype = {
         return area;
     },
 };
+
+function main(elem) {
+    if (isElement(elem)) {
+        care(elem, function (points) {
+            grid.call(this, points);
+        });
+        return elem;
+    }
+    return grid(elem);
+}
