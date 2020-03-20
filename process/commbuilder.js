@@ -229,7 +229,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
 
             });
         } else {
-            if (path.basename(filename).toLowerCase() !== "main") console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
+            if (!/\bmain/i.test(path.basename(filename))) {
+                console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
+            }
         }
     }
     code_body = prepareCodeBody.concat(code_body);
