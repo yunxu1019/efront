@@ -61,6 +61,7 @@ function select(target, list, removeOnSelect) {
         var initList = bindEvent;
     } else {
         var savedOptions;
+        removeOnSelect = null;
         var initList = function () {
             var allOptions = [].concat.apply([], target.querySelectorAll("option"));
             if (deepEqual.shallow(allOptions, savedOptions)) return;
