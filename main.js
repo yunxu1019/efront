@@ -41,8 +41,9 @@ var detectEnvironment = function () {
         fs.readdir(currentpath, function (error, names) {
             if (error) return console.error(error);
             var coms_path = [];
+            var public_path = [];
             names.filter(function (name) {
-                return fs.statSync(name).isDirectory()
+                return fs.statSync(name).isDirectory();
             }).forEach(function (name) {
                 if (/page/i.test(name)) {
                     config.page_path = name;
@@ -53,12 +54,17 @@ var detectEnvironment = function () {
                     coms_path.push(name);
                 } else if (/env|conf/i.test(name)) {
                     env_path.push(name);
+                } else if (/d[ie]st|www|pub/i.test(name)) {
+                    public_path.push(name);
                 }
             });
             coms_path.push(':');
             config.coms_path = coms_path.join(',');
             var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
             env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
+            if (public_path.length === 1) {
+                config.public_path = public_path[0];
+            }
             if (1 !== env_path.length) {
                 setenv(config);
             } else {
@@ -72,7 +78,7 @@ var detectEnvironment = function () {
 try {
 
     if (isHelpMode) {
-        console.log("these commands can be used: test server public init watch from");
+        console.log("these commands can be used: test server public init watch live");
     } else if (isRobber) {
         var fullpath = process.cwd();
         setenv({
@@ -108,31 +114,33 @@ try {
     } else if (isServerMode) {
         require("./server/index");
     } else if (isPublicMode) {
-        if (loadModule.length === 1) {
-            var app_Name = loadModule[0], module_Name;
-            if (/:[^\\\/]*$/.test(app_Name)) {
-                module_Name = /\:([^\\\/]*)$/.exec(app_Name)[1];
-                app_Name = app_Name.slice(0, app_Name.length - module_Name.length - 1);
+        detectEnvironment().then(function () {
+            if (loadModule.length === 1) {
+                var app_Name = loadModule[0], module_Name;
+                if (/:[^\\\/]*$/.test(app_Name)) {
+                    module_Name = /\:([^\\\/]*)$/.exec(app_Name)[1];
+                    app_Name = app_Name.slice(0, app_Name.length - module_Name.length - 1);
+                }
+                process.env.APP = app_Name;
             }
-            process.env.APP = app_Name;
-        }
-        if (configs.release || configs.publish) {
-            process.env.RELEASE = 1;
-        }
-        var module_Name = module_Name || process.argv.slice(3).filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
-        if (module_Name) {
-            var [export_to, export_as] = module_Name.split("=");
-            if (export_as === undefined) {
-                if (!/exports|return$/.test(export_to)) export_as = export_to;
+            if (configs.release || configs.publish) {
+                process.env.RELEASE = 1;
             }
-            if (export_to) {
-                process.env.EXPORT_TO = export_to;
+            var module_Name = module_Name || process.argv.slice(3).filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
+            if (module_Name) {
+                var [export_to, export_as] = module_Name.split("=");
+                if (export_as === undefined) {
+                    if (!/exports|return$/.test(export_to)) export_as = export_to;
+                }
+                if (export_to) {
+                    process.env.EXPORT_TO = export_to;
+                }
+                if (export_as) {
+                    process.env.EXPORT_AS = export_as;
+                }
             }
-            if (export_as) {
-                process.env.EXPORT_AS = export_as;
-            }
-        }
-        require("./tools/build");
+            require("./tools/build");
+        });
     } else if (isInitCommand) {
         if (configs.from) {
             var index = process.argv.map(a => a.toLowerCase()).indexOf('from');
