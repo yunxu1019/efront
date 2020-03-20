@@ -19,8 +19,19 @@ var constructors = {
         select(elem, picker);
         return elem;
     },
+    color(field) {
+        return colorpicker();
+    },
+    image() {
+        return image();
+    },
+    radio({ field }) {
+        var elem = radio();
+        cast(elem, field);
+        return elem;
+    },
     select,
-    "repeat"(elem, field_type) {
+    "repeat"(_, field_type) {
         var elem = input();
         elem.renders = [function () {
             var { field, data } = this.$scope;
@@ -60,16 +71,23 @@ var readonly_types = {
         var log = Math.log2(f) / 10 | 0;
         f /= Math.pow(2, log * 10);
         f = +f.toFixed(2);
-        return f + "KMGT".charAt(log - 1) + "B"
+        return f + "KMGT".charAt(log - 1) + "B";
     }
-}
+};
 function main(elem) {
     var build = function () {
         var { data, readonly, field } = elem;
         if (!field || !data) return;
         var run = function () {
+            var function_type = "function";
             if (data !== elem.data || field !== elem.field || readonly !== elem.readonly) return;
-            var field_type = field.type || field.editor;
+            var field_type = field.type || field.editor, field_editor = field.editor || field.type;
+            if (field_editor instanceof Function && field_type === field_editor) {
+                field_type = function_type;
+            }
+            if (!(field_editor instanceof Function)) {
+                field_editor = null;
+            }
             if (/\?/.test(field_type)) {
                 var [field_type, field_ref] = field_type.split("?");
             }
@@ -90,7 +108,7 @@ function main(elem) {
                     }
                 });
             } else {
-                var create = constructors[field_type];
+                var create = field_type === "function" ? field_editor : constructors[field_type];
                 var ipt = create ? create(elem, field_ref) : input();
                 if (ipt) {
                     if (ipt !== elem) appendChild(elem, ipt);
@@ -114,8 +132,7 @@ function main(elem) {
         } else {
             run();
         }
-
-    }
+    };
     on("changes")(elem, function ({ changes }) {
         if (changes.data || changes.field || changes.readonly) {
             build();
@@ -123,3 +140,18 @@ function main(elem) {
     });
     return elem;
 }
+
+extend(main, {
+    setEditors(map) {
+        extend(constructors, map);
+    },
+    setReadors(map) {
+        extend(constructors, map);
+    },
+    setEditor(key, func) {
+        constructors[key] = func;
+    },
+    setReador(key, func) {
+        readonly_types[key] = func;
+    },
+});
