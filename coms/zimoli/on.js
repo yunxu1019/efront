@@ -6,7 +6,7 @@ if (is_addEventListener_enabled) {
     var on = function (k) {
         var on_event_path = "on" + k;
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
-        function addhandler(element, handler) {
+        function addhandler(element, handler, firstmost) {
             if (k === changes_key) {
                 if (!element.needchanges) element.needchanges = 0;
                 element.needchanges++;
@@ -14,20 +14,20 @@ if (is_addEventListener_enabled) {
             if (handler instanceof Array) {
                 handler = handler.slice(0);
                 handler.map(function (handler) {
-                    this.addEventListener(k, handler);
+                    this.addEventListener(k, handler, firstmost);
                 }, element);
 
                 var remove = function () {
                     if (k === changes_key) element.needchanges--;
                     handler.map(function (handler) {
-                        this.removeEventListener(k, handler);
+                        this.removeEventListener(k, handler, firstmost);
                     }, element);
                 };
             } else {
-                element.addEventListener(k, handler);
+                element.addEventListener(k, handler, firstmost);
                 var remove = function () {
                     if (k === changes_key) element.needchanges--;
-                    element.removeEventListener(k, handler);
+                    element.removeEventListener(k, handler, firstmost);
                 };
             }
             return remove;
@@ -51,11 +51,12 @@ if (is_addEventListener_enabled) {
                     if (!addhandler.logged) addhandler.logged = true, console.warn("use", on_event_path, "on document instead of on window");
                 }
             }
-            if (element[handler_path]) {
+            if (element[handler_path] instanceof Array) {
+                if (~element[handler_path].indexOf(handler)) return;
                 if (firstmost) element[handler_path].unshift(handler);
                 else element[handler_path].push(handler);
             } else {
-                element[handler_path] = element[on_event_path] ? [element[on_event_path], handler] : [handler];
+                element[handler_path] = element[on_event_path] && element[on_event_path] !== handler ? [element[on_event_path], handler] : [handler];
                 element[on_event_path] = function (e) {
                     if (!e) e = window.event || {};
                     if (!e.preventDefault) {
@@ -118,34 +119,41 @@ if (is_addEventListener_enabled) {
     var onmousemove = on("mousemove");
     var ontouchstart = on("touchstart");
     var ontouchmove = on("touchmove");
-    var saved_x, saved_y, lasttime_click;
+    var mouse_x, mouse_y, touch_x, touch_y, lasttime_click;
     var needFireClick = false;
     var touchendFired = false;
-    function clickstart(event) {
-        saved_x = event.clientX, saved_y = event.clientY;
+    function clickstart() {
         needFireClick = true;
         touchendFired = false;
         onclick.preventClick = false;
     }
-    function clickcancel(event) {
-        var abs = Math.abs;
-        if (abs(event.clientX - saved_x) >= MOVELOCK_DELTA || abs(event.clientY - saved_y) >= MOVELOCK_DELTA)
-            onclick.preventClick = true;
+    var abs = Math.abs;
+    function clickcancel() {
+        onclick.preventClick = true;
     }
-    onmousedown(window, clickstart);
-    onmousemove(window, clickcancel);
+    onmousedown(window, function (event) {
+        mouse_x = event.clientX, mouse_y = event.clientY;
+        clickstart.call(this, event);
+    });
+
+    onmousemove(window, function (event) {
+        if (abs(event.clientX - mouse_x) >= MOVELOCK_DELTA || abs(event.clientY - mouse_y) >= MOVELOCK_DELTA)
+            clickcancel.call(this, event);
+    });
     ontouchstart(window, function (event) {
         extendTouchEvent(event);
+        touch_x = event.clientX, touch_y = event.clientY;
         clickstart.call(this, event);
     });
     ontouchmove(window, function (event) {
         extendTouchEvent(event);
-        clickcancel.call(this, event);
+        if (abs(event.clientX - touch_x) >= MOVELOCK_DELTA || abs(event.clientY - touch_y) >= MOVELOCK_DELTA)
+            clickcancel.call(this, event);
     });
     if (window.addEventListener) {
         window.addEventListener("touchend", function (event) {
-            if (!needFireClick) return;
             if (event.touches.length > 1) return;
+            needFireClick = true;
             touchendFired = true;
             var target = event.target;
             var touch = event.changedTouches[0];
