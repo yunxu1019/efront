@@ -37,8 +37,16 @@ set HTTP_PORT=8080
 
 开启本机服务，在访问端口时不对代码进行压缩
 
+* 如下命令按当前配置环境参数启动，允许目录名的字面含义与实际使用目的不同
+
 ```bat
 efront test
+```
+
+* 如下命令可以自动识别环境目录，启动目录可以没有_envs文件夹，按目录名的字面含义确定目录用途
+
+```bat
+efront live
 ```
 
 ## 4. 压缩编译项目
@@ -70,6 +78,8 @@ set app=PROJECT_NAME.js
 
 * 目前版本的efront提供对 commonjs中的require语法和es6中的import语法 的不完全支持（不支持异步环形调用），对于符合要求的相关项目，可以进行编译发布。
 * 如果要发布含有require语法的组件，并希望将组件及所有依赖项合并输出，那么可以将上面的`efront public`替换为`efront publish`
+
+* 如果需要自动识别路径，类似`public`/`dist`/`output`/`release`的目录中的文件都可能被识别为目标路径，这些路径中的文件可能被覆盖，如果确认可行，可以使用`efront build`
 
 ## 5.生产环境启动
 

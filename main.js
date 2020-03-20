@@ -54,7 +54,7 @@ var detectEnvironment = function () {
                     coms_path.push(name);
                 } else if (/env|conf/i.test(name)) {
                     env_path.push(name);
-                } else if (/d[ie]st|www|pub/i.test(name)) {
+                } else if (/d[ie]st|www|pub|release|^(?:out|output)$/i.test(name)) {
                     public_path.push(name);
                 }
             });
@@ -114,7 +114,7 @@ try {
     } else if (isServerMode) {
         require("./server/index");
     } else if (isPublicMode) {
-        detectEnvironment().then(function () {
+        var public = function () {
             if (loadModule.length === 1) {
                 var app_Name = loadModule[0], module_Name;
                 if (/:[^\\\/]*$/.test(app_Name)) {
@@ -140,7 +140,12 @@ try {
                 }
             }
             require("./tools/build");
-        });
+        };
+        if (configs.build) {
+            detectEnvironment().then(public);
+        } else {
+            public();
+        }
     } else if (isInitCommand) {
         if (configs.from) {
             var index = process.argv.map(a => a.toLowerCase()).indexOf('from');
