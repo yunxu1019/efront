@@ -6,18 +6,23 @@
  * @param {Function} listener 
  */
 function care(target, type, listener) {
-    var [target, type, listener] = parse.apply(this, arguments);
+    var [target, type, listener, allowMultiHandle] = parse.apply(this, arguments);
     if (!target[type]) {
         target[type] = [];
     }
     var listeners = target[type];
+    if (listeners.length && !allowMultiHandle) return;
     if (listener instanceof Function && !~listeners.indexOf(listener)) {
         if (listeners.length > 600) throw new Error("请不要在同一个对象上使用过多的同类型的care!");
         listeners.push(listener);
     }
 }
 function parse(target, type, listener) {
-    switch (arguments.length) {
+    var allowMultiHandle = arguments[arguments.length - 1];
+    if (typeof allowMultiHandle !== "boolean") {
+        allowMultiHandle = true;
+    }
+    switch (arguments.length - !allowMultiHandle) {
         case 2:
             listener = type;
             type = "default";
@@ -41,8 +46,7 @@ function parse(target, type, listener) {
     }
     if (!(target instanceof Object)) throw new Error("care只能使用在对象上！");
     type = `care(${type})`;
-
-    return [target, type, listener];
+    return [target, type, listener, allowMultiHandle];
 }
 function clean(target, type, listener) {
     var [target, type, listener] = parse.apply(this, arguments);
