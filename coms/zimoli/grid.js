@@ -6,14 +6,15 @@ var getFirstPoints = function (point, side, direction) {
     }
     var result = [];
     var rest = [point];
+    var collect = function (a) {
+        if (a.length > 1 && a[0].value === point.value) {
+            rest.push(a[0]);
+        }
+    };
     while (rest.length) {
         var temp = rest.shift();
         result.push(temp);
-        temp.forEach(function (a) {
-            if (a.length > 1 && a[0].value === point.value) {
-                rest.push(a[0]);
-            }
-        });
+        temp.forEach(collect);
     }
     return result;
 };
@@ -23,15 +24,16 @@ var getLastPoints = function (point, side, direction) {
     }
     var rest = [point];
     var result = [];
+    var collect = function (a) {
+        var t = a[a.length - 1];
+        if (a.length > 1 && t[side] && t[side].value === point[side].value) {
+            rest.push(a[a.length - 1]);
+        }
+    };
     while (rest.length) {
         var temp = rest.shift();
         result.push(temp);
-        temp.forEach(function (a) {
-            var t = a[a.length - 1];
-            if (a.length > 1 && t[side] && t[side].value === point[side].value) {
-                rest.push(a[a.length - 1]);
-            }
-        });
+        temp.forEach(collect);
     }
     return result;
 };
@@ -70,16 +72,10 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
         height
     ];
 
-}
+};
 
-function grid(breakpoints) {
-    var grid = this || div();
-    extend(grid, grid_prototype);
-    if (!breakpoints) {
-        var breakpoints = createPoints([0, [0, 100, 200], 90, 230, [200, 230, [230, 290], 300], 320]);
-    }
-    grid.breakpoints = breakpoints;
-    grid.setAttribute("grid", "");
+var gridListener = function () {
+    var grid = this;
     /**
      * 适配指针
      * @param {Event} event 
@@ -113,51 +109,44 @@ function grid(breakpoints) {
      */
     var resizeView = function (event) {
         var editting = grid.editting;
+        var runNext = function ({ style }) {
+            if (extra) {
+                var origin = parseInt(style[key]);
+                style[extra] = parseInt(style[extra]) + origin - value + "px";
+            }
+            style[key] = value + "px";
+        };
+        var runPrev = function ({ style }) {
+            var origin = parseInt(style[key]) + parseInt(style[extra]);
+            style[extra] = parseInt(style[extra]) - origin + value + "px";
+        };
+        var runPoints = p => p.value = value;
         for (var k in editting) {
             var [points, prevElements, nextElements, key, min, max, delta, extra] = editting[k];
             var value = event[k] - delta;
             if (value < min) value = min;
             if (value > max) value = max;
-            points.forEach(p => p.value = value);
-            nextElements.forEach(function ({ style }) {
-                if (extra) {
-                    var origin = parseInt(style[key]);
-                    style[extra] = parseInt(style[extra]) + origin - value + "px";
-                }
-                style[key] = value + "px";
-            });
+            points.forEach(runPoints);
+            nextElements.forEach(runNext);
             if (prevElements) {
-                prevElements.forEach(function ({ style }) {
-                    var origin = parseInt(style[key]) + parseInt(style[extra]);
-                    style[extra] = parseInt(style[extra]) - origin + value + "px";
-                });
+                prevElements.forEach(runPrev);
             }
 
         }
     };
-    /**
-     * 监听指针移动
-     */
-    var cancelmove;
-    onappend(grid, function () {
-        grid.init();
-        cancelmove && cancelmove();
-        cancelmove = onmousemove(window, function (event) {
-            if (grid.editting) {
-                resizeView(event);
-            } else {
-                adaptCursor(event);
-            }
-        });
-    });
-    onremove(grid, function () {
-        cancelmove();
-        cancelmove = null;
+    var offmousemove;
+    offmousemove = onmousemove(window, function (event) {
+        if (!grid.editable) return;
+        if (grid.editting) {
+            resizeView(event);
+        } else {
+            adaptCursor(event);
+        }
     });
     /**
      * 指针按下
      */
-    onmousedown(grid, function (event) {
+    var offmousedown = onmousedown(grid, function (event) {
         if (!grid.direction) return;
         //调整大小
         var position = getScreenPosition(grid);
@@ -199,15 +188,43 @@ function grid(breakpoints) {
             cancelup();
         });
     });
+
+    var offremove = onremove(grid, function () {
+        offremove();
+        offmousemove();
+        offmousedown();
+        offmousemove = null;
+    });
+};
+
+function grid(breakpoints) {
+    var grid = this || div();
+    if (!grid.size) {
+        grid.size = 100;
+    }
+    if (!grid.width) {
+        grid.width = grid.size;
+    }
+    if (!grid.height) {
+        grid.height = grid.size;
+    }
+    extend(grid, grid_prototype);
+    grid.setData(breakpoints);
+    grid.reshape();
+    grid.setAttribute("grid", "");
+    /**
+     * 监听指针移动
+     */
+    once("append")(grid, gridListener);
     return grid;
 }
 var Point = function (value) {
     var point = [];
-    point.value = value;
+    point.value = value instanceof Object ? value.value : value;
     return point;
 };
 var createPoints = function (values, direction = "x", result = Point(0)) {
-    if (!values instanceof Array) values = arguments;
+    if (!(values instanceof Array)) values = arguments;
     for (var cx = 0, dx = values.length; cx < dx; cx++) {
         var value = values[cx];
         if (value instanceof Array) {
@@ -221,7 +238,7 @@ var createPoints = function (values, direction = "x", result = Point(0)) {
         }
     }
     return result;
-}
+};
 var bindToOrderedSpliters = function (split_points, target, value, side) {
     if (value instanceof Object) {
         value = value.value;
@@ -229,7 +246,7 @@ var bindToOrderedSpliters = function (split_points, target, value, side) {
     var index = getIndexFromOrderedArray(split_points, value);
     var data = {
         target, side
-    }
+    };
     var point = split_points[index];
     if (point && point.value === value) {
         point.push(data);
@@ -241,13 +258,48 @@ var bindToOrderedSpliters = function (split_points, target, value, side) {
     return split_points;
 };
 var grid_prototype = {
-    breakpoints: [],
-    init() {
-        this.reshape();
+    setGrid(breakpoints) {
+        var grid = this;
+        if (!breakpoints) {
+            var breakpoints = createPoints([0, [0, 50, [0, 33.3333, 66.6667]]]);
+        } else {
+            breakpoints = createPoints(breakpoints);
+        }
+        this.forEachCell(e => remove(e.target));
+        grid.breakpoints = breakpoints;
+    },
+    setData(breakpoints) {
+        this.setGrid(breakpoints);
+    },
+    getData() {
+        var run = function (points) {
+            if (!points) return;
+            if (points instanceof Array) {
+                var children = points.map(run);
+            }
+            var res = {
+                value: points.value,
+                children
+            };
+            return res;
+        };
+        run(this.breakpoints);
+    },
+    forEachCell(call) {
+        var run = function (points) {
+            if (!points) return;
+            if (points instanceof Array) {
+                points.forEach(run);
+            }
+            if (points.target) {
+                call(points);
+            }
+        };
+        run(this.breakpoints);
     },
     reshape() {
         var that = this;
-        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(that.offsetWidth), current_b = Point(that.offsetHeight);
+        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(that.width), current_b = Point(that.height);
         // var xPoints = [];
         // var yPoints = [];
         var append = function (point, index, points) {
@@ -258,33 +310,39 @@ var grid_prototype = {
                     current_d = "y";
                     current_l = point;
                     if (next_point) {
-                        current_w = next_point.value - point.value + "px";
+                        current_w = (next_point.value - point.value);
                         next_point.left = point;
                         point.right = next_point;
                         current_r = next_point;
                     } else {
-                        current_w = current_r.value - point.value + "px";
+                        current_w = (current_r.value - point.value);
                     }
                     point[0].top = current_t && current_t.top;
                 } else {
                     current_d = "x";
                     current_t = point;
                     if (next_point) {
-                        current_h = next_point.value - point.value + "px";
+                        current_h = (next_point.value - point.value);
                         current_b = next_point;
                         next_point.top = point;
                         point.bottom = next_point;
                     } else {
-                        current_h = current_b.value - point.value + "px";
+                        current_h = (current_b.value - point.value);
                     }
                     point[0].left = current_l && current_l.left;
                 }
                 point.map(append);
-                current_l = temp_l, current_t = temp_t, current_w = temp_w, current_h = temp_h, current_d = temp_d, current_r = temp_r, current_b = temp_b;
+                current_l = temp_l;
+                current_t = temp_t;
+                current_w = temp_w;
+                current_h = temp_h;
+                current_d = temp_d;
+                current_r = temp_r;
+                current_b = temp_b;
             } else {
                 var _div = point.target;
                 if (!_div) {
-                    point.target = _div = div();
+                    point.target = _div = document.createElement('cell');
                 }
                 var current_value;
                 if (current_d === "x") {
@@ -299,11 +357,13 @@ var grid_prototype = {
                     point.top = current_t;
                     point.bottom = current_b;
                     css(_div, {
-                        left: point.value + "px",
-                        top: current_t ? current_t.value + "px" : 0,
-                        width: current_value + "px",
-                        height: current_h || 0
+                        left: point.value / that.width * 100 + "%",
+                        top: current_t ? current_t.value / that.height * 100 + "%" : 0,
+                        width: current_value / that.width * 100 + "%",
+                        height: (current_h / that.height || 0) * 100 + "%"
                     });
+                    point.width = current_value / that.width;
+                    point.height = current_h / that.height;
                 } else {
                     if (next_point) {
                         current_value = next_point.value - point.value;
@@ -316,16 +376,17 @@ var grid_prototype = {
                     point.left = current_l;
                     point.right = current_r;
                     css(_div, {
-                        left: current_l ? current_l.value + "px" : 0,
-                        top: point.value + "px",
-                        width: current_w || 0,
-                        height: current_value + "px"
+                        left: current_l ? current_l.value / that.width * 100 + "%" : 0,
+                        top: point.value / that.height * 100 + "%",
+                        width: (current_w / that.width || 0) * 100 + "%",
+                        height: current_value / that.height * 100 + "%"
                     });
+                    point.width = current_w / that.width;
+                    point.height = current_value / that.height;
                 }
                 appendChild(that, _div);
             }
         };
-        this.breakpoints[0]
         append(this.breakpoints);
     },
     seprate(x) {
@@ -335,14 +396,14 @@ var grid_prototype = {
         var breakpoints = this.breakpoints;
         var breakpath = [];
         var maxXStart = Point(0), maxYStart = Point(0);
-        var minXEnd = Point(this.offsetWidth);
-        var minYEnd = Point(this.offsetHeight);
+        var minXEnd = Point(this.width);
+        var minYEnd = Point(this.height);
         var isX = true;
         do {
             var value = isX ? x : y;// 先 y 后 x
             var index = getIndexFromOrderedArray(breakpoints, value);
             if (isX) {
-                maxXStart = breakpoints[index] || maxXStart
+                maxXStart = breakpoints[index] || maxXStart;
                 minXEnd = breakpoints[index + 1] || minXEnd;
             } else {
                 maxYStart = breakpoints[index] || maxYStart;
@@ -367,10 +428,21 @@ var grid_prototype = {
 
 function main(elem) {
     if (isElement(elem)) {
+        elem = grid.call(elem);
         care(elem, function (points) {
-            grid.call(this, points);
+            elem.setData(points);
+            elem.reshape();
         });
-        return elem;
+    } else {
+        elem = grid.call(document.createElement('grid'), elem);
     }
-    return grid(elem);
+    on('click')(elem, function (event) {
+        var target = getTargetIn(elem, event.target, false);
+        this.forEachCell(a => {
+            if (a.target === target) {
+                active(this, a.value, a);
+            }
+        });
+    });
+    return elem;
 }

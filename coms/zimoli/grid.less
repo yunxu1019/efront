@@ -1,24 +1,29 @@
-& {
-    >div {
-        border: 1px dashed #ccc;
-        position: absolute;
-        &.resize {
-            border-color: #66f;
-            box-shadow: 0 0 6px -2px rgba(0, 0, 0, .3);
-        }
-        .border(@side) {
-            &.border-@{side} {
-                border-@{side}: 1px solid #f6c;
-            }
-        }
-        .border(left);
-        .border(right);
-        .border(top);
-        .border(bottom);
+>cell {
+    border: 1px dashed #ccc;
+    position: absolute;
+
+    &.resize {
+        border-color: #66f;
+        box-shadow: 0 0 6px -2px rgba(0, 0, 0, .3);
     }
+
+    .border(@side) {
+        &.border-@{side} {
+            border-@{side}: 1px solid #f6c;
+        }
+    }
+
+    .border(left);
+    .border(right);
+    .border(top);
+    .border(bottom);
 }
 
+
 & {
+    width: 200px;
+    height: 200px;
+    display: block;
     user-select: none;
     position: relative;
 }
