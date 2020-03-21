@@ -1,7 +1,28 @@
 /**
  * 支持任意类型的数据的编辑展示及过滤
  */
-var getOptions = function () {
+var rebuildOptions = function () {
+    var elem = this;
+    var { $scope } = elem;
+    if (!$scope) return;
+    var { data, field } = $scope;
+    if (!data || !field) return;
+    var { options_from, options } = field;
+    var new_options = seek(data, options_from);
+    if (new_options !== options) {
+        field.options = new_options;
+        render.refresh();
+    }
+};
+var copyOptionData = function () {
+    var { $scope } = this;
+    if (!$scope) return;
+    var { data, field } = $scope;
+    if (!data || !field) return;
+    var { option_to, options } = field;
+    if (!options) return;
+    var option = options[data[field.key]];
+    extend(data, seek(option, option_to));
 };
 var renderModel = function (field, data) {
     var ipt = this;
@@ -112,15 +133,23 @@ function main(elem) {
                 var ipt = create ? create(elem, field_ref) : input();
                 if (ipt) {
                     if (ipt !== elem) appendChild(elem, ipt);
-                    renderModel.call(ipt, field, data);
-                    var saved_sataus;
-                    ipt.renders.push(function () {
-                        var { valid, status } = this;
-                        if (elem.valid !== valid) elem.valid = valid;
-                        if (saved_sataus === status) return;
-                        saved_sataus = status;
-                        elem.setAttribute('status', saved_sataus);
-                    });
+                    if (!ipt.$scope) {
+                        renderModel.call(ipt, field, data);
+                        var saved_sataus;
+                        ipt.renders.push(function () {
+                            var { valid, status } = this;
+                            if (elem.valid !== valid) elem.valid = valid;
+                            if (saved_sataus === status) return;
+                            saved_sataus = status;
+                            elem.setAttribute('status', saved_sataus);
+                        });
+                    }
+                    if ("option_to" in field) {
+                        on("change")(ipt, copyOptionData);
+                    }
+                    if ("options_from" in field) {
+                        ipt.renders.push(rebuildOptions);
+                    }
                 }
             }
         };
