@@ -236,6 +236,10 @@ function ybox(generator) {
             cancelAnimationFrame(smooth_timer);
             cancelAnimationFrame(decrease_timer);
             _speed(0);
+            if (/textarea/i.test(event.target.tagName)) {
+                direction = -1;
+                return;
+            }
             saved_x = event.clientX, saved_y = event.clientY;
             direction = 0;
         },
