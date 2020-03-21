@@ -1,14 +1,19 @@
-function main() {
-    var result = option.apply(null, arguments);
-    care(result, function (p) {
-        var [f, data] = p;
-        result.innerHTML = field;
-        render(result, {
-            model,
-            data,
-            field: f
-        });
-    }, false);
+function main(elem) {
+    var result = elem;
+    if (isElement(elem) && elem.hasAttribute("ng-src")) {
+        elem = option(elem);
+        care(elem, function (p) {
+            var [f, data] = p;
+            elem.innerHTML = field;
+            render(elem, {
+                model,
+                data,
+                field: f
+            });
+        }, false);
+    } else {
+        result = option.apply(null, arguments);
+    }
     result.removeAttribute("tabindex");
     return result;
 }
