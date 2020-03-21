@@ -26,7 +26,7 @@ var preventDefault = function (event) {
 var lastTimeClick = 0;
 function select(target, list, removeOnSelect) {
     if (!target) {
-        target = createElement(div);
+        target = document.createElement("select");
     }
     target.tabIndex = 0;
     onblur(target, _remove);
