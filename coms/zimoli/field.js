@@ -8,7 +8,7 @@ function main() {
             data,
             field: f
         });
-    });
+    }, false);
     result.removeAttribute("tabindex");
     return result;
 }
