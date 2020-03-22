@@ -69,11 +69,31 @@ var lastLogLength = 0;
         var label = colors.Bright + fgColor + bgColor + info + reset;
         var time_stamp = colors.FgGray + formatDate.call(new Date) + reset;
         var str = [label, time_stamp, ...args].join(" ");
+        str = str.replace(/\<([a-z][\w]*)[^\>]*\>([\s\S]*?)\<\/\1\>/ig, function (_, c, s) {
+            switch (c) {
+                case "red":
+                case "error":
+                case "danger":
+                    return colors.FgRed + s + colors.Reset;
+                case "info":
+                case "tip":
+                case "blue":
+                    return colors.FgBlue + s + colors.Reset;
+                case "green":
+                    return colors.FgGreen + s + colors.Reset;
+                default:
+                    var k = Fg + s[0].toUpperCase() + s.slice(1).toLowerCase();
+                    if (k in colors) {
+                        return colors[k] + s + colors.Reset;
+                    }
+            }
+            return s;
+        });
         var width = process.stderr.columns;
         var hasNewLine = /^(warn|error)$/.test(log);
         var cleaner = ("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1);
         hasNewLine ? process.stderr.write((lastLogLength ? cleaner : "") + str.trim() + "\r\n") : process.stderr.write(cleaner + "\r" + str);
-        lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x00-\xff]/g, "").length;
+        lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x20-\xff]/g, "").length;
     };
     colored[log] = logger;
 });
