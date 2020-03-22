@@ -75,20 +75,18 @@ if (window.Promise) {
                 oked = this.oked = arguments;
                 this.run(PromiseFulfillReactions, oked);
             }
-        }
+        };
 
         var ResolvingFunctions_reject = (e) => { //oh
             ohed = this.ohed = arguments;
             this.run(PromiseRejectReactions, ohed);
-        }
+        };
 
-        setTimeout(function () {
-            try {
-                executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
-            } catch (e) {
-                ResolvingFunctions_reject(e);
-            }
-        }, 0);
+        try {
+            executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
+        } catch (e) {
+            ResolvingFunctions_reject(e);
+        }
     }
     Promise.prototype = {
         then(f) {
@@ -104,14 +102,19 @@ if (window.Promise) {
             return _promise;
         },
         run(threads, args) {
-            do {
-                var next = threads.shift();
-                if (next instanceof Function) {
-                    next.apply(null, args);
-                }
-            } while (threads.length);
-            this.PromiseRejectReactions.splice(0);
-            this.PromiseFulfillReactions.splice(0);
+            if (threads.pendding) return;
+            threads.pendding = true;
+            setTimeout(_ => {
+                do {
+                    var next = threads.shift();
+                    if (next instanceof Function) {
+                        next.apply(null, args);
+                    }
+                } while (threads.length);
+                this.PromiseRejectReactions.splice(0, this.PromiseRejectReactions.length);
+                this.PromiseFulfillReactions.splice(0, this.PromiseFulfillReactions.length);
+                threads.pendding = false;
+            }, 0);
         }
     }
     Promise.all = function (penddings) {
