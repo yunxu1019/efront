@@ -85,12 +85,15 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     process.on("SIGTERM", function () { });
     process.on("uncaughtException", process.exit);
     process.on("unhandledRejection", process.exit);
+    var { HTTPS_PORT, HTTP_PORT } = process.env;
+    HTTP_PORT = +HTTP_PORT || 80;
+    HTTPS_PORT = +HTTPS_PORT || 0;
 
     //子线程们
     process.on("message", function (msg, then) {
         switch (msg) {
             case "quit":
-                server.close();
+                server1.close();
                 then instanceof Function && then();
                 process.exit();
                 break;
@@ -104,6 +107,8 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var doPost = require("./doPost");
     var doCross = require("./doCross");
     var doFile = require("./doFile");
+    var ppid = process.ppid;
+    var version = 'efront/' + ppid;
     var requestListener = function (req, res) {
         var req_access_origin = req.headers.origin;
         var req_access_headers = req.headers["access-control-request-headers"];
@@ -113,6 +118,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
         req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
         if (/^option/i.test(req.method)) {
+            if (req.url === '/:' + version) res.setHeader("Powered-By", version);
             return res.end();
         }
         if (/^\/@/i.test(req.url)) {
@@ -149,35 +155,86 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         }
     };
     // create server
-    var server = http.createServer(requestListener);
-    server.once("error", function () {
-        server.removeAllListeners();
-        console.error("服务器启动失败!");
-        server.close(function () {
-            process.exit();
+    var server1 = http.createServer(requestListener);
+    var ipLoged = false;
+    var checkServerState = function (http, port) {
+        return new Promise(function (ok, oh) {
+            var req = http.request(Object.assign({
+                method: 'options',
+                host: '127.0.0.1',
+                port: port,
+                rejectUnauthorized: false,// 放行证书不可用的网站
+                path: '/:' + version
+            }, httpsOptions), function (response) {
+                var powered = response.headers["powered-by"];
+                if (powered === version) {
+                    ok(`检查到${port}可以正常访问\r\n`);
+                } else {
+                    oh("<red>端口异常</red>");
+                }
+            });
+            req.end();
         });
-    });
-    server.on("listening", function () {
-        var address = server.address();
-        process.title = `服务器地址：${require("../process/getLocalIP")()} 端口：${address.port}`;
-        // console.info("server start success!");
-    });
-    server.setTimeout(0);
-    server.listen(+process.env.HTTP_PORT || 80);
-    var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
-    if (SSL_PFX_PATH) {
-        var fs = require("fs");
-        if (fs.existsSync(SSL_PFX_PATH)) {
-            http2.createSecureServer({
-                pfx: fs.readFileSync(SSL_PFX_PATH),
-                allowHTTP1: true,
-                passphrase: process.env["PASSWORD.SSL_PFX"]
-            }, requestListener).on("listening", function () {
-                SSL_ENABLED = +process.env.IN_TEST_MODE === 1;
-            }).on("error", function () {
-                SSL_ENABLED = false;
-            }).listen(+process.env.HTTPS_PORT || 443).setTimeout(0);
+    };
+
+    var showServerInfo = function () {
+        var address = require("../process/getLocalIP")();
+        var port = [server1, server2].map(a => a && a.address());
+        port = port.map(a => a && a.port);
+        var msg = [`服务器地址：${address}`, port[0] ? `http      ：\t${port[0]}` : '', port[1] ? `https     ：\t${port[1]}` : ''].map(a => a.toUpperCase());
+        process.title = msg.map(a => a.trim()).join('，').replace(/\s/g, '');
+        if (!ipLoged) ipLoged = true, console.info(msg[0] + "\r\n");
+        if (~port.indexOf(null)) {
+            return;
         }
+        msg[1] && checkServerState(http, HTTP_PORT).then(function () {
+            console.info(msg[1] + "\t<green>正常访问</green>\r\n");
+        }).catch(function (error) {
+            showServerError.call(server1, msg[1] + "\t" + error);
+        });
+        msg[2] && checkServerState(require("https"), HTTPS_PORT).then(function () {
+            console.info(msg[2] + "\t<green>正常访问</green>\r\n");
+        }).catch(function (error) {
+            showServerError.call(server2, msg[2] + "\t" + error);
+        });
+    };
+    var showServerError = function (error) {
+        var s = this;
+        s.removeAllListeners();
+        console.error(error || `${s === server2 ? "https" : "http"}服务器启动失败!`);
+        s.close(function () {
+            if (s === server1) server1 = null;
+            if (s === server2) server2 = null;
+            if (!server2 && !server1) process.exit();
+        });
+    };
+    server1.once("error", showServerError);
+    server1.once("listening", showServerInfo);
+    server1.setTimeout(0);
+    server1.listen(+HTTP_PORT || 80);
+    var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
+    var httpsOptions = {
+        allowHTTP1: true,
+    };
+    var fs = require("fs");
+    var path = require("path");
+    if (SSL_PFX_PATH) {
+        if (fs.existsSync(SSL_PFX_PATH)) {
+            httpsOptions.pfx = fs.readFileSync(SSL_PFX_PATH);
+            SSL_ENABLED = true;
+        }
+        httpsOptions.passphrase = process.env["PASSWORD.SSL_PFX"];
+    }
+    else if (HTTPS_PORT) {
+        console.warn("HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！");
+        httpsOptions.key = fs.readFileSync(path.join(__dirname, '../data/keystore/cross-key.pem'));
+        httpsOptions.cert = fs.readFileSync(path.join(__dirname, '../data/keystore/cross-cert.pem'));
+        SSL_ENABLED = true;
+    }
+    if (SSL_ENABLED) {
+        HTTPS_PORT = +HTTPS_PORT || 443;
+        var server2 = http2.createSecureServer(httpsOptions, requestListener);
+        server2.once("listening", showServerInfo).once("error", showServerError).listen(HTTPS_PORT).setTimeout(0);
     }
     process.on('exit', function (event) {
         if (event instanceof Error) console.error(event);
