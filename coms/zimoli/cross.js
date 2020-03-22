@@ -228,7 +228,7 @@ function cross(method, url, headers) {
     var jsondata = null;
     xhr.json = xhr.data = xhr.send = function (data, value) {
         if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = {};
-        if (data instanceof Object) {
+        if (data instanceof Object && !isFile(data)) {
             extend(jsondata, data);
         } else if (value) {
             extend(jsondata, { [data]: value });
