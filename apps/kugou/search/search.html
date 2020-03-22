@@ -9,7 +9,7 @@
         搜索历史为空
     </padding>
     <padding ng-repeat="s in searchHistory">
-        <btn ng-click="search(s)" type=white><span ng-bind="s"></span></btn>
+        <btn ng-click="search(s,0)" type=white><span ng-bind="s"></span></btn>
     </padding>
 </div>
 <list ng-if="keyword" ng-src="s in result">

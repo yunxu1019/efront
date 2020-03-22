@@ -31,9 +31,9 @@ function main(params, from) {
             words = words.slice(0, 20);
             data.setInstance("searchHistory", words, true);
         },
-        search(keyword = this.keyword) {
+        search(keyword = this.keyword, timeout = 600) {
             if ($scope.keyword !== keyword) $scope.keyword = keyword;
-            $scope.result = data.lazyInstance('search', { keyword });
+            $scope.result = data.lazyInstance('search', { keyword }, timeout);
             state({ keyword });
         },
         keyword: state().keyword,
