@@ -574,8 +574,27 @@ var data = {
         })
         return response;
     },
-    lazyInstance(sid, params1, parse) {
+
+    lazyInstance() {
+        var sid, params1, parse, timeout = 600;
         // 不论参数是否一样，后一个请求都会覆盖前一个请求
+        [].forEach.call(arguments, function (arg) {
+            switch (typeof arg) {
+                case "string":
+                    if (!sid) sid = arg;
+                    else params1 = arg;
+                    break;
+                case "number":
+                    timeout = arg;
+                    break;
+                case "function":
+                    parse = arg;
+                    break;
+                default:
+                    params1 = arg;
+                    console.log(arg);
+            }
+        });
         var id = "." + sid;
         var instance = this.getInstance(id);
         var promise1 = instance.loading_promise;
@@ -587,7 +606,7 @@ var data = {
         }
         var outdate = new Error("outdate canceled.");
         promise1 = instance.loading_promise = new Promise(function (ok) {
-            setTimeout(ok, 600);
+            setTimeout(ok, timeout);
         }).then(function () {
             if (promise1 !== instance.loading_promise) throw outdate;
             return privates.getApi(sid);
