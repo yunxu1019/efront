@@ -200,6 +200,7 @@ function doPutFile(req, res, filepath, code) {
         });
         req.on("end", function () {
             w.end('');
+            safeend();
         });
         req.on("error", safeend);
         req.on("close", safeend);
