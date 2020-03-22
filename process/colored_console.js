@@ -82,7 +82,9 @@ var lastLogLength = 0;
                 case "green":
                     return colors.FgGreen + s + colors.Reset;
                 default:
-                    var k = Fg + s[0].toUpperCase() + s.slice(1).toLowerCase();
+                    c = c[0].toUpperCase() + c.slice(1).toLowerCase();
+                    var k = "Fg" + c;
+                    if (c in colors) k = c;
                     if (k in colors) {
                         return colors[k] + s + colors.Reset;
                     }
