@@ -34,6 +34,7 @@ var renderModel = function (field, data) {
 };
 var constructors = {
     input,
+    text: textarea,
     date(field) {
         var elem = input();
         var picker = datepicker(field.options);
@@ -51,7 +52,11 @@ var constructors = {
         cast(elem, field);
         return elem;
     },
-    select,
+    select() {
+        var elem = select();
+        elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind=o _value=i></option>`;
+        return elem;
+    },
     "repeat"(_, field_type) {
         var elem = input();
         elem.renders = [function () {
