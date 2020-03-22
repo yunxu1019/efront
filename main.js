@@ -27,6 +27,7 @@ var loadModule = process.argv.slice(2).filter(e => /[\/\\]|_test$|\.[tj]sx?$/i.t
 var isStartCommand = configs.start || configs.run;
 var isRobber = configs.bug || configs.record || configs.robber;
 var isLone = configs.lone || configs.live;
+var isSettingPassword = configs.password;
 var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
@@ -109,6 +110,8 @@ try {
         });
         require("./process/setupenv");
         require("./server/main");
+    } else if (isSettingPassword) {
+        require("./process/password").requestPassword();
     } else if (isTestMode) {
         require("./tester/main");
     } else if (isServerMode) {

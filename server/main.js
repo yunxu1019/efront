@@ -201,6 +201,13 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     var showServerError = function (error) {
         var s = this;
         s.removeAllListeners();
+        if (error instanceof Error) {
+            switch (error.code) {
+                case "EADDRINUSE":
+                    error = `<red>${error.port}</red>端口被占用`;
+                    break;
+            }
+        }
         console.error(error || `${s === server2 ? "https" : "http"}服务器启动失败!`);
         s.close(function () {
             if (s === server1) server1 = null;
@@ -226,7 +233,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         httpsOptions.passphrase = process.env["PASSWORD.SSL_PFX"];
     }
     else if (HTTPS_PORT) {
-        console.warn("HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！");
+        console.warn("<yellow>HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！</yellow>");
         httpsOptions.key = fs.readFileSync(path.join(__dirname, '../data/keystore/cross-key.pem'));
         httpsOptions.cert = fs.readFileSync(path.join(__dirname, '../data/keystore/cross-cert.pem'));
         SSL_ENABLED = true;
