@@ -227,6 +227,13 @@ function doFile(req, res) {
         var [, filepath, code, extend] = /^([\s\S]*)\!(\w+)(\.\w*)?$/.exec(filepath);
         filepath = filepath + extend;
     }
+    if (!/get/.test(req.method)) {
+        if (!checkAccess(filepath)) {
+            res.writeHead(406, {});
+            res.end();
+            return;
+        }
+    }
 
 
     switch (req.method.toLowerCase()) {
