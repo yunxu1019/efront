@@ -4,11 +4,11 @@ var loadjson = module.exports = function loadjson(url) {
     var data = fs.readFileSync(url);
     return new Function("return " + String(data))();
 };
-loadjson.async = function (url,ignoreIfNotExist) {
+loadjson.async = function (url, ignoreIfNotExist) {
     return new Promise(function (ok, oh) {
         fs.exists(url, function (exists) {
             if (!exists) {
-                if(!ignoreIfNotExist){
+                if (!ignoreIfNotExist) {
                     return oh(new Error(`文件不存在!${url}`));
                 }
                 return;
