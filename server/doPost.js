@@ -35,10 +35,6 @@ var handle = {
 if (process.env.IN_TEST_MODE) {
     let connections = require("./liveload");
     handle["/reload"] = function (req, res) {
-        if (!this.listening) {
-            req.destroy();
-            return;
-        }
         connections.push(res);
     };
 
