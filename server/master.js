@@ -13,18 +13,21 @@ var cpus = require('os').cpus().map(a => 0);
 if (process.env.IN_TEST_MODE) {
     cpus = [0];
 }
-var end = function (event) {
-    console.info("正在退出..");
+var end = function () {
     quitting = quitting.concat(workers);
+    if (!quitting.length) {
+        console.info("正在退出..");
+        afterend();
+    }
     workers = [];
     exit();
 };
 rl.addListener("SIGINT", end);
 var afterend = function () {
-    rl.removeAllListeners();
-    rl.close();
     process.removeAllListeners();
     watch.close();
+    rl.removeAllListeners();
+    rl.pause();
 };
 var exit = function () {
     quitting.splice(0).forEach(function (worker) {
@@ -77,8 +80,8 @@ var run = function () {
 watch("./", run);
 message.quit = end;
 message.broadcast = broadcast;
-process.on("SIGINT", _ => { });
-process.on("SIGTERM", _ => { });
+process.on("SIGINT", end);
+process.on("SIGTERM", end);
 run();
 process.on("uncaughtException", function () {
     console.error.apply(console, arguments);
