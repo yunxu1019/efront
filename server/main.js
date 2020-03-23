@@ -181,12 +181,14 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
         var address = require("../process/getLocalIP")();
         var port = [server1, server2].map(a => a && a.address());
         port = port.map(a => a && a.port);
-        var msg = [`服务器地址：${address}`, port[0] ? `http      ：\t${port[0]}` : '', port[1] ? `https     ：\t${port[1]}` : ''].map(a => a.toUpperCase());
-        process.title = msg.map(a => a.trim()).join('，').replace(/\s/g, '');
+        var msg = [`服务器地址：${address}`, port[0] ? `http端口  ：${port[0]}` : '', port[1] ? `https端口 ：${port[1]}` : ''].map(a => a.toUpperCase());
+        var maxLength = Math.max(msg[1].length, msg[2].length);
+        process.title = msg.map(a => a.trim()).filter(a => !!a).join('，').replace(/\s/g, '');
         if (!ipLoged) ipLoged = true, console.info(msg[0] + "\r\n");
         if (~port.indexOf(null)) {
             return;
         }
+        msg = msg.map(a => a.length && a.length < maxLength ? a + " ".repeat(maxLength - a.length) : a);
         msg[1] && checkServerState(http, HTTP_PORT).then(function () {
             console.info(msg[1] + "\t<green>正常访问</green>\r\n");
         }).catch(function (error) {
@@ -200,6 +202,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE != "1") {
     };
     var showServerError = function (error) {
         var s = this;
+
         s.removeAllListeners();
         if (error instanceof Error) {
             switch (error.code) {
