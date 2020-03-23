@@ -1,7 +1,8 @@
 var readline = require("readline");
 var cluster = require("cluster");
 var message = require("../process/message");
-var watch = require("../process/watch");
+var fs = require("fs");
+var path = require("path");
 var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -49,8 +50,13 @@ var broadcast = function (value) {
     });
 };
 var run = function () {
+    if (run.ing) {
+        run.ing = 2;
+        return;
+    }
+    run.ing = true;
     quitting = quitting.concat(workers);
-    if (quitting.length) console.info(`${quitting.length}个子进程准备退出:${quitting.map(a => a.id)}\r\n`);
+    if (quitting.length) console.info(`${quitting.length}个子进程准备退出:${quitting.map(a => a.id)}`);
     var workking = 0;
     workers = cpus.map(function () {
         counter++;
@@ -58,7 +64,8 @@ var run = function () {
         worker.on("listening", function () {
             workking++;
             if (workking === cpus.length) {
-                console.info(`${workers.length}个子进程已启动:${workers.map(a => a.id)}\r\n`);
+                console.info(`${workers.length}个子进程已启动:${workers.map(a => a.id)}`);
+                run.ing = false;
                 exit();
             }
         });
@@ -77,7 +84,14 @@ var run = function () {
         return worker;
     });
 };
-watch("./", run);
+var watch = {
+    close: function (watchs) {
+        watchs.forEach(a => a.close());
+    }.bind(null, [
+        fs.watch(__dirname, { recursive: true }, run),
+        fs.watch(path.join(__dirname, "../process"), { recursive: true }, run)
+    ])
+};
 message.quit = end;
 message.broadcast = broadcast;
 process.on("SIGINT", end);
