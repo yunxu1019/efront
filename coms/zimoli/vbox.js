@@ -240,7 +240,8 @@ function ybox(generator) {
                 direction = -1;
                 return;
             }
-            saved_x = event.clientX, saved_y = event.clientY;
+            saved_x = event.clientX;
+            saved_y = event.clientY;
             direction = 0;
         },
         move: mousemove,

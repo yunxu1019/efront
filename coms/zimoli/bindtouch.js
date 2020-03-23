@@ -1,7 +1,7 @@
 var abs = Math.abs;
-function bindtouch(target, bindder, lockDirection = "x") {
+function bindtouch(target, bindder, lockDirection = false) {
     var direction, saved_x, saved_y;
-    lockDirection = lockDirection.toLowerCase();
+    if (lockDirection) lockDirection = lockDirection.toLowerCase();
     if (!isFunction(bindder) && bindder instanceof Object) {
         var { start, move, end } = bindder;
     } else {
@@ -9,7 +9,8 @@ function bindtouch(target, bindder, lockDirection = "x") {
     }
     moveupon(target, {
         start(event) {
-            saved_x = event.clientX, saved_y = event.clientY;
+            saved_x = event.clientX;
+            saved_y = event.clientY;
             direction = 0;
             start.call(this, event);
         },

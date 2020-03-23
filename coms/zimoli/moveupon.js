@@ -11,7 +11,7 @@ function addHookListeners(on, hook) {
     if (!moveListeners.length) {
         offhook = on(window, mousemove);
     }
-    moveListeners.unshift(hook);
+    moveListeners.push(hook);
 }
 function removeAllListeners() {
     moveListeners.splice(0, moveListeners.length);
