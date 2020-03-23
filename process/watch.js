@@ -34,5 +34,7 @@ function watch(file, then) {
 }
 watch.close = function () {
     Object.keys(watch_tree).forEach(watch);
+    return watch;
 };
+watch.mounted = watch_tree;
 module.exports = watch;
