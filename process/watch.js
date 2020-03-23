@@ -1,8 +1,7 @@
-"use strict";
-var start_time = 0;
 var fs = require("fs");
 var watch_tree = {};
 function watch(file, then) {
+    if (watch.closing) return;
     if (!(then instanceof Function)) {
         var watcher = watch_tree[file];
         if (watcher) {
@@ -33,6 +32,7 @@ function watch(file, then) {
     watch_tree[file] = watchers;
 }
 watch.close = function () {
+    watch.closeing = true;
     Object.keys(watch_tree).forEach(watch);
     return watch;
 };

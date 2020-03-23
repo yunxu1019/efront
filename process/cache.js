@@ -24,7 +24,7 @@ var getPromiseInQueue = function (runner) {
     }).then(delPromiseInQueue, delPromiseInQueue);
     runPromiseInQueue();
     return promise;
-}
+};
 /**
  * 取文件夹
  * @param {string} pathname 
@@ -69,7 +69,7 @@ var getFileHeadAsync = function (pathname, buffer_size) {
             }
             var chunk = Buffer.alloc(buffer_size);
             fs.read(h, chunk, 0, chunk.length, 0, function (err, length, chunk) {
-                if (err) return oh(err);
+                if (err) return fs.close(h), oh(err);
                 if (length < chunk.length) {
                     chunk = chunk.slice(0, length);
                 }
@@ -77,7 +77,7 @@ var getFileHeadAsync = function (pathname, buffer_size) {
                 fs.close(h, function (error) {
                     if (error) return oh(error);
                     ok(chunk);
-                })
+                });
             });
         });
     });
