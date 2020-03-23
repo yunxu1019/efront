@@ -34,7 +34,7 @@ var exit = function () {
     quitting.splice(0).forEach(function (worker) {
         var timeout = setTimeout(function () {
             worker.kill();
-        }, process.env.IN_TEST_MODE ? 100 : 24 * 60 * 60 * 1000);
+        }, !workers.length ? 100 : 24 * 60 * 60 * 1000);
         worker.on("disconnect", function () {
             clearTimeout(timeout);
         });
