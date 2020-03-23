@@ -49,13 +49,15 @@ var getElemetsFromPoints = function (points) {
 };
 
 var generateResizeParameters = function (y, top, bottom, height, point_next, event, resize) {
+    var grid = this;
     var point_prev = point_next[top];
     if (!point_prev) return;
     var nextPoints = getFirstPoints(point_next.direction !== y ? point_next.parent : point_next, bottom, top);
     var prevPoints = getLastPoints(point_prev.direction !== y ? point_prev.parent : point_prev, bottom);
     var clientY = "client" + y.toUpperCase();
-    var minValue = Math.max.apply(Math, prevPoints.map(p => p.value || 0)) + 20;
-    var maxValue = Math.min.apply(Math, nextPoints.map(p => p[bottom] ? p[bottom].value - 20 : Infinity));
+    var clientHeight = 'client' + height[0].toUpperCase() + height.slice(1);
+    var minValue = Math.max.apply(Math, prevPoints.map(p => p.value || 0)) + 20 / grid[clientHeight] * grid[height];
+    var maxValue = Math.min.apply(Math, nextPoints.map(p => (p[bottom] ? p[bottom].value : grid[height]) - 20 / grid[clientHeight] * grid[height]));
     var nextElements = getElemetsFromPoints(nextPoints);
     var prevElements = getElemetsFromPoints(prevPoints);
     prevElements.forEach(function (element) {
@@ -68,8 +70,9 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
         nextPoints,
         prevElements,
         nextElements,
-        top, minValue, maxValue, event[clientY] - point_next.value,
-        height
+        top, minValue, maxValue, event[clientY] / grid[clientHeight] * grid[height] - point_next.value,
+        height,
+        clientHeight
     ];
 
 };
@@ -84,16 +87,20 @@ var gridListener = function () {
         var position = getScreenPosition(grid);
         var clientX = event.clientX - position.left;
         var clientY = event.clientY - position.top;
+        clientX = clientX / grid.clientWidth * grid.width;
+        clientY = clientY / grid.clientHeight * grid.height;
+        var deltax = 7 / grid.clientWidth * grid.width;
+        var deltay = 7 / grid.clientHeight * grid.height;
         var [x1, y1, x2, y2] = grid.nearby(clientX, clientY);
         var direction = "";
-        if (clientY - y1 < 7) {
+        if (clientY - y1 < deltay) {
             direction += "n";
-        } else if (y2 - clientY < 7) {
+        } else if (y2 - clientY < deltay) {
             direction += "s";
         }
-        if (clientX - x1 < 7) {
+        if (clientX - x1 < deltax) {
             direction += "w";
-        } else if (x2 - clientX < 7) {
+        } else if (x2 - clientX < deltax) {
             direction += "e";
         }
         grid.direction = direction;
@@ -111,19 +118,20 @@ var gridListener = function () {
         var editting = grid.editting;
         var runNext = function ({ style }) {
             if (extra) {
-                var origin = parseInt(style[key]);
-                style[extra] = parseInt(style[extra]) + origin - value + "px";
+                var origin = parseFloat(style[key]);
+                style[extra] = parseFloat(style[extra]) + origin - value / grid[extra] * 100 + "%";
             }
-            style[key] = value + "px";
+
+            style[key] = value / grid[extra] * 100 + "%";
         };
         var runPrev = function ({ style }) {
-            var origin = parseInt(style[key]) + parseInt(style[extra]);
-            style[extra] = parseInt(style[extra]) - origin + value + "px";
+            var origin = parseFloat(style[key]) + parseFloat(style[extra]);
+            style[extra] = parseFloat(style[extra]) - origin + value / grid[extra] * 100 + "%";
         };
         var runPoints = p => p.value = value;
         for (var k in editting) {
-            var [points, prevElements, nextElements, key, min, max, delta, extra] = editting[k];
-            var value = event[k] - delta;
+            var [points, prevElements, nextElements, key, min, max, delta, extra, client] = editting[k];
+            var value = event[k] / grid[client] * grid[extra] - delta;
             if (value < min) value = min;
             if (value > max) value = max;
             points.forEach(runPoints);
@@ -152,22 +160,27 @@ var gridListener = function () {
         var position = getScreenPosition(grid);
         var clientX = event.clientX - position.left;
         var clientY = event.clientY - position.top;
+        clientX = clientX / grid.clientWidth * grid.width;
+        clientY = clientY / grid.clientHeight * grid.height;
+        var deltax = 7 / grid.clientWidth * grid.width;
+        var deltay = 7 / grid.clientHeight * grid.height;
+
         var area = grid.nearby(clientX, clientY);
         var [x_left, y_top, x_right, y_bottom] = area;
         var resize = {};
-        if (clientY - y_top < 7) {
+        if (clientY - y_top < deltay) {
             //上边
-            generateResizeParameters("y", "top", "bottom", "height", area.top, event, resize);
-        } else if (y_bottom - clientY < 7) {
+            generateResizeParameters.call(grid, "y", "top", "bottom", "height", area.top, event, resize);
+        } else if (y_bottom - clientY < deltay) {
             //下边
-            generateResizeParameters("y", "top", "bottom", 'height', area.bottom, event, resize);
+            generateResizeParameters.call(grid, "y", "top", "bottom", 'height', area.bottom, event, resize);
         }
-        if (clientX - x_left < 7) {
+        if (clientX - x_left < deltax) {
             //左边
-            generateResizeParameters("x", "left", "right", "width", area.left, event, resize);
-        } else if (x_right - clientX < 7) {
+            generateResizeParameters.call(grid, "x", "left", "right", "width", area.left, event, resize);
+        } else if (x_right - clientX < deltax) {
             //右边
-            generateResizeParameters("x", "left", "right", "width", area.right, event, resize);
+            generateResizeParameters.call(grid, "x", "left", "right", "width", area.right, event, resize);
         }
         grid.editting = resize;
         var cancelup = onmouseup(window, function () {
