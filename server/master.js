@@ -6,9 +6,6 @@ var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
-rl.addListener("SIGINT", function () {
-    end();
-});
 var counter = 0;
 var quitting = [];
 var workers = [];
@@ -17,13 +14,17 @@ if (process.env.IN_TEST_MODE) {
     cpus = [0];
 }
 var end = function (event) {
-    rl.removeAllListeners();
-    rl.close();
-    process.removeAllListeners();
+    console.info("正在退出..");
     quitting = quitting.concat(workers);
     workers = [];
     exit();
-    console.info("正在退出..");
+};
+rl.addListener("SIGINT", end);
+var afterend = function () {
+    rl.removeAllListeners();
+    rl.close();
+    process.removeAllListeners();
+    watch.close();
 };
 var exit = function () {
     quitting.splice(0).forEach(function (worker) {
@@ -66,7 +67,7 @@ var run = function () {
             }
             counter--;
             if (!counter && !workers.length) {
-                watch.close();
+                afterend();
             }
         });
         worker.on("message", message);
@@ -76,8 +77,8 @@ var run = function () {
 watch("./", run);
 message.quit = end;
 message.broadcast = broadcast;
-process.on("SIGINT", end);
-process.on("SIGTERM", end);
+process.on("SIGINT", _ => { });
+process.on("SIGTERM", _ => { });
 run();
 process.on("uncaughtException", function () {
     console.error.apply(console, arguments);
