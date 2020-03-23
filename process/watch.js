@@ -1,7 +1,6 @@
 var fs = require("fs");
 var watch_tree = {};
 function watch(file, then) {
-    if (watch.closing) return;
     if (!(then instanceof Function)) {
         var watcher = watch_tree[file];
         if (watcher) {
@@ -11,6 +10,7 @@ function watch(file, then) {
         }
         return;
     };
+    if (watch.closing) return;
     if (watch_tree[file]) {
         return watch_tree[file].push(then);
     }
