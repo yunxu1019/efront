@@ -50,7 +50,7 @@ var broadcast = function (value) {
 };
 var run = function () {
     quitting = quitting.concat(workers);
-    if (quitting.length) console.info(`${quitting.length}个子进程准备退出${quitting.map(a => a.id)}\r\n`);
+    if (quitting.length) console.info(`${quitting.length}个子进程准备退出:${quitting.map(a => a.id)}\r\n`);
     var workking = 0;
     workers = cpus.map(function () {
         counter++;
@@ -58,7 +58,7 @@ var run = function () {
         worker.on("listening", function () {
             workking++;
             if (workking === cpus.length) {
-                console.info(`${workers.length}个子进程已启动${workers.map(a => a.id)}\r\n`);
+                console.info(`${workers.length}个子进程已启动:${workers.map(a => a.id)}\r\n`);
                 exit();
             }
         });
