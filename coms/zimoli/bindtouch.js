@@ -48,7 +48,7 @@ function bindtouch(target, bindder, lockDirection = "x") {
                 saved_y = clientY;
             }
         },
-        end() {
+        end(event) {
             end.call(this, event);
             direction = 0;
         }
