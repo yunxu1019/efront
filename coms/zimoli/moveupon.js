@@ -1,34 +1,56 @@
+var moveListeners = [], offhook;
+function mousemove(event) {
+    moveListeners.forEach(a => a(event));
+}
+function addHookListeners(on, hook) {
+    // 后加入的要先执行
+    var index = moveListeners.indexOf(hook);
+    if (~index) {
+        moveListeners.splice(index, 1);
+    }
+    if (!moveListeners.length) {
+        offhook = on(window, mousemove);
+    }
+    moveListeners.unshift(hook);
+}
+function removeAllListeners() {
+    moveListeners.splice(0, moveListeners.length);
+    if (isFunction(offhook)) offhook();
+    offhook = null;
+}
+
 function moveupon(target, { start, move, end }, initialEvent) {
     var touchLocked = false;
-    var offmousemove, offtouchmove, offmouseup, offtouchend, offtouchcancel;
+    var offmouseup, offtouchend, offtouchcancel;
     var mousemove = function (event) {
-        move instanceof Function && move.call(target, event);
+        if (isFunction(move)) move.call(target, event);
     };
 
     var touchmove = function (event) {
         extendTouchEvent(event);
-        move instanceof Function && move.call(target, event);
+        if (isFunction(move)) move.call(target, event);
     };
     var cancel = function (event) {
         if (event.touches && event.touches.length) return;
-        offmousemove && offmousemove();
-        offmouseup && offmouseup();
-        offtouchmove && offtouchmove();
-        offtouchcancel && offtouchcancel();
-        offtouchend && offtouchend();
+        removeAllListeners();
+        if (isFunction(offmouseup)) offmouseup();
+        if (isFunction(offtouchmove)) offtouchmove();
+        if (isFunction(offtouchcancel)) offtouchcancel();
+        if (isFunction(offtouchend)) offtouchend();
+
         touchLocked = false;
-        end instanceof Function && end.call(target, event);
+        if (isFunction(end)) end.call(target, event);
     };
     var hookmouse = function () {
         if (touchLocked) return;
         touchLocked = true;
-        offmousemove = onmousemove(window, mousemove);
+        addHookListeners(onmousemove, mousemove);
         offmouseup = onmouseup(window, cancel);
     };
     var hooktouch = function () {
         if (touchLocked) return;
         touchLocked = true;
-        offtouchmove = ontouchmove(target, touchmove);
+        addHookListeners(ontouchmove, touchmove);
         offtouchend = ontouchend(target, cancel);
         offtouchcancel = ontouchcancel(target, cancel);
     };
@@ -45,11 +67,11 @@ function moveupon(target, { start, move, end }, initialEvent) {
     }
     onmousedown(target, function (event) {
         hookmouse(event);
-        start instanceof Function && start.call(this, event);
+        if (isFunction(start)) start.call(this, event);
     });
     ontouchstart(target, function (event) {
-        hooktouch(event);
         extendTouchEvent(event);
-        start instanceof Function && start.call(this, event);
+        hooktouch(event);
+        if (isFunction(start)) start.call(this, event);
     });
 }
