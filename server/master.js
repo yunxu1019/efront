@@ -1,6 +1,14 @@
+var readline = require("readline");
 var cluster = require("cluster");
 var message = require("../process/message");
 var watch = require("../process/watch");
+var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+rl.addListener("SIGINT", function () {
+    end();
+});
 var counter = 0;
 var quitting = [];
 var workers = [];
@@ -8,27 +16,25 @@ var cpus = require('os').cpus().map(a => 0);
 if (process.env.IN_TEST_MODE) {
     cpus = [0];
 }
-var end = function () {
+var end = function (event) {
+    rl.removeAllListeners();
+    rl.close();
+    process.removeAllListeners();
     quitting = quitting.concat(workers);
     workers = [];
     exit();
+    console.info("正在退出..");
 };
 var exit = function () {
-    if (quitting.length) console.info(`${quitting.length}个进程退出：${quitting.map(a => a.id)}\r\n`);
     quitting.splice(0).forEach(function (worker) {
-        worker.send("quit");
         var timeout = setTimeout(function () {
             worker.kill();
         }, 12000);
         worker.on("disconnect", function () {
             clearTimeout(timeout);
         });
+        worker.send("quit");
     });
-
-    if (!workers.length) {
-        // console.info("按 ctrl + c 退出!");
-        process.exit();
-    }
 };
 var broadcast = function (value) {
     var index = value.indexOf(":");
@@ -40,6 +46,7 @@ var broadcast = function (value) {
 };
 var run = function () {
     quitting = quitting.concat(workers);
+    if (quitting.length) console.info(`${quitting.length}个子进程准备退出${quitting.map(a => a.id)}\r\n`);
     var workking = 0;
     workers = cpus.map(function () {
         counter++;
@@ -47,7 +54,7 @@ var run = function () {
         worker.on("listening", function () {
             workking++;
             if (workking === cpus.length) {
-                console.info(`${workers.length}个进程已启动：${workers.map(a => a.id)}\r\n`);
+                console.info(`${workers.length}个子进程已启动${workers.map(a => a.id)}\r\n`);
                 exit();
             }
         });
@@ -57,12 +64,16 @@ var run = function () {
                     workers[cx] === worker && workers.splice(cx, 1);
                 }
             }
+            counter--;
+            if (!counter && !workers.length) {
+                watch.close();
+            }
         });
         worker.on("message", message);
         return worker;
     });
 };
-watch(__dirname, run);
+watch("./", run);
 message.quit = end;
 message.broadcast = broadcast;
 process.on("SIGINT", end);

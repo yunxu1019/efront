@@ -1,3 +1,4 @@
+require("../process/setupenv");
 var message = require("../process/message");
 process.on("SIGINT", function () { });
 process.on("SIGTERM", function () { });
@@ -6,17 +7,19 @@ process.on("unhandledRejection", process.exit);
 var { HTTPS_PORT, HTTP_PORT } = process.env;
 HTTP_PORT = +HTTP_PORT || 80;
 HTTPS_PORT = +HTTPS_PORT || 0;
-
-//子线程们
-process.on("message", function (msg, then) {
+var messageListener = function (msg, then) {
     switch (msg) {
         case "quit":
-            server1.close();
+            server1 && server1.close();
+            server2 && server2.close();
+            require('../process/watch').close();
+            process.removeAllListeners();
             then instanceof Function && then();
-            process.exit();
             break;
     }
-});
+};
+//子线程们
+process.on("message", messageListener);
 // 仅做开发使用的简易服务器
 var http = require("http");
 var http2 = require("http2");
@@ -120,6 +123,7 @@ var showServerInfo = function () {
 };
 var showServerError = function (error) {
     var s = this;
+    if (!s) return;
 
     s.removeAllListeners();
     if (error instanceof Error) {
@@ -133,7 +137,10 @@ var showServerError = function (error) {
     s.close(function () {
         if (s === server1) server1 = null;
         if (s === server2) server2 = null;
-        if (!server2 && !server1) process.exit();
+        if (!server1 && !server2) {
+            require("../process/watch").close();
+            process.removeAllListeners();
+        }
     });
 };
 server1.once("error", showServerError);
@@ -166,5 +173,5 @@ if (SSL_ENABLED) {
 }
 process.on('exit', function (event) {
     if (event instanceof Error) console.error(event);
-})
+});
 message.count("boot");
