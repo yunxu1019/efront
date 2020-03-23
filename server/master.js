@@ -34,7 +34,7 @@ var exit = function () {
     quitting.splice(0).forEach(function (worker) {
         var timeout = setTimeout(function () {
             worker.kill();
-        }, 12000);
+        }, process.env.IN_TEST_MODE ? 100 : 24 * 60 * 60 * 1000);
         worker.on("disconnect", function () {
             clearTimeout(timeout);
         });
@@ -50,6 +50,7 @@ var broadcast = function (value) {
     });
 };
 var run = function () {
+    if (quitting.length) return;
     if (run.ing) {
         run.ing = 2;
         return;
@@ -72,7 +73,7 @@ var run = function () {
         worker.on("exit", function () {
             if (worker.exitedAfterDisconnect !== true) {
                 for (var cx = workers.length - 1; cx >= 0; cx--) {
-                    workers[cx] === worker && workers.splice(cx, 1);
+                    if (workers[cx] === worker) workers.splice(cx, 1);
                 }
             }
             counter--;

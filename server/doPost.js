@@ -1,4 +1,3 @@
-"use strict";
 var finalpacker = require("../process/finalpacker");
 var message = require("../process/message");
 var proxy = require("./proxy");
@@ -34,8 +33,12 @@ var handle = {
 };
 
 if (process.env.IN_TEST_MODE) {
-    let connections = [];
+    let connections = require("./liveload");
     handle["/reload"] = function (req, res) {
+        if (!this.listening) {
+            req.destroy();
+            return;
+        }
         connections.push(res);
     };
 
@@ -81,4 +84,4 @@ var doPost = module.exports = function (req, res) {
 doPost.ccon = function (name, color) {
     var data = finalpacker.ccon(name);
     return finalpacker.color(String(data), color);
-}
+};

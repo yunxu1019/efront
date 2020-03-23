@@ -7,14 +7,31 @@ process.on("unhandledRejection", process.exit);
 var { HTTPS_PORT, HTTP_PORT } = process.env;
 HTTP_PORT = +HTTP_PORT || 80;
 HTTPS_PORT = +HTTPS_PORT || 0;
+var closed = false;
+var reload = require("./liveload");
+var closeListener = function () {
+    if (!(server1 && server1.listening) && !(server2 && server2.listening)) {
+        process.removeAllListeners();
+        require("../process/watch").close();
+    }
+};
+var safeQuitProcess = function () {
+    closed = true;
+    if (server1) {
+        server1.removeAllListeners();
+        server1.close(closeListener);
+    }
+    if (server2) {
+        server2.removeAllListeners();
+        server2.close(closeListener);
+    }
+    reload.splice(0, reload.length).forEach(res => res.end(''));
+};
 var messageListener = function (msg, then) {
     switch (msg) {
         case "quit":
-            server1 && server1.close();
-            server2 && server2.close();
-            require('../process/watch').close();
-            process.removeAllListeners();
-            then instanceof Function && then();
+            safeQuitProcess();
+            if (then instanceof Function) then();
             break;
     }
 };
@@ -72,7 +89,7 @@ var requestListener = function (req, res) {
         }
         return doGet(req, res);
     } else {
-        return doPost(req, res);
+        return doPost.call(this, req, res);
     }
 };
 // create server
@@ -110,12 +127,12 @@ var showServerInfo = function () {
         return;
     }
     msg = msg.map(a => a.length && a.length < maxLength ? a + " ".repeat(maxLength - a.length) : a);
-    msg[1] && checkServerState(http, HTTP_PORT).then(function () {
+    if (msg[1]) checkServerState(http, HTTP_PORT).then(function () {
         console.info(msg[1] + "\t<green>正常访问</green>\r\n");
     }).catch(function (error) {
         showServerError.call(server1, msg[1] + "\t" + error);
     });
-    msg[2] && checkServerState(require("https"), HTTPS_PORT).then(function () {
+    if (msg[2]) checkServerState(require("https"), HTTPS_PORT).then(function () {
         console.info(msg[2] + "\t<green>正常访问</green>\r\n");
     }).catch(function (error) {
         showServerError.call(server2, msg[2] + "\t" + error);
@@ -134,14 +151,7 @@ var showServerError = function (error) {
         }
     }
     console.error(error || `${s === server2 ? "https" : "http"}服务器启动失败!`);
-    s.close(function () {
-        if (s === server1) server1 = null;
-        if (s === server2) server2 = null;
-        if (!server1 && !server2) {
-            require("../process/watch").close();
-            process.removeAllListeners();
-        }
-    });
+    s.close(closeListener);
 };
 server1.once("error", showServerError);
 server1.once("listening", showServerInfo);
