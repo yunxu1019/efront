@@ -1,6 +1,10 @@
 var { URL } = window;
 function main(elem = div()) {
     elem.innerHTML = image;
+    var { uploadto } = elem;
+    if (!uploadto) {
+        uploadto = elem.getAttribute("uploadto");
+    }
     render(elem, {
         hasInstance: false,
         btn: button,
@@ -11,17 +15,15 @@ function main(elem = div()) {
                     css(elem, {
                         backgroundImage: `url('${url}')`
                     });
-                    var { uploadto } = elem;
-                    if (!uploadto) {
-                        uploadto = elem.getAttribute(uploadto);
-                    }
                     if (uploadto) {
                         uploadto = uploadto.replace(/\/+$/, '') + "/";
                         var serverUrl = uploadto + url.replace(/^[\s\S]*?([\w\-]+)$/, "$1");
                         cross("put", serverUrl).send(file).done(function (resposne) {
+                            console.log(serverUrl);
                             css(elem, {
                                 backgroundImage: `url('${serverUrl}')`
                             });
+                            elem.hasInstance = true;
                         });
                     }
                 }
