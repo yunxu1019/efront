@@ -19,7 +19,6 @@ function main(elem = div()) {
                         uploadto = uploadto.replace(/\/+$/, '') + "/";
                         var serverUrl = uploadto + url.replace(/^[\s\S]*?([\w\-]+)$/, "$1");
                         cross("put", serverUrl).send(file).done(function (resposne) {
-                            console.log(serverUrl);
                             css(elem, {
                                 backgroundImage: `url('${serverUrl}')`
                             });
