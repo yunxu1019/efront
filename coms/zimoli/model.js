@@ -54,7 +54,7 @@ var constructors = {
     },
     select() {
         var elem = select();
-        elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind=o _value=i></option>`;
+        elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:i"></option>`;
         return elem;
     },
     "repeat"(_, field_type) {
