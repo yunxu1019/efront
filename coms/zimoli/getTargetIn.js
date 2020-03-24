@@ -6,13 +6,13 @@ function getTargetIn(match, childTarget, matchParent) {
             else match = target => target.parentNode === parentNode;
         }
     }
-    while (childTarget) {
+    while (isNode(childTarget)) {
         var matchResult = match(childTarget);
         if (matchResult) {
             if (isFinite(matchResult)) return childTarget;
             return matchResult;
         }
-        childTarget = childTarget.parentNode;
+        childTarget = childTarget.parentElement;
     }
     return null;
 }
