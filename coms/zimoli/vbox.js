@@ -169,7 +169,7 @@ function ybox(generator) {
     };
     var Top = function () {
         if (isFunction(this.Top)) return this.Top();
-        return this.scrollTop();
+        return this.scrollTop;
     };
     var height = function () {
         if (isFunction(this.height)) return this.height();
@@ -178,21 +178,21 @@ function ybox(generator) {
     var Height = function () {
         if (isFunction(this.Height)) return this.Height();
         return this.scrollHeight;
-    }
+    };
     var scrollOutside = function (deltay) {
         var _box = this;
         if (_box.YScrollBoxId === 1) return deltay;
         var offsetParent = _box.offsetParent;
         if (!offsetParent) return deltay;
         var _boxPosition = getScreenPosition(_box);
-        var _boxParentPosition = getScreenPosition(offsetParent);
-        if (_boxPosition.bottom > _boxParentPosition.bottom && deltay > 0) {
-            var deltaScroll = _boxPosition.bottom - _boxParentPosition.bottom;
+        var _parentPosition = getScreenPosition(offsetParent);
+        if (_boxPosition.bottom - 1 >= _parentPosition.bottom && deltay > 0) {
+            var deltaScroll = _boxPosition.bottom - _parentPosition.bottom;
             deltaScroll = min(deltay, deltaScroll);
             scrollY.call(offsetParent, deltaScroll, false);
             deltay = deltay - deltaScroll;
-        } else if (_boxPosition.top < _boxParentPosition.top && deltay < 0) {
-            var deltaScroll = _boxPosition.top - _boxParentPosition.top;
+        } else if (_boxPosition.top < _parentPosition.top && deltay < 0) {
+            var deltaScroll = _boxPosition.top - _parentPosition.top;
             deltaScroll = max(deltay, deltaScroll);
             scrollY.call(offsetParent, deltaScroll, false);
             deltay = deltay - deltaScroll;
