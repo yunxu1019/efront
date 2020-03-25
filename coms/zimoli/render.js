@@ -292,12 +292,12 @@ var directives = {
             var value = getter();
             if (deepEqual(value, oldValue)) return;
             if (value instanceof Array) {
-                value = extend([], value);
+                oldValue = extend([], value);
             } else if (value instanceof Object) {
-                value = extend({}, value);
+                oldValue = extend({}, value);
+            } else {
+                oldValue = value || "";
             }
-            oldValue = value;
-            value = value || "";
             if (/^img$/i.test(this.tagName)) {
                 this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
                 if (!isString(value)) {
