@@ -34,7 +34,6 @@ function moveupon(target, { start, move, end }, initialEvent) {
         if (event.touches && event.touches.length) return;
         removeAllListeners();
         if (isFunction(offmouseup)) offmouseup();
-        if (isFunction(offtouchmove)) offtouchmove();
         if (isFunction(offtouchcancel)) offtouchcancel();
         if (isFunction(offtouchend)) offtouchend();
 
