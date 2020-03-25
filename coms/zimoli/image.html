@@ -1,9 +1,9 @@
-<btn class="plus" ng-if="!hasInstance" ng-click=choose()>
+<btn class="plus" ng-if="!hasInstance" ng-click=this.parentNode.choose()>
     <div class="icon">
         ＋
     </div>
     <div>添加图片</div>
 </btn>
-<btn class="label" ng-if="hasInstance" ng-click=choose()>
+<btn class="label" ng-if="hasInstance" ng-click=this.parentNode.choose()>
     更换图片
 </btn>

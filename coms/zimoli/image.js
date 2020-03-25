@@ -1,34 +1,49 @@
 var { URL } = window;
+var defaultScope = {
+    hasInstance: false,
+    btn: button,
+};
+var choose = function () {
+    var elem = this;
+    chooseFile('image/*').then(function ([file]) {
+        if (URL) {
+            var url = URL.createObjectURL(file);
+            elem.value = url;
+            dispatch(elem, 'change');
+            if (uploadto) {
+                uploadto = uploadto.replace(/\/+$/, '') + "/";
+                var serverUrl = uploadto + url.replace(/^[\s\S]*?([\w\-]+)$/, "$1");
+                cross("put", serverUrl).send(file).done(function (resposne) {
+                    elem.value = serverUrl;
+                    dispatch(elem, 'change');
+                });
+            }
+        }
+        elem.hasInstance = true;
+    });
+};
+
+var build = function () {
+    var elem = this;
+    var { $scope = {} } = elem;
+    elem.choose = choose;
+    extendIfNeeded($scope, defaultScope);
+    render(elem, $scope);
+};
+
 function main(elem = div()) {
-    elem.innerHTML = image;
     var { uploadto } = elem;
+    elem.innerHTML = image;
     if (!uploadto) {
         uploadto = elem.getAttribute("uploadto");
     }
-    render(elem, {
-        hasInstance: false,
-        btn: button,
-        choose() {
-            chooseFile('image/*').then(([file]) => {
-                if (URL) {
-                    var url = URL.createObjectURL(file);
-                    css(elem, {
-                        backgroundImage: `url('${url}')`
-                    });
-                    if (uploadto) {
-                        uploadto = uploadto.replace(/\/+$/, '') + "/";
-                        var serverUrl = uploadto + url.replace(/^[\s\S]*?([\w\-]+)$/, "$1");
-                        cross("put", serverUrl).send(file).done(function (resposne) {
-                            css(elem, {
-                                backgroundImage: `url('${serverUrl}')`
-                            });
-                            elem.hasInstance = true;
-                        });
-                    }
-                }
-                this.hasInstance = true;
-            });
-        }
-    });
+    care(elem, function (src) {
+        css(elem, {
+            backgroundImage: `url('${src}')`
+        });
+        this.$scope.hasInstance = !!src;
+        render.refresh();
+    }, false);
+    build.call(elem);
     return elem;
 }
