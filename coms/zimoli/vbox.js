@@ -148,10 +148,18 @@ function ybox(generator) {
         var deltay = -event.deltaY;
         if (event.moveLocked) return;
         event.moveLocked = true;
-        event.preventDefault();
-        __speed = _speed(deltay);
-        scrollY.call(_box, -deltay, false);
-        smooth(false);
+        var box;
+        if (deltay > 0) {
+            box = getTargetIn(e => e === _box || getComputedStyle(e).overflow === "auto" && e.scrollTop > 0, event.target);
+        } else {
+            box = getTargetIn(e => e === _box || getComputedStyle(e).overflow === "auto" && e.scrollHeight - e.scrollTop > e.clientHeight, event.target);
+        }
+        if (box === _box) {
+            event.preventDefault();
+            __speed = _speed(deltay);
+            scrollY.call(_box, -deltay, false);
+            smooth(false);
+        }
     });
     var scrollY = function (deltay, useIncrease) {
         deltay = scrollOutside.call(this, deltay);
