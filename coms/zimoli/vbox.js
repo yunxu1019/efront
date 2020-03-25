@@ -150,9 +150,9 @@ function ybox(generator) {
         event.moveLocked = true;
         var box;
         if (deltay > 0) {
-            box = getTargetIn(e => e === _box || getComputedStyle(e).overflow === "auto" && e.scrollTop > 0, event.target);
+            box = getTargetIn(e => e === _box || /^(?:auto|scroll)$/i.test(getComputedStyle(e).overflowY) && e.scrollTop > 0, event.target);
         } else {
-            box = getTargetIn(e => e === _box || getComputedStyle(e).overflow === "auto" && e.scrollHeight - e.scrollTop > e.clientHeight, event.target);
+            box = getTargetIn(e => e === _box || /^(?:auto|scroll)$/i.test(getComputedStyle(e).overflowY) && e.scrollHeight - e.scrollTop > e.clientHeight, event.target);
         }
         if (box === _box) {
             event.preventDefault();
