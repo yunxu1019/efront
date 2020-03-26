@@ -22,6 +22,15 @@ function main(elem = document.createElement("radio-group")) {
                 dispatch(elem, 'change');
             }
         });
+        if (elem.value) {
+            elem.setValue(elem.value);
+        }
     });
+    elem.setValue = function (key) {
+        var { options } = this.$scope;
+        if (!(options instanceof Array)) return;
+        var index = options.map(a => a.key).indexOf(key);
+        options.active = options[index];
+    };
     return elem;
 }
