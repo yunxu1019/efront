@@ -8,7 +8,7 @@ var rl = readline.createInterface({
     output: process.stdout
 });
 var counter = 0;
-var quitting = [];
+var quitting = [], notkilled = [];
 var workers = [];
 var cpus = require('os').cpus().map(a => 0);
 if (process.env.IN_TEST_MODE) {
@@ -29,16 +29,21 @@ var afterend = function () {
     watch.close();
     rl.removeAllListeners();
     rl.pause();
+    notkilled.forEach(a => a.kill());
 };
 var exit = function () {
+    if (!workers.length) var isQuit = true;
     quitting.splice(0).forEach(function (worker) {
         var timeout = setTimeout(function () {
             worker.kill();
-        }, !workers.length ? 100 : 24 * 60 * 60 * 1000);
+        }, isQuit ? 100 : 24 * 60 * 60 * 1000);
         worker.on("disconnect", function () {
             clearTimeout(timeout);
+            var index = notkilled.indexOf(worker);
+            notkilled.splice(index);
         });
         worker.send("quit");
+        notkilled.push(worker);
     });
 };
 var broadcast = function (value) {
