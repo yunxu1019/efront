@@ -37,7 +37,7 @@ var cloneChildren = function (td, copy, clone) {
             });
             break;
         default:
-            var children = [].slice.call(td.childNodes, 0);
+            var children = [].slice.call(td.childNodes, 0).filter(isMaybeVisible);
             children.sort((a, b) => {
                 return (+getComputedStyle(a).zIndex || 0) - (+getComputedStyle(b).zIndex || 0);
             }).forEach(clone);
@@ -45,7 +45,7 @@ var cloneChildren = function (td, copy, clone) {
 
 };
 var isMaybeVisible = function (node) {
-    if (!node || !node.parentNode || node.nodeType > 3 || node.nodeType == 2) return;
+    if (!node || !node.parentNode || node.nodeType > 3 || node.nodeType === 2) return;
     var style = node.style;
     if (!style) {
         node = node.parentNode;
