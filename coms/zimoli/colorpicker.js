@@ -22,5 +22,9 @@ function main(element = document.createElement("div")) {
             }
         }
     });
+    element.setValue = function (value) {
+        element.value = value;
+        cast(selector, value);
+    };
     return element;
 }
