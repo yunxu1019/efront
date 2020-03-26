@@ -51,8 +51,7 @@ var scroll = function () {
     };
     return scrollY;
 };
-
 var Vscroll = {
     Y: scroll(),
-    X: arriswise(scroll, arguments[arguments.length - 1], null)()
+    X: arriswise(scroll, arguments)()
 };
