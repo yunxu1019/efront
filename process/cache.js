@@ -172,6 +172,20 @@ var asyncLoader = function (curl, temp, key, rebuild) {
     load();
     return load;
 };
+var matcherReg = /[A-Z]+/g;
+var replaceCase = function (match, index, input) {
+    if (match.length === 1) {
+        return "-" + match.toLowerCase();
+    }
+    if (match.length === 2) {
+        match = match.toLowerCase();
+        return "-" + match[0] + "-" + match[1];
+    }
+    if (index + match.length === input.length) {
+        return "-" + match;
+    }
+    return '-' + match.slice(0, match.length - 1) + "-" + match[match.length - 1].toLowerCase();
+};
 
 var seekAsync = function (url, tree, rebuild) {
     var temp = tree;
@@ -187,6 +201,12 @@ var seekAsync = function (url, tree, rebuild) {
     search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         var key = keeys[cx];
         if (key === '' || key === '.') continue;
+        if (!(key in temp)) {
+            let k = key.replace(matcherReg, replaceCase);
+            if (k in temp) {
+                key = k;
+            }
+        }
         if (!(key in temp)) {
             if (!that.buffer_size) {
                 temp = undefined;
