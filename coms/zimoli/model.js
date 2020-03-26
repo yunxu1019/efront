@@ -94,7 +94,7 @@ var readonly_types = {
     },
     "size"(field, data) {
         var f = data[field.key];
-        var log = Math.log2(f) / 10 | 0;
+        var log = Math.log(f) / Math.LN2 / 10 | 0;
         f /= Math.pow(2, log * 10);
         f = +f.toFixed(2);
         return f + "KMGT".charAt(log - 1) + "B";
@@ -136,6 +136,7 @@ function main(elem) {
             } else {
                 var create = field_type === "function" ? field_editor : constructors[field_type];
                 var ipt = create ? create(elem, field_ref) : input();
+
                 if (ipt) {
                     if (ipt !== elem) appendChild(elem, ipt);
                     if (!ipt.$scope) {
@@ -148,6 +149,11 @@ function main(elem) {
                             saved_sataus = status;
                             elem.setAttribute('status', saved_sataus);
                         });
+                    } else {
+                        on("change")(ipt, function () {
+                            data[field.key] = getValue.call(this);
+                        });
+                        setValue.call(ipt, data[field.key]);
                     }
                     if ("option_to" in field) {
                         on("change")(ipt, copyOptionData);

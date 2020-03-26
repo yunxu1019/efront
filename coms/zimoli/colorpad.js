@@ -34,7 +34,7 @@ var rgb2v = function (r, g, b) {
 var rgb2s = function (r, g, b) {
     var u = Math.sqrt((r * r + g * g + b * b) / 3);
     var s = Math.pow(r - u, 2) + Math.pow(g - u, 2) + Math.pow(b - u, 2);
-    return Math.sqrt(s) * Math.log2(1 + Math.sin(rgb2v(r, g, b) / 255 * Math.PI));
+    return Math.sqrt(s) * Math.log(1 + Math.sin(rgb2v(r, g, b) / 255 * Math.PI)) / Math.LN2;
 };
 var c4rgb = function (r, g, b, dark, light) {
     return rgb2v(r, g, b) > vsp ? dark || '#000' : light || "#fff";
