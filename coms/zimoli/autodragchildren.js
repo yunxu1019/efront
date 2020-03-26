@@ -38,7 +38,7 @@ var hookx = function (matcher, move, event, targetChild) {
                     });
                 });
                 delete this.extra;
-            })
+            });
             targets.with = extra.map(cloneVisible);
             extra.map(function (elem) {
                 setOpacity(elem, 0);
@@ -68,8 +68,71 @@ var hookx = function (matcher, move, event, targetChild) {
     var offtouchconcel = on("touchconcel")(targetChild, offall);
     var offtouchend = on("touchend")(targetChild, offall);
     var offmousup = on("mouseup")(window, offall);
+    var autoScroll = function () {
+        if (autoScroll.ing) return;
+
+        autoScroll.ing = setInterval(function () {
+            var dragTarget = drag.target;
+            if (!dragTarget) return;
+            var areaPosition = getScreenPosition(targetBox);
+            var dragPosition = getScreenPosition(dragTarget);
+            var scrollDelta = 0;
+            if (dragPosition.left - 40 < areaPosition.left && dragPosition.right + 20 > areaPosition.left) {
+                scrollDelta = dragPosition.left - 20 - areaPosition.left;
+            } else if (dragPosition.right + 40 > areaPosition.right && dragPosition.left - 20 < areaPosition.right) {
+                scrollDelta = dragPosition.right + 20 - areaPosition.right;
+            }
+            if (scrollDelta) {
+                vscroll.X.call(targetBox, scrollDelta / 16, false);
+                moveChildren();
+            }
+        }, 16);
+    };
+    var cancelScroll = function () {
+        clearInterval(autoScroll.ing);
+        autoScroll.ing = 0;
+    };
+    var moveChildren = function () {
+        var dragTarget = drag.target;
+        if (dragTarget) {
+            var area = overlap(dragTarget, targetBox);
+            if (area > 0) {
+                var dragPosition = getScreenPosition(dragTarget);
+                var dragPositionLeft = dragPosition.left;
+                var currentTime = new Date;
+                previousElements.map(function (element) {
+                    if (currentTime - element.moving < 100) return;
+                    var elementPosition = getScreenPosition(element);
+                    var elementCenter = elementPosition.left + elementPosition.width / 2;
+                    if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
+                        recover(element);
+                    } else {
+                        moveMargin(element, dragPosition.width);
+                    }
+                });
+                var dragPositionRight = dragPosition.left + dragPosition.width;
+                followedElements.map(function (element) {
+                    if (currentTime - element.moving < 100) return;
+                    var elementPosition = getScreenPosition(element);
+                    var elementCenter = elementPosition.left + elementPosition.width / 2;
+                    if (elementCenter - (element.moved || 0) <= dragPositionRight) {
+                        moveMargin(element, -dragPosition.width);
+                    } else {
+                        recover(element);
+                    }
+                });
+            } else {
+                previousElements.map(recover);
+                followedElements.map(recover);
+            }
+        } else {
+            previousElements.map(recover);
+            followedElements.map(recover);
+        }
+    };
     // 修改margin无效的情况
     function dragclone() {
+        addClass(targetBox, 'dropping');
         previousElements = previousElements.map(cloneCell);
         followedElements = followedElements.map(cloneCell);
         setOpacity(targetBox, 0);
@@ -78,6 +141,7 @@ var hookx = function (matcher, move, event, targetChild) {
         var offall = function () {
             offdragmove();
             offdragend();
+            removeClass(targetBox, "dropping");
         };
         var offdragend = on("dragend")(targetChild, function () {
             offall();
@@ -121,53 +185,20 @@ var hookx = function (matcher, move, event, targetChild) {
                 appendSibling(dstElement, srcElement);
             }
         });
-        var offdragmove = on("dragmove")(targetChild, function () {
-            var dragTarget = drag.target;
-            if (dragTarget) {
-                var area = overlap(dragTarget, targetBox);
-                if (area > 0) {
-                    var dragPosition = getScreenPosition(dragTarget);
-                    var dragPositionLeft = dragPosition.left;
-                    var currentTime = new Date;
-                    previousElements.map(function (element) {
-                        if (currentTime - element.moving < 100) return;
-                        var elementPosition = getScreenPosition(element);
-                        var elementCenter = elementPosition.left + elementPosition.width / 2;
-                        if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
-                            recover(element);
-                        } else {
-                            moveMargin(element, dragPosition.width);
-                        }
-                    });
-                    var dragPositionRight = dragPosition.left + dragPosition.width;
-                    followedElements.map(function (element) {
-                        if (currentTime - element.moving < 100) return;
-                        var elementPosition = getScreenPosition(element);
-                        var elementCenter = elementPosition.left + elementPosition.width / 2;
-                        if (elementCenter - (element.moved || 0) <= dragPositionRight) {
-                            moveMargin(element, -dragPosition.width);
-                        } else {
-                            recover(element);
-                        }
-                    });
-                } else {
-                    previousElements.map(recover);
-                    followedElements.map(recover);
-                }
-            } else {
-                previousElements.map(recover);
-                followedElements.map(recover);
-            }
-        });
+        var offdragmove = on("dragmove")(targetChild, moveChildren);
     }
     // 仅修改Margin就可以实现拖拽效果
     function draglist() {
+        addClass(targetBox, 'dropping');
+        autoScroll();
         var style = targetBox.style;
         var savedStyle = { overflow: style.overflow, display: style.display };
         css(targetBox, "overflow:hidden;display:block");
         var offall = function () {
+            cancelScroll();
             offdragmove();
             offdragend();
+            removeClass(targetBox, "dropping");
             css(targetBox, savedStyle);
         };
         var offdragend = on("dragend")(targetChild, function () {
@@ -210,44 +241,7 @@ var hookx = function (matcher, move, event, targetChild) {
                 appendSibling(dstElement, srcElement);
             }
         });
-        var offdragmove = on("dragmove")(targetChild, function () {
-            var dragTarget = drag.target;
-            if (dragTarget) {
-                var area = overlap(dragTarget, targetBox);
-                if (area > 0) {
-                    var dragPosition = getScreenPosition(dragTarget);
-                    var dragPositionLeft = dragPosition.left;
-                    var currentTime = new Date;
-                    previousElements.map(function (element) {
-                        if (currentTime - element.moving < 100) return;
-                        var elementPosition = getScreenPosition(element);
-                        var elementCenter = elementPosition.left + elementPosition.width / 2;
-                        if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
-                            recover(element);
-                        } else {
-                            moveMargin(element, dragPosition.width);
-                        }
-                    });
-                    var dragPositionRight = dragPosition.left + dragPosition.width;
-                    followedElements.map(function (element) {
-                        if (currentTime - element.moving < 100) return;
-                        var elementPosition = getScreenPosition(element);
-                        var elementCenter = elementPosition.left + elementPosition.width / 2;
-                        if (elementCenter - (element.moved || 0) <= dragPositionRight) {
-                            moveMargin(element, -dragPosition.width);
-                        } else {
-                            recover(element);
-                        }
-                    });
-                } else {
-                    previousElements.map(recover);
-                    followedElements.map(recover);
-                }
-            } else {
-                previousElements.map(recover);
-                followedElements.map(recover);
-            }
-        });
+        var offdragmove = on("dragmove")(targetChild, moveChildren);
     }
     if (/^table/i.test(getComputedStyle(targetChild).display)) {
         var offdragstart = on("dragstart")(targetChild, dragclone);
@@ -255,8 +249,7 @@ var hookx = function (matcher, move, event, targetChild) {
         var offdragstart = on("dragstart")(targetChild, draglist);
     }
 };
-var allArgumentsNames = arguments[arguments.length - 1];
-var hooky = arriswise(hookx, allArgumentsNames.concat([].slice.call(arguments, 0)));
+var hooky = arriswise(hookx,arguments);
 var hook = function (matcher, move, event) {
     if (event.target === this) return;
     var targetChild = getTargetIn(matcher, event.target, false);
