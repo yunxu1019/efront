@@ -15,7 +15,7 @@ var cloneChildren = function (td, copy, clone) {
         case "input":
         case "textarea":
             copy.placeholder = td.placeholder;
-            copy.setAttribute("value",td.value);
+            copy.setAttribute("value", td.value);
             break;
         case "select":
             var selector = `option[value="${String(td.value === null || td.value === undefined ? '' : td.value).replace(/"/g, "\\\"")}"]`;
@@ -33,11 +33,14 @@ var cloneChildren = function (td, copy, clone) {
         case "svg":
             copy.innerHTML = td.innerHTML;
             [].forEach.call(td.attributes || [], a => {
-                copy.setAttribute(a.name, a.value);
+                if (/^[\w\-]+$/i.test(a.name)) copy.setAttribute(a.name, a.value);
             });
             break;
         default:
-            [].forEach.call(td.childNodes, clone);
+            var children = [].slice.call(td.childNodes, 0);
+            children.sort((a, b) => {
+                return (+getComputedStyle(a).zIndex || 0) - (+getComputedStyle(b).zIndex || 0);
+            }).forEach(clone);
     }
 
 };
