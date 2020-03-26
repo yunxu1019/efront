@@ -181,8 +181,8 @@ var hookx = function (matcher, move, event, targetChild) {
                 var children = this.parentNode.children;
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
-                isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
                 appendSibling(dstElement, srcElement);
+                isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
             }
         });
         var offdragmove = on("dragmove")(targetChild, moveChildren);
@@ -237,8 +237,8 @@ var hookx = function (matcher, move, event, targetChild) {
                 var children = this.parentNode.children;
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
-                isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
                 appendSibling(dstElement, srcElement);
+                isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
             }
         });
         var offdragmove = on("dragmove")(targetChild, moveChildren);
