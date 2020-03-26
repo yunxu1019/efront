@@ -30,7 +30,7 @@ var replaceArg = function (arg) {
 function build(func, argNames, argsArr) {
     var newf = String(func).replace(regexps, rep);
     return Function.apply(null, argNames.map(replaceArg).concat("return " + newf))
-        .apply(thisObj, argsArr.map(replaceArg));
+        .apply(this, argsArr.map(replaceArg));
 }
 var arriswise = function (func, args) {
     if (isFunction(args.slice)) {

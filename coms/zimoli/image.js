@@ -5,7 +5,9 @@ var defaultScope = {
 };
 var choose = function () {
     var elem = this;
+    var { uploadto } = this;
     chooseFile('image/*').then(function ([file]) {
+
         if (URL) {
             var url = URL.createObjectURL(file);
             elem.value = url;
