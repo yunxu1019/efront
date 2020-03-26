@@ -261,8 +261,14 @@ function slider(autoplay, circle = true) {
     outter.play = function (schedule = player.schedule) {
         if (schedule !== player.schedule) {
             player.schedule = schedule;
+            play();
+        } else if (!player.ing) {
+            play();
         }
-        play();
+        return outter;
+    };
+    outter.stop = function () {
+        player.ing = false;
         return outter;
     };
     outter.next = function (count = 1) {
