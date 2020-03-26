@@ -21,14 +21,22 @@ var rep = function (matched) {
     if (searched) return searched;
     return matched;
 };
-var replaceArg=function(arg){
+var replaceArg = function (arg) {
     if (isString(arg)) {
         return arg.replace(regexps, rep);
     }
     return arg;
 };
-function arriswise(func, argumentsList = [], thisObj) {
+function build(func, argNames, argsArr) {
     var newf = String(func).replace(regexps, rep);
-    return Function.apply(null, argumentsList.slice(0, argumentsList.length >> 1).map(replaceArg).concat("return " + newf))
-    .apply(thisObj, argumentsList.slice(argumentsList.length >> 1).map(replaceArg));
+    return Function.apply(null, argNames.map(replaceArg).concat("return " + newf))
+        .apply(thisObj, argsArr.map(replaceArg));
 }
+var arriswise = function (func, args) {
+    if (isFunction(args.slice)) {
+        // 兼容老方法
+        return build.call(arguments[2] || this, func, args.slice(0, args.length >> 1), args.slice(args.length >> 1));
+    }
+    var allArgumentsNames = args[args.length - 1];
+    return build.call(this, func, allArgumentsNames, [].slice.call(args, 0));
+};
