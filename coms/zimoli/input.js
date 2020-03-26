@@ -1,4 +1,13 @@
 var _input = createElement("input");
+var number = function () {
+    var reg = /^[\s\S]*?(\d+)(\.\d*)?[\s\S]*$/;
+    var value;
+    if (!reg.test(this.value)) value = '';
+    else value = this.value;
+    value = String(value).replace(reg, "$1$2");
+    if (this.value !== value) this.value = value;
+    console.log(this.value, value);
+};
 function input(element) {
     if (element && /input/i.test(element.tagName)) {
         var type = element.getAttribute("type");
@@ -23,6 +32,9 @@ function input(element) {
                     element.setValue = function (value) {
                         this.value = new Date(value).toLocaleString(undefined, { hour12: false });
                     };
+                    break;
+                case "money":
+                    on("input")(element, number);
                     break;
             }
             if (format) {
