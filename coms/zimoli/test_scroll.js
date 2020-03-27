@@ -1,16 +1,15 @@
 
 function createTouchEvent(eventtype, extra = {}) {
     var event = createEvent(eventtype);
-    event.touches = [extra];
+    event.touches = extra ? [extra] : [];
     event.changedTouches = [extra];
     return event;
 }
 
 
-function test_scroll(banner) {
+function _test_scroll(banner) {
     var clientY = 10;
     var touchstartEvent = createTouchEvent("touchstart", { clientY });
-    var touchendEvent = createTouchEvent("touchend");
     var deltaY = 100;
     dispatch(banner, touchstartEvent);
     var interval_handle = setInterval(function () {
@@ -42,6 +41,16 @@ function test_scroll(banner) {
     }, 490);
     setTimeout(function () {
         clearInterval(interval_handle);
+        var touchendEvent = createTouchEvent("touchend");
         dispatch(banner, touchendEvent);
     }, 510);
+}
+
+function main(banner){
+    if(banner.isMounted){
+        _test_scroll(banner);
+    }else{
+        on("append")(banner,_test_scroll);
+    }
+
 }
