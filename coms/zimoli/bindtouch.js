@@ -36,9 +36,10 @@ function bindtouch(target, bindder, lockDirection = false) {
                 }
                 if (direction !== lockDirection)
                     return;
+                event.moveLocked = true;
                 if (direction === "y" && deltay === 0 || direction === "x" && deltax === 0) return;
             }
-            event.moveLocked = true;
+
             var pos = move.call(this, null, event);
             if (pos instanceof Object) {
                 var { x = 0, y = 0 } = pos;
@@ -48,6 +49,7 @@ function bindtouch(target, bindder, lockDirection = false) {
                 saved_x = clientX;
                 saved_y = clientY;
             }
+            event.moveLocked = true;
         },
         end(event) {
             end.call(this, event);
