@@ -216,17 +216,19 @@ function tree() {
             } else {
                 root = getTreeFromData(src);
             }
+            remove(dom.map(a => a.target));
             dom = getArrayFromTree(root);
         }
     };
     banner.addData = function (data, parent = root) {
         appendTo(parent, data);
+        remove(dom.map(a => a.target));
         dom = getArrayFromTree(root);
     };
     var refresh = function () {
         var index = banner.index();
+        remove(dom.map(a => a.target));
         dom = getArrayFromTree(root, true);
-        remove(banner.children);
         banner.go(index);
     };
     banner.refresh = refresh;
