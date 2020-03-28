@@ -44,15 +44,16 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
         });
         transitionDuration = transitionKey ? transitionDuration || 260 : 0;
         if (!recoverStyle) {
-            let savedStyle = {};
-            {
-                let originalStyle = target.style;
-                for (let k in initialStyle) {
-                    savedStyle[k] = originalStyle[k];
-                }
-            }
-            recoverStyle = savedStyle;
+            recoverStyle = {};
         }
+        let savedStyle = {};
+        {
+            let originalStyle = target.style;
+            for (let k in initialStyle) {
+                savedStyle[k] = originalStyle[k];
+            }
+        }
+        extend(recoverStyle, savedStyle);
         if (isLeave) {
             transitionTimerStart = setTimeout(function () {
                 extend(target.style, initialStyle);
