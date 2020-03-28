@@ -27,7 +27,7 @@ function watch(file, then) {
             } catch (e) {
                 console.error("执行失败！", e.message);
             }
-        }, 80);
+        }, 160);
     }), then];
     watch_tree[file] = watchers;
 }
