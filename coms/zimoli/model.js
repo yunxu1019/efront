@@ -48,6 +48,11 @@ var constructors = {
     image() {
         return image();
     },
+    checkbox({ field }) {
+        var elem = checkbox();
+        cast(elem, field);
+        return elem;
+    },
     radio({ field }) {
         var elem = radio();
         cast(elem, field);
