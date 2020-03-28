@@ -3,15 +3,13 @@
     max-width: 100%;
     width: 360px;
     height: auto;
-    overflow: hidden;
     box-sizing: border-box;
+    overflow: auto;
 }
 
-&>.body,
-&>:not(:first-child):not(:last-child) {
+&>.body {
     padding: 10px 0;
     background: #f2f4f6;
-    overflow: auto;
     display: block;
     width: 100%;
     position: relative;
@@ -26,8 +24,7 @@
     }
 }
 
-&>.head,
-&>:first-child {
+&>.head {
     background: #fff;
     z-index: 1;
     margin-top: -44px;
@@ -43,8 +40,7 @@
     overflow: auto;
 }
 
-&>.foot,
-&>:last-child:not(:nth-child(2)) {
+&>.foot {
     text-align: right;
     line-height: 46px;
     padding: 0 16px;
@@ -60,8 +56,4 @@
             margin-left: 10px;
         }
     }
-}
-
-input {
-    width: 100%;
 }
