@@ -8,7 +8,7 @@ var renderidClosed = 0;
 var addRenderElement = function () {
     var element = this;
     if (!isNode(element)) return;
-    if (element.renderid === 1) element.renderid = ++renderidOffset;
+    if (element.renderid < 10 && element.renderid > 0) element.renderid = ++renderidOffset;
     renderElements[element.renderid] = element;
     rebuild(element);
 };
@@ -489,7 +489,7 @@ var binders = {
             } else if (this.getAttribute(attr) !== value) this.setAttribute(attr, value);
         });
     }
-}
+};
 var emiters = {
     on(key, search) {
         var getter = createGetter(search, false);
@@ -530,6 +530,11 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     var isFirstRender = !element.renderid;
     element.renderid = 1;
+    var parentNode = element.parentNode;
+    if (parentNode) {
+        if (parentNode.renderid > 1 || parentNode.isMounted) element.renderid = 2;
+    }
+
     if (isFirstRender) {
         var attrs = [].concat.apply([], element.attributes);
         var { tagName, parentNode, nextSibling } = element;
@@ -603,7 +608,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (element.renders.length) {
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
-        if (element.isMounted) addRenderElement.call(element);
+        if (element.isMounted || element.renderid > 1) addRenderElement.call(element);
     }
     if (elementid) scope[elementid] = element;
     return element;
