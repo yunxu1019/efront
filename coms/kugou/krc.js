@@ -85,9 +85,6 @@ function createKRC(krc) {
                             addClass(a, "after");
                         });
                         if (index + 2 < krcList.length) addClass(krcList[index + 1], 'after-active');
-                        if (isTrident) {
-                            css(markerLabel, `left:${fromOffset(ele.children[0].offsetLeft)}`);
-                        };
                         ele.insertBefore(markerLabel, ele.firstChild);
                     }
                     var word_ele = ele.children[current_row_index + 1];
@@ -103,6 +100,9 @@ function createKRC(krc) {
                     var targetWidth = (word_ele.offsetLeft - word_first.offsetLeft + word_ele.offsetWidth * widthRatio).toFixed(0);
                     if (+targetWidth !== freeOffset(markerLabel.style.width)) {
                         css(markerLabel, `width:${fromOffset(targetWidth)}`);
+                    }
+                    if (isTrident) {
+                        css(markerLabel, `left:${fromOffset(ele.children[1].offsetLeft)}`);
                     }
                 }
                 css(firstChild, `margin-top:${marginTop | 0}px;`);
