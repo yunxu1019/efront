@@ -24,38 +24,45 @@ var preventDefault = function (event) {
     event.preventDefault();
 };
 var lastTimeClick = 0;
+var removeByBlur = function () {
+    if (!getTargetIn(this, document.activeElement)) _remove();
+};
 function select(target, list, removeOnSelect) {
     if (!target) {
         target = document.createElement("select");
     }
     target.tabIndex = 0;
-    onblur(target, _remove);
+    onblur(target, removeByBlur);
     if (/select/i.test(target.tagName)) {
         onmousedown(target, preventDefault);
     }
+    var onlistchange = function () {
+        if (target.multiple) {
+        } else {
+            target.value = this.value;
+            dispatch(target, "change");
+        }
+    };
+    var onlistclick = function (event) {
+        if (!event.defaultPrevented) {
+            _remove();
+        }
+    };
+    var onlistremove = function () {
+        if (saved_list === this) {
+            saved_list = null;
+        }
+    };
     var bindEvent = function () {
-        on("change")(list, function (event) {
-            if (target.multiple) {
-            } else {
-                target.value = this.value;
-                dispatch(target, "change");
-            }
-        });
+
+        on("change")(list, onlistchange);
         if (removeOnSelect !== false && removeOnSelect !== null) {
-            onclick(list, function (event) {
-                if (!event.defaultPrevented) {
-                    _remove();
-                }
-            });
+            onclick(list, onlistclick);
         }
         if (removeOnSelect === null) {
             onmousedown(list, preventDefault);
         }
-        onremove(list, () => {
-            if (saved_list === list) {
-                saved_list = null;
-            }
-        });
+        onremove(list, onlistremove);
     };
     if (list) {
         var initList = bindEvent;
