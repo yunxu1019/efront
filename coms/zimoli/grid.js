@@ -1,3 +1,4 @@
+
 var grids = [];
 
 var getFirstPoints = function (point, side, direction) {
@@ -77,130 +78,134 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
 
 };
 
+/**
+ * 适配指针
+ * @param {Event} event 
+ */
+var adaptCursor = function (event) {
+    var grid = this;
+    var position = getScreenPosition(grid);
+    var clientX = event.clientX - position.left;
+    var clientY = event.clientY - position.top;
+    clientX = clientX / grid.clientWidth * grid.width;
+    clientY = clientY / grid.clientHeight * grid.height;
+    var deltax = 7 / grid.clientWidth * grid.width;
+    var deltay = 7 / grid.clientHeight * grid.height;
+    var [x1, y1, x2, y2] = grid.nearby(clientX, clientY);
+    var direction = "";
+    if (clientY - y1 < deltay) {
+        direction += "n";
+    } else if (y2 - clientY < deltay) {
+        direction += "s";
+    }
+    if (clientX - x1 < deltax) {
+        direction += "w";
+    } else if (x2 - clientX < deltax) {
+        direction += "e";
+    }
+    grid.direction = direction;
+    if (direction) {
+        css("[grid]", "cursor:" + direction + "-resize");
+    } else {
+        css("[grid]", "cursor:default;");
+    }
+};
+/**
+ * 调整大小
+ * @param {Event} event 
+ */
+var resizeView = function (event) {
+    var grid = this;
+    var editting = grid.editting;
+    var runNext = function ({ style }) {
+        if (extra) {
+            var origin = parseFloat(style[key]);
+            style[extra] = parseFloat(style[extra]) + origin - value / grid[extra] * 100 + "%";
+        }
+
+        style[key] = value / grid[extra] * 100 + "%";
+    };
+    var runPrev = function ({ style }) {
+        var origin = parseFloat(style[key]) + parseFloat(style[extra]);
+        style[extra] = parseFloat(style[extra]) - origin + value / grid[extra] * 100 + "%";
+    };
+    var runPoints = p => p.value = value;
+    for (var k in editting) {
+        var [points, prevElements, nextElements, key, min, max, delta, extra, client] = editting[k];
+        var value = event[k] / grid[client] * grid[extra] - delta;
+        if (value < min) value = min;
+        if (value > max) value = max;
+        points.forEach(runPoints);
+        nextElements.forEach(runNext);
+        if (prevElements) {
+            prevElements.forEach(runPrev);
+        }
+
+    }
+};
+var resizer = function (event) {
+    var grid = this;
+    if (!grid.direction) return;
+    //调整大小
+    var position = getScreenPosition(grid);
+    var clientX = event.clientX - position.left;
+    var clientY = event.clientY - position.top;
+    clientX = clientX / grid.clientWidth * grid.width;
+    clientY = clientY / grid.clientHeight * grid.height;
+    var deltax = 7 / grid.clientWidth * grid.width;
+    var deltay = 7 / grid.clientHeight * grid.height;
+
+    var area = grid.nearby(clientX, clientY);
+    var [x_left, y_top, x_right, y_bottom] = area;
+    var resize = {};
+    if (clientY - y_top < deltay) {
+        //上边
+        generateResizeParameters.call(grid, "y", "top", "bottom", "height", area.top, event, resize);
+    } else if (y_bottom - clientY < deltay) {
+        //下边
+        generateResizeParameters.call(grid, "y", "top", "bottom", 'height', area.bottom, event, resize);
+    }
+    if (clientX - x_left < deltax) {
+        //左边
+        generateResizeParameters.call(grid, "x", "left", "right", "width", area.left, event, resize);
+    } else if (x_right - clientX < deltax) {
+        //右边
+        generateResizeParameters.call(grid, "x", "left", "right", "width", area.right, event, resize);
+    }
+    grid.editting = resize;
+    var cancelup = onmouseup(window, function () {
+        var target = grid.editting.target;
+        if (target) target.style.zIndex = null;
+        var { clientX, clientY } = resize;
+        resize = null;
+        if (clientX) {
+            clientX[1].forEach(e => removeClass(e, 'border-right'));
+            clientX[2].forEach(e => removeClass(e, 'border-left'));
+        }
+        if (clientY) {
+            clientY[1].forEach(e => removeClass(e, "border-bottom"));
+            clientY[2].forEach(e => removeClass(e, "border-top"));
+        }
+        grid.editting = null;
+
+        cancelup();
+    });
+};
 var gridListener = function () {
     var grid = this;
-    /**
-     * 适配指针
-     * @param {Event} event 
-     */
-    var adaptCursor = function (event) {
-        var position = getScreenPosition(grid);
-        var clientX = event.clientX - position.left;
-        var clientY = event.clientY - position.top;
-        clientX = clientX / grid.clientWidth * grid.width;
-        clientY = clientY / grid.clientHeight * grid.height;
-        var deltax = 7 / grid.clientWidth * grid.width;
-        var deltay = 7 / grid.clientHeight * grid.height;
-        var [x1, y1, x2, y2] = grid.nearby(clientX, clientY);
-        var direction = "";
-        if (clientY - y1 < deltay) {
-            direction += "n";
-        } else if (y2 - clientY < deltay) {
-            direction += "s";
-        }
-        if (clientX - x1 < deltax) {
-            direction += "w";
-        } else if (x2 - clientX < deltax) {
-            direction += "e";
-        }
-        grid.direction = direction;
-        if (direction) {
-            css("[grid]", "cursor:" + direction + "-resize");
-        } else {
-            css("[grid]", "cursor:default;");
-        }
-    };
-    /**
-     * 调整大小
-     * @param {Event} event 
-     */
-    var resizeView = function (event) {
-        var editting = grid.editting;
-        var runNext = function ({ style }) {
-            if (extra) {
-                var origin = parseFloat(style[key]);
-                style[extra] = parseFloat(style[extra]) + origin - value / grid[extra] * 100 + "%";
-            }
-
-            style[key] = value / grid[extra] * 100 + "%";
-        };
-        var runPrev = function ({ style }) {
-            var origin = parseFloat(style[key]) + parseFloat(style[extra]);
-            style[extra] = parseFloat(style[extra]) - origin + value / grid[extra] * 100 + "%";
-        };
-        var runPoints = p => p.value = value;
-        for (var k in editting) {
-            var [points, prevElements, nextElements, key, min, max, delta, extra, client] = editting[k];
-            var value = event[k] / grid[client] * grid[extra] - delta;
-            if (value < min) value = min;
-            if (value > max) value = max;
-            points.forEach(runPoints);
-            nextElements.forEach(runNext);
-            if (prevElements) {
-                prevElements.forEach(runPrev);
-            }
-
-        }
-    };
     var offmousemove;
     offmousemove = onmousemove(window, function (event) {
         if (!grid.editable) return;
         if (grid.editting) {
-            resizeView(event);
+            resizeView.call(this, event);
         } else {
-            adaptCursor(event);
+            adaptCursor.call(this, event);
         }
     });
     /**
      * 指针按下
      */
-    var offmousedown = onmousedown(grid, function (event) {
-        if (!grid.direction) return;
-        //调整大小
-        var position = getScreenPosition(grid);
-        var clientX = event.clientX - position.left;
-        var clientY = event.clientY - position.top;
-        clientX = clientX / grid.clientWidth * grid.width;
-        clientY = clientY / grid.clientHeight * grid.height;
-        var deltax = 7 / grid.clientWidth * grid.width;
-        var deltay = 7 / grid.clientHeight * grid.height;
-
-        var area = grid.nearby(clientX, clientY);
-        var [x_left, y_top, x_right, y_bottom] = area;
-        var resize = {};
-        if (clientY - y_top < deltay) {
-            //上边
-            generateResizeParameters.call(grid, "y", "top", "bottom", "height", area.top, event, resize);
-        } else if (y_bottom - clientY < deltay) {
-            //下边
-            generateResizeParameters.call(grid, "y", "top", "bottom", 'height', area.bottom, event, resize);
-        }
-        if (clientX - x_left < deltax) {
-            //左边
-            generateResizeParameters.call(grid, "x", "left", "right", "width", area.left, event, resize);
-        } else if (x_right - clientX < deltax) {
-            //右边
-            generateResizeParameters.call(grid, "x", "left", "right", "width", area.right, event, resize);
-        }
-        grid.editting = resize;
-        var cancelup = onmouseup(window, function () {
-            var target = grid.editting.target;
-            if (target) target.style.zIndex = null;
-            var { clientX, clientY } = resize;
-            resize = null;
-            if (clientX) {
-                clientX[1].forEach(e => removeClass(e, 'border-right'));
-                clientX[2].forEach(e => removeClass(e, 'border-left'));
-            }
-            if (clientY) {
-                clientY[1].forEach(e => removeClass(e, "border-bottom"));
-                clientY[2].forEach(e => removeClass(e, "border-top"));
-            }
-            grid.editting = null;
-
-            cancelup();
-        });
-    });
+    var offmousedown = onmousedown(grid, resizer);
 
     var offremove = onremove(grid, function () {
         offremove();
@@ -298,14 +303,14 @@ var grid_prototype = {
         };
         run(this.breakpoints);
     },
-    forEachCell(call) {
+    forEachCell(call, thisObj) {
         var run = function (points) {
             if (!points) return;
             if (points instanceof Array) {
                 points.forEach(run);
             }
             if (points.target) {
-                call(points);
+                call.call(thisObj, points);
             }
         };
         run(this.breakpoints);
@@ -439,23 +444,23 @@ var grid_prototype = {
     },
 };
 
+var actionemiter = function (event) {
+    var target = getTargetIn(this, event.target, false);
+    this.forEachCell(a => {
+        if (a.target === target) {
+            active(this, a.value, a);
+        }
+    });
+};
+
 function main(elem) {
     if (isElement(elem)) {
         elem = grid.call(elem);
-        care(elem, function (points) {
-            elem.setData(points);
-            elem.reshape();
-        });
+        care(elem,elem.setData);
+        care(elem,elem.reshape);
     } else {
         elem = grid.call(document.createElement('grid'), elem);
     }
-    on('click')(elem, function (event) {
-        var target = getTargetIn(elem, event.target, false);
-        this.forEachCell(a => {
-            if (a.target === target) {
-                active(this, a.value, a);
-            }
-        });
-    });
+    on('click')(elem, actionemiter);
     return elem;
 }
