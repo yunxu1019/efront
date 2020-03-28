@@ -46,16 +46,20 @@ var detectEnvironment = function () {
             names.filter(function (name) {
                 return fs.statSync(name).isDirectory();
             }).forEach(function (name) {
-                if (/page/i.test(name)) {
+                if (/page|界面|页面|应用|系统/i.test(name)) {
+                    // 高屋|瓴|楼|台|宫|阁|殿|庙|堂|会|场|司|衙|门|党|帮|派|族|山|庄|寺|教|家|城|店|军|队|团|师|营|苟
                     config.page_path = name;
-                } else if (/src|source/i.test(name)) {
+                    rest.push(name);
+                } else if (/src|source|code|源|代码/i.test(name)) {
                     config.page_path = name;
                     coms_path.push(name);
-                } else if (/lib|com|fun|dep/i.test(name)) {
+                } else if (/lib|com|fun|dep|组件|模块|依赖|库|函数/i.test(name)) {
+                    // 卡木|设施|员|工|匠|子|弟|臣|下|客|器|械|备|库|房|土|基|石|砖
                     coms_path.push(name);
-                } else if (/env|conf/i.test(name)) {
+                } else if (/env|conf|环境|配置|设置/i.test(name)) {
                     env_path.push(name);
-                } else if (/d[ie]st|www|pub|release|^(?:out|output)$/i.test(name)) {
+                } else if (/d[ie]st|www|pub|release|发布|目标|版本|输出|产品|^(?:out|output)$/i.test(name)) {
+                    // 梦|思想|籍|书|法|规|外|景
                     public_path.push(name);
                 }
             });
