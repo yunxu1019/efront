@@ -122,11 +122,11 @@ var popup_view = function (element, target) {
     return element;
 };
 
-css(".mask", `position:absolute;position:fixed;left:0;right:0;bottom:0;top:0;width:auto;height:auto;background:#000;opacity:0.2;transform:scale(1);`);
+css(".mask", `position:absolute;position:fixed;left:0;right:0;bottom:0;top:0;width:auto;height:auto;background:#000;opacity:0.2;transform:scale(1);display:block`);
 var createMask = function () {
-    var mask = document.createElement("div");
+    var mask = document.createElement("mask");
     mask.initialStyle = animationStyle;
-    css(mask, `z-index:${zIndex()}`);
+    css(mask, `z-index:${zIndex()};`);
     mask.className = "mask";
     mask.isMask = true;
     return mask;
