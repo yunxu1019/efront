@@ -392,7 +392,7 @@ var directives = {
         var getter = createGetter(search).bind(this);
         var oldValue;
         this.renders.push(function () {
-            var value = getter();
+            var value = !!getter();
             if (deepEqual(oldValue, value)) return;
             oldValue = value;
             if (value) {
@@ -406,7 +406,7 @@ var directives = {
         var getter = createGetter(search).bind(this);
         var oldValue;
         this.renders.push(function () {
-            var value = getter();
+            var value = !!getter();
             if (deepEqual(oldValue, value)) return;
             oldValue = value;
             if (value) {
