@@ -15,10 +15,11 @@ function main(elem = document.createElement("checkbox-group")) {
         render(elem, {
             a: button,
             field,
+            r: checker,
             options,
             select(a) {
-                a.active = !a.active;
-                elem.value = this.options.filter(a => !!a.active);
+                a.checked = !a.checked;
+                elem.value = this.options.filter(a => !!a.checked);
                 dispatch(elem, 'change');
             }
         });

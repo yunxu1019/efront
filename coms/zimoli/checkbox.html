@@ -1,6 +1,4 @@
-<a ng-repeat="o in options" ng-click="select(o)" ng-class="{activate:o.active}">
-    <r>
-        <s>✓</s>
-    </r>
+<a ng-repeat="o in options" ng-click="select(o)">
+    <r ng-model=o.checked></r>
     <span ng-bind=o.name||o></span>
 </a>
