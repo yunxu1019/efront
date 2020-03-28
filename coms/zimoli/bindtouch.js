@@ -12,7 +12,7 @@ function bindtouch(target, bindder, lockDirection = false) {
             saved_x = event.clientX;
             saved_y = event.clientY;
             direction = 0;
-            start.call(this, event);
+            if (isFunction(start)) start.call(this, event);
         },
         move(event) {
             if (event.moveLocked) return;
@@ -45,14 +45,14 @@ function bindtouch(target, bindder, lockDirection = false) {
                 var { x = 0, y = 0 } = pos;
                 x += deltax;
                 y += deltay;
-                move.call(this, { x, y, deltax, deltay }, event);
+                if (isFunction(move)) move.call(this, { x, y, deltax, deltay }, event);
                 saved_x = clientX;
                 saved_y = clientY;
             }
             event.moveLocked = true;
         },
         end(event) {
-            end.call(this, event);
+            if (isFunction(end)) end.call(this, event);
             direction = 0;
         }
     });
