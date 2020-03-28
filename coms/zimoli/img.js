@@ -2,7 +2,6 @@ var setsrc = function (src) {
     css(this, {
         backgroundImage: `url('${src}')`
     });
-    console.log(src);
 };
 
 function img() {
