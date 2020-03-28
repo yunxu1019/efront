@@ -173,7 +173,7 @@ function ylist(container, generator, $Y) {
             }
             inc += 8;
             if (inc < 1000) {
-                a = requestAnimationFrame(run);
+                rebuild.ing = requestAnimationFrame(run);
             } else {
                 rebuild.ing = 0;
             }
@@ -258,7 +258,7 @@ function ylist(container, generator, $Y) {
         var childrenMap = getChildrenMap();
         var first_element, flag_element = first_element = getFirstElement();
         if (!flag_element || !isFinite(flag_element.offsetTop)) return;
-        offset = flag_element.index || 0;
+        var offset = flag_element.index || 0;
         var offsetTop = flag_element.offsetTop;
         var { scrollTop } = list;
         scrollTop += deltaY;
@@ -296,11 +296,11 @@ function ylist(container, generator, $Y) {
     var scrollBy = function (deltaY) {
         var deltaScroll;
         if (deltaY > 0) {
-            deltaScroll = patchBottom(deltaY, modifyTop);
+            deltaScroll = patchBottom(deltaY);
         } else {
-            deltaScroll = patchTop(deltaY, modifyTop);
+            deltaScroll = patchTop(deltaY);
         }
-        if (deltaScroll) list.scrollTop += deltaScroll ;
+        if (deltaScroll) list.scrollTop += deltaScroll;
     };
     list.stopY = function () {
         var firstElement = getFirstVisibleElement();
