@@ -17,6 +17,8 @@ var removeRenderElement = function () {
     delete renderElements[element.renderid];
 };
 function refresh(root) {
+    var rest = [];
+    var body = document.documentElement;
     for (var k in renderElements) {
         var element = renderElements[k];
         if (root && root.renders) {
@@ -25,8 +27,12 @@ function refresh(root) {
             ) rebuild(element);
         } else {
             rebuild(element);
+            if (!getTargetIn(body, element)) {
+                rest.push(element);
+            }
         }
     }
+    if (rest.length) rest.forEach(a => removeRenderElement.call(a));
 }
 function rebuild(element) {
     if (!element.needchanges) {
