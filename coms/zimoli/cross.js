@@ -189,7 +189,7 @@ function cross(method, url, headers) {
             if (/^(get|head|trace)$/i.test(method)) {
                 url = url.replace(/#[\s\S]*/, '');
                 datas = serialize(jsondata);
-                url += (/\?/.test(url) ? "&" : "?") + datas;
+                if (datas) url += (/\?/.test(url) ? "&" : "?") + datas;
             } else {
                 datas = JSON.stringify(jsondata);
                 if (datas === "{}" || datas === "[]") {
