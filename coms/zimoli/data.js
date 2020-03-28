@@ -463,6 +463,9 @@ var data = {
         }
         return privates.getConfigPromise();
     },
+    setConfig(data) {
+        configPormise = Promise.resolve(data).then(createApiMap);
+    },
     from(ref, params, parse) {
         if (params instanceof Function) {
             parse = params;
