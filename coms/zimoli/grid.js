@@ -279,7 +279,7 @@ var grid_prototype = {
     setGrid(breakpoints) {
         var grid = this;
         if (!breakpoints) {
-            var breakpoints = createPoints([0, [0, 50, [0, 33.3333, 66.6667]]]);
+            var breakpoints = createPoints([]);
         } else {
             breakpoints = createPoints(breakpoints);
         }
