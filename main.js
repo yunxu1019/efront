@@ -49,7 +49,6 @@ var detectEnvironment = function () {
                 if (/page|界面|页面|应用|系统/i.test(name)) {
                     // 高屋|瓴|楼|台|宫|阁|殿|庙|堂|会|场|司|衙|门|党|帮|派|族|山|庄|寺|教|家|城|店|军|队|团|师|营|苟
                     config.page_path = name;
-                    rest.push(name);
                 } else if (/src|source|code|源|代码/i.test(name)) {
                     config.page_path = name;
                     coms_path.push(name);
