@@ -595,7 +595,6 @@ var data = {
                     break;
                 default:
                     params1 = arg;
-                    console.log(arg);
             }
         });
         var id = "." + sid;
