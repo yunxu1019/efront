@@ -28,6 +28,7 @@ var choose = function () {
                 cross("put", serverUrl).send(file).done(function (resposne) {
                     elem.setValue(serverUrl);
                     dispatch(elem, 'change');
+                    URL.revokeObjectURL(url);
                 });
             }
         }
