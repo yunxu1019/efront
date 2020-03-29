@@ -2,6 +2,11 @@ var { URL } = window;
 var defaultScope = {
     hasInstance: false,
     btn: button,
+    setValue(src) {
+        if (this.value === src) return;
+        this.value = src;
+        cast(this, src);
+    },
 };
 var choose = function () {
     var elem = this;
@@ -11,12 +16,14 @@ var choose = function () {
         if (URL) {
             var url = URL.createObjectURL(file);
             elem.value = url;
+            cast(elem, url);
             dispatch(elem, 'change');
             if (uploadto) {
                 uploadto = uploadto.replace(/\/+$/, '') + "/";
                 var serverUrl = uploadto + url.replace(/^[\s\S]*?([\w\-]+)$/, "$1");
                 cross("put", serverUrl).send(file).done(function (resposne) {
                     elem.value = serverUrl;
+                    cast(elem, serverUrl);
                     dispatch(elem, 'change');
                 });
             }
