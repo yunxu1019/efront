@@ -35,7 +35,7 @@ function remove(node, transition) {
 }
 
 function _onremove(node, event) {
-    if (node.isMounted === false) return;
+    if (!node || node.isMounted === false) return;
     var children = node.childNodes;
     if (node.isMounted) {
         var onremove = node.onremove;
