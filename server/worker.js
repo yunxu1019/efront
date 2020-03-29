@@ -26,6 +26,7 @@ var safeQuitProcess = function () {
         server2.close(closeListener);
     }
     reload.splice(0, reload.length).forEach(res => res.end(''));
+    process.exit();
 };
 var messageListener = function (msg, then) {
     switch (msg) {
