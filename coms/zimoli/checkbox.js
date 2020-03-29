@@ -12,6 +12,7 @@ function main(elem = document.createElement("checkbox-group")) {
         } else {
             options = null;
         }
+        buildValue(elem.value, options);
         render(elem, {
             a: button,
             field,
@@ -20,6 +21,7 @@ function main(elem = document.createElement("checkbox-group")) {
             select(a) {
                 a.checked = !a.checked;
                 elem.value = this.options.filter(a => !!a.checked);
+                buildValue(elem.value, this.options);
                 dispatch(elem, 'change');
             }
         });
@@ -27,11 +29,25 @@ function main(elem = document.createElement("checkbox-group")) {
             elem.setValue(elem.value);
         }
     });
-    elem.setValue = function (key) {
-        var { options } = this.$scope;
+    var buildValue = function (value, options) {
         if (!(options instanceof Array)) return;
-        var index = options.map(a => a.key).indexOf(key);
-        options.active = options[index];
+        if (!(value instanceof Array)) return;
+
+        var checked = {};
+        var optionsMap = {};
+        options.forEach(o => optionsMap[o.key] = o);
+        value.forEach(v => {
+            var o = optionsMap[v instanceof Object ? v.key : v];
+            if (o) {
+                o.checked = true;
+                checked[o.key] = o;
+            }
+        });
+        value.checked = checked;
+    };
+    elem.setValue = function (value) {
+        var { options } = this.$scope;
+        buildValue(value, options);
     };
     return elem;
 }
