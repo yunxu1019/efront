@@ -527,10 +527,13 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         renderStructure(element, scope, parentScopes);
     }
     var elementid = element.getAttribute("renderid") || element.getAttribute("elementid") || element.getAttribute("id");
-    if (elementid && scope[elementid]) {
-        throw new Error("同一个id不能使用两次:" + elementid);
+    if (elementid) {
+        if (scope[elementid]) {
+            if (scope[elementid] !== element) throw new Error("同一个id不能使用两次:" + elementid);
+        } else {
+            scope[elementid] = element;
+        }
     }
-    if (elementid) scope[elementid] = element;
     if (element.renderid < 0) {
         return element;
     }
