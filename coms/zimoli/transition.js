@@ -53,7 +53,7 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
                 savedStyle[k] = originalStyle[k];
             }
         }
-        extend(recoverStyle, savedStyle);
+        extendIfNeeded(recoverStyle, savedStyle);
         if (isLeave) {
             transitionTimerStart = setTimeout(function () {
                 extend(target.style, initialStyle);
