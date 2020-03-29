@@ -336,7 +336,6 @@ var directives = {
     },
     model(search) {
         var getter = createGetter(search).bind(this);
-        console.log(search);
         var oldValue;
         var getstr = this.getValue instanceof Function ? "this.getValue()" : "";
         var setter = this.setValue instanceof Function ? function () {
