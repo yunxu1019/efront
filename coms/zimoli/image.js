@@ -31,7 +31,6 @@ var choose = function () {
                 });
             }
         }
-        elem.hasInstance = true;
     });
 };
 
@@ -55,7 +54,7 @@ function main(elem = div()) {
         css(elem, {
             backgroundImage: `url('${src}')`
         });
-        this.$scope.hasInstance = !!src;
+        this.hasInstance = this.$scope.hasInstance = !!src;
         render.refresh();
     }, false);
     build.call(elem);
