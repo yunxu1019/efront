@@ -48,6 +48,14 @@ function script(url, judger) {
     script.src = url;
     setTimeout(function () {
         if (!script.parentNode) {
+            if (judger) {
+                var res = seek(window, judger);
+                if (res !== null && res !== undefined) {
+                    ok(res);
+                    resolve(res);
+                    return;
+                }
+            }
             appendChild(document.head, script);
         }
     });
