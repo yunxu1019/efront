@@ -1,13 +1,18 @@
 var { URL } = window;
 var defaultScope = {
     hasInstance: false,
-    btn: button,
-    setValue(src) {
-        if (this.value === src) return;
-        this.value = src;
-        cast(this, src);
-    },
+    btn: button
 };
+function setValue(src) {
+    if (this.value === src) return;
+    this.value = src;
+    cast(this, src);
+    return src;
+}
+function getValue() {
+    return this.value;
+}
+
 var choose = function () {
     var elem = this;
     var { uploadto } = this;
@@ -15,15 +20,13 @@ var choose = function () {
 
         if (URL) {
             var url = URL.createObjectURL(file);
-            elem.value = url;
-            cast(elem, url);
+            elem.setValue(url);
             dispatch(elem, 'change');
             if (uploadto) {
                 uploadto = uploadto.replace(/\/+$/, '') + "/";
                 var serverUrl = uploadto + url.replace(/^[\s\S]*?([\w\-]+)$/, "$1");
                 cross("put", serverUrl).send(file).done(function (resposne) {
-                    elem.value = serverUrl;
-                    cast(elem, serverUrl);
+                    elem.setValue(serverUrl);
                     dispatch(elem, 'change');
                 });
             }
@@ -37,6 +40,8 @@ var build = function () {
     var { $scope = {} } = elem;
     elem.choose = choose;
     extendIfNeeded($scope, defaultScope);
+    elem.setValue = setValue;
+    elem.getValue = getValue;
     render(elem, $scope);
 };
 
