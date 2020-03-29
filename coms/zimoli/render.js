@@ -336,6 +336,7 @@ var directives = {
     },
     model(search) {
         var getter = createGetter(search).bind(this);
+        console.log(search);
         var oldValue;
         var getstr = this.getValue instanceof Function ? "this.getValue()" : "";
         var setter = this.setValue instanceof Function ? function () {
@@ -375,12 +376,13 @@ var directives = {
         } else {
             this.renders.push(setter || function () {
                 var value = getter();
+
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
                 if (html(this) !== value) html(this, value);
             });
-            var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=${getstr || "html(this)"}`).bind(this, html);
+            var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=${getstr || "'value' in this?this.value:html(this)"}`).bind(this, html);
         }
         var onchange = lazy(change);
         eventsHandlers.map(on => on(this, onchange));
