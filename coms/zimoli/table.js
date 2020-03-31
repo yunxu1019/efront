@@ -137,7 +137,7 @@ function table(elem) {
             removeClass(td, "y-ing");
         });
     });
-    var table = list(tableElement);
+    var table = tableElement.hasAttribute("ng-src") || tableElement.hasAttribute("src") ? list(tableElement) : tableElement;
     var [thead] = table.getElementsByTagName("thead");
     var [tbody] = table.getElementsByTagName("tbody");
     var cellMatchManager = function (element) {
