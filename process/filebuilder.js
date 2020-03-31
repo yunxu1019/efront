@@ -153,8 +153,7 @@ var buildjsp = function (buff, realpath) {
             func = createseek(content);
         } else {
             var { params, imported, required, data } = commbuilder.parse(content);
-            func = Function.apply(null, imported.concat(data));
-            func.params = params;
+            func = Function.apply(null, params.concat(data));
             func.required = required;
             func.imported = imported;
         }
@@ -184,8 +183,6 @@ var buildjsp = function (buff, realpath) {
                 case "ctx":
                 case "context":
                     return context;
-                case "params":
-                    return params;
                 case "require":
                     return _require.bind(null, required);
             }
@@ -194,9 +191,9 @@ var buildjsp = function (buff, realpath) {
         var context = {};
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
-                var { params, required } = str;
-                params = params.map(a => _require(required, a));
-                var res = str.apply(context, params);
+                var { imported, required } = str;
+                imported = imported.map(a => _require(required, a));
+                var res = str.apply(context, imported);
                 if (res === undefined) res = '';
                 return res;
             }
