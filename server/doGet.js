@@ -121,7 +121,7 @@ module.exports = function (req, res) {
         req.url = unescape(req.url);
     }
     var url = proxy(req);
-    url = url.replace(/[\?#][\s\S]*/g, "");
+    url = url.replace(/[\:\?#][\s\S]*/g, "");
     var data = getfile(url, ['', 'index.html']);
     if (data instanceof Promise) {
         return data.then(function (data) {
