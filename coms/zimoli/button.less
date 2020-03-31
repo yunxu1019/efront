@@ -168,7 +168,7 @@ a&,
     }
 }
 
-.type(@type, @color, @colortext) {
+.type(@type, @color, @colortext, @hover: lighten(@color, 10%)) {
     &[type="@{type}"] {
         color: @colortext;
         background-color: @color;
@@ -178,10 +178,11 @@ a&,
     a&[type="@{type}"],
     &[type='@{type}-anchor'] {
         color: @color;
+        background: none;
 
         &:hover,
         &.hover {
-            color: lighten(@color, 10%);
+            color: @hover;
         }
 
         &:active,
@@ -191,12 +192,13 @@ a&,
     }
 }
 
-.type(candidate, #61d5a6, #fff);
+.type(candidate, #218546, #fff, #41c586);
 .type(inactive, #94a5bd, #fff);
 .type(disabled, #ccc, #fff);
 .type(dark, #000, #fff);
 .type(white, #fff, #666);
-.type(danger, #c46, #fff);
+.type(danger, #c26, #fff, #f46);
+.type(delete, #c26, #fff, #f46);
 .type(grey, #F2F4F5, #333);
 
 &[disabled] {
