@@ -1,7 +1,8 @@
 "use strict";
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
-
+var commbuilder = require("./commbuilder");
+var queue = require("./queue");
 var config = {
     // Strip HTML comments
     removeComments: true,
@@ -95,7 +96,7 @@ var config = {
 
     // Type of quote to use for attribute values (' or ")
     quoteCharacter: "\"",
-}
+};
 var builder;
 var path = require("path");
 var autoloader = function () {
@@ -117,21 +118,97 @@ var autoloader = function () {
 
 if (process.env.TRANSFORM_PIXEL) {
     var fixpixel = function (buff) {
-        return String(buff).replace(/((?:\d*\.)?\d+)px(\s*\))?/ig, (m, d, quote) => (d !== '1' ? quote ? renderPixelRatio * d + "pt" + quote : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : .75 / devicePixelRatio + "pt"));
+        return String(buff).replace(/((?:\d*\.)?\d+)px(\s*\))?/ig, (m, d, quote) => (d !== '1' ? quote ? renderPixelRatio * d + "pt" + quote : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt"));
     };
 
 } else {
     var fixpixel = e => String(e);
 }
+
+
+var buildjsp = function (buff, realpath) {
+    var splited = [];
+    var lastIndex = 0;
+    var input = String(buff);
+    //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
+    // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//
+    input.replace(/\<([%\?]|script)(?:(?<=[%\?])(?:php|jsp|asp)|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi, function (match, split, content, index, input) {
+        var str = input.slice(lastIndex, index);
+        var { params, imported, required, data } = commbuilder.parse(content);
+        var func = Function.apply(null, imported.concat(data));
+        func.params = params;
+        func.required = required;
+        func.imported = imported;
+        splited.push(str, func);
+        lastIndex = index + match.length;
+        return match;
+    });
+    if (lastIndex < input.length - 1) splited.push(input.slice(lastIndex, input.length));
+    return function (req, res) {
+        var _require = function (required, pathname) {
+            if (typeof pathname === 'number') {
+                pathname = required[pathname];
+            }
+            if (/^(?:\.?[\/\\]|\w\:)/i.test(pathname)) {
+                var fullpath = path.resolve(realpath || "", pathname);
+                return require(fullpath);
+            }
+            if (global[pathname]) return global[pathname];
+            switch (pathname) {
+                case "global":
+                    return global;
+                case "req":
+                case "request":
+                    return req;
+                case "res":
+                case "response":
+                    return res;
+                case "ctx":
+                case "context":
+                    return context;
+                case "params":
+                    return params;
+                case "require":
+                    return _require.bind(null, required);
+            }
+            return require(pathname);
+        };
+        var context = {};
+        return queue.call(splited, function (str) {
+            if (str instanceof Function) {
+                var { params, required } = str;
+                params = params.map(a => _require(required, a));
+                var res = str.apply(context, params);
+                if (res === undefined) res = '';
+                return res;
+            }
+            return str;
+        }).then(function (array) {
+            return Buffer.from(array.join(''));
+        });
+    };
+};
+var buildreload = function (buff) {
+    return String(buff).replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`);
+};
 if (process.env.IN_TEST_MODE) builder = function (buff, name, fullpath) {
-    if (/\b(index|default)\.html$/i.test(fullpath) || /\.html?$/.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
-        buff = Buffer.from(fixpixel(buff).replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`));
+    if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
+        buff = fixpixel(buff);
+        buff = buildreload(buff);
+        buff = buildjsp(buff, fullpath);
+    } else if (/\b(index|default)\.html$/i.test(fullpath) || /\.html?$/.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
+        buff = fixpixel(buff);
+        buff = buildreload(buff);
+        buff = Buffer.from(buff);
     }
     return buff;
 };
 
 else builder = function (buff, name, fullpath) {
-    try {
+    if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
+        buff = fixpixel(buff);
+        buff = buildjsp(buff, fullpath);
+    } else try {
         var relativePath = path.relative(process.env.PUBLIC_PATH, fullpath);
         if (/^\.\./.test(relativePath)) {
             if (/\.html$/i.test(name)) {

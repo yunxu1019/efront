@@ -8,7 +8,6 @@ var less = require("./less/less-node")();
 less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
-var cwd = process.cwd();
 var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
     data = String(data);
     if (!reg.test(data)) return data;
@@ -300,9 +299,18 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             }
         });
     }
-    var _arguments = [...globals, ...params];
-    if (required_paths.length >= 1) {
-        _arguments.push(required_paths.join(';'));
+    data = convertColor(data);
+    return {
+        imported: globals,
+        required: required_paths,
+        data,
+        params
+    };
+};
+var buildResponse = function ({ imported, params, data, required }) {
+    var _arguments = [...imported, ...params];
+    if (required.length >= 1) {
+        _arguments.push(required.join(';'));
     }
     _arguments = _arguments.join(',');
     var length = (_arguments.length << 1).toString(36);
@@ -319,7 +327,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 : 0 + m.charCodeAt(0).toString(16)
             )
         );
-    data = convertColor(data);
     return data;
 };
 var getFileData = function (fullpath) {
@@ -358,65 +365,98 @@ var renderLessData = function (data = '', lesspath, watchurls, className) {
         return lessData;
     });
 };
-module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
-    var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?|json)$/i);
+function buildJson(buff) {
+    return "return " + JSON.stringify(new Function("return " + data.toString())());
+}
+function buildHtml(data, fullpath) {
+    let lesspath = fullpath.replace(/\.html?$/i, ".less");
+    var jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
+    var promise = getFileData(lesspath).then(function (lessdata) {
+        if (lessdata instanceof Buffer) {
+            return renderLessData(lessdata, lesspath, watchurls, lessName).then(function (data) {
+                lessData = data;
+            });
+        }
+    });
+
+}
+function prepare(filename, fullpath) {
+    var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?|json|asp|jsp|php)$/i);
     if (!commName) console.warn("文件名无法生成导出变量！", fullpath);
     commName = commName && commName[1];
-    var data = String(buffer);
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
     var shortName = className.replace(/^.*?(\w*?)$/g, "$1");
     var lessName = /\s/.test(className) ? className.split(/\s+/)[0] : className;
     if (shortName !== className) className = className + " " + shortName;
-    var lessData, jsData;
-    var promise;
-    if (/\.json$/.test(fullpath)) {
-        data = "return " + JSON.stringify(new Function("return " + data.toString())());
-    } else if (/\.html?$/i.test(fullpath)) {
-        let lesspath = fullpath.replace(/\.html?$/i, ".less");
-        jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
-        promise = getFileData(lesspath).then(function (lessdata) {
-            if (lessdata instanceof Buffer) {
-                return renderLessData(lessdata, lesspath, watchurls, lessName).then(function (data) {
-                    lessData = data;
-                });
-            }
-        });
-    } else if (/\.(?:[jt]sx?)$/i.test(fullpath)) {
-        let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
-        let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
-        let replace = loadUseBody(data, fullpath, watchurls, commName);
-        promise = Promise.all([lesspath, htmlpath].map(getFileData).concat(replace)).then(function ([lessdata, htmldata, data]) {
-            if (htmldata instanceof Buffer) {
-                var commHtmlName;
-                if (/^main/.test(commName)) {
-                    commHtmlName = 'Main';
-                } else {
-                    commHtmlName = commName[0].toUpperCase() + commName.slice(1);
-                    if (commHtmlName !== commName) {
-                        commHtmlName = `${commName},${commHtmlName},${commHtmlName}=${commName}`;
-                    }
-                }
-                htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`"
-                htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+\</g, "<").replace(/\<\!\-\-.*?\-\-\>/g, "");
-                if (data) {
-                    jsData = `\r\nvar ${commHtmlName}={toString:()=>${htmldata}};\r\n` + data;
-                } else {
-                    jsData = htmldata;
-                }
-                watchurls.push(htmlpath);
+    return [commName, lessName, className];
+}
+function getHtmlPromise(data, filename, fullpath, watchurls) {
+    var [commName, lessName, className] = prepare(filename, fullpath);
+    let lesspath = fullpath.replace(/\.html?$/i, ".less");
+    var jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
+    return getFileData(lesspath).then(function (lessdata) {
+        if (lessdata instanceof Buffer) {
+            return renderLessData(lessdata, lesspath, watchurls, lessName).then(lessData => {
+                var data = loadJsBody(jsData, filename, lessData, commName, className);
+                return data;
+            });
+        }
+    });
+}
+function getScriptPromise(data, filename, fullpath, watchurls) {
+    var [commName, lessName, className] = prepare(filename, fullpath);
+    let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
+    let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
+    let replace = loadUseBody(data, fullpath, watchurls, commName);
+    var jsData, lessData;
+    return Promise.all([lesspath, htmlpath].map(getFileData).concat(replace)).then(function ([lessdata, htmldata, data]) {
+        if (htmldata instanceof Buffer) {
+            var commHtmlName;
+            if (/^main/.test(commName)) {
+                commHtmlName = 'Main';
             } else {
-                jsData = String(data);
+                commHtmlName = commName[0].toUpperCase() + commName.slice(1);
+                if (commHtmlName !== commName) {
+                    commHtmlName = `${commName},${commHtmlName},${commHtmlName}=${commName}`;
+                }
             }
-            if (lessdata instanceof Buffer) {
-                return renderLessData(lessdata, lesspath, watchurls, lessName).then(data => lessData = data);
+            htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`"
+            htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+\</g, "<").replace(/\<\!\-\-.*?\-\-\>/g, "");
+            if (data) {
+                jsData = `\r\nvar ${commHtmlName}={toString:()=>${htmldata}};\r\n` + data;
+            } else {
+                jsData = htmldata;
             }
-        });
+            watchurls.push(htmlpath);
+        } else {
+            jsData = String(data);
+        }
+        if (lessdata instanceof Buffer) {
+            return renderLessData(lessdata, lesspath, watchurls, lessName).then(data => {
+                lessData = data;
+            });
+        }
+        return jsData;
+    }).then(function () {
+        var data = loadJsBody(jsData, filename, lessData, commName, className);
+        return data;
+    });
+
+}
+function commbuilder(buffer, filename, fullpath, watchurls) {
+    var data = String(buffer), promise;
+    if (/\.json$/.test(fullpath)) {
+        data = buildJson(data);
+    } else if (/\.html?$/i.test(fullpath)) {
+        promise = getHtmlPromise(data, filename, fullpath, watchurls);
+    } else if (/\.(?:[jt]sx?)$/i.test(fullpath)) {
+        promise = getScriptPromise(data, filename, fullpath, watchurls);
     }
     if (promise) {
-        promise = promise.then(function () {
+        promise = promise.then(function (data) {
             try {
                 var timeStart = new Date;
-                var data = loadJsBody(jsData, filename, lessData, commName, className);
+                data = buildResponse(data);
                 data = Buffer.from(data);
                 data.time = new Date - timeStart;
                 return data;
@@ -426,4 +466,9 @@ module.exports = function commbuilder(buffer, filename, fullpath, watchurls) {
         });
     }
     return promise || data;
+}
+commbuilder.parse = function (data, filename = 'main', fullpath = './main.js') {
+    var [commName, lessName, className] = prepare(filename, fullpath);
+    return loadJsBody(data, filename, null, commName, lessName, className);
 };
+module.exports = commbuilder;

@@ -8,6 +8,7 @@ var APPS_PATH = env.PAGE_PATH;
 var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, function () {
     var data = filebuilder.apply(this, arguments);
     return new Promise(function (ok, oh) {
+        if (data instanceof Function) return ok(data);
         zlib.gzip(data, function (error, result) {
             if (error) {
                 oh(error);
@@ -20,7 +21,6 @@ var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_
         });
     });
 }, FILE_BUFFER_SIZE).async;
-var path = require("path");
 var mimes = require("../process/mime");
 var message = require("../process/message");
 var proxy = require("./proxy");
@@ -81,24 +81,26 @@ var adapter = function (data, url, req, res) {
         res.writeHead(404, {});
         return res.end(String(data));
     }
+    if (data instanceof Function) {
+        data = data(req, res);
+    }
+    if (data instanceof Promise) {
+        return data.then(function (data) {
+            adapter(data, "index.html", req, res);
+        }).catch(function (error) {
+            res.writeHead(500, {});
+            res.end(String(error));
+        });
+    }
     if (data instanceof Object) {
         if (data["index.html"]) {
             data = data["index.html"];
         } else {
             if (url[url.length - 1] !== "/") url = url + "/";
-            if ("index.html" in data) data = getfile(url + "index.html")
+            if ("index.html" in data) data = getfile(url + "index.html");
             else data = getfile(process.env.APP + url + "index.html");
         }
-        if (data instanceof Buffer) {
-            return response(data, "index.html", req, res);
-        } else if (data instanceof Promise) {
-            return data.then(function (data) {
-                adapter(data, "index.html", req, res);
-            }).catch(function (error) {
-                res.writeHead(500, {});
-                res.end(String(error));
-            });
-        }
+        return adapter(data, "index.html", req, res);
     }
     if (typeof data === "string" && data !== req.url && "/" + data !== req.url) {
         res.writeHead(302, {
@@ -108,7 +110,7 @@ var adapter = function (data, url, req, res) {
     }
     res.writeHead(404, {});
     res.end("not found");
-}
+};
 /**
  * doGet
  */

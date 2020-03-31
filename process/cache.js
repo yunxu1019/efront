@@ -42,7 +42,7 @@ var getdirAsync = function (pathname) {
         fs.readdir(pathname, function (error, files) {
             if (error) oh(error);
             else {
-                var directory = {}
+                var directory = {};
                 files.forEach(function (name) {
                     directory[name] = false;
                 });
@@ -128,7 +128,7 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                     temp[key] = dirs;
                     if (_reload_handlers.length) {
                         is_change = saved && Object.keys(dirs).sort().join(",") !== Object.keys(saved).sort().join(",");
-                        is_change && _reload_handlers.forEach(run => run());
+                        if (is_change) _reload_handlers.forEach(run => run());
                     }
                     _watch(durls);
                     console.info(root, curl, is_change ? "change" : "load");
@@ -145,7 +145,7 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                     } catch (e) {
                         console.warn("Build Faild:", curl, e);
                         data = e;
-                    };
+                    }
                     return data;
                 }).then(function (data) {
                     if (typeof data === "string") {
@@ -154,7 +154,7 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                     temp[key] = data;
                     if (_reload_handlers.length) {
                         is_change = saved && (saved instanceof Buffer && Buffer.compare(saved, data) || String(saved) !== String(data));
-                        is_change && _reload_handlers.forEach(run => run());
+                        if (is_change) _reload_handlers.forEach(run => run());
                     }
                     console.info(root, curl, is_change ? "change" : "load");
                     _watch(durls);
@@ -287,7 +287,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         if (!Array.isArray(extts)) {
             extts = [extts];
         }
-        var seeker = new Function();
+        var seeker = function () { };
         seeker.toString = function () {
             return this;
         }.bind(filesroot[0]);
@@ -373,7 +373,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
     sk.async = seekerAsync;
     sk.new = cache;
     return sk;
-}
+};
 var _reload_handlers = [];
 cache.onreload = function (handler) {
     if (handler instanceof Function) _reload_handlers.push(handler);
