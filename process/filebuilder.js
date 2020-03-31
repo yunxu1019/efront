@@ -124,23 +124,41 @@ if (process.env.TRANSFORM_PIXEL) {
 } else {
     var fixpixel = e => String(e);
 }
-
-
+var seek = function (keeys, o) {
+    var cx = 0;
+    for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
+        if (o === null || o === undefined) return '';
+        var key = keeys[cx];
+        o = o[key];
+    }
+    if (o === undefined) return '';
+    return o;
+};
+var createseek = function (content) {
+    var keys = content.trim().split('.').map(a => a.trim());
+    var res = seek.bind(null, keys);
+    res.params = ['context'];
+    return res;
+};
 var buildjsp = function (buff, realpath) {
     var splited = [];
     var lastIndex = 0;
     var input = String(buff);
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
     // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//
-    input.replace(/\<([%\?]|script)(?:(?<=[%\?])(?:php|jsp|asp)|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi, function (match, split, content, index, input) {
-        var str = input.slice(lastIndex, index);
-        var { params, imported, required, data } = commbuilder.parse(content);
-        var func = Function.apply(null, imported.concat(data));
-        func.params = params;
-        func.required = required;
-        func.imported = imported;
-        splited.push(str, func);
+    input.replace(/\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi, function (match, split, content, index, input) {
+        var str = input.slice(lastIndex, index), func;
         lastIndex = index + match.length;
+        if (/^(?:\=|\return\s|)\s*[^[$_a-zA-Z]\w*(\s*\.\s*[$_a-zA-Z]\w*)*\s*$/.test(content)) {
+            func = createseek(content);
+        } else {
+            var { params, imported, required, data } = commbuilder.parse(content);
+            func = Function.apply(null, imported.concat(data));
+            func.params = params;
+            func.required = required;
+            func.imported = imported;
+        }
+        splited.push(str, func);
         return match;
     });
     if (lastIndex < input.length - 1) splited.push(input.slice(lastIndex, input.length));
