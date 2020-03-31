@@ -154,7 +154,6 @@ render(){
 <image _src="expression" />
 <image .src="expression" />
 <image :src="expression" />
-<image @src="expression" />
 <!--  efront/(zimoli) 使用 render(element,scope)功能 设置 元素属性 element.setAttribute(key,value) -->
 <image src_="expression" />
 <image src.="expression" />
@@ -184,12 +183,15 @@ render(){
 <!-- vue 以 v- 开头-->
 <component1 v-model="expression" ></component1>
 <component1 v-on:click="expression" ></component1>
+<component1 @click="expression" ></component1>
 ```
 
 ```xml
 <!-- efront/(zimoli) 使用 render(element,scope)功能 -->
 <component1 ng-model="expression"></component1>
 <component1 ng-click="expression"></component1>
+<component1 @click="expression"></component1>
+<component1 v-on:click="expression"></component1>
 ```
 
 ### 5. 定义web组件
