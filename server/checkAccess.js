@@ -24,10 +24,11 @@ function checkAccess(fullpath) {
     fullpath = path.resolve(fullpath);
     for (var cx = 0, dx = rootDirectorys.length; cx < dx; cx++) {
         var relpath = path.relative(rootDirectorys[cx], fullpath);;
-        if (/^\.\.?[\/\\]|^$|^\.\.?$/.test(relpath)) return false;
-        if (/^(\w\:|[\\\/])/.test(relpath)) return false;
+        if (!/^\.\.?[\/\\]|^$|^\.\.?$/.test(relpath)&&!/^(\w\:|[\\\/])/.test(relpath)){
+            return true;
+        }
     }
-    return true;
+    return false;
 }
 checkAccess.roots = rootDirectorys;
 module.exports = checkAccess;
