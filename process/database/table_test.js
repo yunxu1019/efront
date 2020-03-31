@@ -1,3 +1,4 @@
+"use strict";
 describe("table_test",function(){
     var table
     it("init",function(){

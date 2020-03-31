@@ -1,3 +1,4 @@
+"use strict";
 var mime_data_file = require("path").join(__dirname, "../data/mime.json");
 var fs = require("fs");
 fs.watch = () => { };

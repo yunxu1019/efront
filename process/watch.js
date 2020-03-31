@@ -1,3 +1,4 @@
+"use strict";
 var fs = require("fs");
 var watch_tree = {};
 function watch(file, then) {

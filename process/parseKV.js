@@ -1,3 +1,4 @@
+"use strict";
 function parseKV(string, spliter = "&", equals = "=") {
     var object = {};
     var decode = spliter === "&" && equals === "=" ? decodeURIComponent : a => a;

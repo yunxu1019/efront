@@ -1,3 +1,4 @@
+"use strict";
 var message = require("./message");
 var cluster = require("cluster");
 if (cluster.isMaster) {

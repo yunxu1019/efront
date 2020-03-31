@@ -1,3 +1,4 @@
+"use strict";
 var Scanner = function (dataString, syntax) {
     this.source = dataString;
     this.syntax = syntax.syntax;

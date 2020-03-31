@@ -1,3 +1,4 @@
+"use strict";
 var assmebler = require("./assembler");
 var chai = require("../../tools/node_modules/chai");
 var getBuffer = function (buffer) {

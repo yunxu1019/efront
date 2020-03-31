@@ -1,3 +1,4 @@
+"use strict";
 function EnumItem(name, value) {
     this.name = name;
     this.value = value;

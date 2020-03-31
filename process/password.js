@@ -1,3 +1,4 @@
+"use strict";
 var encrypt = require("./crypt/encode62");
 var readline = require("readline");
 var path = require("path");

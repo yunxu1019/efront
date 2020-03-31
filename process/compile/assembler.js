@@ -1,3 +1,4 @@
+"use strict";
 var ia32 = {
     AX:"",
     BX:"",

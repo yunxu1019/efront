@@ -1,3 +1,4 @@
+"use strict";
 var getVariables = require("./variables");
 var esprima = require("../esprima");
 function variables_test(data) {

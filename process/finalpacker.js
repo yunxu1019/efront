@@ -1,3 +1,4 @@
+"use strict";
 var setupenv = require("../process/setupenv");
 var env = process.env;
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
