@@ -6,11 +6,11 @@ var env = process.env;
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = env.PUBLIC_PATH;
 var APPS_PATH = env.PAGE_PATH;
-var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, function () {
+var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, function (data, filename, fullpath) {
     var data = filebuilder.apply(this, arguments);
     return new Promise(function (ok, oh) {
         if (data instanceof Function) {
-            if (checkAccess(data)) {
+            if (checkAccess(fullpath)) {
                 oh(new Error('请不要在共享路径中创建服务器脚本！'));
                 return;
             }
