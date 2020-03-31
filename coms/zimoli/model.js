@@ -109,6 +109,7 @@ var readonly_types = {
 function main(elem) {
     var build = function () {
         var { data, readonly, field } = elem;
+
         if (!field || !data) return;
         var run = function () {
             var function_type = "function";
@@ -136,7 +137,7 @@ function main(elem) {
                         if (create) {
                             return create(field, data, field_ref);
                         }
-                        return data[field.key];
+                        return seek(data, field.key);
                     }
                 });
             } else {
@@ -180,6 +181,7 @@ function main(elem) {
         }
     };
     on("changes")(elem, function ({ changes }) {
+
         if (changes.data || changes.field || changes.readonly) {
             build();
         }
