@@ -1,3 +1,4 @@
+"use strict";
 var urlProxyMap = {
     "/": "/" + (process.env.APP || ""),
 };

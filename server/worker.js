@@ -1,3 +1,4 @@
+"use strict";
 require("../process/setupenv");
 var message = require("../process/message");
 process.on("SIGINT", function () { });

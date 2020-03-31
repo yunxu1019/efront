@@ -1,3 +1,4 @@
+"use strict";
 var readline = require("readline");
 var cluster = require("cluster");
 var message = require("../process/message");

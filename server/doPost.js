@@ -1,3 +1,4 @@
+"use strict";
 var finalpacker = require("../process/finalpacker");
 var message = require("../process/message");
 var proxy = require("./proxy");
