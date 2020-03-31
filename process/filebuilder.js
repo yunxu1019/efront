@@ -192,7 +192,6 @@ var buildjsp = function (buff, realpath) {
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
                 var { imported, required } = str;
-                console.log(imported);
                 imported = imported.map(a => _require(required, a));
                 var res = str.apply(context, imported);
                 if (res === undefined) res = '';
