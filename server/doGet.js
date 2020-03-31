@@ -1,6 +1,7 @@
 "use strict";
 var zlib = require("zlib");
 var filebuilder = require("../process/filebuilder");
+var checkAccess = require("./checkAccess");
 var env = process.env;
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = env.PUBLIC_PATH;
@@ -8,7 +9,13 @@ var APPS_PATH = env.PAGE_PATH;
 var getfile = require("../process/cache")(env.IN_TEST_MODE ? APPS_PATH : PUBLIC_PATH, function () {
     var data = filebuilder.apply(this, arguments);
     return new Promise(function (ok, oh) {
-        if (data instanceof Function) return ok(data);
+        if (data instanceof Function) {
+            if (checkAccess(data)) {
+                oh(new Error('请不要在共享路径中创建服务器脚本！'));
+                return;
+            }
+            return ok(data);
+        }
         zlib.gzip(data, function (error, result) {
             if (error) {
                 oh(error);
