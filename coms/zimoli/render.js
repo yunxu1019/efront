@@ -467,6 +467,7 @@ var directives = {
 // property binder
 var binders = {
     _(attr, search) {
+        attr = attr.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
         var getter = createGetter(search).bind(this);
         var oldValue;
         this.renders.push(function () {
@@ -598,7 +599,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     // 解析属性
     element.renders = element.renders ? [].concat(element.renders) : [];
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
-    var emiter_reg = /^(v|ng|on|once)\-/i
+    var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@)/i;
     attrs.map(function (attr) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
@@ -606,12 +607,18 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
             directives[key].call(element, [withContext, value]);
         } else if (emiter_reg.test(name)) {
-            var ngon = emiter_reg.exec(name)[1].toLowerCase();
+            var ngon = (emiter_reg.exec(name)[1] || "on").toLowerCase();
             emiters[ngon].call(element, key, [withContext, value]);
-        } else if (/^[\_\@\:\.]/.test(name)) {
-            binders._.call(element, name.replace(/^[\_\@\:\.]/, ""), [withContext, value]);
+        } else if (/^([\_\:\.]|v\-bind\:)/.test(name)) {
+            binders._.call(element, name.replace(/^([\_\:\.]|v\-bind\:)/, ""), [withContext, value]);
         } else if (/[\_\@\:\.]$/.test(name)) {
             binders[""].call(element, name.replace(/[\_\@\:\.]$/, ""), [withContext, value]);
+        } else {
+            name = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
+            try {
+                element[name] = value === '' ? true : value;
+            } catch (e) {
+            }
         }
     });
     rebuild(element);
