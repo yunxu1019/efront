@@ -31,6 +31,9 @@ var copyStyle = function (srcStyle, dstStyle, cloneProperties = cloneProperties2
         }
     }
 };
+var getZIndex = function (node) {
+    return node.nodeType === 1 ? +getComputedStyle(node).zIndex || 0 : 0;
+};
 var cloneChildren = function (td, copy, clone) {
     switch (String(copy.tagName).toLowerCase()) {
         case "input":
@@ -60,7 +63,7 @@ var cloneChildren = function (td, copy, clone) {
         default:
             var children = [].slice.call(td.childNodes, 0).filter(isMaybeVisible);
             children.sort((a, b) => {
-                return (+getComputedStyle(a).zIndex || 0) - (+getComputedStyle(b).zIndex || 0);
+                return getZIndex(a) - getZIndex(b);
             }).forEach(clone);
     }
 
@@ -86,6 +89,8 @@ var cloneVisible = function (td) {
     var result = document.createElement("clone");
     var _left, _top, _right, _bottom;
     var span = document.createElement("x");
+    var hasSvg = false;
+
     var clone = function (td) {
         if (!isMaybeVisible(td)) return;
         if (td.nodeType === 3) {
@@ -114,6 +119,9 @@ var cloneVisible = function (td) {
                 cloneChildren(td, copy, clone);
             }
             var { left, top, width, height } = getScreenPosition(td);
+            if (!hasSvg && /^svg$/i.test(td.tagName)) {
+                hasSvg = true;
+            }
         }
         var right = left + width;
         var bottom = top + height;
@@ -149,12 +157,12 @@ var cloneVisible = function (td) {
             height: height + "px"
         });
     });
-    result.innerHTML = result.innerHTML;
+    if (hasSvg) result.innerHTML = result.innerHTML;
     return result;
 };
 
 function cloneCell(node, parentPosition) {
-    if (!node || node.nodeType > 3 || node.nodeType == 2) return;
+    if (!node || node.nodeType > 3 || node.nodeType === 2) return;
     var style = node.style;
     if (!style) return node.cloneNode();
     if (!isMaybeVisible(node)) return;
