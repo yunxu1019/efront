@@ -23,13 +23,12 @@ table {
 
 .y-ing {
     &:before {
-        content         : "";
-        display         : block;
-        position        : absolute;
-        left            : 0;
-        top             : 0;
-        bottom          : 0;
-        right           : 0;
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
         background-color: rgba(0, 0, 0, .06);
     }
 
@@ -38,11 +37,13 @@ table {
     }
 }
 
+@cell-padding: 0 10px;
+
 & {
-    text-align     : center;
+    // text-align: center;
     border-collapse: collapse;
-    table-layout   : fixed;
-    white-space    : nowrap;
+    table-layout: fixed;
+    white-space: nowrap;
 
     >thead {
         user-select: none;
@@ -52,10 +53,11 @@ table {
 
             >td,
             >th {
-                position        : relative;
-                color           : #fff;
+                padding: @cell-padding;
+                position: relative;
+                color: #fff;
                 background-color: #999;
-                width           : 100px;
+                width: 100px;
             }
         }
     }
@@ -67,8 +69,9 @@ table {
 
             >td,
             >th {
+                padding: @cell-padding;
                 position: relative;
-                width   : 100px;
+                width: 100px;
             }
 
             &:nth-child(even) {
