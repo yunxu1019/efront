@@ -15,9 +15,9 @@ function getValue() {
 
 var choose = function () {
     var elem = this;
-    var { uploadto } = this;
     chooseFile('image/*').then(function ([file]) {
-
+        var { uploadto } = elem;
+        if (!uploadto) uploadto = elem.getAttribute("uploadto");
         if (URL) {
             var url = URL.createObjectURL(file);
             elem.setValue(url);

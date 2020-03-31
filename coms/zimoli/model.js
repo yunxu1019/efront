@@ -36,7 +36,7 @@ var renderModel = function (field, data) {
 var constructors = {
     input,
     text: textarea,
-    date(field) {
+    date({ field }) {
         var elem = input();
         var picker = datepicker(field.options);
         select(elem, picker);
@@ -45,8 +45,11 @@ var constructors = {
     color(field) {
         return colorpicker();
     },
-    image() {
-        return image();
+    image({ field }) {
+        var img = image();
+        var { options } = field;
+        if (options) img.setAttribute("uploadto", options.uploadto);
+        return img;
     },
     checkbox({ field }) {
         var elem = checkbox();
