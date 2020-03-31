@@ -3,79 +3,11 @@ var crc = require("../../process/crc");
 var path = require("path");
 var fs = require("fs");
 var environment = require("./environment");
-function toApplication(responseTree) {
-    var isFileMode = /\.html?$/i.test(environment.APP);
-    var versionTree = {};
-    var mainScript = responseTree["main"].data;
-    var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
-    if (isFileMode) {
-        Object.keys(responseTree).sort().forEach(function (k) {
-            var v = responseTree[k];
-            if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
-            versionTree[v.url] = String(v.data);
-        });
-        delete versionTree["/index.html"];
-        delete versionTree["@index.html"];
-        for (var k in versionTree) {
-            delete responseTree[k];
-        }
-    } else {
-        Object.keys(responseTree).sort().forEach(function (k) {
-            var v = responseTree[k];
-            if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
-            var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
-            versionTree[v.url] = responseVersion;
-        });
-        delete versionTree["main"];
-        delete versionTree["[]map"];
-        delete versionTree["promise"];
-        delete versionTree["/index.html"];
-        delete versionTree["@index.html"];
-    }
-    if (!indexHtml) {
-        var htmlPath = path.join(__dirname, "../../apps", "index.html");
-        indexHtml = {
-            time: 0,
-            needed: true,
-            fullpath: htmlPath,
-            data: fs.readFileSync(htmlPath),
-            realpath: htmlPath,
-            version: fs.statSync(htmlPath).mtime,
-            destpath: path.join("index.html"),
-        };
-        responseTree["/index.html"] = indexHtml;
-    }
-    var indexHtmlData = indexHtml.data;
-    if (isFileMode) {
-        var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
-    } else {
-        var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
-    }
-    var code = JSON.stringify(versionTree, null, "\t").replace(/\-\-\>/g, s => "-- >");
-
-    var versionVariableName;
-    code = mainScript.toString()
-        .replace(/\.send\((.*?)\)/g, (match, data) => (versionVariableName = data || "", ".send()"))
-        .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
-        .replace(
-            new RegExp(xTreeName + "(\s*)=(\s*)\{.*?\}"),
-            function (m, s1, s2) {
-                return xTreeName + `${s1}=${s2}${code}`;
-            }
-        )
-        // .replace(/[\<\>]/g, function (a) {
-        //     switch (a) {
-        //         case "<": return "&lt;";
-        //         case ">": return "&gt;";
-        //     }
-        //     return a;
-        // })
-        ;
-
+var buildHtml = function (html, code) {
     var isZimoliDetected = false;
     var poweredByComment;
     var ReleaseTime = new Date().toString();
-    var html = indexHtmlData.toString()
+    var html = html.toString()
         .replace(/^\s*(<!doctype[^>]*?>\s*)?<!--([\s\S]*?)-->/i, function (_, doctype, message) {
             // `${doctype}<!--${message}\r\n${efrontReloadVersionAttribute}-->`
             poweredByComment = _;
@@ -133,7 +65,84 @@ function toApplication(responseTree) {
     if (poweredByComment) {
         html = html.replace(/^\s*(?:<!doctype[\s\S]*?>)?/i, poweredByComment);
     }
-    indexHtml.data = html;
+    return html;
+};
+function toApplication(responseTree) {
+    var isFileMode = /\.html?$/i.test(environment.APP);
+    var versionTree = {};
+    var mainScript = responseTree["main"].data;
+    var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
+    if (isFileMode) {
+        Object.keys(responseTree).sort().forEach(function (k) {
+            var v = responseTree[k];
+            if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
+            versionTree[v.url] = String(v.data);
+        });
+        delete versionTree["/index.html"];
+        delete versionTree["@index.html"];
+        for (var k in versionTree) {
+            delete responseTree[k];
+        }
+    } else {
+        Object.keys(responseTree).sort().forEach(function (k) {
+            var v = responseTree[k];
+            if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
+            var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
+            versionTree[v.url] = responseVersion;
+        });
+        delete versionTree["main"];
+        delete versionTree["[]map"];
+        delete versionTree["promise"];
+        delete versionTree["/index.html"];
+        delete versionTree["@index.html"];
+    }
+    if (!indexHtml) {
+        var htmlPath = path.join(__dirname, "../../apps", "index.html");
+        indexHtml = {
+            time: 0,
+            needed: true,
+            fullpath: htmlPath,
+            data: fs.readFileSync(htmlPath),
+            realpath: htmlPath,
+            version: fs.statSync(htmlPath).mtime,
+            destpath: path.join("index.html"),
+        };
+        responseTree["/index.html"] = indexHtml;
+    }
+    if (isFileMode) {
+        var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
+    } else {
+        var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
+    }
+    var code = JSON.stringify(versionTree, null, "\t").replace(/\-\-\>/g, s => "-- >");
+
+    var versionVariableName;
+    code = mainScript.toString()
+        .replace(/\.send\((.*?)\)/g, (match, data) => (versionVariableName = data || "", ".send()"))
+        .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
+        .replace(
+            new RegExp(xTreeName + "(\s*)=(\s*)\{.*?\}"),
+            function (m, s1, s2) {
+                return xTreeName + `${s1}=${s2}${code}`;
+            }
+        )
+        // .replace(/[\<\>]/g, function (a) {
+        //     switch (a) {
+        //         case "<": return "&lt;";
+        //         case ">": return "&gt;";
+        //     }
+        //     return a;
+        // })
+        ;
+    // indexHtml.data = buildHtml(indexHtml.data, code);
+    Object.keys(responseTree).forEach(function (key) {
+        if (/\.(jsp|php|html|asp)$/i.test(key)) {
+            var response = responseTree[key];
+            if (response && response.data) {
+                response.data = buildHtml(response.data, code);
+            }
+        }
+    });
     delete responseTree["main"];
     return responseTree;
 }

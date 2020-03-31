@@ -16,6 +16,28 @@ var loadData = require("./loadData");
 var write = require("./write");
 var clean = require("./clean");
 var _finish = require("./finish");
+var getBuiltVersion = function (filepath) {
+    return new Promise(function (ok) {
+        fs.exists(filepath, function (exists) {
+            if (!exists) return ok();
+            fs.stat(filepath, function (error, stats) {
+                if (error) return ok();
+                if (!stats.isFile()) return ok();
+                fs.readFile(filepath, function (error, data) {
+                    if (error) return ok();
+                    ok(data);
+                });
+            });
+        });
+    }).then(function (data) {
+        var version = /\bcompiledinfo\s*=\s*(['"`])(.*?GMT[+\-]\d{4})\b.*?\1/i.exec(data);
+        if (version) {
+            var timepart = version[2];
+            return new Date(timepart);
+        }
+    });
+};
+
 function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (builder.ing) return reload++;
     builder.ing = true;
@@ -27,27 +49,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
 
-    var getBuiltVersion = function (filepath) {
-        return new Promise(function (ok) {
-            fs.exists(filepath, function (exists) {
-                if (!exists) return ok();
-                fs.stat(filepath, function (error, stats) {
-                    if (error) return ok();
-                    if (!stats.isFile()) return ok();
-                    fs.readFile(filepath, function (error, data) {
-                        if (error) return ok();
-                        ok(data);
-                    })
-                })
-            })
-        }).then(function (data) {
-            var version = /\bcompiledinfo\s*=\s*(['"`])(.*?GMT[+\-]\d{4})\b.*?\1/i.exec(data);
-            if (version) {
-                var timepart = version[2];
-                return new Date(timepart);
-            }
-        })
-    };
+
     if (public_app) {
         //导出组件
         var public_path = path.join(PUBLIC_PATH, public_app);

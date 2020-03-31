@@ -17,7 +17,18 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
                     String(data).replace(/<script\s[^\>]*?\bsrc\=('.+?'|".+?"|.+?)[\s|\>]/ig, function (_, url) {
                         result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
                     });
-                    ok(result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fullpath), url)));
+                    var res = result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fullpath), url));
+                    var bodyTag = /\<body\s[^\>]*\>/i.exec(data);
+                    if (bodyTag) {
+                        var mainPath = '';
+                        bodyTag[0].replace(/main|main-path|main\=(['"]|)([\s\S]+?)\1/i, function (m, q, c) {
+                            mainPath = c;
+                        });
+                        if (mainPath) {
+                            res.main = mainPath;
+                        }
+                    }
+                    ok(res);
                 });
             });
         })
@@ -25,9 +36,10 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
 }
 var filterHtmlImportedJs = function (roots) {
     var promises = roots.filter(function (url) {
-        return /\.html?$/i.test(url);
+        return /\.(html?|jsp|asp|php)$/i.test(url);
     }).map(getBuildInfo).filter(a => !!a).map(getScriptsUrlInHtmlFile);
     return Promise.all(promises).then(function (datas) {
+        var mainPaths = datas.filter(d => !!d.main).map(d => d.main);
         var urls = [].concat.apply([], datas);
         urls = [].concat.apply([], urls);
         var simpleJsMap = {};
@@ -50,8 +62,11 @@ var filterHtmlImportedJs = function (roots) {
             return root;
         });
         var urlsMap = {};
-        roots.forEach(function (name) {
-            urlsMap[name.replace(/\.[tj]sx?$/i, ".js")] = true;
+        roots = roots.concat(mainPaths).filter(name => {
+            name = name.replace(/\.[tj]sx?$/i, ".js");
+            var keep = !urlsMap[name];
+            if (keep) urlsMap[name] = true;
+            return keep;
         });
         for (let cx = roots.length; cx >= 0; cx--) {
             let url = roots[cx];
