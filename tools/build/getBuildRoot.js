@@ -18,10 +18,10 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
                         result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
                     });
                     var res = result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fullpath), url));
-                    var bodyTag = /\<body\s[^\>]*\>/i.exec(data);
+                    var bodyTag = /\<body\s[^\>]*?\>/i.exec(data);
                     if (bodyTag) {
                         var mainPath = '';
-                        bodyTag[0].replace(/main|main-path|main\=(['"]|)([\s\S]+?)\1/i, function (m, q, c) {
+                        bodyTag[0].replace(/(?:main|main\-path|main)\=(['"]|)([^\"\']+)\1/i, function (m, q, c) {
                             mainPath = c;
                         });
                         if (mainPath) {
@@ -39,8 +39,8 @@ var filterHtmlImportedJs = function (roots) {
         return /\.(html?|jsp|asp|php)$/i.test(url);
     }).map(getBuildInfo).filter(a => !!a).map(getScriptsUrlInHtmlFile);
     return Promise.all(promises).then(function (datas) {
-        var mainPaths = datas.filter(d => !!d.main).map(d => d.main);
         var urls = [].concat.apply([], datas);
+        var mainPaths = urls.filter(d => !!d.main).map(d => d.main);
         urls = [].concat.apply([], urls);
         var simpleJsMap = {};
         var regUrls = [];
