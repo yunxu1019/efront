@@ -81,7 +81,7 @@ class LoadingArray extends Array {
 function getErrorMessage(error) {
     if (!(error instanceof Object)) return String(error);
     if (error instanceof Error) return String(error);
-    var words = "reason,message,desc,descption,msg".split(',');
+    var words = "reason,message,desc,descption,msg,err,error".split(',');
     while (words.length) {
         var a = words.shift();
         if (error[a]) {
@@ -593,12 +593,12 @@ var data = {
             response.is_loading = false;
             response.error_message = getErrorMessage(e);
             response.error_object = e;
-            error_report(response.error_message, 'error');
             if (e instanceof Object) {
                 extend(response, e);
             } else {
                 response.error = e;
             }
+            error_report(response.error_message, 'error');
         })
         return response;
     },
@@ -672,11 +672,16 @@ var data = {
                 this.setInstance(sid, data);
             }
         });
-        promise1.catch(function () {
+        promise1.catch(function (e) {
             instance.is_errored = true;
             instance.error_message = getErrorMessage(e);
-            error_report(instance.error_message, 'error');
             instance.error_object = e;
+            if (e instanceof Object) {
+                extend(instance, e);
+            } else {
+                instance.error = e;
+            }
+            error_report(instance.error_message, 'error');
         });
 
         return instance;
