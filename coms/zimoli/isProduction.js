@@ -1,0 +1,1 @@
+var isProduction = function develop() { return develop.name !== 'develop'; }();
