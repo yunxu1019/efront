@@ -8,7 +8,7 @@ var toCloneTarget = function (target) {
 var appendChild = function (a, b) {
     a.appendChild(b);
 };
-function drag(target, initialEvent, overflow) {
+function drag(target, initialEvent, preventOverflow) {
     if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName)) return;
     if (target.dragable === false) return;
     initialEvent.preventDefault();
@@ -51,7 +51,7 @@ function drag(target, initialEvent, overflow) {
         var offsetTop = saved_delta.y + event.clientY;
         var cloneDeltaLeft = - clone.offsetLeft;
         var cloneDeltaTop = - clone.offsetTop;
-        move.call(clone, offsetLeft, offsetTop, overflow);
+        move.call(clone, offsetLeft, offsetTop, preventOverflow);
         cloneDeltaLeft += clone.offsetLeft;
         cloneDeltaTop += clone.offsetTop;
         if (extraClones) extraClones.map(clone => css(clone, `left:${fromOffset(clone.offsetLeft + cloneDeltaLeft)};top:${fromOffset(clone.offsetTop + cloneDeltaTop)};`));

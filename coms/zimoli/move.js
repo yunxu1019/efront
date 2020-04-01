@@ -26,7 +26,7 @@ function getOffsetLeft(x, offsetWidth, innerWidth) {
     // offsetLeft=x*(innerWidth-offsetWidth)
     return x * (innerWidth - offsetWidth);
 }
-function move(offsetLeft, offsetTop, overflow = false) {
+function move(offsetLeft, offsetTop, preventOverflow = true) {
     var {
         offsetHeight,
         offsetWidth
@@ -35,7 +35,7 @@ function move(offsetLeft, offsetTop, overflow = false) {
         clientWidth = innerWidth,
         clientHeight = innerHeight
     } = this.offsetParent || {};
-    if (!overflow) {
+    if (preventOverflow !== false) {
         if (offsetLeft + offsetWidth > clientWidth) {
             offsetLeft = clientWidth - offsetWidth;
         }

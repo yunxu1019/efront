@@ -51,7 +51,7 @@ var hookx = function (matcher, move, event, targetChild) {
     if (event.target === this) return;
     // var targetChild = getTargetIn(matcher, event.target);
     if (!targetChild) return;
-    drag(targetChild, event);
+    drag(targetChild, event, false);
     if (isArray(targetChild)) {
         targetChild = targetChild[0];
     }
@@ -249,7 +249,7 @@ var hookx = function (matcher, move, event, targetChild) {
         var offdragstart = on("dragstart")(targetChild, draglist);
     }
 };
-var hooky = arriswise(hookx,arguments);
+var hooky = arriswise(hookx, arguments);
 var hook = function (matcher, move, event) {
     if (event.target === this) return;
     var targetChild = getTargetIn(matcher, event.target, false);
