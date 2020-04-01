@@ -160,7 +160,7 @@ function doPutFile(req, res, filepath, code) {
         }
         fs.exists(filepath, function (exists) {
             if (exists) {
-                res.writeHead(403, {});
+                res.writeHead(409, {});
                 res.end(`File already exists.`);
                 return;
             }
