@@ -78,6 +78,18 @@ class LoadingArray extends Array {
     loading = null;
     loading_promise = null;
 }
+function getErrorMessage(error) {
+    if (!(error instanceof Object)) return String(error);
+    if (error instanceof Error) return String(error);
+    var words = "reason,message,desc,descption,msg".split(',');
+    while (words.length) {
+        var a = words.shift();
+        if (error[a]) {
+            return String(error[a]);
+        }
+    }
+    return JSON.stringify(error);
+}
 function getTranspile(url) {
     var transpile;
     var keys = ['id', 'name', 'icon'];
@@ -452,9 +464,19 @@ var getInstanceId = function () {
     }
     return instanceId;
 }
+var error_report = isProduction ? alert : function (error, type) {
+    error_report = alert;
+    error_report(error, type)
+    console.info("已使用默认的报错工具，您可以使用 data.setReporter(f7) 替换! 本信息在仅在开发环境显示。");
+};
 var data = {
     decodeStructure,
     encodeStructure,
+    setReporter(report) {
+        if (report instanceof Function) {
+            error_report = report;
+        }
+    },
     loading_count: 0,
     loadConfig(defaultConfigFile) {
         if (defaultConfigFile) {
@@ -569,6 +591,9 @@ var data = {
             this.loading_count--;
             response.is_errored = true;
             response.is_loading = false;
+            response.error_message = getErrorMessage(e);
+            response.error_object = e;
+            error_report(response.error_message, 'error');
             if (e instanceof Object) {
                 extend(response, e);
             } else {
@@ -647,7 +672,13 @@ var data = {
                 this.setInstance(sid, data);
             }
         });
-        promise1.catch(function () { });
+        promise1.catch(function () {
+            instance.is_errored = true;
+            instance.error_message = getErrorMessage(e);
+            error_report(instance.error_message, 'error');
+            instance.error_object = e;
+        });
+
         return instance;
     },
     /**
@@ -703,3 +734,5 @@ var data = {
         extend(instance, data);
     }
 };
+
+care(data, 'error')
