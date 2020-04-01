@@ -86,9 +86,8 @@ function ylist(container, generator, $Y) {
     }
     //设置当前下标
     var scrollTo = function (itemIndex) {
-
+        saved_itemIndex = itemIndex;
         if (!list.offsetHeight || !list.offsetWidth) {
-            saved_itemIndex = itemIndex;
             return;
         }
         var index = itemIndex | 0;
@@ -301,6 +300,7 @@ function ylist(container, generator, $Y) {
             deltaScroll = patchTop(deltaY);
         }
         if (deltaScroll) list.scrollTop += deltaScroll;
+        saved_itemIndex = list.index();
     };
     list.stopY = function () {
         var firstElement = getFirstVisibleElement();
@@ -323,6 +323,10 @@ function ylist(container, generator, $Y) {
             var target_by = last_y - scrolled_b * lastElement.offsetHeight;
         }
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
+        var delta = Math.min(calcPixel(60), list.clientHeight >> 3);
+        if (lastElement.offsetHeight >= delta && firstElement.offsetHeight >= delta) {
+            return last_y;
+        }
         var resultY = this.Top(Math.abs(target_y - last_y) > 1 ? (target_y + last_y) >> 1 : target_y);
         if (resultY === last_y) {
             target_y = resultY;
