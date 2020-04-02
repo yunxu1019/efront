@@ -673,6 +673,7 @@ var data = {
             }
         });
         promise1.catch(function (e) {
+            if (e == outdate) return;
             instance.is_errored = true;
             instance.error_message = getErrorMessage(e);
             instance.error_object = e;
