@@ -312,14 +312,14 @@ function toComponent(responseTree) {
     if (EXPORT_AS) {
         template += `["${EXPORT_AS}"]`;
     }
-    // var tester_path = responseTree[PUBLIC_APP].realpath.replace(/\.[tj]sx?$/, "_test.js");
-    // if (tester_path) {
+    // var test_path = responseTree[PUBLIC_APP].realpath.replace(/\.[tj]sx?$/, "_test.js");
+    // if (test_path) {
     //     try {
     //         let vm = require("vm");
-    //         let globals = require("../tester/core/suit");
+    //         let globals = require("../test/core/suit");
     //         let context = vm.createContext(globals);
     //         vm.runInContext(template, context);
-    //         vm.runInContext(fs.readFileSync(tester_path).toString(), context);
+    //         vm.runInContext(fs.readFileSync(test_path).toString(), context);
     //     } catch (e) {
     //         console.error(e);
     //     }

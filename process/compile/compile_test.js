@@ -64,8 +64,8 @@ var javascript = function () {
 }();
 var fs = require("fs");
 var path = require("path");
-var { describe, it } = require("../../tester/core/suit");
-var assert = require("../../tester/core/assert");
+var { describe, it } = require("../../test/core/suit");
+var assert = require("../../test/core/assert");
 
 
 

@@ -93,7 +93,7 @@ try {
         require("./server/main");
     } else if (isLone) {
         detectEnvironment().then(function () {
-            require("./tester/main");
+            require("./test/main");
         }).catch(console.error);
     } else if (isDocsCommand) {
         setenv({
@@ -117,7 +117,7 @@ try {
     } else if (isSettingPassword) {
         require("./process/password").requestPassword();
     } else if (isTestMode) {
-        require("./tester/main");
+        require("./test/main");
     } else if (isServerMode) {
         require("./server/index");
     } else if (isPublicMode) {

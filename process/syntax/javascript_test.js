@@ -3,8 +3,8 @@ var compile = require("../compile/compile");
 var javascript = require("./javascript");
 var fs = require("fs");
 var path = require("path");
-var { describe, it } = require("../../tester/core/suit");
-var assert = require("../../tester/core/assert");
+var { describe, it } = require("../../test/core/suit");
+var assert = require("../../test/core/assert");
 function test(test, count) {
     var time = Date.now();
     if (test instanceof Function) {
