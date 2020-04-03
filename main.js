@@ -97,12 +97,13 @@ try {
         }).catch(console.error);
     } else if (isDocsCommand) {
         setenv({
-            public_path: path.join(__dirname, "apps"),
+            public_path: path.join(__dirname, "docs"),
             coms_path: path.join(__dirname, "coms"),
-            page_path: path.join(__dirname, "apps"),
+            page_path: path.join(__dirname, 'docs'),
+            comm: 'docs,zimoli',
+            page: './',
             app: "docs"
         });
-        require("./process/setupenv");
         require("./server/main");
     } else if (isDemoCommand) {
         setenv({
