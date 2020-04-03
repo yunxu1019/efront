@@ -209,7 +209,6 @@ var extend = function (dst, env) {
     Object.assign(dst, obj);
     normalize(dst);
 };
-process.env.IN_DEBUG_MODE = (process.execArgv || process.argv).findIndex(e => /--(?:debug|inspect)-brk=/i.test(e)) >= 0 ? 1 : 0;
 extend(process.env, process.env);
 if (env.APP) {
     let _tmp = setup(env.APP);

@@ -5,6 +5,7 @@ var esmangle = require("./esmangle/esmangle");
 var escodegen = require("./escodegen/escodegen");
 var typescript = require("./typescript/typescript");
 var less = require("./less/less-node")();
+var isDevelop = require("./isDevelop");
 less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
@@ -248,7 +249,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         }
         r.raw = String(r.value);
     });
-    if (process.env.IN_TEST_MODE) {
+    if (isDevelop) {
         code = {
             "type": "Program",
             "sourceType": "script",
@@ -357,7 +358,7 @@ var renderLessData = function (data = '', lesspath, watchurls, className) {
         watchurls.push(lesspath);
         var lessData;
         less.render(`.${className}{${convertColor(String(lessdata))}}`, {
-            compress: !process.env.IN_TEST_MODE
+            compress: !isDevelop
         }, function (err, data) {
             if (err) return console.warn(err);
             lessData = data.css;

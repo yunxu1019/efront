@@ -4,6 +4,7 @@
 var cluster = require("cluster");
 var fs = require("fs");
 var path = require("path");
+var isDebug = require("./isDebug");
 var message_handlers_path = "./message";
 // message 文件夹中定义主进程的方法
 // 子进程可通过message的属性访问主进程中的方法
@@ -38,7 +39,7 @@ var onmessage = function (msg, then) {
     }
 };
 
-if (cluster.isMaster && process.env.IN_DEBUG_MODE !== "1") {
+if (cluster.isMaster && !isDebug) {
     fs.readdirSync(message_handlers_path).forEach(function (name) {
         var match = name.match(/^(.*).js$/);
         if (match) {
@@ -65,7 +66,7 @@ if (cluster.isMaster && process.env.IN_DEBUG_MODE !== "1") {
             params, stamp
         })].join(":"));
     };
-    if (process.env.IN_DEBUG_MODE === "1") {
+    if (isDebug) {
         send = function () {
         };
     }

@@ -2,6 +2,7 @@
 var htmlMinifier = require("./htmlminifier/htmlminifier");
 var typescript = require("./typescript/typescript");
 var commbuilder = require("./commbuilder");
+var isDevelop=require("./isDevelop");
 var queue = require("./queue");
 var config = {
     // Strip HTML comments
@@ -206,7 +207,7 @@ var buildjsp = function (buff, realpath) {
 var buildreload = function (buff) {
     return String(buff).replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`);
 };
-if (process.env.IN_TEST_MODE) builder = function (buff, name, fullpath) {
+if (isDevelop) builder = function (buff, name, fullpath) {
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
         buff = fixpixel(buff);
         buff = buildreload(buff);

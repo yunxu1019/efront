@@ -2,6 +2,7 @@
 var finalpacker = require("../process/finalpacker");
 var message = require("../process/message");
 var proxy = require("./proxy");
+var isDevelop=require("../process/isDevelop");
 var readdata = function (req, res, then, max_length) {
     var buff = [],
         length = 0;
@@ -33,7 +34,7 @@ var handle = {
     }
 };
 
-if (process.env.IN_TEST_MODE) {
+if (isDevelop) {
     let connections = require("./liveload");
     handle["/reload"] = function (req, res) {
         connections.push(res);

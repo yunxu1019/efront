@@ -1,6 +1,7 @@
 "use strict";
 var readline = require("readline");
 var cluster = require("cluster");
+var isDevelop = require("../process/isDevelop");
 var message = require("../process/message");
 var fs = require("fs");
 var path = require("path");
@@ -12,7 +13,7 @@ var counter = 0;
 var quitting = [], notkilled = [];
 var workers = [];
 var cpus = require('os').cpus().map(a => 0);
-if (process.env.IN_TEST_MODE) {
+if (isDevelop) {
     cpus = [0];
 }
 var end = function () {

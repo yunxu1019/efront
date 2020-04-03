@@ -5,9 +5,10 @@ var proxy = require("./proxy");
 var checkAccess = require("./checkAccess");
 var encode62 = require("../process/crypt/encode62");
 var mimes = require("../process/mime");
+var isDevelop = require("../process/isDevelop");
 
-var { IN_TEST_MODE, PAGE_PATH, PUBLIC_PATH } = process.env;
-var root = IN_TEST_MODE ? PAGE_PATH : PUBLIC_PATH;
+var { PAGE_PATH, PUBLIC_PATH } = process.env;
+var root = isDevelop ? PAGE_PATH : PUBLIC_PATH;
 var cachePieceSize = 32 * 1024;
 var cacheCountLimit = 6000;
 var allowSocketTime = 24 * 60 * 60 * 1000;
