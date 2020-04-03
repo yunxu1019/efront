@@ -14,8 +14,8 @@
   "scripts": {
     "start": "node main start",
     "server": "node server/index",
-    "test": "node tester/main",
-    "electron": "node tester/main --electron",
+    "test": "node test/main",
+    "electron": "node test/main --electron",
     "public": "node build",
     "build": "node build",
     "watch": "node watch"
