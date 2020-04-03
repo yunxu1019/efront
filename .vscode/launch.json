@@ -36,6 +36,15 @@
                 "demo"
             ],
             "program": "${workspaceFolder}/main.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "docs",
+            "args": [
+                "docs"
+            ],
+            "program": "${workspaceFolder}/main.js"
         }
     ]
 }
