@@ -1,7 +1,8 @@
 
 
 var hasOwnProperty = {}.hasOwnProperty;
-var renderElements = {};
+var renderElements = Object.create(null);
+var presets = Object.create(null);
 window.renderElements = renderElements;
 var renderidOffset = 10;
 var renderidClosed = 0;
@@ -554,9 +555,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (!scope[tagName])
             tagName = tagName.replace(/(?:^|\-+)([a-z])/ig, (_, w) => w.toUpperCase());
         if (!scope[tagName]) tagName = tagName.slice(0, 1).toLowerCase() + tagName.slice(1);
-        if (isFunction(scope[tagName])) {
+        var createReplacer = scope[tagName] || presets[tagName];
+        if (isFunction(createReplacer)) {
             var attrsMap = {};
-            var replacer = scope[tagName](element);
+            var replacer = createReplacer(element);
             if (isNode(replacer) && element !== replacer) {
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
@@ -683,3 +685,16 @@ render.parseRepeat = parseRepeat;
 var eventsHandlers = "change,paste,resize,keydown,keypress,keyup".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));
 on("render")(window, digest);
+var register = function (key, creater) {
+    key = key.replace(/\-(\w)/, (_, a) => a.toUpperCase()).replace(/^\w/, a => a.toLowerCase());
+    presets[key] = creater;
+};
+render.register = function (key, name) {
+    if (key instanceof Object) {
+        for (var k in key) {
+            register(k, key[k]);
+        }
+    } else if (arguments.length === 2) {
+        register(key, name);
+    }
+};
