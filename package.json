@@ -13,12 +13,12 @@
   "devDependencies": {},
   "scripts": {
     "start": "node main start",
-    "server": "node server/index",
-    "test": "node test/main",
-    "electron": "node test/main --electron",
+    "server": "node server",
+    "test": "node test",
+    "electron": "node test --electron",
     "public": "node build",
     "build": "node build",
-    "watch": "node watch"
+    "watch": "node toos/watch"
   },
   "repository": {
     "type": "git",
