@@ -3,7 +3,7 @@ var path = require("path");
 var environment = require("./environment");
 var deeprm = function (dir) {
     return new Promise(function (ok, oh) {
-        if (/^(src|conf|_env|source|apis|coms|cons|data|process|server|tester|tools|apps|page|pages)[\/\\]/i.test(path.relative("./", dir)))
+        if (/(page|app|界面|页面|应用|系统|lib|com|fun|dep|组件|模块|依赖|库|函数|lib|com|fun|dep|组件|模块|依赖|库|函数|env|conf|环境|配置|设置|src|source|code|源|代码)/i.test(path.relative("./", dir)))
             return console.error("请不要在源码文件夹执行清理操作！"), oh();
         fs.exists(dir, function (exists) {
             if (!exists) return ok();
