@@ -5,7 +5,6 @@
 public*
 apps/cityfun*
 coms/cityfun*
-coms/kugou*
 coms/ppt*
 coms/sciter*
 coms/wechat*
@@ -13,7 +12,6 @@ apps/chess*
 apps/dualx*
 apps/glance*
 apps/jsc*
-apps/kugou*
 apps/ppt*
 apps/xiaohua
 coms/xiaohua
