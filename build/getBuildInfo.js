@@ -1,8 +1,8 @@
 "use strict";
-var commbuilder = require("../../process/commbuilder");
-var iconbuilder = require("../../process/iconbuilder");
-var htmlbuilder = require("../../process/filebuilder");
-// var aapibuilder = require("../../process/aapibuilder");
+var commbuilder = require("../process/commbuilder");
+var iconbuilder = require("../process/iconbuilder");
+var htmlbuilder = require("../process/filebuilder");
+// var aapibuilder = require("../process/aapibuilder");
 var path = require("path");
 var env = require("./environment");
 var noopbuilder = a => a;

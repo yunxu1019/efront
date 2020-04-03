@@ -146,7 +146,7 @@ try {
                     process.env.EXPORT_AS = export_as;
                 }
             }
-            require("./tools/build");
+            require("./build");
         };
         if (configs.build) {
             detectEnvironment().then(public);

@@ -1,5 +1,5 @@
 "use strict";
-var crc = require("../../process/crc");
+var crc = require("../process/crc");
 var path = require("path");
 var fs = require("fs");
 var environment = require("./environment");
@@ -97,7 +97,7 @@ function toApplication(responseTree) {
         delete versionTree["@index.html"];
     }
     if (!indexHtml) {
-        var htmlPath = path.join(__dirname, "../../apps", "index.html");
+        var htmlPath = path.join(__dirname, "../apps", "index.html");
         indexHtml = {
             time: 0,
             needed: true,

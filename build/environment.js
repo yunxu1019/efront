@@ -1,4 +1,4 @@
-var setupenv = require("../../process/setupenv");
+var setupenv = require("../process/setupenv");
 var path = require("path");
 var fs = require("fs");
 var {

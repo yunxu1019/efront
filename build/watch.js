@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require("../../process/console");
+require("../process/console");
 var environment = require("./environment");
 var fs = require("fs");
 var path = require("path");

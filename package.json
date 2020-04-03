@@ -16,9 +16,9 @@
     "server": "node server/index",
     "test": "node tester/main",
     "electron": "node tester/main --electron",
-    "public": "node tools/build",
-    "build": "node tools/build",
-    "watch": "node tools/watch"
+    "public": "node build",
+    "build": "node build",
+    "watch": "node watch"
   },
   "repository": {
     "type": "git",

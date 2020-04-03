@@ -1,8 +1,8 @@
-var escodegen = require("../../process/escodegen/escodegen");
-var esprima = require("../../process/esprima");
-var esmangle = require("../../process/esmangle/esmangle");
-var scanner = require("../../process/compile/scanner");
-var typescript = require("../../process/typescript/typescript");
+var escodegen = require("../process/escodegen/escodegen");
+var esprima = require("../process/esprima");
+var esmangle = require("../process/esmangle/esmangle");
+var scanner = require("../process/compile/scanner");
+var typescript = require("../process/typescript/typescript");
 var { public_app, EXPORT_TO: EXPORT_TO, EXPORT_AS, include_required } = require("./environment");
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
@@ -316,7 +316,7 @@ function toComponent(responseTree) {
     // if (tester_path) {
     //     try {
     //         let vm = require("vm");
-    //         let globals = require("../../tester/core/suit");
+    //         let globals = require("../tester/core/suit");
     //         let context = vm.createContext(globals);
     //         vm.runInContext(template, context);
     //         vm.runInContext(fs.readFileSync(tester_path).toString(), context);
