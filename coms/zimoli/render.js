@@ -558,7 +558,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         var createReplacer = scope[tagName] || presets[tagName];
         if (isFunction(createReplacer)) {
             var attrsMap = {};
-            var replacer = createReplacer(element);
+            var replacer = createReplacer.call(scope, element);
             if (isNode(replacer) && element !== replacer) {
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
