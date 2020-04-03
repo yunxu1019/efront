@@ -44,6 +44,9 @@ var colors = {
 };
 var lastLogLength = 0, lastLogTime = 0;
 [
+    "pass:[ ✔ ]:FgGreen:",
+    "fail:[ ✘ ]:FgRed2:",
+    "test:[ ∞ ]:FgYellow:",
     "info:提示:FgCyan:",
     "warn:警告:FgYellow:",
     "error:错误:FgRed2:"
