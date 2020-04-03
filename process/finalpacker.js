@@ -10,7 +10,7 @@ var filebuilder = require("../process/filebuilder");
 var getcommfile = require("../process/cache")(env.COMS_PATH, commbuilder).async;
 var getpagefile = require("../process/cache")(env.PAGE_PATH, commbuilder).async;
 var getaapifunc = require("../process/cache")(env.APIS_PATH, aapibuilder).async;
-var geticonfile = require("../process/cache")(env.ICON_PATH || require("path").join(__dirname, "../cons"), iconbuilder).async;
+var geticonfile = require("../process/cache")(env.ICON_PATH || require("path").join(__dirname, "../data/cons"), iconbuilder).async;
 var getonlyfile = require("../process/cache")(env.FILE_PATH || env.PAGE_PATH, filebuilder, FILE_BUFFER_SIZE).async;
 var {
     PAGE,

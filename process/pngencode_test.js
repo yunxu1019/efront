@@ -4,7 +4,7 @@ it("将数据生成图像", function () {
     var path = require("path");
     var pngjs = require("../process/pngjs/parser-sync");
     var jspng=require("../process/pngjs/packer-sync");
-    var data = fs.readFileSync(path.join(__dirname, "../cons/zimoli/home.png"));
+    var data = fs.readFileSync(path.join(__dirname, "../data/cons/zimoli/home.png"));
     var png = pngjs(data, {});
     // var pngencode = fs.readFileSync(path.join(__dirname, "./pngencode.js")).toString();
     // var deflate = new Function(fs.readFileSync(path.join(__dirname,"./deflate.js")).toString()+";return deflate;")();
@@ -15,7 +15,7 @@ it("将数据生成图像", function () {
     
     var data =Buffer.from(pngencoder(getalpha(png.data), png.width, png.height),"base64");
     // var data=jspng(png);
-    fs.writeFileSync(path.join(__dirname,"../cons/zimoli/home_2.png"),data);
+    fs.writeFileSync(path.join(__dirname,"../data/cons/zimoli/home_2.png"),data);
     return
 });
 function getalpha(data){

@@ -20,10 +20,10 @@ describe("finalpacker_test", function () {
         finalpacker.comm(`./coms/${comm}`, `./public/${app}/comm`);
     });
     it("puck ccon", function () {
-        finalpacker.ccon(`./cons/${icon}`, `./public/${app}/ccon`);
+        finalpacker.ccon(`./data/cons/${icon}`, `./public/${app}/ccon`);
     });
     it("puck ccon with colors", function () {
-        finalpacker.ccon(`./cons/${icon}`, `./public/${app}/ccon`, [0xff0000, 0x00ff00]);
+        finalpacker.ccon(`./data/cons/${icon}`, `./public/${app}/ccon`, [0xff0000, 0x00ff00]);
     });
     it("puck index", function () {
         finalpacker.index(`./apps/${app}`, `./public/${app}`);
