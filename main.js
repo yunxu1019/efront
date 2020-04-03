@@ -79,6 +79,12 @@ var detectEnvironment = function () {
         });
     });
 };
+var startDevelopEnv = function () {
+    require("./process/setupenv");
+    require("./process/console");
+    process.env.IN_TEST_MODE = true;
+    require("./server/main");
+};
 try {
 
     if (isHelpMode) {
@@ -93,7 +99,7 @@ try {
         require("./server/main");
     } else if (isLone) {
         detectEnvironment().then(function () {
-            require("./test/main");
+            startDevelopEnv();
         }).catch(console.error);
     } else if (isDocsCommand) {
         setenv({
@@ -117,7 +123,7 @@ try {
     } else if (isSettingPassword) {
         require("./process/password").requestPassword();
     } else if (isTestMode) {
-        require("./test/main");
+        startDevelopEnv();
     } else if (isServerMode) {
         require("./server/index");
     } else if (isPublicMode) {
