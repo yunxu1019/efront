@@ -120,9 +120,9 @@ efront
 # 目录说明
 
 01. _envs 环境配置存放位置
-02. apis 对外公开的接口，可通过https post方式访问
-03. apps 静态app页面通过get或post方式访问
-04. coms 组件库
+02. apps 静态app页面，通过get或post方式访问
+03. coms 组件库
+04. docs 文档
 05. public 静态资源发布目录，用于存放编译的目标文件
 
 # 配置项说明
@@ -151,7 +151,11 @@ efront
 
 # 相关链接
 
-[与前端框架对比](apps/docs/compare.md)
+[与前端框架对比](docs/compare.md)
+
+[播放器 demo 在线实例](http://efront.cc/kugou/)
+
+[手机商城组件](http://github.com/yunxu1019/qfy)
 
 [更新日志](https://github.com/yunxu1019/efront/commits/develop)
 <!-- [Efront Notive](apps/docs/notive.md) -->
