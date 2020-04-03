@@ -1,7 +1,7 @@
 {
   "name": "efront",
-  "version": "1.14.2",
-  "description": "A complete environment for frontend developers",
+  "version": "1.14.3",
+  "description": "一个前端编译环境",
   "main": "main.js",
   "directories": {
     "test": "test"
