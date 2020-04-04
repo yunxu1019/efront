@@ -48,8 +48,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     };
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
-
-
+    
     if (public_app) {
         //导出组件
         var public_path = path.join(PUBLIC_PATH, public_app);

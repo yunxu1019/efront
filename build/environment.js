@@ -30,6 +30,7 @@ var ccons_root = ICON && ICON_PATH ? [].concat.apply([], ICON_PATH.split(",").ma
 var pages_root = [].concat.apply([], PAGE_PATH.split(",").map(function (PAGE_PATH) {
     return PAGE.split(/,/).map(a => path.join(PAGE_PATH, a));
 })).filter(fs.existsSync);
+
 var resolve_component_file_path = function (public_path = APP, source_paths = [""].concat(pages_root, comms_root)) {
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
         var temp_path = source_paths[cx];
@@ -51,8 +52,11 @@ if (public_app && !pages_root.length) {
     comms_root = comms_root.filter(fs.existsSync);
     pages_root = pages_root.filter(fs.existsSync);
 }
-
-if (EXPORT_TO === undefined) EXPORT_TO = public_app.replace(/\.[tj]sx?$/i, '').replace(/(\w+)\/index$/i, "$1").replace(/[\s\S]*\/([^\\\/]+)$/, "$1");
+if (EXPORT_TO === undefined) EXPORT_TO = public_app
+    .replace(/\.[tj]sx?$/i, '')
+    .replace(/([\w\-]+)\/index$/i, "$1")
+    .replace(/\-(\w)/g, (_, w) => w.toUpperCase())
+    .replace(/[\s\S]*\/([^\\\/]+)$/, "$1");
 var aapis_root = "./apis/" + AAPI;
 module.exports = {
     comms_root,

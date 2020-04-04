@@ -56,7 +56,7 @@ function getBuildInfo(url) {
                         fullpath.push(path.join(comms_root, $name + ext));
                     });
                 }
-                destpath = path.join("comm", name + env.EXTT);
+                destpath = path.join("comm", name.replace(/\-(\w)/g, (_, w) => w.toUpperCase()) + env.EXTT);
                 url = url.replace(/\.([tj]sx?|json|html?)$/i, "");
                 break;
             case "/":

@@ -23,7 +23,7 @@ function toComponent(responseTree) {
     }
     var destMap = Object.create(null), dest = [], last_result_length = result.length, origin_result_length = last_result_length;
 
-    var $$_efront_map_string_key = "$$__efront_const";
+    var $$_efront_map_string_key = "$$__efront";
     var getEfrontKey = function (k, type) {
         k = String(k);
         var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
@@ -158,7 +158,7 @@ function toComponent(responseTree) {
             }
             dest[destMap[k] - 1] = data;
         }
-        if (public_app.indexOf(k) >= 0) {
+        if (public_app.indexOf(k) >= 0 && !/^(export|module|init|require)$/.test(k)) {
             PUBLIC_APP = k;
             public_index = destMap[k] - 1;
         }
@@ -209,6 +209,7 @@ function toComponent(responseTree) {
     }
     saveOnly(`[${crypt_code}]`, 'module');
     saveOnly(`[${crypt_code % 2019 + 1}]`, 'exports');
+    if (!PUBLIC_APP) PUBLIC_APP = k, public_index = dest.length - 1;
     if (!PUBLIC_APP) return console.error("没有可导出的文件！"), {};
 
     var string_r = `x=s[${destMap[getEfrontKey(`"indexOf"`, "string")] - 1}],
@@ -281,7 +282,10 @@ function toComponent(responseTree) {
         return r
     }`;
     var simplie_compress = function (str) {
-        return str.toString().replace(/\s+/g, ' ').replace(/(\W)\s+/g, "$1").replace(/\s+(\W)/g, "$1")
+        return str.toString()
+            .replace(/\s+/g, ' ')
+            .replace(/(\W)\s+/g, "$1")
+            .replace(/\s+(\W)/g, "$1")
             .replace(/\b[a-z]\b/ig, a => {
                 var c = a.charCodeAt(0);
                 if (c >= 96) {
@@ -292,7 +296,6 @@ function toComponent(responseTree) {
                 return String.fromCharCode(c);
             });
     };
-
     var template = `([/*${new Date().toString()} by efront*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]`;
     if (EXPORT_TO) {
         switch (EXPORT_TO) {
@@ -312,6 +315,7 @@ function toComponent(responseTree) {
     if (EXPORT_AS) {
         template += `["${EXPORT_AS}"]`;
     }
+
     // var test_path = responseTree[PUBLIC_APP].realpath.replace(/\.[tj]sx?$/, "_test.js");
     // if (test_path) {
     //     try {

@@ -132,8 +132,10 @@ var getBuildRoot = function (files, matchFileOnly) {
                             for (var comm of comms_root) {
                                 var rel = getPathInFolder(comm, file);
                                 if (rel) {
-                                    var name = path.parse(file).base;
-                                    name = name.replace(/[\\\/]+/g, "/");
+                                    var name = path.relative(comm, file);
+                                    name = name
+                                        .replace(/[\\\/]+/g, "$")
+                                        .replace(/\.\w*$/, '');
                                     return save(name), ok();
                                 }
                             }
