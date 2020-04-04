@@ -119,7 +119,7 @@ efront
 
 # 目录说明
 
-01. _envs 环境配置存放位置
+01. \_envs 环境配置存放位置
 02. apps 静态app页面，通过get或post方式访问
 03. coms 组件库
 04. docs 文档
