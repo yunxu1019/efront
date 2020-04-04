@@ -1,0 +1,28 @@
+{
+  "name": "efront",
+  "version": "2.0.0",
+  "description": "Efront envronment for frontend developers.",
+  "main": "index.js",
+  "dependencies": {
+    "typescript": "^3.5.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yunxu1019/efront.git"
+  },
+  "keywords": [
+    "frontend",
+    "开发环境",
+    "前端"
+  ],
+  "author": "不枝雀",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yunxu1019/efront/issues"
+  },
+  "homepage": "https://github.com/yunxu1019/efront#readme"
+}
