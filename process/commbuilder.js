@@ -88,7 +88,7 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
         return data + `;var ${realName},${commName}=${realName};`;
     };
     return bindLoadings(useInternalReg, source, fullpath, replacer);
-}
+};
 var getRequiredPaths = function (data) {
     var pathReg = /\b(?:go|popup)\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;
     var requiredPaths = {};
@@ -115,6 +115,9 @@ var createExpression = function (expression) {
 };
 var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
+    data = data.replace(/(;|^)import\s+([a-zA-Z\$_][\w]*)\s+from\s*(["'`])([a-zA-Z\$_]\w*)\3\s*;?(;|$)/mg, (_, f1, v, q, p, f2) => {
+        return `${f1}var ${v}=require(${q}${p}${q})${f2}`;
+    });
     var destpaths = getRequiredPaths(data);
     data = typescript.transpile(data);
     var code = esprima.parse(data);
@@ -369,18 +372,7 @@ var renderLessData = function (data = '', lesspath, watchurls, className) {
 function buildJson(buff) {
     return "return " + JSON.stringify(new Function("return " + data.toString())());
 }
-function buildHtml(data, fullpath) {
-    let lesspath = fullpath.replace(/\.html?$/i, ".less");
-    var jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
-    var promise = getFileData(lesspath).then(function (lessdata) {
-        if (lessdata instanceof Buffer) {
-            return renderLessData(lessdata, lesspath, watchurls, lessName).then(function (data) {
-                lessData = data;
-            });
-        }
-    });
 
-}
 function prepare(filename, fullpath) {
     var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?|json|asp|jsp|php)$/i);
     if (!commName) console.warn("文件名无法生成导出变量！", fullpath);

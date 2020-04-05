@@ -111,7 +111,7 @@ function paddExtension(file) {
 }
 var getBuildRoot = function (files, matchFileOnly) {
     files = [].concat(files || []);
-    var indexMap = {};
+    var indexMap = Object.create(null);
     files.forEach((f, cx) => indexMap[f] = cx);
     var resolve;
     var result = [];
@@ -122,38 +122,59 @@ var getBuildRoot = function (files, matchFileOnly) {
             indexMap[f] = indexMap[file1];
             result.push(f);
         };
+        var saveComm = function (name) {
+            name = name
+                .replace(/[\\\/]+/g, "$")
+                .replace(/\.\w*$/, '');
+            save(name);
+        };
+        var savePage = function (rel) {
+            var name = rel.replace(/[\\\/]+/g, "/");
+            save("/" + name);
+        };
+        var saveFolder = function (folder) {            
+            for (var comm of comms_root) {
+                var rel = getPathInFolder(comm, folder);
+                if (rel) {
+                    saveComm(rel);
+                    return true;
+                }
+            }
+            for (var page of pages_root) {
+                var rel = getPathInFolder(page, folder);
+                if (rel) {
+                    savePage(rel);
+                    return true;
+                }
+            }
+            return false;
+        };
         paddExtension(file1).then(function (file) {
             return new Promise(function (ok, oh) {
                 fs.stat(file, function (error, stat) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
-                        if (/\.([tj]sx?|html|json)$/i.test(file)) {
+                        if (/\.([tj]sx?|html?|json)$/i.test(file)) {
                             for (var comm of comms_root) {
                                 var rel = getPathInFolder(comm, file);
                                 if (rel) {
-                                    var name = path.relative(comm, file);
-                                    name = name
-                                        .replace(/[\\\/]+/g, "$")
-                                        .replace(/\.\w*$/, '');
-                                    return save(name), ok();
+                                    return saveComm(rel), ok();
                                 }
                             }
                         }
-                        if (/\.([tj]sx?|html)$/i.test(file)) {
+                        if (/\.([tj]sx?|html?)$/i.test(file)) {
                             for (var page of pages_root) {
                                 var rel = getPathInFolder(page, file);
                                 if (rel) {
-                                    var name = rel.replace(/[\\\/]+/g, "/");
-                                    return save("/" + name), ok();
+                                    return savePage(rel), ok();
                                 }
                             }
                         }
                         for (var page of pages_root) {
                             var rel = getPathInFolder(page, file);
                             if (rel) {
-                                var name = "/" + rel.replace(/[\\\/]+/g, "/");
-                                return save(name), ok();
+                                return savePage(rel), ok();
                             }
                         }
                         for (var page of PAGE_PATH.split(",")) {
@@ -172,9 +193,8 @@ var getBuildRoot = function (files, matchFileOnly) {
                     } else if (matchFileOnly) {
                         var f = path.join(file, 'package.json');
                         var read = function (f) {
-                            return paddExtension(f).then(function (file) {
-                                indexMap[file] = indexMap[file1];
-                                files.push(file);
+                            return paddExtension(f).then(function () {
+                                saveFolder(file);
                             });
                         };
                         fs.exists(f, function (exists) {
@@ -203,9 +223,19 @@ var getBuildRoot = function (files, matchFileOnly) {
                     } else {
                         fs.readdir(file, function (error, names) {
                             if (error) return oh(error);
+                            var indexfile, packagefile;
                             names.forEach(function (name) {
                                 files.push(path.join(file, name));
+                                if (!indexfile && /^index(\.[jt]sx?|\.node)?$/i.test(name)) {
+                                    indexfile = path.join(file, name);
+                                }
+                                if (!packagefile && /package\.json/i.test(name)) {
+                                    packagefile = path.join(file, name);
+                                }
                             });
+                            if (indexfile || packagefile) {
+                                saveFolder(file);
+                            }
                             ok();
                         });
                     }

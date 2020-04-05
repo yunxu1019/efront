@@ -115,24 +115,62 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 if (exists) {
                     fs.stat(_filepath, function (error, stat) {
                         if (error) throw new Error(`读取文件信息出错${url}`);
-                        if (!stat.isFile()) throw new Error(`源路径不存在文件${url}`);
+                        var isDirectory = false;
+                        if (!stat.isFile()) {
+                            if (!stat.isDirectory()) {
+                                throw new Error(`源路径不存在文件${url}`);
+                            }
+                            isDirectory = true;
+                        }
+                        var loadpackage = function (packagepath) {
+                            fs.readFile(packagepath, function (error, packagedata) {
+                                if (error) throw new Error(`加载${packagepath}出错`);
+                                var packageobject = JSON.parse(String(packagedata));
+                                loadindex(packageobject.main || 'index');
+                            });
+                        };
+                        var loadindex = function (index) {
+                            var split = /^\//.test(url) ? '/' : '$';
+                            var target = url.replace(/(\w)\$/g, "$1/").replace(/[\/\\\$]+$/, '') + "/" + String(index || 'index').replace(/^\.?[\\\/]+/, '');
+                            target = target.replace(/[\\\/]/g, split);
+                            _filepath = url.replace(/[\\\/]$/, '') + ".js";
+                            response(`require("${target}")`);
+                        };
+                        var response = function (buffer) {
+                            responsePath = _filepath;
+                            var id = buildInfo.destpath.replace(/\..*$/, "").replace(/[^\w]/g, a => "_" + a.charCodeAt(0).toString(36) + "-");
+                            id = '/' + componentId + ' ' + id.replace(/^[\s\S]*?(\w*)$/, "$1");
+                            responseText = builder(buffer, id, _filepath, []);
+                            responseVersion = stat.mtime;
+                            writeNeeded = true;
+                            if (responseText instanceof Promise) {
+                                responseText.then(function (res) {
+                                    responseText = res;
+                                    resolve();
+                                });
+                            } else {
+                                resolve();
+                            }
+                        };
                         var loader = function () {
+                            if (isDirectory) {
+                                var __filepath = path.join(_filepath, 'package.json');
+                                fs.exists(__filepath, function (exists) {
+                                    if (exists) {
+                                        fs.stat(__filepath, function (error, stat) {
+                                            if (error) throw new Error(`加载${url}出错！`);
+                                            if (stat.isFile()) loadpackage(__filepath);
+                                            else loadindex();
+                                        });
+                                    } else {
+                                        loadindex();
+                                    }
+                                });
+                                return;
+                            }
                             fs.readFile(_filepath, function (error, buffer) {
                                 if (error) throw new Error("加载" + url + "出错！");
-                                responsePath = _filepath;
-                                var id = buildInfo.destpath.replace(/\..*$/, "").replace(/[^\w]/g, a => "_" + a.charCodeAt(0).toString(36) + "-");
-                                id = '/' + componentId + ' ' + id.replace(/^[\s\S]*?(\w*)$/, "$1");
-                                responseText = builder(buffer, id, _filepath, []);
-                                responseVersion = stat.mtime;
-                                writeNeeded = true;
-                                if (responseText instanceof Promise) {
-                                    responseText.then(function (res) {
-                                        responseText = res;
-                                        resolve();
-                                    });
-                                } else {
-                                    resolve();
-                                }
+                                response(buffer);
                             });
                         };
                         var reader = function (hasless) {

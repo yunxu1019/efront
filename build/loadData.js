@@ -5,8 +5,8 @@ var getDependence = require("./getDependence");
 var compile = require("./compile");
 var { include_required } = require("./environment");
 function build(pages_root, lastBuiltTime, dest_root) {
-    var responseTree = {};
-    var filterMap = {};
+    var responseTree = Object.create(null);
+    var filterMap = Object.create(null);
     var resolve;
     var builder = function (roots) {
         roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);
@@ -28,9 +28,15 @@ function build(pages_root, lastBuiltTime, dest_root) {
                 return getBuildRoot(a.require || [], true).then(function (required) {
                     var reqMap = Object.create(null);
                     a.required = required.map((k) => k.replace(/\.([tj]sx?|html?|json)$/i, ''));
-                    var map = a.requiredMap;
+                    var requiredMap = a.requiredMap;
                     if (a.require) a.require.forEach((k, cx) => reqMap[k] = cx);
-                    map && Object.keys(map).forEach(k => map[k] = a.required[reqMap[map[k]]] || '');
+                    var destMap = {};
+                    Object.keys(requiredMap).forEach(k => {
+                        var v = requiredMap[k];
+                        destMap[k] = v.replace(/\.([tj]sx?|html?|json)$/i, '');
+                    });
+
+                    Object.assign(requiredMap, destMap);
                     return a.concat(required).map(k => deps[k] = true);
                 });
             })).then(function () {
