@@ -97,6 +97,7 @@
     &:after {
         @size : 10000px;
         @blank-size : 70px;
+        @half-size:35px;
         box-sizing: content-box;
         content: "";
         display: block;
@@ -105,7 +106,7 @@
         width: @blank-size;
         height: @blank-size;
         border: @size solid #000;
-        margin: -@size - @blank-size/2;
+        margin: - @size - @half-size;
         top: 24px;
         left: 44px;
     }
