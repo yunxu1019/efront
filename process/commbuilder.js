@@ -78,6 +78,7 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
             return `var ${realName}=${data};`;
         }
         data = data.toString();
+        data = data.replace(/^\s*(["`'])use strict\1\s*;?/, '');
         if (!new RegExp(useInternalReg.source, 'ig').test(source)) {
             commName = realName;
         }
