@@ -1,6 +1,6 @@
 {
   "name": "efront",
-  "version": "1.14.3",
+  "version": "1.15.0",
   "description": "一个前端编译环境",
   "main": "main.js",
   "directories": {
