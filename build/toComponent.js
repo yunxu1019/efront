@@ -1,8 +1,8 @@
-var escodegen = require("../process/escodegen/escodegen");
+var escodegen = require("../process/escodegen");
 var esprima = require("../process/esprima");
-var esmangle = require("../process/esmangle/esmangle");
+var esmangle = require("../process/esmangle");
 var scanner = require("../process/compile/scanner");
-var typescript = require("../process/typescript/typescript");
+var typescript = require("../process/typescript");
 var { public_app, EXPORT_TO: EXPORT_TO, EXPORT_AS, include_required } = require("./environment");
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];

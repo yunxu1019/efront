@@ -1,9 +1,9 @@
 "use strict";
 var getvariables = require("./compile/variables");
-var esprima = require("./esprima/index");
-var esmangle = require("./esmangle/esmangle");
-var escodegen = require("./escodegen/escodegen");
-var typescript = require("./typescript/typescript");
+var esprima = require("./esprima");
+var esmangle = require("./esmangle");
+var escodegen = require("./escodegen");
+var typescript = require("./typescript");
 var less = require("./less/less-node")();
 var isDevelop = require("./isDevelop");
 less.PluginLoader = function () { };
@@ -65,6 +65,7 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
     });
 };
 var loadUseBody = function (source, fullpath, watchurls, commName) {
+
     var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/img;
     var replacer = function (data, realPath) {
         watchurls.push(realPath);
@@ -115,9 +116,7 @@ var createExpression = function (expression) {
 };
 var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
-    data = data.replace(/(;|^)import\s+([a-zA-Z\$_][\w]*)\s+from\s*(["'`])([a-zA-Z\$_]\w*)\3\s*;?(;|$)/mg, (_, f1, v, q, p, f2) => {
-        return `${f1}var ${v}=require(${q}${p}${q})${f2}`;
-    });
+
     var destpaths = getRequiredPaths(data);
     data = typescript.transpile(data);
     var code = esprima.parse(data);
@@ -400,6 +399,9 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
     let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
+    data = String(data).replace(/(;|^)import\s+([a-zA-Z\$_][\w]*)\s+from\s*(["'`])([a-zA-Z\$_]\w*)\3\s*;?(;|$)/mg, (_, f1, v, q, p, f2) => {
+        return `${f1}var ${v}=require(${q}${p}${q})${f2}`;
+    });
     let replace = loadUseBody(data, fullpath, watchurls, commName);
     var jsData, lessData;
     return Promise.all([lesspath, htmlpath].map(getFileData).concat(replace)).then(function ([lessdata, htmldata, data]) {
