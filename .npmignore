@@ -35,3 +35,4 @@ process/*_test.js
 test
 nbproject/
 process/database/
+process/qiniu/
