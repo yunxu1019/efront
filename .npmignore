@@ -34,3 +34,4 @@ data/icons
 process/*_test.js
 test
 nbproject/
+process/database/
