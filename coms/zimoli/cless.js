@@ -19,11 +19,7 @@ function cless(commFactory, innerCss, className) {
         var result = function () {
             var commRelease = commFactory.apply(result, arguments);
             if (commRelease) {
-                try {
-                    addClass(commRelease, className);
-                } catch (e) {
-                    console.error(e, "bindClassNameError");
-                }
+                commRelease = cless(commRelease, innerCss, className);
             }
             return commRelease;
         };
