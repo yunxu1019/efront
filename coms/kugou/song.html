@@ -1,4 +1,8 @@
-<div class="bg"></div>
+<div ng-if="!song.imgurl" class="bg"></div>
+<png class="logo" ng-if="song.imgurl" ng-src=song.imgurl></png>
 <div class="song" ng-model=song.songMarked></div>
 <div class="singer" ng-model=song.singerMarked></div>
 <div class="filterTime(song.timeLength)"></div>
+<div class="play-state" ng-if="song.hash===musicList.active_hash">
+    <div ng-style="{width:playState.width}"></div>
+</div>

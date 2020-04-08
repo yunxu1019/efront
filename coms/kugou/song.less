@@ -1,5 +1,6 @@
 & {
     height: 50px;
+    line-height: 40px;
     padding: 10px;
     font-size: 16px;
     white-space: nowrap;
@@ -16,6 +17,26 @@
     }
 }
 
+>.logo {
+    height: 40px;
+    width: 40px;
+    margin: -5px 0;
+
+    &+.song {
+        margin-left: -40px;
+        padding-left: 46px;
+        line-height: 30px;
+        display: inline-block;
+        vertical-align: top;
+    }
+}
+
+>.song {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 b {
     border: 1px solid #1f4a3bd4;
     color: #1f4a3bd4;
@@ -26,21 +47,30 @@ b {
 
 >.singer {
     position: absolute;
-    right: 10px;
-    top: 10px;
+    left: 6px;
+    top: 4px;
+    // right: 10px;
+    text-align: center;
+    line-height: 12px;
     font-size: 12px;
     color: #888;
 }
 
-&.activate {
-    &:after {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        line-height: 20px;
-        color: #2292e4;
-        content: "playing..";
-        display: inline-block;
-        margin-top: -10px;
+>.play-state {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    left: 4px;
+    display: block;
+    background: #2c7bb522;
+    height: 2px;
+    border-radius: 2px 0 2px 0;
+    overflow: hidden;
+
+    >div {
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        background: #2c7bb5;
     }
 }
