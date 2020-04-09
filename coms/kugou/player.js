@@ -348,6 +348,11 @@ var player = function (box = div()) {
                 distlist.active_hash = hash;
                 extend(this.info, response);
                 cast(this.krcpad, response);
+                _audio.onerror = e => {
+                    alert.error("播放失败！");
+                    if (this.audio === _audio) playState.error = true;
+                };
+                delete playState.error;
                 _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
                 _audio.play();
                 data.setInstance('musicList', distlist, true);
