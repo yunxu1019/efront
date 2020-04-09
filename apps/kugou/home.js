@@ -4,7 +4,10 @@ var tags = "新歌:song/list:音乐总有新玩法,排行:rank/list:排行榜 - 
     var [str, url, title] = tag.split(":");
     var label = createElement(div);
     label.active = function (ratio) {
-        go(this.url, null, this.container);
+        if (label.needactive) {
+            delete label.needactive;
+            go(this.url, null, this.container);
+        }
         if (ratio === 1) {
             document.title = label.title;
             if (tags.active === this) return this.container;
@@ -13,6 +16,7 @@ var tags = "新歌:song/list:音乐总有新玩法,排行:rank/list:排行榜 - 
         }
         return this.container;
     };
+    label.needactive = true;
     label.title = title;
     label.url = url;
     label.container = div();
@@ -41,7 +45,6 @@ render(page, {
             return tag && tag.active(ratio);
         });
         pages.go(state().page || 0);
-        console.log(pages)
         return pages;
     }
 });
