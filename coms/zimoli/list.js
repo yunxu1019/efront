@@ -83,7 +83,7 @@ function ylist(container, generator, $Y) {
             }
         }
         return map;
-    }
+    };
     //设置当前下标
     var scrollTo = function (itemIndex) {
         saved_itemIndex = itemIndex;
@@ -158,7 +158,7 @@ function ylist(container, generator, $Y) {
             height: fromOffset(y)
         });
         return y;
-    }
+    };
     var rebuild = function () {
         if (!/^(?:auto|scroll)$/i.test(getComputedStyle(list).overflowY)) return;
         var saved_y, inc = 0;
@@ -323,7 +323,7 @@ function ylist(container, generator, $Y) {
             var target_by = last_y - scrolled_b * lastElement.offsetHeight;
         }
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
-        var delta = Math.min(calcPixel(60), list.clientHeight >> 3);
+        var delta = Math.min(calcPixel(60), list.clientHeight >> 2);
         if (lastElement.offsetHeight >= delta && firstElement.offsetHeight >= delta) {
             return last_y;
         }
@@ -336,7 +336,9 @@ function ylist(container, generator, $Y) {
     //导出方法
     list.go = scrollTo;
     list.Height = function () {
-        return currentY() + list.clientHeight + restHeight;
+        var elem = getLastElement();
+        var listRestHeight = elem.offsetHeight + elem.offsetTop - list.scrollTop;
+        return currentY() + listRestHeight + restHeight;
     };
     list.Top = function (y) {
         if (isFinite(y)) {
