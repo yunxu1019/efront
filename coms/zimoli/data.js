@@ -184,6 +184,9 @@ function seek(data, seeker, apiMap = {}) {
             if (isString(data) && /\|/.test(seeker)) {
                 data = data.trim();
             }
+            if (isString(data) && /\//.test(seeker) && /^\s*(\{[\s\S]*\}|\[[\s\S]*\]|true|false|null|[\d\.]*|"[\s\S]*")\s*$/.test(data)) {
+                data = JSON.parse(data);
+            }
             if (next) {
                 data = getUrlParamsForApi(next, data);
             }
