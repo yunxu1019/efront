@@ -31,12 +31,13 @@ function build(pages_root, lastBuiltTime, dest_root) {
                     var requiredMap = a.requiredMap;
                     if (a.require) a.require.forEach((k, cx) => reqMap[k] = cx);
                     var destMap = {};
-                    Object.keys(requiredMap).forEach(k => {
-                        var v = requiredMap[k];
-                        destMap[k] = v.replace(/\.([tj]sx?|html?|json)$/i, '');
-                    });
-
-                    Object.assign(requiredMap, destMap);
+                    if (requiredMap) {
+                        Object.keys(requiredMap).forEach(k => {
+                            var v = requiredMap[k];
+                            destMap[k] = v.replace(/\.([tj]sx?|html?|json)$/i, '');
+                        });
+                        Object.assign(requiredMap, destMap);
+                    }
                     return a.concat(required).map(k => deps[k] = true);
                 });
             })).then(function () {

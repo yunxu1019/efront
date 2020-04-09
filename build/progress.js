@@ -5,6 +5,7 @@ var environment = require("./environment");
 var {
     PUBLIC_PATH,
     APP,
+    PAGE_PATH,
     pages_root,
     public_app
 } = environment;
@@ -48,7 +49,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     };
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
-    
+
     if (public_app) {
         //导出组件
         var public_path = path.join(PUBLIC_PATH, public_app);
@@ -73,6 +74,13 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 lastBuildTime = 0;
             }
             var indexHTML = pages_root.map(a => path.join(a, "index.html")).filter(fs.existsSync);
+            if (!indexHTML.length) {
+                let temp = path.join(PAGE_PATH, "index.html");
+                if (fs.existsSync(temp)) indexHTML = temp;
+                if (!indexHTML.length) {
+                    indexHTML = path.join(__dirname, "..", "apps/index.html");
+                }
+            }
             loadData(pages_root.concat(
                 indexHTML,
                 path.join(__dirname, "../coms", "zimoli/Promise.js"),
