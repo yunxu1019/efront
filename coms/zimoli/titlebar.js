@@ -62,6 +62,9 @@ function titlebar(elem) {
         });
         appendChild(menu_group, option_buttons);
     }
+    bar.setTitle = function (name) {
+        text(title, name);
+    };
     return bar;
 }
 titlebar.button = btn;
