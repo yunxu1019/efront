@@ -11,6 +11,7 @@ set public_path=process\less
 set page=./
 set app=/less-node/index.js
 set destpath=process\less\less-node.js
+git restore %destpath%
 call efront publish
 if not exist %public_path%\lessNode goto :error2
 echo ;>>%public_path%\lessNode
@@ -28,11 +29,11 @@ goto :end
 echo 编译失败
 goto :end
 :recover
-git restore %destpath%
-echo 编译代码无法执行，已还原
+echo 编译代码无法执行，下次启动前请还原
 goto :end
 
 
 :end
 call npm uninstall less
+if exist package-lock.json del package-lock.json
 endlocal

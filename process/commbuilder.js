@@ -120,6 +120,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
 
     var destpaths = getRequiredPaths(data);
     data = typescript.transpile(data);
+
     var code = esprima.parse(data);
     var {
         DeclaredVariables: declares,
@@ -283,9 +284,10 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             "generator": false,
             "expression": false
         }
-
-        code = esmangle.optimize(code, null);
-        code = esmangle.mangle(code);
+        if (!getvariables.computed) {
+            code = esmangle.optimize(code, null);
+            code = esmangle.mangle(code);
+        }
         var params = code.params.map(id => id.name);
         code = {
             "type": "Program",
@@ -440,6 +442,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
 
 }
 function commbuilder(buffer, filename, fullpath, watchurls) {
+
     var data = String(buffer), promise;
     if (/\.json$/i.test(fullpath)) {
         data = buildJson(data);

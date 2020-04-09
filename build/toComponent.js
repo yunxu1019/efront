@@ -54,7 +54,7 @@ function toComponent(responseTree) {
         return source;
     };
     var has_outside_require = false;
-    var saveCode = function (module_body, k, reqMap) {
+    var saveCode = function (module_body, module_key, reqMap) {
         var this_module_params = {};
         var setMatchedConstString = function (match, type, k, isProp) {
 
@@ -139,7 +139,7 @@ function toComponent(responseTree) {
                 parentheses: false //圆括号
             }
         }).replace(/^function\s+[\$_A-Za-z][\$_\w]*\(/, "function(");
-        saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(a => destMap[a]).concat(module_string)}]`, k);
+        saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(a => destMap[a]).concat(module_string)}]`, module_key);
     };
     var PUBLIC_APP, public_index;
     function saveOnly(data, k, ...ks) {
