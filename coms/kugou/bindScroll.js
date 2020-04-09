@@ -5,11 +5,11 @@ function bindScroll(titlebar, page) {
     var [label, back] = titlebar.children;
     css(back, `height:${topHeight}px;`);
     appendChild.after(label, labelarea);
-    css(labelarea, "height:100%;width:100%;position:absolute;left:0;top:0;z-index:-1");
+    css(labelarea, "height:100%;width:100%;background:#000;position:absolute;left:0;top:0;z-index:-1");
     onappend(page, function () {
         css(titlebar, `min-height:${topHeight}px;`);
-        // setOpacity(labelarea, 0);
-        // setOpacity(label, 0);
+        setOpacity(labelarea, 0);
+        setOpacity(label, 0);
         refresh();
     });
     var refresh = function () {
