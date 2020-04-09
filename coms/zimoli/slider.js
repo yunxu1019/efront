@@ -96,6 +96,7 @@ function slider(autoplay, circle = true) {
                 remove(childNode);
             }
         }
+        if (indexLeft === index) remove(_imageHelp);
         if (!width) return;
         css(_imageMain, {
             position: "absolute",
