@@ -5,8 +5,7 @@ onback(function () {
 });
 
 function main(params, from) {
-    console.log(from, params);
-    var page = createVboxWithState(state);
+    var page = div();
     page.initialStyle = 'margin-left:100%';
     page.innerHTML = search;
     var $scope = render(page, {

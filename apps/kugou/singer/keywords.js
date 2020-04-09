@@ -24,7 +24,8 @@ cross("get", "http://m.kugou.com/singer/class").done(function (xhr) {
             onclick(item, function () {
                 go("list", {
                     href,
-                    _text: innerText
+                    id: href.replace(/^[\s\S]*?(\d+)$/, '$1'),
+                    title: innerText
                 });
             });
             return item;

@@ -5,7 +5,7 @@ render(menu, {
     btn(elem) {
         return button(elem, "white");
     }
-})
+});
 function main() {
     return menu;
 }

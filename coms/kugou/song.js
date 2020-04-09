@@ -1,13 +1,14 @@
 function main(elem) {
-    elem = document.createElement("song");
+    elem = elem || document.createElement("song");
     if (!elem.innerHTML) elem.innerHTML = song;
-    var $scope = render(elem, {
+    var $scope = {
         filterTime,
         png: img,
         playState: playState,
         song: {},
         musicList,
-    }).$scope;
+    };
+    render(elem, $scope);
     care(elem, function (item) {
         var songName = String(item.name || item.songName || item.songname_original || '');
         var singerName = String(item.singer || item.singerName || item.singername || '');
