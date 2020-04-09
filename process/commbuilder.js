@@ -441,7 +441,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
 }
 function commbuilder(buffer, filename, fullpath, watchurls) {
     var data = String(buffer), promise;
-    if (/\.json$/.test(fullpath)) {
+    if (/\.json$/i.test(fullpath)) {
         data = buildJson(data);
     } else if (/\.html?$/i.test(fullpath)) {
         promise = getHtmlPromise(data, filename, fullpath, watchurls);
