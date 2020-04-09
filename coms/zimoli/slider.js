@@ -252,8 +252,9 @@ function slider(autoplay, circle = true) {
         });
         setTimeout(function () {
             remove(_removingMain);
-            css(_removingMain, "transform:scale(1);opacity:1;transition:none");
-        }, 100);
+            css(_removingMain, "transform:;opacity:;transition:");
+            css(_imageMain, "transform:;opacity:;transition:");
+        }, 300);
         css(_imageMain, "z-index:0;transform:scale(.92);opacity:0;transition:none");
         setTimeout(() => css(_imageMain, "transform:scale(1);opacity:1;transition:.2s transform ease-out,.4s opacity"), 0);
         if (player.ing) play();
