@@ -87,8 +87,9 @@ var createControls = function () {
         $scope.totalTime = filterTime(duration, duration);
         $scope.currentRotate = `rotate(${currentTime * 6}deg)`;
         $scope.currentTheta = ((currentTime * 6 + 90) % 180 - 90) / 180 * Math.PI;
-        $scope.currentProcess = `width:${(currentTime * 100 / duration).toFixed(2)}%;`;
-        render.refresh(box);
+        playState.width = (currentTime * 100 / duration).toFixed(2) + `%`;
+        $scope.currentProcess = `width:` + playState.width;
+        render.refresh();
     };
     bindtouch(box, function (value) {
         if (value) {
@@ -292,7 +293,7 @@ var player = function (box = div()) {
                 var script = createScript.apply(context, [0, 2, 2]);
                 var audioBuffer;
                 var draw = lazy(_ => this.draw(audioBuffer), false);
-                var last_id = 0;
+                var last_id = -1;
                 script.onaudioprocess = (e) => {
                     audioBuffer = audio.copyData(e);
                     if (this.audio !== _audio) {
@@ -301,8 +302,8 @@ var player = function (box = div()) {
                         source.disconnect();
                     } else if (last_id !== _audio.currentTime) {
                         last_id = _audio.currentTime;
+                        draw();
                     }
-                    draw();
                 };
                 source.connect(script);
                 script.connect(context.destination);
