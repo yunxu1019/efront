@@ -1,25 +1,15 @@
 
-function cless(commFactory, innerCss, className) {
-    var stylesheet = document.createElement("style");
-    stylesheet.type = "text/css";
-    stylesheet.savedText = innerCss;
-    innerCss = color.transform(innerCss);
-    if (stylesheet.styleSheet) {
-        stylesheet.styleSheet.cssText = innerCss;
-    } else {
-        stylesheet.innerHTML = innerCss;
-    }
-    appendChild(document.getElementsByTagName("head")[0], stylesheet);
+function create(commFactory, className) {
     if (commFactory instanceof Promise) {
         return commFactory.then(function (result) {
-            return cless(result, innerCss, className);
+            return create(result, className);
         });
     }
     if (isFunction(commFactory)) {
         var result = function () {
             var commRelease = commFactory.apply(result, arguments);
             if (commRelease) {
-                commRelease = cless(commRelease, innerCss, className);
+                commRelease = create(commRelease, className);
             }
             return commRelease;
         };
@@ -42,4 +32,17 @@ function cless(commFactory, innerCss, className) {
         commFactory = template.innerHTML;
     }
     return commFactory;
+}
+function cless(commFactory, innerCss, className) {
+    var stylesheet = document.createElement("style");
+    stylesheet.type = "text/css";
+    stylesheet.savedText = innerCss;
+    innerCss = color.transform(innerCss);
+    if (stylesheet.styleSheet) {
+        stylesheet.styleSheet.cssText = innerCss;
+    } else {
+        stylesheet.innerHTML = innerCss;
+    }
+    appendChild(document.getElementsByTagName("head")[0], stylesheet);
+    return create(commFactory, className);
 }
