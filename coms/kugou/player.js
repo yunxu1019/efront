@@ -350,8 +350,11 @@ var player = function (box = div()) {
                 cast(this.krcpad, response);
                 _audio.onerror = e => {
                     alert.error("播放失败！");
-                    if (this.audio === _audio) playState.error = true;
+                    if (this.audio === _audio) {
+                        playState.error = true;
+                    }
                 };
+                playState.width = 0;
                 delete playState.error;
                 _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
                 _audio.play();
