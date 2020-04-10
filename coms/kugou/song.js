@@ -4,7 +4,7 @@ function main(elem) {
     var $scope = {
         filterTime,
         png: img,
-        playState: playState,
+        playState: kugou$playState,
         song: {},
         musicList,
     };

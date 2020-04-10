@@ -1,4 +1,5 @@
 var musicList = kugou$musicList;
+var playState = kugou$playState;
 var getMusicInfo = function (hash) {
     return data.from("song-info", { hash });
 };
