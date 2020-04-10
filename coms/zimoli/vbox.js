@@ -76,7 +76,7 @@ function ybox(generator) {
         scrollY.call(_box, -__speed, useIncrease);
         __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
     };
-    var increaser_t = document.createElement("box-insert");
+    var increaser_t = document.createElement("insert");
     addClass(increaser_t, 'y-insert');
     var increaser_b = increaser_t.cloneNode();
     var decrease_timer = 0;
@@ -99,7 +99,7 @@ function ybox(generator) {
                 height -= deltaY;
             }
             increaser.height = height = height > 16 ? (height * 2 + 6) / 3 : height >> 1;
-            increaser.style.height = (height | 0) + "px";
+            increaser.style.height = fromOffset(height | 0);
             return 1;
         }
         increaser.height = 0;
@@ -129,7 +129,7 @@ function ybox(generator) {
                 appendChild(_box, increaser_b);
                 var deltaMargin = _box.scrollHeight - increaser_b.offsetTop;
                 if (deltaMargin > 0) {
-                    increaser_b.style.marginTop = deltaMargin + "px";
+                    increaser_b.style.marginTop = fromOffset(deltaMargin);
                     var paddingBottom = getComputedStyle(_box).paddingBottom;
                     if (paddingBottom) {
                         paddingBottom = "-" + paddingBottom;
@@ -143,8 +143,8 @@ function ybox(generator) {
         if (t_height > increase_height) t_height = increase_height;
         if (b_height < 0) b_height = 0;
         if (t_height < 0) t_height = 0;
-        if (!minusOnly || b_height < increaser_b.height) increaser_b.height = b_height, increaser_b.style.height = b_height + "px";
-        if (!minusOnly || t_height < increaser_t.height) increaser_t.height = t_height, increaser_t.style.height = t_height + "px";
+        if (!minusOnly || b_height < increaser_b.height) increaser_b.height = b_height, increaser_b.style.height = fromOffset(b_height);
+        if (!minusOnly || t_height < increaser_t.height) increaser_t.height = t_height, increaser_t.style.height = fromOffset(t_height);
     };
     if (/Edge|Trident/i.test(navigator.userAgent)) {
         // ie
@@ -189,7 +189,6 @@ function ybox(generator) {
                 smooth();
             }
         }, 'y');
-
     }
 
     var smooth_timer;
