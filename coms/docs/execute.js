@@ -16,12 +16,7 @@ var execute = function (commName, then) {
             }
             return component;
         };
-        try {
-            component = createElement(comm);
-            // component && appendChild(page, component);
-        } catch (e) {
-            console.error(e);
-        }
+        component = createElement(comm);
         then && then(component);
     });
 };
