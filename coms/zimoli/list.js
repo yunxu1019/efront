@@ -18,7 +18,7 @@ function ylist(container, generator, $Y) {
     var getLastElement = function () {
         var children = list.children;
         for (var cx = children.length - 1; cx >= 0; cx--) {
-            var child = children[cx]
+            var child = children[cx];
             if (isFinite(child.index)) {
                 return child;
             }
@@ -29,7 +29,7 @@ function ylist(container, generator, $Y) {
     var getIndexedElement = function (index) {
         var children = list.children;
         for (var cx = children.length - 1; cx >= 0; cx--) {
-            var child = children[cx]
+            var child = children[cx];
             if (isFinite(child.index) && child.index === index) {
                 return child;
             }
@@ -41,7 +41,7 @@ function ylist(container, generator, $Y) {
     var getFirstElement = function () {
         var children = list.children;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
-            var child = children[cx]
+            var child = children[cx];
             if (isFinite(child.index)) {
                 return child;
             }
@@ -86,7 +86,6 @@ function ylist(container, generator, $Y) {
     };
     //设置当前下标
     var scrollTo = function (itemIndex) {
-        saved_itemIndex = itemIndex;
         if (!list.offsetHeight || !list.offsetWidth) {
             return;
         }
@@ -98,7 +97,7 @@ function ylist(container, generator, $Y) {
         var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
         while (offsetBottom - ratioTop <= list.clientHeight + cache_height) {
             var item = childrenMap[offset];
-            if (!item) {
+            if (!item || item.id) {
                 item = generator(offset);
                 if (!item) {
                     if (delta < 0) break;
@@ -185,7 +184,7 @@ function ylist(container, generator, $Y) {
     //计算当前高度
     var currentY = function () {
         var firstElement = getFirstElement();
-        if (!firstElement) return saved_itemIndex * restHeight;
+        if (!firstElement) return;
         return firstElement.index * firstElement.offsetHeight + list.scrollTop;
     };
     var getBottomElement = function (last_element) {
@@ -218,7 +217,7 @@ function ylist(container, generator, $Y) {
         while (offsetBottom <= scrollTop + list.clientHeight + cache_height) {
             offset++;
             var item = childrenMap[offset];
-            if (!item) {
+            if (!item || item.itemid) {
                 item = generator(offset);
                 if (!item) {
                     restHeight = 0;
@@ -269,13 +268,14 @@ function ylist(container, generator, $Y) {
                 break;
             }
             var item = childrenMap[offset];
-            if (!item) {
+            if (!item || item.itemid) {
                 item = generator(offset);
                 if (!item) break;
                 item.index = offset;
                 childrenMap[offset] = item;
                 list.insertBefore(item, first_element);
                 scrollTop += flag_element.offsetTop - offsetTop;
+                offsetTop = flag_element.offsetTop;
                 first_element = item;
             }
         }
@@ -300,11 +300,10 @@ function ylist(container, generator, $Y) {
             deltaScroll = patchTop(deltaY);
         }
         if (deltaScroll) list.scrollTop += deltaScroll;
-        saved_itemIndex = list.index();
     };
     list.stopY = function () {
         var firstElement = getFirstVisibleElement();
-        if (!firstElement) return saved_itemIndex;
+        if (!firstElement) return;
         var paddingTop = parseFloat(getComputedStyle(list).paddingTop);
         var paddingBottom = parseFloat(getComputedStyle(list).paddingBottom);
 
@@ -352,7 +351,7 @@ function ylist(container, generator, $Y) {
     list.scrollBy = scrollBy;
     list.index = function () {
         var firstElement = getFirstVisibleElement();
-        if (!firstElement) return saved_itemIndex;
+        if (!firstElement) return;
         var index = firstElement.index;
         var scrolled = (list.scrollTop - firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop)) / firstElement.offsetHeight;
         return index + scrolled;
@@ -371,7 +370,7 @@ var getGeneratorFromArray = function (source) {
     return function (index) {
         if (index >= source.length) return null;
         return block(source[index]);
-    }
+    };
 };
 
 

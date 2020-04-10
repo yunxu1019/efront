@@ -95,6 +95,11 @@ function tree() {
         var com = coms[index];
         var span;
         if (!com) return;
+        if (com.target) {
+            com.target.refresh();
+            com.target.index = index;
+            return com.target;
+        }
         var tabs = new Array(com.tab + 1).join("<t></t>");
         if (isFunction(generator)) {
             var elem = generator(index, com);
@@ -107,54 +112,59 @@ function tree() {
             html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.isClosed() && com.length ? " <a>" + com.count + "</a>" : ""}`);
         }
         var _div = button(span);
+        _div.refresh = function () {
+            if (com.isChecked()) {
+                addClass(_div, "checked");
+            } else if (com.isSelected()) {
+                addClass(_div, "selected");
+            }
+            if (com.isActive()) {
+                addClass(_div, "actived");
+            }
+            var class1 = com.getClass();
+            if (class1) {
+                addClass(_div, class1);
+            }
+            _div.style.zIndex = 1;
+            _div.id = com.id;
+            if (index === changed_index) {
+                saved_top = _div;
+                setState(true);
+            } else {
+                setState();
+            }
+            if (index === changed_offset) {
+                saved_offset = _div;
+            }
+            com.closed = com.isClosed();
+        };
         addClass(_div, "tab" + com.tab);
-        if (com.isChecked()) {
-            addClass(_div, "checked");
-        } else if (com.isSelected()) {
-            addClass(_div, "selected");
-        }
-        if (com.isActive()) {
-            addClass(_div, "actived");
-        }
-        var class1 = com.getClass();
-        if (class1) {
-            addClass(_div, class1);
-        }
         var setState = function (closed = com.isClosed()) {
             removeClass(com.target, 'open empty closed');
             if (com.length) {
                 if (closed) {
-                    addClass(com.target, 'closed')
+                    addClass(com.target, 'closed');
                 } else {
-                    addClass(com.target, 'open')
+                    addClass(com.target, 'open');
                 }
             } else {
                 addClass(com.target, 'empty');
             }
         };
-        _div.style.zIndex = 1;
         com.target = _div;
-        if (index === changed_index) {
-            saved_top = _div;
-            setState(true);
-        } else {
-            setState();
-        }
-        if (index === changed_offset) {
-            saved_offset = _div;
-        }
-        com.closed = com.isClosed();
+        _div.refresh();
+
         onclick(_div, function () {
             if (!active(banner, com.value, com)) {
                 return;
-            };
+            }
             changed_index = index;
             changed_offset = com.length + index;
 
             var z0 = function () {
                 com.forEach(function (e) {
                     if (e.target) e.target.style.zIndex = 0;
-                })
+                });
             };
             var z1 = function () {
                 com.forEach(function (e) {
@@ -162,31 +172,12 @@ function tree() {
                 });
                 setState();
             };
-            var run = function () {
-                // debugger;
-
-                refresh();
-                if (!com.isClosed() && com.length && saved_top) {
-                    var change_elem = saved_top.nextSibling;
-                    if (!change_elem) return;
-                    var margin_top;
-                    if (!saved_offset || !saved_offset.offsetTop) {
-                        margin_top = saved_top.offsetHeight + saved_top.offsetTop - banner.scrollHeight;
-                    } else {
-                        margin_top = saved_top.offsetHeight + saved_top.offsetTop - saved_offset.offsetTop - saved_offset.offsetHeight;
-                    }
-                    setState(false);
-                    z0();
-                    var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" });
-                    timeout(z1, res);
-                };
-            };
             if (com.isClosed() && com.length) {
                 z0();
                 setState(true);
                 var bottom = com[com.length - 1].target;
                 var top = com[0].target;
-                if (!top) return run();
+                if (!top) return refresh();
                 var marginTop;
                 if (!bottom) {
                     marginTop = top.offsetTop - banner.scrollHeight;
@@ -197,11 +188,24 @@ function tree() {
                     transition: 'margin-top .2s ease-out',
                     marginTop: marginTop + "px"
                 }, true);
-                if (res) timeout(run, res);
-                else run();
+                if (res) timeout(refresh, res + 100);
+                else refresh();
+            } else if (!com.isClosed() && com.length && saved_top) {
+                refresh();
+                var change_elem = saved_top.nextSibling;
+                if (!change_elem) return;
+                var margin_top;
+                if (!saved_offset || !saved_offset.offsetTop) {
+                    margin_top = saved_top.offsetHeight + saved_top.offsetTop - banner.scrollHeight;
+                } else {
+                    margin_top = saved_top.offsetHeight + saved_top.offsetTop - saved_offset.offsetTop - saved_offset.offsetHeight;
+                }
+                setState(false);
+                z0();
+                var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" }, true);
+                timeout(z1, res + 100);
             } else {
-
-                run();
+                refresh();
             }
         });
 
@@ -216,19 +220,23 @@ function tree() {
             } else {
                 root = getTreeFromData(src);
             }
-            remove(dom.map(a => a.target));
-            dom = getArrayFromTree(root);
+            refresh();
         }
     };
     banner.addData = function (data, parent = root) {
         appendTo(parent, data);
-        remove(dom.map(a => a.target));
-        dom = getArrayFromTree(root);
+        refresh();
     };
     var refresh = function () {
         var index = banner.index();
-        remove(dom.map(a => a.target));
+        var saved_dom = dom.slice(0);
         dom = getArrayFromTree(root, true);
+        var doms = {};
+        dom.forEach(function (d) {
+            doms[d.elemid] = d;
+        });
+        var needremoves = saved_dom.filter(d => !!doms[d.elemid]).map(d => d.target);
+        remove(needremoves);
         banner.go(index);
     };
     banner.refresh = refresh;
