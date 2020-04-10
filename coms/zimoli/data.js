@@ -602,7 +602,7 @@ var data = {
                 response.error = e;
             }
             error_report(response.error_message, 'error');
-        })
+        });
         return response;
     },
 
@@ -729,6 +729,7 @@ var data = {
         if (rememberWithStorage) {
             localStorage.setItem(storageId, JSON.stringify(data));
         }
+        dispatch(window, 'render');
         return instanceDataMap[instanceId];
     },
     rebuildInstance(instance, data, old = instance) {
