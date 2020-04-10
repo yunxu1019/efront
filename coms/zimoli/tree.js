@@ -96,8 +96,8 @@ function tree() {
         var span;
         if (!com) return;
         if (com.target) {
-            com.target.refresh();
             com.target.index = index;
+            com.target.refresh();
             return com.target;
         }
         var tabs = new Array(com.tab + 1).join("<t></t>");
@@ -112,6 +112,7 @@ function tree() {
             html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}<a class=count>${com.count}</a>`);
         }
         var _div = button(span);
+        _div.index = index;
         _div.refresh = function () {
             if (com.isChecked()) {
                 addClass(_div, "checked");
@@ -126,14 +127,14 @@ function tree() {
                 addClass(_div, class1);
             }
             _div.style.zIndex = 1;
-            _div.id = com.id;
-            if (index === changed_index) {
+            _div.itemid = com.id;
+            if (_div.index === changed_index) {
                 saved_top = _div;
                 setState(true);
             } else {
                 setState();
             }
-            if (index === changed_offset) {
+            if (_div.index === changed_offset) {
                 saved_offset = _div;
             }
             com.closed = com.isClosed();
@@ -158,9 +159,10 @@ function tree() {
             if (!active(banner, com.value, com)) {
                 return;
             }
+            var index = this.index;
             changed_index = index;
             changed_offset = com.length + index;
-
+            if (!com.length) return;
             var z0 = function () {
                 com.forEach(function (e) {
                     if (e.target) e.target.style.zIndex = 0;
@@ -172,6 +174,7 @@ function tree() {
                 });
                 setState();
             };
+
             if (com.isClosed() && com.length) {
                 z0();
                 setState(true);
@@ -186,13 +189,12 @@ function tree() {
                 }
                 var res = transition(top, {
                     transition: 'margin-top .2s ease-out',
-                    marginTop: marginTop + "px"
+                    marginTop: fromOffset(marginTop)
                 }, true);
-                if (res) timeout(refresh, res + 100);
+                if (res) timeout(refresh, res);
                 else refresh();
             } else if (!com.isClosed() && com.length) {
                 refresh();
-                if (!saved_top) saved_top = _div;
                 var change_elem = saved_top.nextSibling;
                 if (!change_elem) return;
                 var margin_top;
@@ -203,8 +205,8 @@ function tree() {
                 }
                 setState(false);
                 z0();
-                var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" }, true);
-                timeout(z1, res + 100);
+                var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: fromOffset(margin_top) }, false);
+                timeout(z1, res);
             }
         });
 
@@ -228,15 +230,15 @@ function tree() {
     };
     var refresh = function () {
         var index = banner.index();
-        var saved_dom = dom.slice(0);
+        var needremoves = dom.map(d => d.target);
         dom = getArrayFromTree(root, true);
-        var doms = {};
-        dom.forEach(function (d) {
-            doms[d.elemid] = d;
+        needremoves.forEach(_div => {
+            if (!_div) return;
+            delete _div.initialStyle;
+            css(_div, "transition:;margin-top:;");
         });
-        var needremoves = saved_dom.filter(d => !!doms[d.elemid]).map(d => d.target);
         remove(needremoves);
-        banner.go(index);
+        banner.go(index || 0);
     };
     banner.refresh = refresh;
 
