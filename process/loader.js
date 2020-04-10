@@ -341,13 +341,8 @@ var executer = function (text, name, then, prebuild, parents) {
     if (!functionArgs.length) {
         if (prebuild && hasOwnProperty.call(prebuild, name)) return then(prebuild[name]);
         if (hasOwnProperty.call(modules, name)) return then(modules[name]);
-        try {
-            var exports = createFunction(name, functionBody).call(window);
-            then(modules[name] = exports);
-        } catch (e) {
-            console.log(`[${name}]`);
-            console.error(e);
-        }
+        var exports = createFunction(name, functionBody).call(window);
+        then(modules[name] = exports);
         return;
     }
 
@@ -389,77 +384,72 @@ var executer = function (text, name, then, prebuild, parents) {
         prebuild && [].forEach.call(requires, k => k in prebuild && prevent_save++);
         if (!prevent_save && hasOwnProperty.call(modules, name)) return then(modules[name]);
         if (prevent_save && /^\w+$/.test(name)) console.warn('组件对象', name, "在多实例的模式下运行！");
-        try {
-            var allArgumentsNames = functionArgs.slice(argslength, argslength << 1);
-            var indexOf_exports = requires.indexOf("exports"),
-                indexOf_module = requires.indexOf("module"),
-                indexOf_require = requires.indexOf("require"),
-                indexOf_define = requires.indexOf("define");
-            var _this = window;
-            if (~indexOf_define) {
-                _this = args[indexOf_define];
-                args[indexOf_define] = args[indexOf_require] || function (m_name, requires, exec) {
-                    if (m_name instanceof Function) {
-                        exec = m_name;
-                        return exec.call(_this);
-                    }
-                    if (m_name instanceof Array) {
-                        exec = requires;
-                        requires = m_name;
-                        m_name = name;
-                    }
-                    if (!/^\//.test(m_name)) {
-                        m_name = m_name.replace(/\//g, '$');
-                    }
-                    init(get_relatives(m_name, requires), function (args) {
-                        return exec.apply(_this, args);
-                    }, prebuild, m_name === name ? parents : parents.concat(m_name), prebuild);
-                };
-                args[indexOf_define].amd = true;
-            }
-            if (~indexOf_exports) {
-                _this = args[indexOf_exports];
-            } else if (~indexOf_module) {
-                _this = args[indexOf_module].exports;
-            }
-            var hire = function () {
-                var exports = createFunction(name, functionBody, allArgumentsNames).apply(_this, args.concat([allArgumentsNames]));
-                if (prevent_save) prebuild[name] = exports;
-                else modules[name] = exports;
-                then(exports);
-            };
-            if (~indexOf_require) {
-                var require = args[indexOf_require];
-                var required = functionArgs[argslength << 1];
-                if (require) {
-                    if (required) {
-                        required = get_relatives(name, required.split(';'));
-                        args[indexOf_require] = function (i) {
-                            return require(required[i]);
-                        };
-                    }
-                    hire();
-                    return;
+        var allArgumentsNames = functionArgs.slice(argslength, argslength << 1);
+        var indexOf_exports = requires.indexOf("exports"),
+            indexOf_module = requires.indexOf("module"),
+            indexOf_require = requires.indexOf("require"),
+            indexOf_define = requires.indexOf("define");
+        var _this = window;
+        if (~indexOf_define) {
+            _this = args[indexOf_define];
+            args[indexOf_define] = args[indexOf_require] || function (m_name, requires, exec) {
+                if (m_name instanceof Function) {
+                    exec = m_name;
+                    return exec.call(_this);
                 }
-                args[indexOf_require] = function (refer) {
-                    return required[refer];
-                };
+                if (m_name instanceof Array) {
+                    exec = requires;
+                    requires = m_name;
+                    m_name = name;
+                }
+                if (!/^\//.test(m_name)) {
+                    m_name = m_name.replace(/\//g, '$');
+                }
+                init(get_relatives(m_name, requires), function (args) {
+                    return exec.apply(_this, args);
+                }, prebuild, m_name === name ? parents : parents.concat(m_name), prebuild);
+            };
+            args[indexOf_define].amd = true;
+        }
+        if (~indexOf_exports) {
+            _this = args[indexOf_exports];
+        } else if (~indexOf_module) {
+            _this = args[indexOf_module].exports;
+        }
+        var hire = function () {
+            var exports = createFunction(name, functionBody, allArgumentsNames).apply(_this, args.concat([allArgumentsNames]));
+            if (prevent_save) prebuild[name] = exports;
+            else modules[name] = exports;
+            then(exports);
+        };
+        if (~indexOf_require) {
+            var require = args[indexOf_require];
+            var required = functionArgs[argslength << 1];
+            if (require) {
                 if (required) {
                     required = get_relatives(name, required.split(';'));
-                    init(required, function (args) {
-                        required = args;
-                        hire();
-                    }, prebuild, parents.concat(name));
-                } else {
-                    hire();
+                    args[indexOf_require] = function (i) {
+                        return require(required[i]);
+                    };
                 }
+                hire();
                 return;
             }
-            hire();
-        } catch (e) {
-            console.log(`[${name}]`);
-            console.error(e);
+            args[indexOf_require] = function (refer) {
+                return required[refer];
+            };
+            if (required) {
+                required = get_relatives(name, required.split(';'));
+                init(required, function (args) {
+                    required = args;
+                    hire();
+                }, prebuild, parents.concat(name));
+            } else {
+                hire();
+            }
+            return;
         }
+        hire();
     }, prebuild, parents.concat(name));
 };
 var JSON_parser = function (text, name, then) {
@@ -528,7 +518,7 @@ var init = function (name, then, prebuild, parents) {
             });
         })).then(function (args) {
             (then instanceof Function) && then(args);
-        }).catch(console.error);
+        });
     }
     if (modules[name]) {
         return then(modules[name]);
@@ -548,40 +538,12 @@ var init = function (name, then, prebuild, parents) {
 };
 
 var requires_count = 3;
-var wrapper = function (f) {
-    return function () {
-        var r = f.apply(this, arguments);
-        if (modules.render && modules.render.digest instanceof Function) {
-            modules.render.digest();
-        }
-        return r;
-    };
-}
-var wrapRenderDigest = function (_then) {
-    return function (f, f2) {
-        var args = [];
-        if (f2 instanceof Function) {
-            args[1] = f2;
-        }
-        if (f instanceof Function) {
-            args[0] = f;
-        }
-        if (f instanceof Function) var promise = _then.apply(this, args.map(wrapper));
-        else promise = _then.apply(this, arguments);
-        return promise;
-    };
-};
 var hook = function (requires_count) {
     if (requires_count === 0) {
         "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
         loadResponseTreeFromStorage();
         initPixelDecoder();
         modules.Promise = Promise;
-        var promisePrototype = Promise.prototype;
-        var { then: _then, catch: _catch, finally: _finally } = promisePrototype;
-        promisePrototype.then = wrapRenderDigest(_then);
-        promisePrototype.catch = wrapRenderDigest(_catch);
-        promisePrototype.finally = wrapRenderDigest(_finally);
         modules.hook_time = +new Date;
         if (!efrontPath) efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
         init(efrontPath, function (zimoli) {
