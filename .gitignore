@@ -12,7 +12,6 @@ coms/i-theme
 gulpfile.js
 public/
 public.bat
-_envs/*=*
 _envs/cert
 tools/node_modules/
 data/count.json

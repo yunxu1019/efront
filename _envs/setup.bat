@@ -1,4 +1,4 @@
-REM 中文编码gb2312
+chcp 936
 rem 默认应用
 if not defined app set APP=zimoli
 REM set HTTPS_PORT=444
