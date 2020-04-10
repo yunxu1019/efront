@@ -119,17 +119,14 @@ function main(elem, mode) {
             case "c":
             case "inline":
                 if (elem) {
-                    on('changes')(elem, function (event) {
-                        if (event.changes.src) {
-                            elem.setData(this.src);
-                            elem.go(elem.index() || 0);
-                        };
-                    });
                     tree(elem, function (index, item) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
                         var m = menuItem(e, item, elem.useIcon);
                         return m;
+                    });
+                    care(elem, function (data) {
+                        elem.setData(data);
                     });
                     elem.renders.push(function () {
                         var src = this.src;
