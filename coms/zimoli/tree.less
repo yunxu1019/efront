@@ -1,18 +1,38 @@
 & {
-    height    : 100%;
+    height: 100%;
     background: #222d32;
 
     >div {
-        display         : block;
-        text-align      : left;
-        height          : auto;
+        display: block;
+        text-align: left;
+        height: auto;
         background-color: inherit;
-        color           : inherit;
-        padding-right   : 10px;
+        color: inherit;
+        padding-right: 10px;
     }
 }
 
+.count {
+    &:before {
+        content: "（ ";
+    }
+
+    &:after {
+        content: " ）";
+    }
+
+    margin: 0 10px;
+    color: #ccc;
+    display: none;
+}
+
+.closed .count {
+
+    display: inline-block;
+}
+
+
 t {
     display: inline-block;
-    width  : 16px;
+    width: 16px;
 }

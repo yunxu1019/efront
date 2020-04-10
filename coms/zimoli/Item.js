@@ -1,3 +1,4 @@
+var id = 0;
 function Item(value) {
     this.value = value instanceof Object ? value : Object.create(value);
     this.valueOf = function () {
@@ -20,6 +21,7 @@ function Item(value) {
         this.test = value.test;
     }
     this.count = 0;
+    this.id = ++id;
 }
 Item.prototype = extend([], {
     isClosed() {

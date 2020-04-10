@@ -109,7 +109,7 @@ function tree() {
             span.appendChild(elem);
         } else {
             span = div();
-            html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}${com.isClosed() && com.length ? " <a>" + com.count + "</a>" : ""}`);
+            html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}<a class=count>${com.count}</a>`);
         }
         var _div = button(span);
         _div.refresh = function () {
@@ -190,8 +190,9 @@ function tree() {
                 }, true);
                 if (res) timeout(refresh, res + 100);
                 else refresh();
-            } else if (!com.isClosed() && com.length && saved_top) {
+            } else if (!com.isClosed() && com.length) {
                 refresh();
+                if (!saved_top) saved_top = _div;
                 var change_elem = saved_top.nextSibling;
                 if (!change_elem) return;
                 var margin_top;
@@ -204,8 +205,6 @@ function tree() {
                 z0();
                 var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: margin_top + "px" }, true);
                 timeout(z1, res + 100);
-            } else {
-                refresh();
             }
         });
 
