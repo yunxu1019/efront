@@ -333,13 +333,16 @@ var get_relatives = function (name, required) {
         return r.replace(/\//g, '$');
     });
 };
+var createFunction = function (name, body, args) {
+    return window.eval(`(function /*${name}*/(${args || ''}){\r\n${body}\r\n})`);
+};
 var executer = function (text, name, then, prebuild, parents) {
     var [functionArgs, functionBody] = getArgs(text);
     if (!functionArgs.length) {
         if (prebuild && hasOwnProperty.call(prebuild, name)) return then(prebuild[name]);
         if (hasOwnProperty.call(modules, name)) return then(modules[name]);
         try {
-            var exports = Function.call(window, functionBody).call(window);
+            var exports = createFunction(name, functionBody).call(window);
             then(modules[name] = exports);
         } catch (e) {
             console.log(`[${name}]`);
@@ -420,7 +423,7 @@ var executer = function (text, name, then, prebuild, parents) {
                 _this = args[indexOf_module].exports;
             }
             var hire = function () {
-                var exports = Function.apply(window, allArgumentsNames.concat(functionBody)).apply(_this, args.concat([allArgumentsNames]));
+                var exports = createFunction(name, functionBody, allArgumentsNames).apply(_this, args.concat([allArgumentsNames]));
                 if (prevent_save) prebuild[name] = exports;
                 else modules[name] = exports;
                 then(exports);
