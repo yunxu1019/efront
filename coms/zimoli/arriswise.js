@@ -5,6 +5,9 @@ var reflect = {
     height: "width",
     X: "Y",
     Y: "X",
+    "px": "px",
+    "x": 'y',
+    "y": 'x',
     Top: "Left",
     Left: "Top",
     top: "left",
@@ -14,7 +17,7 @@ var reflect = {
     right: "bottom",
     bottom: "right"
 };
-var regkeys = keys(reflect);
+var regkeys = keys(reflect).map(a => /^[xy]$/.test(a) ? `\\b${a}|${a}\\b` : a);
 var regexps = new RegExp(regkeys.join("|"), "g");
 var rep = function (matched) {
     var searched = reflect[matched];
