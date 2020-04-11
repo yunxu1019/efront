@@ -5,6 +5,7 @@ var {
     parseInt,
     XMLHttpRequest,
     ActiveXObject,
+    isProduction = function develop() { return develop.name !== 'develop'; }(),
     Error,
     Function,
     Array,
@@ -144,11 +145,11 @@ var initPixelDecoder = function () {
 };
 
 var loaddingTree = {};
-var requestTree = {};
 var responseTree = {};
 var versionTree = {};
 var forceRequest = {};
 var circleTree = {};
+var warnedModules = {};
 var hasOwnProperty = {}.hasOwnProperty;
 var XHR = function () {
     return new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
@@ -380,7 +381,10 @@ var executer = function (text, name, then, prebuild, parents) {
         var argslength = functionArgs.length >> 1;
         prebuild && [].forEach.call(requires, k => k in prebuild && prevent_save++);
         if (!prevent_save && hasOwnProperty.call(modules, name)) return then(modules[name]);
-        if (prevent_save && /^\w+$/.test(name)) console.warn('组件对象', name, "在多实例的模式下运行！");
+        if (!isProduction) if (prevent_save && /^\w+$/.test(name) && !warnedModules[name]) {
+            warnedModules[name] = true;
+            console.info(`%c组件对象 %c${name}%c 在多实例的模式下运行！`, "color:#333;", "color:#c28", "color:#333");
+        }
         var allArgumentsNames = functionArgs.slice(argslength, argslength << 1);
         var indexOf_exports = requires.indexOf("exports"),
             indexOf_module = requires.indexOf("module"),
@@ -552,6 +556,7 @@ var initIfNotDefined = function (defined, path, onload) {
     else hook(--requires_count);
 }
 var modules = {
+    isProduction,
     start_time,
     MOVELOCK_DELTA: 3 * renderPixelRatio,
     SAFE_CIRCLE_DEPTH: 300,
