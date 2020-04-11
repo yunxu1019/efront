@@ -164,9 +164,6 @@ var loaddata = function (name) {
             case "/":
                 url = "page" + name;
                 break;
-            case "_":
-                url = "aapi/" + name.slice(1).replace(/([A-Z])/g, "/$1").toLowerCase();
-                break;
             case ".":
                 url = "ccon/" + name.slice(1);
                 break;

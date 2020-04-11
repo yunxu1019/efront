@@ -140,16 +140,21 @@ var setup = module.exports = function (appname) {
     call("./_envs/app=" + appname + ".bat");
     cache[appname] = env;
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
-        if (!env[key]) {
-            var default_value = process.env[key];
-            if (appname === default_value) {
-                env[key] = default_value;
-            } else if (default_value) {
-                env[key] = appname + "," + default_value;
-            } else {
-                env[key] = appname + "," + ",zimoli";
-            }
+        var default_value = env[key] || process.env[key];
+        var value_map = Object.create(null);
+        if (default_value) {
+            default_value.split(',').forEach(k => {
+                value_map[k] = true;
+            });
+        } else {
+            value_map["zimoli"] = true;
         }
+        value_map[""] = true;
+        value_map["typescript"] = true;
+        if (appname) {
+            value_map[appname] = true;
+        }
+        env[key] = Object.keys(value_map).join(',');
     });
     extend(env, env, appname);
     extend(env, process.env);

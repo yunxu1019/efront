@@ -6,6 +6,7 @@ call npm install typescript@latest --registry=%registry%
 copy node_modules\typescript\LICENSE.txt %distpath%\typescript\LICENSE.txt
 copy node_modules\typescript\AUTHORS.md %distpath%\typescript\AUTHORS.md
 copy node_modules\typescript\lib\typescript.js %distpath%\typescript\index.js
+call node tools\readHelpersFromTypescript.js
 call npm uninstall typescript
 
 call npm install esprima@latest --registry=%registry%
