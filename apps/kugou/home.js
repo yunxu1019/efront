@@ -47,10 +47,16 @@ render(page, {
             var tracks = page.querySelectorAll("titlebar>tag>.track");
             var track = tracks[index];
             if (track) {
+                var stoped = ratio === 0 || ratio === 1;
                 css(track, {
                     marginTop: fromOffset((1 - ratio) * track.offsetHeight),
-                    transition: ratio === 0 || ratio === 1 ? 'margin-top .2s ease-out' : 'none'
+                    transition: stoped ? '' : 'none'
                 });
+                if (stoped) {
+                    removeClass(track.parentNode, 'moving');
+                } else {
+                    addClass(track.parentNode, 'moving');
+                }
             }
             return tag.active(ratio);
         });

@@ -45,16 +45,19 @@
             opacity: 1;
             box-shadow: none;
             background-color: #22a2c4;
+            transition: margin-top .2s ease-out;
         }
 
         &.activate {
+
             &.active,
             &.hover {
                 .track();
             }
         }
 
-        &:not(.active):not(.hover) {
+        &.moving,
+        &.activate:not(.active):not(.hover) {
             >.track {
                 .track();
             }
