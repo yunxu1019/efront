@@ -6,7 +6,7 @@ if not defined registry set registry=http://registry.npm.taobao.org
 call npm install less@latest --registry=%registry%
 if not exist node_modules/less goto :error1
 
-set coms_path=node_modules\less\lib,node_modules
+set coms_path=node_modules\less\lib,node_modules,coms\typescript
 set public_path=process\less
 set page=./
 set app=/less-node/index.js
