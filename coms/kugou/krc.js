@@ -53,7 +53,7 @@ function createKRC(krc) {
                 words: saved_words
             });
         } else {
-            console.warn(row, data, "error");
+            if (!isProduction) console.info("%c未解析%c", "color:#c28", "color:#333", row, data);
         }
     });
     var krcList = saved_rows.map(createRow);
