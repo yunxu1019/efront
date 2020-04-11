@@ -5,11 +5,15 @@ _label.className = "label";
 
 var btn = div();
 btn.tabIndex = 0;
+var __addClass = function () {
+    if (firedTime + 60 > +new Date) return;
+    addClass.apply(this, arguments);
+};
 var hover = function () {
-    addClass(this, "hover");
+    __addClass(this, "hover");
 };
 var active = function () {
-    addClass(this, "active hover");
+    __addClass(this, "hover active");
 };
 var resetactive = function () {
     removeClass(this, "active");
@@ -31,16 +35,17 @@ var mouseleave = function () {
 var mousemove = function (event) {
     if (onclick.preventClick && event.which) resetall.call(this);
 };
-
+var firedTime = +new Date;
 var touchstart = function () {
     var that = this;
     var cancel = function () {
+        firedTime = +new Date;
         canceltouchcancel();
         canceltouchend();
         resetall.call(that);
     };
-    var canceltouchcancel = ontouchcancel(window, cancel);
-    var canceltouchend = ontouchend(window, cancel);
+    var canceltouchcancel = ontouchcancel(this, cancel);
+    var canceltouchend = ontouchend(this, cancel);
     active.call(this);
 };
 function button(texter, type) {
@@ -71,7 +76,7 @@ function button(texter, type) {
     ontouchstart(button, touchstart);
     button.setText = function (_text) {
         if (_text && _text.length === 2) {
-            addClass(button, "space");
+            __addClass(button, "space");
         } else {
             removeClass(button, "space");
         }
@@ -81,7 +86,7 @@ function button(texter, type) {
         return html(_texter);
     };
     if (texter && texter.length === 2) {
-        addClass(button, "space");
+        __addClass(button, "space");
     } else {
         removeClass(button, "space");
     }
