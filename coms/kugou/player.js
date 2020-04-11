@@ -1,5 +1,7 @@
 var musicList = kugou$musicList;
 var playState = kugou$playState;
+var playModeData = data.getInstance("play-mode");
+var playList = kugou$playList();
 var getMusicInfo = function (hash) {
     return data.from("song-info", { hash });
 };
@@ -66,23 +68,45 @@ var filterTime = function (a, t) {
     }
     return res.map(fixTime).join(":");
 };
-var createControls = function () {
-    var box = createWithClass(div, "player-box");
-    box.setAttribute("ng-class", "{play:playing===true,pause:playing===false,page:page,effect:effect}");
-    box.innerHTML = Player;
-    var [background, progress] = box.children;
 
-    box.process = function (currentTime, duration) {
+var backer = document.createElement("back");
+onremove(backer, function () {
+    $scope.page = false;
+    render.refresh();
+});
+var $scope = {
+    btn: button,
+    krc: kugou$krc,
+    hash: '',
+    currentTime: "00:00",
+    info: {},
+    effect: false,
+    playing: null,
+    page: false,
+    source: [],
+    canvas: kugou$dance,
+    activeList: playList,
+    index: 0,
+    update() {
+        if (touching) return;
+        let _audio = $scope.audio;
+        if ($scope.process(_audio.currentTime, _audio.duration) === false) {
+            var index = playModes[playModeData.index || 0].next($scope.index);
+            $scope.play(index);
+            return;
+        }
+    },
+    process(currentTime, duration) {
         if (currentTime === duration) {
-            box.pause();
+            $scope.pause();
             return false;
         }
         if (currentTime > duration) {
             currentTime = duration;
         }
-        var $scope = box.$scope;
-        if ($scope && $scope.krcpad && $scope.krcpad.process instanceof Function) {
-            $scope.krcpad.process(currentTime, duration);
+        var krcpad = $scope.krcpad;
+        if (krcpad && krcpad.process instanceof Function) {
+            krcpad.process(currentTime, duration);
         }
         $scope.currentTime = filterTime(currentTime, duration);
         $scope.totalTime = filterTime(duration, duration);
@@ -91,18 +115,194 @@ var createControls = function () {
         playState.width = (currentTime * 100 / duration).toFixed(2) + `%`;
         $scope.currentProcess = `width:` + playState.width;
         render.refresh();
-    };
-    bindtouch(box, function (value) {
+    },
+    effectPage(effect = !$scope.effect) {
+        $scope.effect = effect;
+    },
+    fullPage(state = !$scope.page) {
+        if (state) {
+            rootElements.mount(backer);
+            $scope.page = state;
+        } else {
+            rootElements.unmount(backer);
+        }
+    },
+    pause() {
+        $scope.playing = false;
+        let _audio = $scope.audio;
+        if (_audio && _audio.pause instanceof Function) _audio.pause();
+        render.refresh();
+    },
+    sbtn(elem) {
+        button(elem);
+        select(elem, $scope.activeList, null);
+    },
+    draw(buf) {
+        if (!player || !player.offsetHeight || !$scope.dance) return;
+        buf = buf.map(a => a * 2 / 9 + 0.6);
+        var width = freePixel(player.offsetWidth);
+        var height = 72;
+        var ratio = 1 / width * buf.length;
+        var buf = [].map.call(buf, (y, i) => [i / buf.length, y]);
+        var { sin, cos } = Math;
+        var { currentTheta } = $scope;
+        if (player.offsetHeight <= calcPixel(80)) {
+            var centerx = 44 / width, centery = .5;
+            var start = 11 * ratio | 0, end = 77 * ratio | 0;
+            for (var cx = start, dx = end; cx < dx; cx++) {
+                var [x, y] = buf[cx];
+                y -= 0.1;
+                if (currentTheta) {
+                    x = (x - centerx) * width;
+                    y = (y - centery) * height;
+                    y = y * cos(x / 66 * Math.PI);
+                    var x1 = cos(currentTheta) * x - sin(currentTheta) * y,
+                        y1 = cos(currentTheta) * y + sin(currentTheta) * x;
+                    buf[cx][0] = x1 / width + centerx;
+                    buf[cx][1] = y1 / height + centery;
+                } else {
+                    buf[cx][1] = y;
+                }
+            }
+            cast($scope.dance, [{
+                data: buf.slice(0, start),
+            }, {
+                data: buf.slice(start, end)
+            }, {
+                data: buf.slice(end)
+            }]);
+        } else {
+            cast($scope.dance, buf);
+        }
+    },
+    play(hash = musicList.active_hash) {
+        var isPlayback = typeof hash === "number";
+        if (isPlayback) {
+            if (hash < 0) {
+                hash = hash + musicList.length;
+            }
+            if (!musicList.length) return;
+            if (hash >= musicList.length) {
+                hash = hash % musicList.length;
+            }
+            hash = musicList[hash];
+            if (!hash) return;
+            hash = hash.hash;
+        }
+        if (hash === musicList.active_hash && $scope.audio) {
+            if ($scope.playing) return $scope.pause();
+            $scope.playing = true;
+            let _audio = $scope.audio;
+            if (_audio.play instanceof Function) _audio.play();
+            return;
+        }
+        if (!isPlayback) for (var cx = musicList.length - 1; cx >= 0; cx--) {
+            if (musicList[cx].hash === hash) musicList.splice(cx, 1);
+        }
+
+        $scope.pause();
+
+        /**
+         * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
+         */
+        $scope.playing = false;
+        var _audio = document.createElement("audio");
+        var hasContext = !/iPhone/.test(navigator.platform) && audio.Context;
+        if (hasContext) {
+            // ios设备目前未找到可视化方案
+            var context = new AudioContext;
+            var source = context.createMediaElementSource(_audio);
+            var createScript = context.createScriptProcessor || context.createJavaScriptNode;
+            var script = createScript.apply(context, [0, 2, 2]);
+            var last_id = -1;
+            script.onaudioprocess = (e) => {
+                var audioBuffer = audio.copyData(e);
+                if ($scope.audio !== _audio) {
+                    script.onaudioprocess = null;
+                    script.disconnect();
+                    source.disconnect();
+                } else if (last_id !== _audio.currentTime) {
+                    last_id = _audio.currentTime;
+                }
+                $scope.draw(audioBuffer);
+            };
+            source.connect(script);
+            script.connect(context.destination);
+
+            $scope.source = source;
+        }
+        if (_audio.play) {
+            _audio.ontimeupdate = $scope.update;
+            _audio.play();//安卓4以上的播放功能要在用户事件中调用;
+        } else {
+            // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
+            _audio = document.createElement("embed");
+            _audio.type = "audio/mpeg";
+            _audio.autostart = true;
+            return alert("暂不支持在您的浏览器中播放！");
+        }
+        musicList.active_hash = hash;
+        render.refresh();
+        $scope.playing = true;
+
+        getMusicInfo(hash).loading_promise.then((response) => {
+            if (!this.playing) return;
+            if (hash !== musicList.active_hash) return;
+            if (response.imgUrl) {
+                response.avatar = response.imgUrl.replace(/\{size\}/ig, 200);
+                response.avatarUrl = `url('${response.avatar}')`;
+            }
+            var index = kugou$musicList.map(a => a.hash).indexOf(hash);
+            var distlist = kugou$musicList.slice(0);
+            distlist.forEach(function (info) {
+                delete info.activate;
+            });
+            if (index >= 0) {
+                $scope.index = index;
+                distlist.splice(index, 1, response);
+            } else {
+                $scope.index = 0;
+                distlist.unshift(response);
+            }
+            response.hash = hash;
+            response.activate = true;
+            distlist.active_hash = hash;
+            extend($scope.info, response);
+            cast($scope.krcpad, response);
+            _audio.onerror = e => {
+                alert.error("播放失败！");
+                if ($scope.audio === _audio) {
+                    playState.error = true;
+                }
+            };
+            playState.width = 0;
+            delete playState.error;
+            _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
+            _audio.play();
+            data.setInstance('musicList', distlist, true);
+            render.refresh();
+        });
+        $scope.audio = _audio;
+    }
+};
+playList.play = index => $scope.play(index);
+var touching = false;
+var createControls = function () {
+    var player = document.createElement("music-player");
+    player.setAttribute("ng-class", "{play:playing===true,pause:playing===false,page:page,effect:effect}");
+    player.innerHTML = Player;
+    var [background, progress] = player.children;
+    bindtouch(player, function (value) {
         if (value) {
-            this.touching = true;
+            touching = true;
             var { x } = value;
-            var audio = box.$scope.audio;
-            this.process(x / box.offsetWidth * audio.duration, audio.duration);
+            let _audio = $scope.audio;
+            $scope.process(x / player.offsetWidth * _audio.duration, _audio.duration);
         }
         return { x: progress.offsetWidth };
     }, "x");
-    bindtouch(box, function (value) {
-        var top = getScreenPosition(box).top;
+    bindtouch(player, function (value) {
+        var top = getScreenPosition(player).top;
         if (value) {
             if (!this.deltaTop) {
                 addClass(this, "dragging");
@@ -110,9 +310,9 @@ var createControls = function () {
             var { y } = value;
             if (y < 0) y = 0;
             if (window.innerHeight - y >= 80) {
-                this.$scope.fullPage(true);
+                $scope.fullPage(true);
             } else {
-                this.$scope.fullPage(false);
+                $scope.fullPage(false);
             }
             css(this, {
                 transition: 'opacity .5s ease-out',
@@ -120,9 +320,9 @@ var createControls = function () {
             });
             this.deltaTop = y - top;
         }
-        return { y: getScreenPosition(box).top };
+        return { y: getScreenPosition(player).top };
     }, 'y');
-    moveupon(box, {
+    moveupon(player, {
         start() {
         },
         end() {
@@ -160,219 +360,22 @@ var createControls = function () {
                 transition: '',
                 height: ''
             });
-            if (!box.touching) return;
-            var audio = $scope.audio;
-            audio.currentTime = progress.offsetWidth * audio.duration / box.offsetWidth;
-            this.touching = false;
+            if (!touching) return;
+            let _audio = $scope.audio;
+            _audio.currentTime = progress.offsetWidth * _audio.duration / player.offsetWidth;
+            touching = false;
         }
     });
-    appendChild.before(document.body, box);
-    return box;
+    return player;
 };
-var player = function (box = div()) {
-    var updater = function () {
-        if (box.process instanceof Function && !box.touching) {
-            var audio = box.$scope.audio;
-            if (box.process(audio.currentTime, audio.duration) === false) {
-                return;
-            }
-        }
+var player = function (player) {
+    render(player, $scope);
+    player.play = function (hash) {
+        $scope.play(hash);
     };
-    var backer = document.createElement("back");
-    onremove(backer, function () {
-        var $scope = box.$scope;
-        $scope.page = false;
-        render.refresh();
-    });
-    render(box, {
-        btn: button,
-        krc: kugou$krc,
-        hash: '',
-        currentTime: "00:00",
-        info: {},
-        effect: false,
-        playing: null,
-        page: false,
-        source: [],
-        canvas: kugou$dance,
-        activeList: kugou$playList(),
-        index: 0,
-        effectPage(effect = !this.effect) {
-            this.effect = effect;
-        },
-        fullPage(state = !this.page) {
-            if (state) {
-                rootElements.mount(backer);
-                this.page = state;
-            } else {
-                rootElements.unmount(backer);
-            }
-        },
-        pause() {
-            this.playing = false;
-            if (this.audio && this.audio.pause instanceof Function) this.audio.pause();
-            render.refresh(box);
-        },
-        sbtn(elem) {
-            button(elem);
-            select(elem, this.activeList, null);
-        },
-        draw(buf) {
-            buf = buf.map(a => a * 2 / 9 + 0.6);
-            var width = freePixel(box.offsetWidth);
-            var height = 72;
-            var ratio = 1 / width * buf.length;
-            var buf = [].map.call(buf, (y, i) => [i / buf.length, y]);
-            var { sin, cos, abs } = Math;
-            var { currentTheta } = this;
-            if (box.offsetHeight <= calcPixel(80)) {
-                var centerx = 44 / width, centery = .5;
-                var start = 11 * ratio | 0, end = 77 * ratio | 0;
-                for (var cx = start, dx = end; cx < dx; cx++) {
-                    var [x, y] = buf[cx];
-                    y -= 0.1;
-                    if (currentTheta) {
-                        x = (x - centerx) * width;
-                        y = (y - centery) * height;
-                        y = y * cos(x / 66 * Math.PI);
-                        var x1 = cos(currentTheta) * x - sin(currentTheta) * y,
-                            y1 = cos(currentTheta) * y + sin(currentTheta) * x;
-                        buf[cx][0] = x1 / width + centerx;
-                        buf[cx][1] = y1 / height + centery;
-                    } else {
-                        buf[cx][1] = y;
-                    }
-                }
-                cast(this.dance, [{
-                    data: buf.slice(0, start),
-                }, {
-                    data: buf.slice(start, end)
-                }, {
-                    data: buf.slice(end)
-                }]);
-            } else {
-                if (this.dance) cast(this.dance, buf);
-            }
-        },
-        play(hash = musicList.active_hash) {
-            var isPlayback = typeof hash === "number";
-            if (isPlayback) {
-                if (hash < 0) {
-                    hash = hash + musicList.length;
-                }
-                if (!musicList.length) return;
-                if (hash >= musicList.length) {
-                    hash = hash % musicList.length;
-                }
-                hash = musicList[hash];
-                if (!hash) return;
-                hash = hash.hash;
-            }
-            if (hash === musicList.active_hash && this.audio) {
-                if (this.playing) return this.pause();
-                this.playing = true;
-                if (this.audio.play instanceof Function) this.audio.play();
-                return;
-            }
-            if (!isPlayback) for (var cx = kugou$musicList.length - 1; cx >= 0; cx--) {
-                if (kugou$musicList[cx].hash === hash) kugou$musicList.splice(cx, 1);
-            }
-
-            this.pause();
-
-            /**
-             * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
-             */
-            this.playing = false;
-            var _audio = document.createElement("audio");
-            var hasContext = !/iPhone/.test(navigator.platform) && audio.Context;
-            if (hasContext) {
-                // ios设备目前未找到可视化方案
-                var context = new AudioContext;
-                var source = context.createMediaElementSource(_audio);
-                var createScript = context.createScriptProcessor || context.createJavaScriptNode;
-                var script = createScript.apply(context, [0, 2, 2]);
-                var audioBuffer;
-                var draw = _ => this.draw(audioBuffer);
-                var last_id = -1;
-                script.onaudioprocess = (e) => {
-                    audioBuffer = audio.copyData(e);
-                    if (this.audio !== _audio) {
-                        script.onaudioprocess = null;
-                        script.disconnect();
-                        source.disconnect();
-                    } else if (last_id !== _audio.currentTime) {
-                        last_id = _audio.currentTime;
-                    }
-                    draw();
-                };
-                source.connect(script);
-                script.connect(context.destination);
-
-                this.source = source;
-            }
-            if (_audio.play) {
-                _audio.ontimeupdate = updater;
-                _audio.play();//安卓4以上的播放功能要在用户事件中调用;
-            } else {
-                // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
-                _audio = document.createElement("embed");
-                _audio.type = "audio/mpeg";
-                _audio.autostart = true;
-                return alert("暂不支持在您的浏览器中播放！");
-            }
-            musicList.active_hash = hash;
-            render.refresh();
-            this.playing = true;
-
-            getMusicInfo(hash).loading_promise.then((response) => {
-                if (!this.playing) return;
-                if (hash !== musicList.active_hash) return;
-                if (response.imgUrl) {
-                    response.avatar = response.imgUrl.replace(/\{size\}/ig, 200);
-                    response.avatarUrl = `url('${response.avatar}')`;
-                }
-                var index = kugou$musicList.map(a => a.hash).indexOf(hash);
-                var distlist = kugou$musicList.slice(0);
-                distlist.forEach(function (info) {
-                    delete info.activate;
-                });
-                if (index >= 0) {
-                    this.index = index;
-                    distlist.splice(index, 1, response);
-                } else {
-                    this.index = 0;
-                    distlist.unshift(response);
-                }
-                response.hash = hash;
-                response.activate = true;
-                distlist.active_hash = hash;
-                extend(this.info, response);
-                cast(this.krcpad, response);
-                _audio.onerror = e => {
-                    alert.error("播放失败！");
-                    if (this.audio === _audio) {
-                        playState.error = true;
-                    }
-                };
-                playState.width = 0;
-                delete playState.error;
-                _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
-                _audio.play();
-                data.setInstance('musicList', distlist, true);
-
-                render.refresh();
-            });
-            this.audio = _audio;
-        }
-    });
-    box.play = function (hash) {
-        this.$scope.play(hash);
+    player.pause = function () {
+        $scope.pause();
     };
-    box.pause = function () {
-        this.$scope.pause();
-    };
-    return box;
+    appendChild.before(document.body, player);
+    return player;
 }(createControls());
-
-// krc_test();
