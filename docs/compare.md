@@ -8,7 +8,7 @@
 
 | 对比项\框架 | angular  | react    | vue   | efront/(zimoli) |
 |--|--|--|--|--|
-Hello World 目标代码 | &gt;30kb | &gt;30kb | ≈20kb;| ≈1kb;
+Hello World 目标代码 | &gt;30kb | &gt;30kb | ≈30kb;| ≈1kb;
 开发语言             | ts/html/less/sass/scss | jsx/css/js/ts/html | vue/html/css/js | js/html/less/ts
 导出组件依赖项|angular|react|vue|无
 官方路由 | angular-router, 使用前需要注册路径 | react-router, 使用前需要注册路径 | vue-router, 使用前需要注册路径| zimoli，使用前无需注册路径
