@@ -44,7 +44,7 @@ function slider(autoplay, circle = true) {
             src = src[index];
         }
         if (isFunction(src)) {
-            src = src(index, 1 - abs(ratio));
+            src = src(index, 1 - abs(ratio), ratio);
         }
         if (src) {
             if (src.parentNode !== outter) {
