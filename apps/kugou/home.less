@@ -19,22 +19,45 @@
 
     >tag {
         width: 25%;
+        position: relative;
         max-width: 80px;
         height: 44px;
         line-height: 42px;
-        // color: #333;
-        color: #fff;
+        color: #ffff;
         display: inline-block;
         text-align: center;
         box-shadow: none;
         background: transparent;
 
-        &.hover {
-            background-color: #22a2c422;
+        >span {
+            position: relative;
+        }
+
+        &.hover>.track {
+            margin-top: 0px !important;
+        }
+
+        &.active>.track {
+            margin-top: 0px !important;
+        }
+
+        .track() {
+            opacity: 1;
+            box-shadow: none;
+            background-color: #22a2c4;
         }
 
         &.activate {
-            color: #ffffff88;
+            &.active,
+            &.hover {
+                .track();
+            }
+        }
+
+        &:not(.active):not(.hover) {
+            >.track {
+                .track();
+            }
         }
     }
 

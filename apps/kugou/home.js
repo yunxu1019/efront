@@ -2,7 +2,14 @@ var page = div();
 page.initialStyle = 'transform:scale(.9);opacity:0;';
 var tags = "新歌:song/list:音乐总有新玩法,排行:rank/list:排行榜 - 酷狗音乐,歌单:plist/list:歌单 - 酷狗音乐,歌手:singer/keywords:歌手分类 - 酷狗音乐".split(",").map(function (tag, cx) {
     var [str, url, title] = tag.split(":");
-    var label = createElement(div);
+    var label = {
+        text: str,
+        index: cx,
+        container: div(),
+        url,
+        title,
+        needactive: true,
+    };
     label.active = function (ratio) {
         if (label.needactive) {
             delete label.needactive;
@@ -16,12 +23,6 @@ var tags = "新歌:song/list:音乐总有新玩法,排行:rank/list:排行榜 - 
         }
         return this.container;
     };
-    label.needactive = true;
-    label.title = title;
-    label.url = url;
-    label.container = div();
-    label.index = cx;
-    text(label, str);
     return label;
 });
 onappend(page, function () {
@@ -42,7 +43,16 @@ render(page, {
                 });
             }
             var tag = tags[index];
-            return tag && tag.active(ratio);
+            if (!tag) return;
+            var tracks = page.querySelectorAll("titlebar>tag>.track");
+            var track = tracks[index];
+            if (track) {
+                css(track, {
+                    marginTop: fromOffset((1 - ratio) * track.offsetHeight),
+                    transition: ratio === 0 || ratio === 1 ? 'margin-top .2s ease-out' : 'none'
+                });
+            }
+            return tag.active(ratio);
         });
         pages.go(state().page || 0);
         return pages;
