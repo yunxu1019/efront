@@ -293,7 +293,7 @@ var player = function (box = div()) {
                 var createScript = context.createScriptProcessor || context.createJavaScriptNode;
                 var script = createScript.apply(context, [0, 2, 2]);
                 var audioBuffer;
-                var draw = lazy(_ => this.draw(audioBuffer), false);
+                var draw = _ => this.draw(audioBuffer);
                 var last_id = -1;
                 script.onaudioprocess = (e) => {
                     audioBuffer = audio.copyData(e);
@@ -303,8 +303,8 @@ var player = function (box = div()) {
                         source.disconnect();
                     } else if (last_id !== _audio.currentTime) {
                         last_id = _audio.currentTime;
-                        draw();
                     }
+                    draw();
                 };
                 source.connect(script);
                 script.connect(context.destination);
