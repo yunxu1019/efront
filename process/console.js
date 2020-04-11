@@ -19,3 +19,4 @@ var colored = require("./colored_console");
     }
     console[log] = logger;
 });
+module.exports = console;
