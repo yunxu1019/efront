@@ -137,7 +137,11 @@ a&,
     outline: none;
 
     .clear() {
+        text-shadow: none;
+        box-shadow: none;
+        background: none;
         >.track {
+            opacity: 0;
             box-shadow: none;
             background: none;
         }
@@ -145,16 +149,12 @@ a&,
 
 
     &.hover {
-        text-shadow: none;
-        box-shadow: none;
         color: lighten(@default-color, 10%);
         .clear();
     }
 
     &.active,
     &:active {
-        text-shadow: none;
-        box-shadow: none;
         color: darken(@default-color, 10%);
         .clear();
     }
