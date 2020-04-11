@@ -1,5 +1,6 @@
 "use strict";
 var window = this;
+// delete window.Promise;
 var {
     parseInt,
     XMLHttpRequest,
@@ -39,7 +40,6 @@ var {
     },
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
-
 //去除外层广告
 if (PREVENT_FRAMEWORK_MODE !== false) {
     var message = '请关闭后重新打开..';
@@ -536,17 +536,16 @@ var init = function (name, then, prebuild, parents) {
 
 var requires_count = 3;
 var hook = function (requires_count) {
-    if (requires_count === 0) {
-        "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
-        loadResponseTreeFromStorage();
-        initPixelDecoder();
-        modules.Promise = Promise;
-        modules.hook_time = +new Date;
-        if (!efrontPath) efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
-        init(efrontPath, function (zimoli) {
-            if (zimoli instanceof Function) zimoli();
-        });
-    }
+    if (requires_count !== 0) return;
+    "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
+    loadResponseTreeFromStorage();
+    initPixelDecoder();
+    modules.Promise = Promise;
+    modules.hook_time = +new Date;
+    if (!efrontPath) efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
+    init(efrontPath, function (zimoli) {
+        if (zimoli instanceof Function) zimoli();
+    });
 };
 var initIfNotDefined = function (defined, path, onload) {
     if (defined === void 0) init(path, a => onload(a) | hook(--requires_count));
