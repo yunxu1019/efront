@@ -14,7 +14,7 @@ if (window.Promise) {
         return pendding instanceof Promise || pendding && isFunction(pendding.then) && isFunction(pendding.catch);
     };
 
-    var concat = function (threads, f, oks, ohs) {
+    var concat = function (okfun, ohfun, oks, ohs) {
         var _oked, _ohed, _ok, _oh, removeed;
         var runable = function (ok, oh) {
             if (_oked) {
@@ -27,10 +27,10 @@ if (window.Promise) {
             }
         };
         var _promise = new Promise(runable);
-        var onpermit = function () {
+        var onpermit = function (f, args) {
             if (!removeed) {
                 try {
-                    var pendding = f.apply(null, arguments);
+                    var pendding = f.apply(null, args);
                     if (_ok) _ok(pendding);
                     else _oked = [pendding];
                 } catch (e) {
@@ -41,6 +41,7 @@ if (window.Promise) {
             }
         };
         var onresolve = function () {
+            if (okfun instanceof Function) onpermit(okfun, arguments);
             if (!removeed) {
                 if (_ok) _ok.apply(null, arguments);
                 else _oked = arguments;
@@ -48,13 +49,13 @@ if (window.Promise) {
             }
         };
         var onreject = function () {
+            if (ohfun instanceof Function) onpermit(ohfun, arguments);
             if (!removeed) {
                 if (_oh) _oh.apply(null, arguments);
                 else _ohed = arguments;
                 removeed = true;
             }
         };
-        threads.push(onpermit);
         oks.push(onresolve);
         ohs.push(onreject);
         return _promise;
@@ -63,10 +64,7 @@ if (window.Promise) {
     var Promise = function (executor) {
         var PromiseFulfillReactions = this.PromiseFulfillReactions = [], //thens
             PromiseRejectReactions = this.PromiseRejectReactions = [], //catches
-            oked = this.oked, ohed = this.ohed, resolved;
-
-
-
+            oked = this.oked, ohed = this.ohed;
 
         var ResolvingFunctions_resolve = (result) => { //ok
             if (isPromise(result)) {
@@ -87,19 +85,16 @@ if (window.Promise) {
         } catch (e) {
             ResolvingFunctions_reject(e);
         }
-    }
+    };
     Promise.prototype = {
-        then(f) {
-            var _promise = concat(this.PromiseFulfillReactions, f, this.PromiseFulfillReactions, this.PromiseRejectReactions);
+        then(onok, onoh) {
+            var _promise = concat(onok, onoh, this.PromiseFulfillReactions, this.PromiseRejectReactions);
             this.oked && this.run(this.PromiseFulfillReactions, this.oked);
             this.ohed && this.run(this.PromiseRejectReactions, this.ohed);
             return _promise;
         },
         catch(f) {
-            var _promise = concat(this.PromiseRejectReactions, f, this.PromiseFulfillReactions, this.PromiseRejectReactions);
-            this.ohed && this.run(this.PromiseRejectReactions, this.ohed);
-            this.oked && this.run(this.PromiseFulfillReactions, this.oked);
-            return _promise;
+            return this.then(null, f);
         },
         run(threads, args) {
             if (threads.pendding) return;

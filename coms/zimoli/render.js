@@ -1,5 +1,3 @@
-
-
 var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = Object.create(null);
 var presets = Object.create(null);
@@ -697,4 +695,20 @@ render.register = function (key, name) {
     } else if (arguments.length === 2) {
         register(key, name);
     }
+};
+
+var promisePrototype = Promise.prototype;
+var __then = promisePrototype.then;
+var __wrap = function (f) {
+    if (f instanceof Function) {
+        return function () {
+            var res = f.apply(this, arguments);
+            digest();
+            return res;
+        };
+    }
+    return f;
+};
+promisePrototype.then = function () {
+    return __then.apply(this, [].map.call(arguments, __wrap));
 };
