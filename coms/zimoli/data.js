@@ -590,7 +590,6 @@ var data = {
             return data;
         });
         p.catch((e) => {
-            console.log(e);
             this.loading_count--;
             response.is_errored = true;
             response.is_loading = false;
@@ -729,7 +728,6 @@ var data = {
         if (rememberWithStorage) {
             localStorage.setItem(storageId, JSON.stringify(data));
         }
-        dispatch(window, 'render');
         return instanceDataMap[instanceId];
     },
     rebuildInstance(instance, data, old = instance) {
@@ -744,5 +742,3 @@ var data = {
         extend(instance, data);
     }
 };
-
-care(data, 'error')
