@@ -17,7 +17,7 @@ var isFirstTimeLoad = sessionInitHash === null;
 var isSimpleRefresh = sessionInitHash === locationInitHash;
 var isWithHashLoad = !!location.hash;
 var preventNextHashChange = false;
-window_history.scrollRestoration = 'manual'
+window_history.scrollRestoration = 'manual';
 if (isWithHashLoad && !isSimpleRefresh) {
     //带hash加载，吃掉hash
     location.replace("#");
@@ -107,7 +107,7 @@ var getZimoliParams = function (pagepath) {
     try {
         return JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
     } catch (e) {
-        console.warn("存储空间被破坏")
+        console.warn("存储空间被破坏");
     }
     return {};
 };
@@ -237,7 +237,7 @@ function prepare(pgpath, ok) {
                 state_object = {};
             }
         } else {
-            state_object = {}
+            state_object = {};
         }
         if (condition instanceof Object && setAsAdditional) {
             if (!(state_object instanceof Object)) {
@@ -260,7 +260,7 @@ function prepare(pgpath, ok) {
     state.state = state;
     var _with_elements = [];
     state.with = function (element) {
-        element && _with_elements.push(element);
+        if (element) _with_elements.push(element);
         return _with_elements;
     };
     state.path = function (url) {
@@ -275,7 +275,7 @@ function prepare(pgpath, ok) {
             return go(state.path(_url), args, _history_name, pgpath);
         };
         to = page_generators[pgpath] ? page_generators[pgpath].go || to : to;
-        isFunction(to) && to(url, args, _history_name);
+        if (isFunction(to)) to(url, args, _history_name);
     };
 
     init('action', function (action) {
@@ -356,7 +356,7 @@ function create(pagepath, args, from, needroles) {
     if (!page_object) {
         throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
     }
-    var { pg, with: _with_elements, state, onback: _pageback_listener, roles } = page_object;
+    var { pg, "with": _with_elements, state, onback: _pageback_listener, roles } = page_object;
     if (!checkroles(user.roles, roles) || !checkroles(user.roles, needroles)) {
         // 检查权限
         if (!user.isLogin && user.loginPath) {
@@ -366,7 +366,7 @@ function create(pagepath, args, from, needroles) {
     }
     _with_elements = [].concat(_with_elements);
     state.with = function (element) {
-        element && _with_elements.push(element);
+        if (element) _with_elements.push(element);
         return _with_elements;
     };
     state.onback = function (handler) {
@@ -389,7 +389,7 @@ function create(pagepath, args, from, needroles) {
                         a.backupStyle = _page.backupStyle;
                         a.initialStyle = _page.initialStyle;
                     }
-                }
+                };
                 if (_page.with instanceof Array) {
                     _page.with.forEach(run);
                 } else if (_page.with) {
@@ -533,8 +533,8 @@ var onback = function () {
         try {
             navigator.app.exitApp();
         } catch (e) {
-        };
-    } else { };
+        }
+    } else { }
 };
 function setWithStyle(target, isDestroy) {
     target.initialStyle = (isDestroy ? target.backupStyle : target.holdupStyle) || target.initialStyle;

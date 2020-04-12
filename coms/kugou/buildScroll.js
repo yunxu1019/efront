@@ -22,16 +22,19 @@ function Main(dataid, datapath) {
         datas: []
     });
     bindScroll(_titlebar, page);
+    var loadedId;
     function main(params) {
-        var { _text, title, name = _text || title, href, id } = params;
-        var id = id || href.replace(/^[\s\S]*?(\d+)$/, '$1');
-        var ranklist = data.from(dataid, {
-            id
-        }, parseSongsList);
-        page.$scope.config = params;
-        page.$scope.datas = ranklist;
-        document.title = name;
+        var { _text, title, name = _text || title, id } = params;
+        if (loadedId !== id) {
+            loadedId = id;
+            var ranklist = data.from(dataid, {
+                id
+            }, parseSongsList);
+            page.$scope.config = params;
+            page.$scope.datas = ranklist;
+        }
         _titlebar.setTitle(name);
+        document.title = name;
         return page;
     }
     return main;
