@@ -662,6 +662,9 @@ var data = {
         }
         var outdate = new Error("outdate canceled.");
         promise1 = instance.loading_promise = new Promise(function (ok) {
+            if (!instance.loading) {
+                instance.loading = false;
+            }
             setTimeout(ok, timeout);
         }).then(function () {
             if (promise1 !== instance.loading_promise) throw outdate;
@@ -695,8 +698,6 @@ var data = {
             });
             return promise;
         }).then((data) => {
-            console.log(data);
-
             if (instance.loading_promise !== promise1) return;
             if (id) {
                 this.setInstance(id, parse instanceof Function ? parse(data) : data, false);

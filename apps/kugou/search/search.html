@@ -1,6 +1,7 @@
 <titlebar>
     <back></back>
-    <input placeholder="请输入关键字搜索" ng-model=keyword ng-input=search() ng-keyup=search() />
+    <input placeholder="请输入关键字搜索" ng-model=keyword
+        ng-keyup="event.which===13?confirm():search(this.value)" />
     <icon class="loading" ng-if="result?.loading"></icon>
     <btn ng-click="keyword='';search()">清空</btn>
 </titlebar>

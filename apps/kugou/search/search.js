@@ -35,6 +35,9 @@ function main(params, from) {
             $scope.result = data.lazyInstance('search', { keyword }, timeout);
             state({ keyword });
         },
+        confirm() {
+            this.search(void 0, 0);
+        },
         keyword: state().keyword,
     }).$scope;
     $scope.keyword && $scope.search();
