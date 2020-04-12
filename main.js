@@ -32,10 +32,10 @@ var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
         page_path: currentpath,
-        comm: process.env.APP || "zimoli",
+        comm: "",
         coms_path: '',
-        app: './',
-        page: './',
+        app: process.env.APP || './',
+        page: '',
     };
     var env_path = [];
     return new Promise(function (ok) {
