@@ -106,11 +106,16 @@ function getTranspile(url) {
     });
     return transpile;
 }
-
-function transpile(src, trans, apiMap) {
+var transpileMap = null;
+function transpile(src, trans, apiMap, delTransMap) {
     if (!trans) return src;
     if (src instanceof Array) {
-        return src.map(a => transpile(a, trans, apiMap));
+        transpileMap = [];
+        var res = src.map(a => transpile(a, trans, apiMap, false));
+        if (delTransMap !== false) {
+            transpileMap = null;
+        }
+        return res;
     }
     data = extend({}, src && src.querySelector ? null : src);
     for (var k in trans) {
@@ -157,6 +162,19 @@ function getUrlParamsForApi(api, url) {
     params = serialize(params);
     return api.id + "?" + params;
 }
+function __seekprop(data, prop) {
+    if (!prop) return data;
+    var props = prop.split(".");
+    while (props.length) {
+        var p = props.pop();
+        if (data !== null && data !== undefined && p in data) {
+            data = data[p];
+        } else {
+            return undefined;
+        }
+    }
+    return data;
+}
 function seek(data, seeker, apiMap = {}) {
     if (data && data.querySelector) {
         if (!seeker) return data;
@@ -180,7 +198,21 @@ function seek(data, seeker, apiMap = {}) {
                 var [prop, next] = prop.split(reg1);
                 next = apiMap[next];
             }
-            data = data.getAttribute(prop) || data[prop];
+            if (isFunction(data.hasAttribute) && data.hasAttribute(prop)) {
+                data = data.getAttribute(prop);
+            } else if (prop in data) {
+                data = data[prop];
+            } else {
+                data = __seekprop(data, prop);
+            }
+            if (/\?/.test(seeker) && transpileMap instanceof Array) {
+                var a = transpileMap.indexOf(data);
+                if (a < 0) {
+                    transpileMap.push(data);
+                    return transpileMap.length;
+                }
+                return a + 1;
+            }
             if (isString(data) && /\|/.test(seeker)) {
                 data = data.trim();
             }
@@ -194,13 +226,7 @@ function seek(data, seeker, apiMap = {}) {
         }
         return data;
     }
-    if (seeker) {
-        seeker.split(".").forEach(function (key) {
-            if (data !== null && data !== undefined && key in data) {
-                data = data[key];
-            }
-        });
-    }
+    data = __seekprop(data, seeker);
     return data;
 }
 
