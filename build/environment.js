@@ -9,13 +9,13 @@ var {
     PREFIX
 } = process.env;
 var PUBLIC_APP = /* process.argv[2] || */ APP;
-var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : process.env;
+var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : setupenv('.');
 var {
     PUBLIC_PATH = process.env.PUBLIC_PATH || "./public",
     EXTT
 } = env;
-var PAGE = env.PAGE || "zimoli";
-var COMM = env.COMM || PUBLIC_APP.replace(/\/$/, "") + ",zimoli";
+var PAGE = env.PAGE || "";
+var COMM = env.COMM;
 var ICON = env.ICON;
 var AAPI = env.APIS || "zimoli";
 var PAGE_PATH = env.PAGE_PATH;
@@ -49,9 +49,17 @@ if (public_app && !pages_root.length) {
         comms_root.push(path.join(parent, 'node_modules'));
         parent = path.dirname(temp);
     }
-    comms_root = comms_root.filter(fs.existsSync);
-    pages_root = pages_root.filter(fs.existsSync);
 }
+var comsroot_map = Object.create(null);
+var pageroot_map = Object.create(null);
+comms_root = comms_root.filter(com => {
+    if (comsroot_map[com]) return false;
+    return comsroot_map[com] = true;
+}).filter(fs.existsSync);
+pages_root = pages_root.filter(com => {
+    if (pageroot_map[com]) return false;
+    return pageroot_map[com] = true;
+}).filter(fs.existsSync);
 if (EXPORT_TO === undefined) EXPORT_TO = public_app
     .replace(/\.[tj]sx?$/i, '')
     .replace(/([\w\-]+)\/index$/i, "$1")
@@ -77,4 +85,4 @@ module.exports = {
     EXPORT_AS,
     include_required: !!RELEASE || !public_app,
     APP
-}
+};

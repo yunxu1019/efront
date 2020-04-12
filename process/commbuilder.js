@@ -59,7 +59,7 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
                         delete loadurls[relative];
                     }
                     accessready();
-                })
+                });
             });
         });
     });
@@ -98,7 +98,7 @@ var getRequiredPaths = function (data) {
     while (result) {
         requiredPaths[result[2].replace(/^[@#!]+/, "")] = true;
         result = pathReg.exec(data);
-    };
+    }
     return Object.keys(requiredPaths);
 };
 
@@ -152,7 +152,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         } else {
             var random_variable;
             do {
-                random_variable = "cless_" + Math.random().toString(36)
+                random_variable = "cless_" + Math.random().toString(36);
             } while (declares[random_variable]);
             globalsmap.cless = random_variable;
         }
@@ -283,7 +283,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             },
             "generator": false,
             "expression": false
-        }
+        };
         if (!getvariables.computed) {
             code = esmangle.optimize(code, null);
             code = esmangle.mangle(code);
@@ -328,9 +328,8 @@ var buildResponse = function ({ imported, params, data, required }) {
     data = (_arguments.length ? length + _arguments : "") + data
         .replace(
             /[\u0100-\uffff]/g,
-            m => "\\u" + (m.charCodeAt(0) > 0x1000
-                ? m.charCodeAt(0).toString(16)
-                : 0 + m.charCodeAt(0).toString(16)
+            m => "\\u" + (m.charCodeAt(0) > 0x1000 ?
+                m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)
             )
         );
     return data;
@@ -346,11 +345,12 @@ var getFileData = function (fullpath) {
                     if (error) return ok(error);
                     ok(buffer);
                 });
-            })
+            });
         });
     });
 };
-var renderLessData = function (data = '', lesspath, watchurls, className) {
+var renderLessData = async function (data, lesspath, watchurls, className) {
+    data = data || '';
     var importLessReg = /^\s*@(?:import)\s*(['"`]?)(.*?)\1(\s*;)?\s*$/im;
     var replacer = function (data, realpath) {
         if (watchurls.indexOf(realpath) < 0) {
@@ -359,20 +359,20 @@ var renderLessData = function (data = '', lesspath, watchurls, className) {
         return data;
     };
     var lessresult = bindLoadings(importLessReg, data, lesspath, replacer);
-    return Promise.resolve(lessresult).then(function (lessdata) {
-        watchurls.push(lesspath);
-        var lessData;
-        less.render(`.${className}{${convertColor(String(lessdata))}}`, {
-            compress: !isDevelop
-        }, function (err, data) {
-            if (err) return console.warn(err);
-            lessData = data.css;
-        });
-        return lessData;
+    const lessdata = await Promise.resolve(lessresult);
+    watchurls.push(lesspath);
+    var lessData;
+    less.render(`.${className}{${convertColor(String(lessdata))}}`, {
+        compress: !isDevelop
+    }, function (err, data_2) {
+        if (err)
+            return console.warn(err);
+        lessData = data_2.css;
     });
+    return lessData;
 };
 function buildJson(buff) {
-    return "return " + JSON.stringify(new Function("return " + data.toString())());
+    return "return " + JSON.stringify(new Function("return " + buff.toString())());
 }
 
 function prepare(filename, fullpath) {
@@ -396,6 +396,7 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
                 return data;
             });
         }
+        return loadJsBody(jsData, filename, null, commName, className);
     });
 }
 function getScriptPromise(data, filename, fullpath, watchurls) {
@@ -418,8 +419,8 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
                     commHtmlName = `${commName},${commHtmlName},${commHtmlName}=${commName}`;
                 }
             }
-            htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`"
-            htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+\</g, "<").replace(/\<\!\-\-.*?\-\-\>/g, "");
+            htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
+            htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+</g, "<").replace(/<\!\-\-.*?\-\-\>/g, "");
             if (data) {
                 jsData = `\r\nvar ${commHtmlName}={toString:()=>${htmldata}};\r\n` + data;
             } else {

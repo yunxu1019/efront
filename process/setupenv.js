@@ -130,9 +130,6 @@ call(path.join(__dirname, "../_envs/setup"));
 
 var cache = {};
 var setup = module.exports = function (appname) {
-    if (!appname) {
-        appname = process.env.APP || "zimoli";
-    }
     appname = appname.replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
     appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
@@ -188,13 +185,11 @@ var normalize = function (o) {
         if (/[\/\\]/.test(v)) {
             o[k] = path.normalize(v);
         }
-
     }
 };
 var bootConfig = {
     COMS_PATH: "./coms",
     APIS_PATH: "./apis",
-    ICON_PATH: "",
 };
 
 var extend = function (dst, env) {

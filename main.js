@@ -32,7 +32,7 @@ var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
         page_path: currentpath,
-        comm: "./,zimoli",
+        comm: process.env.APP || "zimoli",
         coms_path: '',
         app: './',
         page: './',
