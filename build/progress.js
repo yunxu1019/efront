@@ -1,6 +1,5 @@
 var fs = require("fs");
 var path = require("path");
-if (!process.cwd() === path.dirname(__dirname)) throw new Error("请在项目根目录启动！");
 var environment = require("./environment");
 var {
     PUBLIC_PATH,
@@ -40,6 +39,7 @@ var getBuiltVersion = function (filepath) {
 };
 
 function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
+    console.time();
     if (builder.ing) return reload++;
     builder.ing = true;
     reload = 0;
@@ -51,6 +51,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
 
     if (public_app) {
+        console.info("正在导出组件", public_app, '\r\n');
         //导出组件
         var public_path = path.join(PUBLIC_PATH, public_app);
         is_commponent_package = true;
@@ -65,6 +66,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             .catch(console.error);
     } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
+        console.info("正在编译项目", PUBLIC_APP, /\w/.test(PUBLIC_APP) ? "\r\n" : '');
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         public_app = pages_root;
         is_commponent_package = false;
@@ -99,7 +101,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                     }
                     for (var k in response) {
                         let dependence = response[k].dependence;
-                        dependence && dependence.forEach(function (key) {
+                        if (dependence) dependence.forEach(function (key) {
                             if (key in deletedMap) {
                                 deletedMap[key].push(k);
                             }
@@ -129,7 +131,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         });
     } else {
         console.error(
-            new Error(`要发布或打包的源路径不存在:${public_app}`)
+            new Error(`要发布或打包的项目不存在:${PUBLIC_APP}`)
         );
     }
 }

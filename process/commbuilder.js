@@ -349,7 +349,7 @@ var getFileData = function (fullpath) {
         });
     });
 };
-var renderLessData = async function (data, lesspath, watchurls, className) {
+var renderLessData = function (data, lesspath, watchurls, className) {
     data = data || '';
     var importLessReg = /^\s*@(?:import)\s*(['"`]?)(.*?)\1(\s*;)?\s*$/im;
     var replacer = function (data, realpath) {
@@ -359,17 +359,21 @@ var renderLessData = async function (data, lesspath, watchurls, className) {
         return data;
     };
     var lessresult = bindLoadings(importLessReg, data, lesspath, replacer);
-    const lessdata = await Promise.resolve(lessresult);
     watchurls.push(lesspath);
-    var lessData;
-    less.render(`.${className}{${convertColor(String(lessdata))}}`, {
-        compress: !isDevelop
-    }, function (err, data_2) {
-        if (err)
-            return console.warn(err);
-        lessData = data_2.css;
+    var promise = Promise.resolve(lessresult).then(function (lessdata) {
+        var timeStart = new Date;
+        var lessData;
+        less.render(`.${className}{${convertColor(String(lessdata))}}`, {
+            compress: !isDevelop
+        }, function (err, data_2) {
+            if (err)
+                return console.warn(err);
+            lessData = data_2.css;
+        });
+        promise.time = new Date - timeStart;
+        return lessData;
     });
-    return lessData;
+    return promise;
 };
 function buildJson(buff) {
     return "return " + JSON.stringify(new Function("return " + buff.toString())());
@@ -389,17 +393,27 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     let lesspath = fullpath.replace(/\.html?$/i, ".less");
     var jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
-    return getFileData(lesspath).then(function (lessdata) {
+    var lessData;
+    var time = 0;
+    var promise = getFileData(lesspath).then(function (lessdata) {
         if (lessdata instanceof Buffer) {
-            return renderLessData(lessdata, lesspath, watchurls, lessName).then(lessData => {
-                var data = loadJsBody(jsData, filename, lessData, commName, className);
-                return data;
+            var lessPromise = renderLessData(lessdata, lesspath, watchurls, lessName);
+            lessPromise.then(data => {
+                lessData = data;
+                time += lessPromise.time;
             });
         }
-        return loadJsBody(jsData, filename, null, commName, className);
+    }).then(function () {
+        var timeStart = new Date;
+        var data = loadJsBody(jsData, filename, lessData, commName, className);
+        time += new Date - timeStart;
+        promise.time = time;
+        return data;
     });
+    return promise;
 }
 function getScriptPromise(data, filename, fullpath, watchurls) {
+    console.info("正在编译",fullpath);
     var [commName, lessName, className] = prepare(filename, fullpath);
     let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
     let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
@@ -408,7 +422,9 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     });
     let replace = loadUseBody(data, fullpath, watchurls, commName);
     var jsData, lessData;
-    return Promise.all([lesspath, htmlpath].map(getFileData).concat(replace)).then(function ([lessdata, htmldata, data]) {
+    var time = 0;
+    var promise = Promise.all([lesspath, htmlpath].map(getFileData).concat(replace)).then(function ([lessdata, htmldata, data]) {
+        var timeStart = new Date;
         if (htmldata instanceof Buffer) {
             var commHtmlName;
             if (/^main/.test(commName)) {
@@ -431,41 +447,50 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
             jsData = String(data);
         }
         if (lessdata instanceof Buffer) {
-            return renderLessData(lessdata, lesspath, watchurls, lessName).then(data => {
+            var lessPromise = renderLessData(lessdata, lesspath, watchurls, lessName);
+            lessPromise.then(data => {
                 lessData = data;
+                time += lessPromise.time || 0;
             });
+            return lessPromise;
         }
-        return jsData;
+        time += new Date - timeStart;
     }).then(function () {
+        var timeStart = new Date;
         var data = loadJsBody(jsData, filename, lessData, commName, className);
+        time += new Date - timeStart;
+        promise.time = time;
         return data;
     });
+    return promise;
 
 }
 function commbuilder(buffer, filename, fullpath, watchurls) {
-
     var data = String(buffer), promise;
     if (/\.json$/i.test(fullpath)) {
+        let timeStart = new Date;
         data = buildJson(data);
+        data = Buffer.from(data);
+        data.time = new Date - timeStart;
     } else if (/\.html?$/i.test(fullpath)) {
         promise = getHtmlPromise(data, filename, fullpath, watchurls);
     } else if (/\.(?:[jt]sx?)$/i.test(fullpath)) {
         promise = getScriptPromise(data, filename, fullpath, watchurls);
     }
     if (promise) {
-        promise = promise.then(function (data) {
+        var promise1 = promise.then(function (data) {
             try {
                 var timeStart = new Date;
                 data = buildResponse(data);
                 data = Buffer.from(data);
-                data.time = new Date - timeStart;
+                data.time = new Date - timeStart + promise.time;
                 return data;
             } catch (e) {
                 console.error(fullpath, e);
             }
         });
     }
-    return promise || data;
+    return promise1 || data;
 }
 commbuilder.parse = function (data, filename = 'main', fullpath = './main.js') {
     var [commName, lessName, className] = prepare(filename, fullpath);
