@@ -162,7 +162,7 @@ function __seekprop(data, prop) {
     if (!prop) return data;
     var props = prop.split(".");
     while (props.length) {
-        var p = props.pop();
+        var p = props.shift();
         if (data !== null && data !== undefined && p in data) {
             data = data[p];
         } else {
@@ -690,16 +690,20 @@ var data = {
                     }
                 });
             }).then(function (response) {
+
                 return transpile(seek(parseData(response), selector), getTranspile(api.url), api.root);
             });
             return promise;
         }).then((data) => {
+            console.log(data);
+
             if (instance.loading_promise !== promise1) return;
             if (id) {
                 this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
             } else {
                 this.setInstance(sid, data);
             }
+
         });
         promise1.catch(function (e) {
             if (e === outdate) return;
