@@ -9,12 +9,12 @@ function decodeStructure(object) {
                 o[k] = v;
             });
             return o;
-        })
+        });
     }
     return [];
 }
 function encodeStructure(array) {
-    if (!array instanceof Array) return;
+    if (!(array instanceof Array)) return;
     var source = {};
     array.map(function (obj) {
         for (var k in obj) {
@@ -68,16 +68,7 @@ const formulaters = {
         return formulate(data, params);
     }
 };
-class LoadingArray extends Array {
-    totalCount = 0;
-    data = [];
-    is_errored = null;
-    error_message = null;
-    is_loading = true;
-    is_readonly = null;
-    loading = null;
-    loading_promise = null;
-}
+
 function getErrorMessage(error) {
     if (!(error instanceof Object)) return String(error);
     if (error instanceof Error) return String(error);
@@ -110,7 +101,7 @@ var transpileMap = null;
 function transpile(src, trans, apiMap, delTransMap) {
     if (!trans) return src;
     if (src instanceof Array) {
-        transpileMap = [];
+        if (!transpileMap) transpileMap = [];
         var res = src.map(a => transpile(a, trans, apiMap, false));
         if (delTransMap !== false) {
             transpileMap = null;
@@ -121,11 +112,17 @@ function transpile(src, trans, apiMap, delTransMap) {
     for (var k in trans) {
         var v = trans[k];
         if (!(k in data)) {
+            var value;
             if (v in data) {
-                data[k] = data[v];
+                value = data[v];
                 delete data[v];
             } else {
-                data[k] = seek(src, v, apiMap);
+                value = seek(src, v, apiMap);
+            }
+            if (!k) {
+                extend(data, value);
+            } else {
+                data[k] = value;
             }
         }
     }
@@ -140,7 +137,7 @@ function getUrlParamsForApi(api, url) {
     var r = /([\s\S]*?)/.source;
     var cap = [];
     var base = api.url.replace(/[\?\#][\s\S]*$/, '')
-        .replace(/[\.\*\+\-\[\]\{\}\(\)\\\/\!\<\>\^]/g, '\\$&')
+        .replace(/[\.\*\+\-\[\]\{\}\(\)\\\/\!<\>\^]/g, '\\$&')
         .replace(/\:\w+/, function (a) {
             cap.push(a.slice(1));
             return r;
@@ -151,10 +148,9 @@ function getUrlParamsForApi(api, url) {
             var [k, v] = s.split("=");
             params[k] = v;
         });
-        return ''
+        return '';
     }).replace(new RegExp(`^${base}$`, 'ig'), function () {
         var args = arguments;
-
         cap.forEach(function (a, cx) {
             params[a] = args[cx + 1];
         });
@@ -183,19 +179,20 @@ function seek(data, seeker, apiMap = {}) {
         if (reg.test(seeker)) {
             return [].concat.apply([], data.querySelectorAll(seeker.replace(reg, '')));
         }
-        var reg = /[\|\?\!\/]/;
+        var reg = /[\|\?\!\/]/, selector, prop;
         if (reg.test(seeker)) {
-            var [selector, prop] = seeker.split(reg);
+            [selector, prop] = seeker.split(reg);
         } else {
-            var selector = seeker;
+            selector = seeker;
         }
         if (selector) {
             data = data.querySelector(selector);
         }
         if (data && prop) {
-            var reg1 = /\:/;
+            var reg1 = /[\:\>\\]/, next;
+            var getNextValue = /[\>\\]/.test(prop);
             if (reg1.test(prop)) {
-                var [prop, next] = prop.split(reg1);
+                var [prop, next, pick] = prop.split(reg1);
                 next = apiMap[next];
             }
             if (isFunction(data.hasAttribute) && data.hasAttribute(prop)) {
@@ -221,6 +218,10 @@ function seek(data, seeker, apiMap = {}) {
             }
             if (next) {
                 data = getUrlParamsForApi(next, data);
+                if (pick || getNextValue) {
+                    data = getParamsFromUrl(data);
+                    if (pick) data = data[pick];
+                }
             }
             return data;
         }
@@ -271,7 +272,7 @@ var parseData = function (sourceText) {
             return JSON.parse(sourceText);
         } catch (e) { console.log(e); }
     }
-    if (/^\s*\</i.test(sourceText)) {
+    if (/^\s*</i.test(sourceText)) {
         // XML 格式
         var doc = document.implementation.createHTMLDocument('');
         if (isWorseIE) {
@@ -294,13 +295,13 @@ var parseData = function (sourceText) {
         } catch (e) { console.log(e); }
     }
     return sourceText;
-}
+};
 function fixApi(api, href) {
     if (!reg.test(api.url)) {
         if (href) {
-            var paramReg = /(?:\?([\s\S]*?))?(?:#([\s\S]*))?$/;
+            var paramReg = /(?:\?([\s\S]*?))?(?:#([\s\S]*))?$/, extraSearch, extraHash, search, hash;
             if (/[\?#]/.test(href)) {
-                var [, extraSearch, extraHash] = paramReg.exec(href);
+                [, extraSearch, extraHash] = paramReg.exec(href);
                 href = href.replace(paramReg, '');
             }
             if (/^\.([\?\#][\s\S]*)?$/.test(api.url)) {
@@ -342,15 +343,16 @@ function createApiMap(data) {
         apiMap[api.id] = api;
         return api;
     }
+    function buildItem(k1) {
+        return k1 + " " + item1[k1];
+    }
     var items1 = data;
     for (var key in items1) {
         var [base] = key.split(/\s+/).filter(a => reg.test(a));
         if (!base) continue;
         href = /(https?\:)?|\.?\//i.test(base) ? base : '';
         var item1 = items1[key];
-        var items = Object.keys(item1).map(function (k1) {
-            return k1 + " " + item1[k1];
-        });
+        var items = Object.keys(item1).map(buildItem);
         formulaters.string('id method url name comment', items).map(parseConfig).map(checkApi);
     }
     return apiMap;
@@ -413,14 +415,14 @@ var privates = {
         });
     },
     prepare(method, url, params) {
-        var spliterIndex = /[\:\|\/\~\!\?]/.exec(method);
+        var spliterIndex = /[\:\|\/\~\!\?]/.exec(method), search;
         if (spliterIndex) spliterIndex = spliterIndex.index;
         else spliterIndex = method.length;
-        var coinmethod = method.slice(0, spliterIndex).toLowerCase()
+        var coinmethod = method.slice(0, spliterIndex).toLowerCase();
         var realmethod = coinmethod.replace(/\W+$/g, '');
         var uri = url.replace(/#[\s\S]*$/, "");
         params = extend({}, params);
-        if (/\?/.test(uri)) var search = uri.replace(/^[\s\S]*?\?/, "");
+        if (/\?/.test(uri)) search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
         var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/i, function (d) {
             d = d.slice(1);
@@ -492,10 +494,10 @@ var getInstanceId = function () {
         instanceId = 1;
     }
     return instanceId;
-}
+};
 var error_report = isProduction ? alert : function (error, type) {
     error_report = alert;
-    error_report(error, type)
+    error_report(error, type);
     console.info("已使用默认的报错工具，您可以使用 data.setReporter(f7) 替换! 本信息在仅在开发环境显示。");
 };
 var data = {
@@ -523,7 +525,7 @@ var data = {
             params = {};
         }
         if (ref instanceof Object) {
-            return this.fromApi(ref, params)
+            return this.fromApi(ref, params);
         } else
             if (/^\.*\/|\.\w+$/.test(ref)) {
                 return this.fromURL(ref, parse);
@@ -532,7 +534,7 @@ var data = {
             }
     },
 
-    enrich(config = configPormise, userAgent) {
+    enrich(config = configPormise) {
         if (!config) return;
         if (isString(config)) {
             config = privates.loadIgnoreConfig('get', config).then(createApiMap);
@@ -559,8 +561,7 @@ var data = {
                         };
                         run(params);
                     });
-
-                })
+                });
             },
         });
     },
@@ -701,7 +702,7 @@ var data = {
             }
         });
         promise1.catch(function (e) {
-            if (e == outdate) return;
+            if (e === outdate) return;
             instance.is_errored = true;
             instance.error_message = getErrorMessage(e);
             instance.error_object = e;
