@@ -3,6 +3,7 @@ var cluster = require("cluster");
 var message = require("./message");
 var colored = require("./colored_console");
 [
+    "time",
     "pass",
     "fail",
     "test",

@@ -1,5 +1,7 @@
 "use strict";
 var colored = Object.create(global.console);
+var version = `efront/(${require("../package.json").version.replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
+
 var colors = {
     Reset: "\x1b[0m",
     Bright: "\x1b[1m",
@@ -42,7 +44,72 @@ var colors = {
     BgCyan2: "\x1b[106m",
     BgWhite2: "\x1b[107m",
 };
+var toLength = function (n, a = -1) {
+    n = String(n);
+    if (n.length < 2) {
+        n = '0' + n;
+    }
+    if (a === -1 && n.length < 3) {
+        n = '0' + n;
+    }
+    return colors.BgGray + colors.FgWhite2 + n + colors.BgGray + colors.FgWhite;
+};
+var formatDate = function () {
+    var year = this.getFullYear();
+    var month = this.getMonth() + 1;
+    var date = this.getDate();
+    var hours = this.getHours();
+    var minutes = this.getMinutes();
+    var seconds = this.getSeconds();
+    var milli = this.getMilliseconds();
+    milli = toLength(milli);
+    var offset = -this.getTimezoneOffset() / 60;
+    if (offset > 0) {
+        offset = '+' + toLength(offset, 0);
+    } else if (offset < 0) {
+        offset = '-' + toLength(-offset, 0);
+    } else {
+        offset = '';
+    }
+    return `${[year, month, date].map(toLength).join('-') + colors.FgGray}T${[hours, minutes, seconds].map(toLength).join(':')}.${milli}Z${offset}`;
+};
 var lastLogLength = 0, lastLogTime = 0;
+var logTime = function () {
+    lastLogTime = new Date;
+    var time = formatDate.call(lastLogTime) + ` ${colors.FgGreen2 + version + colors.Reset} `;
+    write(true, time);
+};
+var logStamp = function () {
+    if (new Date - lastLogTime > 100) logTime();
+};
+var write = function (hasNewLine, str) {
+    str = str.replace(/<([a-z][\w]*)[^\>]*\>([\s\S]*?)<\/\1\>/ig, function (_, c, s) {
+        switch (c) {
+            case "red":
+            case "error":
+            case "danger":
+                return colors.FgRed + s + colors.Reset;
+            case "info":
+            case "tip":
+            case "blue":
+                return colors.FgBlue + s + colors.Reset;
+            case "green":
+                return colors.FgGreen + s + colors.Reset;
+            default:
+                c = c[0].toUpperCase() + c.slice(1).toLowerCase();
+                var k = "Fg" + c;
+                if (c in colors) k = c;
+                if (k in colors) {
+                    return colors[k] + s + colors.Reset;
+                }
+        }
+        return s;
+    });
+    var width = process.stdout.columns;
+    var cleaner = ("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1);
+    hasNewLine ? process.stderr.write((lastLogLength ? cleaner : "") + str + "\r\n") : process.stdout.write(cleaner + "\r" + str);
+    lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x20-\xff]/g, "").length;
+};
 [
     "pass:[ ✔ ]:FgGreen:",
     "fail:[ ✘ ]:FgRed2:",
@@ -55,71 +122,15 @@ var lastLogLength = 0, lastLogTime = 0;
     var fgColor = colors[fg] || "",
         bgColor = colors[bg] || "",
         reset = colors.Reset;
-    var toLength = function (n, a = -1) {
-        n = String(n);
-        if (n.length < 2) {
-            n = '0' + n;
-        }
-        if (a === -1 && n.length < 3) {
-            n = '0' + n;
-        }
-        return colors.BgGray + colors.FgWhite2 + n + colors.BgGray + colors.FgWhite;
-    };
-    var formatDate = function () {
-        var year = this.getFullYear();
-        var month = this.getMonth() + 1;
-        var date = this.getDate();
-        var hours = this.getHours();
-        var minutes = this.getMinutes();
-        var seconds = this.getSeconds();
-        var milli = this.getMilliseconds();
-        milli = toLength(milli);
-        var offset = -this.getTimezoneOffset() / 60;
-        if (offset > 0) {
-            offset = '+' + toLength(offset, 0);
-        } else if (offset < 0) {
-            offset = '-' + toLength(-offset, 0);
-        } else {
-            offset = '';
-        }
-        return `${[year, month, date].map(toLength).join('-') + colors.FgGray}T${[hours, minutes, seconds].map(toLength).join(':')}.${milli}Z${offset}`;
-    };
+    var hasNewLine = /^(warn|error|pass|fail)$/.test(log);
     var logger = function (...args) {
         var label = fgColor + bgColor + info + reset;
         var time_stamp = '';
-        if (new Date - lastLogTime > 60 * 1000) {
-            lastLogTime = new Date;
-            time_stamp = formatDate.call(lastLogTime) + reset + "\r\n";
-        }
+        if (hasNewLine) logStamp();
         var str = [time_stamp, label, ...args].join(" ");
-        str = str.replace(/\<([a-z][\w]*)[^\>]*\>([\s\S]*?)\<\/\1\>/ig, function (_, c, s) {
-            switch (c) {
-                case "red":
-                case "error":
-                case "danger":
-                    return colors.FgRed + s + colors.Reset;
-                case "info":
-                case "tip":
-                case "blue":
-                    return colors.FgBlue + s + colors.Reset;
-                case "green":
-                    return colors.FgGreen + s + colors.Reset;
-                default:
-                    c = c[0].toUpperCase() + c.slice(1).toLowerCase();
-                    var k = "Fg" + c;
-                    if (c in colors) k = c;
-                    if (k in colors) {
-                        return colors[k] + s + colors.Reset;
-                    }
-            }
-            return s;
-        });
-        var width = process.stdout.columns;
-        var hasNewLine = /^(warn|error|pass|fail)$/.test(log);
-        var cleaner = ("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1);
-        hasNewLine ? process.stderr.write((lastLogLength ? cleaner : "") + str + "\r\n") : process.stdout.write(cleaner + "\r" + str);
-        lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x20-\xff]/g, "").length;
+        write(hasNewLine, str);
     };
     colored[log] = logger;
 });
+colored.time = logTime;
 module.exports = colored;
