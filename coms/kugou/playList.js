@@ -1,4 +1,5 @@
 var playModeIndex = data.getInstance("play-mode").index || 0;
+var playModes = kugou$playModes;
 var $scope = {
     btn: button,
     list(elem) {

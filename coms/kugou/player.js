@@ -1,5 +1,6 @@
 var musicList = kugou$musicList;
 var playState = kugou$playState;
+var playModes = kugou$playModes;
 var playModeData = data.getInstance("play-mode");
 var playList = kugou$playList();
 var getMusicInfo = function (hash) {

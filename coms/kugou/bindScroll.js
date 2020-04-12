@@ -5,18 +5,20 @@ function bindScroll(titlebar, page) {
     var [label, back] = titlebar.children;
     css(back, `height:${fromPixel(topHeight)}`);
     appendChild.after(label, labelarea);
-    css(labelarea, "height:100%;width:100%;background:#000;position:absolute;left:0;top:0;z-index:-1");
+    var init=function(){
+        init=function(){};
+        css(labelarea, "height:100%;width:100%;background:#000;position:absolute;left:0;top:0;z-index:-1");
+    };
     onappend(page, function () {
         css(titlebar, `min-height:${fromPixel(topHeight)}`);
-        setOpacity(labelarea, 0);
-        setOpacity(label, 0);
-        setTimeout(refresh)
+        setTimeout(refresh);
     });
     var refresh = function () {
         var image = page.children[0];
         if (!image) return;
         if (!image.style.backgroundImage && !/img/i.test(image.className)) image = page.children[1] || image;
         if (!image.style.backgroundImage && !/img/i.test(image.className)) return;
+        init();
         setOpacity(image, 0);
         image.style.opacity = 0;
         var scrollTop = page.scrollTop;
