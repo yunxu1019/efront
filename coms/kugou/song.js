@@ -6,7 +6,7 @@ function main(elem) {
         png: img,
         playState: kugou$playState,
         song: {},
-        musicList,
+        musicList:kugou$musicList,
     };
     render(elem, $scope);
     care(elem, function (item) {
