@@ -6,7 +6,8 @@ var {
     EXPORT_AS,
     EXPORT_TO,
     RELEASE,
-    PREFIX
+    PREFIX,
+    LIBS_PATH,
 } = process.env;
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : setupenv('.');
@@ -80,6 +81,7 @@ module.exports = {
     PAGE_PATH,
     COMS_PATH,
     EXTT,
+    libs_root: LIBS_PATH ? LIBS_PATH.split(",") : [],
     public_app,
     EXPORT_TO,
     EXPORT_AS,

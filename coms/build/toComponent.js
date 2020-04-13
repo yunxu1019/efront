@@ -10,17 +10,24 @@ function toComponent(responseTree) {
     delete responseTree["[]map"];
     var result = [];
     var crypt_code = new Date / 1000 ^ Math.random() * 3600;
+    var libsTree = Object.create(null);
     for (var k in responseTree) {
         if (!{}.hasOwnProperty.call(responseTree, k)) continue;
         var response = responseTree[k];
-        var dependence = response.dependence;
-        if (response.data instanceof Buffer) {
-            response.data = String(response.data);
-        }
         if (!response.data && /^(number|function|string)$/.test(typeof response.builtin)) {
             response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
         }
-        result.push([k, dependence.required, dependence.requiredMap].concat(dependence).concat(dependence.args).concat(responseTree[k].toString().slice(dependence.offset)));
+        if (response.data) {
+            if (response.type === "@") {
+                libsTree[k] = responseTree[k];
+                continue;
+            }
+            if (response.data instanceof Buffer) {
+                response.data = String(response.data);
+            }
+            var dependence = response.dependence;
+            result.push([k, dependence.required, dependence.requiredMap].concat(dependence).concat(dependence.args).concat(responseTree[k].toString().slice(dependence.offset)));
+        }
     }
     var destMap = Object.create(null), dest = [], last_result_length = result.length, origin_result_length = last_result_length;
 
@@ -33,7 +40,7 @@ function toComponent(responseTree) {
         return $key;
     };
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
-    var encoded = true;
+    var encoded = false;
     var encode = function (source) {
         if (!encoded) return source;
         source = eval(source);
@@ -150,7 +157,7 @@ function toComponent(responseTree) {
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
             }
             if (!encoded) {
-                data = `\r\n/** ${dest.length + 1} ${data.length > 100 ? k : k.slice(0, 30)} */ ` + data;
+                data = `\r\n/** ${dest.length + 1} ${data.length > 100 ? k : k.slice(11, 43)} */ ` + data;
             }
             dest.push(data);
             destMap[k] = dest.length;
@@ -183,16 +190,17 @@ function toComponent(responseTree) {
     ['Array', 'String'].concat($charCodeAt, $fromCharCode).forEach(function (str) {
         getEfrontKey(str, 'global');
     });
+    var saveModuleBody = function (k) {
+        if (responseTree[k] && !responseTree[k].data && !destMap[k]) {
+            saveOnly(k, k);
+        }
+        if (!destMap[k] && responseTree[k]) ok = false;
+    };
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, required, reqMap, ...module_body] = result[cx];
             var ok = true;
-            module_body.slice(0, module_body.length >> 1).concat(required || []).forEach(function (k) {
-                if (responseTree[k] && !responseTree[k].data && !destMap[k]) {
-                    saveOnly(k, k);
-                }
-                if (!destMap[k] && responseTree[k]) ok = false;
-            });
+            module_body.slice(0, module_body.length >> 1).concat(required || []).forEach(saveModuleBody);
             if (!responseTree[k].data) {
                 result.splice(cx, 1);
                 continue;
@@ -337,6 +345,6 @@ function toComponent(responseTree) {
     responseTree[PUBLIC_APP].destpath = (responseTree[PUBLIC_APP].destpath || PUBLIC_APP) + EXTT;
     return Object.assign({
         [PUBLIC_APP]: responseTree[PUBLIC_APP]
-    });
+    }, libsTree);
 }
 module.exports = toComponent;

@@ -13,8 +13,8 @@ var window = {
     Boolean,
     Number,
     Event: {},
-    unescape,
-    escape,
+    unescape() { },
+    escape() { },
     String,
     Object,
     Math,
@@ -37,7 +37,7 @@ var window = {
     decodeURIComponent,
     history: {},
     document: {
-        createElement() { return {} },
+        createElement() { return {}; },
         createEvent() {
             return {};
         },

@@ -5,8 +5,10 @@ var getBuildInfo = require("./getBuildInfo");
 var {
     comms_root,
     pages_root,
+    libs_root,
     PAGE_PATH
 } = require("./environment");
+var erroredFiles = Object.create(null);
 var getScriptsUrlInHtmlFile = function (fileinfo) {
     return Promise.all(
         [].concat(fileinfo.fullpath).map(function (fullpath) {
@@ -18,7 +20,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
                         result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
                     });
                     var res = result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fullpath), url));
-                    var bodyTag = /\<body\s[^\>]*?\>/i.exec(data);
+                    var bodyTag = /<body\s[^\>]*?\>/i.exec(data);
                     if (bodyTag) {
                         var mainPath = '';
                         bodyTag[0].replace(/(?:main|main\-path|main)\=(['"]|)([^\"\']+)\1/i, function (m, q, c) {
@@ -33,7 +35,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
             });
         })
     );
-}
+};
 var filterHtmlImportedJs = function (roots) {
     var promises = roots.filter(function (url) {
         return /\.(html?|jsp|asp|php)$/i.test(url);
@@ -132,7 +134,11 @@ var getBuildRoot = function (files, matchFileOnly) {
             var name = rel.replace(/[\\\/]+/g, "/");
             save("/" + name);
         };
-        var saveFolder = function (folder) {            
+        var saveCopy = function (rel) {
+            var name = "@" + rel.replace(/[\\\/]+/g, "/");
+            save(name);
+        };
+        var saveFolder = function (folder) {
             for (var comm of comms_root) {
                 var rel = getPathInFolder(comm, folder);
                 if (rel) {
@@ -155,6 +161,12 @@ var getBuildRoot = function (files, matchFileOnly) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
+                        for (var lib of libs_root) {
+                            var rel = getPathInFolder(lib, file);
+                            if (rel) {
+                                return saveCopy(rel), ok();
+                            }
+                        }
                         if (/\.([tj]sx?|html?|json)$/i.test(file)) {
                             for (var comm of comms_root) {
                                 var rel = getPathInFolder(comm, file);
@@ -180,8 +192,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                         for (var page of PAGE_PATH.split(",")) {
                             var rel = getPathInFolder(page, file);
                             if (rel) {
-                                var name = "@" + rel.replace(/[\\\/]+/g, "/");
-                                return save(name), ok();
+                                return saveCopy(rel), ok();
                             }
                         }
                         if (/\.png$/i.test(file)) {
@@ -211,11 +222,11 @@ var getBuildRoot = function (files, matchFileOnly) {
                                     read(f).then(ok).catch(function () {
                                         oh(`${f}不存在！`);
                                     });
-                                })
+                                });
                             } else {
                                 f = path.join(file, 'index');
                                 read(f).then(ok).catch(function () {
-                                    oh(`${file}不存在！`)
+                                    oh(`${file}不存在！`);
                                 });
                             }
                         });
@@ -242,10 +253,12 @@ var getBuildRoot = function (files, matchFileOnly) {
                 });
             });
         }).catch(function (e) {
+            if (erroredFiles[file1]) return;
+            erroredFiles[file1] = true;
             if (!matchFileOnly) console.error(e, "\r\n");
             else console.warn(e + ",", '已跳过');
         }).then(run);
-    }
+    };
     return new Promise(function (ok) {
         resolve = function (result) {
             var res = [];

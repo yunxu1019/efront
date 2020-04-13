@@ -19,7 +19,7 @@ BuildInfo.prototype = {
     toString() {
         return this.data || "";
     }
-}
+};
 
 function getBuildInfo(url) {
     var match = url.match(/^(.*?)(\/|\.|@|\:|)(.+?)(\.[tj]sx?|\.html?|\.png)?$/);
@@ -29,7 +29,8 @@ function getBuildInfo(url) {
             comms_root,
             ccons_root,
             pages_root,
-            PAGE_PATH
+            PAGE_PATH,
+            libs_root
             // aapis_root
         } = env;
         var appc = match[1],
@@ -76,6 +77,13 @@ function getBuildInfo(url) {
                 break;
             case "@":
                 builder = noopbuilder;
+                for (var page of libs_root) {
+                    fullpath = path.join(page, name + extt);
+                    if (/^[^\.]/i.test(path.relative(page, fullpath))) {
+                        destpath = path.relative(pages_root[0], fullpath);
+                        break bigloop;
+                    }
+                }
                 for (var page of PAGE_PATH.split(",")) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
@@ -100,7 +108,7 @@ function getBuildInfo(url) {
             //     fullpath = path.join(aapis_root, name + extt);
             //     break;
             default:
-                throw new Error("类型不被支持!")
+                throw new Error("类型不被支持!");
         }
         return new BuildInfo({
             appc,

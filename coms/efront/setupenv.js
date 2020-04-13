@@ -203,6 +203,7 @@ var extend = function (dst, env) {
         COMM: dst.COMM || dst.COMS || env.COMM || "",
         AAPI: dst.AAPI || dst.APIS || env.AAPI || "",
         IMAG: dst.IMAG || dst.IMGS || env.IMAG || "",
+        LIBS_PATH: dst.LIBS_PATH || dst.LIBS_PATH || env.LIBS_PATH || "",
         ICON: dst.ICON || dst.CCON || dst.CONS || dst.ICONS || env.ICON || "",
         PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || "",
     };
