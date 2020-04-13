@@ -80,7 +80,7 @@ var logTime = function () {
     write(true, time);
 };
 var logStamp = function () {
-    if (new Date - lastLogTime > 100) logTime();
+    if (new Date - lastLogTime > 600) logTime();
 };
 var write = function (hasNewLine, str) {
     str = str.replace(/<([a-z][\w]*)[^\>]*\>([\s\S]*?)<\/\1\>/ig, function (_, c, s) {

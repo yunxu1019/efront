@@ -1,8 +1,8 @@
 var path = require("path");
 var fs = require("fs");
-var console = require("../process/console.js");
-var typescript_path = path.join(__dirname, '../process/typescript');
-var destpath = path.join(__dirname, '../coms/typescript');
+var console = require("../coms/efront/console.js");
+var typescript_path = path.join(__dirname, '../coms/typescript');
+var destpath = path.join(__dirname, '../coms/typescript-helpers');
 var typescript = require(typescript_path);
 var helpers = Object.keys(typescript).filter(k => /Helper$/.test(k)).map(k => typescript[k]).filter(o => o instanceof Object && o.text);
 helpers.forEach(o => {
