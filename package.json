@@ -2,22 +2,23 @@
   "name": "efront",
   "version": "1.16.2",
   "description": "一个开发工具，开放源代码，自带组件库和编译环境，可以用来开发web组件，web应用或nodejs模块，或做为已有代码的加密工具，也可以做为静态页面服务器或跨域中转服务器使用",
-  "main": "main.js",
+  "main": "coms/efront",
   "directories": {
     "test": "test"
   },
   "bin": {
-    "efront": "./main.js"
+    "efront": "./coms/main.js"
   },
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "start": "node main start",
-    "server": "node server",
-    "test": "node test",
-    "electron": "node test --electron",
-    "public": "node build",
-    "build": "node build",
+    "start": "node . start",
+    "server": "node . server",
+    "test": "node . test",
+    "live": "node . live",
+    "electron": "node . test --electron",
+    "public": "node . build",
+    "build": "node . build",
     "watch": "node toos/watch"
   },
   "repository": {

@@ -1,1 +1,1 @@
-"use process/crypt/encode62.js";
+"use ../crypt/encode62.js";
