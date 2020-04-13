@@ -3,7 +3,7 @@ var esprima = require("../process/esprima");
 var esmangle = require("../process/esmangle");
 var scanner = require("../process/compile/scanner");
 var typescript = require("../process/typescript");
-var { public_app, EXPORT_TO: EXPORT_TO, EXPORT_AS, include_required } = require("./environment");
+var { public_app, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, include_required } = require("./environment");
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
     delete responseTree["[]map"];
@@ -329,6 +329,7 @@ function toComponent(responseTree) {
     //     }
     // }
     responseTree[PUBLIC_APP].data = template;
+    responseTree[PUBLIC_APP].destpath = (responseTree[PUBLIC_APP].destpath || PUBLIC_APP) + EXTT;
     return Object.assign({
         [PUBLIC_APP]: responseTree[PUBLIC_APP]
     });

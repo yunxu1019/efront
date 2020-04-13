@@ -78,6 +78,7 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
             return `var ${realName}=${data};`;
         }
         data = data.toString();
+        data = trimNodeEnvHead(data);
         data = data.replace(/^\s*(["`'])use strict\1\s*;?/, '');
         if (!new RegExp(useInternalReg.source, 'ig').test(source)) {
             commName = realName;
@@ -115,7 +116,12 @@ var convertColor = function (a) {
 var createExpression = function (expression) {
     return esprima.parse(expression).body;
 };
+var trimNodeEnvHead = function (data) {
+    data = data.replace(/^\s*\#\!/, '//');
+    return data;
+};
 var loadJsBody = function (data, filename, lessdata, commName, className) {
+    data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
 
     var destpaths = getRequiredPaths(data);
@@ -413,7 +419,7 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
     return promise;
 }
 function getScriptPromise(data, filename, fullpath, watchurls) {
-    console.info("正在编译",fullpath);
+    console.info("正在编译", fullpath);
     var [commName, lessName, className] = prepare(filename, fullpath);
     let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
     let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
