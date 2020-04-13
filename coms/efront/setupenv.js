@@ -147,7 +147,7 @@ var setup = module.exports = function (appname) {
             value_map["zimoli"] = true;
         }
         value_map[""] = true;
-        value_map["typescript"] = true;
+        value_map["typescript-helpers"] = true;
         if (appname) {
             value_map[appname] = true;
         }
