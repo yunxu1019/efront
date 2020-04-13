@@ -178,7 +178,7 @@ try {
         require("../../tools/watch");
     } else if (loadModule.length > 0) {
         detectEnvironment().then(function () {
-            require("./efront")(loadModule[0]);
+            require("./run")(loadModule[0]);
         }).catch(console.error);
     } else if (isStartCommand) {
         require("./setupenv");

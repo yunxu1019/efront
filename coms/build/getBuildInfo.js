@@ -22,7 +22,7 @@ BuildInfo.prototype = {
 };
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|@|\:|)(.+?)(\.[tj]sx?|\.html?|\.png)?$/);
+    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[tj]sx?|\.html?|\.png)?$/);
     var fullpath, destpath, builder;
     if (match) {
         var {
@@ -30,7 +30,7 @@ function getBuildInfo(url) {
             ccons_root,
             pages_root,
             PAGE_PATH,
-            libs_root
+            libs_root,
             // aapis_root
         } = env;
         var appc = match[1],
@@ -75,15 +75,19 @@ function getBuildInfo(url) {
                 }
                 fullpath = pages_root.map(page => path.join(page, name + extt));
                 break;
-            case "@":
+            case "\\":
                 builder = noopbuilder;
-                for (var page of libs_root) {
-                    fullpath = path.join(page, name + extt);
-                    if (/^[^\.]/i.test(path.relative(page, fullpath))) {
+                for (var lib of libs_root) {
+                    fullpath = name + extt;
+                    var rel = path.relative(lib, fullpath);
+                    if (/^[^\.]/i.test(rel) || !rel) {
                         destpath = path.relative(pages_root[0], fullpath);
                         break bigloop;
                     }
                 }
+                break;
+            case "@":
+                builder = noopbuilder;
                 for (var page of PAGE_PATH.split(",")) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {

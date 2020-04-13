@@ -81,6 +81,10 @@ var filterHtmlImportedJs = function (roots) {
 };
 var getPathInFolder = function (folder, filepath) {
     let rel = path.relative(folder, filepath);
+    if (!rel) {
+        rel = "./";
+    }
+
     return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
 };
 function paddExtension(file) {
@@ -138,7 +142,18 @@ var getBuildRoot = function (files, matchFileOnly) {
             var name = "@" + rel.replace(/[\\\/]+/g, "/");
             save(name);
         };
+        var saveLlib = function (rel) {
+            var name = "\\" + rel.replace(/[\\\/]+/g, "/");
+            save(name);
+        };
         var saveFolder = function (folder) {
+            for (var lib of libs_root) {
+                var rel = getPathInFolder(lib, folder);
+                if (rel) {
+                    saveLlib(path.join(lib, rel));
+                    return true;
+                }
+            }
             for (var comm of comms_root) {
                 var rel = getPathInFolder(comm, folder);
                 if (rel) {
@@ -164,7 +179,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                         for (var lib of libs_root) {
                             var rel = getPathInFolder(lib, file);
                             if (rel) {
-                                return saveCopy(rel), ok();
+                                return saveLlib(path.join(lib, rel)), ok();
                             }
                         }
                         if (/\.([tj]sx?|html?|json)$/i.test(file)) {

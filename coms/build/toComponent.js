@@ -18,7 +18,7 @@ function toComponent(responseTree) {
             response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
         }
         if (response.data) {
-            if (response.type === "@") {
+            if (response.type === "@" || response.type === "\\") {
                 libsTree[k] = responseTree[k];
                 continue;
             }
@@ -79,6 +79,7 @@ function toComponent(responseTree) {
                         if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                             if (destMap[reqMap[refer]]) return destMap[reqMap[refer]];
                             else has_outside_require = true;
+                            console.fail(k);
                         }
                     }
                     break;

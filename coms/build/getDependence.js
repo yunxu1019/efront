@@ -1,4 +1,6 @@
 "use strict";
+var getRequired = require("../compile/required");
+var path = require("path");
 function getInitReferenced(dependence, args, data, sliceFrom) {
     var requires = ["init"].map(a => dependence.indexOf(a)).filter(a => ~a);
     if (!requires.length) return [];
@@ -45,38 +47,52 @@ var get_relatives = function (name, required, dependence) {
     });
 };
 
+var SETSPLITER = k => k.replace(/\$/g, '/');
 
-function getDependence(responseData) {
-    if (responseData.type !== "" && responseData.type !== "/") return [];
-    var { data = "" } = responseData;
-    var ext = /\.([^\.]+)$/.exec(responseData.realpath);
+function getDependence(response) {
+    if (!response.realpath) return [];
+    if (response.type !== "" && response.type !== "/" && response.type !== "\\") return [];
+    var { data = "" } = response;
+    var ext = /\.([^\.]+)$/.exec(response.realpath);
     if (ext && !/[jt]sx?/i.test(ext)) return [];
+
+    var startTime = new Date;
     data = String(data);
-    var functionArgs;
-    //依赖项名称部分的长度限制为36*36*18=23328
-    var doublecount = parseInt(data.slice(0, 3), 36);
-    if (doublecount >> 1 << 1 === doublecount) {
-        var dependencesCount = doublecount >> 1;
-        var dependenceNamesOffset = 3 + dependencesCount;
-        var dependenceNames = data.slice(3, dependenceNamesOffset);
-        functionArgs = dependenceNames ? dependenceNames.split(",") : [];
+    if (response.type !== "\\") {
+        var functionArgs;
+        //依赖项名称部分的长度限制为36*36*18=23328
+        var doublecount = parseInt(data.slice(0, 3), 36);
+        if (doublecount >> 1 << 1 === doublecount) {
+            var dependencesCount = doublecount >> 1;
+            var dependenceNamesOffset = 3 + dependencesCount;
+            var dependenceNames = data.slice(3, dependenceNamesOffset);
+            functionArgs = dependenceNames ? dependenceNames.split(",") : [];
+        } else {
+            functionArgs = [];
+        }
+        var argslength = functionArgs.length >> 1;
+        var dependence = functionArgs.slice(0, argslength);
+        dependence.args = functionArgs.slice(argslength, argslength << 1);
+        var required = functionArgs[argslength << 1];
+        var required1 = getInitReferenced(dependence, dependence.args, data, dependencesCount || 0);
+        dependence.offset = dependenceNamesOffset || 0;
+        if (required) {
+            required = required.split(";");
+            required = get_relatives(response.url, required, dependence).map(SETSPLITER);
+        }
+        if (required1) {
+            required1 = get_relatives(response.url, required1, dependence);
+        }
+        dependence.require = required1.concat(required);
     } else {
-        functionArgs = [];
+        var dependence = [];
+        console.info("正在分析", response.realpath);
+        var required = getRequired(data, required);
+        required = get_relatives(response.realpath, required, dependence).map(SETSPLITER);
+        dependence.require = required || [];
     }
-    var argslength = functionArgs.length >> 1;
-    var dependence = functionArgs.slice(0, argslength);
-    dependence.args = functionArgs.slice(argslength, argslength << 1);
-    var required = functionArgs[argslength << 1];
-    var required1 = getInitReferenced(dependence, dependence.args, data, dependencesCount || 0);
-    dependence.offset = dependenceNamesOffset || 0;
-    if (required) {
-        required = required.split(";");
-    }
-    if (required1) {
-        required = required ? required.concat(required1) : required1;
-    }
-    dependence.require = required ? get_relatives(responseData.url, required, dependence) : [];
-    return responseData.dependence = dependence;
-};
+    response.time += new Date - startTime;
+    return response.dependence = dependence;
+}
 
 module.exports = getDependence;

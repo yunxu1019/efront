@@ -8,6 +8,7 @@ var {
     RELEASE,
     PREFIX,
     LIBS_PATH,
+    LIBS,
 } = process.env;
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : setupenv('.');
@@ -67,6 +68,30 @@ if (EXPORT_TO === undefined) EXPORT_TO = public_app
     .replace(/\-(\w)/g, (_, w) => w.toUpperCase())
     .replace(/[\s\S]*\/([^\\\/]+)$/, "$1");
 var aapis_root = "./apis/" + AAPI;
+var libs_root = [];
+var libs_path = [];
+LIBS_PATH = LIBS_PATH ? LIBS_PATH.split(",") : [];
+if (!LIBS_PATH.length) {
+    if (LIBS) libs_root = comms_root.slice(0);
+} else {
+    comms_root.forEach(function (comroot) {
+        LIBS_PATH.forEach(function (libpath) {
+            libs_root.push(path.join(comroot, libpath));
+        });
+    });
+}
+if (libs_root.length) {
+    if (LIBS) {
+        libs_root.forEach(function (libpath) {
+            LIBS.split(',').forEach(function (lib) {
+                libs_path.push(path.join(libpath, lib));
+            });
+        });
+    } else {
+        libs_path = libs_root.slice(0);
+    }
+}
+libs_path = libs_path.filter(fs.existsSync);
 module.exports = {
     comms_root,
     class_prefix: PREFIX || '',
@@ -81,7 +106,7 @@ module.exports = {
     PAGE_PATH,
     COMS_PATH,
     EXTT,
-    libs_root: LIBS_PATH ? LIBS_PATH.split(",") : [],
+    libs_root: libs_path,
     public_app,
     EXPORT_TO,
     EXPORT_AS,

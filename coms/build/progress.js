@@ -99,13 +99,14 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                             delete response[k];
                         }
                     }
+                    function saveDeleted(key) {
+                        if (key in deletedMap) {
+                            if (!~deletedMap[key].indexOf(k)) deletedMap[key].push(k);
+                        }
+                    }
                     for (var k in response) {
                         let dependence = response[k].dependence;
-                        if (dependence) dependence.forEach(function (key) {
-                            if (key in deletedMap) {
-                                deletedMap[key].push(k);
-                            }
-                        });
+                        if (dependence) dependence.forEach(saveDeleted);
                     }
                     for (var k in deletedMap) {
                         console.warn(k, "required by '" + deletedMap[k].join(",") + "' skiped");
