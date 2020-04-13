@@ -7,6 +7,25 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "efront2",
+            "cwd": "${workspaceFolder}/../efront2/",
+            "env": {
+                "coms_path": "./coms",
+                "public_path": "public",
+                "page": "./coms/efront",
+                "app": "efront/index.js",
+                "extt": ".js",
+                "coms": "./",
+                "destpath": "public/efront.js"
+            },
+            "args": [
+                "publish"
+            ],
+            "program": "${workspaceFolder}/main.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Slider",
             "env": {
                 "app": "slider.js"
