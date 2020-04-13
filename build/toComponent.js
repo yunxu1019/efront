@@ -4,6 +4,7 @@ var esmangle = require("../process/esmangle");
 var scanner = require("../process/compile/scanner");
 var typescript = require("../process/typescript");
 var { public_app, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, include_required } = require("./environment");
+var report = require("./report");
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
     delete responseTree["[]map"];
@@ -144,11 +145,12 @@ function toComponent(responseTree) {
     var PUBLIC_APP, public_index;
     function saveOnly(data, k, ...ks) {
         if (!destMap[k]) {
-            if (!encoded) {
-                data = `\r\n/** ${dest.length + 1}${data.length > 100 ? ' ' + k : ''} */ ` + data;
-            }
-            if (/^[\$_a-z]\w*$/i.test(data) && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true)$/.test(data)) {
+            var isGlobal = /^[\$_a-z]\w*$/i.test(data) && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true)$/.test(data);
+            if (isGlobal) {
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
+            }
+            if (!encoded) {
+                data = `\r\n/** ${dest.length + 1} ${data.length > 100 ? k : k.slice(0, 30)} */ ` + data;
             }
             dest.push(data);
             destMap[k] = dest.length;
@@ -197,7 +199,9 @@ function toComponent(responseTree) {
             }
             if (ok) {
                 result.splice(cx, 1);
+                var startTime = new Date;
                 console.info(`压缩(${origin_result_length - result.length}/${origin_result_length}):`, k);
+                responseTree[k].time += new Date - startTime;
                 saveCode(module_body, k, reqMap);
             }
         }
@@ -207,6 +211,7 @@ function toComponent(responseTree) {
         }
         last_result_length = result.length;
     }
+    report(responseTree);
     saveOnly(`[${crypt_code}]`, 'module');
     saveOnly(`[${crypt_code % 2019 + 1}]`, 'exports');
     if (!PUBLIC_APP) PUBLIC_APP = k, public_index = dest.length - 1;

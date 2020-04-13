@@ -3,6 +3,7 @@ var crc = require("../process/crc");
 var path = require("path");
 var fs = require("fs");
 var environment = require("./environment");
+var report = require("./report");
 var buildHtml = function (html, code) {
     var isZimoliDetected = false;
     var poweredByComment;
@@ -68,6 +69,8 @@ var buildHtml = function (html, code) {
     return html;
 };
 function toApplication(responseTree) {
+    report(responseTree);
+
     var isFileMode = /\.html?$/i.test(environment.APP);
     var versionTree = {};
     var mainScript = responseTree["main"].data;
