@@ -7,7 +7,7 @@
     "test": "test"
   },
   "bin": {
-    "efront": "./coms/main.js"
+    "efront": "coms/efront"
   },
   "dependencies": {},
   "devDependencies": {},
