@@ -17,6 +17,7 @@ var merge = function (dst, o) {
                 dst[k] = [];
             }
             dst[k] = dst[k].concat(o[k]);
+            continue;
         }
         dst[k] = o[k] === true ? true : dst[k] || o[k];
     }
@@ -25,7 +26,14 @@ var regrep = function (v) {
     return v.replace(/\\[\s\S]|\//g, r => r === "/" ? '\\/' : r);
 };
 
+var setUndeclaredType = function (unDeclaredVariables, type) {
+    for (var k in unDeclaredVariables) {
+        unDeclaredVariables[k] = unDeclaredVariables[k] instanceof Array ? unDeclaredVariables[k] : type;
+    }
+};
+
 var getVariables = function (ast) {
+
     var DeclaredVariables = Object.create(null),
         unDeclaredVariables = Object.create(null);
     var required = [];
@@ -56,12 +64,8 @@ var getVariables = function (ast) {
                     DeclaredVariables: d,
                     unDeclaredVariables: u,
                 } = getVariables(ast.right);
-                for (var k in u) {
-                    u[k] = "assign";
-                }
-                for (var k in d) {
-                    d[k] = "assign";
-                }
+                setUndeclaredType(u, 'assign');
+                setUndeclaredType(d, 'assign');
                 merge(unDeclaredVariables, u);
                 merge(DeclaredVariables, d);
                 break;
@@ -74,12 +78,8 @@ var getVariables = function (ast) {
                     DeclaredVariables: d,
                     unDeclaredVariables: u
                 } = getVariables(ast.init);
-                for (var k in u) {
-                    if (!(u[k] instanceof Array)) u[k] = "initer";
-                }
-                for (var k in d) {
-                    d[k] = "initer";
-                }
+                setUndeclaredType(u, 'initer');
+                setUndeclaredType(d, 'initer');
                 merge(unDeclaredVariables, u);
                 merge(DeclaredVariables, d);
 
@@ -89,9 +89,7 @@ var getVariables = function (ast) {
                     DeclaredVariables,
                     unDeclaredVariables
                 } = getVariables(ast.body);
-                for (var k in unDeclaredVariables) {
-                    unDeclaredVariables[k] = "block";
-                }
+                setUndeclaredType(unDeclaredVariables, 'block');
                 for (var k in DeclaredVariables) {
                     if (DeclaredVariables[k] !== "var") {
                         delete DeclaredVariables[k];
@@ -106,7 +104,7 @@ var getVariables = function (ast) {
                 if (ast.property.type === "Identifier") {
                     //用以兼容IE5-9
                     if (!ast.computed) {
-                        var name = ast.property.name
+                        var name = ast.property.name;
                         if (name in ieSpecialWords || getVariables.computed) {
                             ast.property = {
                                 "type": "Literal",
@@ -139,7 +137,7 @@ var getVariables = function (ast) {
                                 "type": "Literal",
                                 "value": name,
                                 "raw": JSON.stringify(name)
-                            }
+                            };
                             if (getVariables.computed) ast.computed = true;
                         }
                     }
@@ -173,16 +171,14 @@ var getVariables = function (ast) {
                 for (var k in u) {
                     delete unDeclaredVariables[k];
                 }
-                for (var k in unDeclaredVariables) {
-                    unDeclaredVariables[k] = "function";
-                }
+                setUndeclaredType(unDeclaredVariables, 'function');
                 ast.id ? DeclaredVariables = {
                     [ast.id.name]: "function"
                 } :
                     DeclaredVariables = {};
                 break;
             case "Identifier":
-                unDeclaredVariables[ast.name] = true;
+                if (!unDeclaredVariables[ast.name]) unDeclaredVariables[ast.name] = true;
                 break;
             case "":
             case "LabeledStatement":
@@ -198,7 +194,7 @@ var getVariables = function (ast) {
                     var argument = ast.arguments[0];
                     if (argument.type === 'Literal') {
                         required.push(argument);
-                        unDeclaredVariables.require = required;
+                        merge(unDeclaredVariables, { require: required });
                         break;
                     }
                 }
