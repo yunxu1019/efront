@@ -4,7 +4,7 @@ var isDevelop = require("./isDevelop");
 var queue = require("./queue");
 var builder;
 var path = require("path");
-var autoloader = function () {
+var autoloader = `function () {
     var reloadCount = 0;
     var reload = function () {
         if (reloadCount > 10) return;
@@ -19,7 +19,7 @@ var autoloader = function () {
         xhr.send("haha");
     };
     reload();
-};
+}`;
 
 if (process.env.TRANSFORM_PIXEL) {
     var fixpixel = function (buff) {
