@@ -1,6 +1,6 @@
 "use strict";
 var colored = Object.create(global.console);
-var version = `efront/(${require("../../package.json").version.replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
+var version = `efront/(${String(require("../../package.json").version).replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
 
 var colors = {
     Reset: "\x1b[0m",

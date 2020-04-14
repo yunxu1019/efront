@@ -77,9 +77,12 @@ function toComponent(responseTree) {
                     if (include_required) {
                         var refer = eval(k);
                         if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
-                            if (destMap[reqMap[refer]]) return destMap[reqMap[refer]];
-                            else has_outside_require = true;
-                            console.fail(k);
+                            var reqer = reqMap[refer];
+                            if (destMap[reqer]) return destMap[reqer];
+                            reqer = reqer.replace(/^\.?\//, '').replace(/\//g, '$');
+                            if (destMap[reqer]) return destMap[reqer];
+                            k = JSON.stringify(reqMap[refer]);
+                            has_outside_require = true;
                         }
                     }
                     break;
@@ -302,10 +305,10 @@ function toComponent(responseTree) {
             .replace(/\s+(\W)/g, "$1")
             .replace(/\b[a-z]\b/ig, a => {
                 var c = a.charCodeAt(0);
-                if (c >= 96) {
+                if (c > 97) {
                     c = ((crypt_code - c) % 26) + 65;
                 } else {
-                    c = ((crypt_code - c) % 26) + 96;
+                    c = ((crypt_code - c) % 26) + 97;
                 }
                 return String.fromCharCode(c);
             });

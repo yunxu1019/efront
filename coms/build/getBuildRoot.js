@@ -124,11 +124,19 @@ var getBuildRoot = function (files, matchFileOnly) {
     var run = function () {
         if (!files.length) return resolve(result);
         var file1 = files.shift();
+        if (!file1) return run();
         var save = function (f) {
             indexMap[f] = indexMap[file1];
             result.push(f);
         };
-        var saveComm = function (name) {
+        var saveComm = function (name, file) {
+            for (var lib of libs_root) {
+                var rel = getPathInFolder(lib, file);
+                if (rel) {
+                    saveLlib(name);
+                    return;
+                }
+            }
             name = name
                 .replace(/[\\\/]+/g, "$")
                 .replace(/\.\w*$/, '');
@@ -147,17 +155,10 @@ var getBuildRoot = function (files, matchFileOnly) {
             save(name);
         };
         var saveFolder = function (folder) {
-            for (var lib of libs_root) {
-                var rel = getPathInFolder(lib, folder);
-                if (rel) {
-                    saveLlib(path.join(lib, rel));
-                    return true;
-                }
-            }
             for (var comm of comms_root) {
                 var rel = getPathInFolder(comm, folder);
                 if (rel) {
-                    saveComm(rel);
+                    saveComm(rel, folder);
                     return true;
                 }
             }
@@ -176,17 +177,11 @@ var getBuildRoot = function (files, matchFileOnly) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
-                        for (var lib of libs_root) {
-                            var rel = getPathInFolder(lib, file);
-                            if (rel) {
-                                return saveLlib(path.join(lib, rel)), ok();
-                            }
-                        }
                         if (/\.([tj]sx?|html?|json)$/i.test(file)) {
                             for (var comm of comms_root) {
                                 var rel = getPathInFolder(comm, file);
                                 if (rel) {
-                                    return saveComm(rel), ok();
+                                    return saveComm(rel, file), ok();
                                 }
                             }
                         }
@@ -271,7 +266,7 @@ var getBuildRoot = function (files, matchFileOnly) {
             if (erroredFiles[file1]) return;
             erroredFiles[file1] = true;
             if (!matchFileOnly) console.error(e, "\r\n");
-            else console.warn(e + ",", '已跳过');
+            else console.warn(e + ",", '已跳过', file1);
         }).then(run);
     };
     return new Promise(function (ok) {

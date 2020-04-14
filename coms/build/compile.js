@@ -130,10 +130,13 @@ function compile(buildInfo, lastBuildTime, destroot) {
                             });
                         };
                         var loadindex = function (index) {
-                            var split = /^\//.test(url) ? '/' : '$';
+                            // var split = /^\//.test(url) ? '/' : '$';
                             var target = url.replace(/(\w)\$/g, "$1/").replace(/[\/\\\$]+$/, '') + "/" + String(index || 'index').replace(/^\.?[\\\/]+/, '');
-                            target = target.replace(/[\\\/]/g, split);
+                            target = target.replace(/[\\\/]/g, "/");
                             _filepath = url.replace(/[\\\/]$/, '') + ".js";
+                            if (!/^\.*\//.test(target)) {
+                                target = "./" + target;
+                            }
                             response(`require("${target}")`);
                         };
                         var response = function (buffer) {

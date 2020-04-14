@@ -49,7 +49,7 @@ function getBuildInfo(url) {
                 if (comms_root instanceof Array) {
                     comms_root.map(function (a) {
                         extt.forEach(function (ext) {
-                            fullpath.push(path.join(a, $name + ext))
+                            fullpath.push(path.join(a, $name + ext));
                         });
                     });
                 } else {
@@ -77,11 +77,11 @@ function getBuildInfo(url) {
                 break;
             case "\\":
                 builder = noopbuilder;
-                for (var lib of libs_root) {
-                    fullpath = name + extt;
+                destpath = name + extt;
+                for (var lib of comms_root) {
+                    fullpath = path.join(lib, name + extt);
                     var rel = path.relative(lib, fullpath);
                     if (/^[^\.]/i.test(rel) || !rel) {
-                        destpath = path.relative(pages_root[0], fullpath);
                         break bigloop;
                     }
                 }

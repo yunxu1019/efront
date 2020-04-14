@@ -117,7 +117,7 @@ var createExpression = function (expression) {
     return esprima.parse(expression).body;
 };
 var trimNodeEnvHead = function (data) {
-    data = data.replace(/^\s*\#\!/, '//');
+    data = String(data || "").replace(/^\s*\#\!/, '//');
     return data;
 };
 var loadJsBody = function (data, filename, lessdata, commName, className) {
