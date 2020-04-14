@@ -1,1 +1,1 @@
-"use process/colored_console.js"
+"use ../efront/colored_console.js"

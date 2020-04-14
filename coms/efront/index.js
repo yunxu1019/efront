@@ -107,9 +107,9 @@ try {
         }).catch(console.error);
     } else if (isDocsCommand) {
         setenv({
-            public_path: path.join(__dirname, "docs"),
-            coms_path: path.join(__dirname, "coms"),
-            page_path: path.join(__dirname, 'docs'),
+            public_path: path.join(__dirname, "../../docs"),
+            coms_path: path.join(__dirname, "../../coms"),
+            page_path: path.join(__dirname, '../../docs'),
             IN_TEST_MODE: true,
             comm: 'docs,zimoli',
             page: './',
