@@ -14,9 +14,9 @@ if (cluster.isMaster) {
     // });
 } else {
     //子线程们
-    message.count({ fullpath: "./process/enrich", data: "", info: "info" }, function (count) {
+    message.count({ fullpath: "../efront/enrich", data: "", info: "info" }, function (count) {
         message.log({ log: "info", args: ["count", "123"] });
-        message.abpi({ fullpath: "./process/enrich", data: "", info: "info" });
+        message.abpi({ fullpath: "../efront/enrich", data: "", info: "info" });
         process.exit();
     });
 }

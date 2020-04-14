@@ -1,4 +1,4 @@
-require("../process/console");
+require("../efront/console");
 console.test("efront demo");
 var demo_process = require("child_process").spawn('node', [process.env.APPDATA + '\\npm\\node_modules\\efront\\main.js', 'demo'], {
     stdio: false,
