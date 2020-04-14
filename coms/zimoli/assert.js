@@ -1,1 +1,1 @@
-"use test/core/assert.js";
+"use ../../test/core/assert.js";
