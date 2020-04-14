@@ -8,11 +8,11 @@
             "type": "node",
             "request": "launch",
             "name": "efront2",
-            "cwd": "${workspaceFolder}/",
+            "cwd": "${workspaceFolder}",
             "env": {
             },
             "args": [
-                "live"
+                "test"
             ],
             "program": "${workspaceFolder}/public/efront.js"
         },
