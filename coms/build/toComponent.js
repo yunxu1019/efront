@@ -43,7 +43,7 @@ function toComponent(responseTree) {
         return $key;
     };
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
-    var encoded = false;
+    var encoded = true;
     var encode = function (source) {
         if (!encoded) return source;
         source = eval(source);
@@ -176,9 +176,7 @@ function toComponent(responseTree) {
         ]},function(d,r,p,j){return function(k){return r(p)[j](d,k)}}]`;
         var __dirname = getEfrontKey('__dirname', 'builtin');
         saveOnly(data, __dirname);
-        console.log(dest[destMap[__dirname] - 1], destMap[__dirname] - 1);
     };
-    var PUBLIC_APP, public_index;
     function saveOnly(data, k, ...ks) {
         if (!destMap[k]) {
             var isGlobal = /^[\$_a-z]\w*$/i.test(data) && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true)$/.test(data);
@@ -195,10 +193,6 @@ function toComponent(responseTree) {
                 data = `\r\n/** ${destMap[k]} ${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
             }
             dest[destMap[k] - 1] = data;
-        }
-        if (public_app.indexOf(k) >= 0 && !/^(export|module|init|require)$/.test(k)) {
-            PUBLIC_APP = k;
-            public_index = destMap[k] - 1;
         }
         ks.forEach(function (key) {
             destMap[key] = destMap[k];
@@ -225,6 +219,7 @@ function toComponent(responseTree) {
         }
         if (!destMap[globalName] && responseTree[globalName]) ok = false;
     };
+    var circle_result;
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, required, reqMap, ...module_body] = result[cx];
@@ -234,7 +229,7 @@ function toComponent(responseTree) {
                 result.splice(cx, 1);
                 continue;
             }
-            if (ok) {
+            if (ok || circle_result) {
                 result.splice(cx, 1);
                 var startTime = new Date;
                 console.info(`压缩(${origin_result_length - result.length}/${origin_result_length}):`, k);
@@ -242,16 +237,16 @@ function toComponent(responseTree) {
                 saveCode(module_body, k, reqMap);
             }
         }
-
         if (last_result_length === result.length) {
-            throw new Error(`存在环形引用：[${result.map(a => a[0]).join('|')}]，处理失败！`);
+            circle_result = `存在环形引用：[${result.map(a => a[0]).join('|')}]`;
         }
         last_result_length = result.length;
     }
+    if (circle_result) console.warn(circle_result);
     report(responseTree);
+    var PUBLIC_APP = k, public_index = dest.length - 1;
     saveOnly(`[${crypt_code}]`, 'module');
     saveOnly(`[${crypt_code % 2019 + 1}]`, 'exports');
-    if (!PUBLIC_APP) PUBLIC_APP = k, public_index = dest.length - 1;
     if (!PUBLIC_APP) return console.error("没有可导出的文件！"), {};
 
     var string_r = `x=s[${destMap[getEfrontKey(`"indexOf"`, "string")] - 1}],
@@ -281,37 +276,43 @@ function toComponent(responseTree) {
         h=s[M-1][0],
         j=s[${destMap[getEfrontKey('String', 'global')] - 1}],
         $=[${$fromCharCode.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}],
-        _=[${$charCodeAt.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}][v]()[w](''),T = this;
-        if (!(a instanceof s[${destMap[getEfrontKey('Array', 'global')] - 1}])){${
-        encoded ? `
+        _=[${$charCodeAt.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}][v]()[w](''),T = this,R;
+        if (!(a instanceof s[${destMap[getEfrontKey('Array', 'global')] - 1}])){${encoded ? `
             if(typeof a===z&&!~p[x](a)){
-                    u=a[q]('')[v]();
-                    for(i=0,k=u[m];i<k;i++){
-                        t=u[i][_](0);
-                        if(t>39&&t<127){
-                            t=((h-t)%87)+40;
-                        }else if(t>=4096){
-                            t=(h&255)^t;
-                        }
-                        u[i]=t;
+                u=a[q]('')[v]();
+                for(i=0,k=u[m];i<k;i++){
+                    t=u[i][_](0);
+                    if(t>39&&t<127){
+                        t=((h-t)%87)+40;
+                    }else if(t>=4096){
+                        t=(h&255)^t;
                     }
-                    u=j[$[v]()[w]('')][y](j,u);
-                    if(!~p[x](u))a=u;
-                }`: ''
+                    u[i]=t;
+                }
+                u=j[$[v]()[w]('')][y](j,u);
+                if(!~p[x](u))a=u;
+            }`: ''}
+            R= function(){return a}
+        }else if(!a[m]){
+            R=function(){
+                return function(i){return ${has_outside_require ? `i[m]?s[${destMap[getEfrontKey("require", "global")] - 1}](i):` : ''}T[i]()}
+            }
+        }else{
+            R=function(){
+                if(~[E,M][x](c+1))return T[c+1]=s[c][0];
+                var r=s[${destMap[getEfrontKey(`/${freg.source}/`, 'regexp')] - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f);
+                if(~a[x](E)||~a[x](M))I={},I[B]={};
+                for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:T[a[i]]();
+                if (l) {
+                    l = l[1][q](',');
+                    g = g[o]([l]);
+                }
+                return f[y](I?I[B]:T[0], g)
+            }
         }
-            return this[c + 1] = a;
+        return T[c + 1] = function(){
+           var S=R();T[c+1]=function(){return S};return S
         }
-        if(!a[m])return T[c+1]=function(i){return ${has_outside_require ? `i[m]?s[${destMap[getEfrontKey("require", "global")] - 1}](i):` : ''}T[i]};
-        if(~[E,M][x](c+1))return T[c+1]=s[c][0];
-        var r=s[${destMap[getEfrontKey(`/${freg.source}/`, 'regexp')] - 1}],I,
-        g =[],i=0,k=a[m]-1, f = a[k],l = r[e](f);
-        if(~a[x](E)||~a[x](M))I={},I[B]={};
-        for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:T[a[i]];
-        if (l) {
-            l = l[1][q](',');
-            g = g[o]([l]);
-        }
-        return T[c + 1] = f[y](I?I[B]:T[0], g);
     }`;
     var polyfill_map = `function (f, t) {
         var s = this,
@@ -324,6 +325,7 @@ function toComponent(responseTree) {
         return r
     }`;
     var simplie_compress = function (str) {
+        if (!encoded) return str;
         return str.toString()
             .replace(/\s+/g, ' ')
             .replace(/(\W)\s+/g, "$1")
@@ -338,7 +340,7 @@ function toComponent(responseTree) {
                 return String.fromCharCode(c);
             });
     };
-    var template = `([/*${new Date().toString()} by efront*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]`;
+    var template = `([/*${new Date().toString()} by efront*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]()`;
     if (EXPORT_TO) {
         switch (EXPORT_TO) {
             case 'return':
