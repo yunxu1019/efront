@@ -3,7 +3,8 @@ var esprima = require("../esprima");
 var esmangle = require("../esmangle");
 var scanner = require("../compile/scanner");
 var typescript = require("../typescript");
-var { public_app, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, include_required } = require("./environment");
+var path = require("path");
+var { public_app, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
 var report = require("./report");
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
@@ -36,7 +37,9 @@ function toComponent(responseTree) {
         k = String(k);
         var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
         var $key = $$_efront_map_string_key + "_" + type + "_" + key;
-        saveOnly(k, $key);
+        if (!destMap[$key]) {
+            saveOnly(k, $key);
+        }
         return $key;
     };
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
@@ -151,7 +154,29 @@ function toComponent(responseTree) {
                 parentheses: false //圆括号
             }
         }).replace(/^function\s+[\$_A-Za-z][\$_\w]*\(/, "function(");
-        saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(a => destMap[a]).concat(module_string)}]`, module_key);
+        saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
+            var index = destMap[a];
+            if (a === "__dirname") {
+                initDirname();
+                var realpath = module_key.replace(/\$/g, '/');
+                var realdir = getEfrontKey(realpath, 'dirname');
+                saveOnly(`[${destMap[getEfrontKey('__dirname', 'builtin')]},function(a){return a(${JSON.stringify(path.dirname(path.relative(PUBLIC_PATH, responseTree[module_key].realpath)).replace(/\\/g, '/'))})}]`, realdir);
+                return destMap[realdir];
+            }
+            return index;
+        }).concat(module_string)}]`, module_key);
+    };
+    var initDirname = function () {
+        initDirname = function () { };
+        var data = `[${[
+            destMap[getEfrontKey('__dirname', 'global')],
+            destMap[getEfrontKey('require', 'global')],
+            destMap[getEfrontKey(`"path"`, 'string')],
+            destMap[getEfrontKey(`"join"`, 'string')],
+        ]},function(d,r,p,j){return function(k){return r(p)[j](d,k)}}]`;
+        var __dirname = getEfrontKey('__dirname', 'builtin');
+        saveOnly(data, __dirname);
+        console.log(dest[destMap[__dirname] - 1], destMap[__dirname] - 1);
     };
     var PUBLIC_APP, public_index;
     function saveOnly(data, k, ...ks) {
@@ -161,13 +186,13 @@ function toComponent(responseTree) {
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
             }
             if (!encoded) {
-                data = `\r\n/** ${dest.length + 1} ${data.length > 100 ? k : k.slice(11, 43)} */ ` + data;
+                data = `\r\n/** ${dest.length + 1} ${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
             }
             dest.push(data);
             destMap[k] = dest.length;
         } else {
             if (!encoded) {
-                data = `\r\n/** ${destMap[k]}${data.length > 100 ? ' ' + k : ''} */ ` + data;
+                data = `\r\n/** ${destMap[k]} ${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
             }
             dest[destMap[k] - 1] = data;
         }
@@ -194,17 +219,17 @@ function toComponent(responseTree) {
     ['Array', 'String'].concat($charCodeAt, $fromCharCode).forEach(function (str) {
         getEfrontKey(str, 'global');
     });
-    var saveModuleBody = function (k) {
-        if (responseTree[k] && !responseTree[k].data && !destMap[k]) {
-            saveOnly(k, k);
+    var saveGlobal = function (globalName) {
+        if (responseTree[globalName] && !responseTree[globalName].data && !destMap[globalName]) {
+            saveOnly(globalName, globalName);
         }
-        if (!destMap[k] && responseTree[k]) ok = false;
+        if (!destMap[globalName] && responseTree[globalName]) ok = false;
     };
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, required, reqMap, ...module_body] = result[cx];
             var ok = true;
-            module_body.slice(0, module_body.length >> 1).concat(required || []).forEach(saveModuleBody);
+            module_body.slice(0, module_body.length >> 1).concat(required || []).forEach(saveGlobal);
             if (!responseTree[k].data) {
                 result.splice(cx, 1);
                 continue;

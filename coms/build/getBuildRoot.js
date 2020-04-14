@@ -84,7 +84,6 @@ var getPathInFolder = function (folder, filepath) {
     if (!rel) {
         rel = "./";
     }
-
     return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
 };
 function paddExtension(file) {
