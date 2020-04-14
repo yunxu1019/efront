@@ -95,7 +95,6 @@ function toComponent(responseTree) {
             }
             k = encode(k);
             var $key = getEfrontKey(k, 'string');
-
             if (!this_module_params[$key]) {
                 this_module_params[$key] = true;
                 module_body.splice(module_body.length >> 1, 0, $key);
@@ -168,11 +167,12 @@ function toComponent(responseTree) {
     };
     var initDirname = function () {
         initDirname = function () { };
+
         var data = `[${[
             destMap[getEfrontKey('__dirname', 'global')],
             destMap[getEfrontKey('require', 'global')],
-            destMap[getEfrontKey(`"path"`, 'string')],
-            destMap[getEfrontKey(`"join"`, 'string')],
+            destMap[getEfrontKey(encode(`"path"`), 'string')],
+            destMap[getEfrontKey(encode(`"join"`), 'string')],
         ]},function(d,r,p,j){return function(k){return r(p)[j](d,k)}}]`;
         var __dirname = getEfrontKey('__dirname', 'builtin');
         saveOnly(data, __dirname);
@@ -278,7 +278,7 @@ function toComponent(responseTree) {
         $=[${$fromCharCode.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}],
         _=[${$charCodeAt.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}][v]()[w](''),T = this,R;
         if (!(a instanceof s[${destMap[getEfrontKey('Array', 'global')] - 1}])){${encoded ? `
-            if(typeof a===z&&!~p[x](a)){
+            if(typeof a===z&&!~p[x](a)&&c!==${destMap[getEfrontKey(`__dirname`, "global")] - 1}){
                 u=a[q]('')[v]();
                 for(i=0,k=u[m];i<k;i++){
                     t=u[i][_](0);
@@ -299,10 +299,10 @@ function toComponent(responseTree) {
             }
         }else{
             R=function(){
-                if(~[E,M][x](c+1))return T[c+1]=s[c][0];
+                if(~[E,M][x](c+1))return s[c][0];
                 var r=s[${destMap[getEfrontKey(`/${freg.source}/`, 'regexp')] - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f);
                 if(~a[x](E)||~a[x](M))I={},I[B]={};
-                for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:T[a[i]]();
+                for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:a[i]?T[a[i]]():T[0];
                 if (l) {
                     l = l[1][q](',');
                     g = g[o]([l]);
@@ -311,7 +311,8 @@ function toComponent(responseTree) {
             }
         }
         return T[c + 1] = function(){
-           var S=R();T[c+1]=function(){return S};return S
+            var S=R();T[c+1]=function(){return S};
+            return S
         }
     }`;
     var polyfill_map = `function (f, t) {
