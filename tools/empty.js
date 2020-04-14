@@ -5,7 +5,7 @@ global.promise = new Promise(function (ok, oh) {
     });
 }).then(function (result) {
     console.log(result);
-    require("../process/commbuilder")(result, "", __filename, []);
+    require("../../coms/efront/commbuilder")(result, "", __filename, []);
 }).catch(function (result) {
     console.log(result);
 });

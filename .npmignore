@@ -31,8 +31,9 @@ data/shared.json
 data/count.json
 data/images/logo.pptx
 data/icons
-process/*_test.js
+coms/efront/*_test.js
+coms/database/*_test.js
 test
 nbproject/
-process/database/
-process/qiniu/
+coms/database/
+coms/qiniu/

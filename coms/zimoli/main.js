@@ -1,3 +1,3 @@
 "use strict";
 "use ./forceUpdate.js";
-"use process/loader.js";
+"use ../efront/loader.js";

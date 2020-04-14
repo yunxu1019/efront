@@ -1,1 +1,1 @@
-"use /process/compile/compile.js"
+"use ../compile/compile.js"
