@@ -8,6 +8,18 @@
             "type": "node",
             "request": "launch",
             "name": "efront2",
+            "cwd": "${workspaceFolder}/",
+            "env": {
+            },
+            "args": [
+                "live"
+            ],
+            "program": "${workspaceFolder}/public/efront.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "build-efront2",
             "cwd": "${workspaceFolder}/../efront2/",
             "env": {
                 "coms_path": "./coms",
