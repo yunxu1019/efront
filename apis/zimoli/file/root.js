@@ -1,2 +1,2 @@
-var rootDirectorys = require("../../../server/checkAccess").roots;
+var rootDirectorys = require("../../server/checkAccess").roots;
 module.exports = rootDirectorys;

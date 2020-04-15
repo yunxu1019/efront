@@ -1,1 +1,1 @@
-'use ../../build/write.js';
+'use ../build/write.js';
