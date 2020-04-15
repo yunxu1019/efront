@@ -1,1 +1,1 @@
-"use ..\\reptile\\queue.js"
+"use ../reptile/queue.js"
