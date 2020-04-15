@@ -66,9 +66,8 @@ var call = function (file, args = []) {
     }
     var data = fs.readFileSync(file);
     (
-        /^\s*@\s*chcp\s*65001\b/i.test(data.slice(0, 100).toString())
-            ? String(data)
-            : gbk2utf8(data)
+        /^\s*@\s*chcp\s*65001\b/i.test(data.slice(0, 100).toString()) ?
+            String(data) : gbk2utf8(data)
     )
         .replace(/%(\d)/g, function (match, i) {
             return args[i];
@@ -162,7 +161,7 @@ var setup = module.exports = function (appname) {
 var pollyfill = function (env, appname) {
     if (!env.PAGE) env.PAGE = appname;
     for (var k in bootConfig) {
-        var bootfull = path.join(__dirname, "..", bootConfig[k]);
+        var bootfull = path.join(__dirname, "../../", bootConfig[k]);
         var bootpath = path.relative(bootConfig[k], bootfull);
         if (bootpath) {
             bootfull = bootConfig[k] + "," + bootfull;

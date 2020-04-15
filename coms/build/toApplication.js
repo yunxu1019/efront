@@ -70,7 +70,6 @@ var buildHtml = function (html, code) {
 };
 function toApplication(responseTree) {
     report(responseTree);
-
     var isFileMode = /\.html?$/i.test(environment.APP);
     var versionTree = {};
     var mainScript = responseTree["main"].data;
