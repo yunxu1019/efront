@@ -118,9 +118,9 @@ try {
         require("../server/main");
     } else if (isDemoCommand) {
         setenv({
-            public_path: path.join(__dirname, "apps"),
-            page_path: path.join(__dirname, "apps"),
-            coms_path: path.join(__dirname, "coms"),
+            public_path: path.join(__dirname, "../../apps"),
+            page_path: path.join(__dirname, "../../apps"),
+            coms_path: path.join(__dirname, "../../coms"),
             IN_TEST_MODE: true,
             app: "kugou"
         });
