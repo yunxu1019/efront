@@ -28,6 +28,7 @@ var isStartCommand = configs.start || configs.run;
 var isRobber = configs.bug || configs.record || configs.robber;
 var isLone = configs.lone || configs.live;
 var isSettingPassword = configs.password;
+var isVersionCommand = configs["-v"] || configs.version;
 var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
@@ -132,6 +133,10 @@ try {
         startDevelopEnv();
     } else if (isServerMode) {
         require("../server/index");
+    } else if (isVersionCommand) {
+        console.info(
+            require("../../package.json").version
+        );
     } else if (isPublicMode) {
         var public = function () {
             if (loadModule.length === 1) {
