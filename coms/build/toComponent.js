@@ -344,9 +344,13 @@ function toComponent(responseTree) {
     var template = `([/*${new Date().toString()} by efront*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]()`;
     if (EXPORT_TO) {
         switch (EXPORT_TO) {
+            case 'node':
+                template = `#!/usr/bin/env node\r\n` + template;
+                break;
             case 'return':
                 template = "return " + template;
                 break;
+            case 'module':
             case 'exports':
             case 'module.exports':
                 template = "module.exports=" + template;
@@ -374,7 +378,8 @@ function toComponent(responseTree) {
     //     }
     // }
     responseTree[PUBLIC_APP].data = template;
-    responseTree[PUBLIC_APP].destpath = (responseTree[PUBLIC_APP].destpath || PUBLIC_APP) + EXTT;
+    var DESTNAME = String(PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + EXTT;
+    responseTree[PUBLIC_APP].destpath = DESTNAME || PUBLIC_APP;
     return Object.assign({
         [PUBLIC_APP]: responseTree[PUBLIC_APP]
     }, libsTree);
