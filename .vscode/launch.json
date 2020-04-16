@@ -20,7 +20,7 @@
             "type": "node",
             "request": "launch",
             "name": "build-efront2",
-            "cwd": "${workspaceFolder}/../efront2/",
+            "cwd": "${workspaceFolder}",
             "env": {
                 "coms_path": "./coms",
                 "public_path": "public",
@@ -31,9 +31,9 @@
                 "destpath": "public/efront.js"
             },
             "args": [
-                "publish"
+                "build"
             ],
-            "program": "${workspaceFolder}/main.js"
+            "program": "${workspaceFolder}/coms/efront/index.js"
         },
         {
             "type": "node",
