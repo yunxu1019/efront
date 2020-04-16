@@ -21,7 +21,7 @@ Hello World 目标代码 | &gt;30kb | &gt;30kb | ≈30kb;| ≈1kb;
 
 ### 1.  angular 1~9
 
-angular1将视图和逻辑隔离，js可通过更新scope上的数据以达到更新视图的目的，用户在视图上的输出可通过绑定关系自动同步到scope，后angular2+将scope抽象为typescript的class的实际，其实际用途不变。angular自身的逻辑维护的是数据与视图的绑定关系。
+angular1将视图和逻辑隔离，js可通过更新scope上的数据以达到更新视图的目的，用户在视图上的输入可通过绑定关系自动同步到scope，后angular2+将scope抽象为typescript的class的实例，其实际用途不变。angular自身的逻辑维护的是数据与视图的绑定关系。
 
 ### 2.  react
 react 通过虚拟dom与视图保持同步，每次渲染前，通过用户逻辑重构虚拟dom，react则维护虚拟dom与视图的同步。
