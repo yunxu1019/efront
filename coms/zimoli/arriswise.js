@@ -34,7 +34,7 @@ function build(func, argNames, argsArr) {
     return Function.apply(null, argNames.map(replaceArg).concat("return " + newf))
         .apply(this, argsArr.map(replaceArg));
 }
-var arriswise = function (func, args) {
+var arriswise = function (func, args = []) {
     if (isFunction(args.slice)) {
         // 兼容老方法
         return build.call(arguments[2] || this, func, args.slice(0, args.length >> 1), args.slice(args.length >> 1));
