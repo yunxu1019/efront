@@ -74,7 +74,7 @@ var flushTree = function (tree, key, res) {
         }
     }
 };
-var readFile = function (names, then) {
+var readFile = function (names, then, saveas) {
     if (names instanceof Array) {
         names = names.slice(0);
         var loaded = 0;
@@ -87,24 +87,42 @@ var readFile = function (names, then) {
         names.forEach(function (name) {
             readFile(name, callback);
         });
-    } else {
-        var key = keyprefix + names;
-        if (key in responseTree) {
-            then(responseTree[key]);
-            return;
-        }
-        if (loadingTree[key] instanceof Array) {
-            loadingTree[key].push(then);
-            return;
-        }
-        loadingTree[key] = [then];
-        request(names, function (res) {
-            responseTree[key] = res;
-            flushTree(loadingTree, key);
-            clearTimeout(flush_to_storage_timer);
-            flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
-        });
+        return;
     }
+    var name = names;
+    var key = keyprefix + name;
+    if (key in responseTree) {
+        then(responseTree[key]);
+        return;
+    }
+    if (loadingTree[key] instanceof Array) {
+        loadingTree[key].push(then);
+        return;
+    }
+    loadingTree[key] = [then];
+    var url;
+    if (FILE_NAME_REG.test(name)) {
+        url = name;
+    } else {
+        switch (name.charAt(0)) {
+            case ":":
+                url = "node/" + name.slice(1);
+                break;
+            case "/":
+                url = "page" + name;
+                break;
+            default:
+                url = "comm/" + name;
+        }
+        if (efrontURI) url = efrontURI + url;
+    }
+    request(url, function (res) {
+        responseTree[key] = res;
+        flushTree(loadingTree, key);
+        clearTimeout(flush_to_storage_timer);
+        flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
+    });
+
 };
 var createFunction = function (name, body, args) {
     return window.eval(`(function /*${name}*/(${args || ''}){\r\n${body}\r\n})`);
@@ -114,6 +132,10 @@ var FILE_NAME_REG = /^https?\:|\.(html?|css|asp|jsp|php)$/i;
 var loadedModules = {};
 var loadModule = function (name, then, prebuilds = {}) {
     if (/^(?:module|exports|define|require|window|global|undefined)$/.test(name)) return then();
+    var hasOwnProperty = {}.hasOwnProperty;
+    if ((name in prebuilds) || hasOwnProperty.call(modules, name) || (window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
+    ) return then();
+    preLoad(name);
     var key = keyprefix + name;
     if (loadedModules[key] instanceof Function) {
         then();
@@ -124,7 +146,6 @@ var loadModule = function (name, then, prebuilds = {}) {
         return;
     }
     loadedModules[key] = [then];
-    var url;
     if (FILE_NAME_REG.test(name)) {
         var saveModule = function () {
             flushTree(responseTree, key, function () {
@@ -138,8 +159,9 @@ var loadModule = function (name, then, prebuilds = {}) {
         };
     }
     else {
+
         var saveModule = function () {
-            var data = responseTree[keyprefix + url];
+            var data = responseTree[key];
             var [args, body] = getArgs(data);
             var mod = createFunction(name, body, args.slice([args.length >> 1], args.length));
             mod.args = args;
@@ -147,9 +169,7 @@ var loadModule = function (name, then, prebuilds = {}) {
             var required = args[argslength << 1];
             var loadingCount = 0;
             if (required) required = required.split(';').filter(a => !a);
-            args = args.slice(0, argslength).concat(required || []).filter(
-                a => !(a in prebuilds) || (window[a] !== null && window[a] !== void 0 || hasOwnProperty.call(forceRequest, a))
-            );
+            args = args.slice(0, argslength).concat(required || []);
             var response = function () {
                 loadingCount++;
                 if (loadingCount === args.length) flushTree(loadedModules, key, mod);
@@ -162,18 +182,7 @@ var loadModule = function (name, then, prebuilds = {}) {
                 });
             }
         };
-        switch (name.charAt(0)) {
-            case ":":
-                url = "node/" + name.slice(1);
-                break;
-            case "/":
-                url = "page" + name;
-                break;
-            default:
-                url = "comm/" + name;
-        }
-        if (efrontURI) url = efrontURI + url;
-        readFile(url, saveModule);
+        readFile(name, saveModule);
     }
 };
 var getArgs = function (text) {
@@ -472,9 +481,10 @@ var flush_to_storage_timer = 0,
     responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
 var saveResponseTreeToStorage = function () {
     var responseTextArray = [];
-    for (var k in responseTree) {
-        if (versionTree[k]) responseTextArray.push(
-            k + "：" + versionTree[k] + "：" + responseTree[k]
+    for (var k in versionTree) {
+        var key = keyprefix + k;
+        if (responseTree[key]) responseTextArray.push(
+            k + "：" + versionTree[k] + "：" + responseTree[key]
         );
     }
     var data = responseTextArray.join("，");
@@ -530,13 +540,14 @@ var loadResponseTreeFromStorage = function () {
         load();
     });
     preLoad = function (responseName) {
+        var key = keyprefix + responseName;
         if (responseTree[responseName]) return;
         var version = preLoadVersionTree[responseName];
         if (!version) return;
         var responseText = preLoadResponseTree[responseName];
         var sum = crc(responseText).toString(36);
         if (sum + version.slice(sum.length) === versionTree[responseName])
-            responseTree[responseName] = responseText;
+            responseTree[key] = responseText;
         // else window.console.log(responseName, sum, version, versionTree[responseName]);
     };
 };
