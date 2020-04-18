@@ -45,23 +45,8 @@ onactive(leftArea, function (event) {
  */
 
 
-
-var exportButton = button("导出代码", "default");
-css(exportButton, "height:50px;width:200px;")
-onclick(exportButton, exportCodes);
 window.modules = modules;
 var baseUrl = "";
-setGetMethod(function (url, then) {
-    url = baseUrl + url;
-    if (responseTree[url]) {
-        then(responseTree[url], url);
-    } else if (loaddingTree[url]) {
-        loaddingTree[url].push(then);
-    } else {
-        loaddingTree[url] = [then];
-        modules.load(url);
-    }
-});
 var build = function () {
     try {
         execute(commNameInput.value, function (comm) {
@@ -71,7 +56,7 @@ var build = function () {
         console.error(e);
     }
 }
-appendChild(nameArea, commNameInput, exportButton);
+appendChild(nameArea, commNameInput);
 appendChild(page, leftArea, nameArea, mainArea);
 function main() {
     build();
