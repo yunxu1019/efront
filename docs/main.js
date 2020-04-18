@@ -4,7 +4,7 @@
 titlebar("组件加载工具", false, false);
 var leftArea = tree();
 addClass(leftArea, "left-bar");
-var mainArea = createWithClass(div, "main-area");
+var mainArea = createWithClass(vbox, "main-area");
 var nameArea = createWithClass(div, "name-area");
 var page = createElement(div);
 /**
@@ -49,9 +49,20 @@ window.modules = modules;
 var baseUrl = "";
 var build = function () {
     try {
-        execute(commNameInput.value, function (comm) {
-            isNode(comm) && appendChild(mainArea, comm);
-        });
+        var logpad = document.createElement("logpad");
+        remove(mainArea.children);
+        appendChild(mainArea.innerHTML);
+        execute(commNameInput.value, function (comm, logs) {
+            remove(mainArea.children);
+            if (comm === undefined && !logs.length) {
+                mainArea.innerHTML = `<span style="line-height:20px">该模块未发现使用信息</span>`;
+                return;
+            }
+
+            if (isNode(comm)) appendChild(mainArea, comm);
+            else mainArea.innerHTML = `<div>${JSON.stringify(comm)}</div>`
+            appendChild(mainArea, logpad);
+        }, logpad);
     } catch (e) {
         console.error(e);
     }

@@ -1,10 +1,40 @@
 var component;
-var execute = function (commName, then) {
+var execute = function (commName, then, logpad) {
     component && remove(component);
     if (!commName) return;
-    console.info(`load ${commName}!`);
     window[commName] = null;
     delete modules[commName];
+    var logs = [];
+    var log = function (color, type, text, ...extra) {
+        if (text instanceof Error) text = text.message;
+        window.console.log.apply(window.console, [].slice.call(arguments, 2));
+        logs.push([color, type, text, ...extra]);
+        if (logpad) logpad.innerHTML = logs.slice(logs.length > 10 ? logs.length - 10 : 0).map(msg => {
+            var [color, type] = msg;
+            return `<div style="color:${color}">${type} ${
+                msg.map(m => {
+                    if (m instanceof Object) {
+                        try {
+                            m = JSON.stringify(m, null, ' ').replace(/[\r\n]+/g, '<br/>').replace(/\s/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+                        } catch (e) {
+                            return String(m);
+                        }
+                    }
+                    return m;
+                }
+                ).join(' ')
+                }</div>`
+        }).join("");
+    };
+    var console = {
+        log: log.bind('#333', ''),
+        error: log.bind('#f00', '错误'),
+        info: log.bind("#26f", '提示'),
+        warn: log.bind("#fc0", '警告'),
+    };
+    window.onerror = a => console.error(a);
+    window.console.info(`load ${commName}!`);
+
     init(commName, function (comm) {
         window[commName] = function () {
             remove(component);
@@ -16,7 +46,7 @@ var execute = function (commName, then) {
             }
             return component;
         };
-        component = createElement(comm);
-        then && then(component);
-    });
+        component = comm instanceof Function ? comm() : comm;
+        then instanceof Function && then(component, logs);
+    }, { console });
 };
