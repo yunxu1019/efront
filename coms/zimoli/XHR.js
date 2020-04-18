@@ -1,1 +1,1 @@
-this.XMLHttpRequest;
+XMLHttpRequest

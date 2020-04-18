@@ -56,7 +56,6 @@ var window = {
         MOVELOCK_DELTA: 3,
         SAFE_CIRCLE_DEPTH: 300,
         renderPixelRatio: {},
-        XHR: {},
         calcPixel: {},
         freePixel: {},
         fromPixel: {},

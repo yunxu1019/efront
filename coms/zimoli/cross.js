@@ -132,7 +132,7 @@ function cross(method, url, headers) {
             : "Efront/1.9 (Windows) Chrome/77.0.3865.90";
         method = method.slice(1);
     }
-    var xhr = new XHR;
+    var xhr = new XMLHttpRequest;
     var abort = xhr.abort;
     xhr.abort = function () {
         xhr.onreadystatechange = null;
