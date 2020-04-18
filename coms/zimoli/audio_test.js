@@ -1,7 +1,8 @@
 function audio_test() {
     var recoder = audio.getRecorder();
 
-    var _block = block("<canvas></canvas><button ng-if=!running ng-click=start()>录制</button><button ng-if=running ng-click=stop()>停止录制</button>").render(recoder);
+    var _block = block("<canvas></canvas><button ng-if=!running ng-click=start()>录制</button><button ng-if=running ng-click=stop()>停止录制</button>")
+    render(_block, recoder);
     var canvas = _block.querySelector("canvas");
     canvas.width = 1024;
     canvas.height = 256;
