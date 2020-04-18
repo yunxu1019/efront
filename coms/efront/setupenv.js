@@ -138,6 +138,9 @@ var setup = module.exports = function (appname) {
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
         var default_value = env[key] || process.env[key];
         var value_map = Object.create(null);
+        if (appname) {
+            value_map[appname] = true;
+        }
         if (default_value) {
             default_value.split(',').forEach(k => {
                 value_map[k] = true;
@@ -147,9 +150,6 @@ var setup = module.exports = function (appname) {
         }
         value_map[""] = true;
         value_map["typescript-helpers"] = true;
-        if (appname) {
-            value_map[appname] = true;
-        }
         env[key] = Object.keys(value_map).join(',');
     });
     extend(env, env, appname);
