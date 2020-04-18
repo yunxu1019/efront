@@ -7,14 +7,18 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "efront2",
+            "name": "start efront2",
             "cwd": "${workspaceFolder}",
             "env": {
+                "coms_path": "./coms",
+                "public_path": "public",
+                "extt": ".js",
+                "coms": "./",
             },
             "args": [
-                "test"
+                "efront$index.js"
             ],
-            "program": "${workspaceFolder}/public/efront.js"
+            "program": "${workspaceFolder}/coms/efront/index.js"
         },
         {
             "type": "node",
@@ -22,16 +26,19 @@
             "name": "build-efront2",
             "cwd": "${workspaceFolder}",
             "env": {
-                "coms_path": "./coms",
-                "public_path": "public",
-                "page": "./coms/efront",
+                "coms_path": "./coms,",
+                "page_path": "./coms",
+                "public_path": "./public",
+                "page": "./",
                 "app": "efront/index.js",
                 "extt": ".js",
                 "coms": "./",
-                "destpath": "public/efront.js"
+                "libs_path":"./",
+                "libs":"typescript,esprima,escodegen,esmangle,pngjs,less-node",
+                "destpath": "efront.js"
             },
             "args": [
-                "build"
+                "publish"
             ],
             "program": "${workspaceFolder}/coms/efront/index.js"
         },
