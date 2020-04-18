@@ -1,4 +1,4 @@
-var message = require("../../../efront/message");
+var message = require("../../coms/message");
 function userLogin({ path }) {
     return new Promise(function (ok, oh) {
         message.count({
