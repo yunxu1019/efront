@@ -84,9 +84,11 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
             commName = realName;
         }
         if (!commName) commName = realName;
-        if (/module.exports\s*=/.test(data)) {
-            data = data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName + " =" : "return ");
-            return data;
+        if (~loadJsBody(data, 'main.js', '', 'main', '').imported.indexOf('module')){
+            if (/module.exports\s*=/.test(data)) {
+                data = data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName + " =" : "return ");
+                return data;
+            }
         }
         return data + `;var ${realName},${commName}=${realName};`;
     };
@@ -123,10 +125,8 @@ var trimNodeEnvHead = function (data) {
 var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
-
     var destpaths = getRequiredPaths(data);
     data = typescript.transpile(data, { noEmitHelpers: true });
-
     var code = esprima.parse(data);
     var {
         DeclaredVariables: declares,
@@ -205,7 +205,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                         }
                     ]
                 } : code.body[0].expression
-            }];
+            }
+        ];
     } else {
         code_body = code.body;
         if (undeclares.module) {
@@ -331,13 +332,11 @@ var buildResponse = function ({ imported, params, data, required }) {
     } else if (length.length === 2) {
         length = "0" + length;
     }
-    data = (_arguments.length ? length + _arguments : "") + data
-        .replace(
-            /[\u0100-\uffff]/g,
-            m => "\\u" + (m.charCodeAt(0) > 0x1000 ?
-                m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)
-            )
-        );
+    data = (_arguments.length ? length + _arguments : "") + data.replace(/[\u0100-\uffff]/g,
+        m => "\\u" + (m.charCodeAt(0) > 0x1000 ?
+            m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)
+        )
+    );
     return data;
 };
 var getFileData = function (fullpath) {
