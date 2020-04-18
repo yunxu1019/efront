@@ -64,6 +64,10 @@ function toComponent(responseTree) {
         source = JSON.stringify(source).replace(/[\u1000-\uffff]/g, a => "\\u" + a.charCodeAt(0).toString(16));
         return source;
     };
+    var getEncodedIndex = function (key, type = "string") {
+        if (type === 'string') key = encode(JSON.stringify(key));
+        return destMap[getEfrontKey(key, type)];
+    };
     var has_outside_require = false;
     var saveCode = function (module_body, module_key, reqMap) {
         var this_module_params = {};
@@ -159,7 +163,7 @@ function toComponent(responseTree) {
                 initDirname();
                 var realpath = module_key.replace(/\$/g, '/');
                 var realdir = getEfrontKey(realpath, 'dirname');
-                saveOnly(`[${destMap[getEfrontKey('__dirname', 'builtin')]},function(a){return a(${JSON.stringify(path.dirname(path.relative(PUBLIC_PATH, responseTree[module_key].realpath)).replace(/\\/g, '/'))})}]`, realdir);
+                saveOnly(`[${getEncodedIndex('__dirname', 'builtin')},function(a){return a(${JSON.stringify(path.dirname(path.relative(PUBLIC_PATH, responseTree[module_key].realpath)).replace(/\\/g, '/'))})}]`, realdir);
                 return destMap[realdir];
             }
             return index;
@@ -169,10 +173,10 @@ function toComponent(responseTree) {
         initDirname = function () { };
 
         var data = `[${[
-            destMap[getEfrontKey('__dirname', 'global')],
-            destMap[getEfrontKey('require', 'global')],
-            destMap[getEfrontKey(encode(`"path"`), 'string')],
-            destMap[getEfrontKey(encode(`"join"`), 'string')],
+            getEncodedIndex('__dirname', 'global'),
+            getEncodedIndex('require', 'global'),
+            getEncodedIndex(`path`),
+            getEncodedIndex(`join`),
         ]},function(d,r,p,j){return function(k){return r(p)[j](d,k)}}]`;
         var __dirname = getEfrontKey('__dirname', 'builtin');
         saveOnly(data, __dirname);
@@ -249,19 +253,19 @@ function toComponent(responseTree) {
     saveOnly(`[${crypt_code % 2019 + 1}]`, 'exports');
     if (!PUBLIC_APP) return console.error("没有可导出的文件！"), {};
 
-    var string_r = `x=s[${destMap[getEfrontKey(`"indexOf"`, "string")] - 1}],
-    m=s[${destMap[getEfrontKey(`"length"`, "string")] - 1}],
-    n=s[${destMap[getEfrontKey(`"slice"`, "string")] - 1}],
-    e=s[${destMap[getEfrontKey(`"exec"`, "string")] - 1}],
-    q=s[${destMap[getEfrontKey(`"split"`, "string")] - 1}],
-    o=s[${destMap[getEfrontKey(`"concat"`, "string")] - 1}],
-    y=s[${destMap[getEfrontKey(`"apply"`, "string")] - 1}],
-    v=s[${destMap[getEfrontKey(`"reverse"`, "string")] - 1}],
-    z=s[${destMap[getEfrontKey(`"string"`, "string")] - 1}],
-    B=s[${destMap[getEfrontKey(`"exports"`, "string")] - 1}],
+    var string_r = `x=s[${getEncodedIndex(`indexOf`, "string") - 1}],
+    m=s[${getEncodedIndex(`length`, "string") - 1}],
+    n=s[${getEncodedIndex(`slice`, "string") - 1}],
+    e=s[${getEncodedIndex(`exec`, "string") - 1}],
+    q=s[${getEncodedIndex(`split`, "string") - 1}],
+    o=s[${getEncodedIndex(`concat`, "string") - 1}],
+    y=s[${getEncodedIndex(`apply`, "string") - 1}],
+    v=s[${getEncodedIndex(`reverse`, "string") - 1}],
+    z=s[${getEncodedIndex(`string`, "string") - 1}],
+    B=s[${getEncodedIndex(`exports`, "string") - 1}],
     E=${destMap.exports},
     M=${destMap.module},
-    w=s[${destMap[getEfrontKey(`"join"`, "string")] - 1}]`;
+    w=s[${getEncodedIndex(`join`, "string") - 1}]`;
     -function () {
         string_r = string_r.split(',');
         for (var cx = 0, dx = string_r.length; cx < dx; cx++) {
@@ -272,13 +276,13 @@ function toComponent(responseTree) {
     }();
     var realize = `function (a, c,s) {
         var ${string_r},
-        u,p=[x,m,n,q,o,y,B,e,v,z,w,s[${destMap[getEfrontKey(`"call"`, "string")] - 1}]],
+        u,p=[x,m,n,q,o,y,B,e,v,z,w,s[${getEncodedIndex(`call`, "string") - 1}]],
         h=s[M-1][0],
-        j=s[${destMap[getEfrontKey('String', 'global')] - 1}],
-        $=[${$fromCharCode.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}],
-        _=[${$charCodeAt.map(a => destMap[getEfrontKey(a, 'global')] - 1).map(a => `s[${a}]`)}][v]()[w](''),T = this,R;
-        if (!(a instanceof s[${destMap[getEfrontKey('Array', 'global')] - 1}])){${encoded ? `
-            if(typeof a===z&&!~p[x](a)&&c!==${destMap[getEfrontKey(`__dirname`, "global")] - 1}){
+        j=s[${getEncodedIndex('String', 'global') - 1}],
+        $=[${$fromCharCode.map(a => getEncodedIndex(a, 'global') - 1).map(a => `s[${a}]`)}],
+        _=[${$charCodeAt.map(a => getEncodedIndex(a, 'global') - 1).map(a => `s[${a}]`)}][v]()[w](''),T = this,R;
+        if (!(a instanceof s[${getEncodedIndex('Array', 'global') - 1}])){${encoded ? `
+            if(typeof a===z&&!~p[x](a)&&c!==${getEncodedIndex(`__dirname`, "global") - 1}){
                 u=a[q]('')[v]();
                 for(i=0,k=u[m];i<k;i++){
                     t=u[i][_](0);
@@ -294,13 +298,15 @@ function toComponent(responseTree) {
             }`: ''}
             R= function(){return a}
         }else if(!a[m]){
-            R=function(){
-                return function(i){return ${has_outside_require ? `i[m]?s[${destMap[getEfrontKey("require", "global")] - 1}](i):` : ''}T[i]()}
-            }
+            R=function(){${has_outside_require ? `
+                var r= function(i){return i[m]?s[${getEncodedIndex("require", "global") - 1}](i):T[i]()};
+                r[T[${getEncodedIndex(`cache`)}]()]=s[${getEncodedIndex('require', "global") - 1}][T[${getEncodedIndex('cache')}]()];
+                return r;`: `return function(i){return T[i]()}`}
+            };
         }else{
             R=function(){
                 if(~[E,M][x](c+1))return s[c][0];
-                var r=s[${destMap[getEfrontKey(`/${freg.source}/`, 'regexp')] - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f);
+                var r=s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f);
                 if(~a[x](E)||~a[x](M))I={},I[B]={};
                 for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:a[i]?T[a[i]]():T[0];
                 if (l) {
@@ -317,10 +323,10 @@ function toComponent(responseTree) {
     }`;
     var polyfill_map = `function (f, t) {
         var s = this,
-        l=s[${destMap[getEfrontKey(`"length"`, 'string')] - 1}],
+        l=s[${getEncodedIndex(`length`, 'string') - 1}],
         r = [],
         c = 0,
-        e=s[${destMap[getEfrontKey(`"call"`, "string")] - 1}],
+        e=s[${getEncodedIndex(`call`, "string") - 1}],
         d = s[l];
         for (; c < d; c++)r[c] = f[e](t, c, s[c]);
         return r
