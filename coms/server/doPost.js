@@ -2,7 +2,7 @@
 var finalpacker = require("../efront/finalpacker");
 var message = require("../message");
 var proxy = require("./url-proxy");
-var isDevelop=require("../efront/isDevelop");
+var isDevelop = require("../efront/isDevelop");
 var readdata = function (req, res, then, max_length) {
     var buff = [],
         length = 0;

@@ -6,8 +6,10 @@ var reflect = {
     X: "Y",
     Y: "X",
     "px": "px",
-    "x": 'y',
-    "y": 'x',
+    "deltax": "deltay",
+    "deltay": "deltax",
+    "x":"y",
+    "y":"x",
     Top: "Left",
     Left: "Top",
     top: "left",
@@ -17,7 +19,7 @@ var reflect = {
     right: "bottom",
     bottom: "right"
 };
-var regkeys = keys(reflect).map(a => /^[xy]$/.test(a) ? `\\b${a}|${a}\\b` : a);
+var regkeys = keys(reflect).map(a => /^[xy]$/.test(a) ? `\\b${a}` : a);
 var regexps = new RegExp(regkeys.join("|"), "g");
 var rep = function (matched) {
     var searched = reflect[matched];
@@ -35,7 +37,7 @@ function build(func, argNames, argsArr) {
     return Function.apply(null, argNames.map(replaceArg).concat("return " + newf))
         .apply(this, argsArr.map(replaceArg));
 }
-var arriswise = function (func, args) {
+var arriswise = function (func, args = []) {
     if (isFunction(args.slice)) {
         // 兼容老方法
         return build.call(arguments[2] || this, func, args.slice(0, args.length >> 1), args.slice(args.length >> 1));

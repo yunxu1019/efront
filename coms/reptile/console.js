@@ -1,1 +1,1 @@
-"use ../efront/colored_console.js"
+"use ../basic/colored_console.js"

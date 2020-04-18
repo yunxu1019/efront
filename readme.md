@@ -119,11 +119,9 @@ efront
 
 # 目录说明
 
-01. \_envs 环境配置存放位置
-02. apps 静态app页面，通过get或post方式访问
-03. coms 组件库
-04. docs 文档
-05. public 静态资源发布目录，用于存放编译的目标文件
+01. apps 静态app页面，通过get或post方式访问
+02. coms 组件库
+03. public 静态资源发布目录，用于存放编译的目标文件
 
 # 配置项说明
 

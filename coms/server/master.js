@@ -92,13 +92,16 @@ var run = function () {
         return worker;
     });
 };
+var isProduction = function develop() { return develop.name === 'develop' }();
 var watch = {
     close: function (watchs) {
         watchs.forEach(a => a.close());
-    }.bind(null, [
+    }.bind(null, isProduction ? [
         fs.watch(__dirname, { recursive: true }, run),
-        fs.watch(path.join(__dirname, "../"), { recursive: true }, run)
-    ])
+        fs.watch(path.join(__dirname, "../efront"), { recursive: true }, run),
+        fs.watch(path.join(__dirname, "../compile"), { recursive: true }, run),
+        fs.watch(path.join(__dirname, "../message"), { recursive: true }, run)
+    ] : [])
 };
 message.quit = end;
 message.broadcast = broadcast;

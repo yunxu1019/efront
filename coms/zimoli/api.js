@@ -116,7 +116,7 @@ var api = function () {
                 setRequestHeader.call(xhr, key, value);
             };
         } else {
-            var xhr = XHR();
+            var xhr = new XMLHttpRequest;
             xhr.open(method, url);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState !== 4) return;

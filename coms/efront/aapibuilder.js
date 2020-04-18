@@ -98,7 +98,7 @@ function request(fullpath, data, info) {
 var multithreadingApiMap = {};
 var multithreading_requestCount = 0;
 module.exports = function aapibuilder(buffer, filename, fullpath) {
-    delete require.cache[fullpath];
+    if (require.cache) delete require.cache[fullpath];
     delete multithreadingApiMap[fullpath];
     if (/^\s*(["'`])use multithreading\1/.test(String(buffer))) {
         multithreadingApiMap[fullpath] = true;

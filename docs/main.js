@@ -4,7 +4,7 @@
 titlebar("组件加载工具", false, false);
 var leftArea = tree();
 addClass(leftArea, "left-bar");
-var mainArea = createWithClass(div, "main-area");
+var mainArea = createWithClass(vbox, "main-area");
 var nameArea = createWithClass(div, "name-area");
 var page = createElement(div);
 /**
@@ -45,33 +45,29 @@ onactive(leftArea, function (event) {
  */
 
 
-
-var exportButton = button("导出代码", "default");
-css(exportButton, "height:50px;width:200px;")
-onclick(exportButton, exportCodes);
 window.modules = modules;
 var baseUrl = "";
-setGetMethod(function (url, then) {
-    url = baseUrl + url;
-    if (responseTree[url]) {
-        then(responseTree[url], url);
-    } else if (loaddingTree[url]) {
-        loaddingTree[url].push(then);
-    } else {
-        loaddingTree[url] = [then];
-        modules.load(url);
-    }
-});
 var build = function () {
     try {
-        execute(commNameInput.value, function (comm) {
-            isNode(comm) && appendChild(mainArea, comm);
-        });
+        var logpad = document.createElement("logpad");
+        remove(mainArea.children);
+        appendChild(mainArea.innerHTML);
+        execute(commNameInput.value, function (comm, logs) {
+            remove(mainArea.children);
+            if (comm === undefined && !logs.length) {
+                mainArea.innerHTML = `<span style="line-height:20px">该模块未发现使用信息</span>`;
+                return;
+            }
+
+            if (isNode(comm)) appendChild(mainArea, comm);
+            else mainArea.innerHTML = `<div>${JSON.stringify(comm)}</div>`
+            appendChild(mainArea, logpad);
+        }, logpad);
     } catch (e) {
         console.error(e);
     }
 }
-appendChild(nameArea, commNameInput, exportButton);
+appendChild(nameArea, commNameInput);
 appendChild(page, leftArea, nameArea, mainArea);
 function main() {
     build();

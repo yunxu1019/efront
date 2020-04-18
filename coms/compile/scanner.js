@@ -82,7 +82,7 @@ function double_quote_scanner(index) {
     reg.lastIndex = index + 1;
     do {
         var res = reg.exec(this);
-    } while (res && res.length > 1);
+    } while (res && res[0].length > 1);
     return res ? res.index + 1 : this.length;
 }
 

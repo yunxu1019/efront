@@ -9,6 +9,7 @@ var {
     PREFIX,
     LIBS_PATH,
     LIBS,
+    DESTPATH,
 } = process.env;
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : setupenv('.');
@@ -110,6 +111,7 @@ module.exports = {
     public_app,
     EXPORT_TO,
     EXPORT_AS,
+    DESTPATH,
     include_required: !!RELEASE || !public_app,
     APP
 };
