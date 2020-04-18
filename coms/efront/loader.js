@@ -542,6 +542,7 @@ var loadResponseTreeFromStorage = function () {
 };
 var preLoad = function () { };
 
+var start_time = +new Date / 1000 | 0;
 
 var modules = {
     isProduction,
