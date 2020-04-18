@@ -1,7 +1,7 @@
 "use strict";
 var commbuilder = require("./commbuilder");
 var isDevelop = require("./isDevelop");
-var queue = require("./queue");
+var queue = require("../basic/queue");
 var builder;
 var path = require("path");
 var autoloader = `function () {

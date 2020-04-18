@@ -1,1 +1,1 @@
-"use ../efront/parseKV.js"
+"use ../basic/parseKV.js"

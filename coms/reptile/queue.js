@@ -1,1 +1,1 @@
-"use ../efront/queue";
+"use ../basic/queue";

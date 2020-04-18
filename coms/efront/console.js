@@ -1,7 +1,7 @@
 "use strict";
 var cluster = require("cluster");
 var message = require("../message");
-var colored = require("./colored_console");
+var colored = require("../basic/colored_console");
 [
     "time",
     "pass",

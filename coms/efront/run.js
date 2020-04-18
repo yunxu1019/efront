@@ -5,7 +5,7 @@ var os = require("os");
 var path = require("path");
 var userAgent = "Efront/1.0";
 var mainLoaderPromise = new Promise(function (ok, oh) {
-    fs.readFile(path.join(__dirname, "./loader.js"), function (error, data) {
+    fs.readFile(path.join(__dirname, "../basic/loader.js"), function (error, data) {
         if (error) oh(error);
         ok(data.toString());
     });

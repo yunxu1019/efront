@@ -10,7 +10,7 @@ var options = {
 
 if (options.record_path) {
     let { record_path } = options.record_path;
-    let parseKV = require("../efront/parseKV");
+    let parseKV = require("../basic/parseKV");
     if (/\=/.test(record_path)) {
         options.record_path = parseKV(record_path);
     }

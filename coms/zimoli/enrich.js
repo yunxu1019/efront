@@ -1,1 +1,1 @@
-"use ../efront/enrich.js";
+"use ../basic/enrich.js";
