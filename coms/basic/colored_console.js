@@ -133,4 +133,7 @@ var write = function (hasNewLine, str) {
     colored[log] = logger;
 });
 colored.time = logTime;
+colored.type = function (text) {
+    write(false, text);
+};
 module.exports = colored;

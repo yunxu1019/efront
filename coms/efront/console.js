@@ -4,6 +4,7 @@ var message = require("../message");
 var colored = require("../basic/colored_console");
 [
     "time",
+    "type",
     "pass",
     "fail",
     "test",
