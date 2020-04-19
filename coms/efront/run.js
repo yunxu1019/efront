@@ -153,7 +153,8 @@ function efront(getLoader) {
     vm.createContext(window);
     return window;
 }
-module.exports = function (mainpath) {
+module.exports = function (mainpath, argv) {
+    process.argv = argv;
     mainpath = mainpath.replace(/\.[tj]sx?$/i, '');
     var unload = function () {
         Object.keys(intervalHandles).map(clearInterval);

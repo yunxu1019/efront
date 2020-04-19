@@ -2,6 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 var getBuildInfo = require("./getBuildInfo");
+var detectWithExtension = require("../basic/detectWithExtension");
 var {
     comms_root,
     pages_root,
@@ -87,32 +88,8 @@ var getPathInFolder = function (folder, filepath) {
     return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
 };
 function paddExtension(file) {
-
-    return new Promise(function (ok, oh) {
-        var extt = ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx'];
-        var parets = [""].concat(/[\/\\]/.test(file) ? pages_root : comms_root);
-        file = file.replace(/\$/g, '/');
-        var prefix = 0;
-        var aftfix = 0;
-
-        var run = function () {
-            var f = path.join(parets[prefix], file) + extt[aftfix++];
-            fs.exists(f, function (exists) {
-                if (exists) ok(f);
-                else if (aftfix >= extt.length) {
-                    if (prefix + 1 < parets.length) {
-                        prefix++;
-                        aftfix = 0;
-                        run();
-                    } else {
-                        oh(`路径${file}不存在`);
-                    }
-                }
-                else run();
-            });
-        };
-        run();
-    });
+    var parets = [""].concat(/[\/\\]/.test(file) ? pages_root : comms_root);
+    return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx'], parets);
 }
 var getBuildRoot = function (files, matchFileOnly) {
     files = [].concat(files || []);

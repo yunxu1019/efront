@@ -1,0 +1,32 @@
+function detectWithExtension(filename, extensions = [""], folders = [""]) {
+    if (extensions === null) {
+        extensions = [""];
+    }
+    if (folders === null) folders = [""];
+    extensions = [].concat(extensions);
+    return new Promise(function (ok, oh) {
+        filename = filename.replace(/\$/g, '/');
+        var prefix = 0;
+        var aftfix = 0;
+
+        var run = function () {
+            var f = path.join(folders[prefix], filename) + extensions[aftfix++];
+            fs.exists(f, function (exists) {
+                if (exists) ok(f);
+                else if (aftfix >= extensions.length) {
+                    if (prefix + 1 < folders.length) {
+                        prefix++;
+                        aftfix = 0;
+                        run();
+                    } else {
+                        oh(`路径${filename}不存在`);
+                    }
+                }
+                else run();
+            });
+        };
+        run();
+    });
+
+}
+module.exports = detectWithExtension;
