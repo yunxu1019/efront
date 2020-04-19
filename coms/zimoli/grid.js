@@ -196,10 +196,11 @@ var gridListener = function () {
     var offmousemove;
     offmousemove = onmousemove(window, function (event) {
         if (!grid.editable) return;
+        event.moveLocked = true;
         if (grid.editting) {
-            resizeView.call(this, event);
+            resizeView.call(grid, event);
         } else {
-            adaptCursor.call(this, event);
+            adaptCursor.call(grid, event);
         }
     });
     /**
@@ -456,8 +457,8 @@ var actionemiter = function (event) {
 function main(elem) {
     if (isElement(elem)) {
         elem = grid.call(elem);
-        care(elem,elem.setData);
-        care(elem,elem.reshape);
+        care(elem, elem.setData);
+        care(elem, elem.reshape);
     } else {
         elem = grid.call(document.createElement('grid'), elem);
     }
