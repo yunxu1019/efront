@@ -18,11 +18,12 @@ var {
     document,
     top,
     location,
+    Object,
     console,
     efrontURI,
     parseFloat,
     PREVENT_FRAMEWORK_MODE,
-    devicePixelRatio,
+    devicePixelRatio = 1,
     startPath: efrontPath,
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
@@ -74,6 +75,7 @@ var flushTree = function (tree, key, res) {
         }
     }
 };
+var readingCount = 0;
 var readFile = function (names, then, saveas) {
     if (names instanceof Array) {
         names = names.slice(0);
@@ -116,11 +118,16 @@ var readFile = function (names, then, saveas) {
         }
         if (efrontURI) url = efrontURI + url;
     }
+    readingCount++;
     request(url, function (res) {
         responseTree[key] = res;
         flushTree(loadingTree, key);
         clearTimeout(flush_to_storage_timer);
         flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
+        readingCount--;
+        if (readingCount === 0) {
+            killCircle();
+        }
     });
 
 };
@@ -130,6 +137,73 @@ var createFunction = function (name, body, args) {
 
 var FILE_NAME_REG = /^https?\:|\.(html?|css|asp|jsp|php)$/i;
 var loadedModules = {};
+var killCircle = function () {
+    var penddings = {}, circle = [], module_keys = [];
+    for (var k in loadedModules) {
+        if (k.slice(0, keyprefix.length) === keyprefix && loadedModules[k] instanceof Array) {
+            var key = k.slice(keyprefix.length);
+            var args = loadedModules[k].args;
+            args.forEach(arg => {
+                if (!penddings[arg]) {
+                    penddings[arg] = [];
+                }
+                if (!penddings[arg][k]) {
+                    penddings[arg][k] = true;
+                    penddings[arg].push(key);
+                }
+            })
+            circle.push(key);
+            module_keys.push(k);
+        }
+    };
+    if (!circle.length) return;
+    while (circle.length) {
+        var deleted = Object.create(null);
+        var savedLength = circle.length;
+        for (var cx = circle.length - 1; cx >= 0; cx--) {
+            var arg = circle[cx];
+            var deps = penddings[arg];
+            if (!deps || !deps.length) {
+                circle.splice(cx, 1);
+                delete penddings[arg];
+                deleted[arg] = true;
+            }
+        }
+        if (savedLength === circle.length) {
+            break;
+        }
+        circle.forEach(function (c) {
+            var args = penddings[c];
+            penddings[c] = args.filter(a => !deleted[a]);
+        });
+    }
+    if (circle.length > 0) {
+        circle = circle.sort((a, b) => {
+            if (~penddings[b].indexOf(a)) return -1;
+            if (~penddings[a].indexOf(b)) return 1;
+            return 0;
+        });
+        circle = circle.map((a, cx) => {
+            if (cx + 1 === circle.length) return a;
+            var b = circle[cx + 1];
+            if (~penddings[b].indexOf(a)) return a + "%c>>%c";
+            return a + "%c^%c";
+        });
+        console.log.apply(console, [].concat.apply(
+            [`代码文件存在环形引用，未能成功加载: \r\n[ >>%c${circle.join("")}%c ]`],
+            circle.map(a => ['color:#fff;background:#c24', 'color:#333;background:transparent'])
+        ));
+    } else {
+        var tree = {};
+        module_keys.forEach(function (k) {
+            var loading = tree[k] = loadedModules[k];
+            loadedModules[k] = loading.mod;
+        });
+        module_keys.forEach(function (k) {
+            flushTree(tree, k);
+        });
+    }
+};
 var loadModule = function (name, then, prebuilds = {}) {
     if (/^(?:module|exports|define|require|window|global|undefined)$/.test(name)) return then();
     var hasOwnProperty = {}.hasOwnProperty;
@@ -172,11 +246,15 @@ var loadModule = function (name, then, prebuilds = {}) {
             args = args.slice(0, argslength).concat(required || []);
             var response = function () {
                 loadingCount++;
-                if (loadingCount === args.length) flushTree(loadedModules, key, mod);
+                if (loadingCount === args.length) {
+                    flushTree(loadedModules, key, mod);
+                }
             };
             if (!args.length) {
                 flushTree(loadedModules, key, mod);
             } else {
+                loadedModules[key].args = mod.args;
+                loadedModules[key].mod = mod;
                 args.forEach(function (moduleName) {
                     loadModule(moduleName, response, prebuilds);
                 });
