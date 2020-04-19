@@ -7,7 +7,7 @@
     "test": "test"
   },
   "bin": {
-    "efront": "./coms/efront/index.js"
+    "efront": "./public/efront.js"
   },
   "dependencies": {},
   "devDependencies": {},
@@ -19,6 +19,7 @@
     "electron": "node . test --electron",
     "public": "node . build",
     "build": "node . build",
+    "prepare": "tools\\build-efront.bat",
     "watch": "node toos/watch"
   },
   "repository": {
