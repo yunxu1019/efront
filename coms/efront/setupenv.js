@@ -129,7 +129,7 @@ call(path.join(__dirname, "../_envs/setup"));
 
 var cache = {};
 var setup = module.exports = function (appname) {
-    appname = appname.replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
+    appname = String(appname || '').replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
     appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
     else env = {};
