@@ -19,3 +19,4 @@ tools/zanme.js
 tools/prebuilds/
 process/asm/
 *.tgz
+efront
