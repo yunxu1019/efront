@@ -245,7 +245,7 @@ var $scope = {
         musicList.active_hash = hash;
         render.refresh();
         $scope.playing = true;
-
+        playState.width = 0;
         getMusicInfo(hash).loading_promise.then((response) => {
             if (!this.playing) return;
             if (hash !== musicList.active_hash) return;
@@ -276,13 +276,12 @@ var $scope = {
                     playState.error = true;
                 }
             };
-            playState.width = 0;
             delete playState.error;
             _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
             _audio.play();
             data.setInstance('musicList', distlist, true);
             render.refresh();
-        });
+        }).catch(e => playState.error = true);
         $scope.audio = _audio;
     }
 };
