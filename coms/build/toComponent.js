@@ -6,6 +6,9 @@ var typescript = require("../typescript");
 var path = require("path");
 var { public_app, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
 var report = require("./report");
+function evalString(s) {
+    return new Function("return " + s)();
+}
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
     delete responseTree["[]map"];
@@ -46,7 +49,7 @@ function toComponent(responseTree) {
     var encoded = true;
     var encode = function (source) {
         if (!encoded) return source;
-        source = eval(source);
+        source = evalString(source);
         if (!~strings.indexOf(source)) {
             var temp = source.split('').reverse();
             for (var cx = 0, dx = temp.length; cx < dx; cx++) {
@@ -82,7 +85,7 @@ function toComponent(responseTree) {
                         return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
                     });
                     if (include_required) {
-                        var refer = eval(k);
+                        var refer = evalString(k);
                         if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                             var reqer = reqMap[refer];
                             if (destMap[reqer]) return destMap[reqer];
