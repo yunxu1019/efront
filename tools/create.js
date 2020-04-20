@@ -1,8 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var appname = process.env.APP;
-if (!appname) throw `请先设置app名称！如：${/win\d/i.test(process.platform) ? 'set' : 'export'} app=abc`;
-var { COMS_PATH = "./coms", PAGE_PATH = "./apps", PUBLIC_PATH = "./public" } = process.env;
+var { ENVS_PATH = "_envs", COMS_PATH = "./coms", PAGE_PATH = "./apps", PUBLIC_PATH = "./public" } = process.env;
 function mkdirIfNotExists(dirname) {
     if (!fs.existsSync(dirname))
         fs.mkdirSync(dirname);
@@ -12,23 +11,46 @@ function throwMakeIfExists(dirname) {
         throw new Error(`${dirname} 已存在！`);
     else fs.mkdirSync(dirname);
 }
-mkdirIfNotExists("_envs");
-mkdirIfNotExists(PAGE_PATH);
-mkdirIfNotExists(COMS_PATH);
-mkdirIfNotExists(PUBLIC_PATH);
-mkdirIfNotExists(path.join(PAGE_PATH, `${appname}`));
-var setupData = [
-    `if not defined app set app=${appname}`,
-].join("\r\n");
-setupData = Buffer.from(setupData);
-function from(srcname = 'kugou') {
-    fs.writeFileSync(path.join("_envs", "setup.bat"), setupData);
+function from(srcname = 'kugou', destname = appname) {
+    if (!appname) throw `请先设置app名称！如：${/win\d/i.test(process.platform) ? 'set' : 'export'} app=abc`;
+    var setupData = [
+    ];
+    if (destname) {
+        setupData.push(`if not defined app set app=${destname}`);
+        setupData.push(`set page=${destname}`);
+    }
+    setupData.push('set coms=' + destname + "," + srcname + (srcname !== "zimoli" ? ",zimoli" : ""));
+    mkdirIfNotExists(ENVS_PATH);
+    mkdirIfNotExists(PAGE_PATH);
+    mkdirIfNotExists(COMS_PATH);
+    mkdirIfNotExists(PUBLIC_PATH);
+    mkdirIfNotExists(path.join(PAGE_PATH, `${destname}`));
+
+    var jsondata = {
+        "name": appname || srcname,
+        "version": "1.0",
+        "descriptions": "Efront 创建的项目",
+        "scripts": {
+            test: "efront live",
+            build: "efront build"
+        },
+    };
+    setupData = Buffer.from(setupData.join("\r\n"));
+    if (destname) {
+        fs.writeFileSync(path.join(ENVS_PATH, `app=${destname}.bat`), setupData);
+    } else {
+        fs.writeFileSync(path.join(ENVS_PATH, "setup.bat"), setupData);
+    }
+    var packagepath = path.join(PAGE_PATH, '../package.json');
+    if (!fs.existsSync(packagepath)) {
+        fs.writeFileSync(packagepath, JSON.stringify(jsondata, null, 4));
+    }
     var hasindex = false;
     fs.readdirSync(path.join(__dirname, `../apps/${srcname}`)).map(function (name) {
         hasindex = hasindex || /^index.html$/i.test(name);
-        copy(path.join(__dirname, `../apps/${srcname}/`, name), path.join(PAGE_PATH, `${appname}`, name));
+        copy(path.join(__dirname, `../apps/${srcname}/`, name), path.join(PAGE_PATH, `${destname}`, name));
     });
-    if (!hasindex) copy(path.join(__dirname, "../apps/index.html"), path.join(PAGE_PATH, `${appname}/index.html`));
+    if (!hasindex) copy(path.join(__dirname, "../apps/index.html"), path.join(PAGE_PATH, `${destname}/index.html`));
 }
 module.exports = from;
 function copy(path1, path2) {
