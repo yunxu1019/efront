@@ -96,7 +96,7 @@ var get = function (text) {
                 ignorecase ? condition_right.toUpperCase() : condition_right
             ) ||
             exist && fs.existsSync(path.normalize(exist.replace(/[\\]+/gi, "/"))) ||
-            defined && defined in env
+            defined && (defined in env || defined in parent)
         )) get(command);
     }
     var match = text.match(reg_set);

@@ -16,10 +16,6 @@ if (!envpath) {
     envpath = "./_envs";
 }
 envpath = envpath.split(",");
-envpath.forEach(function (p) {
-    var env = loadenv(path.join(p, 'setup'));
-    Object.assign(process.env, env);
-});
 var cache = {};
 var setup = module.exports = function (appname) {
     appname = String(appname || '').replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
@@ -30,6 +26,7 @@ var setup = module.exports = function (appname) {
         Object.assign(env, loadenv(path.join(p, "./app=" + appname + ".bat")))
     });
     cache[appname] = env;
+    extend(env, env, appname);
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
         var default_value = env[key] || process.env[key];
         var value_map = Object.create(null);
@@ -47,10 +44,11 @@ var setup = module.exports = function (appname) {
         value_map["typescript-helpers"] = true;
         env[key] = Object.keys(value_map).join(',');
     });
-    extend(env, env, appname);
     extend(env, process.env);
     if (!env.PAGE) env.PAGE = appname;
     pollyfill(env, appname);
+console.log(env);
+
     return env;
 };
 var pollyfill = function (env, appname) {
@@ -106,9 +104,14 @@ var extend = function (dst, env) {
     normalize(dst);
 };
 extend(process.env, process.env);
+envpath.forEach(function (p) {
+    var env = loadenv(path.join(p, 'setup'));
+    extend(process.env, env);
+});
+
 if (env.APP) {
     let _tmp = setup(env.APP);
-    pollyfill(_tmp, "zimoli");
+    pollyfill(_tmp, env.APP);
     for (var k in _tmp) {
         if (/\_PATH$/i.test(k)) {
             process.env[k] = _tmp[k];
