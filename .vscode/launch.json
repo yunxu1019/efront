@@ -57,23 +57,23 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Reptile",
+            "name": "build:kugou",
             "env": {
-                "app": "reptile"
+                "app": "kugou"
             },
             "args": [
-                "m3u8Download_test"
+                "kugou"
             ],
-            "program": "${workspaceFolder}/main.js"
+            "program": "${workspaceFolder}/coms/efront/index.js"
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "demo:Zimoli",
+            "name": "demo:kugou",
             "args": [
                 "demo"
             ],
-            "program": "${workspaceFolder}/main.js"
+            "program": "${workspaceFolder}/coms/efront/index.js"
         },
         {
             "type": "node",
@@ -82,7 +82,7 @@
             "args": [
                 "docs"
             ],
-            "program": "${workspaceFolder}/main.js"
+            "program": "${workspaceFolder}/coms/efront/index.js"
         }
     ]
 }

@@ -1,5 +1,5 @@
 var URL = require("url");
-var path = reuqire("path");
+var path = require("path");
 function main(m3u8, dst) {
     function index(a, total) {
         a = String(a);

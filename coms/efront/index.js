@@ -1,11 +1,16 @@
 #!/usr/bin/env node
+var cluster = require("cluster");
 var path = require('path');
 var fs = require("fs");
 require("./console");
-var cluster = require("cluster");
+var loadenv = require("./loadenv");
 var detectWithExtension = require("../basic/detectWithExtension");
 var setenv = function (evn) {
-    Object.assign(process.env, evn);
+    var dist = process.env;
+    for (var k in evn) {
+        var k1 = k.toUpperCase();
+        dist[k1] = evn[k];
+    }
 };
 var startServer = function () {
     var fullpath = process.cwd();
@@ -16,16 +21,31 @@ var startServer = function () {
     require("./setupenv");
     require("../server/main");
 };
-var startDevelopEnv = function (appname) {
-    if (appname) setenv({
-        app: appname
-    });
-
+var startDevelopEnv = function () {
+    setAppnameAndPorts(arguments);
     require("./setupenv");
     require("./console");
     process.env.IN_TEST_MODE = true;
     require("../server/main");
 };
+var setAppnameAndPorts = function (args) {
+    var appname = '', http_port = '', https_port;
+    for (var cx = 0, dx = args.length; cx < dx; cx++) {
+        var arg = args[cx];
+        if (!arg) continue;
+        if (isFinite(arg)) {
+            if (!http_port) http_port = arg;
+            else if (!https_port) https_port = arg;
+        } else if (typeof arg === 'string') {
+            appname = arg;
+        }
+    }
+    setenv({
+        app: appname,
+        http_port: +http_port >= 0 ? http_port || 80 : '',
+        https_port: +https_port >= 0 ? https_port || 443 : ''
+    });
+}
 var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
@@ -65,6 +85,9 @@ var detectEnvironment = function () {
                 }
             });
             coms_path.push(':');
+            if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
+                config.comm += ",zimoli";
+            }
             config.coms_path = coms_path.join(',');
             var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
             env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
@@ -74,15 +97,87 @@ var detectEnvironment = function () {
             if (1 !== env_path.length) {
                 setenv(config);
             } else {
-                process.env.config_path = env_path[0];
+                process.env.envs_path = env_path[0];
+                var env = loadenv(path.join(process.env.envs_path, "setup"));
+                setenv(config);
+                setenv(env);
                 require("./setupenv");
             }
             ok();
         });
     });
 };
-var demos = ["kugou", "zimoli"];
-var public_commands = "test public init watch live";
+var showHelpLine = function (line) {
+    if (cluster.isMaster) console.type('<cyan>帮助</cyan>', `${format(line)}\r\n`);
+}
+var showHelpInfo = function (help) {
+    var { info, commands } = help;
+    showHelpLine(`${info ? info + ", " : info}可以使用的命令语法有：`);
+    commands.forEach(a => showHelpLine(`efront ${a}`));
+    showTopicInfo(commands, '其中');
+};
+var format = s => s
+    .replace(/[a-z][_a-z]*/g, "<blue2>$&</blue2>")
+    .replace(/(?<=\W)\d+/g, "<green>$&</green>")
+    .replace(/[A-Z][_A-Z]*/g, "<blue>$&</blue>")
+    .replace(/\|/g, "<gray>|</gray>");
+var showTopicInfo = function (commands, prefix = '') {
+    var tips = {};
+    commands = [].concat(commands || '').forEach(a => a.replace(/[A-Z][_A-Z]*/g, function (w) {
+        if (w in topics && !tips[w]) {
+            var t = tips[w] = topics[w].split(',');
+            if (/\|/.test(t[0])) t.default = t[0].replace(/^[\s\S]*?\|([\s\S]*)$/, "$1");
+            t[0] = t[0].replace(/\|[\s\S]*$/, '');
+        }
+        return w;
+    }));
+    var tips1 = Object.keys(tips).map(a => ` ${a} 是${tips[a][0]}`);
+    if (tips1.length > 1) return showHelpLine(prefix + tips1.join(","));
+    tips1 = tips1[0];
+    var tips = tips[Object.keys(tips)[0]];
+    if (!tips) return;
+    var msg = prefix + tips1;
+    if (tips.default && !~tips.indexOf(tips.default) && tips.length > 1) tips.splice(1, 0, tips.default);
+    if (tips.length > 1) msg += ", 可能的取值有 " + tips.slice(1).join(", ");
+    if (tips.default) msg += ", 默认值是" + tips.default;
+    showHelpLine(msg);
+};
+var helps = [
+    "显示版本号,version,-v,--version",
+    "显示帮助信息,help,-h,--help,help COMMAND,-h COMMAND,--help COMMAND",
+    "启动文档服务器,docs",
+    "启动示例项目服务器,demo,demo APPNAME",
+    "创建应用，项目目录允许创建第二个应用,init,from SRCNAME,init APPNAME,init APPNAME from SRCNAME,from SRCNAME init APPNAME",
+    "创建简单应用，独占项目目录的单应用,create,simple,create|simple from SRCNAME,create|simple APPNAME,create|simple APPNAME from APPNAME",
+    "创建空应用,blank,simple,from blank,simple from blank",
+    "自动识别环境并启动开发环境服务器,live,lives,live HTTP_PORT,live HTTP_PORT HTTPS_PORT,lives HTTPS_PORT,lives HTTPS_PORT HTTP_PORT",
+    "在项目文件夹启动生产环境服务器,start,starts,start HTTP_PORT,start HTTP_PORT HTTPS_PORT,starts HTTPS_PORT,starts HTTPS_PORT HTTP_PORT",
+    "在项目文件夹启动开发环境服务器,dev,devs,test,dev|test HTTP_PORT,dev|test HTTP_PORT HTTPS_PORT,devs|tests HTTPS_PORT,devs|tests HTTPS_PORT HTTP_PORT",
+    "在当前文件夹启动服务器,server,serve|serv|http HTTP_PORT HTTPS_PORT,serve|serv|http HTTP_PORT,https HTTPS_PORT HTTP_PORT,https HTTPS_PORT,HTTP_PORT HTTPS_PORT,HTTP_PORT,",
+    "编译项目,public,publish,build,release",
+    "监测文件变化，自动编译更新的部分并输出到指定目录,watch"
+];
+helps.forEach((str, cx) => {
+    var [info, ...commands] = str.split(",");
+    var help = { info, commands: commands, cmds: commands };
+    helps[cx] = help;
+    commands.forEach(cmd => {
+        var key = cmd.replace(/[A-Z]+/g, "").trim();
+        if (!/\s/.test(key)) {
+            key.split(/\|/).forEach(k => helps[k] = help);
+        }
+    });
+});
+var topics = {
+    COMMAND: "命令名," + Object.keys(helps).filter(k => /^[a-z]+$/.test(k)),
+    APPNAME: "您的应用名",
+    SRCNAME: "源项目|blank,blank,kugou,zimoli",
+    HTTP_PORT: " http 端口|80",
+    HTTPS_PORT: " https 端口|443",
+    VARIABLES: "变量名",
+};
+topics.VARIABLES += "," + Object.keys(topics);
+
 var commands = {
     version() {
         // 版本号
@@ -93,10 +188,25 @@ var commands = {
     help(value1) {
         // 帮肋信息
         if (!value1) {
-            console.info(`可以使用的命令有: ${public_commands}`);
+            var length = Math.max.apply(Math, helps.map(a => a.commands[0].length));
+            showHelpLine('可以使用的命令有：');
+            helps.forEach(({ info, commands }) => showHelpLine(`efront ${commands[0]}${" ".repeat(length - commands[0].length)} ${info}`));
+            showHelpLine("如要显示更具体的信息，请使用: efront help COMMAND|VARIABLES")
+            showTopicInfo("COMMAND|VARIABLES", '其中');
             return;
         }
-        console.info(`目前没有与 <blue2>${value1}</blue2> 相关的帮助信息！`);
+        if (value1.toLowerCase() in helps) {
+            value1 = value1.toLowerCase();
+            var help = helps[value1]
+            showHelpInfo(help);
+            return;
+        }
+        if (value1.toUpperCase() in topics) {
+            value1 = value1.toUpperCase();
+            showTopicInfo(value1);
+            return;
+        }
+        showHelpLine(`目前没有与 ${value1} 相关的帮助信息！`);
     },
     docs() {
         // 文档
@@ -110,7 +220,7 @@ var commands = {
             app: "docs"
         });
         require("../server/main");
-        if (cluster.isMaster) console.info('可以通过浏览器访问打开的端口以查看文档\r\n');
+        showHelpLine('可以通过浏览器访问打开的端口以查看文档');
     },
     demo(appname = 'kugou') {
         setenv({
@@ -122,20 +232,82 @@ var commands = {
         });
         require("./setupenv");
         require("../server/main");
-        if (cluster.isMaster) console.info(`可以通过浏览器访问已打开的端口以查看示例项目:<blue2>${appname}</blue2>\r\n`);
+        showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${appname}`);
     },
-    create(appname = "kugou") {
-        require("../../tools/create")(appname);
-    },
-    dev(appname) {
-        startDevelopEnv(appname);
-    },
-    live(appname) {
+    create(srcname, appname) {
+        var folders = fs.readdirSync(process.cwd());
+        var names = ["_envs", "coms", "apps", "pages"];
+        if (folders.length === 1) {
+            if (!~names.indexOf(folders[0])) {
+                throw new Error("请在空目录或efront目录执行创建操作!");
+            }
+        } else if (folders.length) {
+            var reg = new RegExp(names.join("|"));
+            if (folders.indexOf("_envs") < 0) {
+                if (folders.filter(a => reg.test(a)).length < 2) {
+                    throw new Error("请在空目录或efront目录执行创建操作!");
+                }
+            }
+        }
         detectEnvironment().then(function () {
-            startDevelopEnv(appname);
+            if (appname) {
+                setenv({ app: appname });
+            }
+            setenv({
+                envs_path: './_envs',
+                coms_path: './coms',
+                page_path: "./apps"
+            })
+            require("./setupenv");
+            require("../../tools/create")(srcname, appname);
+        });
+    },
+    simple(srcname, appname) {
+        var create = function (distpath) {
+            setenv({
+                app: path.basename(distpath),
+                envs_path: path.join(distpath, '_envs'),
+                page_path: path.join(distpath, 'pages'),
+                public_path: path.join(distpath, 'public'),
+                coms_path: path.join(distpath, 'coms'),
+            });
+            require("./setupenv");
+            require("../../tools/create")(srcname || 'blank', '');
+        };
+        if (!appname) {
+            fs.readdir(process.cwd(), function (error, files) {
+                if (error) throw new Error("没有权限！");
+                if (files.length > 0) {
+                    throw new Error("当前文件夹不为空！");
+                }
+                create(process.cwd());
+            });
+            return;
+        }
+        var distpath = path.join(process.cwd(), appname);
+        var exists = fs.existsSync(distpath);
+        if (!exists) {
+            fs.mkdirSync(distpath);
+        }
+        fs.readdir(distpath, function (error, files) {
+            if (error) throw new Error("没有权限！");
+            if (files.length > 0) {
+                throw new Error("项目文件夹已存在且不为空！");
+            }
+            create(distpath);
+        });
+        return;
+    },
+    dev(appname, http_port, https_port) {
+        startDevelopEnv(appname, http_port, https_port);
+    },
+    live(http_port, https_port) {
+        detectEnvironment().then(function () {
+            startDevelopEnv("", http_port, https_port);
         }).catch(console.error);
     },
     start() {
+        setAppnameAndPorts(arguments);
         require("./setupenv");
         require("../server/main");
     },
@@ -204,93 +376,109 @@ var commands = {
         require("../../tools/watch");
     }
 };
-var run = function (type, value1, value2) {
+var run = function (type, value1, value2, value3) {
     if (type) type = type.toLowerCase();
     if (!type) {
         startServer();
         return;
     }
-    with (commands) {
-        switch (type) {
-            case "-v":
-            case "--v":
-            case "version":
-                version();
-                break;
-            case "help":
-                help(value1);
-                break;
-            case "docs":
-            case "doc":
-                docs();
-                break;
-            case "demo":
-                demo(value1);
-                break;
-            case "from":
-                if (!value1) {
-                    throw new Error("语法：efront from APPNAME \r\n APPNAME为zimoli,kugou之一");
-                }
-                create(value1, value2);
-            case "blank":
-            case "init":
-            case "create":
-                create("blank", value1);
-                break;
-            case "test":
-                dev(value1);
-                break;
-            case "live":
-            case "lone":
-                live(value1);
-                break;
-            case "start":
-                start();
-                break;
+    if (type.toLowerCase() in helps) {
+        type = type.toLowerCase();
+        with (commands) {
+            switch (type) {
+                case "from":
+                    if (value2 && !/^(init)$/i.test(value2)) {
+                        if (!value3) {
+                            help('from');
+                            break;
+                        }
+                    }
+                    if (!value1) {
+                        help('from');
+                        break;
+                    }
+                    create(value1, value3);
+                    break;
+                case "init":
+                    if (value2 && value2.toLowerCase() !== "from") {
+                        help("init");
+                        break;
+                    }
+                    if (value2 && !value3) {
+                        help('init');
+                        break;
+                    }
+                    create(value3 || 'blank', value1);
+                    break;
+                case "blank":
+                    create("blank", value1);
+                    break;
+                case "create":
+                case "simple":
+                    if (value3) {
+                        if (!/^from$/i.test(value2)) {
+                            help("simple");
+                            break;
+                        }
+                        simple(value3, value1);
+                        break;
+                    }
+                    if (value2) {
+                        if (!/^from$/i.test(value1)) {
+                            help("simple");
+                            break;
+                        }
+                        simple(value2, '');
+                        break;
+                    }
+                    simple('blank', value1);
+                    break;
+                case "publish":
+                case "release":
+                    process.env.RELEASE = 1;
+                case "public":
+                    var publicOnly = true;
+                case "build":
+                    if (!publicOnly) {
+                        detectEnvironment().then(function () {
+                            public(value1, value2);
+                        });
+                    } else {
+                        public(value1, value2);
+                    }
+                    break;
 
-            case "publish":
-            case "release":
-                process.env.RELEASE = 1;
-            case "public":
-                var publicOnly = true;
-            case "build":
-                if (!publicOnly) {
-                    detectEnvironment().then(public);
-                } else {
-                    public(value1, value2);
-                }
-                break;
-            case "record":
-            case "robber":
-                record();
-                break;
-            case "https":
-                var https_port = value1;
-            case "server":
-            case "serve":
-            case "serv":
-            case "http":
-                if (!https_port) {
-                    https_port = value2;
-                }
-                var http_port = value1 || 80;
-                serv(http_port, https_port);
-                break;
-            case "password":
-                password(value1, value2);
-                break;
-            case "watch":
-                break;
-            case "run":
-                run.apply(null, process.argv.slice(3));
-                break;
-            default:
-                var isRun = /[\/\$\\]|_test$|\.[tj]sx?$/i.test(type);
-                if (isRun) {
-                    run.apply(null, process.argv.slice(2));
-                } else {
-                    console.info(`不支持该命令<red2> ${type} </red2>`);
-                }
+                case "run":
+                    run.apply(null, process.argv.slice(3));
+                    break;
+                case "https":
+                case "lives":
+                case "devs":
+                case "tests":
+                case "starts":
+                    if (value2) {
+                        [value2 = 443, value1] = [value1, value2];
+                    } else if (value1) {
+                        value2 = value1;
+                        value1 = '-1';
+                    } else {
+                        value2 = 443;
+                        value1 = '-1';
+                    }
+                default:
+                    type = helps[type].cmds[0];
+                    commands[type](value1, value2, value3);
+            }
+        }
+
+    } else if (/^\d+$/.test(type)) {
+        commands.serv(type, value1);
+    } else {
+        var isRun = /[\/\$\\]|_test$|\.[tj]sx?$/i.test(type);
+        if (isRun) {
+            commands.run.apply(commands, process.argv.slice(2));
+        } else {
+            console.info(`不支持该命令<red2> ${type} </red2>`);
         }
     }
 };
@@ -308,4 +496,5 @@ process.on("exit", function () {
 var type = process.argv[2];
 var value1 = process.argv[3];
 var value2 = process.argv[4];
-run(type, value1, value2);
+var value3 = process.argv[5];
+run(type, value1, value2, value3);

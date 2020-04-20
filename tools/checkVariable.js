@@ -1,8 +1,8 @@
 var fs = require("fs");
 var path = require("path");
-var esprima = require("../../coms/efront/esprima");
-var getVariables = require("../../coms/efront/compile/variables");
-var typescript = require("../../coms/efront/typescript");
+var esprima = require("../coms/esprima");
+var getVariables = require("../coms/compile/variables");
+var typescript = require("../coms/typescript");
 var check = function (root) {
     var rest = [].concat.apply([], arguments);
     var map = {

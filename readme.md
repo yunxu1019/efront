@@ -18,36 +18,21 @@ efront 运行在nodejs环境下，请在安装nodejs环境后使用[https://node
 npm install -g efront
 ```
 
-## 2. 创建项目
+## 2. 查看帮助系统
 
 ```bat
-set app=PROJECT_NAME
-efront init
+efront help
 ```
 
-其中`PROJECT_NAME`为你的项目的名称
-
-## 3. 开发环境启动
-
-如果80端口不可用，请修改http_port环境变量
-
-```bat
-set HTTP_PORT=8080
-```
-
-开启本机服务，在访问端口时不对代码进行压缩
-
-* 如下命令按当前配置环境参数启动，允许目录名的字面含义与实际使用目的不同
-
-```bat
-efront test
-```
-
-* 如下命令可以自动识别环境目录，启动目录可以没有_envs文件夹，按目录名的字面含义确定目录用途
+## 3. 识别并在当前目录启动开发环境服务器
 
 ```bat
 efront live
+efront live HTTP_PORT
+efront live HTTP_PORT HTTPS_PORT
 ```
+
+其中端口号为数字，可以不输入，更多使用方案可以查看帮助系统
 
 ## 4. 压缩编译项目
 
@@ -81,15 +66,7 @@ set app=PROJECT_NAME.js
 
 * 如果需要自动识别路径，类似`public`/`dist`/`output`/`release`的目录中的文件都可能被识别为目标路径，这些路径中的文件可能被覆盖，如果确认可行，可以使用`efront build`
 
-## 5.生产环境启动
-
-开启本机服务器，并在访问端口时压缩输出
-
-```bat
-efront start
-```
-
-## 6.Watch模式
+## 5.Watch模式
 
 监测文件变化，自动编译更新的部分并输出到指定目录
 
@@ -99,23 +76,6 @@ set public_path=PUBLIC_PATH
 efront watch
 ```
 
-## 7.启动Demo，可以在浏览器查看效果
-
-```bat
-efront demo
-```
-
-## 8.组件库举例服务器，可以在浏览器查看一级组件
-
-```bat
-efront docs
-```
-
-## 9.直接将当前目录作为服务器目录
-
-```bat
-efront
-```
 
 # 目录说明
 
