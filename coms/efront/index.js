@@ -1,11 +1,16 @@
 #!/usr/bin/env node
+var cluster = require("cluster");
 var path = require('path');
 var fs = require("fs");
 require("./console");
-var cluster = require("cluster");
+var loadenv = require("./loadenv");
 var detectWithExtension = require("../basic/detectWithExtension");
 var setenv = function (evn) {
-    Object.assign(process.env, evn);
+    var dist = process.env;
+    for (var k in evn) {
+        var k1 = k.toUpperCase();
+        dist[k1] = evn[k];
+    }
 };
 var startServer = function () {
     var fullpath = process.cwd();
@@ -24,9 +29,10 @@ var startDevelopEnv = function () {
     require("../server/main");
 };
 var setAppnameAndPorts = function (args) {
-    var appname, http_port, https_port;
+    var appname = '', http_port = '', https_port;
     for (var cx = 0, dx = args.length; cx < dx; cx++) {
         var arg = args[cx];
+        if (!arg) continue;
         if (isFinite(arg)) {
             if (!http_port) http_port = arg;
             else if (!https_port) https_port = arg;
@@ -36,8 +42,8 @@ var setAppnameAndPorts = function (args) {
     }
     setenv({
         app: appname,
-        http_port,
-        https_port
+        http_port: +http_port >= 0 ? http_port || 80 : '',
+        https_port: +https_port >= 0 ? https_port || 443 : ''
     });
 }
 var detectEnvironment = function () {
@@ -79,6 +85,9 @@ var detectEnvironment = function () {
                 }
             });
             coms_path.push(':');
+            if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
+                config.comm += ",zimoli";
+            }
             config.coms_path = coms_path.join(',');
             var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
             env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
@@ -88,7 +97,11 @@ var detectEnvironment = function () {
             if (1 !== env_path.length) {
                 setenv(config);
             } else {
-                process.env.config_path = env_path[0];
+                process.env.envs_path = env_path[0];
+                var env = loadenv(path.join(process.env.envs_path, "setup"));
+                setenv(config);
+                setenv(env);
+                require("./setupenv");
             }
             ok();
         });
@@ -134,11 +147,11 @@ var helps = [
     "显示帮助信息,help,-h,--help,help COMMAND,-h COMMAND,--help COMMAND",
     "启动文档服务器,docs",
     "启动示例项目服务器,demo,demo APPNAME",
-    "创建应用，项目目录允许创建第二个应用,create,init,from SRCNAME,create|init APPNAME,create|init APPNAME from SRCNAME,from SRCNAME create|init APPNAME",
-    "创建简单应用，独占项目目录的单应用,simple,simple from SRCNAME,simple APPNAME,simple APPNAME from APPNAME",
-    "创建空应用,blank,simple,simple blank,from blank,simple from blank",
+    "创建应用，项目目录允许创建第二个应用,init,from SRCNAME,init APPNAME,init APPNAME from SRCNAME,from SRCNAME init APPNAME",
+    "创建简单应用，独占项目目录的单应用,create,simple,create|simple from SRCNAME,create|simple APPNAME,create|simple APPNAME from APPNAME",
+    "创建空应用,blank,simple,from blank,simple from blank",
     "自动识别环境并启动开发环境服务器,live,lives,live HTTP_PORT,live HTTP_PORT HTTPS_PORT,lives HTTPS_PORT,lives HTTPS_PORT HTTP_PORT",
-    "在项目文件夹启动生产环境服务器,start,start HTTP_PORT,start HTTP_PORT HTTPS_PORT",
+    "在项目文件夹启动生产环境服务器,start,starts,start HTTP_PORT,start HTTP_PORT HTTPS_PORT,starts HTTPS_PORT,starts HTTPS_PORT HTTP_PORT",
     "在项目文件夹启动开发环境服务器,dev,devs,test,dev|test HTTP_PORT,dev|test HTTP_PORT HTTPS_PORT,devs|tests HTTPS_PORT,devs|tests HTTPS_PORT HTTP_PORT",
     "在当前文件夹启动服务器,server,serve|serv|http HTTP_PORT HTTPS_PORT,serve|serv|http HTTP_PORT,https HTTPS_PORT HTTP_PORT,https HTTPS_PORT,HTTP_PORT HTTPS_PORT,HTTP_PORT,",
 ];
@@ -220,16 +233,75 @@ var commands = {
         showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${appname}`);
     },
     create(srcname, appname) {
+        var folders = fs.readdirSync(process.cwd());
+        var names = ["_envs", "coms", "apps", "pages"];
+        if (folders.length === 1) {
+            if (!~names.indexOf(folders[0])) {
+                throw new Error("请在空目录或efront目录执行创建操作!");
+            }
+        } else if (folders.length) {
+            var reg = new RegExp(names.join("|"));
+            if (folders.indexOf("_envs") < 0) {
+                if (folders.filter(a => reg.test(a)).length < 2) {
+                    throw new Error("请在空目录或efront目录执行创建操作!");
+                }
+            }
+        }
         detectEnvironment().then(function () {
-            require("../../tools/create")(appname, srcname);
-        })
+            if (appname) {
+                setenv({ app: appname });
+            }
+            setenv({
+                envs_path: './_envs',
+                coms_path: './coms',
+                page_path: "./apps"
+            })
+            require("./setupenv");
+            require("../../tools/create")(srcname, appname);
+        });
+    },
+    simple(srcname, appname) {
+        var create = function (distpath) {
+            setenv({
+                app: path.basename(distpath),
+                envs_path: path.join(distpath, '_envs'),
+                page_path: path.join(distpath, 'pages'),
+                public_path: path.join(distpath, 'public'),
+                coms_path: path.join(distpath, 'coms'),
+            });
+            require("./setupenv");
+            require("../../tools/create")(srcname || 'blank', '');
+        };
+        if (!appname) {
+            fs.readdir(process.cwd(), function (error, files) {
+                if (error) throw new Error("没有权限！");
+                if (files.length > 0) {
+                    throw new Error("当前文件夹不为空！");
+                }
+                create(process.cwd());
+            });
+            return;
+        }
+        var distpath = path.join(process.cwd(), appname);
+        var exists = fs.existsSync(distpath);
+        if (!exists) {
+            fs.mkdirSync(distpath);
+        }
+        fs.readdir(distpath, function (error, files) {
+            if (error) throw new Error("没有权限！");
+            if (files.length > 0) {
+                throw new Error("项目文件夹已存在且不为空！");
+            }
+            create(distpath);
+        });
+        return;
     },
     dev(appname, http_port, https_port) {
         startDevelopEnv(appname, http_port, https_port);
     },
-    live(appname, http_port, https_port) {
+    live(http_port, https_port) {
         detectEnvironment().then(function () {
-            startDevelopEnv(appname, http_port, https_port);
+            startDevelopEnv("", http_port, https_port);
         }).catch(console.error);
     },
     start() {
@@ -313,7 +385,7 @@ var run = function (type, value1, value2, value3) {
         with (commands) {
             switch (type) {
                 case "from":
-                    if (value2 && !/^(init|create)$/i.test(value2)) {
+                    if (value2 && !/^(init)$/i.test(value2)) {
                         if (!value3) {
                             help('from');
                             break;
@@ -326,19 +398,38 @@ var run = function (type, value1, value2, value3) {
                     create(value1, value3);
                     break;
                 case "init":
-                case "create":
                     if (value2 && value2.toLowerCase() !== "from") {
-                        help("create");
+                        help("init");
                         break;
                     }
                     if (value2 && !value3) {
-                        help('create');
+                        help('init');
                         break;
                     }
                     create(value3 || 'blank', value1);
                     break;
                 case "blank":
                     create("blank", value1);
+                    break;
+                case "create":
+                case "simple":
+                    if (value3) {
+                        if (!/^from$/i.test(value2)) {
+                            help("simple");
+                            break;
+                        }
+                        simple(value3, value1);
+                        break;
+                    }
+                    if (value2) {
+                        if (!/^from$/i.test(value1)) {
+                            help("simple");
+                            break;
+                        }
+                        simple(value2, '');
+                        break;
+                    }
+                    simple('blank', value1);
                     break;
                 case "publish":
                 case "release":
@@ -354,15 +445,27 @@ var run = function (type, value1, value2, value3) {
                         public(value1, value2);
                     }
                     break;
-                case "https":
-                    serv(value2, value1);
-                    break;
+
                 case "run":
                     run.apply(null, process.argv.slice(3));
                     break;
+                case "https":
+                case "lives":
+                case "devs":
+                case "tests":
+                case "starts":
+                    if (value2) {
+                        [value2 = 443, value1] = [value1, value2];
+                    } else if (value1) {
+                        value2 = value1;
+                        value1 = '-1';
+                    } else {
+                        value2 = 443;
+                        value1 = '-1';
+                    }
                 default:
                     type = helps[type].cmds[0];
-                    commands[type](value1, value2);
+                    commands[type](value1, value2, value3);
             }
         }
 
