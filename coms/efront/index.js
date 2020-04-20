@@ -384,91 +384,90 @@ var run = function (type, value1, value2, value3) {
     }
     if (type.toLowerCase() in helps) {
         type = type.toLowerCase();
-        with (commands) {
-            switch (type) {
-                case "from":
-                    if (value2 && !/^(init)$/i.test(value2)) {
-                        if (!value3) {
-                            help('from');
-                            break;
-                        }
-                    }
-                    if (!value1) {
+        var { help, create, public, run, simple } = commands;
+        switch (type) {
+            case "from":
+                if (value2 && !/^(init)$/i.test(value2)) {
+                    if (!value3) {
                         help('from');
                         break;
                     }
-                    create(value1, value3);
+                }
+                if (!value1) {
+                    help('from');
                     break;
-                case "init":
-                    if (value2 && value2.toLowerCase() !== "from") {
-                        help("init");
+                }
+                create(value1, value3);
+                break;
+            case "init":
+                if (value2 && value2.toLowerCase() !== "from") {
+                    help("init");
+                    break;
+                }
+                if (value2 && !value3) {
+                    help('init');
+                    break;
+                }
+                create(value3 || 'blank', value1);
+                break;
+            case "blank":
+                create("blank", value1);
+                break;
+            case "create":
+            case "simple":
+                if (value3) {
+                    if (!/^from$/i.test(value2)) {
+                        help("simple");
                         break;
                     }
-                    if (value2 && !value3) {
-                        help('init');
+                    simple(value3, value1);
+                    break;
+                }
+                if (value2) {
+                    if (!/^from$/i.test(value1)) {
+                        help("simple");
                         break;
                     }
-                    create(value3 || 'blank', value1);
+                    simple(value2, '');
                     break;
-                case "blank":
-                    create("blank", value1);
-                    break;
-                case "create":
-                case "simple":
-                    if (value3) {
-                        if (!/^from$/i.test(value2)) {
-                            help("simple");
-                            break;
-                        }
-                        simple(value3, value1);
-                        break;
-                    }
-                    if (value2) {
-                        if (!/^from$/i.test(value1)) {
-                            help("simple");
-                            break;
-                        }
-                        simple(value2, '');
-                        break;
-                    }
-                    simple('blank', value1);
-                    break;
-                case "publish":
-                case "release":
-                    process.env.RELEASE = 1;
-                case "public":
-                    var publicOnly = true;
-                case "build":
-                    if (!publicOnly) {
-                        detectEnvironment().then(function () {
-                            public(value1, value2);
-                        });
-                    } else {
+                }
+                simple('blank', value1);
+                break;
+            case "publish":
+            case "release":
+                process.env.RELEASE = 1;
+            case "public":
+                var publicOnly = true;
+            case "build":
+                if (!publicOnly) {
+                    detectEnvironment().then(function () {
                         public(value1, value2);
-                    }
-                    break;
+                    });
+                } else {
+                    public(value1, value2);
+                }
+                break;
 
-                case "run":
-                    run.apply(null, process.argv.slice(3));
-                    break;
-                case "https":
-                case "lives":
-                case "devs":
-                case "tests":
-                case "starts":
-                    if (value2) {
-                        [value2 = 443, value1] = [value1, value2];
-                    } else if (value1) {
-                        value2 = value1;
-                        value1 = '-1';
-                    } else {
-                        value2 = 443;
-                        value1 = '-1';
-                    }
-                default:
-                    type = helps[type].cmds[0];
-                    commands[type](value1, value2, value3);
-            }
+            case "run":
+                run.apply(null, process.argv.slice(3));
+                break;
+            case "https":
+            case "lives":
+            case "devs":
+            case "tests":
+            case "starts":
+                if (value2) {
+                    [value2 = 443, value1] = [value1, value2];
+                } else if (value1) {
+                    value2 = value1;
+                    value1 = '-1';
+                } else {
+                    value2 = 443;
+                    value1 = '-1';
+                }
+            default:
+                type = helps[type].cmds[0];
+                commands[type](value1, value2, value3);
         }
 
     } else if (/^\d+$/.test(type)) {
