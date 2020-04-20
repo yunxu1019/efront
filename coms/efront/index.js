@@ -379,7 +379,7 @@ var commands = {
 var run = function (type, value1, value2, value3) {
     if (type) type = type.toLowerCase();
     if (!type) {
-        startServer();
+        commands.serv(80);
         return;
     }
     if (type.toLowerCase() in helps) {
