@@ -47,7 +47,6 @@ var setup = module.exports = function (appname) {
     extend(env, process.env);
     if (!env.PAGE) env.PAGE = appname;
     pollyfill(env, appname);
-console.log(env);
 
     return env;
 };
