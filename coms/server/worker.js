@@ -6,7 +6,7 @@ process.on("SIGTERM", function () { });
 process.on("uncaughtException", process.exit);
 process.on("unhandledRejection", process.exit);
 var { HTTPS_PORT, HTTP_PORT } = process.env;
-HTTP_PORT = +HTTP_PORT || 80;
+HTTP_PORT = +HTTP_PORT || 0;
 HTTPS_PORT = +HTTPS_PORT || 0;
 var closed = false;
 var reload = require("./liveload");
@@ -94,8 +94,6 @@ var requestListener = function (req, res) {
         return doPost.call(this, req, res);
     }
 };
-// create server
-var server1 = http.createServer(requestListener);
 var ipLoged = false;
 var checkServerState = function (http, port) {
     return new Promise(function (ok, oh) {
@@ -155,10 +153,14 @@ var showServerError = function (error) {
     console.error(error || `${s === server2 ? "https" : "http"}服务器启动失败!`);
     s.close(closeListener);
 };
-server1.once("error", showServerError);
-server1.once("listening", showServerInfo);
-server1.setTimeout(0);
-server1.listen(+HTTP_PORT || 80);
+// create server
+if (HTTP_PORT) {
+    var server1 = http.createServer(requestListener);
+    server1.once("error", showServerError);
+    server1.once("listening", showServerInfo);
+    server1.setTimeout(0);
+    server1.listen(+HTTP_PORT);
+}
 var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
 var httpsOptions = {
     allowHTTP1: true,
