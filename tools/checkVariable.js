@@ -20,7 +20,11 @@ var check = function (root) {
         "modules": true,
         "init": true,
         "put": true,
-        "state": true
+        "state": true,
+        "module": true,
+        "exports": true,
+        "require": true,
+        "__dirname": true,
     }, needs = {};
     var list = function () {
         Object.keys(needs).filter(k => !map[k]).forEach(function (k) {
@@ -57,7 +61,8 @@ var check = function (root) {
                     fs.readFile(fullpath, function (error, data) {
                         if (error) return console.error(error);
                         try {
-                            var jst = esprima.parse(typescript.transpile(String(data)));
+
+                            var jst = esprima.parse(typescript.transpile(String(data).replace(/^\s*#!/, '//')));
                             var {
                                 unDeclaredVariables: undeclares
                             } = getVariables(jst);
@@ -79,4 +84,6 @@ var check = function (root) {
     }
     run();
 }
+check('coms/efront');
+check('coms/build');
 check('coms/zimoli');
