@@ -3,6 +3,7 @@ var fs = require("fs");
 var vm = require("vm");
 var os = require("os");
 var path = require("path");
+var isLib = require("./isLib");
 var userAgent = "Efront/1.0";
 var mainLoaderPromise = new Promise(function (ok, oh) {
     fs.readFile(path.join(__dirname, "../basic/loader.js"), function (error, data) {
@@ -18,13 +19,28 @@ function fromComponent(base) {
         if (/^https?\:\/\//i.test(url)) {
             return requestInternet(url, onsuccess, onerror);
         }
+        if (/^\/?comm\b/i.test(url)) {
+            try {
+                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.'), { paths: process.env.COMS_PATH.split(',') })
+
+                if (isLib(temppath)) {
+                    console.fail(temppath);
+                    onsuccess(function () {
+                        return require(temppath);
+                    });
+                    return;
+                }
+            } catch (e) {
+
+            }
+        }
         var abort = function () {
             isdestroied = true;
         };
         requestHandles.push(abort);
-        url = base.replace(/[^\\\/]*$/, url);
-        url = url.replace(/^\/?/, "/");
-        packer(url, function (result) {
+        var url1 = base.replace(/[^\\\/]*$/, url);
+        url1 = url1.replace(/^\/?/, "/");
+        packer(url1, function (result) {
             var index = requestHandles.indexOf(abort);
             if (index >= 0) {
                 requestHandles.splice(index, 1);
@@ -33,7 +49,37 @@ function fromComponent(base) {
             if (result instanceof Error) {
                 onerror(result);
             }
-            onsuccess(result.toString() || '');
+            if (!result) {
+                if (!/^comm\//i.test(url)) {
+                    console.fail(url);
+                } else {
+                    url1 = url.replace(/^comm\//i, '');
+                    if (global[url1]) {
+                        result = function () { return this }.bind(global[url1]);
+                    } else {
+                        try {
+                            url1 = url1.replace(/\$/g, '/');
+                            if (/\./.test(url1)) {
+                                var resolved = require.resolve(url1, { paths: process.env.COMS_PATH.split(',') });
+                            } else {
+                                var resolved = require.resolve(url1);
+                            }
+                            if (resolved) {
+                                result = function () {
+                                    return require(resolved);
+                                };
+                                result.args = [];
+                            }
+                        } catch (e) {
+                            console.fail(url1);
+
+                        }
+                    }
+                }
+            } else {
+                result = result.toString();
+            }
+            onsuccess(result || '');
             require("./watch").close();
         });
     };
@@ -87,7 +133,7 @@ function fromInternet(mainfilepath) {
 var timeoutHandles = {};
 var intervalHandles = {};
 var requestHandles = [];
-function efront(getLoader) {
+function efront() {
     function Storage() { }
     Storage.prototype = {
         getItem() { },
@@ -99,7 +145,15 @@ function efront(getLoader) {
     var window = new Window;
     Object.assign(window, {
         console,
-        require,
+        performance: {},
+        require(path) {
+            try {
+                return require(path);
+            } catch (e) {
+            }
+            var resolved = require.resolve("./" + path, { paths: process.env.COMS_PATH.split(",") });
+            return require(resolved);
+        },
         Buffer,
         setTimeout(f, timerout) {
             var args = [].slice.call(arguments, 2);
@@ -109,7 +163,7 @@ function efront(getLoader) {
             }, timerout);
             timeoutHandles[handle] = true;
         },
-        setInterval() {
+        setInterval(f, timerout) {
             var args = [].slice.call(arguments, 2);
             var handle = setTimeout(function () {
                 delete intervalHandles[handle];
@@ -144,7 +198,6 @@ function efront(getLoader) {
                 console.log.apply(console, arguments);
             }
         },
-        request: getLoader(),
         localStorage: new Storage,
         sessionStorage: new Storage
 
@@ -161,20 +214,25 @@ module.exports = function (mainpath, argv) {
         Object.keys(timeoutHandles).map(clearTimeout);
         requestHandles.slice(0).map(r => r());
     };
+    var fullpath = require.resolve(mainpath, { paths: process.env.COMS_PATH.split(",") });
+    var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
+    pathname = path.join(fullpath, pathname);
+    pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
     var location = Object.freeze({
+        pathname,
         get reload() {
             return function () {
                 unload();
+                var window = efront();
                 var getLoader;
                 if (/^https?\:\/\//i.test(mainpath)) {
-                    getLoader = fromInternet.bind(null, mainpath);
+                    getLoader = fromInternet.bind(window, mainpath);
                 } else {
-                    console.log(mainpath);
-                    getLoader = fromComponent.bind(null, mainpath);
+                    getLoader = fromComponent.bind(window, '/');
                 }
-                var window = efront(getLoader);
+                window.request = getLoader();
                 window.location = location;
-                window.startPath = mainpath;
+                window.startPath = mainpath.replace(/^\.[\/\\]/, '');
                 mainLoaderPromise.then(function (loader) {
                     vm.runInContext(`-function(){${loader}}.call(this)`, window);
                 }).catch(function (e) {

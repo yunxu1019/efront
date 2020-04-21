@@ -118,6 +118,7 @@ var readFile = function (names, then, saveas) {
         }
         if (efrontURI) url = efrontURI + url;
     }
+
     readingCount++;
     request(url, function (res) {
         responseTree[key] = res;
@@ -205,7 +206,7 @@ var killCircle = function () {
     }
 };
 var loadModule = function (name, then, prebuilds = {}) {
-    if (/^(?:module|exports|define|require|window|global|undefined)$/.test(name)) return then();
+    if (/^(?:module|exports|define|require|window|global|undefined|__dirname|__filename)$/.test(name)) return then();
     var hasOwnProperty = {}.hasOwnProperty;
     if ((name in prebuilds) || hasOwnProperty.call(modules, name) || (window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
     ) return then();
@@ -236,14 +237,22 @@ var loadModule = function (name, then, prebuilds = {}) {
 
         var saveModule = function () {
             var data = responseTree[key];
+            if (typeof data === "function") {
+                var mod = data;
+                flushTree(loadedModules, key, mod);
+                return;
+            }
             var [args, body] = getArgs(data);
-            var mod = createFunction(name, body, args.slice([args.length >> 1], args.length));
-            mod.args = args;
             var argslength = args.length >> 1;
+            var mod = createFunction(name, body, args.slice(argslength, argslength << 1));
+            mod.args = args;
             var required = args[argslength << 1];
             var loadingCount = 0;
-            if (required) required = required.split(';').filter(a => !a);
-            args = args.slice(0, argslength).concat(required || []);
+            if (required) required = required.split(';').filter(a => !!a);
+            required = required ? get_relatives(name, required) : [];
+            mod.required = required;
+            mod.file = name;
+            args = args.slice(0, argslength).concat(required);
             var response = function () {
                 loadingCount++;
                 if (loadingCount === args.length) {
@@ -326,9 +335,11 @@ var createModule = function (exec, argNames, prebuilds = {}) {
     var module = {};
     var exports = module.exports = {};
     var isModuleInit = false;
-    var required = argNames[argNames.length >> 1];
-    required = required ? required.split(';').map(a => loadedModules[a]) : [];
+    if (!argNames) argNames = [];
     var argslength = argNames.length >> 1;
+    var required = exec.required;
+    if (required) required = required.map(a => loadedModules[keyprefix + a]);
+
     var argsList = argNames.slice(0, argslength).map(function (argName) {
         if (argName in prebuilds) {
             return prebuilds[argName];
@@ -342,9 +353,18 @@ var createModule = function (exec, argNames, prebuilds = {}) {
             return exports;
         }
         if (/^(?:window|global|undefined)$/.test(argName)) return window[argName];
-        if (argName === "require") return window[argName] || function (refer) {
-            return required[refer]();
+        if (argName === "require") return function (refer) {
+            if (refer.length) return window.require(refer);
+            var mod = required[refer];
+            return createModule(mod, mod.args, prebuilds);
         };
+        var filename = location.pathname + exec.file.replace(/([\s\S])[\$]/g, '$1/').replace(/\\/g, '/');
+        if (argName === "__dirname") {
+            return filename.replace(/[^\/]+$/, '');
+        }
+        if (argName === "__filename") {
+            return filename;
+        }
         if (argName === "define") return window[argName] || function (m_name, requires, exec) {
             if (m_name instanceof Function) {
                 exec = m_name;
@@ -376,7 +396,11 @@ var createModule = function (exec, argNames, prebuilds = {}) {
     if (!argsPromises.length) {
         var compiledNames = argNames.slice(argslength, argslength << 1);
         argsList.push(compiledNames);
-        return exec.apply(_this, argsList);
+        try {
+            return exec.apply(_this, argsList);
+        } catch (e) {
+            console.log(exec.file, e);
+        }
     }
     return Promise.all(argsList).then(function (args) {
         return exec.apply(_this, args);
@@ -410,14 +434,13 @@ var init = function (name, then, prebuilds) {
         then(modules[name] = window[name]);
         return;
     }
-
     loadModule(name, function () {
         if (hasOwnProperty.call(modules, name)) {
             then(modules[name]);
             return;
         }
         var module = loadedModules[key];
-        var args = module.args || '';
+        var args = module.args || [];
         if (!args || !args.length) {
             var created = module.call(window);
             then(modules[name] = created);
@@ -449,6 +472,7 @@ var init = function (name, then, prebuilds) {
         } else {
             if (saveAsModule) modules[name] = created;
         }
+
         then(created);
     }, prebuilds);
 };
@@ -652,7 +676,6 @@ var modules = {
         modules[name] = module;
     },
 };
-
 var penddings = {};
 
 modules.modules = modules;
