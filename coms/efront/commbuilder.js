@@ -84,7 +84,7 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
             commName = realName;
         }
         if (!commName) commName = realName;
-        if (~loadJsBody(data, 'main.js', '', 'main', '').imported.indexOf('module')){
+        if (~loadJsBody(data, 'main.js', '', 'main', '').imported.indexOf('module')) {
             if (/module.exports\s*=/.test(data)) {
                 data = data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName + " =" : "return ");
                 return data;
@@ -241,6 +241,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             });
         } else {
             if (!/\bmain|\bindex/i.test(path.basename(filename))) {
+                if (filename.length > 48) {
+                    filename = ".." + filename.slice(46);
+                }
                 console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
             }
         }
@@ -462,7 +465,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         time += new Date - timeStart;
     }).then(function () {
         var timeStart = new Date;
-        var data = loadJsBody(jsData, filename, lessData, commName, className);
+        var data = loadJsBody(jsData, fullpath, lessData, commName, className);
         time += new Date - timeStart;
         promise.time = time;
         return data;
@@ -488,6 +491,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
                 var timeStart = new Date;
                 data = buildResponse(data);
                 data = Buffer.from(data);
+                data.path = fullpath;
                 data.time = new Date - timeStart + promise.time;
                 return data;
             } catch (e) {
