@@ -4,19 +4,33 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "run efront2",
+            "cwd": "${workspaceFolder}/",
+            "env": {
+            },
+            "args": [
+                "help",
+                "help"
+            ],
+            "program": "${workspaceFolder}/public/efront.js"
+        },
+        
         {
             "type": "node",
             "request": "launch",
             "name": "start efront2",
             "cwd": "${workspaceFolder}",
             "env": {
-                "coms_path": "./coms",
                 "public_path": "public",
-                "extt": ".js",
-                "coms": "./",
+                "libs_path":"./",
+                "libs":"typescript,esprima,escodegen,esmangle,pngjs,less-node"
             },
             "args": [
-                "efront$index.js"
+                "./efront/index"
             ],
             "program": "${workspaceFolder}/coms/efront/index.js"
         },
