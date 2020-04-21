@@ -24,7 +24,7 @@ npm install -g efront
 efront help
 ```
 
-## 3. 识别并在当前目录启动开发环境服务器
+## 3. 启动开发环境服务器
 
 ```bat
 efront live
@@ -106,6 +106,7 @@ efront watch
 
 * efront 为组件生成的较长的 `className` 选择器 (含中划线，如`.comm-button`)可能会发生变化，如果要为嵌入的组件设置样式，可以使用 efront 为其生成的较短的 `className` 选择器 (不含中划线`-`，如`.button`)
 * efront 将不在首字符位置的`$`识别为快捷分割符，以便以变量名的方式引入多级文件夹中的模块，文件命名时不要在文件名的中间位置使用`$`符号
+* with 语句中的变量无法准确识别，最好不要使用。如果非要在efront环境下使用，请在with语句外提前声明，with中出现的未声明的变量。
 
 # 相关链接
 

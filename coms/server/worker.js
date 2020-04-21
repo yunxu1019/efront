@@ -1,8 +1,16 @@
 "use strict";
 require("../efront/setupenv");
 var message = require("../message");
-process.on("SIGINT", function () { });
-process.on("SIGTERM", function () { });
+if (require("cluster").isMaster) {
+    var rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    rl.addListener("SIGINT", process.exit);
+} else {
+    process.on("SIGINT", function () { });
+    process.on("SIGTERM", function () { });
+}
 process.on("uncaughtException", process.exit);
 process.on("unhandledRejection", process.exit);
 var { HTTPS_PORT, HTTP_PORT } = process.env;

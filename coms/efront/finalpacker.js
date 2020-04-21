@@ -100,7 +100,7 @@ var exports = module.exports = function (url, callback) {
             extt = match[4];
         var env = setupenv(appc);
         var manager = managers[type];
-        if (!manager) return res.end();
+        if (!manager) return callback('', type);
         var result = manager(name, env);
     } else {
         url = url.replace(/[\?\#].*?$/, '');

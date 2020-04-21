@@ -2,6 +2,7 @@
 var loadenv = require("./loadenv");
 var path = require("path");
 var env = process.env;
+
 if (!env.cd && !env.CD) {
     env.cd = process.cwd();
 }
@@ -116,6 +117,4 @@ if (env.APP) {
             process.env[k] = _tmp[k];
         }
     }
-} else {
-    pollyfill(env, '');
 }

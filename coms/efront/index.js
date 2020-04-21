@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 var cluster = require("cluster");
 var path = require('path');
 var fs = require("fs");
@@ -29,7 +30,7 @@ var startDevelopEnv = function () {
     require("../server/main");
 };
 var setAppnameAndPorts = function (args) {
-    var appname = '', http_port = '', https_port;
+    var appname = process.env.APP, http_port = '', https_port;
     for (var cx = 0, dx = args.length; cx < dx; cx++) {
         var arg = args[cx];
         if (!arg) continue;
@@ -119,7 +120,8 @@ var showHelpInfo = function (help) {
 var format = s => s
     .replace(/[a-z][_a-z]*/g, "<blue2>$&</blue2>")
     .replace(/(?<=\W)\d+/g, "<green>$&</green>")
-    .replace(/[A-Z][_A-Z]*/g, "<blue>$&</blue>")
+    .replace(/[A-Z][_A-Z]*/g, "<purple>$&</purple>")
+    .replace(/\-+/g, "<gray>$&</gray>")
     .replace(/\|/g, "<gray>|</gray>");
 var showTopicInfo = function (commands, prefix = '') {
     var tips = {};
@@ -219,6 +221,8 @@ var commands = {
             page: './',
             app: "docs"
         });
+        setAppnameAndPorts(80);
+        require("./setupenv");
         require("../server/main");
         showHelpLine('可以通过浏览器访问打开的端口以查看文档');
     },
@@ -230,6 +234,7 @@ var commands = {
             IN_TEST_MODE: true,
             app: appname
         });
+        setAppnameAndPorts(80);
         require("./setupenv");
         require("../server/main");
         showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${appname}`);
@@ -302,8 +307,9 @@ var commands = {
         startDevelopEnv(appname, http_port, https_port);
     },
     live(http_port, https_port) {
+
         detectEnvironment().then(function () {
-            startDevelopEnv("", http_port, https_port);
+            startDevelopEnv(process.env.APP || "", http_port, https_port);
         }).catch(console.error);
     },
     start() {
@@ -331,23 +337,35 @@ var commands = {
         setenv({ https_port, http_port });
         startServer();
     },
-    run(appname, ...args) {
+    run(appname) {
+        var args = [].concat.apply(["efront"], arguments);
+        args.push("--efront");
         if (!appname) {
             console.info("请输入要启动的程序!");
             return;
         }
         var fullpath = process.cwd();
-        detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], [fullpath]).then(function (f) {
-            setenv({
-                app: path.relative(fullpath, f),
-                coms: './',
-                coms_path: './',
-            })
-        }).catch(function () {
+        var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], [fullpath]);
+
+        detectPromise.catch(function () {
             detectEnvironment().then(function () {
+                setenv({
+                    IN_TEST_MODE: true
+                });
+                require("./setupenv");
                 require("./run")(appname, args);
             }).catch(console.error);
         });
+        detectPromise.then(function (f) {
+            setenv({
+                app: path.relative(fullpath, f),
+                comm: './,typescript-helpers',
+                coms_path: './,' + path.join(__dirname, '..'),
+                IN_TEST_MODE: true,
+            });
+            require("./setupenv");
+            require('./run')(appname, args);
+        }, function () { });
     },
     public(app_Name, module_Name) {
         if (app_Name && !module_Name) {
@@ -379,96 +397,95 @@ var commands = {
 var run = function (type, value1, value2, value3) {
     if (type) type = type.toLowerCase();
     if (!type) {
-        startServer();
+        commands.serv(80);
         return;
     }
     if (type.toLowerCase() in helps) {
         type = type.toLowerCase();
-        with (commands) {
-            switch (type) {
-                case "from":
-                    if (value2 && !/^(init)$/i.test(value2)) {
-                        if (!value3) {
-                            help('from');
-                            break;
-                        }
-                    }
-                    if (!value1) {
+        var { help, create, public: build, run, simple } = commands;
+        switch (type) {
+            case "from":
+                if (value2 && !/^(init)$/i.test(value2)) {
+                    if (!value3) {
                         help('from');
                         break;
                     }
-                    create(value1, value3);
+                }
+                if (!value1) {
+                    help('from');
                     break;
-                case "init":
-                    if (value2 && value2.toLowerCase() !== "from") {
-                        help("init");
+                }
+                create(value1, value3);
+                break;
+            case "init":
+                if (value2 && value2.toLowerCase() !== "from") {
+                    help("init");
+                    break;
+                }
+                if (value2 && !value3) {
+                    help('init');
+                    break;
+                }
+                create(value3 || 'blank', value1);
+                break;
+            case "blank":
+                create("blank", value1);
+                break;
+            case "create":
+            case "simple":
+                if (value3) {
+                    if (!/^from$/i.test(value2)) {
+                        help("simple");
                         break;
                     }
-                    if (value2 && !value3) {
-                        help('init');
+                    simple(value3, value1);
+                    break;
+                }
+                if (value2) {
+                    if (!/^from$/i.test(value1)) {
+                        help("simple");
                         break;
                     }
-                    create(value3 || 'blank', value1);
+                    simple(value2, '');
                     break;
-                case "blank":
-                    create("blank", value1);
-                    break;
-                case "create":
-                case "simple":
-                    if (value3) {
-                        if (!/^from$/i.test(value2)) {
-                            help("simple");
-                            break;
-                        }
-                        simple(value3, value1);
-                        break;
-                    }
-                    if (value2) {
-                        if (!/^from$/i.test(value1)) {
-                            help("simple");
-                            break;
-                        }
-                        simple(value2, '');
-                        break;
-                    }
-                    simple('blank', value1);
-                    break;
-                case "publish":
-                case "release":
-                    process.env.RELEASE = 1;
-                case "public":
-                    var publicOnly = true;
-                case "build":
-                    if (!publicOnly) {
-                        detectEnvironment().then(function () {
-                            public(value1, value2);
-                        });
-                    } else {
-                        public(value1, value2);
-                    }
-                    break;
+                }
+                simple('blank', value1);
+                break;
+            case "publish":
+            case "release":
+                process.env.RELEASE = 1;
+            case "public":
+                var publicOnly = true;
+            case "build":
+                if (!publicOnly) {
+                    detectEnvironment().then(function () {
+                        build(value1, value2);
+                    });
+                } else {
+                    build(value1, value2);
+                }
+                break;
 
-                case "run":
-                    run.apply(null, process.argv.slice(3));
-                    break;
-                case "https":
-                case "lives":
-                case "devs":
-                case "tests":
-                case "starts":
-                    if (value2) {
-                        [value2 = 443, value1] = [value1, value2];
-                    } else if (value1) {
-                        value2 = value1;
-                        value1 = '-1';
-                    } else {
-                        value2 = 443;
-                        value1 = '-1';
-                    }
-                default:
-                    type = helps[type].cmds[0];
-                    commands[type](value1, value2, value3);
-            }
+            case "run":
+                run.apply(null, process.argv.slice(3));
+                break;
+            case "https":
+            case "lives":
+            case "devs":
+            case "tests":
+            case "starts":
+                if (value2) {
+                    [value2 = 443, value1] = [value1, value2];
+                } else if (value1) {
+                    value2 = value1;
+                    value1 = '-1';
+                } else {
+                    value2 = 443;
+                    value1 = '-1';
+                }
+            default:
+                type = helps[type].cmds[0];
+                commands[type](value1, value2, value3);
         }
 
     } else if (/^\d+$/.test(type)) {
@@ -493,8 +510,5 @@ process.on("exit", function () {
         console.log();
     }
 });
-var type = process.argv[2];
-var value1 = process.argv[3];
-var value2 = process.argv[4];
-var value3 = process.argv[5];
+var [type, value1, value2, value3] = process.argv.slice(2).filter(a => a in helps || !/^--/.test(a));
 run(type, value1, value2, value3);

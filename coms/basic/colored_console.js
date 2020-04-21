@@ -1,5 +1,5 @@
 "use strict";
-var colored = Object.create(global.console);
+var colored = Object.create(null);
 var version = `efront/(${String(require("../../package.json").version).replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
 
 var colors = {
@@ -133,7 +133,7 @@ var write = function (hasNewLine, str) {
     colored[log] = logger;
 });
 colored.time = logTime;
-colored.type = function (...args) {
+colored.log = colored.type = function (...args) {
     write(false, args.join(' '));
 };
 module.exports = colored;
