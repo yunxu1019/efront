@@ -15,17 +15,22 @@ function toComponent(responseTree) {
     var result = [];
     var crypt_code = new Date / 1000 ^ Math.random() * 3600;
     var libsTree = Object.create(null);
+    var has_outside_require = false;
+
     for (var k in responseTree) {
         if (!{}.hasOwnProperty.call(responseTree, k)) continue;
         var response = responseTree[k];
         if (!response.data && /^(number|function|string)$/.test(typeof response.builtin)) {
             response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
         }
+        if (response.type === "@" || response.type === "\\") {
+            var rel = response.destpath.replace(/\\/g, '/').replace(/^\.\//, "").replace(/\//g, '$').replace(/\.[jt]sx?$/, '');
+            libsTree[rel] = response;
+            delete responseTree[k];
+            has_outside_require = true;
+            continue;
+        }
         if (response.data) {
-            if (response.type === "@" || response.type === "\\") {
-                libsTree[k] = responseTree[k];
-                continue;
-            }
             if (response.data instanceof Buffer) {
                 response.data = String(response.data);
             }
@@ -71,10 +76,9 @@ function toComponent(responseTree) {
         if (type === 'string') key = encode(JSON.stringify(key));
         return destMap[getEfrontKey(key, type)];
     };
-    var has_outside_require = false;
     var saveCode = function (module_body, module_key, reqMap) {
         var this_module_params = {};
-        var setMatchedConstString = function (match, type, k, isProp) {
+        var setMatchedConstString = function (match, type, k, isProp, isReq) {
 
             if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
             if (k.length < 3) return match;
@@ -84,17 +88,25 @@ function toComponent(responseTree) {
                     k = k.replace(/^(['"])(.*?)\1$/, function (match, quote, string) {
                         return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
                     });
-                    if (include_required) {
+                    if (include_required && isReq) {
                         var refer = evalString(k);
                         if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                             var reqer = reqMap[refer];
+
                             if (destMap[reqer]) return destMap[reqer];
                             reqer = reqer.replace(/^\.?\//, '').replace(/\//g, '$');
                             if (destMap[reqer]) return destMap[reqer];
-                            k = JSON.stringify(reqMap[refer]);
+                            if (reqer in libsTree) {
+                                var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
+                                k = JSON.stringify(libdir);
+                            } else {
+                                k = JSON.stringify(reqMap[refer]);
+                            }
+
                             has_outside_require = true;
                         }
                     }
+
                     break;
                 case ".":
                     k = "\"" + k + "\"";
@@ -121,6 +133,7 @@ function toComponent(responseTree) {
         var module_string = module_body[module_body.length - 1];
         var code_blocks = scanner(module_string);
         var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{}]/gy;
+        var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
         module_string = code_blocks.map(function (block, index, blocks) {
             var block_string = module_string.slice(block.start, block.end);
             var isPropEnd = (
@@ -132,11 +145,14 @@ function toComponent(responseTree) {
                 prefixReg.exec(module_string)
             );
             var isProp = !!(isPropStart && isPropEnd);
+            requireReg.lastIndex = block.start;
+            var isRequire = requireReg.exec(module_string);
+
             if (block.type === block.single_quote_scanner) {
-                return setMatchedConstString(block_string, "'", block_string, isProp);
+                return setMatchedConstString(block_string, "'", block_string, isProp, isRequire);
             }
             if (block.type === block.double_quote_scanner) {
-                return setMatchedConstString(block_string, "\"", block_string, isProp);
+                return setMatchedConstString(block_string, "\"", block_string, isProp, isRequire);
             }
             if (block.type === block.regexp_quote_scanner) {
                 return setMatchedConstRegExp(block_string, "", block_string);
@@ -204,6 +220,7 @@ function toComponent(responseTree) {
         ks.forEach(function (key) {
             destMap[key] = destMap[k];
         });
+
     }
     if (array_map) saveCode([String(array_map.data)], "map");
     if (include_required) {
@@ -391,6 +408,6 @@ function toComponent(responseTree) {
     responseTree[PUBLIC_APP].destpath = DESTNAME || PUBLIC_APP;
     return Object.assign({
         [PUBLIC_APP]: responseTree[PUBLIC_APP]
-    }, libsTree);
+    });
 }
 module.exports = toComponent;

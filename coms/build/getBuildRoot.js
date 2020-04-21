@@ -1,12 +1,12 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
+var isLib = require("../efront/isLib");
 var getBuildInfo = require("./getBuildInfo");
 var detectWithExtension = require("../basic/detectWithExtension");
 var {
     comms_root,
     pages_root,
-    libs_root,
     PAGE_PATH
 } = require("./environment");
 var erroredFiles = Object.create(null);
@@ -106,12 +106,9 @@ var getBuildRoot = function (files, matchFileOnly) {
             result.push(f);
         };
         var saveComm = function (name, file) {
-            for (var lib of libs_root) {
-                var rel = getPathInFolder(lib, file);
-                if (rel) {
-                    saveLlib(name);
-                    return;
-                }
+            if (isLib(file)) {
+                saveLlib(name);
+                return;
             }
             name = name
                 .replace(/[\\\/]+/g, "$")

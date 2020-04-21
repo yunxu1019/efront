@@ -30,7 +30,6 @@ function getBuildInfo(url) {
             ccons_root,
             pages_root,
             PAGE_PATH,
-            libs_root,
             // aapis_root
         } = env;
         var appc = match[1],

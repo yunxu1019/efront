@@ -155,6 +155,11 @@ function compile(buildInfo, lastBuildTime, destroot) {
                             }
                         };
                         var loader = function () {
+                            if (buildInfo.type === '\\') {
+                                writeNeeded = false;
+                                response();
+                                return;
+                            }
                             if (isDirectory) {
                                 var __filepath = path.join(_filepath, 'package.json');
                                 fs.exists(__filepath, function (exists) {
@@ -170,6 +175,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                 });
                                 return;
                             }
+
                             fs.readFile(_filepath, function (error, buffer) {
                                 if (error) throw new Error("加载" + url + "出错！");
                                 response(buffer);
