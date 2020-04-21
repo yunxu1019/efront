@@ -307,8 +307,9 @@ var commands = {
         startDevelopEnv(appname, http_port, https_port);
     },
     live(http_port, https_port) {
+
         detectEnvironment().then(function () {
-            startDevelopEnv("", http_port, https_port);
+            startDevelopEnv(process.env.APP || "", http_port, https_port);
         }).catch(console.error);
     },
     start() {
@@ -338,21 +339,15 @@ var commands = {
     },
     run(appname) {
         var args = [].concat.apply(["efront"], arguments);
+        args.push("--efront");
         if (!appname) {
             console.info("请输入要启动的程序!");
             return;
         }
         var fullpath = process.cwd();
-        detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], [fullpath]).then(function (f) {
-            setenv({
-                app: path.relative(fullpath, f),
-                comm: '.,typescript-helpers',
-                coms_path: '.,' + path.join(__dirname, '..'),
-                IN_TEST_MODE: true,
-            });
-            require("./setupenv");
-            require('./run')(appname, args);
-        }, function () {
+        var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], [fullpath]);
+
+        detectPromise.catch(function () {
             detectEnvironment().then(function () {
                 setenv({
                     IN_TEST_MODE: true
@@ -361,6 +356,16 @@ var commands = {
                 require("./run")(appname, args);
             }).catch(console.error);
         });
+        detectPromise.then(function (f) {
+            setenv({
+                app: path.relative(fullpath, f),
+                comm: './,typescript-helpers',
+                coms_path: './,' + path.join(__dirname, '..'),
+                IN_TEST_MODE: true,
+            });
+            require("./setupenv");
+            require('./run')(appname, args);
+        }, function () { });
     },
     public(app_Name, module_Name) {
         if (app_Name && !module_Name) {
@@ -505,8 +510,5 @@ process.on("exit", function () {
         console.log();
     }
 });
-var type = process.argv[2];
-var value1 = process.argv[3];
-var value2 = process.argv[4];
-var value3 = process.argv[5];
+var [type, value1, value2, value3] = process.argv.slice(2).filter(a => a in helps || !/^--/.test(a));
 run(type, value1, value2, value3);

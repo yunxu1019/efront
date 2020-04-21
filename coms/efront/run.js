@@ -15,19 +15,21 @@ function fromComponent(base) {
     var packer = require("./finalpacker");
     var requestInternet = fromInternet("");
     var request = function (url, onsuccess, onerror) {
+
         var isdestroied = false;
         if (/^https?\:\/\//i.test(url)) {
             return requestInternet(url, onsuccess, onerror);
         }
         if (/^\/?comm\b/i.test(url)) {
             try {
-                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.'), { paths: process.env.COMS_PATH.split(',') })
 
+                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: process.env.COMS_PATH.split(',') })
                 if (isLib(temppath)) {
-                    console.fail(temppath);
-                    onsuccess(function () {
+                    var mode = function () {
                         return require(temppath);
-                    });
+                    };
+                    mode.file = temppath;
+                    onsuccess(mode);
                     return;
                 }
             } catch (e) {
@@ -40,6 +42,7 @@ function fromComponent(base) {
         requestHandles.push(abort);
         var url1 = base.replace(/[^\\\/]*$/, url);
         url1 = url1.replace(/^\/?/, "/");
+
         packer(url1, function (result) {
             var index = requestHandles.indexOf(abort);
             if (index >= 0) {
@@ -51,6 +54,7 @@ function fromComponent(base) {
             }
             if (!result) {
                 if (!/^comm\//i.test(url)) {
+
                     console.fail(url);
                 } else {
                     url1 = url.replace(/^comm\//i, '');
@@ -65,14 +69,15 @@ function fromComponent(base) {
                                 var resolved = require.resolve(url1);
                             }
                             if (resolved) {
+
                                 result = function () {
                                     return require(resolved);
                                 };
+                                result.file = resolved;
                                 result.args = [];
                             }
                         } catch (e) {
                             console.fail(url1);
-
                         }
                     }
                 }
@@ -146,12 +151,15 @@ function efront() {
     Object.assign(window, {
         console,
         performance: {},
-        require(path) {
+        process,
+        require(modulepath) {
+
             try {
-                return require(path);
+                return require(modulepath);
             } catch (e) {
             }
-            var resolved = require.resolve("./" + path, { paths: process.env.COMS_PATH.split(",") });
+            var resolved = require.resolve("./" + modulepath, { paths: process.env.COMS_PATH.split(",") });
+
             return require(resolved);
         },
         Buffer,
@@ -208,6 +216,7 @@ function efront() {
 }
 module.exports = function (mainpath, argv) {
     process.argv = argv;
+    process.execArgv = argv;
     mainpath = mainpath.replace(/\.[tj]sx?$/i, '');
     var unload = function () {
         Object.keys(intervalHandles).map(clearInterval);
@@ -220,26 +229,25 @@ module.exports = function (mainpath, argv) {
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
     var location = Object.freeze({
         pathname,
-        get reload() {
-            return function () {
-                unload();
-                var window = efront();
-                var getLoader;
-                if (/^https?\:\/\//i.test(mainpath)) {
-                    getLoader = fromInternet.bind(window, mainpath);
-                } else {
-                    getLoader = fromComponent.bind(window, '/');
-                }
-                window.request = getLoader();
-                window.location = location;
-                window.startPath = mainpath.replace(/^\.[\/\\]/, '');
-                mainLoaderPromise.then(function (loader) {
-                    vm.runInContext(`-function(){${loader}}.call(this)`, window);
-                }).catch(function (e) {
-                    console.log(e);
-                    console.error("启动失败");
-                });
-            };
+        reload() {
+            unload();
+            var window = efront();
+            var getLoader;
+            if (/^https?\:\/\//i.test(mainpath)) {
+                getLoader = fromInternet.bind(window, mainpath);
+            } else {
+                getLoader = fromComponent.bind(window, '/');
+            }
+            window.request = getLoader();
+            window.location = location;
+            window.startPath = mainpath.replace(/^\.[\/\\]/, '');
+
+            mainLoaderPromise.then(function (loader) {
+                vm.runInContext(`-function(){${loader}}.call(this)`, window);
+            }).catch(function (e) {
+                console.log(e);
+                console.error("启动失败");
+            });
         }
     });
     location.reload();

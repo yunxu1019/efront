@@ -391,16 +391,13 @@ var createModule = function (exec, argNames, prebuilds = {}) {
         if (created) return result;
         return promise;
     });
+
     var _this = isModuleInit ? exports : window;
     var argsPromises = argsList.filter(a => a instanceof Promise);
     if (!argsPromises.length) {
         var compiledNames = argNames.slice(argslength, argslength << 1);
         argsList.push(compiledNames);
-        try {
-            return exec.apply(_this, argsList);
-        } catch (e) {
-            console.log(exec.file, e);
-        }
+        return exec.apply(_this, argsList);
     }
     return Promise.all(argsList).then(function (args) {
         return exec.apply(_this, args);
@@ -460,6 +457,7 @@ var init = function (name, then, prebuilds) {
                 return;
             }
         }
+
         var created = createModule(module, args, prebuilds);
         if (created instanceof Promise) {
             if (saveAsModule) {
@@ -472,7 +470,7 @@ var init = function (name, then, prebuilds) {
         } else {
             if (saveAsModule) modules[name] = created;
         }
-
+        
         then(created);
     }, prebuilds);
 };

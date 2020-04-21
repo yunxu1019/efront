@@ -1,3 +1,4 @@
 set libs_path=./
+set coms_path=./coms
 set libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
-efront ./efront/index %1
+efront ./efront/index.js %*
