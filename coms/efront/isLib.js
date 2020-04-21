@@ -16,7 +16,8 @@ var libs_root = [].concat(
 ).filter(fs.existsSync);
 function isLib(fullpath) {
     for (var cx = 0, dx = libs_root.length; cx < dx; cx++) {
-        if (!/^\.\./.test(path.relative(libs_root[cx], fullpath))) return true;
+        var rel = path.relative(libs_root[cx], fullpath);
+        if (!/^\.\./.test(rel) && !path.isAbsolute(rel)) return true;
     }
     return false;
 }
