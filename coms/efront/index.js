@@ -30,7 +30,7 @@ var startDevelopEnv = function () {
     require("../server/main");
 };
 var setAppnameAndPorts = function (args) {
-    var appname = '', http_port = '', https_port;
+    var appname = process.env.APP, http_port = '', https_port;
     for (var cx = 0, dx = args.length; cx < dx; cx++) {
         var arg = args[cx];
         if (!arg) continue;
@@ -220,6 +220,8 @@ var commands = {
             page: './',
             app: "docs"
         });
+        setAppnameAndPorts(80);
+        require("./setupenv");
         require("../server/main");
         showHelpLine('可以通过浏览器访问打开的端口以查看文档');
     },
@@ -231,6 +233,7 @@ var commands = {
             IN_TEST_MODE: true,
             app: appname
         });
+        setAppnameAndPorts(80);
         require("./setupenv");
         require("../server/main");
         showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${appname}`);
@@ -332,7 +335,8 @@ var commands = {
         setenv({ https_port, http_port });
         startServer();
     },
-    run(appname, ...args) {
+    run(appname) {
+        var args = [].concat.apply(["efront"], arguments);
         if (!appname) {
             console.info("请输入要启动的程序!");
             return;
