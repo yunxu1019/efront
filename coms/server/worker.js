@@ -1,6 +1,7 @@
 "use strict";
 require("../efront/setupenv");
 var message = require("../message");
+var readline = require("readline");
 if (require("cluster").isMaster) {
     var rl = readline.createInterface({
         input: process.stdin,
