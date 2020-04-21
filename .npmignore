@@ -2,7 +2,6 @@
 .gitignore
 .vscode
 *.tgz
-public*
 apps/cityfun*
 coms/cityfun*
 coms/ppt*
@@ -37,3 +36,8 @@ test
 nbproject/
 coms/database/
 coms/qiniu/
+coms/efront/
+coms/server/
+coms/efront/
+coms/build/
+tools/
