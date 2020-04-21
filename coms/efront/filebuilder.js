@@ -20,10 +20,11 @@ var autoloader = `function () {
     };
     reload();
 }`;
+var pixelDecoder = d => d / 16 + "rem";
 
 if (process.env.TRANSFORM_PIXEL) {
     var fixpixel = function (buff) {
-        return String(buff).replace(/((?:\d*\.)?\d+)px(\s*\))?/ig, (m, d, quote) => (d !== '1' ? quote ? renderPixelRatio * d + "pt" + quote : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt"));
+        return String(buff).replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt") + (quote || ""));
     };
 
 } else {
