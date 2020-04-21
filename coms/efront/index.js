@@ -120,7 +120,8 @@ var showHelpInfo = function (help) {
 var format = s => s
     .replace(/[a-z][_a-z]*/g, "<blue2>$&</blue2>")
     .replace(/(?<=\W)\d+/g, "<green>$&</green>")
-    .replace(/[A-Z][_A-Z]*/g, "<blue>$&</blue>")
+    .replace(/[A-Z][_A-Z]*/g, "<purple>$&</purple>")
+    .replace(/\-+/g, "<gray>$&</gray>")
     .replace(/\|/g, "<gray>|</gray>");
 var showTopicInfo = function (commands, prefix = '') {
     var tips = {};
