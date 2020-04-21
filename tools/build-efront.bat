@@ -15,7 +15,7 @@ set coms=./
 set libs_path=./
 set libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
 set destpath=efront.js
-rd /s /q %public_path%
+rd /s /q "%public_path%"
 call node . publish
 popd
 goto :end
