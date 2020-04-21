@@ -49,7 +49,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     };
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
-
+    var is_commponent_package;
     if (public_app) {
         console.info("正在导出组件", public_app, '\r\n');
         //导出组件

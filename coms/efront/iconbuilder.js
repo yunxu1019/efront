@@ -16,7 +16,7 @@ function getalpha(data) {
     }
     return alpha;
 }
-function iconbuilder(buff) {
+function iconbuilder(buff, color) {
     var {
         width,
         height,

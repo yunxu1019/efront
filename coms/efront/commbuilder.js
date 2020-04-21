@@ -240,7 +240,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
 
             });
         } else {
-            if (!/\bmain/i.test(path.basename(filename))) {
+            if (!/\bmain|\bindex/i.test(path.basename(filename))) {
                 console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
             }
         }

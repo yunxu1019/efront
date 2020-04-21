@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 var cluster = require("cluster");
 var path = require('path');
 var fs = require("fs");
@@ -340,11 +341,18 @@ var commands = {
         detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], [fullpath]).then(function (f) {
             setenv({
                 app: path.relative(fullpath, f),
-                coms: './',
-                coms_path: './',
-            })
-        }).catch(function () {
+                comm: '.,typescript-helpers',
+                coms_path: '.,' + path.join(__dirname, '..'),
+                IN_TEST_MODE: true,
+            });
+            require("./setupenv");
+            require('./run')(appname, args);
+        }, function () {
             detectEnvironment().then(function () {
+                setenv({
+                    IN_TEST_MODE: true
+                });
+                require("./setupenv");
                 require("./run")(appname, args);
             }).catch(console.error);
         });
@@ -384,7 +392,7 @@ var run = function (type, value1, value2, value3) {
     }
     if (type.toLowerCase() in helps) {
         type = type.toLowerCase();
-        var { help, create, public, run, simple } = commands;
+        var { help, create, public: build, run, simple } = commands;
         switch (type) {
             case "from":
                 if (value2 && !/^(init)$/i.test(value2)) {
@@ -441,10 +449,10 @@ var run = function (type, value1, value2, value3) {
             case "build":
                 if (!publicOnly) {
                     detectEnvironment().then(function () {
-                        public(value1, value2);
+                        build(value1, value2);
                     });
                 } else {
-                    public(value1, value2);
+                    build(value1, value2);
                 }
                 break;
 
