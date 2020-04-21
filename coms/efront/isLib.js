@@ -7,7 +7,7 @@ var {
     COMM,
     COMS_PATH
 } = process.env;
-var joinpath = ([a, b]) => path.join(a === ":" ? path.join(__dirname, "../../") : a, b);
+var joinpath = ([a, b, c]) => path.join(a === ":" ? path.join(__dirname, "../../") : a, b, c || '');
 var comms_root = mixin(COMS_PATH, COMM).map(joinpath).filter(fs.existsSync);
 
 var libs_root = [].concat(
