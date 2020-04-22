@@ -12,11 +12,12 @@ set page=./
 set app=efront/index.js
 set extt=.js
 set coms=./
-set libs_path=./
-set libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
+REM set libs_path=./
+REM set libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
 set destpath=efront.js
 rd /s /q "%public_path%"
-call node . publish
+call efront publish
 popd
+endlocal
 goto :end
 :end
