@@ -41,6 +41,7 @@ Promise.all([
 ].map(getVersionByTime)).then(function ([srcVersion, dstVersion]) {
     if (srcVersion > dstVersion) {
         var fullpath = path.join(__dirname, 'build-efront');
+        fs.chmodSync(fullpath, 7);
         require("child_process").spawn(fullpath, {
             stdio: "inherit",
             shell: true
