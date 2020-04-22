@@ -63,6 +63,7 @@ var detectEnvironment = function () {
             var coms_path = [];
             var public_path = [];
             names.filter(function (name) {
+                if (/^[\.]/i.test(name)) return;
                 try {
                     return fs.statSync(name).isDirectory();
                 } catch (e) {
@@ -98,7 +99,7 @@ var detectEnvironment = function () {
             if (1 !== env_path.length) {
                 setenv(config);
             } else {
-                process.env.envs_path = env_path[0];
+                process.env.envs_path = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
                 var env = loadenv(path.join(process.env.envs_path, "setup"));
                 setenv(config);
                 setenv(env);

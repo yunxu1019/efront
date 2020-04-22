@@ -109,7 +109,6 @@ envpath.forEach(function (p) {
     var env = loadenv(path.join(p, 'setup'));
     extend(process.env, env);
 });
-
 if (env.APP) {
     let _tmp = setup(env.APP);
     pollyfill(_tmp, env.APP);
