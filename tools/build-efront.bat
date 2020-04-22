@@ -16,7 +16,7 @@ REM set libs_path=./
 REM set libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
 set destpath=efront.js
 rd /s /q "%public_path%"
-call efront publish
+call node coms/efront publish
 popd
 endlocal
 goto :end

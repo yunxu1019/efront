@@ -12,7 +12,7 @@
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "prepare": "tools\\build-efront",
+    "prepare": "node tools/build-efront.js",
     "test": "node .",
     "start": "node ./coms/efront"
   },
