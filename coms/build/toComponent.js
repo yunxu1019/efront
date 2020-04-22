@@ -257,8 +257,8 @@ function toComponent(responseTree) {
                 result.splice(cx, 1);
                 var startTime = new Date;
                 console.info(`压缩(${origin_result_length - result.length}/${origin_result_length}):`, k);
-                responseTree[k].time += new Date - startTime;
                 saveCode(module_body, k, reqMap);
+                responseTree[k].time += new Date - startTime;
             }
         }
         if (last_result_length === result.length) {
