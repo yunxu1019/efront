@@ -82,27 +82,35 @@ var logTime = function () {
 var logStamp = function () {
     if (new Date - lastLogTime > 600) logTime();
 };
+var getColor = function (c) {
+    switch (c) {
+        case "red":
+        case "error":
+        case "danger":
+            return colors.FgRed;
+        case "info":
+        case "tip":
+        case "blue":
+            return colors.FgBlue;
+        case "green":
+            return colors.FgGreen;
+        default:
+            if (c in colors) return colors[c];
+            c = c[0].toUpperCase() + c.slice(1).toLowerCase();
+            if (c in colors) return colors[c];
+            var k = "Fg" + c;
+            if (k in colors) {
+                return colors[k];
+            }
+            c = c.slice(0, 2) + c[2].toUpperCase() + c.slice(3);
+            if (c in colors) return colors[c];
+    }
+    return '';
+};
 var write = function (hasNewLine, str) {
     str = str.replace(/<([a-z][\w]*)[^\>]*\>([\s\S]*?)<\/\1\>/ig, function (_, c, s) {
-        switch (c) {
-            case "red":
-            case "error":
-            case "danger":
-                return colors.FgRed + s + colors.Reset;
-            case "info":
-            case "tip":
-            case "blue":
-                return colors.FgBlue + s + colors.Reset;
-            case "green":
-                return colors.FgGreen + s + colors.Reset;
-            default:
-                c = c[0].toUpperCase() + c.slice(1).toLowerCase();
-                var k = "Fg" + c;
-                if (c in colors) k = c;
-                if (k in colors) {
-                    return colors[k] + s + colors.Reset;
-                }
-        }
+        var color = getColor(c);
+        if (color) return color + s + colors.Reset;
         return s;
     });
     var width = process.stdout.columns;
@@ -135,5 +143,12 @@ var write = function (hasNewLine, str) {
 colored.time = logTime;
 colored.log = colored.type = function (...args) {
     write(false, args.join(' '));
+};
+
+colored.begin = function (c) {
+    return write(false, getColor(c));
+};
+colored.end = function () {
+    return write(false, colors.Reset);
 };
 module.exports = colored;
