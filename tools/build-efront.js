@@ -36,7 +36,7 @@ function getVersionByTime(rootpath, reverse) {
 Promise.all([
     fs.readdirSync(
         path.join(__dirname, '..')
-    ).filter(a => !/^[\._]|^public$/i.test(a)),
+    ).filter(a => !/^[\._]|^public$/i.test(a)).filter(a => fs.statSync(a).isDirectory()),
     path.join(__dirname, '../public')
 ].map(getVersionByTime)).then(function ([srcVersion, dstVersion]) {
     if (srcVersion > dstVersion) {
