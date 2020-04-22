@@ -147,11 +147,10 @@ function efront() {
 
     var Window = function () {
     };
+    Window.prototype = global;
     var window = new Window;
     Object.assign(window, {
-        console,
         performance: {},
-        process,
         require(modulepath) {
 
             try {
@@ -162,7 +161,6 @@ function efront() {
 
             return require(resolved);
         },
-        Buffer,
         setTimeout(f, timerout) {
             var args = [].slice.call(arguments, 2);
             var handle = setTimeout(function () {
@@ -211,7 +209,6 @@ function efront() {
 
     });
     window.top = window.window = window;
-    vm.createContext(window);
     return window;
 }
 module.exports = function (mainpath, argv) {
@@ -243,7 +240,7 @@ module.exports = function (mainpath, argv) {
             window.startPath = mainpath.replace(/^\.[\/\\]/, '');
 
             mainLoaderPromise.then(function (loader) {
-                vm.runInContext(`-function(){${loader}}.call(this)`, window);
+                new Function(loader).call(window);
             }).catch(function (e) {
                 console.log(e);
                 console.error("启动失败");
