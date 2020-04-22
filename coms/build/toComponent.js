@@ -321,6 +321,7 @@ function toComponent(responseTree) {
             R=function(){${has_outside_require ? `
                 var r= function(i){return i[m]?s[${getEncodedIndex("require", "global") - 1}](i):T[i]()};
                 r[T[${getEncodedIndex(`cache`)}]()]=s[${getEncodedIndex('require', "global") - 1}][T[${getEncodedIndex('cache')}]()];
+                r[T[${getEncodedIndex(`resolve`)}]()]=s[${getEncodedIndex('require', "global") - 1}][T[${getEncodedIndex('resolve')}]()];
                 return r;`: `return function(i){return T[i]()}`}
             };
         }else{
