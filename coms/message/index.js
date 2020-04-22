@@ -4,7 +4,7 @@
 var cluster = require("cluster");
 var fs = require("fs");
 var path = require("path");
-var isDebug = require("../efront/isDebug");
+var isDebug = require("../basic/isDebug");
 var message_handlers_path = "../../coms/message";
 // message 文件夹中定义主进程的方法
 // 子进程可通过message的属性访问主进程中的方法
@@ -42,7 +42,7 @@ var onmessage = function (msg, then) {
 if (cluster.isMaster && !isDebug) {
     fs.readdirSync(message_handlers_path).forEach(function (name) {
         var match = name.match(/^(.*)\.js$/i);
-        if (match && !/\_test\.js$/i.test(name)) {
+        if (match && !/^index.js$|\_test\.js$/i.test(name)) {
             var key = match[1];
             onmessage[key] = require(path.join(message_handlers_path, name));
         }

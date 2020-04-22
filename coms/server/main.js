@@ -4,7 +4,7 @@
  * 2017-4-5 22:38:04
  */
 var cluster = require("cluster");
-var isDebug = require("../efront/isDebug");
+var isDebug = require("../basic/isDebug");
 if (cluster.isMaster && !isDebug) {
     require("./master");
 } else {

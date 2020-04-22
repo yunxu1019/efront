@@ -178,11 +178,13 @@ function toComponent(responseTree) {
         }).replace(/^function\s+[\$_A-Za-z][\$_\w]*\(/, "function(");
         saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
             var index = destMap[a];
-            if (a === "__dirname") {
+            if (a === "__dirname" || a === "__filename") {
                 initDirname();
                 var realpath = module_key.replace(/\$/g, '/');
                 var realdir = getEfrontKey(realpath, 'dirname');
-                saveOnly(`[${getEncodedIndex('__dirname', 'builtin')},function(a){return a(${JSON.stringify(path.dirname(path.relative(PUBLIC_PATH, responseTree[module_key].realpath)).replace(/\\/g, '/'))})}]`, realdir);
+                var filename = path.relative(PUBLIC_PATH, responseTree[module_key].realpath);
+                var dirname = path.dirname(filename).replace(/\\/g, '/');
+                saveOnly(`[${getEncodedIndex('__dirname', 'builtin')},function(a){return a(${JSON.stringify(a === '__filename' ? filename : dirname)})}]`, realdir);
                 return destMap[realdir];
             }
             return index;
