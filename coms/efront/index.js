@@ -354,7 +354,7 @@ var commands = {
                 });
                 require("./setupenv");
                 require("./run")(appname, args);
-            }).catch(console.error);
+            });
         });
         detectPromise.then(function (f) {
             setenv({
