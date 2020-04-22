@@ -211,9 +211,7 @@ function efront() {
     window.top = window.window = window;
     return window;
 }
-module.exports = function (mainpath, argv) {
-    process.argv = argv;
-    process.execArgv = argv;
+module.exports = function (mainpath, args) {
     mainpath = mainpath.replace(/\.[tj]sx?$/i, '');
     var unload = function () {
         Object.keys(intervalHandles).map(clearInterval);
@@ -238,6 +236,11 @@ module.exports = function (mainpath, argv) {
             window.request = getLoader();
             window.location = location;
             window.startPath = mainpath.replace(/^\.[\/\\]/, '');
+            window.process = Object.create(process);
+            Object.assign(window.process, {
+                argv: args,
+                execArgv: args
+            });
 
             mainLoaderPromise.then(function (loader) {
                 new Function(loader).call(window);
