@@ -107,7 +107,12 @@ var extend = function (dst, env) {
 extend(process.env, process.env);
 envpath.forEach(function (p) {
     var env = loadenv(path.join(p, 'setup'));
-    extend(process.env, env);
+    Object.keys(env).forEach(function (key) {
+        var value = process.env[key];
+        if (value === null || value === undefined) {
+            process.env[key] = env[key];
+        }
+    });
 });
 if (env.APP) {
     let _tmp = setup(env.APP);
