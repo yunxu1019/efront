@@ -1,6 +1,7 @@
 "use strict";
 var loadenv = require("./loadenv");
 var path = require("path");
+var fs = require("fs");
 var env = process.env;
 
 if (!env.cd && !env.CD) {
@@ -14,9 +15,9 @@ for (var k in env) {
 }
 var envpath = env.ENVS_PATH || env.ENV_PATH || env.CONFIG_PATH;
 if (!envpath) {
-    envpath = "./_envs";
+    envpath = "./_envs," + path.join(require("os").homedir(), '.efront/_envs');
 }
-envpath = envpath.split(",");
+envpath = envpath.split(",").filter(fs.existsSync);
 var cache = {};
 var setup = module.exports = function (appname) {
     appname = String(appname || '').replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
