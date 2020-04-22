@@ -237,6 +237,13 @@ var getBuildRoot = function (files, matchFileOnly) {
             });
         }).catch(function (e) {
             if (erroredFiles[file1]) return;
+            if (/^\w+$/.test(file1)) {
+                try {
+                    require.resolve(file1);
+                    return;
+                } catch (e) {
+                }
+            }
             erroredFiles[file1] = true;
             if (!matchFileOnly) console.error(e, "\r\n");
             else console.warn(e + ",", '已跳过', file1);
