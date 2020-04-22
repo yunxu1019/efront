@@ -35,7 +35,7 @@
       var cwd = '/';
       return {
         title: 'browser',
-        version: 'v12.15.0',
+        version: 'v12.16.2',
         browser: true,
         env: {},
         argv: [],
@@ -2375,7 +2375,7 @@
         'fetchSpec': '^2.0.0'
       },
       '_requiredBy': ['/escope'],
-      '_resolved': 'https://registry.npm.taobao.org/estraverse/download/estraverse-2.0.0.tgz?cache=0&sync_timestamp=1584934808187&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Festraverse%2Fdownload%2Festraverse-2.0.0.tgz',
+      '_resolved': 'https://registry.npm.taobao.org/estraverse/download/estraverse-2.0.0.tgz',
       '_shasum': '5ae46963243600206674ccb24a09e16674fcdca1',
       '_spec': 'estraverse@^2.0.0',
       '_where': 'D:\\work\\efront\\node_modules\\escope',
@@ -8024,7 +8024,7 @@
         'fetchSpec': '~4.1.1'
       },
       '_requiredBy': ['/esshorten'],
-      '_resolved': 'https://registry.npm.taobao.org/estraverse/download/estraverse-4.1.1.tgz?cache=0&sync_timestamp=1584934808187&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Festraverse%2Fdownload%2Festraverse-4.1.1.tgz',
+      '_resolved': 'https://registry.npm.taobao.org/estraverse/download/estraverse-4.1.1.tgz',
       '_shasum': 'f6caca728933a850ef90661d0e17982ba47111a2',
       '_spec': 'estraverse@~4.1.1',
       '_where': 'D:\\work\\efront\\node_modules\\esshorten',

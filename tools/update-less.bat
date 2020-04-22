@@ -7,10 +7,10 @@ call npm install less@latest --registry=%registry%
 if not exist node_modules/less goto :error1
 
 set coms_path=node_modules\less\lib,node_modules,coms\typescript
-set public_path=process\less
+set public_path=coms\less-node
 set page=./
 set app=/less-node/index.js
-set destpath=process\less\less-node.js
+set destpath=%public_path%\index.js
 git restore %destpath%
 call efront publish
 if not exist %public_path%\lessNode goto :error2

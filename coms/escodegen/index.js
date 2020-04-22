@@ -35,7 +35,7 @@
       var cwd = '/';
       return {
         title: 'browser',
-        version: 'v12.15.0',
+        version: 'v12.16.2',
         browser: true,
         env: {},
         argv: [],
@@ -5007,7 +5007,7 @@
         'fetchSpec': '^4.2.0'
       },
       '_requiredBy': ['/escodegen'],
-      '_resolved': 'https://registry.npm.taobao.org/estraverse/download/estraverse-4.3.0.tgz?cache=0&sync_timestamp=1584934808187&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Festraverse%2Fdownload%2Festraverse-4.3.0.tgz',
+      '_resolved': 'https://registry.npm.taobao.org/estraverse/download/estraverse-4.3.0.tgz',
       '_shasum': '398ad3f3c5a24948be7725e83d11a7de28cdbd1d',
       '_spec': 'estraverse@^4.2.0',
       '_where': 'D:\\work\\efront\\node_modules\\escodegen',

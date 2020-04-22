@@ -1,6 +1,6 @@
 @echo off
 setlocal
-set distpath=process
+set distpath=coms
 set registry=http://registry.npm.taobao.org
 call npm install typescript@latest --registry=%registry%
 copy node_modules\typescript\LICENSE.txt %distpath%\typescript\LICENSE.txt
