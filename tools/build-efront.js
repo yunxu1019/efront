@@ -1,7 +1,6 @@
 var path = require("path");
 var fs = require("fs");
 function getVersionByTime(rootpath, reverse) {
-
     return new Promise(function (ok) {
         var savedVersion = 0;
         var resolve = function () {
@@ -20,6 +19,7 @@ function getVersionByTime(rootpath, reverse) {
                     } else if (mtime > savedVersion) {
                         savedVersion = mtime;
                     }
+                    run();
                 } else {
                     fs.readdir(filepath, function (names) {
                         roots.push.apply(roots, names);
@@ -28,6 +28,7 @@ function getVersionByTime(rootpath, reverse) {
                 }
             })
         };
+        run();
     })
 
 }
@@ -47,4 +48,4 @@ Promise.all([
     } else {
         console.log("已是最新版本！");
     }
-});
+}).catch(console.log);
