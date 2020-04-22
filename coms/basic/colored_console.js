@@ -115,7 +115,7 @@ var write = function (hasNewLine, str) {
     });
     var width = process.stdout.columns;
     var cleaner = ("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1);
-    hasNewLine ? process.stderr.write((lastLogLength ? cleaner : "") + str + "\r\n") : process.stdout.write(cleaner + "\r" + str);
+    hasNewLine ? process.stdout.write((lastLogLength ? cleaner : "") + str + "\r\n") : process.stdout.write(cleaner + "\r" + str);
     lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x20-\xff]/g, "").length;
 };
 [
