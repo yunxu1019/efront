@@ -48,5 +48,3 @@ Promise.all([
         console.log("已是最新版本！");
     }
 });
-
-console.log(fullpath);
