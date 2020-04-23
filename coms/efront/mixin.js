@@ -6,7 +6,9 @@ function minxin() {
         if (a instanceof Array) {
             new Set(a).forEach(a => res.push(a));
         } else if (typeof a === 'string') {
-            new Set(a.split(/[,;]/)).forEach(a => res.push(a));
+            new Set(a.split(/[,;]/).map(
+                a => a.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/^/, '')
+            )).forEach(a => res.push(a));
         } else {
             res.push(a);
         }
