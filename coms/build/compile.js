@@ -2,6 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 var getDepedence = require("./getDependence");
+var detectWithExtension = require("../basic/detectWithExtension");
 var window = {
     setTimeout,
     setInterval,
@@ -130,13 +131,17 @@ function compile(buildInfo, lastBuildTime, destroot) {
                         };
                         var loadindex = function (index) {
                             // var split = /^\//.test(url) ? '/' : '$';
-                            var target = url.replace(/(\w)\$/g, "$1/").replace(/[\/\\\$]+$/, '') + "/" + String(index || 'index').replace(/^\.?[\\\/]+/, '');
-                            target = target.replace(/[\\\/]/g, "/");
-                            _filepath = url.replace(/[\\\/]$/, '') + ".js";
-                            if (!/^\.*\//.test(target)) {
-                                target = "./" + target;
-                            }
-                            response(`require("${target}")`);
+                            var _realpath = path.join(_filepath, index || 'index');
+                            detectWithExtension(_realpath, ["", ".js", "/index", "/index.js"]).then(function (realpath) {
+                                var target = url.replace(/(\w)\$/g, "$1/").replace(/[\/\\\$]+$/, '') + "/" + String(index || 'index').replace(/^\.?[\\\/]+/, '');
+                                target = target.replace(/[\\\/]/g, "/");
+                                target = path.relative(path.dirname(_filepath), realpath).replace(/\\/g, '/');
+                                _filepath = url.replace(/[\\\/]$/, '') + "";
+                                if (!/^\.*\//.test(target)) {
+                                    target = "./" + target;
+                                }
+                                response(`require("${target}")`);
+                            }).catch(get);
                         };
                         var response = function (buffer) {
                             responsePath = _filepath;
@@ -209,7 +214,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                                         } else {
                                             loader();
                                         }
-                                    })
+                                    });
                                 });
                             };
                             if (/\.([tj]sx?|html?)$/i.test(_filepath)) {
