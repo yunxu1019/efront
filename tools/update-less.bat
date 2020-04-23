@@ -37,6 +37,6 @@ goto :end
 
 
 :end
-REM call npm uninstall less
+call npm uninstall less
 if exist package-lock.json del package-lock.json
 endlocal
