@@ -523,12 +523,20 @@ var argv = process.argv.slice(2).filter(a => {
     if (a in helps) return true;
     if (!/^--/.test(a)) return true;
     a = a.replace(/^--/, '');
-    var key, value = 1;
+    var key, value = '';
+    if (/^(no|off|not|is-not)-/.test(a)) {
+        value = false;
+    }
+    if (/^(on|yes|is(?!-not))-/.test(a)) {
+        value = true;
+    }
+    a = a.replace(/^(no|on|yes|off|is-not|is)-/, '');
     if (/=/.test(a)) {
         [key, value] = a.split("=");
     } else {
         key = a;
     }
+
     key = key.replace(/-/g, '_');
     commands.set(a, value);
     return false;
