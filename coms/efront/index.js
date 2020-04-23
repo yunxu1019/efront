@@ -375,7 +375,7 @@ var commands = {
             }
             process.env.APP = app_Name;
         }
-        var module_Name = module_Name || process.argv.slice(3).filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
+        var module_Name = module_Name || argv.slice(3).filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
         if (module_Name) {
             var [export_to, export_as] = module_Name.split("=");
             if (export_as === undefined) {
@@ -467,7 +467,7 @@ var run = function (type, value1, value2, value3) {
                 break;
 
             case "run":
-                run.apply(null, process.argv.slice(3));
+                run.apply(null, argv.slice(3));
                 break;
             case "https":
             case "lives":
@@ -493,7 +493,7 @@ var run = function (type, value1, value2, value3) {
     } else {
         var isRun = /[\/\$\\]|_test$|\.[tj]sx?$/i.test(type);
         if (isRun) {
-            commands.run.apply(commands, process.argv.slice(2));
+            commands.run.apply(commands, argv.slice(2));
         } else {
             console.info(`不支持该命令<red2> ${type} </red2>`);
         }
@@ -536,10 +536,9 @@ var argv = process.argv.slice(2).filter(a => {
     } else {
         key = a;
     }
-
     key = key.replace(/-/g, '_');
     commands.set(a, value);
     return false;
 });
-var [type, value1, value2, value3] = process.argv.slice(2).filter(a => a in helps);
+var [type, value1, value2, value3] = argv;
 run(type, value1, value2, value3);
