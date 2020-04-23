@@ -304,21 +304,23 @@ function toComponent(responseTree) {
         $=[${$fromCharCode.map(a => getEncodedIndex(a, 'global') - 1).map(a => `s[${a}]`)}],
         _=[${$charCodeAt.map(a => getEncodedIndex(a, 'global') - 1).map(a => `s[${a}]`)}][v]()[w](''),T = this,R;
         if (!(a instanceof s[${getEncodedIndex('Array', 'global') - 1}])){${encoded ? `
-            if(typeof a===z&&!~p[x](a)&&c!==${getEncodedIndex(`__dirname`, "global") - 1}){
-                u=a[q]('')[v]();
-                for(i=0,k=u[m];i<k;i++){
-                    t=u[i][_](0);
-                    if(t>39&&t<127){
-                        t=((h-t)%87)+40;
-                    }else if(t>=4096){
-                        t=(h&255)^t;
+            R = function(){
+                if(typeof a===z&&!~p[x](a)&&c!==${getEncodedIndex(`__dirname`, "global") - 1}){
+                    u=a[q]('')[v]();
+                    for(i=0,k=u[m];i<k;i++){
+                        t=u[i][_](0);
+                        if(t>39&&t<127){
+                            t=((h-t)%87)+40;
+                        }else if(t>=4096){
+                            t=(h&255)^t;
+                        }
+                        u[i]=t;
                     }
-                    u[i]=t;
-                }
-                u=j[$[v]()[w]('')][y](j,u);
-                if(!~p[x](u))a=u;
-            }`: ''}
-            R= function(){return a}
+                    u=j[$[v]()[w]('')][y](j,u);
+                    if(!~p[x](u))a=u;
+                }`: ''}
+                return a
+            }
         }else if(!a[m]){
             R=function(){${has_outside_require ? `
                 var r= function(i){return i[m]?s[${getEncodedIndex("require", "global") - 1}](i):T[i]()};
