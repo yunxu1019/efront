@@ -88,7 +88,7 @@ var getPathInFolder = function (folder, filepath) {
     return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
 };
 function paddExtension(file) {
-    var parets = [""].concat(/[\/\\]/.test(file) ? pages_root : comms_root);
+    var parets = [""].concat(/^\.?[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
     return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx'], parets);
 }
 var getBuildRoot = function (files, matchFileOnly) {
@@ -201,16 +201,14 @@ var getBuildRoot = function (files, matchFileOnly) {
                                     var d = JSON.parse(
                                         String(data)
                                     );
-                                    var f = path.join(file, d.main);
+                                    var f = path.join(file, d.main || 'index');
                                     read(f).then(ok).catch(function () {
                                         oh(`${f}不存在！`);
                                     });
                                 });
                             } else {
                                 f = path.join(file, 'index');
-                                read(f).then(ok).catch(function () {
-                                    oh(`${file}不存在！`);
-                                });
+                                read(f).then(ok).catch(run);
                             }
                         });
 
