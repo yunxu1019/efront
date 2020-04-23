@@ -19,8 +19,8 @@ if (!envpath) {
 }
 envpath = envpath.split(",").filter(fs.existsSync);
 var cache = {};
-var setup = module.exports = function (appname) {
-    appname = String(appname || '').replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
+var setup = module.exports = function (app) {
+    var appname = String(app || '').replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
     appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
     else env = {};
@@ -33,7 +33,7 @@ var setup = module.exports = function (appname) {
         var default_value = env[key] || process.env[key];
         var value_map = Object.create(null);
         if (appname) {
-            value_map[appname] = true;
+            if (!/\/|\.[jt]sx?$/i.test(app)) value_map[appname] = true;
         }
         if (default_value) {
             default_value.split(',').forEach(k => {
@@ -53,17 +53,23 @@ var setup = module.exports = function (appname) {
     return env;
 };
 var pollyfill = function (env, appname) {
+
     if (env.PAGE === undefined || env.PAGE === null) env.PAGE = appname;
-    for (var k in bootConfig) {
-        var bootfull = path.join(__dirname, "../../", bootConfig[k]);
-        var bootpath = path.relative(bootConfig[k], bootfull);
-        if (bootpath) {
-            bootfull = bootConfig[k] + "," + bootfull;
+    for (var k in env) {
+        if (k in bootConfig) {
+            var bootfull = path.join(__dirname, "../../", bootConfig[k]);
+            var bootpath = path.relative(bootConfig[k], bootfull);
+            if (bootpath) {
+                bootfull = bootConfig[k] + "," + bootfull;
+            }
         }
-        bootpath = bootfull;
-        env[k] = env[k] ? (
-            env[k].split(",").map(a => a === ":" ? bootpath : a).join(",")
-        ) : bootfull;
+        bootpath = bootfull || '';
+        var envma = Object.create(null);
+        env[k] = (env[k] ? env[k] : bootpath).split(",").map(a => a === ":" ? bootpath : a).map(
+            k => k.replace(/\\/g, '/').replace(/^\.\//, '')
+        ).filter(
+            k => envma[k] ? false : envma[k] = true
+        ).join(",");
     }
     if (!env.PAGE_PATH) {
         env.PAGE_PATH = "./apps";
@@ -71,6 +77,7 @@ var pollyfill = function (env, appname) {
     if (!env.PUBLIC_PATH) {
         env.PUBLIC_PATH = "./public";
     }
+
 };
 var normalize = function (o) {
     for (var k in o) {
