@@ -53,7 +53,7 @@ var detectEnvironment = function () {
         page_path: currentpath,
         comm: "",
         coms_path: '',
-        app: process.env.APP || './',
+        app: process.env.APP || '',
         page: '',
     };
     var env_path = [];
