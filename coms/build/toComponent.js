@@ -303,8 +303,8 @@ function toComponent(responseTree) {
         j=s[${getEncodedIndex('String', 'global') - 1}],
         $=[${$fromCharCode.map(a => getEncodedIndex(a, 'global') - 1).map(a => `s[${a}]`)}],
         _=[${$charCodeAt.map(a => getEncodedIndex(a, 'global') - 1).map(a => `s[${a}]`)}][v]()[w](''),T = this,R;
-        if (!(a instanceof s[${getEncodedIndex('Array', 'global') - 1}])){${encoded ? `
-            R = function(){
+        if (!(a instanceof s[${getEncodedIndex('Array', 'global') - 1}])){
+            R = function(){${encoded ? `
                 if(typeof a===z&&!~p[x](a)&&c!==${getEncodedIndex(`__dirname`, "global") - 1}){
                     u=a[q]('')[v]();
                     for(i=0,k=u[m];i<k;i++){
