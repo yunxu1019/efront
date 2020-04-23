@@ -77,4 +77,3 @@ module.exports = {
     include_required: !!RELEASE || !public_app,
     APP
 };
-console.log(module.exports);
