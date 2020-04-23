@@ -97,11 +97,11 @@ var watch = {
     close: function (watchs) {
         watchs.forEach(a => a.close());
     }.bind(null, isProduction ? [
-        fs.watch(__dirname, { recursive: true }, run),
-        fs.watch(path.join(__dirname, "../efront"), { recursive: true }, run),
-        fs.watch(path.join(__dirname, "../compile"), { recursive: true }, run),
-        fs.watch(path.join(__dirname, "../message"), { recursive: true }, run)
-    ] : [])
+        "",
+        "../efront",
+        "../compile",
+        "../message",
+    ].map(a => path.join(__dirname, a)).filter(fs.existsSync).map(a => fs.watch(a, { recursive: true }, run)) : [])
 };
 message.quit = end;
 message.broadcast = broadcast;
