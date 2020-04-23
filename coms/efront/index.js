@@ -508,6 +508,7 @@ var quit = function (e) {
         console.log(e);
     } else {
         console.error(e);
+        console.log("异常退出");
     }
     console.end();
     __exit.call(process, 1);
@@ -535,9 +536,10 @@ var argv = process.argv.slice(2).filter(a => {
         [key, value] = a.split("=");
     } else {
         key = a;
+        if (value !== false) value = true;
     }
-    key = key.replace(/-/g, '_');
-    commands.set(a, value);
+    key = key.replace(/\-/g, '_');
+    commands.set(key, value);
     return false;
 });
 var [type, value1, value2, value3] = argv;
