@@ -14,15 +14,19 @@ function getVersionByTime(rootpath, reverse) {
                 if (error) return run();
                 if (stat.isFile()) {
                     var { mtime } = stat;
-                    if (mtime < savedVersion && reverse > 0) {
-                        savedVersion = mtime;
-                    } else if (mtime > savedVersion) {
-                        savedVersion = mtime;
-                    }
+                }
+                if (!savedVersion) {
+                    savedVersion = mtime;
+                }
+                if (mtime < savedVersion && reverse > 0) {
+                    savedVersion = mtime;
+                } else if (mtime > savedVersion) {
+                    savedVersion = mtime;
                     run();
                 } else {
-                    fs.readdir(filepath, function (names) {
-                        roots.push.apply(roots, names);
+                    fs.readdir(filepath, function (error, names) {
+                        if (error) return run();
+                        if (names) roots.push.apply(roots, names.map(name => path.join(filepath, name)));
                         run();
                     });
                 }
@@ -36,7 +40,9 @@ function getVersionByTime(rootpath, reverse) {
 Promise.all([
     fs.readdirSync(
         path.join(__dirname, '..')
-    ).filter(a => !/^[\._]|^public$/i.test(a)).filter(a => fs.statSync(a).isDirectory()),
+    ).filter(a => !/^[\._]|^public$/i.test(a))
+        .map(a => path.join(__dirname, '..', a))
+        .filter(a => fs.statSync(a).isDirectory()),
     path.join(__dirname, '../public')
 ].map(getVersionByTime)).then(function ([srcVersion, dstVersion]) {
     if (srcVersion > dstVersion) {
