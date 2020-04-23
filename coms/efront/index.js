@@ -319,8 +319,7 @@ var commands = {
         require("../server/main");
     },
     set(key, value) {
-        // var filepath = path.join(require('os').homedir(), '.efront/config.bat');
-        // fs.readFileSync(filepath);
+        setenv({ [key]: value });
     },
     password() {
         require("./password").requestPassword();
@@ -520,5 +519,19 @@ process.on("exit", function () {
         console.log();
     }
 });
-var [type, value1, value2, value3] = process.argv.slice(2).filter(a => a in helps || !/^--/.test(a));
+var argv = process.argv.slice(2).filter(a => {
+    if (a in helps) return true;
+    if (!/^--/.test(a)) return true;
+    a = a.replace(/^--/, '');
+    var key, value = 1;
+    if (/=/.test(a)) {
+        [key, value] = a.split("=");
+    } else {
+        key = a;
+    }
+    key = key.replace(/-/g, '_');
+    commands.set(a, value);
+    return false;
+});
+var [type, value1, value2, value3] = process.argv.slice(2).filter(a => a in helps);
 run(type, value1, value2, value3);
