@@ -4,9 +4,12 @@ var console = require("../coms/basic/colored_console.js");
 var typescript_path = path.join(__dirname, '../coms/typescript');
 var typescript_file = require.resolve(typescript_path);
 var text = fs.readFileSync(typescript_file).toString();
-var sign = "\r\n/**\r\n * 这一部分由工具重写\r\n * Efront Authors\r\n */\r\nmodule.exports = ts;";
-if (!text.endsWith(sign)) {
-    text = text.replace(/\(\(function\s*\(\)\s*\{\s*[^\}]*?\bglobalThis\b[\s\S]*$/, "") + sign;
+var date = new Date();
+var sign = `\r\n/**\r\n * 这一部分由工具重写\r\n * \r\n * Efront Authors\r\n * ${date.toISOString()}\r\n */\r\nmodule.exports = ts;`;
+var codeText = text.replace(/\(\s*\(?function\b[^\{]*\{\s*[^\}]*?\bglobalThis\b[\s\S]*$/, "");
+if (text.length > codeText.length) {
+    text = codeText + sign;
+    global.console.log(codeText.length, text.length);
     fs.writeFileSync(typescript_file, text);
 }
 var destpath = path.join(__dirname, '../coms/typescript-helpers');
@@ -23,7 +26,6 @@ helpers.forEach(o => {
                 space = space[0];
                 text = text.replace(new RegExp(`^\\s{${space.length}}`, 'mg'), '');
             }
-            var date = new Date();
             var distname = path.join(destpath, importName + ".js");
             if (fs.existsSync(distname)) {
                 var temp = fs.readFileSync(distname).toString().replace(/^\s*\/\*[\s\S]*?\*\/\s*/, '');
