@@ -245,7 +245,7 @@ function toComponent(responseTree) {
         }
         if (!destMap[globalName] && responseTree[globalName]) ok = false;
     };
-    var circle_result;
+    var circle_result, PUBLIC_APP, public_index;
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, required, reqMap, ...module_body] = result[cx];
@@ -263,14 +263,24 @@ function toComponent(responseTree) {
                 responseTree[k].time += new Date - startTime;
             }
         }
-        if (last_result_length === result.length) {
-            circle_result = `存在环形引用：[${result.map(a => a[0]).join('|')}]`;
+        if (last_result_length === result.length && !circle_result) {
+            circle_result = result.map(a => a[0]).filter(k => !!responseTree[k].realpath);
+            if (!public_index && circle_result) {
+                public_index = dest.length;
+                PUBLIC_APP = circle_result[0];
+            }
+            circle_result.forEach(k => saveOnly('""', k));
+            console.warn(
+                `存在环形引用：[${circle_result.join('|')}]`
+            );
         }
         last_result_length = result.length;
     }
-    if (circle_result) console.warn(circle_result);
+    if (!circle_result) {
+        PUBLIC_APP = circle_result ? circle_result[0] : k;
+        public_index = dest.length - 1;
+    }
     report(responseTree);
-    var PUBLIC_APP = k, public_index = dest.length - 1;
     saveOnly(`[${crypt_code}]`, 'module');
     saveOnly(`[${crypt_code % 2019 + 1}]`, 'exports');
     if (!PUBLIC_APP) return console.error("没有可导出的文件！"), {};
