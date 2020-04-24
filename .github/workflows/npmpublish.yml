@@ -20,7 +20,7 @@ jobs:
           rd /s /q public
           del .gitignore
           npm pack
-          if not exist public (echo 编译错误&exit 1)
+          if not exist public/efront.js (echo 编译错误&exit 1)
         shell: cmd
 
   public-efront:
