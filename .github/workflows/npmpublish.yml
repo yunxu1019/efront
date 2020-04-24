@@ -19,7 +19,7 @@ jobs:
       - run: |
           rm -rf *.tgz
           rm .gitignore
-          npm pack
+          sudo npm pack
 
   public-efront:
     needs: build-efront
@@ -32,10 +32,10 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: |
           if [ -f "public/efront.js" ];then
-            npm publish
+            sudo npm publish
           else
             exit 1
           fi
-          
+        shell: cmd
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
