@@ -32,8 +32,6 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
       - run: |
-          if not exists public/efront.js goto :end
-          npm publish
-          :end
-      - env:
+          if not exists public/efront.js call npm publish
+        env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
