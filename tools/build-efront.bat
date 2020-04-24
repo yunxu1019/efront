@@ -4,6 +4,7 @@ cls
 setlocal
 pushd
 cd %~dp0..
+echo %cd%
 set coms_path=./coms,
 set page_path=./coms
 set public_path=./public
@@ -15,8 +16,8 @@ set coms=./
 REM set libs_path=./
 REM set libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
 set destpath=efront.js
-rd /s /q "%public_path%"
-call node coms/efront publish
+if exist "%public_path%" rd /s /q "%public_path%"
+call node coms/efront publish %*
 popd
 endlocal
 goto :end

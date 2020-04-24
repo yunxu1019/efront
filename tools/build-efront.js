@@ -14,14 +14,14 @@ function getVersionByTime(rootpath, reverse) {
                 if (error) return run();
                 if (stat.isFile()) {
                     var { mtime } = stat;
-                }
-                if (!savedVersion) {
-                    savedVersion = mtime;
-                }
-                if (mtime < savedVersion && reverse > 0) {
-                    savedVersion = mtime;
-                } else if (mtime > savedVersion) {
-                    savedVersion = mtime;
+                    if (!savedVersion) {
+                        savedVersion = mtime;
+                    }
+                    if (mtime < savedVersion && reverse > 0) {
+                        savedVersion = mtime;
+                    } else if (mtime > savedVersion) {
+                        savedVersion = mtime;
+                    }
                     run();
                 } else {
                     fs.readdir(filepath, function (error, names) {
@@ -48,7 +48,7 @@ Promise.all([
     if (srcVersion > dstVersion) {
         var fullpath = path.join(__dirname, 'build-efront');
         fs.chmodSync(fullpath, 7);
-        require("child_process").spawn(fullpath, {
+        require("child_process").spawn(fullpath, process.argv.slice(2), {
             stdio: "inherit",
             shell: true
         });
