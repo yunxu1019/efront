@@ -220,7 +220,7 @@ var commands = {
             IN_TEST_MODE: true,
             comm: 'docs,zimoli',
             page: './',
-            app: "docs"
+            app: "./"
         });
         setAppnameAndPorts(80);
         require("./setupenv");
