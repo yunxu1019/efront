@@ -10,20 +10,21 @@ on:
 
 jobs:
   build-efront:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: 12
       - run: |
-          rm -rf *.tgz
-          rm .gitignore
-          sudo npm pack
+          rd /s /q public
+          del .gitignore
+          npm pack
+      - shell: cmd
 
   public-efront:
     needs: build-efront
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -31,11 +32,12 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
       - run: |
-          if [ -f "public/efront.js" ];then
-            sudo npm publish
-          else
+          if not exists public goto :error-1
+            npm publish
+          :error-1
+            echo 编译错误
             exit 1
-          fi
+          :end
         shell: cmd
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
