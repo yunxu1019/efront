@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: if not exists public goto :error-1\r\n npm publish :error-1\r\n echo 编译错误\r\n exit 1\r\n :end
+      - run: "if not exists public goto :error-1\r\n npm publish :error-1\r\n echo 编译错误\r\n exit 1\r\n :end"
         shell: cmd
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
