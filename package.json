@@ -13,8 +13,7 @@
   "devDependencies": {},
   "scripts": {
     "prepare": "node tools/build-efront.js",
-    "test": "node .",
-    "start": "node ./coms/efront"
+    "start": "efront ./efront/ --libs=typescript,esprima,escodegen,esmangle,pngjs,less-node"
   },
   "repository": {
     "type": "git",
