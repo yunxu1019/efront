@@ -144,6 +144,7 @@ var killCircle = function () {
         if (k.slice(0, keyprefix.length) === keyprefix && loadedModules[k] instanceof Array) {
             var key = k.slice(keyprefix.length);
             var args = loadedModules[k].args;
+            args = args.slice(0, args.length >> 1);
             args.forEach(arg => {
                 if (!penddings[arg]) {
                     penddings[arg] = [];
@@ -470,7 +471,7 @@ var init = function (name, then, prebuilds) {
         } else {
             if (saveAsModule) modules[name] = created;
         }
-        
+
         then(created);
     }, prebuilds);
 };
