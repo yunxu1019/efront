@@ -16,6 +16,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
+          registry-url: https://registry.npmjs.org/
       - run: rd /s /q public& if exist *.tgz del *.tgz
         shell: cmd
       - run: npm pack
@@ -32,7 +33,10 @@ jobs:
           del *.tgz
 
         shell: cmd
-      - run: if exist *.tgz (echo 无需发布) else (npm publish)
+      - name: 发布
+        run: |
+          if exist *.tgz (echo 无需发布) else (exit 0)
+          npm publish
         shell: cmd
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
