@@ -48,3 +48,4 @@ coms/escodegen/
 coms/less-node/
 coms/pngjs/
 .github/
+data/nasm-*
