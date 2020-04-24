@@ -4,7 +4,7 @@ var esprima = require("../esprima");
 var esmangle = require("../esmangle");
 var escodegen = require("../escodegen");
 var typescript = require("../typescript");
-var less = require("../less-node")();
+var less = require("../less-node");
 var isDevelop = require("./isDevelop");
 less.PluginLoader = function () { };
 var fs = require("fs");
@@ -388,7 +388,7 @@ function buildJson(buff) {
 }
 
 function prepare(filename, fullpath) {
-    var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*)\.(?:[tj]sx?|html?|json|asp|jsp|php)$/i);
+    var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*)(\.\w*)?$/i);
     if (!commName) console.warn("文件名无法生成导出变量！", fullpath);
     commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
@@ -481,8 +481,11 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
         data = Buffer.from(data);
         data.time = new Date - timeStart;
     } else if (/\.html?$/i.test(fullpath)) {
+        if (/^(\s*<!--[\s\S]*?--!?>)*\s*<!Doctype\b/i.test(data)) {
+            return data;
+        }
         promise = getHtmlPromise(data, filename, fullpath, watchurls);
-    } else if (/\.(?:[jt]sx?)$/i.test(fullpath)) {
+    } else if (/\.(?:[jt]sx?)$/i.test(fullpath) || !/[\\\/]/i.test(fullpath)) {
         promise = getScriptPromise(data, filename, fullpath, watchurls);
     }
     if (promise) {
