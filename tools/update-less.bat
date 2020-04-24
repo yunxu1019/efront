@@ -3,23 +3,30 @@
 setlocal
 if not defined registry set registry=http://registry.npm.taobao.org
 
-call npm install less@latest --registry=%registry%
+if not exist node_modules/less call npm install less@latest --registry=%registry%
+
 if not exist node_modules/less goto :error1
 
-set coms_path=node_modules\less\lib,node_modules,coms\typescript
+set coms_path=node_modules\less\lib,node_modules,coms\typescript-helpers
+set coms=./
 set public_path=coms\less-node
 set page=./
-set app=/less-node/index.js
+set app=./less/index.js
 set destpath=%public_path%\index.js
+set resultname=less
+set resultfile=%public_path%\%resultname%
+set export_to=module.exports
+set export_as=default
+
+
 git restore %destpath%
-call efront publish
-if not exist %public_path%\lessNode goto :error2
-echo ;>>%public_path%\lessNode
-echo module.exports=this.lessNode.default;>>%public_path%\lessNode
+call node coms/efront publish %*
+if not exist %resultfile% goto :error2
 if exist %destpath%  del %destpath%
-move %public_path%\lessNode %destpath%
+move %resultfile% %destpath%
 node %destpath%
 if errorlevel == 1 goto :recover
+
 goto :end
 
 :error1
