@@ -92,7 +92,6 @@ function paddExtension(file) {
     return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx'], parets);
 }
 var getBuildRoot = function (files, matchFileOnly) {
-    if (files.length) console.log(files)
     files = [].concat(files || []);
     var indexMap = Object.create(null);
     files.forEach((f, cx) => indexMap[f] = cx);
