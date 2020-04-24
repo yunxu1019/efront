@@ -20,7 +20,7 @@ jobs:
           rd /s /q public
           del .gitignore
           npm pack
-      - shell: cmd
+        shell: cmd
 
   public-efront:
     needs: build-efront
