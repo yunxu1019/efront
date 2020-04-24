@@ -92,6 +92,7 @@ function paddExtension(file) {
     return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx'], parets);
 }
 var getBuildRoot = function (files, matchFileOnly) {
+    if (files.length) console.log(files)
     files = [].concat(files || []);
     var indexMap = Object.create(null);
     files.forEach((f, cx) => indexMap[f] = cx);
@@ -215,19 +216,13 @@ var getBuildRoot = function (files, matchFileOnly) {
                     } else {
                         fs.readdir(file, function (error, names) {
                             if (error) return oh(error);
-                            var indexfile, packagefile;
+                            // var indexfile, packagefile;
                             names.forEach(function (name) {
                                 files.push(path.join(file, name));
-                                if (!indexfile && /^index(\.[jt]sx?|\.node)?$/i.test(name)) {
-                                    indexfile = path.join(file, name);
-                                }
-                                if (!packagefile && /package\.json/i.test(name)) {
-                                    packagefile = path.join(file, name);
-                                }
                             });
-                            if (indexfile || packagefile) {
-                                saveFolder(file);
-                            }
+                            // if (indexfile || packagefile) {
+                            //     saveFolder(file);
+                            // }
                             ok();
                         });
                     }
