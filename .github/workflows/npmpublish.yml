@@ -1,7 +1,7 @@
 # This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
 # For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
 
-name: Node.js Package
+name: EFront编译发布
 
 on:
   push:
@@ -9,24 +9,31 @@ on:
       - develop
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  打包efront:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: npm pack
+      - run: |
+          del *.tgz
+          rd /s /q public
+          del .gitignore
+          npm pack
 
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
+  发布到仓库:
+    needs: 打包efront
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      # - run: npm publish
+      - run: |
+          if not exists public/efront.js goto :end
+          npm publish
+          :end
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
