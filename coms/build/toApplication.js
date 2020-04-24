@@ -72,7 +72,10 @@ function toApplication(responseTree) {
     report(responseTree);
     var isFileMode = /\.html?$/i.test(environment.APP);
     var versionTree = {};
-    var mainScript = responseTree["main"].data;
+    if (!responseTree["main"]) {
+        console.warn("在您所编译的项目没有发现主程序");
+    }
+    var mainScript = responseTree.main ? responseTree.main.data : '';
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
     if (isFileMode) {
         Object.keys(responseTree).sort().forEach(function (k) {
@@ -88,6 +91,7 @@ function toApplication(responseTree) {
     } else {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
+            if (!v) return;
             if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
             var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
             versionTree[v.url] = responseVersion;
@@ -111,40 +115,34 @@ function toApplication(responseTree) {
         };
         responseTree["/index.html"] = indexHtml;
     }
-    if (isFileMode) {
-        var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
-    } else {
-        var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
-    }
-    var code = JSON.stringify(versionTree, null, "\t").replace(/\-\-\>/g, s => "-- >");
-
-    var versionVariableName;
-    code = mainScript.toString()
-        .replace(/\.send\((.*?)\)/g, (match, data) => (versionVariableName = data || "", ".send()"))
-        .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
-        .replace(
-            new RegExp(xTreeName + "(\s*)=(\s*)\{.*?\}"),
-            function (m, s1, s2) {
-                return xTreeName + `${s1}=${s2}${code}`;
-            }
-        )
-        // .replace(/[\<\>]/g, function (a) {
-        //     switch (a) {
-        //         case "<": return "&lt;";
-        //         case ">": return "&gt;";
-        //     }
-        //     return a;
-        // })
-        ;
-    // indexHtml.data = buildHtml(indexHtml.data, code);
-    Object.keys(responseTree).forEach(function (key) {
-        if (/\.(jsp|php|html|asp)$/i.test(key)) {
-            var response = responseTree[key];
-            if (response && response.data) {
-                response.data = buildHtml(response.data, code);
-            }
+    if (mainScript) {
+        if (isFileMode) {
+            var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
+        } else {
+            var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
         }
-    });
+        var code = JSON.stringify(versionTree, null, "\t").replace(/\-\-\>/g, s => "-- >");
+
+        var versionVariableName;
+        code = mainScript.toString()
+            .replace(/\.send\((.*?)\)/g, (match, data) => (versionVariableName = data || "", ".send()"))
+            .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
+            .replace(
+                new RegExp(xTreeName + "(\s*)=(\s*)\{.*?\}"),
+                function (m, s1, s2) {
+                    return xTreeName + `${s1}=${s2}${code}`;
+                }
+            )
+            ;
+        Object.keys(responseTree).forEach(function (key) {
+            if (/\.(jsp|php|html|asp)$/i.test(key)) {
+                var response = responseTree[key];
+                if (response && response.data) {
+                    response.data = buildHtml(response.data, code);
+                }
+            }
+        });
+    }
     delete responseTree["main"];
     return responseTree;
 }
