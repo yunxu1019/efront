@@ -467,7 +467,7 @@ var run = function (type, value1, value2, value3) {
                 break;
 
             case "run":
-                run.apply(null, argv.slice(3));
+                run.apply(null, argv.slice(1));
                 break;
             case "https":
             case "lives":
@@ -493,7 +493,7 @@ var run = function (type, value1, value2, value3) {
     } else {
         var isRun = /[\/\$\\]|_test$|\.[tj]sx?$/i.test(type);
         if (isRun) {
-            commands.run.apply(commands, argv.slice(2));
+            commands.run.apply(commands, argv);
         } else {
             console.info(`不支持该命令<red2> ${type} </red2>`);
         }
