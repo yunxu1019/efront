@@ -18,7 +18,6 @@ jobs:
           node-version: 12
       - run: |
           del *.tgz
-          rd /s /q public
           del .gitignore
           npm pack
 
