@@ -26,8 +26,8 @@ jobs:
         shell: cmd
       - name: 检查版本号
         run: |
-          for /f "usebackq delims==" %v in (`npm view . version`) do set published=%v
-          for /f "usebackq delims==" %v in (`dir /b *.tgz`) do set packed=%v
+          for /f "usebackq delims==" %%v in (`npm view . version`) do set published=%%v
+          for /f "usebackq delims==" %%v in (`dir /b *.tgz`) do set packed=%%v
           if %packed% == efront-%published%.tgz (echo 已是最新版本&exit 0)
           del *.tgz
 
