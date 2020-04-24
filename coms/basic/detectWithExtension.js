@@ -14,8 +14,8 @@ function detectWithExtension(filename, extensions = [""], folders = [""]) {
         var run = function () {
             var f = path.join(folders[prefix], filename) + extensions[aftfix++];
             fs.exists(f, function (exists) {
-                if (exists) ok(f);
-                else if (aftfix >= extensions.length) {
+                if (exists) return ok(f);
+                if (aftfix >= extensions.length) {
                     if (prefix + 1 < folders.length) {
                         prefix++;
                         aftfix = 0;
