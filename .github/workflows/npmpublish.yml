@@ -22,7 +22,7 @@ jobs:
           del .gitignore
           npm pack
 
-  发布到仓库:
+  public-efront:
     needs: build-efront
     runs-on: windows-latest
     steps:
@@ -35,5 +35,5 @@ jobs:
           if not exists public/efront.js goto :end
           npm publish
           :end
-        env:
+      - env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
