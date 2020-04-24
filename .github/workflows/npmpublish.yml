@@ -20,6 +20,7 @@ jobs:
           rd /s /q public
           del .gitignore
           npm pack
+          if not exist public (echo 编译错误&exit 1)
         shell: cmd
 
   public-efront:
@@ -31,9 +32,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: |
-          if not exist public (echo 编译错误&exit 1)
-          npm publish
+      - run: npm publish
         shell: cmd
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
