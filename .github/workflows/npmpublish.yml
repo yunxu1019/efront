@@ -9,7 +9,7 @@ on:
       - develop
 
 jobs:
-  打包efront:
+  build-efront:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,7 +23,7 @@ jobs:
           npm pack
 
   发布到仓库:
-    needs: 打包efront
+    needs: build-efront
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
