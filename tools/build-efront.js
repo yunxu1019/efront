@@ -42,7 +42,7 @@ Promise.all([
         path.join(__dirname, '..')
     ).filter(a => !/^[\._]|^public$/i.test(a))
         .map(a => path.join(__dirname, '..', a))
-        .filter(a => fs.statSync(a).isDirectory()),
+        .filter(a => fs.statSync(a).isDirectory()).concat(path.join(__dirname, '../package.json')),
     path.join(__dirname, '../public')
 ].map(getVersionByTime)).then(function ([srcVersion, dstVersion]) {
     if (srcVersion > dstVersion) {
