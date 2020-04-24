@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: |
+      - run: 
           rd /s /q public
           del .gitignore
           npm pack
@@ -31,13 +31,13 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: |
-          if not exists public goto :error-1
-            npm publish
-          :error-1
-            echo 编译错误
-            exit 1
-          :end
+      - run: 
+            if not exists public goto :error-1
+              npm publish
+            :error-1
+              echo 编译错误
+              exit 1
+            :end
         shell: cmd
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
