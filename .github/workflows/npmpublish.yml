@@ -9,14 +9,14 @@ on:
       - develop
 
 jobs:
-  build-efront:
+  publish-efront:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: rd /s /q public&del .gitignore&del*.tgz
+      - run: rd /s /q public& if exist *.tgz del *.tgz
         shell: cmd
       - run: npm pack
         shell: cmd
