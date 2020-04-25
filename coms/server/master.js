@@ -5,7 +5,7 @@ var isDevelop = require("../efront/isDevelop");
 var message = require("../message");
 var fs = require("fs");
 var path = require("path");
-var rl = readline.createInterface({
+if (process.stdin.isTTY) var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
@@ -25,12 +25,14 @@ var end = function () {
     workers = [];
     exit();
 };
-rl.addListener("SIGINT", end);
+if (rl) rl.addListener("SIGINT", end);
 var afterend = function () {
     process.removeAllListeners();
     watch.close();
-    rl.removeAllListeners();
-    rl.pause();
+    if (rl) {
+        rl.removeAllListeners();
+        rl.pause();
+    }
     notkilled.forEach(a => a.kill());
 };
 var exit = function () {

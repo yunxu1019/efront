@@ -3,11 +3,13 @@ require("../efront/setupenv");
 var message = require("../message");
 var readline = require("readline");
 if (require("cluster").isMaster) {
-    var rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    rl.addListener("SIGINT", process.exit);
+    if (process.stdin.isTTY) {
+        var rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        rl.addListener("SIGINT", process.exit);
+    }
 } else {
     process.on("SIGINT", function () { });
     process.on("SIGTERM", function () { });

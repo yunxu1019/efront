@@ -502,6 +502,7 @@ var run = function (type, value1, value2, value3) {
 };
 var __exit = process.exit;
 var quit = function (e) {
+    console.log(cluster.isMaster, 'exit',e);
     var isDevelop = require("./isDevelop");
     if (isDevelop) {
         console.begin("red2");
@@ -512,6 +513,7 @@ var quit = function (e) {
         console.log("异常退出");
     }
     console.end();
+
     __exit.call(process, 1);
 };
 process.on("uncaughtException", quit);
