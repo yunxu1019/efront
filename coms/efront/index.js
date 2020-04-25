@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 "use strict";
+
 var cluster = require("cluster");
 var path = require('path');
 var fs = require("fs");
@@ -47,6 +48,7 @@ var setAppnameAndPorts = function (args) {
         https_port: +https_port >= 0 ? https_port || 443 : ''
     });
 }
+
 var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
@@ -70,10 +72,10 @@ var detectEnvironment = function () {
                     console.error(e);
                 }
             }).forEach(function (name) {
-                if (/page|app|界面|页面|应用|系统/i.test(name)) {
+                if (/page|^app|界面|页面|应用|系统/i.test(name)) {
                     // 高屋|瓴|楼|台|宫|阁|殿|庙|堂|会|场|司|衙|门|党|帮|派|族|山|庄|寺|教|家|城|店|军|队|团|师|营|苟
                     config.page_path = name;
-                } else if (/src|source|code|源|代码/i.test(name)) {
+                } else if (/^src|source|^code|源|代码/i.test(name)) {
                     config.page_path = name;
                     coms_path.push(name);
                 } else if (/lib|com|fun|dep|组件|模块|依赖|库|函数/i.test(name)) {
@@ -81,7 +83,7 @@ var detectEnvironment = function () {
                     coms_path.push(name);
                 } else if (/env|conf|环境|配置|设置/i.test(name)) {
                     env_path.push(name);
-                } else if (/d[ie]st|www|pub|release|发布|目标|版本|输出|产品|^(?:out|output)$/i.test(name)) {
+                } else if (/d[ie]st|www|^pub|release|发布|目标|版本|输出|产品|^(?:out|output)$/i.test(name)) {
                     // 梦|思想|籍|书|法|规|外|景
                     public_path.push(name);
                 }
@@ -214,12 +216,12 @@ var commands = {
     docs() {
         // 文档
         setenv({
-            public_path: path.join(__dirname, "../../docs"),
             coms_path: path.join(__dirname, "../../coms"),
             page_path: path.join(__dirname, '../../docs'),
             IN_TEST_MODE: true,
-            comm: 'docs,zimoli',
+            coms: 'docs,zimoli',
             page: './',
+            apis: 'docs,zimoli',
             app: "./"
         });
         setAppnameAndPorts(80);
@@ -345,8 +347,7 @@ var commands = {
             return;
         }
         var fullpath = process.cwd();
-        var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], [fullpath]);
-
+        var detectPromise = detectWithExtension(appname, [".js", ".ts", "", "/index.js", "/index.ts"], [fullpath]);
         detectPromise.catch(function () {
             detectEnvironment().then(function () {
                 setenv({
@@ -520,6 +521,7 @@ process.on("exit", function () {
         console.log();
     }
 });
+
 var argv = process.argv.slice(2).filter(a => {
     if (a in helps) return true;
     if (!/^--/.test(a)) return true;
