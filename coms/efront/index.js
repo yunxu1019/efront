@@ -379,9 +379,6 @@ var commands = {
         var module_Name = module_Name || argv.filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
         if (module_Name) {
             var [export_to, export_as] = module_Name.split("=");
-            if (export_as === undefined) {
-                if (!/exports|return$/.test(export_to)) export_as = export_to;
-            }
             if (export_to) {
                 process.env.EXPORT_TO = export_to;
             }
@@ -392,10 +389,7 @@ var commands = {
         var fullpath = process.cwd();
         var promise = detectWithExtension(app_Name, ["", ".js", ".ts"], [fullpath]);
         promise.catch(function () {
-            detectEnvironment().then(function () {
-                require("./setupenv");
-                require('../build');
-            });
+            require('../build');
         });
         promise.then(function (f) {
             setenv({
