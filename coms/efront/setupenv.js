@@ -17,6 +17,7 @@ var envpath = env.ENVS_PATH || env.ENV_PATH || env.CONFIG_PATH;
 if (!envpath) {
     envpath = "./_envs," + path.join(require("os").homedir(), '.efront/_envs');
 }
+
 envpath = envpath.split(",").filter(fs.existsSync);
 var cache = {};
 var setup = module.exports = function (app) {
@@ -47,7 +48,7 @@ var setup = module.exports = function (app) {
         env[key] = Object.keys(value_map).join(',');
     });
     extend(env, process.env);
-    if (!env.PAGE) env.PAGE = appname;
+    if (!env.PAGE && appname) env.PAGE = appname + ",./";
     pollyfill(env, appname);
 
     return env;
@@ -56,8 +57,9 @@ var pollyfill = function (env, appname) {
 
     if (env.PAGE === undefined || env.PAGE === null) env.PAGE = appname;
     for (var k in env) {
+        var bootfull='';
         if (k in bootConfig) {
-            var bootfull = path.join(__dirname, "../../", bootConfig[k]);
+            bootfull = path.join(__dirname, "../../", bootConfig[k]);
             var bootpath = path.relative(bootConfig[k], bootfull);
             if (bootpath) {
                 bootfull = bootConfig[k] + "," + bootfull;
@@ -98,7 +100,7 @@ var extend = function (dst, env) {
         COMS_PATH: dst.COMS_PATH || dst.COMM_PATH || env.COMS_PATH || "",
         PAGE_PATH: dst.PAGE_PATH || dst.PAGES_PATH || dst.APPS_PATH || env.PAGE_PATH || "",
         APIS_PATH: dst.APIS_PATH || dst.AAPI_PATH || env.APIS_PATH || "",
-        LIBS_PATH: dst.LIBS_PATH || dst.LIBS_PATH || env.LIBS_PATH || "",
+        LIBS_PATH: dst.LIBS_PATH || dst.LIB_PATH || env.LIBS_PATH || "",
         ICON_PATH: dst.ICON_PATH || dst.CONS_PATH || dst.CCON_PAT || dst.ICONS_PATHH || env.ICON_PATH || "",
         PAGE: dst.PAGE || dst.APPS || env.PAGE || "",
         COMM: dst.COMM || dst.COMS || env.COMM || "",
