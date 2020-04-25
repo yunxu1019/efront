@@ -366,6 +366,7 @@ function toComponent(responseTree) {
         for (; c < d; c++)r[c] = f[e](t, c, s[c]);
         return r
     }`;
+
     var simplie_compress = function (str) {
         if (!encoded) return str;
         return str.toString()

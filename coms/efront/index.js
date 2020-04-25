@@ -369,14 +369,14 @@ var commands = {
         }, function () { });
     },
     public(app_Name, module_Name) {
-        if (app_Name && !module_Name) {
+        if (app_Name) {
             if (/:[^\\\/]*$/.test(app_Name)) {
-                module_Name = /\:([^\\\/]*)$/.exec(app_Name)[1];
+                if (!module_Name) module_Name = /\:([^\\\/]*)$/.exec(app_Name)[1];
                 app_Name = app_Name.slice(0, app_Name.length - module_Name.length - 1);
             }
             process.env.APP = app_Name;
         }
-        var module_Name = module_Name || argv.slice(3).filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
+        var module_Name = module_Name || argv.filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
         if (module_Name) {
             var [export_to, export_as] = module_Name.split("=");
             if (export_as === undefined) {
@@ -389,7 +389,23 @@ var commands = {
                 process.env.EXPORT_AS = export_as;
             }
         }
-        require("../build");
+        var fullpath = process.cwd();
+        var promise = detectWithExtension(app_Name, ["", ".js", ".ts"], [fullpath]);
+        promise.catch(function () {
+            detectEnvironment().then(function () {
+                require("./setupenv");
+                require('../build');
+            });
+        });
+        promise.then(function (f) {
+            setenv({
+                app: path.relative(fullpath, f),
+                comm: './,typescript-helpers',
+                coms_path: './,' + path.join(__dirname, '..'),
+            });
+            require("./setupenv");
+            require('../build');
+        }, function () { });
     },
     watch() {
         require("../../tools/watch");

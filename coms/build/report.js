@@ -4,7 +4,7 @@ module.exports = function main(responseTree) {
     var times = Object.keys(responseTree)
         .sort((k1, k2) => responseTree[k2].time - responseTree[k1].time)
         .slice(0, 3)
-        .map(key => responseTree[key]).map(({ realpath: destpath, time }) => {
+        .map(key => responseTree[key]).filter(a => !!a.realpath).map(({ realpath: destpath, time }) => {
             destpath = Buffer.from(destpath);
             var reg = /[\\\/]/g;
             reg.lastIndex = 10;
