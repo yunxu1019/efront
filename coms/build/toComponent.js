@@ -420,8 +420,9 @@ function toComponent(responseTree) {
     //     }
     // }
     responseTree[PUBLIC_APP].data = template;
-    var DESTNAME = String(PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + EXTT;
+    var DESTNAME = String(process.env.PUBLIC_NAME || PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + EXTT;
     responseTree[PUBLIC_APP].destpath = DESTNAME || PUBLIC_APP;
+
     return Object.assign({
         [PUBLIC_APP]: responseTree[PUBLIC_APP]
     });

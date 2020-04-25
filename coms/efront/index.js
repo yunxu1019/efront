@@ -7,11 +7,11 @@ var fs = require("fs");
 require("./console");
 var loadenv = require("./loadenv");
 var detectWithExtension = require("../basic/detectWithExtension");
-var setenv = function (evn) {
+var setenv = function (evn, cover) {
     var dist = process.env;
     for (var k in evn) {
         var k1 = k.toUpperCase();
-        dist[k1] = evn[k];
+        if (cover !== false || !(k in dist)) dist[k1] = evn[k];
     }
 };
 var startServer = function () {
@@ -363,7 +363,7 @@ var commands = {
                 comm: './,typescript-helpers',
                 coms_path: './,' + path.join(__dirname, '..'),
                 IN_TEST_MODE: true,
-            });
+            }, false);
             require("./setupenv");
             require('./run')(appname, args);
         }, function () { });
@@ -401,8 +401,9 @@ var commands = {
             setenv({
                 app: path.relative(fullpath, f),
                 comm: './,typescript-helpers',
-                coms_path: './,' + path.join(__dirname, '..'),
-            });
+                public_name: path.basename(f).replace(/\.(\w+)$/, ''),
+                coms_path: './,' + path.join(__dirname, '../basic') + ',' + path.join(__dirname, '../'),
+            }, false);
             require("./setupenv");
             require('../build');
         }, function () { });
