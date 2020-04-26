@@ -376,7 +376,7 @@ var commands = {
             }
             process.env.APP = app_Name;
         }
-        var module_Name = module_Name || argv.filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
+        var module_Name = module_Name || argv.slice(1).filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
         if (module_Name) {
             var [export_to, export_as] = module_Name.split("=");
             if (export_to) {
