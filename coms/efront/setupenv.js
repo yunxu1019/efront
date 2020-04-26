@@ -57,7 +57,7 @@ var pollyfill = function (env, appname) {
 
     if (env.PAGE === undefined || env.PAGE === null) env.PAGE = appname;
     for (var k in env) {
-        var bootfull='';
+        var bootfull = '';
         if (k in bootConfig) {
             bootfull = path.join(__dirname, "../../", bootConfig[k]);
             var bootpath = path.relative(bootConfig[k], bootfull);
@@ -123,8 +123,8 @@ envpath.forEach(function (p) {
         }
     });
 });
-if (env.APP) {
-    let _tmp = setup(env.APP);
+if ("APP" in env) {
+    let _tmp = setup(env.APP || "./");
     pollyfill(_tmp, env.APP);
     for (var k in _tmp) {
         if (/\_PATH$/i.test(k)) {
