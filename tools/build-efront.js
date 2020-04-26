@@ -59,6 +59,6 @@ Promise.all([
             shell: true
         });
     } else {
-        console.log("已是最新版本！");
+        console.log("无需重新编译");
     }
 }).catch(console.log);
