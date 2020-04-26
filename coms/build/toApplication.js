@@ -73,7 +73,7 @@ function toApplication(responseTree) {
     var isFileMode = /\.html?$/i.test(environment.APP);
     var versionTree = {};
     if (!responseTree["main"]) {
-        console.warn("在您所编译的项目没有发现主程序");
+        console.warn("在您所编译的项目中没有发现主程序");
     }
     var mainScript = responseTree.main ? responseTree.main.data : '';
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];

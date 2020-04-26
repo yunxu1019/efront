@@ -182,7 +182,6 @@ var topics = {
     VARIABLES: "变量名",
 };
 topics.VARIABLES += "," + Object.keys(topics);
-
 var commands = {
     version() {
         // 版本号
@@ -370,6 +369,7 @@ var commands = {
     },
     public(app_Name, module_Name) {
         if (app_Name) {
+            if (app_Name === ".") app_Name += "/";
             if (/:[^\\\/]*$/.test(app_Name)) {
                 if (!module_Name) module_Name = /\:([^\\\/]*)$/.exec(app_Name)[1];
                 app_Name = app_Name.slice(0, app_Name.length - module_Name.length - 1);
@@ -387,19 +387,29 @@ var commands = {
             }
         }
         var fullpath = process.cwd();
-        var promise = detectWithExtension(app_Name, ["", ".js", ".ts"], [fullpath]);
+        var promise = detectWithExtension(process.env.APP, ["", ".js", ".ts"], [fullpath]);
         promise.catch(function () {
             require('../build');
         });
         promise.then(function (f) {
-            setenv({
-                app: path.relative(fullpath, f),
-                comm: './,typescript-helpers',
-                public_name: path.basename(f).replace(/\.(\w+)$/, ''),
-                coms_path: './,' + path.join(__dirname, '../basic') + ',' + path.join(__dirname, '../'),
-            }, false);
-            require("./setupenv");
-            require('../build');
+            var isdir = fs.statSync(f).isDirectory();
+            var app = path.relative(fullpath, f);
+            if (isdir) {
+                setenv({
+                    app: process.env.APP,
+                    comm: !/[^\.\\\/]+/.test(app) ? `zimoli,typescript-helpers,` : app + ',zimoli,typescript-helpers,'
+                });
+                require("../build");
+            } else {
+                setenv({
+                    app,
+                    comm: './,typescript-helpers',
+                    public_name: path.basename(f).replace(/\.(\w+)$/, ''),
+                    coms_path: './,' + path.join(__dirname, '../basic') + ',' + path.join(__dirname, '../'),
+                }, false);
+                require("./setupenv");
+                require('../build');
+            }
         }, function () { });
     },
     watch() {
