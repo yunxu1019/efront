@@ -335,7 +335,10 @@ var buildResponse = function ({ imported, params, data, required }) {
     } else if (length.length === 2) {
         length = "0" + length;
     }
-    data = (_arguments.length ? length + _arguments : "") + data.replace(/[\u0100-\uffff]/g,
+
+    // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
+
+    data = (_arguments.length ? length + _arguments : parseInt(data.slice(0, 3), 36) % 2 === 0 ? ";" : "") + data.replace(/[\u0100-\uffff]/g,
         m => "\\u" + (m.charCodeAt(0) > 0x1000 ?
             m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)
         )
