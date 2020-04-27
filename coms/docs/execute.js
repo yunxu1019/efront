@@ -7,7 +7,7 @@ var execute = function (commName, then, logpad) {
     var logs = [];
     var log = function (color, type, text, ...extra) {
         if (text instanceof Error) text = text.message;
-        window.console.log.apply(window.console, [].slice.call(arguments, 2));
+        window.console.log.apply(window.console, [].slice.call(arguments, 1));
         logs.push([color, type, text, ...extra]);
         if (logpad) logpad.innerHTML = logs.slice(logs.length > 10 ? logs.length - 10 : 0).map(msg => {
             var [color, type] = msg;
