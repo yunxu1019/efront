@@ -282,6 +282,9 @@ var structures = {
         createRepeat.call(this, search);
     }
 };
+var changed = function () {
+    if (!this.dirty) this.dirty = true, this.setAttribute('dirty', '');
+};
 var directives = {
     src(search) {
         var getter = createGetter(search).bind(this);
@@ -382,11 +385,9 @@ var directives = {
             });
             var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=${getstr || "'value' in this?this.value:html(this)"}`).bind(this, html);
         }
-        var onchange = lazy(change);
+        var onchange = change;
         eventsHandlers.map(on => on(this, onchange));
-        eventsHandlers.map(on => on(this, function () {
-            if (!this.dirty) this.dirty = true, this.setAttribute('dirty', '');
-        }));
+        eventsHandlers.map(on => on(this, changed));
     },
     hide(search) {
         var getter = createGetter(search).bind(this);
@@ -600,6 +601,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     element.renders = element.renders ? [].concat(element.renders) : [];
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
     var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@)/i;
+    var ons = [];
     attrs.map(function (attr) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
@@ -608,7 +610,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             directives[key].call(element, [withContext, value]);
         } else if (emiter_reg.test(name)) {
             var ngon = (emiter_reg.exec(name)[1] || "on").toLowerCase();
-            emiters[ngon].call(element, key, [withContext, value]);
+            ons.push([emiters[ngon], key, value]);
         } else if (/^([\_\:\.]|v\-bind\:)/.test(name)) {
             binders._.call(element, name.replace(/^([\_\:\.]|v\-bind\:)/, ""), [withContext, value]);
         } else if (/[\_\@\:\.]$/.test(name)) {
@@ -622,6 +624,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         }
     });
     rebuild(element);
+    ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
     if (element.renders.length) {
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
@@ -680,7 +683,7 @@ function render(element, scope, parentScopes) {
 var digest = lazy(refresh);
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
-var eventsHandlers = "change,paste,resize,keydown,keypress,keyup".split(",").map(k => on(k));
+var eventsHandlers = "change,click,paste,resize,keydown,keypress,keyup".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));
 on("render")(window, digest);
 var register = function (key, creater) {
