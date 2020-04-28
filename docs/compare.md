@@ -9,6 +9,7 @@
 | 对比项\框架 | angular  | react    | vue   | efront/(zimoli) |
 |--|--|--|--|--|
 Hello World 目标代码 | &gt;30kb | &gt;30kb | ≈30kb;| ≈1kb;
+开发环境启动时间 | &gt;2s | &gt;2s | >2s| ≈0s;
 开发语言             | ts/html/less/sass/scss | jsx/css/js/ts/html | vue/html/css/js | js/html/less/ts
 导出组件依赖项|angular|react|vue|无
 官方路由 | angular-router, 使用前需要注册路径 | react-router, 使用前需要注册路径 | vue-router, 使用前需要注册路径| zimoli，使用前无需注册路径
@@ -24,14 +25,16 @@ Hello World 目标代码 | &gt;30kb | &gt;30kb | ≈30kb;| ≈1kb;
 angular1将视图和逻辑隔离，js可通过更新scope上的数据以达到更新视图的目的，用户在视图上的输入可通过绑定关系自动同步到scope，后angular2+将scope抽象为typescript的class的实例，其实际用途不变。angular自身的逻辑维护的是数据与视图的绑定关系。
 
 ### 2.  react
+
 react 通过虚拟dom与视图保持同步，每次渲染前，通过用户逻辑重构虚拟dom，react则维护虚拟dom与视图的同步。
 
 ### 3.  vue
+
 vue使用Object.defineProperty进行数据绑定，与angular通过事件绑定的机制有所区别，但也是将视图与逻辑隔离，维护数据与视图的绑定关系。
 
 ### 4. efront/zimoli
-efront环境下，用户在隔离的环境中直接操作或创建dom元素，zimoli/render负责元素之间的组装和绑定。
 
+efront环境下，用户在隔离的环境中直接操作或创建dom元素，zimoli/render负责元素之间的组装和绑定。
 
 ## 语法对比
 

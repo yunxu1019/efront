@@ -7,11 +7,21 @@
 4. 减少异步io的时间，应用启动过程只加载有用代码，启动完成后等待用户操作的同时预加载下一步的代码
 5. 版本局部更新，异步加载的每一份代码拥有一个独立的版本号，在版本信息无变化时不重复加载
 
+# efront 功能列表
+
+1. 提供 0 秒启动的开发服务器，允许代码在浏览器中完成依赖项的异步加载
+2. 提供 “按文件名引用的代码” 的编译环境，允许开发者不写 `import`, `require` 等语句
+3. 提供具有环形检查的加载器
+4. 自动识别并附加预加载的逻辑
+5. 编译使用 `efront` 内置库的应用自动追加检查缓存的逻辑并生成代码版本号
+6. `efront` 服务器提供跨域中转功能
+7. `efront` 编译导出的组件对可能造成代码可读的字符串和属性进行提取和加密
+
 # 基本命令（适用于windows）
 
 ## 1. 下载安装
 
-efront 运行在nodejs环境下，请在安装nodejs环境后使用[https://nodejs.org](https://nodejs.org)。
+`efront` 运行在 [nodejs](https://nodejs.org) 环境下，请在安装 [nodejs](https://nodejs.org) 环境后使用。
 从npm全局安装efront
 
 ```bat
@@ -101,6 +111,10 @@ efront watch
 * efront 默认禁止在iframe中运行，如果要开启，可以在头部script中加入 `window.PREVENT_FRAMEWORK_MODE=false;`
 * efront 默认的初始化脚本是`zimoli('/main');`，可以在body标签上加上`main-path=...`属性指定初始化脚本的路径
 * efront 默认将`page_path`指向的路径中的`.ts,.js,.less,.html`文件识别为页面文件，可以在index.html加上`<script src='libpath/*' type=deleteoncompile></script>`，其中`libpath/*`指向静态文件的路径，efront编译过程将识别并做出正确的处理
+* 如果仅做为跨域服务器使用，可以将开发环境的url改写为如下形式，以使返回结果加上跨域头：
+`http://EFRONT_HOST/{//BACKEND_HOST:PORT/}@APIPATH`
+<br/> 如：
+如果在本机的88端口启动efront服务器，要访问`http://im.qq.com/` ，可以请求`http://localhost:88/{//im.qq.com/}@`取得带跨域头的数据
 
 # 注意事项
 
