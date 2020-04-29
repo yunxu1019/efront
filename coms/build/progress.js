@@ -16,6 +16,7 @@ var loadData = require("./loadData");
 var write = require("./write");
 var clean = require("./clean");
 var _finish = require("./finish");
+var setting = require("./setting");
 var getBuiltVersion = function (filepath) {
     return new Promise(function (ok) {
         fs.exists(filepath, function (exists) {
@@ -54,7 +55,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         console.info("正在导出组件", public_app, '\r\n');
         //导出组件
         var public_path = path.join(PUBLIC_PATH, public_app);
-        is_commponent_package = true;
+        setting.is_commponent_package = true;
         var toComponent = require("./toComponent");
         require("../compile/variables").computed = true;
         return loadData([path.join(__dirname, "../", "zimoli/[]map.js"), public_app], 0, public_path)
@@ -69,7 +70,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         console.info("正在编译项目", PUBLIC_APP, /\w/.test(PUBLIC_APP) ? "\r\n" : '');
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         public_app = pages_root;
-        is_commponent_package = false;
+        setting.is_commponent_package = false;
         var toApplication = require("./toApplication");
         return getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
             if (cleanBeforeBuild) {

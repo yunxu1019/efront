@@ -4,6 +4,7 @@ var esprima = require("../esprima");
 var esmangle = require("../esmangle");
 var escodegen = require("../escodegen");
 var typescript = require("../typescript");
+var breakcode = require("../compile/breakcode");
 var less = require("../less-node")();
 var isDevelop = require("./isDevelop");
 less.PluginLoader = function () { };
@@ -128,8 +129,10 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     var destpaths = getRequiredPaths(data);
     data = typescript.transpile(data, { noEmitHelpers: true });
     var code = esprima.parse(data);
+    getvariables.computed = !isDevelop;
     var {
         DeclaredVariables: declares,
+        allVariables,
         unDeclaredVariables: undeclares
     } = getvariables(code);
     var { require: required } = undeclares;
@@ -263,42 +266,49 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         }
         r.raw = String(r.value);
     });
-    if (isDevelop) {
-        code = {
-            "type": "Program",
-            "sourceType": "script",
-            body: code_body
-        };
-        data = escodegen.generate(code, {
-            format: {
-                renumber: true,
-                hexadecimal: true, //十六进位
-                escapeless: false,
-                compact: false, //去空格
-                semicolons: true, //分号
-                parentheses: true //圆括号
-            }
-        });
-        var params = globals.map(g => globalsmap[g]);
-    } else {
-        code = {
-            type: "FunctionExpression",
-            params: globals.map(n => ({
-                type: "Identifier",
-                name: globalsmap[n]
-            })),
-            body: {
-                type: "BlockStatement",
-                body: code_body
-            },
-            "generator": false,
-            "expression": false
-        };
-        if (!getvariables.computed) {
-            code = esmangle.optimize(code, null);
-            code = esmangle.mangle(code);
+    code = {
+        "type": "Program",
+        "sourceType": "script",
+        body: code_body
+    };
+    data = escodegen.generate(code, {
+        format: {
+            renumber: true,
+            hexadecimal: true, //十六进位
+            escapeless: false,
+            compact: false, //去空格
+            semicolons: true, //分号
+            parentheses: true //圆括号
         }
-        var params = code.params.map(id => id.name);
+    });
+    var params = globals.map(g => globalsmap[g]);
+    data = convertColor(data);
+    return {
+        imported: globals,
+        required: required_paths,
+        occurs: allVariables,
+        data,
+        params
+    };
+};
+var toUnicode = function (data) {
+    return data.replace(/[\u0100-\uffff]/g,
+        m => "\\u" + (m.charCodeAt(0) > 0x1000 ?
+            m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)
+        )
+    );
+};
+var buildResponse = function ({ imported, params, data, required, occurs }, compress) {
+    if (!isDevelop && compress !== false) {
+        var [data, args, strs] = breakcode(data, occurs);
+        strs = `[${strs}]`;
+        var data = imported.length > 0 ? `function f(${params.concat(args || [])}){${data}}` : ` function f(){var [${args}]=${strs};${data}}`;
+        data = typescript.transpile(data, { noEmitHelpers: true });
+        var code = esprima.parse(data);
+        code = esmangle.optimize(code, null);
+        code = esmangle.mangle(code);
+        code = code.body[0];
+        params = code.params.map(id => id.name);
         code = {
             "type": "Program",
             "sourceType": "script",
@@ -314,16 +324,17 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 parentheses: false //圆括号
             }
         });
+        if (imported.length > 0) {
+            strs = toUnicode(strs);
+            var strlength = (strs.length * 2).toString(36);
+        } else {
+            data = toUnicode(data);
+            strs = '';
+        }
+    } else {
+        strs = '';
+        data = toUnicode(data);
     }
-    data = convertColor(data);
-    return {
-        imported: globals,
-        required: required_paths,
-        data,
-        params
-    };
-};
-var buildResponse = function ({ imported, params, data, required }) {
     var _arguments = [...imported, ...params];
     if (required.length >= 1) {
         _arguments.push(required.join(';'));
@@ -335,14 +346,8 @@ var buildResponse = function ({ imported, params, data, required }) {
     } else if (length.length === 2) {
         length = "0" + length;
     }
-
     // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
-
-    data = (_arguments.length ? length + _arguments : parseInt(data.slice(0, 3), 36) % 2 === 0 ? ";" : "") + data.replace(/[\u0100-\uffff]/g,
-        m => "\\u" + (m.charCodeAt(0) > 0x1000 ?
-            m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)
-        )
-    );
+    data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength + strs : '') + (parseInt(data.slice(0, 3), 36) % 2 === 0 || /^\w{1,6}\[/.test(data) && parseInt(data.slice(0, 6), 36) % 2 === 0 ? ";" : "") + data;
     return data;
 };
 var getFileData = function (fullpath) {
@@ -477,6 +482,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
 
 }
 function commbuilder(buffer, filename, fullpath, watchurls) {
+    var compress = commbuilder.compress;
     var data = String(buffer), promise;
     if (/\.json$/i.test(fullpath)) {
         let timeStart = new Date;
@@ -495,7 +501,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
         var promise1 = promise.then(function (data) {
             try {
                 var timeStart = new Date;
-                data = buildResponse(data);
+                data = buildResponse(data, compress);
                 data = Buffer.from(data);
                 data.path = fullpath;
                 data.time = new Date - timeStart + promise.time;

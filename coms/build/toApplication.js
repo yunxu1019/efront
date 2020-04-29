@@ -9,12 +9,12 @@ var buildHtml = function (html, code) {
     var poweredByComment;
     var ReleaseTime = new Date().toString();
     var html = html.toString()
-        .replace(/^\s*(<!doctype[^>]*?>\s*)?<!--([\s\S]*?)-->/i, function (_, doctype, message) {
+        .replace(/^\s*(<!doctype[^>]*?>\s*)?<!--([\s\S]*?)--!?>/i, function (_, doctype, message) {
             // `${doctype}<!--${message}\r\n${efrontReloadVersionAttribute}-->`
             poweredByComment = _;
             return "";
         })
-        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/<!--[\s\S]*?--!?>/g, "")
         .replace(/<title>(.*?)<\/title>/i, `<title>${process.env.TITLE || "$1"}</title>`)
         .replace(/<script\b[\s\S]*?<\/script>/ig, function (script) {
             if (/(["'`])post\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
@@ -68,19 +68,52 @@ var buildHtml = function (html, code) {
     }
     return html;
 };
+var isFileMode = /\.html?$/i.test(environment.APP);
 function toApplication(responseTree) {
     report(responseTree);
-    var isFileMode = /\.html?$/i.test(environment.APP);
-    var versionTree = {};
     if (!responseTree["main"]) {
         console.warn("在您所编译的项目中没有发现主程序");
     }
-    var mainScript = responseTree.main ? responseTree.main.data : '';
+    var mainScript = responseTree.main ? responseTree.main : null;
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
+    if (!indexHtml) {
+        var htmlPath = path.join(__dirname, "../apps", "index.html");
+        indexHtml = {
+            time: 0,
+            needed: true,
+            fullpath: htmlPath,
+            data: fs.readFileSync(htmlPath),
+            realpath: htmlPath,
+            version: fs.statSync(htmlPath).mtime,
+            destpath: path.join("index.html"),
+        };
+        responseTree["/index.html"] = indexHtml;
+    }
+    if (mainScript) {
+        Object.keys(responseTree).forEach(function (key) {
+            if (/\.(jsp|php|html|asp)$/i.test(key)) {
+                var response = responseTree[key];
+                if (response && response.data) {
+                    response.data = buildHtml(response.data, mainScript.data);
+                }
+            }
+        });
+    }
+    delete responseTree["main"];
+    return responseTree;
+}
+module.exports = function (responseTree) {
+    if (!responseTree.main) return toApplication(responseTree);
+    var commbuilder = require("../efront/commbuilder");
+    commbuilder.compress = false;
+    var mainScript = responseTree.main;
+    var mainScriptData = commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
+    delete commbuilder.compress;
+    var versionTree = {};
     if (isFileMode) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
-            if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
+            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
             versionTree[v.url] = String(v.data);
         });
         delete versionTree["/index.html"];
@@ -102,29 +135,16 @@ function toApplication(responseTree) {
         delete versionTree["/index.html"];
         delete versionTree["@index.html"];
     }
-    if (!indexHtml) {
-        var htmlPath = path.join(__dirname, "../apps", "index.html");
-        indexHtml = {
-            time: 0,
-            needed: true,
-            fullpath: htmlPath,
-            data: fs.readFileSync(htmlPath),
-            realpath: htmlPath,
-            version: fs.statSync(htmlPath).mtime,
-            destpath: path.join("index.html"),
-        };
-        responseTree["/index.html"] = indexHtml;
-    }
-    if (mainScript) {
+
+    return Promise.resolve(mainScriptData).then(function (mainScriptData) {
         if (isFileMode) {
-            var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
+            var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScriptData)[1];
         } else {
-            var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScript)[1];
+            var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScriptData)[1];
         }
         var code = JSON.stringify(versionTree, null, "\t").replace(/\-\-\>/g, s => "-- >");
-
         var versionVariableName;
-        code = mainScript.toString()
+        code = mainScriptData.toString()
             .replace(/\.send\((.*?)\)/g, (match, data) => (versionVariableName = data || "", ".send()"))
             .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
             .replace(
@@ -132,18 +152,10 @@ function toApplication(responseTree) {
                 function (m, s1, s2) {
                     return xTreeName + `${s1}=${s2}${code}`;
                 }
-            )
-            ;
-        Object.keys(responseTree).forEach(function (key) {
-            if (/\.(jsp|php|html|asp)$/i.test(key)) {
-                var response = responseTree[key];
-                if (response && response.data) {
-                    response.data = buildHtml(response.data, code);
-                }
-            }
-        });
-    }
-    delete responseTree["main"];
-    return responseTree;
-}
-module.exports = toApplication;
+            );
+        return commbuilder(code, "main.js", mainScript.realpath, []);
+    }).then(function (mainScriptData) {
+        mainScript.data = mainScriptData;
+        return toApplication(responseTree);
+    });
+};

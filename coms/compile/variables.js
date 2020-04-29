@@ -2,11 +2,7 @@
 /**
  * 读取全局变量
  */
-var keyword = `NaN Infinity break do in typeof case else instanceof var catch export new void class extends return while const finally super with continue for switch yield debugger function this default if throw delete import try enum await null true false arguments`;
-var keywords = {};
-keyword.split(/\s+/g).forEach(function (key) {
-    keywords[key] = true;
-});
+var keywords = require("./keywords");
 var ieSpecialWords = Object.assign({
     valueOf: true
 }, keywords);
@@ -245,12 +241,15 @@ var getVariables = function (ast) {
                 break;
         }
         for (var k in DeclaredVariables) {
+            allVariables[k] = true;
             delete unDeclaredVariables[k];
         }
     }
     for (var k in unDeclaredVariables) {
         if (k in keywords) {
             delete unDeclaredVariables[k];
+        } else {
+            allVariables[k] = true;
         }
     }
     return {
@@ -258,4 +257,11 @@ var getVariables = function (ast) {
         unDeclaredVariables
     };
 };
-module.exports = getVariables;
+var allVariables = Object.create(null);
+
+module.exports = function Variables(ast) {
+    var res = getVariables(ast);
+    res.allVariables = allVariables;
+    allVariables = Object.create(null);
+    return res;
+};

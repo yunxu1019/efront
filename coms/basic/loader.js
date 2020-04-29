@@ -49,9 +49,9 @@ var request = window.request || function (url, onload, onerror) {
         if (xhr.readyState === 4) {
             var status = xhr.status;
             if (status === 0 || status === 200 || status === 304) {
-                onload(xhr.responseText);
+                if (onload instanceof Function) onload(xhr.responseText);
             } else {
-                onerror(xhr.responseText);
+                if (onerror instanceof Function) onerror(xhr.responseText);
             }
         }
     };
@@ -144,7 +144,6 @@ var killCircle = function () {
         if (k.slice(0, keyprefix.length) === keyprefix && loadedModules[k] instanceof Array) {
             var key = k.slice(keyprefix.length);
             var args = loadedModules[k].args;
-            args = args.slice(0, args.length >> 1);
             args.forEach(arg => {
                 if (!penddings[arg]) {
                     penddings[arg] = [];
@@ -243,17 +242,18 @@ var loadModule = function (name, then, prebuilds = {}) {
                 flushTree(loadedModules, key, mod);
                 return;
             }
-            var [args, body] = getArgs(data);
-            var argslength = args.length >> 1;
-            var mod = createFunction(name, body, args.slice(argslength, argslength << 1));
+            var [argNames, body, args, required, strs] = getArgs(data);
+            var mod = createFunction(name, body, argNames);
             mod.args = args;
-            var required = args[argslength << 1];
+            mod.argNames = argNames;
+            mod.strs = strs.map(toRem);
             var loadingCount = 0;
             if (required) required = required.split(';').filter(a => !!a);
             required = required ? get_relatives(name, required) : [];
             mod.required = required;
             mod.file = name;
-            args = args.slice(0, argslength).concat(required);
+            args = args.concat(required);
+            // console.log(args);
             var response = function () {
                 loadingCount++;
                 if (loadingCount === args.length) {
@@ -273,23 +273,43 @@ var loadModule = function (name, then, prebuilds = {}) {
         readFile(name, saveModule);
     }
 };
+var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt") + (quote || "")) : text;
 var getArgs = function (text) {
-    var functionArgs, functionBody;
+    var args, functionBody;
     //依赖项名称部分的长度限制为36*36*18=23328
     var doublecount = parseInt(text.slice(0, 3), 36);
     if (doublecount >> 1 << 1 === doublecount) {
         var dependencesCount = doublecount >> 1;
         var dependenceNamesOffset = 3 + dependencesCount;
         var dependenceNames = text.slice(3, dependenceNamesOffset);
-        functionArgs = dependenceNames ? dependenceNames.split(",") : [];
+        args = dependenceNames ? dependenceNames.split(",") : [];
+
         functionBody = text.slice(dependenceNamesOffset);
+        var strreg = /^(\w{1,6})(?=\[)/;
+        var match = strreg.exec(functionBody);
+        if (match) {
+            var str = match[1];
+            var strlength = parseInt(str, 36);
+            if (strlength >> 1 << 1 === strlength) {
+                strlength = strlength >> 1;
+                var strstart = str.length;
+                var strend = strstart + strlength;
+                var strs = functionBody.slice(strstart, strend);
+                strs = createFunction("return", "return" + strs)();
+                functionBody = functionBody.slice(strend);
+            }
+        }
+
+        var argsstart = (args.length - (strs ? strs.length : 0)) >> 1;
+        var argsend = (argsstart << 1) + (strs ? strs.length : 0);
+        var argNames = args.slice(argsstart, argsend);
+        var required = args[argsend];
+        args = args.slice(0, argsstart);
     } else {
-        functionArgs = [];
         functionBody = text;
     }
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    if (pixelDecoder) functionBody = functionBody.replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt") + (quote || ""));
-    return [functionArgs, functionBody];
+    return [argNames || [], functionBody, args || [], required || '', strs || []];
 };
 var get_relatives = function (name, required, prefix = "") {
     var required_base = name.replace(/[^\/\$]+$/, "");
@@ -332,16 +352,13 @@ var get_relatives = function (name, required, prefix = "") {
         return r2;
     });
 };
-var createModule = function (exec, argNames, prebuilds = {}) {
+var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     var module = {};
     var exports = module.exports = {};
     var isModuleInit = false;
-    if (!argNames) argNames = [];
-    var argslength = argNames.length >> 1;
     var required = exec.required;
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
-
-    var argsList = argNames.slice(0, argslength).map(function (argName) {
+    var argsList = originNames.map(function (argName) {
         if (argName in prebuilds) {
             return prebuilds[argName];
         }
@@ -357,7 +374,7 @@ var createModule = function (exec, argNames, prebuilds = {}) {
         if (argName === "require") return function (refer) {
             if (refer.length) return window.require(refer);
             var mod = required[refer];
-            return createModule(mod, mod.args, prebuilds);
+            return createModule(mod, mod.args, mod.argNames, prebuilds);
         };
         var filename = location.pathname + exec.file.replace(/([\s\S])[\$]/g, '$1/').replace(/\\/g, '/');
         if (argName === "__dirname") {
@@ -395,9 +412,9 @@ var createModule = function (exec, argNames, prebuilds = {}) {
 
     var _this = isModuleInit ? exports : window;
     var argsPromises = argsList.filter(a => a instanceof Promise);
+    argsList = argsList.concat(exec.strs);
+    argsList.push(compiledNames || []);
     if (!argsPromises.length) {
-        var compiledNames = argNames.slice(argslength, argslength << 1);
-        argsList.push(compiledNames);
         return exec.apply(_this, argsList);
     }
     return Promise.all(argsList).then(function (args) {
@@ -439,6 +456,7 @@ var init = function (name, then, prebuilds) {
         }
         var module = loadedModules[key];
         var args = module.args || [];
+
         if (!args || !args.length) {
             var created = module.call(window);
             then(modules[name] = created);
@@ -448,7 +466,9 @@ var init = function (name, then, prebuilds) {
 
         var saveAsModule = filteredArgs.length === args.length;
         if (!filteredArgs.length) {
-            var created = module.apply(window, args.map(a => prebuilds[a]));
+            var argValues = args.map(a => prebuilds[a]).concat(module.strs);
+            argValues.push(module.argNames || []);
+            var created = module.apply(window, argValues);
             then(created);
             return;
         }
@@ -458,8 +478,7 @@ var init = function (name, then, prebuilds) {
                 return;
             }
         }
-
-        var created = createModule(module, args, prebuilds);
+        var created = createModule(module, args, module.argNames, prebuilds);
         if (created instanceof Promise) {
             if (saveAsModule) {
                 penddings[key] = created;

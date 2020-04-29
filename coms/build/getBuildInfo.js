@@ -1,7 +1,8 @@
 "use strict";
 var commbuilder = require("../efront/commbuilder");
-var iconbuilder = require("../efront/iconbuilder");
+var iconbuilder = require("../efront/iconbuilder");;
 var htmlbuilder = require("../efront/filebuilder");
+var setting = require("./setting");
 // var aapibuilder = require("../efront/aapibuilder");
 var path = require("path");
 var env = require("./environment");
@@ -58,6 +59,9 @@ function getBuildInfo(url) {
                 }
                 destpath = path.join("comm", name.replace(/\-(\w)/g, (_, w) => w.toUpperCase()) + env.EXTT);
                 url = url.replace(/\.([tj]sx?|json|html?)$/i, "");
+                if (url === 'main' && !setting.is_commponent_package) {
+                    builder = noopbuilder;
+                }
                 break;
             case "/":
                 if (/\.html?$/i.test(extt)) {
