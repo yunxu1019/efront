@@ -266,7 +266,7 @@ var commands = {
                 page_path: "./apps"
             })
             require("./setupenv");
-            require("../../tools/create")(srcname, appname);
+            require("../build/create")(srcname, appname);
         });
     },
     simple(srcname, appname) {
@@ -279,7 +279,7 @@ var commands = {
                 coms_path: path.join(distpath, 'coms'),
             });
             require("./setupenv");
-            require("../../tools/create")(srcname || 'blank', '');
+            require("../build/create")(srcname || 'blank', '');
         };
         if (!appname) {
             fs.readdir(process.cwd(), function (error, files) {
@@ -413,7 +413,7 @@ var commands = {
         }, function () { });
     },
     watch() {
-        require("../../tools/watch");
+        require("../build/watch-index");
     }
 };
 var run = function (type, value1, value2, value3) {

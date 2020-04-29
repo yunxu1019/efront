@@ -46,11 +46,11 @@ function from(srcname = 'kugou', destname = appname) {
         fs.writeFileSync(packagepath, JSON.stringify(jsondata, null, 4));
     }
     var hasindex = false;
-    fs.readdirSync(path.join(__dirname, `../apps/${srcname}`)).map(function (name) {
+    fs.readdirSync(path.join(__dirname, `../../apps/${srcname}`)).map(function (name) {
         hasindex = hasindex || /^index.html$/i.test(name);
-        copy(path.join(__dirname, `../apps/${srcname}/`, name), path.join(PAGE_PATH, `${destname}`, name));
+        copy(path.join(__dirname, `../../apps/${srcname}/`, name), path.join(PAGE_PATH, `${destname}`, name));
     });
-    if (!hasindex) copy(path.join(__dirname, "../apps/index.html"), path.join(PAGE_PATH, `${destname}/index.html`));
+    if (!hasindex) copy(path.join(__dirname, "../../apps/index.html"), path.join(PAGE_PATH, `${destname}/index.html`));
 }
 module.exports = from;
 function copy(path1, path2) {

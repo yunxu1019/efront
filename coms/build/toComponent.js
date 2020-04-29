@@ -92,9 +92,10 @@ function toComponent(responseTree) {
                         var refer = evalString(k);
                         if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                             var reqer = reqMap[refer];
-
                             if (destMap[reqer]) return destMap[reqer];
                             reqer = reqer.replace(/^\.?\//, '').replace(/\//g, '$');
+                            if (destMap[reqer]) return destMap[reqer];
+                            reqer = reqer.replace(/(\.\.\$)+/, '');
                             if (destMap[reqer]) return destMap[reqer];
                             if (reqer in libsTree) {
                                 var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
@@ -102,7 +103,6 @@ function toComponent(responseTree) {
                             } else {
                                 k = JSON.stringify(reqMap[refer]);
                             }
-
                             has_outside_require = true;
                         }
                     }

@@ -23,7 +23,7 @@ var AAPI = env.APIS || "zimoli";
 var PAGE_PATH = env.PAGE_PATH;
 var COMS_PATH = env.COMS_PATH;
 var ICON_PATH = env.ICON_PATH;
-var joinpath = ([a, b]) => path.resolve(path.join(a, b));
+var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
 var comms_root = mixin(env.COMS_PATH, env.COMM).map(joinpath).filter(fs.existsSync);
 var ccons_root = ICON && ICON_PATH ? mixin(env.ICON_PATH, env.ICON).map(joinpath).filter(fs.existsSync) : [];
 var pages_root = mixin(env.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
