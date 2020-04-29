@@ -1,1 +1,1 @@
-/<script[\s\S]*?<\/script>/gi
+/<script\b[\s\S]*?<\/script>/gi

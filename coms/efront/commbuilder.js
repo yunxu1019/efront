@@ -302,7 +302,7 @@ var buildResponse = function ({ imported, params, data, required, occurs }, comp
     if (!isDevelop && compress !== false) {
         var [data, args, strs] = breakcode(data, occurs);
         strs = `[${strs}]`;
-        var data = imported.length > 0 ? `function f(${params.concat(args || [])}){${data}}` : ` function f(){var [${args}]=${strs};${data}}`;
+        var data = imported.length > 0 ? `function f(${params.concat(args || [])}){${data}}` : args.length ? `function f(){var [${args}]=${strs};${data}}` : `function f(){${data}}`;
         data = typescript.transpile(data, { noEmitHelpers: true });
         var code = esprima.parse(data);
         code = esmangle.optimize(code, null);
