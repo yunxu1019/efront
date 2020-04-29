@@ -129,7 +129,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     var destpaths = getRequiredPaths(data);
     data = typescript.transpile(data, { noEmitHelpers: true });
     var code = esprima.parse(data);
-    getvariables.computed = !isDevelop;
+    getvariables.computed = !isDevelop || commbuilder.compress === false;
     var {
         DeclaredVariables: declares,
         allVariables,

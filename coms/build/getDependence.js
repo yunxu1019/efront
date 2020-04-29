@@ -81,7 +81,6 @@ var getArgs = function (text) {
                 var strend = strstart + strlength;
                 var strs = functionBody.slice(strstart, strend);
                 strs = global.eval(strs);
-                functionBody = functionBody.slice(strend);
             }
         }
         var argsstart = (args.length - (strs ? strs.length : 0)) >> 1;
@@ -92,8 +91,7 @@ var getArgs = function (text) {
     } else {
         functionBody = text;
     }
-    functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
-    return [argNames || [], functionBody, args || [], required || '', strs || [], (dependenceNamesOffset || 0) + (argsend || 0)];
+    return [argNames || [], functionBody, args || [], required || '', strs || [], (dependenceNamesOffset || 0) + (strend || 0)];
 };
 function getDependence(response) {
     if (!response.realpath) return [];

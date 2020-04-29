@@ -57,7 +57,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         var public_path = path.join(PUBLIC_PATH, public_app);
         setting.is_commponent_package = true;
         var toComponent = require("./toComponent");
-        require("../compile/variables").computed = true;
+        require("../efront/commbuilder").compress = false;
         return loadData([path.join(__dirname, "../", "zimoli/[]map.js"), public_app], 0, public_path)
             .then(toComponent)
             .then(function (response) {
