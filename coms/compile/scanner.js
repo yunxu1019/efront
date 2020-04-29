@@ -345,12 +345,13 @@ function block_code_scanner(index, blocks = []) {
                     // for(;;)break 12
                     // while(0)break 13
                     // switch(a){case 1:break
+                    // return/a/
                     //switch case break,while continue,break abcd;
                     var tempIndex = lookback.call(this, index - 1);
                     isReg = tempIndex < 0 || /[[|,+=*~?:&\^{\(\/><;%\-!]/.test(this[tempIndex]);
-                    if (!isReg && tempIndex >= 8) {
+                    if (!isReg && tempIndex >= 5) {
                         var last_pice = this.slice(Math.max(tempIndex - 50, 0), tempIndex + 1);
-                        isReg = /([)};:{]|[^\.\s]\s+)(continue|break|return|case)$/.test(last_pice);
+                        isReg = /return\s*$|([)};:{]|[^\.\s]\s+)(continue|break|case)\s*$/.test(last_pice);
                         isReg = isReg || /([)};:{]|[^\.\s]\s+)(?:continue|break)\s+([\w\u0100-\u2027\u2030-\uffff]+?)$/.test(last_pice);
                         if (!isReg && !/\r\n\u2028\u2029/.test(last_pice)) {
                             var variabled_name_reg = /\w\u0100-\u2027\u2030-\uffff/;
@@ -358,7 +359,7 @@ function block_code_scanner(index, blocks = []) {
                                 while (tempIndex > 8 && variabled_name_reg.test(this[tempIndex])) tempIndex--;
                                 var tempIndex2 = lookback.call(this, tempIndex);
                                 if (tempIndex2 >= 8 && !/\r\n\u2028\u2029/.test(this.slice(tempIndex2, tempIndex))) {
-                                    isReg = /([)};:{]|[^\.\s]\s*)(continue|break)$/.test(this.slice(tempIndex2 - 8, tempIndex2 + 1));
+                                    isReg = /([)};:{]|[^\.\s]\b\s*)(continue|break)$/.test(this.slice(tempIndex2 - 8, tempIndex2 + 1));
                                 }
                             }
                         }
