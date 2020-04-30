@@ -9,7 +9,7 @@ var {
     public_app
 } = environment;
 var PUBLIC_APP = /* process.argv[2] || */ APP.replace(/\.html?$/i, "");
-if (!PUBLIC_APP) throw new Error("请配置要发布的项目名称！");
+// if (!PUBLIC_APP) throw new Error("请配置要发布的项目名称！");
 if (!PUBLIC_PATH) throw new Error("请指定输出路径！");
 var reload = 0;
 var loadData = require("./loadData");
@@ -50,7 +50,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     };
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
-    var is_commponent_package;
     if (public_app) {
         console.info("正在导出组件", public_app, '\r\n');
         //导出组件

@@ -413,7 +413,9 @@ var commands = {
         }, function () { });
     },
     watch() {
-        require("../build/watch-index");
+        detectEnvironment().then(function () {
+            require("../build/watch-index");
+        });
     }
 };
 var run = function (type, value1, value2, value3) {

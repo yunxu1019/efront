@@ -4,7 +4,6 @@ require("../efront/console");
 var environment = require("./environment");
 var fs = require("fs");
 var path = require("path");
-console.pass(__dirname)
 if (!process.cwd() === path.dirname(__dirname)) throw new Error("请在项目根目录启动！");
 var progress = require("./progress");
 var {

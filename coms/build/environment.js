@@ -3,7 +3,7 @@ var path = require("path");
 var mixin = require("../efront/mixin");
 var fs = require("fs");
 var {
-    APP,
+    APP = ".",
     EXPORT_AS,
     EXPORT_TO,
     RELEASE,
@@ -25,6 +25,10 @@ var COMS_PATH = env.COMS_PATH;
 var ICON_PATH = env.ICON_PATH;
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
 var comms_root = mixin(env.COMS_PATH, env.COMM).map(joinpath).filter(fs.existsSync);
+var comms_root_length = comms_root.length;
+var buildinpath = path.join(__dirname, '..');
+comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
+if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 var ccons_root = ICON && ICON_PATH ? mixin(env.ICON_PATH, env.ICON).map(joinpath).filter(fs.existsSync) : [];
 var pages_root = mixin(env.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
 
@@ -50,6 +54,7 @@ if (public_app && !pages_root.length) {
         parent = path.dirname(temp);
     }
 }
+
 if (EXPORT_TO === undefined) EXPORT_TO = public_app
     .replace(/\.[tj]sx?$/i, '')
     .replace(/([\w\-]+)\/index$/i, "$1")
