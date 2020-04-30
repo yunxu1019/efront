@@ -5,7 +5,7 @@ setlocal
 pushd
 cd %~dp0..
 echo %cd%
-set coms_path=./coms,./
+set coms_path=./coms
 set page_path=./coms
 set public_path=./public
 set export_to=node
