@@ -1,4 +1,4 @@
-var saved_x, saved_y, direction, currentOpen;
+var saved_x, saved_y, direction, currentTarget, currentOpen;
 var template = `<div class='ylife-touch-delete' style='left:100%;margin: 0;padding:0;display: block;position:absolute;width:85px;top:0;background-color: rgb(230,54,67);color:#fff;text-align: center;font-size: 18px;'>删除</div>`;
 var createDelete = function () {
     var _div = div();
@@ -15,13 +15,13 @@ var createDelete = function () {
 };
 var touchstart = function (event) {
     var target = getTargetIn(this, event.target, false);
-    if (currentOpen && currentOpen !== target) {
-        scrollToRight.call(currentOpen);
+    if (currentTarget && currentTarget !== target) {
+        scrollToRight.call(currentTarget);
     }
     if (!target) return;
     cancelAnimationFrame(target.scrollTimer);
     saved_x = null;
-    currentOpen = target;
+    currentTarget = target;
     if (!target.querySelector(".ylife-touch-delete")) {
         css(target, {
             overflow: "hidden"
@@ -49,7 +49,7 @@ var touchmove = function (event) {
     }
     if (moving !== 1) return;
     event.preventDefault();
-    var marginLeft = -parseInt(currentOpen.scrollLeft) || 0;
+    var marginLeft = -parseInt(currentTarget.scrollLeft) || 0;
     if (delta_x + marginLeft > 0) {
         delta_x = -marginLeft;
     }
@@ -59,7 +59,7 @@ var touchmove = function (event) {
     marginLeft += delta_x;
     saved_x += delta_x;
     direction = delta_x;
-    currentOpen.scrollLeft = -marginLeft;
+    currentTarget.scrollLeft = -marginLeft;
 };
 var scrollTo = function (targetLeft) {
     if (!this) return;
@@ -67,7 +67,7 @@ var scrollTo = function (targetLeft) {
     var that = this;
     var reshape = function () {
         var currentLeft = parseInt(that.scrollLeft) || 0;
-        if (!currentLeft) return;
+        if (0 === (0 | currentLeft - targetLeft)) return;
         var thisTimeLeft = (targetLeft + currentLeft * 3) / 4 | 0;
         if (Math.abs(thisTimeLeft - currentLeft) < 3) {
             thisTimeLeft = targetLeft;
@@ -80,26 +80,30 @@ var scrollTo = function (targetLeft) {
 };
 var scrollToLeft = function () {
     this.setAttribute("touch-delete", "open");
+    currentOpen = this;
     scrollTo.call(this, this.scrollWidth - this.clientWidth);
 };
 var scrollToRight = function () {
     this.setAttribute("touch-delete", "close");
+    if (currentTarget === currentOpen) {
+        currentOpen = null;
+    }
     scrollTo.call(this, 0);
 };
 var touchend = function () {
-    var marginLeft = -parseInt(currentOpen.scrollLeft) || 0;
+    var marginLeft = -parseInt(currentTarget.scrollLeft) || 0;
     moving = false;
     if (direction < 0 && marginLeft < -calcPixel(20)) {
-        scrollToLeft.call(currentOpen);
+        scrollToLeft.call(currentTarget);
     }
-    else if (direction > 0 && marginLeft > -currentOpen.clientWidth + calcPixel(20)) {
-        scrollToRight.call(currentOpen);
+    else if (direction > 0 && marginLeft > -currentTarget.clientWidth + calcPixel(20)) {
+        scrollToRight.call(currentTarget);
     }
-    else if (marginLeft < currentOpen.clientWidth - currentOpen.scrollWidth >> 1) {
-        scrollToLeft.call(currentOpen);
+    else if (marginLeft < currentTarget.clientWidth - currentTarget.scrollWidth >> 1) {
+        scrollToLeft.call(currentTarget);
     }
     else {
-        scrollToRight.call(currentOpen);
+        scrollToRight.call(currentTarget);
     }
 };
 function touchList(listElement) {
@@ -107,7 +111,18 @@ function touchList(listElement) {
     on("scroll")(listElement, function () {
         if (this.scrollTop === saved_y) return;
         saved_y = this.scrollTop;
-        if (currentOpen) scrollToRight.call(this);
+        if (currentTarget) scrollToRight.call(this);
+    });
+    on("contextmenu")(listElement, function (event) {
+        if (event.defaultPrevented) return;
+        var target = getTargetIn(this, event.target, false);
+        event.preventDefault();
+        if (target !== currentOpen) {
+            if (currentOpen) scrollToRight.call(currentOpen);
+            scrollToLeft.call(target);
+        } else {
+            scrollToRight.call(target);
+        }
     });
     moveupon(listElement, {
         start: touchstart,
