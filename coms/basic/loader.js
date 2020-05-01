@@ -243,10 +243,15 @@ var loadModule = function (name, then, prebuilds = {}) {
                 return;
             }
             var [argNames, body, args, required, strs] = getArgs(data);
+            if (isProduction) {
+                strs = strs.map(toRem);
+            } else {
+                body = toRem(body);
+            }
             var mod = createFunction(name, body, argNames);
             mod.args = args;
             mod.argNames = argNames;
-            mod.strs = strs.map(toRem);
+            mod.strs = strs;
             var loadingCount = 0;
             if (required) required = required.split(';').filter(a => !!a);
             required = required ? get_relatives(name, required) : [];
