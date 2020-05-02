@@ -8,7 +8,7 @@ fi
 cd $__dirname/..
 clear
 pwd
-export coms_path=./coms,
+export coms_path=./coms
 export page_path=./coms
 export public_path=./public
 export export_to=node
