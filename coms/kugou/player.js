@@ -75,6 +75,7 @@ onremove(backer, function () {
     $scope.page = false;
     render.refresh();
 });
+var analyser;
 var $scope = {
     btn: button,
     krc: kugou$krc,
@@ -84,7 +85,6 @@ var $scope = {
     effect: false,
     playing: null,
     page: false,
-    source: [],
     canvas: kugou$dance,
     activeList: playList,
     index: 0,
@@ -140,7 +140,7 @@ var $scope = {
     },
     draw(buf) {
         if (!player || !player.offsetHeight || !$scope.dance) return;
-        buf = buf.map(a => a * 2 / 9 + 0.6);
+        buf = [].map.call(buf, a => (a / 128.0 - 1) * 2 / 9 + 0.6);
         var width = freePixel(player.offsetWidth);
         var height = 72;
         var ratio = 1 / width * buf.length;
@@ -208,29 +208,14 @@ var $scope = {
          */
         $scope.playing = false;
         var _audio = document.createElement("audio");
-        var hasContext = !/iPhone/.test(navigator.platform) && audio.Context;
-        if (hasContext) {
+        if (hasContext && Uint8Array) {
             // ios设备目前未找到可视化方案
             var context = new AudioContext;
             var source = context.createMediaElementSource(_audio);
-            var createScript = context.createScriptProcessor || context.createJavaScriptNode;
-            var script = createScript.apply(context, [0, 2, 2]);
-            var last_id = -1;
-            script.onaudioprocess = (e) => {
-                var audioBuffer = audio.copyData(e);
-                if ($scope.audio !== _audio) {
-                    script.onaudioprocess = null;
-                    script.disconnect();
-                    source.disconnect();
-                } else if (last_id !== _audio.currentTime) {
-                    last_id = _audio.currentTime;
-                }
-                $scope.draw(audioBuffer);
-            };
-            source.connect(script);
-            script.connect(context.destination);
-
-            $scope.source = source;
+            analyser = context.createAnalyser();
+            analyser.fftSize = dancingArray.length;
+            source.connect(analyser);
+            source.connect(context.destination);
         }
         if (_audio.play) {
             _audio.ontimeupdate = $scope.update;
@@ -279,12 +264,28 @@ var $scope = {
             delete playState.error;
             _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
             _audio.play();
+            _audio.onplaying = e => context.resume();
             data.setInstance('musicList', distlist, true);
             render.refresh();
         }).catch(e => playState.error = true);
         $scope.audio = _audio;
     }
 };
+var Uint8Array = window.Uint8Array;
+var hasContext = !/iPhone/.test(navigator.platform) && audio.Context && Uint8Array;
+if (hasContext) {
+    var dancingArray = new Uint8Array(2048);
+    var animate = function () {
+        if (analyser) {
+            analyser.getByteTimeDomainData(dancingArray);
+            // console.log(dancingArray);
+            $scope.draw(dancingArray);
+        }
+        requestAnimationFrame(animate);
+    };
+    animate();
+}
+
 playList.play = index => $scope.play(index);
 var touching = false;
 var createControls = function () {
