@@ -133,7 +133,7 @@ var readFile = function (names, then, saveas) {
 
 };
 var createFunction = function (name, body, args) {
-    return window.eval(`(function /*${name}*/(${args || ''}){\r\n${body}\r\n})`);
+    return window.eval(`(function/*${name}*/(${args || ''}){\r\n${body}\r\n})`);
 };
 
 var FILE_NAME_REG = /^https?\:|\.(html?|css|asp|jsp|php)$/i;
