@@ -93,8 +93,8 @@ var readFile = function (names, then, saveas) {
     }
     var name = names;
     var key = keyprefix + name;
-    if (key in responseTree) {
-        then(responseTree[key]);
+    if (hasOwnProperty.call(responseTree, name)) {
+        then(responseTree[name]);
         return;
     }
     if (loadingTree[key] instanceof Array) {
@@ -121,7 +121,7 @@ var readFile = function (names, then, saveas) {
 
     readingCount++;
     request(url, function (res) {
-        responseTree[key] = res;
+        responseTree[name] = res;
         flushTree(loadingTree, key);
         clearTimeout(flush_to_storage_timer);
         flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
@@ -205,9 +205,9 @@ var killCircle = function () {
         });
     }
 };
+var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (name, then, prebuilds = {}) {
     if (/^(?:module|exports|define|require|window|global|undefined|__dirname|__filename)$/.test(name)) return then();
-    var hasOwnProperty = {}.hasOwnProperty;
     if ((name in prebuilds) || hasOwnProperty.call(modules, name) || (window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
     ) return then();
     preLoad(name);
@@ -223,9 +223,9 @@ var loadModule = function (name, then, prebuilds = {}) {
     loadedModules[key] = [then];
     if (FILE_NAME_REG.test(name)) {
         var saveModule = function () {
-            flushTree(responseTree, key, function () {
-                return responseTree[key];
-            });
+            flushTree(responseTree, name, function (data) {
+                return data;
+            }.bind(null, responseTree[name]));
         };
         if (/\.json([\#\?].*?)?$/i.test(name)) {
             readFile(["JSON", name], saveModule);
@@ -236,7 +236,7 @@ var loadModule = function (name, then, prebuilds = {}) {
     else {
 
         var saveModule = function () {
-            var data = responseTree[key];
+            var data = responseTree[name];
             if (typeof data === "function") {
                 var mod = data;
                 flushTree(loadedModules, key, mod);
@@ -440,7 +440,6 @@ var bindthen = function (callback) {
 var init = function (name, then, prebuilds) {
     then = bindthen(then);
     var key = keyprefix + name;
-    var hasOwnProperty = {}.hasOwnProperty;
     if (prebuilds) {
         if (name in prebuilds) {
             return then(prebuilds[name]);
@@ -607,9 +606,8 @@ var flush_to_storage_timer = 0,
 var saveResponseTreeToStorage = function () {
     var responseTextArray = [];
     for (var k in versionTree) {
-        var key = keyprefix + k;
-        if (responseTree[key]) responseTextArray.push(
-            k + "：" + versionTree[k] + "：" + responseTree[key]
+        if (hasOwnProperty.call(responseTree, k)) responseTextArray.push(
+            k + "：" + versionTree[k] + "：" + responseTree[k]
         );
     }
     var data = responseTextArray.join("，");
@@ -665,14 +663,13 @@ var loadResponseTreeFromStorage = function () {
         load();
     });
     preLoad = function (responseName) {
-        var key = keyprefix + responseName;
-        if (responseTree[responseName]) return;
+        if (hasOwnProperty.call(responseTree, responseName)) return;
         var version = preLoadVersionTree[responseName];
         if (!version) return;
         var responseText = preLoadResponseTree[responseName];
         var sum = crc(responseText).toString(36);
         if (sum + version.slice(sum.length) === versionTree[responseName])
-            responseTree[key] = responseText;
+            responseTree[responseName] = responseText;
         // else window.console.log(responseName, sum, version, versionTree[responseName]);
     };
 };
