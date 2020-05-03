@@ -1,4 +1,4 @@
-{
+({
     "http://m.kugou.com/": {
         "song-info": "get                                 app/i/getSongInfo.php?cmd=playInfo&from=mkugou&hash",
         "slider-src": "get:[].mod-slider>.swipe-wrap>div  .#src=img!src&href=a!href",
@@ -15,4 +15,4 @@
     "http://mobilecdn.kugou.com/": {
         "search?keyword": "get:data.info                            api/v3/search/song?format=json&page=1&pagesize=30&showtype=1"
     }
-}
+})
