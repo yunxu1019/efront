@@ -148,7 +148,7 @@ module.exports = function (responseTree) {
             .replace(/\.send\((.*?)\)/g, (match, data) => (versionVariableName = data || "", ".send()"))
             .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
             .replace(
-                new RegExp(xTreeName + "(\s*)=(\s*)\{.*?\}"),
+                new RegExp(xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
                 function (m, s1, s2) {
                     return xTreeName + `${s1}=${s2}${code}`;
                 }
