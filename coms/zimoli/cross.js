@@ -151,6 +151,10 @@ function cross(method, url, headers) {
             }
             switch (xhr.status) {
                 case 0:
+                    if (!navigator.onLine) {
+                        onerror({ status: "网络断开" });
+                        break;
+                    }
                 case 200:
                 case 201:
                 case 304:
@@ -170,8 +174,8 @@ function cross(method, url, headers) {
                     }
                     var crs = cross("get", location, headers);
                     crs.isRedirected = (xhr.isRedirected || 0) + 1;
-                    onload && crs.done(onload, false);
-                    onerror && crs.error(onerror, false);
+                    crs.done(onload, false);
+                    crs.error(onerror, false);
                     break;
                 default:
                     onerror(xhr);
