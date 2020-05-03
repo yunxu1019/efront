@@ -126,7 +126,7 @@ var trimNodeEnvHead = function (data) {
 var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
-    var destpaths = getRequiredPaths(data);
+    var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     data = typescript.transpile(data, { noEmitHelpers: true });
     var code = esprima.parse(data);
     getvariables.computed = !isDevelop || commbuilder.compress === false;

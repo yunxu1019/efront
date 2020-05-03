@@ -2,6 +2,7 @@ var scanner = require("./scanner");
 var keywords = require("./keywords");
 var hasOwnProperty = {}.hasOwnProperty;
 var getReadableKey = function ($key, value) {
+    value = value.replace(/-->/g, '--\\>');
     if (!/^[a-z][\w\$]*$/i.test($key)) {
         $key = $key.replace(/[^\w\$]+/g, '_');
         if ($key.length > 20) $key = $key.slice(0, 4) + $key.slice(-20);

@@ -4,6 +4,7 @@ var path = require("path");
 var fs = require("fs");
 var environment = require("./environment");
 var report = require("./report");
+var setting = require("./setting");
 var buildHtml = function (html, code) {
     var isZimoliDetected = false;
     var poweredByComment;
@@ -68,12 +69,7 @@ var buildHtml = function (html, code) {
     }
     return html;
 };
-var isFileMode = /\.html?$/i.test(environment.APP);
 function toApplication(responseTree) {
-    report(responseTree);
-    if (!responseTree["main"]) {
-        console.warn("在您所编译的项目中没有发现主程序");
-    }
     var mainScript = responseTree.main ? responseTree.main : null;
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
     if (!indexHtml) {
@@ -103,18 +99,22 @@ function toApplication(responseTree) {
     return responseTree;
 }
 module.exports = function (responseTree) {
-    if (!responseTree.main) return toApplication(responseTree);
+    report(responseTree);
+    if (!responseTree["main"]) {
+        console.warn("在您所编译的项目中没有发现主程序");
+        return toApplication(responseTree);
+    }
     var commbuilder = require("../efront/commbuilder");
     commbuilder.compress = false;
     var mainScript = responseTree.main;
     var mainScriptData = commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
     delete commbuilder.compress;
     var versionTree = {};
-    if (isFileMode) {
+    if (setting.is_file_target) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
-            versionTree[v.url] = String(v.data);
+            if (v.url !== "main") versionTree[v.url] = String(v.data);
         });
         delete versionTree["/index.html"];
         delete versionTree["@index.html"];
@@ -137,8 +137,9 @@ module.exports = function (responseTree) {
     }
 
     return Promise.resolve(mainScriptData).then(function (mainScriptData) {
-        if (isFileMode) {
+        if (setting.is_file_target) {
             var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScriptData)[1];
+            commbuilder.prepare = false;
         } else {
             var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScriptData)[1];
         }

@@ -50,13 +50,15 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     };
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
+    var commbuilder = require("../efront/commbuilder");
     if (public_app) {
         console.info("正在导出组件", public_app, '\r\n');
         //导出组件
         var public_path = path.join(PUBLIC_PATH, public_app);
         setting.is_commponent_package = true;
         var toComponent = require("./toComponent");
-        require("../efront/commbuilder").compress = false;
+        commbuilder.compress = false;
+        commbuilder.prepare = false;
         return loadData([path.join(__dirname, "../", "zimoli/[]map.js"), public_app], 0, public_path)
             .then(toComponent)
             .then(function (response) {
@@ -70,6 +72,8 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         public_app = pages_root;
         setting.is_commponent_package = false;
+        setting.is_file_target = /\.html?$/i.test(environment.APP);
+        commbuilder.prepare = !setting.is_file_target;
         var toApplication = require("./toApplication");
         return getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
             if (cleanBeforeBuild) {
