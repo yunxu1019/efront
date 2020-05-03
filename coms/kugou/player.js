@@ -215,10 +215,12 @@ var $scope = {
             analyser = context.createAnalyser();
             analyser.fftSize = dancingArray.length;
             source.connect(analyser);
+            source.crossOrigin = 'anonymous';
             source.connect(context.destination);
         }
         if (_audio.play) {
             _audio.ontimeupdate = $scope.update;
+            _audio.crossOrigin = 'anonymous';
             _audio.play();//安卓4以上的播放功能要在用户事件中调用;
         } else {
             // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
