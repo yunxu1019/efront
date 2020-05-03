@@ -155,6 +155,10 @@ function cross(method, url, headers) {
                         onerror({ status: "网络断开" });
                         break;
                     }
+                    if (!navigator.response) {
+                        onerror({ status: "服务器无响应" });
+                        break;
+                    }
                 case 200:
                 case 201:
                 case 304:
