@@ -12,7 +12,7 @@ function getTargetIn(match, childTarget, matchParent) {
             if (isFinite(matchResult)) return childTarget;
             return matchResult;
         }
-        childTarget = childTarget.parentElement;
+        childTarget = childTarget.nodeType === 1 ? childTarget.parentElement : childTarget.parentNode;
     }
     return null;
 }
