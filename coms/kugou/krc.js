@@ -11,7 +11,7 @@ function krc(list = div()) {
             var url = `http://lyrics.kugou.com/download?ver=1&client=pc&id=${info.id}&accesskey=${info.accesskey}&fmt=krc&charset=utf8`;
             info && cross("get", url).done(function (response) {
                 if (!response.response) return;
-                var krc = JSON.parse(response.response);
+                var krc = JSON.parse(response.responseText || response.response);
                 var content = fromBase64(krc.content);
                 content = content.slice(4).map((a, i) => a ^ secret[i % 16]);
                 var bufff = inflate(content.slice(2));
