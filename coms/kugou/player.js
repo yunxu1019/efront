@@ -265,7 +265,6 @@ var $scope = {
             delete playState.error;
             _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
             _audio.play();
-            _audio.onplaying = e => context.resume();
             data.setInstance('musicList', distlist, true);
             render.refresh();
         }).catch(e => playState.error = true);
@@ -273,7 +272,7 @@ var $scope = {
     }
 };
 var Uint8Array = window.Uint8Array;
-var hasContext = !/iPhone/.test(navigator.platform) && audio.Context && Uint8Array;
+var hasContext = !/iPhone/.test(navigator.platform) && AudioContext && Uint8Array;
 if (hasContext) {
     var dancingArray = new Uint8Array(2048);
     var animate = function () {
