@@ -133,7 +133,7 @@ var readFile = function (names, then, saveas) {
 
 };
 var createFunction = function (name, body, args) {
-    return window.eval(`(function/*${name}*/(${args || ''}){\r\n${body}\r\n})`);
+    return window.eval(`[function/*${name}*/(${args || ''}){\r\n${body}\r\n}][0]`);
 };
 
 var FILE_NAME_REG = /^https?\:|\.(html?|css|asp|jsp|php)$/i;
@@ -244,11 +244,12 @@ var loadModule = function (name, then, prebuilds = {}) {
             }
             var [argNames, body, args, required, strs] = getArgs(data);
             if (isProduction) {
-                strs = strs.map(toRem);
+                strs = strs.map ? strs.map(toRem) : strs;
             } else {
                 body = toRem(body);
             }
             var mod = createFunction(name, body, argNames);
+            if(!mod)console.log(name,mod);
             mod.args = args;
             mod.argNames = argNames;
             mod.strs = strs;
@@ -589,6 +590,7 @@ var initPixelDecoder = function () {
 var requires_count = 3;
 var hook = function (requires_count) {
     if (requires_count !== 0) return;
+    "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
     initPixelDecoder();
     modules.Promise = Promise;
     modules.hook_time = +new Date;
@@ -718,7 +720,6 @@ var initIfNotDefined = function (defined, path, onload) {
 
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);
 initIfNotDefined([].map, "[]map", map => map);
-"alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
 loadResponseTreeFromStorage();
 if (!isProduction) window.modules = modules;
 var onload = function () {
