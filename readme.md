@@ -1,7 +1,7 @@
 
 # efront 思想
 
-1. 每个文件只导出一份数据，这一份数据可以是 number,string,function,object,bigint,null,undefined 中的任意一种
+1. 每个文件只导出一份数据，这一份数据可以是 boolean,number,string,function,object,bigint,null,undefined 中的任意一种
 2. 文件名即变量名，在其他文件中引用当前文件导出的变量，只要使用当前文件的文件名（不含后缀）即可
 3. 无环形引用（相互调用：a引用b，b引用a；首尾引用：a引用b，b引用...c，c引用a）
 4. 减少异步io的时间，应用启动过程只加载有用代码，启动完成后等待用户操作的同时预加载下一步的代码
@@ -74,7 +74,7 @@ set app=PROJECT_NAME.js
 * 目前版本的efront提供对 commonjs中的require语法和es6中的import语法 的不完全支持（不支持异步环形调用），对于符合要求的相关项目，可以进行编译发布。
 * 如果要发布含有require语法的组件，并希望将组件及所有依赖项合并输出，那么可以将上面的`efront public`替换为`efront publish`
 
-* 如果需要自动识别路径，类似`public`/`dist`/`output`/`release`的目录中的文件都可能被识别为目标路径，这些路径中的文件可能被覆盖，如果确认可行，可以使用`efront build`
+* 如果需要自动识别路径，类似`public`/`dist`/`output`/`release`的目录都可能被识别为目标路径，这些路径中的文件可能被覆盖，如果确认可行，可以使用`efront build`
 
 ## 5.Watch模式
 
