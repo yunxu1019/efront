@@ -1,15 +1,20 @@
-model>& {
-    width: 100% !important;
-    -webkit-appearance: none;
-    display: block;
-    margin: 10px 0;
+@import "./color-config.less";
+
+& {
     border-radius: 3px;
-    border: 1px solid #e5e5e5;
+    border: 1px solid @border-solid;
     outline: none;
     padding: 4px 6px;
-    height: 120px;
+    -webkit-appearance: none;
 
     &:focus {
-        border-color: #409eff;
+        border-color: @border-focus;
     }
+}
+
+model>& {
+    width: 100% !important;
+    display: block;
+    margin: 10px 0;
+    height: 120px;
 }

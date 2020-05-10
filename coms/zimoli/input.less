@@ -1,7 +1,9 @@
+@import "./color-config.less";
+
 & {
     box-sizing: border-box;
     cursor: text;
-    border: 1px solid rgba(0, 0, 0, .2);
+    border: 1px solid @border-solid;
     padding: 0 6px;
     height: 28px;
     line-height: 26px;
@@ -12,7 +14,7 @@
     outline: none;
 
     &:focus {
-        border: 1px solid rgba(0, 100, 255, .9);
+        border: 1px solid @border-focus;
     }
 }
 
