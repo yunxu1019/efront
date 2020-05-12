@@ -5,5 +5,6 @@
  */
 var saveToOrderedArray = function (orderArray, newItem, isLE) {
     var cx = getIndexFromOrderedArray(orderArray, newItem, isLE);
-    orderArray.splice(cx + 1, 0, newItem);
+    var replace = orderArray[cx] === newItem;
+    orderArray.splice(cx + (1 - replace), replace, newItem);
 };
