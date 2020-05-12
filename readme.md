@@ -42,7 +42,7 @@ efront live HTTP_PORT
 efront live HTTP_PORT HTTPS_PORT
 ```
 
-其中端口号为数字，可以不输入，更多使用方案可以查看帮助系统
+其中端口号为数字，可以不输入，更多使用方案可以查看帮助系统。要禁用https服务端口开启时的警告信息，可以配置自己的pfx格式的证书路径和证书密码。
 
 ## 4. 压缩编译项目
 
@@ -86,7 +86,6 @@ set public_path=PUBLIC_PATH
 efront watch
 ```
 
-
 # 目录说明
 
 01. apps 静态app页面，通过get或post方式访问
@@ -95,14 +94,21 @@ efront watch
 
 # 配置项说明
 
-* `APP` 应用名，影响最终生成应用的路径和默认的源文件路径
-* `PAGE_PATH` 页面文件所存放的根路径，默认为`./apps`
-* `COMM_PATH` 组件文件所存放的根路径，如果存在多个，可以用 `,` 分割，可以使用 `:` 指定为`efront`所提供的组件的路径，默认为`./coms`
-* `PUBLIC_PATH` 发布的目标根路径，最终生成的代码路径为`PUBLIC_PATH\APP`，如果此项被指定为`PAGE_PATH`，efront将禁用发布功能，在执行`efront start`后，可以通过浏览器访问压缩版本的代码
-* `PUBLIC_EXTT` 发布的目标代码的扩展名，默认无扩展名
-* `PAGE` 页面文件存放的路径，默认为应用名`APP`
-* `COMM` 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
-* `PREFIX` 发布时指定组件className前缀，默认无前缀
+efront 优先读取系统环境变量中的配置，也可以将配置信息写入配置文件。
+efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`进行环境配置的初始化（如果要修改默认环境配置的路径，可以在系统环境变量中设置`CONFIG_PATH`，多个目录可以用英文逗号分开），其中的`setup.bat`为环境配置的入口，访问工作目录的某个子项目`APP`时，还将自动读取`_envs/app=%APP%.bat`中的配置。
+
+| 配置项 |说明|
+|--|--|
+| `APP` | 应用名，影响最终生成应用的路径和默认的源文件路径
+| `PAGE_PATH`| 页面文件所存放的根路径，默认为`./apps`
+| `COMM_PATH`| 组件文件所存放的根路径，如果存在多个，可以用 `,` 分割，可以使用 `:` 指定为`efront`所提供的组件的路径，默认为`./coms`
+| `PUBLIC_PATH`| 发布的目标根路径，最终生成的代码路径为`PUBLIC_PATH\APP`，如果此项被指定为`PAGE_PATH`，efront将禁用发布功能，在执行`efront start`后，可以通过浏览器访问压缩版本的代码
+| `PUBLIC_EXTT`| 发布的目标代码的扩展名，默认无扩展名
+| `PAGE`| 页面文件存放的路径，默认为应用名`APP`
+| `COMM`| 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
+| `PREFIX`| 发布时指定组件className前缀，默认无前缀
+| `PATH.SSL_PFX`| ssl证书的路径
+| `PASSWORD.SSL_PFX`| ssl证书密码
 
 # 功能选项
 
@@ -113,7 +119,7 @@ efront watch
 * efront 默认将`page_path`指向的路径中的`.ts,.js,.less,.html`文件识别为页面文件，可以在index.html加上`<script src='libpath/*' type=deleteoncompile></script>`，其中`libpath/*`指向静态文件的路径，efront编译过程将识别并做出正确的处理
 * 如果仅做为跨域服务器使用，可以将开发环境的url改写为如下形式，以使返回结果加上跨域头：
 `http://EFRONT_HOST/{//BACKEND_HOST:PORT/}@APIPATH`
-<br/> 如：
+<br/>如：
 如果在本机的88端口启动efront服务器，要访问`http://im.qq.com/` ，可以请求`http://localhost:88/{//im.qq.com/}@`取得带跨域头的数据
 
 # 注意事项
@@ -132,6 +138,5 @@ efront watch
 [手机商城组件](http://github.com/yunxu1019/qfy)
 
 [更新日志](https://github.com/yunxu1019/efront/commits/develop)
-<!-- [Efront Notive](apps/docs/notive.md) -->
 
 [【导购】阿里云服务器](https://www.aliyun.com/minisite/goods?userCode=4gklptno)
