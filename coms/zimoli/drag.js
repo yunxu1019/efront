@@ -77,7 +77,21 @@ var touchdrag = function (event) {
     extendTouchEvent(event);
     drag(this, event);
 };
-drag.on = function (target) {
-    onmousedown(target, mousedrag);
-    ontouchstart(target, touchdrag);
+var bindActionTarget = function (action, actionTarget) {
+    return function (event) {
+        if (getTargetIn(actionTarget, event.target)) {
+            action.call(actionTarget, event);
+        }
+    };
+};
+drag.on = function (target, actionTarget) {
+    if (actionTarget) {
+        var _mousedrag = bindActionTarget(mousedrag, actionTarget)
+        var _touchdrag = bindActionTarget(touchdrag, actionTarget);
+    } else {
+        var _mousedrag = mousedrag;
+        var _touchdrag = touchdrag;
+    }
+    onmousedown(target, _mousedrag);
+    ontouchstart(target, _touchdrag);
 };
