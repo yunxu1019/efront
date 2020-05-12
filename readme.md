@@ -42,7 +42,7 @@ efront live HTTP_PORT
 efront live HTTP_PORT HTTPS_PORT
 ```
 
-其中端口号为数字，可以不输入，更多使用方案可以查看帮助系统。要禁用https服务端口开启时的警告信息，可以配置自己的pfx格式的证书路径和证书密码。
+其中端口号为数字，可以不输入，更多使用方案可以查看帮助系统。要禁用https服务端口开启时的警告信息，可以配置自己的ssl证书路径和证书密码。
 
 ## 4. 压缩编译项目
 
@@ -107,7 +107,7 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 | `PAGE`| 页面文件存放的路径，默认为应用名`APP`
 | `COMM`| 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
 | `PREFIX`| 发布时指定组件className前缀，默认无前缀
-| `PATH.SSL_PFX`| ssl证书的路径
+| `PATH.SSL_PFX`| ssl证书的路径，证书要使用pfx格式的
 | `PASSWORD.SSL_PFX`| ssl证书密码
 
 # 功能选项
