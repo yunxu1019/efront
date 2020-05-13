@@ -40,3 +40,59 @@ jobs:
         shell: cmd
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+  run-efront-on-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: npm install -g efront
+        shell: cmd
+      - run: efront version
+        shell: cmd
+      - run: efront help
+        shell: cmd
+      - run: efront help version
+        shell: cmd
+      - run: efront -v
+        shell: cmd
+      - run: efront --version
+        shell: cmd
+      - run: efront from kugou
+        shell: cmd
+      - run: efront build
+        shell: cmd
+
+  run-efront-on-linux:
+    runs-on: linux-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: npm install -g efront
+      - run: efront version
+      - run: efront help
+      - run: efront help version
+      - run: efront -v
+      - run: efront --version
+      - run: efront from kugou
+      - run: efront build
+
+  run-efront-on-darwin:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: npm install -g efront
+      - run: efront version
+      - run: efront help
+      - run: efront help version
+      - run: efront -v
+      - run: efront --version
+      - run: efront from kugou
+      - run: efront build
