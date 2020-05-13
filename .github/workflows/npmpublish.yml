@@ -60,13 +60,13 @@ jobs:
         shell: cmd
       - run: efront --version
         shell: cmd
-      - run: efront from kugou
+      - run: efront simple from kugou
         shell: cmd
       - run: efront build
         shell: cmd
 
   run-efront-on-linux:
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v1
         with:
@@ -78,7 +78,7 @@ jobs:
       - run: efront help version
       - run: efront -v
       - run: efront --version
-      - run: efront from kugou
+      - run: efront simple from kugou
       - run: efront build
 
   run-efront-on-darwin:
@@ -94,5 +94,5 @@ jobs:
       - run: efront help version
       - run: efront -v
       - run: efront --version
-      - run: efront from kugou
+      - run: efront simple from kugou
       - run: efront build
