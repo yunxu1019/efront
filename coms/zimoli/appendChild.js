@@ -6,14 +6,7 @@ function release(node) {
     if (node === null || node === undefined) return node;
     return isFunction(node) ? node() : isNode(node) ? node : document.createTextNode(node);
 }
-function isMounted(parent) {
-    if ("isMounted" in parent) return parent.isMounted;
-    var temp = parent;
-    while (temp && temp !== document.documentElement) {
-        temp = temp.parentNode;
-    }
-    return parent.isMounted = !!temp;
-}
+
 function _onappend(node, event) {
     if (node.isMounted) return;
     if (node.nodeType === 1 || node.nodeType === 8) node.isMounted = true;
