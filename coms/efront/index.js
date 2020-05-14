@@ -421,6 +421,12 @@ var commands = {
     ip() {
         var ip = require("./getLocalIP")();
         showHelpLine(ip);
+        require("http").get("http://efront.cc/ip.jsp", function (res) {
+            res.pipe(process.stdout);
+        });
+        require("http").get("http://us.efront.cc/ip.jsp", function (res) {
+            res.pipe(process.stdout);
+        });
     }
 };
 var run = function (type, value1, value2, value3) {
