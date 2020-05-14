@@ -122,7 +122,7 @@ var showHelpInfo = function (help) {
 };
 var format = s => s
     .replace(/[a-z][_a-z]*/g, "<blue2>$&</blue2>")
-    .replace(/(?<=\W)\d+/g, "<green>$&</green>")
+    .replace(/(?<![a-z])[\d]+/ig, "<green>$&</green>")
     .replace(/[A-Z][_A-Z]*/g, "<purple>$&</purple>")
     .replace(/\-+/g, "<gray>$&</gray>")
     .replace(/\|/g, "<gray>|</gray>");
@@ -159,6 +159,7 @@ var helps = [
     "在项目文件夹启动生产环境服务器,start,starts,start HTTP_PORT,start HTTP_PORT HTTPS_PORT,starts HTTPS_PORT,starts HTTPS_PORT HTTP_PORT",
     "在项目文件夹启动开发环境服务器,dev,devs,test,dev|test HTTP_PORT,dev|test HTTP_PORT HTTPS_PORT,devs|tests HTTPS_PORT,devs|tests HTTPS_PORT HTTP_PORT",
     "在当前文件夹启动服务器,server,serve|serv|http HTTP_PORT HTTPS_PORT,serve|serv|http HTTP_PORT,https HTTPS_PORT HTTP_PORT,https HTTPS_PORT,HTTP_PORT HTTPS_PORT,HTTP_PORT,",
+    "显示本机ip地址,ip,-ip,--ip",
     "编译项目,public,publish,build,release",
     "监测文件变化，自动编译更新的部分并输出到指定目录,watch"
 ];
@@ -416,6 +417,10 @@ var commands = {
         detectEnvironment().then(function () {
             require("../build/watch-index");
         });
+    },
+    ip() {
+        var ip = require("./getLocalIP")();
+        showHelpLine(ip);
     }
 };
 var run = function (type, value1, value2, value3) {
