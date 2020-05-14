@@ -121,10 +121,12 @@ if (is_addEventListener_enabled) {
     var ontouchmove = on("touchmove");
     var mouse_x, mouse_y, touch_x, touch_y, lasttime_click;
     var needFireClick = false;
+    var isClickWithPointer = false;
     var touchendFired = false;
     function clickstart() {
         needFireClick = true;
         touchendFired = false;
+        isClickWithPointer = true;
         onclick.preventClick = false;
     }
     var abs = Math.abs;
@@ -163,8 +165,9 @@ if (is_addEventListener_enabled) {
             dispatch(target, clickEvent);
         }, true);
         window.addEventListener("click", function (event) {
-            var need = needFireClick;
+            var need = needFireClick || !isClickWithPointer;
             needFireClick = false;
+            isClickWithPointer = false;
             var saved_time = lasttime_click;
             lasttime_click = event.timeStamp;
             if (!need || lasttime_click - saved_time < 120 || onclick.preventClick || touchendFired && !event.touchend) {

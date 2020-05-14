@@ -2,6 +2,29 @@ var _label = createElement("span");
 var track = createElement(div);
 track.className = "track";
 _label.className = "label";
+var keyMap = {};
+on("keydown")(window, function (event) {
+    var { which } = event;
+    switch (event.which) {
+        case 18:
+            event.preventDefault();
+            break;
+        default:
+            if (event.altKey) {
+                var key = String.fromCharCode(which);
+                var element = keyMap[key];
+
+                if (element) {
+                    if (isMounted(element)) {
+                        dispatch(window, 'mousedown');
+                        element.click();
+                    } else {
+                        delete keyMap[which];
+                    }
+                }
+            }
+    }
+});
 
 var btn = div();
 btn.tabIndex = 0;
@@ -48,6 +71,17 @@ var touchstart = function () {
     var canceltouchend = ontouchend(this, cancel);
     active.call(this);
 };
+var bindAccesskey = function (btn) {
+    var { innerText } = btn;
+    var match = /\(\s*\_?\w\s*\)|\[\s*\_?\w\s*\]|\{\s*\_?\w\s*\}/.exec(innerText);
+    if (match) {
+        var accesskey = match[0].replace(/^\W*(\w)\W*$/g, '$1');
+    } else {
+        var accesskey = btn.getAttribute("accesskey");
+    }
+    if (!accesskey) return;
+    keyMap[accesskey.toUpperCase()] = btn;
+};
 function button(texter, type) {
     var tracker = createElement(track);
     var _texter;
@@ -67,6 +101,7 @@ function button(texter, type) {
             html(_texter, texter);
     }
     button = button || createElement(btn, tracker, _texter);
+    bindAccesskey(button);
     onremove(button, resetall);
     onmouseover(button, hover);
     onmouseleave(button, mouseleave);
@@ -80,7 +115,8 @@ function button(texter, type) {
         } else {
             removeClass(button, "space");
         }
-        return html(_texter, _text);
+        html(_texter, _text);
+        bindAccesskey(button);
     };
     button.getText = function () {
         return html(_texter);
