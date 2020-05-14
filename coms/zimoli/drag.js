@@ -84,7 +84,7 @@ var bindActionTarget = function (action, actionTarget) {
         }
     };
 };
-drag.on = function (target, actionTarget) {
+drag.on = function (target, actionTarget = target.dragTarget) {
     if (actionTarget) {
         var _mousedrag = bindActionTarget(mousedrag, actionTarget)
         var _touchdrag = bindActionTarget(touchdrag, actionTarget);
