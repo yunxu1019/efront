@@ -95,7 +95,7 @@ var handle = {
             }
         });
         var rect = dragging.rect;
-        move.call(rect, style.left || rect.offsetLeft, style.top || rect.offsetTop);
+        move.call(rect, isFinite(style.left) ? style.left : rect.offsetLeft, isFinite(style.top) ? style.top : rect.offsetTop);
         delete style.left;
         delete style.top;
         Object.keys(style).forEach(k => style[k] = fromOffset(style[k]));
