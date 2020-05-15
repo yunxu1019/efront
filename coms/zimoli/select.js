@@ -27,6 +27,15 @@ var lastTimeClick = 0;
 var removeByBlur = function () {
     if (!getTargetIn(this, document.activeElement)) _remove();
 };
+on('touchend')(window, function (event) {
+    var { activeElement } = document;
+    var target = getTargetIn(activeElement, event.target);
+    if (target) return;
+    if (saved_list) {
+        if (getTargetIn(saved_list, event.target)) return;
+    }
+    activeElement.blur();
+})
 function select(target, list, removeOnSelect) {
     if (!target) {
         target = document.createElement("select");
@@ -65,7 +74,10 @@ function select(target, list, removeOnSelect) {
         onremove(list, onlistremove);
     };
     if (list) {
-        var initList = bindEvent;
+        var initList = function () {
+            bindEvent();
+            initList = function () { };
+        };
     } else {
         var savedOptions;
         removeOnSelect = null;
