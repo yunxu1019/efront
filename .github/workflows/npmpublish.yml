@@ -53,6 +53,8 @@ jobs:
         shell: cmd
       - run: efront version
         shell: cmd
+      - run: efront ip
+        shell: cmd
       - run: efront help
         shell: cmd
       - run: efront help version
@@ -76,6 +78,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm install -g efront
       - run: efront version
+      - run: efront ip
       - run: efront help
       - run: efront help version
       - run: efront -v
@@ -93,6 +96,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm install -g efront
       - run: efront version
+      - run: efront ip
       - run: efront help
       - run: efront help version
       - run: efront -v
