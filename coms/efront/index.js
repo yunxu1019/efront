@@ -102,7 +102,10 @@ var detectEnvironment = function () {
                 setenv(config);
             } else {
                 process.env.envs_path = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
-                var env = loadenv(path.join(process.env.envs_path, "setup"));
+                var env = loadenv(path.join(env_path[0], "setup"));
+                if (env.COMS || env.COMM) {
+                    delete config.comm;
+                }
                 setenv(config);
                 setenv(env);
                 require("./setupenv");
@@ -398,7 +401,7 @@ var commands = {
             if (isdir) {
                 setenv({
                     app: process.env.APP,
-                    comm: !/[^\.\\\/]+/.test(app) ? `zimoli,typescript-helpers,` : app + ',zimoli,typescript-helpers,'
+                    comm: (!/[^\.\\\/]+/.test(app) ? `zimoli,typescript-helpers,` : app + ',zimoli,typescript-helpers,')
                 });
                 require("../build");
             } else {

@@ -31,7 +31,6 @@ comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
 if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 var ccons_root = ICON && ICON_PATH ? mixin(env.ICON_PATH, env.ICON).map(joinpath).filter(fs.existsSync) : [];
 var pages_root = mixin(env.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
-
 var resolve_component_file_path = function (public_path = APP, source_paths = [""].concat(pages_root, comms_root)) {
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
         var temp_path = source_paths[cx];
