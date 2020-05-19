@@ -134,8 +134,10 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         [moveMargin, moveChildren, scroll] = getMoveFuncs(targetChild);
         moveChildren = moveChildren.bind(null, targetBox, previousElements, followedElements, moveMargin, recover);
     } else {
+        previousElements = [];
+        followedElements = [];
         rebuildTargets = function () {
-            var temp = matcher(targetChild);
+            var temp = matcher(drag.target);
             if (temp === targetBox) return;
             if (previousElements) previousElements.map(recover);
             if (followedElements) followedElements.map(recover);
@@ -173,11 +175,15 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         clearInterval(autoScroll.ing);
         autoScroll.ing = 0;
     };
+    var dragmove = function (event) {
+        rebuildTargets();
+        moveChildren.call(this, event);
+    };
 
     // 修改margin无效的情况
     function dragclone() {
         rebuildTargets();
-        addClass(targetBox, 'dropping');
+        if (targetBox) addClass(targetBox, 'dropping');
         previousElements = previousElements.map(cloneCell);
         followedElements = followedElements.map(cloneCell);
         setOpacity(targetBox, draggingSourceOpacity);
@@ -227,21 +233,23 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
                 appendSibling(dstElement, srcElement);
-                isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
+                isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
+            } else if (isMovingSource === false) {
+                move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
             }
         });
-        var offdragmove = on("dragmove")(targetChild, moveChildren);
+        var offdragmove = on("dragmove")(targetChild, dragmove);
     }
     // 仅修改Margin就可以实现拖拽效果
     function draglist() {
         rebuildTargets();
-        addClass(targetBox, 'dropping');
+        if (targetBox) addClass(targetBox, 'dropping');
         autoScroll();
         var offall = function () {
             cancelScroll();
             offdragmove();
             offdragend();
-            removeClass(targetBox, "dropping");
+            if (targetBox) removeClass(targetBox, "dropping");
         };
         var offdragend = on("dragend")(targetChild, function () {
             offall();
@@ -279,12 +287,12 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
                 appendSibling(dstElement, srcElement);
-                isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
+                isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
             } else if (isMovingSource === false) {
-                move(previousElements.length, previousElements.length, previousElements.length);
+                move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
             }
         });
-        var offdragmove = on("dragmove")(targetChild, moveChildren);
+        var offdragmove = on("dragmove")(targetChild, dragmove);
     }
     if (/^table/i.test(getComputedStyle(targetChild).display)) {
         var offdragstart = on("dragstart")(targetChild, dragclone);
@@ -302,14 +310,14 @@ function addhook(mousedownEvent, callback, matcher) {
     var target = mousedownEvent.currentTarget;
     hooka(function (target) {
         var res = matcher ? matcher(target) : [].filter.call(document.querySelectorAll("[allowdrop]"), function (child) {
-            return overlap(child, target);
+            return target && overlap(child, target);
         });
         if (res instanceof Array) {
             return res[res.length - 1];
         }
         return res;
-    }, function (_, dst) {
-        if (isFunction(callback)) callback(dst);
+    }, function (_, dst, _a, _b, parentNode) {
+        if (isFunction(callback) && parentNode) callback(dst, parentNode);
     }, mousedownEvent, target, false);
 }
 function autodragchildren(target, matcher, move) {
