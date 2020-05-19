@@ -55,12 +55,12 @@ function moveupon(target, { start, move, end }, initialEvent) {
     };
     if (!start) {
         if (!initialEvent) throw new Error("请传入touchstartEvent或者mousedownEvent");
-        if (initialEvent.type === "mousedown") {
-            hookmouse();
-        } else {
+        if (initialEvent.type === "touchstart") {
             extendTouchEvent(initialEvent);
             initialEvent.preventDefault();
             hooktouch();
+        } else {
+            hookmouse();
         }
         return;
     }
