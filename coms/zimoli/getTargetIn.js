@@ -1,10 +1,11 @@
 function getTargetIn(match, childTarget, matchParent) {
     if (!isFunction(match)) {
-        if (isNode(match)) {
-            var parentNode = match;
-            if (matchParent !== false) match = target => target === parentNode;
-            else match = target => target.parentNode === parentNode;
+        if (!isNode(match)) {
+            return null;
         }
+        var parentNode = match;
+        if (matchParent !== false) match = target => target === parentNode;
+        else match = target => target.parentNode === parentNode;
     }
     while (isNode(childTarget)) {
         var matchResult = match(childTarget);
