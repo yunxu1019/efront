@@ -1,22 +1,89 @@
-var hookx = function (matcher, move, event, targetChild) {
+var moveMarginX = function moveMarginX(element, movePixels) {
+    if (element.moved === movePixels) return;
+    element.moved = movePixels;
+    element.moving = new Date;
+    css(element, {
+        transition: movePixels !== false ? "margin .1s" : '',
+        userSelect: "none",
+        marginLeft: movePixels ? fromOffset(movePixels) : "",
+        marginRight: movePixels ? fromOffset(-movePixels) : ""
+    });
+    if (isArray(element.with)) {
+        element.with.map(function (element) {
+            moveMarginX(element, movePixels);
+        });
+    }
+};
+var moveChildrenX = function (targetBox, previousElements, followedElements, moveMargin, recover) {
+    var dragTarget = drag.target;
+    if (dragTarget) {
+        var area = overlap(dragTarget, targetBox);
+        if (area > 0) {
+            var dragPosition = getScreenPosition(dragTarget);
+            var dragPositionLeft = dragPosition.left;
+            var currentTime = new Date;
+            previousElements.map(function (element) {
+                if (currentTime - element.moving < 100) return;
+                var elementPosition = getScreenPosition(element);
+                var elementCenter = elementPosition.left + elementPosition.width / 2;
+                if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
+                    recover(element);
+                } else {
+                    moveMargin(element, dragPosition.width);
+                }
+            });
+            var dragPositionRight = dragPosition.left + dragPosition.width;
+            followedElements.map(function (element) {
+                if (currentTime - element.moving < 100) return;
+                var elementPosition = getScreenPosition(element);
+                var elementCenter = elementPosition.left + elementPosition.width / 2;
+                if (elementCenter - (element.moved || 0) <= dragPositionRight) {
+                    moveMargin(element, -dragPosition.width);
+                } else {
+                    recover(element);
+                }
+            });
+        } else {
+            previousElements.map(recover);
+            followedElements.map(recover);
+        }
+    } else {
+        previousElements.map(recover);
+        followedElements.map(recover);
+    }
+};
+var scrollX = function (targetBox, moveChildren) {
+    var dragTarget = drag.target;
+    if (!dragTarget) return;
+    var areaPosition = getScreenPosition(targetBox);
+    var dragPosition = getScreenPosition(dragTarget);
+    var scrollDelta = 0;
+    if (dragPosition.left - 40 < areaPosition.left && dragPosition.right + 20 > areaPosition.left) {
+        scrollDelta = dragPosition.left - 20 - areaPosition.left;
+    } else if (dragPosition.right + 40 > areaPosition.right && dragPosition.left - 20 < areaPosition.right) {
+        scrollDelta = dragPosition.right + 20 - areaPosition.right;
+    }
+    if (scrollDelta) {
+        vscroll.X.call(targetBox, scrollDelta / 16, false);
+        moveChildren();
+    }
+};
+var scrollY = arriswise(scrollX, arguments);
+var moveMarginY = arriswise(moveMarginX, arguments);
+var moveChildrenY = arriswise(moveChildrenX, arguments);
+var getMoveFuncs = function (child) {
+    child = child instanceof Array ? child[0] : child;
+    if (child && /cell|inline/i.test(getComputedStyle(child).display)) {
+        return [moveMarginX, moveChildrenX, scrollX];
+    } else {
+        return [moveMarginY, moveChildrenY, scrollY];
+    }
+};
+var hooka = function (matcher, move, event, targetChild, hideDraggingSource) {
+    var draggingSourceOpacity = hideDraggingSource !== false ? 0 : 1;
+
     var recover = function (element) {
         moveMargin(element, 0);
-    };
-    var moveMargin = function (element, movePixels) {
-        if (element.moved === movePixels) return;
-        element.moved = movePixels;
-        element.moving = new Date;
-        css(element, {
-            transition: movePixels !== false ? "margin .1s" : '',
-            userSelect: "none",
-            marginLeft: movePixels ? fromOffset(movePixels) : "",
-            marginRight: movePixels ? fromOffset(-movePixels) : ""
-        });
-        if (isArray(element.with)) {
-            element.with.map(function (element) {
-                moveMargin(element, movePixels);
-            });
-        }
     };
     var cloneCell = function (element) {
         var targets = getTargetIn(matcher, element, false);
@@ -41,7 +108,7 @@ var hookx = function (matcher, move, event, targetChild) {
             });
             targets.with = extra.map(cloneVisible);
             extra.map(function (elem) {
-                setOpacity(elem, 0);
+                setOpacity(elem, draggingSourceOpacity);
             });
         } else {
             targets = cloneVisible(targets);
@@ -55,10 +122,39 @@ var hookx = function (matcher, move, event, targetChild) {
     if (isArray(targetChild)) {
         targetChild = targetChild[0];
     }
-    var targetBox = targetChild.parentNode;
-    var saved_opacity = targetBox.style.opacity;
-    var saved_filter = targetBox.style.filter;
-    var previousElements = getPreviousElementSiblings(targetChild), followedElements = getFollowedElementSiblings(targetChild);
+    var targetBox, saved_opacity, saved_filter, moveMargin, moveChildren;
+    var previousElements, followedElements, rebuildTargets, scroll;
+    if (getTargetIn(this, targetChild)) {
+        targetBox = targetChild.parentNode;
+        previousElements = getPreviousElementSiblings(targetChild);
+        followedElements = getFollowedElementSiblings(targetChild);
+        saved_filter = targetBox.style.filter;
+        saved_opacity = targetBox.style.opacity;
+        rebuildTargets = function () { };
+        [moveMargin, moveChildren, scroll] = getMoveFuncs(targetChild);
+        moveChildren = moveChildren.bind(null, targetBox, previousElements, followedElements, moveMargin, recover);
+    } else {
+        rebuildTargets = function () {
+            var temp = matcher(targetChild);
+            if (temp === targetBox) return;
+            if (previousElements) previousElements.map(recover);
+            if (followedElements) followedElements.map(recover);
+            if (targetBox) {
+                removeClass(targetBox, "dropping");
+            }
+            targetBox = temp;
+            if (!targetBox) {
+                previousElements = [];
+                followedElements = [];
+                return;
+            }
+            addClass(targetBox, "dropping");
+            previousElements = [].slice.call(targetBox.children, 0).reverse();
+            followedElements = [];
+            [moveMargin, moveChildren, scroll] = getMoveFuncs(previousElements[0]);
+            moveChildren = moveChildren.bind(null, targetBox, previousElements, followedElements, moveMargin, recover);
+        };
+    }
     var offall = function () {
         offmousup();
         offtouchend();
@@ -70,72 +166,21 @@ var hookx = function (matcher, move, event, targetChild) {
     var offmousup = on("mouseup")(window, offall);
     var autoScroll = function () {
         if (autoScroll.ing) return;
-
-        autoScroll.ing = setInterval(function () {
-            var dragTarget = drag.target;
-            if (!dragTarget) return;
-            var areaPosition = getScreenPosition(targetBox);
-            var dragPosition = getScreenPosition(dragTarget);
-            var scrollDelta = 0;
-            if (dragPosition.left - 40 < areaPosition.left && dragPosition.right + 20 > areaPosition.left) {
-                scrollDelta = dragPosition.left - 20 - areaPosition.left;
-            } else if (dragPosition.right + 40 > areaPosition.right && dragPosition.left - 20 < areaPosition.right) {
-                scrollDelta = dragPosition.right + 20 - areaPosition.right;
-            }
-            if (scrollDelta) {
-                vscroll.X.call(targetBox, scrollDelta / 16, false);
-                moveChildren();
-            }
-        }, 16);
+        if (scroll);
+        autoScroll.ing = setInterval(scroll, 16);
     };
     var cancelScroll = function () {
         clearInterval(autoScroll.ing);
         autoScroll.ing = 0;
     };
-    var moveChildren = function () {
-        var dragTarget = drag.target;
-        if (dragTarget) {
-            var area = overlap(dragTarget, targetBox);
-            if (area > 0) {
-                var dragPosition = getScreenPosition(dragTarget);
-                var dragPositionLeft = dragPosition.left;
-                var currentTime = new Date;
-                previousElements.map(function (element) {
-                    if (currentTime - element.moving < 100) return;
-                    var elementPosition = getScreenPosition(element);
-                    var elementCenter = elementPosition.left + elementPosition.width / 2;
-                    if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
-                        recover(element);
-                    } else {
-                        moveMargin(element, dragPosition.width);
-                    }
-                });
-                var dragPositionRight = dragPosition.left + dragPosition.width;
-                followedElements.map(function (element) {
-                    if (currentTime - element.moving < 100) return;
-                    var elementPosition = getScreenPosition(element);
-                    var elementCenter = elementPosition.left + elementPosition.width / 2;
-                    if (elementCenter - (element.moved || 0) <= dragPositionRight) {
-                        moveMargin(element, -dragPosition.width);
-                    } else {
-                        recover(element);
-                    }
-                });
-            } else {
-                previousElements.map(recover);
-                followedElements.map(recover);
-            }
-        } else {
-            previousElements.map(recover);
-            followedElements.map(recover);
-        }
-    };
+
     // 修改margin无效的情况
     function dragclone() {
+        rebuildTargets();
         addClass(targetBox, 'dropping');
         previousElements = previousElements.map(cloneCell);
         followedElements = followedElements.map(cloneCell);
-        setOpacity(targetBox, 0);
+        setOpacity(targetBox, draggingSourceOpacity);
         appendChild(document.body, previousElements);
         appendChild(document.body, followedElements);
         var offall = function () {
@@ -189,21 +234,17 @@ var hookx = function (matcher, move, event, targetChild) {
     }
     // 仅修改Margin就可以实现拖拽效果
     function draglist() {
+        rebuildTargets();
         addClass(targetBox, 'dropping');
         autoScroll();
-        var style = targetBox.style;
-        var savedStyle = { overflow: style.overflow, display: style.display };
-        css(targetBox, "overflow:hidden;display:block");
         var offall = function () {
             cancelScroll();
             offdragmove();
             offdragend();
             removeClass(targetBox, "dropping");
-            css(targetBox, savedStyle);
         };
         var offdragend = on("dragend")(targetChild, function () {
             offall();
-            css(targetBox, { opacity: saved_opacity, filter: saved_filter });
             var dst, appendSibling, delta;
             var src = previousElements.length;
             if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
@@ -239,6 +280,8 @@ var hookx = function (matcher, move, event, targetChild) {
                 var dstElement = children[dst + delta];
                 appendSibling(dstElement, srcElement);
                 isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
+            } else if (hideDraggingSource !== false) {
+                move(previousElements.length, previousElements.length, previousElements.length);
             }
         });
         var offdragmove = on("dragmove")(targetChild, moveChildren);
@@ -249,22 +292,29 @@ var hookx = function (matcher, move, event, targetChild) {
         var offdragstart = on("dragstart")(targetChild, draglist);
     }
 };
-var hooky = arriswise(hookx, arguments);
-var hook = function (matcher, move, event) {
+var hookEvent = function (matcher, move, event) {
     if (event.target === this) return;
     var targetChild = getTargetIn(matcher, event.target, false);
     if (!targetChild) return;
-    var run;
-    if (/cell|inline/i.test(getComputedStyle(targetChild instanceof Array ? targetChild[0] : targetChild).display)) {
-        run = hookx;
-    } else {
-        run = hooky;
-    }
-    run.call(this, matcher, move, event, targetChild);
+    hooka.call(this, matcher, move, event, targetChild);
 };
-
+function addhook(mousedownEvent, callback, matcher) {
+    var target = mousedownEvent.currentTarget;
+    hooka(function (target) {
+        var res = matcher ? matcher(target) : [].filter.call(document.querySelectorAll("[allowdrop]"), function (child) {
+            return overlap(child, target);
+        });
+        if (res instanceof Array) {
+            return res[res.length - 1];
+        }
+        return res;
+    }, function (_, dst) {
+        if (isFunction(callback)) callback(dst);
+    }, mousedownEvent, target);
+}
 function autodragchildren(target, matcher, move) {
-    onmousedown(target, hook.bind(target, matcher, move));
-    ontouchstart(target, hook.bind(target, matcher, move));
+    onmousedown(target, hookEvent.bind(target, matcher, move));
+    ontouchstart(target, hookEvent.bind(target, matcher, move));
     return target;
 }
+autodragchildren.hook = addhook;
