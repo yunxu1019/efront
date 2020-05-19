@@ -217,6 +217,7 @@ var commands = {
         showHelpLine(`目前没有与 ${value1} 相关的帮助信息！`);
     },
     docs() {
+        setAppnameAndPorts(arguments);
         // 文档
         setenv({
             coms_path: path.join(__dirname, "../../coms"),
@@ -227,23 +228,22 @@ var commands = {
             apis: 'docs,zimoli',
             app: "./"
         });
-        setAppnameAndPorts(80);
         require("./setupenv");
         require("../server/main");
         showHelpLine('可以通过浏览器访问打开的端口以查看文档');
     },
-    demo(appname = 'kugou') {
+    demo() {
         setenv({
             public_path: path.join(__dirname, "../../apps"),
             page_path: path.join(__dirname, "../../apps"),
             coms_path: path.join(__dirname, "../../coms"),
-            IN_TEST_MODE: true,
-            app: appname
+            IN_TEST_MODE: true
         });
-        setAppnameAndPorts(80);
+        if (!process.env.APP) process.env.APP = 'kugou';
+        setAppnameAndPorts(arguments);
         require("./setupenv");
         require("../server/main");
-        showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${appname}`);
+        showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${process.env.APP}`);
     },
     create(srcname, appname) {
         var folders = fs.readdirSync(process.cwd());
