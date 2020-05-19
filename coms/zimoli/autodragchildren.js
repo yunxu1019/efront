@@ -79,8 +79,8 @@ var getMoveFuncs = function (child) {
         return [moveMarginY, moveChildrenY, scrollY];
     }
 };
-var hooka = function (matcher, move, event, targetChild, hideDraggingSource) {
-    var draggingSourceOpacity = hideDraggingSource !== false ? 0 : 1;
+var hooka = function (matcher, move, event, targetChild, isMovingSource) {
+    var draggingSourceOpacity = isMovingSource !== false ? 0 : 1;
 
     var recover = function (element) {
         moveMargin(element, 0);
@@ -118,7 +118,7 @@ var hooka = function (matcher, move, event, targetChild, hideDraggingSource) {
     if (event.target === this) return;
     // var targetChild = getTargetIn(matcher, event.target);
     if (!targetChild) return;
-    drag(targetChild, event, false);
+    drag(targetChild, event, false, isMovingSource);
     if (isArray(targetChild)) {
         targetChild = targetChild[0];
     }
@@ -280,7 +280,7 @@ var hooka = function (matcher, move, event, targetChild, hideDraggingSource) {
                 var dstElement = children[dst + delta];
                 appendSibling(dstElement, srcElement);
                 isFunction(move) && move(src, dst, dst + delta, appendSibling, this.parentNode);
-            } else if (hideDraggingSource !== false) {
+            } else if (isMovingSource === false) {
                 move(previousElements.length, previousElements.length, previousElements.length);
             }
         });
@@ -310,7 +310,7 @@ function addhook(mousedownEvent, callback, matcher) {
         return res;
     }, function (_, dst) {
         if (isFunction(callback)) callback(dst);
-    }, mousedownEvent, target);
+    }, mousedownEvent, target, false);
 }
 function autodragchildren(target, matcher, move) {
     onmousedown(target, hookEvent.bind(target, matcher, move));

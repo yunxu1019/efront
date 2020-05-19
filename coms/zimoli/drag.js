@@ -1,14 +1,14 @@
-var toCloneTarget = function (target) {
+var toCloneTarget = function (target, isMovingSource) {
     var clone = cloneVisible(target);
     var position = getScreenPosition(target);
     css(clone, `position:absolute;left:${fromOffset(position.left)};top:${fromOffset(position.top)};user-select:none;`);
-    setOpacity(target, 0);
+    setOpacity(target, isMovingSource !== false ? 0 : 1);
     return clone;
 };
 var appendChild = function (a, b) {
     a.appendChild(b);
 };
-function drag(target, initialEvent, preventOverflow) {
+function drag(target, initialEvent, preventOverflow, isMovingSource) {
     if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName)) return;
     if (target.dragable === false) return;
     initialEvent.preventDefault();
@@ -31,7 +31,7 @@ function drag(target, initialEvent, preventOverflow) {
             if (abs(target.offsetLeft - event.clientX - saved_delta.x < MOVELOCK_DELTA) && abs(target.offsetTop - event.clientY - saved_delta.y) < MOVELOCK_DELTA) return;
             saved_delta.ing = true;
             if (!/absolute|fixed/.test(getComputedStyle(target).position)) {
-                clone = toCloneTarget(target);
+                clone = toCloneTarget(target, isMovingSource);
                 appendChild(document.body, clone);
             } else {
                 clone = target;
