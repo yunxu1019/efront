@@ -251,8 +251,7 @@ var popup_as_yextra = function (global, element, target) {
     reshape();
 
 };
-var allArgumentsNames = arguments[arguments.length - 1];
-var popup_as_xextra = arriswise(popup_as_yextra, allArgumentsNames.concat([].slice.call(arguments, 0)));
+var popup_as_xextra = arriswise(popup_as_yextra, arguments);
 var popup_as_single = function (element) {
     css(element, `z-index:${zIndex()};`);
     global(element);
