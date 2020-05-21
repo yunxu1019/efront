@@ -54,7 +54,7 @@ var moveChildrenX = function (targetBox, previousElements, followedElements, mov
 };
 var scrollX = function (targetBox, moveChildren) {
     var dragTarget = drag.target;
-    if (!dragTarget) return;
+    if (!dragTarget || !targetBox) return;
     var areaPosition = getScreenPosition(targetBox);
     var dragPosition = getScreenPosition(dragTarget);
     var scrollDelta = 0;
@@ -136,6 +136,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     } else {
         previousElements = [];
         followedElements = [];
+        moveChildren = () => { };
         rebuildTargets = function () {
             var temp = matcher(drag.target);
             if (temp === targetBox) return;
@@ -148,6 +149,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             if (!targetBox) {
                 previousElements = [];
                 followedElements = [];
+                moveChildren = () => { };
                 return;
             }
             addClass(targetBox, "dropping");
