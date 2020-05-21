@@ -383,7 +383,7 @@ function toComponent(responseTree) {
                 return String.fromCharCode(c);
             });
     };
-    var template = `([/*${new Date().toString()} by efront*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]()`;
+    var template = `([/*${new Date().toString()} by efront ${require("../../package.json").version}*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]()`;
     if (EXPORT_TO) {
         switch (EXPORT_TO) {
             case 'node':
