@@ -37,7 +37,6 @@ var getResizer = function (event) {
 var dragging;
 var handle = {
     start(event) {
-        event.preventDefault();
         event.moveLocked = true;
         dragging = getResizer(event);
         var elem = dragging.rect;
@@ -50,6 +49,7 @@ var handle = {
                 return;
             }
         }
+        event.preventDefault();
         dragging.clientX = delta[0];
         dragging.clientY = delta[1];
         var limit = dragging.cursor ? [pos.left, pos.top, pos.right, pos.bottom] : [
