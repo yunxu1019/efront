@@ -165,7 +165,8 @@ if (is_addEventListener_enabled) {
             dispatch(target, clickEvent);
         }, true);
         window.addEventListener("click", function (event) {
-            var need = needFireClick || !isClickWithPointer;
+            if (!isClickWithPointer) return;
+            var need = needFireClick;
             needFireClick = false;
             isClickWithPointer = false;
             var saved_time = lasttime_click;
