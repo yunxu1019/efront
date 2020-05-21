@@ -231,10 +231,10 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             previousElements.map(recover);
             followedElements.map(recover);
             if (appendSibling) {
-                var children = this.parentNode.children;
+                var children = targetBox.children;
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
-                appendSibling(dstElement, srcElement);
+                if (srcElement && dstElement) appendSibling(dstElement, srcElement);
                 isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
             } else if (isMovingSource === false) {
                 move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
@@ -285,10 +285,10 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             previousElements.map(e => moveMargin(e, false));
             followedElements.map(e => moveMargin(e, false));
             if (appendSibling) {
-                var children = this.parentNode.children;
+                var children = targetBox.children;
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
-                appendSibling(dstElement, srcElement);
+                if (srcElement && dstElement) appendSibling(dstElement, srcElement);
                 isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
             } else if (isMovingSource === false) {
                 move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
