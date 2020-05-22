@@ -308,11 +308,33 @@ var hookEvent = function (matcher, move, event) {
     if (!targetChild) return;
     hooka.call(this, matcher, move, event, targetChild);
 };
-function addhook(mousedownEvent, callback, matcher) {
+function addhook() {
+    var mousedownEvent, callback, matcher, dropid;
+    [].forEach.call(arguments, function (arg) {
+        switch (typeof arg) {
+            case "string":
+                dropid = arg;
+                break;
+            case "function":
+                if (!callback) {
+                    callback = arg;
+                } else {
+                    matcher = arg;
+                }
+                break;
+            case "object":
+                mousedownEvent = arg;
+                break;
+        }
+    });
     var target = mousedownEvent.currentTarget;
     hooka(function (target) {
         var res = matcher ? matcher(target) : [].filter.call(document.querySelectorAll("[allowdrop]"), function (child) {
             return target && overlap(child, target);
+        }).filter(e => {
+            var a = e.getAttribute("allowdrop");
+            if (!a || !dropid) return true;
+            return a === dropid;
         });
         if (res instanceof Array) {
             return res[res.length - 1];
