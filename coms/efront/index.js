@@ -544,11 +544,11 @@ var quit = function (e) {
         console.begin("red2");
         console.type(" 错误 ");
         console.log(e);
+        console.end();
     } else {
         console.error(e);
         console.log("异常退出");
     }
-    console.end();
 
     __exit.call(process, 1);
 };
