@@ -309,7 +309,7 @@ var hookEvent = function (matcher, move, event) {
     hooka.call(this, matcher, move, event, targetChild);
 };
 function addhook() {
-    var mousedownEvent, callback, matcher, dropid;
+    var mousedownEvent, callback, matcher, dropid, allowdrops;
     [].forEach.call(arguments, function (arg) {
         switch (typeof arg) {
             case "string":
@@ -323,13 +323,17 @@ function addhook() {
                 }
                 break;
             case "object":
+                if (arg instanceof Array) {
+                    allowdrops = arg;
+                    break;
+                }
                 mousedownEvent = arg;
                 break;
         }
     });
     var target = mousedownEvent.currentTarget;
     hooka(function (target) {
-        var res = matcher ? matcher(target) : [].filter.call(document.querySelectorAll("[allowdrop]"), function (child) {
+        var res = [].filter.call(allowdrops || (matcher ? matcher(target) : document.querySelectorAll("[allowdrop]")), function (child) {
             return target && overlap(child, target);
         }).filter(e => {
             var a = e.getAttribute("allowdrop");
