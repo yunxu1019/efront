@@ -1,6 +1,5 @@
 var resizingElements = [];
 var getResizer = function (event) {
-    if (dragging) return;
     var rect = getTargetIn(a => ~resizingElements.indexOf(a), event.target);
     if (!rect) {
         var temp = getEventRect(event);
@@ -37,12 +36,13 @@ var getResizer = function (event) {
 var dragging;
 var handle = {
     start(event) {
-        event.moveLocked = true;
+        if (dragging) return;
         dragging = getResizer(event);
+        if (!dragging) return;
+        event.moveLocked = true;
         var elem = dragging.rect;
         var pos = getScreenPosition(elem.offsetParent);
         var delta = [event.clientX, event.clientY, event.clientX - pos.left, event.clientY - pos.top];
-        if (!dragging) return;
         if (!dragging.cursor) {
             if (!getTargetIn(elem.dragTarget || elem, event.target)) {
                 dragging = null;
