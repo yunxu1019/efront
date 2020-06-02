@@ -164,34 +164,29 @@ var helps = [
     "在当前文件夹启动服务器,server,serve|serv|http HTTP_PORT HTTPS_PORT,serve|serv|http HTTP_PORT,https HTTPS_PORT HTTP_PORT,https HTTPS_PORT,HTTP_PORT HTTPS_PORT,HTTP_PORT,",
     "显示本机ip地址,ip,-ip,--ip",
     "编译项目,public,publish,build,release",
+    "关闭efront服务咕咕,kill HTTP_PORT,kills HTTPS_PORT",
     "监测文件变化，自动编译更新的部分并输出到指定目录,watch"
 ];
-helps.forEach((str, cx) => {
-    var [info, ...commands] = str.split(",");
-    var help = { info, commands: commands, cmds: commands };
-    helps[cx] = help;
-    commands.forEach(cmd => {
-        var key = cmd.replace(/[A-Z]+/g, "").trim();
-        if (!/\s/.test(key)) {
-            key.split(/\|/).forEach(k => helps[k] = help);
-        }
-    });
-});
-var topics = {
-    COMMAND: "命令名," + Object.keys(helps).filter(k => /^[a-z]+$/.test(k)),
-    APPNAME: "您的应用名",
-    SRCNAME: "源项目|blank,blank,kugou,zimoli",
-    HTTP_PORT: " http 端口|80",
-    HTTPS_PORT: " https 端口|443",
-    VARIABLES: "变量名",
-};
-topics.VARIABLES += "," + Object.keys(topics);
 var commands = {
     version() {
         // 版本号
         console.type(
             `efront <white2>${require("../../package.json").version}</white2>`
         );
+    },
+    kill(port) {
+        var req = require("http").request({
+            method: 'options',
+            host: '::',
+            port,
+            path: '/:quit',
+        }, function () {
+            console.info(`已关闭 ${port} 端口`);
+        });
+        req.on("error",function(error){
+            console.error(error);
+        });
+        req.end();
     },
     help(value1) {
         // 帮肋信息
@@ -432,6 +427,39 @@ var commands = {
         });
     }
 };
+helps.forEach((str, cx) => {
+    var [info, ..._commands] = str.split(",");
+    var help = { info, commands: _commands, cmds: _commands };
+    helps[cx] = help;
+    _commands.forEach(cmd => {
+        var key = cmd.replace(/[A-Z\_]+/g, "").trim();
+        if (!/\s/.test(key)) {
+            key.split(/\|/).forEach(k => {
+                if (k in commands) {
+                    if (help.key) {
+                        if (help.key === k) return;
+                        if (!(help.key instanceof Array)) {
+                            help.key = [help.key];
+                        }
+                        help.key.push(k);
+                    } else {
+                        help.key = k;
+                    }
+                }
+                helps[k] = help;
+            });
+        }
+    });
+});
+var topics = {
+    COMMAND: "命令名," + Object.keys(helps).filter(k => /^[a-z]+$/.test(k)),
+    APPNAME: "您的应用名",
+    SRCNAME: "源项目|blank,blank,kugou,zimoli",
+    HTTP_PORT: " http 端口|80",
+    HTTPS_PORT: " https 端口|443",
+    VARIABLES: "变量名",
+};
+topics.VARIABLES += "," + Object.keys(topics);
 var run = function (type, value1, value2, value3) {
     if (type) type = type.toLowerCase();
     if (!type) {
@@ -522,8 +550,13 @@ var run = function (type, value1, value2, value3) {
                     value1 = '-1';
                 }
             default:
-                type = helps[type].cmds[0];
-                commands[type](value1, value2, value3);
+                type = helps[type].key;
+                if (type instanceof Array) {
+                    help(type[0]);
+                    console.log(type)
+                } else {
+                    commands[type](value1, value2, value3);
+                }
         }
 
     } else if (/^\d+$/.test(type)) {

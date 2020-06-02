@@ -69,7 +69,21 @@ var requestListener = function (req, res) {
     req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
     req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
     if (/^option/i.test(req.method)) {
-        if (req.url === '/:' + version) res.setHeader("Powered-By", version);
+        if (/^\/\:/.test(req.url)) {
+            var option = req.url.slice(2);
+            var address = req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress;
+            if (option === version) res.setHeader("Powered-By", version);
+            else if (address !== '::1') {
+            }
+            else switch (option) {
+                case "quit":
+                case "exit":
+                    process.send('quit');
+                    break;
+            }
+        }
         return res.end();
     }
     if (/^\/@/i.test(req.url)) {
