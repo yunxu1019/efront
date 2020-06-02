@@ -175,16 +175,22 @@ var commands = {
         );
     },
     kill(port) {
-        var req = require("http").request({
+        var opt = {
             method: 'options',
             host: '::',
             port,
             path: '/:quit',
-        }, function () {
+        };
+        var onclose = function () {
             console.info(`已关闭 ${port} 端口`);
-        });
-        req.on("error",function(error){
-            console.error(error);
+        };
+        var req = require("http").request(opt, onclose);
+        req.on("error", function (error) {
+            opt.rejectUnauthorized = false;
+            opt.allowHTTP1 = true;
+            req = require("https").request(opt, onclose);
+            req.on(error, console.error);
+            req.end();
         });
         req.end();
     },
