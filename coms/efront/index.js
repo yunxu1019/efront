@@ -164,7 +164,7 @@ var helps = [
     "在当前文件夹启动服务器,server,serve|serv|http HTTP_PORT HTTPS_PORT,serve|serv|http HTTP_PORT,https HTTPS_PORT HTTP_PORT,https HTTPS_PORT,HTTP_PORT HTTPS_PORT,HTTP_PORT,",
     "显示本机ip地址,ip,-ip,--ip",
     "编译项目,public,publish,build,release",
-    "关闭efront服务咕咕,kill HTTP_PORT,kills HTTPS_PORT",
+    "关闭efront服务器,kill HTTP_PORT|HTTPS_PORT,close HTTP_PORT|HTTPS_PORT",
     "监测文件变化，自动编译更新的部分并输出到指定目录,watch"
 ];
 var commands = {
@@ -438,7 +438,7 @@ helps.forEach((str, cx) => {
     var help = { info, commands: _commands, cmds: _commands };
     helps[cx] = help;
     _commands.forEach(cmd => {
-        var key = cmd.replace(/[A-Z\_]+/g, "").trim();
+        var key = cmd.replace(/[A-Z\_]([A-Z\|\_]*)/g, "").trim();
         if (!/\s/.test(key)) {
             key.split(/\|/).forEach(k => {
                 if (k in commands) {
