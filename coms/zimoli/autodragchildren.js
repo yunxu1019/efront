@@ -234,8 +234,8 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
                 var children = targetBox.children;
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
-                if (srcElement && dstElement) appendSibling(dstElement, srcElement);
                 isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
+                if (srcElement && dstElement) appendSibling(dstElement, srcElement);
             } else if (isMovingSource === false) {
                 move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
             }
