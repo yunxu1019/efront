@@ -18,13 +18,13 @@ function main(gun, is_delta = true) {
                 _speed(__speed);
                 return __speed;
             });
+            run(args);
             if (!(abs_speed >= 1)) {
                 if (
                     decrease instanceof Function
                 ) decrease();
                 return;
             }
-            run(args);
         }
         smooth_timer = requestAnimationFrame(smooth);
     };

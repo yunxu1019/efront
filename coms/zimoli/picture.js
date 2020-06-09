@@ -92,17 +92,18 @@ function picture(url, to = 0, key) {
             y = (y - centery) * scale + centern;
             css(image, get_style());
         };
-        var get_change = function () {
+        var get_change = function (isprocess) {
+            isprocess = isprocess !== false;
             var change;
             var side_x, side_y;
             side_x = Math.max(0, image.offsetWidth - image.width * scaled) / 2;
             side_y = Math.max(0, image.offsetHeight - image.height * scaled) / 2;
             if (x > side_x) {
-                x = (x - side_x) / 2 + side_x;
+                x = isprocess ? (x - side_x) / 2 + side_x : side_x;
                 change = true;
             }
             if (y > side_y) {
-                y = (y - side_y) / 2 + side_y;
+                y = isprocess ? (y - side_y) / 2 + side_y : side_y;
                 change = true;
             }
             var min_x = image.offsetWidth - image.width * scaled - side_x;
@@ -130,7 +131,7 @@ function picture(url, to = 0, key) {
                 y = (y - image.offsetHeight / 2) * 2 / scaled + image.offsetHeight / 2;
                 scaled = 2;
             }
-            change = get_change() || change;
+            change = get_change(false) || change;
             if (change) {
                 var a = transition(image, get_style(), true);
                 if (scaled === loaded_scale) {
@@ -149,10 +150,16 @@ function picture(url, to = 0, key) {
         var saved_event;
         on("mousewheel")(image, function (event) {
             var { layerX, layerY, deltaY } = event;
-            if (!deltaY) return;
             event.preventDefault();
+            if (!deltaY) return;
             this.locked = true;
             var scale = Math.pow(0.99, deltaY);
+            if (scale > 1.666) {
+                scale = 1.666;
+            }
+            if (scale < .6) {
+                scale = .6;
+            }
             var s = 100, t = s * scale;
             touch([layerX - s, layerY - s, layerX + s, layerY + s], [layerX - t, layerY - t, layerX + t, layerY + t]);
         });
@@ -192,8 +199,8 @@ function picture(url, to = 0, key) {
                             saved_event = event;
                             return;
                     }
-
                 }
+                if (!this.locked) return;
                 var deltax = event.clientX - saved_event.clientX,
                     deltay = event.clientY - saved_event.clientY;
                 move(deltax, deltay);
