@@ -154,17 +154,18 @@ function picture(url, to = 0, key) {
             if (!deltaY) return;
             this.locked = true;
             var scale = Math.pow(0.99, deltaY);
-            if (scale > 1.666) {
-                scale = 1.666;
+            if (scaled * scale >= 2.5 && scale > 1) {
+                scale = 2.5 / scaled;
             }
-            if (scale < .6) {
-                scale = .6;
+            if (scaled * scale < min_scale && scale < 1) {
+                scale = min_scale / scaled;
             }
             var s = 100, t = s * scale;
             touch([layerX - s, layerY - s, layerX + s, layerY + s], [layerX - t, layerY - t, layerX + t, layerY + t]);
         });
         moveupon(image, {
             start(event) {
+                event.preventDefault();
                 if (!min_scale || !(1 / min_scale)) onload.call(img);
                 saved_event = event;
                 event.moveLocked = this.locked;
