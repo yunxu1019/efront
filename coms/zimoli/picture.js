@@ -208,7 +208,7 @@ function picture(url, to = 0, key) {
             },
             end(event) {
                 event.moveLocked = this.locked;
-                if (this.locked) move.smooth(recover);
+                if (this.locked && onclick.preventClick) move.smooth(recover);
             }
         });
         css(image, {
