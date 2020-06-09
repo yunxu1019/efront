@@ -13,7 +13,6 @@ var {
     setTimeout,
     clearTimeout,
     Date,
-    Math,
     navigator,
     document,
     top,
@@ -587,22 +586,6 @@ var initPixelDecoder = function () {
         });
     }
 };
-var requires_count = 3;
-var hook = function (requires_count) {
-    if (requires_count !== 0) return;
-    "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
-    initPixelDecoder();
-    modules.Promise = Promise;
-    modules.hook_time = +new Date;
-    if (!efrontPath) efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
-    init(efrontPath, function (zimoli) {
-        if (zimoli instanceof Function) zimoli();
-    });
-};
-var initIfNotDefined = function (defined, path, onload) {
-    if (defined === void 0) init(path, a => onload(a) | hook(--requires_count));
-    else hook(--requires_count);
-};
 var flush_to_storage_timer = 0,
     responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
 var saveResponseTreeToStorage = function () {
@@ -704,7 +687,7 @@ modules.modules = modules;
 var requires_count = 3;
 var hook = function (requires_count) {
     if (requires_count !== 0) return;
-    loadResponseTreeFromStorage();
+    "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
     initPixelDecoder();
     modules.Promise = Promise;
     modules.hook_time = +new Date;
@@ -716,7 +699,7 @@ var hook = function (requires_count) {
 var initIfNotDefined = function (defined, path, onload) {
     if (defined === void 0) init(path, a => onload(a) | hook(--requires_count));
     else hook(--requires_count);
-}
+};
 
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);
 initIfNotDefined([].map, "[]map", map => map);
