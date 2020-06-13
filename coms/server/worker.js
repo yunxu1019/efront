@@ -1,5 +1,6 @@
 "use strict";
 require("../efront/setupenv");
+var clients = require("./clients");
 var message = require("../message");
 var readline = require("readline");
 if (require("cluster").isMaster) {
@@ -80,7 +81,13 @@ var requestListener = function (req, res) {
             else switch (option) {
                 case "quit":
                 case "exit":
+                    let ports = [server1, server2].filter(a => a && a.listening).map(a => a.address().port);
                     process.send('quit');
+                    res.end(`已关闭${ports.join("、")}端口`);
+                    break;
+                case "link":
+                    var id = clients.create().id;
+                    res.write(String(id));
                     break;
             }
         }

@@ -175,24 +175,64 @@ var commands = {
         );
     },
     kill(port) {
+        this.link(port ? port + "/:quit" : "/:quit").then(console.info, console.error);
+    },
+    link(address) {
         var opt = {
             method: 'options',
             host: '::',
-            port,
-            path: '/:quit',
+            rejectUnauthorized: false,
+            allowHTTP1: true,
+            path: '/:link',
         };
-        var onclose = function () {
-            console.info(`已关闭 ${port} 端口`);
-        };
-        var req = require("http").request(opt, onclose);
-        req.on("error", function (error) {
-            opt.rejectUnauthorized = false;
-            opt.allowHTTP1 = true;
-            req = require("https").request(opt, onclose);
-            req.on(error, console.error);
-            req.end();
-        });
-        req.end();
+        if (/^\:?\d+(\/[\:\w]+)?$/.test(address)) {
+            var [port, pathname] = address.split("/");
+            opt.port = +port.replace(/^:/, '');
+            if (pathname) opt.path = "/" + pathname;
+        } else if (/^\:[\w]*/) {
+            opt.path = "/" + address;
+        } else {
+            var match = /^([a-z]*?\/\/|[a-z]\w*?\:\/\/)?([\w\.]*?)(\:\d+)?(\/\:?[\w\/]*)?$/i.exec(address);
+            if (match) {
+                var [_, protocol, host, port, pathname] = match;
+                if (protocol) {
+                    protocol = protocol.replace(/\:\/*$/, '');
+                    switch (protocol) {
+                        case "s":
+                            protocol = "https";
+                            break;
+                        default:
+                    }
+                }
+                if (port) opt.port = +port.replace(/^:/, '');
+                if (host) opt.host = host;
+                if (pathname) opt.path = pathname;
+
+            }
+        }
+        return new Promise(function (ok, oh) {
+            var data = [];
+            var onclose = function (res) {
+                res.on("end", function () {
+                    ok(Buffer.concat(data).toString());
+                })
+                res.on("data", function (chunk) {
+                    data.push(chunk);
+                });
+            };
+            if (protocol === 'https') {
+                var req = require("https").request(opt, onclose);
+                req.end();
+            } else {
+                var req = require("http").request(opt, onclose);
+                req.on("error", function () {
+                    var req = require("https").request(opt, onclose);
+                    req.on("error", oh);
+                    req.end();
+                });
+                req.end();
+            }
+        })
     },
     help(value1) {
         // 帮肋信息
