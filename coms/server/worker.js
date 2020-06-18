@@ -26,6 +26,7 @@ var closeListener = function () {
     if (!(server1 && server1.listening) && !(server2 && server2.listening)) {
         process.removeAllListeners();
         require("../efront/watch").close();
+        safeQuitProcess();
     }
 };
 var safeQuitProcess = function () {
