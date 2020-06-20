@@ -6,6 +6,17 @@ th {
     padding: 10px 16px;
     background: #fff;
 
+    >div {
+        span {
+            &:before {
+                content: '<a>pseudo</a>';
+                display: 'inline-block';
+                padding: 0 16px;
+                color: blue;
+            }
+        }
+    }
+
     >clone,
     >canvas {
         position: absolute !important;

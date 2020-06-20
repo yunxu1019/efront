@@ -1,5 +1,5 @@
 var cloneProperties = "fontSize,fontFamily,color,textShadow,opacity,writingMode,blockSize,wordSpacing,letterSpacing,whiteSpace".split(",");
-var cloneProperties2 = "position,margin,color,verticalAlign,textAlign,textShadow,opacity,boxShadow,overflow,writingMode,blockSize,wordSpacing,letterSpacing,textIndent,lineHeight,display,appearance,webkitAppearance,MozAppearance".split(",");
+var cloneProperties2 = "position,float,clear,margin,color,verticalAlign,textAlign,textShadow,opacity,boxShadow,overflow,writingMode,blockSize,wordSpacing,letterSpacing,textIndent,lineHeight,display,appearance,webkitAppearance,MozAppearance".split(",");
 var pushProperty = function (key, props) {
     props.split(",").forEach(k => {
         cloneProperties2.push(key + k);
@@ -66,10 +66,14 @@ var cloneChildren = function (td, copy, clone) {
                 return getZIndex(a) - getZIndex(b);
             }).forEach(clone);
     }
+    var before = clonePseudo(td, ':before'), after = clonePseudo(td, ':after');
+    if (before) copy.insertBefore(before, copy.firstChild);
+    if (after) copy.appendChild(after);
 
 };
 var isMaybeVisible = function (node) {
     if (!node || !node.parentNode || node.nodeType > 3 || node.nodeType === 2) return;
+    if (/^(style|link|script|meta)$/i.test(node)) return;
     var style = node.style;
     if (!style) {
         node = node.parentNode;
@@ -82,9 +86,38 @@ var isMaybeVisible = function (node) {
     if (style.overflow === "hidden") {
         if (node.offsetHeight === 0 || node.offsetWidth === 0) return;
     }
-    if (!overlap(node, node.parentNode)) return;
+    if (!overlap(node, node.offsetParent)) return;
     return true;
 }
+var clonePseudo = function (node, pseudo) {
+    var pseudoStyle = getComputedStyle(node, pseudo);
+    if (pseudoStyle.content === 'none' || !pseudoStyle.content) return;
+    var copy = document.createElement(pseudo.slice(1));
+    copy.innerText = pseudoStyle.content.replace(/^"|"$/g, '').replace(/\\([\s\S])/g, '$1');
+    copyStyle(pseudoStyle, copy.style);
+    return copy;
+};
+var hasPseudo = function (node, pseudo) {
+    var pseudoStyle = getComputedStyle(node, pseudo);
+    return pseudoStyle.content && pseudoStyle.content !== 'none';
+};
+var cloneCanvas = function (canvas) {
+    var clonedCanvas = canvas.cloneNode(false);
+    clonedCanvas.width = canvas.width;
+    clonedCanvas.height = canvas.height;
+    if (!canvas.getContext) return clonedCanvas;
+    var ctx = canvas.getContext('2d');
+    var clonedCtx = clonedCanvas.getContext('2d');
+    if (clonedCtx) {
+        if (ctx) {
+            clonedCtx.putImageData(ctx.getImageData(0, 0, canvas.width, canvas.height), 0, 0);
+        }
+        else {
+            clonedCtx.drawImage(canvas, 0, 0);
+        }
+    }
+    return clonedCanvas;
+};
 var cloneVisible = function (td) {
     var result = document.createElement("clone");
     var _left, _top, _right, _bottom;
@@ -107,9 +140,10 @@ var cloneVisible = function (td) {
             parentNode.appendChild(td);
             result.appendChild(copy);
         } else if (td.nodeType !== 1) return;
+
         else {
             var style = getComputedStyle(td);
-            if (/(?:hidden)/.test(style.overflow)) {
+            if (/(?:hidden)/.test(style.overflow) || hasPseudo(td, ":after")) {
                 var copy = cloneCell(td);
                 result.appendChild(copy);
             } else {
@@ -122,6 +156,7 @@ var cloneVisible = function (td) {
             if (!hasSvg && /^svg$/i.test(td.tagName)) {
                 hasSvg = true;
             }
+
         }
         var right = left + width;
         var bottom = top + height;
