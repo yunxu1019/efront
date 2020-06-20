@@ -1,18 +1,11 @@
-var html = `<div style="border:5px dashed;line-height:40px;text-align:center;text-shadow:1px 3px 0 red;color:#ff3;text-indent:20px">
-abc
-<input style="width:10px;height:10px;-webkit-appearance:none"/>
-<span style="writing-mode:vertical-rl;letter-spacing:12px">
-书生<br/>意气
-</span>
-</div>`;
-var ele = div();
-css(ele, "width:100px;height:100px;position:relative;background-color:#223223;overflow:hidden;border-radius:100px;")
-ele.innerHTML = html;
-function cloneVisible_test() {
+function main() {
+    var html = document.createElement("table");
+    html.innerHTML = cloneVisible_test;
+    var [td1, td2, td3] = html.children[2].children[0].children;
+    var ele=td1.children[0]
     setTimeout(function () {
         var clone = cloneVisible(ele);
-        css(clone, "left:100px;top:100px;position:absolute;z-index:10");
-        appendChild(document.body, clone);
+        appendChild(td2, clone);
         ele.with ? ele.with.push(clone) : ele.with = [clone];
         var e1 = window.e1 = ele.querySelector("input");
         var e2 = window.e2 = clone.querySelector("input");
@@ -23,6 +16,10 @@ function cloneVisible_test() {
                 console.warn(k, 'src:', s1[k], 'dst:', s2[k]);
             }
         }
+
+        html2canvas(ele, { backgroundColor: "rgba(0,0,0,0)" }).then(function (e) {
+            appendChild(td3, e);
+        });
     });
-    return ele;
+    return html;
 }
