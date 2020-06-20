@@ -315,7 +315,7 @@ var hookEvent = function (matcher, move, event) {
     hooka.call(dragbox || this, matcher, move, event, targetChild);
 };
 function addhook() {
-    var mousedownEvent, callback, matcher, dropid, allowdrops;
+    var mousedownEvent, targetElement, callback, matcher, dropid, allowdrops;
     [].forEach.call(arguments, function (arg) {
         switch (typeof arg) {
             case "string":
@@ -325,7 +325,8 @@ function addhook() {
                 if (!callback) {
                     callback = arg;
                 } else {
-                    matcher = arg;
+                    matcher = callback;
+                    callback = arg;
                 }
                 break;
             case "object":
@@ -333,11 +334,19 @@ function addhook() {
                     allowdrops = arg;
                     break;
                 }
-                mousedownEvent = arg;
+                if (isElement(arg)) {
+                    targetElement = arg;
+                    break;
+                }
+                if (arg !== null) mousedownEvent = arg;
                 break;
         }
     });
-    var target = mousedownEvent.currentTarget;
+    if (!targetElement && isElement(this)) {
+        targetElement = this;
+    }
+    if (!mousedownEvent) return;
+    var target = targetElement || mousedownEvent.currentTarget;
     hooka(function (target) {
         var res = [].filter.call(allowdrops || (matcher ? matcher(target) : document.querySelectorAll("[allowdrop]")), function (child) {
             return target && overlap(child, target);
