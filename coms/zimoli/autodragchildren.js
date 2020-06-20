@@ -186,8 +186,12 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     function dragclone() {
         rebuildTargets();
         if (targetBox) addClass(targetBox, 'dropping');
-        previousElements = previousElements.map(cloneCell);
-        followedElements = followedElements.map(cloneCell);
+        var _previousElements = previousElements.map(cloneCell);
+        var _followedElements = followedElements.map(cloneCell);
+        previousElements.splice(0, previousElements.length);
+        followedElements.splice(0, followedElements.length);
+        previousElements.push.apply(previousElements, _previousElements);
+        followedElements.push.apply(followedElements, _followedElements);
         setOpacity(targetBox, draggingSourceOpacity);
         appendChild(document.body, previousElements);
         appendChild(document.body, followedElements);
