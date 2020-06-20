@@ -109,7 +109,7 @@ var tdElementReg = /^t[hd]$/i;
 var trElementReg = /^tr$/i;
 
 function table(elem) {
-    var tableElement = isNode(elem) ? elem : document.createElement("table");
+    var tableElement = isElement(elem) ? elem : document.createElement("table");
     var activeCols = [];
     onmousemove(tableElement, adaptTarget);
     moveupon(tableElement, {
@@ -138,9 +138,9 @@ function table(elem) {
         });
     });
     var table = tableElement.hasAttribute("ng-src") || tableElement.hasAttribute("src") ? list(tableElement) : tableElement;
-    var [thead] = table.getElementsByTagName("thead");
-    var [tbody] = table.getElementsByTagName("tbody");
+    var thead;
     var cellMatchManager = function (element) {
+        if (!thead) [thead] = table.getElementsByTagName("thead");
         if (table.resizing) return false;
         if (!tdElementReg.test(element.tagName)) return false;
         var savedRowDeltas = [];
@@ -150,8 +150,11 @@ function table(elem) {
         var { colstart, colend } = element;
         return getTdsByCol(table, colstart, colend);
     };
+    table.dragbox = function () {
+        return thead;
+    };
     autodragchildren(
-        thead,
+        table,
         cellMatchManager,
         function (src, dst, rel, append, parentNode) {
             var children = parentNode.children;

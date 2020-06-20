@@ -310,7 +310,9 @@ var hookEvent = function (matcher, move, event) {
     if (event.target === this) return;
     var targetChild = getTargetIn(matcher, event.target, false);
     if (!targetChild) return;
-    hooka.call(this, matcher, move, event, targetChild);
+    var dragbox = this.dragbox;
+    if (dragbox instanceof Function) dragbox = dragbox.call(this);
+    hooka.call(dragbox || this, matcher, move, event, targetChild);
 };
 function addhook() {
     var mousedownEvent, callback, matcher, dropid, allowdrops;
