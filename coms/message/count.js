@@ -7,7 +7,7 @@ var count = function () {
         throw "只在主线程中使用";
     }
     var fs = require("fs");
-    var data_file = require("path").join(__dirname, "../data/count.json");
+    var data_file = require("path").join(__dirname, "../../data/count.json");
 
     function load() {
         try {
