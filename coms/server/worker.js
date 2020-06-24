@@ -2,19 +2,7 @@
 require("../efront/setupenv");
 var clients = require("./clients");
 var message = require("../message");
-var readline = require("readline");
-if (require("cluster").isMaster) {
-    if (process.stdin.isTTY) {
-        var rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
-        rl.addListener("SIGINT", process.exit);
-    }
-} else {
-    process.on("SIGINT", function () { });
-    process.on("SIGTERM", function () { });
-}
+require("../efront/quitme");
 process.on("uncaughtException", process.exit);
 process.on("unhandledRejection", process.exit);
 var { HTTPS_PORT, HTTP_PORT } = process.env;
@@ -40,18 +28,20 @@ var safeQuitProcess = function () {
         server2.close(closeListener);
     }
     reload.splice(0, reload.length).forEach(res => res.end(''));
+    process.removeAllListeners();
+    clients.destroy();
     process.exit();
 };
-var messageListener = function (msg, then) {
-    switch (msg) {
-        case "quit":
-            safeQuitProcess();
-            if (then instanceof Function) then();
-            break;
+
+message.quit = safeQuitProcess;
+message.deliver = function (a, b) {
+    if (b) {
+        b(clients.deliver(a[0], a[1]));
+    } else {
+        console.error("错误调用了子进程的deliver");
     }
 };
 //子线程们
-process.on("message", messageListener);
 // 仅做开发使用的简易服务器
 var http = require("http");
 var http2 = require("http2");
@@ -64,6 +54,7 @@ var ppid = process.ppid;
 var version = 'efront/' + ppid;
 var requestListener = function (req, res) {
     var req_access_origin = req.headers.origin;
+
     var req_access_headers = req.headers["access-control-request-headers"];
     var req_access_method = req.headers["access-control-request-method"];
     req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
@@ -71,6 +62,7 @@ var requestListener = function (req, res) {
     req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
     req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
     if (/^option/i.test(req.method)) {
+        efront:
         if (/^\/\:/.test(req.url)) {
             var option = req.url.slice(2);
             var address = req.connection.remoteAddress ||
@@ -85,10 +77,42 @@ var requestListener = function (req, res) {
                     let ports = [server1, server2].filter(a => a && a.listening).map(a => a.address().port);
                     process.send('quit');
                     res.end(`已关闭${ports.join("、")}端口`);
-                    break;
+                    break efront;
+            }
+            var type = /^(\w+)([\/\w\-]+)?(\?[\s\S]*)?$/.exec(option);
+            if (type) switch (type[1]) {
                 case "link":
                     var id = clients.create().id;
                     res.write(String(id));
+                    break;
+                case "care":
+                    var id = type[2];
+                    if (id) {
+                        id = id.slice(1);
+                        var client = clients.attach(id);
+                        client.listen(res);
+                        message.send('receive', id, function (msgids) {
+                            if (msgids && msgids.length) {
+                                client.deliver(msgids);
+                            }
+                        })
+                    } else {
+                        res.writeHead(403);
+                        res.end();
+                    }
+                    return;
+                case "cast":
+                    var id = type[2], msgid = type[3];
+                    if (id && msgid) {
+                        id = id.slice(1);
+                        msgid = msgid.slice(1);
+                        try {
+                            msgid = decodeURIComponent(msgid);
+                        } catch (e) {
+                            msgid = unescape(msgid);
+                        }
+                        message.send("deliver", [id, msgid]);
+                    }
                     break;
             }
         }

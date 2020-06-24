@@ -23,14 +23,22 @@ Client.prototype = {
     keep(time = 24 * 3600 * 1000 * 7) {
         this.optime += time;
     },
+    clean() {
+        this.messages.splice(0, this.messages.length);
+        this.refresh();
+    },
     deliver(msgid) {
         var { res } = this;
-        if (!res) {
+        if (msgid instanceof Array) {
+            this.messages.push.apply(this.messages, msgid)
+        } else if (msgid) {
             this.messages.push(msgid);
-            return;
         }
-        this.res = null;
-        res.end(msgid);
+        if (res) {
+            this.res = null;
+            res.end(JSON.stringify(this.messages));
+            this.clean();
+        }
     },
     listen(res) {
         if (!this.messages.length) {

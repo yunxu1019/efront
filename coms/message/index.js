@@ -9,7 +9,7 @@ var message_handlers_path = "../../coms/message";
 // message 文件夹中定义主进程的方法
 // 子进程可通过message的属性访问主进程中的方法
 message_handlers_path = path.join(__dirname, message_handlers_path);
-var onmessage = function (msg, then) {
+var onmessage = function (msg, __then) {
     var index = msg.indexOf(":");
     var run, args, key, stamp;
     if (index < 0) {
@@ -24,7 +24,8 @@ var onmessage = function (msg, then) {
         var notSupport = () => console.info('Not Support', `message[${key}]:${this.id}`);
         if (args) {
             var { params, stamp } = JSON.parse(args);
-            if (!then) then = stamp ? (result) => {
+            var then = stamp ? (result) => {
+                if (__then) __then();
                 __send(this, "onresponse", {
                     params: result,
                     stamp
@@ -34,6 +35,7 @@ var onmessage = function (msg, then) {
         } else {
             run.call(onmessage, null, then || notSupport);
         }
+        if (__then && !then) __then();
     }
 };
 var callback_maps = {};

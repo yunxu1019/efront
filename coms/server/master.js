@@ -1,14 +1,12 @@
 "use strict";
-var readline = require("readline");
 var cluster = require("cluster");
 var isDevelop = require("../efront/isDevelop");
 var message = require("../message");
+var clients = require("./clients");
 var fs = require("fs");
 var path = require("path");
-if (process.stdin.isTTY) var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+
+
 var counter = 0;
 var quitting = [], notkilled = [];
 var workers = [];
@@ -22,17 +20,12 @@ var end = function () {
         console.info("正在退出..");
         afterend();
     }
-    workers = [];
+    workers.splice(0, workers.length);
     exit();
 };
-if (rl) rl.addListener("SIGINT", end);
 var afterend = function () {
     process.removeAllListeners();
     watch.close();
-    if (rl) {
-        rl.removeAllListeners();
-        rl.pause();
-    }
     notkilled.forEach(a => a.kill());
 };
 var exit = function () {
@@ -41,12 +34,19 @@ var exit = function () {
         var timeout = setTimeout(function () {
             worker.kill();
         }, isQuit ? 100 : 24 * 60 * 60 * 1000);
-        worker.on("disconnect", function () {
+        var remove = function () {
             clearTimeout(timeout);
             var index = notkilled.indexOf(worker);
             notkilled.splice(index);
-        });
-        worker.send("quit");
+            if (!notkilled.length) {
+                clients.destroy();
+                if (!workers.length && !quitting.length) {
+                    process.exit();
+                }
+            }
+        }
+        worker.on("disconnect", remove);
+        message.send(worker, 'quit');
         notkilled.push(worker);
     });
 };
@@ -68,7 +68,7 @@ var run = function () {
     quitting = quitting.concat(workers);
     if (quitting.length) console.info(`${quitting.length}个子进程准备退出:${quitting.map(a => a.id)}`);
     var workking = 0;
-    workers = cpus.map(function () {
+    var _workers = cpus.map(function () {
         counter++;
         var worker = cluster.fork();
         worker.on("listening", function () {
@@ -93,6 +93,7 @@ var run = function () {
         worker.on("message", message);
         return worker;
     });
+    workers.push.apply(workers, _workers);
 };
 var isProduction = function develop() { return develop.name === 'develop' }();
 var watch = {
@@ -107,8 +108,32 @@ var watch = {
 };
 message.quit = end;
 message.broadcast = broadcast;
-process.on("SIGINT", end);
-process.on("SIGTERM", end);
+message.deliver = function (a) {
+    var [clientid, msgid] = a;
+    var count = 0;
+    var rest = 0;
+    var client = clients.attach(clientid);
+    client.refresh();
+    client.deliver(msgid);
+    workers.forEach(function (worker) {
+        rest++;
+        message.send(worker, 'deliver', [clientid, client.messages], function (a) {
+            count += +a || 0;
+            rest--;
+            if (!rest && !count) {
+                client.keep();
+            }
+        });
+    });
+};
+message.receive = function (clientid, cb) {
+    var client = clients.get(clientid);
+    if (client) {
+        cb(client.messages);
+        client.clean();
+    }
+};
+require("../efront/quitme")(end);
 run();
 process.on("uncaughtException", function () {
     console.error.apply(console, arguments);

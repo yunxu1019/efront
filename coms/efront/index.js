@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 "use strict";
-
 var cluster = require("cluster");
 var path = require('path');
 var fs = require("fs");
@@ -164,8 +163,11 @@ var helps = [
     "在当前文件夹启动服务器,server,serve|serv|http HTTP_PORT HTTPS_PORT,serve|serv|http HTTP_PORT,https HTTPS_PORT HTTP_PORT,https HTTPS_PORT,HTTP_PORT HTTPS_PORT,HTTP_PORT,",
     "显示本机ip地址,ip,-ip,--ip",
     "编译项目,public,publish,build,release",
+    "监测文件变化，自动编译更新的部分并输出到指定目录,watch",
     "关闭efront服务器,kill HTTP_PORT|HTTPS_PORT,close HTTP_PORT|HTTPS_PORT",
-    "监测文件变化，自动编译更新的部分并输出到指定目录,watch"
+    "连接一台efront服务器，取得连接号,link ADDRESS",
+    "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
+    "向一个连接号显示此连接号所收的消息,cast ADDRESST LINKID MESSAGE",
 ];
 var commands = {
     version() {
@@ -175,34 +177,41 @@ var commands = {
         );
     },
     kill(port) {
-        this.link(port ? port + "/:quit" : "/:quit").then(console.info, console.error);
+        this.request(port ? port + "/:quit" : "/:quit").then(console.info, console.error);
     },
-    link(address) {
+    parse(address) {
         var opt = {
             method: 'options',
             host: '::',
             rejectUnauthorized: false,
             allowHTTP1: true,
+
             path: '/:link',
         };
+        if (address instanceof Object) {
+            return Object.assign(address, Object.assign(opt, address));
+        }
         if (/^\:?\d+(\/[\:\w]+)?$/.test(address)) {
             var [port, pathname] = address.split("/");
             opt.port = +port.replace(/^:/, '');
             if (pathname) opt.path = "/" + pathname;
-        } else if (/^\:[\w]*/) {
+        } else if (/^\:[\w]*$/.test(address)) {
             opt.path = "/" + address;
         } else {
             var match = /^([a-z]*?\/\/|[a-z]\w*?\:\/\/)?([\w\.]*?)(\:\d+)?(\/\:?[\w\/]*)?$/i.exec(address);
             if (match) {
                 var [_, protocol, host, port, pathname] = match;
                 if (protocol) {
-                    protocol = protocol.replace(/\:\/*$/, '');
+                    protocol = protocol.replace(/\/*$/, '');
                     switch (protocol) {
                         case "s":
-                            protocol = "https";
+                            protocol = "https:";
                             break;
+                        case "":
+                            protocol = "http:";
                         default:
                     }
+                    opt.protocol = protocol;
                 }
                 if (port) opt.port = +port.replace(/^:/, '');
                 if (host) opt.host = host;
@@ -210,7 +219,17 @@ var commands = {
 
             }
         }
+        return opt;
+    },
+    request(address) {
+        var opt = this.parse(address);
+        var quitme = require("../efront/quitme");
         return new Promise(function (ok, oh) {
+            quitme(function () {
+                req.removeAllListeners();
+                req.on("error", () => { });
+                req.abort();
+            });
             var data = [];
             var onclose = function (res) {
                 res.on("end", function () {
@@ -220,12 +239,13 @@ var commands = {
                     data.push(chunk);
                 });
             };
-            if (protocol === 'https') {
+            if (opt.protocol === 'https:') {
                 var req = require("https").request(opt, onclose);
                 req.end();
             } else {
                 var req = require("http").request(opt, onclose);
                 req.on("error", function () {
+                    opt.protocol = 'https:';
                     var req = require("https").request(opt, onclose);
                     req.on("error", oh);
                     req.end();
@@ -233,6 +253,36 @@ var commands = {
                 req.end();
             }
         })
+
+    },
+    link(address) {
+        this.request(address).then(console.info);
+    },
+    care(address, linkid) {
+        var opt = this.parse(address);
+        opt.path = "/:link";
+        var error = function (e) {
+            console.error(e);
+        };
+        var run = function (res, type) {
+            console.type(`<cyan>${type || '消息'}</cyan>`, res, '\r\n');
+            commands.request(opt).then(run, error);
+        };
+
+        var req = function (res) {
+            opt.path = '/:care-' + res;
+            run(res, '已登录');
+        };
+        if (linkid) {
+            req(linkid);
+        } else {
+            this.request(opt).then(req, error);
+        }
+    },
+    cast(address, linkid, msg) {
+        var opt = this.parse(address);
+        opt.path = `/:cast-${linkid}?${encodeURIComponent(msg)}`;
+        this.request(opt);
     },
     help(value1) {
         // 帮肋信息
@@ -504,6 +554,9 @@ var topics = {
     HTTP_PORT: " http 端口|80",
     HTTPS_PORT: " https 端口|443",
     VARIABLES: "变量名",
+    ADDRESS: "efront服务器地址",
+    LINKID: "efront服务器提供的连接号",
+    MESSAGE: "文本消息",
 };
 topics.VARIABLES += "," + Object.keys(topics);
 var run = function (type, value1, value2, value3) {
