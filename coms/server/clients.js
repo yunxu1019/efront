@@ -20,6 +20,9 @@ Client.prototype = {
     refresh() {
         this.optime = +new Date;
     },
+    keep(time = 24 * 3600 * 1000 * 7) {
+        this.optime += time;
+    },
     deliver(msgid) {
         var { res } = this;
         if (!res) {
