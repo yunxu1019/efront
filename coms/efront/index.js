@@ -221,15 +221,17 @@ var commands = {
         }
         return opt;
     },
-    request(address) {
+    request(address, quitable = false) {
         var opt = this.parse(address);
-        var quitme = require("../efront/quitme");
         return new Promise(function (ok, oh) {
-            quitme(function () {
-                req.removeAllListeners();
-                req.on("error", () => { });
-                req.abort();
-            });
+            if (quitable) {
+                var quitme = require("../efront/quitme");
+                quitme(function () {
+                    req.removeAllListeners();
+                    req.on("error", () => { });
+                    req.abort();
+                });
+            }
             var data = [];
             var onclose = function (res) {
                 res.on("end", function () {
@@ -276,7 +278,7 @@ var commands = {
         if (linkid) {
             req(linkid);
         } else {
-            this.request(opt).then(req, error);
+            this.request(opt, true).then(req, error);
         }
     },
     cast(address, linkid, msg) {
