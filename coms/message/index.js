@@ -38,6 +38,36 @@ var onmessage = function (msg, then) {
         }
     }
 };
+var callback_maps = {};
+// 发送对主进程方法的访问消息
+var send = function (worker, key, params, then) {
+    var stamp;
+    if (then instanceof Function) {
+        do {
+            stamp = Math.random().toString("36").slice(2);
+        } while (stamp in callback_maps);
+        callback_maps[stamp] = function () {
+            delete callback_maps[stamp];
+            then.apply(null, arguments);
+        };
+    }
+    worker.send([key, JSON.stringify({
+        params, stamp
+    })].join(":"));
+};
+if (isDebug) {
+    send = function () {
+    };
+}
+//收到主进程的回复
+var onresponse = function ({ stamp, params }) {
+    var callback = callback_maps[stamp];
+    delete callback_maps[stamp];
+    if (callback instanceof Function) {
+        callback(params);
+    }
+};
+onmessage.onresponse = onresponse;
 
 if (cluster.isMaster && !isDebug) {
     fs.readdirSync(message_handlers_path).forEach(function (name) {
@@ -47,38 +77,10 @@ if (cluster.isMaster && !isDebug) {
             onmessage[key] = require(path.join(message_handlers_path, name));
         }
     });
+
     module.exports = onmessage;
+    onmessage.send = send;
 } else {
-    var callback_maps = {};
-    // 发送对主进程方法的访问消息
-    var send = function (key, params, then) {
-        var stamp;
-        if (then instanceof Function) {
-            do {
-                stamp = Math.random().toString("36").slice(2);
-            } while (stamp in callback_maps);
-            callback_maps[stamp] = function () {
-                delete callback_maps[stamp];
-                then.apply(null, arguments);
-            };
-        }
-        process.send([key, JSON.stringify({
-            params, stamp
-        })].join(":"));
-    };
-    if (isDebug) {
-        send = function () {
-        };
-    }
-    //收到主进程的回复
-    var onresponse = function ({ stamp, params }) {
-        var callback = callback_maps[stamp];
-        delete callback_maps[stamp];
-        if (callback instanceof Function) {
-            callback(params);
-        }
-    };
-    onmessage.onresponse = onresponse;
     fs.readdirSync(message_handlers_path).forEach(function (name) {
         var match = name.match(/^(.*).js$/);
         if (match) {
@@ -88,20 +90,7 @@ if (cluster.isMaster && !isDebug) {
             };
         }
     });
-    var processMessageListener = function (msg, then) {
-        var index = msg.indexOf(":");
-        if (index > 0) {
-            var key = msg.slice(0, index),
-                value = msg.slice(index + 1);
-
-        } else {
-            var key = msg,
-                value = void 0;
-        }
-        var data = value ? JSON.parse(value) : void 0;
-        if (key in onmessage) onmessage[key](data);
-    };
-    process.on("message", processMessageListener);
+    process.on("message", onmessage);
 
     module.exports = new Proxy(onmessage, {
         get: function (o, k) {
@@ -122,4 +111,5 @@ if (cluster.isMaster && !isDebug) {
             return o[k] = v;
         }
     });
+    onmessage.send = send = send.bind(onmessage, process);
 }
