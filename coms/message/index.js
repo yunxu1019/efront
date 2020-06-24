@@ -25,11 +25,9 @@ var onmessage = function (msg, then) {
         if (args) {
             var { params, stamp } = JSON.parse(args);
             if (!then) then = stamp ? (result) => {
-                !this.isDead() && (this.state === "online" || cluster.isMaster) && this.send("onresponse:" + JSON.stringify({
+                __send(this, "onresponse", {
                     params: result,
                     stamp
-                }), (error) => {
-                    if (error) console.error(error, `message[${key}]:${this.id}`);
                 });
             } : null;
             run.call(onmessage, params, then, stamp);
@@ -40,7 +38,7 @@ var onmessage = function (msg, then) {
 };
 var callback_maps = {};
 // 发送对主进程方法的访问消息
-var send = function (worker, key, params, then) {
+var send, __send = send = function (worker, key, params, then) {
     var stamp;
     if (then instanceof Function) {
         do {
