@@ -268,7 +268,7 @@ var commands = {
         };
         var run = function (res, type) {
             console.type(`<cyan>${type || '消息'}</cyan>`, res, '\r\n');
-            commands.request(opt).then(run, error);
+            commands.request(opt, true).then(run, error);
         };
 
         var req = function (res) {
