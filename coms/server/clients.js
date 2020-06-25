@@ -36,20 +36,16 @@ Client.prototype = {
         }
         if (res) {
             this.res = null;
-            res.end(JSON.stringify(this.messages));
+            var msg = JSON.stringify(this.messages);
+            res.forEach(a => a.end(msg));
             this.clean();
         }
     },
     listen(res) {
-        if (!this.messages.length) {
-            if (this.res){
-                
-            };
-            this.res = res;
-            return;
-        }
-        var msgs = this.messages.splice(0, this.messages.length);
-        res.end(msgs.join());
+        if (!this.res) {
+            this.res = [];
+        };
+        this.res.push(res);
     },
     valueOf() {
         return this.id;
@@ -103,8 +99,10 @@ var methods = {
     deliver(clientid, message) {
         var client = this.get(clientid);
         if (client) {
-            client.deliver(message);
-            return true;
+            if (client.res) {
+                client.deliver(message);
+                return true;
+            }
         }
         return false;
     },
