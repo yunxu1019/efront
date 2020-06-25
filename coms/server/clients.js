@@ -42,11 +42,14 @@ Client.prototype = {
     },
     listen(res) {
         if (!this.messages.length) {
+            if (this.res){
+                
+            };
             this.res = res;
             return;
         }
         var msgs = this.messages.splice(0, this.messages.length);
-        res.write(msgs.join());
+        res.end(msgs.join());
     },
     valueOf() {
         return this.id;

@@ -45,10 +45,12 @@ function request(fullpath, data, info) {
                 fullpath,
                 data: data,
                 info: info
-            }, function (result) {
+            }, function (res) {
+                ok(res);
+            }, function (err) {
+                oh(err);
+            }, function () {
                 multithreading_requestCount--;
-                if (result.status === 200) ok(result.result);
-                else oh(result.result || result.status);
             });
         });
     }
@@ -75,7 +77,7 @@ function request(fullpath, data, info) {
         if (args.length === 1) {
             message.abpi({
                 fullpath
-            }, function (result) {
+            }, function () {
                 queue.shift();
                 runner();
             });
@@ -84,10 +86,8 @@ function request(fullpath, data, info) {
                 fullpath,
                 data: data,
                 info: info
-            }, function (result) {
+            }, ok, oh, function () {
                 queue.shift();
-                if (result.status === 200) ok(result.result);
-                else oh(result.result || result.status);
                 runner();
             });
         }

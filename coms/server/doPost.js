@@ -20,18 +20,17 @@ var handle = {
         message.count(req.headers.referer);
         res.end();
     },
-
-    "/webhook"(req, res) {
-        readdata(req, res, function (buff) {
-            try {
-                var token = JSON.parse(String(buff)).token;
-                require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("../message").webhook();
-                res.end();
-            } catch (e) {
-                res.end(String(e));
-            }
-        }, 200000);
-    }
+    // "/webhook"(req, res) {
+    //     readdata(req, res, function (buff) {
+    //         try {
+    //             var token = JSON.parse(String(buff)).token;
+    //             require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("../message").webhook();
+    //             res.end();
+    //         } catch (e) {
+    //             res.end(String(e));
+    //         }
+    //     }, 200000);
+    // }
 };
 
 if (isDevelop) {
@@ -41,9 +40,9 @@ if (isDevelop) {
     };
 
     require("../efront/cache").onreload(function () {
-        message.reload();
+        message.broadcast('reload');
     });
-    message.onreload = function () {
+    message.reload = function () {
         connections.splice(0).forEach(res => res.end());
     };
 }

@@ -34,12 +34,8 @@ var safeQuitProcess = function () {
 };
 
 message.quit = safeQuitProcess;
-message.deliver = function (a, b) {
-    if (b) {
-        b(clients.deliver(a[0], a[1]));
-    } else {
-        console.error("错误调用了子进程的deliver");
-    }
+message.deliver = function (a) {
+    return clients.deliver(a[0], a[1]);
 };
 //子线程们
 // 仅做开发使用的简易服务器
@@ -95,7 +91,7 @@ var requestListener = function (req, res) {
                             if (msgids && msgids.length) {
                                 client.deliver(msgids);
                             }
-                        })
+                        },null);
                     } else {
                         res.writeHead(403);
                         res.end();

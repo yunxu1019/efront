@@ -50,12 +50,9 @@ var exit = function () {
         notkilled.push(worker);
     });
 };
-var broadcast = function (value) {
-    var index = value.indexOf(":");
-    var key = value.slice(0, index);
-    var data = value.slice(index + 1);
+var broadcast = function (data) {
     quitting.concat(workers).forEach(function (worker) {
-        worker.send([key, data].join(":"));
+        message.send(worker, 'onbroadcast', data);
     });
 };
 var run = function () {
@@ -110,15 +107,14 @@ message.quit = end;
 message.broadcast = broadcast;
 message.deliver = function (a) {
     var [clientid, msgid] = a;
-    var count = 0;
-    var rest = 0;
     var client = clients.attach(clientid);
     if (client.messages.length) {
         client.deliver(msgid);
         return;
     }
+    var count = 0;
+    var rest = workers.length;
     workers.forEach(function (worker) {
-        rest++;
         message.send(worker, 'deliver', [clientid, msgid], function (a) {
             count += +a || 0;
             rest--;
@@ -129,11 +125,12 @@ message.deliver = function (a) {
         });
     });
 };
-message.receive = function (clientid, cb) {
+message.receive = function (clientid) {
     var client = clients.get(clientid);
     if (client) {
-        cb(client.messages);
+        var messages = client.messages.slice(0);
         client.clean();
+        return messages;
     }
 };
 require("../efront/quitme")(end);

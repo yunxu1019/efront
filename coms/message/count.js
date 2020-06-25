@@ -37,7 +37,7 @@ process.on('exit', function () {
     }
 });
 
-module.exports = function count({ path, update }, then) {
+module.exports = function count({ path, update }) {
     if (update) {
         if (!counts[path]) {
             counts[path] = 0;
@@ -46,7 +46,7 @@ module.exports = function count({ path, update }, then) {
         countTimes++;
     }
     if (!counts[path]) {
-        return then && then(0);
+        return 0;
     }
-    then && then(counts[path]);
+    return counts[path];
 }
