@@ -21,35 +21,54 @@ var onmessage = function (msg, __then) {
         args = msg.slice(index + 1);
     }
     if (run instanceof Function) {
-        var notSupport = () => console.info('Not Support', `message[${key}]:${this.id}`);
         if (args) {
             var { params, stamp } = JSON.parse(args);
+            var sended = false;
+            var error = null, status = 200;
             var then = stamp ? (result) => {
                 if (__then) __then();
+                if (sended) return;
+                sended = true;
                 __send(this, "onresponse", {
                     params: result,
+                    error,
+                    status,
                     stamp
                 });
             } : null;
-            run.call(onmessage, params, then, stamp);
         } else {
-            run.call(onmessage, null, then || notSupport);
+            params = null;
+        }
+        if (then) {
+            var crash = function (error) {
+                error = String(error);
+                status = 403,
+                    then(null);
+            };
+            try {
+                Promise.resolve(run.call(onmessage, params)).then(then, crash);
+            } catch (e) {
+                crash(e);
+            }
+        } else {
+            try {
+                Promise.resolve(run.call(onmessage, params)).catch(console.error);
+            } catch (e) {
+                console.error(e);
+            }
         }
         if (__then && !then) __then();
     }
 };
 var callback_maps = {};
-// 发送对主进程方法的访问消息
-var send, __send = send = function (worker, key, params, then) {
+// 发送消息到指定进程
+var send, __send = send = function (worker, key, params, onsuccess, onerror) {
     var stamp;
-    if (then instanceof Function) {
+    if (onsuccess instanceof Function || onerror instanceof Function) {
         do {
             stamp = Math.random().toString("36").slice(2);
         } while (stamp in callback_maps);
-        callback_maps[stamp] = function () {
-            delete callback_maps[stamp];
-            then.apply(null, arguments);
-        };
+        callback_maps[stamp] = [onsuccess, onerror];
     }
     worker.send([key, JSON.stringify({
         params, stamp
@@ -59,12 +78,18 @@ if (isDebug) {
     send = function () {
     };
 }
-//收到主进程的回复
-var onresponse = function ({ stamp, params }) {
+//收到其他进程的回复
+var onresponse = function ({ stamp, params, error }) {
     var callback = callback_maps[stamp];
     delete callback_maps[stamp];
-    if (callback instanceof Function) {
-        callback(params);
+    if (callback instanceof Array) {
+        var [onsuccess, onerror] = callback;
+        if (!error) {
+            if (onsuccess instanceof Function) onsuccess(params);
+        } else {
+            if (onerror instanceof Function) onerror(error);
+            else console.error(error);
+        }
     }
 };
 onmessage.onresponse = onresponse;
@@ -78,38 +103,17 @@ if (cluster.isMaster && !isDebug) {
         }
     });
 
-    module.exports = onmessage;
     onmessage.send = send;
 } else {
     fs.readdirSync(message_handlers_path).forEach(function (name) {
         var match = name.match(/^(.*).js$/);
         if (match) {
             var key = match[1];
-            onmessage[key] = function (data, then) {
-                send(key, data, then);
-            };
+            onmessage[key] = __send.bind(onmessage, process, key);
         }
     });
     process.on("message", onmessage);
 
-    module.exports = new Proxy(onmessage, {
-        get: function (o, k) {
-            if (!(k in o) && ("on" + k) in o) {
-                // message文件夹中未定义 并且已定义 on*
-                return function (...args) {
-                    return send("broadcast", "on" + k + ":" + JSON.stringify(args));
-                };
-            } else if (k in o) {
-                // 自动广播子线程的方法 on*
-                return o[k];
-            } else {
-                throw `message faild with key ${k}!`;
-            }
-        },
-        set: function (o, k, v) {
-            if (k in o) throw new Error(`the property '${k}' is already in object [message]!`);
-            return o[k] = v;
-        }
-    });
     onmessage.send = send = send.bind(onmessage, process);
 }
+module.exports = onmessage;
