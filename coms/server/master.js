@@ -113,14 +113,17 @@ message.deliver = function (a) {
     var count = 0;
     var rest = 0;
     var client = clients.attach(clientid);
-    client.refresh();
-    client.deliver(msgid);
+    if (client.messages.length) {
+        client.deliver(msgid);
+        return;
+    }
     workers.forEach(function (worker) {
         rest++;
-        message.send(worker, 'deliver', [clientid, client.messages], function (a) {
+        message.send(worker, 'deliver', [clientid, msgid], function (a) {
             count += +a || 0;
             rest--;
             if (!rest && !count) {
+                client.deliver(msgid);
                 client.keep();
             }
         });
