@@ -18,3 +18,4 @@ tools/zanme.js
 tools/prebuilds/
 process/asm/
 *.tgz
+report.*
