@@ -91,7 +91,7 @@ var requestListener = function (req, res) {
                             if (msgids && msgids.length) {
                                 client.deliver(msgids);
                             }
-                        },null);
+                        }, null);
                     } else {
                         res.writeHead(403);
                         res.end();
@@ -102,6 +102,10 @@ var requestListener = function (req, res) {
                     if (id && msgid) {
                         id = id.slice(1);
                         msgid = msgid.slice(1);
+                        if (msgid.length > 256) {
+                            res.writeHead(400);
+                            break;
+                        }
                         try {
                             msgid = decodeURIComponent(msgid);
                         } catch (e) {

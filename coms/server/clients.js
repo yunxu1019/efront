@@ -1,6 +1,7 @@
-var clients = [];
+var clients = [], indexedKeepingClients = [];
 var increaseId = 0x1fffffff + (0x1fffffff * Math.random() | 0);
 
+var byOptime = (a, b) => a.optime <= b.optime;
 
 var Client = function (id = ++increaseId) {
     if (id instanceof Object) {
@@ -17,11 +18,19 @@ Client.prototype = {
     res: null,
     messages: [],
     printer: null,
+    removeIndex() {
+        var index = getIndexFromOrderedArray(indexedKeepingClients, this, byOptime);
+        if (indexedKeepingClients[index] === this) {
+            indexedKeepingClients.splice(index, 1);
+        }
+    },
     refresh() {
         this.optime = +new Date;
     },
     keep(time = 24 * 3600 * 1000 * 7) {
+        this.removeIndex();
         this.optime += time;
+        saveToOrderedArray(indexedKeepingClients, this, byOptime);
     },
     clean() {
         this.messages.splice(0, this.messages.length);
@@ -51,19 +60,36 @@ Client.prototype = {
         return this.id;
     }
 };
-var index = 0;
+var removedindex = 0;
 var autoremove = function () {
     var time = +new Date, delta = 10 * 1000;
-    for (var cx = index, dx = index - 1000; cx > dx; cx--) {
+    for (var cx = removedindex, dx = removedindex - 1000; cx > dx; cx--) {
         if (cx <= 0) {
-            cx = clients.length;
+            removedindex = clients.length - 1;
             return;
         }
         var client = clients[cx];
         if (client.res) continue;
         if (client.optime + delta < time) {
-            clients.splice(cx, 1);
+            clients.splice(cx, 1)[0].removeIndex();
+        } else {
+            var messages = client.messages;
+            if (messages.length > 200) {
+                messages.splice(messages.length - 200, messages.length);
+            }
         }
+    }
+    removedindex = dx;
+    if (indexedKeepingClients.length >= 3000) {
+        for (var cx = indexedKeepingClients.length; cx >= 2000; cx--) {
+            var client = indexedKeepingClients[cx];
+            var clientindex = getIndexFromOrderedArray(clients, client);
+            if (clients[clientindex] === client) {
+                clients.splice(clientindex, 1);
+            }
+        }
+        indexedKeepingClients.splice(2000, indexedKeepingClients.length);
+        if (removedindex >= clients.length) removedindex = clients.length - 1;
     }
 };
 
@@ -109,9 +135,9 @@ var methods = {
     detach(clientid) {
         var index = getIndexFromOrderedArray(clients, clientid);
         if (clients[index].id === clientid) {
-            clients.splice(index, 1);
+            clients.splice(index, 1)[0].removeIndex();
         }
     }
 };
-
-module.exports = methods;
+Object.assign(clients, methods);
+module.exports = clients;
