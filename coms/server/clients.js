@@ -54,6 +54,8 @@ Client.prototype = {
         if (!this.res) {
             this.res = [];
         };
+        res.on('close', setClosed);
+
         this.res.push(res);
     },
     valueOf() {
@@ -61,16 +63,22 @@ Client.prototype = {
     }
 };
 var removedindex = 0;
+var setClosed = function () {
+    this.isclosed = true;
+};
 var autoremove = function () {
-    var time = +new Date, delta = 10 * 1000;
-    for (var cx = removedindex, dx = removedindex - 1000; cx > dx; cx--) {
-        if (cx <= 0) {
-            removedindex = clients.length - 1;
-            return;
+    var time = +new Date, delta = 30 * 1000;
+    for (var cx = removedindex - 1, dx = removedindex - 1000; cx >= dx; cx--) {
+        if (cx < 0) {
+            break;
         }
         var client = clients[cx];
-        if (client.res) continue;
         if (client.optime + delta < time) {
+            var res = client.res;
+            if (res instanceof Array) {
+                client.deliver();
+                continue;
+            }
             clients.splice(cx, 1)[0].removeIndex();
         } else {
             var messages = client.messages;
@@ -80,6 +88,9 @@ var autoremove = function () {
         }
     }
     removedindex = dx;
+    if (removedindex <= 0) {
+        removedindex = clients.length;
+    }
     if (indexedKeepingClients.length >= 3000) {
         for (var cx = indexedKeepingClients.length; cx >= 2000; cx--) {
             var client = indexedKeepingClients[cx];
@@ -98,7 +109,7 @@ var interval = setInterval(autoremove, 20);
 var methods = {
     destroy() {
         clearInterval(interval);
-        clients.splice(0, clients.length).forEach(u => u.res && u.res.end());
+        clients.splice(0, clients.length).forEach(u => u.deliver());
     },
     get(clientid) {
         var index = getIndexFromOrderedArray(clients, clientid);

@@ -87,11 +87,16 @@ var requestListener = function (req, res) {
                         id = id.slice(1);
                         var client = clients.attach(id);
                         client.listen(res);
+                        client.refresh();
                         message.send('receive', id, function (msgids) {
                             if (msgids && msgids.length) {
                                 client.deliver(msgids);
                             }
                         }, null);
+                        if (clients.length > 40000) {
+                            res.writeHead(503);
+                            res.end();
+                        }
                     } else {
                         res.writeHead(403);
                         res.end();
