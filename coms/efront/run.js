@@ -171,7 +171,7 @@ function efront() {
         },
         setInterval(f, timerout) {
             var args = [].slice.call(arguments, 2);
-            var handle = setTimeout(function () {
+            var handle = setInterval(function () {
                 delete intervalHandles[handle];
                 return f.apply(this, args);
             }, timerout);
