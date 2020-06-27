@@ -203,9 +203,13 @@ function toComponent(responseTree) {
         saveOnly(data, __dirname);
     };
     function saveOnly(data, k, ...ks) {
+        var warning = null;
         if (!destMap[k]) {
             var isGlobal = /^[\$_a-z]\w*$/i.test(data) && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true)$/.test(data);
             if (isGlobal) {
+                if (!/^(console|Boolean|Promise|JSON|module|exports|require|__dirname|__filename|Buffer|Symbol|process|Map|Set|(Ui|I)nt(8|16|32)Array|RangeError|setImmediate|Proxy|Intl|Map|TypeError|RangeError|global|parent|opener|top|length|frames|closed|location|self|window|document|name|customElements|history|locationbar|menubar|personalbar|scrollbars|statusbar|toolbar|status|frameElement|navigator|origin|external|screen|innerWidth|innerHeight|scrollX|pageXOffset|scrollY|pageYOffset|visualViewport|screenX|screenY|outerWidth|outerHeight|devicePixelRatio|clientInformation|screenLeft|screenTop|defaultStatus|defaultstatus|styleMedia|isSecureContext|performance|stop|open|alert|confirm|prompt|print|queueMicrotask|requestAnimationFrame|cancelAnimationFrame|captureEvents|releaseEvents|requestIdleCallback|cancelIdleCallback|getComputedStyle|matchMedia|moveTo|moveBy|resizeTo|resizeBy|scroll|scrollTo|scrollBy|getSelection|find|webkitRequestAnimationFrame|webkitCancelAnimationFrame|fetch|btoa|atob|createImageBitmap|close|focus|blur|postMessage|crypto|indexedDB|webkitStorageInfo|sessionStorage|localStorage|chrome|orientation|speechSynthesis|webkitRequestFileSystem|webkitResolveLocalFileSystemURL|openDatabase)/.test(data)) {
+                    warning = true;
+                }
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
             }
             if (!encoded) {
@@ -222,7 +226,7 @@ function toComponent(responseTree) {
         ks.forEach(function (key) {
             destMap[key] = destMap[k];
         });
-
+        return warning;
     }
     if (array_map) saveCode([String(array_map.data)], "map");
     if (include_required) {
@@ -241,16 +245,20 @@ function toComponent(responseTree) {
     });
     var saveGlobal = function (globalName) {
         if (responseTree[globalName] && !responseTree[globalName].data && !destMap[globalName]) {
-            saveOnly(globalName, globalName);
+            var warn = saveOnly(globalName, globalName);
         }
         if (!destMap[globalName] && responseTree[globalName]) ok = false;
+        return warn;
     };
     var circle_result, PUBLIC_APP, public_index;
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, required, reqMap, ...module_body] = result[cx];
             var ok = true;
-            module_body.slice(0, module_body.length >> 1).concat(required || []).forEach(saveGlobal);
+            var errored = module_body.slice(0, module_body.length >> 1).concat(required || []).filter(saveGlobal);
+            if (errored.length) {
+                console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`, errored.map(a=>`<gray>${a}</gray>`));
+            }
             if (!responseTree[k].data) {
                 result.splice(cx, 1);
                 continue;

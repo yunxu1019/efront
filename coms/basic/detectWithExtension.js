@@ -21,7 +21,7 @@ function detectWithExtension(filename, extensions = [""], folders = [""]) {
                         aftfix = 0;
                         run();
                     } else {
-                        oh(`路径${filename}不存在`);
+                        oh(`路径<gray>${filename}</gray>不存在`);
                     }
                 }
                 else run();

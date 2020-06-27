@@ -130,11 +130,11 @@ var write = function (hasNewLine, str) {
     var fgColor = colors[fg] || "",
         bgColor = colors[bg] || "",
         reset = colors.Reset;
-    var hasNewLine = /^(warn|error|pass|fail)$/.test(log);
+    var hasNewLine = /^(warn|error|pass|fail)$/.test(log), logTime = log === 'error';
     var logger = function (...args) {
         var label = fgColor + bgColor + info + reset;
         var time_stamp = '';
-        if (hasNewLine) logStamp();
+        if (logTime) logStamp();
         var str = [time_stamp, label, ...args].join(" ");
         write(hasNewLine, str);
     };

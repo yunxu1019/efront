@@ -52,7 +52,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
     var commbuilder = require("../efront/commbuilder");
     if (public_app) {
-        console.info("正在导出组件", public_app, '\r\n');
+        console.info("正在导出组件 <cyan>", public_app, '</cyan>\r\n');
         //导出组件
         var public_path = path.join(PUBLIC_PATH, public_app);
         setting.is_commponent_package = true;
@@ -68,7 +68,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             .catch(console.error);
     } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
-        console.info("正在编译项目", PUBLIC_APP, /\w/.test(PUBLIC_APP) ? "\r\n" : '');
+        console.info("正在编译项目 <cyan>", PUBLIC_APP, /\w/.test(PUBLIC_APP) ? "</cyan>\r\n" : '');
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         public_app = pages_root;
         setting.is_commponent_package = false;

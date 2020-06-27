@@ -182,7 +182,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                             var name = path.parse(file).base.replace(/[\\\/]+/g, "/");
                             return save("." + name), ok();
                         }
-                        console.warn(file, "skiped");
+                        console.warn(`<gray>${file}</gray>`, "skiped");
                         ok();
                     } else if (matchFileOnly) {
                         var f = path.join(file, 'package.json');
@@ -203,7 +203,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                                     );
                                     var f = path.join(file, d.main || 'index');
                                     read(f).then(ok).catch(function () {
-                                        oh(`${f}不存在！`);
+                                        oh(`<gray>${f}</gray>不存在！`);
                                     });
                                 });
                             } else {
@@ -238,7 +238,7 @@ var getBuildRoot = function (files, matchFileOnly) {
             }
             erroredFiles[file1] = true;
             if (!matchFileOnly) console.error(e, "\r\n");
-            else console.warn(e + ",", '已跳过', file1);
+            else console.warn(e + ",", '已跳过', `<gray>${file1}</gray>`);
         }).then(run);
     };
     return new Promise(function (ok) {

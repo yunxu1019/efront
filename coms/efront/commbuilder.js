@@ -179,7 +179,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             globalsmap.state = "state";
             prepareCodeBody = createExpression(`state.prepare(${stringifiedpaths});`);
         } else {
-            console.warn(`将不处理此文件的页面自动预载${filename}`);
+            console.warn(`将不处理此文件的页面自动预载<gray>${filename}</gray>`);
         }
     }
     var code_body;
@@ -247,7 +247,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 if (filename.length > 48) {
                     filename = ".." + filename.slice(46);
                 }
-                console.warn("缺少可导出的变量", `文件：${filename}`, `变量：${commName}`);
+                console.warn("缺少可导出的变量", `文件：<gray>${filename}</gray>`);
             }
         }
     }
