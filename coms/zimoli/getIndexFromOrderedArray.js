@@ -1,3 +1,4 @@
+
 var getValue = function (o) {
     return o instanceof Object && "value" in o ? o.value : o
 };

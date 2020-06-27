@@ -1,3 +1,6 @@
+var extend = require("../zimoli/extend");
+var getIndexFromOrderedArray = require("../zimoli/getIndexFromOrderedArray");
+var saveToOrderedArray = require("../zimoli/saveToOrderedArray");
 var clients = [], indexedKeepingClients = [];
 var increaseId = 0x1fffffff + (0x1fffffff * Math.random() | 0);
 
@@ -25,6 +28,7 @@ Client.prototype = {
         }
     },
     refresh() {
+        this.removeIndex();
         this.optime = +new Date;
     },
     keep(time = 24 * 3600 * 1000 * 7) {

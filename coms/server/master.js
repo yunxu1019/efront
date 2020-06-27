@@ -114,6 +114,7 @@ message.deliver = function (a) {
     }
     var count = 0;
     var rest = workers.length;
+    client.refresh();
     workers.forEach(function (worker) {
         message.send(worker, 'deliver', [clientid, msgid], function (a) {
             count += +a || 0;
@@ -122,7 +123,7 @@ message.deliver = function (a) {
                 client.deliver(msgid);
                 client.keep();
             }
-        });
+        }, null);
     });
 };
 message.receive = function (clientid) {
