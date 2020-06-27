@@ -51,7 +51,7 @@ function toComponent(responseTree) {
         return $key;
     };
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
-    var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT);
+    var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT) && !/^(false|0|null)/i.test(process.env.CRYPT);
     var encode = function (source) {
         if (!encoded) return source;
         source = evalString(source);
