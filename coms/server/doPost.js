@@ -39,9 +39,6 @@ if (isDevelop) {
         connections.push(res);
     };
 
-    require("../efront/cache").onreload(function () {
-        message.broadcast('reload');
-    });
     message.reload = function () {
         connections.splice(0).forEach(res => res.end());
     };

@@ -1,6 +1,5 @@
 "use strict";
 //为了防止因message而形成环形引用，message文件夹中的内容不允许被外界调用
-
 var cluster = require("cluster");
 var fs = require("fs");
 var path = require("path");
@@ -126,7 +125,7 @@ if (cluster.isMaster && !isDebug) {
         __send(process, 'broadcast', { key, data });
     };
     onmessage.onbroadcast = function ({ key, data }) {
-        onmessage[key](data);
+        if (onmessage[key] instanceof Function) onmessage[key](data);
     };
 }
 module.exports = onmessage;

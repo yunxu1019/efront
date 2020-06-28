@@ -2,6 +2,8 @@
 var fs = require("fs");
 var watch = require("../efront/watch");
 var path = require("path");
+var message = require("../message");
+var isDevelop = require("../efront/isDevelop");
 var versionTree = {};
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
@@ -126,9 +128,9 @@ var asyncLoader = function (curl, temp, key, rebuild) {
             if (isdir) {
                 temp[key] = getdirAsync(pathname).then(function (dirs) {
                     temp[key] = dirs;
-                    if (_reload_handlers.length) {
+                    if (isDevelop) {
                         is_change = saved && Object.keys(dirs).sort().join(",") !== Object.keys(saved).sort().join(",");
-                        if (is_change) _reload_handlers.forEach(run => run());
+                        if (is_change) message.broadcast('reload');
                     }
                     _watch(durls);
                     console.info(root, curl, is_change ? "change" : "load");
@@ -152,9 +154,9 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                         data = Buffer.from(data);
                     }
                     temp[key] = data;
-                    if (_reload_handlers.length) {
+                    if (isDevelop) {
                         is_change = saved && (saved instanceof Buffer && Buffer.compare(saved, data) || String(saved) !== String(data));
-                        if (is_change) _reload_handlers.forEach(run => run());
+                        if (is_change) message.broadcast('reload');
                     }
                     console.info(root, curl, is_change ? "change" : "load");
                     _watch(durls);
