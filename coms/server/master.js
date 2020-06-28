@@ -27,6 +27,8 @@ var afterend = function () {
     process.removeAllListeners();
     watch.close();
     notkilled.forEach(a => a.kill());
+    clients.destroy();
+    if (!workers.length && !quitting.length) process.exit();
 };
 var exit = function () {
     if (!workers.length) var isQuit = true;
