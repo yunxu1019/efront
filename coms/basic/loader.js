@@ -379,7 +379,8 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         if (argName === "require") return function (refer) {
             if (refer.length) return window.require(refer);
             var mod = required[refer];
-            return createModule(mod, mod.args || [], mod.argNames, prebuilds);
+            if (mod.created) return mod.created;
+            return mod.created = createModule(mod, mod.args || [], mod.argNames, prebuilds);
         };
         var filename = location.pathname + exec.file.replace(/([\s\S])[\$]/g, '$1/').replace(/\\/g, '/');
         if (argName === "__dirname") {
