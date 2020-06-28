@@ -7,7 +7,7 @@
     "test": "test"
   },
   "bin": {
-    "efront": "./coms/efront/index.js"
+    "efront": "tools/run-efront.bat"
   },
   "dependencies": {},
   "devDependencies": {},
