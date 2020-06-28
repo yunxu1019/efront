@@ -599,6 +599,7 @@ var data = {
     },
     asyncInstance(sid, params, parse) {
         // 不同参数的请求互不影响
+        if (typeof sid !== "string") throw new Error("serviceId 只能是字符串");
         var id = parse instanceof Function || params ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var response = this.getInstance(id || sid);
