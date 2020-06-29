@@ -613,6 +613,10 @@ zimoli.setStorage = function (storage) {
     } catch (e) {
     }
 };
+zimoli.clearHistory = function () {
+    hostoryStorage.removeItem(history_session_object_key);
+    history = {};
+};
 zimoli.getCurrentHistory = function () {
     return history[current_history];
 };

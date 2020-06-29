@@ -67,6 +67,7 @@ var build = function () {
         console.error(e);
     }
 }
+zimoli.clearHistory();
 appendChild(nameArea, commNameInput);
 appendChild(page, leftArea, nameArea, mainArea);
 function main() {
