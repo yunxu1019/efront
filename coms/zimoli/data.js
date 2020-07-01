@@ -47,6 +47,9 @@ function encodeStructure(array) {
     };
 }
 const pagePathName = location.pathname;
+const dataSourceMap = {};
+const sourceDataId = 'datasource' + pagePathName;
+const userPrefix = ';';
 const instanceDataMap = {};
 const cachedLoadingPromise = {};
 const formulaters = {
@@ -348,7 +351,17 @@ function createApiMap(data) {
     }
     var items1 = data;
     for (var key in items1) {
-        var [base] = key.split(/\s+/).filter(a => reg.test(a));
+        var keeys = key.split(/\s+/);
+        var [base] = keeys.filter(a => reg.test(a));
+        if (!base) {
+            var headersIndex = 0;
+        } else {
+            headersIndex = keeys.indexOf(base);
+        }
+        var headers = keeys.slice(headersIndex)[0];
+        if (headers && !reg.test(headers)) {
+            apiMap["?"] = parseKV(headers);
+        }
         if (!base) continue;
         href = /(https?\:)?|\.?\//i.test(base) ? base : '';
         var item1 = items1[key];
@@ -398,8 +411,16 @@ var privates = {
             var lacks = api.required;
             if (params) {
                 lacks = lacks.filter(a => isEmpty(params[a]));
+                lacks.filter(k => {
+                    var v = seek(dataSourceMap, k)
+                    if (isEmpty(v)) return true;
+                    if (!(k in params)) {
+                        params[k] = v;
+                    }
+                });
             }
             if (lacks.length) {
+
                 console.log(`跳过了缺少参数的请求:${api.id} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
                 return false;
             }
@@ -455,7 +476,11 @@ var privates = {
         var currentTime = +new Date;
         if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
             var promise = new Promise(function (ok, oh) {
-                cross(realmethod, uri).send(params).done(e => {
+                var headers = apiMap && apiMap["?"];
+                if (headers) {
+                    headers = seek(dataSourceMap, headers);
+                }
+                cross(realmethod, uri, headers).send(params).done(e => {
                     ok(e.response || e.responseText);
                 }).error(xhr => {
                     try {
@@ -499,6 +524,12 @@ var error_report = isProduction ? alert : function (error, type) {
     error_report = alert;
     error_report(error, type);
     console.info("已使用默认的报错工具，您可以使用 data.setReporter(f7) 替换! 本信息在仅在开发环境显示。");
+};
+
+var loadInstance = function (storage, id) {
+    try {
+        return JSON.parse(storage.getItem(id));
+    } catch{ }
 };
 var data = {
     decodeStructure,
@@ -680,7 +711,12 @@ var data = {
 
             var { method, uri, params, selector } = privates.prepare(api.method, api.url, params);
             var promise = new Promise(function (ok, oh) {
-                instance.loading = cross(method, uri).send(params).done(xhr => {
+                var root = api.root;
+                var headers = root && root.headers;
+                if (headers) {
+                    headers = seek(dataSourceMap, headers);
+                }
+                instance.loading = cross(method, uri, headers).send(params).done(xhr => {
                     if (instance.loading !== xhr) return oh(outdate);
                     instance.loading = null;
                     ok(xhr.responseText || xhr.response);
@@ -730,10 +766,10 @@ var data = {
     getInstance(instanceId, onlyFromLocalStorage = false) {
         if (!instanceDataMap[instanceId]) {
             const data = instanceDataMap[instanceId] = new LoadingArray;
-            const storageId = instanceId + pagePathName;
-            extend(data, JSON.parse(localStorage.getItem(storageId)));
+            const storageId = userPrefix + instanceId + pagePathName;
+            extend(data, loadInstance(localStorage, storageId));
             if (!onlyFromLocalStorage) {
-                extend(data, JSON.parse(sessionStorage.getItem(storageId)));
+                extend(data, loadInstance(sessionStorage, storageId));
             }
             data.is_loading = false;
         }
@@ -742,8 +778,30 @@ var data = {
     },
     removeInstance(instanceId) {
         delete instanceDataMap[instanceId];
-        localStorage.removeItem(instanceId);
-        sessionStorage.removeItem(instanceId);
+        const storageId = userPrefix + instanceId + pagePathName;
+        localStorage.removeItem(storageId);
+        sessionStorage.removeItem(storageId);
+    },
+    /** 设置所有网络请求拉取时的参数数附加据源 */
+    setSource(sourceid, value) {
+        var rememberWithStorage;
+        if (sourceid instanceof Object) {
+            this.rebuildInstance(dataSourceMap, sourceid);
+            rememberWithStorage = value;
+        } else {
+            dataSourceMap[sourceid] = value;
+            rememberWithStorage = arguments[2];
+        }
+        if (rememberWithStorage !== false) {
+            sessionStorage.setItem(sourceDataId, JSON.stringify(dataSourceMap));
+        }
+        if (rememberWithStorage) {
+            localStorage.setItem(sourceDataId, JSON.stringify(dataSourceMap));
+        }
+    },
+    clearSource() {
+        localStorage.removeItem(sourceDataId);
+        sessionStorage.removeItem(sourceDataId);
     },
     /**
      * 设置一个延长生命周期的数据对象
@@ -754,7 +812,7 @@ var data = {
     setInstance(instanceId, data, rememberWithStorage = 0) {
         const instance = this.getInstance(instanceId);
         this.rebuildInstance(instance, data);
-        const storageId = instanceId + pagePathName;
+        const storageId = userPrefix + instanceId + pagePathName;
         if (rememberWithStorage !== false) {
             sessionStorage.setItem(storageId, JSON.stringify(data));
         }
@@ -775,3 +833,5 @@ var data = {
         extend(instance, data);
     }
 };
+extend(dataSourceMap, loadInstance(localStorage, sourceDataId));
+extend(dataSourceMap, loadInstance(sessionStorage, sourceDataId));
