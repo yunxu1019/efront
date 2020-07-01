@@ -20,6 +20,17 @@ var autoloader = `function () {
     };
     reload();
 }`;
+var efronthook = `function (body, window) {
+    var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            new Function(xhr.responseText).call(window);
+            console.log("%cEfront%c Start", 'color:#6c2', 'color:333');
+        }
+    };
+    xhr.open('POST', 'comm/main');
+    xhr.send("step into my sight..");
+}.call(this, document.documentElement.children[0], this)`;
 var pixelDecoder = d => d / 16 + "rem";
 if (process.env.TRANSFORM_PIXEL) {
     var fixpixel = function (buff) {
@@ -110,7 +121,8 @@ var buildjsp = function (buff, realpath) {
     };
 };
 var buildreload = function (buff) {
-    return String(buff).replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`);
+    return String(buff).replace(/<script\s[^>]*?type\s*=\s*(["']|)efronthook\1[^>]*?>/i, `<script>\r\n-${efronthook.toString()};\r\n`)
+        .replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`);
 };
 if (isDevelop) builder = function (buff, name, fullpath) {
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
