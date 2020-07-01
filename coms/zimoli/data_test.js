@@ -1,4 +1,4 @@
-function data_test() {
+function data_test1() {
     var array = [{
         name: "王勇慧",
         birthday: "1992-11-13",
@@ -19,4 +19,20 @@ function data_test() {
     var decoded = data.decodeStructure(encoded);
     console.log(array, encoded, decoded);
     return button(`sourcelength${JSON.stringify(array).length};encodedlength${JSON.stringify(encoded).length}`);
+}
+
+function data_test2() {
+    data.setConfig({
+        'http://baidu.com/ a=`1&b=c': {
+            'baidu': 'get .'
+        }
+    });
+    data.setSource({
+        c: 2
+    });
+    data.from('baidu');
+}
+function main() {
+    data_test1();
+    data_test2();
 }

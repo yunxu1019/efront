@@ -120,7 +120,7 @@ function transpile(src, trans, apiMap, delTransMap) {
                 value = data[v];
                 delete data[v];
             } else {
-                value = seek(src, v, apiMap);
+                value = seekResponse(src, v, apiMap);
             }
             if (!k) {
                 extend(data, value);
@@ -174,7 +174,7 @@ function __seekprop(data, prop) {
     }
     return data;
 }
-function seek(data, seeker, apiMap = {}) {
+function seekResponse(data, seeker, apiMap = {}) {
     if (data && data.querySelector) {
         if (!seeker) return data;
         seeker = unescape(seeker);
@@ -356,7 +356,7 @@ function createApiMap(data) {
         if (!base) {
             var headersIndex = 0;
         } else {
-            headersIndex = keeys.indexOf(base);
+            headersIndex = keeys.indexOf(base) + 1;
         }
         var headers = keeys.slice(headersIndex)[0];
         if (headers && !reg.test(headers)) {
@@ -412,7 +412,7 @@ var privates = {
             if (params) {
                 lacks = lacks.filter(a => isEmpty(params[a]));
                 lacks.filter(k => {
-                    var v = seek(dataSourceMap, k)
+                    var v = seekResponse(dataSourceMap, k)
                     if (isEmpty(v)) return true;
                     if (!(k in params)) {
                         params[k] = v;
@@ -448,7 +448,7 @@ var privates = {
         var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/i, function (d) {
             d = d.slice(1);
             rest.push(d);
-            return seek(params, d) || '';
+            return seekResponse(params, d) || '';
         });
         var hasOwnProperty = {}.hasOwnProperty;
         if (search) {
@@ -497,7 +497,7 @@ var privates = {
         }
         return promise.then(function (response) {
             if (/\*$/.test(coinmethod)) return response;
-            return transpile(seek(parseData(response), selector), getTranspile(url), apiMap);
+            return transpile(seekResponse(parseData(response), selector), getTranspile(url), apiMap);
         });
     },
 
@@ -712,7 +712,7 @@ var data = {
             var { method, uri, params, selector } = privates.prepare(api.method, api.url, params);
             var promise = new Promise(function (ok, oh) {
                 var root = api.root;
-                var headers = root && root.headers;
+                var headers = root && root["?"];
                 if (headers) {
                     headers = seek(dataSourceMap, headers);
                 }
@@ -731,7 +731,7 @@ var data = {
                 });
             }).then(function (response) {
 
-                return transpile(seek(parseData(response), selector), getTranspile(api.url), api.root);
+                return transpile(seekResponse(parseData(response), selector), getTranspile(api.url), api.root);
             });
             return promise;
         }).then((data) => {
@@ -823,7 +823,7 @@ var data = {
     },
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) { return; }
-        instance.splice(0, instance.length);
+        if (instance instanceof Array) instance.splice(0, instance.length);
         var sample = new LoadingArray;
         Object.keys(old).forEach(function (k) {
             if (instance[k] === old[k] && !(k in sample)) {
