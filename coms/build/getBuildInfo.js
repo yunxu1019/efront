@@ -23,7 +23,7 @@ BuildInfo.prototype = {
 };
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[tj]sx?|\.html?|\.png)?$/);
+    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[tj]sx?|\.html?|\.vuex?|\.png)?$/);
     var fullpath, destpath, builder;
     if (match) {
         var {
@@ -42,7 +42,7 @@ function getBuildInfo(url) {
                 builder = commbuilder;
                 var $name = name.replace(/(\w)\$/g, "$1/");
                 fullpath = [];
-                extt = extt || [".js", ".ts", ".json", ".html", '/'];
+                extt = extt || [".js", ".ts", ".json", ".html", '.vue', '/'];
                 if (!Array.isArray(extt)) {
                     extt = [extt];
                 }
@@ -58,7 +58,7 @@ function getBuildInfo(url) {
                     });
                 }
                 destpath = path.join("comm", name.replace(/\-(\w)/g, (_, w) => w.toUpperCase()) + env.EXTT);
-                url = url.replace(/\.([tj]sx?|json|html?)$/i, "");
+                url = url.replace(/\.([tj]sx?|json|html?|vuex?)$/i, "");
                 if (url === 'main' && !setting.is_commponent_package) {
                     builder = noopbuilder;
                 }
@@ -67,14 +67,14 @@ function getBuildInfo(url) {
                 if (/\.html?$/i.test(extt)) {
                     builder = pagebuilder;
                     destpath = path.join(name + extt);
-                } else if (!/\.[tj]sx?$/i.test(extt)) {
+                } else if (!/\.([tj]sx?|vuex?)$/i.test(extt)) {
                     builder = noopbuilder;
                     destpath = path.join(name + extt);
                 } else {
                     extt = extt || "";
                     builder = commbuilder;
                     destpath = path.join("page", name + env.EXTT);
-                    url = url.replace(/\.[tj]sx?$/i, "");
+                    url = url.replace(/\.([tj]sx?|vuex)$/i, "");
                 }
                 fullpath = pages_root.map(page => path.join(page, name + extt));
                 break;

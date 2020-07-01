@@ -60,12 +60,12 @@ var geticon = function (name, env) {
 var getcomm = function (name, env) {
     var _comms_root = env.COMM || comms_root;
     name = name.replace(/(\w)\$/g, "$1/");
-    return getfrompath(name, _comms_root, getcommfile, [".js", ".ts", ".json", ".html", '']);
+    return getfrompath(name, _comms_root, getcommfile, [".js", ".ts", ".json", ".html", '.vue', '']);
 };
 
 var getpage = function (name, env) {
     var _pages_root = env.PAGE || pages_root;
-    return getfrompath(name, _pages_root, getpagefile, [".js", ".ts", ".html", '']);
+    return getfrompath(name, _pages_root, getpagefile, [".js", ".ts", ".html", '.vue', '']);
 };
 
 var getapi = function (name, env) {

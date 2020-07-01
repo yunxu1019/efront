@@ -89,7 +89,7 @@ var getPathInFolder = function (folder, filepath) {
 };
 function paddExtension(file) {
     var parets = [""].concat(/^\.?[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
-    return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx'], parets);
+    return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parets);
 }
 var getBuildRoot = function (files, matchFileOnly) {
     files = [].concat(files || []);
@@ -150,7 +150,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
-                        if (/\.([tj]sx?|html?|json)$/i.test(file)) {
+                        if (/\.([tj]sx?|html?|json|vuex?)$/i.test(file)) {
                             for (var comm of comms_root) {
                                 var rel = getPathInFolder(comm, file);
                                 if (rel) {
@@ -158,7 +158,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                                 }
                             }
                         }
-                        if (/\.([tj]sx?|html?)$/i.test(file)) {
+                        if (/\.([tj]sx?|html?|vuex?)$/i.test(file)) {
                             for (var page of pages_root) {
                                 var rel = getPathInFolder(page, file);
                                 if (rel) {

@@ -431,8 +431,8 @@ var commands = {
         });
         require("../server/main");
     },
-    serv(http_port, https_port) {
-        setenv({ https_port, http_port });
+    serv() {
+        setAppnameAndPorts(arguments);
         startServer();
     },
     run(appname) {

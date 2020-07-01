@@ -405,6 +405,59 @@ function prepare(filename, fullpath) {
     if (shortName !== className) className = className + " " + shortName;
     return [commName, lessName, className];
 }
+
+function getMouePromise(data, filename, fullpath, watchurls) {
+    var [commName, lessName, className] = prepare(filename, fullpath);
+    var time = 0;
+
+    var jsData, htmlData, lessData;
+    // js中可能出现一些特殊字符，这里优先匹配
+    data = data.replace(/<script\b[^>]*>([\s\S]*)<\/script>/i, function (_, script) {
+        jsData = `extend(exports,{call:moue$call,apply:moue$apply})`+script;
+        return '';
+    });
+    data = data.replace(/<template\b[^>]*>([\s\S]*)<\/template>/i, function (_, template) {
+        htmlData = template;
+        return '';
+    });
+    data = data.replace(/<style\b[^>]*>([\s\S]*)<\/style>/i, function (_, style) {
+        lessData = style;
+        return '';
+    });
+    if (!/^[\s]*$/i.test(data)) {
+        data = data.trim();
+        console.warn(`文件中存在冗余数据<gray>${fullpath}</gray>:<data>${data.length > 12 ? data.slice(0, 10) + '...' : data}</data>`);
+    }
+    if (htmlData) {
+        jsData = `var template=\`${htmlData.replace(/[\\']/g, '\\$&')}\`;\r\n` + jsData;
+    }
+    var promise = new Promise(function (ok, oh) {
+        function fire() {
+            var timeStart = new Date;
+            if (htmlData && lessData) {
+                jsData += `;\r\ncless(template,\`${lessData}\`,"${className}")`;
+            }
+            if (htmlData) jsData += `;\r\nextend(exports.default,Vue.compile(template));`;
+
+            var data = loadJsBody(jsData, fullpath, null, commName);
+            time += new Date - timeStart;
+            promise.time = time;
+            ok(data);
+        }
+        if (lessData) {
+            var lesspromise = renderLessData(lessData, fullpath, watchurls, className);
+            lesspromise.then(data => {
+                lessData = data;
+                time += lesspromise.time;
+                fire();
+            });
+        } else {
+            setTimeout(fire);
+        }
+    });
+    return promise;
+}
+
 function getHtmlPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     let lesspath = fullpath.replace(/\.html?$/i, ".less");
@@ -448,7 +501,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
             } else {
                 commHtmlName = commName[0].toUpperCase() + commName.slice(1);
                 if (commHtmlName !== commName) {
-                    commHtmlName = `${commName},${commHtmlName},${commHtmlName}=${commName}`;
+                    commHtmlName = `${commName},${commHtmlName},template,template=${commHtmlName}=${commName}`;
                 }
             }
             htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
@@ -494,6 +547,8 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
             return data;
         }
         promise = getHtmlPromise(data, filename, fullpath, watchurls);
+    } else if (/\.vuex?$/i.test(fullpath)) {
+        promise = getMouePromise(data, filename, fullpath, watchurls);
     } else if (/\.(?:[jt]sx?)$/i.test(fullpath) || !/[\\\/]/i.test(fullpath)) {
         promise = getScriptPromise(data, filename, fullpath, watchurls);
     }
