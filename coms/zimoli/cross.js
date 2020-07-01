@@ -193,11 +193,18 @@ function cross(method, url, headers) {
         realHeaders[key] = value;
     };
     setTimeout(function () {
+        var isform = /^f/i.test(method);
+        if (isform) {
+            if (method === 'form') method = 'post';
+            else method = method.slice(1);
+        }
         if (!isEmpty(jsondata) && isEmpty(datas)) {
             if (/^(get|head|trace)$/i.test(method)) {
                 url = url.replace(/#[\s\S]*/, '');
                 datas = serialize(jsondata);
                 if (datas) url += (/\?/.test(url) ? "&" : "?") + datas;
+            } else if (isform) {
+                xhr.form(jsondata);
             } else {
                 datas = JSON.stringify(jsondata);
                 if (datas === "{}" || datas === "[]") {
