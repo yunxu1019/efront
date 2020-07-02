@@ -11,7 +11,8 @@
 <script>
 export default {
   components: {
-    btn: moue$button
+    btn: button_test,
+    btn: moue(button)
   }
 };
 </script>
