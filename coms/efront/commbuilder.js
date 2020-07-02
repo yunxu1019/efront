@@ -435,7 +435,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         function fire() {
             var timeStart = new Date;
             if (htmlData && lessData) {
-                jsData += `;\r\ncless(template,\`${lessData}\`,"${className}")`;
+                jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
             }
             if (htmlData) jsData += `;\r\nextend(exports.default,Vue.compile(template));`;
 
@@ -445,7 +445,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
             ok(data);
         }
         if (lessData) {
-            var lesspromise = renderLessData(lessData, fullpath, watchurls, className);
+            var lesspromise = renderLessData(lessData, fullpath, watchurls, lessName);
             lesspromise.then(data => {
                 lessData = data;
                 time += lesspromise.time;

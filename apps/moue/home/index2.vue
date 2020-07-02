@@ -1,6 +1,8 @@
 <style lang="less" scoped>
-button {
+& {
   color: #fff;
+  background: #ccc;
+  appearance: none;
 }
 </style>
 <template>
