@@ -6,8 +6,12 @@
 }
 </style>
 <template>
-  <button>abc</button>
+  <btn>abc</btn>
 </template>
 <script>
-export default {};
+export default {
+  components: {
+    btn: moue$button
+  }
+};
 </script>

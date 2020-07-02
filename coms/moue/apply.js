@@ -1,6 +1,6 @@
 function apply(context, args) {
     var [params, from] = args;
-    var vue = new Vue(this.default);
-    extend(vue, { params, state, from });
+    var vue = new Vue(this);
+    extend(vue, { params, state: context, from });
     return vue.$mount().$el;
 }

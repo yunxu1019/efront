@@ -413,7 +413,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
     var jsData, htmlData, lessData;
     // js中可能出现一些特殊字符，这里优先匹配
     data = data.replace(/<script\b[^>]*>([\s\S]*)<\/script>/i, function (_, script) {
-        jsData = `extend(exports,{call:moue$call,apply:moue$apply})`+script;
+        jsData = script + `;\r\nexports=extend(exports.default||exports,{call:moue$call,apply:moue$apply})`;
         return '';
     });
     data = data.replace(/<template\b[^>]*>([\s\S]*)<\/template>/i, function (_, template) {
@@ -437,7 +437,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
             if (htmlData && lessData) {
                 jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
             }
-            if (htmlData) jsData += `;\r\nextend(exports.default,Vue.compile(template));`;
+            if (htmlData) jsData += `;\r\nextend(exports,Vue.compile(template))`;
 
             var data = loadJsBody(jsData, fullpath, null, commName);
             time += new Date - timeStart;
