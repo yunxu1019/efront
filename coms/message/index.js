@@ -78,7 +78,7 @@ var send, __send = send = function (worker, key, params, onsuccess, onerror, onf
     })].join(":"));
 };
 if (isDebug) {
-    send = function () {
+    __send = send = function () {
     };
 }
 //收到其他进程的回复

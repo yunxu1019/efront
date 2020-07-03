@@ -438,6 +438,7 @@ var commands = {
     run(appname) {
         var args = [].concat.apply(["efront"], arguments);
         args.push("--efront");
+        if (restArgv.length) args.push.apply(args, restArgv);
         if (!appname) {
             console.info("请输入要启动的程序!");
             return;
@@ -693,10 +694,14 @@ process.on("exit", function () {
         console.log();
     }
 });
-
-var argv = process.argv.slice(2).filter(a => {
+var restArgv = [];
+var argv = process.argv.slice(1).filter(a => {
     if (a in helps) return true;
     if (!/^--/.test(a)) return true;
+    if (/^--(?:inspect|debug)-brk/.test(a)) {
+        restArgv.push(a);
+        return;
+    }
     a = a.replace(/^--/, '');
     var key, value = '';
     if (/^(no|off|not|is-not)-/.test(a)) {
@@ -715,6 +720,6 @@ var argv = process.argv.slice(2).filter(a => {
     key = key.replace(/\-/g, '_');
     commands.set(key, value);
     return false;
-});
+}).slice(1);
 var [type, value1, value2, value3] = argv;
 run(type, value1, value2, value3);

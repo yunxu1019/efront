@@ -238,8 +238,7 @@ module.exports = function (mainpath, args) {
             window.startPath = mainpath.replace(/^\.[\/\\]/, '');
             window.process = Object.create(process);
             Object.assign(window.process, {
-                argv: args,
-                execArgv: args
+                argv: args
             });
 
             mainLoaderPromise.then(function (loader) {
