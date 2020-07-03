@@ -94,14 +94,14 @@ var adaptCursor = function (event) {
     var [x1, y1, x2, y2] = grid.nearby(clientX, clientY);
     var direction = "";
     if (clientY - y1 < deltay) {
-        direction += "n";
+        if (y1 !== 0) direction += "n";
     } else if (y2 - clientY < deltay) {
-        direction += "s";
+        if (y2 !== grid.height) direction += "s";
     }
     if (clientX - x1 < deltax) {
-        direction += "w";
+        if (x1 !== 0) direction += "w";
     } else if (x2 - clientX < deltax) {
-        direction += "e";
+        if (x2 !== grid.width) direction += "e";
     }
     grid.direction = direction;
     if (direction) {
