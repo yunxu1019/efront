@@ -319,7 +319,7 @@ var commands = {
             coms: 'docs,zimoli',
             page: './',
             apis: 'docs,zimoli',
-            app: "./"
+            app: "docs"
         });
         require("./setupenv");
         require("../server/main");

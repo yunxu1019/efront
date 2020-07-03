@@ -1,6 +1,6 @@
 "use strict";
 var urlProxyMap = {
-    "/": "/" + (process.env.APP || ""),
+    "/": "/" + (process.env.APP || "").replace(/^\.[\/\\]?/, ''),
 };
 if (!/\/$/.test(urlProxyMap["/"])) {
     urlProxyMap["/"] += "/";
