@@ -1,5 +1,6 @@
 var resizingElements = [];
 var getResizer = function (event) {
+    if (dragging) return;
     var rect = getTargetIn(a => ~resizingElements.indexOf(a), event.target);
     if (!rect) {
         var temp = getEventRect(event);
