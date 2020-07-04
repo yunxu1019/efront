@@ -105,9 +105,9 @@ var adaptCursor = function (event) {
     }
     grid.direction = direction;
     if (direction) {
-        css("[grid]", "cursor:" + direction + "-resize");
+        css("*", "cursor:" + direction + "-resize");
     } else {
-        css("[grid]", "cursor:default;");
+        css("*", "cursor:");
     }
 };
 /**
