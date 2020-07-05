@@ -49,14 +49,25 @@ var getElemetsFromPoints = function (points) {
     return [].concat.apply([], elements);
 };
 
-var generateResizeParameters = function (y, top, bottom, height, point_next, event, resize) {
+var generateResizeParameters = function (y, top, bottom, height, point_next, event, b1, resize) {
     var grid = this;
+    var bounds = grid.bounds;
+    var bound_top = bounds[b1];
+    var bound_bottom = bounds[b1 + 2];
+    var computed = getComputedStyle(grid);
+    var paddingTop = 'padding' + top[0].toUpperCase() + top.slice(1);
+    var paddingBottom = 'padding' + bottom[0].toUpperCase() + bottom.slice(1);
     var point_prev = point_next[top];
     if (!point_prev) return;
     var nextPoints = getFirstPoints(point_next.direction !== y ? point_next.parent : point_next, bottom, top);
     var prevPoints = getLastPoints(point_prev.direction !== y ? point_prev.parent : point_prev, bottom);
     var clientY = "client" + y.toUpperCase();
     var clientHeight = 'client' + height[0].toUpperCase() + height.slice(1);
+    if (point_next < bound_top || point_next > grid[height] - bound_bottom) {
+        var ratio = (bound_top + bound_bottom) / (parseFloat(computed[paddingBottom]) + parseFloat(computed[paddingTop]))
+    } else {
+        var ratio = (grid[height] - bound_top - bound_bottom) / (grid[clientHeight] - parseFloat(computed[paddingTop]) - parseFloat(computed[paddingBottom]));
+    }
     var minValue = Math.max.apply(Math, prevPoints.map(p => p.value || 0)) + 20 / grid[clientHeight] * grid[height];
     var maxValue = Math.min.apply(Math, nextPoints.map(p => (p[bottom] ? p[bottom].value : grid[height]) - 20 / grid[clientHeight] * grid[height]));
     var nextElements = getElemetsFromPoints(nextPoints);
@@ -67,13 +78,25 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
     nextElements.forEach(function (element) {
         addClass(element, "border-" + top);
     });
+    var resizePadding, resizeDelta = 0, resizeIndex;
+    if (+point_next === bound_top) {
+        resizePadding = paddingTop;
+        resizeDelta = event[clientY] - parseFloat(computed[paddingTop]);
+        resizeIndex = b1;
+    } else if (+point_next === grid[height] - bound_bottom) {
+        resizePadding = paddingBottom;
+        resizeDelta = event[clientY] + parseFloat(computed[paddingBottom]);
+        resizeIndex = b1 + 2;
+    }
     resize[clientY] = [
         nextPoints,
         prevElements,
         nextElements,
-        top, minValue, maxValue, event[clientY] / grid[clientHeight] * grid[height] - point_next.value,
+        ratio, minValue, maxValue, event[clientY] * ratio - point_next.value,
         height,
-        clientHeight
+        resizeDelta,
+        resizeIndex,
+        resizePadding
     ];
 
 };
@@ -145,11 +168,20 @@ var resizeView = function (event) {
     var editting = grid.editting;
     var runPoints = p => p.value = value;
     for (var k in editting) {
-        var [points, _, _, _, min, max, delta, extra, client] = editting[k];
-        var value = event[k] / grid[client] * grid[extra] - delta;
+        var [points, _, _, ratio, min, max, delta, extra, rDelta, rIndex, rPadding] = editting[k];
+        var value = event[k] * ratio - delta;
         if (value < min) value = min;
         if (value > max) value = max;
         points.forEach(runPoints);
+        if (rPadding) {
+            if (rIndex === 0 || rIndex === 3) {
+                grid.bounds[rIndex] = value;
+                css(grid, { [rPadding]: fromOffset(event[k] - rDelta) });
+            } else {
+                grid.bounds[rIndex] = grid[extra] - value;
+                css(grid, { [rPadding]: fromOffset(rDelta - event[k]) });
+            }
+        }
     }
     grid.reshape();
 };
@@ -165,17 +197,17 @@ var resizer = function (event) {
     var resize = {};
     if (clientY - y_top < deltay) {
         //上边
-        generateResizeParameters.call(grid, "y", "top", "bottom", "height", area.top, event, resize);
+        generateResizeParameters.call(grid, "y", "top", "bottom", "height", area.top, event, 0, resize);
     } else if (y_bottom - clientY < deltay) {
         //下边
-        generateResizeParameters.call(grid, "y", "top", "bottom", 'height', area.bottom, event, resize);
+        generateResizeParameters.call(grid, "y", "top", "bottom", 'height', area.bottom, event, 0, resize);
     }
     if (clientX - x_left < deltax) {
         //左边
-        generateResizeParameters.call(grid, "x", "left", "right", "width", area.left, event, resize);
+        generateResizeParameters.call(grid, "x", "left", "right", "width", area.left, event, 1, resize);
     } else if (x_right - clientX < deltax) {
         //右边
-        generateResizeParameters.call(grid, "x", "left", "right", "width", area.right, event, resize);
+        generateResizeParameters.call(grid, "x", "left", "right", "width", area.right, event, 1, resize);
     }
     grid.editting = resize;
     var cancelup = onmouseup(window, function () {
@@ -390,6 +422,16 @@ var grid_prototype = {
                 width: getDivSize(left, width, bounds_left, bounds_right, that.width, computed.paddingLeft, computed.paddingRight),
                 height: getDivSize(top, height, bounds_top, bounds_bottom, that.height, computed.paddingTop, computed.paddingBottom)
             });
+            if (top <= 0) {
+                css(_div, { marginTop: fromOffset(- parseFloat(computed.paddingTop)) });
+            } else if (top + height >= that.height) {
+                css(_div, { marginBottom: fromOffset(-parseFloat(computed.paddingBottom)) });
+            }
+            if (left <= 0) {
+                css(_div, { marginLeft: fromOffset(-parseFloat(computed.paddingLeft)) });
+            } else if (left + width >= that.width) {
+                css(_div, { marginRight: fromOffset(-parseFloat(computed.paddingRight)) });
+            }
         }
         var append = function (point, index, points) {
             var next_point = points ? points[index + 1] : null;
@@ -607,10 +649,10 @@ var createBoundsFromComputed = function (grid) {
 var createPointsWithChildren = function () {
     var grid = this;
     var elements = [].concat.apply([], grid.children).map(a => [a,
-        +Math.max(0, a.offsetLeft * grid.width / grid.clientWidth),
-        +(Math.min(a.offsetLeft + a.offsetWidth, grid.clientWidth) * grid.width / grid.clientWidth),
-        +Math.max(0, a.offsetTop * grid.height / grid.clientHeight),
-        +(Math.min(a.offsetTop + a.offsetHeight, grid.clientHeight) * grid.height / grid.clientHeight)
+        +Math.max(0, a.offsetLeft * grid.width / grid.clientWidth).toFixed(0),
+        +(Math.min(a.offsetLeft + a.offsetWidth, grid.clientWidth) * grid.width / grid.clientWidth).toFixed(0),
+        +Math.max(0, a.offsetTop * grid.height / grid.clientHeight).toFixed(0),
+        +(Math.min(a.offsetTop + a.offsetHeight, grid.clientHeight) * grid.height / grid.clientHeight).toFixed(0)
     ]);
     var points = createPointsFromElements(elements, [0, grid.width], [0, grid.height]);
     if (points.direction === 'y') {
