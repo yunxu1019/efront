@@ -78,19 +78,45 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
 
 };
 
+var getXYFromMouseEvent = function (event) {
+    var grid = this;
+    var position = getScreenPosition(grid);
+    var computed = getComputedStyle(grid);
+    var clientX = event.clientX - position.left;
+    var clientY = event.clientY - position.top;
+    var [padLeft, padTop, padRight, padBottom] = [
+        computed.paddingLeft,
+        computed.paddingTop,
+        computed.paddingRight,
+        computed.paddingBottom,
+    ].map(parseFloat);
+    var bounds = grid.bounds;
+    if (clientX <= padLeft) {
+        clientX = clientX / (padRight + padLeft) * (bounds[3] + bounds[1]);
+    } else if (clientX >= grid.clientWidth - padRight) {
+        clientX = (clientX - grid.cientWidth + padRight) / (padRight + padLeft) * (bounds[1] + bounds[3]);
+    } else {
+        clientX = (clientX - padLeft) / (grid.clientWidth - padLeft - padRight) * (grid.width - bounds[1] - bounds[3]);
+    }
+    if (clientY <= padTop) {
+        clientY = clientY / (padBottom + padTop) * (bounds[0] + bounds[2]);
+    } else if (clientY >= grid.clientHeight - padTop) {
+        clientY = (clientY - grid.clientHeight + padBottom) / (padBottom + padTop) * (bounds[0] + bounds[2]);
+    } else {
+        clientY = (clientY - padTop) / (grid.clientHeight - padTop - padBottom) * (grid.height - bounds[0] - bounds[2]);
+    }
+    return [clientX, clientY];
+}
+
 /**
  * 适配指针
  * @param {Event} event 
  */
 var adaptCursor = function (event) {
     var grid = this;
-    var position = getScreenPosition(grid);
-    var clientX = event.clientX - position.left;
-    var clientY = event.clientY - position.top;
-    clientX = clientX / grid.clientWidth * grid.width;
-    clientY = clientY / grid.clientHeight * grid.height;
     var deltax = 7 / grid.clientWidth * grid.width;
     var deltay = 7 / grid.clientHeight * grid.height;
+    var [clientX, clientY] = getXYFromMouseEvent.call(grid, event);
     var [x1, y1, x2, y2] = grid.nearby(clientX, clientY);
     var direction = "";
     if (clientY - y1 < deltay) {
@@ -124,7 +150,6 @@ var resizeView = function (event) {
         if (value < min) value = min;
         if (value > max) value = max;
         points.forEach(runPoints);
-
     }
     grid.reshape();
 };
@@ -132,14 +157,9 @@ var resizer = function (event) {
     var grid = this;
     if (!grid.direction) return;
     //调整大小
-    var position = getScreenPosition(grid);
-    var clientX = event.clientX - position.left;
-    var clientY = event.clientY - position.top;
-    clientX = clientX / grid.clientWidth * grid.width;
-    clientY = clientY / grid.clientHeight * grid.height;
+    var [clientX, clientY] = getXYFromMouseEvent.call(grid, event);
     var deltax = 7 / grid.clientWidth * grid.width;
     var deltay = 7 / grid.clientHeight * grid.height;
-
     var area = grid.nearby(clientX, clientY);
     var [x_left, y_top, x_right, y_bottom] = area;
     var resize = {};
@@ -213,25 +233,47 @@ function grid(breakpoints) {
         grid.height = grid.size;
     }
     extend(grid, grid_prototype);
-    grid.setData(breakpoints);
-    grid.reshape();
+    if (!breakpoints) {
+        if (grid.offsetHeight || grid.isMounted) {
+            createPointsWithChildren.call(grid);
+        } else {
+            on("append")(grid, createPointsWithChildren);
+            grid.setData();
+        }
+    } else {
+        grid.setData(breakpoints);
+        grid.reshape();
+    }
     grid.setAttribute("grid", "");
     /**
      * 监听指针移动
      */
-    once("append")(grid, gridListener);
+    gridListener.call(grid);
     return grid;
 }
-var Point = function (value) {
-    var point = [];
-    point.value = value instanceof Object ? value.value : value;
-    return point;
-};
+class Point extends Array {
+    constructor(value) {
+        if (!this) return new Point(value);
+        if (value instanceof Object) {
+            this.value = value.value;
+            var target = value.target;
+            if (target) {
+                this.target = target;
+            }
+
+        } else {
+            this.value = value;
+        }
+    }
+    valueOf() {
+        return this.value;
+    }
+}
 var createPoints = function (values, direction = "x", result = Point(0)) {
     if (!(values instanceof Array)) values = arguments;
     for (var cx = 0, dx = values.length; cx < dx; cx++) {
         var value = values[cx];
-        if (value instanceof Array) {
+        if (value instanceof Array && !(value instanceof Point)) {
             if (!result.length) throw new Error("数据转换为grid失败！");
             createPoints(value, direction === "x" ? "y" : "x", result[result.length - 1]);
         } else {
@@ -262,14 +304,18 @@ var bindToOrderedSpliters = function (split_points, target, value, side) {
     return split_points;
 };
 var grid_prototype = {
-    setGrid(breakpoints) {
+    setGrid(breakpoints, bounds) {
         var grid = this;
+        if (!bounds) {
+            bounds = createBoundsFromComputed(grid);
+        }
         if (!breakpoints) {
             var breakpoints = createPoints([]);
         } else {
             breakpoints = createPoints(breakpoints);
         }
         this.forEachCell(e => remove(e.target));
+        grid.bounds = bounds;
         grid.breakpoints = breakpoints;
     },
     setData(breakpoints) {
@@ -302,10 +348,49 @@ var grid_prototype = {
         run(this.breakpoints);
     },
     reshape() {
+        if (this.isMounted || this.offsetWidth || this.offsetHeight) {
+            this._reshape();
+        } else {
+            once("append")(this, this._reshape);
+        }
+    },
+    _reshape() {
         var that = this;
+        var bounds = this.bounds;
         var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(that.width), current_b = Point(that.height);
         // var xPoints = [];
         // var yPoints = [];
+        var getDivSize = function (top, height, bounds_top, bounds_bottom, grid_height, grid_padding_top, grid_padding_bottom) {
+            var rest_height = 0;
+            if (top + height > grid_height) {
+                height = grid_height - top;
+            }
+            if (top < bounds_top) {
+                rest_height += bounds_top - top;
+            }
+            if (top > grid_height - bounds_bottom) {
+                rest_height = height;
+            }
+            else if (top + height > grid_height - bounds_bottom) {
+                rest_height += top + height - grid_height + bounds_bottom;
+            }
+            if (rest_height < 1) {
+                return (height - rest_height) / (grid_height - bounds_bottom - bounds_top) * 100 + "%";
+            }
+            var rest_offset = fromOffset(rest_height / (bounds_top + bounds_bottom) * (parseFloat(grid_padding_top) + parseFloat(grid_padding_bottom)));
+            if (rest_height < height) {
+                return `calc(${(height - rest_height) / (grid_height - bounds_bottom - bounds_top) * 100}% + ${rest_offset})`;
+            }
+            return rest_offset;
+        }
+        var setRelativeDiv = function (_div, width, height, left, top) {
+            var [bounds_top, bounds_right, bounds_bottom, bounds_left] = bounds;
+            var computed = getComputedStyle(that);
+            css(_div, {
+                width: getDivSize(left, width, bounds_left, bounds_right, that.width, computed.paddingLeft, computed.paddingRight),
+                height: getDivSize(top, height, bounds_top, bounds_bottom, that.height, computed.paddingTop, computed.paddingBottom)
+            });
+        }
         var append = function (point, index, points) {
             var next_point = points ? points[index + 1] : null;
             if (point.length) {
@@ -348,6 +433,7 @@ var grid_prototype = {
                 if (!_div) {
                     point.target = _div = document.createElement('cell');
                 }
+                if (_div.parentNode !== that) appendChild(that, _div);
                 var current_value;
                 if (current_d === "x") {
                     if (next_point) {
@@ -361,12 +447,16 @@ var grid_prototype = {
                     point.top = current_t;
                     point.bottom = current_b;
                     if (point.origin !== point.value || current_t && current_t.origin !== current_t.value) {
-                        css(_div, {
-                            left: point.value / that.width * 100 + "%",
-                            top: current_t ? current_t.value / that.height * 100 + "%" : 0,
-                            width: current_value / that.width * 100 + "%",
-                            height: (current_h / that.height || 0) * 100 + "%"
-                        });
+                        if (getComputedStyle(_div).position === 'absolute') {
+                            css(_div, {
+                                left: point.value / that.width * 100 + "%",
+                                top: current_t ? current_t.value / that.height * 100 + "%" : 0,
+                                width: current_value / that.width * 100 + "%",
+                                height: (current_h / that.height || 0) * 100 + "%"
+                            });
+                        } else {
+                            setRelativeDiv(_div, current_value, current_h, point.value, current_t ? current_t.value : 0);
+                        }
                         point.width = current_value / that.width;
                         point.height = current_h / that.height;
                     }
@@ -382,17 +472,20 @@ var grid_prototype = {
                     point.left = current_l;
                     point.right = current_r;
                     if (point.origin !== point.value || current_l && current_l.origin !== current_l.value) {
-                        css(_div, {
-                            left: current_l ? current_l.value / that.width * 100 + "%" : 0,
-                            top: point.value / that.height * 100 + "%",
-                            width: (current_w / that.width || 0) * 100 + "%",
-                            height: current_value / that.height * 100 + "%"
-                        });
+                        if (getComputedStyle(_div).position === 'absolute') {
+                            css(_div, {
+                                left: current_l ? current_l.value / that.width * 100 + "%" : 0,
+                                top: point.value / that.height * 100 + "%",
+                                width: (current_w / that.width || 0) * 100 + "%",
+                                height: current_value / that.height * 100 + "%"
+                            });
+                        } else {
+                            setRelativeDiv(_div, current_w, current_value, currelt_l ? current_l.value : 0, point.value);
+                        }
                         point.width = current_w / that.width;
                         point.height = current_value / that.height;
                     }
                 }
-                if (_div.parentNode !== that) appendChild(that, _div);
             }
         };
         append(this.breakpoints);
@@ -450,8 +543,84 @@ var actionemiter = function (event) {
         }
     });
 };
-
+var dropOrderedArray = function (arr, x1, x2) {
+    var i1 = getIndexFromOrderedArray(arr, x1);
+    var i2 = getIndexFromOrderedArray(arr, x2);
+    if (i2 - i1 > 1) {
+        arr.splice(i1 + 1, i2 - i1 - 1);
+    }
+}
+var createPointsFromElements = function (elements, xList, yList) {
+    elements.forEach(e => saveToOrderedArray(xList, e[1])
+        | saveToOrderedArray(xList, e[2])
+        | saveToOrderedArray(yList, e[3])
+        | saveToOrderedArray(yList, e[4])
+    );
+    elements.forEach(e => {
+        dropOrderedArray(xList, e[1], e[2]);
+        dropOrderedArray(yList, e[3], e[4]);
+    });
+    if (xList.length > 2) {
+        for (var cx = xList.length - 1; cx >= 1; cx--) {
+            var x1 = xList[cx - 1];
+            var x2 = xList[cx];
+            var temp = elements.filter(e => e[1] >= x1 && e[2] <= x2);
+            if (temp.length > 1) {
+                var children = createPointsFromElements(temp, [x1, x2], [yList[0], yList[yList.length - 1]]);
+                xList.splice(cx, 0, children);
+            } else if (temp.length === 1) {
+                xList[cx - 1] = new Point({ value: x1, target: temp[0][0] })
+            }
+        }
+        xList.pop();
+        xList.direction = 'x';
+        return xList;
+    }
+    if (yList.length > 2) {
+        for (var cx = yList.length - 1; cx >= 1; cx--) {
+            var y1 = yList[cx - 1];
+            var y2 = yList[cx];
+            var temp = elements.filter(e => e[3] >= y1 && e[4] <= y2);
+            if (temp.length > 1) {
+                var children = createPointsFromElements(temp, [xList[0], xList[xList.length - 1]], [y1, y2]);
+                yList.splice(cx, 0, children);
+            } else if (temp.length === 1) {
+                yList[cx - 1] = new Point({ value: y1, target: temp[0][0] })
+            }
+        }
+        yList.direction = "y";
+        yList.pop();
+        return yList;
+    }
+    return [];
+};
+var createBoundsFromComputed = function (grid) {
+    var computed = getComputedStyle(grid);
+    var limit = [
+        parseFloat(computed.paddingTop) * grid.height / grid.clientHeight,
+        parseFloat(computed.paddingRight) * grid.width / grid.clientWidth,
+        parseFloat(computed.paddingBottom) * grid.height / grid.clientHeight,
+        parseFloat(computed.paddingLeft) * grid.width / grid.clientWidth
+    ].map(a => +a.toFixed(0));
+    return limit;
+};
+var createPointsWithChildren = function () {
+    var grid = this;
+    var elements = [].concat.apply([], grid.children).map(a => [a,
+        +Math.max(0, a.offsetLeft * grid.width / grid.clientWidth),
+        +(Math.min(a.offsetLeft + a.offsetWidth, grid.clientWidth) * grid.width / grid.clientWidth),
+        +Math.max(0, a.offsetTop * grid.height / grid.clientHeight),
+        +(Math.min(a.offsetTop + a.offsetHeight, grid.clientHeight) * grid.height / grid.clientHeight)
+    ]);
+    var points = createPointsFromElements(elements, [0, grid.width], [0, grid.height]);
+    if (points.direction === 'y') {
+        points = [0, points];
+    }
+    grid.setData(points);
+    grid.reshape();
+};
 function main(elem) {
+
     if (isElement(elem)) {
         elem = grid.call(elem);
         care(elem, elem.setData);

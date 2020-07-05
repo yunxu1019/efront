@@ -1,6 +1,5 @@
->cell {
-    border: 1px dashed #ccc;
-    position: absolute;
+>cell,
+>[cell] {
 
     &.resize {
         border-color: #66f;
@@ -19,6 +18,10 @@
     .border(bottom);
 }
 
+>cell {
+    border: 1px dashed #ccc;
+    position: absolute;
+}
 
 & {
     width: 200px;
