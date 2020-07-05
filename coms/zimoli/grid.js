@@ -117,31 +117,16 @@ var adaptCursor = function (event) {
 var resizeView = function (event) {
     var grid = this;
     var editting = grid.editting;
-    var runNext = function ({ style }) {
-        if (extra) {
-            var origin = parseFloat(style[key]);
-            style[extra] = parseFloat(style[extra]) + origin - value / grid[extra] * 100 + "%";
-        }
-
-        style[key] = value / grid[extra] * 100 + "%";
-    };
-    var runPrev = function ({ style }) {
-        var origin = parseFloat(style[key]) + parseFloat(style[extra]);
-        style[extra] = parseFloat(style[extra]) - origin + value / grid[extra] * 100 + "%";
-    };
     var runPoints = p => p.value = value;
     for (var k in editting) {
-        var [points, prevElements, nextElements, key, min, max, delta, extra, client] = editting[k];
+        var [points, _, _, _, min, max, delta, extra, client] = editting[k];
         var value = event[k] / grid[client] * grid[extra] - delta;
         if (value < min) value = min;
         if (value > max) value = max;
         points.forEach(runPoints);
-        nextElements.forEach(runNext);
-        if (prevElements) {
-            prevElements.forEach(runPrev);
-        }
 
     }
+    grid.reshape();
 };
 var resizer = function (event) {
     var grid = this;
@@ -350,7 +335,7 @@ var grid_prototype = {
                     }
                     point[0].left = current_l && current_l.left;
                 }
-                point.map(append);
+                point.forEach(append);
                 current_l = temp_l;
                 current_t = temp_t;
                 current_w = temp_w;
@@ -375,14 +360,16 @@ var grid_prototype = {
                     }
                     point.top = current_t;
                     point.bottom = current_b;
-                    css(_div, {
-                        left: point.value / that.width * 100 + "%",
-                        top: current_t ? current_t.value / that.height * 100 + "%" : 0,
-                        width: current_value / that.width * 100 + "%",
-                        height: (current_h / that.height || 0) * 100 + "%"
-                    });
-                    point.width = current_value / that.width;
-                    point.height = current_h / that.height;
+                    if (point.origin !== point.value || current_t && current_t.origin !== current_t.value) {
+                        css(_div, {
+                            left: point.value / that.width * 100 + "%",
+                            top: current_t ? current_t.value / that.height * 100 + "%" : 0,
+                            width: current_value / that.width * 100 + "%",
+                            height: (current_h / that.height || 0) * 100 + "%"
+                        });
+                        point.width = current_value / that.width;
+                        point.height = current_h / that.height;
+                    }
                 } else {
                     if (next_point) {
                         current_value = next_point.value - point.value;
@@ -394,19 +381,29 @@ var grid_prototype = {
                     }
                     point.left = current_l;
                     point.right = current_r;
-                    css(_div, {
-                        left: current_l ? current_l.value / that.width * 100 + "%" : 0,
-                        top: point.value / that.height * 100 + "%",
-                        width: (current_w / that.width || 0) * 100 + "%",
-                        height: current_value / that.height * 100 + "%"
-                    });
-                    point.width = current_w / that.width;
-                    point.height = current_value / that.height;
+                    if (point.origin !== point.value || current_l && current_l.origin !== current_l.value) {
+                        css(_div, {
+                            left: current_l ? current_l.value / that.width * 100 + "%" : 0,
+                            top: point.value / that.height * 100 + "%",
+                            width: (current_w / that.width || 0) * 100 + "%",
+                            height: current_value / that.height * 100 + "%"
+                        });
+                        point.width = current_w / that.width;
+                        point.height = current_value / that.height;
+                    }
                 }
-                appendChild(that, _div);
+                if (_div.parentNode !== that) appendChild(that, _div);
             }
         };
         append(this.breakpoints);
+        var store = function (point) {
+            if (point.length) {
+                point.forEach(store);
+            } else {
+                point.origin = point.value;
+            }
+        };
+        store(this.breakpoints);
     },
     seprate(x) {
         saveToOrderedArray(this.breakpoints, Point(x));
