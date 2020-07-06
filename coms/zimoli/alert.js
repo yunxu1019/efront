@@ -9,8 +9,9 @@ var clean = Cleanup(alerts);
 var build = function () {
     var sum = 0;
     alerts.forEach(function (elem) {
-        if (parseInt(elem.style.top) !== sum);
-        elem.style.top = sum + "px";
+        if (elem.offsetTop !== sum) {
+            elem.style.top = fromOffset(sum);
+        };
         sum += elem.offsetHeight;
     });
 };
@@ -18,7 +19,7 @@ var fontSize = 16;
 var singleHeight = fontSize * 3.125 | 0;
 var _text = function (color, parameters) {
     var box = div();
-    css(box, `top:${fromPixel(singleHeight * alerts.length)};height:0;line-height:${fromPixel(singleHeight)};left:0;right:0;font-size:${fromPixel(fontSize)}; transition: all 0.2s ease-out;position:absolute;color:#fff;text-align:center;`);
+    css(box, `top:${fromPixel(alerts.length ? Math.max.apply(Math, alerts.map(e => e.offsetTop + e.children[0].offsetHeight)) : 0)};height:0;line-height:${fromPixel(singleHeight)};left:0;right:0;font-size:${fromPixel(fontSize)}; transition: all 0.2s ease-out;position:absolute;color:#fff;text-align:center;`);
     box.innerHTML = `<div style='width: 720px;max-width:100%;display:inline-block;height:${fromPixel(singleHeight)};background-color:${color};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
     box.initialStyle = `margin:-${fromPixel(singleHeight)} auto;opacity:0;`;
     return box;
