@@ -52,8 +52,8 @@ var getElemetsFromPoints = function (points) {
 var generateResizeParameters = function (y, top, bottom, height, point_next, event, b1, resize) {
     var grid = this;
     var bounds = grid.bounds;
-    var bound_top = bounds[b1];
-    var bound_bottom = bounds[b1 + 2];
+    var bound_top = bounds[b1 === 0 ? b1 : b1 + 2];
+    var bound_bottom = bounds[b1 === 0 ? b1 + 2 : b1];
     var computed = getComputedStyle(grid);
     var paddingTop = 'padding' + top[0].toUpperCase() + top.slice(1);
     var paddingBottom = 'padding' + bottom[0].toUpperCase() + bottom.slice(1);
@@ -82,11 +82,11 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
     if (+point_next === bound_top) {
         resizePadding = paddingTop;
         resizeDelta = event[clientY] - parseFloat(computed[paddingTop]);
-        resizeIndex = b1;
+        resizeIndex = b1 === 0 ? b1 : b1 + 2;
     } else if (+point_next === grid[height] - bound_bottom) {
         resizePadding = paddingBottom;
         resizeDelta = event[clientY] + parseFloat(computed[paddingBottom]);
-        resizeIndex = b1 + 2;
+        resizeIndex = b1 === 0 ? b1 + 2 : b1;
     }
     resize[clientY] = [
         nextPoints,
@@ -119,14 +119,14 @@ var getXYFromMouseEvent = function (event) {
     } else if (clientX >= grid.clientWidth - padRight) {
         clientX = (clientX - grid.cientWidth + padRight) / (padRight + padLeft) * (bounds[1] + bounds[3]);
     } else {
-        clientX = (clientX - padLeft) / (grid.clientWidth - padLeft - padRight) * (grid.width - bounds[1] - bounds[3]);
+        clientX = bounds[3] + (clientX - padLeft) / (grid.clientWidth - padLeft - padRight) * (grid.width - bounds[1] - bounds[3]);
     }
     if (clientY <= padTop) {
         clientY = clientY / (padBottom + padTop) * (bounds[0] + bounds[2]);
     } else if (clientY >= grid.clientHeight - padTop) {
         clientY = (clientY - grid.clientHeight + padBottom) / (padBottom + padTop) * (bounds[0] + bounds[2]);
     } else {
-        clientY = (clientY - padTop) / (grid.clientHeight - padTop - padBottom) * (grid.height - bounds[0] - bounds[2]);
+        clientY = bounds[0] + (clientY - padTop) / (grid.clientHeight - padTop - padBottom) * (grid.height - bounds[0] - bounds[2]);
     }
     return [clientX, clientY];
 }
