@@ -429,7 +429,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         console.warn(`文件中存在冗余数据<gray>${fullpath}</gray>:<data>${data.length > 12 ? data.slice(0, 10) + '...' : data}</data>`);
     }
     if (htmlData) {
-        jsData = `var template=\`${htmlData.replace(/[\\']/g, '\\$&')}\`;\r\n` + jsData;
+        jsData = `var template=\`${htmlData.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&")}\`;\r\n` + jsData;
     }
     var promise = new Promise(function (ok, oh) {
         function fire() {
