@@ -40,15 +40,18 @@
     <div class="nav"></div>
     <div class="menu"></div>
     <div class="main">
-      <btn>abc</btn>
+      <btn @click="alert('你好')">abc</btn>
     </div>
   </grid>
 </template>
 <script>
 export default {
+  methods: {
+    alert
+  },
   components: {
     btn: button_test,
-    btn: moue(button),
+    btn: moue(button, "click"),
     grid: moue(grid)
   }
 };
