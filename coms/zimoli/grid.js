@@ -232,7 +232,7 @@ var gridListener = function () {
     var grid = this;
     var offmousemove;
     offmousemove = onmousemove(window, function (event) {
-        if (!grid.editable) return;
+        if (grid.editable === false || grid.disabled) return;
         event.moveLocked = true;
         if (grid.editting) {
             resizeView.call(grid, event);
@@ -266,11 +266,10 @@ function grid(breakpoints) {
     }
     extend(grid, grid_prototype);
     if (!breakpoints) {
-        if (grid.offsetHeight || grid.isMounted) {
+        if (grid.clientHeight || grid.isMounted) {
             createPointsWithChildren.call(grid);
         } else {
             on("append")(grid, createPointsWithChildren);
-            grid.setData();
         }
     } else {
         grid.setData(breakpoints);
@@ -602,22 +601,6 @@ var createPointsFromElements = function (elements, xList, yList) {
         dropOrderedArray(xList, e[1], e[2]);
         dropOrderedArray(yList, e[3], e[4]);
     });
-    if (xList.length > 2) {
-        for (var cx = xList.length - 1; cx >= 1; cx--) {
-            var x1 = xList[cx - 1];
-            var x2 = xList[cx];
-            var temp = elements.filter(e => e[1] >= x1 && e[2] <= x2);
-            if (temp.length > 1) {
-                var children = createPointsFromElements(temp, [x1, x2], [yList[0], yList[yList.length - 1]]);
-                xList.splice(cx, 0, children);
-            } else if (temp.length === 1) {
-                xList[cx - 1] = new Point({ value: x1, target: temp[0][0] })
-            }
-        }
-        xList.pop();
-        xList.direction = 'x';
-        return xList;
-    }
     if (yList.length > 2) {
         for (var cx = yList.length - 1; cx >= 1; cx--) {
             var y1 = yList[cx - 1];
@@ -625,14 +608,36 @@ var createPointsFromElements = function (elements, xList, yList) {
             var temp = elements.filter(e => e[3] >= y1 && e[4] <= y2);
             if (temp.length > 1) {
                 var children = createPointsFromElements(temp, [xList[0], xList[xList.length - 1]], [y1, y2]);
-                yList.splice(cx, 0, children);
+                if (children.length) {
+                    yList.splice(cx, 0, children);
+                }
             } else if (temp.length === 1) {
                 yList[cx - 1] = new Point({ value: y1, target: temp[0][0] })
+            } else {
+                yList.splice(cx - 1, 1);
             }
         }
         yList.direction = "y";
         yList.pop();
         return yList;
+    }
+    if (xList.length > 2) {
+        for (var cx = xList.length - 1; cx >= 1; cx--) {
+            var x1 = xList[cx - 1];
+            var x2 = xList[cx];
+            var temp = elements.filter(e => e[1] >= x1 && e[2] <= x2);
+            if (temp.length > 1) {
+                var children = createPointsFromElements(temp, [x1, x2], [yList[0], yList[yList.length - 1]]);
+                if (children.length) xList.splice(cx, 0, children);
+            } else if (temp.length === 1) {
+                xList[cx - 1] = new Point({ value: x1, target: temp[0][0] })
+            } else {
+                xList.splice(cx - 1, 1);
+            }
+        }
+        xList.pop();
+        xList.direction = 'x';
+        return xList;
     }
     return [];
 };
@@ -643,7 +648,7 @@ var createBoundsFromComputed = function (grid) {
         parseFloat(computed.paddingRight) * grid.width / grid.clientWidth,
         parseFloat(computed.paddingBottom) * grid.height / grid.clientHeight,
         parseFloat(computed.paddingLeft) * grid.width / grid.clientWidth
-    ].map(a => +a.toFixed(0));
+    ].map(a => +a.toFixed(0) || 0);
     return limit;
 };
 var createPointsWithChildren = function () {
