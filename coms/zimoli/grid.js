@@ -140,17 +140,19 @@ var adaptCursor = function (event) {
     var deltax = 7 / grid.clientWidth * grid.width;
     var deltay = 7 / grid.clientHeight * grid.height;
     var [clientX, clientY] = getXYFromMouseEvent.call(grid, event);
-    var [x1, y1, x2, y2] = grid.nearby(clientX, clientY);
+    var rect = grid.nearby(clientX, clientY);
+    var [x1, y1, x2, y2] = rect;
+    var { left, top, right, bottom } = rect;
     var direction = "";
     if (clientY - y1 < deltay) {
-        if (y1 !== 0) direction += "n";
+        if (y1 !== 0 && !top.solid && !top.top.solid) direction += "n";
     } else if (y2 - clientY < deltay) {
-        if (y2 !== grid.height) direction += "s";
+        if (y2 !== grid.height && !top.solid && !bottom.solid) direction += "s";
     }
     if (clientX - x1 < deltax) {
-        if (x1 !== 0) direction += "w";
+        if (x1 !== 0 && !left.solid && !left.left.solid) direction += "w";
     } else if (x2 - clientX < deltax) {
-        if (x2 !== grid.width) direction += "e";
+        if (x2 !== grid.width && !left.solid && !right.solid) direction += "e";
     }
     grid.direction = direction;
     if (direction) {
@@ -285,16 +287,19 @@ function grid(breakpoints) {
 class Point extends Array {
     constructor(value) {
         if (!this) return new Point(value);
+        var solid = false;
         if (value instanceof Object) {
             this.value = value.value;
             var target = value.target;
             if (target) {
+                solid = target.hasAttribute('solid') && target.getAttribute('solid') !== 'false' || !!target.solid;
                 this.target = target;
             }
 
         } else {
             this.value = value;
         }
+        this.solid = solid;
     }
     valueOf() {
         return this.value;
