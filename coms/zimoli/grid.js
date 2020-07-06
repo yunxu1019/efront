@@ -174,14 +174,15 @@ var resizeView = function (event) {
         var value = event[k] * ratio - delta;
         if (value < min) value = min;
         if (value > max) value = max;
+        var client = (value + delta) / ratio;
         points.forEach(runPoints);
         if (rPadding) {
             if (rIndex === 0 || rIndex === 3) {
                 grid.bounds[rIndex] = value;
-                css(grid, { [rPadding]: fromOffset(event[k] - rDelta) });
+                css(grid, { [rPadding]: fromOffset(client - rDelta) });
             } else {
                 grid.bounds[rIndex] = grid[extra] - value;
-                css(grid, { [rPadding]: fromOffset(rDelta - event[k]) });
+                css(grid, { [rPadding]: fromOffset(rDelta - client) });
             }
         }
     }
