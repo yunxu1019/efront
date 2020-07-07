@@ -14,6 +14,7 @@
 .nav {
   height: 60px;
   margin-top: -60px;
+  background: #0cf;
 }
 > .menu,
 > .main {
@@ -22,8 +23,11 @@
   height: 100%;
 }
 > .menu {
+  background: #000;
   width: 200px;
   margin-left: -200px;
+  max-width: 600px;
+  min-width: 60px;
 }
 > .main {
   width: 100%;
@@ -37,7 +41,7 @@
 </style>
 <template>
   <grid editable>
-    <div class="nav"></div>
+    <div class="nav" solid></div>
     <div class="menu"></div>
     <div class="main">
       <btn @click="alert('你好')">abc</btn>

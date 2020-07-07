@@ -68,8 +68,15 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
     } else {
         var ratio = (grid[height] - bound_top - bound_bottom) / (grid[clientHeight] - parseFloat(computed[paddingTop]) - parseFloat(computed[paddingBottom]));
     }
-    var minValue = Math.max.apply(Math, prevPoints.map(p => p.value || 0)) + 20 / grid[clientHeight] * grid[height];
-    var maxValue = Math.min.apply(Math, nextPoints.map(p => (p[bottom] ? p[bottom].value : grid[height]) - 20 / grid[clientHeight] * grid[height]));
+    var minDelta = 20 / grid[clientHeight] * grid[height];
+    var minIndex = b1 === 0 ? 1 : 0;
+    var maxIndex = minIndex + 2;
+    var minValue1 = Math.max.apply(Math, prevPoints.map(p => (p.value || 0) + (p.range ? p.range[minIndex] : minDelta)));
+    var maxValue1 = Math.min.apply(Math, nextPoints.map(p => (p[bottom] ? p[bottom].value : grid[height]) - (p[bottom] && p[bottom].range ? p[bottom].range[minIndex] : minDelta)));
+    var minValue2 = Math.max.apply(Math, nextPoints.map(p => (p[bottom] ? p[bottom].value : grid[height]) - (p[bottom] && p[bottom].range ? p[bottom].range[maxIndex] : Infinity)));
+    var maxValue2 = Math.min.apply(Math, prevPoints.map(p => (p.range ? p.range[maxIndex] + (p.value || 0) : Infinity)));
+    var maxValue = Math.min(maxValue1, maxValue2);
+    var minValue = Math.max(minValue1, minValue2);
     var nextElements = getElemetsFromPoints(nextPoints);
     var prevElements = getElemetsFromPoints(prevPoints);
     prevElements.forEach(function (element) {
@@ -286,12 +293,13 @@ function grid(breakpoints) {
     return grid;
 }
 class Point extends Array {
-    constructor(value) {
+    constructor(value, range) {
         if (!this) return new Point(value);
         var solid = false;
         if (value instanceof Object) {
             this.value = value.value;
             var target = value.target;
+            range = range || value.range;
             if (target) {
                 solid = target.hasAttribute('solid') && target.getAttribute('solid') !== 'false' || !!target.solid;
                 this.target = target;
@@ -300,6 +308,8 @@ class Point extends Array {
         } else {
             this.value = value;
         }
+        range = range || [0, 0, Infinity, Infinity];
+        this.range = range;
         this.solid = solid;
     }
     valueOf() {
@@ -618,7 +628,7 @@ var createPointsFromElements = function (elements, xList, yList) {
                     yList.splice(cx, 0, children);
                 }
             } else if (temp.length === 1) {
-                yList[cx - 1] = new Point({ value: y1, target: temp[0][0] })
+                yList[cx - 1] = new Point({ value: y1, target: temp[0][0], range: temp[0][5] })
             } else {
                 yList.splice(cx - 1, 1);
             }
@@ -636,7 +646,7 @@ var createPointsFromElements = function (elements, xList, yList) {
                 var children = createPointsFromElements(temp, [x1, x2], [yList[0], yList[yList.length - 1]]);
                 if (children.length) xList.splice(cx, 0, children);
             } else if (temp.length === 1) {
-                xList[cx - 1] = new Point({ value: x1, target: temp[0][0] })
+                xList[cx - 1] = new Point({ value: x1, target: temp[0][0], range: temp[0][5] })
             } else {
                 xList.splice(cx - 1, 1);
             }
@@ -659,11 +669,25 @@ var createBoundsFromComputed = function (grid) {
 };
 var createPointsWithChildren = function () {
     var grid = this;
+    var getRange = function (e) {
+        var range = [0, 0, Infinity, Infinity];
+        var computed = getComputedStyle(e);
+        range[0] = parseFloat(computed.minWidth) * grid.width / grid.clientWidth || range[0];
+        range[1] = parseFloat(computed.minHeight) * grid.height / grid.clientHeight || range[1];
+        range[2] = parseFloat(computed.maxWidth) * grid.width / grid.clientWidth || range[2];
+        range[3] = parseFloat(computed.maxHeight) * grid.height / grid.clientWidth || range[3];
+        range[0] = Math.ceil(range[0]);
+        range[1] = Math.ceil(range[1]);
+        range[2] = Math.floor(range[2]);
+        range[3] = Math.floor(range[3]);
+        return range;
+    };
     var elements = [].concat.apply([], grid.children).map(a => [a,
         +Math.max(0, a.offsetLeft * grid.width / grid.clientWidth).toFixed(0),
         +(Math.min(a.offsetLeft + a.offsetWidth, grid.clientWidth) * grid.width / grid.clientWidth).toFixed(0),
         +Math.max(0, a.offsetTop * grid.height / grid.clientHeight).toFixed(0),
-        +(Math.min(a.offsetTop + a.offsetHeight, grid.clientHeight) * grid.height / grid.clientHeight).toFixed(0)
+        +(Math.min(a.offsetTop + a.offsetHeight, grid.clientHeight) * grid.height / grid.clientHeight).toFixed(0),
+        getRange(a)
     ]);
     var points = createPointsFromElements(elements, [0, grid.width], [0, grid.height]);
     if (points.direction === 'y') {
