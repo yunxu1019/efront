@@ -408,9 +408,9 @@ var grid_prototype = {
         }
     },
     _reshape() {
-        var that = this;
+        var grid = this;
         var bounds = this.bounds;
-        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(that.width), current_b = Point(that.height);
+        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(grid.width), current_b = Point(grid.height);
         // var xPoints = [];
         // var yPoints = [];
         var getDivSize = function (top, height, bounds_top, bounds_bottom, grid_height, grid_padding_top, grid_padding_bottom) {
@@ -438,19 +438,19 @@ var grid_prototype = {
         }
         var setRelativeDiv = function (_div, width, height, left, top) {
             var [bounds_top, bounds_right, bounds_bottom, bounds_left] = bounds;
-            var computed = getComputedStyle(that);
+            var computed = getComputedStyle(grid);
             css(_div, {
-                width: getDivSize(left, width, bounds_left, bounds_right, that.width, computed.paddingLeft, computed.paddingRight),
-                height: getDivSize(top, height, bounds_top, bounds_bottom, that.height, computed.paddingTop, computed.paddingBottom)
+                width: getDivSize(left, width, bounds_left, bounds_right, grid.width, computed.paddingLeft, computed.paddingRight),
+                height: getDivSize(top, height, bounds_top, bounds_bottom, grid.height, computed.paddingTop, computed.paddingBottom)
             });
             if (top <= 0) {
                 css(_div, { marginTop: fromOffset(- parseFloat(computed.paddingTop)) });
-            } else if (top + height >= that.height) {
+            } else if (top + height >= grid.height) {
                 css(_div, { marginBottom: fromOffset(-parseFloat(computed.paddingBottom)) });
             }
             if (left <= 0) {
                 css(_div, { marginLeft: fromOffset(-parseFloat(computed.paddingLeft)) });
-            } else if (left + width >= that.width) {
+            } else if (left + width >= grid.width) {
                 css(_div, { marginRight: fromOffset(-parseFloat(computed.paddingRight)) });
             }
         }
@@ -496,7 +496,7 @@ var grid_prototype = {
                 if (!_div) {
                     point.target = _div = document.createElement('cell');
                 }
-                if (_div.parentNode !== that) appendChild(that, _div);
+                if (_div.parentNode !== grid) appendChild(grid, _div);
                 var current_value;
                 if (current_d === "x") {
                     if (next_point) {
@@ -512,16 +512,16 @@ var grid_prototype = {
                     if (point.origin !== point.value || current_t && current_t.origin !== current_t.value) {
                         if (getComputedStyle(_div).position === 'absolute') {
                             css(_div, {
-                                left: point.value / that.width * 100 + "%",
-                                top: current_t ? current_t.value / that.height * 100 + "%" : 0,
-                                width: current_value / that.width * 100 + "%",
-                                height: (current_h / that.height || 0) * 100 + "%"
+                                left: point.value / grid.width * 100 + "%",
+                                top: current_t ? current_t.value / grid.height * 100 + "%" : 0,
+                                width: current_value / grid.width * 100 + "%",
+                                height: (current_h / grid.height || 0) * 100 + "%"
                             });
                         } else {
                             setRelativeDiv(_div, current_value, current_h, point.value, current_t ? current_t.value : 0);
                         }
-                        point.width = current_value / that.width;
-                        point.height = current_h / that.height;
+                        point.width = current_value / grid.width;
+                        point.height = current_h / grid.height;
                     }
                 } else {
                     if (next_point) {
@@ -537,29 +537,34 @@ var grid_prototype = {
                     if (point.origin !== point.value || current_l && current_l.origin !== current_l.value) {
                         if (getComputedStyle(_div).position === 'absolute') {
                             css(_div, {
-                                left: current_l ? current_l.value / that.width * 100 + "%" : 0,
-                                top: point.value / that.height * 100 + "%",
-                                width: (current_w / that.width || 0) * 100 + "%",
-                                height: current_value / that.height * 100 + "%"
+                                left: current_l ? current_l.value / grid.width * 100 + "%" : 0,
+                                top: point.value / grid.height * 100 + "%",
+                                width: (current_w / grid.width || 0) * 100 + "%",
+                                height: current_value / grid.height * 100 + "%"
                             });
                         } else {
                             setRelativeDiv(_div, current_w, current_value, currelt_l ? current_l.value : 0, point.value);
                         }
-                        point.width = current_w / that.width;
-                        point.height = current_value / that.height;
+                        point.width = current_w / grid.width;
+                        point.height = current_value / grid.height;
                     }
                 }
             }
         };
         append(this.breakpoints);
+        var reshapecount = 0;
         var store = function (point) {
             if (point.length) {
                 point.forEach(store);
-            } else {
+            } else if (point.origin !== point.value) {
+                reshapecount++;
                 point.origin = point.value;
             }
         };
         store(this.breakpoints);
+        if (reshapecount > 0) {
+            dispatch(grid, 'shaped');
+        }
     },
     seprate(x) {
         saveToOrderedArray(this.breakpoints, Point(x));
