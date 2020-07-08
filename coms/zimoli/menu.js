@@ -11,22 +11,23 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
     menu_items.nodrag = true;
     var menu_extra = button("");
     addClass(menu_extra, "more");
-    onappend(menu_items, function () {
-        menu_items.go(0);
-    });
+    menu_items.go(0);
     autodragchildren(menu_items, e => e.parentNode && e.parentNode.parentNode === menu_items, function (c1, c2) {
         move(btns, c1, c2);
         move(map, c1, c2);
     });
     var extra_list = list(function (index) {
+        if (index < 0) return false;
         var btn = btns[menu_items.children[0].children.length + index];
         var clone = btn ? button(btn.innerText, "white") : false;
-        css(clone, `display:block;width:100%;height:28px;overflow:hidden;box-shadow:none;text-align:left;padding-left:20px`);
+        css(clone, `display:block;width:100%;height:28px;overflow:hidden;box-shadow:none;text-align:left;padding:0 20px`);
         return clone;
     });
-    css(extra_list, "min-width:180px;width:auto;height:auto;border:1px solid #000;background:#fff;padding:8px 0;");
-    extra_list.go(0);
+    css(extra_list, "min-width:180px;width:auto;height:auto;border:1px solid #000;background:#fff;padding:4px 0;");
     select(menu_extra, extra_list);
+    onappend(extra_list, function () {
+        extra_list.go(0);
+    });
     appendChild(menu_box, menu_items, menu_extra);
     return menu_box;
 }
@@ -100,7 +101,7 @@ function main(elem, mode) {
         // }
         // elem.setAttribute('browser', os);
         var mode = elem.getAttribute('mode');
-        mode = mode && mode.toLowerCase() || "horizonal";
+        mode = mode ? mode.toLowerCase() : "horizonal";
         var src = elem.getAttribute("src") || elem.getAttribute("ng-src") || elem.getAttribute("v-src");
         if (src) {
             var parsedSrc = render.parseRepeat(src);
@@ -154,6 +155,7 @@ function main(elem, mode) {
                 };
                 if (src) {
                     care(elem, function (src) {
+                        console.log(src);
                         menuList(elem, getTreeFromData(src), emit, generator, direction);
                     });
                 } else {
