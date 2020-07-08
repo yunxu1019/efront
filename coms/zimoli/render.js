@@ -600,7 +600,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     // 解析属性
     element.renders = element.renders ? [].concat(element.renders) : [];
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
-    var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@)/i;
+    var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
     var ons = [];
     attrs.map(function (attr) {
         var { name, value } = attr;
@@ -609,8 +609,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
             directives[key].call(element, [withContext, value]);
         } else if (emiter_reg.test(name)) {
-            var ngon = (emiter_reg.exec(name)[1] || "on").toLowerCase();
-            ons.push([emiters[ngon], key, value]);
+            var match = emiter_reg.exec(name);
+            var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
+            element.removeAttribute(name);
+            ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
         } else if (/^([\_\:\.]|v\-bind\:)/.test(name)) {
             binders._.call(element, name.replace(/^([\_\:\.]|v\-bind\:)/, ""), [withContext, value]);
         } else if (/[\_\@\:\.]$/.test(name)) {

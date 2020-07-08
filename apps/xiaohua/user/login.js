@@ -13,7 +13,6 @@ function main() {
         transform: 'rotateY(-180deg)',
         transition: 'transform .5s,opacity .5s',
     };
-    forms[1].leave
     render(page, {
         loading: {},
         go,
