@@ -63,7 +63,7 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
     var prevPoints = getLastPoints(point_prev.direction !== y ? point_prev.parent : point_prev, bottom);
     var clientY = "client" + y.toUpperCase();
     var clientHeight = 'client' + height[0].toUpperCase() + height.slice(1);
-    if (point_next < bound_top || point_next > grid[height] - bound_bottom) {
+    if (point_next <= bound_top || point_next >= grid[height] - bound_bottom) {
         var ratio = (bound_top + bound_bottom) / (parseFloat(computed[paddingBottom]) + parseFloat(computed[paddingTop]))
     } else {
         var ratio = (grid[height] - bound_top - bound_bottom) / (grid[clientHeight] - parseFloat(computed[paddingTop]) - parseFloat(computed[paddingBottom]));
@@ -71,8 +71,8 @@ var generateResizeParameters = function (y, top, bottom, height, point_next, eve
     var minDelta = 20 / grid[clientHeight] * grid[height];
     var minIndex = b1 === 0 ? 1 : 0;
     var maxIndex = minIndex + 2;
-    var minValue1 = Math.max.apply(Math, prevPoints.map(p => (p.value || 0) + (p.range ? p.range[minIndex] : minDelta)));
-    var maxValue1 = Math.min.apply(Math, nextPoints.map(p => (p[bottom] ? p[bottom].value : grid[height]) - (p[bottom] && p[bottom].range ? p[bottom].range[minIndex] : minDelta)));
+    var minValue1 = Math.max.apply(Math, prevPoints.map(p => (p.value || 0) + (p.range ? Math.max(p.range[minIndex], minDelta) : minDelta)));
+    var maxValue1 = Math.min.apply(Math, nextPoints.map(p => (p[bottom] ? p[bottom].value : grid[height]) - (p[bottom] && p[bottom].range ? Math.max(p[bottom].range[minIndex], minDelta) : minDelta)));
     var minValue2 = Math.max.apply(Math, nextPoints.map(p => (p[bottom] ? p[bottom].value : grid[height]) - (p[bottom] && p[bottom].range ? p[bottom].range[maxIndex] : Infinity)));
     var maxValue2 = Math.min.apply(Math, prevPoints.map(p => (p.range ? p.range[maxIndex] + (p.value || 0) : Infinity)));
     var maxValue = Math.min(maxValue1, maxValue2);
@@ -179,9 +179,15 @@ var resizeView = function (event) {
     for (var k in editting) {
         var [points, _, _, ratio, min, max, delta, extra, rDelta, rIndex, rPadding] = editting[k];
         var value = event[k] * ratio - delta;
-        if (value < min) value = min;
-        if (value > max) value = max;
-        var client = (value + delta) / ratio;
+        if (value < min) {
+            value = min;
+            var client = Math.ceil((value + delta) / ratio);
+        } else if (value > max) {
+            value = max;
+            var client = Math.floor((value + delta) / ratio);
+        } else {
+            var client = event[k];
+        }
         points.forEach(runPoints);
         if (rPadding) {
             if (rIndex === 0 || rIndex === 3) {
