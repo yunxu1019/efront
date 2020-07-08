@@ -156,8 +156,12 @@ function tree() {
         _div.refresh();
 
         onclick(_div, function () {
+            var isClosed = com.isClosed();
             if (!active(banner, com.value, com)) {
                 return;
+            }
+            if (isClosed === com.isClosed() && com.length) {
+                com.setClosed(!isClosed);
             }
             var index = this.index;
             changed_index = index;

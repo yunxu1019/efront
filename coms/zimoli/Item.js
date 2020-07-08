@@ -27,6 +27,9 @@ Item.prototype = extend([], {
     isClosed() {
         return this.value.closed;
     },
+    setClosed(value) {
+        this.value.closed = value;
+    },
     isActive() {
         return this.value.active || this.value.actived;
     },
