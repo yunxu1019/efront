@@ -571,7 +571,7 @@ var data = {
             config = privates.loadIgnoreConfig('get', config).then(createApiMap);
         } else if (!(config instanceof Promise)) {
             if (!(config instanceof Object)) return;
-            config = Promise.resolve(config);
+            config = Promise.resolve(config).then(createApiMap);
         }
         return enrich({
             from(id, params) {
