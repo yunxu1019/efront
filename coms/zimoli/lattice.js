@@ -59,6 +59,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     };
     onappend(_box, function () {
         mountedLattices.push(_box);
+        _box.resize();
     });
     onremove(_box, function () {
         for (var cx = mountedLattices.length - 1; cx >= 0; cx--) {
