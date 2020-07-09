@@ -27,13 +27,18 @@ api("/getAllComponents").success(function (result) {
 }).error(function (err) {
     alert(err);
 });
+var actived = null;
 onactive(leftArea, function (event) {
     if (event.value.tab === 1) {
-        event.value.closed = !event.value.closed;
         return;
     }
     if (!event.value.test) return alert("仅可以测试点击以_test结尾的哦");
     commNameInput.value = event.value.name + "_test";
+    event.value.actived = true;
+    if (actived) {
+        actived.actived = false;
+    }
+    actived = event.value;
     state({
         scroll: leftArea.index(),
         value: commNameInput.value

@@ -25,21 +25,28 @@ function Item(value) {
 }
 Item.prototype = extend([], {
     isClosed() {
-        return this.value.closed;
+        return !!this.value.closed;
     },
     setClosed(value) {
         this.value.closed = value;
     },
     isActive() {
-        return this.value.active || this.value.actived;
+        return !!(this.value.active || this.value.actived);
+    },
+    setActive(value) {
+        if ('active' in this.value) {
+            this.value.active = value;
+        } else {
+            this.value.actived = value;
+        }
     },
     isSelected() {
-        return this.value.selected;
+        return !!this.value.selected;
     },
     isChecked() {
-        return this.value.checked;
+        return !!this.value.checked;
     },
     getClass() {
-        return this.value.class;
+        return !!this.value.class;
     }
 });

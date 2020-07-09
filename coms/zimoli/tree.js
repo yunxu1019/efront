@@ -113,14 +113,34 @@ function tree() {
         }
         var _div = button(span);
         _div.index = index;
+
+        if (!com.saved) {
+            com.saved = {};
+        }
         _div.refresh = function () {
-            if (com.isChecked()) {
-                addClass(_div, "checked");
-            } else if (com.isSelected()) {
-                addClass(_div, "selected");
+            var saved = com.saved;
+            if (saved.checked !== com.isChecked()) {
+                saved.checked = com.isChecked();
+                if (saved.checked) {
+                    addClass(_div, "checked");
+                } else {
+                    removeClass(_div, 'checked');
+                }
+            } else if (saved.selected !== com.isSelected()) {
+                saved.selected = com.isSelected();
+                if (saved.selected) {
+                    addClass(_div, "selected");
+                } else {
+                    removeClass(_div, 'selected');
+                }
             }
-            if (com.isActive()) {
-                addClass(_div, "actived");
+            if (saved.actived !== com.isActive()) {
+                saved.actived = com.isActive();
+                if (saved.actived) {
+                    addClass(_div, "actived");
+                } else {
+                    removeClass(_div, 'actived');
+                }
             }
             var class1 = com.getClass();
             if (class1) {
@@ -141,20 +161,33 @@ function tree() {
         };
         addClass(_div, "tab" + com.tab);
         var setState = function (closed = com.isClosed()) {
-            removeClass(com.target, 'open empty closed');
+            var saved = com.saved;
             if (com.length) {
-                if (closed) {
-                    addClass(com.target, 'closed');
-                } else {
-                    addClass(com.target, 'open');
+                if (saved.closed !== closed) {
+                    saved.closed = closed;
+                    if (closed) {
+                        addClass(com.target, 'closed');
+                    } else {
+                        addClass(com.target, 'open');
+                    }
+                }
+                if (saved.empty) {
+                    removeClass(com.target, 'empty');
+                    saved.empty = false;
                 }
             } else {
-                addClass(com.target, 'empty');
+                if (!saved.empty) {
+                    saved.empty = true;
+                    addClass(com.target, 'empty');
+                }
+                if (saved.closed === true || saved.closed === false) {
+                    removeClass(com.target, 'closed open');
+                    saved.closed = null;
+                }
             }
         };
         com.target = _div;
         _div.refresh();
-
         onclick(_div, function () {
             var isClosed = com.isClosed();
             if (!active(banner, com.value, com)) {
@@ -166,7 +199,10 @@ function tree() {
             var index = this.index;
             changed_index = index;
             changed_offset = com.length + index;
-            if (!com.length) return;
+            if (!com.length) {
+                dom.forEach(d => d.target && d.target.refresh());
+                return;
+            }
             var z0 = function () {
                 com.forEach(function (e) {
                     if (e.target) e.target.style.zIndex = 0;
