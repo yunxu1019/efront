@@ -15,6 +15,7 @@ var base = cross_host || (domainReg.test(location.href) ? '/' : "http://efront.c
 var HeadersKeys = ["Content-Type"];
 var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
 var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
+var cors_hosts = [];
 if (cookiesData) {
     try {
         extend(cookiesMap, JSON.parse(cookiesData));
@@ -104,7 +105,7 @@ var digest = function () {
 };
 
 var getCrossUrl = function (domain, headers) {
-    if (location_host === domain.slice(0, location_host.length)) return domain;
+    if (notCross(domain)) return domain;
     var originDomain = getDomainPath(domain);
     var _cookies = getCookies(originDomain);
     var _headers = {};
@@ -271,8 +272,25 @@ function cross(method, url, headers) {
     };
     return xhr;
 }
+function addDirect(a) {
+    if (typeof a === 'string' || a instanceof RegExp) cors_hosts.push(a);
+}
+function notCross(domain) {
+    if (location_host === domain.slice(0, location_host.length)) return true;
+    for (var cx = 0, dx = cors_hosts.length; cx < dx; cx++) {
+        var host = cors_hosts[cx];
+        if (host instanceof RegExp) {
+            if (host.test(domain)) return true;
+        } else {
+            host = host.replace(domainReg, '$2/$3');
+            if (domain.replace(domainReg, '$2/$3').slice(0, host.length) === host) return true;
+        }
+    }
+    return false;
+}
 extend(cross, {
     getCookies,
     addCookie,
+    addDirect,
     getCrossUrl
 });
