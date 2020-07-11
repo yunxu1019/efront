@@ -1,4 +1,3 @@
-var getIndexFromOrderedArray = require("./getIndexFromOrderedArray");
 /**
  * 保存数据到有序数组
  * @param {Array} orderArray 

@@ -1,6 +1,4 @@
 var extend = require("../zimoli/extend");
-var getIndexFromOrderedArray = require("../zimoli/getIndexFromOrderedArray");
-var saveToOrderedArray = require("../zimoli/saveToOrderedArray");
 var clients = [], indexedKeepingClients = [];
 var increaseId = 0x1fffffff + (0x1fffffff * Math.random() | 0);
 
