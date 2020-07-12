@@ -11,7 +11,17 @@ var stylePrefix = function (documentStyle) {
     if ("-o-transform" in documentStyle) return "-o-";
     return "";
 }(documentStyle);
+var ratioPropReg = /(?:opacity|line\-height|lineHeight)$/i;
 var nodePrefix = stylePrefix.slice(1, stylePrefix.length - 1);
+var transfromSimpleValue = function (value) {
+    if (isFinite(value)) return fromOffset(+value || 0);
+    return value;
+};
+var transformValue = function (value, k) {
+    if (ratioPropReg.test(k)) return value;
+    if (/^[\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : value.split(/\s/).map(transfromSimpleValue).join(' ');
+    return value;
+};
 /**
  * 将中划线转成驼峰式
  * @param {string} key 
@@ -61,7 +71,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
     var styleobject = targetNode.style;
     if (typeof oStyle === "string") {
         if (typeof oValue === "string") {
-            styleobject[transformNodeKey(oStyle)] = oValue;
+            styleobject[transformNodeKey(oStyle)] = transfromSimpleValue(oValue);
             return;
         } else {
             try {
@@ -76,7 +86,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
                 var key = transformNodeKey(k);
                 if (key in styleobject) {
                     try {
-                        styleobject[key] = oStyle[k];
+                        styleobject[key] = transfromSimpleValue(oStyle[k]);
                     } catch (e) {
                         console.warn(key, oStyle[k], "无效");
                     }
@@ -85,7 +95,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
         } else {
             for (var k in oStyle) {
                 var key = transformNodeKey(k);
-                if (key in styleobject) styleobject[key] = oStyle[k];
+                if (key in styleobject) styleobject[key] = transfromSimpleValue(oStyle[k]);
             }
         }
     }
@@ -131,7 +141,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
     });
     for (var k in styleobject) {
         if (styleobject[k]) {
-            rowStyles.push(k + ":" + styleobject[k]);
+            rowStyles.push(k + ":" + transfromSimpleValue(styleobject[k]));
         }
     }
     var innerCss = `${targetSelector}{${rowStyles.join(";")}}`;
