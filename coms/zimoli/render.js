@@ -608,6 +608,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
             directives[key].call(element, [withContext, value]);
+            element.removeAttribute(name);
         } else if (emiter_reg.test(name)) {
             var match = emiter_reg.exec(name);
             var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
@@ -615,8 +616,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
         } else if (/^([\_\:\.]|v\-bind\:)/.test(name)) {
             binders._.call(element, name.replace(/^([\_\:\.]|v\-bind\:)/, ""), [withContext, value]);
+            element.removeAttribute(name);
         } else if (/[\_\@\:\.]$/.test(name)) {
             binders[""].call(element, name.replace(/[\_\@\:\.]$/, ""), [withContext, value]);
+            element.removeAttribute(name);
         } else {
             name = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
             try {
@@ -674,6 +677,7 @@ function renderStructure(element, scope, parentScopes = []) {
             }
             if (!element.renderid) element.renderid = -1;
             else element.renderid = -2;
+            element.removeAttribute(name);
         }
     });
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
