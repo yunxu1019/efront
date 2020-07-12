@@ -1,6 +1,7 @@
 var renderDefaults = Object.create(null);
 extend(renderDefaults, {
     btn: button,
+    button,
     input,
     padding,
     block,
