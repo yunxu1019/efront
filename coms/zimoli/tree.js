@@ -167,8 +167,10 @@ function tree() {
                     saved.closed = closed;
                     if (closed) {
                         addClass(com.target, 'closed');
+                        removeClass(com.target,'open empty');
                     } else {
                         addClass(com.target, 'open');
+                        removeClass(com.target,'closed empty');
                     }
                 }
                 if (saved.empty) {
