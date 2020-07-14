@@ -15,11 +15,11 @@ function ylist(container, generator, $Y) {
         if (a !== void 0) scrollTo(a);
     });
     //取底部元素
-    var getLastElement = function () {
-        var children = list.children;
+    var getLastElement = function (nodType) {
+        var children = nodType === 1 ? list.children : list.childNodes;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
-            if (isFinite(child.index)) {
+            if (isFinite(child.index) || nodType === 2 && child.offsetHeight) {
                 return child;
             }
         }
@@ -27,7 +27,7 @@ function ylist(container, generator, $Y) {
     };
     //取底部元素
     var getIndexedElement = function (index) {
-        var children = list.children;
+        var children = list.childNodes;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
             if (isFinite(child.index) && child.index === index) {
@@ -38,11 +38,11 @@ function ylist(container, generator, $Y) {
     };
 
     //取顶部元素
-    var getFirstElement = function () {
-        var children = list.children;
+    var getFirstElement = function (nodeType) {
+        var children = nodeType === 1 ? list.children : list.childNodes;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (isFinite(child.index)) {
+            if (isFinite(child.index) || nodType === 2 && child.offsetHeight) {
                 return child;
             }
         }
@@ -147,7 +147,7 @@ function ylist(container, generator, $Y) {
     var runbuild = function () {
         patchBottom();
         patchTop();
-        var firstElement = getFirstElement(), y;
+        var firstElement = getFirstElement(1), y;
         if (firstElement) {
             y = firstElement.index * firstElement.offsetHeight;
         } else {
@@ -181,10 +181,10 @@ function ylist(container, generator, $Y) {
     };
     on("scroll")(list, rebuild);
     var topinsert = document.createElement('ylist-insert');
-    list.insertBefore(topinsert, list.firstElement);
+    list.insertBefore(topinsert, list.firstChild);
     //计算当前高度
     var currentY = function () {
-        var firstElement = getFirstElement();
+        var firstElement = getFirstElement(1);
         if (!firstElement) return;
         return firstElement.index * firstElement.offsetHeight + list.scrollTop;
     };
@@ -255,7 +255,7 @@ function ylist(container, generator, $Y) {
     };
     var patchTop = function (deltaY = 0) {
         var childrenMap = getChildrenMap();
-        var first_element, flag_element = first_element = getFirstElement();
+        var first_element, flag_element = first_element = getFirstElement(1);
         if (!flag_element || !isFinite(flag_element.offsetTop)) return;
         var offset = flag_element.index || 0;
         var offsetTop = flag_element.offsetTop;
@@ -336,7 +336,7 @@ function ylist(container, generator, $Y) {
     //导出方法
     list.go = scrollTo;
     list.Height = function () {
-        var elem = getLastElement();
+        var elem = getLastElement(2);
         var listRestHeight = elem ? elem.offsetHeight + elem.offsetTop - list.scrollTop : list.clientHeight;
         return currentY() + listRestHeight + restHeight;
     };
@@ -358,7 +358,7 @@ function ylist(container, generator, $Y) {
         return index + scrolled;
     };
     list.topIndex = function () {
-        var element = getFirstElement();
+        var element = getFirstElement(1);
         return element ? element.index : 0;
     };
     vbox(list, $Y);
@@ -416,7 +416,7 @@ function list() {
             }
             care(container, function () {
                 var index = container.index();
-                remove(container.children);
+                container.clean();
                 container.go(index || 0);
             });
             bindSrc = true;
@@ -436,5 +436,11 @@ function list() {
     } else if (bindSrc === true) {
         container.go(container.index() || 0);
     }
+    list.clean = function () {
+        var children = container.children;
+        children = [].concat.apply([], children).filter(c => c.nodeType === 1 && isFinite(c.index));
+        remove(children);
+    };
+
     return list;
 }

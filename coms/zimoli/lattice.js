@@ -57,10 +57,12 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
             element.with.forEach(build);
         }
     };
-    onappend(_box, function () {
+    var _onappend = function () {
         mountedLattices.push(_box);
         _box.resize();
-    });
+    };
+    onappend(_box, _onappend);
+
     onremove(_box, function () {
         for (var cx = mountedLattices.length - 1; cx >= 0; cx--) {
             if (mountedLattices[cx] === _box) {
@@ -75,7 +77,10 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         if (savedCount === boxCount) return;
         var realIndex = index * (savedCount || 1);
         index = realIndex / boxCount || 0;
-        remove(_box.children);
+        _box.clean();
+        [].forEach.call(_box.children, function (c) {
+            build(c);
+        });
         _box.go(index);
     }, 0);
     if (!_box.renders) _box.renders = [];
