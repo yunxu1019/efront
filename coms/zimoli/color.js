@@ -33,7 +33,7 @@ function rotate_rgb(RGBA, theta) {
 	red += dr;
 	green += dg;
 	blue += db;
-	return [red, green,blue, a];
+	return [red, green, blue, a];
 }
 // 对比度
 function contrast_rgb(RGBA, ratio) {
@@ -206,6 +206,33 @@ var colorDesigner = {
 	rotate: 0,
 	contrast: 1
 };
+var rgb2v = function (r, g, b) {
+	r *= .299;
+	g *= .587;
+	b *= .114;
+	return r + g + b;
+};
+var v2rgb = function (v, r, g, b) {
+	var t = r + g + b || 1;
+	v = v / t;
+	r *= v;
+	g *= v;
+	b *= v;
+	return [r, g, b];
+};
+
+var vsp = .587 * 255;
+var gray4 = function (RGBA, S) {
+	var [r, g, b, a] = RGBA;
+	var v = rgb2v(r, g, b);
+	if (v >= vsp) {
+		v = 255
+	} else {
+		v = 255 * 3
+	}
+	var [r, g, b] = v2rgb(v, r, g, b);
+	return [r, g, b, RGBA[3]];
+};
 
 extend(color, {
 	setTransformer(transformer) {
@@ -223,6 +250,9 @@ extend(color, {
 	parse,
 	equal,
 	stringify,
+	pair(c, s) {
+		return doWith(gray4, c, s);
+	},
 	isColor,
 	transform(text) {
 		return text.replace(colorReg, replacer);
