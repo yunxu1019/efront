@@ -1,6 +1,12 @@
 function main(efrontComponent, events) {
+    var tagName = '';
+    if (typeof efrontComponent === 'string') {
+        tagName = efrontComponent;
+        efrontComponent = events;
+        events = arguments[2];
+    }
     if (typeof events === 'string') events = events.split(',');
-    events = events ? [].concat(events) : [];
+    events = events ? [].concat(events || []) : [];
     return {
         methods: {
             emit(event) {
@@ -14,7 +20,7 @@ function main(efrontComponent, events) {
             efrontComponent(this.$el);
         },
         render(h) {
-            return h(this.$options._componentTag, this.$slots.default);
+            return h(tagName || this.$options._componentTag, this.$slots.default);
         }
     }
 }
