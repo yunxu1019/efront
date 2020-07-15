@@ -11,7 +11,7 @@ var stylePrefix = function (documentStyle) {
     if ("-o-transform" in documentStyle) return "-o-";
     return "";
 }(documentStyle);
-var ratioPropReg = /(?:opacity|line\-height|lineHeight)$/i;
+var ratioPropReg = /(?:opacity|line\-height|lineHeight|z\-index|zIndex)$/i;
 var nodePrefix = stylePrefix.slice(1, stylePrefix.length - 1);
 var transfromSimpleValue = function (value) {
     if (isFinite(value)) return fromOffset(+value || 0);
@@ -71,7 +71,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
     var styleobject = targetNode.style;
     if (typeof oStyle === "string") {
         if (typeof oValue === "string") {
-            styleobject[transformNodeKey(oStyle)] = transfromSimpleValue(oValue);
+            styleobject[transformNodeKey(oStyle)] = transformValue(oValue, oStyle);
             return;
         } else {
             try {
@@ -86,7 +86,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
                 var key = transformNodeKey(k);
                 if (key in styleobject) {
                     try {
-                        styleobject[key] = transfromSimpleValue(oStyle[k]);
+                        styleobject[key] = transformValue(oStyle[k], key);
                     } catch (e) {
                         console.warn(key, oStyle[k], "无效");
                     }
@@ -95,7 +95,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
         } else {
             for (var k in oStyle) {
                 var key = transformNodeKey(k);
-                if (key in styleobject) styleobject[key] = transfromSimpleValue(oStyle[k]);
+                if (key in styleobject) styleobject[key] = transformValue(oStyle[k], key);
             }
         }
     }
@@ -141,7 +141,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
     });
     for (var k in styleobject) {
         if (styleobject[k]) {
-            rowStyles.push(k + ":" + transfromSimpleValue(styleobject[k]));
+            rowStyles.push(k + ":" + transformValue(styleobject[k], k));
         }
     }
     var innerCss = `${targetSelector}{${rowStyles.join(";")}}`;
