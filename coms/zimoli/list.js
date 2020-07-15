@@ -15,11 +15,11 @@ function ylist(container, generator, $Y) {
         if (a !== void 0) scrollTo(a);
     });
     //取底部元素
-    var getLastElement = function (nodType) {
-        var children = nodType === 1 ? list.children : list.childNodes;
+    var getLastElement = function (nodeType) {
+        var children = nodeType === 1 ? list.children : list.childNodes;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
-            if (isFinite(child.index) || nodType === 2 && child.offsetHeight) {
+            if (isFinite(child.index) || nodeType === 2 && child.offsetHeight) {
                 return child;
             }
         }
@@ -42,7 +42,7 @@ function ylist(container, generator, $Y) {
         var children = nodeType === 1 ? list.children : list.childNodes;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (isFinite(child.index) || nodType === 2 && child.offsetHeight) {
+            if (isFinite(child.index) || nodeType === 2 && child.offsetHeight) {
                 return child;
             }
         }

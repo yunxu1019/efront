@@ -543,7 +543,7 @@ var grid_prototype = {
                                 height: current_value / grid.height * 100 + "%"
                             });
                         } else {
-                            setRelativeDiv(_div, current_w, current_value, currelt_l ? current_l.value : 0, point.value);
+                            setRelativeDiv(_div, current_w, current_value, current_l ? current_l.value : 0, point.value);
                         }
                         point.width = current_w / grid.width;
                         point.height = current_value / grid.height;
