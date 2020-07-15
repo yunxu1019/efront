@@ -11,7 +11,7 @@ var stylePrefix = function (documentStyle) {
     if ("-o-transform" in documentStyle) return "-o-";
     return "";
 }(documentStyle);
-var ratioPropReg = /(?:opacity|line\-height|lineHeight|z\-index|zIndex)$/i;
+var ratioPropReg = /(?:opacity|line\-height|lineHeight|z\-index|zIndex|zoom|weight|count|order|perspective|animation|flex|font\-size\-adjust|tab\-size|scale|grid\-(?:column|row)(?:\-(?:start|end))?)$/i;
 var nodePrefix = stylePrefix.slice(1, stylePrefix.length - 1);
 var transfromSimpleValue = function (value) {
     if (isFinite(value)) return fromOffset(+value || 0);
