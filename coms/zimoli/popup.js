@@ -8,7 +8,7 @@ onkeydown(document, function (e) {
 });
 var animationStyle = "opacity:0;transform:scale(1.2);transition:.1s opacity ease-out,.2s transform ease-out;";
 var setInitialStyle = function (element) {
-    element.initialStyle = animationStyle;
+    if (!element.initialStyle) element.initialStyle = animationStyle;
 };
 var setPosition = function (element) {
     css(element, {
