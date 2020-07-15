@@ -3,7 +3,21 @@ var _slider = createElement(div);
 var getGenerator = function (container, parsedSrc) {
     if (!container) return;
     var template = document.createElement("div");
-    appendChild(template, [].concat.apply([], container.childNodes));
+    var templates = [].concat.apply([], container.childNodes).filter(a => {
+        if (a.hasAttribute('insert')) {
+            return false;
+        }
+        return true;
+    });
+    if (templates.length < container.childNodes.length && templates.length >= 1) {
+        var c = document.createComment('lattice');
+        c.index = null;
+        container.insertBefore(c, templates[0]);
+        templates.splice(1, templates.length - 1);
+        var paddingCount = [].indexOf.call(container.childNodes, c);
+        container.paddingCount = paddingCount;
+    }
+    appendChild(template, templates);
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
     return function (index, com) {

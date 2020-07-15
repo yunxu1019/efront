@@ -248,6 +248,16 @@ function ylist(container, generator, $Y) {
         if (collection.length) {
             var item = collection[collection.length - 1];
             scrollTop -= item.offsetTop + getOffsetHeight(item) - collection[0].offsetTop;
+            var { paddingCount, paddingMax } = list;
+            if (paddingCount > 0 && paddingMax > 0 && paddingCount < paddingMax) {
+                let item = collection[collection.length - 1];
+                while (paddingCount > 0) {
+                    if (!item) break;
+                    paddingCount--;
+                    collection.push(item.nextSibling);
+                    item = item.nextSibling;
+                }
+            }
             remove(collection);
         }
         //滚动到相应的位置
@@ -263,8 +273,15 @@ function ylist(container, generator, $Y) {
         scrollTop += deltaY;
         //追加元素到顶部
         var targetHeight = cache_height + first_element.offsetTop;
-        while (scrollTop < targetHeight) {
+        var { paddingCount, paddingMax } = list;
+        if (!(paddingCount > 0 && paddingMax > 0 && paddingCount < paddingMax) || !(scrollTop < targetHeight)) {
+            paddingCount = 0;
+        }
+        while (scrollTop < targetHeight || paddingCount > 0) {
             offset--;
+            if (!(scrollTop < targetHeight)) {
+                paddingCount--;
+            }
             if (!(offset >= 0)) {
                 break;
             }
@@ -283,13 +300,12 @@ function ylist(container, generator, $Y) {
         //滚动到相应位置
         if (scrollTop < 0) scrollTop = 0;
         //-list_scrollTop + lElem_offsetTop = -list_newScrollTop + lElem_newoffsetTop + deltaY
-        var last_element = getLastElement();
+        var last_element = getLastElement(1);
         var { clientHeight } = list;
         while (last_element && last_element.offsetTop > clientHeight + scrollTop + cache_height) {
             remove(last_element);
-            last_element = getLastElement();
+            last_element = getLastElement(1);
         }
-
         return scrollTop - list.scrollTop;
     };
     //滚动一定的距离
