@@ -20,7 +20,9 @@ function Item(value) {
         this.color = value.color;
         this.test = value.test;
     }
-    this.count = 0;
+    this.count = 0;//子项中的叶子节点数
+    this.total = 0;//子项中的节点数
+    this.crack = 0;
     this.id = ++id;
 }
 Item.prototype = extend([], {

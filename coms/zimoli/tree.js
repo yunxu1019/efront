@@ -2,6 +2,7 @@ function getTreeFromArray(array) {
     var root = [];
     root.tab = -Infinity;
     root.count = 0;
+    root.total = 0;
     var path = [root];
     for (var cx = 0, dx = array.length; cx < dx; cx++) {
         var arg = array[cx];
@@ -16,6 +17,7 @@ function getTreeFromArray(array) {
                 break;
             }
             parentElement.parent.count += parentElement.count || parentElement.length || 1;
+            parentElement.parent.total += (parentElement.total || parentElement.length) + 1;
         }
     }
     while (path.length > 1) {
@@ -23,6 +25,19 @@ function getTreeFromArray(array) {
         path[path.length - 1].count += item.count || item.length || 1;
     }
     return root;
+}
+function buildCrack(com, set) {
+    var count = com.length;
+    for (var cx = 0, dx = com.length; cx < dx; cx++) {
+        var c = com[cx];
+        if (!c.isClosed() && c.length) {
+            count += buildCrack(c, false);
+        }
+    }
+    if (set !== false) {
+        com.crack = count;
+    }
+    return count;
 }
 
 function getArrayFromTree(root, skipClosed = true) {
@@ -74,6 +89,7 @@ function appendTo(parent, datas) {
         parent = parent.parent;
     }
 }
+
 function tree() {
     var element, generator;
     [].forEach.call(arguments, function (arg) {
@@ -167,10 +183,10 @@ function tree() {
                     saved.closed = closed;
                     if (closed) {
                         addClass(com.target, 'closed');
-                        removeClass(com.target,'open empty');
+                        removeClass(com.target, 'open empty');
                     } else {
                         addClass(com.target, 'open');
-                        removeClass(com.target,'closed empty');
+                        removeClass(com.target, 'closed empty');
                     }
                 }
                 if (saved.empty) {
@@ -200,20 +216,25 @@ function tree() {
             }
             var index = this.index;
             changed_index = index;
-            changed_offset = com.length + index;
+            buildCrack(com);
+            changed_offset = com.crack + index;
             if (!com.length) {
                 dom.forEach(d => d.target && d.target.refresh());
                 return;
             }
             var z0 = function () {
-                com.forEach(function (e) {
+                var z = function (e) {
                     if (e.target) e.target.style.zIndex = 0;
-                });
+                    if (e instanceof Array) e.forEach(z);
+                };
+                com.forEach(z);
             };
             var z1 = function () {
-                com.forEach(function (e) {
+                var z = function (e) {
                     if (e.target) e.target.style.zIndex = 1;
-                });
+                    if (e instanceof Array) e.forEach(z);
+                };
+                com.forEach(z);
                 setState();
             };
 
