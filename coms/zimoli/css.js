@@ -18,8 +18,8 @@ var transfromSimpleValue = function (value) {
     return value;
 };
 var transformValue = function (value, k) {
-    if (ratioPropReg.test(k)) return value;
-    if (/^[\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : value.split(/\s/).map(transfromSimpleValue).join(' ');
+    if (ratioPropReg.test(k) || !value) return value;
+    if (/^[\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : String(value).split(/\s/).map(transfromSimpleValue).join(' ');
     return value;
 };
 /**
