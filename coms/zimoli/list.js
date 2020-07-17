@@ -453,7 +453,7 @@ function list() {
         container.go(container.index() || 0);
     }
     list.clean = function () {
-        var children = container.children;
+        var children = (container || list).children;
         children = [].concat.apply([], children).filter(c => c.nodeType === 1 && isFinite(c.index));
         remove(children);
     };
