@@ -100,7 +100,7 @@ function main(elem, mode) {
         //     os = 'unknown';
         // }
         // elem.setAttribute('browser', os);
-        var mode = elem.getAttribute('mode');
+        var mode = elem.getAttribute('mode') || elem.getAttribute('type');
         mode = mode ? mode.toLowerCase() : "horizonal";
         var src = elem.getAttribute("src") || elem.getAttribute("ng-src") || elem.getAttribute("v-src");
         if (src) {
@@ -119,6 +119,8 @@ function main(elem, mode) {
             case "i":
             case "c":
             case "inline":
+            case "t":
+            case "tree":
                 if (elem) {
                     tree(elem, function (index, item) {
                         var e = generator(index, item);
@@ -155,7 +157,6 @@ function main(elem, mode) {
                 };
                 if (src) {
                     care(elem, function (src) {
-                        console.log(src);
                         menuList(elem, getTreeFromData(src), emit, generator, direction);
                     });
                 } else {

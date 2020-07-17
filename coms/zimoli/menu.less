@@ -82,11 +82,13 @@ body:active & {
     width: 100%;
 }
 
-&[mode=vertical] {
+&[mode=vertical],
+&[type=vertical] {
     display: block;
 }
 
-&[mode=horizonal] {
+&[mode=horizonal],
+&[type=horizonal] {
     display: block;
     overflow: hidden;
     text-overflow: hidden;
@@ -106,7 +108,10 @@ body:active & {
     }
 }
 
-&[mode=inline] {
+&[mode=tree],
+&[type=tree],
+&[mode=inline],
+&[type=inline] {
     height: auto;
     box-shadow: none;
     padding: 0;

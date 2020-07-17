@@ -8,10 +8,27 @@ var columns = `首页
 插画配图
 `.replace(/^\s+|\s+$/g, "").split(/\s+/);
 var menu_buttons = columns.map(a => button(a));
-var menus = {
-    '首页':{
-    }
-}
 function main() {
-    return menu(menu_buttons);
+    var page = div();
+    page.innerHTML = template;
+    var data = random([{
+        name: '一级目录',
+        children: [{
+            name: "二级目录",
+            children: [
+                {
+                    name: "三级目录"
+                }
+            ]
+        }]
+    }], 20);
+    render(page, {
+        ylist: menu,
+        menus: []
+    });
+    on("append")(page, function () {
+        page.$scope.menus = data;
+        page.querySelector("ylist").go(0)
+    });
+    return page;
 }
