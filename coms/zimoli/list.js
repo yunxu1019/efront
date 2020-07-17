@@ -180,6 +180,8 @@ function ylist(container, generator, $Y) {
         rebuild.ing = requestAnimationFrame(run);
     };
     on("scroll")(list, rebuild);
+    var topinsert = document.createElement('ylist-insert');
+    list.insertBefore(topinsert, list.firstChild);
     //计算当前高度
     var currentY = function () {
         var firstElement = getFirstElement(1);
