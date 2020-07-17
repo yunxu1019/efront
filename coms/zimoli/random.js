@@ -57,7 +57,8 @@ function random(source, decimal) {
     if (typeof source === 'object') {
         var dst = {};
         for (var k in source) {
-            dst[k] = random(source[k], 0);
+            var v = source[k];
+            dst[k] = v[0] instanceof Object ? random(v, 1) : random(v, 0);
         }
         return dst;
     }
