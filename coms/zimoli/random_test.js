@@ -1,3 +1,9 @@
+function toString(a) {
+    if (a instanceof Object) {
+        return `${a.姓}${a.名}`;
+    }
+    return String(a);
+}
 function random_test() {
     var args = [
         [random$name],
@@ -14,8 +20,7 @@ function random_test() {
     var id = 0;
     var run = function () {
         if (id >= args.length) return;
-        console.log(id);
-        alert(random.apply(null, args[id]));
+        alert(toString(random.apply(null, args[id])));
         id++;
         setTimeout(run, 200);
     }
