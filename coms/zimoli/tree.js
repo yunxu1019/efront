@@ -40,6 +40,20 @@ function buildCrack(com, set) {
     return count;
 }
 
+function getCrackTarget(com) {
+    for (var cx = com.length - 1; cx >= 0; cx--) {
+        var c = com[cx];
+        if (!c.isClosed() && c.length) {
+            var t = getCrackTarget(c);
+            if (t) {
+                return t;
+            }
+        }
+        if (c.target) return c.target;
+    }
+    return com.target;
+}
+
 function getArrayFromTree(root, skipClosed = true) {
     var path = [root], pathcx = [0];
     var result = [];
@@ -241,7 +255,7 @@ function tree() {
             if (com.isClosed() && com.length) {
                 z0();
                 setState(true);
-                var bottom = com[com.length - 1].target;
+                var bottom = getCrackTarget(com);
                 var top = com[0].target;
                 if (!top) return refresh();
                 var marginTop;
@@ -293,10 +307,9 @@ function tree() {
     };
     var refresh = function () {
         var index = banner.index();
-        var needremoves = dom.map(d => d.target);
+        var needremoves = dom.map(d => d.target).filter(d=>!!d);
         dom = getArrayFromTree(root, true);
         needremoves.forEach(_div => {
-            if (!_div) return;
             delete _div.initialStyle;
             css(_div, "transition:;margin-top:;");
         });
