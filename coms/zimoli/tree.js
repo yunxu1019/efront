@@ -245,7 +245,7 @@ function tree() {
                 var top = com[0].target;
                 if (!top) return refresh();
                 var marginTop;
-                if (!bottom) {
+                if (!bottom || !bottom.offsetTop) {
                     marginTop = top.offsetTop - banner.scrollHeight;
                 } else {
                     marginTop = top.offsetTop - bottom.offsetTop - bottom.offsetHeight;
