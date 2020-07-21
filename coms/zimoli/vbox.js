@@ -214,6 +214,23 @@ var xbox = arriswise(ybox, [].concat(allArgumentsNames, [].slice.call(arguments,
  * 传入一个页面，将其重构为可纵向平滑滑动的页面
  * @param {Element|Function|string} generator 
  */
-function vbox(generator, $Y = "Y") {
-    return ($Y === "X" ? xbox : ybox)(generator);
+function vbox(generator, $Y) {
+    if ($Y !== false && $Y !== true) {
+        if (!$Y) {
+            if (isElement(generator)) {
+                if (generator.hasAttribute('x-box') || generator.hasAttribute('xbox') || /^[xh]/i.test(generator.getAttribute('type') || /^[hx]/i.test(generator.getAttribute('mode')))) {
+                    $Y = false;
+                } else if (/^[xh]/i.test(generator.tagName)) {
+                    $Y = false;
+                }
+            } else if (/^[xh]/i.test($Y) || /^[xh]/i.test(generator)) {
+                $Y = false;
+            }
+
+        } else {
+            $Y = /^[yv]/i.test($Y);
+        }
+    }
+
+    return ($Y === false ? xbox : ybox)(generator);
 }
