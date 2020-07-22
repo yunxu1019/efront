@@ -2,6 +2,7 @@ var renderDefaults = Object.create(null);
 extend(renderDefaults, {
     btn: button,
     button,
+    a: button,
     input,
     padding,
     block,
