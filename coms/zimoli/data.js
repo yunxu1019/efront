@@ -550,6 +550,17 @@ var data = {
     setConfig(data) {
         configPormise = Promise.resolve(data).then(createApiMap);
     },
+    parseConfig(o) {
+        if (o instanceof Promise) {
+            return o.then(createApiMap);
+        }
+        if (o instanceof Object) {
+            return createApiMap(o);
+        }
+        if (isString(o)) {
+            return privates.loadIgnoreConfig('get', o).then(createApiMap);
+        }
+    },
     from(ref, params, parse) {
         if (params instanceof Function) {
             parse = params;
