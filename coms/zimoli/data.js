@@ -531,9 +531,39 @@ var loadInstance = function (storage, id) {
         return JSON.parse(storage.getItem(id));
     } catch{ }
 };
+
+function responseCrash(e, data) {
+    if (!data.is_loading) this.loading_count--;
+    data.is_errored = true;
+    data.is_loading = false;
+    data.error_message = getErrorMessage(e);
+    data.error_object = e;
+    if (e instanceof Object) {
+        extend(data, e);
+    } else {
+        data.error = e;
+    }
+    error_report(data.error_message, 'error');
+
+}
+function responseLoaded(response) {
+    response.is_loaded = true;
+    if (response.is_loading) {
+        response.is_loading = false;
+        this.loading_count--;
+    }
+}
+function responseLoading(response) {
+    response.is_loaded = false;
+    response.is_loading = true;
+    if (response.is_loading) this.loading_count++;
+}
 var data = {
     decodeStructure,
     encodeStructure,
+    responseLoaded,
+    responseCrash,
+    responseLoading,
     setReporter(report) {
         if (report instanceof Function) {
             error_report = report;
@@ -611,33 +641,44 @@ var data = {
         var id = parse instanceof Function ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var url = api.url;
-        var data = this.getInstance(id || url);
-        data.loading_promise = privates.fromApi(api, params).then((data) => {
+        var response = this.getInstance(id || url);
+        this.responseLoading(response);
+        var p = response.loading_promise = privates.fromApi(api, params).then((data) => {
             if (id) {
                 this.setInstance(id, parse(data), false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(url, data);
             }
+            this.responseLoaded(response);
             return data;
         });
-        return data;
+        p.catch((e) => {
+            this.responseCrash(e, response);
+        });
+        return response;
 
     },
     fromURL(url, parse) {
         var id = parse instanceof Function ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
-        var data = this.getInstance(id || url);
-        data.loading_promise = privates.loadIgnoreConfig('get', url).then((data) => {
+        var response = this.getInstance(id || url);
+        this.responseLoading(response);
+        var p = response.loading_promise = privates.loadIgnoreConfig('get', url).then((data) => {
             if (id) {
                 this.setInstance(id, parse(data), false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(url, data);
             }
+            this.responseLoaded(response);
             return data;
         });
-        return data;
+        p.catch((e) => {
+            this.responseCrash(e, response);
+        });
+
+        return response;
     },
     asyncInstance(sid, params, parse) {
         // 不同参数的请求互不影响
@@ -645,32 +686,19 @@ var data = {
         var id = parse instanceof Function || params ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var response = this.getInstance(id || sid);
-        response.is_loading = true;
-        this.loading_count++;
-
+        this.responseLoading(response);
         var p = response.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
-            this.loading_count--;
-            response.is_loading = false;
             if (id) {
                 this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(sid, data);
             }
+            this.responseLoaded(response);
             return data;
         });
         p.catch((e) => {
-            this.loading_count--;
-            response.is_errored = true;
-            response.is_loading = false;
-            response.error_message = getErrorMessage(e);
-            response.error_object = e;
-            if (e instanceof Object) {
-                extend(response, e);
-            } else {
-                response.error = e;
-            }
-            error_report(response.error_message, 'error');
+            this.responseCrash(e, response);
         });
         return response;
     },
@@ -712,11 +740,12 @@ var data = {
         }).then(function () {
             if (promise1 !== instance.loading_promise) throw outdate;
             return privates.getApi(sid);
-        }).then(function (api) {
+        }).then((api) => {
             if (promise1 !== instance.loading_promise) throw outdate;
             if (instance.loading) {
                 instance.loading.abort();
             }
+            this.responseLoading(instance);
             var params = privates.pack(sid, params1);
             if (!privates.validApi(api, params)) throw outdate;
 
@@ -752,19 +781,11 @@ var data = {
             } else {
                 this.setInstance(sid, data);
             }
-
+            this.responseLoaded(instance);
         });
-        promise1.catch(function (e) {
+        promise1.catch((e) => {
             if (e === outdate) return;
-            instance.is_errored = true;
-            instance.error_message = getErrorMessage(e);
-            instance.error_object = e;
-            if (e instanceof Object) {
-                extend(instance, e);
-            } else {
-                instance.error = e;
-            }
-            error_report(instance.error_message, 'error');
+            this.responseCrash(e, instance);
         });
 
         return instance;
@@ -783,6 +804,7 @@ var data = {
                 extend(data, loadInstance(sessionStorage, storageId));
             }
             data.is_loading = false;
+            data.is_loaded = true;
         }
         return instanceDataMap[instanceId];
 
