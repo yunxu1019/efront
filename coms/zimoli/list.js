@@ -86,7 +86,7 @@ function ylist(container, generator, $Y) {
     };
     //设置当前下标
     var scrollTo = function (itemIndex) {
-        if (!list.offsetHeight || !list.offsetWidth) {
+        if (!list.offsetHeight && !list.offsetWidth && !list.isMounted) {
             saved_itemIndex = itemIndex;
             return;
         }
