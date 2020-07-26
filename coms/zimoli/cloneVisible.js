@@ -1,4 +1,4 @@
-var cloneProperties = "fontSize,fontFamily,color,textShadow,opacity,writingMode,blockSize,wordSpacing,letterSpacing,whiteSpace".split(",");
+var cloneProperties = "fontWeight,fontSize,fontFamily,color,textShadow,opacity,writingMode,blockSize,wordSpacing,letterSpacing,whiteSpace".split(",");
 var cloneProperties2 = "position,float,clear,margin,color,verticalAlign,textAlign,textShadow,opacity,boxShadow,overflow,writingMode,blockSize,wordSpacing,letterSpacing,textIndent,lineHeight,display,appearance,webkitAppearance,MozAppearance".split(",");
 var pushProperty = function (key, props) {
     props.split(",").forEach(k => {
@@ -16,7 +16,7 @@ if (/firefox|Trident/i.test(navigator.userAgent)) {
         "BlockEnd,BlockStart,Bottom,InlineEnd,InlineStart,Left,Right,Top"
     );
     pushProperty("background", "Attachment,BlendMode,Clip,Image,Origin,PositionX,PositionY,Repeat,Size,Color,Position");
-    pushProperty("font", "Kerning,OpticalSizing,SizeAdjust,Stretch,Style,Synthesis,VariantCaps,VariantEastAsian,VariantLigatures,VariantNumeric,VariantPosition,Weight,Family,FeatureSettings,LanguageOverride,Size,VariantAlternates,VariationSettings,Variant");
+    pushProperty("font", "Weight,Kerning,OpticalSizing,SizeAdjust,Stretch,Style,Synthesis,VariantCaps,VariantEastAsian,VariantLigatures,VariantNumeric,VariantPosition,Weight,Family,FeatureSettings,LanguageOverride,Size,VariantAlternates,VariationSettings,Variant");
 } else {
     pushProperty("border", "Style,Width,Color,Image,Radius");
     cloneProperties2.push("padding", "font", "background");
