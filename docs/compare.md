@@ -265,9 +265,24 @@ class ComponentName extends Component {
     <component></component>
 </template>
 <script>
-   var component = Vue.component("component-name",{/* config*/});
+    var component = {
+        created(){},
+        mounted(){},
+        beforeDestroy(){},
+        destroyed(){},
+        render(){},
+        data(){
+            return {};
+        },
+        props:{},
+        watch:{},
+        methods:{},
+        components:{
+            component:compoment1
+        }
+    };
     export default component;
-<script>
+</script>
 <style></style>
 ```
 
