@@ -1,0 +1,91 @@
+@height: 600px;
+@width: 720px;
+@margin-top: -300px;
+@margin-left: -360px;
+
+& {
+    margin: @margin-top @margin-left;
+    top: 50%;
+    left: 50%;
+    width: @width;
+    height: @height;
+    position: absolute;
+    border: 1px solid #000;
+    box-shadow: 0 0 20px -6px #0003;
+    min-width: 200px;
+    min-height: 200px;
+    max-width: 100%;
+    max-height: 100%;
+    padding-bottom: 46px;
+}
+
+>.head {
+    padding: 9px 16px;
+    line-height: 24px;
+
+    btn {
+        padding: 0 16px;
+        float: right;
+    }
+}
+
+grid.body {
+    padding-top: 0;
+    margin-bottom: 0;
+}
+
+.editor-height(@height) {
+    grid.body {
+        padding-bottom: @height;
+    }
+
+    textarea {
+        margin-bottom: -@height;
+        height: @height;
+    }
+}
+
+list {
+    height: 100%;
+}
+
+.editor-height(80px);
+
+textarea {
+    display: block;
+    position: relative;
+    resize: none;
+    width: 100%;
+    line-height: 28px;
+    font-size: 16px;
+    ime-mode: active;
+}
+
+
+.max-size() {
+    margin-top: 0 !important;
+    top: 0 !important;
+    height: 100% !important;
+    margin-left: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    border: none;
+    .editor-height(36px);
+
+    textarea {
+        border: none;
+        outline: none;
+    }
+}
+
+@media(max-height: @height) {
+    & {
+        .max-size();
+    }
+}
+
+@media(max-width: @width) {
+    & {
+        .max-size();
+    }
+}

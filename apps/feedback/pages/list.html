@@ -1,0 +1,14 @@
+<opt class="head">
+    <div>反馈信息列表</div>
+    <div>&nbsp;</div>
+    <div>
+        <btn ng-click="go('/pages/home')">添加</btn>
+    </div>
+</opt>
+<lattice ng-src="item in items">
+    <padding>
+        <block>
+            <div class="item" ng-bind="item.content"></div>
+        </block>
+    </padding>
+</lattice>
