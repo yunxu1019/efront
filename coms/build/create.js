@@ -28,7 +28,7 @@ function from(srcname = 'kugou', destname = appname) {
 
     var jsondata = {
         "name": appname || srcname,
-        "version": "1.0",
+        "version": "1.0.0",
         "descriptions": "Efront 创建的项目",
         "scripts": {
             test: "efront live",
