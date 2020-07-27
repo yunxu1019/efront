@@ -3,6 +3,8 @@ extend(renderDefaults, {
     btn: button,
     button,
     a: button,
+    opt: option,
+    optn: option,
     go: zimoli.go,
     care,
     cast,

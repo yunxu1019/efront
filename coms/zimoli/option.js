@@ -22,8 +22,10 @@ function option(head = div(), body = div(), foot, splitter, container) {
         });
     };
     splitter && divide(splitter);
-    var btn = button(box);
-    return btn;
+    if (/n$/i.test(box.tagName)) {
+        var btn = button(box);
+    }
+    return btn || box;
 }
 
 function main(arg0) {
