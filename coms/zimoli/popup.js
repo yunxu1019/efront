@@ -102,13 +102,13 @@ var popup_path = function (path = "", parameters, target) {
     return element;
 };
 
-var popup_view = function (element, target) {
+var popup_view = function (element, target, style) {
     if (isNode(target)) {
         if (target.isMask) {
             popup_with_mask(element, target);
             return element;
         }
-        return popup_as_extra(element, target);
+        return popup_as_extra(element, target, style);
     }
     if (target instanceof Event) {
         popup_to_event(element, target);
@@ -150,7 +150,15 @@ var popup_with_mask = function (element, mask = createMask()) {
     if (!element.parentNode) global(element);
     return element;
 };
-var popup_as_extra = function (element, target) {
+var popup_as_extra = function (element, target, style) {
+    if (style) {
+        if (/^[vy]/i.test(style)) {
+            popup_as_yextra(global, element, target);
+        } else {
+            popup_as_xextra(global, element, target);
+        }
+        return;
+    }
     var { offsetParent, nextSibling, previousSibling } = target;
     if (
         nextSibling
