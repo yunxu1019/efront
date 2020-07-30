@@ -27,7 +27,7 @@ var save = function () {
         }
     }
 };
-var sessionStorage = {
+var sessionStorage = window.sessionStorage || {
     length: 0,
     removeItem: function (key) {
         if (_sessionStorage.hasOwnProperty(key))

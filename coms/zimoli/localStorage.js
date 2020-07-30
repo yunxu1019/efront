@@ -21,7 +21,7 @@ if (globalStorage) {
     };
     documentElement.addBehavior('#default#userdata');
 } else {
-    localStorage = {
+    localStorage = window.localStorage || {
         setItem() {
         },
         getItem() {
