@@ -7,10 +7,14 @@ var reshape = function (scrollHeight, offsetHeight) {
     var ratio = offsetHeight / scrollHeight;
     var thumbHeight = scrollbarHeight * ratio;
     if (thumbHeight < 14) thumbHeight = 14;
-    if (thumbHeight + 20 > scrollbarHeight) thumbHeight = scrollbarHeight - 20;
     if (thumbHeight < 0) thumbHeight = 0;
     this.restHeight = scrollHeight - offsetHeight;
     this.thumb.style.height = thumbHeight + "px";
+    if (thumbHeight >= this.clientHeight) {
+        this.style.opacity = 0;
+    } else {
+        this.style.opacity = 1;
+    }
 };
 var getTop = function () {
     var availableHeight = this.offsetHeight - this.thumb.offsetHeight;
@@ -45,8 +49,8 @@ var mousemove = function (event) {
     } = moving;
     var thumbTop = thumb.offsetTop;
     var targetY = deltaY + thumbTop;
-    if (targetY + thumb.offsetHeight > target.offsetHeight) {
-        targetY = target.offsetHeight - thumb.offsetHeight;
+    if (targetY + thumb.offsetHeight > target.clientHeight) {
+        targetY = target.clientHeight - thumb.offsetHeight;
     }
     if (targetY < 0) {
         targetY = 0;
@@ -127,7 +131,7 @@ var getTargetTop = function (target) {
 };
 
 var getTargetHeight = function (target) {
-    var Height = target.scrollHeight, height = target.offsetHeight;
+    var Height = target.scrollHeight, height = target.clientHeight;
     if (target.Height instanceof Function) Height = target.Height();
     if (target.height instanceof Function) height = target.height();
     return { Height, height };
@@ -136,10 +140,7 @@ var getTargetHeight = function (target) {
 function bindTarget(_container) {
     var _scrollbar = this;
     _container.with = _scrollbar;
-    onappend(_container, function () {
-        var { Height, height } = getTargetHeight(_container);
-        _scrollbar.reshape(Height, height);
-    });
+    onappend(_container, _scrollbar.reshape);
     _scrollbar.target = _container;
     on("scroll")(_container, function () {
         var top = getTargetTop(_container);
@@ -149,10 +150,15 @@ function bindTarget(_container) {
         var top = _scrollbar.Top();
         setTargetTop(_container, top);
     });
+    _scrollbar.reshape();
 }
 function scrollbar() {
     var _scrollbar = div();
-    _scrollbar.reshape = reshape;
+    _scrollbar.reshape = function () {
+        var _container = _scrollbar.target;
+        var { Height, height } = getTargetHeight(_container);
+        reshape.call(_scrollbar, Height, height);
+    };
     _scrollbar.scrollTo = scrollTo;
     var _handler = div();
     _handler.className = "thumb";
