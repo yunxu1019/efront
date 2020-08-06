@@ -36,7 +36,11 @@ on('touchend')(window, function (event) {
     }
     activeElement.blur();
 })
-function select(target, list, removeOnSelect) {
+function select(target, list, removeOnSelect, direction) {
+    if (/^[yvxh]/i.test(removeOnSelect)) {
+        direction = removeOnSelect;
+        removeOnSelect = arguments[3];
+    }
     if (!target) {
         target = document.createElement("select");
     }
@@ -97,7 +101,7 @@ function select(target, list, removeOnSelect) {
         if (saved_list !== list) {
             _remove();
             if (document.activeElement !== target) target.focus();
-            popup(list, target);
+            popup(list, target, direction);
             saved_list = list;
         }
         else _remove();
