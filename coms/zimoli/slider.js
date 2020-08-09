@@ -156,6 +156,7 @@ function slider(autoplay, circle = true) {
         }
     };
     player.schedule = 5000;
+    var isMiss = false;
     var switchBy = function (count) {
         clearTimeout(timer_playyer);
         if (player.ing) {
@@ -163,8 +164,12 @@ function slider(autoplay, circle = true) {
         }
         var enabled = generator(count - negative_index, 1);
         enabled = enabled && enabled !== _imageMain;
-        if (enabled) negative_index -= count;
-        animate();
+        if (isMiss) {
+            if (enabled) outter.go(outter.index + count);
+        } else {
+            if (enabled) negative_index -= count;
+            animate();
+        }
         return enabled;
     };
     var moveDeltaX = function (deltax, event) {
@@ -260,7 +265,10 @@ function slider(autoplay, circle = true) {
         if (player.ing) play();
         return outter;
     };
-    outter.play = function (schedule = player.schedule) {
+    outter.play = function (schedule = player.schedule, _isMiss) {
+        if (isDefined(_isMiss)) {
+            isMiss = _isMiss;
+        }
         if (schedule !== player.schedule) {
             player.schedule = schedule;
             play();
@@ -272,6 +280,9 @@ function slider(autoplay, circle = true) {
     outter.stop = function () {
         player.ing = false;
         return outter;
+    };
+    outter.miss = function (scadule) {
+        outter.play(scadule, true);
     };
     outter.next = function (count = 1) {
         current_index += .1;
