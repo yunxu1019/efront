@@ -83,7 +83,7 @@ move.setPosition = function (target, [x, y]) {
     var {
         clientWidth = innerWidth,
         clientHeight = innerHeight
-    } = this.offsetParent || {};
+    } = this && this.offsetParent || {};
     var offsetLeft = getOffsetLeft(x, offsetWidth, clientWidth);
     var offsetTop = getOffsetLeft(y, offsetHeight, clientHeight);
     move.call(target, offsetLeft, offsetTop);
