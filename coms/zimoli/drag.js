@@ -28,7 +28,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
         if (event.moveLocked) return;
         if (!saved_delta.ing) {
             var abs = Math.abs;
-            if (abs(target.offsetLeft - event.clientX - saved_delta.x < MOVELOCK_DELTA) && abs(target.offsetTop - event.clientY - saved_delta.y) < MOVELOCK_DELTA) return;
+            if (abs(target.offsetLeft - event.clientX - saved_delta.x) < MOVELOCK_DELTA && abs(target.offsetTop - event.clientY - saved_delta.y) < MOVELOCK_DELTA) return;
             saved_delta.ing = true;
             if (!/absolute|fixed/.test(getComputedStyle(target).position)) {
                 clone = toCloneTarget(target, isMovingSource);
