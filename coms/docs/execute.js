@@ -20,7 +20,7 @@ var execute = function (commName, then, logpad) {
                             return String(m);
                         }
                     }
-                    return m;
+                    return String(m);
                 }
                 ).join(' ')
                 }</div>`
