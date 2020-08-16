@@ -1,4 +1,4 @@
-var BigInt = window.BigInt || function () {
+var BigInt = this.BigInt || function () {
     function BigInt(a) {
         if (this instanceof BigInt) {
             this.val = a;
@@ -11,7 +11,7 @@ var BigInt = window.BigInt || function () {
         return this.val;
     };
     prototype.valueOf = function () {
-        return this.val;
+        return this;
     }
     BigInt.prototype = prototype;
     return BigInt;

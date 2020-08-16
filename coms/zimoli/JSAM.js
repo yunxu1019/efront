@@ -1,6 +1,27 @@
 var convertReg = /^(?:object|function)$/;
+var check = function (o) {
+    return o === null || typeof o === 'bigint' || o instanceof BigInt || typeof o === 'number' || typeof o === "boolean";
+};
+var string = function (a) {
+    return "\"" + String(a).replace(/\\/g, "\\\\").replace(/"/g, '\\$&') + "\"";
+};
+var symbol = function (a) {
+    return "\'" + String(a).replace(/^\w*\(([\s\S]*)\)$/, '$1').replace(/\\/g, "\\\\").replace(/'/g, '\\$&') + "\'";
+};
+var date = function (d) {
+    return d.toISOString();
+};
+var regrep = a => a === '/' ? "\\/" : a;
+var regexp = function (r) {
+    return '/' + r.source.replace(/\\[\s\S]|\//g, regrep) + '/' + r.flags;
+};
 var join = function (o) {
-    if (typeof o !== "object") return o === undefined ? '' : JSON.stringify(o);
+    if (o === undefined) return '';
+    if (check(o)) return String(o);
+    if (typeof o === 'symbol' || o instanceof Symbol) return symbol(o);
+    if (typeof o !== 'object') return string(o);
+    if (o instanceof Date) return date(d);
+    if (o instanceof RegExp) return regexp(d);
     var pairs = [];
     for (var k in o) {
         pairs.push(k + ':' + o[k]);
@@ -11,10 +32,12 @@ var join = function (o) {
     return `{${pairs.join(',')}}`;
 }
 function stringify(memery) {
-    if (memery === null) return 'null';
     if (memery === undefined) return '';
-    if (typeof memery === "bigint") return String(memery);
-    if (!convertReg.test(typeof memery)) return JSON.stringify(memery);
+    if (check(memery)) return String(memery);
+    if (typeof memery === 'symbol') return symbol(memery);
+    if (memery instanceof Date) return date(memery);
+    if (memery instanceof RegExp) return regexp(memery);
+    if (!convertReg.test(typeof memery)) return string(memery);
     var dist = [memery];
     var rest = [memery];
     var trimed = [memery instanceof Array ? [] : {}];
@@ -24,9 +47,6 @@ function stringify(memery) {
         var o = objects.shift();
         for (var k in memery) {
             var m = memery[k];
-            if (typeof m === 'number' && isNaN(m)) {
-                m = null;
-            }
             var kindex = dist.indexOf(k);
             if (!~kindex) {
                 kindex = dist.length;
@@ -38,12 +58,19 @@ function stringify(memery) {
                 index = dist.length;
                 dist.push(m);
                 if (m !== null) {
-                    if (convertReg.test(typeof m)) {
+                    if (m instanceof Date) {
+                        trimed.push(m);
+                    }
+                    else if (m instanceof RegExp) {
+                        trimed.push(m);
+                    }
+                    else if (convertReg.test(typeof m)) {
                         rest.push(m);
                         var t = m instanceof Array ? [] : {};
                         trimed.push(t);
                         objects.push(t);
-                    } else {
+                    }
+                    else {
                         trimed.push(m);
                     }
                 } else {
@@ -70,6 +97,9 @@ function parse(string) {
     var reg2 = /\]/g;
     var reg3 = /\\[\s\S]|"/g;
     var reg4 = /,|$/g;
+    var reg5 = /\\[\s\S]|\//g;
+    var reg6 = /\\[\s\S]|'/g;
+    var marked = [];
     for (var cx = 0, dx = string.length; cx < dx; cx++) {
         var s = string.charAt(cx);
         var reg = null, o = null;
@@ -88,17 +118,38 @@ function parse(string) {
                 var index = reg.lastIndex;
                 var s = string.slice(cx + 1, index - 1);
                 create(s, o);
+                marked.push(trimed.length);
                 trimed.push(o);
                 cx = reg.lastIndex;
                 break;
+            case "/":
+                reg = reg5;
+                o = 1;
+            case "'":
+                reg = reg || reg6;
+                o = o || 2;
             case "\"":
-                reg3.lastIndex = cx + 1;
+                reg = reg || reg3;
+                reg.lastIndex = cx + 1;
                 do {
-                    var s = reg3.exec(string);
-                } while (s && s.length === 2);
-                var index = reg3.lastIndex;
-                trimed.push(eval(string.slice(cx, index)));
-                cx = reg3.lastIndex;
+                    var s = reg.exec(string);
+                } while (s && s[0].length === 2);
+                var index = reg.lastIndex;
+                s = string.slice(cx + 1, index - 1).replace(/\\([\s\S])/g, '$1');
+                cx = index;
+                if (o == 2) {
+                    s = Symbol(s);
+                } else if (o == 1) {
+                    reg4.lastIndex = index;
+                    var m = reg4.exec(string);
+                    index = m.index;
+                    var flag = string.slice(cx, index);
+                    cx = index;
+                    s = new RegExp(s, flag);
+                }
+                trimed.push(s);
+                break;
+            case "/":
                 break;
             default:
                 reg4.lastIndex = cx + 1;
@@ -117,11 +168,11 @@ function parse(string) {
                     case "false":
                         s = false;
                         break;
-                    case "undefined":
-                        s = undefined;
-                        break;
                     default:
-                        if (/^\-?\d+$/.test(s)) {
+                        if (/^\d+[\/\-]/i.test(s)) {
+                            s = new Date(s);
+                        }
+                        else if (/^\-?\d+$/.test(s)) {
                             if (s.length > 15) {
                                 s = BigInt(s);
                             } else {
@@ -133,26 +184,21 @@ function parse(string) {
 
                 }
                 trimed.push(s);
-
         }
     }
-    var dist = [];
-    for (var cx = 0, dx = trimed.length; cx < dx; cx++) {
-        var o = trimed[cx];
-        if (o instanceof Object) {
-            dist[cx] = o instanceof Array ? [] : {};
-        } else {
-            dist[cx] = o;
-        }
+    var dist = trimed.slice(0, trimed.length);
+    for (var cx = 0, dx = marked.length; cx < dx; cx++) {
+        var index = marked[cx];
+        var o = trimed[index];
+        dist[index] = o instanceof Array ? [] : {};
     }
-    for (var cx = 0, dx = dist.length; cx < dx; cx++) {
-        var o = trimed[cx];
-        if (o instanceof Object) {
-            var t = dist[cx];
-            for (var k in o) {
-                var v = o[k];
-                t[dist[k]] = dist[v];
-            }
+    for (var cx = 0, dx = marked.length; cx < dx; cx++) {
+        var index = marked[cx];
+        var o = trimed[index];
+        var t = dist[index];
+        for (var k in o) {
+            var v = o[k];
+            t[dist[k]] = dist[v];
         }
     }
     return dist[0];
