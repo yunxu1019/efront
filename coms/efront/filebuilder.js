@@ -121,7 +121,7 @@ var buildjsp = function (buff, realpath) {
     };
 };
 var buildreload = function (buff) {
-    return String(buff).replace(/<script\s[^>]*?type\s*=\s*(["']|)efronthook\1[^>]*?>/i, `<script>\r\n-${efronthook.toString()};\r\n`)
+    return String(buff).replace(/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i, `<script>\r\n-${efronthook.toString()};\r\n`)
         .replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`);
 };
 if (isDevelop) builder = function (buff, name, fullpath) {
