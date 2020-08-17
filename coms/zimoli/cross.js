@@ -215,7 +215,12 @@ function cross(method, url, headers) {
                 }
             }
         }
-        xhr.open(method, getCrossUrl(url, _headers));
+        if (notCross(url)) {
+            extend(realHeaders, _headers);
+            xhr.open(method, url);
+        } else {
+            xhr.open(method, getCrossUrl(url, _headers));
+        }
         Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
         send.call(xhr, datas);
     }, 0);
