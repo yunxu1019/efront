@@ -1,3 +1,4 @@
+var FormData = this.FormData;
 var cookiesMap = {};
 //               /////  1   ////////// 2 /////// 3 ////    4  //
 var domainReg = /^(?:(https?)\:)?\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
@@ -133,6 +134,7 @@ function cross(method, url, headers) {
             : "Efront/1.9 (Windows) Chrome/77.0.3865.90";
         method = method.slice(1);
     }
+    var nocross = notCross(url);
     var xhr = new XMLHttpRequest;
     var abort = xhr.abort;
     xhr.abort = function () {
@@ -146,7 +148,7 @@ function cross(method, url, headers) {
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            if (xhr.getResponseHeader) {
+            if (xhr.getResponseHeader && !nocross) {
                 var cookie = xhr.getResponseHeader("efront-cookie");
                 addCookie(cookie, originDomain);
             }
@@ -215,7 +217,7 @@ function cross(method, url, headers) {
                 }
             }
         }
-        if (notCross(url)) {
+        if (nocross) {
             extend(realHeaders, _headers);
             xhr.open(method, url);
         } else {
@@ -249,7 +251,9 @@ function cross(method, url, headers) {
     var jsondata = null;
     xhr.json = xhr.data = xhr.send = function (data, value) {
         if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = {};
-        if (data instanceof Object && !isFile(data)) {
+        if (FormData && data instanceof FormData) {
+            datas = data;
+        } else if (data instanceof Object && !isFile(data)) {
             extend(jsondata, data);
         } else if (value) {
             extend(jsondata, { [data]: value });
@@ -262,9 +266,16 @@ function cross(method, url, headers) {
         return xhr;
     };
     xhr.form = function (data) {
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        realHeaders["Content-Type"] = "application/x-www-form-urlencoded";
         xhr.data(data);
-        datas = serialize(jsondata, "&", "=");
+        if (FormData) {
+            datas = new FormData;
+            for (var k in jsondata) {
+                datas.append(k, jsondata[k]);
+            }
+        } else {
+            datas = serialize(jsondata, "&", "=");
+        }
     };
     xhr.fail = xhr.error = function (on, asqueue = true) {
         if (asqueue) {
