@@ -123,7 +123,11 @@ function transpile(src, trans, apiMap, delTransMap) {
                 value = seekResponse(src, v, apiMap);
             }
             if (!k) {
-                extend(data, value);
+                if (value instanceof Array) {
+                    data = extend([], data, value)
+                } else {
+                    extend(data, value);
+                }
             } else {
                 data[k] = value;
             }
