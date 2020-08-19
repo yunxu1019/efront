@@ -123,7 +123,12 @@ var popup_view = function (element, target, style) {
 };
 
 css(".mask", `position:absolute;position:fixed;left:0;right:0;bottom:0;top:0;width:auto;height:auto;background:#000;opacity:0.2;transform:scale(1);display:block`);
-var createMask = function () {
+var createMask = function (element) {
+    var masks = element.with;
+    if (masks) for (var cx = 0, dx = masks.length; cx < dx; cx++) {
+        var m = masks[cx];
+        if (m.isMask) return m;
+    }
     var mask = document.createElement("mask");
     mask.initialStyle = animationStyle;
     css(mask, `z-index:${zIndex()};`);
@@ -131,7 +136,7 @@ var createMask = function () {
     mask.isMask = true;
     return mask;
 };
-var popup_with_mask = function (element, mask = createMask()) {
+var popup_with_mask = function (element, mask = createMask(element)) {
     onremove(element, mask.clean);
     css(element, `z-index:${zIndex()};`);
     if (mask.parentNode) {
