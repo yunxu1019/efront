@@ -339,7 +339,7 @@ const reg = /^(https?\:\/\/|\.?\/)/i;
 function createApiMap(data) {
     const apiMap = {};
     var hasOwnProperty = {}.hasOwnProperty;
-    var href;
+    var href, _headers;
     function checkApi(api) {
         fixApi(api, href);
         if (hasOwnProperty.call(apiMap, api.id)) {
@@ -348,6 +348,7 @@ function createApiMap(data) {
             console.log(`[${api.name}](${lastApi.method} ${api.url})\r\n 被 [${api.name}](${lastApi.method} ${lastApi.url}) 覆盖`);
         }
         apiMap[api.id] = api;
+        api.headers = _headers;
         return api;
     }
     function buildItem(k1) {
@@ -364,7 +365,7 @@ function createApiMap(data) {
         }
         var headers = keeys.slice(headersIndex)[0];
         if (headers && !reg.test(headers)) {
-            apiMap["?"] = parseKV(headers);
+            _headers = parseKV(headers);
         }
         if (!base) continue;
         href = /(https?\:)?|\.?\//i.test(base) ? base : '';
@@ -406,7 +407,7 @@ var privates = {
     },
     fromApi(api, params) {
         let url = api.url;
-        if (this.validApi(api, params)) return this.loadIgnoreConfig(api.method, url, params, api.root);
+        if (this.validApi(api, params)) return this.loadIgnoreConfig(api.method, url, params, api.headers);
         return Promise.resolve();
     },
 
@@ -472,7 +473,7 @@ var privates = {
         rest.forEach(k => delete params[k]);
         return { method: realmethod, coinmethod, selector: method.slice(spliterIndex + 1), search, baseuri, uri, params };
     },
-    loadIgnoreConfig(method, url, params, apiMap) {
+    loadIgnoreConfig(method, url, params, headers) {
         var { method: realmethod, uri, baseuri, coinmethod, search, selector, params } = this.prepare(method, url, params);
         var id = realmethod + " " + baseuri;
         var promise = cachedLoadingPromise[id];
@@ -480,7 +481,6 @@ var privates = {
         var currentTime = +new Date;
         if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
             var promise = new Promise(function (ok, oh) {
-                var headers = apiMap && apiMap["?"];
                 if (headers) {
                     headers = seek(dataSourceMap, headers);
                 }
@@ -580,6 +580,9 @@ var data = {
             configPormise = null;
         }
         return privates.getConfigPromise();
+    },
+    getApi(a) {
+        return privates.getApi(a);
     },
     setConfig(data) {
         configPormise = Promise.resolve(data).then(createApiMap);
@@ -755,8 +758,7 @@ var data = {
 
             var { method, uri, params, selector } = privates.prepare(api.method, api.url, params);
             var promise = new Promise(function (ok, oh) {
-                var root = api.root;
-                var headers = root && root["?"];
+                var headers = api.headers;
                 if (headers) {
                     headers = seek(dataSourceMap, headers);
                 }
