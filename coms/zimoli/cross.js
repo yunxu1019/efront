@@ -266,7 +266,6 @@ function cross(method, url, headers) {
         return xhr;
     };
     xhr.form = function (data) {
-        realHeaders["Content-Type"] = "application/x-www-form-urlencoded";
         xhr.data(data);
         if (FormData) {
             datas = new FormData;
@@ -274,6 +273,7 @@ function cross(method, url, headers) {
                 datas.append(k, jsondata[k]);
             }
         } else {
+            realHeaders["Content-Type"] = "application/x-www-form-urlencoded";
             datas = serialize(jsondata, "&", "=");
         }
     };
