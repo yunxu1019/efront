@@ -280,7 +280,30 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
     var sk = function (url, extts) {
     };
     filesroot = filesroot.split(",");
-    var tree = filesroot.map(froot => fs.existsSync(froot) && fs.statSync(froot).isDirectory() && getdir(froot) || Object.create(null));
+    var tree = filesroot.map((froot, i) => {
+        if (fs.existsSync(froot) && fs.statSync(froot).isDirectory()) {
+            var roots = getdir(froot);
+            watch(froot, function () {
+                getdirAsync(froot, function (a) {
+                    for (var k in roots) {
+                        if (!(k in a)) {
+                            delete roots[k];
+                            unwatch(path.join(froot, k));
+                        }
+                    }
+                    for (var k in a) {
+                        if (!(k in roots)) {
+                            roots[k] = false;
+                        }
+                    }
+                    message.broadcast("reload");
+                });
+            });
+            return roots;
+        } else {
+            return Object.create(null);
+        }
+    });
     if (isFinite(buffer_size_limit) && buffer_size_limit >= 0) {
         sk.buffer_size = buffer_size_limit | 0;
     }
