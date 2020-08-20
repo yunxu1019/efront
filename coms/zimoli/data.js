@@ -407,7 +407,7 @@ var privates = {
     },
     fromApi(api, params) {
         let url = api.url;
-        if (this.validApi(api, params)) return this.loadIgnoreConfig(api.method, url, params, api.headers);
+        if (this.validApi(api, params)) return this.loadIgnoreConfig(api.method, url, params, api);
         return Promise.resolve();
     },
 
@@ -473,7 +473,8 @@ var privates = {
         rest.forEach(k => delete params[k]);
         return { method: realmethod, coinmethod, selector: method.slice(spliterIndex + 1), search, baseuri, uri, params };
     },
-    loadIgnoreConfig(method, url, params, headers) {
+    loadIgnoreConfig(method, url, params, api) {
+        var headers = api && api.headers;
         var { method: realmethod, uri, baseuri, coinmethod, search, selector, params } = this.prepare(method, url, params);
         var id = realmethod + " " + baseuri;
         var promise = cachedLoadingPromise[id];
@@ -503,6 +504,7 @@ var privates = {
             if (/\*$/.test(coinmethod)) return response;
             var data = parseData(response);
             var checked = error_check(data);
+            var apiMap = api && api.root;
             data = transpile(seekResponse(data, selector), getTranspile(url), apiMap);
             if (isDefined(checked)) {
                 return checked;

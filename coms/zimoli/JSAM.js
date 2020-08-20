@@ -20,8 +20,8 @@ var join = function (o) {
     if (check(o)) return String(o);
     if (typeof o === 'symbol' || o instanceof Symbol) return symbol(o);
     if (typeof o !== 'object') return string(o);
-    if (o instanceof Date) return date(d);
-    if (o instanceof RegExp) return regexp(d);
+    if (o instanceof Date) return date(o);
+    if (o instanceof RegExp) return regexp(o);
     var pairs = [];
     for (var k in o) {
         pairs.push(k + ':' + o[k]);
