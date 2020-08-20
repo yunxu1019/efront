@@ -501,7 +501,13 @@ var privates = {
         }
         return promise.then(function (response) {
             if (/\*$/.test(coinmethod)) return response;
-            return transpile(seekResponse(parseData(response), selector), getTranspile(url), apiMap);
+            var data = parseData(response);
+            var checked = error_check(data);
+            data = transpile(seekResponse(data, selector), getTranspile(url), apiMap);
+            if (isDefined(checked)) {
+                return checked;
+            }
+            return data;
         });
     },
 
@@ -527,8 +533,10 @@ var getInstanceId = function () {
 var error_report = isProduction ? alert : function (error, type) {
     error_report = alert;
     error_report(error, type);
-    console.info("已使用默认的报错工具，您可以使用 data.setReporter(f7) 替换! 本信息在仅在开发环境显示。");
+    console.info("已使用默认的报错工具，您可以使用 data.setReporter(error_reporter,error_finder) 替换! 本信息在仅在开发环境显示。");
 };
+
+var error_check = function (data) { };
 
 var loadInstance = function (storage, id) {
     try {
@@ -568,9 +576,12 @@ var data = {
     responseLoaded,
     responseCrash,
     responseLoading,
-    setReporter(report) {
+    setReporter(report, checker) {
         if (report instanceof Function) {
             error_report = report;
+        }
+        if (checker instanceof Function) {
+            error_check = checker;
         }
     },
     loading_count: 0,
