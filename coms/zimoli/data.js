@@ -547,7 +547,7 @@ var loadInstance = function (storage, id) {
 };
 
 function responseCrash(e, data) {
-    if (!data.is_loading) this.loading_count--;
+    if (data.is_loading) this.loading_count--;
     data.is_errored = true;
     data.is_loading = false;
     data.error_message = getErrorMessage(e);
