@@ -22,6 +22,9 @@ var buildHtml = function (html, code) {
                 isZimoliDetected = true;
                 return "";
             }
+            if (/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i.test(script)) {
+                isZimoliDetected = true;
+            }
             if (/\bdeleteoncompile\b/i.test(script)) {
                 return "";
             }
