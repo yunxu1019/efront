@@ -98,7 +98,7 @@ function getDependence(response) {
     if (response.type !== "" && response.type !== "/" && response.type !== "\\") return [];
     var { data = "" } = response;
     var ext = /\.([^\.]+)$/.exec(response.realpath);
-    if (ext && !/[jt]sx?/i.test(ext)) return [];
+    if (ext && !/([jt]sx?|vuex?)/i.test(ext)) return [];
 
     var startTime = new Date;
     data = String(data);
