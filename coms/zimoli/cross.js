@@ -134,98 +134,119 @@ function cross(method, url, headers) {
             : "Efront/1.9 (Windows) Chrome/77.0.3865.90";
         method = method.slice(1);
     }
-    var nocross = notCross(url);
-    var xhr = new XMLHttpRequest;
-    var abort = xhr.abort;
-    xhr.abort = function () {
-        xhr.onreadystatechange = null;
-        abort.call(this);
-    };
-    HeadersKeys.map(function (k) {
-        if (_headers[k]) xhr.setRequestHeader(k, _headers[k]);
-        delete _headers[k];
-    });
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.getResponseHeader && !nocross) {
-                var cookie = xhr.getResponseHeader("efront-cookie");
-                addCookie(cookie, originDomain);
-            }
-            switch (xhr.status) {
-                case 0:
-                    if (!navigator.onLine) {
-                        onerror({ status: "网络断开" });
-                        break;
-                    }
-                    if (!navigator.response) {
-                        onerror({ status: "服务器无响应" });
-                        break;
-                    }
-                case 200:
-                case 201:
-                case 304:
-                    onload(xhr);
-                    break;
-                case 302:
-                case 301:
-                    if (xhr.isRedirected > 2) break;
-                    var location = xhr.getResponseHeader("efront-location");
-                    if (!domainReg.test(location)) {
-                        if (/^\//.test(location)) {
-                            location = originDomain.replace(/\/.*$/, location);
-                        } else {
-                            location = originDomain.replace(/[^\/+]$/, location);
-                        }
-                        location = getRequestProtocol(url) + "://" + location;
-                    }
-                    var crs = cross("get", location, headers);
-                    crs.isRedirected = (xhr.isRedirected || 0) + 1;
-                    crs.done(onload, false);
-                    crs.error(onerror, false);
-                    break;
-                default:
-                    onerror(xhr);
-            }
-            dispatch(window, 'render');
-        }
-    };
-    var setRequestHeader = xhr.setRequestHeader;
-    var realHeaders = Object.create(null);
-    xhr.setRequestHeader = function (key, value) {
-        realHeaders[key] = value;
-    };
-    setTimeout(function () {
-        var isform = /^f/i.test(method);
-        if (isform) {
-            if (method === 'form') method = 'post';
-            else method = method.slice(1);
-        }
-        if (!isEmpty(jsondata) && isEmpty(datas)) {
-            if (/^(get|head|trace)$/i.test(method)) {
-                url = url.replace(/#[\s\S]*/, '');
+    if (/^jsonp/i.test(method)) {
+        var cb = method.split('\-')[1] || 'callback';
+        setTimeout(function () {
+            if (!isEmpty(jsondata) && isEmpty(datas)) {
                 datas = serialize(jsondata);
-                if (datas) url += (/\?/.test(url) ? "&" : "?") + datas;
-            } else if (isform) {
-                xhr.form(jsondata);
-            } else {
-                datas = JSON.stringify(jsondata);
-                if (datas === "{}" || datas === "[]") {
-                    datas = '';
+            }
+            if (datas) {
+                xhr.src += "&" + datas;
+            }
+        });
+        var xhr = jsonp(url, {
+            [cb](a) {
+                xhr.response = xhr.responseText = JSON.stringify(a);
+                onload(xhr);
+            }
+        });
+        xhr.onerror = function (e) {
+            onerror(e);
+        };
+    } else {
+        var nocross = notCross(url);
+        var xhr = new XMLHttpRequest;
+        var abort = xhr.abort;
+        xhr.abort = function () {
+            xhr.onreadystatechange = null;
+            abort.call(this);
+        };
+        HeadersKeys.map(function (k) {
+            if (_headers[k]) xhr.setRequestHeader(k, _headers[k]);
+            delete _headers[k];
+        });
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.getResponseHeader && !nocross) {
+                    var cookie = xhr.getResponseHeader("efront-cookie");
+                    addCookie(cookie, originDomain);
+                }
+                switch (xhr.status) {
+                    case 0:
+                        if (!navigator.onLine) {
+                            onerror({ status: "网络断开" });
+                            break;
+                        }
+                        if (!navigator.response) {
+                            onerror({ status: "服务器无响应" });
+                            break;
+                        }
+                    case 200:
+                    case 201:
+                    case 304:
+                        onload(xhr);
+                        break;
+                    case 302:
+                    case 301:
+                        if (xhr.isRedirected > 2) break;
+                        var location = xhr.getResponseHeader("efront-location");
+                        if (!domainReg.test(location)) {
+                            if (/^\//.test(location)) {
+                                location = originDomain.replace(/\/.*$/, location);
+                            } else {
+                                location = originDomain.replace(/[^\/+]$/, location);
+                            }
+                            location = getRequestProtocol(url) + "://" + location;
+                        }
+                        var crs = cross("get", location, headers);
+                        crs.isRedirected = (xhr.isRedirected || 0) + 1;
+                        crs.done(onload, false);
+                        crs.error(onerror, false);
+                        break;
+                    default:
+                        onerror(xhr);
+                }
+                dispatch(window, 'render');
+            }
+        };
+        var setRequestHeader = xhr.setRequestHeader;
+        var realHeaders = Object.create(null);
+        xhr.setRequestHeader = function (key, value) {
+            realHeaders[key] = value;
+        };
+        setTimeout(function () {
+            var isform = /^f/i.test(method);
+            if (isform) {
+                if (method === 'form') method = 'post';
+                else method = method.slice(1);
+            }
+            if (!isEmpty(jsondata) && isEmpty(datas)) {
+                if (/^(get|head|trace)$/i.test(method)) {
+                    url = url.replace(/#[\s\S]*/, '');
+                    datas = serialize(jsondata);
+                    if (datas) url += (/\?/.test(url) ? "&" : "?") + datas;
+                } else if (isform) {
+                    xhr.form(jsondata);
                 } else {
-                    realHeaders["Content-Type"] = "application/json;charset=UTF-8";
+                    datas = JSON.stringify(jsondata);
+                    if (datas === "{}" || datas === "[]") {
+                        datas = '';
+                    } else {
+                        realHeaders["Content-Type"] = "application/json;charset=UTF-8";
+                    }
                 }
             }
-        }
-        if (nocross) {
-            extend(realHeaders, _headers);
-            xhr.open(method, url);
-        } else {
-            xhr.open(method, getCrossUrl(url, _headers));
-        }
-        Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
-        send.call(xhr, datas);
-    }, 0);
+            if (nocross) {
+                extend(realHeaders, _headers);
+                xhr.open(method, url);
+            } else {
+                xhr.open(method, getCrossUrl(url, _headers));
+            }
+            Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
+            send.call(xhr, datas);
+        }, 0);
+    }
     var onload = function (xhr) {
         if (xhr.decoder) {
             xhr = xhr.decoder(xhr);
