@@ -5,6 +5,7 @@ var path = require('path');
 var fs = require("fs");
 require("./console");
 var loadenv = require("./loadenv");
+var memery = require("./memery");
 var detectWithExtension = require("../basic/detectWithExtension");
 var setenv = function (evn, cover) {
     var dist = process.env;
@@ -26,7 +27,7 @@ var startDevelopEnv = function () {
     setAppnameAndPorts(arguments);
     require("./setupenv");
     require("./console");
-    process.env.IN_TEST_MODE = true;
+    memery.compress = false;
     require("../server/main");
 };
 var setAppnameAndPorts = function (args) {
@@ -312,10 +313,10 @@ var commands = {
     docs() {
         setAppnameAndPorts(arguments);
         // 文档
+        memery.compress = false;
         setenv({
             coms_path: path.join(__dirname, "../../coms"),
             page_path: path.join(__dirname, '../../docs'),
-            IN_TEST_MODE: true,
             coms: 'docs,zimoli',
             page: './',
             apis: 'docs,zimoli',
@@ -326,11 +327,11 @@ var commands = {
         showHelpLine('可以通过浏览器访问打开的端口以查看文档');
     },
     demo() {
+        memery.compress = false;
         setenv({
             public_path: path.join(__dirname, "../../apps"),
             page_path: path.join(__dirname, "../../apps"),
             coms_path: path.join(__dirname, "../../coms"),
-            IN_TEST_MODE: true
         });
         if (!process.env.APP) process.env.APP = 'kugou';
         setAppnameAndPorts(arguments);
@@ -447,19 +448,17 @@ var commands = {
         var detectPromise = detectWithExtension(appname, [".js", ".ts", "", "/index.js", "/index.ts"], [fullpath]);
         detectPromise.catch(function () {
             detectEnvironment().then(function () {
-                setenv({
-                    IN_TEST_MODE: true
-                });
+                memery.compress = false;
                 require("./setupenv");
                 require("./run")(appname, args);
             });
         });
         detectPromise.then(function (f) {
+            memery.compress = false;
             setenv({
                 app: path.relative(fullpath, f),
                 comm: './,typescript-helpers',
                 coms_path: './,' + path.join(__dirname, '..'),
-                IN_TEST_MODE: true,
             }, false);
             require("./setupenv");
             require('./run')(appname, args);
