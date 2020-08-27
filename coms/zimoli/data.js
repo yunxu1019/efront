@@ -466,6 +466,7 @@ var privates = {
             }
             search = serialize(searchParams);
             if (search) uri = baseuri + "?" + search;
+            else uri = baseuri;
         } else {
             uri = baseuri;
         }
