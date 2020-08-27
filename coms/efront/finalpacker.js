@@ -107,6 +107,7 @@ var exports = module.exports = function (url, callback) {
         var result = managers.file(url, {});
     }
     var response = function (result) {
+        if (!result) type = 404;
         callback(result, type);
     };
     if (result instanceof Promise) {

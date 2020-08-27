@@ -70,6 +70,10 @@ var doPost = module.exports = function (req, res) {
             case "ccon":
                 res.end(String(result));
                 break;
+            case 404:
+                res.writeHead(404, {});
+                res.end(`未没找到匹配的资源：${url}`);
+                break;
             default:
                 res.end();
         }
