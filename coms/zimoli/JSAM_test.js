@@ -14,7 +14,7 @@ function JSAM_test() {
     test(true); // true
     test(false); // false 
     test(NaN); // NaN 
-    test(Infinity); // null
+    test(Infinity); // Infinity
     test({}) // {}
     test([]) // [] 
     test(""); // ""
