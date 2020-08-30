@@ -666,7 +666,8 @@ var data = {
         this.responseLoading(response);
         var p = response.loading_promise = privates.fromApi(api, params).then((data) => {
             if (id) {
-                this.setInstance(id, parse(data), false);
+                data = parse(data);
+                this.setInstance(id, data, false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(url, data);
@@ -687,7 +688,8 @@ var data = {
         this.responseLoading(response);
         var p = response.loading_promise = privates.loadIgnoreConfig('get', url).then((data) => {
             if (id) {
-                this.setInstance(id, parse(data), false);
+                data = parse(data);
+                this.setInstance(id, data, false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(url, data);
@@ -710,7 +712,8 @@ var data = {
         this.responseLoading(response);
         var p = response.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
             if (id) {
-                this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
+                data = parse instanceof Function ? parse(data) : data;
+                this.setInstance(id, data, false);
                 this.removeInstance(id);
             } else {
                 this.setInstance(sid, data);
@@ -797,11 +800,13 @@ var data = {
         }).then((data) => {
             if (instance.loading_promise !== promise1) return;
             if (id) {
-                this.setInstance(id, parse instanceof Function ? parse(data) : data, false);
+                data = parse instanceof Function ? parse(data) : data;
+                this.setInstance(id, data, false);
             } else {
                 this.setInstance(sid, data);
             }
             this.responseLoaded(instance);
+            return data;
         });
         promise1.catch((e) => {
             if (e === outdate) return;
