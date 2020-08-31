@@ -1,5 +1,6 @@
 "use strict";
 var zlib = require("zlib");
+var path = require("path");
 var filebuilder = require("../efront/filebuilder");
 var checkAccess = require("./checkAccess");
 var isDevelop = require("../efront/isDevelop");
@@ -7,8 +8,20 @@ var env = process.env;
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = env.PUBLIC_PATH;
 var APPS_PATH = env.PAGE_PATH;
-var getfile = require("../efront/cache")(isDevelop ? APPS_PATH : PUBLIC_PATH, function (data, filename, fullpath) {
+var SERVER_ROOT_PATH = isDevelop ? APPS_PATH : PUBLIC_PATH;
+var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filename, fullpath) {
     var data = filebuilder.apply(this, arguments);
+    if (/\.css$/i.test(fullpath)) {
+        if (env.APP) {
+            var real = path.dirname(path.relative(SERVER_ROOT_PATH, fullpath).replace(/\\/g, '/'));
+            data = Buffer.from(data.toString().replace(/url\s*\(\s*(['"]?)([^\)]*)\1\s*\)/gi, function (a, q, s) {
+                if (!/^\//i.test(s)) {
+                    s = path.join(`/${real}/`, s).replace(/\\/g, '/');
+                }
+                return `url(${q || ''}${s}${q || ''})`;
+            }));
+        }
+    }
     return new Promise(function (ok, oh) {
         if (data instanceof Function) {
             if (checkAccess(fullpath)) {
