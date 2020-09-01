@@ -15,7 +15,7 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
         if (env.APP) {
             var real = path.dirname(path.relative(SERVER_ROOT_PATH, fullpath).replace(/\\/g, '/'));
             data = Buffer.from(data.toString().replace(/url\s*\(\s*(['"]?)([^\)]*)\1\s*\)/gi, function (a, q, s) {
-                if (!/^\//i.test(s)) {
+                if (!/^\/|^\w+\:/i.test(s)) {
                     s = path.join(`/${real}/`, s).replace(/\\/g, '/');
                 }
                 return `url(${q || ''}${s}${q || ''})`;
