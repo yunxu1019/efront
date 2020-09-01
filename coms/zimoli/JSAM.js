@@ -22,7 +22,9 @@ var join = function (o) {
     if (typeof o !== 'object') return string(o);
     if (o instanceof Date) return date(o);
     if (o instanceof RegExp) return regexp(o);
-    var pairs = [];
+    var arr = o[""];
+    delete o[""];
+    var pairs = [].concat(arr);
     for (var k in o) {
         pairs.push(k + ':' + o[k]);
     }
@@ -45,13 +47,20 @@ function stringify(memery) {
     while (rest.length) {
         var memery = rest.shift();
         var o = objects.shift();
+        var inc = 0, arr = [];
+        o[""] = arr;
         for (var k in memery) {
             var m = memery[k];
-            var kindex = dist.indexOf(k);
-            if (!~kindex) {
-                kindex = dist.length;
-                dist.push(k);
-                trimed.push(k);
+            if (inc === +k) {
+                var kindex = "";
+                inc++;
+            } else {
+                var kindex = dist.indexOf(k);
+                if (!~kindex) {
+                    kindex = dist.length;
+                    dist.push(k);
+                    trimed.push(k);
+                }
             }
             var index = dist.indexOf(m);
             if (!~index) {
@@ -77,7 +86,11 @@ function stringify(memery) {
                     trimed.push(m);
                 }
             }
-            o[kindex] = index;
+            if (kindex === '') {
+                arr.push(index);
+            } else {
+                o[kindex] = index;
+            }
         }
     }
     return trimed.map(join).join(',');
@@ -85,11 +98,17 @@ function stringify(memery) {
 var create = function (a, dst) {
     if (!a) return;
     var arr = a.split(',');
+    var rest = [];
     for (var cx = 0, dx = arr.length; cx < dx; cx++) {
         var [k, v] = arr[cx].split(':');
-        dst[k] = +v;
+        if (v === undefined) {
+            rest.push(k);
+        } else {
+            dst[k] = +v;
+        }
     }
-}
+    dst[""] = rest;
+};
 function parse(string) {
     string = String(string);
     var trimed = [];
@@ -196,6 +215,11 @@ function parse(string) {
         var index = marked[cx];
         var o = trimed[index];
         var t = dist[index];
+        var arr = o[""];
+        delete o[""];
+        for (var k in arr) {
+            t[k] = dist[arr[k]];
+        }
         for (var k in o) {
             var v = o[k];
             t[dist[k]] = dist[v];

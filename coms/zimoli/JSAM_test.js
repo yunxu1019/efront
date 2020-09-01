@@ -27,13 +27,13 @@ function JSAM_test() {
     test(Symbol("a(")); // 'a('
     test(Symbol("asd")); // 'asd'
     test(Symbol("as'd")); // 'as\'d'
-    test([2]) // [1:2],"0",2
-    test([""]) // [1:2],"0",""
-    test([{}]) // [1:2],"0",{}
-    test([{ a: undefined }]) // [1:2],"0",{3:4},"a",
+    test([2]) // [1],2
+    test([""]) // [1],""
+    test([{}]) // [1],{}
+    test([{ a: undefined }]) // [1],{2:3},"a",
     test({ a: undefined }) // {1:2},"a",
-    test([undefined]) // [1:2],"0",
-    test([true]) // [1:2],"0",true
+    test([undefined]) // [1],
+    test([true]) // [1],true
     test({ a: false }) // {1:2},"a",false
     test({ a: null }) // {1:2},"a",null
     test({ a: 0 }) // {1:2},"a",0
