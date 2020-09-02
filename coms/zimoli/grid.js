@@ -146,6 +146,7 @@ var adaptCursor = function (event) {
     var grid = this;
     var deltax = 7 / grid.clientWidth * grid.width;
     var deltay = 7 / grid.clientHeight * grid.height;
+    if (!grid.bounds) return;
     var [clientX, clientY] = getXYFromMouseEvent.call(grid, event);
     var rect = grid.nearby(clientX, clientY);
     var [x1, y1, x2, y2] = rect;
@@ -204,6 +205,7 @@ var resizeView = function (event) {
 var resizer = function (event) {
     var grid = this;
     if (!grid.direction) return;
+    if (!grid.bounds) return;
     //调整大小
     var [clientX, clientY] = getXYFromMouseEvent.call(grid, event);
     var deltax = 7 / grid.clientWidth * grid.width;
@@ -680,6 +682,7 @@ var createBoundsFromComputed = function (grid) {
 };
 var createPointsWithChildren = function () {
     var grid = this;
+    if (!grid.children.length) return;
     var getRange = function (e) {
         var range = [0, 0, Infinity, Infinity];
         var computed = getComputedStyle(e);
@@ -708,7 +711,6 @@ var createPointsWithChildren = function () {
     grid.reshape();
 };
 function main(elem) {
-
     if (isElement(elem)) {
         elem = grid.call(elem);
         care(elem, elem.setData);
