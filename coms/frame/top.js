@@ -1,11 +1,11 @@
 var page = div();
 page.innerHTML = top;
+var route = frame$route;
 render(page, {
     btn: button,
     user,
     data,
     options: data.getInstance("option-buttons"),
-
     open(option) {
         action(option).then(function (page) {
             if (isNode(page)) {
