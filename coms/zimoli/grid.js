@@ -251,8 +251,8 @@ var gridListener = function () {
     var offmousemove;
     offmousemove = onmousemove(window, function (event) {
         if (grid.editable === false || grid.disabled) return;
-        event.moveLocked = true;
         if (grid.editting) {
+            event.moveLocked = true;
             resizeView.call(grid, event);
         } else {
             adaptCursor.call(grid, event);
