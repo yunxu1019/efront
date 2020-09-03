@@ -7,6 +7,7 @@ function overlap(rect1, rect2) {
     // abs(center1x-center2x)<(rect1w+rect2w)/2
     // abs(center1y-center2y)<(rect1h+rect2h)/2
     // abs(rect1l)
+    if (!rect1 || !rect2) return;
     if (isElement(rect1)) rect1 = getScreenPosition(rect1);
     if (isElement(rect2)) rect2 = getScreenPosition(rect2);
     var xlap = linelap(rect1.left, rect1.width, rect2.left, rect2.width);
