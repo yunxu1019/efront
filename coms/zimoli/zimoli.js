@@ -105,7 +105,7 @@ function getReverseStyle(style) {
 }
 var getZimoliParams = function (pagepath) {
     try {
-        return JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
+        return JSAM.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
     } catch (e) {
         console.warn("存储空间被破坏");
     }
@@ -113,7 +113,7 @@ var getZimoliParams = function (pagepath) {
 };
 var setZimoliParams = function (pagepath, args) {
     try {
-        var stringified_args = JSON.stringify(args);
+        var stringified_args = JSAM.stringify(args);
         if (stringified_args.length === 2) hostoryStorage.removeItem(_zimoli_params_key + pagepath);
         else hostoryStorage.setItem(_zimoli_params_key + pagepath, stringified_args);
     } catch (e) {
@@ -232,7 +232,7 @@ function prepare(pgpath, ok) {
         var state_object;
         if (state_string) {
             try {
-                state_object = JSON.parse(state_string);
+                state_object = JSAM.parse(state_string);
             } catch (e) {
                 state_object = {};
             }
@@ -253,7 +253,7 @@ function prepare(pgpath, ok) {
             state_object = condition;
         }
         if (arguments.length) {
-            hostoryStorage.setItem(_zimoli_state_key, JSON.stringify(state_object) || null);
+            hostoryStorage.setItem(_zimoli_state_key, JSAM.stringify(state_object) || null);
         }
         return state_object;
     };
@@ -409,7 +409,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         root_path = _history[0] || "/main";
         pagepath = _history[_history.length - 1] || "/main";
         try {
-            var saveddata = JSON.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
+            var saveddata = JSAM.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
         } catch (e) {
             var saveddata = {};
         }
@@ -428,7 +428,7 @@ var current_history, default_history = current_history = "zimoli";
 history[current_history] = [];
 var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
-    history = JSON.parse(hostoryStorage.getItem(history_session_object_key)) || history;
+    history = JSAM.parse(hostoryStorage.getItem(history_session_object_key)) || history;
 } catch (e) {
 }
 var root_path;
@@ -456,7 +456,7 @@ var pushstate = function (path_name, history_name, oldpagepath) {
         _history.push(path_name);
         if (_history.length) fixurl();
     }
-    hostoryStorage.setItem(history_session_object_key, JSON.stringify(history) || null);
+    hostoryStorage.setItem(history_session_object_key, JSAM.stringify(history) || null);
     return isDestroy;
 };
 var popstate = function (path_name, history_name) {
@@ -609,7 +609,7 @@ zimoli.prepare = prepare;
 zimoli.setStorage = function (storage) {
     hostoryStorage = storage;
     try {
-        history = JSON.parse(hostoryStorage.getItem(history_session_object_key)) || history;
+        history = JSAM.parse(hostoryStorage.getItem(history_session_object_key)) || history;
     } catch (e) {
     }
 };

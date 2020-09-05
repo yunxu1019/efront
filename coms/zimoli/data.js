@@ -543,7 +543,7 @@ var error_check = function (data) { };
 
 var loadInstance = function (storage, id) {
     try {
-        return JSON.parse(storage.getItem(id));
+        return JSAM.parse(storage.getItem(id));
     } catch{ }
 };
 
@@ -851,10 +851,10 @@ var data = {
             rememberWithStorage = arguments[2];
         }
         if (rememberWithStorage !== false) {
-            sessionStorage.setItem(sourceDataId, JSON.stringify(dataSourceMap));
+            sessionStorage.setItem(sourceDataId, JSAM.stringify(dataSourceMap));
         }
         if (rememberWithStorage) {
-            localStorage.setItem(sourceDataId, JSON.stringify(dataSourceMap));
+            localStorage.setItem(sourceDataId, JSAM.stringify(dataSourceMap));
         }
     },
     clearSource() {
@@ -872,10 +872,10 @@ var data = {
         this.rebuildInstance(instance, data);
         const storageId = userPrefix + instanceId + pagePathName;
         if (rememberWithStorage !== false) {
-            sessionStorage.setItem(storageId, JSON.stringify(data));
+            sessionStorage.setItem(storageId, JSAM.stringify(data));
         }
         if (rememberWithStorage) {
-            localStorage.setItem(storageId, JSON.stringify(data));
+            localStorage.setItem(storageId, JSAM.stringify(data));
         }
         return instanceDataMap[instanceId];
     },
