@@ -48,7 +48,7 @@ var setup = module.exports = function (app) {
         env[key] = Object.keys(value_map).join(',');
     });
     extend(env, process.env);
-    if (!env.PAGE && appname) env.PAGE = appname + ",./";
+    if (!env.PAGE && appname) env.PAGE = appname;
     pollyfill(env, appname);
 
     return env;
