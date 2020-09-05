@@ -63,8 +63,9 @@ var build = function () {
                 mainArea.innerHTML = `<span style="line-height:20px">该模块未发现使用信息</span>`;
                 return;
             }
-
-            if (isNode(comm)) appendChild(mainArea, comm);
+            if (isNode(comm)) {
+                if (!comm.isMounted) appendChild(mainArea, comm);
+            }
             else mainArea.innerHTML = `<div>${JSON.stringify(comm)}</div>`
             appendChild(mainArea, logpad);
         }, logpad);

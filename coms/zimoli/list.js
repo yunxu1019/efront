@@ -436,6 +436,8 @@ function list() {
                 container.go(index || 0);
             });
             bindSrc = true;
+        } else {
+            generator = function () { }
         }
     }
 
