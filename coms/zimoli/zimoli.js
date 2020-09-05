@@ -279,7 +279,7 @@ function prepare(pgpath, ok) {
     };
 
     init('action', function (action) {
-        state.action = function (menu, item) {
+        state.action = function (menu, item, params) {
             var res;
             if (isString(menu)) {
                 res = state.go(menu, item);
@@ -287,7 +287,7 @@ function prepare(pgpath, ok) {
                 menu = Object.assign({}, menu, { path: state.path(menu.path) });
                 res = go(menu, undefined, undefined, pgpath);
             } else {
-                res = action(menu);
+                res = action(menu, item, params);
             }
             return Promise.resolve(res);
         };
