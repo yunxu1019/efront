@@ -450,7 +450,7 @@ var privates = {
         params = extend({}, params);
         if (/\?/.test(uri)) search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
-        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/i, function (d) {
+        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/gi, function (d) {
             d = d.slice(1);
             rest.push(d);
             return seekResponse(params, d) || '';
