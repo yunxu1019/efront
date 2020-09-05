@@ -36,10 +36,11 @@
             return res;
         };
         result.push.apply(result, items.filter(a));
-        var opened = data.getInstance("menu-opened").map(a => mmap[a]).filter(a => !!a);
-        result.opened = opened;
+        var opened = data.getInstance("menu-opened");;
+        result.opened = opened.map(a => mmap[a]).filter(a => !!a);
         var active = result.active;
         if (!active || result.indexOf(active) < 0) {
+            actived = mmap[opened.active] || actived;
             if (actived) {
                 if (active && active !== actived) setActive(active, false);
                 if (actived_value === historys.length) result.open(actived);
@@ -72,9 +73,6 @@
         var opened = result.opened || [];
         if (!~opened.indexOf(menu)) {
             opened.push(menu);
-            data.setInstance('menu-opened', opened.map(a => a.id));
-
-            console.log(data.getInstance('menu-opened'))
         }
         if (result.active) {
             setActive(result.active, false);
@@ -82,6 +80,9 @@
         setActive(menu, true);
         result.load(menu);
         result.active = menu;
+        var oped = opened.map(a => a.id);
+        oped.active = result.active.id;
+        data.setInstance('menu-opened', oped);
     };
     result.close = function (menu) {
         if (menu === result[0]) return;
