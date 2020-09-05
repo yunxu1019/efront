@@ -613,7 +613,7 @@ var actionemiter = function (event) {
         }
     });
 };
-var dropOrderedArray = function (arr, x1, x2) {
+var trimOrderedArray = function (arr, x1, x2) {
     var i1 = getIndexFromOrderedArray(arr, x1);
     var i2 = getIndexFromOrderedArray(arr, x2);
     if (i2 - i1 > 1) {
@@ -622,13 +622,13 @@ var dropOrderedArray = function (arr, x1, x2) {
 }
 var createPointsFromElements = function (elements, xList, yList) {
     elements.forEach(e => saveToOrderedArray(xList, e[1])
-        | saveToOrderedArray(xList, e[2])
-        | saveToOrderedArray(yList, e[3])
-        | saveToOrderedArray(yList, e[4])
+        & saveToOrderedArray(xList, e[2])
+        & saveToOrderedArray(yList, e[3])
+        & saveToOrderedArray(yList, e[4])
     );
     elements.forEach(e => {
-        dropOrderedArray(xList, e[1], e[2]);
-        dropOrderedArray(yList, e[3], e[4]);
+        trimOrderedArray(xList, e[1], e[2]);
+        trimOrderedArray(yList, e[3], e[4]);
     });
     if (yList.length > 2) {
         for (var cx = yList.length - 1; cx >= 1; cx--) {
@@ -708,6 +708,7 @@ var createPointsWithChildren = function () {
         points = [0, points];
     }
     grid.setData(points);
+    console.log(grid.clientHeight, elements)
     grid.reshape();
 };
 function main(elem) {
