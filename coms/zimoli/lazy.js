@@ -1,13 +1,14 @@
 function lazy(run, wait) {
-    var fire = function () {
-        if (fire.ing === true) run.apply(this, arguments);
-        fire.ing = false;
-    };
     return function () {
+        var fire = function () {
+            if (fire.ing === true) run.apply(that, arguments);
+            fire.ing = false;
+        };
+        var that = this;
         if (arguments.length) {
             var args = arguments;
             return requestAnimationFrame(function () {
-                run.apply(this, args);
+                run.apply(that, args);
             });
         }
         if (fire.ing) return fire.ing = true;
