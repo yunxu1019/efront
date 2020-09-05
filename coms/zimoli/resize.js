@@ -28,11 +28,13 @@ var getResizer = function (event) {
             cursor: fringe.cursor
         });
     }
-    var { resize } = fringe;
-    extend(resize, getScreenPosition(rect));
-    resize.rect = rect;
-    resize.cursor = fringe.cursor;
-    return resize;
+    if (fringe.cursor || getTargetIn(rect.dragHandle, event.target)) {
+        var { resize } = fringe;
+        extend(resize, getScreenPosition(rect));
+        resize.rect = rect;
+        resize.cursor = fringe.cursor;
+        return resize;
+    }
 };
 var dragging;
 var handle = {
@@ -64,8 +66,8 @@ var handle = {
         dragging.top -= pos.top;
     },
     move(event) {
-        event.moveLocked = true;
         if (!dragging) return;
+        event.moveLocked = true;
         var limit = dragging.limit;
         var { clientX, clientY } = event;
         var [minx, miny, maxx, maxy] = limit;
@@ -102,8 +104,6 @@ var handle = {
         delete style.top;
         Object.keys(style).forEach(k => style[k] = fromOffset(style[k]));
         css(dragging.rect, style);
-
-
     },
     end(e) {
         dragging = null;
@@ -114,7 +114,10 @@ function resize(elem, initialEvent) {
 }
 moveupon(window, handle);
 
-resize.on = function (elem) {
+resize.on = function (elem, dragHandle) {
+    if (elem) {
+        elem.dragHandle = dragHandle;
+    }
     onmounted(elem, function () {
         var off = onmousemove(window, getResizer);
         onremove(elem, off);
