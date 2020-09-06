@@ -4,7 +4,7 @@ var test = function (o) {
     console.log(s, a);
 
 };
-function JSAM_test() {
+var test_self = function () {
     var o = {};
     o.o = o;
     test(o); // {1:0},"o"
@@ -46,4 +46,17 @@ function JSAM_test() {
         d = { c };
     a.d = d;
     test(a); // {1:2},"d",{3:4},"c",[5],{6:0},"a"
+};
+function test2(obj) {
+    var data = JSAM.parse(JSON.stringify(obj));
+    console.log(data);
+}
+function test_json() {
+    test2({ 1: 2 });
+    test2({ "adfasdf": 22 });
+    test2([12, 23]);
+}
+function JSAM_test() {
+    test_self();
+    test_json();
 }

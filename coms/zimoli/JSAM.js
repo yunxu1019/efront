@@ -229,5 +229,10 @@ function parse(string) {
 }
 var JSAM = {
     stringify,
-    parse
+    parse(data) {
+        if (!/^\s*([\[\{]|\[\s*\]|\{\s*\})/.test(data)) return parse(data);
+        if (/^\s*\{[\d\,\:\s]*\}\s*,/.test(data)) return parse(data);
+        if (/^\s*\[[\d\,\:\s]*\]\s*,/.test(data)) return parse(data);
+        return JSON.parse(data);
+    }
 };
