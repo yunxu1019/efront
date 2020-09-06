@@ -247,9 +247,10 @@ var popup_as_yextra = function (global, element, target) {
         } else {
             css(element, `left:${position.left - viewrect.left}px;right:auto;`);
         }
+        
         var offsetParent = target.offsetParent;
         if (offsetParent) {
-            if (overlap(position, offsetParent) > 0) {
+            if (overlap(target, offsetParent) > 0) {
                 element.style.display = element.origin.display;
             } else {
                 element.style.display = "none";
@@ -262,7 +263,7 @@ var popup_as_yextra = function (global, element, target) {
         document.addEventListener("resize", reshape);
     }
     reshape();
-
+    lazy(reshape)();
 };
 var popup_as_xextra = arriswise(popup_as_yextra, arguments);
 var popup_as_single = function (element) {
