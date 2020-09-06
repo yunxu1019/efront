@@ -1,4 +1,5 @@
 var JSON0 = window.JSON;
+console.log(JSON0);
 var test = function (JSON) {
     var parse = function (s) {
         try {
@@ -79,4 +80,5 @@ function JSON_test() {
     window.JSON = void 0;
     delete modules.JSON;
     modules.init("JSON", test);
+    window.JSON = JSON0;
 }
