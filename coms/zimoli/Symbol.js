@@ -17,4 +17,5 @@ var Symbol = this.Symbol || function () {
     };
 
     Symbol.prototype = prototype;
+    return Symbol;
 }();
