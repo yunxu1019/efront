@@ -1,9 +1,9 @@
 & {
-    padding: 6px 0 0;
     max-width: 100%;
     max-height: 100%;
     width: 360px;
     height: auto;
+    position: relative;
     box-sizing: border-box;
     overflow: hidden;
     user-select: none;
@@ -13,33 +13,37 @@
 }
 
 &>.body {
-    padding: 42px 0 52px 0;
-    background: #fff;
+    padding: 6px 0;
+    background: #f2f4f6;
     display: block;
-    width: 100%;
+    margin-right: -20px;
+    height: 100%;
+    overflow: hidden;
+    overflow-y: scroll;
     position: relative;
     box-sizing: border-box;
-    overflow: auto;
-}
 
-&>.body:nth-child(2) {
+    &:not(:nth-child(1)) {
+        padding-top: 42px;
+    }
 
-    &:nth-last-child(2),
-    &:nth-last-child(1) {
-        height: 100%;
+    &:not(:nth-last-child(1)) {
+        padding-bottom: 52px;
     }
 }
+
 
 &>.head {
     background: #fffc;
     z-index: 1;
     position: relative;
-    line-height: 32px;
+    position: sticky;
+    line-height: 20px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     color: #333;
-    padding: 0 16px 4px 16px;
+    padding: 12px 16px 10px 16px;
     margin: 0 0 -37px;
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(0, 0, 0, .16);
@@ -62,7 +66,8 @@
     border-top: 1px solid rgba(0, 0, 0, .16);
     backdrop-filter: blur(20px);
     background: #fffc;
-    position: relative;
+    position: sticky;
+    bottom: 0;
     margin-top: -42px;
 
     .button {
