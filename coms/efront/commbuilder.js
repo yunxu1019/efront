@@ -245,9 +245,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         } else {
             if (!/\bmain|\bindex/i.test(path.basename(filename))) {
                 if (filename.length > 48) {
-                    filename = ".." + filename.slice(46);
+                    filename = ".." + filename.slice(filename.length - 46);
                 }
-                console.warn("缺少可导出的变量", `文件：<gray>${filename}</gray>`);
+                console.info("没有导出变量", `文件：<gray>${filename}</gray>\r\n`);
             }
         }
     }
