@@ -18,7 +18,7 @@ function getFringe(rect, point) {
         clientX = "X";
         clientY = "Y";
     }
-    var cursor = "", direction = "", delta = 7;
+    var cursor = "", direction = "", delta = 6;
     var { left, top, right, bottom } = rect;
     var resize = new Array(4);
     var resizers_top = ["top", clientY, "height"];
@@ -27,40 +27,40 @@ function getFringe(rect, point) {
     var resizers_right = ["width", clientX];
 
     if (y < top) {
-        if (top - y < delta) {
+        if (top - y <= delta) {
             direction += "n";
             resize.push(resizers_top);
         }
     } else if (y > bottom) {
-        if (y - bottom < delta) {
+        if (y - bottom <= delta) {
             direction += "s";
             resize.push(resizers_bottom);
         }
     } else {
         var y_top = y - top;
         var y_bottom = bottom - y;
-        if (y_top < y_bottom && y_top < delta) {
+        if (y_top < y_bottom && y_top <= delta) {
             direction += "n";
             resize.push(resizers_top);
-        } else if (y_top > y_bottom && y_bottom < delta) {
+        } else if (y_top > y_bottom && y_bottom <= delta) {
             direction += "s";
             resize.push(resizers_bottom);
         }
     }
 
     if (x < left) {
-        if (left - x < delta) direction += "w";
+        if (left - x <= delta) direction += "w";
         resize.push(resizers_left);
     } else if (x > right) {
-        if (x - right < delta) direction += "e";
+        if (x - right <= delta) direction += "e";
         resize.push(resizers_right);
     } else {
         var x_left = x - left;
         var x_right = right - x;
-        if (x_left < x_right && x_left < delta) {
+        if (x_left < x_right && x_left <= delta) {
             direction += "w";
             resize.push(resizers_left);
-        } else if (x_left > x_right && x_right < delta) {
+        } else if (x_left > x_right && x_right <= delta) {
             direction += "e";
             resize.push(resizers_right);
         }

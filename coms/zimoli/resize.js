@@ -67,6 +67,7 @@ var handle = {
     },
     move(event) {
         if (!dragging) return;
+        if (event.moveLocked) return;
         event.moveLocked = true;
         var limit = dragging.limit;
         var { clientX, clientY } = event;
