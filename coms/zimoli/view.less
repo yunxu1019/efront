@@ -1,6 +1,7 @@
 & {
-    padding: 44px 0 0 0;
+    padding: 6px 0 0;
     max-width: 100%;
+    max-height: 100%;
     width: 360px;
     height: auto;
     box-sizing: border-box;
@@ -12,9 +13,8 @@
 }
 
 &>.body {
-    padding: 10px 0 60px 0;
-    margin-bottom: -42px;
-    background: #f2f4f6;
+    padding: 42px 0 52px 0;
+    background: #fff;
     display: block;
     width: 100%;
     position: relative;
@@ -31,7 +31,7 @@
 }
 
 &>.head {
-    background: #fff;
+    background: #fffc;
     z-index: 1;
     position: relative;
     line-height: 32px;
@@ -39,8 +39,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     color: #333;
-    padding: 0 10px 4px 10px;
-    margin: -37px 7px 0;
+    padding: 0 16px 4px 16px;
+    margin: 0 0 -37px;
+    backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(0, 0, 0, .16);
 
     >* {
@@ -59,8 +60,10 @@
     height: 42px;
     padding: 0 16px;
     border-top: 1px solid rgba(0, 0, 0, .16);
-    background: #fff;
+    backdrop-filter: blur(20px);
+    background: #fffc;
     position: relative;
+    margin-top: -42px;
 
     .button {
         padding: 0 20px;
