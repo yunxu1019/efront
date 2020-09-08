@@ -105,6 +105,7 @@ var handle = {
         delete style.top;
         Object.keys(style).forEach(k => style[k] = fromOffset(style[k]));
         css(dragging.rect, style);
+        dispatch(dragging.rect, 'resize');
     },
     end(e) {
         dragging = null;
