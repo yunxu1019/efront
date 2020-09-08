@@ -34,7 +34,7 @@ var dragview = function (dragview) {
             if (moving === false) return;
             if (event.moveLocked) return;
             if (
-                !/^(?:auto|default)$/i.test(getComputedStyle(document.body).cursor)
+                /resize/i.test(getComputedStyle(document.body).cursor)
             ) return;
             var deltaX = savedX - event.clientX;
             var deltaY = savedY - event.clientY;

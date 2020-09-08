@@ -26,6 +26,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
     var extraClones;
     var mousemove = function (event) {
         if (event.moveLocked) return;
+        if (/resize/i.test(getComputedStyle(document.body).cursor)) return;
         if (!saved_delta.ing) {
             var abs = Math.abs;
             if (abs(target.offsetLeft - event.clientX - saved_delta.x) < MOVELOCK_DELTA && abs(target.offsetTop - event.clientY - saved_delta.y) < MOVELOCK_DELTA) return;
