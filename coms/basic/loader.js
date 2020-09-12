@@ -354,6 +354,9 @@ var get_relatives = function (name, required, prefix = "") {
         } else {
             var r2 = r1.replace(/\//g, '$');
         }
+        if (is_page) {
+            r2 = r2.replace(/\$([\s\S])/g, '/$1');
+        }
         return r2;
     });
 };
