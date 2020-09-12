@@ -211,7 +211,7 @@ var popup_as_yextra = function (global, element, target) {
             document.removeEventListener("resize", reshape);
         }
     });
-    global(element);
+    global(element, false);
     var reshape = function () {
         extend(element.style, element.origin);
         var position = getScreenPosition(target);
@@ -247,7 +247,7 @@ var popup_as_yextra = function (global, element, target) {
         } else {
             css(element, `left:${position.left - viewrect.left}px;right:auto;`);
         }
-        
+
         var offsetParent = target.offsetParent;
         if (offsetParent) {
             if (overlap(target, offsetParent) > 0) {
@@ -286,8 +286,9 @@ var popup_to_event = function (element, { clientX, clientY }) {
     });
     popup_as_single(element);
 };
-var global = function (element) {
+var global = function (element, issingle) {
     once("remove")(element, cleanup);
-    popup.global ? popup.global(element, true) : appendChild(document.body, element);
+    popup.global &&
+        issingle !== false ? popup.global(element, true) : appendChild(document.body, element);
 };
 var cleanup = new Cleanup(rootElements);
