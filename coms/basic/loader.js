@@ -691,7 +691,7 @@ modules.modules = modules;
 var requires_count = 3;
 var hook = function (requires_count) {
     if (requires_count !== 0) return;
-    "alert confirm innerWidth innerHeight".split(/\s+/).map(removeGlobalProperty);
+    "alert confirm innerWidth innerHeight close".split(/\s+/).map(removeGlobalProperty);
     initPixelDecoder();
     modules.Promise = Promise;
     modules.hook_time = +new Date;
