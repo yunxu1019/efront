@@ -588,7 +588,6 @@ var initPixelDecoder = function () {
         /**
          * 从offset到px
          */
-        console.log(maxRenderWidth, minRenderWidth, renderRange)
         var freePixel = modules.freePixel = d => {
             d = _freePixel(d);
             var innerWidth = window.innerWidth * renderPixelRatio;
