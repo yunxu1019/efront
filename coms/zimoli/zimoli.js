@@ -397,7 +397,9 @@ function create(pagepath, args, from, needroles) {
                 }
             }
         }
-        _page.onback = _pageback_listener;
+        if (isEmpty(_page.onback)) {
+            _page.onback = _pageback_listener;
+        }
     }
     return _page;
 
@@ -500,6 +502,7 @@ var checkonback = function (elements) {
     for (var cx = 0, dx = elements.length; cx < dx; cx++) {
         var element = elements[cx];
         var onback = element && element.onback;
+        console.log(onback)
         if (isFunction(onback)) {
             onback = element.onback();
         }
