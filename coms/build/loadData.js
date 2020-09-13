@@ -27,14 +27,14 @@ function build(pages_root, lastBuiltTime, dest_root) {
                 if (!include_required) return a.map(k => deps[k] = true);
                 return getBuildRoot(a.require || [], true).then(function (required) {
                     var reqMap = Object.create(null);
-                    a.required = required.map((k) => k.replace(/\.([tj]sx?|html?|json)$/i, ''));
+                    a.required = required.map((k) => k.replace(/\.([tj]sx?|html?|json|vuex?)$/i, ''));
                     var requiredMap = a.requiredMap;
                     if (a.require) a.require.forEach((k, cx) => reqMap[k] = cx);
                     var destMap = {};
                     if (requiredMap) {
                         Object.keys(requiredMap).forEach(k => {
                             var v = requiredMap[k];
-                            destMap[k] = v.replace(/\.([tj]sx?|html?|json)$/i, '');
+                            destMap[k] = v.replace(/\.([tj]sx?|html?|json|vuex?)$/i, '');
                         });
                         Object.assign(requiredMap, destMap);
                     }
