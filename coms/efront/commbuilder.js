@@ -396,7 +396,7 @@ function buildJson(buff) {
 }
 
 function prepare(filename, fullpath) {
-    var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*)(\.\w*)?$/i);
+    var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*?)(\.\w*)?$/i);
     if (!commName) console.warn("文件名无法生成导出变量！", fullpath);
     commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
@@ -407,6 +407,7 @@ function prepare(filename, fullpath) {
 }
 
 function getMouePromise(data, filename, fullpath, watchurls) {
+    filename = filename.replace(/\.vuex?$/i, '');
     var [commName, lessName, className] = prepare(filename, fullpath);
     var time = 0;
 
