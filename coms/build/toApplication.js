@@ -5,6 +5,7 @@ var fs = require("fs");
 var environment = require("./environment");
 var report = require("./report");
 var setting = require("./setting");
+var getArgs = require('./getArgs');
 var buildHtml = function (html, code) {
     var isZimoliDetected = false;
     var poweredByComment;
@@ -101,7 +102,25 @@ function toApplication(responseTree) {
     delete responseTree["main"];
     return responseTree;
 }
+var rebuildData = function (responseTree) {
+    for (var k in responseTree) {
+        var response = responseTree[k];
+        if (!response.data) continue;
+        var data = String(response.data);
+        var { argNames, args, required, dependenceNamesOffset } = getArgs(data);
+        if (!dependenceNamesOffset || !required) continue;
+        var argstr = args.concat(argNames, required.split(";").map(a => {
+            return a.replace(/\.(\w+)$/g, '').replace(/\-(\w)/g, (_, a) => a.toUpperCase())
+        }).join(";")).join(",");
+        var arglen = (argstr.length << 1).toString(36);
+        while (arglen.length < 3) {
+            arglen = "0" + arglen;
+        }
+        response.data = arglen + argstr + data.slice(dependenceNamesOffset);
+    }
+};
 module.exports = function (responseTree) {
+    rebuildData(responseTree);
     report(responseTree);
     if (!responseTree["main"]) {
         console.warn("在您所编译的项目中没有发现主程序");
