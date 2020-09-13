@@ -531,8 +531,20 @@ var initPixelDecoder = function () {
         };
         return;
     }
-    var maxRenderWidth = +document.body.getAttribute('max-render');
-    if (!maxRenderWidth || /msie\s+[2-8]/i.test(navigator.userAgent)) {
+    var body = document.body;
+    var maxRenderWidth = +body.getAttribute('max-render') || +body.getAttribute('max-width');
+    var minRenderWidth = +body.getAttribute('min-render') || +body.getAttribute('min-width');
+    var renderRange = body.getAttribute("render-range") || body.getAttribute("range") || body.getAttribute("render") || body.getAttribute("width");
+    if (renderRange) {
+        renderRange = renderRange.split(/[\-\:,]+/).map(a => +a);
+        if (!minRenderWidth && renderRange[0]) minRenderWidth = renderRange[0];
+        if (!maxRenderWidth && renderRange[1]) maxRenderWidth = renderRange[1];
+    }
+
+    var _freePixel = d => d * .75 / renderPixelRatio;
+    var _calcPixel = d => d * renderPixelRatio / .75;
+
+    if (!maxRenderWidth && !minRenderWidth || /msie\s+[2-8]/i.test(navigator.userAgent)) {
         /**
          * 从px到pt
          */
@@ -549,13 +561,18 @@ var initPixelDecoder = function () {
         /**
          * 从offset到px
          */
-        var freePixel = modules.freePixel = d => d * .75 / renderPixelRatio;
+        var freePixel = modules.freePixel = _freePixel;
         /**
          * 从pixel到offset
          */
-        var calcPixel = modules.calcPixel = d => d * renderPixelRatio / .75;
+        var calcPixel = modules.calcPixel = _calcPixel;
         document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
     } else {
+        if (maxRenderWidth < minRenderWidth) {
+            [minRenderWidth, maxRenderWidth] = [maxRenderWidth, minRenderWidth];
+        }
+        maxRenderWidth = maxRenderWidth * renderPixelRatio;
+        minRenderWidth = minRenderWidth * renderPixelRatio;
         /**
          * 从px到rem
          */
@@ -571,14 +588,35 @@ var initPixelDecoder = function () {
         /**
          * 从offset到px
          */
-        var freePixel = modules.freePixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * .75 / renderPixelRatio : d * .75 / (window.innerWidth / maxRenderWidth * renderPixelRatio);
+        console.log(maxRenderWidth, minRenderWidth, renderRange)
+        var freePixel = modules.freePixel = d => {
+            d = _freePixel(d);
+            var innerWidth = window.innerWidth * renderPixelRatio;
+            if (innerWidth < minRenderWidth) {
+                return d * minRenderWidth / innerWidth;
+            }
+            if (innerWidth > maxRenderWidth) {
+                return d * maxRenderWidth / innerWidth;
+            }
+            return d;
+        };
         /**
          * 从pixel到offset
          */
-        var calcPixel = modules.calcPixel = d => window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? d * renderPixelRatio / .75 : d * renderPixelRatio / (maxRenderWidth / window.innerWidth * .75);
+        var calcPixel = modules.calcPixel = d => {
+            var innerWidth = window.innerWidth * renderPixelRatio;
+            d = _calcPixel(d);
+            if (innerWidth < minRenderWidth) {
+                return d * innerWidth / minRenderWidth;
+            }
+            if (innerWidth > maxRenderWidth) {
+                return d * innerWidth / maxRenderWidth;
+            }
+            return d;
+        }
         init("css", function (css) {
             var onresize = function () {
-                var fontSize = window.innerWidth * .75 < maxRenderWidth * renderPixelRatio ? 16 * renderPixelRatio + "pt" : window.innerWidth / maxRenderWidth * renderPixelRatio * 16 + "pt";
+                var fontSize = calcPixel(16) * .75 + "pt";
                 css("html", {
                     fontSize
                 });
