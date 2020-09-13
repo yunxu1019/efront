@@ -467,7 +467,7 @@ var init = function (name, then, prebuilds) {
 
         if (!args || !args.length) {
             var created = module.call(window);
-            then(modules[name] = created);
+            then(module.created = modules[name] = created);
             return;
         }
         var filteredArgs = prebuilds ? args.filter(a => !(a in prebuilds)) : args;
@@ -496,7 +496,7 @@ var init = function (name, then, prebuilds) {
                 return;
             }
         } else {
-            if (saveAsModule) modules[name] = created;
+            if (saveAsModule) module.created = modules[name] = created;
         }
 
         then(created);
