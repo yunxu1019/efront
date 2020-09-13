@@ -486,9 +486,6 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
     let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
-    data = String(data).replace(/(;|^)import\s+([a-zA-Z\$_][\w]*)\s+from\s*(["'`])([a-zA-Z\$_]\w*)\3\s*;?(;|$)/mg, (_, f1, v, q, p, f2) => {
-        return `${f1}var ${v}=require(${q}${p}${q})${f2}`;
-    });
     let replace = loadUseBody(data, fullpath, watchurls, commName);
     var jsData, lessData;
     var time = 0;
