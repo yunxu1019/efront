@@ -261,7 +261,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             required_map[r.value] = required_paths.length;
             required_paths.push(r.value);
         }
-        r.value = required_map[r.value];
+        if (commbuilder.compress !== false) {
+            r.value = required_map[r.value];
+        }
         r.raw = String(r.value);
     });
     code = {
