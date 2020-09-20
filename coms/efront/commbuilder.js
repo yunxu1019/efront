@@ -128,7 +128,12 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     data = typescript.transpile(data, { noEmitHelpers: true });
-    var code = esprima.parse(data);
+    try {
+        var code = esprima.parse(data);
+    } catch (e) {
+        console.error(filename, e);
+        return data;
+    }
     getvariables.computed = !isDevelop || commbuilder.compress === false;
     var {
         DeclaredVariables: declares,
@@ -411,7 +416,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     var time = 0;
 
-    var jsData, htmlData, lessData;
+    var jsData = '', htmlData = '', lessData = '';
     // js中可能出现一些特殊字符，这里优先匹配
     data = data.replace(/<script\b[^>]*>([\s\S]*)<\/script>/i, function (_, script) {
         jsData = script + `;\r\nif(exports)exports=extendIfNeeded(exports.default||exports,exports,{call:moue$call,apply:moue$apply});exports.default=exports`;
