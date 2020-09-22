@@ -14,6 +14,7 @@ function create(commFactory, className) {
             return commRelease;
         };
         result.prototype = commFactory.prototype;
+        commFactory.className = className;
         keys(commFactory).map(k => result[k] = commFactory[k]);
         return result;
     }
@@ -33,6 +34,7 @@ function create(commFactory, className) {
     }
     return commFactory;
 }
+var head = document.getElementsByTagName("head")[0];
 function cless(commFactory, innerCss, className) {
     var stylesheet = document.createElement("style");
     stylesheet.type = "text/css";
@@ -43,6 +45,6 @@ function cless(commFactory, innerCss, className) {
     } else {
         stylesheet.innerHTML = innerCss;
     }
-    appendChild(document.getElementsByTagName("head")[0], stylesheet);
+    appendChild(head, stylesheet);
     return create(commFactory, className);
 }
