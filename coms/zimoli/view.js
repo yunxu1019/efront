@@ -72,9 +72,27 @@ var prototype = {
         move.call(this, this.left, this.top);
         return this;
     }
+};
+
+function getScrollbarWidth() {
+    var div = document.createElement("div");
+    div.style.position = 'absolute';
+    div.style.overflowY = 'scroll';
+    document.body.appendChild(div);
+    var w = div.offsetWidth;
+    remove(div);
+    return w;
 }
+var init = function () {
+    init = function () { };
+    console.log(view.className)
+    css("." + view.className.split(/\s+/)[0] + ">.body", {
+        marginRight: -getScrollbarWidth() + "px"
+    });
+};
 function view(element) {
     var window = element || document.createElement("form");
+    init();
     if (/form/i.test(window.tagName)) {
         on("submit")(window, function (event) {
             event.preventDefault();
