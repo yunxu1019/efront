@@ -78,7 +78,7 @@ function maps(config = {}) {
     this.canvas = canvas;
     var context = this.context = canvas.getContext("2d");
     this.loadings = [];
-    if (config instanceof Object) {
+    if (isObject(config)) {
         for (var k in config) {
             if (k in this) {
                 this[k] = config[k];
@@ -238,7 +238,7 @@ maps.prototype = {
         if (isFinite(lng) && isFinite(lat)) {
             this.center = [+lng, +lat];
             this.refresh();
-        } else if (lng instanceof Object) {
+        } else if (isObject(lng)) {
             if ("issearching" in lng) return;
             lng.issearching = true;
             if (lng instanceof Array) {

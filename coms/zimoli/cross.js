@@ -274,7 +274,7 @@ function cross(method, url, headers) {
         if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = data instanceof Array ? [] : {};
         if (FormData && data instanceof FormData) {
             datas = data;
-        } else if (data instanceof Object && !isFile(data)) {
+        } else if (isObject(data) && !isFile(data)) {
             extend(jsondata, data);
         } else if (!isEmpty(value)) {
             extend(jsondata, { [data]: value });

@@ -35,7 +35,7 @@ function merge(dst, src) {
     if (isFunction(src)) {
         src = src();
     }
-    if (!(src instanceof Object)) {
+    if (!isObject(src)) {
         return src;
     }
     if (isElement(dst)) {
@@ -49,7 +49,7 @@ function merge(dst, src) {
         } else {
             dst.forEach(d => merge(d, src));
         }
-    } else if (dst instanceof Object) {
+    } else if (isObject(dst)) {
         if (src instanceof Array) {
             src.forEach(s => merge(dst, s));
         } else {

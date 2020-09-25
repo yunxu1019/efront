@@ -22,7 +22,7 @@ var copyOptionData = function () {
     var { option_to, options } = field;
     if (!options) return;
     var value = data[field.key];
-    var option = value instanceof Object ? value : value in options ? options[value] : value;
+    var option = isObject(value) ? value : value in options ? options[value] : value;
     extend(data, seek(option, option_to));
 };
 var renderModel = function (field, data) {

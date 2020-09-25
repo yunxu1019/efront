@@ -9,7 +9,7 @@ function getParams(data, fields) {
     if (fields instanceof Array) {
         var params = {};
         fields.forEach(function (field) {
-            if (!(field instanceof Object)) {
+            if (!isObject(field)) {
                 if (field in data) {
                     params[field] = data[field];
                 }
@@ -22,7 +22,7 @@ function getParams(data, fields) {
             }
         });
         return params;
-    } else if (fields instanceof Object) {
+    } else if (isObject(fields)) {
         var params = {};
         Object.keys(fields).forEach(function (k) {
             var { [k]: f = k } = fields;

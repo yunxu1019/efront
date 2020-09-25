@@ -85,7 +85,7 @@ var _zimoli_params_key = `_zimoli_parameters:${location_pathname}#`;
 var _zimoli_state_prefix = `_zimoli_page_state:${location_pathname}#`;
 
 function getReverseStyle(style) {
-    if (!(style instanceof Object)) {
+    if (!isObject(style)) {
         style = parseKV(style, ";", ":");
     }
     var dest = {};
@@ -134,7 +134,7 @@ function go(pagepath, args, history_name, oldpagepath) {
             }
         }
     }
-    if (pagepath instanceof Object) {
+    if (isObject(pagepath)) {
         var { path: pagepath, need, roles = need, data: args, options } = pagepath;
     } else {
         var { roles, options } = getZimoliParams(pagepath);
@@ -239,8 +239,8 @@ function prepare(pgpath, ok) {
         } else {
             state_object = {};
         }
-        if (condition instanceof Object && setAsAdditional) {
-            if (!(state_object instanceof Object)) {
+        if (isObject(condition) && setAsAdditional) {
+            if (!isObject(state_object)) {
                 state_object = {
                     toString() {
                         return String(this.valueOf());
@@ -352,7 +352,7 @@ function prepare(pgpath, ok) {
     }, state);
 }
 function create(pagepath, args, from, needroles) {
-    var page_object = pagepath instanceof Object ? pagepath : page_generators[getpgpath(pagepath)];
+    var page_object = isObject(pagepath) ? pagepath : page_generators[getpgpath(pagepath)];
     if (!page_object) {
         throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
     }

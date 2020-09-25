@@ -4,10 +4,10 @@ function main(elem = document.createElement("radio-group")) {
         var { options } = field;
         if (options instanceof Array) {
             options = options.map((a, i) => {
-                if (a instanceof Object) return a;
+                if (isObject(a)) return a;
                 return { key: i, name: a };
             });
-        } else if (options instanceof Object) {
+        } else if (isObject(options)) {
             options = Object.keys(field.options).map(k => ({ name: options[k], key: k }));
         } else {
             options = null;

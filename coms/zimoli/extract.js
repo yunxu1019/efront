@@ -17,7 +17,7 @@ function seek(source, keeys) {
  */
 function extract(search, source) {
     var dest = search instanceof Array ? [] : {};
-    if (search instanceof Object) {
+    if (isObject(search)) {
         Object.keys(search).forEach(function (key) {
             dest[key] = seek(source, search[key]);
         })

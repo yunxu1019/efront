@@ -51,7 +51,7 @@ function titlebar(elem) {
         }
     } else if (isNode(option_buttons)) {
         appendChild(option_buttons, option_buttons);
-    } else if (option_buttons instanceof Object) {
+    } else if (isObject(option_buttons)) {
         option_buttons = Object.keys(option_buttons).map(function (key) {
             var value = option_buttons[key];
             var button = btn(key);

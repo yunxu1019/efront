@@ -1,5 +1,5 @@
 function getFringe(rect, point) {
-    if (!rect || !(point instanceof Object)) return false;
+    if (!rect || !isObject(point)) return false;
     if (isElement(rect)) rect = getScreenPosition(rect);
     var x, y;
     var clientX = "clientX", clientY = "clientY";

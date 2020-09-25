@@ -19,7 +19,7 @@ function cast(target, type, data) {
         default:
             throw new Error("参数数量不正确");
     }
-    if (!(target instanceof Object)) return;
+    if (!isObject(target)) return;
 
     var datakey = `cast(${type})`;
     type = `care(${type})`;

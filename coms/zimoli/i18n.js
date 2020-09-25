@@ -118,7 +118,7 @@ function i18n(message, _source) {
             return (cx > 0 ? args[cx] : "") + i18n(msg);
         }).join("");
     }
-    if (message instanceof Object) {
+    if (isObject(message)) {
         // i18n({zh:"",en:"",...});
         let firstLanguage = "";
         for (let k in message) {

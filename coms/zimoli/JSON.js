@@ -148,7 +148,7 @@ var getString = function (object, filter, space) {
         }
         if (hasFilter) {
             var object1 = filter(key, object);
-            if (object1 instanceof Object && object !== object1) {
+            if (isObject(object1) && object !== object1) {
                 object1 = getString(object1, filter, space);
             }
             object = object1;
@@ -165,7 +165,7 @@ var getString = function (object, filter, space) {
                 if (object instanceof String) {
                     return toString(object);
                 }
-                if (object instanceof Object) {
+                if (isObject(object)) {
                     return object;
                 }
             case "number":
@@ -184,7 +184,7 @@ var getString = function (object, filter, space) {
     };
     var key = '', cx, ks, result = [], objects = [], keys = [[0]];
     object = get(object);
-    if (object instanceof Object) objects.push(object);
+    if (isObject(object)) objects.push(object);
     else if (object) result.push(object);
     while (objects.length) {
         var object = objects[objects.length - 1];
@@ -207,7 +207,7 @@ var getString = function (object, filter, space) {
                 if (space) str += (" ");
             };
             var v = get(object[key]);
-            if (v instanceof Object) {
+            if (isObject(v)) {
                 key1[0] = cx + 1;
                 if (objects.indexOf(v) >= 0) throw stringify_failed_error_message;
                 objects.push(v);

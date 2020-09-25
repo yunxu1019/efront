@@ -1,6 +1,6 @@
 var id = 0;
 function Item(value) {
-    this.value = value instanceof Object ? value : Object.create(value);
+    this.value = isObject(value) ? value : Object.create(value);
     this.valueOf = function () {
         return value;
     };
@@ -13,7 +13,7 @@ function Item(value) {
         children.forEach(item => item.parent = item);
         this.push.apply(this, children);
     }
-    if (value instanceof Object) {
+    if (isObject(value)) {
         this.name = value.name;
         this.tab = value.tab;
         this.icon = value.icon;

@@ -1,7 +1,7 @@
 function main(config, item, params) {
     return new Promise(function (ok, oh) {
         if (!config) return ok();
-        if (config instanceof Object) {
+        if (isObject(config)) {
             if (config.do instanceof Function) {
                 config.do();
                 return;
@@ -12,7 +12,7 @@ function main(config, item, params) {
                     var _params = getParams(item, config.params);
                     params = extend({}, params, _params);
                 }
-                var args = extend({}, config.modal instanceof Object ? config.modal : { path: config.modal },
+                var args = extend({}, isObject(config.modal) ? config.modal : { path: config.modal },
                     { params: params }, item ? { item } : {});
                 popup.prepare(path, function () {
                     var page = popup(path, args);

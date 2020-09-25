@@ -4,10 +4,10 @@ function main(elem = document.createElement("checkbox-group")) {
         var { options } = field;
         if (options instanceof Array) {
             options = options.map((a, i) => {
-                if (a instanceof Object) return a;
+                if (isObject(a)) return a;
                 return { key: i, name: a };
             });
-        } else if (options instanceof Object) {
+        } else if (isObject(options)) {
             options = Object.keys(field.options).map(k => ({ name: options[k], key: k }));
         } else {
             options = null;
@@ -37,7 +37,7 @@ function main(elem = document.createElement("checkbox-group")) {
         var optionsMap = {};
         options.forEach(o => optionsMap[o.key] = o);
         value.forEach(v => {
-            var o = optionsMap[v instanceof Object ? v.key : v];
+            var o = optionsMap[isObject(v) ? v.key : v];
             if (o) {
                 o.checked = true;
                 checked[o.key] = o;

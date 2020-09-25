@@ -1,5 +1,5 @@
 function toString(a) {
-    if (a instanceof Object) {
+    if (isObject(a)) {
         return `${a.姓}${a.名}`;
     }
     return String(a);

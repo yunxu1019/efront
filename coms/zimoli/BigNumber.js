@@ -23,7 +23,7 @@ function getDecimalPartFromString(string, width) {
     return result;
 }
 function BigNumber(value) {
-    if (!(this instanceof Object)) {
+    if (!isObject(this)) {
         return new BigNumber(value);
     }
     this.signature = "";

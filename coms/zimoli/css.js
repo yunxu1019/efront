@@ -79,7 +79,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
             } catch (e) { }
         }
     }
-    if (oStyle instanceof Object) {
+    if (isObject(oStyle)) {
         if (isWorseIE) {
 
             for (var k in oStyle) {
@@ -126,7 +126,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
                 if (k) styleobject[k] = v || '';
             });
         }
-    } else if (oStyle instanceof Object) {
+    } else if (isObject(oStyle)) {
         for (var k in oStyle) {
             var key = transformCssKey(k);
             styleobject[key] = oStyle[k];

@@ -41,7 +41,7 @@ function rebuild(element) {
     var props = {};
     Object.keys(element).forEach(function (key) {
         var data = element[key];
-        props[key] = data instanceof Object && !isFunction(data) && !isDate(data) && !isNode(data) ? extend(data instanceof Array ? [] : {}, data) : data;
+        props[key] = isObject(data) && !isFunction(data) && !isDate(data) && !isNode(data) ? extend(data instanceof Array ? [] : {}, data) : data;
     });
     element.renders.forEach(a => a.call(element));
     var changes = getChanges(element, props);
@@ -301,7 +301,7 @@ var directives = {
             if (deepEqual(value, oldValue)) return;
             if (value instanceof Array) {
                 oldValue = extend([], value);
-            } else if (value instanceof Object) {
+            } else if (isObject(value)) {
                 oldValue = extend({}, value);
             } else {
                 oldValue = value || "";
@@ -439,7 +439,7 @@ var directives = {
                         if (!/^\d+$/.test(k)) deltaClassNames.push(deltaClassNames[k] = k);
                     }
                 });
-            } else if (className instanceof Object) {
+            } else if (isObject(className)) {
                 for (var k in className) {
                     if (!hasOwnProperty.call(originalClassNames, k) && className[k]) {
                         if (!/^\d+$/.test(k)) deltaClassNames.push(deltaClassNames[k] = k);
@@ -697,7 +697,7 @@ var register = function (key, creater) {
     presets[key] = creater;
 };
 render.register = function (key, name) {
-    if (key instanceof Object) {
+    if (isObject(key)) {
         for (var k in key) {
             register(k, key[k]);
         }

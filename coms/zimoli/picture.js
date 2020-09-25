@@ -5,7 +5,7 @@ function picture(url, to = 0, key) {
     var images = urls.map(url => {
         var image = div();
         var img = new Image;
-        if (url instanceof Object) {
+        if (isObject(url)) {
             if (key) {
                 url = seek(url, key);
             }

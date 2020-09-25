@@ -20,7 +20,7 @@ var check = function (data, needs) {
         return false;
     }
     if (!data) return false;
-    if (needs instanceof Object) {
+    if (isObject(needs)) {
         for (var k in needs) {
             if (!checkValue(data[k], needs[k])) return false;
         }

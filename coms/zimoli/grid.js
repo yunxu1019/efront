@@ -304,7 +304,7 @@ class Point extends Array {
     constructor(value, range) {
         if (!this) return new Point(value);
         var solid = false;
-        if (value instanceof Object) {
+        if (isObject(value)) {
             this.value = value.value;
             var target = value.target;
             range = range || value.range;
@@ -341,7 +341,7 @@ var createPoints = function (values, direction = "x", result = Point(0)) {
     return result;
 };
 var bindToOrderedSpliters = function (split_points, target, value, side) {
-    if (value instanceof Object) {
+    if (isObject(value)) {
         value = value.value;
     }
     var index = getIndexFromOrderedArray(split_points, value);

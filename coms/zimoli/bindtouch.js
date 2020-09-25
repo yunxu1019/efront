@@ -2,7 +2,7 @@ var abs = Math.abs;
 function bindtouch(target, bindder, lockDirection = false) {
     var direction, saved_x, saved_y;
     if (lockDirection) lockDirection = lockDirection.toLowerCase();
-    if (!isFunction(bindder) && bindder instanceof Object) {
+    if (!isFunction(bindder) && isObject(bindder)) {
         var { start, move, end } = bindder;
     } else {
         var move = bindder;
@@ -41,7 +41,7 @@ function bindtouch(target, bindder, lockDirection = false) {
             }
 
             var pos = move.call(this, null, event);
-            if (pos instanceof Object) {
+            if (isObject(pos)) {
                 var { x = 0, y = 0 } = pos;
                 x += deltax;
                 y += deltay;

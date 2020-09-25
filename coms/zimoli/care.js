@@ -44,7 +44,7 @@ function parse(target, type, listener) {
         default:
             throw new Error("参数数量不正确");
     }
-    if (!(target instanceof Object)) throw new Error("care只能使用在对象上！");
+    if (!isObject(target)) throw new Error("care只能使用在对象上！");
     type = `care(${type})`;
     return [target, type, listener, allowMultiHandle];
 }

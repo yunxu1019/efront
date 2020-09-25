@@ -88,7 +88,7 @@ function appendTo(parent, datas) {
     var tab = parent && parent.tab + 1 || 1;
     var length = parent.length;
     datas.map(function (data) {
-        if (data instanceof Object) {
+        if (isObject(data)) {
             data.tab = tab;
             var item = new Item(data);
             item.parent = parent;

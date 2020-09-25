@@ -16,7 +16,7 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
     if (typeof isLeave === "string") {
         isLeave = parseKV(isLeave, ';', ":");
     }
-    if (isLeave instanceof Object && (_initialStyle === true || !_initialStyle)) {
+    if (isObject(isLeave) && (_initialStyle === true || !_initialStyle)) {
         _initialStyle = isLeave;
         isLeave = arguments[2];
     }
@@ -31,7 +31,7 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
         target.map(function (target) {
             transition(target, isLeave, _initialStyle);
         });
-    } else if (initialStyle instanceof Object) {
+    } else if (isObject(initialStyle)) {
         let transitionDuration = 100;
         if (!initialStyle.transition) {
             initialStyle.transition = "all .3s ease";

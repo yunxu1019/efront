@@ -28,7 +28,7 @@ var objectEqual = function (o1, o2, deep) {
         var k = keys1[cx];
         if (keys2[cx] !== k) return false;
         var v1 = o1[k], v2 = o2[k];
-        if (v1 instanceof Object && v2 instanceof Object) {
+        if (isObject(v1) && isObject(v2)) {
             if (v1 !== v2) restkeys.push(k);
             continue;
         }
@@ -46,7 +46,7 @@ var objectEqual = function (o1, o2, deep) {
     }
     if (o1.valueOf instanceof Function && o2.valueOf instanceof Function) {
         var v1 = o1.valueOf(), v2 = o2.valueOf();
-        if (!(v1 instanceof Object && v2 instanceof Object)) return singleEqual(v1, v2);
+        if (!(isObject(v1) && isObject(v2))) return singleEqual(v1, v2);
     }
     try {
         if (deep === 0 && o1.toString instanceof Function && o2.toString instanceof Function && !o1.join && !o2.join) return o1.toString() === o2.toString();
@@ -58,7 +58,7 @@ var objectEqual = function (o1, o2, deep) {
 function shallowEqual(o1, o2) {
     // 浅层比对，对内层对象不进行递归比对
     if (o1 === o2) return true;
-    if (o1 instanceof Object && o2 instanceof Object) {
+    if (isObject(o1) && isObject(o2)) {
         var keys1 = Object.keys(o1), keys2 = Object.keys(o2);
         if (keys1.length !== keys2.length) return false;
         keys1.sort(), keys2.sort();
@@ -74,7 +74,7 @@ function shallowEqual(o1, o2) {
 }
 function deepEqual(o1, o2) {
     if (o1 === o2) return true;
-    if (o1 instanceof Object && o2 instanceof Object) {
+    if (isObject(o1) && isObject(o2)) {
         var result = objectEqual(o1, o2, 0);
         if (result) for (var cx = 0; cx < restcompare.length; cx += 3) {
             var v1 = restcompare[cx], v2 = restcompare[cx + 1], deep1 = restcompare[cx + 2];

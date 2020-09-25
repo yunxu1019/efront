@@ -1,6 +1,6 @@
 
 var getValue = function (o) {
-    return o instanceof Object && "value" in o ? o.value : o
+    return isObject(o) && "value" in o ? o.value : o
 };
 var defaultIsLE = (sample, search) => getValue(sample) <= getValue(search);
 /**
