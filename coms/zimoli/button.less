@@ -162,14 +162,23 @@ a&,
 }
 
 .type(@type, @color, @colortext, @hover: lighten(@color, 10%)) {
-    &[type="@{type}"] {
+
+    &[type="@{type}"],
+    &.@{type},
+    &[@{type}] {
         color: @colortext;
         background-color: @color;
         border-radius: 3px;
     }
 
+    @anchored: ~"@{type}-anchor";
+
     a&[type="@{type}"],
-    &[type='@{type}-anchor'] {
+    a&.@{type},
+    a&[@{type}],
+    &[type='@{anchored}'],
+    &.@{anchored},
+    &[@{anchored}] {
         color: @color;
         background: none;
 
