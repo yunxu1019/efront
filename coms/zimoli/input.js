@@ -1,12 +1,35 @@
 var _input = createElement("input");
-var number = function () {
-    var reg = /^[\s\S]*?(\d+)(\.\d*)?[\s\S]*$/;
-    var value;
-    if (!reg.test(this.value)) value = '';
-    else value = this.value;
-    value = String(value).replace(reg, "$1$2");
-    if (this.value !== value) this.value = value;
-    console.log(this.value, value);
+var number = function (event) {
+    var ipt = event.target;
+    var { keyCode } = event;
+    var { value, type } = ipt;
+    if (keyCode === 13 || keyCode === 18 || keyCode === 37 || keyCode === 38 || keyCode === 39 || keyCode === 40 || keyCode === 8 || keyCode === 46 || keyCode === 9) {
+    }
+    else if (keyCode >= 49 && keyCode <= 57 || keyCode >= 96 && keyCode <= 105) {
+    } else if (keyCode === 110 || keyCode === 190) {
+        if (/^int/i.test(type)) {
+            event.preventDefault();
+        } else if (/\./i.test(value) || !value || /^[\-\+]$/.test(value)) {
+            event.preventDefault();
+        }
+    } else if (keyCode === 189 || keyCode === 187) {// 负号 正号
+        if (value || /^natural|positive/i.test(type)) {
+            event.preventDefault();
+        }
+    } else {
+        event.preventDefault();
+    }
+    if (value && !/^[\d]+$/i.test(value)) {
+        var m = /([\-\+]?\d+)(\.\d*)?/.exec(value);
+        if (m) {
+            var v = /^int/i.test(type) ? m[1] : m[0]
+            if (value !== v) {
+                ipt.value = v;
+            }
+        } else if (!/^[\-\+]$/.test(value)) {
+            ipt.value = '';
+        }
+    }
 };
 function input(element) {
     if (element && /input/i.test(element.tagName)) {
@@ -34,7 +57,13 @@ function input(element) {
                     };
                     break;
                 case "money":
-                    on("input")(element, number);
+                case "int":
+                case "integer":
+                case "integer":
+                case "number":
+                case "num":
+                case "natural":
+                    on("keydown")(element, number);
                     break;
             }
             if (format) {
