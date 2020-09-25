@@ -447,7 +447,7 @@ var privates = {
         var coinmethod = method.slice(0, spliterIndex).toLowerCase();
         var realmethod = coinmethod.replace(/\W+$/g, '');
         var uri = url.replace(/#[\s\S]*$/, "");
-        params = extend({}, params);
+        if (params instanceof Object) params = extend(params instanceof Array ? [] : {}, params);
         if (/\?/.test(uri)) search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
         var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/gi, function (d) {
@@ -544,7 +544,7 @@ var error_check = function (data) { };
 var loadInstance = function (storage, id) {
     try {
         return JSAM.parse(storage.getItem(id));
-    } catch{ }
+    } catch { }
 };
 
 function responseCrash(e, data) {
