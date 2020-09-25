@@ -85,7 +85,6 @@ function getScrollbarWidth() {
 }
 var init = function () {
     init = function () { };
-    console.log(view.className)
     css("." + view.className.split(/\s+/)[0] + ">.body", {
         marginRight: -getScrollbarWidth() + "px"
     });
