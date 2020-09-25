@@ -19,7 +19,7 @@ function encodeStructure(array) {
     array.map(function (obj) {
         for (var k in obj) {
             var v = obj[k];
-            if (v instanceof Object) continue;
+            if (isObject(v)) continue;
             if (!source[k]) {
                 source[k] = { inc: 0 };
             }
@@ -73,7 +73,7 @@ const formulaters = {
 };
 
 function getErrorMessage(error) {
-    if (!(error instanceof Object)) return String(error);
+    if (!isObject(error)) return String(error);
     if (error instanceof Error) return String(error);
     var words = "reason,message,desc,descption,msg,err,error".split(',');
     while (words.length) {
@@ -447,7 +447,7 @@ var privates = {
         var coinmethod = method.slice(0, spliterIndex).toLowerCase();
         var realmethod = coinmethod.replace(/\W+$/g, '');
         var uri = url.replace(/#[\s\S]*$/, "");
-        if (params instanceof Object) params = extend(params instanceof Array ? [] : {}, params);
+        if (isObject(params)) params = extend(params instanceof Array ? [] : {}, params);
         if (/\?/.test(uri)) search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
         var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/gi, function (d) {
@@ -458,7 +458,7 @@ var privates = {
         var hasOwnProperty = {}.hasOwnProperty;
         if (search) {
             var searchParams = parseKV(search);
-            for (var k in searchParams) {
+            if (params) for (var k in searchParams) {
                 if (hasOwnProperty.call(searchParams, k) && hasOwnProperty.call(params, k)) {
                     searchParams[k] = params[k];
                     rest.push(k);
@@ -553,7 +553,7 @@ function responseCrash(e, data) {
     data.is_loading = false;
     data.error_message = getErrorMessage(e);
     data.error_object = e;
-    if (e instanceof Object) {
+    if (isObject(e)) {
         extend(data, e);
     } else {
         data.error = e;
@@ -605,7 +605,7 @@ var data = {
         if (o instanceof Promise) {
             return o.then(createApiMap);
         }
-        if (o instanceof Object) {
+        if (isObject(o)) {
             return createApiMap(o);
         }
         if (isString(o)) {
@@ -617,7 +617,7 @@ var data = {
             parse = params;
             params = {};
         }
-        if (ref instanceof Object) {
+        if (isObject(ref)) {
             return this.fromApi(ref, params);
         } else
             if (/^\.*\/|\.\w+$/.test(ref)) {
@@ -632,7 +632,7 @@ var data = {
         if (isString(config)) {
             config = privates.loadIgnoreConfig('get', config).then(createApiMap);
         } else if (!(config instanceof Promise)) {
-            if (!(config instanceof Object)) return;
+            if (!isObject(config)) return;
             config = Promise.resolve(config).then(createApiMap);
         }
         return enrich({
@@ -843,7 +843,7 @@ var data = {
     /** 设置所有网络请求拉取时的参数数附加据源 */
     setSource(sourceid, value) {
         var rememberWithStorage;
-        if (sourceid instanceof Object) {
+        if (isObject(sourceid)) {
             this.rebuildInstance(dataSourceMap, sourceid);
             rememberWithStorage = value;
         } else {
