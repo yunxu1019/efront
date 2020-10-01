@@ -298,14 +298,15 @@ var directives = {
         var that = this;
         this.renders.push(function () {
             var value = getter();
-            if (deepEqual(value, oldValue)) return;
             if (value instanceof Array) {
-                oldValue = extend([], value);
+                value = extend([], value);
             } else if (isObject(value)) {
-                oldValue = extend({}, value);
-            } else {
-                oldValue = value || "";
+                value = extend({}, value);
+            } else if (isEmpty(value)) {
+                value = "";
             }
+            if (deepEqual(value, oldValue)) return;
+            oldValue = value;
             if (/^img$/i.test(this.tagName)) {
                 this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
                 if (!isString(value)) {
