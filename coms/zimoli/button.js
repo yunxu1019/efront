@@ -26,7 +26,7 @@ on("keydown")(window, function (event) {
     }
 });
 
-var btn = div();
+var btn = document.createElement("button");
 btn.tabIndex = 0;
 var __addClass = function () {
     if (firedTime + 60 > +new Date) return;
