@@ -33,6 +33,7 @@ i {
     text-align: center;
     cursor: default;
     position: absolute;
+
     padding: 24px 64px 0 64px;
     top: 0px;
     right: 0;
@@ -42,6 +43,7 @@ i {
     margin: 0;
     background-color: #0090ff;
     color: rgba(255, 255, 255, .8);
+
     .button {
         position: absolute;
         display: block;
@@ -51,26 +53,30 @@ i {
         outline: none;
         width: 50px;
         top: 24px;
+
         &[type=left] {
             left: 0;
         }
+
         &[type=right] {
             right: 0;
         }
+
         &[type=search] {
             display: block;
-            position: absolute;
-            left: 16px;
-            right: 16px;
-            width: auto;
+            position: relative;
             border-radius: 16px;
             height: 28px;
             font-size: 16px;
             line-height: 28px;
-            top: 64px;
             background: rgba(255, 255, 255, .2);
+            width: 100%;
+            margin: 14px -40px;
+            padding: 0 40px;
+            box-sizing: content-box;
         }
     }
+
     >div {
         bottom: 0;
         font-size: 18px;
@@ -78,15 +84,19 @@ i {
         height: 40px;
         line-height: 40px;
         vertical-align: top;
+
         &.active {
             color: #fff;
             font-size: 20px;
             text-shadow: 0 0 2px #fff;
         }
+
         &.line {
             margin-left: 50%;
             height: 0;
+            transition: left .2s;
             margin-top: -40px;
+
             &:before {
                 content: "";
                 position: absolute;

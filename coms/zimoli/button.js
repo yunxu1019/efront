@@ -87,7 +87,7 @@ function button(texter, type) {
     var _texter;
     if (isNode(texter)) {
         _texter = texter;
-        if (_texter.tagName && !type) {
+        if (_texter.tagName) {
             var button = _texter;
             if (button.childNodes.length) {
                 appendChild.before(button.childNodes[0], tracker);

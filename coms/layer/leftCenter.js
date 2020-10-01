@@ -47,7 +47,7 @@ function setCurrentPage(page) {
         appendChild(leftLayer, leftPage, false);
     }
 }
-function leftCenter(_leftPage) {
+function main(_leftPage) {
     leftPage = _leftPage;
     return layer;
 }
