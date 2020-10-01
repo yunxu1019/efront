@@ -375,7 +375,6 @@ function create(pagepath, args, from, needroles) {
     if (undefined === args || null === args) args = {};
     var _page = pg.call(state, args, from);
     if (_page) {
-        if (pg.className) _page.className = pg.className;
         _page.with = _with_elements;
         if (args.initialStyle) _page.initialStyle = args.initialStyle;
         if (args.holdupStyle) _page.holdupStyle = args.holdupStyle;

@@ -1,5 +1,6 @@
 
 function create(commFactory, className) {
+    if (!className) return commFactory;
     if (commFactory instanceof Promise) {
         return commFactory.then(function (result) {
             return create(result, className);
@@ -36,15 +37,17 @@ function create(commFactory, className) {
 }
 var head = document.getElementsByTagName("head")[0];
 function cless(commFactory, innerCss, className) {
-    var stylesheet = document.createElement("style");
-    stylesheet.type = "text/css";
-    stylesheet.savedText = innerCss;
-    innerCss = color.transform(innerCss);
-    if (stylesheet.styleSheet) {
-        stylesheet.styleSheet.cssText = innerCss;
-    } else {
-        stylesheet.innerHTML = innerCss;
+    if (innerCss) {
+        var stylesheet = document.createElement("style");
+        stylesheet.type = "text/css";
+        stylesheet.savedText = innerCss;
+        innerCss = color.transform(innerCss);
+        if (stylesheet.styleSheet) {
+            stylesheet.styleSheet.cssText = innerCss;
+        } else {
+            stylesheet.innerHTML = innerCss;
+        }
+        appendChild(head, stylesheet);
     }
-    appendChild(head, stylesheet);
     return create(commFactory, className);
 }
