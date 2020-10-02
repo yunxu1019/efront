@@ -467,13 +467,13 @@ function getMouePromise(data, filename, fullpath, watchurls) {
 function getHtmlPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     let lesspath = fullpath.replace(/\.html?$/i, ".less");
-    var jsData = "`\r\n" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
+    var jsData = "`" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
     var lessData;
     var time = 0;
     var promise = getFileData(lesspath).then(function (lessdata) {
         if (lessdata instanceof Buffer) {
             var lessPromise = renderLessData(lessdata, lesspath, watchurls, lessName);
-            lessPromise.then(data => {
+            return lessPromise.then(data => {
                 lessData = data;
                 time += lessPromise.time;
             });
