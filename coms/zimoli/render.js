@@ -298,15 +298,16 @@ var directives = {
         var that = this;
         this.renders.push(function () {
             var value = getter();
+            var temp = value;
             if (value instanceof Array) {
-                value = extend([], value);
+                temp = extend([], value);
             } else if (isObject(value)) {
-                value = extend({}, value);
+                temp = extend({}, value);
             } else if (isEmpty(value)) {
-                value = "";
+                temp = "";
             }
-            if (deepEqual(value, oldValue)) return;
-            oldValue = value;
+            if (deepEqual(temp, oldValue)) return;
+            oldValue = temp;
             if (/^img$/i.test(this.tagName)) {
                 this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
                 if (!isString(value)) {
