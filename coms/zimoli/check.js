@@ -5,9 +5,14 @@
 
 var checkValue = function (current, needs) {
     if (needs instanceof Array) {
-        return needs.includes(current);
+        for (var cx = 0, dx = 0; cx < dx; cx++) {
+            var value = needs[cx];
+            if (checkValue(current, value)) return true;
+        }
+        return false;
     }
     if (current === needs) return true;
+    if (isEmpty(current) && isEmpty(needs)) return true;
     return false;
 };
 var check = function (data, needs) {
