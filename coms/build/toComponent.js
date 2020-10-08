@@ -257,7 +257,7 @@ function toComponent(responseTree) {
             var ok = true;
             var errored = module_body.slice(0, module_body.length >> 1).concat(required || []).filter(saveGlobal);
             if (errored.length) {
-                console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`, errored.map(a=>`<gray>${a}</gray>`));
+                console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`, errored.map(a => `<gray>${a}</gray>`));
             }
             if (!responseTree[k].data) {
                 result.splice(cx, 1);
@@ -391,7 +391,7 @@ function toComponent(responseTree) {
                 return String.fromCharCode(c);
             });
     };
-    var template = `([/*${new Date().toString()} by efront ${require("../../package.json").version}*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]()`;
+    var template = `([/*${new Date().toString()} by efront ${require(path.join(__dirname, "../../package.json")).version}*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]()`;
     if (EXPORT_TO) {
         switch (EXPORT_TO) {
             case 'node':

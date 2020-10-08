@@ -15,7 +15,6 @@ function fromComponent(base) {
     var packer = require("./finalpacker");
     var requestInternet = fromInternet("");
     var request = function (url, onsuccess, onerror) {
-
         var isdestroied = false;
         if (/^https?\:\/\//i.test(url)) {
             return requestInternet(url, onsuccess, onerror);
@@ -152,7 +151,6 @@ function efront() {
     Object.assign(window, {
         performance: {},
         require(modulepath) {
-
             try {
                 return require(modulepath);
             } catch (e) {
