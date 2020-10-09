@@ -107,7 +107,7 @@ var requestListener = function (req, res) {
                     if (id && msgid) {
                         id = id.slice(1);
                         msgid = msgid.slice(1);
-                        if (msgid.length > 256) {
+                        if (msgid.length > 8096) {
                             res.writeHead(400);
                             break;
                         }
