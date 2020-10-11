@@ -1,12 +1,27 @@
 var extend = require("../zimoli/extend");
-var getIndexFromOrderedArray=require("./getIndexFromOrderedArray");
-var saveToOrderedArray=require("./saveToOrderedArray");
+var getIndexFromOrderedArray = require("./getIndexFromOrderedArray");
+var saveToOrderedArray = require("./saveToOrderedArray");
 var clients = [], indexedKeepingClients = [];
 var increaseId = 0x1fffffff + (0x1fffffff * Math.random() | 0);
-
+var mark = Math.cos(Math.random()) * new Date();
+var markList = [mark];
+var sign = function (a, mark) {
+    return Math.sin(a * mark).toString(26).slice(4).replace(/\d/g, a => String.fromCharCode("z".charCodeAt(0) - a.charCodeAt(0) + "0".charCodeAt(0)));
+};
 var byOptime = (a, b) => a.optime <= b.optime;
-
-var Client = function (id = ++increaseId) {
+var createId = function () {
+    var id = ++increaseId;
+    return sign(id, mark) + id;
+};
+var checkId = function (id) {
+    var s = id.replace(/^[a-z]+/i, '');
+    var t = id.slice(0, id.length - s.length);
+    for (var cx = 0, dx = markList.length; cx < dx; cx++) {
+        if (sign(s, markList[cx]) === t) return true;
+    }
+    return false;
+};
+var Client = function (id = createId()) {
     if (id instanceof Object) {
         extend(this, id);
     } else {
@@ -58,6 +73,7 @@ Client.prototype = {
         if (!this.res) {
             this.res = [];
         };
+        this.isclosed = false;
         res.on('close', setClosed);
 
         this.res.push(res);
@@ -77,6 +93,7 @@ var autoremove = function () {
             break;
         }
         var client = clients[cx];
+        if (!client) continue;
         if (client.optime + delta < time) {
             var res = client.res;
             if (res instanceof Array) {
@@ -130,9 +147,10 @@ var methods = {
         var client = new Client(config);
         return client;
     },
-    attach(clientid) {
+    attach(clientid, checkmark) {
         var client = this.get(clientid);
         if (client) return client;
+        if (checkmark !== false && !checkId(clientid)) return;
         client = this.create(clientid);
         saveToOrderedArray(clients, client);
         return client;
@@ -152,6 +170,16 @@ var methods = {
         if (clients[index].id === clientid) {
             clients.splice(index, 1)[0].removeIndex();
         }
+    },
+    addMark(a) {
+        a = +a;
+        if (a && !~markList.indexOf(a)) {
+            markList.push(+a);
+        }
+    },
+    checkId,
+    getMark() {
+        return markList;
     }
 };
 Object.assign(clients, methods);

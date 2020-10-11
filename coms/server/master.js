@@ -110,6 +110,7 @@ message.broadcast = broadcast;
 message.deliver = function (a) {
     var [clientid, msgid] = a;
     var client = clients.attach(clientid);
+    if (!client) return;
     if (client.messages.length) {
         client.deliver(msgid);
         return;
@@ -126,6 +127,15 @@ message.deliver = function (a) {
                 client.keep();
             }
         }, null);
+    });
+};
+message.getmark = function () {
+    return clients.getMark();
+};
+message.addmark = function (m) {
+    clients.addMark(m);
+    workers.forEach(function (worker) {
+        message.send(worker, 'addmark', m);
     });
 };
 message.receive = function (clientid) {

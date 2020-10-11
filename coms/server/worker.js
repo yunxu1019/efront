@@ -37,7 +37,14 @@ message.quit = safeQuitProcess;
 message.deliver = function (a) {
     return clients.deliver(a[0], a[1]);
 };
-//子线程们
+message.addmark = function (a) {
+    return clients.addMark(a);
+};
+message.send('getmark', null, function (markList) {
+    markList.forEach(clients.addMark, clients);
+}, null);
+message.send('addmark', clients.getMark()[0]);
+// 子线程们
 // 仅做开发使用的简易服务器
 var http = require("http");
 var http2 = require("http2");
@@ -86,6 +93,10 @@ var requestListener = function (req, res) {
                     if (id) {
                         id = id.slice(1);
                         var client = clients.attach(id);
+                        if (!client) {
+                            res.writeHead(403, {});
+                            break;
+                        }
                         client.listen(res);
                         client.refresh();
                         message.send('receive', id, function (msgids) {
