@@ -335,7 +335,14 @@ var directives = {
             var value = getter();
             if (deepEqual(value, oldValue)) return;
             oldValue = value;
-            if (text(this) !== value) text(this, value);
+            if (isNode(value) || isArray(value)) {
+                if (value !== this.firstChild) {
+                    remove(this.childNodes);
+                    appendChild(this, value);
+                }
+            } else {
+                if (text(this) !== value) text(this, value);
+            }
         });
     },
     model(search) {

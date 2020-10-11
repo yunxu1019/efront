@@ -134,15 +134,19 @@ function main(elem) {
             remove(elem.children);
             if (readonly) {
                 elem.innerHTML = '<span ng-bind=get()></span>';
-                render(elem, {
-                    get() {
-                        var create = readonly_types[field_type];
-                        if (create) {
-                            return create(field, data, field_ref);
+                if (field_type === "function") {
+                    field_editor(elem);
+                } else {
+                    render(elem, {
+                        get() {
+                            var create = readonly_types[field_type];
+                            if (create) {
+                                return create(elem, data, field_ref);
+                            }
+                            return seek(data, field.key);
                         }
-                        return seek(data, field.key);
-                    }
-                });
+                    });
+                }
             } else {
                 var create = field_type === "function" ? field_editor : constructors[field_type];
                 var ipt = create ? create(elem, field_ref) : input();
