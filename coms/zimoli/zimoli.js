@@ -501,7 +501,6 @@ var checkonback = function (elements) {
     for (var cx = 0, dx = elements.length; cx < dx; cx++) {
         var element = elements[cx];
         var onback = element && element.onback;
-        console.log(onback)
         if (isFunction(onback)) {
             onback = element.onback();
         }
