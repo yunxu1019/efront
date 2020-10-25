@@ -234,22 +234,28 @@ var commands = {
                 });
             }
             var data = [];
-            var onclose = function (res) {
+            var response = function (res) {
                 res.on("end", function () {
-                    ok(Buffer.concat(data).toString());
-                })
+                    var text = Buffer.concat(data).toString();
+                    if (res.statusCode !== 200) {
+                        oh(text || res.statusMessage);
+                        if (quitme) quitme();
+                    } else {
+                        ok(text);
+                    }
+                });
                 res.on("data", function (chunk) {
                     data.push(chunk);
                 });
             };
             if (opt.protocol === 'https:') {
-                var req = require("https").request(opt, onclose);
+                var req = require("https").request(opt, response);
                 req.end();
             } else {
-                var req = require("http").request(opt, onclose);
+                var req = require("http").request(opt, response);
                 req.on("error", function () {
                     opt.protocol = 'https:';
-                    var req = require("https").request(opt, onclose);
+                    var req = require("https").request(opt, response);
                     req.on("error", oh);
                     req.end();
                 });
@@ -267,6 +273,7 @@ var commands = {
         var error = function (e) {
             console.error(e);
         };
+        var commands = this;
         var run = function (res, type) {
             console.type(`<cyan>${type || '消息'}</cyan>`, res, '\r\n');
             commands.request(opt, true).then(run, error);
@@ -274,7 +281,7 @@ var commands = {
 
         var req = function (res) {
             opt.path = '/:care-' + res;
-            run(res, '已登录');
+            run(res, '连接到');
         };
         if (linkid) {
             req(linkid);
