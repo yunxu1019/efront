@@ -26,7 +26,6 @@ var {
     startPath: efrontPath,
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
-
 if (PREVENT_FRAMEWORK_MODE !== false) {
     var message = '请关闭后重新打开..';
     try {
@@ -39,7 +38,7 @@ if (PREVENT_FRAMEWORK_MODE !== false) {
         throw message;
     }
 }
-
+var _devicePixelRatio = devicePixelRatio;
 var request = window.request || function (url, onload, onerror) {
     var version = versionTree[url] || (+new Date).toString(32);
     var xhr = new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
@@ -573,6 +572,10 @@ var initPixelDecoder = function () {
         }
         maxRenderWidth = maxRenderWidth * renderPixelRatio;
         minRenderWidth = minRenderWidth * renderPixelRatio;
+        if (_devicePixelRatio !== devicePixelRatio) {
+            maxRenderWidth *= _devicePixelRatio;
+            minRenderWidth *= _devicePixelRatio;
+        }
         /**
          * 从px到rem
          */
