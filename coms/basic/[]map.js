@@ -50,7 +50,7 @@ function indexOf(searchElement, fromIndex = 0) {
     return -1;
 }
 function trim() {
-    return String(this).replace(/^[\s\u00a0]+|[\s\u00a0]$/g, "");
+    return String(this).replace(/^[\s\u00a0]+|[\s\u00a0]+$/g, "");
 }
 var hasOwnProperty = {}.hasOwnProperty;
 var keys = function keys(object) {
