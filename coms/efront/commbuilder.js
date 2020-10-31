@@ -497,7 +497,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var time = 0;
     var promise = Promise.all([lesspath, htmlpath].map(getFileData).concat(replace)).then(function ([lessdata, htmldata, data]) {
         var timeStart = new Date;
-        if (htmldata instanceof Buffer) {
+        if (htmldata instanceof Buffer && !/^\s*(<!--[\s\S]*?-->\s*)?<!doctype\b/i.test(htmldata)) {
             var commHtmlName;
             if (/^main/.test(commName)) {
                 commHtmlName = 'Main';
