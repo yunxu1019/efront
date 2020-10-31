@@ -3,7 +3,7 @@
  */
 onkeydown(document, function (e) {
     if (e.which === 27 && rootElements.length) {
-        history.back();
+        remove(rootElements.pop());
     }
 });
 var animationStyle = "opacity:0;transform:scale(1.2);transition:.1s opacity ease-out,.2s transform ease-out;";
@@ -288,6 +288,7 @@ var popup_to_event = function (element, { clientX, clientY }) {
 };
 var global = function (element, issingle) {
     once("remove")(element, cleanup);
+    rootElements.push(element);
     popup.global &&
         issingle !== false ? popup.global(element, true) : appendChild(document.body, element);
 };
