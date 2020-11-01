@@ -75,7 +75,9 @@ Block.prototype = extend({
     startWith(reg) {
         reg.lastIndex = this.start;
         reg.lastIndex = this.start;
-        return reg.exec(this.scanner.source).index === this.start;
+        var r = reg.exec(this.scanner.source);
+        if (!r) return false;
+        return r.index === this.start;
     },
     getSource() {
         return this.scanner.source.slice(this.start, this.end);
