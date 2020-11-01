@@ -250,6 +250,7 @@ var seekAsync = function (url, tree, rebuild) {
     }
     if ((temp instanceof Buffer) && !temp.stat) {
         temp.stat = getVersion(path.join(String(this), curl));
+        temp.name = key;
     }
     return temp;
 };

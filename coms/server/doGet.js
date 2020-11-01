@@ -59,7 +59,7 @@ var response = function (data, url, req, res) {
         res.writeHead(304, {});
     }
     else {
-        var extend = url.match(/\.([^\.]*?)$/);
+        var extend = (data.name || url).match(/\.([^\.]*?)$/);
         var headers = {
             "Content-Length": data.length
         };
