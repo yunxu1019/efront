@@ -38,6 +38,7 @@ function format(formater) {
     });
 }
 function filterTime(time, format) {
+    if (isFinite(time)) time = +time;
     var value = new Date(time);
     if (!+value) {
         return time;
