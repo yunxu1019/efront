@@ -1,8 +1,9 @@
-function audio_test() {
+function main() {
     var recoder = audio.getRecorder();
-
-    var _block = block("<canvas></canvas><button ng-if=!running ng-click=start()>录制</button><button ng-if=running ng-click=stop()>停止录制</button>")
+    var _block = block();
+    _block.innerHTML = audio_test;
     render(_block, recoder);
+    console.log(_block);
     var canvas = _block.querySelector("canvas");
     canvas.width = 1024;
     canvas.height = 256;
@@ -20,6 +21,5 @@ function audio_test() {
         });
         context.stroke();
     };
-    console.log(_block);
     return _block;
 }
