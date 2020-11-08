@@ -57,7 +57,6 @@ function stop() {
         }
         audioInput.disconnect(context.recorder);
         if (this.audio) this.audio.pause();
-        // audioInput.disconnect();
     });
 
 }
