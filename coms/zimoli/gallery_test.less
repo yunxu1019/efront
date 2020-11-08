@@ -2,20 +2,16 @@
     height: 100%;
 }
 
-&>lattice {
+&>gallery {
     height: 100%;
-    @mask-color: rgba(0,0,0,.4);
-    background: linear-gradient(45deg, @mask-color, 25%, @mask-color, 25%, rgba(0, 0, 0, 0), 75%, rgba(0, 0, 0, 0), 75%, @mask-color), linear-gradient(135deg, @mask-color, 25%, @mask-color, 25%, rgba(0, 0, 0, 0), 75%, rgba(0, 0, 0, 0), 75%, @mask-color);
     background-size: 20px 20px;
     background-repeat: repeat;
     border:2px solid transparent;
     background-clip: content-box;
-    writing-mode: vertical-lr;
     white-space: nowrap;
     >div{
-        writing-mode:horizontal-tb;
+        background: #fff;
         box-sizing: border-box;
-        height: 100px;
         border: 1px solid transparent;
         display: inline-block;
     }
