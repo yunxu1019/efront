@@ -98,7 +98,7 @@ function ylist(container, generator, $Y) {
         var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
         while (offsetBottom - ratioTop <= list.clientHeight + cache_height) {
             var item = childrenMap[offset];
-            if (!item || item.id) {
+            if (!item || item.itemid) {
                 item = generator(offset);
                 if (!item) {
                     if (delta < 0) break;
@@ -115,9 +115,9 @@ function ylist(container, generator, $Y) {
                 } else {
                     list.insertBefore(item, getNextSibling(last_item));
                 }
-                last_index = offset;
-                last_item = item;
             }
+            last_index = offset;
+            last_item = item;
             if (delta > 0) {
                 offset++;
                 offsetb = offset;
