@@ -203,6 +203,11 @@ function ybox(generator) {
     }
     if (_box.isMounted) initScrollId.call(_box);
     on("append")(_box, initScrollId);
+    _box.cancelFrame = function () {
+        cancelAnimationFrame(smooth_timer);
+        cancelAnimationFrame(decrease_timer);
+        __speed = _speed(0);
+    };
     preventOverflowScrolling(_box);
     return _box;
 }
