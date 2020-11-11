@@ -124,8 +124,8 @@ var adapter = function (data, url, req, res) {
         return adapter(data, "index.html", req, res);
     }
     if (typeof data === "string" && data !== req.url && "/" + data !== req.url) {
+        var new_url = data[0] === "/" ? data : "/" + data;
         if (path.basename(new_url) === path.basename(req.url) || !req.headers.referer) {
-            var new_url = data[0] === "/" ? data : "/" + data;
             res.writeHead(302, {
                 'Location': new_url
             });
