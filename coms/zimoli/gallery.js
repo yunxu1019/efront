@@ -63,7 +63,6 @@ function gallery(element, minWidth, generator) {
             var realindex = index * boxCount + id;
             if (realindex < 0) return;
             var e = generator(realindex);
-            window.console.log(realindex, index, e);
             return e;
         });
         _box.stopY = noop;
@@ -100,7 +99,6 @@ function gallery(element, minWidth, generator) {
         var realIndex = index * (savedCount || 1);
         index = realIndex / boxCount || 0;
         element.go(index);
-        window.console.log(index);
     }, 0);
     if (!element.renders) element.renders = [];
     element.renders.unshift(element.resize);
