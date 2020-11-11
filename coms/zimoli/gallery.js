@@ -58,18 +58,12 @@ function gallery(element, minWidth, generator) {
             }
         }
     });
-    element.clean = function () {
-        remove(element.children);
-    };
-    element.go = function () {
-    };
-    element.index = function () {
-    };
     var createColumn = function (id) {
         var _box = list(function (index) {
             var realindex = index * boxCount + id;
             if (realindex < 0) return;
             var e = generator(realindex);
+            window.console.log(realindex, index, e);
             return e;
         });
         _box.stopY = noop;
@@ -77,26 +71,44 @@ function gallery(element, minWidth, generator) {
         setWidth(_box);
         return _box;
     };
-    element.resize = lazy(function () {
-        var savedCount = boxCount;
-        var index = element.index();
+    element.clean = function () {
         resize();
-        if (savedCount === boxCount) return;
+
         remove(element.children);
         for (var cx = 0, dx = boxCount; cx < dx; cx++) {
             var c = createColumn(cx);
             element.appendChild(c);
         }
         bindScroll([].slice.call(element.children, 0));
-        var realIndex = index * (savedCount || 1);
-        index = realIndex / boxCount || 0;
-        [].forEach.call(element.children, function (c) {
+
+    };
+    element.go = function (index) {
+        [].forEach.call(this.children, function (c) {
             c.go(index / boxCount);
         });
-
+    };
+    element.index = function () {
+        var a = this.children[0];
+        return a ? a.index() * boxCount || 0 : 0;
+    };
+    element.resize = lazy(function () {
+        var savedCount = boxCount;
+        var index = element.index();
+        resize();
+        if (savedCount === boxCount) return;
+        element.clean();
+        var realIndex = index * (savedCount || 1);
+        index = realIndex / boxCount || 0;
+        element.go(index);
+        window.console.log(index);
     }, 0);
     if (!element.renders) element.renders = [];
     element.renders.unshift(element.resize);
+    care(element, function () {
+        var index = this.index();
+        this.clean();
+        this.go(index || 0);
+    });
 
     return element;
 }
