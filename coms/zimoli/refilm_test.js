@@ -56,7 +56,6 @@ var scope = {
     index: 0,
 };
 function main() {
-    console.log(steps);
     var page = div();
     page.innerHTML = refilm_test;
     renderWithDefaults(page, scope);
