@@ -4,7 +4,7 @@
     <div class="subtitle">因为了解所以理解 因为懂得所以愉悦</div>
   </div>
   <form class="form">
-    <model :field="f" ng-repeat="(f,i) in steps[index]"></model>
+    <field ng-src="[f,data]" ng-repeat="(f,i) in steps[index]"></field>
   </form>
   <div class="step">
     <div class="page-number">
@@ -13,5 +13,6 @@
       <span ng-bind="steps.length"></span>
     </div>
   </div>
-  <btn @click="nextStep">下一步</btn>
+  <btn @click="prevStep()">上一步</btn>
+  <btn @click="nextStep()">下一步</btn>
 </div>

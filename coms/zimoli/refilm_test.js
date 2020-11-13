@@ -1,5 +1,5 @@
 var steps = [
-    refilm`-我的基本信息
+    refilm`-基本信息
   昵称 input
   英文名
   出生日期 date
@@ -8,34 +8,34 @@ var steps = [
   身高 input
   体重
   `,
-    refilm`-我的理想信念
+    refilm`-理想信念
   座右铭 text
-  我最大的愿望 
-  我的人生标杆（榜样）
-  我的理想职业
+  最大愿望 
+  人生标杆（榜样）
+  理想职业
   `,
-    refilm`-我的自我认知
-  我最大的优点 text
-  我最大的缺点
+    refilm`-自认知
+  最大优点 text
+  最大缺点
   `,
-    refilm`-我的兴趣爱好
-  我最擅长的事情 text
-  我最出色的本领
-  我最喜欢的运动
-  我最喜欢的音乐
-  我最喜欢的乐器
-  我最喜欢的书籍
-  我最喜欢的颜色
-  我最喜欢的食物
-  我最喜欢的活动
+    refilm`-兴趣爱好
+  最擅长事情 text
+  最出色本领
+  最喜欢运动
+  最喜欢音乐
+  最喜欢乐器
+  最喜欢书籍
+  最喜欢颜色
+  最喜欢食物
+  最喜欢活动
   `,
-    refilm`-我的雷区警示
-  我最讨厌的事情 text
-  我最害怕的事情
-  我最反感的人物
-  我的其他雷区警示
+    refilm`-雷区警示
+  最讨厌事情 text
+  最害怕事情
+  最反感人物
+  其他雷区警示
   `,
-    refilm`-我最喜欢的家庭合照
+    refilm`-最喜欢的家庭合照
   照片列表 image
   `,
 ];
@@ -52,9 +52,11 @@ var scope = {
         }
     },
     steps,
+    data: {},
     index: 0,
 };
 function main() {
+    console.log(steps);
     var page = div();
     page.innerHTML = refilm_test;
     renderWithDefaults(page, scope);

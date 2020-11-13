@@ -22,13 +22,15 @@ function scan(piece) {
     return res;
 }
 function parse(piece) {
+    piece = piece.filter(p => p.trim());
+    if (!piece.length) return;
     var [name, type, key] = piece;
     if (piece.length === 1) {
         if (name instanceof Object) return name;
     }
     if (typeof name === 'string') {
+        name = name.trim();
         if (!type) {
-            name = name.trim();
             switch (name.charAt(0)) {
                 case "#":
                 case "-":
@@ -68,5 +70,5 @@ function refilm(str) {
         }
         rest.push(arguments[cx + 1]);
     }
-    return result.map(parse);
+    return result.map(parse).filter(a => !!a);
 }
