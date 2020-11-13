@@ -45,6 +45,9 @@ var constructors = {
     color(field) {
         return colorpicker();
     },
+    title() {
+    },
+    name() { },
     image({ field }) {
         var img = image();
         var { options } = field;
