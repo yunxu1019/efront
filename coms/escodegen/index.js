@@ -83,11 +83,12 @@
         Await: 14,
         Unary: 14,
         Postfix: 15,
-        Call: 16,
-        New: 17,
-        TaggedTemplate: 18,
-        Member: 19,
-        Primary: 20
+        OptionalChaining: 16,
+        Call: 17,
+        New: 18,
+        TaggedTemplate: 19,
+        Member: 20,
+        Primary: 21
       };
       BinaryPrecedence = {
         '||': Precedence.LogicalOR,
@@ -818,7 +819,7 @@
         if (computed) {
           result.push('[');
         }
-        result.push(this.generateExpression(expr, Precedence.Sequence, E_TTT));
+        result.push(this.generateExpression(expr, Precedence.Assignment, E_TTT));
         if (computed) {
           result.push(']');
         }
@@ -1564,6 +1565,9 @@
         CallExpression: function (expr, precedence, flags) {
           var result, i, iz;
           result = [this.generateExpression(expr.callee, Precedence.Call, E_TTF)];
+          if (expr.optional) {
+            result.push('?.');
+          }
           result.push('(');
           for (i = 0, iz = expr['arguments'].length; i < iz; ++i) {
             result.push(this.generateExpression(expr['arguments'][i], Precedence.Assignment, E_TTT));
@@ -1580,6 +1584,13 @@
             ];
           }
           return parenthesize(result, Precedence.Call, precedence);
+        },
+        ChainExpression: function (expr, precedence, flags) {
+          if (Precedence.OptionalChaining < precedence) {
+            flags |= F_ALLOW_CALL;
+          }
+          var result = this.generateExpression(expr.expression, Precedence.OptionalChaining, flags);
+          return parenthesize(result, Precedence.OptionalChaining, precedence);
         },
         NewExpression: function (expr, precedence, flags) {
           var result, length, i, iz, itemFlags;
@@ -1602,17 +1613,20 @@
           var result, fragment;
           result = [this.generateExpression(expr.object, Precedence.Call, flags & F_ALLOW_CALL ? E_TTF : E_TFF)];
           if (expr.computed) {
+            if (expr.optional) {
+              result.push('?.');
+            }
             result.push('[');
             result.push(this.generateExpression(expr.property, Precedence.Sequence, flags & F_ALLOW_CALL ? E_TTT : E_TFT));
             result.push(']');
           } else {
-            if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
+            if (!expr.optional && expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
               fragment = toSourceNodeWhenNeeded(result).toString();
               if (fragment.indexOf('.') < 0 && !/[eExX]/.test(fragment) && esutils.code.isDecimalDigit(fragment.charCodeAt(fragment.length - 1)) && !(fragment.length >= 2 && fragment.charCodeAt(0) === 48)) {
                 result.push(' ');
               }
             }
-            result.push('.');
+            result.push(expr.optional ? '?.' : '.');
             result.push(generateIdentifier(expr.property));
           }
           return parenthesize(result, Precedence.Member, precedence);
@@ -1852,13 +1866,13 @@
           multiline = false;
           if (expr.properties.length === 1) {
             property = expr.properties[0];
-            if (property.value.type !== Syntax.Identifier) {
+            if (property.type === Syntax.Property && property.value.type !== Syntax.Identifier) {
               multiline = true;
             }
           } else {
             for (i = 0, iz = expr.properties.length; i < iz; ++i) {
               property = expr.properties[i];
-              if (!property.shorthand) {
+              if (property.type === Syntax.Property && !property.shorthand) {
                 multiline = true;
                 break;
               }
@@ -2184,9 +2198,9 @@
   require.define('/escodegen/package.json', function (module, exports, __dirname, __filename) {
     module.exports = {
       '_from': 'escodegen@latest',
-      '_id': 'escodegen@1.14.1',
+      '_id': 'escodegen@2.0.0',
       '_inBundle': false,
-      '_integrity': 'sha1-ugHQyCeLXpWppFNQFCAmZZAnpFc=',
+      '_integrity': 'sha1-XjKxKDPoqo+jXhvwvvqJOASEx90=',
       '_location': '/escodegen',
       '_phantomChildren': {},
       '_requested': {
@@ -2203,8 +2217,8 @@
         '#USER',
         '/'
       ],
-      '_resolved': 'https://registry.npm.taobao.org/escodegen/download/escodegen-1.14.1.tgz',
-      '_shasum': 'ba01d0c8278b5e95a9a45350142026659027a457',
+      '_resolved': 'https://registry.npm.taobao.org/escodegen/download/escodegen-2.0.0.tgz',
+      '_shasum': '5e32b12833e8aa8fa35e1bf0befa89380484c7dd',
       '_spec': 'escodegen@latest',
       '_where': 'D:\\work\\efront',
       'bin': {
@@ -2215,7 +2229,7 @@
       'bundleDependencies': false,
       'dependencies': {
         'esprima': '^4.0.1',
-        'estraverse': '^4.2.0',
+        'estraverse': '^5.2.0',
         'esutils': '^2.0.2',
         'optionator': '^0.8.1',
         'source-map': '~0.6.1'
@@ -2223,17 +2237,18 @@
       'deprecated': false,
       'description': 'ECMAScript code generator',
       'devDependencies': {
-        'acorn': '^7.1.0',
+        'acorn': '^7.3.1',
         'bluebird': '^3.4.7',
         'bower-registry-client': '^1.0.0',
-        'chai': '^3.5.0',
+        'chai': '^4.2.0',
+        'chai-exclude': '^2.0.2',
         'commonjs-everywhere': '^0.9.7',
         'gulp': '^3.8.10',
         'gulp-eslint': '^3.0.1',
         'gulp-mocha': '^3.0.1',
         'semver': '^5.1.0'
       },
-      'engines': { 'node': '>=4.0' },
+      'engines': { 'node': '>=6.0' },
       'files': [
         'LICENSE.BSD',
         'README.md',
@@ -2263,7 +2278,7 @@
         'test': 'gulp travis',
         'unit-test': 'gulp test'
       },
-      'version': '1.14.1'
+      'version': '2.0.0'
     };
   });
   require.define('/source-map/source-map.js', function (module, exports, __dirname, __filename) {
@@ -4305,6 +4320,7 @@
         BreakStatement: 'BreakStatement',
         CallExpression: 'CallExpression',
         CatchClause: 'CatchClause',
+        ChainExpression: 'ChainExpression',
         ClassBody: 'ClassBody',
         ClassDeclaration: 'ClassDeclaration',
         ClassExpression: 'ClassExpression',
@@ -4397,6 +4413,7 @@
           'param',
           'body'
         ],
+        ChainExpression: ['expression'],
         ClassBody: ['body'],
         ClassDeclaration: [
           'id',
@@ -4689,6 +4706,14 @@
       function isProperty(nodeType, key) {
         return (nodeType === Syntax.ObjectExpression || nodeType === Syntax.ObjectPattern) && 'properties' === key;
       }
+      function candidateExistsInLeaveList(leavelist, candidate) {
+        for (var i = leavelist.length - 1; i >= 0; --i) {
+          if (leavelist[i].node === candidate) {
+            return true;
+          }
+        }
+        return false;
+      }
       Controller.prototype.traverse = function traverse(root, visitor) {
         var worklist, leavelist, element, node, nodeType, ret, key, current, current2, candidates, candidate, sentinel;
         this.__initialize(root, visitor);
@@ -4740,6 +4765,9 @@
                   if (!candidate[current2]) {
                     continue;
                   }
+                  if (candidateExistsInLeaveList(leavelist, candidate[current2])) {
+                    continue;
+                  }
                   if (isProperty(nodeType, candidates[current])) {
                     element = new Element(candidate[current2], [
                       key,
@@ -4756,6 +4784,9 @@
                   worklist.push(element);
                 }
               } else if (isNode(candidate)) {
+                if (candidateExistsInLeaveList(leavelist, candidate)) {
+                  continue;
+                }
                 worklist.push(new Element(candidate, key, null, null));
               }
             }
@@ -4974,7 +5005,6 @@
         });
         return tree;
       }
-      exports.version = require('/estraverse/package.json', module).version;
       exports.Syntax = Syntax;
       exports.traverse = traverse;
       exports.replace = replace;
@@ -4987,68 +5017,6 @@
       };
       return exports;
     }(exports));
-  });
-  require.define('/estraverse/package.json', function (module, exports, __dirname, __filename) {
-    module.exports = {
-      '_from': 'estraverse@^4.2.0',
-      '_id': 'estraverse@4.3.0',
-      '_inBundle': false,
-      '_integrity': 'sha1-OYrT88WiSUi+dyXoPRGn3ijNvR0=',
-      '_location': '/estraverse',
-      '_phantomChildren': {},
-      '_requested': {
-        'type': 'range',
-        'registry': true,
-        'raw': 'estraverse@^4.2.0',
-        'name': 'estraverse',
-        'escapedName': 'estraverse',
-        'rawSpec': '^4.2.0',
-        'saveSpec': null,
-        'fetchSpec': '^4.2.0'
-      },
-      '_requiredBy': ['/escodegen'],
-      '_resolved': 'https://registry.npm.taobao.org/estraverse/download/estraverse-4.3.0.tgz',
-      '_shasum': '398ad3f3c5a24948be7725e83d11a7de28cdbd1d',
-      '_spec': 'estraverse@^4.2.0',
-      '_where': 'D:\\work\\efront\\node_modules\\escodegen',
-      'bugs': { 'url': 'https://github.com/estools/estraverse/issues' },
-      'bundleDependencies': false,
-      'deprecated': false,
-      'description': 'ECMAScript JS AST traversal functions',
-      'devDependencies': {
-        'babel-preset-env': '^1.6.1',
-        'babel-register': '^6.3.13',
-        'chai': '^2.1.1',
-        'espree': '^1.11.0',
-        'gulp': '^3.8.10',
-        'gulp-bump': '^0.2.2',
-        'gulp-filter': '^2.0.0',
-        'gulp-git': '^1.0.1',
-        'gulp-tag-version': '^1.3.0',
-        'jshint': '^2.5.6',
-        'mocha': '^2.1.0'
-      },
-      'engines': { 'node': '>=4.0' },
-      'homepage': 'https://github.com/estools/estraverse',
-      'license': 'BSD-2-Clause',
-      'main': 'estraverse.js',
-      'maintainers': [{
-          'name': 'Yusuke Suzuki',
-          'email': 'utatane.tea@gmail.com',
-          'url': 'http://github.com/Constellation'
-        }],
-      'name': 'estraverse',
-      'repository': {
-        'type': 'git',
-        'url': 'git+ssh://git@github.com/estools/estraverse.git'
-      },
-      'scripts': {
-        'lint': 'jshint estraverse.js',
-        'test': 'npm run-script lint && npm run-script unit-test',
-        'unit-test': 'mocha --compilers js:babel-register'
-      },
-      'version': '4.3.0'
-    };
   });
   global.escodegen = require('/escodegen/escodegen.js');
 }.call(this, this));module.exports = this.escodegen;
