@@ -1,9 +1,4 @@
-onresize(window, function () {
-    for (var cx = 0, dx = mountedLattices.length; cx < dx; cx++) {
-        mountedLattices[cx].resize();
-    }
-});
-var mountedLattices = [];
+var mountedLattices = resizingList;
 var complete_class = "complete";
 var inadequate_class = "lack";
 function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
@@ -86,6 +81,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     }, 0);
     if (!_box.renders) _box.renders = [];
     _box.renders.unshift(_box.resize);
+    on('resize')(_box, _box.resize);
     return _box;
 }
 function main() {
