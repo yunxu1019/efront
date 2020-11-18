@@ -52,7 +52,7 @@ function rebuild(element) {
     }
 }
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\.(?=[^\d])|\s*\.\s*)+/g;
-var createGetter = function (search, usetry = true) {
+var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
     if (/\?\.(?=[^\d])/.test(searchContext)) {
         searchContext = searchContext.replace(variableReg, function (context) {
@@ -68,10 +68,10 @@ var createGetter = function (search, usetry = true) {
             return dist;
         });
     }
-    if (usetry) {
+    if (isprop) {
         return new Function('event', `try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
     }
-    return new Function("event", `${withContext}with(this.$scope)return ${searchContext}`);
+    return new Function("event", `${withContext}with(this.$scope)${/[;\r\n\u2028\u2029]/.test(searchContext) ? searchContext : /([\=\(])/.test(searchContext) ? "return " + searchContext : `return ${searchContext}(event)`}`);
 };
 var initialComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
