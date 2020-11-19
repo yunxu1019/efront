@@ -49,9 +49,8 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
             width: (1000000 / boxCount | 0) / 10000 + "%",
             maxWidth: fromPixel(maxWidth),
         });
-        if (element.with) {
-            element.with.forEach(build);
-        }
+        if (element.with instanceof Array) element.with.forEach(build);
+        else if (isElement(element.with)) build(element.with);
     };
     var _onappend = function () {
         mountedLattices.push(_box);

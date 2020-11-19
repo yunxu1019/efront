@@ -67,6 +67,7 @@ function insertBefore(alreadyMounted, obj, transition) {
     }
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
+        if (!o) continue;
         if (o.removeTimer) clearTimeout(o.removeTimer);
         _insertBefore.call(parent, o, alreadyMounted);
         o.with && insertBefore(alreadyMounted, o.with, transition);
