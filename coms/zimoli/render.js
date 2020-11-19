@@ -81,6 +81,7 @@ var initialComment = function (renders, type, expression) {
     onremove(comment, removeRenderElement);
     appendChild.after(this, comment);
     if (!/if/i.test(type)) remove(this);
+    this.with = comment;
     rebuild(comment);
     return comment;
 };
@@ -125,12 +126,14 @@ var createRepeat = function (search, id = 0) {
     var { keyName, itemName, indexName, srcName } = res;
     // 懒渲染
     var getter = createGetter([context, srcName]).bind(this);
-    var element = this, clonedElements = [], savedValue;
+    var element = this, clonedElements = [], savedValue, savedOrigin;
     var renders = [function () {
         var result = getter();
-        result = result instanceof Array ? result.slice(0) : extend({}, result);
-        if (deepEqual.shallow(savedValue, result)) return;
+        var origin = result;
+        result = extend(result instanceof Array ? [] : {}, result);
+        if (deepEqual.shallow(savedValue, result) && savedOrigin === origin) return;
         savedValue = result;
+        savedOrigin = origin;
         remove(clonedElements);
         var keys = result instanceof Array ? result.map((_, i) => i) : Object.keys(result);
         if (keys.length > 600) {
