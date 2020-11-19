@@ -30,29 +30,39 @@ var couple = function (marker, source) {
 };
 var MARK_PRE = "<b>";
 var MARK_AFT = "</b>";
-
 var mark = function (source, search) {
-    if (!search) {
-        return source;
+    return power(source, search)[1];
+};
+var power = function (source, search) {
+    if (!search || !source) {
+        return [0, source];
     }
     var matchers = couple(source, search);
     var match_text = matchers[0];
     var match_start2 = matchers[2];
     if (search.length === 1) {
-        return source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, function (match) {
+        var p = 0;
+        var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, function (match) {
+            if (!p) p = 1;
             return "\\" + match;
         }), "g"), MARK_PRE + search + MARK_AFT);
+        return [p, res];
     }
     if (match_text.length > 1) {
         var match_text_pre = source.slice(0, match_start2);
         var match_text_aft = source.slice(match_start2 + match_text.length);
+        var pp = 0, ap = 0;
         if (match_text_pre.length > 1) {
-            match_text_pre = mark(match_text_pre, search);
+            [pp, match_text_pre] = power(match_text_pre, search);
         }
         if (match_text_aft.length > 1) {
-            match_text_aft = mark(match_text_aft, search);
+            [ap, match_text_aft] = power(match_text_aft, search);
         }
-        return match_text_pre + MARK_PRE + match_text + MARK_AFT + match_text_aft;
+        var p = match_text.length;
+        p *= p;
+        return [p + pp + ap, match_text_pre + MARK_PRE + match_text + MARK_AFT + match_text_aft];
     }
-    return source;
+    return [0, source];
 };
+mark.power = power;
+mark.couple = couple;
