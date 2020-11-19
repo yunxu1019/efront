@@ -131,7 +131,7 @@ var createRepeat = function (search, id = 0) {
         var result = getter();
         var origin = result;
         result = extend(result instanceof Array ? [] : {}, result);
-        if (deepEqual.shallow(savedValue, result) && savedOrigin === origin) return;
+        if (savedOrigin === origin && deepEqual.shallow(savedValue, result)) return;
         savedValue = result;
         savedOrigin = origin;
         remove(clonedElements);
@@ -291,43 +291,44 @@ var changed = function () {
 var directives = {
     src(search) {
         var getter = createGetter(search).bind(this);
-        var oldValue, pending;
+        var savedValue, savedOrigin, pending;
         var refresh = function () {
-            that.src = oldValue;
+            that.src = savedValue;
             removeClass(that, "pending");
             pending = 0;
         };
         var img = document.createElement("img");
         var that = this;
         this.renders.push(function () {
-            var value = getter();
-            var temp = value;
-            if (value instanceof Array) {
-                temp = extend([], value);
-            } else if (isObject(value)) {
-                temp = extend({}, value);
-            } else if (isEmpty(value)) {
+            var origin = getter();
+            var temp = origin;
+            if (origin instanceof Array) {
+                temp = extend([], origin);
+            } else if (isObject(origin)) {
+                temp = extend({}, origin);
+            } else if (isEmpty(origin)) {
                 temp = "";
             }
-            if (deepEqual(temp, oldValue)) return;
-            oldValue = temp;
+            if (savedOrigin === origin && deepEqual(temp, savedValue)) return;
+            savedOrigin = origin;
+            savedValue = temp;
             if (/^img$/i.test(this.tagName)) {
                 this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
-                if (!isString(value)) {
+                if (!isString(origin)) {
                     return;
                 }
-                if (value) {
-                    img.src = value;
+                if (origin) {
+                    img.src = origin;
                     if (img.complete) {
-                        this.src = value;
+                        this.src = origin;
                     } else if (!pending) {
                         addClass(this, "pending");
                         pending = setTimeout(refresh);
                     }
                 }
             } else {
-                this.src = value;
-                cast(this, value);
+                this.src = origin;
+                cast(this, origin);
             }
         });
     },
