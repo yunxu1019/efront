@@ -21,6 +21,7 @@ function scan(piece) {
     }
     return res;
 }
+var last_type = '';
 function parse(piece) {
     piece = piece.filter(p => p.trim());
     if (!piece.length) return;
@@ -38,13 +39,39 @@ function parse(piece) {
                     name = name.replace(/^[\-#]+/, '');
                     break;
                 default:
-                    type = "input";
+                    type = last_type;
             }
+        } else {
+            last_type = type;
         }
     }
-    return { name, type, key };
+    var sizematch = /^(\d+|\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
+    if (sizematch) {
+        var [size_text, size, unit] = sizematch;
+        var ratio = 'KMGTPEZY'.indexOf(unit.toUpperCase().charAt(0));
+        size *= Math.pow(1024, ratio + 1);
+        if (ratio >= 0) {
+            unit = unit.slice(1).replace(/^i/, '');
+        }
+        if (unit === 'B') unit = "byte";
+        else if (unit === 'b') unit = 'bit';
+        unit = unit.toLowerCase();
+        var ratio = unit === 'bit' ? .125 : 1;
+        type = type.slice(size_text.length);
+        if (/\=/.test(type)) {
+            var value = type.slice(1, (size * ratio) + 1);
+            type = type.slice(value.length + 1) || 'flag';
+        }
+        if (!type) {
+            type = size + unit;
+        } else {
+            type = type.replace(/[\|\:\-\,]/);
+        }
+    }
+    return { name, type, key, size, unit, ratio, value };
 }
 function refilm(str) {
+    last_type = 'input';
     var result = [];
     var rest = [];
     var reg = /[\r\n\u2028\u2029]+|$/g;
