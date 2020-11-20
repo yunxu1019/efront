@@ -132,15 +132,16 @@ var createRepeat = function (search, id = 0) {
         var origin = result;
         result = extend(result instanceof Array ? [] : {}, result);
         if (savedOrigin === origin && deepEqual.shallow(savedValue, result)) return;
+        var changes = getChanges(result, savedValue);
         savedValue = result;
         savedOrigin = origin;
-        remove(clonedElements);
         var keys = result instanceof Array ? result.map((_, i) => i) : Object.keys(result);
         if (keys.length > 600) {
             throw new Error("数据量过大，取消绘制！");
         }
         var $parentScopes = element.$parentScopes || [];
-        clonedElements = keys.map(function (key, cx) {
+        var clonedElements1 = keys.map(function (key, cx) {
+            if (!changes[cx]) return clonedElements[cx];
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
             clone.renderid = id;
@@ -154,7 +155,17 @@ var createRepeat = function (search, id = 0) {
             clone = renderElement(clone, $scope, clone.$parentScopes);
             return clone;
         }, this);
-        appendChild.before(this, clonedElements);
+        clonedElements1.forEach(function (a, cx) {
+            var c = changes[cx];
+            if (!c) return;
+            if (c && c.previous) {
+                appendChild.replace(clonedElements[cx], a);
+            } else {
+                appendChild.before(this, a);
+            }
+        }, this);
+        remove(clonedElements.filter((_, cx) => changes[cx]));
+        clonedElements = clonedElements1;
     }];
     if (this.parentNode) {
         initialComment.call(this, renders, 'repeat', expression);
@@ -309,7 +320,8 @@ var directives = {
             } else if (isEmpty(origin)) {
                 temp = "";
             }
-            if (savedOrigin === origin && deepEqual(temp, savedValue)) return;
+            var changes = getChanges(temp, savedValue);
+            if (!changes) return;
             savedOrigin = origin;
             savedValue = temp;
             if (/^img$/i.test(this.tagName)) {
