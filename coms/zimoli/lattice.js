@@ -1,9 +1,4 @@
-onresize(window, function () {
-    for (var cx = 0, dx = mountedLattices.length; cx < dx; cx++) {
-        mountedLattices[cx].resize();
-    }
-});
-var mountedLattices = [];
+var mountedLattices = resizingList;
 var complete_class = "complete";
 var inadequate_class = "lack";
 function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
@@ -54,9 +49,8 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
             width: (1000000 / boxCount | 0) / 10000 + "%",
             maxWidth: fromPixel(maxWidth),
         });
-        if (element.with) {
-            element.with.forEach(build);
-        }
+        if (element.with instanceof Array) element.with.forEach(build);
+        else if (isElement(element.with)) build(element.with);
     };
     var _onappend = function () {
         mountedLattices.push(_box);
@@ -86,6 +80,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     }, 0);
     if (!_box.renders) _box.renders = [];
     _box.renders.unshift(_box.resize);
+    on('resize')(_box, _box.resize);
     return _box;
 }
 function main() {

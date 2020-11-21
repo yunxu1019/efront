@@ -8,6 +8,11 @@ var toCloneTarget = function (target, isMovingSource) {
 var appendChild = function (a, b) {
     a.appendChild(b);
 };
+var getOffset = function (e) {
+    if (isFinite(e.offsetLeft)) return [e.offsetLeft, e.offsetTop];
+    if (isFinite(e.screenLeft)) return [e.screenLeft, e.screenTop];
+    if (isFinite(e.screenX)) return [e.screenX, e.screenY];
+};
 function drag(target, initialEvent, preventOverflow, isMovingSource) {
     if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName)) return;
     if (target.dragable === false) return;
@@ -18,46 +23,64 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
     } else {
         var extraTargets = target.with ? [].concat(target.with) : [];
     }
-    var saved_delta = { x: target.offsetLeft - initialEvent.clientX, y: target.offsetTop - initialEvent.clientY };
+
+    var target_offset = getOffset(target);
+    var saved_delta = { x: target_offset[0] - initialEvent.screenX, y: target_offset[1] - initialEvent.screenY };
     var clone;
-    var saved_opacity = target.style.opacity;
-    var saved_filter = target.style.filter;
-    var extraStyles = extraTargets.map(e => ({ opacity: e.style.opacity, filter: e.style.filter }));
+    if (target.style) {
+        var saved_opacity = target.style.opacity;
+        var saved_filter = target.style.filter;
+        var extraStyles = extraTargets.map(e => ({ opacity: e.style.opacity, filter: e.style.filter }));
+    } else if (isFunction(target.resizeTo)) {
+        var saved_width = target.outerWidth;
+        var saved_height = target.outerHeight;
+    }
     var extraClones;
+
     var mousemove = function (event) {
         if (event.moveLocked) return;
         if (/resize/i.test(getComputedStyle(document.body).cursor)) return;
+        event.moveLocked = true;
         if (!saved_delta.ing) {
             var abs = Math.abs;
-            if (abs(target.offsetLeft - event.clientX - saved_delta.x) < MOVELOCK_DELTA && abs(target.offsetTop - event.clientY - saved_delta.y) < MOVELOCK_DELTA) return;
+            var [target_left, target_top] = getOffset(target);
+            if (abs(target_left - event.screenX - saved_delta.x) < MOVELOCK_DELTA && abs(target_top - event.screenY - saved_delta.y) < MOVELOCK_DELTA) return;
             saved_delta.ing = true;
-            if (!/absolute|fixed/.test(getComputedStyle(target).position)) {
+            if (isElement(target) && !/absolute|fixed/.test(getComputedStyle(target).position)) {
                 clone = toCloneTarget(target, isMovingSource);
                 appendChild(document.body, clone);
             } else {
                 clone = target;
                 extraTargets = [];
             }
+            var [clone_left, clone_top] = getOffset(clone);
             extraClones = extraTargets.map(toCloneTarget);
             extraClones.map(c => document.body.appendChild(c));
-            saved_delta.x += clone.offsetLeft - target.offsetLeft;
-            saved_delta.y += clone.offsetTop - target.offsetTop;
-            clone.style.zIndex = zIndex();
-            extraClones.map(e => e.style.zIndex = clone.style.zIndex);
+            saved_delta.x += clone_left - target_left;
+            saved_delta.y += clone_top - target_top;
+            if (clone.style) {
+                clone.style.zIndex = zIndex();
+                extraClones.map(e => e.style.zIndex = clone.style.zIndex);
+            }
             dispatch("dragstart", target);
         }
         drag.target = clone;
-        event.moveLocked = true;
-        var offsetLeft = saved_delta.x + event.clientX;
-        var offsetTop = saved_delta.y + event.clientY;
-        var cloneDeltaLeft = - clone.offsetLeft;
-        var cloneDeltaTop = - clone.offsetTop;
-        move.call(clone, offsetLeft, offsetTop, preventOverflow);
-        cloneDeltaLeft += clone.offsetLeft;
-        cloneDeltaTop += clone.offsetTop;
+        var offsetLeft = saved_delta.x + event.screenX;
+        var offsetTop = saved_delta.y + event.screenY;
+        var [c_left, c_top] = getOffset(clone);
+        var cloneDeltaLeft = -c_left, cloneDeltaTop = -c_top;
+        var [c_left, c_top] = move.call(clone, offsetLeft, offsetTop, preventOverflow);
+        cloneDeltaLeft += c_left;
+        cloneDeltaTop += c_top;
         if (extraClones) extraClones.map(clone => css(clone, `left:${fromOffset(clone.offsetLeft + cloneDeltaLeft)};top:${fromOffset(clone.offsetTop + cloneDeltaTop)};`));
+        if (isFunction(target.resizeTo)) {
+            target.resizeTo(saved_width, saved_height);
+        }
         dispatch("dragmove", target);
     };
+
+
+
     var clear = function () {
         if (clone !== target) remove(clone), css(target, { opacity: saved_opacity, filter: saved_filter });
         remove(extraClones);
@@ -80,7 +103,7 @@ var touchdrag = function (event) {
 };
 var bindActionTarget = function (action, actionTarget) {
     return function (event) {
-        if (getTargetIn(actionTarget, event.target)) {
+        if (getTargetIn(actionTarget, event.target) || !isElement(actionTarget)) {
             action.call(actionTarget, event);
         }
     };

@@ -446,15 +446,15 @@ var privates = {
         else spliterIndex = method.length;
         var coinmethod = method.slice(0, spliterIndex).toLowerCase();
         var realmethod = coinmethod.replace(/\W+$/g, '');
-        var uri = url.replace(/#[\s\S]*$/, "");
-        if (isObject(params)) params = extend(params instanceof Array ? [] : {}, params);
-        if (/\?/.test(uri)) search = uri.replace(/^[\s\S]*?\?/, "");
         var rest = [];
-        var baseuri = uri.replace(/\?[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/gi, function (d) {
+        var uri = url.replace(/#[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/gi, function (d) {
             d = d.slice(1);
             rest.push(d);
             return seekResponse(params, d) || '';
         });
+        if (isObject(params)) params = extend(params instanceof Array ? [] : {}, params);
+        if (/\?/.test(uri)) search = uri.replace(/^[\s\S]*?\?/, "");
+        var baseuri = uri.replace(/\?[\s\S]*$/, "");
         var hasOwnProperty = {}.hasOwnProperty;
         if (search) {
             var searchParams = parseKV(search);

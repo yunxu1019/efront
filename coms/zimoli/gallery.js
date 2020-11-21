@@ -1,9 +1,4 @@
-onresize(window, function () {
-    for (var cx = 0, dx = mountedGalleries.length; cx < dx; cx++) {
-        mountedGalleries[cx].resize();
-    }
-});
-var mountedGalleries = [];
+var mountedGalleries = resizingList;
 var complete_class = "complete";
 var inadequate_class = "lack";
 function bindScroll(elements) {
@@ -107,7 +102,7 @@ function gallery(element, minWidth, generator) {
         this.clean();
         this.go(index || 0);
     });
-
+    on('resize')(element, element.resize);
     return element;
 }
 function main() {

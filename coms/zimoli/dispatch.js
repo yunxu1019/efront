@@ -14,7 +14,7 @@ function main() {
         var arg = arguments[cx];
         if (isString(arg)) {
             event = createEvent(arg);
-        } else if (isNode(arg)) {
+        } else if (isNode(arg) || arg === window || arg === document) {
             target = arg;
         } else {
             event = arg;

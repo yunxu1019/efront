@@ -52,7 +52,7 @@ function rebuild(element) {
     }
 }
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\.(?=[^\d])|\s*\.\s*)+/g;
-var createGetter = function (search, usetry = true) {
+var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
     if (/\?\.(?=[^\d])/.test(searchContext)) {
         searchContext = searchContext.replace(variableReg, function (context) {
@@ -68,10 +68,10 @@ var createGetter = function (search, usetry = true) {
             return dist;
         });
     }
-    if (usetry) {
+    if (isprop) {
         return new Function('event', `try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
     }
-    return new Function("event", `${withContext}with(this.$scope)return ${searchContext}`);
+    return new Function("event", `${withContext}with(this.$scope)${/[;\r\n\u2028\u2029]/.test(searchContext) ? searchContext : /([\=\(])/.test(searchContext) ? "return " + searchContext : `return ${searchContext}(event)`}`);
 };
 var initialComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
@@ -81,6 +81,7 @@ var initialComment = function (renders, type, expression) {
     onremove(comment, removeRenderElement);
     appendChild.after(this, comment);
     if (!/if/i.test(type)) remove(this);
+    this.with = comment;
     rebuild(comment);
     return comment;
 };
@@ -125,19 +126,22 @@ var createRepeat = function (search, id = 0) {
     var { keyName, itemName, indexName, srcName } = res;
     // 懒渲染
     var getter = createGetter([context, srcName]).bind(this);
-    var element = this, clonedElements = [], savedValue;
+    var element = this, clonedElements = [], savedValue, savedOrigin;
     var renders = [function () {
         var result = getter();
-        result = result instanceof Array ? result.slice(0) : extend({}, result);
-        if (deepEqual.shallow(savedValue, result)) return;
+        var origin = result;
+        result = extend(result instanceof Array ? [] : {}, result);
+        if (savedOrigin === origin && deepEqual.shallow(savedValue, result)) return;
+        var changes = getChanges(result, savedValue);
         savedValue = result;
-        remove(clonedElements);
+        savedOrigin = origin;
         var keys = result instanceof Array ? result.map((_, i) => i) : Object.keys(result);
         if (keys.length > 600) {
             throw new Error("数据量过大，取消绘制！");
         }
         var $parentScopes = element.$parentScopes || [];
-        clonedElements = keys.map(function (key, cx) {
+        var clonedElements1 = keys.map(function (key, cx) {
+            if (!changes[cx]) return clonedElements[cx];
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
             clone.renderid = id;
@@ -151,7 +155,17 @@ var createRepeat = function (search, id = 0) {
             clone = renderElement(clone, $scope, clone.$parentScopes);
             return clone;
         }, this);
-        appendChild.before(this, clonedElements);
+        clonedElements1.forEach(function (a, cx) {
+            var c = changes[cx];
+            if (!c) return;
+            if (c && c.previous) {
+                appendChild.replace(clonedElements[cx], a);
+            } else {
+                appendChild.before(this, a);
+            }
+        }, this);
+        remove(clonedElements.filter((_, cx) => changes[cx]));
+        clonedElements = clonedElements1;
     }];
     if (this.parentNode) {
         initialComment.call(this, renders, 'repeat', expression);
@@ -288,43 +302,45 @@ var changed = function () {
 var directives = {
     src(search) {
         var getter = createGetter(search).bind(this);
-        var oldValue, pending;
+        var savedValue, savedOrigin, pending;
         var refresh = function () {
-            that.src = oldValue;
+            that.src = savedValue;
             removeClass(that, "pending");
             pending = 0;
         };
         var img = document.createElement("img");
         var that = this;
         this.renders.push(function () {
-            var value = getter();
-            var temp = value;
-            if (value instanceof Array) {
-                temp = extend([], value);
-            } else if (isObject(value)) {
-                temp = extend({}, value);
-            } else if (isEmpty(value)) {
+            var origin = getter();
+            var temp = origin;
+            if (origin instanceof Array) {
+                temp = extend([], origin);
+            } else if (isObject(origin)) {
+                temp = extend({}, origin);
+            } else if (isEmpty(origin)) {
                 temp = "";
             }
-            if (deepEqual(temp, oldValue)) return;
-            oldValue = temp;
+            var changes = getChanges(temp, savedValue);
+            if (!changes) return;
+            savedOrigin = origin;
+            savedValue = temp;
             if (/^img$/i.test(this.tagName)) {
                 this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
-                if (!isString(value)) {
+                if (!isString(origin)) {
                     return;
                 }
-                if (value) {
-                    img.src = value;
+                if (origin) {
+                    img.src = origin;
                     if (img.complete) {
-                        this.src = value;
+                        this.src = origin;
                     } else if (!pending) {
                         addClass(this, "pending");
                         pending = setTimeout(refresh);
                     }
                 }
             } else {
-                this.src = value;
-                cast(this, value);
+                this.src = origin;
+                cast(this, origin);
             }
         });
     },

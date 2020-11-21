@@ -27,14 +27,25 @@ function getOffsetLeft(x, offsetWidth, innerWidth) {
     return x * (innerWidth - offsetWidth);
 }
 function move(offsetLeft, offsetTop, preventOverflow = true) {
-    var {
-        offsetHeight,
-        offsetWidth
-    } = this;
-    var {
-        clientWidth = innerWidth,
-        clientHeight = innerHeight
-    } = this.offsetParent || {};
+    if (isFinite(this.outerHeight)) {
+        var {
+            outerHeight: offsetHeight,
+            outerhWidth: offsetWidth,
+        } = this;
+        var {
+            availHeight: clientHeight,
+            availWidth: clientWidth
+        } = screen;
+    } else {
+        var {
+            offsetHeight,
+            offsetWidth
+        } = this;
+        var {
+            clientWidth = innerWidth,
+            clientHeight = innerHeight
+        } = this.offsetParent || {};
+    }
     if (preventOverflow !== false) {
         if (offsetLeft + offsetWidth > clientWidth) {
             offsetLeft = clientWidth - offsetWidth;
@@ -49,11 +60,16 @@ function move(offsetLeft, offsetTop, preventOverflow = true) {
             offsetTop = 0;
         }
     }
-    var marginLeft = getMarginLeft(offsetLeft, offsetWidth, clientWidth);
-    var marginTop = getMarginLeft(offsetTop, offsetHeight, clientHeight);
-    var left = offsetLeft - marginLeft;
-    var top = offsetTop - marginTop;
-    css(this, `left:${left * 100 / clientWidth}%;top:${top * 100 / clientHeight}%;margin-left:${fromOffset(marginLeft)};margin-top:${fromOffset(marginTop)}`);
+    if (isFunction(this.moveTo) && !this.style) {
+        this.moveTo(offsetLeft, offsetTop);
+    } else {
+        var marginLeft = getMarginLeft(offsetLeft, offsetWidth, clientWidth);
+        var marginTop = getMarginLeft(offsetTop, offsetHeight, clientHeight);
+        var left = offsetLeft - marginLeft;
+        var top = offsetTop - marginTop;
+        css(this, `left:${left * 100 / clientWidth}%;top:${top * 100 / clientHeight}%;margin-left:${fromOffset(marginLeft)};margin-top:${fromOffset(marginTop)}`);
+    }
+    return [offsetLeft, offsetTop];
 }
 move.getPosition = function (target) {
     var {
