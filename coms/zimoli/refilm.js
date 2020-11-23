@@ -1,5 +1,5 @@
 
-function scan(piece) {
+function scanBlock(piece) {
     if (!piece) return [];
     var reg = /\\[\s\S]|^\s*[#\-]\s*|\s+|"|'/mg;
     var res = [];
@@ -21,11 +21,37 @@ function scan(piece) {
     }
     return res;
 }
+
+function scanSlant(str, s, lastIndex = 0, end = str.length) {
+    s = s.replace(/[\/]/g, '\\$&');
+    var reg = new RegExp(`${/\\[\s\S]/.source}|${s}`, 'g');
+    var reg1 = new RegExp(`^${s}$`);
+    var res = [];
+    var start = lastIndex;
+    while (lastIndex < end) {
+        reg.lastIndex = lastIndex;
+        var match = reg.exec(str);
+        if (!match) {
+            break;
+        }
+        lastIndex = match.index + match[0].length;
+        if (!reg1.test(match[0])) {
+            continue;
+        }
+        res.push(str.slice(start, match.index).replace(/\\\//g, '/'));
+        start = lastIndex;
+    }
+    if (start < end) {
+        res.push(str.slice(start, end).replace(/\\\//g, '/'));
+    }
+    return res;
+}
+
 var last_type = '';
 function parse(piece) {
     piece = piece.filter(p => p.trim());
     if (!piece.length) return;
-    var [name, type, key] = piece;
+    var [name, type, options] = piece, key;
     if (piece.length === 1) {
         if (name instanceof Object) return name;
     }
@@ -44,6 +70,7 @@ function parse(piece) {
         } else {
             last_type = type;
         }
+        [name, key] = scanSlant(name, '/');
     }
     var sizematch = /^(\d+|\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
     if (sizematch) {
@@ -68,9 +95,11 @@ function parse(piece) {
             type = type.replace(/[\|\:\-\,]/);
         }
     }
-    return { name, type, key, size, unit, ratio, value };
+    return { name, type, key, size, unit, ratio, value, options };
 }
+
 function refilm(str) {
+    if (str.raw) str = str.raw;
     last_type = 'input';
     var result = [];
     var rest = [];
@@ -83,7 +112,7 @@ function refilm(str) {
             var m = reg.exec(s);
             if (!m) break;
             var piece = s.slice(lastIndex, m.index);
-            piece = scan(piece);
+            piece = scanBlock(piece);
             if (m[0].length || cx + 1 === dx) {
                 result.push(rest.concat(piece));
                 rest.splice(0, rest.length);

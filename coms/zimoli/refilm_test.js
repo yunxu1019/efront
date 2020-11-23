@@ -56,7 +56,9 @@ var scope = {
     index: 0,
 };
 function test_file_parse() {
-    var flac = refilm`flac 4B=fLaC
+    var flac = refilm`
+    f/flac 4B=fLaC
+    faa/\/\/flac 4B=fLaC
     meta 34`;
     console.log(flac);
 }
