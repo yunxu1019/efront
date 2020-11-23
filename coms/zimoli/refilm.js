@@ -46,6 +46,34 @@ function scanSlant(str, s, lastIndex = 0, end = str.length) {
     }
     return res;
 }
+var createOption = function (o) {
+    return {
+        name: o,
+        toString() {
+            return this.name;
+        }
+    };
+};
+function unfoldOptions(size, options) {
+    size = Math.pow(2, size);
+    for (var cx = 0, dx = options.length; cx < dx; cx++) {
+        var o = options[cx];
+        if (/^\.\.\.|\.\.\.$/.test(o)) {
+            o = o.replace(/^\.\.\.|\.\.\.$/g, '');
+            o = createOption(o);
+            options.splice(cx, 1);
+            var deltaLength = size - options.length;
+            new Array(deltaLength).fill(o).forEach(a => {
+                options.splice(cx, 0, a);
+            });
+            cx += deltaLength - 1;
+            dx = options.length;
+        } else {
+            options[cx] = createOption(o);
+        }
+    }
+    return options;
+}
 
 var last_type = '';
 function parse(piece) {
@@ -94,6 +122,12 @@ function parse(piece) {
         } else {
             type = type.replace(/[\|\:\-\,]/);
         }
+    }
+    if (typeof options === "string") {
+        var needUnfold = /^\[|\]$/.test(options);
+        options = options.replace(/^\[|\]$/g, '');
+        options = scanSlant(options, ',');
+        if (needUnfold) unfoldOptions(size, options);
     }
     return { name, type, key, size, unit, ratio, value, options };
 }

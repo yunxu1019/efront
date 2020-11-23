@@ -58,8 +58,11 @@ var scope = {
 function test_file_parse() {
     var flac = refilm`
     f/flac 4B=fLaC
-    faa/\/\/flac 4B=fLaC
-    meta 34`;
+    [meta]{
+      isend 1bit
+      meta 7bit [streaminfo,padding,application,seektable,vorbis_commen,cuesheet,picture,...reserved,无效]
+    }`;
+
     console.log(flac);
 }
 function main() {
