@@ -3,5 +3,6 @@
     "[bat]": {
         "files.encoding": "gb18030"
     },
-    "editor.acceptSuggestionOnCommitCharacter": false
+    "editor.acceptSuggestionOnCommitCharacter": false,
+    "vetur.format.options.tabSize": 4
 }
