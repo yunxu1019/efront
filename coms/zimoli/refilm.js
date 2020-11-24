@@ -107,7 +107,7 @@ function parse(piece) {
                 last_type = type;
             }
         }
-        [name, key] = scanSlant(name, '/');
+        [name, key = name] = scanSlant(name, '/');
     }
     var sizematch = /^(\d+|\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
     if (sizematch) {
