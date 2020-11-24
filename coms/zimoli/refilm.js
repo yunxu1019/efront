@@ -76,27 +76,36 @@ function unfoldOptions(size, options) {
 }
 
 var last_type = '';
+var piecepath = [];
 function parse(piece) {
     piece = piece.filter(p => p.trim());
+    if (/^\}/.test(piece[0])) {
+        var f = piecepath.pop()
+        last_type = f.last_type;
+        delete f.last_type;
+        return;
+    }
+    var isContainer = /\{$/.test(piece[piece.length - 1]);
     if (!piece.length) return;
     var [name, type, options] = piece, key;
     if (piece.length === 1) {
         if (name instanceof Object) return name;
     }
     if (typeof name === 'string') {
-        name = name.trim();
-        if (!type) {
-            switch (name.charAt(0)) {
-                case "#":
-                case "-":
-                    type = "title";
-                    name = name.replace(/^[\-#]+/, '');
-                    break;
-                default:
-                    type = last_type;
+        if (!isContainer) {
+            if (!type) {
+                switch (name.charAt(0)) {
+                    case "#":
+                    case "-":
+                        type = "title";
+                        name = name.replace(/^[\-#]+/, '');
+                        break;
+                    default:
+                        type = last_type;
+                }
+            } else {
+                last_type = type;
             }
-        } else {
-            last_type = type;
         }
         [name, key] = scanSlant(name, '/');
     }
@@ -129,7 +138,23 @@ function parse(piece) {
         options = scanSlant(options, ',');
         if (needUnfold) unfoldOptions(size, options);
     }
-    return { name, type, key, size, unit, ratio, value, options };
+    var field = { name, type, key, size, unit, ratio, value, options };
+    var parent = piecepath[piecepath.length - 1];
+    if (parent) {
+        field.parent = parent;
+        if (!parent.fields) parent.fields = [];
+        parent.fields.push(field);
+    }
+    if (isContainer) {
+        field.last_type = last_type;
+        piecepath.push(field);
+    }
+    for (var k in field) {
+        if (field[k] === undefined) {
+            delete field[k];
+        }
+    }
+    return field;
 }
 
 function refilm(str) {
@@ -160,5 +185,7 @@ function refilm(str) {
         }
         rest.push(arguments[cx + 1]);
     }
-    return result.map(parse).filter(a => !!a);
+    var fields = result.map(parse).filter(a => !!a && !a.parent);
+    piecepath.splice(0, piecepath.length);
+    return fields;
 }
