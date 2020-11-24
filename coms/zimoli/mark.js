@@ -42,10 +42,10 @@ var power = function (source, search) {
     var match_start2 = matchers[2];
     if (search.length === 1) {
         var p = 0;
-        var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, function (match) {
+        var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, "\\$&"), "g"), () => {
             if (!p) p = 1;
-            return "\\" + match;
-        }), "g"), MARK_PRE + search + MARK_AFT);
+            return MARK_PRE + search + MARK_AFT;
+        });
         return [p, res];
     }
     if (match_text.length > 1) {
