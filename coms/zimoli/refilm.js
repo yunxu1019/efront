@@ -85,9 +85,13 @@ function parse(piece) {
         delete f.last_type;
         return;
     }
-    var isContainer = /\{$/.test(piece[piece.length - 1]);
     if (!piece.length) return;
-    var [name, type, options] = piece, key;
+    var isContainer = /\{$/.test(piece[piece.length - 1]);
+    if (isContainer) {
+        var p = piece[piece.length - 1];
+        piece[piece.length - 1] = p.slice(0, p.length - 1);
+    }
+    var [name, type, options] = piece, key, repeat;
     if (piece.length === 1) {
         if (name instanceof Object) return name;
     }
@@ -107,7 +111,12 @@ function parse(piece) {
                 last_type = type;
             }
         }
-        [name, key = name] = scanSlant(name, '/');
+        if (/^\[[\s\S]*\]$/.test(name)) {
+            repeat = true;
+            name = name.replace(/^\[|\]$/g, '');
+        }
+        [name] = scanSlant(name, '/');
+        if (key === undefined) key = name;
     }
     var sizematch = /^(\d+|\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
     if (sizematch) {
@@ -138,7 +147,7 @@ function parse(piece) {
         options = scanSlant(options, ',');
         if (needUnfold) unfoldOptions(size, options);
     }
-    var field = { name, type, key, size, unit, ratio, value, options };
+    var field = { name, type, key, size, unit, ratio, value, repeat, options };
     var parent = piecepath[piecepath.length - 1];
     if (parent) {
         field.parent = parent;
