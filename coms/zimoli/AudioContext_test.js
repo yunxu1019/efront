@@ -58,5 +58,8 @@ function main() {
     on("append")(page, function () {
         this.querySelector('[hz="440"]').scrollIntoViewIfNeeded();
     });
+    on('contextmenu')(page,function(e){
+        e.preventDefault();
+    });
     return page;
 }
