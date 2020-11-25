@@ -19,7 +19,7 @@ set export_to=module.exports
 set export_as=default
 
 
-git restore %destpath%
+call git reset %destpath%
 call node coms/efront publish %*
 if not exist %resultfile% goto :error2
 if exist %destpath%  del %destpath%
