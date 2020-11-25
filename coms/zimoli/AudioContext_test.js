@@ -24,7 +24,7 @@ function main() {
             oscillator.type = 'sine';
             oscillator.frequency.value = hz;
             gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.01);
+            gainNode.gain.linearRampToValueAtTime(65536 / Math.log2(hz), audioCtx.currentTime + 0.01);
             oscillator.start(audioCtx.currentTime);
             addClass(this, 'pressed');
         },
@@ -58,7 +58,7 @@ function main() {
     on("append")(page, function () {
         this.querySelector('[hz="440"]').scrollIntoViewIfNeeded();
     });
-    on('contextmenu')(page,function(e){
+    on('contextmenu')(page, function (e) {
         e.preventDefault();
     });
     return page;

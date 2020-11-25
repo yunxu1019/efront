@@ -1,4 +1,5 @@
-<div v-for="r in rates" hz:='r[5]'>
+<div v-for="(r,i) in rates" hz:='r[5]'>
+    <span ng-if="i%2===0" v-bind="i/2 -2"></span>
     <button ng-repeat="o in r" _rate=o>
         <span ng-bind="format(o)"></span>
     </button>

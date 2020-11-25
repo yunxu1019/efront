@@ -4,6 +4,20 @@
 }
 
 &>div {
+    >span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        width: 60px;
+        text-align: center;
+        color: green;
+
+        &:before {
+            content: "c";
+        }
+    }
+
     display: inline-block;
     vertical-align: top;
     width: 420px;
