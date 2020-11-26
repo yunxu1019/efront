@@ -190,6 +190,7 @@ var createIf = function (search, id = 0) {
                 renderElement(element);
             }
         } else {
+            delete element.with;
             remove(element);
         }
     }];
