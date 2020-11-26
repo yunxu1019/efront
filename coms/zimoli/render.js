@@ -185,6 +185,7 @@ var createIf = function (search, id = 0) {
         savedValue = result;
         if (result) {
             appendChild.before(this, element);
+            element.with = this;
             if (element.renderid < 0) {
                 element.renderid = id;
                 renderElement(element);
