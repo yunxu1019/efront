@@ -38,6 +38,9 @@ var hover = function () {
 var active = function () {
     __addClass(this, "hover active");
 };
+var checkclick = function () {
+    if (this.hasAttribute("disabled") || this.disabled) onclick.preventClick = true;
+};
 var resetactive = function () {
     removeClass(this, "active");
 };
@@ -49,6 +52,7 @@ var mousedown = function () {
     var cancelmouseup = onmouseup(window, function () {
         cancelmouseup();
         resetactive.call(that);
+        checkclick.call(that);
     });
     active.call(this);
 };
@@ -66,6 +70,7 @@ var touchstart = function () {
         canceltouchcancel();
         canceltouchend();
         resetall.call(that);
+        checkclick.call(that);
     };
     var canceltouchcancel = ontouchcancel(this, cancel);
     var canceltouchend = ontouchend(this, cancel);
