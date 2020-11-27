@@ -516,7 +516,11 @@ put(":empty", function () {
 
 var onback = function () {
     if (rootElements.length) {
+        var onback = checkonback(rootElements.slice(rootElements.length - 1));
         fixurl();
+        if (onback === false) {
+            return;
+        }
         remove(rootElements.pop());
         return;
     }
