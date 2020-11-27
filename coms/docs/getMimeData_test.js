@@ -8,7 +8,7 @@ function getMimeData_test() {
         mimeMappings = [].slice.call(mimeMappings, 0);
         var mimeMap = {};
         mimeMappings.forEach(function (map) {
-            [extension, mimeType] = [].map.call(map.children, a => a.innerText);
+            var [extension, mimeType] = [].map.call(map.children, a => a.innerText);
             if (!mimeMap[mimeType]) {
                 mimeMap[mimeType] = [];
             }
