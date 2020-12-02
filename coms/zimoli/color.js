@@ -90,7 +90,7 @@ function rgb2hsl([r, g, b]) {
 			s = (_max - _min) / (2 - (_max + _min))
 		}
 	}
-	return [h, s, l];
+	return [h || 0, s || 0, l];
 }
 function t2rgb(t, p, q) {
 	if (t < 0) t += 1;
