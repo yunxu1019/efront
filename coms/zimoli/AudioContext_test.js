@@ -2,9 +2,10 @@ function piano() {
     var res = [];
     var yin = [1, 3, 5, 7, 8, 10, 12].reverse();
     var yue = [2, 4, 6, 9, 11].reverse();
+    var c=a => 440 * Math.pow(2, cx + (3 - a) / 12);
     for (var cx = -6, dx = 8; cx < dx; cx++) {
-        var yinjie1 = yin.map(a => 440 * Math.pow(2, cx + (3 - a) / 12));
-        var yinjie2 = yue.map(a => 440 * Math.pow(2, cx + (3 - a) / 12));
+        var yinjie1 = yin.map(c);
+        var yinjie2 = yue.map(c);
         res.push(yinjie1, yinjie2);
     }
     return res;
