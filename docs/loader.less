@@ -1,8 +1,13 @@
 & {
-    height: 1000px;
+    height: 100%;
+    position: absolute;
+    left:0;
+    top:0;
+    right:0;
+    bottom: 0;
 
     >div.left-bar {
-        top: 50px;
+        top: 0;
         bottom: 0;
         height: auto;
         left: 0;
@@ -49,17 +54,18 @@
     }
 
     >.name-area {
+        padding: 10px 20px;
         input {
-            height: 55px;
-            width: 320px;
+            height: 28px;
+            width: 100%;
             display: inline-block;
             line-height: 55px;
-            font-size: 24px;
+            font-size: 18px;
             margin: 0;
         }
 
         position: absolute;
-        top: 50px;
+        bottom: 0;
         height: 50px;
         left: 320px;
         right: 0;
@@ -72,14 +78,13 @@
 
     >.main-area {
         width: auto;
-        top: 100px;
-        background-color: #2cc;
+        top: 0;
+        background-color: #eee;
         left: 320px;
         height: auto;
         position: absolute;
         right: 0;
-        bottom: 0;
+        bottom: 50px;
     }
-
-    padding-top: 50px;
+    // padding-top: 50px;
 }
