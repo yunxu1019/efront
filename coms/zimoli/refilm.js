@@ -158,7 +158,7 @@ function parse(piece) {
         if (!type) {
             type = size + unit;
         } else {
-            type = type.replace(/[\|\:\-\,]/);
+            type = type.replace(/^[\|\:\-\,\/]/, '');
         }
     }
     if (typeof options === "string") {
@@ -230,6 +230,12 @@ var proto = {
                 }
                 return;
             }
+            if (/^\-/.test(type)) {
+                var rest_size = map[type.slice(1)];
+
+                console.log(type, name, field, rest_size);
+                return;
+            }
             var byteIndex = index | 0;
             var bitIndex = (index - byteIndex) * 8;
             var offset = index + size * ratio;
@@ -255,6 +261,18 @@ var proto = {
             }
 
             var value = bytes;
+            if (/^n|^i|^f/i.test(field.type)) {
+                value = numberFromBuffer(value, 0, field.size * field.ratio * 8);
+            }
+            else if (/^b/i.test(field.type)) {
+                value = !!numberFromBuffer(value, 0, field.size * field.ratio * 8);
+            }
+            else if (/^r/i.test(field.type)) {
+                value = 1 + numberFromBuffer(value, 0, field.size * field.ratio * 8);
+            }
+            else if (/^s/i.test(field.type)) {
+                value = String(value);
+            }
             if (field.fields) {
                 var saved_map = map;
                 map = {};

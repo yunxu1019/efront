@@ -57,23 +57,24 @@ var scope = {
 };
 var console = window.console;
 function test_file_parse() {
+  // https://blog.csdn.net/yu_yuan_1314/article/details/9491763
   var flac = refilm`
-    f/flac 4B=fLaC
+    f/flac 4B=fLaC/str
     [meta,isend=1]{
-      isend 1bit
+      isend 1bit/bool
       type 7bit [
         streaminfo{
-          minblocksize 16bit
-          maxblocksize 16bit
-          minframesize 24bit
-          maxframesize 24bit
-          采样率/rate 20bit
-          声道数/channels 3bit
-          采样位数  5bit
-          单声道采样数 36bit
+          minblocksize 16bit/int
+          maxblocksize 16bit/int
+          minframesize 24bit/int
+          maxframesize 24bit/int
+          采样率/rate 20bit/int
+          声道数/channels 3bit/raise
+          采样位数  5bit/raise
+          单声道采样数 36bit/int
           原始信号签名/md5 128bit
         }
-        padding -1bit
+        padding 1bit
         application {
           id 32bit
           data -1bit
@@ -85,7 +86,7 @@ function test_file_parse() {
         ...reserved
         无效
       ]
-      block_size 24bit
+      block_size 24bit/int
       / .type
       / -block_size
     }`;
