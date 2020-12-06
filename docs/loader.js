@@ -1,12 +1,20 @@
 "use strict";
 // var document=this.document;
 // document["body"].appendChild(this.document.createElement("input"));
-titlebar("组件加载工具", false, false);
+if (window.require) {
+    var c = button('×');
+    c.onclick = window.close.bind(window);
+    var topbar = titlebar("组件加载工具", [c], false);
+    drag.on(topbar, window);
+}
 var leftArea = tree();
 addClass(leftArea, "left-bar");
 var mainArea = createWithClass(vbox, "main-area");
 var nameArea = createWithClass(div, "name-area");
 var page = createElement(div);
+if (topbar) {
+    css(page, 'border-top:50px solid transparent')
+}
 /**
  * commNameInput
  */
@@ -56,7 +64,6 @@ var build = function () {
     try {
         var logpad = document.createElement("logpad");
         remove(mainArea.children);
-        appendChild(mainArea.innerHTML);
         execute(commNameInput.value, function (comm, logs) {
             remove(mainArea.children);
             if (comm === undefined && !logs.length) {
