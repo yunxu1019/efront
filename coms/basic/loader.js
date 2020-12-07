@@ -100,7 +100,6 @@ var readFile = function (names, then) {
         then();
         return;
     }
-    console.log(name, key, loadingTree[key])
     if (loadingTree[key] instanceof Array) {
         loadingTree[key].push(then);
         return;
@@ -251,7 +250,6 @@ var loadModule = function (name, then, prebuilds = {}) {
             }
             if (error) {
                 loadedModules[key].error = error;
-                console.log(error, 'error')
                 flushTree(loadedModules, key);
                 return;
             }
