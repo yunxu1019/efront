@@ -49,7 +49,7 @@ var request = window.request || function (url, onload, onerror) {
             if (status === 0 || status === 200 || status === 304) {
                 if (onload instanceof Function) onload(xhr.responseText);
             } else {
-                if (onerror instanceof Function) onerror(xhr.responseText);
+                if (onerror instanceof Function) onerror(new Error(xhr.responseText));
             }
         }
     };
@@ -59,28 +59,33 @@ var loadingTree = {};
 var responseTree = {};
 var versionTree = {};
 
-var keyprefix = ":";
+var keyprefix = "";
 var flushTree = function (tree, key, res) {
     var response = tree[key];
-    delete tree[key];
-    if (res) tree[key] = res;
+    if (!response.error) {
+        delete tree[key];
+        if (res) tree[key] = res;
+    }
     if (response instanceof Array) {
         for (var cx = 0, dx = response.length; cx < dx; cx++) {
             var call = response[cx];
             if (call instanceof Function) {
-                call();
+                call(response.error);
             }
         }
     }
 };
 var readingCount = 0;
-var readFile = function (names, then, saveas) {
+var readFile = function (names, then) {
     if (names instanceof Array) {
         names = names.slice(0);
-        var loaded = 0;
-        var callback = function () {
+        var loaded = 0, errored = 0;
+        var callback = function (e) {
+            if (e) {
+                errored++;
+            }
             if (++loaded === names.length) {
-                then();
+                then(errored);
             }
         };
         if (!names.length) return then();
@@ -92,9 +97,10 @@ var readFile = function (names, then, saveas) {
     var name = names;
     var key = keyprefix + name;
     if (hasOwnProperty.call(responseTree, name)) {
-        then(responseTree[name]);
+        then();
         return;
     }
+    console.log(name, key, loadingTree[key])
     if (loadingTree[key] instanceof Array) {
         loadingTree[key].push(then);
         return;
@@ -127,6 +133,9 @@ var readFile = function (names, then, saveas) {
         if (readingCount === 0) {
             killCircle();
         }
+    }, function (e) {
+        loadingTree[key].error = e;
+        loadingTree[key].forEach(a => a(1));
     });
 
 };
@@ -233,11 +242,17 @@ var loadModule = function (name, then, prebuilds = {}) {
     }
     else {
 
-        var saveModule = function () {
+        var saveModule = function (error) {
             var data = responseTree[name];
             if (typeof data === "function") {
                 var mod = data;
                 flushTree(loadedModules, key, mod);
+                return;
+            }
+            if (error) {
+                loadedModules[key].error = error;
+                console.log(error, 'error')
+                flushTree(loadedModules, key);
                 return;
             }
             var [argNames, body, args, required, strs] = getArgs(data);
@@ -257,10 +272,17 @@ var loadModule = function (name, then, prebuilds = {}) {
             mod.required = required;
             mod.file = name;
             args = args.concat(required);
+            var errored = 0;
             // console.log(args);
-            var response = function () {
+            var response = function (error) {
                 loadingCount++;
+                if (error) {
+                    errored += error;
+                }
                 if (loadingCount === args.length) {
+                    if (errored) {
+                        loadedModules[key].error = errored;
+                    }
                     flushTree(loadedModules, key, mod);
                 }
             };
@@ -457,11 +479,12 @@ var init = function (name, then, prebuilds) {
         then(modules[name] = window[name]);
         return;
     }
-    loadModule(name, function () {
+    loadModule(name, function (error) {
         if (hasOwnProperty.call(modules, name)) {
             then(modules[name]);
             return;
         }
+        if (error) return;
         var module = loadedModules[key];
         var args = module.args || [];
 
@@ -716,6 +739,7 @@ var modules = {
     versionTree,
     responseTree,
     loadingTree,
+    loadedModules,
     load: loadModule,
     devicePixelRatio,
     renderPixelRatio,

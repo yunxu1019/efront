@@ -60,7 +60,45 @@ onactive(leftArea, function (event) {
 
 window.modules = modules;
 var baseUrl = "";
+var loadings_length = 0, loaded_length = 0;
+var refresh = function () {
+    var loadings = Object.keys(loadingTree);
+    var progress = nameArea.children[0];
+    if (!loadings.length) {
+        removeClass(progress, 'error');
+        css(progress, "width:100%");
+        return;
+    }
+    var responsed = Object.keys(responseTree);
+    if (loadings_length !== loadings.length || response_length !== responsed.length) {
+        loadings_length = loadings.length;
+        var response_length = responsed.length - loaded_length;
+        css(progress, {
+            width: (100 * response_length / (response_length + loadings_length)).toFixed(4) + "%"
+        });
+    }
+    if (loadings.map(k => !!loadingTree[k].error).indexOf(true) >= 0) {
+        addClass(progress, 'error');
+    } else {
+        removeClass(progress, 'error');
+        requestAnimationFrame(refresh);
+    }
+}
+
+var clean = function (tree) {
+    Object.keys(tree).forEach(key => {
+        if (tree[key].error) {
+            delete tree[key];
+        }
+    })
+};
+
 var build = function () {
+    clean(loadingTree);
+    clean(responseTree);
+    clean(loadedModules);
+    loaded_length = Object.keys(responseTree).length - 1;
+    setTimeout(refresh, 20);
     try {
         var logpad = document.createElement("logpad");
         remove(mainArea.children);
@@ -80,6 +118,7 @@ var build = function () {
         console.error(e);
     }
 };
+nameArea.innerHTML = '<div class="progress"></div>';
 appendChild(nameArea, commNameInput);
 appendChild(page, leftArea, nameArea, mainArea);
 function main() {
