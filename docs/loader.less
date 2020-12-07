@@ -62,6 +62,7 @@
             line-height: 55px;
             font-size: 18px;
             margin: 0;
+            position: relative;
         }
 
         position: absolute;
@@ -71,8 +72,19 @@
         right: 0;
 
         >div {
-            display: inline-block;
-            vertical-align: top;
+            position: absolute;
+            left:0;
+            top:0;
+            bottom: 0;
+            background: #359;
+            &.error{
+                background: #824;
+                transition: background-color .3s;
+            }
+            &.loaded{
+                transition: background-color .3s;
+                background: #392;
+            }
         }
     }
 

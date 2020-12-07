@@ -11,18 +11,17 @@ var execute = function (commName, then, logpad) {
         logs.push([color, type, text, ...extra]);
         if (logpad) logpad.innerHTML = logs.slice(logs.length > 10 ? logs.length - 10 : 0).map(msg => {
             var [color, type] = msg;
-            return `<div style="color:${color}">${type} ${
-                msg.map(m => {
-                    if (m instanceof Object) {
-                        try {
-                            m = JSON.stringify(m, null, ' ').replace(/[\r\n]+/g, '<br/>').replace(/\s/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-                        } catch (e) {
-                            return String(m);
-                        }
+            return `<div style="color:${color}">${type} ${msg.map(m => {
+                if (m instanceof Object) {
+                    try {
+                        m = JSON.stringify(m, null, ' ').replace(/[\r\n]+/g, '<br/>').replace(/\s/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+                    } catch (e) {
+                        return String(m);
                     }
-                    return String(m);
                 }
-                ).join(' ')
+                return String(m);
+            }
+            ).join(' ')
                 }</div>`
         }).join("");
     };

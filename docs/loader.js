@@ -50,8 +50,9 @@ onactive(leftArea, function (event) {
     state({
         scroll: leftArea.index(),
         value: commNameInput.value
-    })
-    build();
+    });
+    removeClass(progress, 'loaded');
+    setTimeout(build, 0);
 });
 /**
  * clearCacheResponse
@@ -63,7 +64,6 @@ var baseUrl = "";
 var loadings_length = 0, loaded_length = 0;
 var refresh = function () {
     var loadings = Object.keys(loadingTree);
-    var progress = nameArea.children[0];
     if (!loadings.length) {
         removeClass(progress, 'error');
         css(progress, "width:100%");
@@ -81,7 +81,7 @@ var refresh = function () {
         addClass(progress, 'error');
     } else {
         removeClass(progress, 'error');
-        requestAnimationFrame(refresh);
+        setTimeout(refresh, 20);
     }
 }
 
@@ -113,12 +113,15 @@ var build = function () {
             }
             else mainArea.innerHTML = `<div>${JSON.stringify(comm)}</div>`
             appendChild(mainArea, logpad);
+            addClass(progress, 'loaded');
+
         }, logpad);
     } catch (e) {
         console.error(e);
     }
 };
 nameArea.innerHTML = '<div class="progress"></div>';
+var progress = nameArea.children[0];
 appendChild(nameArea, commNameInput);
 appendChild(page, leftArea, nameArea, mainArea);
 function main() {
