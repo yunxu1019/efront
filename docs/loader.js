@@ -2,7 +2,7 @@
 // var document=this.document;
 // document["body"].appendChild(this.document.createElement("input"));
 if (window.require) {
-    var c = button('×');
+    var c = button('×', 'close');
     c.onclick = window.close.bind(window);
     var topbar = titlebar("组件加载工具", [c], false);
     drag.on(topbar, window);
@@ -51,7 +51,6 @@ onactive(leftArea, function (event) {
         scroll: leftArea.index(),
         value: commNameInput.value
     });
-    removeClass(progress, 'loaded');
     setTimeout(build, 0);
 });
 /**
@@ -94,6 +93,7 @@ var clean = function (tree) {
 };
 
 var build = function () {
+    removeClass(progress, 'loaded');
     clean(loadingTree);
     clean(responseTree);
     clean(loadedModules);
