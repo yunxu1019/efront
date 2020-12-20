@@ -1,5 +1,5 @@
 function getChanges(current_props, previous_props) {
-    if (!isObject(current_props) && !isObject(previous_props)) return deepEqual.shallow(current_props, previous_props);
+    if (!isObject(current_props) && !isObject(previous_props)) return !deepEqual.shallow(current_props, previous_props);
     if (!isObject(current_props)) current_props = Object.create(null);
     if (!isObject(previous_props)) previous_props = Object.create(null);
     var changes = null;
