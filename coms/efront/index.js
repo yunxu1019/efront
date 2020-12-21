@@ -168,7 +168,7 @@ var helps = [
     "关闭efront服务器,kill HTTP_PORT|HTTPS_PORT,close HTTP_PORT|HTTPS_PORT",
     "连接一台efront服务器，取得连接号,link ADDRESS",
     "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
-    "向一个连接号显示此连接号所收的消息,cast ADDRESST LINKID MESSAGE",
+    "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
 ];
 var commands = {
     version() {

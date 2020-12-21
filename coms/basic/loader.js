@@ -398,13 +398,17 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
             return exports;
         }
         if (/^(?:window|global|undefined)$/.test(argName)) return window[argName];
-        if (argName === "require") return function (refer) {
-            if (refer.length) return window.require(refer);
-            var mod = required[refer];
-            if ("created" in mod) return mod.created;
-            var c = mod.created = createModule(mod, mod.args || [], mod.argNames, prebuilds);
-            return c;
-        };
+        if (argName === "require") {
+            let r = function (refer) {
+                if (refer.length) return window.require(refer);
+                var mod = required[refer];
+                if ("created" in mod) return mod.created;
+                var c = mod.created = createModule(mod, mod.args || [], mod.argNames, prebuilds);
+                return c;
+            };
+            r.resolve = window.require && window.require.resolve;
+            return r;
+        }
         var filename = location.pathname + exec.file.replace(/([\s\S])[\$]/g, '$1/').replace(/\\/g, '/');
         if (argName === "__dirname") {
             return filename.replace(/[^\/]+$/, '');
