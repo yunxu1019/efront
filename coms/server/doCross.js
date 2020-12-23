@@ -29,29 +29,36 @@ if (options.record_path) {
     loadCertFile("cert", "cross-cert.pem");
 }();
 function parseUrl(hostpath, real) {
-    var { pathname, search } = URL.parse(hostpath);
-    var slice_end = pathname.indexOf("@");
-    if (slice_end < 0) slice_end = pathname.length;
-    var jsonlike = pathname.slice(1, slice_end);
-    var realpath = real ? real.slice(1) : pathname.slice(slice_end + 1) + (search || "");
-    var matchlike = /^(?:\{|%7b)(s?)(\/|%2f)\2(.*?)\2(.*?)(?:\}|%7d)$/i.exec(jsonlike);
-    if (matchlike) {
-        // {s//wx2.qq.com/k=v,k=v,k=v}
+    var { pathname, search, hostname, protocol, port } = URL.parse(hostpath);
+    if (/^https?\:\/\//i.test(hostpath)) {
         var headers = {};
-        let [, s, , host, header] = matchlike;
-        var hostpath = `http${s}://${host}/`;
-        header.split(/[,&]/).forEach(function (kv) {
-            var [k, v] = kv.split("=");
-            if (k && v) try {
-                headers[decodeURIComponent(k)] = decodeURIComponent(v);
-            } catch (e) {
-                headers[unescape(k)] = unescape(v);
-            }
-        });
+        var realpath = pathname.slice(1);
+        hostpath = `${protocol}//${hostname}${port ? ':' + port : ''}/`;
     } else {
-        var { url: hostpath, token, headers = {} } = JSON.parse(decodeURIComponent(jsonlike));
-        if (!token) throw new Error("验证身份失败！");
-        hostpath = escape(hostpath);
+
+        var slice_end = pathname.indexOf("@");
+        if (slice_end < 0) slice_end = pathname.length;
+        var realpath = real ? real.slice(1) : pathname.slice(slice_end + 1) + (search || "");
+        var jsonlike = pathname.slice(1, slice_end);
+        var matchlike = /^(?:\{|%7b)(s?)(\/|%2f)\2(.*?)\2(.*?)(?:\}|%7d)$/i.exec(jsonlike);
+        if (matchlike) {
+            // {s//wx2.qq.com/k=v,k=v,k=v}
+            var headers = {};
+            let [, s, , host, header] = matchlike;
+            var hostpath = `http${s}://${host}/`;
+            header.split(/[,&]/).forEach(function (kv) {
+                var [k, v] = kv.split("=");
+                if (k && v) try {
+                    headers[decodeURIComponent(k)] = decodeURIComponent(v);
+                } catch (e) {
+                    headers[unescape(k)] = unescape(v);
+                }
+            });
+        } else {
+            var { url: hostpath, token, headers = {} } = JSON.parse(decodeURIComponent(jsonlike));
+            if (!token) throw new Error("验证身份失败！");
+            hostpath = escape(hostpath);
+        }
     }
     return { jsonlike, realpath, hostpath, headers };
 }
@@ -82,13 +89,13 @@ function cross(req, res, referer) {
                 });
                 return res.end();
             }
+            var $url = hostpath + realpath;
         } else {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
+            var $url = hostpath + realpath;
         }
-        var
-            $url = hostpath + realpath,
-            // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
-            method = req.method;//$_SERVER['REQUEST_METHOD'];
+        // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
+        var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
         var is_proxy = false;
         if (/^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(_headers.referer) && !headers.referer) {

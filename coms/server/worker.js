@@ -134,6 +134,9 @@ var requestListener = function (req, res) {
         }
         return res.end();
     }
+    if (/^https?\:\/\//i.test(req.url)) {
+        return doCross(req, res);
+    }
     if (/^\/@/i.test(req.url)) {
         return doFile(req, res);
     }
