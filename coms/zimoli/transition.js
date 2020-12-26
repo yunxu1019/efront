@@ -46,6 +46,7 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
         if (!recoverStyle) {
             recoverStyle = {};
         }
+        if (!target.style) return;
         let savedStyle = {};
         {
             let originalStyle = target.style;
