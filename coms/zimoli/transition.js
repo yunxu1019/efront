@@ -68,16 +68,19 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
         } else {
             extend(target.style, initialStyle);
             if (transitionKey) target.style[transitionKey] = "none";
+            var waitPaint = 20;
             transitionTimerStart = setTimeout(function () {
                 delete recoverStyle.transition;
                 if (transitionKey) target.style[transitionKey] = initialStyle.transition;
-                extend(target.style, recoverStyle);
+                target.transitionTimerStart = setTimeout(function () {
+                    extend(target.style, recoverStyle);
+                }, waitPaint);
             });
             transitionTimerEnd = setTimeout(function (transition) {
                 return function () {
                     if (transitionKey) target.style[transitionKey] = transition;
                 };
-            }(recoverStyle.transition || ''), transitionDuration);
+            }(recoverStyle.transition || ''), transitionDuration + waitPaint);
         }
         target.transitionTimerStart = transitionTimerStart;
         target.transitionTimerEnd = transitionTimerEnd;
