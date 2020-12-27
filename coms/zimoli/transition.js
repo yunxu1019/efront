@@ -20,6 +20,14 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
         _initialStyle = isLeave;
         isLeave = arguments[2];
     }
+    if (target instanceof Array) {
+        target.forEach(function (target) {
+            transition(target, isLeave, _initialStyle);
+        });
+        return;
+    }
+    if (!target.style) return;
+
     var initialStyle = _initialStyle || target.initialStyle;
     var { recoverStyle, transitionTimerStart, transitionTimerEnd } = target;
     clearTimeout(transitionTimerStart);
@@ -27,11 +35,7 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
     if (isString(initialStyle)) {
         initialStyle = parseKV(initialStyle, ";", ":");
     }
-    if (target instanceof Array) {
-        target.map(function (target) {
-            transition(target, isLeave, _initialStyle);
-        });
-    } else if (isObject(initialStyle)) {
+    if (isObject(initialStyle)) {
         let transitionDuration = 100;
         if (!initialStyle.transition) {
             initialStyle.transition = "all .3s ease";
@@ -46,7 +50,6 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
         if (!recoverStyle) {
             recoverStyle = {};
         }
-        if (!target.style) return;
         let savedStyle = {};
         {
             let originalStyle = target.style;
