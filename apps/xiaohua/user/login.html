@@ -17,9 +17,9 @@
     </div>
     <div class="btn-groups">
         <button ng-click="settings.data=settings.edit,settings.show=false">确定</button>
-        <button ng-click="settings.show=false;">取消</button>
+        <button type=white ng-click="settings.show=false;">取消</button>
     </div>
 </form>
-<button class="setting" ng-if="!settings.show" ng-click='settings.show=!settings.show,settings.edit=settings.data'>
+<button class="setting" ng-click='settings.show=!settings.show,settings.edit=settings.data'>
     <i class="fa fa-gear"></i>
 </button>
