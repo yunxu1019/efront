@@ -92,8 +92,8 @@ function test_file_parse() {
     }`;
 
   console.log(flac);
-  if (!window.require) return;
-  var data = window.require('fs').readFileSync('d:\\音乐\\把悲伤留给自己.flac');
+  if (!window.require) return console.log("请在 electron 中运行");
+  var data = window.require('fs').readFileSync('d:\\data\\简单爱.flac');
   var parsed = flac.parse(data);
   console.log(parsed);
 }
