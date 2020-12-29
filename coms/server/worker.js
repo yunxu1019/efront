@@ -11,7 +11,7 @@ HTTPS_PORT = +HTTPS_PORT || 0;
 var closed = false;
 var reload = require("./liveload");
 var closeListener = function () {
-    if (!(server1 && server1.listening) && !(server2 && server2.listening)) {
+    if (!portedServersList.filter(s => s && s.listening).length) {
         process.removeAllListeners();
         require("../efront/watch").close();
         safeQuitProcess();
@@ -19,14 +19,10 @@ var closeListener = function () {
 };
 var safeQuitProcess = function () {
     closed = true;
-    if (server1) {
-        server1.removeAllListeners();
-        server1.close(closeListener);
-    }
-    if (server2) {
-        server2.removeAllListeners();
-        server2.close(closeListener);
-    }
+    portedServersList.forEach((server) => {
+        server.removeAllListeners();
+        server.close(closeListener);
+    });
     reload.splice(0, reload.length).forEach(res => res.end(''));
     process.removeAllListeners();
     clients.destroy();
@@ -53,6 +49,7 @@ var doGet = require("./doGet");
 var doPost = require("./doPost");
 var doCross = require("./doCross");
 var doFile = require("./doFile");
+var doProxy = require("./doProxy");
 var ppid = process.ppid;
 var version = 'efront/' + ppid;
 var requestListener = function (req, res) {
@@ -77,7 +74,7 @@ var requestListener = function (req, res) {
             else switch (option) {
                 case "quit":
                 case "exit":
-                    let ports = [server1, server2].filter(a => a && a.listening).map(a => a.address().port);
+                    let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
                     process.send('quit');
                     res.end(`已关闭${ports.join("、")}端口`);
                     break efront;
@@ -193,7 +190,7 @@ var checkServerState = function (http, port) {
 
 var showServerInfo = function () {
     var address = require("../efront/getLocalIP")();
-    var port = [server1, server2].map(a => a && a.address());
+    var port = portedServersList.map(a => a && a.address());
     port = port.map(a => a && a.port);
     var msg = [`服务器地址：${address}`, port[0] ? `http端口  ：${port[0]}` : '', port[1] ? `https端口 ：${port[1]}` : ''].map(a => a.toUpperCase());
     var maxLength = Math.max(msg[1].length, msg[2].length);
@@ -206,12 +203,12 @@ var showServerInfo = function () {
     if (msg[1]) checkServerState(http, HTTP_PORT).then(function () {
         console.info(msg[1] + "\t<green>正常访问</green>\r\n");
     }).catch(function (error) {
-        showServerError.call(server1, msg[1] + "\t" + error);
+        showServerError.call(portedServersList[0], msg[1] + "\t" + error);
     });
     if (msg[2]) checkServerState(require("https"), HTTPS_PORT).then(function () {
         console.info(msg[2] + "\t<green>正常访问</green>\r\n");
     }).catch(function (error) {
-        showServerError.call(server2, msg[2] + "\t" + error);
+        showServerError.call(portedServersList[1], msg[2] + "\t" + error);
     });
 };
 var showServerError = function (error) {
@@ -226,16 +223,39 @@ var showServerError = function (error) {
                 break;
         }
     }
-    console.error(error || `${s === server2 ? "https" : "http"}服务器启动失败!`);
+    console.error(error || `${error.port}端口打开失败!`);
     s.close(closeListener);
 };
-// create server
+var portedServersList = [];
+function initServer(port) {
+    var server = this.once("error", showServerError)
+        .once("listening", showServerInfo)
+        .listen(+port);
+    portedServersList.push(server);
+    return server;
+}
+function netOnceDataAdapter(buf) {
+    var socket_type = [0x1603, 0x434f].indexOf((buf[0] << 8) + buf[1]);
+    var socket = this;
+    socket.on('error', function () { })
+    socket.unshift(buf);
+    if (socket_type === 0) {
+        if (server2 === socket.server) server2.emit("connection", socket);
+        else socket.destroy();
+    } else if (socket_type > 0) {
+        doProxy(socket);
+    } else {
+        if (server1) server1.emit("connection", socket);
+        else socket.destroy();
+    }
+}
+function netListener(socket) {
+    socket.once("data", netOnceDataAdapter);
+}
 if (HTTP_PORT) {
-    var server1 = http.createServer(requestListener);
-    server1.once("error", showServerError);
-    server1.once("listening", showServerInfo);
-    server1.setTimeout(0);
-    server1.listen(+HTTP_PORT);
+    var server1 = http.createServer(requestListener).setTimeout(0);
+    var server0 = require("net").createServer(netListener);
+    initServer.call(server0, HTTP_PORT);
 }
 var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
 var httpsOptions = {
@@ -258,8 +278,8 @@ else if (HTTPS_PORT) {
 }
 if (SSL_ENABLED) {
     HTTPS_PORT = +HTTPS_PORT || 443;
-    var server2 = http2.createSecureServer(httpsOptions, requestListener);
-    server2.once("listening", showServerInfo).once("error", showServerError).listen(HTTPS_PORT).setTimeout(0);
+    var server2 = http2.createSecureServer(httpsOptions, requestListener).setTimeout(0);
+    initServer.call(server2, HTTPS_PORT);
 }
 process.on('exit', function (event) {
     if (event instanceof Error) console.error(event);
