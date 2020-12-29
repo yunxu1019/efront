@@ -116,7 +116,7 @@ var regExpressionsTree = {
                                     isReg = lookback[lookback.length - 4].isFunctionDeclaration();
                                     break;
                                 }
-                                isReg = false;
+                                isReg = true;
                                 break;
                             default:
                                 if (back.type === Punctuator) {
@@ -183,27 +183,27 @@ Block.prototype = {
     isLabel() {
         if (this.type !== Identifier) return false;
         if (!this.followWith(":")) return false;
-        if (this.parent && !this.parent.isScope()) return false;
+        if (this.parent && this.parent.type !== ProgramCodeBlock) return false;
         if (!this.prev) return true;
         if (this.prev.type !== Punctuator || this.prev.getSource() !== "?") return true;
         return false;
     },
     isScope() {
-        if (this.isScope_asserted !== undefined) return this.isScope_asserted;
-        if (this.type !== ProgramCodeBlock) return this.isScope_asserted = false;
-        if (!this.startWith("{")) return this.isScope_asserted = false;
-        if (!this.prev) return this.isScope_asserted = true;
+        if (this.scoped !== undefined) return this.scoped;
+        if (this.type !== ProgramCodeBlock) return this.scoped = false;
+        if (!this.startWith("{")) return this.scoped = false;
+        if (!this.prev) return this.scoped = true;
         if (this.prev.type === Punctuator) {
-            if (this.prev.isArraw()) return this.isScope_asserted = true;
+            if (this.prev.isArraw()) return this.scoped = true;
             var prev2 = this.prev.prev;
-            if (!prev2) return this.isScope_asserted = false;
-            if (prev2.isLabel()) return this.isScope_asserted = true;
-            return this.isScope_asserted = false;
+            if (!prev2) return this.scoped = false;
+            if (prev2.isLabel()) return this.scoped = true;
+            return this.scoped = false;
         }
         if (this.prev.type === Keyword) {
-            return this.isScope_asserted = !this.prev.startWith(BeforeFunctionReg);
+            return this.scoped = !this.prev.startWith(BeforeFunctionReg);
         }
-        return this.isScope_asserted = true;
+        return this.scoped = true;
     },
     isBracket() {
         var dataString = this.scanner.source;

@@ -111,6 +111,8 @@ function TestRegularExpression() {
     Assert(`function a(){a:b}/b/g`, { 4: { type: { name: "RegularExpression" } } });
     Assert(`this/b/g`, [{}, { type: { name: "Punctuator" } }, {}, {}, {}]);
     Assert(`case/b/g`, 4, 8);
+    Assert(`a:{}/b/g`, 4, 8);
+    Assert(`{}/b/g`, 2, 6);
     Assert(`break/b/g`, 5, 9);
     Assert(`break a/b/g`, 7, 11);
     Assert(`continue/b/g`, 8, 12);
