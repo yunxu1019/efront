@@ -1,5 +1,5 @@
 var net = require('net');
-var local_port = 80;
+var local_port = 8000;
 
 //在本地创建一个server监听本地local_port端口
 net.createServer(function (client) {

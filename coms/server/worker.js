@@ -54,7 +54,6 @@ var ppid = process.ppid;
 var version = 'efront/' + ppid;
 var requestListener = function (req, res) {
     var req_access_origin = req.headers.origin;
-
     var req_access_headers = req.headers["access-control-request-headers"];
     var req_access_method = req.headers["access-control-request-method"];
     req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
@@ -252,10 +251,18 @@ function netOnceDataAdapter(buf) {
 function netListener(socket) {
     socket.once("data", netOnceDataAdapter);
 }
+var getIntVersion = function (version) {
+    var [a, b, c] = version.split('.');
+    return (+a << 16) + (+b << 8) + +c;
+};
 if (HTTP_PORT) {
     var server1 = http.createServer(requestListener).setTimeout(0);
-    var server0 = require("net").createServer(netListener);
-    initServer.call(server0, HTTP_PORT);
+    if (getIntVersion(process.version) >= getIntVersion('12.19.0')) {
+        var server0 = require("net").createServer(netListener);
+        initServer.call(server0, HTTP_PORT);
+    } else {
+        initServer.call(server1, HTTP_PORT);
+    }
 }
 var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
 var httpsOptions = {
