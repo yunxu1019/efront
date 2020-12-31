@@ -30,7 +30,7 @@ if (options.record_path) {
 }();
 function parseUrl(hostpath, real) {
     var { pathname, search, hostname, protocol, port } = URL.parse(hostpath);
-    if (/^https?\:\/\//i.test(hostpath)) {
+    if (real === undefined && /^https?\:\/\//i.test(hostpath)) {
         var headers = {};
         var realpath = pathname.slice(1);
         hostpath = `${protocol}//${hostname}${port ? ':' + port : ''}/`;
@@ -82,7 +82,7 @@ function cross(req, res, referer) {
     try {
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
-            if (/head|get/i.test(req.method)) {
+            if (/^head|^get/i.test(req.method)) {
                 var redirect = "/" + unescape(jsonlike) + "@" + realpath;
                 res.writeHead(302, {
                     "Location": redirect
@@ -99,7 +99,7 @@ function cross(req, res, referer) {
         var _headers = req.headers;
         var is_proxy = false;
         if (/^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(_headers.referer) && !headers.referer) {
-            headers.referer = hostpath + parseUrl(_headers.referer).realpath;
+            headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
             is_proxy = true;
         } else if (_headers.referer || _headers.origin === 'null') {
             headers.referer = hostpath;
@@ -221,15 +221,26 @@ function cross(req, res, referer) {
         req.on("close", function (e) {
             closed = true;
         });
-        request.setTimeout(36000/*support for wechat long pull*/);
+        request.setTimeout(120000/*support for wechat long pull*/);
         request.on("error", function (e) {
+            var code;
+            switch (e.code) {
+                case "ECONNREFUSED":
+                    code = 502;
+                    break;
+                case "ETIMEDOUT":
+                    code = 504;
+                    break;
+                default:
+                    code = 500;
+            }
             closed = true;
-            res.writeHead(403, {});
+            res.writeHead(code, {});
             res.end(String(e));
         });
         req.pipe(request);
     } catch (e) {
-        res.writeHead(403, {});
+        res.writeHead(500, {});
         res.end(String(e));
     }
 }
