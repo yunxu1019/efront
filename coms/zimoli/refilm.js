@@ -1,4 +1,4 @@
-
+"use ../basic/KMGT.txt"
 function scanBlock(piece) {
     if (!piece) return [];
     var reg = /\\[\s\S]|^\s*[#\-]\s*|\s+|"|'/mg;
@@ -141,7 +141,7 @@ function parse(piece) {
     var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
     if (sizematch) {
         var [size_text, size, unit] = sizematch;
-        var ratio = 'KMGTPEZY'.indexOf(unit.toUpperCase().charAt(0));
+        var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
         size *= Math.pow(1024, ratio + 1);
         if (ratio >= 0) {
             unit = unit.slice(1).replace(/^i/, '');
