@@ -11,60 +11,55 @@ less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
 var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
-    data = String(data);
-    if (!reg.test(data)) return data;
-    var loadurls = {};
-    data.replace(reg, function (match, quote, relative) {
-        loadurls[relative] = true;
-    });
-    return new Promise(function (ok, oh) {
-        var loaddingcount = 0;
-        var accessready = function () {
-            loaddingcount++;
-            if (loaddingcount < loadings.length) return;
-            var dataMap = {};
-            var loaddings = Object.keys(loadurls).map(function (key) {
-                var realpath = loadurls[key];
-                return getFileData(realpath).then(function (data) {
-                    dataMap[key] = data;
-                });
-            });
-            Promise.all(loaddings).then(function () {
-                data = data.replace(reg, function (match, quote, relative) {
-                    var data = dataMap[relative];
-                    var realPath = loadurls[relative];
-                    if (data instanceof Buffer) {
-                        return replacer(data, realPath);
-                    }
-                    if (/^\s*(['"`])use\s+strict\1\s*;?\s*$/.test(match)) return match;
-                    console.warn(`没有处理${match}`, fullpath);
-                    return match;
-                });
-
-                ok(data);
-            });
-        };
-        var loadings = Object.keys(loadurls).map(function (relative) {
-            var realPath = path.join(path.dirname(fullpath), relative);
-            fs.access(realPath, function (err) {
-                if (!err) {
-                    loadurls[relative] = realPath;
-                    accessready();
-                    return;
-                }
-                realPath = path.join(__dirname, "..", relative);
-                fs.access(realPath, function (err) {
-                    if (!err) {
-                        loadurls[relative] = realPath;
-                    } else {
-                        delete loadurls[relative];
-                    }
-                    accessready();
-                });
-            });
+    var run = function (data, fullpath) {
+        data = String(data);
+        var loadurls = [];
+        var skipreg = /^\s*(['"`])use\s+strict\1\s*;?\s*$/;
+        data.replace(reg, function (match, quote, relative) {
+            if (skipreg.test(match)) return match;
+            loadurls.push(relative);
         });
-    });
+        if (!loadurls.length) return data;
+        return new Promise(function (ok, oh) {
+            var pathmap = {};
+            var load_rest_count = loadurls.length;
+            var accessready = function () {
+                var loaded = loadurls.map(function (key) {
+                    var realpath = pathmap[key];
+                    return getFileData(realpath).then(a => run(a, realpath));
+                });
+                Promise.all(loaded).then(function (datas) {
+                    var dataMap = Object.create(null);
+                    datas.forEach((data, cx) => {
+                        dataMap[loadurls[cx]] = data;
+                    });
+                    data = data.replace(reg, function (match, quote, relative) {
+                        if (skipreg.test(match)) return match;
+                        var data = dataMap[relative];
+                        if (!relative) console.log(data, relative)
+                        if (data) {
+                            return replacer(data, pathmap[relative]);
+                        }
+                        console.warn(`没有处理${match} ${fullpath}`);
+                        return match;
+                    });
+                    ok(data);
+                });
+            };
+            loadurls.forEach(relative => {
+                var realPath = path.join(path.dirname(fullpath), relative);
+                fs.access(realPath, function (err) {
+                    if (err) return oh(err);
+                    pathmap[relative] = realPath;
+                    load_rest_count--;
+                    if (!load_rest_count) accessready();
+                });
+            });
+        })
+    };
+    return run(data, fullpath);
 };
+
 var loadUseBody = function (source, fullpath, watchurls, commName) {
 
     var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/img;
