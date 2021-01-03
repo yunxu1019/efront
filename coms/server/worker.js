@@ -248,7 +248,9 @@ function netOnceDataAdapter(buf) {
         else socket.destroy();
     }
 }
+
 function netListener(socket) {
+    socket.on('error', socket.destroy);
     socket.once("data", netOnceDataAdapter);
 }
 var getIntVersion = function (version) {
