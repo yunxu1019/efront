@@ -4,6 +4,7 @@ var net = require('net');
  * @param {net.Socket} client 
  */
 var doProxy = function (client) {
+    if (client.destroyed) return;
     var buffer = Buffer.alloc(16 * 1024), data_length = 0, conn;
     client.on('data', function (data) {
         if (data_length + data.length > buffer.length) {
@@ -26,28 +27,34 @@ var doProxy = function (client) {
     function relay_connection(req) {
         //如果请求不是CONNECT方法（GET, POST），那么替换掉头部的一些东西
         if (client.destroyed) return;
-        if (req.method == 'CONNECT') {
+        if (req.method !== 'CONNECT') {
             client.write(Buffer.from("HTTP/1.1 200 Connection established\r\nConnection: close\r\n\r\n"));
-            return;
+            //先从buffer中取出头部
+            var _body_pos = reach_header_end(buffer);
+            if (_body_pos < 0) _body_pos = buffer.length;
+            var header = buffer.slice(0, _body_pos).toString('utf8');
+            //替换connection头
+            header = header.replace(/(proxy\-)?connection\:.+\r\n/ig, '')
+                .replace(/Keep\-Alive\:.+\r\n/i, '')
+                .replace("\r\n", '\r\nConnection: close\r\n');
+            //替换网址格式(去掉域名部分)
+            if (req.httpVersion == '1.1') {
+                var url = req.path.replace(/http\:\/\/[^\/]+/, '');
+                if (url.path != url) header = header.replace(req.path, url);
+            }
+            buffer = Buffer.concat([Buffer.from(header, 'utf8'), buffer.slice(_body_pos)]);
+            client.unshift(buffer);
         }
-        //先从buffer中取出头部
-        var _body_pos = reach_header_end(buffer);
-        if (_body_pos < 0) _body_pos = buffer.length;
-        var header = buffer.slice(0, _body_pos).toString('utf8');
-        //替换connection头
-        header = header.replace(/(proxy\-)?connection\:.+\r\n/ig, '')
-            .replace(/Keep\-Alive\:.+\r\n/i, '')
-            .replace("\r\n", '\r\nConnection: close\r\n');
-        //替换网址格式(去掉域名部分)
-        if (req.httpVersion == '1.1') {
-            var url = req.path.replace(/http\:\/\/[^\/]+/, '');
-            if (url.path != url) header = header.replace(req.path, url);
-        }
-        buffer = Buffer.concat([Buffer.from(header, 'utf8'), buffer.slice(_body_pos)]);
-        client.unshift(buffer);
         conn = net.createConnection(req.port, req.host);
+        conn.once('error', function (error) {
+            client.destroy();
+            console.error(error);
+        });
         conn.pipe(client);
         client.pipe(conn);
+        if (req.method === 'CONNECT') {
+            client.write(Buffer.from("HTTP/1.1 200 Connection established\r\nConnection: close\r\n\r\n"));
+        }
     }
 };
 
