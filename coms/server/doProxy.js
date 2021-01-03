@@ -1,6 +1,10 @@
 var net = require('net');
+/**
+ * 
+ * @param {net.Socket} client 
+ */
 var doProxy = function (client) {
-    var buffer = Buffer.alloc(16 * 1024), data_length = 0;
+    var buffer = Buffer.alloc(16 * 1024), data_length = 0, conn;
     client.on('data', function (data) {
         if (data_length + data.length > buffer.length) {
             client.destroy();
@@ -20,43 +24,30 @@ var doProxy = function (client) {
 
     //从http请求头部取得请求信息后，继续监听浏览器发送数据，同时连接目标服务器，并把目标服务器的数据传给浏览器
     function relay_connection(req) {
-
         //如果请求不是CONNECT方法（GET, POST），那么替换掉头部的一些东西
-        if (req.method != 'CONNECT') {
-            //先从buffer中取出头部
-            var _body_pos = reach_header_end(buffer);
-            if (_body_pos < 0) _body_pos = buffer.length;
-            var header = buffer.slice(0, _body_pos).toString('utf8');
-            //替换connection头
-            header = header.replace(/(proxy\-)?connection\:.+\r\n/ig, '')
-                .replace(/Keep\-Alive\:.+\r\n/i, '')
-                .replace("\r\n", '\r\nConnection: close\r\n');
-            //替换网址格式(去掉域名部分)
-            if (req.httpVersion == '1.1') {
-                var url = req.path.replace(/http\:\/\/[^\/]+/, '');
-                if (url.path != url) header = header.replace(req.path, url);
-            }
-            buffer = Buffer.concat([Buffer.from(header, 'utf8'), buffer.slice(_body_pos)]);
-        }
-
-        // //建立到目标服务器的连接
-        // var server = net.createConnection(req.port, req.host);
-        // //交换服务器与浏览器的数据
-        // client.on("data", function (data) { server.write(data); });
-        // server.on("data", function (data) { client.write(data); });
-        var server = net.createConnection(req.port, req.host);
-        server.setTimeout(0);
-        client.setTimeout(0);
-        server.pipe(client);
-        client.pipe(server);
-        server.once('error', () => { });
-        client.once('error', () => { });
+        if (client.destroyed) return;
         if (req.method == 'CONNECT') {
             client.write(Buffer.from("HTTP/1.1 200 Connection established\r\nConnection: close\r\n\r\n"));
+            return;
         }
-        else {
-            server.write(buffer);
+        //先从buffer中取出头部
+        var _body_pos = reach_header_end(buffer);
+        if (_body_pos < 0) _body_pos = buffer.length;
+        var header = buffer.slice(0, _body_pos).toString('utf8');
+        //替换connection头
+        header = header.replace(/(proxy\-)?connection\:.+\r\n/ig, '')
+            .replace(/Keep\-Alive\:.+\r\n/i, '')
+            .replace("\r\n", '\r\nConnection: close\r\n');
+        //替换网址格式(去掉域名部分)
+        if (req.httpVersion == '1.1') {
+            var url = req.path.replace(/http\:\/\/[^\/]+/, '');
+            if (url.path != url) header = header.replace(req.path, url);
         }
+        buffer = Buffer.concat([Buffer.from(header, 'utf8'), buffer.slice(_body_pos)]);
+        client.unshift(buffer);
+        conn = net.createConnection(req.port, req.host);
+        conn.pipe(client);
+        client.pipe(conn);
     }
 };
 
