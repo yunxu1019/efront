@@ -1,3 +1,4 @@
+var KMGT = 'KMGT';
 "use ./KMGT.txt"
 module.exports = function (f) {
     var log = Math.log(f) / Math.LN2 / 10 | 0;
