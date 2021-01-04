@@ -97,7 +97,22 @@ var isRealpath = function (pathname) {
         run();
     });
 };
+var linesEnabled = 1;
+function wait(args) {
+    return new Promise(ok => {
+        var t = setInterval(function () {
+            if (!linesEnabled) return;
+            clearInterval(t);
+            ok();
+        }, 12);
+    }).then(function () {
+        return compile.apply(null, args);
+    });
+}
+
 function compile(buildInfo, lastBuildTime, destroot) {
+    if (!linesEnabled) return wait(arguments);
+    linesEnabled--;
     var { fullpath, name, url, builder, destpath } = buildInfo;
     var componentId = getComponentId();
     destpath = path.join(destroot, destpath);
@@ -128,9 +143,11 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 responseText.then(function (data) {
                     buildInfo.data = data;
                     ok(buildInfo);
+                    linesEnabled++;
                 });
             } else {
                 ok(buildInfo);
+                linesEnabled++;
             }
         };
         var setRealpath = function (_filepath) {
