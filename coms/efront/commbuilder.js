@@ -10,23 +10,34 @@ var isDevelop = require("./isDevelop");
 less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
-var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
-    var run = function (data, fullpath) {
+var bindLoadings = function (reg, data, fullpath, replacer = a => a, deep) {
+    if (!data) return data;
+    var regs = [].concat(reg);
+    var regindex = 0;
+    var run = function (data, fullpath, increase = 0) {
+        var reg = regs[regindex];
         data = String(data);
         var loadurls = [];
-        var skipreg = /^\s*(['"`])use\s+strict\1\s*;?\s*$/;
+        var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1\s*;?\s*$/;
         data.replace(reg, function (match, quote, relative) {
             if (skipreg.test(match)) return match;
             loadurls.push(relative);
         });
-        if (!loadurls.length) return data;
+        if (!loadurls.length) {
+            if (regindex + 1 >= regs.length || increase === 0) return Promise.resolve(data);
+            return regindex++, run(data, fullpath, increase);
+        }
         return new Promise(function (ok, oh) {
             var pathmap = {};
             var load_rest_count = loadurls.length;
             var accessready = function () {
                 var loaded = loadurls.map(function (key) {
                     var realpath = pathmap[key];
-                    return getFileData(realpath).then(a => run(a, realpath));
+                    if (deep !== false) {
+                        return getFileData(realpath).then(a => run(a, realpath));
+                    } else {
+                        return getFileData(realpath);
+                    }
                 });
                 Promise.all(loaded).then(function (datas) {
                     var dataMap = Object.create(null);
@@ -36,15 +47,16 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
                     data = data.replace(reg, function (match, quote, relative) {
                         if (skipreg.test(match)) return match;
                         var data = dataMap[relative];
-                        if (!relative) console.log(data, relative)
                         if (data) {
-                            return replacer(data, pathmap[relative]);
+                            var result = replacer(data, pathmap[relative], match);
+                            if (result !== false && result !== null && result !== undefined) return result;
                         }
                         console.warn(`没有处理${match} ${fullpath}`);
                         return match;
                     });
-                    ok(data);
-                });
+                    if (regindex + 1 >= regs.length || increase === 0) ok(data);
+                    else regindex++, run(data, fullpath, increase).then(ok, oh);
+                }, oh);
             };
             loadurls.forEach(relative => {
                 var realPath = path.join(path.dirname(fullpath), relative);
@@ -57,7 +69,7 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a) {
             });
         })
     };
-    return run(data, fullpath);
+    return run(data, fullpath, 1);
 };
 
 var loadUseBody = function (source, fullpath, watchurls, commName) {
@@ -247,7 +259,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 if (filename.length > 48) {
                     filename = ".." + filename.slice(filename.length - 46);
                 }
-                console.info("没有导出变量", `文件：<gray>${filename}</gray>\r\n`);
+                console.info("没有导出变量", `文件：<gray>${shortpath(filename)}</gray>\r\n`);
             }
         }
     }
@@ -365,6 +377,28 @@ var getFileData = function (fullpath) {
         });
     });
 };
+var mimeTypes = require("../efront/mime");
+var shortpath = require("../basic/shortpath");
+var renderImageUrl = function (data, filepath) {
+    var urlReg = [
+        /\b(?:efront|data)\-(?:src|ur[il])\s*\(\s*(['"`])(.*?)\1\s*\)/ig,
+        /\b(?:efront|data)\-(?:src|ur[il])\s*\=\s*(['"`])(.*?)\1/ig
+    ];
+    var replacer = function (data, realpath, match) {
+        var mime = mimeTypes[path.extname(realpath).slice(1)];
+        if (!mime) return false;
+        var data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
+        if (data.length > 8 * 1024) {
+            console.warn(`data-url数据过大，${require("../basic/size")(data.length)}，可能无法正常加载，<gray>${shortpath(realpath)}</gray>`);
+        }
+        var quote = match[match.length - 1];
+        if (quote === ')') {
+            return `url(${data})`;
+        }
+        return `src=${quote}${data}${quote}`;
+    };
+    return bindLoadings(urlReg, data, filepath, replacer, false);
+};
 var renderLessData = function (data, lesspath, watchurls, className) {
     data = data || '';
     var importLessReg = /^\s*@(?:import)\s*(['"`]?)(.*?)\1(\s*;)?\s*$/im;
@@ -376,19 +410,24 @@ var renderLessData = function (data, lesspath, watchurls, className) {
     };
     var lessresult = bindLoadings(importLessReg, data, lesspath, replacer);
     watchurls.push(lesspath);
-    var promise = Promise.resolve(lessresult).then(function (lessdata) {
-        var timeStart = new Date;
-        var lessData;
-        less.render(`.${className}{${convertColor(String(lessdata))}}`, {
-            compress: !isDevelop
-        }, function (err, data_2) {
-            if (err)
-                return console.warn(err);
-            lessData = data_2.css;
+    var promise = Promise.resolve(lessresult)
+        .then(function (data) {
+            return renderImageUrl(data, lesspath);
+        })
+        .then(function (lessdata) {
+            var timeStart = new Date;
+            var lessData;
+            less.render(`.${className}{${convertColor(String(lessdata))}}`, {
+                compress: !isDevelop,
+                filename: lesspath
+            }, function (err, data_2) {
+                if (err)
+                    return console.warn(err);
+                lessData = data_2.css;
+            });
+            promise.time = new Date - timeStart;
+            return lessData;
         });
-        promise.time = new Date - timeStart;
-        return lessData;
-    });
     return promise;
 };
 function buildJson(buff) {
@@ -429,32 +468,34 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         data = data.trim();
         console.warn(`文件中存在冗余数据<gray>${fullpath}</gray>:<data>${data.length > 12 ? data.slice(0, 10) + '...' : data}</data>`);
     }
-    if (htmlData) {
-        jsData = `var template=\`${htmlData.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&")}\`;\r\n` + jsData;
-    }
     var promise = new Promise(function (ok, oh) {
         function fire() {
             var timeStart = new Date;
-            if (htmlData && lessData) {
-                jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
+            if (htmlData) {
+                jsData = `var template=\`${htmlData.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&")}\`;\r\n` + jsData;
+                if (lessData) {
+                    jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
+                }
+                jsData += `;\r\nextend(exports,Vue.compile(template))`;
             }
-            if (htmlData) jsData += `;\r\nextend(exports,Vue.compile(template))`;
-
             var data = loadJsBody(jsData, fullpath, null, commName);
             time += new Date - timeStart;
             promise.time = time;
             ok(data);
         }
+        if (htmlData) {
+            var htmlpromise = renderImageUrl(htmlData, fullpath).then(function (a) {
+                htmlData = a;
+            });
+        }
         if (lessData) {
-            var lesspromise = renderLessData(lessData, fullpath, watchurls, lessName);
-            lesspromise.then(data => {
+            var lesspromise = renderLessData(lessData, fullpath, watchurls, lessName).then(data => {
                 lessData = data;
                 time += lesspromise.time;
-                fire();
             });
-        } else {
-            setTimeout(fire);
+
         }
+        Promise.all([htmlpromise, lesspromise]).then(fire, oh);
     });
     return promise;
 }
@@ -488,11 +529,15 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
     let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
     let replace = loadUseBody(data, fullpath, watchurls, commName);
+    var htmlpromise = getFileData(htmlpath)
+        .then(function (htmldata) {
+            return renderImageUrl(htmldata, htmlpath);
+        });
     var jsData, lessData;
     var time = 0;
-    var promise = Promise.all([lesspath, htmlpath].map(getFileData).concat(replace)).then(function ([lessdata, htmldata, data]) {
+    var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(function ([lessdata, htmldata, data]) {
         var timeStart = new Date;
-        if (htmldata instanceof Buffer && !/^\s*(<!--[\s\S]*?-->\s*)?<!doctype\b/i.test(htmldata)) {
+        if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)?<!doctype\b/i.test(htmldata)) {
             var commHtmlName;
             if (/^main/.test(commName)) {
                 commHtmlName = 'Main';
