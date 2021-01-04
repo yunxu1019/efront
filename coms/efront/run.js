@@ -166,6 +166,7 @@ function efront() {
                 return f.apply(this, args);
             }, timerout);
             timeoutHandles[handle] = true;
+            return handle;
         },
         setInterval(f, timerout) {
             var args = [].slice.call(arguments, 2);
@@ -174,6 +175,7 @@ function efront() {
                 return f.apply(this, args);
             }, timerout);
             intervalHandles[handle] = true;
+            return handle;
         },
         navigator: {
             userAgent,
