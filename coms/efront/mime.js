@@ -27,4 +27,3 @@ function buildMime() {
     loadjson(mime_data_file).then(cust).catch(console.error);
 };
 buildMime();
-watch(mime_data_file, buildMime);
