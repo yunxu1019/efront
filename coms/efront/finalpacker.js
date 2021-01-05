@@ -57,15 +57,24 @@ var geticon = function (name, env) {
     return getfrompath(name, _ccons_root, geticonfile, ".png");
 };
 
-var getcomm = function (name, env) {
+var getcomm = function (name, env, ext) {
     var _comms_root = env.COMM || comms_root;
     name = name.replace(/(\w)\$/g, "$1/");
-    return getfrompath(name, _comms_root, getcommfile, [".js", ".ts", ".json", ".html", '.vue', '']);
+    var exts = [".js", ".ts", ".json", ".html", '.vue', ''];
+    if (ext && !~exts.indexOf(env)) {
+        console.log(ext, name)
+        exts.unshift(ext);
+    }
+    return getfrompath(name, _comms_root, getcommfile, exts);
 };
 
-var getpage = function (name, env) {
+var getpage = function (name, env, ext) {
     var _pages_root = env.PAGE || pages_root;
-    return getfrompath(name, _pages_root, getpagefile, [".js", ".ts", ".html", '.vue', '']);
+    var exts = [".js", ".ts", ".html", '.vue', ''];
+    if (ext && !~exts.indexOf(env)) {
+        exts.unshift(ext);
+    }
+    return getfrompath(name, _pages_root, getpagefile, exts);
 };
 
 var getapi = function (name, env) {
@@ -90,8 +99,8 @@ var managers = {
 
 var exports = module.exports = function (url, callback) {
     var match = url.match(
-        ///// 1 //        2           //// 3 //     4      /////////////////////
-        /^\/(?:(.*?)\/)?(comm|page|ccon|aa?pi)\/(.*?)(?:\.js|\.png)?(?:(?:\?|\#).*?)?$/i
+        //////// 1 /////////        2           //// 3 //   4   /////////////////////
+        /^\/(?:(.*?)\/)?\:?(comm|page|ccon|aa?pi)\/(.*?)(\.[\w]*)?(?:(?:\?|\#).*?)?$/i
     );
     if (match) {
         var appc = match[1],
@@ -101,7 +110,7 @@ var exports = module.exports = function (url, callback) {
         var env = setupenv(appc);
         var manager = managers[type];
         if (!manager) return callback('', type);
-        var result = manager(name, env);
+        var result = manager(name, env, extt);
     } else {
         url = url.replace(/[\?\#].*?$/, '');
         var result = managers.file(url, {});

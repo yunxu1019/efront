@@ -145,13 +145,17 @@ var requestListener = function (req, res) {
     if (req.headers.range) {
         return doFile(req, res);
     }
-    var match = req.url.match(/ccon\/(.*?)\.([\da-f]+)\.png$/i);
+    var match = req.url.match(/\/ccon\/(.*?)\.([\da-f]+)\.png$/i);
     if (match) {
         var name = match[1];
         var color = parseInt(match[2], 16);
         return res.end(doPost.ccon(name, color));
     }
     if (/^get/i.test(req.method)) {
+        var match = req.url.match(/\/:(?:comm|page|ccon|aa?pi)\/.*?$/i);
+        if (match) {
+            return doPost(req, res);
+        }
         if (SSL_ENABLED && req.socket.localPort === 80) {
             // 现代浏览器不会给http网站标记为不安全，并且火狐等浏览器对网站进行云检查以判断是否安全
             // 没有必要自动转向https，所以请让以下代码胎死腹中

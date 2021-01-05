@@ -7,6 +7,7 @@ var typescript = require("../typescript");
 var breakcode = require("../compile/breakcode");
 var less = require("../less-node")();
 var isDevelop = require("./isDevelop");
+var inCom = require("./inCom");
 less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
@@ -387,9 +388,16 @@ var renderImageUrl = function (data, filepath) {
     var replacer = function (data, realpath, match) {
         var mime = mimeTypes[path.extname(realpath).slice(1)];
         if (!mime) return false;
-        var data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
+        data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
         if (data.length > 8 * 1024) {
-            console.warn(`data-url数据过大，${require("../basic/size")(data.length)}，可能无法正常加载，<gray>${shortpath(realpath)}</gray>`);
+            var compath = inCom(realpath);
+            if (compath) {
+                if (!commbuilder.compress) {
+                    data = ":comm/" + compath;
+                }
+            } else {
+                return match.replace(/^(data|efront)\-/i, '');
+            }
         }
         var quote = match[match.length - 1];
         if (quote === ')') {
@@ -594,6 +602,9 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
         promise = getMouePromise(data, filename, fullpath, watchurls);
     } else if (/\.(?:[jt]sx?)$/i.test(fullpath) || !/[\\\/]/i.test(fullpath)) {
         promise = getScriptPromise(data, filename, fullpath, watchurls);
+    } else {
+        data = buffer;
+        buffer.mime = mimeTypes[path.extname(fullpath).slice(1)];
     }
     if (promise) {
         var promise1 = promise.then(function (data) {
