@@ -1,7 +1,6 @@
 "use strict";
 var mime_data_file = require("path").join(__dirname, "../../data/mime.json");
 var mimes = exports;
-var watch = require("../efront/watch");
 var loadjson = require("../efront/loadjson").async;
 function cust(mime) {
     for (var k in mimes) {

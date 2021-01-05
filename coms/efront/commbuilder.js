@@ -392,8 +392,10 @@ var renderImageUrl = function (data, filepath) {
         if (data.length > 8 * 1024) {
             var compath = inCom(realpath);
             if (compath) {
-                if (!commbuilder.compress) {
-                    data = ":comm/" + compath;
+                if (isDevelop || commbuilder.compress === false) {
+                    data = ":comm/" + compath.replace(/\\/g, '/');
+                } else {
+                    data = "data" + path.extname(realpath) + data.slice(4);
                 }
             } else {
                 return match.replace(/^(data|efront)\-/i, '');
