@@ -62,7 +62,6 @@ var getcomm = function (name, env, ext) {
     name = name.replace(/(\w)\$/g, "$1/");
     var exts = [".js", ".ts", ".json", ".html", '.vue', ''];
     if (ext && !~exts.indexOf(env)) {
-        console.log(ext, name)
         exts.unshift(ext);
     }
     return getfrompath(name, _comms_root, getcommfile, exts);
