@@ -61,7 +61,7 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a, deep) {
             };
             loadurls.forEach(relative => {
                 var realPath = path.join(path.dirname(fullpath), relative);
-                if (!fs.existsSync(relative)) return --load_rest_count || accessready();
+                if (!fs.existsSync(realPath)) return --load_rest_count || accessready();
                 fs.access(realPath, function (err) {
                     if (err) return oh(err);
                     pathmap[relative] = realPath;
