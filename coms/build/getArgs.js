@@ -30,7 +30,7 @@ var getArgs = function (text) {
         functionBody = text;
     }
     return Object.assign([argNames || [], functionBody, args || [], required || '', strs || [], (dependenceNamesOffset || 0) + (strend || 0), dependenceNamesOffset], {
-        argNames, functionBody, args, required, strs, dependenceNamesOffset, strend
+        argNames, functionBody, args, required, strs, dependenceNamesOffset, strend: strend + dependenceNamesOffset
     });
 };
 module.exports = getArgs;

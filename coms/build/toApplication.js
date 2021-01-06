@@ -102,13 +102,14 @@ function toApplication(responseTree) {
     delete responseTree["main"];
     return responseTree;
 }
+var toUnicode = require("../basic/toUnicode");
 var rebuildData = function (responseTree) {
     var imageIndex = 0;
     Object.keys(responseTree).sort().forEach(function (k) {
         var rep = function (e) {
             if (typeof e !== "string") return String(e);
 
-            return JSON.stringify(e).replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
+            return JSON.stringify(e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
                 var match = /^([\w\-\.\/]+;base64)?,([\w\+\/\-\=]+)$/i.exec(data);
                 if (!match) return _;
                 do {
@@ -118,7 +119,7 @@ var rebuildData = function (responseTree) {
                 var destpath = response.destpath.replace(/\.[\w]+$/, '') + '-' + imageIndex + ext;
                 responseTree[name] = { destpath, data: Buffer.from(match[2], "base64"), realpath: true, url: name };
                 return quote + destpath.replace(/\\/g, '/') + quote;
-            }).replace(/\s+/g, ' ');
+            }));
         };
         var response = responseTree[k];
         if (!response.data) return;
@@ -126,11 +127,10 @@ var rebuildData = function (responseTree) {
 
         var { argNames, args, required, dependenceNamesOffset, strs, strend } = getArgs(data);
         if (strs && strs.length > 0) {
-            strs = strs.map(rep);
-            strs = `[${strs}]`;
+            strs = toUnicode(`[${strs.map(rep)}]`);
             data = response.data = data.slice(0, dependenceNamesOffset) + (strs.length * 2).toString(36) + strs + data.slice(strend);
         }
-        if (!dependenceNamesOffset || !required) return; 0
+        if (!dependenceNamesOffset || !required) return;
         var argstr = args.concat(argNames, required.split(";").map(a => {
             return a.replace(/\.(\w+)$/g, '').replace(/\-(\w)/g, (_, a) => a.toUpperCase());
         }).join(";")).join(",");

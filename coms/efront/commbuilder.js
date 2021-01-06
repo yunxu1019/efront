@@ -304,13 +304,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         params
     };
 };
-var toUnicode = function (data) {
-    return data.replace(/[\u0100-\uffff]/g,
-        m => "\\u" + (m.charCodeAt(0) > 0x1000 ?
-            m.charCodeAt(0).toString(16) : 0 + m.charCodeAt(0).toString(16)
-        )
-    );
-};
+var toUnicode = require("../basic/toUnicode");
 var buildResponse = function ({ imported, params, data, required, occurs }, compress) {
     if (!isDevelop && compress !== false) {
         var [data, args, strs] = breakcode(data, occurs);
@@ -382,15 +376,15 @@ var mimeTypes = require("../efront/mime");
 var shortpath = require("../basic/shortpath");
 var renderImageUrl = function (data, filepath) {
     var urlReg = [
-        /\b(?:efront|data)\-(?:src|ur[il])\s*\(\s*(['"`])(.*?)\1\s*\)/ig,
-        /\b(?:efront|data)\-(?:src|ur[il])\s*\=\s*(['"`])(.*?)\1/ig
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])(.*?)\1\s*\)/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])(.*?)\1/ig
     ];
     var replacer = function (data, realpath, match) {
         var mime = mimeTypes[path.extname(realpath).slice(1)];
-        if (!mime) return false;
+        var compath = inCom(realpath);
+        if (!mime || !compath && !/\-/.test(match)) return false;
         data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
         if (data.length > 8 * 1024) {
-            var compath = inCom(realpath);
             if (compath) {
                 if (isDevelop || commbuilder.compress === false) {
                     data = ":comm/" + compath.replace(/\\/g, '/');
