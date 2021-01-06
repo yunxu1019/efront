@@ -61,6 +61,7 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a, deep) {
             };
             loadurls.forEach(relative => {
                 var realPath = path.join(path.dirname(fullpath), relative);
+                if (!fs.existsSync(relative)) return load_rest_count--;
                 fs.access(realPath, function (err) {
                     if (err) return oh(err);
                     pathmap[relative] = realPath;
@@ -376,8 +377,8 @@ var mimeTypes = require("../efront/mime");
 var shortpath = require("../basic/shortpath");
 var renderImageUrl = function (data, filepath) {
     var urlReg = [
-        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])(.*?)\1\s*\)/ig,
-        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])(.*?)\1/ig
+        /\b(?:efront|data)\-(?:src|ur[il])\s*\(\s*(['"`])(.*?)\1\s*\)/ig,
+        /\b(?:efront|data)\-(?:src|ur[il])\s*\=\s*(['"`])(.*?)\1/ig,
     ];
     var replacer = function (data, realpath, match) {
         var mime = mimeTypes[path.extname(realpath).slice(1)];
