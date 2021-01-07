@@ -1,5 +1,6 @@
 "use strict";
 require("../efront/setupenv");
+var memery = require("../efront/memery");
 var clients = require("./clients");
 var message = require("../message");
 require("../efront/quitme");
@@ -131,6 +132,11 @@ var requestListener = function (req, res) {
         return res.end();
     }
     if (/^https?\:\/\//i.test(req.url)) {
+        if (memery.noproxy) {
+            req.destroy();
+            res.destroy();
+            return;
+        }
         return doCross(req, res);
     }
     if (/^\/@/i.test(req.url)) {

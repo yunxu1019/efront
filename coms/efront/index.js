@@ -714,13 +714,13 @@ var argv = process.argv.slice(1).filter(a => {
     }
     a = a.replace(/^--/, '');
     var key, value = '';
-    if (/^(no|off|not|is-not)-/.test(a)) {
+    if (/^(no|off|not|is-not|disable)-/.test(a)) {
         value = false;
     }
-    if (/^(on|yes|is(?!-not))-/.test(a)) {
+    if (/^(on|yes|is(?!-not)|enable)-/.test(a)) {
         value = true;
     }
-    a = a.replace(/^(no|on|yes|off|is-not|is)-/, '');
+    a = a.replace(/^(no|on|yes|off|is-not|is|enable|disable)-/, '');
     if (/=/.test(a)) {
         [key, value] = a.split("=");
     } else {

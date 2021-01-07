@@ -1,10 +1,12 @@
 var net = require('net');
+var memery = require("../efront/memery");
 /**
  * 
  * @param {net.Socket} client 
  */
 var doProxy = function (client) {
     if (client.destroyed) return;
+    if (memery.noproxy) return client.destroy();
     var buffer = Buffer.alloc(16 * 1024), data_length = 0, conn;
     client.on('data', function (data) {
         if (data_length + data.length > buffer.length) {
