@@ -152,7 +152,7 @@ var showTopicInfo = function (commands, prefix = '') {
 };
 var helps = [
     "显示版本号,version,-v,--version",
-    "查看efront自身占用的内存,memery,-m,--memery",
+    "查看efront自身占用的内存,memery,memory,-m,--memery,--memory",
     "显示帮助信息,help,-h,--help,help COMMAND,-h COMMAND,--help COMMAND",
     "启动文档服务器,docs",
     "启动示例项目服务器,demo,demo APPNAME",
