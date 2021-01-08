@@ -191,26 +191,24 @@ var getBuildRoot = function (files, matchFileOnly) {
                                 saveFolder(file);
                             });
                         };
-                        fs.exists(f, function (exists) {
-                            if (exists) {
-                                fs.readFile(f, function (error, data) {
-                                    if (error) {
-                                        oh(error);
-                                        return;
-                                    }
-                                    var d = JSON.parse(
-                                        String(data)
-                                    );
-                                    var f = path.join(file, d.main || 'index');
-                                    read(f).then(ok).catch(function () {
-                                        oh(`<gray>${f}</gray>不存在！`);
-                                    });
+                        if (fs.existsSync(f)) {
+                            fs.readFile(f, function (error, data) {
+                                if (error) {
+                                    oh(error);
+                                    return;
+                                }
+                                var d = JSON.parse(
+                                    String(data)
+                                );
+                                var f = path.join(file, d.main || 'index');
+                                read(f).then(ok).catch(function () {
+                                    oh(`<gray>${f}</gray>不存在！`);
                                 });
-                            } else {
-                                f = path.join(file, 'index');
-                                read(f).then(ok).catch(run);
-                            }
-                        });
+                            });
+                        } else {
+                            f = path.join(file, 'index');
+                            read(f).then(ok).catch(run);
+                        }
 
                     } else {
                         fs.readdir(file, function (error, names) {

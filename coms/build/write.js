@@ -11,37 +11,33 @@ var mkdir = function (dir, then) {
         delete mkkingTree[dir];
         thens && thens.forEach(e => e(error));
     }
-    fs.exists(dir, function (exists) {
-        if (exists) done();
-        else fs.mkdir(dir, done);
-    })
+    if (fs.existsSync(dir)) done();
+    else fs.mkdir(dir, done);
 };
 var deepwr = function (dir, data) {
     var dirname = path.dirname(dir);
     var paths = [];
     return new Promise(function (ok, oh) {
         var detect = function () {
-            fs.exists(dirname, function (exists) {
-                if (exists) {
-                    if (!paths.length) {
-                        fs.writeFile(dir, data, function (err) {
-                            if (err) return oh(err);
-                            else ok();
-                        });
-                    } else {
-                        dirname = path.join(dirname, paths.shift());
-                        mkdir(dirname, function (err) {
-                            if (err) return oh(err);
-                            else detect();
-                        });
-                    }
+            if (fs.existsSync(dirname)) {
+                if (!paths.length) {
+                    fs.writeFile(dir, data, function (err) {
+                        if (err) return oh(err);
+                        else ok();
+                    });
                 } else {
-                    if (dirname === ".") return oh();
-                    paths.unshift(path.basename(dirname));
-                    dirname = path.dirname(dirname);
-                    detect();
+                    dirname = path.join(dirname, paths.shift());
+                    mkdir(dirname, function (err) {
+                        if (err) return oh(err);
+                        else detect();
+                    });
                 }
-            });
+            } else {
+                if (dirname === ".") return oh();
+                paths.unshift(path.basename(dirname));
+                dirname = path.dirname(dirname);
+                detect();
+            }
         };
         detect();
     });

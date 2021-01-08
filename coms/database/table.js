@@ -152,12 +152,10 @@ var initBalanceDirectory = function () {
     if (__balance_directory_inited) return Promise.resolve(__balance_directory_inited);
     else return __balance_directory_inited = new Promise(function (ok, oh) {
         var __balance_directory = this.__balance_directory;
-        fs.exists(__balance_directory, function (exists) {
-            if (exists) ok(__balance_directory);
-            else fs.mkdir(__balance_directory, function (error) {
-                if (error) oh(error);
-                else ok(__balance_directory);
-            });
+        if (fs.existsSync(__balance_directory)) ok(__balance_directory);
+        else fs.mkdir(__balance_directory, function (error) {
+            if (error) oh(error);
+            else ok(__balance_directory);
         });
     }).then(function (__balance_directory) {
         return new Promise(function (ok, oh) {

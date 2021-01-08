@@ -205,17 +205,15 @@ function compile(buildInfo, lastBuildTime, destroot) {
                     }
                     if (isDirectory) {
                         var __filepath = path.join(_filepath, 'package.json');
-                        fs.exists(__filepath, function (exists) {
-                            if (exists) {
-                                fs.stat(__filepath, function (error, stat) {
-                                    if (error) throw new Error(`加载${url}出错！`);
-                                    if (stat.isFile()) loadpackage(__filepath);
-                                    else loadindex();
-                                });
-                            } else {
-                                loadindex();
-                            }
-                        });
+                        if (fs.existsSync(__filepath)) {
+                            fs.stat(__filepath, function (error, stat) {
+                                if (error) throw new Error(`加载${url}出错！`);
+                                if (stat.isFile()) loadpackage(__filepath);
+                                else loadindex();
+                            });
+                        } else {
+                            loadindex();
+                        }
                         return;
                     }
 
@@ -225,49 +223,43 @@ function compile(buildInfo, lastBuildTime, destroot) {
                     });
                 };
                 var reader = function (hasless) {
-                    fs.exists(destpath, function (exists) {
-                        if (!exists) return loader();
-                        return fs.readFile(destpath, function (error, buffer) {
-                            if (error) throw new Error(`读取已编译数据失败！url:${url}`);
-                            if (hasless === false && getDepedence({ data: buffer }).indexOf("cless") >= 0) {
-                                return loader();
-                            }
-                            writeNeeded = false;
-                            responsePath = _filepath;
-                            responseText = buffer;
-                            responseVersion = stat.mtime;
-                            resolve();
-                        });
+                    if (!fs.existsSync(destpath)) return loader();
+                    return fs.readFile(destpath, function (error, buffer) {
+                        if (error) throw new Error(`读取已编译数据失败！url:${url}`);
+                        if (hasless === false && getDepedence({ data: buffer }).indexOf("cless") >= 0) {
+                            return loader();
+                        }
+                        writeNeeded = false;
+                        responsePath = _filepath;
+                        responseText = buffer;
+                        responseVersion = stat.mtime;
+                        resolve();
                     });
                 };
                 if (lastBuildTime - stat.mtime > 10000 && !/[\/\\]index.html?$/i.test(destpath)) {
                     var statless = function () {
                         var less_file = _filepath.replace(/\.([tj]sx?|html?)$/i, ".less");
-                        fs.exists(less_file, function (exists) {
-                            if (!exists) return reader(false);
-                            fs.stat(less_file, function (error, stat) {
-                                if (error) throw new Error(`读取less文件出错！lessfile:${less_file}`);
-                                if (lastBuildTime - stat.mtime > 10000) {
-                                    reader(true);
-                                } else {
-                                    loader();
-                                }
-                            });
+                        if (!fs.existsSync(less_file)) return reader(false);
+                        fs.stat(less_file, function (error, stat) {
+                            if (error) throw new Error(`读取less文件出错！lessfile:${less_file}`);
+                            if (lastBuildTime - stat.mtime > 10000) {
+                                reader(true);
+                            } else {
+                                loader();
+                            }
                         });
                     };
                     if (/\.([tj]sx?|html?)$/i.test(_filepath)) {
                         if (/\.[tj]sx?$/i.test(_filepath)) {
                             var html_file = _filepath.replace(/\.[tj]sx?$/i, ".html");
-                            fs.exists(html_file, function (exists) {
-                                if (!exists) return statless();
-                                fs.stat(html_file, function (error, stat) {
-                                    if (error) throw new Error(`读取html文件出错！htmlfile:${html_file}`)
-                                    if (lastBuildTime - stat.mtime > 10000) {
-                                        statless();
-                                    } else {
-                                        loader();
-                                    }
-                                });
+                            if (!fs.existsSync(html_file)) return statless();
+                            fs.stat(html_file, function (error, stat) {
+                                if (error) throw new Error(`读取html文件出错！htmlfile:${html_file}`)
+                                if (lastBuildTime - stat.mtime > 10000) {
+                                    statless();
+                                } else {
+                                    loader();
+                                }
                             });
                         } else {
                             statless();
@@ -289,16 +281,14 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 return;
             }
             var _filepath = fullpath instanceof Array ? fullpath.shift() : fullpath;
-            fs.exists(_filepath, function (exists) {
-                if (exists) {
-                    isRealpath(_filepath).then(function (is) {
-                        if (!is) findRealpath();
-                        else setRealpath(_filepath);
-                    }).catch(console.error);
-                } else {
-                    findRealpath();
-                }
-            });
+            if (fs.existsSync(_filepath)) {
+                isRealpath(_filepath).then(function (is) {
+                    if (!is) findRealpath();
+                    else setRealpath(_filepath);
+                }).catch(console.error);
+            } else {
+                findRealpath();
+            }
         }
         findRealpath();
     });

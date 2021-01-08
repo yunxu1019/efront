@@ -63,150 +63,141 @@ function piperead(h, start, end, res, sign) {
 
 
 function doGetFile(req, res, filepath, code) {
-
     var [, start, end] = String(req.headers.range).match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)/) || [];
-    fs.exists(filepath, function (exists) {
-        if (!exists) {
-            res.writeHead(404, {});
-            res.end("not found");
-            return;
-        }
-        fs.stat(filepath, function (err, stats) {
-            if (err) {
-                res.writeHead(403, {});
-                res.end(String(err));
-                return;
-            }
-            if (stats.isDirectory()) {
-                res.writeHead(400, {});
-                res.end("folder");
-                return;
-            }
-            start = +start | 0;
-            if (!start || start < 0 || req.headers["if-range"] && req.headers["if-range"] !== stats.mtime.toUTCString()) {
-                start = 0;
-            }
-            if (start > stats.size || end && end < start || start < 0) {
-                res.writeHead(416, {});
-                res.end("out of range");
-                return;
-            }
-            if (code) {
-                var sign = encode62.timedecode(code);
-                if (!sign) {
-                    res.writeHead(404, {});
-                    res.end("not found");
-                    return;
-                }
-            }
-            if (end) {
-                end = +end + 1;
-            } else {
-                end = stats.size;
-            }
-            fs.open(filepath, "r", function (error, h) {
-                if (error) {
-                    res.writeHead(403, {});
-                    res.end(String(error));
-                    return fs.closeSync(h);
-                }
-
-                var extend = filepath.match(/\.([^\.]*?)$/);
-                var headers = {
-                    "Content-Length": end ? end - start : stats.size - start,
-                    "Last-Modified": stats.mtime.toUTCString()
-                };
-                if (req.headers.range) {
-                    headers["Accept-Ranges"] = "bytes";
-                    headers["Content-Range"] = `bytes ${start}-${end ? end - 1 : ''}/${stats.size}`;
-                }
-                if (extend) {
-                    var mime = mimes[extend[1]];
-                    if (mime) {
-                        headers['Content-Type'] = mime;
-                    }
-                }
-                res.writeHead(start === 0 && (!end || end === stats.size) ? 200 : 206, headers);
-                piperead(h, start, end ? end : stats.size, res, sign);
-            });
-        })
-    });
-
-}
-
-function doDeleteFile(req, res, filepath) {
-    fs.exists(filepath, function (exists) {
-        if (!exists) {
-            res.writeHead(404, {});
-            res.end("");
-            return;
-        }
-        fs.unlink(filepath, function (error) {
-            if (error) {
-                res.writeHead(403, {});
-                res.end(String(error));
-                return;
-            }
-            res.end('');
-        })
-    })
-}
-
-function doPutFile(req, res, filepath, code) {
-    fs.exists(path.dirname(filepath), function (exists) {
-        if (!exists) {
+    if (!fs.existsSync(filepath)) {
+        res.writeHead(404, {});
+        res.end("not found");
+        return;
+    }
+    fs.stat(filepath, function (err, stats) {
+        if (err) {
             res.writeHead(403, {});
-            res.end(`Directory not exists.`);
+            res.end(String(err));
             return;
         }
-        fs.exists(filepath, function (exists) {
-            if (exists) {
-                res.writeHead(409, {});
-                res.end(`File already exists.`);
-                return;
-            }
-        });
-
-        if (cacheCountLimit <= 1) {
-            res.writeHead(403, {});
-            res.end("");
+        if (stats.isDirectory()) {
+            res.writeHead(400, {});
+            res.end("folder");
+            return;
+        }
+        start = +start | 0;
+        if (!start || start < 0 || req.headers["if-range"] && req.headers["if-range"] !== stats.mtime.toUTCString()) {
+            start = 0;
+        }
+        if (start > stats.size || end && end < start || start < 0) {
+            res.writeHead(416, {});
+            res.end("out of range");
             return;
         }
         if (code) {
             var sign = encode62.timedecode(code);
             if (!sign) {
-                res.writeHead(401, {});
-                res.end("");
+                res.writeHead(404, {});
+                res.end("not found");
                 return;
             }
         }
-        cacheCountLimit--;
-        var w = fs.createWriteStream(filepath);
-        var fired = false;
-        var safeend = function () {
-            if (fired) return;
-            cacheCountLimit++;
-            fired = true;
-            w.close();
-            res.end(filepath);
-        };
-        var inc = 0;
-        req.on("data", function (chunk) {
-            if (sign) {
-                var signoffset = inc % sign.length;
-                var signcurrent = sign.slice(signoffset) + sign.slice(0, signoffset);
-                chunk = encode62.decode(chunk, signcurrent);
+        if (end) {
+            end = +end + 1;
+        } else {
+            end = stats.size;
+        }
+        fs.open(filepath, "r", function (error, h) {
+            if (error) {
+                res.writeHead(403, {});
+                res.end(String(error));
+                return fs.closeSync(h);
             }
-            inc = inc + chunk.length;
-            w.write(chunk);
+
+            var extend = filepath.match(/\.([^\.]*?)$/);
+            var headers = {
+                "Content-Length": end ? end - start : stats.size - start,
+                "Last-Modified": stats.mtime.toUTCString()
+            };
+            if (req.headers.range) {
+                headers["Accept-Ranges"] = "bytes";
+                headers["Content-Range"] = `bytes ${start}-${end ? end - 1 : ''}/${stats.size}`;
+            }
+            if (extend) {
+                var mime = mimes[extend[1]];
+                if (mime) {
+                    headers['Content-Type'] = mime;
+                }
+            }
+            res.writeHead(start === 0 && (!end || end === stats.size) ? 200 : 206, headers);
+            piperead(h, start, end ? end : stats.size, res, sign);
         });
-        req.on("end", function () {
-            w.end('');
-            safeend();
-        });
-        req.on("error", safeend);
-        req.on("close", safeend);
     });
+}
+
+function doDeleteFile(req, res, filepath) {
+    if (!fs.existsSync(filepath)) {
+        res.writeHead(404, {});
+        res.end("");
+        return;
+    }
+    fs.unlink(filepath, function (error) {
+        if (error) {
+            res.writeHead(403, {});
+            res.end(String(error));
+            return;
+        }
+        res.end('');
+    });
+}
+
+function doPutFile(req, res, filepath, code) {
+    if (!fs.existsSync(path.dirname(filepath))) {
+
+        res.writeHead(403, {});
+        res.end(`Directory not exists.`);
+        return;
+    }
+    if (fs.existsSync(filepath)) {
+
+        res.writeHead(409, {});
+        res.end(`File already exists.`);
+        return;
+    }
+    if (cacheCountLimit <= 1) {
+        res.writeHead(403, {});
+        res.end("");
+        return;
+    }
+    if (code) {
+        var sign = encode62.timedecode(code);
+        if (!sign) {
+            res.writeHead(401, {});
+            res.end("");
+            return;
+        }
+    }
+    cacheCountLimit--;
+    var w = fs.createWriteStream(filepath);
+    var fired = false;
+    var safeend = function () {
+        if (fired) return;
+        cacheCountLimit++;
+        fired = true;
+        w.close();
+        res.end(filepath);
+    };
+    var inc = 0;
+    req.on("data", function (chunk) {
+        if (sign) {
+            var signoffset = inc % sign.length;
+            var signcurrent = sign.slice(signoffset) + sign.slice(0, signoffset);
+            chunk = encode62.decode(chunk, signcurrent);
+        }
+        inc = inc + chunk.length;
+        w.write(chunk);
+    });
+    req.on("end", function () {
+        w.end('');
+        safeend();
+    });
+    req.on("error", safeend);
+    req.on("close", safeend);
 }
 
 function doPatchFile(req, res) {

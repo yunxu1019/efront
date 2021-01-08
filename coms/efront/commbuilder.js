@@ -360,15 +360,13 @@ var buildResponse = function ({ imported, params, data, required, occurs }, comp
 };
 var getFileData = function (fullpath) {
     return new Promise(function (ok, oh) {
-        fs.exists(fullpath, function (exists) {
-            if (!exists) return ok(false);
-            fs.stat(fullpath, function (error, stat) {
+        if (!fs.existsSync(fullpath)) return ok(false);
+        fs.stat(fullpath, function (error, stat) {
+            if (error) return ok(error);
+            if (!stat.isFile()) return ok(false);
+            fs.readFile(fullpath, function (error, buffer) {
                 if (error) return ok(error);
-                if (!stat.isFile()) return ok(false);
-                fs.readFile(fullpath, function (error, buffer) {
-                    if (error) return ok(error);
-                    ok(buffer);
-                });
+                ok(buffer);
             });
         });
     });

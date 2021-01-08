@@ -16,9 +16,7 @@ var filesystem = enrich({
         });
     },
     exists(full_path = this._full_path) {
-        return new Promise(function (ok, oh) {
-            fs.exists(full_path, ok);
-        });
+        return Promise.resolve(fs.existsSync(full_path));
     },
     stat(full_path = this._full_path) {
         return new Promise(function (ok, oh) {
