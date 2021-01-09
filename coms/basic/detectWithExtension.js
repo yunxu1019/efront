@@ -10,18 +10,33 @@ function detectWithExtension(filename, extensions = [""], folders = [""]) {
         filename = filename.replace(/\$/g, '/');
         var prefix = 0;
         var aftfix = 0;
+        var findedFolder;
 
         var run = function () {
-            var f = path.join(folders[prefix], filename) + extensions[aftfix++];
-            if (fs.existsSync(f)) return ok(f);
             if (aftfix >= extensions.length) {
                 if (prefix + 1 < folders.length) {
                     prefix++;
                     aftfix = 0;
-                    run();
+                    return run();
                 } else {
-                    oh(`路径<gray>${filename}</gray>不存在`);
+                    if (findedFolder) {
+                        return ok(findedFolder);
+                    }
+                    return oh(`路径<gray>${filename}</gray>不存在`);
                 }
+            }
+            var f = path.join(folders[prefix], filename) + extensions[aftfix++];
+            if (fs.existsSync(f)) {
+                fs.stat(f, function (error, stats) {
+                    if (error) return run();
+                    if (stats.isFile()) {
+                        return ok(f);
+                    }
+                    if (!findedFolder) {
+                        findedFolder = f;
+                    }
+                    run();
+                });
             }
             else run();
         };

@@ -88,8 +88,8 @@ var getPathInFolder = function (folder, filepath) {
     return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
 };
 function paddExtension(file) {
-    var parets = [""].concat(/^\.?[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
-    return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parets);
+    var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
+    return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parents);
 }
 var getBuildRoot = function (files, matchFileOnly) {
     files = [].concat(files || []);
