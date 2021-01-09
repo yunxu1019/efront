@@ -51,7 +51,7 @@ var doPost = module.exports = function (req, res) {
     }
     url = proxy(req);
     finalpacker(url, function (result, type) {
-        if (!(result instanceof Buffer)) {
+        if (!(result instanceof Buffer || result instanceof Function)) {
             result = String(result);
         } else {
             res.setHeader("Content-Type", result.mime || "application/json;charset:UTF-8");
