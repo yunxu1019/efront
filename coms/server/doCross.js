@@ -29,29 +29,36 @@ if (options.record_path) {
     loadCertFile("cert", "cross-cert.pem");
 }();
 function parseUrl(hostpath, real) {
-    var { pathname, search } = URL.parse(hostpath);
-    var slice_end = pathname.indexOf("@");
-    if (slice_end < 0) slice_end = pathname.length;
-    var jsonlike = pathname.slice(1, slice_end);
-    var realpath = real ? real.slice(1) : pathname.slice(slice_end + 1) + (search || "");
-    var matchlike = /^(?:\{|%7b)(s?)(\/|%2f)\2(.*?)\2(.*?)(?:\}|%7d)$/i.exec(jsonlike);
-    if (matchlike) {
-        // {s//wx2.qq.com/k=v,k=v,k=v}
+    var { pathname, search, hostname, protocol, port } = URL.parse(hostpath);
+    if (real === undefined && /^https?\:\/\//i.test(hostpath)) {
         var headers = {};
-        let [, s, , host, header] = matchlike;
-        var hostpath = `http${s}://${host}/`;
-        header.split(/[,&]/).forEach(function (kv) {
-            var [k, v] = kv.split("=");
-            if (k && v) try {
-                headers[decodeURIComponent(k)] = decodeURIComponent(v);
-            } catch (e) {
-                headers[unescape(k)] = unescape(v);
-            }
-        });
+        var realpath = pathname.slice(1);
+        hostpath = `${protocol}//${hostname}${port ? ':' + port : ''}/`;
     } else {
-        var { url: hostpath, token, headers = {} } = JSON.parse(decodeURIComponent(jsonlike));
-        if (!token) throw new Error("验证身份失败！");
-        hostpath = escape(hostpath);
+
+        var slice_end = pathname.indexOf("@");
+        if (slice_end < 0) slice_end = pathname.length;
+        var realpath = real ? real.slice(1) : pathname.slice(slice_end + 1) + (search || "");
+        var jsonlike = pathname.slice(1, slice_end);
+        var matchlike = /^(?:\{|%7b)(s?)(\/|%2f)\2(.*?)\2(.*?)(?:\}|%7d)$/i.exec(jsonlike);
+        if (matchlike) {
+            // {s//wx2.qq.com/k=v,k=v,k=v}
+            var headers = {};
+            let [, s, , host, header] = matchlike;
+            var hostpath = `http${s}://${host}/`;
+            header.split(/[,&]/).forEach(function (kv) {
+                var [k, v] = kv.split("=");
+                if (k && v) try {
+                    headers[decodeURIComponent(k)] = decodeURIComponent(v);
+                } catch (e) {
+                    headers[unescape(k)] = unescape(v);
+                }
+            });
+        } else {
+            var { url: hostpath, token, headers = {} } = JSON.parse(decodeURIComponent(jsonlike));
+            if (!token) throw new Error("验证身份失败！");
+            hostpath = escape(hostpath);
+        }
     }
     return { jsonlike, realpath, hostpath, headers };
 }
@@ -75,24 +82,24 @@ function cross(req, res, referer) {
     try {
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
-            if (/head|get/i.test(req.method)) {
+            if (/^head|^get/i.test(req.method)) {
                 var redirect = "/" + unescape(jsonlike) + "@" + realpath;
                 res.writeHead(302, {
                     "Location": redirect
                 });
                 return res.end();
             }
+            var $url = hostpath + realpath;
         } else {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
+            var $url = hostpath + realpath;
         }
-        var
-            $url = hostpath + realpath,
-            // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
-            method = req.method;//$_SERVER['REQUEST_METHOD'];
+        // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
+        var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
         var is_proxy = false;
         if (/^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(_headers.referer) && !headers.referer) {
-            headers.referer = hostpath + parseUrl(_headers.referer).realpath;
+            headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
             is_proxy = true;
         } else if (_headers.referer || _headers.origin === 'null') {
             headers.referer = hostpath;
@@ -132,7 +139,7 @@ function cross(req, res, referer) {
             var headers = response.headers;
             var setCookie = headers["set-cookie"];
             if (setCookie && !is_proxy) headers["efront-cookie"] = setCookie, delete headers["set-cookie"];
-            if (headers.location) {
+            if (headers.location && referer) {
                 headers["efront-location"] = headers.location;
                 delete headers.location;
             }
@@ -214,15 +221,27 @@ function cross(req, res, referer) {
         req.on("close", function (e) {
             closed = true;
         });
-        request.setTimeout(36000/*support for wechat long pull*/);
+        request.setTimeout(120000/*support for wechat long pull*/);
         request.on("error", function (e) {
+            var code;
+            switch (e.code) {
+                case "ECONNRESET":
+                case "ECONNREFUSED":
+                    code = 502;
+                    break;
+                case "ETIMEDOUT":
+                    code = 504;
+                    break;
+                default:
+                    code = 500;
+            }
             closed = true;
-            res.writeHead(403, {});
+            res.writeHead(code, {});
             res.end(String(e));
         });
         req.pipe(request);
     } catch (e) {
-        res.writeHead(403, {});
+        res.writeHead(500, {});
         res.end(String(e));
     }
 }

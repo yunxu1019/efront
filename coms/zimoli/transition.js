@@ -20,6 +20,14 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
         _initialStyle = isLeave;
         isLeave = arguments[2];
     }
+    if (target instanceof Array) {
+        target.forEach(function (target) {
+            transition(target, isLeave, _initialStyle);
+        });
+        return;
+    }
+    if (!target.style) return;
+
     var initialStyle = _initialStyle || target.initialStyle;
     var { recoverStyle, transitionTimerStart, transitionTimerEnd } = target;
     clearTimeout(transitionTimerStart);
@@ -27,11 +35,7 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
     if (isString(initialStyle)) {
         initialStyle = parseKV(initialStyle, ";", ":");
     }
-    if (target instanceof Array) {
-        target.map(function (target) {
-            transition(target, isLeave, _initialStyle);
-        });
-    } else if (isObject(initialStyle)) {
+    if (isObject(initialStyle)) {
         let transitionDuration = 100;
         if (!initialStyle.transition) {
             initialStyle.transition = "all .3s ease";
@@ -64,16 +68,19 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
         } else {
             extend(target.style, initialStyle);
             if (transitionKey) target.style[transitionKey] = "none";
+            var waitPaint = 20;
             transitionTimerStart = setTimeout(function () {
                 delete recoverStyle.transition;
                 if (transitionKey) target.style[transitionKey] = initialStyle.transition;
-                extend(target.style, recoverStyle);
+                target.transitionTimerStart = setTimeout(function () {
+                    extend(target.style, recoverStyle);
+                }, waitPaint);
             });
             transitionTimerEnd = setTimeout(function (transition) {
                 return function () {
                     if (transitionKey) target.style[transitionKey] = transition;
                 };
-            }(recoverStyle.transition || ''), transitionDuration);
+            }(recoverStyle.transition || ''), transitionDuration + waitPaint);
         }
         target.transitionTimerStart = transitionTimerStart;
         target.transitionTimerEnd = transitionTimerEnd;

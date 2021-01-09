@@ -1,3 +1,4 @@
+"use ../basic/size.js";
 /**
  * 支持任意类型的数据的编辑展示及过滤
  */
@@ -106,10 +107,7 @@ var readonly_types = {
     },
     "size"(field, data) {
         var f = data[field.key];
-        var log = Math.log(f) / Math.LN2 / 10 | 0;
-        f /= Math.pow(2, log * 10);
-        f = +f.toFixed(2);
-        return f + "KMGTPEZY".charAt(log - 1) + "B";
+        return size(f);
     }
 };
 function main(elem) {

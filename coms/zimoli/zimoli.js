@@ -149,42 +149,38 @@ function go(pagepath, args, history_name, oldpagepath) {
     }
     var page_object = page_generators[pagepath];
     var fullfill = function () {
-        try {
-            var _page = create(pagepath, args, oldpagepath);
-            var isDestroy = pushstate(pagepath, history_name, oldpagepath);
-            if (isNode(history_name)) {
-                if (history_name.activate === pagepath && history_name.activateNode === _page) return fullfill_is_dispatched--;
-                else remove(history_name.activateNode);
-                history_name.activate = pagepath;
-                history_name.activateNode = _page;
+        var _page = create(pagepath, args, oldpagepath);
+        var isDestroy = pushstate(pagepath, history_name, oldpagepath);
+        if (isNode(history_name)) {
+            if (history_name.activate === pagepath && history_name.activateNode === _page) return fullfill_is_dispatched--;
+            else remove(history_name.activateNode);
+            history_name.activate = pagepath;
+            history_name.activateNode = _page;
+        }
+        if (isString(pagepath)) {
+            if (fullfill_is_dispatched > 0) return;
+            fullfill_is_dispatched = 1;
+            var event = createEvent("zimoli");
+            event.$reload = fullfill;
+            event.zimoli = {
+                path: pagepath,
+                roles,
+                data: args,
+                target: _page,
+                options
+            };
+            dispatch(window, event);
+            fullfill_is_dispatched = 0;
+        }
+        addGlobal(_page, history_name, isDestroy);
+        page_object.prepares.forEach(function (url) {
+            if (isNumber(url)) {
+                url = _history[url < 1 ? _history.length + url - 1 : url];
             }
-            if (isString(pagepath)) {
-                if (fullfill_is_dispatched > 0) return;
-                fullfill_is_dispatched = 1;
-                var event = createEvent("zimoli");
-                event.$reload = fullfill;
-                event.zimoli = {
-                    path: pagepath,
-                    roles,
-                    data: args,
-                    target: _page,
-                    options
-                };
-                dispatch(window, event);
-                fullfill_is_dispatched = 0;
-            }
-            addGlobal(_page, history_name, isDestroy);
-            page_object.prepares.forEach(function (url) {
-                if (isNumber(url)) {
-                    url = _history[url < 1 ? _history.length + url - 1 : url];
-                }
-                if (isString(url)) prepare(url);
-            });
-            if (_page) {
-                _page.$reload = fullfill;
-            }
-        } catch (e) {
-            console.error(e);
+            if (isString(url)) prepare(url);
+        });
+        if (_page) {
+            _page.$reload = fullfill;
         }
         return _page;
     };

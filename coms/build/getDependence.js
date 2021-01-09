@@ -80,7 +80,7 @@ function getDependence(response) {
             required = required.split(";");
             required = get_relatives(response.url, required, dependence);
         }
-        if (required1) {
+        if (required1 && required1.length) {
             required1 = get_relatives(response.url, required1, dependence);
         }
         dependence.require = required1.concat(required || []);

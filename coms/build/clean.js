@@ -7,29 +7,27 @@ var deeprm = function (dir) {
             console.fail(dir);
             return console.error("请不要在源码文件夹执行清理操作！"), oh();
         }
-        fs.exists(dir, function (exists) {
-            if (!exists) return ok();
-            fs.stat(dir, function (error, stat) {
-                if (error) return oh(error);
-                if (stat.isDirectory()) {
-                    fs.readdir(dir, function (error, names) {
-                        if (error) return oh(error);
-                        Promise.all(names.map(function (name) {
-                            return deeprm(path.join(dir, name));
-                        })).then(function () {
-                            fs.rmdir(dir, function (error) {
-                                if (error) return oh(error);
-                                ok();
-                            });
-                        }).catch(oh);
-                    });
-                } else {
-                    fs.unlink(dir, function (error) {
-                        if (error) return oh(error);
-                        ok();
-                    });
-                }
-            });
+        if (!fs.existsSync(dir)) return ok();
+        fs.stat(dir, function (error, stat) {
+            if (error) return oh(error);
+            if (stat.isDirectory()) {
+                fs.readdir(dir, function (error, names) {
+                    if (error) return oh(error);
+                    Promise.all(names.map(function (name) {
+                        return deeprm(path.join(dir, name));
+                    })).then(function () {
+                        fs.rmdir(dir, function (error) {
+                            if (error) return oh(error);
+                            ok();
+                        });
+                    }).catch(oh);
+                });
+            } else {
+                fs.unlink(dir, function (error) {
+                    if (error) return oh(error);
+                    ok();
+                });
+            }
         });
     });
 };

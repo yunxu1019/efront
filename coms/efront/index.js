@@ -152,6 +152,7 @@ var showTopicInfo = function (commands, prefix = '') {
 };
 var helps = [
     "显示版本号,version,-v,--version",
+    "查看efront自身占用的内存,memery,memory,-m,--memery,--memory",
     "显示帮助信息,help,-h,--help,help COMMAND,-h COMMAND,--help COMMAND",
     "启动文档服务器,docs",
     "启动示例项目服务器,demo,demo APPNAME",
@@ -176,6 +177,9 @@ var commands = {
         console.type(
             `efront <white2>${require(path.join(__dirname, "../../package.json")).version}</white2>`
         );
+    },
+    memery() {
+        console.type(`${require("../basic/size")(process.resourceUsage ? process.resourceUsage().maxRSS * 1024 : process.memoryUsage().rss)}`);
     },
     kill(port) {
         this.request(port ? port + "/:quit" : "/:quit").then(console.info, console.error);
@@ -710,13 +714,13 @@ var argv = process.argv.slice(1).filter(a => {
     }
     a = a.replace(/^--/, '');
     var key, value = '';
-    if (/^(no|off|not|is-not)-/.test(a)) {
+    if (/^(no|off|not|is-not|disable)-/.test(a)) {
         value = false;
     }
-    if (/^(on|yes|is(?!-not))-/.test(a)) {
+    if (/^(on|yes|is(?!-not)|enable)-/.test(a)) {
         value = true;
     }
-    a = a.replace(/^(no|on|yes|off|is-not|is)-/, '');
+    a = a.replace(/^(no|on|yes|off|is-not|is|enable|disable)-/, '');
     if (/=/.test(a)) {
         [key, value] = a.split("=");
     } else {

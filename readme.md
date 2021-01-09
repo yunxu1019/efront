@@ -107,6 +107,7 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 | `PAGE`| 页面文件存放的路径，默认为应用名`APP`
 | `COMM`| 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
 | `PREFIX`| 发布时指定组件className前缀，默认无前缀
+| `NOPROXY`| 传统代理，默认在开发环境开启传统代理，在生产环境禁用传统代理
 | `PATH.SSL_PFX`| ssl证书的路径，证书要使用pfx格式的
 | `PASSWORD.SSL_PFX`| ssl证书密码
 

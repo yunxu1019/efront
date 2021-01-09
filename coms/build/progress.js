@@ -19,15 +19,12 @@ var _finish = require("./finish");
 var setting = require("./setting");
 var getBuiltVersion = function (filepath) {
     return new Promise(function (ok) {
-        fs.exists(filepath, function (exists) {
-            if (!exists) return ok();
-            fs.stat(filepath, function (error, stats) {
+        fs.stat(filepath, function (error, stats) {
+            if (error) return ok();
+            if (!stats.isFile()) return ok();
+            fs.readFile(filepath, function (error, data) {
                 if (error) return ok();
-                if (!stats.isFile()) return ok();
-                fs.readFile(filepath, function (error, data) {
-                    if (error) return ok();
-                    ok(data);
-                });
+                ok(data);
             });
         });
     }).then(function (data) {

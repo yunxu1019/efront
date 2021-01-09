@@ -1,4 +1,4 @@
-
+"use ../basic/KMGT.txt"
 function scanBlock(piece) {
     if (!piece) return [];
     var reg = /\\[\s\S]|^\s*[#\-]\s*|\s+|"|'/mg;
@@ -141,7 +141,7 @@ function parse(piece) {
     var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
     if (sizematch) {
         var [size_text, size, unit] = sizematch;
-        var ratio = 'KMGTPEZY'.indexOf(unit.toUpperCase().charAt(0));
+        var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
         size *= Math.pow(1024, ratio + 1);
         if (ratio >= 0) {
             unit = unit.slice(1).replace(/^i/, '');
@@ -214,6 +214,7 @@ var numberFromBuffer = function (buff, start = 0, end = buff.length << 3) {
     }
     return num;
 };
+var copy = a => a;
 
 var proto = {
     parse(data, start = 0) {
@@ -243,10 +244,10 @@ var proto = {
             var bitOffset = (offset - byteOffset) * 8;
             if (bitOffset > 0) {
                 byteOffset++;
-                offset++;
                 bitOffset = 8 - bitOffset;
             }
             var bytes = data.slice(byteIndex, byteOffset);
+            if (bitOffset > 0 || bitIndex > 0) bytes = bytes.map(copy);
             if (bitOffset > 0) {
                 bytes[bytes.length - 1] = bytes[bytes.length - 1] >> bitOffset << bitOffset;
             }
@@ -272,6 +273,8 @@ var proto = {
             }
             else if (/^s/i.test(field.type)) {
                 value = String(value);
+            } else {
+                value = bytes.map(copy);
             }
             if (field.fields) {
                 var saved_map = map;

@@ -45,13 +45,17 @@ if (isDevelop) {
 }
 
 var doPost = module.exports = function (req, res) {
-    res.setHeader("Content-Type", "application/json;charset:UTF-8");
     var url = req.url;
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
     }
     url = proxy(req);
     finalpacker(url, function (result, type) {
+        if (!(result instanceof Buffer)) {
+            result = String(result);
+        } else {
+            res.setHeader("Content-Type", result.mime || "application/json;charset:UTF-8");
+        }
         switch (type) {
             case "api":
                 if (result instanceof Function) result(req, res);
@@ -62,13 +66,13 @@ var doPost = module.exports = function (req, res) {
                 else res.writeHead(404, {}) | res.end();
                 break;
             case "comm":
-                res.end(String(result));
+                res.end(result);
                 break;
             case "page":
-                res.end(String(result));
+                res.end(result);
                 break;
             case "ccon":
-                res.end(String(result));
+                res.end(result);
                 break;
             case 404:
                 res.writeHead(404, {});

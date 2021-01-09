@@ -2,9 +2,10 @@
 var Scanner = function (dataString, syntax) {
     this.source = dataString;
     this.syntax = syntax.syntax;
-    this.token = syntax.token;
     this.entry = syntax.entry;
-    this.block = new this.token(syntax.entry, 0);
+    var Token = this.token = syntax.token;
+    var block = this.block = new Token(syntax.entry, 0);
+    block.scanner = this;
     this.blocks = this.block.children = [];
     this.source = dataString;
 }
