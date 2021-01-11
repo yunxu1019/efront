@@ -33,4 +33,4 @@ var check = function (data, needs) {
     }
     return needs === true;
 };
-export default check;
+check.default = check.check = check;
