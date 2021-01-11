@@ -60,7 +60,7 @@ function test_file_parse() {
   // https://blog.csdn.net/yu_yuan_1314/article/details/9491763
   var flac = refilm`
     f/flac 4B=fLaC/str
-    [meta,isend=1]{
+    [meta,isend=true]{
       isend 1bit/bool
       type 7bit [
         streaminfo{
@@ -87,13 +87,13 @@ function test_file_parse() {
         无效
       ]
       block_size 24bit/int
-      / .type
       / -block_size
+      / .type
     }`;
 
   console.log(flac);
   if (!window.require) return console.log("请在 electron 中运行");
-  var data = window.require('fs').readFileSync('d:\\data\\简单爱.flac');
+  var data = window.require('fs').readFileSync('d:\\音乐\\童话镇.flac');
   var parsed = flac.parse(data);
   console.log(parsed);
 }
