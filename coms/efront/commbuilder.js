@@ -8,6 +8,7 @@ var breakcode = require("../compile/breakcode");
 var less = require("../less-node")();
 var isDevelop = require("./isDevelop");
 var inCom = require("./inCom");
+var inPage = require("./inPage");
 less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
@@ -395,23 +396,24 @@ var mimeTypes = require("../efront/mime");
 var shortpath = require("../basic/shortpath");
 var renderImageUrl = function (data, filepath) {
     var urlReg = [
-        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])(.*?)\1\s*\)/ig,
-        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])(.*?)\1/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])([^,;\('"`\r\n\u2028\u2029\s]*?)\1/ig,
     ];
     var replacer = function (data, realpath, match) {
         var mime = mimeTypes[path.extname(realpath).slice(1)];
         var compath = inCom(realpath);
-        if (!mime || !compath && !/\-/.test(match)) return false;
-        data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
-        if (data.length > 8 * 1024) {
-            if (compath) {
+        var pagepath = inPage(realpath);
+        if (!mime || !compath && !pagepath) return match;
+        if (pagepath) {
+            data = pagepath.replace(/\\/g, '/');
+        } else {
+            data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
+            if (data.length > 8 * 1024) {
                 if (isDevelop || commbuilder.compress === false) {
                     data = ":comm/" + compath.replace(/\\/g, '/');
                 } else {
                     data = "data" + path.extname(realpath) + data.slice(4);
                 }
-            } else {
-                return match.replace(/^(data|efront)\-/i, '');
             }
         }
         var quote = match[match.length - 1];
