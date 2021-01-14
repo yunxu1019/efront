@@ -123,7 +123,7 @@ var write = function (hasNewLine, str) {
     "fail:[ ✘ ]:FgRed2:",
     "test:[ ∞ ]:FgYellow:",
     "info:提示:FgCyan:",
-    "warn:警告:FgYellow:",
+    "warn:注意:FgYellow:",
     "error:错误:FgRed2:"
 ].forEach(function (config) {
     var [log, info = log.toUpperCase(), fg, bg] = config.split(":");
