@@ -11,7 +11,7 @@ var inCom = require("./inCom");
 less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
-var bindLoadings = function (reg, data, fullpath, replacer = a => a, deep) {
+var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     if (!data) return data;
     var regs = [].concat(reg);
     var regindex = 0;
@@ -24,6 +24,22 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a, deep) {
             if (skipreg.test(match)) return match;
             loadurls.push(relative);
         });
+        var trimurl = url => path.relative(fullpath, path.join(path.dirname(fullpath), url));
+        if (fullpath !== rootfile) {
+            data = data.replace(/\b(url|require|init)\(\s*(['"`]|)([^'"`;\:,\u2029\u2028\r\n]+)\2\s*\)/i, function (_, type, quote, url) {
+                if (/^(https?|ftp|data):|^[\/\\]/i.test(url)) return _;
+                if (!quote && deep !== 0) return _;
+                var url = trimurl(url);
+                if (!fs.existsSync(url)) return _;
+                return `${type}(${quote}${url}${quote})`;
+            }).replace(/\b(src|href)\s*=\s*(['"`]|)([^'"`\r\n\u2028\u2029\:;,]+)\2/, function (_, type, quote, url) {
+                if (/^(https?|ftp|data):|^[\/\\]/i.test(url)) return _;
+                if (!quote && deep !== 0) return _;
+                url = trimurl(url);
+                if (!fs.existsSync(url)) return _;
+                return `${type}=${quote}${url}${quote}`;
+            });
+        }
         if (!loadurls.length) {
             if (regindex + 1 >= regs.length || increase === 0) return Promise.resolve(data);
             return regindex++, run(data, fullpath, increase);
@@ -71,7 +87,7 @@ var bindLoadings = function (reg, data, fullpath, replacer = a => a, deep) {
             });
         })
     };
-    return run(data, fullpath, 1);
+    return run(data, rootfile, 1);
 };
 
 var loadUseBody = function (source, fullpath, watchurls, commName) {
@@ -375,8 +391,8 @@ var mimeTypes = require("../efront/mime");
 var shortpath = require("../basic/shortpath");
 var renderImageUrl = function (data, filepath) {
     var urlReg = [
-        /\b(?:efront|data)\-(?:src|ur[il])\s*\(\s*(['"`])(.*?)\1\s*\)/ig,
-        /\b(?:efront|data)\-(?:src|ur[il])\s*\=\s*(['"`])(.*?)\1/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])(.*?)\1\s*\)/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])(.*?)\1/ig,
     ];
     var replacer = function (data, realpath, match) {
         var mime = mimeTypes[path.extname(realpath).slice(1)];
@@ -411,7 +427,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
         }
         return data;
     };
-    var lessresult = bindLoadings(importLessReg, data, lesspath, replacer);
+    var lessresult = bindLoadings(importLessReg, data, lesspath, replacer, 0);
     watchurls.push(lesspath);
     var promise = Promise.resolve(lessresult)
         .then(function (data) {
