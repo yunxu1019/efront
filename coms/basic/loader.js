@@ -332,7 +332,7 @@ var getArgs = function (text) {
     } else {
         functionBody = text;
     }
-    functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)?/i, "\"use strict\";\r\n");
+    functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)*/i, "\"use strict\";\r\n");
     return [argNames || [], functionBody, args || [], required || '', strs || []];
 };
 var get_relatives = function (name, required, prefix = "") {
