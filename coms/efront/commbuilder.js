@@ -24,19 +24,23 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
             if (skipreg.test(match)) return match;
             loadurls.push(relative);
         });
-        var trimurl = url => path.relative(fullpath, path.join(path.dirname(fullpath), url));
+        var trimurl = url => {
+            var u = path.join(path.dirname(fullpath), url);
+            if (!fs.existsSync(u)) return;
+            return path.relative(fullpath, u).replace(/\\/g, '/');
+        };
         if (fullpath !== rootfile) {
             data = data.replace(/\b(url|require|init)\(\s*(['"`]|)([^'"`;\:,\u2029\u2028\r\n]+)\2\s*\)/i, function (_, type, quote, url) {
                 if (/^(https?|ftp|data):|^[\/\\]/i.test(url)) return _;
                 if (!quote && deep !== 0) return _;
                 var url = trimurl(url);
-                if (!fs.existsSync(url)) return _;
+                if (!url) return _;
                 return `${type}(${quote}${url}${quote})`;
             }).replace(/\b(src|href)\s*=\s*(['"`]|)([^'"`\r\n\u2028\u2029\:;,]+)\2/, function (_, type, quote, url) {
                 if (/^(https?|ftp|data):|^[\/\\]/i.test(url)) return _;
                 if (!quote && deep !== 0) return _;
                 url = trimurl(url);
-                if (!fs.existsSync(url)) return _;
+                if (!url) return _;
                 return `${type}=${quote}${url}${quote}`;
             });
         }
