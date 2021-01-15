@@ -28,7 +28,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
         var trimurl = url => {
             var u = path.join(path.dirname(fullpath), url);
             if (!fs.existsSync(u)) return;
-            return path.relative(fullpath, u).replace(/\\/g, '/');
+            return path.relative(path.dirname(rootfile), u).replace(/\\/g, '/');
         };
         if (fullpath !== rootfile) {
             data = data.replace(/\b(url|require|init)\(\s*(['"`]|)([^'"`;\:,\u2029\u2028\r\n]+)\2\s*\)/i, function (_, type, quote, url) {
