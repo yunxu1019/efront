@@ -346,7 +346,7 @@ var proto = {
                     value = 1 + numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
                 else if (/^s/i.test(field.type)) {
-                    value = String(value);
+                    value = String.fromCharCode.apply(null, value);
                 } else {
                     value = bytes.map(copy);
                 }

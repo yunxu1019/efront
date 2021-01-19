@@ -40,6 +40,33 @@ var steps = [
   `,
 ];
 
+var fetchPiece = function (url, start, end, onprocess) {
+  var xhr = new XMLHttpRequest;
+  xhr.open("get", url);
+  xhr.responseType = "arraybuffer";
+  xhr.setRequestHeader("Range", `${start}-${end}`);
+  xhr.send();
+  xhr.onload = function () {
+    onprocess(new Uint8Array(this.response), start);
+  }
+};
+var getFile = function (url, onprocess) {
+  var xhr = new XMLHttpRequest;
+  xhr.open("get", url);
+  xhr.responseType = "arraybuffer";
+  xhr.onreadystatechange = function (a) {
+    if (this.readyState === 4 && this.response) {
+      return onprocess(new Uint8Array(this.response), 0, + this.getResponseHeader("Content-Length"));
+    }
+    var a = +this.getResponseHeader("Content-Length");
+    if (a) {
+      this.abort();
+      onprocess(null, 0, a);
+    }
+  };
+  xhr.send();
+};
+
 var scope = {
   prevStep() {
     if (this.index > 0) {
@@ -90,12 +117,21 @@ function test_file_parse() {
       / -block_size
       / .type
     }`;
-
+  var url = "/@/data/liangliang.flac"
+  getFile(url, function (data, start, total) {
+    if (data) {
+      console.log(data);
+      var parsed = flac.parse(data);
+      console.log(parsed);
+    } else {
+      fetchPiece(url, start, total, function (data) {
+        console.log(data);
+        var parsed = flac.parse(data);
+        console.log(parsed);
+      })
+    }
+  });
   console.log(flac);
-  if (!window.require) return console.log("请在 electron 中运行");
-  var data = window.require('fs').readFileSync('d:\\音乐\\童话镇.flac');
-  var parsed = flac.parse(data);
-  console.log(parsed);
 }
 function main() {
   test_file_parse();
