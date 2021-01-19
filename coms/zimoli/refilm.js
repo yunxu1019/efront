@@ -378,18 +378,23 @@ var proto = {
                 field,
                 bytes
             });
-            if (field.repeat) {
-                if (!check(value, field.endwith)) {
-                    index = map_end;
-                    if (index < total) return read(field);
-                }
-            }
 
             return value;
         };
-        fields.forEach(read);
+        for (var cx = 0, dx = fields.length; cx < dx; cx++) {
+            var field = fields[cx];
+            var value = read(field);
+            if (field.repeat) {
+                while (!check(value, field.endwith)) {
+                    index = map_end;
+                    if (index < total) read(field);
+                }
+            }
+            if (index >= total) break;
+        }
         return map;
-    }
+    },
+    reset() { }
 };
 
 function refilm(str) {

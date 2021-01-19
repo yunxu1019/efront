@@ -44,7 +44,7 @@ var fetchPiece = function (url, start, end, onprocess) {
   var xhr = new XMLHttpRequest;
   xhr.open("get", url);
   xhr.responseType = "arraybuffer";
-  xhr.setRequestHeader("Range", `${start}-${end}`);
+  xhr.setRequestHeader("Range", `bytes=${start}-${end}`);
   xhr.send();
   xhr.onload = function () {
     onprocess(new Uint8Array(this.response), start);
@@ -124,7 +124,8 @@ function test_file_parse() {
       var parsed = flac.parse(data);
       console.log(parsed);
     } else {
-      fetchPiece(url, start, total, function (data) {
+
+      fetchPiece(url, start, flac[0].size - 1, function (data) {
         console.log(data);
         var parsed = flac.parse(data);
         console.log(parsed);
