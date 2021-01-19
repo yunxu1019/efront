@@ -73,9 +73,9 @@ function unfoldOptions(size, options) {
             o = createOption(o);
             options.splice(cx, 1);
             var deltaLength = size - options.length;
-            new Array(deltaLength).fill(o).forEach(a => {
-                options.splice(cx, 0, a);
-            });
+            for (let cy = 0, dy = deltaLength; cy < dy; cy++) {
+                options.splice(cx, 0, o);
+            }
             cx += deltaLength - 1;
             dx = options.length;
         } else {
