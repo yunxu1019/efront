@@ -387,7 +387,12 @@ var proto = {
             if (field.repeat) {
                 while (!check(value, field.endwith)) {
                     index = map_end;
-                    if (index < total) read(field);
+                    if (index < total) {
+                        let temp_end = map_end;
+                        value = read(field);
+                        if (temp_end === map_end) break;
+                    }
+                    else break;
                 }
             }
             if (index >= total) break;
