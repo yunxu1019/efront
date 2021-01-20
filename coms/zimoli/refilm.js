@@ -139,7 +139,7 @@ function parseValue(map) {
 var last_type = '';
 var piecepath = [];
 function parse(piece) {
-    piece = piece.map(p => p.trim()).filter(p => p);
+    piece = piece.map(p => isString(p) ? p.trim() : p).filter(p => p);
     if (/^[\}\]]/.test(piece[0])) {
         var f = piecepath.pop()
         last_type = f.last_type;
@@ -156,66 +156,67 @@ function parse(piece) {
         piece[piece.length - 1] = p.slice(0, p.length - 1);
     }
     var [name, type, options] = piece, key, repeat;
-    if (piece.length === 1) {
-        if (name instanceof Object) return name;
-    }
-    if (typeof name === 'string') {
-        if (!isContainer) {
-            if (!type) {
-                switch (name.charAt(0)) {
-                    case "#":
-                    case "-":
-                        type = "title";
-                        name = name.replace(/^[\-#]+/, '');
-                        break;
-                    default:
-                        type = last_type;
+    if (piece.length === 1 && isObject(name)) {
+        var { name, type, key, size, unit, endwith, ratio, value, repeat, options } = name;
+    } else {
+        if (typeof name === 'string') {
+            if (!isContainer) {
+                if (!type) {
+                    switch (name.charAt(0)) {
+                        case "#":
+                        case "-":
+                            type = "title";
+                            name = name.replace(/^[\-#]+/, '');
+                            break;
+                        default:
+                            type = last_type;
+                    }
+                } else {
+                    last_type = type;
                 }
+            }
+            if (/^\[[\s\S]*\]$/.test(name)) {
+                repeat = true;
+                name = name.replace(/^\[|\]$/g, '');
+                if (/\,/.test(name)) {
+                    var commaindex = name.indexOf(",");
+                    var endwith = parseKV(name.slice(commaindex + 1));
+                    endwith = parseValue(endwith);
+                    name = name.slice(0, commaindex);
+                }
+            }
+            [name, key] = scanSlant(name, '/');
+            if (key === undefined) key = name;
+        }
+        var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
+        if (sizematch) {
+            var [size_text, size, unit] = sizematch;
+            var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
+            size *= Math.pow(1024, ratio + 1);
+            if (ratio >= 0) {
+                unit = unit.slice(1).replace(/^i/, '');
+            }
+            if (unit === 'B') unit = "byte";
+            else if (unit === 'b') unit = 'bit';
+            unit = unit.toLowerCase();
+            var ratio = unit === 'bit' ? .125 : 1;
+            type = type.slice(size_text.length);
+            if (/\=/.test(type)) {
+                var value = type.slice(1, (size * ratio) + 1);
+                type = type.slice(value.length + 1) || 'flag';
+            }
+            if (!type) {
+                type = size + unit;
             } else {
-                last_type = type;
+                type = type.replace(/^[\|\:\-\,\/]/, '');
             }
         }
-        if (/^\[[\s\S]*\]$/.test(name)) {
-            repeat = true;
-            name = name.replace(/^\[|\]$/g, '');
-            if (/\,/.test(name)) {
-                var commaindex = name.indexOf(",");
-                var endwith = parseKV(name.slice(commaindex + 1));
-                endwith = parseValue(endwith);
-                name = name.slice(0, commaindex);
-            }
+        if (typeof options === "string") {
+            var needUnfold = /^\[|\]$/.test(options);
+            options = options.replace(/^\[|\]$/g, '');
+            options = scanSlant(options, ',');
+            if (needUnfold) unfoldOptions(size, options);
         }
-        [name, key] = scanSlant(name, '/');
-        if (key === undefined) key = name;
-    }
-    var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
-    if (sizematch) {
-        var [size_text, size, unit] = sizematch;
-        var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
-        size *= Math.pow(1024, ratio + 1);
-        if (ratio >= 0) {
-            unit = unit.slice(1).replace(/^i/, '');
-        }
-        if (unit === 'B') unit = "byte";
-        else if (unit === 'b') unit = 'bit';
-        unit = unit.toLowerCase();
-        var ratio = unit === 'bit' ? .125 : 1;
-        type = type.slice(size_text.length);
-        if (/\=/.test(type)) {
-            var value = type.slice(1, (size * ratio) + 1);
-            type = type.slice(value.length + 1) || 'flag';
-        }
-        if (!type) {
-            type = size + unit;
-        } else {
-            type = type.replace(/^[\|\:\-\,\/]/, '');
-        }
-    }
-    if (typeof options === "string") {
-        var needUnfold = /^\[|\]$/.test(options);
-        options = options.replace(/^\[|\]$/g, '');
-        options = scanSlant(options, ',');
-        if (needUnfold) unfoldOptions(size, options);
     }
     var field = { name, type, key, size, unit, endwith, ratio, value, repeat, options };
     var parent = piecepath[piecepath.length - 1];

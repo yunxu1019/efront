@@ -44,7 +44,7 @@ var fetchPiece = function (url, start, end, onprocess) {
   var xhr = new XMLHttpRequest;
   xhr.open("get", url);
   xhr.responseType = "arraybuffer";
-  xhr.setRequestHeader("Range", `bytes=${start}-${end}`);
+  xhr.setRequestHeader("Range", `bytes=${start}-${end - 1}`);
   xhr.send();
   xhr.onload = function () {
     onprocess(new Uint8Array(this.response), start);
@@ -85,34 +85,38 @@ var scope = {
 var console = window.console;
 function test_file_parse() {
   // https://blog.csdn.net/yu_yuan_1314/article/details/9491763
+  var type = refilm`
+  type 7bit [
+    streaminfo{
+      minblocksize 16bit/int
+      maxblocksize 16bit/int
+      minframesize 24bit/int
+      maxframesize 24bit/int
+      采样率/rate 20bit/int
+      声道数/channels 3bit/raise
+      采样位数  5bit/raise
+      单声道采样数 36bit/int
+      原始信号签名/md5 128bit
+    }
+    padding 1bit
+    application {
+      id 32bit
+      data -1bit
+    }
+    seektable
+    vorbis_commen
+    cuesheet
+    picture
+    ...reserved
+    无效
+  ]
+`[0];
+  console.log(type);
   var flac = refilm`
     f/flac 4B=fLaC/str
     [meta,isend=true]{
       isend 1bit/bool
-      type 7bit [
-        streaminfo{
-          minblocksize 16bit/int
-          maxblocksize 16bit/int
-          minframesize 24bit/int
-          maxframesize 24bit/int
-          采样率/rate 20bit/int
-          声道数/channels 3bit/raise
-          采样位数  5bit/raise
-          单声道采样数 36bit/int
-          原始信号签名/md5 128bit
-        }
-        padding 1bit
-        application {
-          id 32bit
-          data -1bit
-        }
-        seektable
-        vorbis_commen
-        cuesheet
-        picture
-        ...reserved
-        无效
-      ]
+      ${type}
       block_size 24bit/int
       / -block_size
       / .type
@@ -125,7 +129,7 @@ function test_file_parse() {
       console.log(parsed);
     } else {
 
-      fetchPiece(url, start, flac[0].size - 1, function (data) {
+      fetchPiece(url, start, 4200, function (data) {
         console.log(data);
         var parsed = flac.parse(data);
         console.log(parsed);
