@@ -110,7 +110,17 @@ function test_file_parse() {
         采样数/cys 2byte/int
       
     }
-    vorbis_commen
+    vorbis_commen{
+      vender_length 32bit/small
+      vender_text :vender_length/str
+      user_length 32bit/small
+      / -user_length
+      [user_comments]{
+        length 32bit/small
+        comment :length/str
+      }
+
+    }
     cuesheet
     picture
     ...reserved

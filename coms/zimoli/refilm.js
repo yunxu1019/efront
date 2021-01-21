@@ -210,6 +210,14 @@ function parse(piece) {
             } else {
                 type = type.replace(/^[\|\:\-\,\/]/, '');
             }
+        } else if (/^\:[^\/\:\-\,\/]+/.test(type)) {
+            var size = /^\:[^\/\:\-\,\/]+/.exec(type)[0];
+            type = type.slice(size.length + 1);
+            if (!type) {
+                type = size.slice(1);
+            }
+        } else if (/^[\/]/.test(type)) {
+            type = type.slice(1);
         }
         if (typeof options === "string") {
             var needUnfold = /^\[|\]$/.test(options);
@@ -265,6 +273,14 @@ var numberFromBuffer = function (buff, start = 0, end = buff.length << 3) {
     }
     return num;
 };
+var numberFromSmallEnd = function (buff) {
+    var cx = buff.length, sum = 0;
+    while (cx-- > 0) {
+        sum *= 8;
+        sum += buff[cx]
+    }
+    return sum;
+};
 var copy = a => a;
 
 var proto = {
@@ -299,7 +315,7 @@ var proto = {
             return value;
         };
         var read = function (field) {
-            var { size, ratio, type } = field;
+            var { size, ratio = 1, type } = field;
             if (/^\./.test(type)) {
                 var option = map[type.slice(1)];
                 if (option && option.fields instanceof Array) {
@@ -316,6 +332,11 @@ var proto = {
                 var rest_size = map[type.slice(1)];
                 total = map_end = rest_size + index;
                 return;
+            }
+            if (size === undefined && isString(field.type)) {
+                size = (map_end - index) / ratio;
+            } else if (/^\:/.test(size)) {
+                size = map[size.slice(1)];
             }
             if (index >= total) {
                 value = null;
@@ -347,7 +368,9 @@ var proto = {
                 }
 
                 var value = bytes;
-                if (/^n|^i|^f/i.test(field.type)) {
+                if (/^small/i.test(field.type)) {
+                    value = numberFromSmallEnd(value);
+                } else if (/^n|^i|^f/i.test(field.type)) {
                     value = numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
                 else if (/^b/i.test(field.type)) {
