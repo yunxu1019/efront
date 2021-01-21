@@ -103,7 +103,13 @@ function test_file_parse() {
       id 32bit
       data -1bit
     }
-    seektable
+    [seektable,cys=0]{
+      
+        序号/id 8byte/int
+        偏移量/pyl 8byte/int
+        采样数/cys 2byte/int
+      
+    }
     vorbis_commen
     cuesheet
     picture
@@ -129,7 +135,7 @@ function test_file_parse() {
       console.log(parsed);
     } else {
 
-      fetchPiece(url, start, 4200, function (data) {
+      fetchPiece(url, start, 42000, function (data) {
         console.log(data);
         var parsed = flac.parse(data);
         console.log(parsed);

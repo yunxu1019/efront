@@ -188,7 +188,7 @@ function parse(piece) {
             [name, key] = scanSlant(name, '/');
             if (key === undefined) key = name;
         }
-        var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|byte|bit|B|)\b/i.exec(type);
+        var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|bytes?|bits?|B|)\b/i.exec(type);
         if (sizematch) {
             var [size_text, size, unit] = sizematch;
             var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
@@ -253,7 +253,7 @@ var numberFromBuffer = function (buff, start = 0, end = buff.length << 3) {
     var rest = index + (end - bitIndex >> 3);
     while (index < rest) {
         var delta = buff[index];
-        num = num * 8;
+        num = num * 256;
         num += delta;
         index++;
     }
@@ -273,18 +273,29 @@ var proto = {
         var index = start;
         var rest = [];
         var map = Object.create(null), map_start = index, map_end, total = data.length;
-        var readChildren = function (fields) {
+        var readlist = function (fields) {
             if (index >= total) return null;
             var saved_map = map;
             var saved_start = map_start;
             var saved_total = total;
+            var saved_end = map_end;
             map = {};
             map_start = index;
-            fields.forEach(read);
+            map_end = undefined;
+            for (var cx = 0, dx = fields.length; cx < dx; cx++) {
+                var field = fields[cx];
+                var value = readone(field);
+                if (field.key) {
+                    map[field.key] = value;
+                };
+                if (index >= total) break;
+            }
+            if (map_end) index = map_end;
             var value = map;
             map = saved_map;
             total = saved_total;
             map_start = saved_start;
+            map_end = saved_end;
             return value;
         };
         var read = function (field) {
@@ -292,14 +303,14 @@ var proto = {
             if (/^\./.test(type)) {
                 var option = map[type.slice(1)];
                 if (option && option.fields instanceof Array) {
-                    var value = readChildren(option.fields);
+                    var value = readone(option);
                     if (!option.key) {
                         extend(map, value);
                     } else {
                         map[option.key] = value;
                     }
                 }
-                return;
+                return value;
             }
             if (/^\-/.test(type)) {
                 var rest_size = map[type.slice(1)];
@@ -307,7 +318,6 @@ var proto = {
                 return;
             }
             if (index >= total) {
-                console.log(total, map_end, index)
                 value = null;
             }
 
@@ -355,50 +365,41 @@ var proto = {
             }
 
             if (field.fields) {
-                value = readChildren(field.fields);
+                value = readlist(field.fields);
             }
             if (field.options) {
                 if (field.options instanceof Array) {
-                    var option_index = numberFromBuffer(bytes, 0, field.size * field.ratio);
+                    var option_index = numberFromBuffer(bytes, 0, field.size * field.ratio * 8);
                     var option = field.options[option_index];
                     value = option;
                 }
             }
-            if (field.key) {
-                if (field.repeat) {
-                    if (!map[field.key]) {
-                        map[field.key] = [];
-                    }
-                    map[field.key].push(value);
-                } else {
-                    map[field.key] = value;
-                }
-
-            };
             rest.push({
                 field,
                 bytes
             });
-
             return value;
         };
-        for (var cx = 0, dx = fields.length; cx < dx; cx++) {
-            var field = fields[cx];
+        var readone = function (field) {
             var value = read(field);
+
             if (field.repeat) {
-                while (!check(value, field.endwith)) {
-                    index = map_end;
+                var result = [value];
+                while (!field.endwith || !check(value, field.endwith)) {
                     if (index < total) {
-                        let temp_end = map_end;
+                        let temp_index = index;
                         value = read(field);
-                        if (temp_end === map_end) break;
+                        if (index === temp_index) break;
+                        result.push(value);
                     }
                     else break;
                 }
+                return result;
             }
-            if (index >= total) break;
+            return value;
         }
-        return map;
+
+        return readlist(fields);
     },
     reset() { }
 };
