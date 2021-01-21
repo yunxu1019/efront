@@ -286,22 +286,22 @@ var bufferToUTF8String = function (buff) {
     var dist = [];
     for (var cx = 0, dx = buff.length; cx < dx; cx++) {
         var t = buff[cx], s;
-        if (t < 192) {
+        if (t < 192) {//0b11000000
             s = t;
         }
-        else if (t < 224) {
+        else if (t < 224) {//0b11100000
             s = ((t & 0b00011111) << 6) + (buff[++cx] & 0b00111111)
         }
-        else if (t < 240) {
+        else if (t < 240) {//0b11110000
             s = ((t & 0b00001111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
         }
-        else if (t < 248) {
+        else if (t < 248) {//0b11111000
             s = ((t & 0b00000111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
         }
-        else if (t < 252) {
+        else if (t < 252) {//0b11111100
             s = (t & 0b00000011) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
         }
-        else if (t < 254) {
+        else if (t < 254) {////0b11111110
             s = (t & 0b00000001) * Math.pow(2, 30) + (buff[++cx] & 0b00111111) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
         }
         else {
