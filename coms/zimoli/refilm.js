@@ -281,6 +281,37 @@ var numberFromSmallEnd = function (buff) {
     }
     return sum;
 };
+
+var bufferToUTF8String = function (buff) {
+    var dist = [];
+    for (var cx = 0, dx = buff.length; cx < dx; cx++) {
+        var t = buff[cx], s;
+        if (t < 192) {
+            s = t;
+        }
+        else if (t < 224) {
+            s = ((t & 0b00011111) << 6) + (buff[++cx] & 0b00111111)
+        }
+        else if (t < 240) {
+            s = ((t & 0b00001111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
+        }
+        else if (t < 248) {
+            s = ((t & 0b00000111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
+        }
+        else if (t < 252) {
+            s = (t & 0b00000011) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
+        }
+        else if (t < 254) {
+            s = (t & 0b00000001) * Math.pow(2, 30) + (buff[++cx] & 0b00111111) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
+        }
+        else {
+            s = t;
+        }
+        dist.push(s);
+    }
+    return String.fromCharCode.apply(String, dist);
+};
+
 var copy = a => a;
 
 var proto = {
@@ -380,7 +411,8 @@ var proto = {
                     value = 1 + numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
                 else if (/^s/i.test(field.type)) {
-                    value = String.fromCharCode.apply(null, value);
+                    window[field.key] = value;
+                    value = bufferToUTF8String(value);
                 } else {
                     value = bytes.map(copy);
                 }

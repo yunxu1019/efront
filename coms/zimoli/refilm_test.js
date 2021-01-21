@@ -84,6 +84,7 @@ var scope = {
 };
 var console = window.console;
 function test_file_parse() {
+  // https://xiph.org/flac/format.html
   // https://blog.csdn.net/yu_yuan_1314/article/details/9491763
   var type = refilm`
   type 7bit [
