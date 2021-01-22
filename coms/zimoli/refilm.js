@@ -145,7 +145,7 @@ function parse(piece) {
         last_type = f.last_type;
         delete f.last_type;
         if (f.options instanceof Array) {
-            unfoldOptions(f.size, f.options.slice(0, f.options.length));
+            unfoldOptions(f.size, f.options);
         }
         return;
     }
@@ -187,6 +187,10 @@ function parse(piece) {
             }
             [name, key] = scanSlant(name, '/');
             if (key === undefined) key = name;
+        }
+        if (/^[a-z]+\d+$/i.test(type)) {
+            let [_, t, d] = /^([a-z]+)(\d+)$/.exec(type);
+            type = d + 'bit/' + t;
         }
         var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|bytes?|bits?|B|)\b/i.exec(type);
         if (sizematch) {
@@ -276,7 +280,7 @@ var numberFromBuffer = function (buff, start = 0, end = buff.length << 3) {
 var numberFromSmallEnd = function (buff) {
     var cx = buff.length, sum = 0;
     while (cx-- > 0) {
-        sum *= 8;
+        sum *= 256;
         sum += buff[cx]
     }
     return sum;
@@ -372,6 +376,9 @@ var proto = {
             if (index >= total) {
                 value = null;
             }
+            if (field.fields) {
+                value = readlist(field.fields);
+            }
 
             else if (size > 0) {
                 var byteIndex = index | 0;
@@ -401,7 +408,7 @@ var proto = {
                 var value = bytes;
                 if (/^small/i.test(field.type)) {
                     value = numberFromSmallEnd(value);
-                } else if (/^n|^i|^f/i.test(field.type)) {
+                } else if (/^n|^i|^f|^u/i.test(field.type)) {
                     value = numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
                 else if (/^b/i.test(field.type)) {
@@ -419,9 +426,6 @@ var proto = {
                 index = offset;
             }
 
-            if (field.fields) {
-                value = readlist(field.fields);
-            }
             if (field.options) {
                 if (field.options instanceof Array) {
                     var option_index = numberFromBuffer(bytes, 0, field.size * field.ratio * 8);
@@ -440,7 +444,12 @@ var proto = {
 
             if (field.repeat) {
                 var result = [value];
+                var { size } = field;
+                if (/^\:/.test(size)) {
+                    size = map[size.slice(1)];
+                }
                 while (!field.endwith || !check(value, field.endwith)) {
+                    if (result.length >= size) break;
                     if (index < total) {
                         let temp_index = index;
                         value = read(field);

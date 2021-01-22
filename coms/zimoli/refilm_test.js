@@ -89,14 +89,14 @@ function test_file_parse() {
   var type = refilm`
   type 7bit [
     streaminfo{
-      minblocksize 16bit/int
-      maxblocksize 16bit/int
-      minframesize 24bit/int
-      maxframesize 24bit/int
-      采样率/rate 20bit/int
+      minblocksize int16
+      maxblocksize int16
+      minframesize int24
+      maxframesize int24
+      采样率/rate int20
       声道数/channels 3bit/raise
       采样位数  5bit/raise
-      单声道采样数 36bit/int
+      单声道采样数 int36
       原始信号签名/md5 128bit
     }
     padding 1bit
@@ -115,15 +115,32 @@ function test_file_parse() {
       vender_length 32bit/small
       vender_text :vender_length/str
       user_length 32bit/small
-      / -user_length
-      [user_comments]{
+      [user_comments] :user_length{
         length 32bit/small
         comment :length/str
       }
 
     }
-    cuesheet
-    picture
+    cuesheet{
+      catalog 128bytes
+      number  8bytes/int
+      isdisc  1bit/bool
+      padding 2071bits/zero
+      songs_count 8bit
+    }
+    picture{
+      type 32bit/int
+      mime_length 32bit/int
+      mime_text :mime_length/str
+      description_length 32bit/int
+      description_text :description_length/str
+      width 32bit/int
+      height 32bit/int
+      color_depth 32bit/int
+      colors_used 32bit/int
+      data_length 32bit/int
+      data_bunary :data_length
+    }
     ...reserved
     无效
   ]
@@ -131,13 +148,21 @@ function test_file_parse() {
   console.log(type);
   var flac = refilm`
     f/flac 4B=fLaC/str
-    [meta,isend=true]{
+    [metas,isend=true]{
       isend 1bit/bool
       ${type}
       block_size 24bit/int
       / -block_size
       / .type
-    }`;
+    }
+    [frames]{
+      code 14bit=0b11111111111110
+      reserved 1bit/bool
+      blocking_strategy 1bit/bool
+
+
+    }
+`;
   var url = "/@/data/liangliang.flac"
   getFile(url, function (data, start, total) {
     if (data) {
