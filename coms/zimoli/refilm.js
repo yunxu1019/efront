@@ -192,7 +192,7 @@ function parse(piece) {
             let [_, t, d] = /^([a-z]+)(\d+)$/.exec(type);
             type = d + 'bit/' + t;
         }
-        var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|bytes?|bits?|B|)\b/i.exec(type);
+        var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|bytes?|bits?|B|utf|)\b/i.exec(type);
         if (sizematch) {
             var [size_text, size, unit] = sizematch;
             var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
@@ -203,7 +203,7 @@ function parse(piece) {
             if (unit === 'B') unit = "byte";
             else if (unit === 'b') unit = 'bit';
             unit = unit.toLowerCase();
-            var ratio = unit === 'bit' ? .125 : 1;
+            var ratio = /^(bit|utf)$/.test(unit) ? .125 : 1;
             type = type.slice(size_text.length);
             if (/\=/.test(type)) {
                 var value = type.slice(1, (size * ratio) + 1);
@@ -285,37 +285,70 @@ var numberFromSmallEnd = function (buff) {
     }
     return sum;
 };
-
+var getUTF8Rest = function (bit) {
+    if (bit < 192 || bit > 255) return 0;
+    return 7 - Math.log2(256 - bit) | 0;
+};
+var bufferToUTF8IntFunc = [
+    // 0b0xxxxxxx - 0b10xxxxxx
+    (buff, cx) => buff[cx],
+    // 0b110xxxxx 10xxxxxx
+    (buff, cx) => ((buff[cx] & 0b00011111) << 6) + (buff[++cx] & 0b00111111),
+    // 0b1110xxxx 10xxxxxx 10xxxxxx
+    (buff, cx) => ((buff[cx] & 0b00001111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111),
+    // 0b11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    (buff, cx) => ((buff[cx] & 0b00000111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111),
+    // 0b111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+    (buff, cx) => (buff[cx] & 0b00000011) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111),
+    // 0b1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+    (buff, cx) => (buff[cx] & 0b00000001) * Math.pow(2, 30) + (buff[++cx] & 0b00111111) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111),
+    // 0b11111110 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+    (buff, cx) => (buff[++cx] & 0b00111111) * Math.pow(2, 30) + (buff[++cx] & 0b00111111) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111),
+    // 0b11111111 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+    (buff, cx) => (buff[++cx] & 0b00111111) * Math.pow(2, 36) + (buff[++cx] & 0b00111111) * Math.pow(2, 30) + (buff[++cx] & 0b00111111) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
+];
 var bufferToUTF8String = function (buff) {
     var dist = [];
     for (var cx = 0, dx = buff.length; cx < dx; cx++) {
-        var t = buff[cx], s;
-        if (t < 192) {//0b11000000
-            s = t;
-        }
-        else if (t < 224) {//0b11100000
-            s = ((t & 0b00011111) << 6) + (buff[++cx] & 0b00111111)
-        }
-        else if (t < 240) {//0b11110000
-            s = ((t & 0b00001111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
-        }
-        else if (t < 248) {//0b11111000
-            s = ((t & 0b00000111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
-        }
-        else if (t < 252) {//0b11111100
-            s = (t & 0b00000011) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
-        }
-        else if (t < 254) {////0b11111110
-            s = (t & 0b00000001) * Math.pow(2, 30) + (buff[++cx] & 0b00111111) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
-        }
-        else {
-            s = t;
-        }
-        dist.push(s);
+        var rest = getUTF8Rest(buff[cx]);
+        var s = bufferToUTF8IntFunc[rest](buff, cx);
+        dist.push(String.fromCharCode(s));
+        cx += rest;
     }
-    return String.fromCharCode.apply(String, dist);
+    return dist.join('');
 };
 
+var bufferToUTF8Int = function (buff, cx = 0) {
+    var rest = getUTF8Rest(buff[cx]);
+    var s = bufferToUTF8IntFunc[rest](buff, cx);
+    return s;
+};
+
+var readFromIndex = function (data, index, offset) {
+    var byteIndex = index | 0;
+    var bitIndex = (index - byteIndex) * 8;
+    var byteOffset = offset | 0;
+    var bitOffset = (offset - byteOffset) * 8;
+    if (bitOffset > 0) {
+        byteOffset++;
+        bitOffset = 8 - bitOffset;
+    }
+    var bytes = data.slice(byteIndex, byteOffset);
+    if (bitOffset > 0 || bitIndex > 0) bytes = bytes.map(copy);
+    if (bitOffset > 0) {
+        bytes[bytes.length - 1] = bytes[bytes.length - 1] >> bitOffset << bitOffset;
+    }
+    if (bitIndex > 0) {
+        for (var cx = 0, dx = bytes.length - 1; cx < dx; cx++) {
+            bytes[cx] = (bytes[cx + 1] >> (8 - bitIndex)) + (bytes[cx] << bitIndex);
+        }
+        bytes[bytes.length - 1] = bytes[bytes.length - 1] << bitIndex;
+    }
+    if (bitIndex + bitOffset >= 8) {
+        bytes = bytes.slice(0, bytes.length - 1);
+    }
+    return bytes;
+};
 var copy = a => a;
 
 var proto = {
@@ -349,6 +382,7 @@ var proto = {
             map_end = saved_end;
             return value;
         };
+
         var read = function (field) {
             var { size, ratio = 1, type } = field;
             if (/^\./.test(type)) {
@@ -381,34 +415,22 @@ var proto = {
             }
 
             else if (size > 0) {
-                var byteIndex = index | 0;
-                var bitIndex = (index - byteIndex) * 8;
                 var offset = index + size * ratio;
-                var byteOffset = offset | 0;
-                var bitOffset = (offset - byteOffset) * 8;
-                if (bitOffset > 0) {
-                    byteOffset++;
-                    bitOffset = 8 - bitOffset;
-                }
-                var bytes = data.slice(byteIndex, byteOffset);
-                if (bitOffset > 0 || bitIndex > 0) bytes = bytes.map(copy);
-                if (bitOffset > 0) {
-                    bytes[bytes.length - 1] = bytes[bytes.length - 1] >> bitOffset << bitOffset;
-                }
-                if (bitIndex > 0) {
-                    for (var cx = 0, dx = bytes.length - 1; cx < dx; cx++) {
-                        bytes[cx] = (bytes[cx + 1] >> (8 - bitIndex)) + (bytes[cx] << bitIndex);
-                    }
-                    bytes[bytes.length - 1] = bytes[bytes.length - 1] << bitIndex;
-                }
-                if (bitIndex + bitOffset >= 8) {
-                    bytes = bytes.slice(0, bytes.length - 1);
-                }
-
+                var bytes = readFromIndex(data, index, offset);
                 var value = bytes;
-                if (/^small/i.test(field.type)) {
+                if (/^utf/i.test(field.unit)) {
+                    offset += getUTF8Rest(bytes[0]);
+                    bytes = readFromIndex(data, index, offset);
+                    value = bufferToUTF8String(bytes, 0);
+                }
+                else if (/^small/i.test(field.type)) {
                     value = numberFromSmallEnd(value);
-                } else if (/^n|^i|^f|^u/i.test(field.type)) {
+                }
+                else if (/^s/i.test(field.type)) {
+                    window[field.key] = value;
+                    value = bufferToUTF8String(value);
+                }
+                else if (/^n|^i|^f|^u/i.test(field.type)) {
                     value = numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
                 else if (/^b/i.test(field.type)) {
@@ -417,10 +439,7 @@ var proto = {
                 else if (/^r/i.test(field.type)) {
                     value = 1 + numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
-                else if (/^s/i.test(field.type)) {
-                    window[field.key] = value;
-                    value = bufferToUTF8String(value);
-                } else {
+                else {
                     value = bytes.map(copy);
                 }
                 index = offset;

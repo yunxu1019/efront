@@ -105,11 +105,9 @@ function test_file_parse() {
       data -1bit
     }
     [seektable,cys=0]{
-      
-        序号/id 8byte/int
-        偏移量/pyl 8byte/int
-        采样数/cys 2byte/int
-      
+      序号/id 8byte/int
+      偏移量/pyl 8byte/int
+      采样数/cys 2byte/int
     }
     vorbis_commen{
       vender_length 32bit/small
@@ -157,8 +155,17 @@ function test_file_parse() {
     }
     [frames]{
       code 14bit=0b11111111111110
-      reserved 1bit/bool
+      reserved1 1bit/bool
       blocking_strategy 1bit/bool
+      block_size int4
+      sample_rate int4
+      channel int4
+      sample_size int3
+      reserved2 1bit/bool
+      coded_number utf8
+
+
+
 
 
     }
@@ -171,7 +178,7 @@ function test_file_parse() {
       console.log(parsed);
     } else {
 
-      fetchPiece(url, start, 42000, function (data) {
+      fetchPiece(url, start, 82000, function (data) {
         console.log(data);
         var parsed = flac.parse(data);
         console.log(parsed);
