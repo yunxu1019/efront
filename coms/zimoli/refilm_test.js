@@ -89,7 +89,7 @@ function test_file_parse() {
   var type = refilm`
   type 7bit [
     streaminfo{
-      minblocksize int16
+      "min block size" int16
       maxblocksize int16
       minframesize int24
       maxframesize int24
@@ -163,11 +163,10 @@ function test_file_parse() {
       sample_size int3
       reserved2 1bit/bool
       coded_number utf8
-
-
-
-
-
+      (blockcode,block_size=0b0110) 8bit
+      (blockcode,block_size=0b0111) 16bit
+      (samplecode,block_size=0b0011) 8bit
+      (samplecode,block_size=0b1101,0b1110) 16bit
     }
 `;
   var url = "/@/data/liangliang.flac"

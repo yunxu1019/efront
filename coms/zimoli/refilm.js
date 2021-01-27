@@ -4,14 +4,35 @@ function scanBlock(piece) {
     var reg = /\\[\s\S]|^\s*[#\-]\s*|\s+|"|'/mg;
     var res = [];
     var lastIndex = 0;
+    var save = function (a) {
+        var inquote = false;
+        a = a.replace(/\\[\s\S]|(['"`]+)/g, (m, q) => {
+            console.log(m, q);
+            if (!q) {
+                return m;
+            }
+            if (q.length % 2) {
+                inquote = !inquote;
+            }
+            q = q.slice(0, q.length >> 1);
+            return q;
+        });
+        res.push(a);
+    };
     for (var cx = 0, dx = piece.length; cx < dx; cx++) {
         reg.lastIndex = cx;
         var m = reg.exec(piece);
         if (m) {
             var s = m[0];
             if (/^\s+$/.test(s)) {
-                res.push(piece.slice(lastIndex, reg.lastIndex));
+                save(piece.slice(lastIndex, reg.lastIndex));
                 lastIndex = reg.lastIndex;
+            } else if (/^["']$/i.test(s)) {
+                var i = piece.indexOf(s, cx + 1);
+                if (i > 0) {
+                    cx = i;
+                    continue;
+                }
             }
             cx = m.index + s.length - 1;
         } else {
