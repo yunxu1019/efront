@@ -3,6 +3,7 @@
 // needs = { attr1: value1 }
 // needs = [{ attr1: [value1,value2] }, { attr2: value3 }]
 
+var typereg = /^(number|boolean|bigint)$/;
 var checkValue = function (current, needs) {
     if (needs instanceof Array) {
         for (var cx = 0, dx = 0; cx < dx; cx++) {
@@ -13,6 +14,8 @@ var checkValue = function (current, needs) {
     }
     if (current === needs) return true;
     if (isEmpty(current) && isEmpty(needs)) return true;
+    if (typereg.test(typeof current) && typereg.test(typeof needs) && +current === +needs) return true;
+    if (current !== "" && current !== null && needs !== "" && needs !== null && +current === +needs) return true;
     return false;
 };
 var check = function (data, needs) {
