@@ -163,10 +163,10 @@ function test_file_parse() {
       sample_size int3
       reserved2 1bit/bool
       coded_number utf8
-      (blockcode,block_size=0b0110) 8bit
-      (blockcode,block_size=0b0111) 16bit
-      (samplecode,block_size=0b0011) 8bit
-      (samplecode,block_size=0b1101,0b1110) 16bit
+      (blockcode,block_size=0b0110) int8
+      (blockcode,block_size=0b0111) int16
+      (samplecode,block_size=0b0011) int8
+      (samplecode,block_size=0b1101,0b1110) int16
     }
 `;
   var url = "/@/data/liangliang.flac"
@@ -177,7 +177,7 @@ function test_file_parse() {
       console.log(parsed);
     } else {
 
-      fetchPiece(url, start, 82000, function (data) {
+      fetchPiece(url, start, 46000, function (data) {
         console.log(data);
         var parsed = flac.parse(data);
         console.log(parsed);
