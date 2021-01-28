@@ -67,6 +67,26 @@ function scanSlant(str, s, lastIndex = 0, end = str.length) {
     }
     return res;
 }
+
+function scanNeeds(str) {
+    var conditions = [], cached = [];
+    str.split(",").forEach(function (s) {
+        if (!cached.length) cached.push(s);
+        else if (/=/.test(s) && !/^[^\=]*&/.test(s)) {
+            conditions.push(cached.join(','))
+            cached = [s];
+        } else {
+            cached.push(s);
+        }
+    });
+    if (cached.length) conditions.push(cached.join(","));
+    conditions = conditions.map(c => {
+        return parseValue(parseKV(c));
+    });
+    if (conditions.length === 1) return conditions[0];
+    return conditions;
+}
+
 var toName = function () {
     return this.name;
 };
@@ -123,6 +143,10 @@ function parseValue(map) {
     if (/^([`'"])[\s\S]+\1$/.test(map)) {
         return map.slice(1, map.length - 1).replace(/\\([\s\S])/g, '$1');
     }
+    if (!map) return map;
+    if (/,/.test(map)) {
+        return map.split(",").map(parseValue);
+    }
     switch (map.toLowerCase()) {
         case "false":
         case "f":
@@ -154,7 +178,7 @@ function parseValue(map) {
             s = 2;
             break;
     }
-    return parseInt(map, s);
+    return parseInt(map.slice(2), s);
 }
 
 var last_type = '';
@@ -178,7 +202,7 @@ function parse(piece) {
     }
     var [name, type, options] = piece, key, repeat;
     if (piece.length === 1 && isObject(name)) {
-        var { name, type, key, size, unit, endwith, ratio, value, repeat, options } = name;
+        var { name, needs, type, key, size, unit, endwith, ratio, value, repeat, options } = name;
     } else {
         if (typeof name === 'string') {
             if (!isContainer) {
@@ -195,6 +219,10 @@ function parse(piece) {
                 } else {
                     last_type = type;
                 }
+            }
+            if (/^\([\s\S]*\)$/.test(name) && /,/.test(name)) {
+                var [, name, rest_piece] = /^([^,]*),([\s\S]*)$/.exec(name.slice(1, name.length - 1));
+                var needs = scanNeeds(rest_piece);
             }
             if (/^\[[\s\S]*\]$/.test(name)) {
                 repeat = true;
@@ -251,7 +279,7 @@ function parse(piece) {
             if (needUnfold) unfoldOptions(size, options);
         }
     }
-    var field = { name, type, key, size, unit, endwith, ratio, value, repeat, options };
+    var field = { name, needs, type, key, size, unit, endwith, ratio, value, repeat, options };
     var parent = piecepath[piecepath.length - 1];
     if (parent) {
         field.parent = parent;
@@ -389,6 +417,9 @@ var proto = {
             map_end = undefined;
             for (var cx = 0, dx = fields.length; cx < dx; cx++) {
                 var field = fields[cx];
+                if (field.needs) {
+                    if (!check(map, field.needs)) continue;
+                }
                 var value = readone(field);
                 if (field.key) {
                     map[field.key] = value;
@@ -481,7 +512,6 @@ var proto = {
         };
         var readone = function (field) {
             var value = read(field);
-
             if (field.repeat) {
                 var result = [value];
                 var { size } = field;
