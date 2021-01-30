@@ -92,7 +92,7 @@ var toName = function () {
 };
 
 var createEval = function (express, value) {
-    var reg = /[\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]+|0[xob]\d+|\d+|\.\d+|(\$&|\$\d+|[\s\S][^\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]*)/g;
+    var reg = /0[xob]\d+|\d+|\.\d+|(\$&|\$\d+|[^\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]+)/g;
     var finded;
     express = express.replace(reg, function (_, b) {
         if (!b) return _;
@@ -136,6 +136,7 @@ function unfoldOptions(size, options) {
                 options.splice(cx, 1);
                 while (cx < start) options.splice(cx++, 0, undefined);
                 while (cx <= end) options.splice(cx, 0, createEval(o.name, cx++));
+                cx = end;
                 dx = options.length;
             }
         } else if (/^\.\.\.|\.\.\.$/.test(o.name)) {
