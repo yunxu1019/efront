@@ -90,6 +90,9 @@ function scanNeeds(str) {
 var toName = function () {
     return this.name;
 };
+var toValue = function () {
+    return this.value;
+}
 
 var createEval = function (express, value) {
     var reg = /0[xob]\d+|\d+|\.\d+|(\$&|\$\d+|[^\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]+)/g;
@@ -111,10 +114,12 @@ var createEval = function (express, value) {
 var createOption = function (o) {
     if (isObject(o)) {
         o.toString = toName;
+        o.valueOf = toValue;
         return o;
     }
     return {
         name: o,
+        valueOf: toValue,
         toString: toName
     };
 };
@@ -150,8 +155,12 @@ function unfoldOptions(size, options) {
             cx += deltaLength - 1;
             dx = options.length;
         } else {
-            var o = createOption(o);
-            o.value = cx;
+            if (number_reg.test(o.name)) {
+                o = parseInteger(o.name);
+            } else {
+                var o = createOption(o);
+                o.value = cx;
+            }
             options[cx] = o;
         }
     }
@@ -172,14 +181,17 @@ function parseInteger(str) {
         case "0b":
             s = 2;
             break;
+        default:
+            return parseFloat(str);
     }
     return parseInt(str.slice(2), s);
 }
 
+var number_reg = /^(0[obx])?(\d*\.)?\d+$/i;
 function parseIntegerList(list) {
-    var reg = /^(0[obx])\d+$/i, prev;
+    var prev;
     return list.map(function (a) {
-        var m = reg.exec(a);
+        var m = number_reg.exec(a);
         if (m) {
             prev = m[1];
         } else if (prev && /^[a-f\d]+$/.test(a)) {
@@ -271,7 +283,11 @@ function parse(piece) {
             }
             if (/^\([\s\S]*\)$/.test(name) && /,/.test(name)) {
                 var [, name, rest_piece] = /^([^,]*),([\s\S]*)$/.exec(name.slice(1, name.length - 1));
-                var needs = scanNeeds(rest_piece);
+                if (rest_piece && !/=/.test(rest_piece)) {
+                    var needs = { [name]: parseValue(rest_piece) };
+                } else {
+                    var needs = scanNeeds(rest_piece);
+                }
             }
             if (/^\[[\s\S]*\]$/.test(name)) {
                 repeat = true;

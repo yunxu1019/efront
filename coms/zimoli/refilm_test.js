@@ -158,15 +158,15 @@ function test_file_parse() {
       reserved1 1bit/bool
       blocking_strategy 1bit/bool
       sample_count int4 [192,0b0010-0101:(576<<(@-2)),@,@,0b1000-1111:256<<(@-8)]
-      sample_rate int4
+      sample_rate int4 [,88.2,176.4,192,8,16,22.05,24,32,44.1,48,96,@,@,@,invalid]
       channel int4
-      sample_size int3
+      sample_size int3 [,8,12,,16,20,24,]
       reserved2 1bit/bool
       coded_number utf8
       (block_size,block_size=0b0110) int8
       (block_size,block_size=0b0111) int16
-      (sample_rate,sample_rate=0b0011) int8
-      (sample_rate,sample_rate=0b1101,1110) int16
+      (sample_rate,0b0011) int8
+      (sample_rate,0b1101,1110) int16
       crc int8
       foot_crc int8
     }
