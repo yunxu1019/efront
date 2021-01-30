@@ -157,16 +157,18 @@ function test_file_parse() {
       code 14bit=0b11111111111110
       reserved1 1bit/bool
       blocking_strategy 1bit/bool
-      block_size int4
+      sample_count int4 [192,0b0010-0101:(576<<(@-2)),@,@,0b1000-1111:256<<(@-8)]
       sample_rate int4
       channel int4
       sample_size int3
       reserved2 1bit/bool
       coded_number utf8
-      (blockcode,block_size=0b0110) int8
-      (blockcode,block_size=0b0111) int16
-      (samplecode,block_size=0b0011) int8
-      (samplecode,block_size=0b1101,0b1110) int16
+      (block_size,block_size=0b0110) int8
+      (block_size,block_size=0b0111) int16
+      (sample_rate,sample_rate=0b0011) int8
+      (sample_rate,sample_rate=0b1101,1110) int16
+      crc int8
+      foot_crc int8
     }
 `;
   var url = "/@/data/liangliang.flac"

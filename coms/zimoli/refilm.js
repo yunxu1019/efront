@@ -90,8 +90,24 @@ function scanNeeds(str) {
 var toName = function () {
     return this.name;
 };
-var hasNext = function (field, value) {
+
+var createEval = function (express, value) {
+    var reg = /[\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]+|0[xob]\d+|\d+|\.\d+|(\$&|\$\d+|[\s\S][^\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]*)/g;
+    var finded;
+    express = express.replace(reg, function (_, b) {
+        if (!b) return _;
+        if (b === '@' || b === '$&') {
+            return value;
+        } else {
+            finded = true;
+        }
+        return true;
+    });
+
+    if (!finded) return eval(`[function(){return ${express}}][0]`)();
+    return eval(`[function(){with(arguments[0])return ${express}}][0]`);
 };
+
 var createOption = function (o) {
     if (isObject(o)) {
         o.toString = toName;
@@ -109,7 +125,20 @@ function unfoldOptions(size, options) {
         if (typeof o === 'string') {
             o = { name: o };
         }
-        if (/^\.\.\.|\.\.\.$/.test(o.name)) {
+        var range = rangereg.exec(o.name);
+        if (range) {
+            var [m, start = cx, end = size] = range;
+            [start, end] = parseIntegerList([start, end]);
+            if (end - cx + options.length > size) end = size - options.length + cx;
+            if (start < cx) start = cx;
+            o.name = o.name.slice(m.length);
+            if (start <= end) {
+                options.splice(cx, 1);
+                while (cx < start) options.splice(cx++, 0, undefined);
+                while (cx <= end) options.splice(cx, 0, createEval(o.name, cx++));
+                dx = options.length;
+            }
+        } else if (/^\.\.\.|\.\.\.$/.test(o.name)) {
             o.name = o.name.replace(/^\.\.\.|\.\.\.$/g, '');
             o = createOption(o);
             options.splice(cx, 1);
@@ -126,6 +155,37 @@ function unfoldOptions(size, options) {
         }
     }
     return options;
+}
+var rangereg = /^(0[oxb][a-f\d]+|\d+)?[\-\:]((?:0[oxb])?[a-f\d]+|\d+)?\:?/i;
+
+function parseInteger(str) {
+    var s = 10;
+    if (!isString(str)) return str;
+    switch (str.slice(0, 2).toLowerCase()) {
+        case "0x":
+            s = 16;
+            break;
+        case "0o":
+            s = 8;
+            break;
+        case "0b":
+            s = 2;
+            break;
+    }
+    return parseInt(str.slice(2), s);
+}
+
+function parseIntegerList(list) {
+    var reg = /^(0[obx])\d+$/i, prev;
+    return list.map(function (a) {
+        var m = reg.exec(a);
+        if (m) {
+            prev = m[1];
+        } else if (prev && /^[a-f\d]+$/.test(a)) {
+            return parseInteger(prev + a);
+        }
+        return parseInteger(a || undefined);
+    });
 }
 
 function parseValue(map) {
@@ -145,7 +205,7 @@ function parseValue(map) {
     }
     if (!map) return map;
     if (/,/.test(map)) {
-        return map.split(",").map(parseValue);
+        return parseIntegerList(map.split(','));
     }
     switch (map.toLowerCase()) {
         case "false":
@@ -166,19 +226,7 @@ function parseValue(map) {
         case "nil":
             return null;
     }
-    var s = 10;
-    switch (map.slice(0, 2).toLowerCase()) {
-        case "0x":
-            s = 16;
-            break;
-        case "0o":
-            s = 8;
-            break;
-        case "0b":
-            s = 2;
-            break;
-    }
-    return parseInt(map.slice(2), s);
+    return parseInteger(map);
 }
 
 var last_type = '';
@@ -500,8 +548,12 @@ var proto = {
             if (field.options) {
                 if (field.options instanceof Array) {
                     var option_index = numberFromBuffer(bytes, 0, field.size * field.ratio * 8);
-                    var option = field.options[option_index];
-                    value = option;
+                    if (option_index in field.options) {
+                        var option = field.options[option_index];
+                        value = option;
+                    } else {
+                        value = option_index;
+                    }
                 }
             }
             rest.push({
