@@ -150,25 +150,26 @@ function test_file_parse() {
       isend 1bit/bool
       ${type}
       block_size 24bit/int
-      / -block_size
+      /meta_body -block_size
       / .type
     }
     [frames]{
       code 14bit=0b11111111111110
       reserved1 1bit/bool
       blocking_strategy 1bit/bool
-      sample_count int4 [192,0b0010-0101:(576<<(@-2)),@,@,0b1000-1111:256<<(@-8)]
-      sample_rate int4
+      sample_count int4 [,192,0b0010-0101:(576<<(@-2)),@,@,0b1000-1111:256<<(@-8)]
+      sample_rate int4 [reserved,88.2,176.4,192,8,16,22.05,24,32,44.1,48,96,@,@,@,invalid]
       channel int4
-      sample_size int3
+      sample_size int3 [@,8,12,@,16,20,24,@]
       reserved2 1bit/bool
       coded_number utf8
-      (block_size,block_size=0b0110) int8
-      (block_size,block_size=0b0111) int16
-      (sample_rate,sample_rate=0b0011) int8
-      (sample_rate,sample_rate=0b1101,1110) int16
+      (sample_count,block_size=0b0110) raise8
+      (sample_count,block_size=0b0111) raise16
+      (sample_rate,0b0011) int8
+      (sample_rate,0b1101,1110) int16
       crc int8
-      foot_crc int8
+      /frame_body -sample_count*sample_size/8+2|
+      foot_crc int16
     }
 `;
   var url = "/@/data/liangliang.flac"
@@ -179,7 +180,7 @@ function test_file_parse() {
       console.log(parsed);
     } else {
 
-      fetchPiece(url, start, 46000, function (data) {
+      fetchPiece(url, start, 460000, function (data) {
         console.log(data);
         var parsed = flac.parse(data);
         console.log(parsed);
