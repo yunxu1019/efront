@@ -7,7 +7,6 @@ function scanBlock(piece) {
     var save = function (a) {
         var inquote = false;
         a = a.replace(/\\[\s\S]|(['"`]+)/g, (m, q) => {
-            console.log(m, q);
             if (!q) {
                 return m;
             }
@@ -93,22 +92,33 @@ var toName = function () {
 var toValue = function () {
     return this.value;
 }
-
+var eval_reg = /0[xob]\d+|(?:\d*\.)?\d+|([^\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]+)/g;
+function evalExpress(express) {
+    var o = this;
+    express = express.replace(eval_reg, function (_, b) {
+        if (!b) return parseNumber(_);
+        if (b in o) {
+            return +o[b];
+        }
+        return _;
+    });
+    console.log(express)
+    return eval(`${express}`);
+}
 var createEval = function (express, value) {
-    var reg = /0[xob]\d+|\d+|\.\d+|(\$&|\$\d+|[^\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]+)/g;
     var finded;
-    express = express.replace(reg, function (_, b) {
-        if (!b) return _;
+    express = express.replace(eval_reg, function (_, b) {
+        if (!b) return parseNumber(_);
         if (b === '@' || b === '$&') {
             return value;
         } else {
             finded = true;
         }
-        return true;
+        return _;
     });
 
     if (!finded) return eval(`[function(){return ${express}}][0]`)();
-    return eval(`[function(){with(arguments[0])return ${express}}][0]`);
+    return a => evalExpress.call(a, express);
 };
 
 var createOption = function (o) {
@@ -156,7 +166,7 @@ function unfoldOptions(size, options) {
             dx = options.length;
         } else {
             if (number_reg.test(o.name)) {
-                o = parseInteger(o.name);
+                o = parseNumber(o.name);
             } else {
                 var o = createOption(o);
                 o.value = cx;
@@ -168,7 +178,7 @@ function unfoldOptions(size, options) {
 }
 var rangereg = /^(0[oxb][a-f\d]+|\d+)?[\-\:]((?:0[oxb])?[a-f\d]+|\d+)?\:?/i;
 
-function parseInteger(str) {
+function parseNumber(str) {
     var s = 10;
     if (!isString(str)) return str;
     switch (str.slice(0, 2).toLowerCase()) {
@@ -195,9 +205,9 @@ function parseIntegerList(list) {
         if (m) {
             prev = m[1];
         } else if (prev && /^[a-f\d]+$/.test(a)) {
-            return parseInteger(prev + a);
+            return parseNumber(prev + a);
         }
-        return parseInteger(a || undefined);
+        return parseNumber(a || undefined);
     });
 }
 
@@ -239,7 +249,7 @@ function parseValue(map) {
         case "nil":
             return null;
     }
-    return parseInteger(map);
+    return parseNumber(map);
 }
 
 var last_type = '';
@@ -515,9 +525,13 @@ var proto = {
                 return value;
             }
             if (/^\-/.test(type)) {
-                var rest_size = map[type.slice(1)];
+                var c = /\|$/.test(type);
+                if (c) type = type.slice(0, type.length - 1);
+                var rest_size = evalExpress.call(map, type.slice(1));
                 total = map_end = rest_size + index;
-                return;
+                var range = [index, map_end];
+                if (c) total = map_end = Math.ceil(map_end);
+                return range;
             }
             if (size === undefined && isString(field.type)) {
                 size = (map_end - index) / ratio;
