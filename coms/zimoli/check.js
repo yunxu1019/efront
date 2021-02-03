@@ -15,7 +15,8 @@ var checkValue = function (current, needs) {
     if (current === needs) return true;
     if (isEmpty(current) && isEmpty(needs)) return true;
     if (typereg.test(typeof current) && typereg.test(typeof needs) && +current === +needs) return true;
-    if (current !== "" && current !== null && needs !== "" && needs !== null && +current === +needs) return true;
+    if (!isEmpty(current) && !isEmpty(needs) && +current === +needs) return true;
+    if (isFunction(needs)) return needs(current);
     return false;
 };
 var check = function (data, needs) {
