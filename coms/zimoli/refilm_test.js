@@ -149,26 +149,60 @@ function test_file_parse() {
     [metas,isend=true]{
       isend 1bit/bool
       ${type}
-      block_size 24bit/int
-      /meta_body -block_size
+      blocksize 24bit/int
+      /meta_body -blocksize
       / .type
     }
     [frames]{
       code 14bit=0b11111111111110
       reserved1 1bit/bool
       blocking_strategy 1bit/bool
-      sample_count int4 [,192,0b0010-0101:(576<<(@-2)),@,@,0b1000-1111:256<<(@-8)]
+      blocksize int4 [,192,0b0010-0101:(576<<(@-2)),@,@,0b1000-1111:256<<(@-8)]
       sample_rate int4 [reserved,88.2,176.4,192,8,16,22.05,24,32,44.1,48,96,@,@,@,invalid]
       channel int4
       sample_size int3 [@,8,12,@,16,20,24,@]
       reserved2 1bit/bool
       coded_number utf8
-      (sample_count,block_size=0b0110) raise8
-      (sample_count,block_size=0b0111) raise16
+      (blocksize,blocksize=0b0110) raise8
+      (blocksize,blocksize=0b0111) raise16
       (sample_rate,0b0011) int8
       (sample_rate,0b1101,1110) int16
       crc int8
-      /frame_body -sample_count*sample_size/8+2|
+      [subframe] :blocksize{
+        zero_padding int1
+        subframe_type int6 [subframe_constant,subframe_verbatim,0b1000-1100:subframe_fixed,0b100000-111111:subframe_lpc]
+        order =(subframe_type&0b11111)+1
+        wasted_persample int1
+        (wasted,wasted_persample=1) unary1
+        (subframe_constant,subframe_type=0b000000) :sample_size
+        (subframe_verbatim,subframe_type=0b000001) :sample_size*blocksize
+        (subframe_fixed,subframe_type=0b001100,0010xx) :sample_size*order
+        (subframe_lpc,subframe_type=0b1xxxxx) {
+          [warmup] :order{
+            / :sample_size
+          }
+          precision raise4
+          shift_needed int5
+          [confficients] :order{
+            / :precision
+          }
+        }
+        (resdual,subframe_type=0b1xxxxx,001100,0010xx) {
+          coding_method int2 [rice,rice2]
+          porder int4
+          pcount =1<<porder
+          psamples =blocksize>>porder
+          [partions] :pcount{
+            (params,coding_method=0) int4
+            (params,0b1111) int5
+            (params,coding_method=1) int5
+            (params,0b11111) int5
+            n =porder===0?blocksize-order:$index!==0?psamples:psamples-order
+            data :n
+          }
+        }
+
+      }
       foot_crc int16
     }
 `;
