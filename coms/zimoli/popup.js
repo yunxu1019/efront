@@ -19,11 +19,11 @@ var setPosition = function (element) {
     });
 };
 var windowFactory = function (window) {
-    css(window, `min-height:10px;min-width:10px;position:absolute;background-color:#fff;`);
+    css(window, `min-height:10px;min-width:10px;position:absolute;`);
     return window;
 };
 var loadingFactory = function (element) {
-    css(element, `position:absolute;background-color:#fff;`);
+    css(element, `position:absolute;`);
     return element;
 }
 /**
