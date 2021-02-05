@@ -245,8 +245,8 @@ function slider(autoplay, circle = true) {
         }
     })
 
-    outter.go = function (index) {
-        if (outter.index === index) return;
+    outter.go = function (index, cache) {
+        if (outter.index === index && cache !== false) return;
         negative_index = -index;
         var _removingMain = _imageMain;
         reshape(index, false);
