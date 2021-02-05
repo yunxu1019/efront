@@ -1,4 +1,5 @@
 var create = (url, key) => {
+    if (!url) return;
     var image = div();
     var img = new Image;
     if (isObject(url)) {
@@ -219,7 +220,7 @@ function picture(url, to = 0, key) {
 
     var images = {};
     var gen = function (index) {
-        if (index >= images.length || index < 0) return null;
+        if (index >= urls.length || index < 0) return null;
         if (!images[index]) {
             images[index] = create(urls[index], key);
         }
@@ -233,10 +234,10 @@ function picture(url, to = 0, key) {
         return images[index];
     };
     if (isElement(url)) {
-        var p = slider(url);
         var urls = [];
+        var p = slider(url);
         care(p, function (e) {
-            urls = e;
+            urls = [].concat(e);
             p.src = gen;
             p.go(p.index || 0, false);
         });
