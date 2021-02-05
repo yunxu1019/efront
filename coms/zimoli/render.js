@@ -572,6 +572,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (parentNode) {
         if (parentNode.renderid > 1 || parentNode.isMounted) element.renderid = 2;
     }
+    var ons = [];
 
     if (isFirstRender) {
         var attrs = [].concat.apply([], element.attributes);
@@ -603,7 +604,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                             replacer[name] = value;
                             break;
                         default:
-                            if (!/[\-]/.test(name)) {
+                            if (!/[\-@\:\._]/.test(name)) {
                                 replacer.setAttribute(name, value);
                             } else {
                                 attrsMap[name] = attr;
@@ -628,7 +629,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     element.renders = element.renders ? [].concat(element.renders) : [];
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
     var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
-    var ons = [];
     attrs.map(function (attr) {
         var { name, value } = attr;
         if (/^(?:class|style|src)$/i.test(name)) return;
@@ -644,8 +644,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         } else if (/^([\_\:\.]|v\-bind\:)/.test(name)) {
             binders._.call(element, name.replace(/^([\_\:\.]|v\-bind\:)/, ""), [withContext, value]);
             element.removeAttribute(name);
-        } else if (/[\_\@\:\.]$/.test(name)) {
-            binders[""].call(element, name.replace(/[\_\@\:\.]$/, ""), [withContext, value]);
+        } else if (/[_@\:\.]$/.test(name)) {
+            binders[""].call(element, name.replace(/[_@\:\.]$/, ""), [withContext, value]);
             element.removeAttribute(name);
         } else {
             name = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
