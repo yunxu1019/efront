@@ -30,6 +30,7 @@ var create = (url, key) => {
     var scaled, x, y, min_scale, loaded_scale, loaded_x, loaded_y;
     var last_click_time = 0;
     on("click")(image, function (event) {
+        console.log('click')
         var time = +new Date;
         var delta_time = time - last_click_time;
         last_click_time = time;
@@ -227,9 +228,9 @@ function picture(url, to = 0, key) {
         if (!images[index + 1] && index + 1 < urls.length) {
             images[index + 1] = create(urls[index + 1], key);
         }
-        if (index >= 2) delete images[index - 2];
-        if (index + 2 < images.length) {
-            delete images[index + 2];
+        if (index >= 5) delete images[index - 5];
+        if (index + 5 < images.length) {
+            delete images[index + 5];
         }
         return images[index];
     };
