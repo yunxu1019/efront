@@ -88,6 +88,7 @@ function slider(autoplay, circle = true) {
             generator(indexLeft + 2, 1);
             generator(indexLeft + 3, 1);
             generator(indexLeft + 4, 1);
+            dispatch(outter, 'changed');
         }
         var childNodes = outter.childNodes;
         for (var dx = childNodes.length - 1; dx >= 0; dx--) {
