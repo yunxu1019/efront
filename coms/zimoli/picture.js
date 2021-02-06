@@ -21,16 +21,17 @@ var create = (url, key) => {
         loaded_y = y;
         image.complete = true;
     };
-    if (img.complete) {
-        once("append")(img, onload);
-    } else {
-        img.onload = onload;
-    }
+    on("append")(image, function () {
+        if (img.complete) {
+            onload.call(img);
+        } else {
+            img.onload = onload;
+        }
+    });
     image.locked = false;
     var scaled, x, y, min_scale, loaded_scale, loaded_x, loaded_y;
     var last_click_time = 0;
     on("click")(image, function (event) {
-        console.log('click')
         var time = +new Date;
         var delta_time = time - last_click_time;
         last_click_time = time;
