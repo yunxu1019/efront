@@ -82,21 +82,31 @@ var popup_path = function (path = "", parameters, target) {
         var load = function () {
             element = popup.create(path, parameters);
             loadingFactory(element);
-            setInitialStyle(element);
-            popup_as_single(element);
+            if (target instanceof Event) {
+                popup_to_event(element, target);
+            } else if (target instanceof Array) {
+                popup_to_point(element, target);
+            } else if (target) {
+                popup_with_mask(element);
+            } else {
+                setInitialStyle(element);
+                popup_as_single(element);
+            }
         };
     }
     var fullfill = function () {
         remove(element);
         load();
         if (!element) throw new Error(`路径不存在:${path}`);
-        element.style.opacity = 0;
         element.$reload = fullfill;
-        if (element.parentNode) setPosition(element);
-        else once('append')(element, function () {
-            setPosition(element);
-            element.style.opacity = 1;
-        });
+        if (!target) {
+            element.style.opacity = 0;
+            if (element.parentNode) setPosition(element);
+            else once('append')(element, function () {
+                setPosition(element);
+                element.style.opacity = 1;
+            });
+        }
     };
     popup.prepare(path, fullfill);
     return element;
@@ -271,20 +281,31 @@ var popup_as_single = function (element) {
     global(element, false);
 };
 var popup_to_point = function (element, [x, y]) {
+    x = calcPixel(x), y = calcPixel(y);
+    popup_fixup(element, x, y);
+};
+var popup_fixup = function (element, x, y) {
     css(element, {
         position: 'absolute',
-        left: fromPixel(x),
-        top: fromPixel(y)
     });
     popup_as_single(element);
+    var left = "left", top = 'top';
+    if (y + element.offsetHeight > window.innerHeight && y << 1 > window.innerHeight) {
+        top = "bottom";
+        y = window.innerHeight - y;
+    }
+    if (x + element.offsetWidth > window.innerWidth && x << 1 > window.innerWidth) {
+        left = "right";
+        x = window.innerWidth - x;
+    }
+    css(element, {
+        [left]: fromOffset(x),
+        [top]: fromOffset(y)
+    });
+
 };
 var popup_to_event = function (element, { clientX, clientY }) {
-    css(element, {
-        position: 'absolute',
-        left: fromOffset(clientX),
-        top: fromOffset(clientY)
-    });
-    popup_as_single(element);
+    popup_fixup(element, clientX, clientY);
 };
 var global = function (element, issingle) {
     once("remove")(element, cleanup);
