@@ -71,7 +71,6 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
 css("html", {
     height: "100%",
     fontFamily: `"SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif`,
-    backgroundColor: "#f2f4f9"
 });
 css("body", {
     border: "none",
