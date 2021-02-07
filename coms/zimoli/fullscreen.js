@@ -28,6 +28,10 @@ var fullscreen = {
     exec(element) {
         requestFullScreen(element);
     },
+    change() {
+        if (this.is()) this.exit(alert);
+        else this.exec(arguments[0] || document.documentElement);
+    },
     exit(alert) {
         if (this.hasTarget()) cancelFullScreen();
         else
