@@ -823,7 +823,7 @@ var data = {
     getInstance(instanceId, onlyFromLocalStorage = false) {
         if (!instanceDataMap[instanceId]) {
             var data = getItem(instanceId, onlyFromLocalStorage);
-            if (isObject(data)) {
+            if (isObject(data) || isEmpty(data)) {
                 data = extend(new LoadingArray, data);
                 data.is_loading = false;
                 data.is_loaded = true;
