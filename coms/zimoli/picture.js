@@ -244,9 +244,8 @@ function picture(url, to = 0, key) {
         care(p, function (e) {
             urls = [].concat(e);
             p.src = gen;
-            p.go(p.index || 0, false);
         });
-        on("changes")(p, function ({changes}) {
+        on("changes")(p, function ({ changes }) {
             if (changes.index) {
                 p.go(p.index, false);
             }
