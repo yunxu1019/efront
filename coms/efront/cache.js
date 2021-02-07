@@ -120,26 +120,29 @@ var asyncLoader = function (curl, temp, key, rebuild) {
         var is_change = loadType === "change";
         var saved = is_change && temp[key];
         saved = !(saved instanceof Promise || saved instanceof Error) && saved;
-
-        temp[key] = isdirAsync(pathname).then(function (isdir) {
-            if (temp[key]) {
-                unwatch(pathname, temp[key]);
-            }
+        var origin = temp[key];
+        var p0 = temp[key] = isdirAsync(pathname).then(function (isdir) {
+            if (p0 !== temp[key]) return;
             if (isdir) {
-                temp[key] = getdirAsync(pathname).then(function (dirs) {
+                var p = temp[key] = getdirAsync(pathname).then(function (dirs) {
+                    if (p !== temp[key]) return;
                     temp[key] = dirs;
                     if (isDevelop) {
                         is_change = saved && Object.keys(dirs).sort().join(",") !== Object.keys(saved).sort().join(",");
                         if (is_change) message.broadcast('reload');
                     }
+                    if (origin) unwatch(pathname, origin);
                     _watch(durls);
                     console.info(root, curl, is_change ? "change" : "load");
                 }).catch(function (error) {
+                    if (p !== temp[key]) return;
+                    if (origin) unwatch(pathname, origin);
                     temp[key] = error;
                     _watch([]);
                 });
             } else {
-                temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
+                var p = temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
+                    if (p !== temp[key]) return;
                     try {
                         if (rebuild instanceof Function) {
                             data = rebuild(data, that.getURL(), durl, durls);
@@ -150,6 +153,8 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                     }
                     return data;
                 }).then(function (data) {
+                    if (p !== temp[key]) return;
+                    if (origin) unwatch(pathname, origin);
                     if (typeof data === "string") {
                         data = Buffer.from(data);
                     }
@@ -161,12 +166,16 @@ var asyncLoader = function (curl, temp, key, rebuild) {
                     console.info(root, curl, is_change ? "change" : "load");
                     _watch(durls);
                 }).catch(function (error) {
+                    if (p !== temp[key]) return;
+                    if (origin) unwatch(pathname, origin);
                     temp[key] = error;
                     console.error(error);
                     _watch([]);
                 });
             }
         }).catch(function (error) {
+            if (p0 !== temp[key]) return;
+            if (origin) unwatch(pathname, origin);
             temp[key] = error;
             console.error(error);
         });
