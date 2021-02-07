@@ -246,6 +246,11 @@ function picture(url, to = 0, key) {
             p.src = gen;
             p.go(p.index || 0, false);
         });
+        on("changes")(p, function ({changes}) {
+            if (changes.index) {
+                p.go(p.index, false);
+            }
+        });
     } else {
         var urls = [].concat(url);
         var p = slider(gen, false);
