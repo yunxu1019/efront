@@ -7,7 +7,7 @@ var create = (url, key) => {
             url = seek(url, key);
         }
     }
-    img.src = url;
+    image.url = img.src = url;
     var onload = function () {
         img.onload = null;
         image.width = this.width;
@@ -223,6 +223,9 @@ function picture(url, to = 0, key) {
     var images = {};
     var gen = function (index) {
         if (index >= urls.length || index < 0) return null;
+        if (images[index] && images[index].url !== urls[index]) {
+            delete images[index];
+        }
         if (!images[index]) {
             images[index] = create(urls[index], key);
         }
