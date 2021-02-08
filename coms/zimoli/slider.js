@@ -65,7 +65,7 @@ function slider(autoplay, circle = true) {
         moving = 0,
         direction,
         _speed = speed(1);
-    var reshape = function (index, ising) {
+    var reshape = function (index, ising, emit) {
         outter.index = current_index = index;
         var width = outter.clientWidth || +innerWidth;
         var indexLeft = floor(index);
@@ -88,7 +88,7 @@ function slider(autoplay, circle = true) {
             generator(indexLeft + 2, 1);
             generator(indexLeft + 3, 1);
             generator(indexLeft + 4, 1);
-            dispatch(outter, 'changed');
+            if (emit !== false) dispatch(outter, 'changed');
         }
         var childNodes = outter.childNodes;
         for (var dx = childNodes.length - 1; dx >= 0; dx--) {
@@ -250,7 +250,7 @@ function slider(autoplay, circle = true) {
         if (outter.index === index && cache !== false) return;
         negative_index = -index;
         var _removingMain = _imageMain;
-        reshape(index, false);
+        reshape(index, false, cache);
         css(_removingMain, "transition:.1s opacity ease-out,.1s transform;z-index:1;left:0;");
         appendChild(outter, _removingMain);
         setTimeout(function () {
