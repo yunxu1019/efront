@@ -1,4 +1,4 @@
-function lazy(run, wait) {
+function lazy(run, time = false) {
     return function () {
         var fire = function () {
             if (fire.ing === true) run.apply(that, arguments);
@@ -12,13 +12,13 @@ function lazy(run, wait) {
             });
         }
         if (fire.ing) return fire.ing = true;
-        wait = +wait;
-        if (wait > 0) {
-            setTimeout(fire, wait);
+        time = +time;
+        if (time > 0) {
+            setTimeout(fire, time);
             fire.ing = true;
         } else {
             fire.ing = requestAnimationFrame(fire);
-            if (wait === false || wait === 0) fire.ing = true;
+            if (time === false || time === 0) fire.ing = true;
             else run();
         }
     };
