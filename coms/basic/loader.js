@@ -655,6 +655,11 @@ var initPixelDecoder = function () {
             });
         });
     }
+    modules.offset2px = freePixel;
+    modules.px2offset = calcPixel;
+    modules.offset2pt = modules.fromOffset;
+    modules.pt2offset = modules.freeOffset;
+
 };
 var flush_to_storage_timer = 0,
     responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
