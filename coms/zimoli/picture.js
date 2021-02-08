@@ -12,14 +12,19 @@ var create = (url, key) => {
         img.onload = null;
         image.width = this.width;
         image.height = this.height;
-        scaled = Math.min(image.offsetHeight / image.height, image.offsetWidth / image.width);
-        x = (image.offsetWidth - image.width * scaled) / 2;
-        y = (image.offsetHeight - image.height * scaled) / 2;
-        min_scale = scaled * .75;
-        loaded_scale = scaled;
-        loaded_x = x;
-        loaded_y = y;
         image.complete = true;
+        img = null;
+        setInitParams();
+    };
+    var setInitParams = function () {
+        var nolock = loaded_scale === scaled && loaded_x === x && loaded_y === y;
+        loaded_scale = Math.min(image.offsetHeight / image.height, image.offsetWidth / image.width);
+        loaded_x = (image.offsetWidth - image.width * loaded_scale) / 2;
+        loaded_y = (image.offsetHeight - image.height * loaded_scale) / 2;
+        min_scale = loaded_scale * .75;
+        scaled = loaded_scale;
+        x = loaded_x;
+        y = loaded_y;
     };
     on("append")(image, function () {
         if (img.complete) {
@@ -37,7 +42,7 @@ var create = (url, key) => {
         last_click_time = time;
         if (delta_time > 300) return;
         var image = this;
-        scaled = Math.min(image.offsetHeight / image.height, image.offsetWidth / image.width);
+        setInitParams();
         image.locked = scaled < 1 && !image.locked;
         var layerx = event.layerX || event.clientX || 0;
         var layery = event.layerY || event.clientY || 0;
@@ -151,6 +156,7 @@ var create = (url, key) => {
         var { layerX, layerY, deltaY } = event;
         event.preventDefault();
         if (!deltaY) return;
+        if (!this.locked) setInitParams();
         this.locked = true;
         var scale = Math.pow(0.99, deltaY);
         if (scaled * scale >= 2.5 && scale > 1) {
@@ -165,12 +171,10 @@ var create = (url, key) => {
     moveupon(image, {
         start(event) {
             event.preventDefault();
-            if (!min_scale || !(1 / min_scale)) onload.call(img);
             saved_event = event;
             event.moveLocked = this.locked;
             if (!this.locked) {
-                x = loaded_x;
-                y = loaded_y;
+                setInitParams();
             }
             move.reset();
         },
