@@ -26,7 +26,7 @@ var create = (url, key) => {
         x = loaded_x;
         y = loaded_y;
     };
-    on("append")(image, function () {
+    once("append")(image, function () {
         if (img.complete) {
             onload.call(img);
         } else {
