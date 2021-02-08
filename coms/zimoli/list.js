@@ -90,17 +90,19 @@ function ylist(container, generator, $Y) {
             saved_itemIndex = itemIndex;
             return;
         }
+        cache_height = list.clientHeight;
         var index = itemIndex | 0;
         var ratio = itemIndex - index || 0;
         if (index < 0) index = 0;
         var childrenMap = getChildrenMap();
         var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null, last_index = last_item && last_item.index || offset;
         var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
-        while (offsetBottom - ratioTop <= list.clientHeight + cache_height) {
+        var indexed_item;
+        while (offsetBottom - ratioTop <= list.clientHeight + cache_height || indexed_item && top_item && indexed_item.offsetTop - top_item.offsetTop < cache_height) {
             var item = childrenMap[offset];
             if (!item || item.itemid) {
                 item = generator(offset);
-                if (!item) {
+                if (!item || delta > 0 && offsetBottom - ratioTop > list.clientHeight + cache_height) {
                     if (delta < 0) break;
                     delta = -1;
                     offset = index - 1;
@@ -118,6 +120,7 @@ function ylist(container, generator, $Y) {
             }
             last_index = offset;
             last_item = item;
+            if (offset === index || !indexed_item) indexed_item = item;
             if (delta > 0) {
                 offset++;
                 offsetb = offset;
