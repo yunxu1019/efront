@@ -147,7 +147,7 @@ function ylist(container, generator, $Y) {
             list.scrollTop = indexed_item.offsetTop + indexed_item.offsetHeight * ratio - parseFloat(getComputedStyle(list).paddingTop);
         }
     };
-    var runbuild = function () {
+    var runbuild = lazy(function () {
         patchBottom();
         patchTop();
         var firstElement = getFirstElement(1), y;
@@ -161,26 +161,10 @@ function ylist(container, generator, $Y) {
             height: fromOffset(y)
         });
         return y;
-    };
+    }, false);
     var rebuild = function () {
         if (!/^(?:auto|scroll)$/i.test(getComputedStyle(list).overflowY)) return;
-        var saved_y, inc = 0;
-        if (rebuild.ing) cancelAnimationFrame(rebuild.ing);
-        var run = function () {
-            var y = runbuild();
-            if (y !== saved_y) {
-                saved_y = y;
-                inc = 0;
-                return;
-            }
-            inc += 8;
-            if (inc < 1000) {
-                rebuild.ing = requestAnimationFrame(run);
-            } else {
-                rebuild.ing = 0;
-            }
-        };
-        rebuild.ing = requestAnimationFrame(run);
+        runbuild();
     };
     on("scroll")(list, rebuild);
     var topinsert = document.createElement('ylist-insert');
