@@ -84,13 +84,33 @@ function ylist(container, generator, $Y) {
         }
         return map;
     };
+    var onitemload = function () {
+        var item = this;
+        if (list !== item.parentNode) return;
+        if (savedHeight === offsetHeight) return;
+        updateItem(item);
+        var { offsetHeight, savedHeight } = item;
+        if (item.offsetTop > list.scrollTop) return;
+        list.scrollTop += offsetHeight - savedHeight;
+    };
+    var createItem = function (index) {
+        var item = generator(index);
+        if (item) {
+            item.index = index;
+            on("load")(item, onitemload, true);
+        }
+        return item;
+    };
+    var updateItem = function (item) {
+        item.savedHeight = item.offsetHeight;
+    };
     //设置当前下标
     var scrollTo = function (itemIndex) {
         if (!list.offsetHeight && !list.offsetWidth && !list.isMounted) {
             saved_itemIndex = itemIndex;
             return;
         }
-        cache_height = list.clientHeight;
+        var cache_height = list.clientHeight;
         var index = itemIndex | 0;
         var ratio = itemIndex - index || 0;
         if (index < 0) index = 0;
@@ -101,7 +121,7 @@ function ylist(container, generator, $Y) {
         while (offsetBottom - ratioTop <= list.clientHeight + cache_height || indexed_item && top_item && indexed_item.offsetTop - top_item.offsetTop < cache_height) {
             var item = childrenMap[offset];
             if (!item || item.itemid) {
-                item = generator(offset);
+                item = createItem(offset);
                 if (!item || delta > 0 && offsetBottom - ratioTop > list.clientHeight + cache_height) {
                     if (delta < 0) break;
                     delta = -1;
@@ -111,12 +131,12 @@ function ylist(container, generator, $Y) {
                     last_index = index;
                     continue;
                 }
-                item.index = offset;
                 if (last_index > offset) {
                     list.insertBefore(item, last_item);
                 } else {
                     list.insertBefore(item, getNextSibling(last_item));
                 }
+                updateItem(item);
             }
             last_index = offset;
             last_item = item;
@@ -194,6 +214,7 @@ function ylist(container, generator, $Y) {
         return next.offsetTop - element.offsetTop;
     };
     var patchBottom = function (deltaY = 0) {
+        var cache_height = list.clientHeight;
         var childrenMap = getChildrenMap();
         var last_element = getLastElement();
         if (!last_element || !last_element.offsetHeight) return;
@@ -206,15 +227,15 @@ function ylist(container, generator, $Y) {
             offset++;
             var item = childrenMap[offset];
             if (!item || item.itemid) {
-                item = generator(offset);
+                item = createItem(offset);
                 if (!item) {
                     restHeight = 0;
                     break;
                 } else if (!restHeight) {
                     restHeight = cache_height;
                 }
-                item.index = offset;
                 list.insertBefore(item, getNextSibling(last_element));
+                updateItem(item);
             }
             if (!item.offsetHeight) {
                 console.warn(item, '!item.offsetHeight');
@@ -251,6 +272,7 @@ function ylist(container, generator, $Y) {
         return scrollTop - list.scrollTop;
     };
     var patchTop = function (deltaY = 0) {
+        var cache_height = list.clientHeight;
         var childrenMap = getChildrenMap();
         var first_element, flag_element = first_element = getFirstElement(1);
         if (!flag_element || !isFinite(flag_element.offsetTop)) return;
@@ -274,11 +296,11 @@ function ylist(container, generator, $Y) {
             }
             var item = childrenMap[offset];
             if (!item || item.itemid) {
-                item = generator(offset);
+                item = createItem(offset);
                 if (!item) break;
-                item.index = offset;
                 childrenMap[offset] = item;
                 list.insertBefore(item, first_element);
+                updateItem(item);
                 scrollTop += flag_element.offsetTop - offsetTop;
                 offsetTop = flag_element.offsetTop;
                 first_element = item;
