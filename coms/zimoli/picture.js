@@ -158,7 +158,7 @@ var create = (url, key) => {
         if (!deltaY) return;
         if (!this.locked) setInitParams();
         this.locked = true;
-        var scale = Math.pow(0.99, deltaY);
+        var scale = Math.pow(0.999, deltaY);
         if (scaled * scale >= 2.5 && scale > 1) {
             scale = 2.5 / scaled;
         }
