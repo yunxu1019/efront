@@ -380,6 +380,7 @@ function ylist(container, generator, $Y) {
         var element = getFirstElement(1);
         return element ? element.index : 0;
     };
+    list.getIndexedElement = getIndexedElement;
     vbox(list, $Y);
     return list;
 }
