@@ -716,7 +716,7 @@ function render(element, scope, parentScopes) {
 var digest = lazy(refresh);
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
-var eventsHandlers = "change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
+var eventsHandlers = "fullscreenchange,change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
 eventsHandlers.map(on => on(window, digest));
 on("render")(window, digest);
 var register = function (key, creater) {
