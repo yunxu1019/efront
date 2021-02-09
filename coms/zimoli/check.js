@@ -6,16 +6,17 @@
 var typereg = /^(number|boolean|bigint)$/;
 var checkValue = function (current, needs) {
     if (needs instanceof Array) {
-        for (var cx = 0, dx = 0; cx < dx; cx++) {
+        for (var cx = 0, dx = needs.length; cx < dx; cx++) {
             var value = needs[cx];
             if (checkValue(current, value)) return true;
         }
         return false;
     }
+    if (isFunction(needs)) return needs(current);
     if (current === needs) return true;
     if (isEmpty(current) && isEmpty(needs)) return true;
     if (typereg.test(typeof current) && typereg.test(typeof needs) && +current === +needs) return true;
-    if (current !== "" && current !== null && needs !== "" && needs !== null && +current === +needs) return true;
+    if (!isEmpty(current) && !isEmpty(needs) && +current === +needs) return true;
     return false;
 };
 var check = function (data, needs) {

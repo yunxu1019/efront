@@ -84,6 +84,26 @@ function ylist(container, generator, $Y) {
         }
         return map;
     };
+    var onitemload = function () {
+        var item = this;
+        if (list !== item.parentNode) return;
+        if (savedHeight === offsetHeight) return;
+        updateItem(item);
+        var { offsetHeight, savedHeight } = item;
+        if (item.offsetTop > list.scrollTop) return;
+        list.scrollTop += offsetHeight - savedHeight;
+    };
+    var createItem = function (index) {
+        var item = generator(index);
+        if (item) {
+            item.index = index;
+            on("load")(item, onitemload, true);
+        }
+        return item;
+    };
+    var updateItem = function (item) {
+        item.savedHeight = item.offsetHeight;
+    };
     //设置当前下标
     var scrollTo = function (itemIndex) {
         if (!list.offsetHeight && !list.offsetWidth && !list.isMounted) {
@@ -96,11 +116,12 @@ function ylist(container, generator, $Y) {
         var childrenMap = getChildrenMap();
         var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null, last_index = last_item && last_item.index || offset;
         var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
-        while (offsetBottom - ratioTop <= list.clientHeight + cache_height) {
+        var indexed_item;
+        while (offsetBottom - ratioTop <= list.clientHeight + cache_height || indexed_item && top_item && indexed_item.offsetTop - top_item.offsetTop < cache_height) {
             var item = childrenMap[offset];
             if (!item || item.itemid) {
-                item = generator(offset);
-                if (!item) {
+                item = createItem(offset);
+                if (!item || delta > 0 && offsetBottom - ratioTop > list.clientHeight + cache_height) {
                     if (delta < 0) break;
                     delta = -1;
                     offset = index - 1;
@@ -109,15 +130,16 @@ function ylist(container, generator, $Y) {
                     last_index = index;
                     continue;
                 }
-                item.index = offset;
                 if (last_index > offset) {
                     list.insertBefore(item, last_item);
                 } else {
                     list.insertBefore(item, getNextSibling(last_item));
                 }
+                updateItem(item);
             }
             last_index = offset;
             last_item = item;
+            if (offset === index || !indexed_item) indexed_item = item;
             if (delta > 0) {
                 offset++;
                 offsetb = offset;
@@ -144,7 +166,7 @@ function ylist(container, generator, $Y) {
             list.scrollTop = indexed_item.offsetTop + indexed_item.offsetHeight * ratio - parseFloat(getComputedStyle(list).paddingTop);
         }
     };
-    var runbuild = function () {
+    var runbuild = lazy(function () {
         patchBottom();
         patchTop();
         var firstElement = getFirstElement(1), y;
@@ -158,26 +180,10 @@ function ylist(container, generator, $Y) {
             height: fromOffset(y)
         });
         return y;
-    };
+    }, false);
     var rebuild = function () {
         if (!/^(?:auto|scroll)$/i.test(getComputedStyle(list).overflowY)) return;
-        var saved_y, inc = 0;
-        if (rebuild.ing) cancelAnimationFrame(rebuild.ing);
-        var run = function () {
-            var y = runbuild();
-            if (y !== saved_y) {
-                saved_y = y;
-                inc = 0;
-                return;
-            }
-            inc += 8;
-            if (inc < 1000) {
-                rebuild.ing = requestAnimationFrame(run);
-            } else {
-                rebuild.ing = 0;
-            }
-        };
-        rebuild.ing = requestAnimationFrame(run);
+        runbuild();
     };
     on("scroll")(list, rebuild);
     var topinsert = document.createElement('ylist-insert');
@@ -219,15 +225,15 @@ function ylist(container, generator, $Y) {
             offset++;
             var item = childrenMap[offset];
             if (!item || item.itemid) {
-                item = generator(offset);
+                item = createItem(offset);
                 if (!item) {
                     restHeight = 0;
                     break;
                 } else if (!restHeight) {
                     restHeight = cache_height;
                 }
-                item.index = offset;
                 list.insertBefore(item, getNextSibling(last_element));
+                updateItem(item);
             }
             if (!item.offsetHeight) {
                 console.warn(item, '!item.offsetHeight');
@@ -287,11 +293,11 @@ function ylist(container, generator, $Y) {
             }
             var item = childrenMap[offset];
             if (!item || item.itemid) {
-                item = generator(offset);
+                item = createItem(offset);
                 if (!item) break;
-                item.index = offset;
                 childrenMap[offset] = item;
                 list.insertBefore(item, first_element);
+                updateItem(item);
                 scrollTop += flag_element.offsetTop - offsetTop;
                 offsetTop = flag_element.offsetTop;
                 first_element = item;
@@ -309,15 +315,28 @@ function ylist(container, generator, $Y) {
         return scrollTop - list.scrollTop;
     };
     //滚动一定的距离
-    var scrollBy = function (deltaY) {
+    var scrollBy = function (deltaY, animate = false) {
         var deltaScroll;
         if (deltaY > 0) {
             deltaScroll = patchBottom(deltaY);
         } else {
             deltaScroll = patchTop(deltaY);
         }
-        if (deltaScroll) list.scrollTop += deltaScroll;
+
+        if (deltaScroll) {
+            if (animate && __scrollBy) {
+                list.scrollTop += deltaScroll - deltaY
+                __scrollBy.call(list, {
+                    top: deltaY,
+                    behavior: 'smooth'
+                });
+            } else {
+                list.scrollTop += deltaScroll;
+
+            }
+        }
     };
+
     list.stopY = function () {
         var firstElement = getFirstVisibleElement();
         if (!firstElement) return;
@@ -365,6 +384,7 @@ function ylist(container, generator, $Y) {
         }
         return currentY();
     };
+    if (!/^i(Phone|Pod|Watch|Pad)|^Mac/i.test(navigator.platform)) var __scrollBy = list.scrollBy;
     list.scrollBy = scrollBy;
     list.index = function () {
         var firstElement = getFirstVisibleElement();
@@ -377,6 +397,9 @@ function ylist(container, generator, $Y) {
         var element = getFirstElement(1);
         return element ? element.index : 0;
     };
+    list.getIndexedElement = getIndexedElement;
+    list.patchBottom = patchBottom;
+    list.patchTop = patchTop;
     vbox(list, $Y);
     return list;
 }

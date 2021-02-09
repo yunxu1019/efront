@@ -92,7 +92,7 @@ var toName = function () {
 var toValue = function () {
     return this.value;
 }
-var eval_reg = /0[xob]\d+|(?:\d*\.)?\d+|([^\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]]+)/g;
+var eval_reg = /0[xob]\d+|(?:\d*\.)?\d+|([^\+\-\*\/\\\?\:\|\&\^\%\!\~\>\<\(\)\[\]\=]+)/g;
 function evalExpress(express) {
     var o = this;
     express = express.replace(eval_reg, function (_, b) {
@@ -102,7 +102,6 @@ function evalExpress(express) {
         }
         return _;
     });
-    console.log(express)
     return eval(`${express}`);
 }
 var createEval = function (express, value) {
@@ -118,7 +117,10 @@ var createEval = function (express, value) {
     });
 
     if (!finded) return eval(`[function(){return ${express}}][0]`)();
-    return a => evalExpress.call(a, express);
+    return createOption({
+        value,
+        name: express
+    });
 };
 
 var createOption = function (o) {
@@ -178,6 +180,12 @@ function unfoldOptions(size, options) {
 }
 var rangereg = /^(0[oxb][a-f\d]+|\d+)?[\-\:]((?:0[oxb])?[a-f\d]+|\d+)?\:?/i;
 
+function xto0(x) {
+    return 1 - /^x$/i.test(x);
+}
+function bitTest(mask, sample, value) {
+    return (value & mask) === sample;
+}
 function parseNumber(str) {
     var s = 10;
     if (!isString(str)) return str;
@@ -194,17 +202,24 @@ function parseNumber(str) {
         default:
             return parseFloat(str);
     }
-    return parseInt(str.slice(2), s);
+    str = str.slice(2);
+    if (/x/i.test(str)) {
+        return bitTest.bind(null,
+            parseInt(str.replace(/[\s\S]/g, xto0), 2),
+            parseInt(str.replace(/x/g, '0'), 2)
+        );
+    }
+    return parseInt(str, s);
 }
 
 var number_reg = /^(0[obx])?(\d*\.)?\d+$/i;
 function parseIntegerList(list) {
     var prev;
     return list.map(function (a) {
-        var m = number_reg.exec(a);
+        var m = /^0[obx]/.exec(a);
         if (m) {
-            prev = m[1];
-        } else if (prev && /^[a-f\d]+$/.test(a)) {
+            prev = m[0];
+        } else if (prev && /^[a-f\d\x]+$/.test(a)) {
             return parseNumber(prev + a);
         }
         return parseNumber(a || undefined);
@@ -232,17 +247,11 @@ function parseValue(map) {
     }
     switch (map.toLowerCase()) {
         case "false":
-        case "f":
         case ".f.":
-        case "no":
-        case "n":
         case ".n.":
             return false;
         case "true":
-        case "t":
         case ".t.":
-        case "yes":
-        case "y":
         case ".y.":
             return true;
         case "null":
@@ -316,7 +325,7 @@ function parse(piece) {
             let [_, t, d] = /^([a-z]+)(\d+)$/.exec(type);
             type = d + 'bit/' + t;
         }
-        var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|bytes?|bits?|B|utf|)\b/i.exec(type);
+        var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|bytes?|bits?|B|)\b/i.exec(type);
         if (sizematch) {
             var [size_text, size, unit] = sizematch;
             var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
@@ -448,6 +457,21 @@ var bufferToUTF8Int = function (buff, cx = 0) {
     return s;
 };
 
+var getUnaryRest = function (buff, index, flag) {
+    var binc = index * 8;
+    var savedb = binc;
+    do {
+
+        var i = binc / 8 | 0;
+        var b = binc - i * 8;
+        if (i >= buff.length) break;
+        var byte = buff[i];
+        var bit = byte << b >> 7 - b;
+        binc++;
+    } while (flag !== bit);
+    return binc - savedb;
+}
+
 var readFromIndex = function (data, index, offset) {
     var byteIndex = index | 0;
     var bitIndex = (index - byteIndex) * 8;
@@ -479,26 +503,26 @@ var proto = {
     parse(data, start = 0) {
         var fields = this;
         var index = start;
-        var rest = [];
         var map = Object.create(null), map_start = index, map_end, total = data.length;
-        var readlist = function (fields) {
+        var readlist = function (fields, inc) {
             if (index >= total) return null;
             var saved_map = map;
             var saved_start = map_start;
             var saved_total = total;
             var saved_end = map_end;
-            map = {};
+            map = Object.create(map);
             map_start = index;
             map_end = undefined;
+            if (isFinite(inc)) map.$index = inc;
             for (var cx = 0, dx = fields.length; cx < dx; cx++) {
                 var field = fields[cx];
                 if (field.needs) {
                     if (!check(map, field.needs)) continue;
                 }
-                var value = readone(field);
+                var value1 = readone(field);
                 if (field.key) {
-                    map[field.key] = value;
-                };
+                    map[field.key] = value1;
+                }
                 if (index >= total) break;
             }
             if (map_end) index = map_end;
@@ -507,10 +531,13 @@ var proto = {
             total = saved_total;
             map_start = saved_start;
             map_end = saved_end;
+            if (dx === 1 && !field.key) {
+                return value1;
+            }
             return value;
         };
 
-        var read = function (field) {
+        var read = function (field, inc) {
             var { size, ratio = 1, type } = field;
             if (/^\./.test(type)) {
                 var option = map[type.slice(1)];
@@ -533,41 +560,48 @@ var proto = {
                 if (c) total = map_end = Math.ceil(map_end);
                 return range;
             }
+            if (/^=/.test(type)) {
+                return evalExpress.call(map, type.slice(1));
+            }
             if (size === undefined && isString(field.type)) {
                 size = (map_end - index) / ratio;
             } else if (/^\:/.test(size)) {
-                size = map[size.slice(1)];
+
+                size = evalExpress.call(map, size.slice(1));
             }
             if (index >= total) {
                 value = null;
             }
             if (field.fields) {
-                value = readlist(field.fields);
+                value = readlist(field.fields, inc);
             }
-
+            else if (/^unary/i.test(field.type)) {
+                value = getUnaryRest(data, index, size);
+                offset = index + value / 8;
+            }
             else if (size > 0) {
                 var offset = index + size * ratio;
                 var bytes = readFromIndex(data, index, offset);
                 var value = bytes;
-                if (/^utf/i.test(field.unit)) {
+                if (/^utf/i.test(field.type)) {
                     offset += getUTF8Rest(bytes[0]);
                     bytes = readFromIndex(data, index, offset);
                     value = bufferToUTF8String(bytes, 0);
                 }
-                else if (/^small/i.test(field.type)) {
+                else if (/^small$/i.test(field.type)) {
                     value = numberFromSmallEnd(value);
                 }
-                else if (/^s/i.test(field.type)) {
+                else if (/^(string|str)$/i.test(field.type)) {
                     window[field.key] = value;
                     value = bufferToUTF8String(value);
                 }
-                else if (/^n|^i|^f|^u/i.test(field.type)) {
+                else if (/^num$|^number$|^int$|^integer$|^float$|^uint$/i.test(field.type)) {
                     value = numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
-                else if (/^b/i.test(field.type)) {
+                else if (/^bool$|^boolean$/i.test(field.type)) {
                     value = !!numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
-                else if (/^r/i.test(field.type)) {
+                else if (/^raise$/i.test(field.type)) {
                     value = 1 + numberFromBuffer(value, 0, field.size * field.ratio * 8);
                 }
                 else {
@@ -587,25 +621,22 @@ var proto = {
                     }
                 }
             }
-            rest.push({
-                field,
-                bytes
-            });
             return value;
         };
         var readone = function (field) {
-            var value = read(field);
+            var inc = 0;
+            var value = read(field, inc);
             if (field.repeat) {
                 var result = [value];
                 var { size } = field;
                 if (/^\:/.test(size)) {
-                    size = map[size.slice(1)];
+                    size = evalExpress.call(map, size.slice(1));
                 }
                 while (!field.endwith || !check(value, field.endwith)) {
                     if (result.length >= size) break;
                     if (index < total) {
                         let temp_index = index;
-                        value = read(field);
+                        value = read(field, ++inc);
                         if (index === temp_index) break;
                         result.push(value);
                     }

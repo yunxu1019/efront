@@ -822,14 +822,13 @@ var data = {
      */
     getInstance(instanceId, onlyFromLocalStorage = false) {
         if (!instanceDataMap[instanceId]) {
-            const data = instanceDataMap[instanceId] = new LoadingArray;
-            const storageId = userPrefix + instanceId + pagePathName;
-            extend(data, loadInstance(localStorage, storageId));
-            if (!onlyFromLocalStorage) {
-                extend(data, loadInstance(sessionStorage, storageId));
+            var data = getItem(instanceId, onlyFromLocalStorage);
+            if (isObject(data) || isEmpty(data)) {
+                data = extend(new LoadingArray, data);
+                data.is_loading = false;
+                data.is_loaded = true;
             }
-            data.is_loading = false;
-            data.is_loaded = true;
+            instanceDataMap[instanceId] = data;
         }
         return instanceDataMap[instanceId];
 
@@ -869,18 +868,17 @@ var data = {
      */
     setInstance(instanceId, data, rememberWithStorage = 0) {
         const instance = this.getInstance(instanceId);
-        this.rebuildInstance(instance, data);
-        const storageId = userPrefix + instanceId + pagePathName;
-        if (rememberWithStorage !== false) {
-            sessionStorage.setItem(storageId, JSAM.stringify(data));
+        if (isObject(data) && isObject(instance)) {
+            this.rebuildInstance(instance, data);
+        } else {
+            instanceDataMap[instanceId] = data;
         }
-        if (rememberWithStorage) {
-            localStorage.setItem(storageId, JSAM.stringify(data));
-        }
+        setItem(instanceId, data, rememberWithStorage);
         return instanceDataMap[instanceId];
     },
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) { return; }
+        if (!isObject(instance) || !isObject(data)) throw new Error("只支持object类型的数据！");
         if (instance instanceof Array) instance.splice(0, instance.length);
         var sample = new LoadingArray;
         Object.keys(old).forEach(function (k) {
@@ -891,5 +889,28 @@ var data = {
         extend(instance, data);
     }
 };
+function setItem(instanceId, data, rememberWithStorage = 0) {
+    const storageId = userPrefix + instanceId + pagePathName;
+    if (rememberWithStorage !== false) {
+        sessionStorage.setItem(storageId, JSAM.stringify(data));
+    }
+    if (rememberWithStorage) {
+        localStorage.setItem(storageId, JSAM.stringify(data));
+    }
+}
+function getItem(instanceId, onlyFromLocalStorage = false) {
+    const storageId = userPrefix + instanceId + pagePathName;
+    var data = loadInstance(localStorage, storageId);
+    if (!onlyFromLocalStorage) {
+        var data2 = loadInstance(sessionStorage, storageId);
+        if (isObject(data)) extend(data, data2);
+        else if (!isEmpty(data2)) return data2;
+    }
+    return data;
+}
+
+data.setItem = data.setInstance;
+data.getItem = data.getInstance;
+data.removeItem = data.removeInstance;
 extend(dataSourceMap, loadInstance(localStorage, sourceDataId));
 extend(dataSourceMap, loadInstance(sessionStorage, sourceDataId));

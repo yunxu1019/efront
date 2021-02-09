@@ -73,7 +73,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
                             var result = replacer(data, pathmap[relative], match);
                             if (result !== false && result !== null && result !== undefined) return result;
                         }
-                        console.warn(`没有处理${match} ${fullpath}`);
+                        if (deep !== false) console.warn(`没有处理${match} ${fullpath}`);
                         return match;
                     });
                     if (regindex + 1 >= regs.length || increase === 0) ok(data);

@@ -1,8 +1,9 @@
-function lazy(run, wait) {
+function lazy(run, time = false) {
+    var fireing;
     return function () {
         var fire = function () {
-            if (fire.ing === true) run.apply(that, arguments);
-            fire.ing = false;
+            if (fireing === true) run.apply(that, arguments);
+            fireing = false;
         };
         var that = this;
         if (arguments.length) {
@@ -11,14 +12,13 @@ function lazy(run, wait) {
                 run.apply(that, args);
             });
         }
-        if (fire.ing) return fire.ing = true;
-        wait = +wait;
-        if (wait > 0) {
-            setTimeout(fire, wait);
-            fire.ing = true;
+        if (fireing) return fireing = true;
+        if (time > 0) {
+            setTimeout(fire, +time);
+            fireing = true;
         } else {
-            fire.ing = requestAnimationFrame(fire);
-            if (wait === false || wait === 0) fire.ing = true;
+            fireing = requestAnimationFrame(fire);
+            if (time === false || time === 0) fireing = true;
             else run();
         }
     };

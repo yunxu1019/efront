@@ -297,7 +297,7 @@ var loadModule = function (name, then, prebuilds = {}) {
         readFile(name, saveModule);
     }
 };
-var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt") + (quote || "")) : text;
+var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt") + (quote || "")) : text;
 var getArgs = function (text) {
     var args, functionBody;
     //依赖项名称部分的长度限制为36*36*18=23328
@@ -655,6 +655,11 @@ var initPixelDecoder = function () {
             });
         });
     }
+    modules.offset2px = freePixel;
+    modules.px2offset = calcPixel;
+    modules.offset2pt = modules.fromOffset;
+    modules.pt2offset = modules.freeOffset;
+
 };
 var flush_to_storage_timer = 0,
     responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
