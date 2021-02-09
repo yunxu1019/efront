@@ -57,8 +57,8 @@ var create = function (url, key) {
         var image = this;
         setInitParams();
         image.locked = scaled < 1 && !image.locked;
-        var layerx = event.layerX || event.clientX || 0;
-        var layery = event.layerY || event.clientY || 0;
+        var layerx = event.offsetX || 0;
+        var layery = event.offsetY || 0;
         var deltax = (image.clientWidth - image.width * scaled) / 2;
         var deltay = (image.clientHeight - image.height * scaled) / 2;
         if (layerx < deltax || layery < deltay || image.clientWidth - layerx < deltax || image.clientHeight - layery < deltay) {
@@ -174,7 +174,7 @@ var create = function (url, key) {
     });
     var saved_event;
     on("mousewheel")(image, function (event) {
-        var { layerX, layerY, deltaY } = event;
+        var { offsetX: layerX, offsetY: layerY, deltaY } = event;
         event.preventDefault();
         if (!deltaY) return;
         if (!this.locked) setInitParams();
@@ -217,9 +217,12 @@ var create = function (url, key) {
                         event.moveLocked = true;
                         var [xy1, xy2] = saved_event.touches;
                         var [mn1, mn2] = event.touches;
+                        var { left, top } = getScreenPosition(image);
+                        top += image.clientTop;
+                        left += image.clientLeft;
                         touch(
-                            [xy1.clientX, xy1.clientY, xy2.clientX, xy2.clientY],
-                            [mn1.clientX, mn1.clientY, mn2.clientX, mn2.clientY]
+                            [xy1.clientX - left, xy1.clientY - top, xy2.clientX - left, xy2.clientY - top],
+                            [mn1.clientX - left, mn1.clientY - top, mn2.clientX - left, mn2.clientY - top]
                         );
                         saved_event = event;
                         return;
