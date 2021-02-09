@@ -2,7 +2,57 @@
 var is_addEventListener_enabled = "addEventListener" in window;
 var handlersMap = {};
 var changes_key = 'changes';
-var eventtypereg = /(?:\.once|\.prevent|\.stop|\.capture|\.self|\.passive)+$/i;
+var eventtypereg = /(?:\.once|\.prevent|\.stop|\.capture|\.self|\.passive|\.[a-z0-9]+)+$/i;
+var keyCodeMap = {
+    backspace: 8,
+    tab: 9,
+    enter: 13,
+    shift: 16,
+    ctrl: 17,
+    control: 17,
+    alt: 18,
+    caps: 20,
+    capslock: 20,
+    esc: 27,
+    escape: 27,
+    pageup: 33,
+    pagedown: 34,
+    home: 35,
+    end: 36,
+    left: 37,
+    up: 38,
+    right: 39,
+    down: 40,
+    insert: 45,
+    delete: 46,
+    meta: 91,
+    context: 93,
+    menu: 93,
+    contextmenu: 93,
+    f1: 112,
+    f2: 113,
+    f3: 114,
+    f4: 115,
+    f5: 116,
+    f6: 117,
+    f7: 118,
+    f8: 119,
+    f9: 120,
+    f10: 121,
+    f11: 122,
+    f12: 123,
+    semicolon: 186,
+    equal: 187,
+    minus: 189,
+    comma: 188,
+    period: 190,
+    slash: 191,
+    backquote: 192,
+    bracketleft: 219,
+    backslash: 220,
+    bracketright: 221,
+    quote: 222,
+};
 var parseEventTypes = function (eventtypes) {
     var types = {
         once: false,
@@ -10,15 +60,55 @@ var parseEventTypes = function (eventtypes) {
         capture: false,
         self: false,
         prevent: false,
-        passive: false
+        passive: false,
+        keyNeed: [],
+        keyCode: 0,
     };
+    var keyneed = types.keyNeed;
     eventtypes = eventtypereg.exec(eventtypes);
     if (eventtypes) eventtypes = eventtypes[0].slice(1);
     if (eventtypes) {
         var etypes = eventtypes.split(".");
-        etypes.forEach(k => types[k] = true);
+        etypes.forEach(t => {
+            if (t.length === 1) {
+                types.keyCode = t.toUpperCase().charCodeAt(0);
+                return;
+            }
+            t = t.toLowerCase();
+            if (t in types) {
+                types[t] = true;
+            } else switch (t.toLowerCase()) {
+                case "meta":
+                case "alt":
+                case "shift":
+                case "ctrl":
+                    keyneed.push(t);
+                    break;
+                default:
+                    if (isFinite(t)) {
+                        types.keyCode = +t;
+                    }
+                    else if (keyCodeMap[t]) {
+                        types.keyCode = keyCodeMap[t];
+                    }
+
+            }
+
+        });
     }
     return types;
+}
+function checkKeyNeed(eventtypes, e) {
+    if (eventtypes.keyNeed) {
+        for (var cx = 0, dx = eventtypes.keyNeed.length; cx < dx; cx++) {
+            var key = eventtypes.keyNeed[cx];
+            if (!e[key + "Key"]) return false;
+        }
+    }
+    if (eventtypes.keyCode) {
+        return e.keyCode === eventtypes.keyCode;
+    }
+    return true;
 }
 if (is_addEventListener_enabled) {
     var on = function (k) {
@@ -34,6 +124,7 @@ if (is_addEventListener_enabled) {
             }
             var h = function (e) {
                 if (eventtypes.self && e.target !== this) return;
+                if (!checkKeyNeed(eventtypes, e)) return;
                 if (eventtypes.stop) e.stopPropagation();
                 if (eventtypes.passive) e.preventDefault = function () { };
                 if (eventtypes.prevent) e.preventDefault();
@@ -92,6 +183,7 @@ if (is_addEventListener_enabled) {
                         e.target = e.srcElement;
                     }
                     if (eventtypes.self && e.target !== this) return;
+                    if (!checkKeyNeed(eventtypes, e)) return;
                     if (e.stopedPropagation) return;
                     if (!e.stopPropagation) {
                         e.stopPropagation = function () {
@@ -109,6 +201,9 @@ if (is_addEventListener_enabled) {
                     if (e.button) {
                         if (e.buttons === undefined) e.buttons = e.button;
                         if (e.which === undefined) e.which = e.button;
+                    }
+                    if (e.keyCode) {
+                        if (e.which === undefined) e.which = e.keyCode;
                     }
                     if (eventtypes.passive) {
                         e.preventDefault = function () { };
