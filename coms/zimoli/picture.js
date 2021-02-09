@@ -24,9 +24,17 @@ var create = function (url, key) {
         dispatch(p, 'scaled');
     };
     var setInitParams = function () {
-        loaded_scale = Math.min(image.offsetHeight / image.height, image.offsetWidth / image.width);
-        loaded_x = (image.offsetWidth - image.width * loaded_scale) / 2;
-        loaded_y = (image.offsetHeight - image.height * loaded_scale) / 2;
+        if (img) {
+            image.width = img.width;
+            image.height = img.height;
+        }
+        if(p.current===image){
+            p.width=image.width;
+            p.height=image.height;
+        }
+        loaded_scale = Math.min(image.clientHeight / image.height, image.clientWidth / image.width);
+        loaded_x = (image.clientWidth - image.width * loaded_scale) / 2;
+        loaded_y = (image.clientHeight - image.height * loaded_scale) / 2;
         min_scale = loaded_scale * .75;
         scaled = loaded_scale;
         x = loaded_x;
@@ -52,9 +60,9 @@ var create = function (url, key) {
         image.locked = scaled < 1 && !image.locked;
         var layerx = event.layerX || event.clientX || 0;
         var layery = event.layerY || event.clientY || 0;
-        var deltax = (image.offsetWidth - image.width * scaled) / 2;
-        var deltay = (image.offsetHeight - image.height * scaled) / 2;
-        if (layerx < deltax || layery < deltay || image.offsetWidth - layerx < deltax || image.offsetHeight - layery < deltay) {
+        var deltax = (image.clientWidth - image.width * scaled) / 2;
+        var deltay = (image.clientHeight - image.height * scaled) / 2;
+        if (layerx < deltax || layery < deltay || image.clientWidth - layerx < deltax || image.clientHeight - layery < deltay) {
             // white space
             image.locked = false;
         }
@@ -74,10 +82,6 @@ var create = function (url, key) {
         };
     }
     image.getScale = function () {
-        if (img) {
-            image.width = img.width;
-            image.height = img.height;
-        }
         if (!this.locked) {
             setInitParams();
             return loaded_scale;
@@ -118,8 +122,8 @@ var create = function (url, key) {
         isprocess = isprocess !== false;
         var change;
         var side_x, side_y;
-        side_x = Math.max(0, image.offsetWidth - image.width * scaled) / 2;
-        side_y = Math.max(0, image.offsetHeight - image.height * scaled) / 2;
+        side_x = Math.max(0, image.clientWidth - image.width * scaled) / 2;
+        side_y = Math.max(0, image.clientHeight - image.height * scaled) / 2;
         if (x > side_x) {
             x = isprocess ? (x - side_x) / 2 + side_x : side_x;
             change = true;
@@ -128,8 +132,8 @@ var create = function (url, key) {
             y = isprocess ? (y - side_y) / 2 + side_y : side_y;
             change = true;
         }
-        var min_x = image.offsetWidth - image.width * scaled - side_x;
-        var min_y = image.offsetHeight - image.height * scaled - side_y;
+        var min_x = image.clientWidth - image.width * scaled - side_x;
+        var min_y = image.clientHeight - image.height * scaled - side_y;
         if (x < min_x) {
             x = min_x;
             change = true;
@@ -149,8 +153,8 @@ var create = function (url, key) {
         }
         if (scaled > 2) {
             change = true;
-            x = (x - image.offsetWidth / 2) * 2 / scaled + image.offsetWidth / 2;
-            y = (y - image.offsetHeight / 2) * 2 / scaled + image.offsetHeight / 2;
+            x = (x - image.clientWidth / 2) * 2 / scaled + image.clientWidth / 2;
+            y = (y - image.clientHeight / 2) * 2 / scaled + image.clientHeight / 2;
             scaled = 2;
         }
         change = get_change(false) || change;
