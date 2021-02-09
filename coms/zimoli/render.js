@@ -631,7 +631,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
     attrs.map(function (attr) {
         var { name, value } = attr;
-        if (/^(?:class|style|src)$/i.test(name)) return;
+        if (/^(?:class|style|src|\:)$/i.test(name)) return;
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
             directives[key].call(element, [withContext, value]);
