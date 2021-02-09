@@ -14,7 +14,7 @@ var create = function (url, key) {
     image.url = img.src = url;
     var p = this;
     var onload = function () {
-        img.onloadedmetadata = null;
+        img.onload = null;
         image.width = this.width;
         image.height = this.height;
         image.complete = true;
@@ -40,7 +40,7 @@ var create = function (url, key) {
         x = loaded_x;
         y = loaded_y;
     };
-    img.onloadedmetadata = onload;
+    img.onload = onload;
     once("append")(image, function () {
         if (img && img.complete) {
             onload.call(img);
