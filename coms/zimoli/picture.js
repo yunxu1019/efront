@@ -14,7 +14,7 @@ var create = function (url, key) {
     image.url = img.src = url;
     var p = this;
     var onload = function () {
-        img.onload = null;
+        img.onloadedmetadata = null;
         image.width = this.width;
         image.height = this.height;
         image.complete = true;
@@ -28,9 +28,9 @@ var create = function (url, key) {
             image.width = img.width;
             image.height = img.height;
         }
-        if(p.current===image){
-            p.width=image.width;
-            p.height=image.height;
+        if (p.current === image) {
+            p.width = image.width;
+            p.height = image.height;
         }
         loaded_scale = Math.min(image.clientHeight / image.height, image.clientWidth / image.width);
         loaded_x = (image.clientWidth - image.width * loaded_scale) / 2;
@@ -40,11 +40,10 @@ var create = function (url, key) {
         x = loaded_x;
         y = loaded_y;
     };
+    img.onloadedmetadata = onload;
     once("append")(image, function () {
-        if (img.complete) {
+        if (img && img.complete) {
             onload.call(img);
-        } else {
-            img.onload = onload;
         }
     });
     image.locked = false;
