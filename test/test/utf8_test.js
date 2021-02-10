@@ -70,7 +70,7 @@ var bufferToUTF8Int = function (buff, cx = 0) {
 var bufferToUTF8String3 = function (buff) {
     var dist = [];
     for (var cx = 0, dx = buff.length; cx < dx; cx++) {
-        var t = buff[cx] & 0xffffffff, s;
+        var t = buff[cx], s;
         if (t < 192 || t > 255) {//0b0xxxxxxx - 0b10xxxxxx
             s = t;
         }
