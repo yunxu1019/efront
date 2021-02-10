@@ -39,8 +39,24 @@
     <script deleteoncompile efrontloader>
     </script>
     <style>
+        html {
+            height: 100%;
+            font-family: "SF Pro SC", "SF Pro Text", "SF Pro Icons", "PingFang SC", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+        }
+
+        *,
+        ::before,
+        ::after {
+            box-sizing: border-box;
+        }
+
         body {
             perspective: 2000px;
+            border: none;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
         }
     </style>
 </head>
