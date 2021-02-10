@@ -63,15 +63,13 @@ var formatDate = function () {
     var seconds = this.getSeconds();
     var milli = this.getMilliseconds();
     milli = toLength(milli);
-    var offset = -this.getTimezoneOffset() / 60;
-    if (offset > 0) {
-        offset = '+' + toLength(offset, 0);
-    } else if (offset < 0) {
-        offset = '-' + toLength(-offset, 0);
+    var offset = -this.getTimezoneOffset();
+    if (offset >= 0) {
+        offset = '+' + toLength(offset / 60 | 0, 0) + toLength(offset % 60, 0);
     } else {
-        offset = '';
+        offset = '-' + toLength(-offset / 60 | 0, 0) + toLength(-offset % 60, 0);
     }
-    return `${[year, month, date].map(toLength).join('-') + colors.FgGray}T${[hours, minutes, seconds].map(toLength).join(':')}.${milli}Z${offset}`;
+    return `${[year, month, date].map(toLength).join('-') + colors.FgGray}T${[hours, minutes, seconds].map(toLength).join(':')}.${milli}${offset}`;
 };
 var lastLogLength = 0, lastLogTime = 0;
 var logTime = function () {
