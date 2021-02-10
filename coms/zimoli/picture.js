@@ -93,6 +93,7 @@ var create = function (url, key) {
         return scaled;
     };
     var get_style = function () {
+        scaled = +String(+scaled + 0.00005).slice(0, 6);
         return {
             imageRendering: scaled >= 1 ? "pixelated" : "",
             backgroundPositionX: fromOffset(x),
@@ -112,17 +113,15 @@ var create = function (url, key) {
         var l1 = Math.sqrt(Math.pow(m1 - m2, 2) + Math.pow(n1 - n2, 2));
         var l2 = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
         var scale = l1 / l2;
-        if (scaled >= max_scale + .5 && scale > 1) return;
+        if (scaled >= max_scale * 1.1 && scale > 1) return;
         if (scaled <= min_scale && scale < 1) return;
         scaled *= scale;
         var centerx = (x1 + x2) / 2;
         var centery = (y1 + y2) / 2;
         var centerm = (m1 + m2) / 2;
         var centern = (n1 + n2) / 2;
-        console.log(x, y, 'start')
         x = (x - centerx) * scale + centerm;
         y = (y - centery) * scale + centern;
-        console.log(x, y, 'end')
         __css(image, get_style());
     };
     var get_change = function (isprocess) {
@@ -181,15 +180,15 @@ var create = function (url, key) {
         if (get_change()) return false;
     });
     var saved_event;
-    on("mousewheel")(image, function (event) {
+    onmousewheel(image, function (event) {
         var { offsetX: layerX, offsetY: layerY, deltaY } = event;
         event.preventDefault();
         if (!deltaY) return;
         if (!this.locked) setInitParams();
         this.locked = true;
         var scale = Math.pow(0.99, 20 * Math.atan(deltaY / 20));
-        if (scaled * scale >= max_scale + .5 && scale > 1) {
-            scale = max_scale + .5 / scaled;
+        if (scaled * scale > max_scale && scale > 1) {
+            scale = max_scale / scaled;
         }
         if (scaled * scale < min_scale && scale < 1) {
             scale = min_scale / scaled;
@@ -243,6 +242,7 @@ var create = function (url, key) {
             saved_event = event;
         },
         end(event) {
+            saved_event = null;
             event.moveLocked = this.locked;
             if (this.locked && onclick.preventClick) move.smooth(recover);
         }
