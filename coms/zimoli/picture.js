@@ -29,18 +29,8 @@ var create = function (url, key) {
     }
     var p = this;
     var image_width, image_height;
-    var onload = function () {
-        img.onload = null;
-        image.width = this.width;
-        image.height = this.height;
-        image.complete = true;
-        img = null;
-        onload = null;
-        setInitParams();
-        set_unlock();
-    };
-    img.onload = onload;
-    image.url = img.src = url;
+    var scaled, x, y, min_scale, loaded_scale, click_scale, loaded_x, loaded_y;
+    var max_scale = 10 * devicePixelRatio;
 
     var setInitParams = function () {
         if (img) {
@@ -73,9 +63,31 @@ var create = function (url, key) {
         x = loaded_x;
         y = loaded_y;
     };
+    var set_unlock = function () {
+        if (!loaded_scale) return;
+        setInitParams();
+        __css(image, get_style());
+    };
+
+    var onload = function () {
+        img.onload = null;
+        image.width = this.width;
+        image.height = this.height;
+        image.complete = true;
+        img = null;
+        onload = null;
+        setInitParams();
+        set_unlock();
+    };
+    image.url = img.src = url;
+    if (img.complete) {
+        onload.call(img);
+    } else {
+        img.onload = onload;
+    }
+
+
     image.locked = false;
-    var scaled, x, y, min_scale, loaded_scale, click_scale, loaded_x, loaded_y;
-    var max_scale = 10 * devicePixelRatio;
     var last_click_time = 0;
     on("click")(image, function (event) {
         var time = +new Date;
@@ -99,10 +111,6 @@ var create = function (url, key) {
             set_unlock();
         }
     });
-    var set_unlock = function () {
-        setInitParams();
-        __css(image, get_style());
-    };
     image.getScale = function () {
         if (!this.locked && !loaded_scale) {
             setInitParams();
@@ -282,7 +290,6 @@ var create = function (url, key) {
     });
     on("append")(image, function () {
         mountedPictures.push(image);
-        setInitParams();
         set_unlock();
     });
     on("remove")(image, function () {
