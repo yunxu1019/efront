@@ -3,6 +3,7 @@ var zlib = require("zlib");
 var path = require("path");
 var filebuilder = require("../efront/filebuilder");
 var checkAccess = require("./checkAccess");
+var doFile = require("./doFile");
 var isDevelop = require("../efront/isDevelop");
 var env = process.env;
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
@@ -73,10 +74,12 @@ var response = function (data, url, req, res) {
         if (data.stat) {
             headers["Last-Modified"] = data.stat.mtime.toUTCString();
             if ((data.origin_size || data.length) < data.stat.size) {
-                headers["Accept-Ranges"] = "bytes";
-                headers["Content-Range"] = "bytes 0-" + (data.length - 1) + "/" + data.stat.size;
-                headers["Content-Length"] = data.length;
-                status = 206;
+                return doFile(req, res);
+                // headers["Accept-Ranges"] = "bytes";
+                // headers["Content-Range"] = "bytes 0-" + (data.length - 1) + "/" + data.stat.size;
+                // headers["Content-Length"] = data.length;
+
+                // status = 206;
             }
         }
         if (data.origin_size > data.length) {
