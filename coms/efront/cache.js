@@ -55,7 +55,7 @@ var getdirAsync = function (pathname) {
 };
 var getfileAsync = function (pathname, buffer_size) {
     if (isFinite(buffer_size) && getVersion(pathname).size > buffer_size)
-        return getFileHeadAsync(pathname, buffer_size);
+        return getFileHeadAsync(pathname, 0);
     return getPromiseInQueue(function (ok, oh) {
         fs.readFile(pathname, function (error, data) {
             if (error) oh(error);

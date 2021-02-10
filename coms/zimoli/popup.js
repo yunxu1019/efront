@@ -218,7 +218,7 @@ var popup_as_yextra = function (global, element, target) {
         release2();
         if (document.removeEventListener) {
             document.removeEventListener("scroll", reshape, true);
-            document.removeEventListener("resize", reshape);
+            window.removeEventListener("resize", reshape);
         }
     });
     global(element, false);
@@ -270,7 +270,7 @@ var popup_as_yextra = function (global, element, target) {
     }
     if (document.addEventListener) {
         document.addEventListener("scroll", reshape, true);
-        document.addEventListener("resize", reshape);
+        window.addEventListener("resize", reshape);
     }
     reshape();
     lazy(reshape)();

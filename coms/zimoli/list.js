@@ -110,6 +110,7 @@ function ylist(container, generator, $Y) {
             saved_itemIndex = itemIndex;
             return;
         }
+        var cache_height = list.offsetHeight;
         var index = itemIndex | 0;
         var ratio = itemIndex - index || 0;
         if (index < 0) index = 0;
@@ -213,6 +214,8 @@ function ylist(container, generator, $Y) {
         return next.offsetTop - element.offsetTop;
     };
     var patchBottom = function (deltaY = 0) {
+        var cache_height = list.offsetHeight;
+
         var childrenMap = getChildrenMap();
         var last_element = getLastElement();
         if (!last_element || !last_element.offsetHeight) return;
@@ -270,6 +273,8 @@ function ylist(container, generator, $Y) {
         return scrollTop - list.scrollTop;
     };
     var patchTop = function (deltaY = 0) {
+        var cache_height = list.offsetHeight;
+
         var childrenMap = getChildrenMap();
         var first_element, flag_element = first_element = getFirstElement(1);
         if (!flag_element || !isFinite(flag_element.offsetTop)) return;
