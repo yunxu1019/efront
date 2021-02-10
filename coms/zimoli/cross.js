@@ -161,10 +161,6 @@ function cross(method, url, headers) {
             xhr.onreadystatechange = null;
             abort.call(this);
         };
-        HeadersKeys.map(function (k) {
-            if (_headers[k]) xhr.setRequestHeader(k, _headers[k]);
-            delete _headers[k];
-        });
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
