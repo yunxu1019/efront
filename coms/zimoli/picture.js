@@ -13,6 +13,7 @@ var create = function (url, key) {
     }
     image.url = img.src = url;
     var p = this;
+    var image_width, image_height;
     var onload = function () {
         img.onload = null;
         image.width = this.width;
@@ -28,13 +29,15 @@ var create = function (url, key) {
             image.width = img.width;
             image.height = img.height;
         }
+        image_width = image.width / devicePixelRatio;
+        image_height = image.height / devicePixelRatio;
         if (p.current === image) {
             p.width = image.width;
             p.height = image.height;
         }
-        loaded_scale = Math.min(image.clientHeight / image.height, image.clientWidth / image.width);
-        loaded_x = (image.clientWidth - image.width * loaded_scale) / 2;
-        loaded_y = (image.clientHeight - image.height * loaded_scale) / 2;
+        loaded_scale = Math.min(image.clientHeight / image_height, image.clientWidth / image_width);
+        loaded_x = (image.clientWidth - image_width * loaded_scale) / 2;
+        loaded_y = (image.clientHeight - image_height * loaded_scale) / 2;
         min_scale = loaded_scale * .75;
         scaled = loaded_scale;
         x = loaded_x;
@@ -48,6 +51,7 @@ var create = function (url, key) {
     });
     image.locked = false;
     var scaled, x, y, min_scale, loaded_scale, loaded_x, loaded_y;
+    var max_scale = 10 * devicePixelRatio;
     var last_click_time = 0;
     on("click")(image, function (event) {
         var time = +new Date;
@@ -59,8 +63,8 @@ var create = function (url, key) {
         image.locked = scaled < 1 && !image.locked;
         var layerx = event.offsetX || 0;
         var layery = event.offsetY || 0;
-        var deltax = (image.clientWidth - image.width * scaled) / 2;
-        var deltay = (image.clientHeight - image.height * scaled) / 2;
+        var deltax = (image.clientWidth - image_width * scaled) / 2;
+        var deltay = (image.clientHeight - image_height * scaled) / 2;
         if (layerx < deltax || layery < deltay || image.clientWidth - layerx < deltax || image.clientHeight - layery < deltay) {
             // white space
             image.locked = false;
@@ -74,6 +78,7 @@ var create = function (url, key) {
     });
     var get_empty = function () {
         return {
+            imageRendering: loaded_scale >= 1 ? "pixelated" : "",
             backgroundPositionX: "",
             backgroundPositionY: "",
             backgroundSize: "",
@@ -89,9 +94,10 @@ var create = function (url, key) {
     };
     var get_style = function () {
         return {
-            backgroundPositionX: x + "px",
-            backgroundPositionY: y + "px",
-            backgroundSize: [image.width * scaled + "px", image.height * scaled + "px"].join(" ")
+            imageRendering: scaled >= 1 ? "pixelated" : "",
+            backgroundPositionX: fromOffset(x),
+            backgroundPositionY: fromOffset(y),
+            backgroundSize: [fromOffset(image_width * scaled), fromOffset(image_height * scaled)].join(" ")
         };
     };
     var scale = function (layerx, layery) {
@@ -103,26 +109,28 @@ var create = function (url, key) {
         __css(image, get_style());
     };
     var touch = function ([x1, y1, x2, y2], [m1, n1, m2, n2]) {
-        var scale = Math.sqrt((Math.pow(m1 - m2, 2) + Math.pow(n1 - n2, 2)) / (Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)));
-        if (scaled >= 2.5 && scale > 1) return;
+        var l1 = Math.sqrt(Math.pow(m1 - m2, 2) + Math.pow(n1 - n2, 2));
+        var l2 = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+        var scale = l1 / l2;
+        if (scaled >= max_scale + .5 && scale > 1) return;
         if (scaled <= min_scale && scale < 1) return;
         scaled *= scale;
-        if (scaled > 2.5) scaled = 2.5;
-        if (scaled < min_scale) scaled = min_scale;
         var centerx = (x1 + x2) / 2;
         var centery = (y1 + y2) / 2;
         var centerm = (m1 + m2) / 2;
         var centern = (n1 + n2) / 2;
+        console.log(x, y, 'start')
         x = (x - centerx) * scale + centerm;
         y = (y - centery) * scale + centern;
+        console.log(x, y, 'end')
         __css(image, get_style());
     };
     var get_change = function (isprocess) {
         isprocess = isprocess !== false;
         var change;
         var side_x, side_y;
-        side_x = Math.max(0, image.clientWidth - image.width * scaled) / 2;
-        side_y = Math.max(0, image.clientHeight - image.height * scaled) / 2;
+        side_x = Math.max(0, image.clientWidth - image_width * scaled) / 2;
+        side_y = Math.max(0, image.clientHeight - image_height * scaled) / 2;
         if (x > side_x) {
             x = isprocess ? (x - side_x) / 2 + side_x : side_x;
             change = true;
@@ -131,8 +139,8 @@ var create = function (url, key) {
             y = isprocess ? (y - side_y) / 2 + side_y : side_y;
             change = true;
         }
-        var min_x = image.clientWidth - image.width * scaled - side_x;
-        var min_y = image.clientHeight - image.height * scaled - side_y;
+        var min_x = image.clientWidth - image_width * scaled - side_x;
+        var min_y = image.clientHeight - image_height * scaled - side_y;
         if (x < min_x) {
             x = min_x;
             change = true;
@@ -150,11 +158,11 @@ var create = function (url, key) {
             y = loaded_y;
             change = true;
         }
-        if (scaled > 2) {
+        if (scaled > max_scale) {
             change = true;
-            x = (x - image.clientWidth / 2) * 2 / scaled + image.clientWidth / 2;
-            y = (y - image.clientHeight / 2) * 2 / scaled + image.clientHeight / 2;
-            scaled = 2;
+            x = (x - image.clientWidth / 2) * max_scale / scaled + image.clientWidth / 2;
+            y = (y - image.clientHeight / 2) * max_scale / scaled + image.clientHeight / 2;
+            scaled = max_scale;
         }
         change = get_change(false) || change;
         if (change) {
@@ -180,8 +188,8 @@ var create = function (url, key) {
         if (!this.locked) setInitParams();
         this.locked = true;
         var scale = Math.pow(0.99, 20 * Math.atan(deltaY / 20));
-        if (scaled * scale >= 2.5 && scale > 1) {
-            scale = 2.5 / scaled;
+        if (scaled * scale >= max_scale + .5 && scale > 1) {
+            scale = max_scale + .5 / scaled;
         }
         if (scaled * scale < min_scale && scale < 1) {
             scale = min_scale / scaled;
