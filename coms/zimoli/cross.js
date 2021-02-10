@@ -189,7 +189,7 @@ function cross(method, url, headers) {
                         break;
                     case 302:
                     case 301:
-                        if (xhr.isRedirected > 2) break;
+                        if (xhr.isRedirected > 2 || nocross) break;
                         var location = xhr.getResponseHeader("efront-location");
                         if (!domainReg.test(location)) {
                             if (/^\//.test(location)) {

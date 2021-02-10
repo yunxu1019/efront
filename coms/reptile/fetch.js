@@ -1,6 +1,6 @@
 var https = require("https");
 var http = require("http");
-var url = require("url");
+var parseURL = require("../basic/parseURL");
 function fetch() {
     var method = 'get', href = '', headers;
     [].forEach.call(arguments, function (arg) {
@@ -16,7 +16,7 @@ function fetch() {
         var req = (/^https/i.test(href) ? https : http).request(extend({
             method,
             headers,
-        }, url.parse(href)), function (res) {
+        }, parseURL(href)), function (res) {
             var result = [];
             res.on("data", function (buff) {
                 result.push(buff);

@@ -4,6 +4,7 @@ var vm = require("vm");
 var os = require("os");
 var path = require("path");
 var isLib = require("./isLib");
+var parseURL = require("../basic/parseURL");
 var userAgent = "Efront/1.0";
 var mainLoaderPromise = new Promise(function (ok, oh) {
     fs.readFile(path.join(__dirname, "../basic/loader.js"), function (error, data) {
@@ -99,7 +100,7 @@ function fromInternet(mainfilepath) {
         if (!reg.test(url)) {
             url = mainfilepath.replace(/\/[^\/]*$/, url.replace(/^\/?/, "/"));
         }
-        var _url = URL.parse(url);
+        var _url = parseURL(url);
         var req = /^https?/i.test(_url.protocol) ? https : http;
         var onend = function () {
             var index = requestHandles.indexOf(abort);

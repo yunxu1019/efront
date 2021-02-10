@@ -9,12 +9,12 @@ Object.keys(urlProxyMap).forEach(function (key) {
     urlProxyMap[key] = urlProxyMap[key].replace(/\/\.\//g, '/');
 });
 urlProxyMap[""] = urlProxyMap["/"];
-var URL = require("url");
+var parseURL = require("../basic/parseURL");
 function getProxyURL(req) {
     var url = req.url;
     if (req.headers.referer) {
         var referer = req.headers.referer;
-        var pathname = URL.parse(referer).pathname;
+        var pathname = parseURL(referer).pathname;
         if (urlProxyMap[pathname]) {
             url = urlProxyMap[pathname].replace(/\/[^\/]*$/, '') + "/" + url.replace(/^\//, '');
         }

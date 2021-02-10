@@ -1,5 +1,5 @@
 "use strict";
-var URL = require("url");
+var parseURL = require("../basic/parseURL");
 var Http2ServerResponse = require("http2").Http2ServerResponse;
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 var privateKeys = Object.create(null);
@@ -29,7 +29,7 @@ if (options.record_path) {
     loadCertFile("cert", "cross-cert.pem");
 }();
 function parseUrl(hostpath, real) {
-    var { pathname, search, hostname, protocol, port } = URL.parse(hostpath);
+    var { pathname, search, hostname, protocol, port } = parseURL(hostpath);
     if (real === undefined && /^https?\:\/\//i.test(hostpath)) {
         var headers = {};
         var realpath = pathname.slice(1);
@@ -135,7 +135,7 @@ function cross(req, res, referer) {
             method: method,
             headers: headers,
             rejectUnauthorized: false// 放行证书不可用的网站
-        }, URL.parse($url), options), function (response) {
+        }, parseURL($url), options), function (response) {
             var headers = response.headers;
             var setCookie = headers["set-cookie"];
             if (setCookie && !is_proxy) headers["efront-cookie"] = setCookie, delete headers["set-cookie"];
@@ -158,7 +158,7 @@ function cross(req, res, referer) {
                 } catch (e) {
                     $url = escape($url);
                 }
-                let { pathname, hostname } = URL.parse($url);
+                let { pathname, hostname } = parseURL($url);
                 if (record_path instanceof Object) {
                     record_path = record_path[hostname];
                     if (!record_path) {
