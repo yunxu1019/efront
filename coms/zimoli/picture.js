@@ -1,3 +1,19 @@
+var mountedPictures = [];
+on("resize")(window, function () {
+    mountedPictures.forEach(a => a.update());
+});
+var getstation = function (n, s) {
+    var scale = Math.pow(10, Math.round(Math.log(n) / Math.log(10)));
+    var step;
+    if (n / scale < 1) {
+        step = s ? .01 : .05;
+    } else {
+        step = s ? .05 : .1;
+    }
+    step = step * scale;
+    n = Math.round(n / step) * step;
+    return n;
+};
 var create = function (url, key) {
     var __css = function (a) {
         css.apply(a, arguments);
@@ -11,7 +27,6 @@ var create = function (url, key) {
             url = seek(url, key);
         }
     }
-    image.url = img.src = url;
     var p = this;
     var image_width, image_height;
     var onload = function () {
@@ -22,8 +37,11 @@ var create = function (url, key) {
         img = null;
         onload = null;
         setInitParams();
-        dispatch(p, 'scaled');
+        set_unlock();
     };
+    img.onload = onload;
+    image.url = img.src = url;
+
     var setInitParams = function () {
         if (img) {
             image.width = img.width;
@@ -36,6 +54,18 @@ var create = function (url, key) {
             p.height = image.height;
         }
         loaded_scale = Math.min(image.clientHeight / image_height, image.clientWidth / image_width);
+        if (loaded_scale >= 1) {
+            if (loaded_scale < 1.2) {
+                click_scale = 2;
+            } else if (loaded_scale < max_scale) {
+                click_scale = loaded_scale;
+            } else {
+                click_scale = max_scale;
+            }
+            loaded_scale = 1;
+        } else {
+            click_scale = 1;
+        }
         loaded_x = (image.clientWidth - image_width * loaded_scale) / 2;
         loaded_y = (image.clientHeight - image_height * loaded_scale) / 2;
         min_scale = loaded_scale * .75;
@@ -43,14 +73,8 @@ var create = function (url, key) {
         x = loaded_x;
         y = loaded_y;
     };
-    img.onload = onload;
-    once("append")(image, function () {
-        if (img && img.complete) {
-            onload.call(img);
-        }
-    });
     image.locked = false;
-    var scaled, x, y, min_scale, loaded_scale, loaded_x, loaded_y;
+    var scaled, x, y, min_scale, loaded_scale, click_scale, loaded_x, loaded_y;
     var max_scale = 10 * devicePixelRatio;
     var last_click_time = 0;
     on("click")(image, function (event) {
@@ -60,7 +84,7 @@ var create = function (url, key) {
         if (delta_time > 300) return;
         var image = this;
         setInitParams();
-        image.locked = scaled < 1 && !image.locked;
+        image.locked = scaled < click_scale && !image.locked;
         var layerx = event.offsetX || 0;
         var layery = event.offsetY || 0;
         var deltax = (image.clientWidth - image_width * scaled) / 2;
@@ -72,30 +96,22 @@ var create = function (url, key) {
         if (image.locked) {
             scale(layerx, layery);
         } else {
-            __css(image, get_empty());
+            set_unlock();
         }
-        dispatch(p, 'scaled');
     });
-    var get_empty = function () {
-        return {
-            imageRendering: loaded_scale >= 1 ? "pixelated" : "",
-            backgroundPositionX: "",
-            backgroundPositionY: "",
-            backgroundSize: "",
-            transition: ""
-        };
-    }
+    var set_unlock = function () {
+        setInitParams();
+        __css(image, get_style());
+    };
     image.getScale = function () {
-        if (!this.locked) {
+        if (!this.locked && !loaded_scale) {
             setInitParams();
-            return loaded_scale;
         }
-        return scaled;
+        return +String(+scaled + 0.00005).slice(0, 6);
     };
     var get_style = function () {
-        scaled = +String(+scaled + 0.00005).slice(0, 6);
         return {
-            imageRendering: scaled >= 1 ? "pixelated" : "",
+            imageRendering: scaled >= 2.5 / devicePixelRatio ? "pixelated" : "",
             backgroundPositionX: fromOffset(x),
             backgroundPositionY: fromOffset(y),
             backgroundSize: [fromOffset(image_width * scaled), fromOffset(image_height * scaled)].join(" ")
@@ -103,7 +119,7 @@ var create = function (url, key) {
     };
     var scale = function (layerx, layery) {
         if (!image.locked) return;
-        scaled = 1;
+        scaled = click_scale;
         var ratio = scaled / loaded_scale;
         x = (loaded_x - layerx) * ratio + layerx;
         y = (loaded_y - layery) * ratio + layery;
@@ -151,6 +167,13 @@ var create = function (url, key) {
         return change;
     };
     var recover = function (change) {
+        var aimed_scale = getstation(scaled);
+        if (aimed_scale !== scaled) {
+            change = true;
+            x = (x - image.clientWidth / 2) / scaled * aimed_scale + image.clientWidth / 2;
+            y = (y - image.clientHeight / 2) / scaled * aimed_scale + image.clientHeight / 2;
+            scaled = aimed_scale;
+        }
         if (scaled <= loaded_scale * 1.2) {
             scaled = loaded_scale;
             x = loaded_x;
@@ -168,7 +191,7 @@ var create = function (url, key) {
             var a = transition(image, get_style(), true);
             if (scaled === loaded_scale) {
                 setTimeout(function () {
-                    __css(image, get_empty());
+                    set_unlock();
                     image.locked = false;
                 }, a || 0);
             }
@@ -187,14 +210,21 @@ var create = function (url, key) {
         if (!this.locked) setInitParams();
         this.locked = true;
         var scale = Math.pow(0.99, 20 * Math.atan(deltaY / 20));
-        if (scaled * scale > max_scale && scale > 1) {
-            scale = max_scale / scaled;
+        var __scaled = scaled;
+        __scaled *= scale;
+        if (__scaled > max_scale && scale > 1) {
+            __scaled = max_scale;
         }
-        if (scaled * scale < min_scale && scale < 1) {
-            scale = min_scale / scaled;
+        if (__scaled < min_scale && scale < 1) {
+            __scaled = min_scale;
         }
-        var s = 100, t = s * scale;
-        touch([layerX - s, layerY - s, layerX + s, layerY + s], [layerX - t, layerY - t, layerX + t, layerY + t]);
+        var saved = __scaled;
+        scale = __scaled / scaled;
+        scaled = __scaled;
+        x = (x - layerX) * scale + layerX;
+        y = (y - layerY) * scale + layerY;
+        __css(image, get_style());
+        scaled = saved;
     });
     moveupon(image, {
         start(event) {
@@ -250,6 +280,18 @@ var create = function (url, key) {
     __css(image, {
         backgroundImage: `url("${url}")`
     });
+    on("append")(image, function () {
+        mountedPictures.push(image);
+        setInitParams();
+        set_unlock();
+    });
+    on("remove")(image, function () {
+        removeFromList(mountedPictures, image);
+    });
+    image.update = function () {
+        setInitParams();
+        recover();
+    }
     return image;
 };
 
