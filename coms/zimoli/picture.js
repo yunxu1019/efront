@@ -311,7 +311,7 @@ function picture(url, to = 0, key) {
             images[index + 1] = create.call(p, urls[index + 1], key);
         }
         if (index >= 5) delete images[index - 5];
-        if (index + 5 < images.length) {
+        if (index + 5 < urls.length) {
             delete images[index + 5];
         }
         var img = images[index]
