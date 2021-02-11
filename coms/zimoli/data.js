@@ -573,6 +573,7 @@ function responseLoading(response) {
     response.is_loading = true;
     if (response.is_loading) this.loading_count++;
 }
+
 var data = {
     decodeStructure,
     encodeStructure,
@@ -874,6 +875,7 @@ var data = {
             instanceDataMap[instanceId] = data;
         }
         setItem(instanceId, data, rememberWithStorage);
+        fireListener(instanceId);
         return instanceDataMap[instanceId];
     },
     patchInstance(instanceId, data, rememberWithStorage = 0) {
@@ -883,14 +885,45 @@ var data = {
     },
     switchInstance(instanceId, key, rememberWithStorage = 0) {
         var instance = this.getInstance(instanceId);
-        var value = instance[key];
+        if (key === true || key === false || isEmpty(key)) {
+            rememberWithStorage = key;
+            key = null;
+            var value = instance;
+        } else {
+            var value = instance[key];
+        }
         if (value === 0 || value === 1) {
             value = 1 - value;
         } else {
             value = !value;
         }
-        instance[key] = value;
+        if (key === null) {
+            instance = value;
+        } else {
+            instance[key] = value;
+        }
         return this.setInstance(instanceId, instance, rememberWithStorage);
+    },
+    bindInstance(instanceId, callback) {
+        if (!instanceListenerMap[instanceId]) {
+            instanceListenerMap[instanceId] = [];
+        }
+        var listeners = instanceListenerMap[instanceId];
+        if (!~listeners.indexOf(callback)) {
+            listeners.push(callback);
+        }
+        callback(this.getInstance(instanceId));
+    },
+    unbindInstance(instanceId, callback) {
+        if (!instanceListenerMap[instanceId]) return;
+        if (!callback) {
+            delete instanceListenerMap[instanceId];
+            return;
+        }
+        removeFromList(instanceListenerMap[instanceId], callback);
+        if (!instanceListenerMap[instanceId].length) {
+            delete instanceListenerMap[instanceId];
+        }
     },
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) { return; }
@@ -924,7 +957,14 @@ function getItem(instanceId, onlyFromLocalStorage = false) {
     }
     return data;
 }
-
+var instanceListenerMap = {
+};
+var fireListener = function (instanceId) {
+    var listeners = instanceListenerMap[instanceId];
+    if (!listeners) return;
+    var instance = instanceDataMap[instanceId];
+    listeners.forEach(a => a(instance));
+};
 data.setItem = data.setInstance;
 data.getItem = data.getInstance;
 data.removeItem = data.removeInstance;
