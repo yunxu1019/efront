@@ -8,6 +8,7 @@ var {
     EXPORT_TO,
     RELEASE,
     PREFIX,
+    SOURCEDIR,
     DESTPATH,
 } = process.env;
 var PUBLIC_APP = /* process.argv[2] || */ APP;
@@ -69,6 +70,7 @@ module.exports = {
     PAGE,
     COMM,
     ICON,
+    SOURCEDIR,
     AAPI,
     PUBLIC_PATH,
     PAGE_PATH,

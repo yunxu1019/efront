@@ -4,7 +4,9 @@ var esmangle = require("../esmangle");
 var scanner = require("../compile/scanner");
 var typescript = require("../typescript");
 var path = require("path");
-var { public_app, FILEROOT = public_app, DIRROOT = path.dirname(FILEROOT), EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
+var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
+if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
+else SOURCEDIR = PUBLIC_PATH;
 var report = require("./report");
 function evalString(s) {
     return new Function("return " + s)();
@@ -182,7 +184,7 @@ function toComponent(responseTree) {
                 initDirname();
                 var realpath = module_key.replace(/\$/g, '/');
                 var realdir = getEfrontKey(realpath, 'dirname');
-                var filename = path.relative(DIRROOT, responseTree[module_key].realpath);
+                var filename = path.relative(SOURCEDIR, responseTree[module_key].realpath);
                 var dirname = path.dirname(filename).replace(/\\/g, '/');
                 saveOnly(`[${getEncodedIndex('__dirname', 'builtin')},function(a){return a(${JSON.stringify(a === '__filename' ? filename : dirname)})}]`, realdir);
                 return destMap[realdir];
