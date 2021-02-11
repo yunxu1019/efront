@@ -876,6 +876,11 @@ var data = {
         setItem(instanceId, data, rememberWithStorage);
         return instanceDataMap[instanceId];
     },
+    patchInstance(instanceId, data, rememberWithStorage = 0) {
+        var instance = this.getInstance(instanceId);
+        extend(instance, data);
+        return this.setInstance(instanceId, instance, rememberWithStorage);
+    },
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) { return; }
         if (!isObject(instance) || !isObject(data)) throw new Error("只支持object类型的数据！");
