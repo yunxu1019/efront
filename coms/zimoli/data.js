@@ -881,6 +881,17 @@ var data = {
         extend(instance, data);
         return this.setInstance(instanceId, instance, rememberWithStorage);
     },
+    switchInstance(instanceId, key, rememberWithStorage = 0) {
+        var instance = this.getInstance(instanceId);
+        var value = instance[key];
+        if (value === 0 || value === 1) {
+            value = 1 - value;
+        } else {
+            value = !value;
+        }
+        instance[key] = value;
+        return this.setInstance(instanceId, instance, rememberWithStorage);
+    },
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) { return; }
         if (!isObject(instance) || !isObject(data)) throw new Error("只支持object类型的数据！");
