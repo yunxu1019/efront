@@ -89,7 +89,6 @@ var popup_path = function (path = "", parameters, target) {
             } else if (target) {
                 popup_with_mask(element);
             } else {
-                setInitialStyle(element);
                 popup_as_single(element);
             }
         };
@@ -100,11 +99,9 @@ var popup_path = function (path = "", parameters, target) {
         if (!element) throw new Error(`路径不存在:${path}`);
         element.$reload = fullfill;
         if (!target) {
-            element.style.opacity = 0;
             if (element.parentNode) setPosition(element);
             else once('append')(element, function () {
                 setPosition(element);
-                element.style.opacity = 1;
             });
         }
     };

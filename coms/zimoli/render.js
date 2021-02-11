@@ -714,7 +714,7 @@ function render(element, scope, parentScopes) {
     return renderElement(element, scope, parentScopes);
 }
 
-var digest = lazy(refresh);
+var digest = lazy(refresh, +{});
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
 var eventsHandlers = "fullscreenchange,change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
