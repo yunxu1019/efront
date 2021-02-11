@@ -633,7 +633,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     attrs.map(function (attr) {
         var { name, value } = attr;
         if (/^(?:class|style|src|\:)$/i.test(name)) return;
-        var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
+        var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
             directives[key].call(element, [withContext, value]);
             element.removeAttribute(name);
