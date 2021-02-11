@@ -87,9 +87,9 @@ function ylist(container, generator, $Y) {
     var onitemload = function () {
         var item = this;
         if (list !== item.parentNode) return;
+        var { offsetHeight, savedHeight } = item;
         if (savedHeight === offsetHeight) return;
         updateItem(item);
-        var { offsetHeight, savedHeight } = item;
         if (item.offsetTop > list.scrollTop) return;
         list.scrollTop += offsetHeight - savedHeight;
     };
