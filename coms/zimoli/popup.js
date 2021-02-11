@@ -89,6 +89,7 @@ var popup_path = function (path = "", parameters, target) {
             } else if (target) {
                 popup_with_mask(element);
             } else {
+                if (parameters !== false && target !== false) setInitialStyle(element);
                 popup_as_single(element);
             }
         };
@@ -98,10 +99,12 @@ var popup_path = function (path = "", parameters, target) {
         load();
         if (!element) throw new Error(`路径不存在:${path}`);
         element.$reload = fullfill;
-        if (!target) {
-            if (element.parentNode) setPosition(element);
+        if (!target && target !== false && parameters !== false) {
+            element.style.opacity = 0;
+            if (element.parentNode) setPosition(element), element.style.opacity = 1;
             else once('append')(element, function () {
                 setPosition(element);
+                element.style.opacity = 1;
             });
         }
     };
