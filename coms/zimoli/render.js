@@ -54,6 +54,7 @@ function rebuild(element) {
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\.(?=[^\d])|\s*\.\s*)+/g;
 var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
+    var ret = /[\;\r\n\u2028\u2029]/.test(searchContext) ? "" : "return ";
     if (/\?\.(?=[^\d])/.test(searchContext)) {
         searchContext = searchContext.replace(variableReg, function (context) {
             var dist;
@@ -69,9 +70,9 @@ var createGetter = function (search, isprop = true) {
         });
     }
     if (isprop) {
-        return new Function('event', `try{${withContext}with(this.$scope)return ${searchContext}}catch(e){/*console.warn(String(e))*/}`);
+        return new Function('event', `try{${withContext}with(this.$scope){${ret}${searchContext}}}catch(e){/*console.warn(String(e))*/}`);
     }
-    return new Function("event", `${withContext}with(this.$scope)${/[;\r\n\u2028\u2029]/.test(searchContext) ? searchContext : /([\=\(])/.test(searchContext) ? "return " + searchContext : `return ${searchContext}(event)`}`);
+    return new Function("event", `${withContext}with(this.$scope){${/([\=\(\+\-])/.test(searchContext) ? ret + searchContext : `${ret}${searchContext}.call(this.$scope,event)`}}`);
 };
 var initialComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
