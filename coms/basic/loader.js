@@ -123,7 +123,8 @@ var readFile = function (names, then) {
     }
 
     readingCount++;
-    request(url, function (res) {
+    var errorcount = 0;
+    var ok = function (res) {
         responseTree[name] = res;
         flushTree(loadingTree, key);
         clearTimeout(flush_to_storage_timer);
@@ -132,10 +133,22 @@ var readFile = function (names, then) {
         if (readingCount === 0) {
             killCircle();
         }
-    }, function (e) {
+    };
+    var oh = function (e) {
+        if (!isProduction) {
+            if (errorcount < 4) {
+                errorcount++;
+                setTimeout(tryload, 200 + 200 * errorcount);
+            }
+            return;
+        }
         loadingTree[key].error = e;
         loadingTree[key].forEach(a => a(1));
-    });
+    };
+    var tryload = function () {
+        request(url, ok, oh);
+    }
+    tryload();
 
 };
 var createFunction = function (name, body, args) {
