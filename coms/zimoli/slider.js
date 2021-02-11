@@ -221,6 +221,7 @@ function slider(autoplay, circle = true) {
     };
     var stop_wheel_timer = 0;
     onmousewheel(outter, function (event) {
+        if (event.defaultPrevented) return;
         if (!event.deltaX) return;
         if (event._target && event._target !== this) return;
         event._target = outter;

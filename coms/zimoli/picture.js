@@ -213,7 +213,7 @@ var create = function (url, key) {
     var saved_event;
     onmousewheel(image, function (event) {
         var { offsetX: layerX, offsetY: layerY, deltaY } = event;
-        event.preventDefault();
+        if (this.locked) event.preventDefault();
         if (!deltaY) return;
         if (!this.locked) setInitParams();
         this.locked = true;
