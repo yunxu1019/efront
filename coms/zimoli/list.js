@@ -122,7 +122,7 @@ function ylist(container, generator, $Y) {
         var indexed_item;
         while (offsetBottom - ratioTop <= list.clientHeight + cache_height || indexed_item && top_item && indexed_item.offsetTop - top_item.offsetTop < cache_height) {
             var item = childrenMap[offset];
-            if (!item || item.itemid) {
+            if (!item) {
                 item = createItem(offset);
                 if (!item || delta > 0 && offsetBottom - ratioTop > list.clientHeight + cache_height) {
                     if (delta < 0) break;
@@ -139,18 +139,20 @@ function ylist(container, generator, $Y) {
                     list.insertBefore(item, getNextSibling(last_item));
                 }
                 updateItem(item);
+            } else {
+                delete childrenMap[item];
             }
             last_index = offset;
             last_item = item;
             if (offset === index || !indexed_item) indexed_item = item;
             if (delta > 0) {
-                offset++;
                 offsetb = offset;
+                offset++;
                 bottom_item = item;
                 if (!top_item) top_item = item;
             } else {
-                offset--;
                 offsett = offset;
+                offset--;
                 if (!bottom_item) bottom_item = item;
                 top_item = item;
             }
@@ -159,10 +161,7 @@ function ylist(container, generator, $Y) {
             if (count++ > 600) throw new Error("多于600个元素需要绘制！");
         }
         for (var k in childrenMap) {
-            k = +k;
-            if (!(k <= offsetb && k >= offsett)) {
-                remove(childrenMap[k]);
-            }
+            remove(childrenMap[k]);
         }
         var indexed_item = getIndexedElement(index) || bottom_item;
         if (indexed_item) {
@@ -229,7 +228,7 @@ function ylist(container, generator, $Y) {
         while (offsetBottom <= scrollTop + list.clientHeight + cache_height) {
             offset++;
             var item = childrenMap[offset];
-            if (!item || item.itemid) {
+            if (!item) {
                 item = createItem(offset);
                 if (!item) {
                     restHeight = 0;
@@ -299,10 +298,9 @@ function ylist(container, generator, $Y) {
                 break;
             }
             var item = childrenMap[offset];
-            if (!item || item.itemid) {
+            if (!item) {
                 item = createItem(offset);
                 if (!item) break;
-                childrenMap[offset] = item;
                 list.insertBefore(item, first_element);
                 updateItem(item);
                 scrollTop += flag_element.offsetTop - offsetTop;
