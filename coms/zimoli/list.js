@@ -85,6 +85,7 @@ function ylist(container, generator, $Y) {
         return map;
     };
     var onitemload = function () {
+        if (__animated) return;
         var item = this;
         if (list !== item.parentNode) return;
         var { offsetHeight, savedHeight } = item;
@@ -106,6 +107,7 @@ function ylist(container, generator, $Y) {
     };
     //设置当前下标
     var scrollTo = function (itemIndex) {
+        __animated = false;
         if (!list.offsetHeight && !list.offsetWidth && !list.isMounted) {
             saved_itemIndex = itemIndex;
             return;
@@ -319,25 +321,27 @@ function ylist(container, generator, $Y) {
         }
         return scrollTop - list.scrollTop;
     };
+    var __animated = false;
     //滚动一定的距离
     var scrollBy = function (deltaY, animate = false) {
         var deltaScroll;
         if (deltaY > 0) {
-            deltaScroll = patchBottom(deltaY);
+            deltaScroll = patchBottom(deltaY, animate);
         } else {
-            deltaScroll = patchTop(deltaY);
+            deltaScroll = patchTop(deltaY, animate);
         }
 
         if (deltaScroll) {
             if (animate && __scrollBy) {
-                list.scrollTop += deltaScroll - deltaY
+                list.scrollTop += deltaScroll - deltaY;
                 __scrollBy.call(list, {
                     top: deltaY,
                     behavior: 'smooth'
                 });
+                __animated = true;
             } else {
                 list.scrollTop += deltaScroll;
-
+                __animated = false;
             }
         }
     };
