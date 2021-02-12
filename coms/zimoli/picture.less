@@ -10,9 +10,7 @@
     background-color: #000;
 }
 
-&[grid],
-&.grid,
-&[type=grid] {
+.grid() {
     @mask-color1 : rgba(255, 255, 255, .6);
     @mask-color2 : rgba(0, 0, 0, 0);
     @mask-color3 : rgba(0, 0, 0, .1);
@@ -26,6 +24,13 @@
     background-repeat: repeat;
     background-clip: border-box;
     background-color: #fff;
+
+}
+
+&[grid],
+&.grid,
+&[type=grid] {
+    .grid();
 }
 
 &+.mask {
@@ -34,7 +39,23 @@
 }
 
 >div {
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+    height: 100%;
+
+    >img {
+        position: absolute;
+        pointer-events: none;
+        .grid();
+    }
+
+    &:after {
+        content: "";
+        display: block;
+        left: -1px;
+        top: -1px;
+        bottom: -1px;
+        right: -1px;
+        width: auto;
+        height: auto;
+        position: absolute;
+    }
 }

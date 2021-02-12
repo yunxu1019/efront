@@ -2,6 +2,8 @@ var mountedPictures = [];
 on("resize")(window, function () {
     mountedPictures.forEach(a => a.update());
 });
+var coordIn = move.coordIn;
+var trimCoord = move.trimCoord;
 var getstation = function (n, s) {
     var scale = Math.pow(10, Math.round(Math.log(n) / Math.log(10)));
     var step;
@@ -21,7 +23,8 @@ var create = function (url, key) {
     };
     if (!url) return;
     var image = div();
-    var img = new Image;
+    var imgpic = document.createElement('img');
+    imgpic.draggable = false;
     if (isObject(url)) {
         if (key) {
             url = seek(url, key);
@@ -33,9 +36,10 @@ var create = function (url, key) {
     var max_scale = 10 * devicePixelRatio;
 
     var setInitParams = function () {
-        if (img) {
-            image.width = img.width;
-            image.height = img.height;
+        if (!imgpic.complete || !image.clientHeight || !image.clientWidth) {
+            image.width = imgpic.width;
+            image.height = imgpic.height;
+            return;
         }
         image_width = image.width / devicePixelRatio;
         image_height = image.height / devicePixelRatio;
@@ -44,7 +48,7 @@ var create = function (url, key) {
             p.height = image.height;
         }
         loaded_scale = Math.min(image.clientHeight / image_height, image.clientWidth / image_width);
-        if (loaded_scale >= 1) {
+        if (loaded_scale >= 0.9) {
             if (loaded_scale < 1.2) {
                 click_scale = 2;
             } else if (loaded_scale < max_scale) {
@@ -66,25 +70,24 @@ var create = function (url, key) {
     var set_unlock = function () {
         if (!loaded_scale) return;
         setInitParams();
-        __css(image, get_style());
+        __css(imgpic, get_style(-1));
     };
 
     var onload = function () {
-        img.onload = null;
+        imgpic.onload = null;
         image.width = this.width;
         image.height = this.height;
-        image.complete = true;
-        img = null;
-        onload = null;
+        image.appendChild(imgpic);
         setInitParams();
         set_unlock();
     };
-    image.url = img.src = url;
-    if (img.complete) {
-        onload.call(img);
+    imgpic.src = image.url = url;
+    if (imgpic.complete) {
+        onload.call(imgpic);
     } else {
-        img.onload = onload;
+        imgpic.onload = onload;
     }
+    on("append")(image, setInitParams);
 
 
     image.locked = false;
@@ -95,21 +98,24 @@ var create = function (url, key) {
         last_click_time = time;
         if (delta_time > 300) return;
         var image = this;
+        var __scaled = scaled, _x = x, _y = y;
         setInitParams();
-        image.locked = scaled < click_scale && !image.locked;
+        image.locked = __scaled === loaded_scale && loaded_x === _x && loaded_y === _y;
         var layerx = event.offsetX || 0;
         var layery = event.offsetY || 0;
-        var deltax = (image.clientWidth - image_width * scaled) / 2;
-        var deltay = (image.clientHeight - image_height * scaled) / 2;
-        if (layerx < deltax || layery < deltay || image.clientWidth - layerx < deltax || image.clientHeight - layery < deltay) {
-            // white space
-            image.locked = false;
-        }
-        if (image.locked) {
-            scale(layerx, layery);
-        } else {
-            set_unlock();
-        }
+        if (layerx)
+            if (image.locked) {
+                var width = image_width * loaded_scale, height = image_height * loaded_scale;
+                if (layerx > loaded_x + width || layerx < loaded_x || width < image.offsetWidth >> 2) {
+                    layerx = loaded_x + width / 2;
+                }
+                if (layery > loaded_y + height || layery < loaded_y || height < image.offsetHeight >> 2) {
+                    layery = loaded_y + height / 2;
+                }
+                scale(layerx, layery, click_scale / loaded_scale);
+            } else {
+                set_unlock();
+            }
     });
     image.getScale = function () {
         if (!this.locked && !loaded_scale) {
@@ -117,21 +123,28 @@ var create = function (url, key) {
         }
         return +String(+scaled + 0.00005).slice(0, 6);
     };
-    var get_style = function () {
+    var get_style = function (type) {
+        var width = image_width * scaled;
+        var height = image_height * scaled;
+        if (type <= 0) [x, y] = trimCoord([image.clientWidth, image.clientHeight], [x, y, width, height], type);
+        var [left, top, marginLeft, marginTop] = coordIn([image.clientWidth, image.clientHeight], [x, y, width, height]);
+
         return {
-            imageRendering: scaled >= 2.5 / devicePixelRatio ? "pixelated" : "",
-            backgroundPositionX: fromOffset(x),
-            backgroundPositionY: fromOffset(y),
-            backgroundSize: [fromOffset(image_width * scaled), fromOffset(image_height * scaled)].join(" ")
+            imageRendering: scaled >= 3 / devicePixelRatio ? "pixelated" : "",
+            width: fromOffset(width),
+            height: fromOffset(height),
+            left,
+            top,
+            marginLeft,
+            marginTop
         };
     };
-    var scale = function (layerx, layery) {
+    var scale = function (layerx, layery, ratio) {
         if (!image.locked) return;
-        scaled = click_scale;
-        var ratio = scaled / loaded_scale;
-        x = (loaded_x - layerx) * ratio + layerx;
-        y = (loaded_y - layery) * ratio + layery;
-        __css(image, get_style());
+        scaled *= ratio;
+        x = (x - layerx) * ratio + layerx;
+        y = (y - layery) * ratio + layery;
+        __css(imgpic, get_style());
     };
     var touch = function ([x1, y1, x2, y2], [m1, n1, m2, n2]) {
         var l1 = Math.sqrt(Math.pow(m1 - m2, 2) + Math.pow(n1 - n2, 2));
@@ -146,33 +159,7 @@ var create = function (url, key) {
         var centern = (n1 + n2) / 2;
         x = (x - centerx) * scale + centerm;
         y = (y - centery) * scale + centern;
-        __css(image, get_style());
-    };
-    var get_change = function (isprocess) {
-        isprocess = isprocess !== false;
-        var change;
-        var side_x, side_y;
-        side_x = Math.max(0, image.clientWidth - image_width * scaled) / 2;
-        side_y = Math.max(0, image.clientHeight - image_height * scaled) / 2;
-        if (x > side_x) {
-            x = isprocess ? (x - side_x) / 2 + side_x : side_x;
-            change = true;
-        }
-        if (y > side_y) {
-            y = isprocess ? (y - side_y) / 2 + side_y : side_y;
-            change = true;
-        }
-        var min_x = image.clientWidth - image_width * scaled - side_x;
-        var min_y = image.clientHeight - image_height * scaled - side_y;
-        if (x < min_x) {
-            x = min_x;
-            change = true;
-        }
-        if (y < min_y) {
-            y = min_y
-            change = true;
-        }
-        return change;
+        __css(imgpic, get_style());
     };
     var recover = function (change) {
         var aimed_scale = getstation(scaled);
@@ -194,9 +181,10 @@ var create = function (url, key) {
             y = (y - image.clientHeight / 2) * max_scale / scaled + image.clientHeight / 2;
             scaled = max_scale;
         }
-        change = get_change(false) || change;
-        if (change) {
-            var a = transition(image, get_style(), true);
+        var saved_x = x, saved_y = y;
+        var style = get_style(-1);
+        if (change || saved_x !== x || saved_y !== y) {
+            var a = transition(imgpic, style, true);
             if (scaled === loaded_scale) {
                 setTimeout(function () {
                     set_unlock();
@@ -206,33 +194,29 @@ var create = function (url, key) {
         }
     };
     var move = inertia(function (deltax, deltay) {
+        var saved_x = x, saved_y = y;
         x += deltax, y += deltay;
-        __css(image, get_style());
-        if (get_change()) return false;
+        __css(imgpic, get_style(-1));
+        if (saved_x === x && saved_y === y) return false;
     });
-    var saved_event;
+    var saved_event, wheeltime;
     onmousewheel(image, function (event) {
         var { offsetX: layerX, offsetY: layerY, deltaY } = event;
         if (this.locked) event.preventDefault();
         if (!deltaY) return;
         if (!this.locked) setInitParams();
         this.locked = true;
-        var scale = Math.pow(0.99, 20 * Math.atan(deltaY / 20));
+        var ratio = Math.pow(0.99, 20 * Math.atan(deltaY / 20));
         var __scaled = scaled;
-        __scaled *= scale;
-        if (__scaled > max_scale && scale > 1) {
+        __scaled *= ratio;
+        if (__scaled > max_scale && ratio > 1) {
             __scaled = max_scale;
         }
-        if (__scaled < min_scale && scale < 1) {
+        if (__scaled < min_scale && ratio < 1) {
             __scaled = min_scale;
         }
-        var saved = __scaled;
-        scale = __scaled / scaled;
-        scaled = __scaled;
-        x = (x - layerX) * scale + layerX;
-        y = (y - layerY) * scale + layerY;
-        __css(image, get_style());
-        scaled = saved;
+        ratio = __scaled / scaled;
+        scale(layerX, layerY, ratio);
     });
     moveupon(image, {
         start(event) {
@@ -285,9 +269,6 @@ var create = function (url, key) {
             if (this.locked && onclick.preventClick) move.smooth(recover);
         }
     });
-    __css(image, {
-        backgroundImage: `url("${url}")`
-    });
     on("append")(image, function () {
         mountedPictures.push(image);
         set_unlock();
@@ -296,6 +277,7 @@ var create = function (url, key) {
         removeFromList(mountedPictures, image);
     });
     image.update = function () {
+        if (image.locked) return;
         setInitParams();
         recover();
     }

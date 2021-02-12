@@ -26,7 +26,33 @@ function getOffsetLeft(x, offsetWidth, innerWidth) {
     // offsetLeft=x*(innerWidth-offsetWidth)
     return x * (innerWidth - offsetWidth);
 }
-function move(offsetLeft, offsetTop, preventOverflow = true) {
+function trimLeft(clientWidth, offsetWidth, offsetLeft, type) {
+    if (clientWidth > offsetWidth) {
+        if (type <= 0) {
+            offsetLeft = (clientWidth - offsetWidth) / 2;
+        } else if (offsetWidth + offsetLeft > clientWidth) {
+            offsetLeft = clientWidth - offsetWidth;
+        } else if (offsetLeft < .5) offsetLeft = 0;
+    } else if (type <= 0) {
+        if (offsetWidth + offsetLeft < clientWidth) {
+            offsetLeft = clientWidth - offsetWidth;
+        } else if (offsetLeft > .5) offsetLeft = 0;
+    }
+    return offsetLeft;
+}
+function trimCoord([clientWidth, clientHeight], [offsetLeft, offsetTop, offsetWidth, offsetHeight], trimtype) {
+    offsetLeft = trimLeft(clientWidth, offsetWidth, offsetLeft, trimtype);
+    offsetTop = trimLeft(clientHeight, offsetHeight, offsetTop, trimtype);
+    return [offsetLeft, offsetTop];
+}
+function coordIn([clientWidth, clientHeight], [offsetLeft, offsetTop, offsetWidth, offsetHeight]) {
+    var marginLeft = getMarginLeft(offsetLeft, offsetWidth, clientWidth);
+    var marginTop = getMarginLeft(offsetTop, offsetHeight, clientHeight);
+    var left = offsetLeft - marginLeft;
+    var top = offsetTop - marginTop;
+    return [left * 100 / clientWidth + "%", top * 100 / clientHeight + "%", fromOffset(marginLeft), fromOffset(marginTop)];
+}
+function move(offsetLeft, offsetTop, preventOverflow) {
     if (isFinite(this.outerHeight)) {
         var {
             outerHeight: offsetHeight,
@@ -46,28 +72,15 @@ function move(offsetLeft, offsetTop, preventOverflow = true) {
             clientHeight = innerHeight
         } = this.offsetParent || {};
     }
-    if (preventOverflow !== false) {
-        if (offsetLeft + offsetWidth > clientWidth) {
-            offsetLeft = clientWidth - offsetWidth;
-        }
-        if (offsetTop + offsetHeight > clientHeight) {
-            offsetTop = clientHeight - offsetHeight;
-        }
-        if (offsetLeft < 0) {
-            offsetLeft = 0;
-        }
-        if (offsetTop < 0) {
-            offsetTop = 0;
-        }
-    }
+
+    [offsetLeft, offsetTop] = trimCoord([clientWidth, clientHeight], [offsetLeft, offsetTop, offsetWidth, offsetHeight], preventOverflow);
     if (isFunction(this.moveTo) && !this.style) {
+        if (preventOverflow !== false) {
+        }
         this.moveTo(offsetLeft, offsetTop);
     } else {
-        var marginLeft = getMarginLeft(offsetLeft, offsetWidth, clientWidth);
-        var marginTop = getMarginLeft(offsetTop, offsetHeight, clientHeight);
-        var left = offsetLeft - marginLeft;
-        var top = offsetTop - marginTop;
-        css(this, `left:${left * 100 / clientWidth}%;top:${top * 100 / clientHeight}%;margin-left:${fromOffset(marginLeft)};margin-top:${fromOffset(marginTop)}`);
+        var [left, top, marginLeft, marginTop] = coordIn([clientWidth, clientHeight], [offsetLeft, offsetTop, offsetWidth, offsetHeight]);
+        css(this, { left, top, marginLeft, marginTop });
     }
     return [offsetLeft, offsetTop];
 }
@@ -104,3 +117,6 @@ move.setPosition = function (target, [x, y]) {
     var offsetTop = getOffsetLeft(y, offsetHeight, clientHeight);
     move.call(target, offsetLeft, offsetTop);
 };
+
+move.coordIn = coordIn;
+move.trimCoord = trimCoord;
