@@ -136,9 +136,9 @@ var readFile = function (names, then) {
     };
     var oh = function (e) {
         if (!isProduction) {
-            if (errorcount < 4) {
+            if (errorcount < 2) {
                 errorcount++;
-                setTimeout(tryload, 200 + 200 * errorcount);
+                setTimeout(tryload, 200 + 1000 * errorcount);
             }
             return;
         }
