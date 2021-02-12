@@ -60,13 +60,13 @@ var doPost = module.exports = function (req, res) {
             case "api":
                 if (result instanceof Function) result(req, res);
                 else res.writeHead(404, {
-                    "Contention": "close"
+                    "Connection": "close"
                 }) | res.end();
                 break;
             case "aapi":
                 if (result instanceof Function) res.end(result());
                 else res.writeHead(404, {
-                    "Contention": "close"
+                    "Connection": "close"
                 }) | res.end();
                 break;
             case "comm":
@@ -80,7 +80,7 @@ var doPost = module.exports = function (req, res) {
                 break;
             case 404:
                 res.writeHead(404, {
-                    "Contention": "close"
+                    "Connection": "close"
                 });
                 res.end(`未没找到匹配的资源：${url}`);
                 break;
