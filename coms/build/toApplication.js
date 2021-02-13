@@ -1,5 +1,5 @@
 "use strict";
-var crc = require("../efront/crc");
+var crc = require("../basic/crc");
 var path = require("path");
 var fs = require("fs");
 var environment = require("./environment");

@@ -1,5 +1,5 @@
 "use strict";
-var crc = require("./crc");
+var crc = require("../basic/crc");
 function fromUInt32BE(a, b, c, d) {
     return (a << 24) + (b << 16) + (c << 8) + d;
 }

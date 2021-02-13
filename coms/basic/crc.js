@@ -29,4 +29,4 @@ function crc(bstr, seed) {
 
 var sign = parseInt("-52l3vk", 36);
 var T = table(sign);
-module.exports=crc;
+module.exports = crc;
