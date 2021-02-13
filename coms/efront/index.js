@@ -170,8 +170,15 @@ var helps = [
     "连接一台efront服务器，取得连接号,link ADDRESS",
     "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
     "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
+    "检查文件或文件夹中的全局变量,check FILEPATH",
 ];
 var commands = {
+    check() {
+        var args = [].concat.apply([], arguments);
+        args.forEach(function (arg) {
+            require("./checkVariable")(arg);
+        });
+    },
     version() {
         // 版本号
         console.type(
@@ -570,6 +577,7 @@ var topics = {
     ADDRESS: "efront服务器地址",
     LINKID: "efront服务器提供的连接号",
     MESSAGE: "文本消息",
+    FILEPATH: "文件或文件夹的路径",
 };
 topics.VARIABLES += "," + Object.keys(topics);
 var run = function (type, value1, value2, value3) {
@@ -667,7 +675,7 @@ var run = function (type, value1, value2, value3) {
                     help(type[0]);
                     console.log(type)
                 } else {
-                    commands[type](value1, value2, value3);
+                    commands[type].apply(commands, argv.slice(1));
                 }
         }
 

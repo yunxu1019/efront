@@ -51,7 +51,6 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
         }
         return new Promise(function (ok, oh) {
             var pathmap = {};
-            var load_rest_count = loadurls.length;
             var accessready = function () {
                 var loaded = loadurls.map(function (key) {
                     var realpath = pathmap[key];
@@ -69,7 +68,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
                     data = data.replace(reg, function (match, quote, relative) {
                         if (skipreg.test(match)) return match;
                         var data = dataMap[relative];
-                        if (data) {
+                        if (data && relative in pathmap) {
                             var result = replacer(data, pathmap[relative], match);
                             if (result !== false && result !== null && result !== undefined) return result;
                         }
@@ -80,16 +79,13 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
                     else regindex++, run(data, fullpath, increase).then(ok, oh);
                 }, oh);
             };
-            loadurls.forEach(relative => {
+            loadurls = loadurls.filter(relative => {
                 var realPath = path.join(path.dirname(fullpath), relative);
-                if (!fs.existsSync(realPath)) return --load_rest_count || accessready();
-                fs.access(realPath, function (err) {
-                    if (err) return oh(err);
-                    pathmap[relative] = realPath;
-                    load_rest_count--;
-                    if (!load_rest_count) accessready();
-                });
+                if (!fs.existsSync(realPath)) return false;
+                pathmap[relative] = realPath;
+                return true;
             });
+            accessready();
         })
     };
     return run(data, rootfile, 1);
