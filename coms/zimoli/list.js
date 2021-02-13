@@ -107,6 +107,8 @@ function ylist(container, generator, $Y) {
     };
     //设置当前下标
     var scrollTo = function (itemIndex) {
+        if (isNaN(itemIndex)) return;
+        itemIndex = +itemIndex;
         __animated = false;
         if (!list.offsetHeight && !list.offsetWidth && !list.isMounted) {
             saved_itemIndex = itemIndex;
@@ -395,7 +397,7 @@ function ylist(container, generator, $Y) {
     list.scrollBy = scrollBy;
     list.index = function () {
         var firstElement = getFirstVisibleElement();
-        if (!firstElement) return;
+        if (!firstElement) return saved_itemIndex;
         var index = firstElement.index;
         var scrolled = (list.scrollTop - firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop)) / firstElement.offsetHeight;
         return index + scrolled;
