@@ -23,7 +23,7 @@ function fromComponent(base) {
         if (/^\/?comm\b/i.test(url)) {
             try {
 
-                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: process.env.COMS_PATH.split(',') })
+                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: [].concat(process.env.COMS_PATH.split(','), ".") })
                 if (isLib(temppath)) {
                     var mode = function () {
                         return require(temppath);
@@ -63,8 +63,13 @@ function fromComponent(base) {
                     } else {
                         try {
                             url1 = url1.replace(/\$/g, '/');
-                            if (/\./.test(url1)) {
-                                var resolved = require.resolve(url1, { paths: process.env.COMS_PATH.split(',') });
+                            if (/\//.test(url1)) {
+                                var parth = path.relative(url1, '.');
+                                if (/^\./.test(parth)) {
+                                    url1 = "./" + path.relative('.', url1).replace('\\', '/');
+                                }
+
+                                var resolved = require.resolve(url1, { paths: [].concat(process.env.COMS_PATH.split(','), '.') });
                             } else {
                                 var resolved = require.resolve(url1);
                             }
@@ -156,7 +161,7 @@ function efront() {
                 return require(modulepath);
             } catch (e) {
             }
-            var resolved = require.resolve("./" + modulepath, { paths: process.env.COMS_PATH.split(",") });
+            var resolved = require.resolve(modulepath, { paths: [].concat(process.env.COMS_PATH.split(","), '.') });
 
             return require(resolved);
         },
@@ -209,6 +214,7 @@ function efront() {
         sessionStorage: new Storage
 
     });
+    window.require.resolve = require.resolve;
     window.top = window.window = window;
     return window;
 }
@@ -219,7 +225,7 @@ module.exports = function (mainpath, args) {
         Object.keys(timeoutHandles).map(clearTimeout);
         requestHandles.slice(0).map(r => r());
     };
-    var fullpath = require.resolve(mainpath, { paths: process.env.COMS_PATH.split(",") });
+    var fullpath = require.resolve("./" + mainpath, { paths: [].concat(process.env.COMS_PATH.split(","), '.') });
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
