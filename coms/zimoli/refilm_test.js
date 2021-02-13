@@ -206,15 +206,15 @@ function test_file_parse() {
       foot_crc int16
     }
 `;
-  var url = "/@/data/liangliang.flac"
-  getFile(url, function (data, start, total) {
+  var flacurl = "/@/data/liangliang.flac";
+  getFile(flacurl, function (data, start, total) {
     if (data) {
       console.log(data);
       var parsed = flac.parse(data);
       console.log(parsed);
     } else {
 
-      fetchPiece(url, start, 460000, function (data) {
+      fetchPiece(flacurl, start, 46000, function (data) {
         console.log(data);
         var parsed = flac.parse(data);
         console.log(parsed);
