@@ -164,6 +164,7 @@ function slider(autoplay, circle = true) {
             timer_playyer = setTimeout(player, player.schedule);
         }
         var enabled = generator(count - negative_index, 1);
+        enabled = enabled && enabled.index !== outter.index;
         if (isMiss) {
             if (enabled) outter.go(outter.index + count);
         } else {

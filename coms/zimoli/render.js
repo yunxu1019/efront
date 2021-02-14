@@ -54,6 +54,7 @@ function rebuild(element) {
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\.(?=[^\d])|\s*\.\s*)+/g;
 var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
+    if (!searchContext) return function () { };
     var ret = /[\;\r\n\u2028\u2029]/.test(searchContext) ? "" : "return ";
     if (/\?\.(?=[^\d])/.test(searchContext)) {
         searchContext = searchContext.replace(variableReg, function (context) {

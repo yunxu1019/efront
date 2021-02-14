@@ -119,7 +119,7 @@ function main(mainPath, historyName = "") {
     };
     var bindClass = function () {
         if (closed) {
-            var collapse = parseInt(getComputedStyle(layer).paddingLeft) === 0;
+            var collapse = layer.clientLeft === 0;
             addClass(layer, 'close');
             removeClass(layer, 'open');
             css(layer, `margin-left:0`);
@@ -131,7 +131,7 @@ function main(mainPath, historyName = "") {
             removeClass(layer, 'close');
             css(layer, `margin-left:${fromOffset(leftLayer.offsetWidth)}`);
             setTimeout(function () {
-                var collapse = parseInt(getComputedStyle(layer).paddingLeft) === 0;
+                var collapse = layer.clientLeft === 0;
                 if (!collapse) {
                     css(layer, 'margin-left:0');
                 }

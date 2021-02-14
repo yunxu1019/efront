@@ -168,9 +168,9 @@ var popup_with_mask = function (element, mask = createMask(element)) {
 var popup_as_extra = function (element, target, style) {
     if (style) {
         if (/^[vy]/i.test(style)) {
-            popup_as_yextra(global, element, target);
+            popup_as_yextra(element, target);
         } else {
-            popup_as_xextra(global, element, target);
+            popup_as_xextra(element, target);
         }
         return;
     }
@@ -190,17 +190,17 @@ var popup_as_extra = function (element, target, style) {
         popup_as_yextra(global, element, target);
     } else if (offsetParent) {
         if (innerHeight - target.offsetHeight > innerWidth - target.offsetWidth && offsetParent.clientWidth !== target.offsetWidth) {
-            popup_as_yextra(global, element, target);
+            popup_as_yextra(element, target);
         } else {
-            popup_as_xextra(global, element, target);
+            popup_as_xextra(element, target);
         }
     } else if (/inline|cell/i.test(getComputedStyle(target).display)) {
-        popup_as_yextra(global, element, target);
+        popup_as_yextra(element, target);
     } else {
-        popup_as_xextra(global, element, target);
+        popup_as_xextra(element, target);
     }
 };
-var popup_as_yextra = function (global, element, target) {
+var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
     if (!element.origin) {
         element.origin = {
             height: element.style.height,
@@ -231,7 +231,9 @@ var popup_as_yextra = function (global, element, target) {
         var height = element.offsetHeight;
         //如果高度超出可视区，调整高度
         if (height > maxHeight) {
-            css(element, `height:${maxHeight}px;`);
+            console.log(maxHeight, innerHeight, height)
+
+            css(element, { height: fromOffset(maxHeight) });
         }
         css(element, `min-width:auto;`);
         var aimedWidth = element.offsetWidth;
@@ -245,17 +247,17 @@ var popup_as_yextra = function (global, element, target) {
             aimedWidth = maxWidth;
         }
         if (aimedWidth !== element.offsetWidth) {
-            css(element, `width:${aimedWidth}px`);
+            css(element, { width: fromOffset(maxWidth) });
         }
         if (position.top + element.offsetHeight + position.height > innerHeight) {
-            css(element, `bottom:${viewrect.height - position.top + viewrect.top}px;top:auto;`);
+            css(element, `bottom:${fromOffset(viewrect.height - position.top + viewrect.top)};top:auto;`);
         } else {
-            css(element, `top:${position.top - viewrect.top + position.height}px;bottom:auto;`);
+            css(element, `top:${fromOffset(position.top - viewrect.top + position.height)};bottom:auto;`);
         }
         if (position.left + element.offsetWidth > innerWidth) {
-            css(element, `right:${viewrect.width + viewrect.left - position.left - position.width}px;left:auto;`);
+            css(element, `right:${fromOffset(viewrect.width + viewrect.left - position.left - position.width)};left:auto;`);
         } else {
-            css(element, `left:${position.left - viewrect.left}px;right:auto;`);
+            css(element, `left:${fromOffset(position.left - viewrect.left)};right:auto;`);
         }
 
         var offsetParent = target.offsetParent;
@@ -275,7 +277,7 @@ var popup_as_yextra = function (global, element, target) {
     reshape();
     lazy(reshape)();
 };
-var popup_as_xextra = arriswise(popup_as_yextra, arguments);
+var _as_xextra = arriswise(_as_yextra, arguments);
 var popup_as_single = function (element) {
     css(element, `z-index:${zIndex()};`);
     global(element, false);
@@ -313,4 +315,6 @@ var global = function (element, issingle) {
     popup.global &&
         issingle !== false ? popup.global(element, true) : appendChild(document.body, element);
 };
+var popup_as_yextra = _as_yextra.bind(null, global, innerWidth, innerHeight);
+var popup_as_xextra = _as_xextra.bind(null, global, innerHeight, innerWidth);
 var cleanup = new Cleanup(rootElements);
