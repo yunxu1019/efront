@@ -477,16 +477,24 @@ function getMouePromise(data, filename, fullpath, watchurls) {
 
     var jsData = '', htmlData = '', lessData = '';
     // js中可能出现一些特殊字符，这里优先匹配
-    data = data.replace(/<script\b[^>]*>([\s\S]*)<\/script>/i, function (_, script) {
+    data = data.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/i, function (_, script) {
         jsData = script + `;\r\nif(exports)exports=extendIfNeeded(exports.default||exports,exports,{call:moue$call,apply:moue$apply});exports.default=exports`;
         return '';
     });
-    data = data.replace(/<template\b[^>]*>([\s\S]*)<\/template>/i, function (_, template) {
-        htmlData = template;
+    data = data.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, function (_, style) {
+        lessData += style;
         return '';
     });
-    data = data.replace(/<style\b[^>]*>([\s\S]*)<\/style>/i, function (_, style) {
-        lessData = style;
+    data = data.replace(/<([^\s>]+)([^>]*)>([\s\S]*)<\/\1>/i, function (_, tagName, attr, template) {
+        if (tagName.toLowerCase() !== 'template') {
+            htmlData += _;
+        }
+        else if (/\bv\-if\b/i.test(attr)) {
+            htmlData += _;
+        }
+        else {
+            htmlData += template;
+        }
         return '';
     });
     if (!/^[\s]*$/i.test(data)) {
