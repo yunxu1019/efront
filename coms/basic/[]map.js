@@ -75,8 +75,10 @@ if (!Object.create) Object.create = function (object) {
     return new ExtendedClass;
 };
 if (!function () { }.bind) Function.prototype.bind = function (context) {
-    var args = [].concat.apply([], arguments).slice(1);
-    return () => {
-        return this.apply(context, args.concat.apply(args, arguments));
+    var args = [].slice.call(arguments, 1);
+    return function () {
+        var _args = args.slice.call(arguments, 0, arguments.length);
+        args.unshift.apply(_args, args);
+        return this.apply(context, _args);
     };
 };
