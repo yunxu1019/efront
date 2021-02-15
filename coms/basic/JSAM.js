@@ -227,7 +227,7 @@ function parse(string) {
     }
     return dist[0];
 }
-var JSAM = {
+module.exports = {
     stringify,
     parse(data) {
         if (!/^\s*([\[\{]|\[\s*\]|\{\s*\})/.test(data)) return parse(data);
