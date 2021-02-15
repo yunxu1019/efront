@@ -156,15 +156,7 @@ function efront() {
     var window = new Window;
     Object.assign(window, {
         performance: {},
-        require(modulepath) {
-            try {
-                return require(modulepath);
-            } catch (e) {
-            }
-            var resolved = require.resolve(modulepath, { paths: [].concat(process.env.COMS_PATH.split(","), '.') });
-
-            return require(resolved);
-        },
+        require,
         setTimeout(f, timerout) {
             var args = [].slice.call(arguments, 2);
             var handle = setTimeout(function () {
@@ -214,7 +206,6 @@ function efront() {
         sessionStorage: new Storage
 
     });
-    window.require.resolve = require.resolve;
     window.top = window.window = window;
     return window;
 }
