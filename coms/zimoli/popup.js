@@ -201,7 +201,6 @@ var popup_as_extra = function (element, target, style) {
     }
 };
 var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
-    console.log(element, target)
     if (!element.origin) {
         element.origin = {
             height: element.style.height,
@@ -227,13 +226,20 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
         extend(element.style, element.origin);
         var position = getScreenPosition(target);
         var viewrect = getScreenPosition(element.offsetParent);
+        var documentbody = document.body;
+        if (element.offsetParent === documentbody && !/^(absolute|relative|fixed)$/i.test(getComputedStyle(documentbody).position)) {
+            viewrect.left = 0;
+            viewrect.top = 0;
+            viewrect.right += innerWidth - viewrect.right;
+            viewrect.bottom += innerHeight - viewrect.bottom;
+            viewrect.width = viewrect.right - viewrect.left;
+            viewrect.height = viewrect.bottom - viewrect.top;
+        }
         var maxHeight = Math.max(position.top, innerHeight - position.top - position.height);
         var maxWidth = Math.max(position.left + position.width, innerWidth - position.left);
         var height = element.offsetHeight;
         //如果高度超出可视区，调整高度
         if (height > maxHeight) {
-            console.log(maxHeight, innerHeight, height)
-
             css(element, { height: fromOffset(maxHeight) });
         }
         css(element, `min-width:auto;`);
