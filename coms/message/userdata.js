@@ -1,6 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var userpath = path.join(require("os").homedir(), ".efront");
+var JSAM = require("../basic/JSAM");
 function save(pathname, data) {
     var fullpath = path.join(userpath, pathname);
     fs.writeFileSync(fullpath, JSAM.stringify(data));
