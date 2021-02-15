@@ -46,6 +46,7 @@ coms/esprima/
 coms/esmangle/
 coms/escodegen/
 coms/less-node/
+coms/message/
 coms/pngjs/
 .github/
 data/nasm-*

@@ -101,23 +101,14 @@ var onresponse = function ({ stamp, params, error }) {
 onmessage.onresponse = onresponse;
 
 if (cluster.isMaster && !isDebug) {
-    fs.readdirSync(message_handlers_path).forEach(function (name) {
-        var match = name.match(/^(.*)\.js$/i);
-        if (match && !/^index.js$|\_test\.js$/i.test(name)) {
-            var key = match[1];
-            onmessage[key] = require(path.join(message_handlers_path, name));
-        }
-    });
-
+    onmessage["abpi"] = require("./abpi");
+    onmessage["count"] = require("./count");
+    onmessage["log"] = require("./log");
     onmessage.send = send;
 } else {
-    fs.readdirSync(message_handlers_path).forEach(function (name) {
-        var match = name.match(/^(.*).js$/);
-        if (match) {
-            var key = match[1];
-            onmessage[key] = __send.bind(onmessage, process, key);
-        }
-    });
+    onmessage["abpi"] = __send.bind(onmessage, process, "abpi");
+    onmessage["count"] = __send.bind(onmessage, process, "count");
+    onmessage["log"] = __send.bind(onmessage, process, "log");
     process.on("message", onmessage);
 
     onmessage.send = send = send.bind(onmessage, process);
