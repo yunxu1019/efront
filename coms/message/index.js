@@ -1,13 +1,10 @@
 "use strict";
 //为了防止因message而形成环形引用，message文件夹中的内容不允许被外界调用
 var cluster = require("cluster");
-var fs = require("fs");
-var path = require("path");
 var isDebug = require("../basic/isDebug");
-var message_handlers_path = "../../coms/message";
+var JSAM = require("../basic/JSAM");
 // message 文件夹中定义主进程的方法
 // 子进程可通过message的属性访问主进程中的方法
-message_handlers_path = path.join(__dirname, message_handlers_path);
 var onmessage = function (msg, __then) {
     var index = msg.indexOf(":");
     var run, args, key, stamp;
@@ -21,7 +18,7 @@ var onmessage = function (msg, __then) {
     }
     if (run instanceof Function) {
         if (args) {
-            var { params, stamp } = JSON.parse(args);
+            var { params, stamp } = JSAM.parse(args);
             var sended = false;
             var error = null, status = 200;
             var then = stamp ? (result) => {
@@ -42,7 +39,7 @@ var onmessage = function (msg, __then) {
             var crash = function (error) {
                 error = String(error);
                 status = 403,
-                    then(null);
+                then(null);
             };
             try {
                 Promise.resolve(run.call(onmessage, params)).then(then, crash);
@@ -73,7 +70,7 @@ var send, __send = send = function (worker, key, params, onsuccess, onerror, onf
         } while (stamp in callback_maps);
         callback_maps[stamp] = [onsuccess, onerror, onfinish];
     }
-    worker.send([key, JSON.stringify({
+    worker.send([key, JSAM.stringify({
         params, stamp
     })].join(":"));
 };
