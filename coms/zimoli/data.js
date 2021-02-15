@@ -756,7 +756,8 @@ var data = {
                 return instance;
             }
         }
-        var outdate = new Error("outdate canceled.");
+        var outdate = new Error("request outdate.");
+        var aborted = new Error("request aborted.");
         promise1 = instance.loading_promise = new Promise(function (ok) {
             if (!instance.loading) {
                 instance.loading = false;
@@ -769,10 +770,11 @@ var data = {
             if (promise1 !== instance.loading_promise) throw outdate;
             if (instance.loading) {
                 instance.loading.abort();
+                data.loading_count--;
             }
             this.responseLoading(instance);
             var params = privates.pack(sid, params1);
-            if (!privates.validApi(api, params)) throw outdate;
+            if (!privates.validApi(api, params)) throw aborted;
 
             var { method, uri, params, selector } = privates.prepare(api.method, api.url, params);
             var promise = new Promise(function (ok, oh) {
@@ -781,11 +783,11 @@ var data = {
                     headers = seek(dataSourceMap, headers);
                 }
                 instance.loading = cross(method, uri, headers).send(params).done(xhr => {
-                    if (instance.loading !== xhr) return oh(outdate);
+                    if (instance.loading !== xhr) return oh(aborted);
                     instance.loading = null;
                     ok(xhr.responseText || xhr.response);
                 }).error(xhr => {
-                    if (instance.loading !== xhr) return oh(outdate);
+                    if (instance.loading !== xhr) return oh(aborted);
                     instance.loading = null;
                     try {
                         oh(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
@@ -799,7 +801,7 @@ var data = {
             });
             return promise;
         }).then((data) => {
-            if (instance.loading_promise !== promise1) return;
+            if (instance.loading_promise !== promise1) throw aborted;
             if (id) {
                 data = parse instanceof Function ? parse(data) : data;
                 this.setInstance(id, data, false);
@@ -811,6 +813,7 @@ var data = {
         });
         promise1.catch((e) => {
             if (e === outdate) return;
+            if (e === aborted) return data.loading_count--;
             this.responseCrash(e, instance);
         });
 
