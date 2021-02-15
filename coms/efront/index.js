@@ -475,7 +475,7 @@ var commands = {
             memery.compress = false;
             setenv({
                 app: path.relative(fullpath, f),
-                comm: './,typescript-helpers',
+                comm: './,basic,typescript-helpers',
                 coms_path: './,' + path.join(__dirname, '..'),
             }, false);
             require("./setupenv");
@@ -512,13 +512,13 @@ var commands = {
             if (isdir) {
                 setenv({
                     app: process.env.APP,
-                    comm: (!/[^\.\\\/]+/.test(app) ? `zimoli,typescript-helpers,` : app + ',zimoli,typescript-helpers,')
+                    comm: (!/[^\.\\\/]+/.test(app) ? `zimoli,basic,typescript-helpers,` : app + ',zimoli,basic,typescript-helpers,')
                 });
                 require("../build");
             } else {
                 setenv({
                     app,
-                    comm: './,typescript-helpers',
+                    comm: './,basic,typescript-helpers',
                     public_name: path.basename(f).replace(/\.(\w+)$/, ''),
                     coms_path: './,' + path.join(__dirname, '../basic') + ',' + path.join(__dirname, '../'),
                 }, false);

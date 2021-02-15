@@ -1,1 +1,0 @@
-"use ../zimoli/isObject.js";
