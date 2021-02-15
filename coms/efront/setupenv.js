@@ -44,6 +44,7 @@ var setup = module.exports = function (app) {
             value_map["zimoli"] = true;
         }
         value_map[""] = true;
+        value_map["basic"] = true;
         value_map["typescript-helpers"] = true;
         env[key] = Object.keys(value_map).join(',');
     });

@@ -40,12 +40,19 @@ module.exports = function (root) {
         args.sort((a, b) => {
             return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
         });
+        var isFolder = fs.statSync(root).isDirectory();
+        var name = isFolder ? "路径" : "文件";
         if (!args.length) {
-            console.type(`路径 <cyan>${root}</cyan> 中没有找到全局变量`);
+            console.type(`${name} <cyan>${root}</cyan> 中没有找到全局变量`);
         } else {
-            console.type(`路径 <cyan>${root}</cyan> 中共有 <white>${args.length}</white> 个全局变量`);
+            console.type(`${name} <cyan>${root}</cyan> 中共有 <white>${args.length}</white> 个全局变量`);
         }
-        args.forEach(log);
+        if (isFolder) {
+            args.forEach(log);
+        } else {
+            console.log();
+            console.type(args.map(a => a in globals ? `<gray>${a}</gray>` : `<red2>${a}</red2>`).join("\r\n"));
+        }
     }
     var run = function () {
         if (!rest.length) return list();

@@ -1,1 +1,0 @@
-"use ../basic/extend.js";
