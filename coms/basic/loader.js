@@ -419,7 +419,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
                 var c = mod.created = createModule(mod, mod.args || [], mod.argNames, prebuilds);
                 return c;
             };
-            r.resolve = window.require && window.require.resolve;
+            for (let k in window.require) r[k] = window.require[k];
             return r;
         }
         var filename = location.pathname + exec.file.replace(/([\s\S])[\$]/g, '$1/').replace(/\\/g, '/');
