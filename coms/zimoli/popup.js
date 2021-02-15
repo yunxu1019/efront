@@ -187,7 +187,7 @@ var popup_as_extra = function (element, target, style) {
             || target.offsetLeft - previousSibling.offsetLeft >= previousSibling.offsetWidth / 2
         )
     ) {
-        popup_as_yextra(global, element, target);
+        popup_as_yextra(element, target);
     } else if (offsetParent) {
         if (innerHeight - target.offsetHeight > innerWidth - target.offsetWidth && offsetParent.clientWidth !== target.offsetWidth) {
             popup_as_yextra(element, target);
@@ -201,6 +201,7 @@ var popup_as_extra = function (element, target, style) {
     }
 };
 var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
+    console.log(element, target)
     if (!element.origin) {
         element.origin = {
             height: element.style.height,
