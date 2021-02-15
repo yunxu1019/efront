@@ -242,19 +242,20 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
         if (height > maxHeight) {
             css(element, { height: fromOffset(maxHeight) });
         }
+        
         css(element, `min-width:auto;`);
         var aimedWidth = element.offsetWidth;
         //如果宽度不足其附着元素的宽度
         if (aimedWidth < target.offsetWidth) {
             aimedWidth = target.offsetWidth;
         }
-
+        
         //如果宽度超出可视区，调整宽度
         if (aimedWidth > maxWidth) {
             aimedWidth = maxWidth;
         }
         if (aimedWidth !== element.offsetWidth) {
-            css(element, { width: fromOffset(maxWidth) });
+            css(element, { width: fromOffset(aimedWidth) });
         }
         if (position.top + element.offsetHeight + position.height > innerHeight) {
             css(element, `bottom:${fromOffset(viewrect.height - position.top + viewrect.top)};top:auto;`);
