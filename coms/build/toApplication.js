@@ -182,18 +182,18 @@ module.exports = function (responseTree) {
 
     return Promise.resolve(mainScriptData).then(function (mainScriptData) {
         if (setting.is_file_target) {
-            var xTreeName = /\bresponseTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScriptData)[1];
+            var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*\:\s*(.+?)\b/m.exec(mainScriptData)[2];
             commbuilder.prepare = false;
         } else {
-            var xTreeName = /\bversionTree\s*[\=\:]\s*(.+?)\b/m.exec(mainScriptData)[1];
+            var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*\:\s*(.+?)\b/m.exec(mainScriptData)[2];
         }
-        var code = JSON.stringify(versionTree, null, "\t").replace(/\-\-\>/g, s => "-- >");
+        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${JSON.stringify(versionTree[k]).replace(/\-\-\>/g, "-- >")}`).join(",\r\n\t") + "\r\n}";
         var versionVariableName;
         code = mainScriptData.toString()
-            .replace(/\.send\((.*?)\)/g, (match, data) => (versionVariableName = data || "", ".send()"))
+            .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
             .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
             .replace(
-                new RegExp(xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
+                new RegExp(/\b/.source + xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
                 function (m, s1, s2) {
                     return xTreeName + `${s1}=${s2}${code}`;
                 }
