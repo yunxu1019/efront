@@ -3,6 +3,7 @@ var fs = require("fs");
 var path = require("path");
 var isLib = require("../efront/isLib");
 var getBuildInfo = require("./getBuildInfo");
+var getPathIn = require("./getPathIn");
 var detectWithExtension = require("../basic/detectWithExtension");
 var {
     comms_root,
@@ -80,13 +81,6 @@ var filterHtmlImportedJs = function (roots) {
         return roots;
     });
 };
-var getPathInFolder = function (folder, filepath) {
-    let rel = path.relative(folder, filepath);
-    if (!rel) {
-        rel = "./";
-    }
-    return !path.isAbsolute(rel) && /^[^\.]/i.test(rel) ? rel : null;
-};
 function paddExtension(file) {
     var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
     return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parents);
@@ -128,19 +122,16 @@ var getBuildRoot = function (files, matchFileOnly) {
             save(name);
         };
         var saveFolder = function (folder) {
-            for (var comm of comms_root) {
-                var rel = getPathInFolder(comm, folder);
-                if (rel) {
-                    saveComm(rel, folder);
-                    return true;
-                }
+            var rel = getPathIn(comms_root, folder);
+            if (rel) {
+                saveComm(rel, folder);
+                return true;
             }
-            for (var page of pages_root) {
-                var rel = getPathInFolder(page, folder);
-                if (rel) {
-                    savePage(rel);
-                    return true;
-                }
+
+            var rel = getPathIn(pages_root, folder);
+            if (rel) {
+                savePage(rel);
+                return true;
             }
             return false;
         };
@@ -151,38 +142,30 @@ var getBuildRoot = function (files, matchFileOnly) {
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
                         if (/\.([tj]sx?|html?|json|vuex?)$/i.test(file)) {
-                            for (var comm of comms_root) {
-                                var rel = getPathInFolder(comm, file);
-                                if (rel) {
-                                    return saveComm(rel, file), ok();
-                                }
+                            var rel = getPathIn(comms_root, file);
+                            if (rel) {
+                                return saveComm(rel, file), ok();
                             }
                         }
                         if (/\.([tj]sx?|html?|vuex?)$/i.test(file)) {
-                            for (var page of pages_root) {
-                                var rel = getPathInFolder(page, file);
-                                if (rel) {
-                                    return savePage(rel), ok();
-                                }
-                            }
-                        }
-                        for (var page of pages_root) {
-                            var rel = getPathInFolder(page, file);
+                            var rel = getPathIn(pages_root, file);
                             if (rel) {
                                 return savePage(rel), ok();
                             }
                         }
-                        for (var page of PAGE_PATH.split(",")) {
-                            var rel = getPathInFolder(page, file);
-                            if (rel) {
-                                return saveCopy(rel), ok();
-                            }
+                        var rel = getPathIn(pages_root, file);
+                        if (rel) {
+                            return savePage(rel), ok();
+                        }
+                        var rel = getPathIn(PAGE_PATH.split(","), file);
+                        if (rel) {
+                            return saveCopy(rel), ok();
                         }
                         if (/\.png$/i.test(file)) {
                             var name = path.parse(file).base.replace(/[\\\/]+/g, "/");
                             return save("." + name), ok();
                         }
-                        console.warn(`<gray>${file}</gray>`, "skiped");
+                        console.warn(`<gray>${file}</gray>`, "已跳过");
                         ok();
                     } else if (matchFileOnly) {
                         var f = path.join(file, 'package.json');

@@ -162,7 +162,7 @@ function cross(req, res, referer) {
                 if (record_path instanceof Object) {
                     record_path = record_path[hostname];
                     if (!record_path) {
-                        console.warn("skiped", $url);
+                        console.warn("已跳过", $url);
                     }
                 }
                 if (record_path && response.statusCode === 200) {

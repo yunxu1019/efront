@@ -512,13 +512,13 @@ var commands = {
             if (isdir) {
                 setenv({
                     app: process.env.APP,
-                    comm: (!/[^\.\\\/]+/.test(app) ? `zimoli,basic,typescript-helpers,` : app + ',zimoli,basic,typescript-helpers,')
+                    comm: (!/[^\.\\\/]+/.test(app) ? `zimoli,` : app + ',zimoli,')
                 });
                 require("../build");
             } else {
                 setenv({
                     app,
-                    comm: './,basic,typescript-helpers',
+                    comm: './,typescript-helpers',
                     public_name: path.basename(f).replace(/\.(\w+)$/, ''),
                     coms_path: './,' + path.join(__dirname, '../basic') + ',' + path.join(__dirname, '../'),
                 }, false);

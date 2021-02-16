@@ -1,6 +1,9 @@
 "use strict";
 var getRequired = require("../compile/required");
 var getArgs = require("./getArgs");
+var getPathIn = require("./getPathIn");
+var { comms_root } = require("./environment");
+var path = require("path");
 function getInitReferenced(dependence, args, argNames, data) {
     var requires = ["init"].map(a => dependence.indexOf(a)).filter(a => ~a);
     if (!requires.length) return [];
@@ -90,6 +93,16 @@ function getDependence(response) {
         var required = getRequired(data, required);
         required = get_relatives(response.url.slice(1), required, dependence);
         dependence.require = required || [];
+    }
+    var reqmap = dependence.requiredMap;
+    var reqdir = path.dirname(response.realpath);
+    for (var k in reqmap) {
+        if (!/^\./.test(k)) continue;
+        var p = path.join(reqdir, k);
+        var v = getPathIn(comms_root, p);
+        if (v && v !== reqmap[k]) {
+            reqmap[k] = v.replace(/[\\\/]/g, '$');
+        }
     }
     response.time += new Date - startTime;
     return response.dependence = dependence;

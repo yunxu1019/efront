@@ -56,7 +56,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         var toComponent = require("./toComponent");
         commbuilder.compress = false;
         commbuilder.prepare = false;
-        return loadData([path.join(__dirname, "../", "zimoli/[]map.js"), public_app], 0, public_path)
+        return loadData([path.join(__dirname, "../", "basic/[]map.js"), public_app], 0, public_path)
             .then(toComponent)
             .then(function (response) {
                 return write(response, PUBLIC_PATH);
@@ -87,7 +87,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             loadData(pages_root.concat(
                 indexHTML,
                 path.join(__dirname, "../", "zimoli/Promise.js"),
-                path.join(__dirname, "../", "zimoli/[]map.js"),
+                path.join(__dirname, "../", "basic/[]map.js"),
                 path.join(__dirname, "../", "zimoli/main.js"),
                 path.join(__dirname, "../", "zimoli/zimoli.js"),
             ).concat(environment.ccons_root || []), lastBuildTime, public_path)
