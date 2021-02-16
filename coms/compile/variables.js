@@ -28,13 +28,40 @@ var setUndeclaredType = function (unDeclaredVariables, type) {
     }
 };
 
+var getUndeclearedOnly = function (a) {
+    var { unDeclaredVariables: u } = getVariables(a);
+    merge(this, u);
+};
 var getVariables = function (ast) {
 
     var DeclaredVariables = Object.create(null),
         unDeclaredVariables = Object.create(null);
     var required = [];
-    if (ast instanceof Object) {
+    if (ast instanceof Array) {
+        ast.forEach(function (a) {
+            var { DeclaredVariables: d, unDeclaredVariables: u } = getVariables(a);
+            merge(DeclaredVariables, d);
+            merge(unDeclaredVariables, u);
+        });
+    }
+    else if (ast instanceof Object) {
         switch (ast.type) {
+            case "SequenceExpression":
+                ast.expressions.forEach(getUndeclearedOnly, unDeclaredVariables);
+                break;
+            case "ArrayExpression":
+                ast.elements.forEach(getUndeclearedOnly, unDeclaredVariables);
+                break;
+            case "ObjectExpression":
+                ast.properties.forEach(getUndeclearedOnly, unDeclaredVariables);
+                break;
+            case "ReturnStatement":
+                var {
+                    DeclaredVariables,
+                    unDeclaredVariables
+                } = getVariables(ast.argument);
+                break;
+
             case "VariableDeclaration":
                 var {
                     DeclaredVariables,
@@ -78,7 +105,6 @@ var getVariables = function (ast) {
                 setUndeclaredType(d, 'initer');
                 merge(unDeclaredVariables, u);
                 merge(DeclaredVariables, d);
-
                 break;
             case "BlockStatement":
                 var {
@@ -101,7 +127,7 @@ var getVariables = function (ast) {
                     //用以兼容IE5-9
                     if (!ast.computed) {
                         var name = ast.property.name;
-                        if (name in ieSpecialWords || getVariables.computed) {
+                        if (name in ieSpecialWords || Variables.computed) {
                             ast.property = {
                                 "type": "Literal",
                                 "value": name,
@@ -125,16 +151,16 @@ var getVariables = function (ast) {
                     unDeclaredVariables
                 } = getVariables(ast.value);
                 if (ast.key.type === "Identifier") {
-                    if (!ast.key.computed) {
+                    if (!ast.computed) {
                         //用以兼容IE5-9
                         var name = ast.key.name;
-                        if (name in ieSpecialWords || getVariables.computed) {
+                        if (name in ieSpecialWords || Variables.computed) {
                             ast.key = {
                                 "type": "Literal",
                                 "value": name,
                                 "raw": JSON.stringify(name)
                             };
-                            if (getVariables.computed) ast.computed = true;
+                            if (Variables.computed) ast.computed = true;
                         }
                     }
                 }
@@ -154,6 +180,8 @@ var getVariables = function (ast) {
                 }
                 break;
             case "FunctionDeclaration":
+            case "ClassDeclaration":
+                DeclaredVariables[ast.id.name] = true;
             case "FunctionExpression":
             case "ArrowFunctionExpression":
                 var {
@@ -194,12 +222,12 @@ var getVariables = function (ast) {
                         break;
                     }
                 }
+
                 for (var k in ast) {
                     var {
                         DeclaredVariables: d,
                         unDeclaredVariables: u
                     } = getVariables(ast[k]);
-                    merge(DeclaredVariables, d);
                     merge(unDeclaredVariables, u);
                 }
 
@@ -217,6 +245,8 @@ var getVariables = function (ast) {
                         break;
                     }
                 }
+                var { DeclaredVariables, unDeclaredVariables } = getVariables(expression);
+                break;
             case "UnaryExpression":
                 if (ast.operator === "typeof" && ast.argument.type === 'Identifier') {
                     break;
@@ -240,10 +270,10 @@ var getVariables = function (ast) {
                 }
                 break;
         }
-        for (var k in DeclaredVariables) {
-            allVariables[k] = true;
-            delete unDeclaredVariables[k];
-        }
+    }
+    for (var k in DeclaredVariables) {
+        allVariables[k] = true;
+        delete unDeclaredVariables[k];
     }
     for (var k in unDeclaredVariables) {
         if (k in keywords) {
@@ -259,9 +289,10 @@ var getVariables = function (ast) {
 };
 var allVariables = Object.create(null);
 
-module.exports = function Variables(ast) {
+function Variables(ast) {
     var res = getVariables(ast);
     res.allVariables = allVariables;
     allVariables = Object.create(null);
     return res;
 };
+module.exports = Variables;

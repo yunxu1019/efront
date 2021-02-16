@@ -42,10 +42,22 @@ function toComponent(responseTree) {
     }
     var destMap = Object.create(null), dest = [], last_result_length = result.length, origin_result_length = last_result_length;
 
-    var $$_efront_map_string_key = "$$__efront";
+    var $$_efront_map_string_key = "$efront";
+    var paramsMap = Object.create(null);
     var getEfrontKey = function (k, type) {
         k = String(k);
-        var key = k.replace(/[^\w]/g, a => "$" + a.charCodeAt(0).toString(36) + "_");
+        var key = k.replace(/[^\w]/g, a => a.charCodeAt(0).toString(36));
+        if (key.length > 6) {
+            key = key.slice(3, 6);
+        }
+        var hasOwnProperty = {}.hasOwnProperty;
+        var id = 0;
+        while (hasOwnProperty.call(paramsMap, key + id) && paramsMap[key + id] !== k) {
+            id++;
+        }
+        key = key + id;
+        paramsMap[key] = k;
+
         var $key = $$_efront_map_string_key + "_" + type + "_" + key;
         if (!destMap[$key]) {
             saveOnly(k, $key);
@@ -134,7 +146,7 @@ function toComponent(responseTree) {
         };
         var module_string = module_body[module_body.length - 1];
         var code_blocks = scanner(module_string);
-        var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{}]/gy;
+        var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{\}]/gy;
         var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
         module_string = code_blocks.map(function (block, index, blocks) {
             var block_string = module_string.slice(block.start, block.end);
