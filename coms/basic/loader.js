@@ -39,8 +39,7 @@ if (PREVENT_FRAMEWORK_MODE !== false) {
     }
 }
 var _devicePixelRatio = devicePixelRatio;
-var request = window.request || function (url, onload, onerror) {
-    var version = versionTree[url] || (+new Date).toString(32);
+var request = window.request || function (url, onload, onerror, version) {
     var xhr = new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
     xhr.open("POST", url);
     xhr.onreadystatechange = function () {
@@ -121,6 +120,8 @@ var readFile = function (names, then) {
         }
         if (efrontURI) url = efrontURI + url;
     }
+    var version = versionTree[name] || (+new Date).toString(32);
+
 
     readingCount++;
     var errorcount = 0;
@@ -146,7 +147,7 @@ var readFile = function (names, then) {
         loadingTree[key].forEach(a => a(1));
     };
     var tryload = function () {
-        request(url, ok, oh);
+        request(url, ok, oh, version);
     }
     tryload();
 
@@ -711,7 +712,7 @@ var loadResponseTreeFromStorage = function () {
         var version = preLoadVersionTree[responseName];
         if (!version) return;
         var responseText = preLoadResponseTree[responseName];
-        var sum = crc(responseText).toString(36);
+        var sum = crc([].map.call(responseText, a => a.charCodeAt(0))).toString(36);
         if (sum + version.slice(sum.length) === versionTree[responseName])
             responseTree[responseName] = responseText;
         // else window.console.log(responseName, sum, version, versionTree[responseName]);
