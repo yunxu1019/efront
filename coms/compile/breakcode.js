@@ -80,8 +80,7 @@ function breakcode(data, args) {
         paramsMap[key] = true;
     });
     var code_blocks = scanner(module_string);
-    module_string = code_blocks.map(trimStringLiteral).join("")
-        .replace(/(\.)\s*((?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_a-z\u0100-\u2027\u2030-\uffff])(?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_\w\u0100-\u2027\u2030-\uffff])*)/ig, setMatchedConstString);
+    module_string = code_blocks.map(trimStringLiteral).join("");
     var res = Object.keys(paramsMap).filter(k => !hasOwnProperty.call(args, k));
     var val = res.map(k => paramsMap[k]);
     paramsMap = Object.create(null);

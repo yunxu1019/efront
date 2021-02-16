@@ -172,7 +172,7 @@ function toComponent(responseTree) {
                 return setMatchedConstRegExp(block_string, "", block_string);
             }
             return module_string.slice(block.start, block.end);
-        }).join("").replace(/(\.)\s*((?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_a-z\u0100-\u2027\u2030-\uffff])(?:\\u[a-f\d]{4}|\\x[a-f\d]{2}|[\$_\w\u0100-\u2027\u2030-\uffff])*)/ig, setMatchedConstString);
+        }).join("");
 
         module_string = typescript.transpile(module_string);
         var module_code = esprima.parse(`function f(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
