@@ -128,9 +128,7 @@ var stringify = function (object, filter, space) {
     var res = getString(object, filter, space);
     if (res.length) return res.join('');
 }
-var toString = function (object) {
-    return "\"" + object.replace(/[\\"]/g, "\\$1") + "\"";
-};
+var toString = strings.encode;
 /**
  * 
  * @param {object} object 

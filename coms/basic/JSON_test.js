@@ -12,7 +12,7 @@ var test = function (JSON) {
         try {
             var res = JSON.stringify(o, f, s);
             var res0 = JSON0.stringify(o, f, s);
-            if (res !== res0) console.log(res && res.length, res, res0 && res0.length, res0, res === res0);
+            if (res !== res0) console.warn(res && res.length, res, res0 && res0.length, res0, res === res0);
 
         } catch (e) {
             console.error(o, e);
@@ -42,6 +42,10 @@ var test = function (JSON) {
     stringify(0)
     stringify(void 0)
     stringify("")
+    stringify("\\\"")
+    stringify("\\\"\\")
+    stringify("\\\"\\'")
+    stringify("\\\r\n\t")
     stringify([])
     stringify({})
     stringify(13e13)
