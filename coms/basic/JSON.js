@@ -198,6 +198,7 @@ var getString = function (object, filter, space) {
         var dx = (ks ? ks : object).length;
         while (cx < dx) {
             key = ks ? ks[cx] : cx;
+            var backlength = str.length;
             if (cx > 0) str += (',');
             if (space) str += ('\n' + new Array(objects.length + 1).join(space));
             if (ks) {
@@ -211,8 +212,10 @@ var getString = function (object, filter, space) {
                 objects.push(v);
                 keys.push([0]);
                 break;
-            } else {
+            } else if (v) {
                 str += (v);
+            } else {
+                str = str.slice(0, backlength);
             }
             cx++;
         }
