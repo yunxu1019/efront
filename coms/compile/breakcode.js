@@ -46,7 +46,6 @@ var trimStringLiteral = function (block) {
     return block_string;
 };
 var paramsMap = Object.create(null);
-var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{}]/gy;
 var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
 var module_string = '';
 function breakcode(data, args) {

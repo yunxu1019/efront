@@ -4,20 +4,11 @@ var esmangle = require("../esmangle");
 var scanner = require("../compile/scanner");
 var typescript = require("../typescript");
 var path = require("path");
+var _strings = require("../basic/strings");
 var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
 var report = require("./report");
-function evalString(s) {
-    s = s.trim();
-    var r = /^(['"])([\s\S]*)\1$/.exec(s);
-    if (r) return r[2].replace(/\\([\s\S])/g, (a, b) => /["']/.test(b) ? b : a);
-    return s;
-}
-function makeString(s, q) {
-    s = s.replace(/\\([\s\S])/g, (a, b) => /["']/.test(b) ? b : a).replace(new RegExp(q, 'g'), '\\' + q);
-    return q + s + q;
-}
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
     delete responseTree["[]map"];
@@ -74,7 +65,7 @@ function toComponent(responseTree) {
     var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT) && !/^(false|0|null)/i.test(process.env.CRYPT);
     var encode = function (source) {
         if (!encoded) return source;
-        source = evalString(source);
+        source = _strings.decode(source);
         if (!~strings.indexOf(source)) {
             var temp = source.split('').reverse();
             for (var cx = 0, dx = temp.length; cx < dx; cx++) {
@@ -89,7 +80,7 @@ function toComponent(responseTree) {
             temp = String.fromCharCode.apply(String, temp);
             if (!~strings.indexOf(temp)) source = temp;
         }
-        source = makeString(source, "\"").replace(/[\u1000-\uffff]/g, a => "\\u" + a.charCodeAt(0).toString(16));
+        source = _strings.encode(source);
         return source;
     };
     var getEncodedIndex = function (key, type = "string") {
@@ -102,7 +93,7 @@ function toComponent(responseTree) {
             if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
             if (k.length < 3) return k;
             if (include_required && isReq) {
-                var refer = evalString(k);
+                var refer = _strings.decode(k);
                 if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                     var reqer = reqMap[refer];
                     if (destMap[reqer]) return destMap[reqer];
@@ -112,9 +103,9 @@ function toComponent(responseTree) {
                     if (destMap[reqer]) return destMap[reqer];
                     if (reqer in libsTree) {
                         var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
-                        k = makeString(libdir, "\"");
+                        k = _strings.encode(libdir);
                     } else {
-                        k = makeString(reqMap[refer], "\"");
+                        k = _strings.encode(reqMap[refer]);
                     }
                     has_outside_require = true;
                 }
