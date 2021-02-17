@@ -9,7 +9,14 @@ if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
 var report = require("./report");
 function evalString(s) {
-    return new Function("return " + s)();
+    s = s.trim();
+    var r = /^(['"])([\s\S]*)\1$/.exec(s);
+    if (r) return r[2].replace(/\\([\s\S])/g, (a, b) => /["']/.test(b) ? b : a);
+    return s;
+}
+function makeString(s, q) {
+    s = s.replace(/\\([\s\S])/g, (a, b) => /["']/.test(b) ? b : a).replace(new RegExp(q, 'g'), '\\' + q);
+    return q + s + q;
 }
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
@@ -46,16 +53,15 @@ function toComponent(responseTree) {
     var paramsMap = Object.create(null);
     var getEfrontKey = function (k, type) {
         k = String(k);
-        var key = k.replace(/[^\w]/g, a => a.charCodeAt(0).toString(36));
+        var key = k.replace(/[^\w\$]+/g, "_");
         if (key.length > 6) {
-            key = key.slice(3, 6);
+            key = key.slice(0, 6);
         }
         var hasOwnProperty = {}.hasOwnProperty;
         var id = 0;
-        while (hasOwnProperty.call(paramsMap, key + id) && paramsMap[key + id] !== k) {
-            id++;
+        while (hasOwnProperty.call(paramsMap, key) && paramsMap[key] !== k) {
+            key = key.replace(/\d+$/, '') + ++id;
         }
-        key = key + id;
         paramsMap[key] = k;
 
         var $key = $$_efront_map_string_key + "_" + type + "_" + key;
@@ -83,7 +89,7 @@ function toComponent(responseTree) {
             temp = String.fromCharCode.apply(String, temp);
             if (!~strings.indexOf(temp)) source = temp;
         }
-        source = JSON.stringify(source).replace(/[\u1000-\uffff]/g, a => "\\u" + a.charCodeAt(0).toString(16));
+        source = makeString(source, "\"").replace(/[\u1000-\uffff]/g, a => "\\u" + a.charCodeAt(0).toString(16));
         return source;
     };
     var getEncodedIndex = function (key, type = "string") {
@@ -92,39 +98,26 @@ function toComponent(responseTree) {
     };
     var saveCode = function (module_body, module_key, reqMap) {
         var this_module_params = {};
-        var setMatchedConstString = function (match, type, k, isProp, isReq) {
-
+        var setMatchedConstString = function (k, isReq) {
             if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
-            if (k.length < 3) return match;
-            switch (type) {
-                case "'":
-                case "\"":
-                    k = k.replace(/^(['"])(.*?)\1$/, function (match, quote, string) {
-                        return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
-                    });
-                    if (include_required && isReq) {
-                        var refer = evalString(k);
-                        if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
-                            var reqer = reqMap[refer];
-                            if (destMap[reqer]) return destMap[reqer];
-                            reqer = reqer.replace(/^\.?\//, '').replace(/\//g, '$');
-                            if (destMap[reqer]) return destMap[reqer];
-                            reqer = reqer.replace(/(\.\.\$)+/, '');
-                            if (destMap[reqer]) return destMap[reqer];
-                            if (reqer in libsTree) {
-                                var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
-                                k = JSON.stringify(libdir);
-                            } else {
-                                k = JSON.stringify(reqMap[refer]);
-                            }
-                            has_outside_require = true;
-                        }
+            if (k.length < 3) return k;
+            if (include_required && isReq) {
+                var refer = evalString(k);
+                if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
+                    var reqer = reqMap[refer];
+                    if (destMap[reqer]) return destMap[reqer];
+                    reqer = reqer.replace(/^\.?\//, '').replace(/\//g, '$');
+                    if (destMap[reqer]) return destMap[reqer];
+                    reqer = reqer.replace(/(\.\.\$)+/, '');
+                    if (destMap[reqer]) return destMap[reqer];
+                    if (reqer in libsTree) {
+                        var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
+                        k = makeString(libdir, "\"");
+                    } else {
+                        k = makeString(reqMap[refer], "\"");
                     }
-
-                    break;
-                case ".":
-                    k = "\"" + k + "\"";
-                    break;
+                    has_outside_require = true;
+                }
             }
             k = encode(k);
             var $key = getEfrontKey(k, 'string');
@@ -133,45 +126,35 @@ function toComponent(responseTree) {
                 module_body.splice(module_body.length >> 1, 0, $key);
                 module_body.splice(module_body.length - 1, 0, $key);
             }
-            return (isProp || type === ".") ? `[${$key}]` : " " + $key + " ";
+            return " " + $key + " ";
         };
-        var setMatchedConstRegExp = function (match, type, k) {
+        var setMatchedConstRegExp = function (k) {
             var $key = getEfrontKey(k, 'regexp');
             if (!this_module_params[$key]) {
                 this_module_params[$key] = true;
                 module_body.splice(module_body.length >> 1, 0, $key);
                 module_body.splice(module_body.length - 1, 0, $key);
             }
-            return type + " " + $key + " ";
+            return " " + $key + " ";
         };
         var module_string = module_body[module_body.length - 1];
         var code_blocks = scanner(module_string);
-        var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{\}]/gy;
         var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
-        module_string = code_blocks.map(function (block, index, blocks) {
-            var block_string = module_string.slice(block.start, block.end);
-            var isPropEnd = (
-                extentReg.lastIndex = block.end,
-                extentReg.exec(module_string)
-            );
-            var isPropStart = (
-                prefixReg.lastIndex = block.start - 1,
-                prefixReg.exec(module_string)
-            );
-            var isProp = !!(isPropStart && isPropEnd);
-            requireReg.lastIndex = block.start;
-            var isRequire = requireReg.exec(module_string);
+        var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
+        module_string = code_blocks.map(function (block) {
 
-            if (block.type === block.single_quote_scanner) {
-                return setMatchedConstString(block_string, "'", block_string, isProp, isRequire);
-            }
-            if (block.type === block.double_quote_scanner) {
-                return setMatchedConstString(block_string, "\"", block_string, isProp, isRequire);
+            var block_string = module_string.slice(block.start, block.end);
+            if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
+                if (hasRequire) {
+                    requireReg.lastIndex = block.start;
+                    var isRequire = requireReg.exec(module_string);
+                }
+                return setMatchedConstString(block_string, isRequire);
             }
             if (block.type === block.regexp_quote_scanner) {
-                return setMatchedConstRegExp(block_string, "", block_string);
+                return setMatchedConstRegExp(block_string);
             }
-            return module_string.slice(block.start, block.end);
+            return block_string;
         }).join("");
 
         module_string = typescript.transpile(module_string);

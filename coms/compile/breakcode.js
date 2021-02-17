@@ -17,56 +17,33 @@ var getReadableKey = function ($key, value) {
     }
     return $key;
 };
-var setMatchedConstString = function (match, type, k, isProp) {
+var setMatchedConstString = function (k) {
 
     if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
-    if (k.length < 3) return match;
-    var $key = '';
-    switch (type) {
-        case "'":
-        case "\"":
-            k = k.replace(/^(['"])(.*?)\1$/, function (match, quote, string) {
-                return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
-            });
-            $key = "str_" + k.replace(/^(['"])([\s\S]*)\1$/g, '$2');
-            break;
-        case ".":
-            $key = k;
-            k = "\"" + k + "\"";
-            break;
-    }
+    if (k.length < 3) return k;
+    k = k.replace(/^(['"])(.*?)\1$/, function (match, quote, string) {
+        return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
+    });
+    var $key = "str_" + k.replace(/^(['"])([\s\S]*)\1$/g, '$2');
     var key = getReadableKey($key, k);
-    return (isProp || type === ".") ? `[${key}]` : " " + key + " ";
+    return " " + key + " ";
 };
-var setMatchedConstRegExp = function (match, type, k) {
+var setMatchedConstRegExp = function (k) {
     var $key = "reg_" + k.replace(/^\/([\s\S]*)\/(\w*)$/g, '$1_$2');
     $key = getReadableKey($key, k);
-    return type + " " + $key + " ";
+    return " " + $key + " ";
 };
 var trimStringLiteral = function (block) {
     var block_string = module_string.slice(block.start, block.end);
-    var isPropEnd = (
-        extentReg.lastIndex = block.end,
-        extentReg.exec(module_string)
-    );
-    var isPropStart = (
-        prefixReg.lastIndex = block.start - 1,
-        prefixReg.exec(module_string)
-    );
-    var isProp = !!(isPropStart && isPropEnd);
-    requireReg.lastIndex = block.start;
-    var isRequire = requireReg.exec(module_string);
-
-    if (block.type === block.single_quote_scanner) {
-        return setMatchedConstString(block_string, "'", block_string, isProp, isRequire);
-    }
-    if (block.type === block.double_quote_scanner) {
-        return setMatchedConstString(block_string, "\"", block_string, isProp, isRequire);
+    if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
+        requireReg.lastIndex = block.start;
+        var isRequire = requireReg.exec(module_string);
+        return setMatchedConstString(block_string, isRequire);
     }
     if (block.type === block.regexp_quote_scanner) {
-        return setMatchedConstRegExp(block_string, "", block_string);
+        return setMatchedConstRegExp(block_string);
     }
-    return module_string.slice(block.start, block.end);
+    return block_string;
 };
 var paramsMap = Object.create(null);
 var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{}]/gy;

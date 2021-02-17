@@ -32,6 +32,25 @@ var getUndeclearedOnly = function (a) {
     var { unDeclaredVariables: u } = getVariables(a);
     merge(this, u);
 };
+
+var setComputed = function (a) {
+    if (a.type === "Identifier") {
+        var name = a.name;
+        if (name in ieSpecialWords || Variables.computed) {
+            a.type = "Literal";
+            a.value = name;
+            a.raw = JSON.stringify(name);
+            delete a.name;
+            return true;
+        }
+    }
+    else if (a.type === "Literal") {
+        var value = a.value;
+        if (value in ieSpecialWords || Variables.computed) return true;
+    }
+    return false;
+}
+
 var getVariables = function (ast) {
 
     var DeclaredVariables = Object.create(null),
@@ -123,19 +142,10 @@ var getVariables = function (ast) {
                     DeclaredVariables,
                     unDeclaredVariables
                 } = getVariables(ast.object);
-                if (ast.property.type === "Identifier") {
+                if (/^(Identifier|Literal)$/i.test(ast.property.type)) {
                     //用以兼容IE5-9
-                    if (!ast.computed) {
-                        var name = ast.property.name;
-                        if (name in ieSpecialWords || Variables.computed) {
-                            ast.property = {
-                                "type": "Literal",
-                                "value": name,
-                                "raw": JSON.stringify(name)
-                            };
-                            ast.computed = true;
-                        }
-                    }
+                    if (!ast.computed) ast.computed = setComputed(ast.property);
+
                 } else {
                     var {
                         DeclaredVariables: d,
@@ -150,19 +160,9 @@ var getVariables = function (ast) {
                     DeclaredVariables,
                     unDeclaredVariables
                 } = getVariables(ast.value);
-                if (ast.key.type === "Identifier") {
-                    if (!ast.computed) {
-                        //用以兼容IE5-9
-                        var name = ast.key.name;
-                        if (name in ieSpecialWords || Variables.computed) {
-                            ast.key = {
-                                "type": "Literal",
-                                "value": name,
-                                "raw": JSON.stringify(name)
-                            };
-                            if (Variables.computed) ast.computed = true;
-                        }
-                    }
+                if (!ast.computed) {
+                    //用以兼容IE5-9
+                    ast.computed = setComputed(ast.key);
                 }
                 ast.shorthand = false; //让esmangle兼容shorthand
                 break;
