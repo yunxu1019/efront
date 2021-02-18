@@ -1,7 +1,4 @@
 "use strict";
-'use strict';
-
-
 var parse = require('./parser-sync');
 var pack = require('./packer-sync');
 

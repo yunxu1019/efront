@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 var constants = require('./constants');
 var CrcStream = require('./crc');
 var bitPacker = require('./bitpacker');

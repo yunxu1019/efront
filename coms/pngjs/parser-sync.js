@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 var hasSyncZlib = true;
 var zlib = require('zlib');
 var inflateSync = require('./sync-inflate');

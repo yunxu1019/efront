@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 // Adam 7
 //   0 1 2 3 4 5 6 7
 // 0 x 6 4 6 x 6 4 6

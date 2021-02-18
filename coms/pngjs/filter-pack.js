@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 var paethPredictor = require('./paeth-predictor');
 
 function filterNone(pxData, pxPos, byteWidth, rawData, rawPos) {

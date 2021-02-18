@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 var util = require('util');
 var zlib = require('zlib');
 var ChunkStream = require('./chunkstream');

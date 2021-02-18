@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 var interlaceUtils = require('./interlace');
 
 var pixelBppMap = {

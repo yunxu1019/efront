@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 var SyncReader = module.exports = function(buffer) {
 
   this._buffer = buffer;

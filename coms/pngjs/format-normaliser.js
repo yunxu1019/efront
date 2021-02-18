@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 function dePalette(indata, outdata, width, height, palette) {
   var pxPos = 0;
   // use values from palette

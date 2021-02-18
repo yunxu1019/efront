@@ -1,5 +1,4 @@
 "use strict";
-
 var assert = require('assert').ok;
 var zlib = require('zlib');
 var util = require('util');

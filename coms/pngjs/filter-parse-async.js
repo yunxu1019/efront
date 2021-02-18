@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 var util = require('util');
 var ChunkStream = require('./chunkstream');
 var Filter = require('./filter-parse');

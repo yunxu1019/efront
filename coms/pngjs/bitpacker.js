@@ -1,6 +1,4 @@
 "use strict";
-'use strict';
-
 var constants = require('./constants');
 
 module.exports = function(data, width, height, options) {

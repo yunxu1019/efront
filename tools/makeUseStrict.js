@@ -25,11 +25,11 @@ var replace = function (dir, deep) {
     } else if (dir.match(/\.(?:jsx?)$/)) {
         var buffer = fs.readFileSync(dir);
         var code = String(buffer);
-        if (!/"use strict"/i.test(code)) {
-            console.log(dir);
-            var data = code.replace(/^(?:"user? strict";?[\r\n]*)?/i, "\"use strict\";\r\n");
-            fs.writeFileSync(dir, data);
+        if (/(["'`])user? strict\1/i.test(code)) {
+
+            var data = code.replace(/^(?:\s*(["'`])user? strict\1\s*;?\s*[\r\n]*)+/i, "\"use strict\";\r\n");
+            if (code !== data) fs.writeFileSync(dir, data), console.log(dir);
         }
     }
 }
-replace("./", 5);
+replace(path.join(__dirname, "../coms"), 5);
