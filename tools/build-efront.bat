@@ -13,6 +13,7 @@ set page=./
 set app=efront/index.js
 set extt=.js
 set coms=./
+set symbol_regexp=(Operator^|Statement^|Expression)^$
 REM set libs_path=./
 REM set libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
 set destpath=efront.js

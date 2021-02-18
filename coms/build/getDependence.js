@@ -27,41 +27,11 @@ function getInitReferenced(dependence, args, argNames, data) {
 var get_relatives = function (name, required, dependence) {
     var required_base = name.replace(/[^\/\$]+$/, "");
     required_base = required_base.replace(/^\.?[\/\$]+/, "");
-    var is_page = /^\//.test(name);
     var map = dependence.requiredMap = Object.assign(Object.create(null), dependence.requiredMap);
 
     return required.map(r => {
-        var r1 = r;
-        var base = required_base;
-        if (/^\.*[\/]/.test(r1)) {
-            r1 = r1.replace(/^\.\//, '');
-            while (/\.\.[\/\$]/.test(r1)) {
-                if (/^[\\\/\$\.]*$/.test(base)) {
-                    break;
-                }
-                base = base.replace(/[^\/\$]*[\/\$]$/, '');
-                r1 = r1.slice(3);
-            }
-            base = base.replace(/^[\/\$]/, '');
-            if (/^\//.test(r1)) {
-                base = '';
-                r1 = r1.slice(1);
-            }
-            if (is_page) {
-                base = "/" + base;
-            } else {
-                base = base.replace(/\$/g, "/");
-                r1 = r1.replace(/\$/g, '/');
-            }
-            var r2 = base + r1;
-            if (!/^\.*\//.test(r2)) {
-                r2 = "./" + r2;
-            }
-        } else {
-            var r2 = r1.replace(/\//g, '$');
-        }
-        map[r] = r2;
-        return r2;
+        map[r] = r;
+        return r;
     });
 };
 function getDependence(response) {
@@ -69,7 +39,7 @@ function getDependence(response) {
     if (response.type !== "" && response.type !== "/" && response.type !== "\\") return [];
     var { data = "" } = response;
     var ext = /\.([^\.]+)$/.exec(response.realpath);
-    if (ext && !/([jt]sx?|vuex?)/i.test(ext)) return [];
+    if (ext && !/^([cm]?[jt]sx?|vuex?|html)$/i.test(ext[1])) return [];
 
     var startTime = new Date;
     data = String(data);
@@ -94,16 +64,8 @@ function getDependence(response) {
         required = get_relatives(response.url.slice(1), required, dependence);
         dependence.require = required || [];
     }
-    var reqmap = dependence.requiredMap;
-    var reqdir = path.dirname(response.realpath);
-    for (var k in reqmap) {
-        if (!/^\./.test(k)) continue;
-        var p = path.join(reqdir, k);
-        var v = getPathIn(comms_root, p);
-        if (v && v !== reqmap[k]) {
-            reqmap[k] = v.replace(/[\\\/]/g, '$');
-        }
-    }
+    var reqdir = response.isPackaged ? response.realpath : path.dirname(response.realpath);
+    dependence.dirname = reqdir;
     response.time += new Date - startTime;
     return response.dependence = dependence;
 }

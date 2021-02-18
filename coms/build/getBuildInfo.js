@@ -23,7 +23,7 @@ BuildInfo.prototype = {
 };
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[tj]sx?|\.html?|\.vuex?|\.png)?$/);
+    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[cm]?[jt]sx?|\.json|\.html?|\.vuex?|\.png)?$/);
     var fullpath, destpath, builder;
     if (match) {
         var {
@@ -42,7 +42,8 @@ function getBuildInfo(url) {
                 builder = commbuilder;
                 var $name = name.replace(/(\w)\$/g, "$1/");
                 fullpath = [];
-                extt = extt || [".js", ".ts", ".json", ".html", '.vue', '/'];
+                extt = extt || [".js", ".ts", ".json", ".html", '.vue', ''];
+
                 if (!Array.isArray(extt)) {
                     extt = [extt];
                 }
@@ -57,8 +58,7 @@ function getBuildInfo(url) {
                         fullpath.push(path.join(comms_root, $name + ext));
                     });
                 }
-                destpath = path.join("comm", name.replace(/\-(\w)/g, (_, w) => w.toUpperCase()) + env.EXTT);
-                url = url.replace(/\.([tj]sx?|json|html?|vuex?)$/i, "");
+                destpath = path.join("comm", url.replace(/(?:\.([cm]?[jt]sx?|json|html?|vuex?))+$/i, "").replace(/\-(\w)/g, (_, w) => w.toUpperCase()) + env.EXTT);
                 if (url === 'main' && !setting.is_commponent_package) {
                     builder = noopbuilder;
                 }
@@ -67,14 +67,13 @@ function getBuildInfo(url) {
                 if (/\.html?$/i.test(extt)) {
                     builder = pagebuilder;
                     destpath = path.join(name + extt);
-                } else if (!/\.([tj]sx?|vuex?)$/i.test(extt)) {
+                } else if (!/\.([cm]?[jt]sx?|vuex?)$/i.test(extt)) {
                     builder = noopbuilder;
                     destpath = path.join(name + extt);
                 } else {
                     extt = extt || "";
                     builder = commbuilder;
                     destpath = path.join("page", name + env.EXTT);
-                    url = url.replace(/\.([tj]sx?|vuex)$/i, "");
                 }
                 fullpath = pages_root.map(page => path.join(page, name + extt));
                 break;
@@ -107,7 +106,6 @@ function getBuildInfo(url) {
                 extt = ".png";
                 fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
                 destpath = path.join("ccon", name);
-                url = url.replace(/\.png$/i, "");
                 break;
             // case "_":
             //     builder = aapibuilder;

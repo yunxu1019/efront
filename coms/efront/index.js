@@ -682,7 +682,7 @@ var run = function (type, value1, value2, value3) {
     } else if (/^\d+$/.test(type)) {
         commands.serv(type, value1);
     } else {
-        var isRun = /[\/\$\\]|_test$|\.[tj]sx?$/i.test(type);
+        var isRun = /[\/\$\\]|_test$|\.[cm]?[jt]sx?$/i.test(type);
         if (isRun) {
             commands.run.apply(commands, argv);
         } else {

@@ -456,9 +456,6 @@ var renderLessData = function (data, lesspath, watchurls, className) {
         });
     return promise;
 };
-function buildJson(buff) {
-    return "return " + JSON.stringify(new Function("return " + buff.toString())());
-}
 
 function prepare(filename, fullpath) {
     var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*?)(\.\w*)?$/i);
@@ -558,10 +555,10 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
     return promise;
 }
 function getScriptPromise(data, filename, fullpath, watchurls) {
-    console.info("正在编译", fullpath);
+    if (path.isAbsolute(fullpath)) console.info("正在编译", fullpath);
     var [commName, lessName, className] = prepare(filename, fullpath);
-    let htmlpath = fullpath.replace(/\.[jt]sx?$/i, ".html");
-    let lesspath = fullpath.replace(/\.[jt]sx?$/i, ".less");
+    let htmlpath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".html");
+    let lesspath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".less");
     let replace = loadUseBody(data, fullpath, watchurls, commName);
     var htmlpromise = getFileData(htmlpath)
         .then(function (htmldata) {
@@ -571,7 +568,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var time = 0;
     var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(function ([lessdata, htmldata, data]) {
         var timeStart = new Date;
-        if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)?<!doctype\b/i.test(htmldata)) {
+        if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)?(<!doctype\b|<script\b)/i.test(htmldata)) {
             var commHtmlName;
             if (/^main/.test(commName)) {
                 commHtmlName = 'Main';
@@ -615,10 +612,10 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     var compress = commbuilder.compress;
     var data = String(buffer), promise;
     if (/\.json$/i.test(fullpath)) {
-        let timeStart = new Date;
-        data = buildJson(data);
-        data = Buffer.from(data);
-        data.time = new Date - timeStart;
+        var timeStart = new Date;
+        var data = loadJsBody("(" + String(buffer) + ")", fullpath);
+        promise = Promise.resolve(data);
+        promise.time = new Date - timeStart;
     } else if (/\.html?$/i.test(fullpath)) {
         if (/^(\s*<!--[\s\S]*?--!?>)*\s*<!Doctype\b/i.test(data)) {
             return data;
@@ -626,11 +623,12 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
         promise = getHtmlPromise(data, filename, fullpath, watchurls);
     } else if (/\.vuex?$/i.test(fullpath)) {
         promise = getMouePromise(data, filename, fullpath, watchurls);
-    } else if (/\.(?:[jt]sx?)$/i.test(fullpath) || !/[\\\/]/i.test(fullpath)) {
+    } else if (/\.(?:[cm]?[jt]sx?)$/i.test(fullpath) || !/[\\\/]/i.test(fullpath)) {
         promise = getScriptPromise(data, filename, fullpath, watchurls);
     } else {
         data = buffer;
-        buffer.mime = mimeTypes[path.extname(fullpath).slice(1)];
+        var extname = path.extname(fullpath);
+        if (extname) buffer.mime = mimeTypes[extname.slice(1)];
     }
     if (promise) {
         var promise1 = promise.then(function (data) {

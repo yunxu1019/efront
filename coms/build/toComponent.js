@@ -24,7 +24,7 @@ function toComponent(responseTree) {
             response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
         }
         if (response.type === "@" || response.type === "\\") {
-            var rel = response.destpath.replace(/\\/g, '/').replace(/^\.\//, "").replace(/\//g, '$').replace(/\.[jt]sx?$/, '');
+            var rel = response.destpath.replace(/\\/g, '/').replace(/^\.\//, "").replace(/\//g, '$').replace(/\.[cm]?[jt]sx?$/, '');
             libsTree[rel] = response;
             delete responseTree[k];
             has_outside_require = true;
@@ -35,7 +35,10 @@ function toComponent(responseTree) {
                 response.data = String(response.data);
             }
             var dependence = response.dependence;
-            result.push([k, dependence.required, dependence.requiredMap].concat(dependence).concat(dependence.args).concat(responseTree[k].toString().slice(dependence.offset)));
+            if (dependence) {
+                result.push([k, dependence.require, dependence.requiredMap].concat(dependence).concat(dependence.args).concat(responseTree[k].toString().slice(dependence.offset)));
+            }
+            else result.push([k, null, null, response.data]);
         }
     }
     var destMap = Object.create(null), dest = [], last_result_length = result.length, origin_result_length = last_result_length;
@@ -107,6 +110,7 @@ function toComponent(responseTree) {
                     } else {
                         k = _strings.encode(reqMap[refer]);
                     }
+                    if (/environment/i.test(refer)) console.log(reqer, refer, Object.keys(reqMap), k, reqMap, module_key);
                     has_outside_require = true;
                 }
             }
@@ -242,8 +246,9 @@ function toComponent(responseTree) {
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, required, reqMap, ...module_body] = result[cx];
+            required = (required || []).map(k => reqMap[k]);
             var ok = true;
-            var errored = module_body.slice(0, module_body.length >> 1).concat(required || []).filter(saveGlobal);
+            var errored = module_body.slice(0, module_body.length >> 1).concat(required).filter(saveGlobal);
             if (errored.length) {
                 console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`, errored.map(a => `<gray>${a}</gray>`));
             }
@@ -403,7 +408,7 @@ function toComponent(responseTree) {
         template += `["${EXPORT_AS}"]`;
     }
 
-    // var test_path = responseTree[PUBLIC_APP].realpath.replace(/\.[tj]sx?$/, "_test.js");
+    // var test_path = responseTree[PUBLIC_APP].realpath.replace(/\.[cm]?[jt]sx?$/, "_test.js");
     // if (test_path) {
     //     try {
     //         let vm = require("vm");

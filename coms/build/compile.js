@@ -114,6 +114,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
     if (!linesEnabled) return wait(arguments);
     linesEnabled--;
     var { fullpath, name, url, builder, destpath } = buildInfo;
+
     var componentId = getComponentId();
     destpath = path.join(destroot, destpath);
     var fullpath = fullpath.slice(0);
@@ -124,6 +125,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
             responseVersion,
             responseWithWarning,
             writeNeeded,
+            isPackaged,
             moduleValue;
 
         var resolve = function () {
@@ -136,9 +138,11 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 realpath: responsePath,
                 version: responseVersion,
                 builtin: moduleValue,
+                isPackaged,
                 time: responseTime,
                 warn: responseWithWarning
             });
+
             if (responseText instanceof Promise) {
                 responseText.then(function (data) {
                     buildInfo.data = data;
@@ -171,21 +175,18 @@ function compile(buildInfo, lastBuildTime, destroot) {
                     // var split = /^\//.test(url) ? '/' : '$';
                     var _realpath = path.join(_filepath, index || 'index');
                     detectWithExtension(_realpath, ["", ".js", "/index", "/index.js"]).then(function (realpath) {
-                        var target = url.replace(/(\w)\$/g, "$1/").replace(/[\/\\\$]+$/, '') + "/" + String(index || 'index').replace(/^\.?[\\\/]+/, '');
-                        target = target.replace(/[\\\/]/g, "/");
-                        target = path.relative(path.dirname(_filepath), realpath).replace(/\\/g, '/');
-                        _filepath = url.replace(/[\\\/]$/, '') + "";
-                        if (!/^\.*\//.test(target)) {
-                            target = "./" + target;
-                        }
-                        response(`require("${target}")`);
+                        var target = "./" + String(index || 'index').replace(/^\.?[\\\/]+/, '');
+                        target = target.replace(/[\\]/g, "/");
+                        response(`require("${target}")`, realpath);
                     }).catch(findRealpath);
                 };
-                var response = function (buffer) {
-                    responsePath = _filepath;
+                var response = function (buffer, p = _filepath) {
                     var id = buildInfo.destpath.replace(/\..*$/, "").replace(/[^\w]/g, a => "_" + a.charCodeAt(0).toString(36) + "-");
                     id = '/' + componentId + ' ' + id.replace(/^[\s\S]*?(\w*)$/, "$1");
-                    responseText = builder(buffer, id, _filepath, []);
+                    responseText = builder(buffer, id, p, []);
+                    responsePath = _filepath;
+                    isPackaged = isDirectory;
+
                     responseVersion = stat.mtime;
                     writeNeeded = true;
                     if (responseText instanceof Promise) {
@@ -194,6 +195,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                             resolve();
                         });
                     } else {
+
                         resolve();
                     }
                 };
@@ -238,7 +240,7 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 };
                 if (lastBuildTime - stat.mtime > 10000 && !/[\/\\]index.html?$/i.test(destpath)) {
                     var statless = function () {
-                        var less_file = _filepath.replace(/\.([tj]sx?|html?)$/i, ".less");
+                        var less_file = _filepath.replace(/\.([cm]?[jt]sx?|html?)$/i, ".less");
                         if (!fs.existsSync(less_file)) return reader(false);
                         fs.stat(less_file, function (error, stat) {
                             if (error) throw new Error(`读取less文件出错！lessfile:${less_file}`);
@@ -249,9 +251,9 @@ function compile(buildInfo, lastBuildTime, destroot) {
                             }
                         });
                     };
-                    if (/\.([tj]sx?|html?)$/i.test(_filepath)) {
-                        if (/\.[tj]sx?$/i.test(_filepath)) {
-                            var html_file = _filepath.replace(/\.[tj]sx?$/i, ".html");
+                    if (/\.([cm]?[jt]sx?|html?)$/i.test(_filepath)) {
+                        if (/\.[cm]?[jt]sx?$/i.test(_filepath)) {
+                            var html_file = _filepath.replace(/\.[cm]?[jt]sx?$/i, ".html");
                             if (!fs.existsSync(html_file)) return statless();
                             fs.stat(html_file, function (error, stat) {
                                 if (error) throw new Error(`读取html文件出错！htmlfile:${html_file}`)

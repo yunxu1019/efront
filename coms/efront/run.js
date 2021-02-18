@@ -210,7 +210,7 @@ function efront() {
     return window;
 }
 module.exports = function (mainpath, args) {
-    mainpath = mainpath.replace(/\.[tj]sx?$/i, '');
+    mainpath = mainpath.replace(/\.[cm]?[jt]sx?$/i, '');
     var unload = function () {
         Object.keys(intervalHandles).map(clearInterval);
         Object.keys(timeoutHandles).map(clearTimeout);

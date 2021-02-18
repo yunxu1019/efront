@@ -44,7 +44,7 @@ var public_app = resolve_component_file_path().replace(/\\/g, '/');
 if (public_app && !pages_root.length) {
     var temp = path.resolve(APP), parent = path.dirname(temp);
     if (fs.existsSync(parent)) pages_root.push(parent);
-    if (/^index(\.[jt]sx?)?$/i.test(path.basename(temp))) pages_root.push(path.dirname(parent));
+    if (/^index(\.[cm]?[jt]sx?)?$/i.test(path.basename(temp))) pages_root.push(path.dirname(parent));
     while (temp && temp !== parent) {
         temp = parent;
         var modulepath = path.join(parent, 'node_modules');
@@ -56,7 +56,7 @@ if (public_app && !pages_root.length) {
 }
 
 if (EXPORT_TO === undefined) EXPORT_TO = public_app
-    .replace(/\.[tj]sx?$/i, '')
+    .replace(/\.[cm]?[jt]sx?$/i, '')
     .replace(/([\w\-]+)\/index$/i, "$1")
     .replace(/\-(\w)/g, (_, w) => w.toUpperCase())
     .replace(/[\s\S]*\/([^\\\/]+)$/, "$1");

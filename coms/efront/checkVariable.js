@@ -78,7 +78,7 @@ module.exports = function (root) {
                     map[path.basename(basename).replace(/\.(html?|xml)$/i, "")] = true;
                 }
                 if (!/\.[jt]sx?$/i.test(fullpath)) return run();
-                map[basename.replace(/\.[jt]sx?$/i, "")] = true;
+                map[basename.replace(/\.[cm]?[jt]sx?$/i, "")] = true;
                 fs.readFile(fullpath, function (error, data) {
                     if (error) return console.error(error);
                     try {
@@ -86,7 +86,7 @@ module.exports = function (root) {
                         var {
                             unDeclaredVariables: undeclares
                         } = getVariables(jst);
-                        delete undeclares[path.basename(fullpath).replace(/\.[jt]sx?$/i, '')];
+                        delete undeclares[path.basename(fullpath).replace(/\.[cm]?[jt]sx?$/i, '')];
                         Object.keys(undeclares).map(k => k).forEach(k => {
                             if (!needs[k]) needs[k] = [];
                             needs[k].push(basename);

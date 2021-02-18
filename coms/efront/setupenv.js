@@ -34,7 +34,7 @@ var setup = module.exports = function (app) {
         var default_value = env[key] || process.env[key];
         var value_map = Object.create(null);
         if (appname) {
-            if (!/\/|\.[jt]sx?$/i.test(app)) value_map[appname] = true;
+            if (!/\/|\.[cm]?[jt]sx?$/i.test(app)) value_map[appname] = true;
         }
         if (default_value) {
             default_value.split(',').forEach(k => {

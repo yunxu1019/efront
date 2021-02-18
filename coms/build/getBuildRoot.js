@@ -67,7 +67,7 @@ var filterHtmlImportedJs = function (roots) {
         });
         var urlsMap = {};
         roots = roots.concat(mainPaths).filter(name => {
-            name = name.replace(/\.[tj]sx?$/i, ".js");
+            name = name.replace(/\.[cm]?[jt]sx?$/i, ".js");
             var keep = !urlsMap[name];
             if (keep) urlsMap[name] = true;
             return keep;
@@ -105,8 +105,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                 return;
             }
             name = name
-                .replace(/[\\\/]+/g, "$")
-                .replace(/\.\w*$/, '');
+                .replace(/[\\\/]+/g, "$");
             save(name);
         };
         var savePage = function (rel) {
@@ -141,13 +140,13 @@ var getBuildRoot = function (files, matchFileOnly) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
-                        if (/\.([tj]sx?|html?|json|vuex?)$/i.test(file)) {
+                        if (/\.([cm]?[jt]sx?|html?|json|vuex?)$/i.test(file)) {
                             var rel = getPathIn(comms_root, file);
                             if (rel) {
                                 return saveComm(rel, file), ok();
                             }
                         }
-                        if (/\.([tj]sx?|html?|vuex?)$/i.test(file)) {
+                        if (/\.([cm]?[jt]sx?|html?|vuex?)$/i.test(file)) {
                             var rel = getPathIn(pages_root, file);
                             if (rel) {
                                 return savePage(rel), ok();
