@@ -5,11 +5,10 @@ var esmangle = require("../esmangle");
 var escodegen = require("../escodegen");
 var typescript = require("../typescript");
 var breakcode = require("../compile/breakcode");
-var less = require("../less-node")();
+var less;
 var isDevelop = require("./isDevelop");
 var inCom = require("./inCom");
 var inPage = require("./inPage");
-less.PluginLoader = function () { };
 var fs = require("fs");
 var path = require("path");
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
@@ -426,6 +425,7 @@ var renderImageUrl = function (data, filepath) {
     return bindLoadings(urlReg, data, filepath, replacer, false);
 };
 var renderLessData = function (data, lesspath, watchurls, className) {
+    if (!less) less = require("../less-node")(), less.PluginLoader = function () { };
     data = data || '';
     var importLessReg = /^\s*@(?:import)\s*(['"`]?)(.*?)\1(\s*;)?\s*$/im;
     var replacer = function (data, realpath) {
