@@ -140,10 +140,10 @@ var write = function (hasNewLine, str) {
     colored[log] = logger;
 });
 colored.time = logTime;
-colored.log = colored.type = function (...args) {
+colored.type = function (...args) {
     write(false, args.join(' '));
 };
-
+colored.log = console.log;
 colored.begin = function (c) {
     return write(false, getColor(c));
 };

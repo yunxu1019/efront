@@ -49,8 +49,7 @@ var paramsMap = Object.create(null);
 var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
 var module_string = '';
 function breakcode(data, args) {
-
-    if (!args) return args;
+    if (!args) return [data];
     module_string = data;
     Object.keys(args).forEach(function (key) {
         paramsMap[key] = true;

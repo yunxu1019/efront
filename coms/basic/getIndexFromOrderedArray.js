@@ -8,7 +8,7 @@ var defaultIsLE = (sample, search) => getValue(sample) <= getValue(search);
  * @param {Array} orderArray 
  * @param {string|number} searchItem 
  */
-var getIndexFromOrderedArray = function (orderArray, searchItem, isLE = defaultIsLE) {
+module.exports = function (orderArray, searchItem, isLE = defaultIsLE) {
     for (var cx = 0, dx = orderArray.length, ci = cx + dx >>> 1; cx < dx; ci = cx + dx >>> 1) {
         var orderItem = orderArray[ci];
         if (isLE(orderItem, searchItem)) {

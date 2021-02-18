@@ -35,7 +35,7 @@
       var cwd = '/';
       return {
         title: 'browser',
-        version: 'v12.16.2',
+        version: 'v12.20.0',
         browser: true,
         env: {},
         argv: [],
@@ -2217,7 +2217,7 @@
         '#USER',
         '/'
       ],
-      '_resolved': 'https://registry.npm.taobao.org/escodegen/download/escodegen-2.0.0.tgz',
+      '_resolved': 'https://registry.npm.taobao.org/escodegen/download/escodegen-2.0.0.tgz?cache=0&sync_timestamp=1596669832613&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fescodegen%2Fdownload%2Fescodegen-2.0.0.tgz',
       '_shasum': '5e32b12833e8aa8fa35e1bf0befa89380484c7dd',
       '_spec': 'escodegen@latest',
       '_where': 'D:\\work\\efront',

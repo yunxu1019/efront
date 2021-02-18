@@ -283,7 +283,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 if (filename.length > 48) {
                     filename = ".." + filename.slice(filename.length - 46);
                 }
-                console.info("没有导出变量", `文件：<gray>${shortpath(filename)}</gray>\r\n`);
+                console.info(`没有导出变量 文件：<gray>${shortpath(filename)}</gray>\r\n`);
             }
         }
     }
@@ -648,8 +648,18 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     return promise1 || data;
 }
-commbuilder.parse = function (data, filename = 'main', fullpath = './main.js') {
+commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress) {
+    var savedCompress = commbuilder.compress;
+    commbuilder.compress = compress;
     var [commName, lessName, className] = prepare(filename, fullpath);
-    return loadJsBody(data, filename, null, commName, lessName, className);
+    var res = loadJsBody(data, filename, null, commName, lessName, className);
+    if (savedCompress === undefined) delete commbuilder.compress;
+    return res;
 };
+commbuilder.break = function (data, filename, fullpath, compress) {
+    var parsed = commbuilder.parse(data, filename, fullpath, compress);
+    var { imported, params, data, required, occurs } = parsed;
+    var [data, res, val] = breakcode(data, occurs);
+    return [data, res, val];
+}
 module.exports = commbuilder;
