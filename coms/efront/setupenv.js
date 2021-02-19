@@ -85,7 +85,7 @@ var pollyfill = function (env, appname) {
 var normalize = function (o) {
     for (var k in o) {
         var v = o[k];
-        if (/[\/\\]/.test(v)) {
+        if (/\//.test(v)^/\\/.test(v)) {
             o[k] = path.normalize(v);
         }
     }

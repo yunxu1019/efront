@@ -218,7 +218,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         }
     }
     var code_body;
-    if (code.body.length === 1 && /(ExpressionStatement)$/.test(code.body[0].type)) {
+    if (code.body.length === 1 && "ExpressionStatement" === code.body[0].type) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
         code_body = [
             {

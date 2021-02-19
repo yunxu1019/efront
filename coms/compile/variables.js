@@ -142,7 +142,7 @@ var getVariables = function (ast) {
                     DeclaredVariables,
                     unDeclaredVariables
                 } = getVariables(ast.object);
-                if (/^(Identifier|Literal)$/i.test(ast.property.type)) {
+                if ("Identifier" === ast.property.type || "Literal" === ast.property.type) {
                     //用以兼容IE5-9
                     if (!ast.computed) ast.computed = setComputed(ast.property);
 

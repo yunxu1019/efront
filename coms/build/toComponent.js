@@ -9,6 +9,8 @@ var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, PUBLIC_PATH,
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
 var report = require("./report");
+var isSymbol = require("./isSymbol");
+var isText = require("./isText");
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"];
     delete responseTree["[]map"];
@@ -57,18 +59,28 @@ function toComponent(responseTree) {
             key = key.replace(/\d+$/, '') + ++id;
         }
         paramsMap[key] = k;
-
         var $key = $$_efront_map_string_key + "_" + type + "_" + key;
         if (!destMap[$key]) {
+            if (type === 'string') k = encode(k);
             saveOnly(k, $key);
         }
         return $key;
     };
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
     var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT) && !/^(false|0|null)/i.test(process.env.CRYPT);
+    var symbolid = 0;
     var encode = function (source) {
-        if (!encoded) return source;
-        source = _strings.decode(source);
+        var _source = _strings.decode(source);
+        if (isText(_source)) {
+            if (!encoded) return `/** text */ ` + source;
+        } else if (isSymbol(_source)) {
+            source = ++symbolid;
+            if (!encoded) source = source + ` /** symbol ${_source} */`;
+            return source;
+        } else {
+            if (!encoded) return source;
+        }
+        source = _source;
         if (!~strings.indexOf(source)) {
             var temp = source.split('').reverse();
             for (var cx = 0, dx = temp.length; cx < dx; cx++) {
@@ -87,7 +99,7 @@ function toComponent(responseTree) {
         return source;
     };
     var getEncodedIndex = function (key, type = "string") {
-        if (type === 'string') key = encode(JSON.stringify(key));
+        if (type === 'string') key = JSON.stringify(key);
         return destMap[getEfrontKey(key, type)];
     };
     var saveCode = function (module_body, module_key, reqMap) {
@@ -113,7 +125,6 @@ function toComponent(responseTree) {
                     has_outside_require = true;
                 }
             }
-            k = encode(k);
             var $key = getEfrontKey(k, 'string');
             if (!this_module_params[$key]) {
                 this_module_params[$key] = true;
