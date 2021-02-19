@@ -110,7 +110,6 @@ function toComponent(responseTree) {
                     } else {
                         k = _strings.encode(reqMap[refer]);
                     }
-                    if (/environment/i.test(refer)) console.log(reqer, refer, Object.keys(reqMap), k, reqMap, module_key);
                     has_outside_require = true;
                 }
             }
@@ -199,7 +198,7 @@ function toComponent(responseTree) {
         if (!destMap[k]) {
             var isGlobal = /^[\$_a-z]\w*$/i.test(data) && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true)$/.test(data);
             if (isGlobal) {
-                if (!/^(console|Boolean|Promise|JSON|module|exports|require|__dirname|__filename|Buffer|Symbol|process|Map|Set|(Ui|I)nt(8|16|32)Array|RangeError|setImmediate|Proxy|Intl|Map|TypeError|RangeError|global|parent|opener|top|length|frames|closed|location|self|window|document|name|customElements|history|locationbar|menubar|personalbar|scrollbars|statusbar|toolbar|status|frameElement|navigator|origin|external|screen|innerWidth|innerHeight|scrollX|pageXOffset|scrollY|pageYOffset|visualViewport|screenX|screenY|outerWidth|outerHeight|devicePixelRatio|clientInformation|screenLeft|screenTop|defaultStatus|defaultstatus|styleMedia|isSecureContext|performance|stop|open|alert|confirm|prompt|print|queueMicrotask|requestAnimationFrame|cancelAnimationFrame|captureEvents|releaseEvents|requestIdleCallback|cancelIdleCallback|getComputedStyle|matchMedia|moveTo|moveBy|resizeTo|resizeBy|scroll|scrollTo|scrollBy|getSelection|find|webkitRequestAnimationFrame|webkitCancelAnimationFrame|fetch|btoa|atob|createImageBitmap|close|focus|blur|postMessage|crypto|indexedDB|webkitStorageInfo|sessionStorage|localStorage|chrome|orientation|speechSynthesis|webkitRequestFileSystem|webkitResolveLocalFileSystemURL|openDatabase)/.test(data)) {
+                if (!/^(os|fs|vm|url|readline|net|http[2s]?|zlib|util|buffer|path|cluster|console|Reflect|PerformanceObserver|BigInt|WeakMap|Boolean|Promise|JSON|module|exports|require|__dirname|__filename|Buffer|Symbol|process|Map|Set|(Ui|I)nt(8|16|32)Array|RangeError|setImmediate|Proxy|Intl|Map|TypeError|RangeError|global|parent|opener|top|length|frames|closed|location|self|window|document|name|customElements|history|locationbar|menubar|personalbar|scrollbars|statusbar|toolbar|status|frameElement|navigator|origin|external|screen|innerWidth|innerHeight|scrollX|pageXOffset|scrollY|pageYOffset|visualViewport|screenX|screenY|outerWidth|outerHeight|devicePixelRatio|clientInformation|screenLeft|screenTop|defaultStatus|defaultstatus|styleMedia|isSecureContext|performance|stop|open|alert|confirm|prompt|print|queueMicrotask|requestAnimationFrame|cancelAnimationFrame|captureEvents|releaseEvents|requestIdleCallback|cancelIdleCallback|getComputedStyle|matchMedia|moveTo|moveBy|resizeTo|resizeBy|scroll|scrollTo|scrollBy|getSelection|find|webkitRequestAnimationFrame|webkitCancelAnimationFrame|fetch|btoa|atob|createImageBitmap|close|focus|blur|postMessage|crypto|indexedDB|webkitStorageInfo|sessionStorage|localStorage|chrome|orientation|speechSynthesis|webkitRequestFileSystem|webkitResolveLocalFileSystemURL|openDatabase)/.test(data)) {
                     warning = true;
                 }
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
@@ -248,7 +247,13 @@ function toComponent(responseTree) {
             var [k, required, reqMap, ...module_body] = result[cx];
             required = (required || []).map(k => reqMap[k]);
             var ok = true;
-            var errored = module_body.slice(0, module_body.length >> 1).concat(required).filter(saveGlobal);
+            for (var r of required) {
+                if (!(r in destMap) && (r in responseTree) && responseTree[r].data) {
+                    ok = false;
+                    break;
+                }
+            }
+            var errored = module_body.slice(0, module_body.length >> 1).filter(saveGlobal);
             if (errored.length) {
                 console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`, errored.map(a => `<gray>${a}</gray>`));
             }

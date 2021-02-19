@@ -1,6 +1,5 @@
 "use strict";
 var fs = require("fs");
-var vm = require("vm");
 var os = require("os");
 var path = require("path");
 var isLib = require("./isLib");
@@ -99,7 +98,6 @@ function fromComponent(base) {
 function fromInternet(mainfilepath) {
     var http = require('http');
     var https = require('https');
-    var URL = require("url");
     var reg = /^(https?)\:\/\//i;
     function request(url, onsuccess, onerror) {
         if (!reg.test(url)) {
