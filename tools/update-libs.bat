@@ -3,8 +3,11 @@ setlocal
 set distpath=coms
 set registry=http://registry.npm.taobao.org
 
-call :esmangle %*
+@REM call :esmangle %*
+call :escodegen
 
+del package-lock.json
+rd /s /q node_modules
 exit /b 0
 
 :typescript
@@ -26,8 +29,17 @@ goto :eof
 :escodegen
 call npm install escodegen@latest --registry=%registry%
 copy node_modules\escodegen\LICENSE.BSD %distpath%\escodegen\LICENSE.BSD
-call cjsify escodegen\escodegen.js -o %distpath%\escodegen\index.js -r node_modules -x escodegen
-echo module.exports = this.escodegen;>>%distpath%\escodegen\index.js
+set coms_path=node_modules\escodegen\,node_modules
+set coms=./
+set page=./
+set app=./escodegen.js
+set export_to=module.exports
+set public_path=coms\escodegen
+set distpath=./index.js
+set extt=.js
+call efront publish %*
+if exist coms\escodegen\index.js del coms\escodegen\index.js
+move coms\escodegen\escodegen.js coms\escodegen\index.js
 call npm uninstall escodegen
 goto :eof
 
