@@ -104,7 +104,7 @@ function toComponent(responseTree) {
     };
     var saveCode = function (module_body, module_key, reqMap) {
         var this_module_params = {};
-        var setMatchedConstString = function (k, isReq) {
+        var setMatchedConstString = function (k, isReq, isProp) {
             if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
             if (k.length < 3) return k;
             if (include_required && isReq) {
@@ -131,7 +131,7 @@ function toComponent(responseTree) {
                 module_body.splice(module_body.length >> 1, 0, $key);
                 module_body.splice(module_body.length - 1, 0, $key);
             }
-            return " " + $key + " ";
+            return isProp ? `[${$key}]` : " " + $key + " ";
         };
         var setMatchedConstRegExp = function (k) {
             var $key = getEfrontKey(k, 'regexp');
@@ -144,17 +144,27 @@ function toComponent(responseTree) {
         };
         var module_string = module_body[module_body.length - 1];
         var code_blocks = scanner(module_string);
+        var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{\}]/gy;
         var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
         var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
         module_string = code_blocks.map(function (block) {
 
             var block_string = module_string.slice(block.start, block.end);
             if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
+                var isPropEnd = (
+                    extentReg.lastIndex = block.end,
+                    extentReg.exec(module_string)
+                );
+                var isPropStart = (
+                    prefixReg.lastIndex = block.start - 1,
+                    prefixReg.exec(module_string)
+                );
+                var isProp = !!(isPropStart && isPropEnd);
                 if (hasRequire) {
                     requireReg.lastIndex = block.start;
                     var isRequire = requireReg.exec(module_string);
                 }
-                return setMatchedConstString(block_string, isRequire);
+                return setMatchedConstString(block_string, isRequire, isProp);
             }
             if (block.type === block.regexp_quote_scanner) {
                 return setMatchedConstRegExp(block_string);
@@ -365,7 +375,8 @@ function toComponent(responseTree) {
                     l = l[1][q](',');
                     g = g[o]([l]);
                 }
-                return f[y](I?I[B]:T[0], g)
+                r = f[y](I?I[B]:T[0], g);
+                return I?I[B]:r;
             }
         }
         return T[c + 1] = function(){
@@ -424,18 +435,6 @@ function toComponent(responseTree) {
         template += `["${EXPORT_AS}"]`;
     }
 
-    // var test_path = responseTree[PUBLIC_APP].realpath.replace(/\.[cm]?[jt]sx?$/, "_test.js");
-    // if (test_path) {
-    //     try {
-    //         let vm = require("vm");
-    //         let globals = require("../test/core/suit");
-    //         let context = vm.createContext(globals);
-    //         vm.runInContext(template, context);
-    //         vm.runInContext(fs.readFileSync(test_path).toString(), context);
-    //     } catch (e) {
-    //         console.error(e);
-    //     }
-    // }
     responseTree[PUBLIC_APP].data = template;
     var DESTNAME = String(process.env.PUBLIC_NAME || PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + EXTT;
     responseTree[PUBLIC_APP].destpath = DESTNAME || PUBLIC_APP;
