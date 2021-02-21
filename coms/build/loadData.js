@@ -7,11 +7,17 @@ var { include_required } = require("./environment");
 function build(pages_root, lastBuiltTime, dest_root) {
     var responseTree = Object.create(null);
     var filterMap = Object.create(null);
+    var destpathMap = Object.create(null);
     var resolve;
     var builder = function (roots) {
         roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);
         if (!roots.length) return resolve();
-        roots = roots.sort().map(getBuildInfo).map(function (buildInfo) {
+        roots = roots.sort().map(getBuildInfo).filter(a => {
+            if (!a || !a.destpath) return false;
+            if (destpathMap[a.destpath]) return false;
+            destpathMap[a.destpath] = true;
+            return true;
+        }).map(function (buildInfo) {
             return compile(buildInfo, lastBuiltTime, dest_root);
         }).map(function (promise) {
             return promise.then(function (response) {
