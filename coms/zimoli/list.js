@@ -142,7 +142,7 @@ function ylist(container, generator, $Y) {
                 }
                 updateItem(item);
             } else {
-                delete childrenMap[item];
+                delete childrenMap[offset];
             }
             last_index = offset;
             last_item = item;
