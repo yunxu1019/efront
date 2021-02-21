@@ -58,7 +58,8 @@ function getBuildInfo(url) {
                         fullpath.push(path.join(comms_root, $name + ext));
                     });
                 }
-                destpath = path.join("comm", url.replace(/(?:\.([cm]?[jt]sx?|json|html?|vuex?))+$/i, "").replace(/\-(\w)/g, (_, w) => w.toUpperCase()) + env.EXTT);
+                name = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
+                destpath = path.join("comm", name + env.EXTT);
                 if (url === 'main' || url === 'main.js' && !setting.is_commponent_package) {
                     builder = noopbuilder;
                 }

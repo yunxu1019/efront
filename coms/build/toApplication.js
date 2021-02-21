@@ -160,7 +160,7 @@ module.exports = function (responseTree) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
-            if (v.url !== "main") versionTree[v.url] = String(v.data);
+            if (v.name !== "main") versionTree[v.name] = String(v.data);
         });
         delete versionTree["/index.html"];
         delete versionTree["@index.html"];
@@ -176,8 +176,13 @@ module.exports = function (responseTree) {
             versionTree[v.url] = responseVersion;
         });
         delete versionTree["main"];
+        delete versionTree["main.js"];
         delete versionTree["[]map"];
+        delete versionTree["[]map.js"];
         delete versionTree["promise"];
+        delete versionTree["promise.js"];
+        delete versionTree["Promise"];
+        delete versionTree["Promise.js"];
         delete versionTree["/index.html"];
         delete versionTree["@index.html"];
     }

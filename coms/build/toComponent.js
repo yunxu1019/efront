@@ -12,8 +12,9 @@ var report = require("./report");
 var isSymbol = require("./isSymbol");
 var isText = require("./isText");
 function toComponent(responseTree) {
-    var array_map = responseTree["[]map"];
+    var array_map = responseTree["[]map"] || responseTree["[]map.js"];
     delete responseTree["[]map"];
+    delete responseTree["[]map.js"];
     var result = [];
     var crypt_code = new Date / 1000 ^ Math.random() * 3600;
     var libsTree = Object.create(null);
