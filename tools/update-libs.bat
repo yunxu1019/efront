@@ -3,8 +3,8 @@ setlocal
 set distpath=coms
 set registry=http://registry.npm.taobao.org
 
-@REM call :esmangle %*
-call :escodegen
+call :esmangle %*
+call :escodegen %*
 
 del package-lock.json
 rd /s /q node_modules
@@ -37,7 +37,7 @@ set export_to=module.exports
 set public_path=coms\escodegen
 set distpath=./index.js
 set extt=.js
-call efront publish %*
+call efront publish --no-polyfill --no-crypt %*
 if exist coms\escodegen\index.js del coms\escodegen\index.js
 move coms\escodegen\escodegen.js coms\escodegen\index.js
 call npm uninstall escodegen
@@ -54,7 +54,7 @@ set export_to=module.exports
 set public_path=coms\esmangle
 set distpath=./index.js
 set extt=.js
-call efront publish %*
+call efront publish --no-polyfill --no-crypt %*
 if exist coms\esmangle\index.js del coms\esmangle\index.js
 move coms\esmangle\esmangle.js coms\esmangle\index.js
 call npm uninstall esmangle
