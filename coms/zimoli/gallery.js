@@ -12,11 +12,18 @@ function bindScroll(elements) {
         }, 160);
 
         var index = scroll_elem.index();
+        var maxCount = 0;
         for (var cx = 0, dx = elements.length; cx < dx; cx++) {
             var e = elements[cx];
             if (e !== scroll_elem) {
                 e.cancelFrame();
                 e.go(index);
+            }
+            if (e.children.length > maxCount) {
+                maxCount = e.children.length;
+            } else if (e.children.length < maxCount) {
+                var s = e.getIndexedElement(index | 0);
+                if (s) css(e, { paddingBottom: fromOffset(s.offsetHeight) });
             }
         }
     };
