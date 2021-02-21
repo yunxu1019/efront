@@ -100,6 +100,7 @@ function toApplication(responseTree) {
         });
     }
     delete responseTree["main"];
+    delete responseTree["main.js"];
     return responseTree;
 }
 var toUnicode = require("../basic/toUnicode");
@@ -144,13 +145,14 @@ var rebuildData = function (responseTree) {
 module.exports = function (responseTree) {
     rebuildData(responseTree);
     report(responseTree);
-    if (!responseTree["main"]) {
+    if (!responseTree["main"] && !responseTree["main.js"]) {
+        console.log(Object.keys(responseTree).join(','))
         console.warn("在您所编译的项目中没有发现主程序");
         return toApplication(responseTree);
     }
     var commbuilder = require("../efront/commbuilder");
     commbuilder.compress = false;
-    var mainScript = responseTree.main;
+    var mainScript = responseTree.main || responseTree["main.js"];
     var mainScriptData = commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
     delete commbuilder.compress;
     var versionTree = {};

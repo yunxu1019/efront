@@ -59,7 +59,7 @@ function getBuildInfo(url) {
                     });
                 }
                 destpath = path.join("comm", url.replace(/(?:\.([cm]?[jt]sx?|json|html?|vuex?))+$/i, "").replace(/\-(\w)/g, (_, w) => w.toUpperCase()) + env.EXTT);
-                if (url === 'main' && !setting.is_commponent_package) {
+                if (url === 'main' || url === 'main.js' && !setting.is_commponent_package) {
                     builder = noopbuilder;
                 }
                 break;
