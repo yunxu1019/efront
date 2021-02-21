@@ -14,9 +14,22 @@ function build(pages_root, lastBuiltTime, dest_root) {
         if (!roots.length) return resolve();
         roots = roots.sort().map(getBuildInfo).filter(a => {
             if (!a || !a.destpath) return false;
-            if (destpathMap[a.destpath]) return false;
-            destpathMap[a.destpath] = true;
-            return true;
+            var destpath = a.destpath;
+            if (!destpathMap[destpath]) {
+                destpathMap[destpath] = a;
+                return true;
+            }
+            var url = a.url;
+            var a = destpathMap[destpath];
+            for (var k in responseTree) {
+                var dependence = responseTree[k].dependence;
+                if (!dependence) continue;
+                var reqMap = dependence.requiredMap;
+                for (var r in reqMap) if (reqMap[r] === url) {
+                    reqMap[r] = a.url;
+                }
+            }
+            return false;
         }).map(function (buildInfo) {
             return compile(buildInfo, lastBuiltTime, dest_root);
         }).map(function (promise) {
