@@ -74,7 +74,7 @@ var buildHtml = function (html, code) {
     return html;
 };
 function toApplication(responseTree) {
-    var mainScript = responseTree.main ? responseTree.main : null;
+    var mainScript = responseTree.main || responseTree["main.js"] || null;
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
     if (!indexHtml) {
         var htmlPath = path.join(__dirname, "../apps", "index.html");
