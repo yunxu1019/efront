@@ -60,7 +60,11 @@ function toComponent(responseTree) {
             key = key.replace(/\d+$/, '') + ++id;
         }
         paramsMap[key] = k;
-        var $key = $$_efront_map_string_key + "_" + type + "_" + key;
+        if (type === 'global') {
+            var $key = key;
+        } else {
+            var $key = $$_efront_map_string_key + "_" + type + "_" + key;
+        }
         if (!destMap[$key]) {
             if (type === 'string') k = encode(k);
             saveOnly(k, $key);
