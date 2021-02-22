@@ -129,7 +129,7 @@ function ylist(container, generator, $Y) {
                 if (!item || delta > 0 && offsetBottom - ratioTop > list.clientHeight + cache_height) {
                     if (delta < 0) break;
                     delta = -1;
-                    while (offset > index - 1) delete childrenMap[offset--];
+                    offset = index - 1;
                     bottom_item = getIndexedElement(offsetb);
                     last_item = getIndexedElement(index);
                     last_index = index;
