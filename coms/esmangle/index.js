@@ -1,4 +1,4 @@
-module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efront 2.16.6*/].map||function (f, t) {
+module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efront 2.16.6*/].map||function (f, t) {
         var s = this,
         l=s[2],
         r = [],
@@ -22,39 +22,38 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
 /** 12 $efront_string__call_ */ "call",
 /** 13 $efront_string__expor */ "exports",
 /** 14 $efront_regexp__funct */ /^function[^\(]*?\(([^\)]+?)\)/,
-/** 15 $efront_global_Array */ Array,
-/** 16 $efront_global_String */ String,
-/** 17 $efront_global__t_ */ "t",
-/** 18 $efront_global__A_ */ "A",
-/** 19 $efront_global__e_ */ "e",
-/** 20 $efront_global__d_ */ "d",
-/** 21 $efront_global__o_ */ "o",
-/** 22 $efront_global__C_ */ "C",
-/** 23 $efront_global__r_ */ "r",
-/** 24 $efront_global__a_ */ "a",
-/** 25 $efront_global__h_ */ "h",
-/** 26 $efront_global__c_ */ "c",
-/** 27 $efront_global__m_ */ "m",
-/** 28 $efront_global__f_ */ "f",
-/** 29 module */ [1613939622],
+/** 15 Array */ Array,
+/** 16 String */ String,
+/** 17 _t_ */ "t",
+/** 18 _A_ */ "A",
+/** 19 _e_ */ "e",
+/** 20 _d_ */ "d",
+/** 21 _o_ */ "o",
+/** 22 _C_ */ "C",
+/** 23 _r_ */ "r",
+/** 24 _a_ */ "a",
+/** 25 _h_ */ "h",
+/** 26 _c_ */ "c",
+/** 27 _m_ */ "m",
+/** 28 _f_ */ "f",
+/** 29 module */ [1613967807],
 /** 30 RegExp */ RegExp,
-/** 31 String */ String,
-/** 32 $efront_string__NonAs */ 'NonAsciiIdentifierStart',
-/** 33 $efront_string__u02c1 */ /** text */ '[ªµºÀ-ÖØ-öø-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05d0-\u05ea\u05f0-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u08a0\u08a2-\u08ac\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097f\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d\u0c58\u0c59\u0c60\u0c61\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d60\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u01000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1877\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191c\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19c1-\u19c7\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4b\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1ce9-\u1cec\u1cee-\u1cf1\u1cf5\u1cf6\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2e2f\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua697\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa80-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]',
-/** 34 $efront_string__NonAs1 */ 'NonAsciiIdentifierPart',
-/** 35 $efront_string__u02c2 */ /** text */ '[ªµºÀ-ÖØ-öø-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0300-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u0483-\u0487\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u05d0-\u05ea\u05f0-\u05f2\u0610-\u061a\u0620-\u0669\u066e-\u06d3\u06d5-\u06dc\u06df-\u06e8\u06ea-\u06fc\u06ff\u0710-\u074a\u074d-\u07b1\u07c0-\u07f5\u07fa\u0800-\u082d\u0840-\u085b\u08a0\u08a2-\u08ac\u08e4-\u08fe\u0900-\u0963\u0966-\u096f\u0971-\u0977\u0979-\u097f\u0981-\u0983\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bc-\u09c4\u09c7\u09c8\u09cb-\u09ce\u09d7\u09dc\u09dd\u09df-\u09e3\u09e6-\u09f1\u0a01-\u0a03\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a59-\u0a5c\u0a5e\u0a66-\u0a75\u0a81-\u0a83\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abc-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ad0\u0ae0-\u0ae3\u0ae6-\u0aef\u0b01-\u0b03\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3c-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b56\u0b57\u0b5c\u0b5d\u0b5f-\u0b63\u0b66-\u0b6f\u0b71\u0b82\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd0\u0bd7\u0be6-\u0bef\u0c01-\u0c03\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d-\u0c44\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c58\u0c59\u0c60-\u0c63\u0c66-\u0c6f\u0c82\u0c83\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbc-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0cde\u0ce0-\u0ce3\u0ce6-\u0cef\u0cf1\u0cf2\u0d02\u0d03\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d-\u0d44\u0d46-\u0d48\u0d4a-\u0d4e\u0d57\u0d60-\u0d63\u0d66-\u0d6f\u0d7a-\u0d7f\u0d82\u0d83\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0df2\u0df3\u0e01-\u0e3a\u0e40-\u0e4e\u0e50-\u0e59\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb9\u0ebb-\u0ebd\u0ec0-\u0ec4\u0ec6\u0ec8-\u0ecd\u0ed0-\u0ed9\u0edc-\u0edf\u0f00\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f3e-\u0f47\u0f49-\u0f6c\u0f71-\u0f84\u0f86-\u0f97\u0f99-\u0fbc\u0fc6\u01000-\u1049\u1050-\u109d\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u135d-\u135f\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176c\u176e-\u1770\u1772\u1773\u1780-\u17d3\u17d7\u17dc\u17dd\u17e0-\u17e9\u180b-\u180d\u1810-\u1819\u1820-\u1877\u1880-\u18aa\u18b0-\u18f5\u1900-\u191c\u1920-\u192b\u1930-\u193b\u1946-\u196d\u1970-\u1974\u1980-\u19ab\u19b0-\u19c9\u19d0-\u19d9\u1a00-\u1a1b\u1a20-\u1a5e\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1aa7\u1b00-\u1b4b\u1b50-\u1b59\u1b6b-\u1b73\u1b80-\u1bf3\u1c00-\u1c37\u1c40-\u1c49\u1c4d-\u1c7d\u1cd0-\u1cd2\u1cd4-\u1cf6\u1d00-\u1de6\u1dfc-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u200c\u200d\u203f\u2040\u2054\u2071\u207f\u2090-\u209c\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d7f-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2de0-\u2dff\u2e2f\u3005-\u3007\u3021-\u302f\u3031-\u3035\u3038-\u303c\u3041-\u3096\u3099\u309a\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua62b\ua640-\ua66f\ua674-\ua67d\ua67f-\ua697\ua69f-\ua6f1\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua827\ua840-\ua873\ua880-\ua8c4\ua8d0-\ua8d9\ua8e0-\ua8f7\ua8fb\ua900-\ua92d\ua930-\ua953\ua960-\ua97c\ua980-\ua9c0\ua9cf-\ua9d9\uaa00-\uaa36\uaa40-\uaa4d\uaa50-\uaa59\uaa60-\uaa76\uaa7a\uaa7b\uaa80-\uaac2\uaadb-\uaadd\uaae0-\uaaef\uaaf2-\uaaf6\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabea\uabec\uabed\uabf0-\uabf9\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe00-\ufe0f\ufe20-\ufe26\ufe33\ufe34\ufe4d-\ufe4f\ufe70-\ufe74\ufe76-\ufefc\uff10-\uff19\uff21-\uff3a\uff3f\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]',
-/** 36 $efront_string__index1 */ 'indexOf',
-/** 37 $efront_string__test_ */ 'test',
-/** 38 $efront_string__fromC */ 'fromCharCode',
-/** 39 $efront_string__expor1 */ 'exports',
-/** 40 $efront_string__isDec */ 'isDecimalDigit',
-/** 41 $efront_string__isHex */ 'isHexDigit',
-/** 42 $efront_string__isOct */ 'isOctalDigit',
-/** 43 $efront_string__isWhi */ 'isWhiteSpace',
-/** 44 $efront_string__isLin */ 'isLineTerminator',
-/** 45 $efront_string__isIde */ 'isIdentifierStart',
-/** 46 $efront_string__isIde1 */ 'isIdentifierPart',
-/** 47 esutils$lib$code.js */ [30,31,29,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,function(RegExp, String, module, $efront_string__NonAs, $efront_string__u02c1, $efront_string__NonAs1, $efront_string__u02c2, $efront_string__index1, $efront_string__test_, $efront_string__fromC, $efront_string__expor1, $efront_string__isDec, $efront_string__isHex, $efront_string__isOct, $efront_string__isWhi, $efront_string__isLin, $efront_string__isIde, $efront_string__isIde1) {
+/** 31 $efront_string__NonAs */ 'NonAsciiIdentifierStart',
+/** 32 $efront_string__u02c1 */ /** text */ '[ªµºÀ-ÖØ-öø-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05d0-\u05ea\u05f0-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u08a0\u08a2-\u08ac\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097f\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d\u0c58\u0c59\u0c60\u0c61\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d60\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u01000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1877\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191c\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19c1-\u19c7\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4b\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1ce9-\u1cec\u1cee-\u1cf1\u1cf5\u1cf6\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2e2f\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua697\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa80-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]',
+/** 33 $efront_string__NonAs1 */ 'NonAsciiIdentifierPart',
+/** 34 $efront_string__u02c2 */ /** text */ '[ªµºÀ-ÖØ-öø-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0300-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u0483-\u0487\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u05d0-\u05ea\u05f0-\u05f2\u0610-\u061a\u0620-\u0669\u066e-\u06d3\u06d5-\u06dc\u06df-\u06e8\u06ea-\u06fc\u06ff\u0710-\u074a\u074d-\u07b1\u07c0-\u07f5\u07fa\u0800-\u082d\u0840-\u085b\u08a0\u08a2-\u08ac\u08e4-\u08fe\u0900-\u0963\u0966-\u096f\u0971-\u0977\u0979-\u097f\u0981-\u0983\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bc-\u09c4\u09c7\u09c8\u09cb-\u09ce\u09d7\u09dc\u09dd\u09df-\u09e3\u09e6-\u09f1\u0a01-\u0a03\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a59-\u0a5c\u0a5e\u0a66-\u0a75\u0a81-\u0a83\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abc-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ad0\u0ae0-\u0ae3\u0ae6-\u0aef\u0b01-\u0b03\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3c-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b56\u0b57\u0b5c\u0b5d\u0b5f-\u0b63\u0b66-\u0b6f\u0b71\u0b82\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd0\u0bd7\u0be6-\u0bef\u0c01-\u0c03\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d-\u0c44\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c58\u0c59\u0c60-\u0c63\u0c66-\u0c6f\u0c82\u0c83\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbc-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0cde\u0ce0-\u0ce3\u0ce6-\u0cef\u0cf1\u0cf2\u0d02\u0d03\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d-\u0d44\u0d46-\u0d48\u0d4a-\u0d4e\u0d57\u0d60-\u0d63\u0d66-\u0d6f\u0d7a-\u0d7f\u0d82\u0d83\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0df2\u0df3\u0e01-\u0e3a\u0e40-\u0e4e\u0e50-\u0e59\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb9\u0ebb-\u0ebd\u0ec0-\u0ec4\u0ec6\u0ec8-\u0ecd\u0ed0-\u0ed9\u0edc-\u0edf\u0f00\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f3e-\u0f47\u0f49-\u0f6c\u0f71-\u0f84\u0f86-\u0f97\u0f99-\u0fbc\u0fc6\u01000-\u1049\u1050-\u109d\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u135d-\u135f\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176c\u176e-\u1770\u1772\u1773\u1780-\u17d3\u17d7\u17dc\u17dd\u17e0-\u17e9\u180b-\u180d\u1810-\u1819\u1820-\u1877\u1880-\u18aa\u18b0-\u18f5\u1900-\u191c\u1920-\u192b\u1930-\u193b\u1946-\u196d\u1970-\u1974\u1980-\u19ab\u19b0-\u19c9\u19d0-\u19d9\u1a00-\u1a1b\u1a20-\u1a5e\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1aa7\u1b00-\u1b4b\u1b50-\u1b59\u1b6b-\u1b73\u1b80-\u1bf3\u1c00-\u1c37\u1c40-\u1c49\u1c4d-\u1c7d\u1cd0-\u1cd2\u1cd4-\u1cf6\u1d00-\u1de6\u1dfc-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u200c\u200d\u203f\u2040\u2054\u2071\u207f\u2090-\u209c\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d7f-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2de0-\u2dff\u2e2f\u3005-\u3007\u3021-\u302f\u3031-\u3035\u3038-\u303c\u3041-\u3096\u3099\u309a\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua62b\ua640-\ua66f\ua674-\ua67d\ua67f-\ua697\ua69f-\ua6f1\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua827\ua840-\ua873\ua880-\ua8c4\ua8d0-\ua8d9\ua8e0-\ua8f7\ua8fb\ua900-\ua92d\ua930-\ua953\ua960-\ua97c\ua980-\ua9c0\ua9cf-\ua9d9\uaa00-\uaa36\uaa40-\uaa4d\uaa50-\uaa59\uaa60-\uaa76\uaa7a\uaa7b\uaa80-\uaac2\uaadb-\uaadd\uaae0-\uaaef\uaaf2-\uaaf6\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabea\uabec\uabed\uabf0-\uabf9\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe00-\ufe0f\ufe20-\ufe26\ufe33\ufe34\ufe4d-\ufe4f\ufe70-\ufe74\ufe76-\ufefc\uff10-\uff19\uff21-\uff3a\uff3f\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]',
+/** 35 $efront_string__index1 */ 'indexOf',
+/** 36 $efront_string__test_ */ 'test',
+/** 37 $efront_string__fromC */ 'fromCharCode',
+/** 38 $efront_string__expor1 */ 'exports',
+/** 39 $efront_string__isDec */ 'isDecimalDigit',
+/** 40 $efront_string__isHex */ 'isHexDigit',
+/** 41 $efront_string__isOct */ 'isOctalDigit',
+/** 42 $efront_string__isWhi */ 'isWhiteSpace',
+/** 43 $efront_string__isLin */ 'isLineTerminator',
+/** 44 $efront_string__isIde */ 'isIdentifierStart',
+/** 45 $efront_string__isIde1 */ 'isIdentifierPart',
+/** 46 esutils$lib$code.js */ [30,16,29,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,function(RegExp, String, module, $efront_string__NonAs, $efront_string__u02c1, $efront_string__NonAs1, $efront_string__u02c2, $efront_string__index1, $efront_string__test_, $efront_string__fromC, $efront_string__expor1, $efront_string__isDec, $efront_string__isHex, $efront_string__isOct, $efront_string__isWhi, $efront_string__isLin, $efront_string__isIde, $efront_string__isIde1) {
     return function () {
         'use strict';
         var _a, _b;
@@ -102,26 +101,26 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = (_b = {}, _b[$efront_string__isDec] = isDecimalDigit, _b[$efront_string__isHex] = isHexDigit, _b[$efront_string__isOct] = isOctalDigit, _b[$efront_string__isWhi] = isWhiteSpace, _b[$efront_string__isLin] = isLineTerminator, _b[$efront_string__isIde] = isIdentifierStart, _b[$efront_string__isIde1] = isIdentifierPart, _b)
     }()
 }],
-/** 48 global */ typeof global!=="undefined"?global:void 0,
-/** 49 $efront_string__Map_ */ 'Map',
-/** 50 $efront_string__undef */ 'undefined',
-/** 51 $efront_string____dat */ '__data',
-/** 52 $efront_string__proto */ 'prototype',
-/** 53 $efront_string__get_ */ 'get',
-/** 54 $efront_string__$_ */ '$',
-/** 55 $efront_string__hasOw */ 'hasOwnProperty',
-/** 56 $efront_string__has_ */ 'has',
-/** 57 $efront_string__set_ */ 'set',
-/** 58 $efront_string__delet */ 'delete',
-/** 59 $efront_string__clear */ 'clear',
-/** 60 $efront_string__forEa */ 'forEach',
-/** 61 $efront_string__subst */ 'substring',
-/** 62 $efront_string__call_1 */ 'call',
-/** 63 $efront_string__keys_ */ 'keys',
-/** 64 $efront_string__push_ */ 'push',
-/** 65 $efront_string__value */ 'values',
-/** 66 $efront_string__items */ 'items',
-/** 67 map.js */ [48,29,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,39,function(global, module, $efront_string__Map_, $efront_string__undef, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__hasOw, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__clear, $efront_string__forEa, $efront_string__subst, $efront_string__call_1, $efront_string__keys_, $efront_string__push_, $efront_string__value, $efront_string__items, $efront_string__expor1) {
+/** 47 global */ typeof global!=="undefined"?global:void 0,
+/** 48 $efront_string__Map_ */ 'Map',
+/** 49 $efront_string__undef */ 'undefined',
+/** 50 $efront_string____dat */ '__data',
+/** 51 $efront_string__proto */ 'prototype',
+/** 52 $efront_string__get_ */ 'get',
+/** 53 $efront_string__$_ */ '$',
+/** 54 $efront_string__hasOw */ 'hasOwnProperty',
+/** 55 $efront_string__has_ */ 'has',
+/** 56 $efront_string__set_ */ 'set',
+/** 57 $efront_string__delet */ 'delete',
+/** 58 $efront_string__clear */ 'clear',
+/** 59 $efront_string__forEa */ 'forEach',
+/** 60 $efront_string__subst */ 'substring',
+/** 61 $efront_string__call_1 */ 'call',
+/** 62 $efront_string__keys_ */ 'keys',
+/** 63 $efront_string__push_ */ 'push',
+/** 64 $efront_string__value */ 'values',
+/** 65 $efront_string__items */ 'items',
+/** 66 map.js */ [47,29,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,38,function(global, module, $efront_string__Map_, $efront_string__undef, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__hasOw, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__clear, $efront_string__forEa, $efront_string__subst, $efront_string__call_1, $efront_string__keys_, $efront_string__push_, $efront_string__value, $efront_string__items, $efront_string__expor1) {
     return function () {
         'use strict';
         var Map;
@@ -198,142 +197,141 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = Map
     }()
 }],
-/** 68 undefined */ undefined,
-/** 69 exports */ [1498],
-/** 70 define */ typeof define!=="undefined"?define:void 0,
-/** 71 Array */ Array,
-/** 72 Object */ Object,
-/** 73 Error */ Error,
-/** 74 $efront_string__funct1 */ 'function',
-/** 75 $efront_string__amd_ */ 'amd',
-/** 76 $efront_string__estra */ 'estraverse',
-/** 77 $efront_string__Assig */ 'AssignmentExpression',
-/** 78 $efront_string__Array */ 'ArrayExpression',
-/** 79 $efront_string__Array1 */ 'ArrayPattern',
-/** 80 $efront_string__Arrow */ 'ArrowFunctionExpression',
-/** 81 $efront_string__Block */ 'BlockStatement',
-/** 82 $efront_string__Binar */ 'BinaryExpression',
-/** 83 $efront_string__Break */ 'BreakStatement',
-/** 84 $efront_string__CallE */ 'CallExpression',
-/** 85 $efront_string__Catch */ 'CatchClause',
-/** 86 $efront_string__Class */ 'ClassBody',
-/** 87 $efront_string__Class1 */ 'ClassDeclaration',
-/** 88 $efront_string__Class2 */ 'ClassExpression',
-/** 89 $efront_string__Condi */ 'ConditionalExpression',
-/** 90 $efront_string__Conti */ 'ContinueStatement',
-/** 91 $efront_string__Debug */ 'DebuggerStatement',
-/** 92 $efront_string__Direc */ 'DirectiveStatement',
-/** 93 $efront_string__DoWhi */ 'DoWhileStatement',
-/** 94 $efront_string__Empty */ 'EmptyStatement',
-/** 95 $efront_string__Expre */ 'ExpressionStatement',
-/** 96 $efront_string__ForSt */ 'ForStatement',
-/** 97 $efront_string__ForIn */ 'ForInStatement',
-/** 98 $efront_string__Funct */ 'FunctionDeclaration',
-/** 99 $efront_string__Funct1 */ 'FunctionExpression',
-/** 100 $efront_string__Ident */ 'Identifier',
-/** 101 $efront_string__IfSta */ 'IfStatement',
-/** 102 $efront_string__Liter */ 'Literal',
-/** 103 $efront_string__Label */ 'LabeledStatement',
-/** 104 $efront_string__Logic */ 'LogicalExpression',
-/** 105 $efront_string__Membe */ 'MemberExpression',
-/** 106 $efront_string__Metho */ 'MethodDefinition',
-/** 107 $efront_string__NewEx */ 'NewExpression',
-/** 108 $efront_string__Objec */ 'ObjectExpression',
-/** 109 $efront_string__Objec1 */ 'ObjectPattern',
-/** 110 $efront_string__Progr */ 'Program',
-/** 111 $efront_string__Prope */ 'Property',
-/** 112 $efront_string__Retur */ 'ReturnStatement',
-/** 113 $efront_string__Seque */ 'SequenceExpression',
-/** 114 $efront_string__Switc */ 'SwitchStatement',
-/** 115 $efront_string__Switc1 */ 'SwitchCase',
-/** 116 $efront_string__ThisE */ 'ThisExpression',
-/** 117 $efront_string__Throw */ 'ThrowStatement',
-/** 118 $efront_string__TrySt */ 'TryStatement',
-/** 119 $efront_string__Unary */ 'UnaryExpression',
-/** 120 $efront_string__Updat */ 'UpdateExpression',
-/** 121 $efront_string__Varia */ 'VariableDeclaration',
-/** 122 $efront_string__Varia1 */ 'VariableDeclarator',
-/** 123 $efront_string__While */ 'WhileStatement',
-/** 124 $efront_string__WithS */ 'WithStatement',
-/** 125 $efront_string__Yield */ 'YieldExpression',
-/** 126 $efront_string__isArr */ 'isArray',
-/** 127 $efront_string__toStr */ 'toString',
-/** 128 $efront_string__objec */ /** text */ '[object Array]',
-/** 129 $efront_string__objec1 */ 'object',
-/** 130 $efront_string__lengt1 */ 'length',
-/** 131 $efront_string__left_ */ 'left',
-/** 132 $efront_string__right */ 'right',
-/** 133 $efront_string__eleme */ 'elements',
-/** 134 $efront_string__param */ 'params',
-/** 135 $efront_string__defau */ 'defaults',
-/** 136 $efront_string__rest_ */ 'rest',
-/** 137 $efront_string__body_ */ 'body',
-/** 138 $efront_string__label */ 'label',
-/** 139 $efront_string__calle */ 'callee',
-/** 140 $efront_string__argum */ 'arguments',
-/** 141 $efront_string__param1 */ 'param',
-/** 142 $efront_string__id_ */ 'id',
-/** 143 $efront_string__super */ 'superClass',
-/** 144 $efront_string__conse */ 'consequent',
-/** 145 $efront_string__alter */ 'alternate',
-/** 146 $efront_string__expre */ 'expression',
-/** 147 $efront_string__init_ */ 'init',
-/** 148 $efront_string__updat */ 'update',
-/** 149 $efront_string__ForOf */ 'ForOfStatement',
-/** 150 $efront_string__prope */ 'property',
-/** 151 $efront_string__key_ */ 'key',
-/** 152 $efront_string__value1 */ 'value',
-/** 153 $efront_string__prope1 */ 'properties',
-/** 154 $efront_string__argum1 */ 'argument',
-/** 155 $efront_string__expre1 */ 'expressions',
-/** 156 $efront_string__discr */ 'discriminant',
-/** 157 $efront_string__cases */ 'cases',
-/** 158 $efront_string__block */ 'block',
-/** 159 $efront_string__handl */ 'handlers',
-/** 160 $efront_string__handl1 */ 'handler',
-/** 161 $efront_string__guard */ 'guardedHandlers',
-/** 162 $efront_string__final */ 'finalizer',
-/** 163 $efront_string__decla */ 'declarations',
-/** 164 $efront_string__Break1 */ 'Break',
-/** 165 $efront_string__Skip_ */ 'Skip',
-/** 166 $efront_string__paren */ 'parent',
-/** 167 $efront_string__repla */ 'replace',
-/** 168 $efront_string__node_ */ 'node',
-/** 169 $efront_string__path_ */ 'path',
-/** 170 $efront_string__wrap_ */ 'wrap',
-/** 171 $efront_string__ref_ */ 'ref',
-/** 172 $efront_string____cur */ '__current',
-/** 173 $efront_string____lea */ '__leavelist',
-/** 174 $efront_string__paren1 */ 'parents',
-/** 175 $efront_string__curre */ 'current',
-/** 176 $efront_string____exe */ '__execute',
-/** 177 $efront_string____sta */ '__state',
-/** 178 $efront_string__notif */ 'notify',
-/** 179 $efront_string__skip_ */ 'skip',
-/** 180 $efront_string__break */ 'break',
-/** 181 $efront_string____ini */ '__initialize',
-/** 182 $efront_string__visit */ 'visitor',
-/** 183 $efront_string__root_ */ 'root',
-/** 184 $efront_string____wor */ '__worklist',
-/** 185 $efront_string__trave */ 'traverse',
-/** 186 $efront_string__pop_ */ 'pop',
-/** 187 $efront_string__leave */ 'leave',
-/** 188 $efront_string__enter */ 'enter',
-/** 189 $efront_string__type_ */ 'type',
-/** 190 $efront_string__range */ 'range',
-/** 191 $efront_string__exten */ 'extendedRange',
-/** 192 $efront_string__attac */ /** text */ 'attachComments needs range information',
-/** 193 $efront_string__leadi */ 'leadingComments',
-/** 194 $efront_string__splic */ 'splice',
-/** 195 $efront_string__trail */ 'trailingComments',
-/** 196 $efront_string__versi */ 'version',
-/** 197 $efront_string__1_5_1 */ '1.5.1-dev',
-/** 198 $efront_string__Synta */ 'Syntax',
-/** 199 $efront_string__attac1 */ 'attachComments',
-/** 200 $efront_string__Visit */ 'VisitorKeys',
-/** 201 $efront_string__Visit1 */ 'VisitorOption',
-/** 202 $efront_string__Contr */ 'Controller',
-/** 203 estraverse$estraverse.js */ [70,69,71,72,68,73,74,75,39,50,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,52,127,62,128,55,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,37,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,64,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,function(define, exports, Array, Object, undefined, Error, $efront_string__funct1, $efront_string__amd_, $efront_string__expor1, $efront_string__undef, $efront_string__estra, $efront_string__Assig, $efront_string__Array, $efront_string__Array1, $efront_string__Arrow, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__Catch, $efront_string__Class, $efront_string__Class1, $efront_string__Class2, $efront_string__Condi, $efront_string__Conti, $efront_string__Debug, $efront_string__Direc, $efront_string__DoWhi, $efront_string__Empty, $efront_string__Expre, $efront_string__ForSt, $efront_string__ForIn, $efront_string__Funct, $efront_string__Funct1, $efront_string__Ident, $efront_string__IfSta, $efront_string__Liter, $efront_string__Label, $efront_string__Logic, $efront_string__Membe, $efront_string__Metho, $efront_string__NewEx, $efront_string__Objec, $efront_string__Objec1, $efront_string__Progr, $efront_string__Prope, $efront_string__Retur, $efront_string__Seque, $efront_string__Switc, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Unary, $efront_string__Updat, $efront_string__Varia, $efront_string__Varia1, $efront_string__While, $efront_string__WithS, $efront_string__Yield, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__hasOw, $efront_string__objec1, $efront_string__lengt1, $efront_string__left_, $efront_string__right, $efront_string__eleme, $efront_string__param, $efront_string__defau, $efront_string__rest_, $efront_string__body_, $efront_string__label, $efront_string__calle, $efront_string__argum, $efront_string__param1, $efront_string__id_, $efront_string__super, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__expre, $efront_string__init_, $efront_string__updat, $efront_string__ForOf, $efront_string__prope, $efront_string__key_, $efront_string__value1, $efront_string__prope1, $efront_string__argum1, $efront_string__expre1, $efront_string__discr, $efront_string__cases, $efront_string__block, $efront_string__handl, $efront_string__handl1, $efront_string__guard, $efront_string__final, $efront_string__decla, $efront_string__Break1, $efront_string__Skip_, $efront_string__paren, $efront_string__repla, $efront_string__node_, $efront_string__path_, $efront_string__wrap_, $efront_string__ref_, $efront_string__push_, $efront_string____cur, $efront_string____lea, $efront_string__paren1, $efront_string__curre, $efront_string____exe, $efront_string____sta, $efront_string__notif, $efront_string__skip_, $efront_string__break, $efront_string____ini, $efront_string__visit, $efront_string__root_, $efront_string____wor, $efront_string__trave, $efront_string__pop_, $efront_string__leave, $efront_string__enter, $efront_string__type_, $efront_string__range, $efront_string__exten, $efront_string__attac, $efront_string__leadi, $efront_string__splic, $efront_string__trail, $efront_string__versi, $efront_string__1_5_1, $efront_string__Synta, $efront_string__attac1, $efront_string__Visit, $efront_string__Visit1, $efront_string__Contr) {
+/** 67 undefined */ undefined,
+/** 68 exports */ [1417],
+/** 69 define */ typeof define!=="undefined"?define:void 0,
+/** 70 Object */ Object,
+/** 71 Error */ Error,
+/** 72 $efront_string__funct1 */ 'function',
+/** 73 $efront_string__amd_ */ 'amd',
+/** 74 $efront_string__estra */ 'estraverse',
+/** 75 $efront_string__Assig */ 'AssignmentExpression',
+/** 76 $efront_string__Array */ 'ArrayExpression',
+/** 77 $efront_string__Array1 */ 'ArrayPattern',
+/** 78 $efront_string__Arrow */ 'ArrowFunctionExpression',
+/** 79 $efront_string__Block */ 'BlockStatement',
+/** 80 $efront_string__Binar */ 'BinaryExpression',
+/** 81 $efront_string__Break */ 'BreakStatement',
+/** 82 $efront_string__CallE */ 'CallExpression',
+/** 83 $efront_string__Catch */ 'CatchClause',
+/** 84 $efront_string__Class */ 'ClassBody',
+/** 85 $efront_string__Class1 */ 'ClassDeclaration',
+/** 86 $efront_string__Class2 */ 'ClassExpression',
+/** 87 $efront_string__Condi */ 'ConditionalExpression',
+/** 88 $efront_string__Conti */ 'ContinueStatement',
+/** 89 $efront_string__Debug */ 'DebuggerStatement',
+/** 90 $efront_string__Direc */ 'DirectiveStatement',
+/** 91 $efront_string__DoWhi */ 'DoWhileStatement',
+/** 92 $efront_string__Empty */ 'EmptyStatement',
+/** 93 $efront_string__Expre */ 'ExpressionStatement',
+/** 94 $efront_string__ForSt */ 'ForStatement',
+/** 95 $efront_string__ForIn */ 'ForInStatement',
+/** 96 $efront_string__Funct */ 'FunctionDeclaration',
+/** 97 $efront_string__Funct1 */ 'FunctionExpression',
+/** 98 $efront_string__Ident */ 'Identifier',
+/** 99 $efront_string__IfSta */ 'IfStatement',
+/** 100 $efront_string__Liter */ 'Literal',
+/** 101 $efront_string__Label */ 'LabeledStatement',
+/** 102 $efront_string__Logic */ 'LogicalExpression',
+/** 103 $efront_string__Membe */ 'MemberExpression',
+/** 104 $efront_string__Metho */ 'MethodDefinition',
+/** 105 $efront_string__NewEx */ 'NewExpression',
+/** 106 $efront_string__Objec */ 'ObjectExpression',
+/** 107 $efront_string__Objec1 */ 'ObjectPattern',
+/** 108 $efront_string__Progr */ 'Program',
+/** 109 $efront_string__Prope */ 'Property',
+/** 110 $efront_string__Retur */ 'ReturnStatement',
+/** 111 $efront_string__Seque */ 'SequenceExpression',
+/** 112 $efront_string__Switc */ 'SwitchStatement',
+/** 113 $efront_string__Switc1 */ 'SwitchCase',
+/** 114 $efront_string__ThisE */ 'ThisExpression',
+/** 115 $efront_string__Throw */ 'ThrowStatement',
+/** 116 $efront_string__TrySt */ 'TryStatement',
+/** 117 $efront_string__Unary */ 'UnaryExpression',
+/** 118 $efront_string__Updat */ 'UpdateExpression',
+/** 119 $efront_string__Varia */ 'VariableDeclaration',
+/** 120 $efront_string__Varia1 */ 'VariableDeclarator',
+/** 121 $efront_string__While */ 'WhileStatement',
+/** 122 $efront_string__WithS */ 'WithStatement',
+/** 123 $efront_string__Yield */ 'YieldExpression',
+/** 124 $efront_string__isArr */ 'isArray',
+/** 125 $efront_string__toStr */ 'toString',
+/** 126 $efront_string__objec */ /** text */ '[object Array]',
+/** 127 $efront_string__objec1 */ 'object',
+/** 128 $efront_string__lengt1 */ 'length',
+/** 129 $efront_string__left_ */ 'left',
+/** 130 $efront_string__right */ 'right',
+/** 131 $efront_string__eleme */ 'elements',
+/** 132 $efront_string__param */ 'params',
+/** 133 $efront_string__defau */ 'defaults',
+/** 134 $efront_string__rest_ */ 'rest',
+/** 135 $efront_string__body_ */ 'body',
+/** 136 $efront_string__label */ 'label',
+/** 137 $efront_string__calle */ 'callee',
+/** 138 $efront_string__argum */ 'arguments',
+/** 139 $efront_string__param1 */ 'param',
+/** 140 $efront_string__id_ */ 'id',
+/** 141 $efront_string__super */ 'superClass',
+/** 142 $efront_string__conse */ 'consequent',
+/** 143 $efront_string__alter */ 'alternate',
+/** 144 $efront_string__expre */ 'expression',
+/** 145 $efront_string__init_ */ 'init',
+/** 146 $efront_string__updat */ 'update',
+/** 147 $efront_string__ForOf */ 'ForOfStatement',
+/** 148 $efront_string__prope */ 'property',
+/** 149 $efront_string__key_ */ 'key',
+/** 150 $efront_string__value1 */ 'value',
+/** 151 $efront_string__prope1 */ 'properties',
+/** 152 $efront_string__argum1 */ 'argument',
+/** 153 $efront_string__expre1 */ 'expressions',
+/** 154 $efront_string__discr */ 'discriminant',
+/** 155 $efront_string__cases */ 'cases',
+/** 156 $efront_string__block */ 'block',
+/** 157 $efront_string__handl */ 'handlers',
+/** 158 $efront_string__handl1 */ 'handler',
+/** 159 $efront_string__guard */ 'guardedHandlers',
+/** 160 $efront_string__final */ 'finalizer',
+/** 161 $efront_string__decla */ 'declarations',
+/** 162 $efront_string__Break1 */ 'Break',
+/** 163 $efront_string__Skip_ */ 'Skip',
+/** 164 $efront_string__paren */ 'parent',
+/** 165 $efront_string__repla */ 'replace',
+/** 166 $efront_string__node_ */ 'node',
+/** 167 $efront_string__path_ */ 'path',
+/** 168 $efront_string__wrap_ */ 'wrap',
+/** 169 $efront_string__ref_ */ 'ref',
+/** 170 $efront_string____cur */ '__current',
+/** 171 $efront_string____lea */ '__leavelist',
+/** 172 $efront_string__paren1 */ 'parents',
+/** 173 $efront_string__curre */ 'current',
+/** 174 $efront_string____exe */ '__execute',
+/** 175 $efront_string____sta */ '__state',
+/** 176 $efront_string__notif */ 'notify',
+/** 177 $efront_string__skip_ */ 'skip',
+/** 178 $efront_string__break */ 'break',
+/** 179 $efront_string____ini */ '__initialize',
+/** 180 $efront_string__visit */ 'visitor',
+/** 181 $efront_string__root_ */ 'root',
+/** 182 $efront_string____wor */ '__worklist',
+/** 183 $efront_string__trave */ 'traverse',
+/** 184 $efront_string__pop_ */ 'pop',
+/** 185 $efront_string__leave */ 'leave',
+/** 186 $efront_string__enter */ 'enter',
+/** 187 $efront_string__type_ */ 'type',
+/** 188 $efront_string__range */ 'range',
+/** 189 $efront_string__exten */ 'extendedRange',
+/** 190 $efront_string__attac */ /** text */ 'attachComments needs range information',
+/** 191 $efront_string__leadi */ 'leadingComments',
+/** 192 $efront_string__splic */ 'splice',
+/** 193 $efront_string__trail */ 'trailingComments',
+/** 194 $efront_string__versi */ 'version',
+/** 195 $efront_string__1_5_1 */ '1.5.1-dev',
+/** 196 $efront_string__Synta */ 'Syntax',
+/** 197 $efront_string__attac1 */ 'attachComments',
+/** 198 $efront_string__Visit */ 'VisitorKeys',
+/** 199 $efront_string__Visit1 */ 'VisitorOption',
+/** 200 $efront_string__Contr */ 'Controller',
+/** 201 estraverse$estraverse.js */ [69,68,15,70,67,71,72,73,38,49,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,51,125,61,126,54,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,36,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,63,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,function(define, exports, Array, Object, undefined, Error, $efront_string__funct1, $efront_string__amd_, $efront_string__expor1, $efront_string__undef, $efront_string__estra, $efront_string__Assig, $efront_string__Array, $efront_string__Array1, $efront_string__Arrow, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__Catch, $efront_string__Class, $efront_string__Class1, $efront_string__Class2, $efront_string__Condi, $efront_string__Conti, $efront_string__Debug, $efront_string__Direc, $efront_string__DoWhi, $efront_string__Empty, $efront_string__Expre, $efront_string__ForSt, $efront_string__ForIn, $efront_string__Funct, $efront_string__Funct1, $efront_string__Ident, $efront_string__IfSta, $efront_string__Liter, $efront_string__Label, $efront_string__Logic, $efront_string__Membe, $efront_string__Metho, $efront_string__NewEx, $efront_string__Objec, $efront_string__Objec1, $efront_string__Progr, $efront_string__Prope, $efront_string__Retur, $efront_string__Seque, $efront_string__Switc, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Unary, $efront_string__Updat, $efront_string__Varia, $efront_string__Varia1, $efront_string__While, $efront_string__WithS, $efront_string__Yield, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__hasOw, $efront_string__objec1, $efront_string__lengt1, $efront_string__left_, $efront_string__right, $efront_string__eleme, $efront_string__param, $efront_string__defau, $efront_string__rest_, $efront_string__body_, $efront_string__label, $efront_string__calle, $efront_string__argum, $efront_string__param1, $efront_string__id_, $efront_string__super, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__expre, $efront_string__init_, $efront_string__updat, $efront_string__ForOf, $efront_string__prope, $efront_string__key_, $efront_string__value1, $efront_string__prope1, $efront_string__argum1, $efront_string__expre1, $efront_string__discr, $efront_string__cases, $efront_string__block, $efront_string__handl, $efront_string__handl1, $efront_string__guard, $efront_string__final, $efront_string__decla, $efront_string__Break1, $efront_string__Skip_, $efront_string__paren, $efront_string__repla, $efront_string__node_, $efront_string__path_, $efront_string__wrap_, $efront_string__ref_, $efront_string__push_, $efront_string____cur, $efront_string____lea, $efront_string__paren1, $efront_string__curre, $efront_string____exe, $efront_string____sta, $efront_string__notif, $efront_string__skip_, $efront_string__break, $efront_string____ini, $efront_string__visit, $efront_string__root_, $efront_string____wor, $efront_string__trave, $efront_string__pop_, $efront_string__leave, $efront_string__enter, $efront_string__type_, $efront_string__range, $efront_string__exten, $efront_string__attac, $efront_string__leadi, $efront_string__splic, $efront_string__trail, $efront_string__versi, $efront_string__1_5_1, $efront_string__Synta, $efront_string__attac1, $efront_string__Visit, $efront_string__Visit1, $efront_string__Contr) {
     return function (root, factory) {
         'use strict';
         if (typeof define === $efront_string__funct1 && define[$efront_string__amd_]) {
@@ -845,104 +843,104 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         exports[$efront_string__Contr] = Controller
     })
 }],
-/** 204 $efront_string___from */ '_from',
-/** 205 $efront_string__essho */ 'esshorten@~1.1.0',
-/** 206 $efront_string___id_ */ '_id',
-/** 207 $efront_string__essho1 */ 'esshorten@1.1.1',
-/** 208 $efront_string___inBu */ '_inBundle',
-/** 209 $efront_string___inte */ '_integrity',
-/** 210 $efront_string__sha1_ */ 'sha1-F0+Wt8wmfkaHLYFOfbfCkL3/Yak=',
-/** 211 $efront_string___loca */ '_location',
-/** 212 $efront_string__essho2 */ '/esshorten',
-/** 213 $efront_string___phan */ '_phantomChildren',
-/** 214 $efront_string___requ */ '_requested',
-/** 215 $efront_string__regis */ 'registry',
-/** 216 $efront_string__raw_ */ 'raw',
-/** 217 $efront_string__name_ */ 'name',
-/** 218 $efront_string__essho3 */ 'esshorten',
-/** 219 $efront_string__escap */ 'escapedName',
-/** 220 $efront_string__rawSp */ 'rawSpec',
-/** 221 $efront_string__1_1_0 */ '~1.1.0',
-/** 222 $efront_string__saveS */ 'saveSpec',
-/** 223 $efront_string__fetch */ 'fetchSpec',
-/** 224 $efront_string___requ1 */ '_requiredBy',
-/** 225 $efront_string__esman */ '/esmangle',
-/** 226 $efront_string___reso */ '_resolved',
-/** 227 $efront_string__https */ 'https://registry.npm.taobao.org/esshorten/download/esshorten-1.1.1.tgz',
-/** 228 $efront_string___shas */ '_shasum',
-/** 229 $efront_string__174f9 */ '174f96b7cc267e46872d814e7db7c290bdff61a9',
-/** 230 $efront_string___spec */ '_spec',
-/** 231 $efront_string___wher */ '_where',
-/** 232 $efront_string__D_wor */ 'D:\\work\\efront2\\node_modules\\esmangle',
-/** 233 $efront_string__bugs_ */ 'bugs',
-/** 234 $efront_string__url_ */ 'url',
-/** 235 $efront_string__https1 */ 'https://github.com/estools/esshorten/issues',
-/** 236 $efront_string__bundl */ 'bundleDependencies',
-/** 237 $efront_string__depen */ 'dependencies',
-/** 238 $efront_string__escop */ 'escope',
-/** 239 $efront_string__1_0_1 */ '~1.0.1',
-/** 240 $efront_string__4_1_1 */ '~4.1.1',
-/** 241 $efront_string__esuti */ 'esutils',
-/** 242 $efront_string__2_0_2 */ '~2.0.2',
-/** 243 $efront_string__depre */ 'deprecated',
-/** 244 $efront_string__descr */ 'description',
-/** 245 $efront_string__Short */ /** text */ 'Shorten (mangle) names in JavaScript code',
-/** 246 $efront_string__devDe */ 'devDependencies',
-/** 247 $efront_string__chai_ */ 'chai',
-/** 248 $efront_string__ */ '*',
-/** 249 $efront_string__coffe */ 'coffee-script',
-/** 250 $efront_string__1_10_ */ '~1.10.0',
-/** 251 $efront_string__commo */ 'commonjs-everywhere',
-/** 252 $efront_string__0_9_7 */ '~0.9.7',
-/** 253 $efront_string__gulp_ */ 'gulp',
-/** 254 $efront_string__3_9_0 */ '~3.9.0',
-/** 255 $efront_string__gulp_1 */ 'gulp-jshint',
-/** 256 $efront_string__1_11_ */ '~1.11.2',
-/** 257 $efront_string__gulp_2 */ 'gulp-mocha',
-/** 258 $efront_string__2_1_3 */ '~2.1.3',
-/** 259 $efront_string__jshin */ 'jshint-stylish',
-/** 260 $efront_string__2_0_1 */ '~2.0.1',
-/** 261 $efront_string__direc */ 'directories',
-/** 262 $efront_string__lib_ */ 'lib',
-/** 263 $efront_string__lib_1 */ './lib',
-/** 264 $efront_string__engin */ 'engines',
-/** 265 $efront_string__0_6_0 */ '>=0.6.0',
-/** 266 $efront_string__homep */ 'homepage',
-/** 267 $efront_string__https2 */ 'https://github.com/estools/esshorten#readme',
-/** 268 $efront_string__licen */ 'licenses',
-/** 269 $efront_string__BSD_ */ 'BSD',
-/** 270 $efront_string__http_ */ 'http://github.com/estools/esshorten/raw/master/LICENSE.BSD',
-/** 271 $efront_string__main_ */ 'main',
-/** 272 $efront_string__lib_e */ 'lib/esshorten.js',
-/** 273 $efront_string__maint */ 'maintainers',
-/** 274 $efront_string__Yusuk */ /** text */ 'Yusuke Suzuki',
-/** 275 $efront_string__email */ 'email',
-/** 276 $efront_string__utata */ 'utatane.tea@gmail.com',
-/** 277 $efront_string__http_1 */ 'http://github.com/Constellation',
-/** 278 $efront_string__repos */ 'repository',
-/** 279 $efront_string__git_ */ 'git',
-/** 280 $efront_string__git_s */ 'git+ssh://git@github.com/estools/esshorten.git',
-/** 281 $efront_string__scrip */ 'scripts',
-/** 282 $efront_string__lint_ */ 'lint',
-/** 283 $efront_string__gulp_3 */ /** text */ 'gulp lint',
-/** 284 $efront_string__gulp_4 */ /** text */ 'gulp travis',
-/** 285 $efront_string__unit_ */ 'unit-test',
-/** 286 $efront_string__gulp_5 */ /** text */ 'gulp test',
-/** 287 $efront_string__1_1_1 */ '1.1.1',
-/** 288 esshorten$package.json */ [204,205,206,207,208,209,210,211,212,213,214,189,190,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,76,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,168,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,37,284,285,286,196,287,function($efront_string___from, $efront_string__essho, $efront_string___id_, $efront_string__essho1, $efront_string___inBu, $efront_string___inte, $efront_string__sha1_, $efront_string___loca, $efront_string__essho2, $efront_string___phan, $efront_string___requ, $efront_string__type_, $efront_string__range, $efront_string__regis, $efront_string__raw_, $efront_string__name_, $efront_string__essho3, $efront_string__escap, $efront_string__rawSp, $efront_string__1_1_0, $efront_string__saveS, $efront_string__fetch, $efront_string___requ1, $efront_string__esman, $efront_string___reso, $efront_string__https, $efront_string___shas, $efront_string__174f9, $efront_string___spec, $efront_string___wher, $efront_string__D_wor, $efront_string__bugs_, $efront_string__url_, $efront_string__https1, $efront_string__bundl, $efront_string__depen, $efront_string__escop, $efront_string__1_0_1, $efront_string__estra, $efront_string__4_1_1, $efront_string__esuti, $efront_string__2_0_2, $efront_string__depre, $efront_string__descr, $efront_string__Short, $efront_string__devDe, $efront_string__chai_, $efront_string__, $efront_string__coffe, $efront_string__1_10_, $efront_string__commo, $efront_string__0_9_7, $efront_string__gulp_, $efront_string__3_9_0, $efront_string__gulp_1, $efront_string__1_11_, $efront_string__gulp_2, $efront_string__2_1_3, $efront_string__jshin, $efront_string__2_0_1, $efront_string__direc, $efront_string__lib_, $efront_string__lib_1, $efront_string__engin, $efront_string__node_, $efront_string__0_6_0, $efront_string__homep, $efront_string__https2, $efront_string__licen, $efront_string__BSD_, $efront_string__http_, $efront_string__main_, $efront_string__lib_e, $efront_string__maint, $efront_string__Yusuk, $efront_string__email, $efront_string__utata, $efront_string__http_1, $efront_string__repos, $efront_string__git_, $efront_string__git_s, $efront_string__scrip, $efront_string__lint_, $efront_string__gulp_3, $efront_string__test_, $efront_string__gulp_4, $efront_string__unit_, $efront_string__gulp_5, $efront_string__versi, $efront_string__1_1_1) {
+/** 202 $efront_string___from */ '_from',
+/** 203 $efront_string__essho */ 'esshorten@~1.1.0',
+/** 204 $efront_string___id_ */ '_id',
+/** 205 $efront_string__essho1 */ 'esshorten@1.1.1',
+/** 206 $efront_string___inBu */ '_inBundle',
+/** 207 $efront_string___inte */ '_integrity',
+/** 208 $efront_string__sha1_ */ 'sha1-F0+Wt8wmfkaHLYFOfbfCkL3/Yak=',
+/** 209 $efront_string___loca */ '_location',
+/** 210 $efront_string__essho2 */ '/esshorten',
+/** 211 $efront_string___phan */ '_phantomChildren',
+/** 212 $efront_string___requ */ '_requested',
+/** 213 $efront_string__regis */ 'registry',
+/** 214 $efront_string__raw_ */ 'raw',
+/** 215 $efront_string__name_ */ 'name',
+/** 216 $efront_string__essho3 */ 'esshorten',
+/** 217 $efront_string__escap */ 'escapedName',
+/** 218 $efront_string__rawSp */ 'rawSpec',
+/** 219 $efront_string__1_1_0 */ '~1.1.0',
+/** 220 $efront_string__saveS */ 'saveSpec',
+/** 221 $efront_string__fetch */ 'fetchSpec',
+/** 222 $efront_string___requ1 */ '_requiredBy',
+/** 223 $efront_string__esman */ '/esmangle',
+/** 224 $efront_string___reso */ '_resolved',
+/** 225 $efront_string__https */ 'https://registry.npm.taobao.org/esshorten/download/esshorten-1.1.1.tgz',
+/** 226 $efront_string___shas */ '_shasum',
+/** 227 $efront_string__174f9 */ '174f96b7cc267e46872d814e7db7c290bdff61a9',
+/** 228 $efront_string___spec */ '_spec',
+/** 229 $efront_string___wher */ '_where',
+/** 230 $efront_string__D_wor */ 'D:\\work\\efront2\\node_modules\\esmangle',
+/** 231 $efront_string__bugs_ */ 'bugs',
+/** 232 $efront_string__url_ */ 'url',
+/** 233 $efront_string__https1 */ 'https://github.com/estools/esshorten/issues',
+/** 234 $efront_string__bundl */ 'bundleDependencies',
+/** 235 $efront_string__depen */ 'dependencies',
+/** 236 $efront_string__escop */ 'escope',
+/** 237 $efront_string__1_0_1 */ '~1.0.1',
+/** 238 $efront_string__4_1_1 */ '~4.1.1',
+/** 239 $efront_string__esuti */ 'esutils',
+/** 240 $efront_string__2_0_2 */ '~2.0.2',
+/** 241 $efront_string__depre */ 'deprecated',
+/** 242 $efront_string__descr */ 'description',
+/** 243 $efront_string__Short */ /** text */ 'Shorten (mangle) names in JavaScript code',
+/** 244 $efront_string__devDe */ 'devDependencies',
+/** 245 $efront_string__chai_ */ 'chai',
+/** 246 $efront_string__ */ '*',
+/** 247 $efront_string__coffe */ 'coffee-script',
+/** 248 $efront_string__1_10_ */ '~1.10.0',
+/** 249 $efront_string__commo */ 'commonjs-everywhere',
+/** 250 $efront_string__0_9_7 */ '~0.9.7',
+/** 251 $efront_string__gulp_ */ 'gulp',
+/** 252 $efront_string__3_9_0 */ '~3.9.0',
+/** 253 $efront_string__gulp_1 */ 'gulp-jshint',
+/** 254 $efront_string__1_11_ */ '~1.11.2',
+/** 255 $efront_string__gulp_2 */ 'gulp-mocha',
+/** 256 $efront_string__2_1_3 */ '~2.1.3',
+/** 257 $efront_string__jshin */ 'jshint-stylish',
+/** 258 $efront_string__2_0_1 */ '~2.0.1',
+/** 259 $efront_string__direc */ 'directories',
+/** 260 $efront_string__lib_ */ 'lib',
+/** 261 $efront_string__lib_1 */ './lib',
+/** 262 $efront_string__engin */ 'engines',
+/** 263 $efront_string__0_6_0 */ '>=0.6.0',
+/** 264 $efront_string__homep */ 'homepage',
+/** 265 $efront_string__https2 */ 'https://github.com/estools/esshorten#readme',
+/** 266 $efront_string__licen */ 'licenses',
+/** 267 $efront_string__BSD_ */ 'BSD',
+/** 268 $efront_string__http_ */ 'http://github.com/estools/esshorten/raw/master/LICENSE.BSD',
+/** 269 $efront_string__main_ */ 'main',
+/** 270 $efront_string__lib_e */ 'lib/esshorten.js',
+/** 271 $efront_string__maint */ 'maintainers',
+/** 272 $efront_string__Yusuk */ /** text */ 'Yusuke Suzuki',
+/** 273 $efront_string__email */ 'email',
+/** 274 $efront_string__utata */ 'utatane.tea@gmail.com',
+/** 275 $efront_string__http_1 */ 'http://github.com/Constellation',
+/** 276 $efront_string__repos */ 'repository',
+/** 277 $efront_string__git_ */ 'git',
+/** 278 $efront_string__git_s */ 'git+ssh://git@github.com/estools/esshorten.git',
+/** 279 $efront_string__scrip */ 'scripts',
+/** 280 $efront_string__lint_ */ 'lint',
+/** 281 $efront_string__gulp_3 */ /** text */ 'gulp lint',
+/** 282 $efront_string__gulp_4 */ /** text */ 'gulp travis',
+/** 283 $efront_string__unit_ */ 'unit-test',
+/** 284 $efront_string__gulp_5 */ /** text */ 'gulp test',
+/** 285 $efront_string__1_1_1 */ '1.1.1',
+/** 286 esshorten$package.json */ [202,203,204,205,206,207,208,209,210,211,212,187,188,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,74,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,166,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,36,282,283,284,194,285,function($efront_string___from, $efront_string__essho, $efront_string___id_, $efront_string__essho1, $efront_string___inBu, $efront_string___inte, $efront_string__sha1_, $efront_string___loca, $efront_string__essho2, $efront_string___phan, $efront_string___requ, $efront_string__type_, $efront_string__range, $efront_string__regis, $efront_string__raw_, $efront_string__name_, $efront_string__essho3, $efront_string__escap, $efront_string__rawSp, $efront_string__1_1_0, $efront_string__saveS, $efront_string__fetch, $efront_string___requ1, $efront_string__esman, $efront_string___reso, $efront_string__https, $efront_string___shas, $efront_string__174f9, $efront_string___spec, $efront_string___wher, $efront_string__D_wor, $efront_string__bugs_, $efront_string__url_, $efront_string__https1, $efront_string__bundl, $efront_string__depen, $efront_string__escop, $efront_string__1_0_1, $efront_string__estra, $efront_string__4_1_1, $efront_string__esuti, $efront_string__2_0_2, $efront_string__depre, $efront_string__descr, $efront_string__Short, $efront_string__devDe, $efront_string__chai_, $efront_string__, $efront_string__coffe, $efront_string__1_10_, $efront_string__commo, $efront_string__0_9_7, $efront_string__gulp_, $efront_string__3_9_0, $efront_string__gulp_1, $efront_string__1_11_, $efront_string__gulp_2, $efront_string__2_1_3, $efront_string__jshin, $efront_string__2_0_1, $efront_string__direc, $efront_string__lib_, $efront_string__lib_1, $efront_string__engin, $efront_string__node_, $efront_string__0_6_0, $efront_string__homep, $efront_string__https2, $efront_string__licen, $efront_string__BSD_, $efront_string__http_, $efront_string__main_, $efront_string__lib_e, $efront_string__maint, $efront_string__Yusuk, $efront_string__email, $efront_string__utata, $efront_string__http_1, $efront_string__repos, $efront_string__git_, $efront_string__git_s, $efront_string__scrip, $efront_string__lint_, $efront_string__gulp_3, $efront_string__test_, $efront_string__gulp_4, $efront_string__unit_, $efront_string__gulp_5, $efront_string__versi, $efront_string__1_1_1) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
     return _a = {}, _a[$efront_string___from] = $efront_string__essho, _a[$efront_string___id_] = $efront_string__essho1, _a[$efront_string___inBu] = false, _a[$efront_string___inte] = $efront_string__sha1_, _a[$efront_string___loca] = $efront_string__essho2, _a[$efront_string___phan] = {}, _a[$efront_string___requ] = (_b = {}, _b[$efront_string__type_] = $efront_string__range, _b[$efront_string__regis] = true, _b[$efront_string__raw_] = $efront_string__essho, _b[$efront_string__name_] = $efront_string__essho3, _b[$efront_string__escap] = $efront_string__essho3, _b[$efront_string__rawSp] = $efront_string__1_1_0, _b[$efront_string__saveS] = null, _b[$efront_string__fetch] = $efront_string__1_1_0, _b), _a[$efront_string___requ1] = [$efront_string__esman], _a[$efront_string___reso] = $efront_string__https, _a[$efront_string___shas] = $efront_string__174f9, _a[$efront_string___spec] = $efront_string__essho, _a[$efront_string___wher] = $efront_string__D_wor, _a[$efront_string__bugs_] = (_c = {}, _c[$efront_string__url_] = $efront_string__https1, _c), _a[$efront_string__bundl] = false, _a[$efront_string__depen] = (_d = {}, _d[$efront_string__escop] = $efront_string__1_0_1, _d[$efront_string__estra] = $efront_string__4_1_1, _d[$efront_string__esuti] = $efront_string__2_0_2, _d), _a[$efront_string__depre] = false, _a[$efront_string__descr] = $efront_string__Short, _a[$efront_string__devDe] = (_e = {}, _e[$efront_string__chai_] = $efront_string__, _e[$efront_string__coffe] = $efront_string__1_10_, _e[$efront_string__commo] = $efront_string__0_9_7, _e[$efront_string__gulp_] = $efront_string__3_9_0, _e[$efront_string__gulp_1] = $efront_string__1_11_, _e[$efront_string__gulp_2] = $efront_string__2_1_3, _e[$efront_string__jshin] = $efront_string__2_0_1, _e), _a[$efront_string__direc] = (_f = {}, _f[$efront_string__lib_] = $efront_string__lib_1, _f), _a[$efront_string__engin] = (_g = {}, _g[$efront_string__node_] = $efront_string__0_6_0, _g), _a[$efront_string__homep] = $efront_string__https2, _a[$efront_string__licen] = [(_h = {}, _h[$efront_string__type_] = $efront_string__BSD_, _h[$efront_string__url_] = $efront_string__http_, _h)], _a[$efront_string__main_] = $efront_string__lib_e, _a[$efront_string__maint] = [(_j = {}, _j[$efront_string__name_] = $efront_string__Yusuk, _j[$efront_string__email] = $efront_string__utata, _j[$efront_string__url_] = $efront_string__http_1, _j)], _a[$efront_string__name_] = $efront_string__essho3, _a[$efront_string__repos] = (_k = {}, _k[$efront_string__type_] = $efront_string__git_, _k[$efront_string__url_] = $efront_string__git_s, _k), _a[$efront_string__scrip] = (_l = {}, _l[$efront_string__lint_] = $efront_string__gulp_3, _l[$efront_string__test_] = $efront_string__gulp_4, _l[$efront_string__unit_] = $efront_string__gulp_5, _l), _a[$efront_string__versi] = $efront_string__1_1_1, _a
 }],
-/** 289 $efront_string__lastI */ 'lastIndexOf',
-/** 290 $efront_string_____ */ '__',
-/** 291 $efront_string__0_ */ '0',
-/** 292 $efront_string__01234 */ '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$',
-/** 293 $efront_string__split1 */ 'split',
-/** 294 $efront_string__charA */ 'charAt',
-/** 295 $efront_string__a_1 */ 'a',
-/** 296 $efront_string__gener */ 'generateNextName',
-/** 297 $efront_string__deepC */ 'deepCopy',
-/** 298 esshorten$lib$utility.js */ [71,72,30,68,69,126,52,127,62,128,289,290,55,129,291,292,293,130,294,36,61,295,296,297,function(Array, Object, RegExp, undefined, exports, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__lastI, $efront_string_____, $efront_string__hasOw, $efront_string__objec1, $efront_string__0_, $efront_string__01234, $efront_string__split1, $efront_string__lengt1, $efront_string__charA, $efront_string__index1, $efront_string__subst, $efront_string__a_1, $efront_string__gener, $efront_string__deepC) {
+/** 287 $efront_string__lastI */ 'lastIndexOf',
+/** 288 $efront_string_____ */ '__',
+/** 289 $efront_string__0_ */ '0',
+/** 290 $efront_string__01234 */ '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$',
+/** 291 $efront_string__split1 */ 'split',
+/** 292 $efront_string__charA */ 'charAt',
+/** 293 $efront_string__a_1 */ 'a',
+/** 294 $efront_string__gener */ 'generateNextName',
+/** 295 $efront_string__deepC */ 'deepCopy',
+/** 296 esshorten$lib$utility.js */ [15,70,30,67,68,124,51,125,61,126,287,288,54,127,289,290,291,128,292,35,60,293,294,295,function(Array, Object, RegExp, undefined, exports, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__lastI, $efront_string_____, $efront_string__hasOw, $efront_string__objec1, $efront_string__0_, $efront_string__01234, $efront_string__split1, $efront_string__lengt1, $efront_string__charA, $efront_string__index1, $efront_string__subst, $efront_string__a_1, $efront_string__gener, $efront_string__deepC) {
     return function () {
         'use strict';
         var isArray, NameSequence, ZeroSequenceCache;
@@ -1012,7 +1010,7 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         exports[$efront_string__deepC] = deepCopy
     }()
 }],
-/** 299 esshorten$lib$map.js */ [48,29,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,39,function(global, module, $efront_string__Map_, $efront_string__undef, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__hasOw, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__clear, $efront_string__forEa, $efront_string__subst, $efront_string__call_1, $efront_string__keys_, $efront_string__push_, $efront_string__value, $efront_string__items, $efront_string__expor1) {
+/** 297 esshorten$lib$map.js */ [47,29,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,38,function(global, module, $efront_string__Map_, $efront_string__undef, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__hasOw, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__clear, $efront_string__forEa, $efront_string__subst, $efront_string__call_1, $efront_string__keys_, $efront_string__push_, $efront_string__value, $efront_string__items, $efront_string__expor1) {
     return function () {
         'use strict';
         var Map;
@@ -1089,125 +1087,125 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = Map
     }()
 }],
-/** 300 Number */ Number,
-/** 301 estraverse */ [1,function(require) {
-    return require(203)
+/** 298 Number */ Number,
+/** 299 estraverse */ [1,function(require) {
+    return require(201)
 }],
-/** 302 $efront_string__esman1 */ 'esmangle@latest',
-/** 303 $efront_string__esman2 */ 'esmangle@1.0.1',
-/** 304 $efront_string__sha1_1 */ 'sha1-2bs3uPjq+/Tm1O1reqKVarvTxMI=',
-/** 305 $efront_string__tag_ */ 'tag',
-/** 306 $efront_string__esman3 */ 'esmangle',
-/** 307 $efront_string__lates */ 'latest',
-/** 308 $efront_string__USER_ */ '#USER',
-/** 309 $efront_string__1 */ '/',
-/** 310 $efront_string__https3 */ 'https://registry.npm.taobao.org/esmangle/download/esmangle-1.0.1.tgz',
-/** 311 $efront_string__d9bb3 */ 'd9bb37b8f8eafbf4e6d4ed6b7aa2956abbd3c4c2',
-/** 312 $efront_string__D_wor1 */ 'D:\\work\\efront2',
-/** 313 $efront_string__bin_ */ 'bin',
-/** 314 $efront_string__bin_e */ 'bin/esmangle.js',
-/** 315 $efront_string__https4 */ 'https://github.com/Constellation/esmangle/issues',
-/** 316 $efront_string__escod */ 'escodegen',
-/** 317 $efront_string__1_3_2 */ '~1.3.2',
-/** 318 $efront_string__espri */ 'esprima',
-/** 319 $efront_string__1_1_2 */ '~1.1.1',
-/** 320 $efront_string__1_5_0 */ '~1.5.0',
-/** 321 $efront_string__1_0_0 */ /** text */ '~ 1.0.0',
-/** 322 $efront_string__optio */ 'optionator',
-/** 323 $efront_string__0_3_0 */ '~0.3.0',
-/** 324 $efront_string__sourc */ 'source-map',
-/** 325 $efront_string__0_1_3 */ '~0.1.33',
-/** 326 $efront_string__ECMAS */ /** text */ 'ECMAScript code mangler / minifier',
-/** 327 $efront_string__async */ 'async',
-/** 328 $efront_string__0_2_9 */ '~0.2.9',
-/** 329 $efront_string__clone */ 'clone',
-/** 330 $efront_string__0_1_1 */ '~0.1.11',
-/** 331 $efront_string__0_9_4 */ '~0.9.4',
-/** 332 $efront_string__grunt */ 'grunt',
-/** 333 $efront_string__0_4_2 */ '~0.4.2',
-/** 334 $efront_string__grunt1 */ 'grunt-cli',
-/** 335 $efront_string__grunt2 */ 'grunt-contrib-clean',
-/** 336 $efront_string__0_5_0 */ '~0.5.0',
-/** 337 $efront_string__grunt3 */ 'grunt-contrib-copy',
-/** 338 $efront_string__grunt4 */ 'grunt-contrib-jshint',
-/** 339 $efront_string__0_8_0 */ '~0.8.0',
-/** 340 $efront_string__grunt5 */ 'grunt-mocha-test',
-/** 341 $efront_string__0_8_1 */ '~0.8.1',
-/** 342 $efront_string__grunt6 */ 'grunt-shell',
-/** 343 $efront_string__0_6_1 */ '~0.6.1',
-/** 344 $efront_string__grunt7 */ 'grunt-update-submodules',
-/** 345 $efront_string__0_2_1 */ '~0.2.1',
-/** 346 $efront_string__q_ */ 'q',
-/** 347 $efront_string__http_2 */ 'http://github.com/Constellation/esmangle.html',
-/** 348 $efront_string__http_3 */ 'http://github.com/Constellation/esmangle/raw/master/LICENSE.BSD',
-/** 349 $efront_string__lib_e1 */ 'lib/esmangle.js',
-/** 350 $efront_string__git_s1 */ 'git+ssh://git@github.com/Constellation/esmangle.git',
-/** 351 $efront_string__build */ 'build',
-/** 352 $efront_string__grunt8 */ /** text */ 'grunt build',
-/** 353 $efront_string__grunt9 */ /** text */ 'grunt lint',
-/** 354 $efront_string__regre */ 'regression-test',
-/** 355 $efront_string__grunt10 */ /** text */ 'grunt test:regression',
-/** 356 $efront_string__grunt11 */ /** text */ 'grunt travis',
-/** 357 $efront_string__grunt12 */ /** text */ 'grunt test',
-/** 358 $efront_string__1_0_2 */ '1.0.1',
-/** 359 esmangle$package.json */ [204,302,206,303,208,209,304,211,225,213,214,189,305,215,216,217,306,219,220,307,222,223,224,308,309,226,310,228,311,230,231,312,313,314,233,234,315,236,237,316,317,238,239,318,319,218,221,76,320,241,321,322,323,324,325,243,244,326,246,327,328,247,248,329,330,251,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,252,261,262,263,264,168,265,266,347,268,269,348,271,349,273,274,275,276,277,278,279,350,281,351,352,282,353,354,355,37,356,285,357,196,358,function($efront_string___from, $efront_string__esman1, $efront_string___id_, $efront_string__esman2, $efront_string___inBu, $efront_string___inte, $efront_string__sha1_1, $efront_string___loca, $efront_string__esman, $efront_string___phan, $efront_string___requ, $efront_string__type_, $efront_string__tag_, $efront_string__regis, $efront_string__raw_, $efront_string__name_, $efront_string__esman3, $efront_string__escap, $efront_string__rawSp, $efront_string__lates, $efront_string__saveS, $efront_string__fetch, $efront_string___requ1, $efront_string__USER_, $efront_string__1, $efront_string___reso, $efront_string__https3, $efront_string___shas, $efront_string__d9bb3, $efront_string___spec, $efront_string___wher, $efront_string__D_wor1, $efront_string__bin_, $efront_string__bin_e, $efront_string__bugs_, $efront_string__url_, $efront_string__https4, $efront_string__bundl, $efront_string__depen, $efront_string__escod, $efront_string__1_3_2, $efront_string__escop, $efront_string__1_0_1, $efront_string__espri, $efront_string__1_1_2, $efront_string__essho3, $efront_string__1_1_0, $efront_string__estra, $efront_string__1_5_0, $efront_string__esuti, $efront_string__1_0_0, $efront_string__optio, $efront_string__0_3_0, $efront_string__sourc, $efront_string__0_1_3, $efront_string__depre, $efront_string__descr, $efront_string__ECMAS, $efront_string__devDe, $efront_string__async, $efront_string__0_2_9, $efront_string__chai_, $efront_string__, $efront_string__clone, $efront_string__0_1_1, $efront_string__commo, $efront_string__0_9_4, $efront_string__grunt, $efront_string__0_4_2, $efront_string__grunt1, $efront_string__grunt2, $efront_string__0_5_0, $efront_string__grunt3, $efront_string__grunt4, $efront_string__0_8_0, $efront_string__grunt5, $efront_string__0_8_1, $efront_string__grunt6, $efront_string__0_6_1, $efront_string__grunt7, $efront_string__0_2_1, $efront_string__q_, $efront_string__0_9_7, $efront_string__direc, $efront_string__lib_, $efront_string__lib_1, $efront_string__engin, $efront_string__node_, $efront_string__0_6_0, $efront_string__homep, $efront_string__http_2, $efront_string__licen, $efront_string__BSD_, $efront_string__http_3, $efront_string__main_, $efront_string__lib_e1, $efront_string__maint, $efront_string__Yusuk, $efront_string__email, $efront_string__utata, $efront_string__http_1, $efront_string__repos, $efront_string__git_, $efront_string__git_s1, $efront_string__scrip, $efront_string__build, $efront_string__grunt8, $efront_string__lint_, $efront_string__grunt9, $efront_string__regre, $efront_string__grunt10, $efront_string__test_, $efront_string__grunt11, $efront_string__unit_, $efront_string__grunt12, $efront_string__versi, $efront_string__1_0_2) {
+/** 300 $efront_string__esman1 */ 'esmangle@latest',
+/** 301 $efront_string__esman2 */ 'esmangle@1.0.1',
+/** 302 $efront_string__sha1_1 */ 'sha1-2bs3uPjq+/Tm1O1reqKVarvTxMI=',
+/** 303 $efront_string__tag_ */ 'tag',
+/** 304 $efront_string__esman3 */ 'esmangle',
+/** 305 $efront_string__lates */ 'latest',
+/** 306 $efront_string__USER_ */ '#USER',
+/** 307 $efront_string__1 */ '/',
+/** 308 $efront_string__https3 */ 'https://registry.npm.taobao.org/esmangle/download/esmangle-1.0.1.tgz',
+/** 309 $efront_string__d9bb3 */ 'd9bb37b8f8eafbf4e6d4ed6b7aa2956abbd3c4c2',
+/** 310 $efront_string__D_wor1 */ 'D:\\work\\efront2',
+/** 311 $efront_string__bin_ */ 'bin',
+/** 312 $efront_string__bin_e */ 'bin/esmangle.js',
+/** 313 $efront_string__https4 */ 'https://github.com/Constellation/esmangle/issues',
+/** 314 $efront_string__escod */ 'escodegen',
+/** 315 $efront_string__1_3_2 */ '~1.3.2',
+/** 316 $efront_string__espri */ 'esprima',
+/** 317 $efront_string__1_1_2 */ '~1.1.1',
+/** 318 $efront_string__1_5_0 */ '~1.5.0',
+/** 319 $efront_string__1_0_0 */ /** text */ '~ 1.0.0',
+/** 320 $efront_string__optio */ 'optionator',
+/** 321 $efront_string__0_3_0 */ '~0.3.0',
+/** 322 $efront_string__sourc */ 'source-map',
+/** 323 $efront_string__0_1_3 */ '~0.1.33',
+/** 324 $efront_string__ECMAS */ /** text */ 'ECMAScript code mangler / minifier',
+/** 325 $efront_string__async */ 'async',
+/** 326 $efront_string__0_2_9 */ '~0.2.9',
+/** 327 $efront_string__clone */ 'clone',
+/** 328 $efront_string__0_1_1 */ '~0.1.11',
+/** 329 $efront_string__0_9_4 */ '~0.9.4',
+/** 330 $efront_string__grunt */ 'grunt',
+/** 331 $efront_string__0_4_2 */ '~0.4.2',
+/** 332 $efront_string__grunt1 */ 'grunt-cli',
+/** 333 $efront_string__grunt2 */ 'grunt-contrib-clean',
+/** 334 $efront_string__0_5_0 */ '~0.5.0',
+/** 335 $efront_string__grunt3 */ 'grunt-contrib-copy',
+/** 336 $efront_string__grunt4 */ 'grunt-contrib-jshint',
+/** 337 $efront_string__0_8_0 */ '~0.8.0',
+/** 338 $efront_string__grunt5 */ 'grunt-mocha-test',
+/** 339 $efront_string__0_8_1 */ '~0.8.1',
+/** 340 $efront_string__grunt6 */ 'grunt-shell',
+/** 341 $efront_string__0_6_1 */ '~0.6.1',
+/** 342 $efront_string__grunt7 */ 'grunt-update-submodules',
+/** 343 $efront_string__0_2_1 */ '~0.2.1',
+/** 344 $efront_string__q_ */ 'q',
+/** 345 $efront_string__http_2 */ 'http://github.com/Constellation/esmangle.html',
+/** 346 $efront_string__http_3 */ 'http://github.com/Constellation/esmangle/raw/master/LICENSE.BSD',
+/** 347 $efront_string__lib_e1 */ 'lib/esmangle.js',
+/** 348 $efront_string__git_s1 */ 'git+ssh://git@github.com/Constellation/esmangle.git',
+/** 349 $efront_string__build */ 'build',
+/** 350 $efront_string__grunt8 */ /** text */ 'grunt build',
+/** 351 $efront_string__grunt9 */ /** text */ 'grunt lint',
+/** 352 $efront_string__regre */ 'regression-test',
+/** 353 $efront_string__grunt10 */ /** text */ 'grunt test:regression',
+/** 354 $efront_string__grunt11 */ /** text */ 'grunt travis',
+/** 355 $efront_string__grunt12 */ /** text */ 'grunt test',
+/** 356 $efront_string__1_0_2 */ '1.0.1',
+/** 357 esmangle$package.json */ [202,300,204,301,206,207,302,209,223,211,212,187,303,213,214,215,304,217,218,305,220,221,222,306,307,224,308,226,309,228,229,310,311,312,231,232,313,234,235,314,315,236,237,316,317,216,219,74,318,239,319,320,321,322,323,241,242,324,244,325,326,245,246,327,328,249,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,250,259,260,261,262,166,263,264,345,266,267,346,269,347,271,272,273,274,275,276,277,348,279,349,350,280,351,352,353,36,354,283,355,194,356,function($efront_string___from, $efront_string__esman1, $efront_string___id_, $efront_string__esman2, $efront_string___inBu, $efront_string___inte, $efront_string__sha1_1, $efront_string___loca, $efront_string__esman, $efront_string___phan, $efront_string___requ, $efront_string__type_, $efront_string__tag_, $efront_string__regis, $efront_string__raw_, $efront_string__name_, $efront_string__esman3, $efront_string__escap, $efront_string__rawSp, $efront_string__lates, $efront_string__saveS, $efront_string__fetch, $efront_string___requ1, $efront_string__USER_, $efront_string__1, $efront_string___reso, $efront_string__https3, $efront_string___shas, $efront_string__d9bb3, $efront_string___spec, $efront_string___wher, $efront_string__D_wor1, $efront_string__bin_, $efront_string__bin_e, $efront_string__bugs_, $efront_string__url_, $efront_string__https4, $efront_string__bundl, $efront_string__depen, $efront_string__escod, $efront_string__1_3_2, $efront_string__escop, $efront_string__1_0_1, $efront_string__espri, $efront_string__1_1_2, $efront_string__essho3, $efront_string__1_1_0, $efront_string__estra, $efront_string__1_5_0, $efront_string__esuti, $efront_string__1_0_0, $efront_string__optio, $efront_string__0_3_0, $efront_string__sourc, $efront_string__0_1_3, $efront_string__depre, $efront_string__descr, $efront_string__ECMAS, $efront_string__devDe, $efront_string__async, $efront_string__0_2_9, $efront_string__chai_, $efront_string__, $efront_string__clone, $efront_string__0_1_1, $efront_string__commo, $efront_string__0_9_4, $efront_string__grunt, $efront_string__0_4_2, $efront_string__grunt1, $efront_string__grunt2, $efront_string__0_5_0, $efront_string__grunt3, $efront_string__grunt4, $efront_string__0_8_0, $efront_string__grunt5, $efront_string__0_8_1, $efront_string__grunt6, $efront_string__0_6_1, $efront_string__grunt7, $efront_string__0_2_1, $efront_string__q_, $efront_string__0_9_7, $efront_string__direc, $efront_string__lib_, $efront_string__lib_1, $efront_string__engin, $efront_string__node_, $efront_string__0_6_0, $efront_string__homep, $efront_string__http_2, $efront_string__licen, $efront_string__BSD_, $efront_string__http_3, $efront_string__main_, $efront_string__lib_e1, $efront_string__maint, $efront_string__Yusuk, $efront_string__email, $efront_string__utata, $efront_string__http_1, $efront_string__repos, $efront_string__git_, $efront_string__git_s1, $efront_string__scrip, $efront_string__build, $efront_string__grunt8, $efront_string__lint_, $efront_string__grunt9, $efront_string__regre, $efront_string__grunt10, $efront_string__test_, $efront_string__grunt11, $efront_string__unit_, $efront_string__grunt12, $efront_string__versi, $efront_string__1_0_2) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
     return _a = {}, _a[$efront_string___from] = $efront_string__esman1, _a[$efront_string___id_] = $efront_string__esman2, _a[$efront_string___inBu] = false, _a[$efront_string___inte] = $efront_string__sha1_1, _a[$efront_string___loca] = $efront_string__esman, _a[$efront_string___phan] = {}, _a[$efront_string___requ] = (_b = {}, _b[$efront_string__type_] = $efront_string__tag_, _b[$efront_string__regis] = true, _b[$efront_string__raw_] = $efront_string__esman1, _b[$efront_string__name_] = $efront_string__esman3, _b[$efront_string__escap] = $efront_string__esman3, _b[$efront_string__rawSp] = $efront_string__lates, _b[$efront_string__saveS] = null, _b[$efront_string__fetch] = $efront_string__lates, _b), _a[$efront_string___requ1] = [
         $efront_string__USER_,
         $efront_string__1
     ], _a[$efront_string___reso] = $efront_string__https3, _a[$efront_string___shas] = $efront_string__d9bb3, _a[$efront_string___spec] = $efront_string__esman1, _a[$efront_string___wher] = $efront_string__D_wor1, _a[$efront_string__bin_] = (_c = {}, _c[$efront_string__esman3] = $efront_string__bin_e, _c), _a[$efront_string__bugs_] = (_d = {}, _d[$efront_string__url_] = $efront_string__https4, _d), _a[$efront_string__bundl] = false, _a[$efront_string__depen] = (_e = {}, _e[$efront_string__escod] = $efront_string__1_3_2, _e[$efront_string__escop] = $efront_string__1_0_1, _e[$efront_string__espri] = $efront_string__1_1_2, _e[$efront_string__essho3] = $efront_string__1_1_0, _e[$efront_string__estra] = $efront_string__1_5_0, _e[$efront_string__esuti] = $efront_string__1_0_0, _e[$efront_string__optio] = $efront_string__0_3_0, _e[$efront_string__sourc] = $efront_string__0_1_3, _e), _a[$efront_string__depre] = false, _a[$efront_string__descr] = $efront_string__ECMAS, _a[$efront_string__devDe] = (_f = {}, _f[$efront_string__async] = $efront_string__0_2_9, _f[$efront_string__chai_] = $efront_string__, _f[$efront_string__clone] = $efront_string__0_1_1, _f[$efront_string__commo] = $efront_string__0_9_4, _f[$efront_string__grunt] = $efront_string__0_4_2, _f[$efront_string__grunt1] = $efront_string__0_1_1, _f[$efront_string__grunt2] = $efront_string__0_5_0, _f[$efront_string__grunt3] = $efront_string__0_5_0, _f[$efront_string__grunt4] = $efront_string__0_8_0, _f[$efront_string__grunt5] = $efront_string__0_8_1, _f[$efront_string__grunt6] = $efront_string__0_6_1, _f[$efront_string__grunt7] = $efront_string__0_2_1, _f[$efront_string__q_] = $efront_string__0_9_7, _f), _a[$efront_string__direc] = (_g = {}, _g[$efront_string__lib_] = $efront_string__lib_1, _g), _a[$efront_string__engin] = (_h = {}, _h[$efront_string__node_] = $efront_string__0_6_0, _h), _a[$efront_string__homep] = $efront_string__http_2, _a[$efront_string__licen] = [(_j = {}, _j[$efront_string__type_] = $efront_string__BSD_, _j[$efront_string__url_] = $efront_string__http_3, _j)], _a[$efront_string__main_] = $efront_string__lib_e1, _a[$efront_string__maint] = [(_k = {}, _k[$efront_string__name_] = $efront_string__Yusuk, _k[$efront_string__email] = $efront_string__utata, _k[$efront_string__url_] = $efront_string__http_1, _k)], _a[$efront_string__name_] = $efront_string__esman3, _a[$efront_string__repos] = (_l = {}, _l[$efront_string__type_] = $efront_string__git_, _l[$efront_string__url_] = $efront_string__git_s1, _l), _a[$efront_string__scrip] = (_m = {}, _m[$efront_string__build] = $efront_string__grunt8, _m[$efront_string__lint_] = $efront_string__grunt9, _m[$efront_string__regre] = $efront_string__grunt10, _m[$efront_string__test_] = $efront_string__grunt11, _m[$efront_string__unit_] = $efront_string__grunt12, _m), _a[$efront_string__versi] = $efront_string__1_0_2, _a
 }],
-/** 360 isNaN */ isNaN,
-/** 361 $efront_string__imple */ 'implements',
-/** 362 $efront_string__inter */ 'interface',
-/** 363 $efront_string__packa */ 'package',
-/** 364 $efront_string__priva */ 'private',
-/** 365 $efront_string__prote */ 'protected',
-/** 366 $efront_string__publi */ 'public',
-/** 367 $efront_string__stati */ 'static',
-/** 368 $efront_string__let_ */ 'let',
-/** 369 $efront_string__yield */ 'yield',
-/** 370 $efront_string__if_ */ 'if',
-/** 371 $efront_string__in_ */ 'in',
-/** 372 $efront_string__do_ */ 'do',
-/** 373 $efront_string__var_ */ 'var',
-/** 374 $efront_string__for_ */ 'for',
-/** 375 $efront_string__new_ */ 'new',
-/** 376 $efront_string__try_ */ 'try',
-/** 377 $efront_string__this_ */ 'this',
-/** 378 $efront_string__else_ */ 'else',
-/** 379 $efront_string__case_ */ 'case',
-/** 380 $efront_string__void_ */ 'void',
-/** 381 $efront_string__with_ */ 'with',
-/** 382 $efront_string__enum_ */ 'enum',
-/** 383 $efront_string__while */ 'while',
-/** 384 $efront_string__catch */ 'catch',
-/** 385 $efront_string__throw */ 'throw',
-/** 386 $efront_string__const */ 'const',
-/** 387 $efront_string__class */ 'class',
-/** 388 $efront_string__super1 */ 'super',
-/** 389 $efront_string__retur */ 'return',
-/** 390 $efront_string__typeo */ 'typeof',
-/** 391 $efront_string__switc */ 'switch',
-/** 392 $efront_string__expor2 */ 'export',
-/** 393 $efront_string__impor */ 'import',
-/** 394 $efront_string__defau1 */ 'default',
-/** 395 $efront_string__final1 */ 'finally',
-/** 396 $efront_string__exten1 */ 'extends',
-/** 397 $efront_string__conti */ 'continue',
-/** 398 $efront_string__debug */ 'debugger',
-/** 399 $efront_string__insta */ 'instanceof',
-/** 400 $efront_string__eval_ */ 'eval',
-/** 401 $efront_string__charC */ 'charCodeAt',
-/** 402 $efront_string__isKey */ 'isKeywordES5',
-/** 403 $efront_string__isKey1 */ 'isKeywordES6',
-/** 404 $efront_string__isRes */ 'isRestrictedWord',
-/** 405 $efront_string__isIde2 */ 'isIdentifierName',
-/** 406 esutils$lib$keyword.js */ [1,29,361,362,363,364,365,366,367,368,369,130,370,371,372,373,374,375,376,377,378,379,380,381,382,383,180,384,385,386,387,388,389,390,58,391,392,393,394,395,396,74,397,398,399,400,140,401,45,46,39,402,403,404,405,function(require, module, $efront_string__imple, $efront_string__inter, $efront_string__packa, $efront_string__priva, $efront_string__prote, $efront_string__publi, $efront_string__stati, $efront_string__let_, $efront_string__yield, $efront_string__lengt1, $efront_string__if_, $efront_string__in_, $efront_string__do_, $efront_string__var_, $efront_string__for_, $efront_string__new_, $efront_string__try_, $efront_string__this_, $efront_string__else_, $efront_string__case_, $efront_string__void_, $efront_string__with_, $efront_string__enum_, $efront_string__while, $efront_string__break, $efront_string__catch, $efront_string__throw, $efront_string__const, $efront_string__class, $efront_string__super1, $efront_string__retur, $efront_string__typeo, $efront_string__delet, $efront_string__switc, $efront_string__expor2, $efront_string__impor, $efront_string__defau1, $efront_string__final1, $efront_string__exten1, $efront_string__funct1, $efront_string__conti, $efront_string__debug, $efront_string__insta, $efront_string__eval_, $efront_string__argum, $efront_string__charC, $efront_string__isIde, $efront_string__isIde1, $efront_string__expor1, $efront_string__isKey, $efront_string__isKey1, $efront_string__isRes, $efront_string__isIde2) {
+/** 358 isNaN */ isNaN,
+/** 359 $efront_string__imple */ 'implements',
+/** 360 $efront_string__inter */ 'interface',
+/** 361 $efront_string__packa */ 'package',
+/** 362 $efront_string__priva */ 'private',
+/** 363 $efront_string__prote */ 'protected',
+/** 364 $efront_string__publi */ 'public',
+/** 365 $efront_string__stati */ 'static',
+/** 366 $efront_string__let_ */ 'let',
+/** 367 $efront_string__yield */ 'yield',
+/** 368 $efront_string__if_ */ 'if',
+/** 369 $efront_string__in_ */ 'in',
+/** 370 $efront_string__do_ */ 'do',
+/** 371 $efront_string__var_ */ 'var',
+/** 372 $efront_string__for_ */ 'for',
+/** 373 $efront_string__new_ */ 'new',
+/** 374 $efront_string__try_ */ 'try',
+/** 375 $efront_string__this_ */ 'this',
+/** 376 $efront_string__else_ */ 'else',
+/** 377 $efront_string__case_ */ 'case',
+/** 378 $efront_string__void_ */ 'void',
+/** 379 $efront_string__with_ */ 'with',
+/** 380 $efront_string__enum_ */ 'enum',
+/** 381 $efront_string__while */ 'while',
+/** 382 $efront_string__catch */ 'catch',
+/** 383 $efront_string__throw */ 'throw',
+/** 384 $efront_string__const */ 'const',
+/** 385 $efront_string__class */ 'class',
+/** 386 $efront_string__super1 */ 'super',
+/** 387 $efront_string__retur */ 'return',
+/** 388 $efront_string__typeo */ 'typeof',
+/** 389 $efront_string__switc */ 'switch',
+/** 390 $efront_string__expor2 */ 'export',
+/** 391 $efront_string__impor */ 'import',
+/** 392 $efront_string__defau1 */ 'default',
+/** 393 $efront_string__final1 */ 'finally',
+/** 394 $efront_string__exten1 */ 'extends',
+/** 395 $efront_string__conti */ 'continue',
+/** 396 $efront_string__debug */ 'debugger',
+/** 397 $efront_string__insta */ 'instanceof',
+/** 398 $efront_string__eval_ */ 'eval',
+/** 399 $efront_string__charC */ 'charCodeAt',
+/** 400 $efront_string__isKey */ 'isKeywordES5',
+/** 401 $efront_string__isKey1 */ 'isKeywordES6',
+/** 402 $efront_string__isRes */ 'isRestrictedWord',
+/** 403 $efront_string__isIde2 */ 'isIdentifierName',
+/** 404 esutils$lib$keyword.js */ [1,29,359,360,361,362,363,364,365,366,367,128,368,369,370,371,372,373,374,375,376,377,378,379,380,381,178,382,383,384,385,386,387,388,57,389,390,391,392,393,394,72,395,396,397,398,138,399,44,45,38,400,401,402,403,function(require, module, $efront_string__imple, $efront_string__inter, $efront_string__packa, $efront_string__priva, $efront_string__prote, $efront_string__publi, $efront_string__stati, $efront_string__let_, $efront_string__yield, $efront_string__lengt1, $efront_string__if_, $efront_string__in_, $efront_string__do_, $efront_string__var_, $efront_string__for_, $efront_string__new_, $efront_string__try_, $efront_string__this_, $efront_string__else_, $efront_string__case_, $efront_string__void_, $efront_string__with_, $efront_string__enum_, $efront_string__while, $efront_string__break, $efront_string__catch, $efront_string__throw, $efront_string__const, $efront_string__class, $efront_string__super1, $efront_string__retur, $efront_string__typeo, $efront_string__delet, $efront_string__switc, $efront_string__expor2, $efront_string__impor, $efront_string__defau1, $efront_string__final1, $efront_string__exten1, $efront_string__funct1, $efront_string__conti, $efront_string__debug, $efront_string__insta, $efront_string__eval_, $efront_string__argum, $efront_string__charC, $efront_string__isIde, $efront_string__isIde1, $efront_string__expor1, $efront_string__isKey, $efront_string__isKey1, $efront_string__isRes, $efront_string__isIde2) {
     return function () {
         'use strict';
         var _a;
-        var code = require(47);
+        var code = require(46);
         function isStrictModeReservedWordES6(id) {
             switch (id) {
             case $efront_string__imple:
@@ -1277,100 +1275,100 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = (_a = {}, _a[$efront_string__isKey] = isKeywordES5, _a[$efront_string__isKey1] = isKeywordES6, _a[$efront_string__isRes] = isRestrictedWord, _a[$efront_string__isIde2] = isIdentifierName, _a)
     }()
 }],
-/** 407 $efront_string__code_ */ 'code',
-/** 408 $efront_string__keywo */ 'keyword',
-/** 409 esutils$lib$utils.js */ [69,1,407,408,function(exports, require, $efront_string__code_, $efront_string__keywo) {
+/** 405 $efront_string__code_ */ 'code',
+/** 406 $efront_string__keywo */ 'keyword',
+/** 407 esutils$lib$utils.js */ [68,1,405,406,function(exports, require, $efront_string__code_, $efront_string__keywo) {
     return function () {
         'use strict';
-        exports[$efront_string__code_] = require(47);
-        exports[$efront_string__keywo] = require(406)
+        exports[$efront_string__code_] = require(46);
+        exports[$efront_string__keywo] = require(404)
     }()
 }],
-/** 410 $efront_string__2 */ '.',
-/** 411 $efront_string__optim */ 'optimistic',
-/** 412 $efront_string__direc1 */ 'directive',
-/** 413 $efront_string__ecmaV */ 'ecmaVersion',
-/** 414 $efront_string__ident */ 'identifier',
-/** 415 $efront_string__from_ */ 'from',
-/** 416 $efront_string__taint */ 'tainted',
-/** 417 $efront_string__resol */ 'resolved',
-/** 418 $efront_string__flag_ */ 'flag',
-/** 419 $efront_string__isWri */ 'isWrite',
-/** 420 $efront_string__write */ 'writeExpr',
-/** 421 $efront_string____may */ '__maybeImplicitGlobal',
-/** 422 $efront_string__READ_ */ 'READ',
-/** 423 $efront_string__WRITE */ 'WRITE',
-/** 424 $efront_string__RW_ */ 'RW',
-/** 425 $efront_string__isSta */ 'isStatic',
-/** 426 $efront_string__scope */ 'scope',
-/** 427 $efront_string__isRea */ 'isRead',
-/** 428 $efront_string__isRea1 */ 'isReadOnly',
-/** 429 $efront_string__isWri1 */ 'isWriteOnly',
-/** 430 $efront_string__isRea2 */ 'isReadWrite',
-/** 431 $efront_string__ident1 */ 'identifiers',
-/** 432 $efront_string__refer */ 'references',
-/** 433 $efront_string__defs_ */ 'defs',
-/** 434 $efront_string__stack */ 'stack',
-/** 435 $efront_string__Param */ 'Parameter',
-/** 436 $efront_string__Funct2 */ 'FunctionName',
-/** 437 $efront_string__Varia2 */ 'Variable',
-/** 438 $efront_string__Impli */ 'ImplicitGlobalVariable',
-/** 439 $efront_string__upper */ 'upper',
-/** 440 $efront_string__isStr */ 'isStrict',
-/** 441 $efront_string__globa */ 'global',
-/** 442 $efront_string__use_s */ /** text */ '"use strict"',
-/** 443 $efront_string__use_s1 */ /** text */ '\'use strict\'',
-/** 444 $efront_string__strin1 */ 'string',
-/** 445 $efront_string__taint1 */ 'taints',
-/** 446 $efront_string__dynam */ 'dynamic',
-/** 447 $efront_string__throu */ 'through',
-/** 448 $efront_string__varia */ 'variables',
-/** 449 $efront_string__varia1 */ 'variableScope',
-/** 450 $efront_string__funct2 */ 'functionExpressionScope',
-/** 451 $efront_string__direc2 */ 'directCallToEvalScope',
-/** 452 $efront_string__thisF */ 'thisFound',
-/** 453 $efront_string__namin */ 'naming',
-/** 454 $efront_string____def */ '__define',
-/** 455 $efront_string__child */ 'childScopes',
-/** 456 $efront_string__impli */ 'implicit',
-/** 457 $efront_string____clo */ '__close',
-/** 458 $efront_string____res */ '__resolve',
-/** 459 $efront_string____del */ '__delegateToUpperScope',
-/** 460 $efront_string____def1 */ '__defineImplicit',
-/** 461 $efront_string____ref */ '__referencing',
-/** 462 $efront_string____det */ '__detectEval',
-/** 463 $efront_string____det1 */ '__detectThis',
-/** 464 $efront_string____isC */ '__isClosed',
-/** 465 $efront_string__resol1 */ 'resolve',
-/** 466 $efront_string__scope1 */ /** text */ 'scope should be closed',
-/** 467 $efront_string__targe */ /** text */ 'target should be identifier',
-/** 468 $efront_string__isArg */ 'isArgumentsMaterialized',
-/** 469 $efront_string__alway */ /** text */ 'always have arguments variable',
-/** 470 $efront_string__isThi */ 'isThisMaterialized',
-/** 471 $efront_string__mangl */ 'mangledName',
-/** 472 $efront_string____$es */ '__$escope$__',
-/** 473 $efront_string__attac2 */ 'attach',
-/** 474 $efront_string__detac */ 'detach',
-/** 475 $efront_string__isUse */ 'isUsedName',
-/** 476 $efront_string__scope2 */ 'scopes',
-/** 477 $efront_string__attac3 */ 'attached',
-/** 478 $efront_string____get */ '__get',
-/** 479 $efront_string__isSco */ 'isScopeRequired',
-/** 480 $efront_string__acqui */ 'acquire',
-/** 481 $efront_string__relea */ 'release',
-/** 482 $efront_string__isVar */ 'isVariableScopeRequired',
-/** 483 $efront_string__opera */ 'operator',
-/** 484 $efront_string__3 */ '=',
-/** 485 $efront_string__ignor */ 'ignoreEval',
-/** 486 $efront_string__index2 */ 'index',
-/** 487 $efront_string__compu */ 'computed',
-/** 488 $efront_string__kind_ */ 'kind',
-/** 489 $efront_string__1_0_3 */ '1.0.3',
-/** 490 $efront_string__Refer */ 'Reference',
-/** 491 $efront_string__Scope */ 'Scope',
-/** 492 $efront_string__Scope1 */ 'ScopeManager',
-/** 493 $efront_string__analy */ 'analyze',
-/** 494 escope$escope.js */ [70,69,1,68,73,72,30,293,410,130,55,74,75,238,39,76,50,198,49,51,52,53,54,56,57,58,411,412,413,129,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,217,431,432,433,434,85,435,436,437,438,439,440,189,137,441,92,216,442,443,95,146,102,152,444,384,124,381,110,445,446,158,447,448,131,449,450,451,452,453,454,142,168,140,64,99,455,456,457,458,459,460,100,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,98,185,188,77,483,484,132,78,133,81,82,83,84,139,485,400,141,89,37,144,145,90,93,91,94,96,147,148,97,121,163,134,486,101,103,104,105,487,150,107,108,153,488,111,112,154,113,155,114,156,115,116,117,118,119,120,166,122,123,187,196,489,490,491,492,493,function(define, exports, require, undefined, Error, Object, RegExp, $efront_string__split1, $efront_string__2, $efront_string__lengt1, $efront_string__hasOw, $efront_string__funct1, $efront_string__amd_, $efront_string__escop, $efront_string__expor1, $efront_string__estra, $efront_string__undef, $efront_string__Synta, $efront_string__Map_, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__optim, $efront_string__direc1, $efront_string__ecmaV, $efront_string__objec1, $efront_string__ident, $efront_string__from_, $efront_string__taint, $efront_string__resol, $efront_string__flag_, $efront_string__isWri, $efront_string__write, $efront_string____may, $efront_string__READ_, $efront_string__WRITE, $efront_string__RW_, $efront_string__isSta, $efront_string__scope, $efront_string__isRea, $efront_string__isRea1, $efront_string__isWri1, $efront_string__isRea2, $efront_string__name_, $efront_string__ident1, $efront_string__refer, $efront_string__defs_, $efront_string__stack, $efront_string__Catch, $efront_string__Param, $efront_string__Funct2, $efront_string__Varia2, $efront_string__Impli, $efront_string__upper, $efront_string__isStr, $efront_string__type_, $efront_string__body_, $efront_string__globa, $efront_string__Direc, $efront_string__raw_, $efront_string__use_s, $efront_string__use_s1, $efront_string__Expre, $efront_string__expre, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__catch, $efront_string__WithS, $efront_string__with_, $efront_string__Progr, $efront_string__taint1, $efront_string__dynam, $efront_string__block, $efront_string__throu, $efront_string__varia, $efront_string__left_, $efront_string__varia1, $efront_string__funct2, $efront_string__direc2, $efront_string__thisF, $efront_string__namin, $efront_string____def, $efront_string__id_, $efront_string__node_, $efront_string__argum, $efront_string__push_, $efront_string__Funct1, $efront_string__child, $efront_string__impli, $efront_string____clo, $efront_string____res, $efront_string____del, $efront_string____def1, $efront_string__Ident, $efront_string____ref, $efront_string____det, $efront_string____det1, $efront_string____isC, $efront_string__resol1, $efront_string__scope1, $efront_string__targe, $efront_string__isArg, $efront_string__alway, $efront_string__isThi, $efront_string__mangl, $efront_string____$es, $efront_string__attac2, $efront_string__detac, $efront_string__isUse, $efront_string__scope2, $efront_string__attac3, $efront_string____get, $efront_string__isSco, $efront_string__acqui, $efront_string__relea, $efront_string__isVar, $efront_string__Funct, $efront_string__trave, $efront_string__enter, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__right, $efront_string__Array, $efront_string__eleme, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__calle, $efront_string__ignor, $efront_string__eval_, $efront_string__param1, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__Conti, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__ForSt, $efront_string__init_, $efront_string__updat, $efront_string__ForIn, $efront_string__Varia, $efront_string__decla, $efront_string__param, $efront_string__index2, $efront_string__IfSta, $efront_string__Label, $efront_string__Logic, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__NewEx, $efront_string__Objec, $efront_string__prope1, $efront_string__kind_, $efront_string__Prope, $efront_string__Retur, $efront_string__argum1, $efront_string__Seque, $efront_string__expre1, $efront_string__Switc, $efront_string__discr, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Unary, $efront_string__Updat, $efront_string__paren, $efront_string__Varia1, $efront_string__While, $efront_string__leave, $efront_string__versi, $efront_string__1_0_3, $efront_string__Refer, $efront_string__Scope, $efront_string__Scope1, $efront_string__analy) {
+/** 408 $efront_string__2 */ '.',
+/** 409 $efront_string__optim */ 'optimistic',
+/** 410 $efront_string__direc1 */ 'directive',
+/** 411 $efront_string__ecmaV */ 'ecmaVersion',
+/** 412 $efront_string__ident */ 'identifier',
+/** 413 $efront_string__from_ */ 'from',
+/** 414 $efront_string__taint */ 'tainted',
+/** 415 $efront_string__resol */ 'resolved',
+/** 416 $efront_string__flag_ */ 'flag',
+/** 417 $efront_string__isWri */ 'isWrite',
+/** 418 $efront_string__write */ 'writeExpr',
+/** 419 $efront_string____may */ '__maybeImplicitGlobal',
+/** 420 $efront_string__READ_ */ 'READ',
+/** 421 $efront_string__WRITE */ 'WRITE',
+/** 422 $efront_string__RW_ */ 'RW',
+/** 423 $efront_string__isSta */ 'isStatic',
+/** 424 $efront_string__scope */ 'scope',
+/** 425 $efront_string__isRea */ 'isRead',
+/** 426 $efront_string__isRea1 */ 'isReadOnly',
+/** 427 $efront_string__isWri1 */ 'isWriteOnly',
+/** 428 $efront_string__isRea2 */ 'isReadWrite',
+/** 429 $efront_string__ident1 */ 'identifiers',
+/** 430 $efront_string__refer */ 'references',
+/** 431 $efront_string__defs_ */ 'defs',
+/** 432 $efront_string__stack */ 'stack',
+/** 433 $efront_string__Param */ 'Parameter',
+/** 434 $efront_string__Funct2 */ 'FunctionName',
+/** 435 $efront_string__Varia2 */ 'Variable',
+/** 436 $efront_string__Impli */ 'ImplicitGlobalVariable',
+/** 437 $efront_string__upper */ 'upper',
+/** 438 $efront_string__isStr */ 'isStrict',
+/** 439 $efront_string__globa */ 'global',
+/** 440 $efront_string__use_s */ /** text */ '"use strict"',
+/** 441 $efront_string__use_s1 */ /** text */ '\'use strict\'',
+/** 442 $efront_string__strin1 */ 'string',
+/** 443 $efront_string__taint1 */ 'taints',
+/** 444 $efront_string__dynam */ 'dynamic',
+/** 445 $efront_string__throu */ 'through',
+/** 446 $efront_string__varia */ 'variables',
+/** 447 $efront_string__varia1 */ 'variableScope',
+/** 448 $efront_string__funct2 */ 'functionExpressionScope',
+/** 449 $efront_string__direc2 */ 'directCallToEvalScope',
+/** 450 $efront_string__thisF */ 'thisFound',
+/** 451 $efront_string__namin */ 'naming',
+/** 452 $efront_string____def */ '__define',
+/** 453 $efront_string__child */ 'childScopes',
+/** 454 $efront_string__impli */ 'implicit',
+/** 455 $efront_string____clo */ '__close',
+/** 456 $efront_string____res */ '__resolve',
+/** 457 $efront_string____del */ '__delegateToUpperScope',
+/** 458 $efront_string____def1 */ '__defineImplicit',
+/** 459 $efront_string____ref */ '__referencing',
+/** 460 $efront_string____det */ '__detectEval',
+/** 461 $efront_string____det1 */ '__detectThis',
+/** 462 $efront_string____isC */ '__isClosed',
+/** 463 $efront_string__resol1 */ 'resolve',
+/** 464 $efront_string__scope1 */ /** text */ 'scope should be closed',
+/** 465 $efront_string__targe */ /** text */ 'target should be identifier',
+/** 466 $efront_string__isArg */ 'isArgumentsMaterialized',
+/** 467 $efront_string__alway */ /** text */ 'always have arguments variable',
+/** 468 $efront_string__isThi */ 'isThisMaterialized',
+/** 469 $efront_string__mangl */ 'mangledName',
+/** 470 $efront_string____$es */ '__$escope$__',
+/** 471 $efront_string__attac2 */ 'attach',
+/** 472 $efront_string__detac */ 'detach',
+/** 473 $efront_string__isUse */ 'isUsedName',
+/** 474 $efront_string__scope2 */ 'scopes',
+/** 475 $efront_string__attac3 */ 'attached',
+/** 476 $efront_string____get */ '__get',
+/** 477 $efront_string__isSco */ 'isScopeRequired',
+/** 478 $efront_string__acqui */ 'acquire',
+/** 479 $efront_string__relea */ 'release',
+/** 480 $efront_string__isVar */ 'isVariableScopeRequired',
+/** 481 $efront_string__opera */ 'operator',
+/** 482 $efront_string__3 */ '=',
+/** 483 $efront_string__ignor */ 'ignoreEval',
+/** 484 $efront_string__index2 */ 'index',
+/** 485 $efront_string__compu */ 'computed',
+/** 486 $efront_string__kind_ */ 'kind',
+/** 487 $efront_string__1_0_3 */ '1.0.3',
+/** 488 $efront_string__Refer */ 'Reference',
+/** 489 $efront_string__Scope */ 'Scope',
+/** 490 $efront_string__Scope1 */ 'ScopeManager',
+/** 491 $efront_string__analy */ 'analyze',
+/** 492 escope$escope.js */ [69,68,1,67,71,70,30,291,408,128,54,72,73,236,38,74,49,196,48,50,51,52,53,55,56,57,409,410,411,127,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,215,429,430,431,432,83,433,434,435,436,437,438,187,135,439,90,214,440,441,93,144,100,150,442,382,122,379,108,443,444,156,445,446,129,447,448,449,450,451,452,140,166,138,63,97,453,454,455,456,457,458,98,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,96,183,186,75,481,482,130,76,131,79,80,81,82,137,483,398,139,87,36,142,143,88,91,89,92,94,145,146,95,119,161,132,484,99,101,102,103,485,148,105,106,151,486,109,110,152,111,153,112,154,113,114,115,116,117,118,164,120,121,185,194,487,488,489,490,491,function(define, exports, require, undefined, Error, Object, RegExp, $efront_string__split1, $efront_string__2, $efront_string__lengt1, $efront_string__hasOw, $efront_string__funct1, $efront_string__amd_, $efront_string__escop, $efront_string__expor1, $efront_string__estra, $efront_string__undef, $efront_string__Synta, $efront_string__Map_, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__optim, $efront_string__direc1, $efront_string__ecmaV, $efront_string__objec1, $efront_string__ident, $efront_string__from_, $efront_string__taint, $efront_string__resol, $efront_string__flag_, $efront_string__isWri, $efront_string__write, $efront_string____may, $efront_string__READ_, $efront_string__WRITE, $efront_string__RW_, $efront_string__isSta, $efront_string__scope, $efront_string__isRea, $efront_string__isRea1, $efront_string__isWri1, $efront_string__isRea2, $efront_string__name_, $efront_string__ident1, $efront_string__refer, $efront_string__defs_, $efront_string__stack, $efront_string__Catch, $efront_string__Param, $efront_string__Funct2, $efront_string__Varia2, $efront_string__Impli, $efront_string__upper, $efront_string__isStr, $efront_string__type_, $efront_string__body_, $efront_string__globa, $efront_string__Direc, $efront_string__raw_, $efront_string__use_s, $efront_string__use_s1, $efront_string__Expre, $efront_string__expre, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__catch, $efront_string__WithS, $efront_string__with_, $efront_string__Progr, $efront_string__taint1, $efront_string__dynam, $efront_string__block, $efront_string__throu, $efront_string__varia, $efront_string__left_, $efront_string__varia1, $efront_string__funct2, $efront_string__direc2, $efront_string__thisF, $efront_string__namin, $efront_string____def, $efront_string__id_, $efront_string__node_, $efront_string__argum, $efront_string__push_, $efront_string__Funct1, $efront_string__child, $efront_string__impli, $efront_string____clo, $efront_string____res, $efront_string____del, $efront_string____def1, $efront_string__Ident, $efront_string____ref, $efront_string____det, $efront_string____det1, $efront_string____isC, $efront_string__resol1, $efront_string__scope1, $efront_string__targe, $efront_string__isArg, $efront_string__alway, $efront_string__isThi, $efront_string__mangl, $efront_string____$es, $efront_string__attac2, $efront_string__detac, $efront_string__isUse, $efront_string__scope2, $efront_string__attac3, $efront_string____get, $efront_string__isSco, $efront_string__acqui, $efront_string__relea, $efront_string__isVar, $efront_string__Funct, $efront_string__trave, $efront_string__enter, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__right, $efront_string__Array, $efront_string__eleme, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__calle, $efront_string__ignor, $efront_string__eval_, $efront_string__param1, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__Conti, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__ForSt, $efront_string__init_, $efront_string__updat, $efront_string__ForIn, $efront_string__Varia, $efront_string__decla, $efront_string__param, $efront_string__index2, $efront_string__IfSta, $efront_string__Label, $efront_string__Logic, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__NewEx, $efront_string__Objec, $efront_string__prope1, $efront_string__kind_, $efront_string__Prope, $efront_string__Retur, $efront_string__argum1, $efront_string__Seque, $efront_string__expre1, $efront_string__Switc, $efront_string__discr, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Unary, $efront_string__Updat, $efront_string__paren, $efront_string__Varia1, $efront_string__While, $efront_string__leave, $efront_string__versi, $efront_string__1_0_3, $efront_string__Refer, $efront_string__Scope, $efront_string__Scope1, $efront_string__analy) {
     return function (factory, global) {
         'use strict';
         function namespace(str, obj) {
@@ -1394,7 +1392,7 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
                 factory(exports, global, estraverse)
             })
         } else if (typeof exports !== $efront_string__undef) {
-            factory(exports, global, require(301))
+            factory(exports, global, require(299))
         } else {
             factory(namespace($efront_string__escop, global), global, global[$efront_string__estra])
         }
@@ -2023,55 +2021,55 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         exports[$efront_string__analy] = analyze
     }, this)
 }],
-/** 495 esutils */ [1,function(require) {
-    return require(409)
+/** 493 esutils */ [1,function(require) {
+    return require(407)
 }],
-/** 496 escope */ [1,function(require) {
-    return require(494)
+/** 494 escope */ [1,function(require) {
+    return require(492)
 }],
-/** 497 $efront_string__slice1 */ 'slice',
-/** 498 $efront_string__is_ */ 'is',
-/** 499 $efront_string__Unrea */ /** text */ 'Unreachable point. logically broken.',
-/** 500 $efront_string__loc_ */ 'loc',
-/** 501 $efront_string__numbe */ 'number',
-/** 502 $efront_string__4 */ '-',
-/** 503 $efront_string__conca1 */ 'concat',
-/** 504 $efront_string__strin2 */ 'stringRepeat',
-/** 505 $efront_string__sameV */ 'sameValue',
-/** 506 $efront_string__Array2 */ 'Array',
-/** 507 $efront_string__of_ */ 'of',
-/** 508 $efront_string__last_ */ 'last',
-/** 509 $efront_string__empty */ 'empty',
-/** 510 $efront_string__Objec2 */ 'Object',
-/** 511 $efront_string__isObj */ 'isObject',
-/** 512 $efront_string__asser */ 'assert',
-/** 513 $efront_string__unrea */ 'unreachable',
-/** 514 $efront_string__isIde3 */ 'isIdentifier',
-/** 515 $efront_string__moveL */ 'moveLocation',
-/** 516 $efront_string__delet1 */ 'deleteLocation',
-/** 517 $efront_string__conve */ 'convertToEmptyStatement',
-/** 518 $efront_string__mayBe */ 'mayBeCompletionValue',
-/** 519 $efront_string__isNeg */ 'isNegative',
-/** 520 $efront_string__isFun */ 'isFunctionBody',
-/** 521 $efront_string__Speci */ 'SpecialNode',
-/** 522 $efront_string__gener1 */ 'generateNegative',
-/** 523 $efront_string__gener2 */ 'generateUndefined',
-/** 524 $efront_string__isUnd */ 'isUndefined',
-/** 525 $efront_string__gener3 */ 'generateNaN',
-/** 526 $efront_string__isNaN */ 'isNaN',
-/** 527 $efront_string__isRef */ 'isReference',
-/** 528 $efront_string__canEx */ 'canExtractSequence',
-/** 529 $efront_string__gener4 */ 'generateFromValue',
-/** 530 $efront_string__deleg */ 'delegateVariableDeclarations',
-/** 531 $efront_string__isSco1 */ 'isScopedDeclaration',
-/** 532 common.js */ [1,71,72,30,73,31,360,68,69,198,126,52,127,62,128,129,55,497,130,498,289,290,499,408,402,404,405,189,95,99,98,81,110,137,115,144,500,200,94,102,152,501,119,483,502,154,380,82,309,131,132,100,105,84,217,400,465,425,58,390,120,185,188,121,488,368,386,163,147,64,201,165,491,482,373,97,164,503,297,504,505,506,415,507,508,509,510,511,56,167,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,527,528,529,530,531,function(require, Array, Object, RegExp, Error, String, isNaN, undefined, exports, $efront_string__Synta, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__objec1, $efront_string__hasOw, $efront_string__slice1, $efront_string__lengt1, $efront_string__is_, $efront_string__lastI, $efront_string_____, $efront_string__Unrea, $efront_string__keywo, $efront_string__isKey, $efront_string__isRes, $efront_string__isIde2, $efront_string__type_, $efront_string__Expre, $efront_string__Funct1, $efront_string__Funct, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__Switc1, $efront_string__conse, $efront_string__loc_, $efront_string__Visit, $efront_string__Empty, $efront_string__Liter, $efront_string__value1, $efront_string__numbe, $efront_string__Unary, $efront_string__opera, $efront_string__4, $efront_string__argum1, $efront_string__void_, $efront_string__Binar, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__Ident, $efront_string__Membe, $efront_string__CallE, $efront_string__name_, $efront_string__eval_, $efront_string__resol1, $efront_string__isSta, $efront_string__delet, $efront_string__typeo, $efront_string__Updat, $efront_string__trave, $efront_string__enter, $efront_string__Varia, $efront_string__kind_, $efront_string__let_, $efront_string__const, $efront_string__decla, $efront_string__init_, $efront_string__push_, $efront_string__Visit1, $efront_string__Skip_, $efront_string__Scope, $efront_string__isVar, $efront_string__var_, $efront_string__ForIn, $efront_string__Break1, $efront_string__conca1, $efront_string__deepC, $efront_string__strin2, $efront_string__sameV, $efront_string__Array2, $efront_string__from_, $efront_string__of_, $efront_string__last_, $efront_string__empty, $efront_string__Objec2, $efront_string__isObj, $efront_string__has_, $efront_string__repla, $efront_string__asser, $efront_string__unrea, $efront_string__isIde3, $efront_string__moveL, $efront_string__delet1, $efront_string__conve, $efront_string__mayBe, $efront_string__isNeg, $efront_string__isFun, $efront_string__Speci, $efront_string__gener1, $efront_string__gener2, $efront_string__isUnd, $efront_string__gener3, $efront_string__isNaN, $efront_string__isRef, $efront_string__canEx, $efront_string__gener4, $efront_string__deleg, $efront_string__isSco1) {
+/** 495 $efront_string__slice1 */ 'slice',
+/** 496 $efront_string__is_ */ 'is',
+/** 497 $efront_string__Unrea */ /** text */ 'Unreachable point. logically broken.',
+/** 498 $efront_string__loc_ */ 'loc',
+/** 499 $efront_string__numbe */ 'number',
+/** 500 $efront_string__4 */ '-',
+/** 501 $efront_string__conca1 */ 'concat',
+/** 502 $efront_string__strin2 */ 'stringRepeat',
+/** 503 $efront_string__sameV */ 'sameValue',
+/** 504 $efront_string__Array2 */ 'Array',
+/** 505 $efront_string__of_ */ 'of',
+/** 506 $efront_string__last_ */ 'last',
+/** 507 $efront_string__empty */ 'empty',
+/** 508 $efront_string__Objec2 */ 'Object',
+/** 509 $efront_string__isObj */ 'isObject',
+/** 510 $efront_string__asser */ 'assert',
+/** 511 $efront_string__unrea */ 'unreachable',
+/** 512 $efront_string__isIde3 */ 'isIdentifier',
+/** 513 $efront_string__moveL */ 'moveLocation',
+/** 514 $efront_string__delet1 */ 'deleteLocation',
+/** 515 $efront_string__conve */ 'convertToEmptyStatement',
+/** 516 $efront_string__mayBe */ 'mayBeCompletionValue',
+/** 517 $efront_string__isNeg */ 'isNegative',
+/** 518 $efront_string__isFun */ 'isFunctionBody',
+/** 519 $efront_string__Speci */ 'SpecialNode',
+/** 520 $efront_string__gener1 */ 'generateNegative',
+/** 521 $efront_string__gener2 */ 'generateUndefined',
+/** 522 $efront_string__isUnd */ 'isUndefined',
+/** 523 $efront_string__gener3 */ 'generateNaN',
+/** 524 $efront_string__isNaN */ 'isNaN',
+/** 525 $efront_string__isRef */ 'isReference',
+/** 526 $efront_string__canEx */ 'canExtractSequence',
+/** 527 $efront_string__gener4 */ 'generateFromValue',
+/** 528 $efront_string__deleg */ 'delegateVariableDeclarations',
+/** 529 $efront_string__isSco1 */ 'isScopedDeclaration',
+/** 530 common.js */ [1,15,70,30,71,16,358,67,68,196,124,51,125,61,126,127,54,495,128,496,287,288,497,406,400,402,403,187,93,97,96,79,108,135,113,142,498,198,92,100,150,499,117,481,500,152,378,80,307,129,130,98,103,82,215,398,463,423,57,388,118,183,186,119,486,366,384,161,145,63,199,163,489,480,371,95,162,501,295,502,503,504,413,505,506,507,508,509,55,165,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,527,528,529,function(require, Array, Object, RegExp, Error, String, isNaN, undefined, exports, $efront_string__Synta, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__objec1, $efront_string__hasOw, $efront_string__slice1, $efront_string__lengt1, $efront_string__is_, $efront_string__lastI, $efront_string_____, $efront_string__Unrea, $efront_string__keywo, $efront_string__isKey, $efront_string__isRes, $efront_string__isIde2, $efront_string__type_, $efront_string__Expre, $efront_string__Funct1, $efront_string__Funct, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__Switc1, $efront_string__conse, $efront_string__loc_, $efront_string__Visit, $efront_string__Empty, $efront_string__Liter, $efront_string__value1, $efront_string__numbe, $efront_string__Unary, $efront_string__opera, $efront_string__4, $efront_string__argum1, $efront_string__void_, $efront_string__Binar, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__Ident, $efront_string__Membe, $efront_string__CallE, $efront_string__name_, $efront_string__eval_, $efront_string__resol1, $efront_string__isSta, $efront_string__delet, $efront_string__typeo, $efront_string__Updat, $efront_string__trave, $efront_string__enter, $efront_string__Varia, $efront_string__kind_, $efront_string__let_, $efront_string__const, $efront_string__decla, $efront_string__init_, $efront_string__push_, $efront_string__Visit1, $efront_string__Skip_, $efront_string__Scope, $efront_string__isVar, $efront_string__var_, $efront_string__ForIn, $efront_string__Break1, $efront_string__conca1, $efront_string__deepC, $efront_string__strin2, $efront_string__sameV, $efront_string__Array2, $efront_string__from_, $efront_string__of_, $efront_string__last_, $efront_string__empty, $efront_string__Objec2, $efront_string__isObj, $efront_string__has_, $efront_string__repla, $efront_string__asser, $efront_string__unrea, $efront_string__isIde3, $efront_string__moveL, $efront_string__delet1, $efront_string__conve, $efront_string__mayBe, $efront_string__isNeg, $efront_string__isFun, $efront_string__Speci, $efront_string__gener1, $efront_string__gener2, $efront_string__isUnd, $efront_string__gener3, $efront_string__isNaN, $efront_string__isRef, $efront_string__canEx, $efront_string__gener4, $efront_string__deleg, $efront_string__isSco1) {
     return function () {
         'use strict';
         var _a, _b, _c;
         var Syntax, isArray, arrayFrom, arrayOf, has, sameValue, estraverse, escope, esutils;
-        estraverse = require(301);
-        escope = require(496);
-        esutils = require(495);
+        estraverse = require(299);
+        escope = require(494);
+        esutils = require(493);
         Syntax = estraverse[$efront_string__Synta];
         isArray = Array[$efront_string__isArr];
         if (!isArray) {
@@ -2371,46 +2369,46 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         exports[$efront_string__isSco1] = isScopedDeclaration
     }()
 }],
-/** 533 $efront_string__annot */ 'annotate-directive',
-/** 534 $efront_string__5 */ '\\',
-/** 535 $efront_string__b_ */ '\b',
-/** 536 $efront_string__b_1 */ 'b',
-/** 537 $efront_string__f_1 */ /** text */ '\f',
-/** 538 $efront_string__f_2 */ 'f',
-/** 539 $efront_string__t_1 */ /** text */ '\t',
-/** 540 $efront_string__t_2 */ 't',
-/** 541 $efront_string__u_ */ 'u',
-/** 542 $efront_string__0000_ */ '0000',
-/** 543 $efront_string__0_1 */ '\0',
-/** 544 $efront_string__6 */ '0123456789',
-/** 545 $efront_string__x0B_ */ /** text */ '\x0B',
-/** 546 $efront_string__v_ */ 'v',
-/** 547 $efront_string__x_ */ 'x',
-/** 548 $efront_string__00_ */ '00',
-/** 549 $efront_string__n_ */ /** text */ '\n',
-/** 550 $efront_string__n_1 */ 'n',
-/** 551 $efront_string__r_1 */ /** text */ '\r',
-/** 552 $efront_string__r_2 */ 'r',
-/** 553 $efront_string__u2028 */ /** text */ '\u2028',
-/** 554 $efront_string__u1 */ 'u2028',
-/** 555 $efront_string__u2029 */ /** text */ '\u2029',
-/** 556 $efront_string__u2 */ 'u2029',
-/** 557 $efront_string__Incor */ /** text */ 'Incorrectly classified character',
-/** 558 $efront_string__strin3 */ 'stringToArray',
-/** 559 $efront_string__7 */ '\'',
-/** 560 $efront_string__8 */ '\\\'',
-/** 561 $efront_string__n_r_u */ /** text */ '\\\n\r\u2028\u2029',
-/** 562 $efront_string__9 */ /** text */ ' ',
-/** 563 $efront_string__10 */ '~',
-/** 564 $efront_string__destr */ 'destructive',
-/** 565 $efront_string__pathN */ 'pathName',
-/** 566 $efront_string__passN */ 'passName',
-/** 567 annotate-directive.js */ [1,73,29,533,198,189,95,146,102,152,444,401,127,534,535,536,537,538,539,540,541,542,497,130,543,544,36,291,545,546,547,548,549,550,551,552,553,554,555,556,557,50,558,559,560,561,562,563,53,564,565,297,185,188,110,81,99,98,137,92,216,412,61,566,39,function(require, Error, module, $efront_string__annot, $efront_string__Synta, $efront_string__type_, $efront_string__Expre, $efront_string__expre, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__charC, $efront_string__toStr, $efront_string__5, $efront_string__b_, $efront_string__b_1, $efront_string__f_1, $efront_string__f_2, $efront_string__t_1, $efront_string__t_2, $efront_string__u_, $efront_string__0000_, $efront_string__slice1, $efront_string__lengt1, $efront_string__0_1, $efront_string__6, $efront_string__index1, $efront_string__0_, $efront_string__x0B_, $efront_string__v_, $efront_string__x_, $efront_string__00_, $efront_string__n_, $efront_string__n_1, $efront_string__r_1, $efront_string__r_2, $efront_string__u2028, $efront_string__u1, $efront_string__u2029, $efront_string__u2, $efront_string__Incor, $efront_string__undef, $efront_string__strin3, $efront_string__7, $efront_string__8, $efront_string__n_r_u, $efront_string__9, $efront_string__10, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Progr, $efront_string__Block, $efront_string__Funct1, $efront_string__Funct, $efront_string__body_, $efront_string__Direc, $efront_string__raw_, $efront_string__direc1, $efront_string__subst, $efront_string__passN, $efront_string__expor1) {
+/** 531 $efront_string__annot */ 'annotate-directive',
+/** 532 $efront_string__5 */ '\\',
+/** 533 $efront_string__b_ */ '\b',
+/** 534 $efront_string__b_1 */ 'b',
+/** 535 $efront_string__f_1 */ /** text */ '\f',
+/** 536 $efront_string__f_2 */ 'f',
+/** 537 $efront_string__t_1 */ /** text */ '\t',
+/** 538 $efront_string__t_2 */ 't',
+/** 539 $efront_string__u_ */ 'u',
+/** 540 $efront_string__0000_ */ '0000',
+/** 541 $efront_string__0_1 */ '\0',
+/** 542 $efront_string__6 */ '0123456789',
+/** 543 $efront_string__x0B_ */ /** text */ '\x0B',
+/** 544 $efront_string__v_ */ 'v',
+/** 545 $efront_string__x_ */ 'x',
+/** 546 $efront_string__00_ */ '00',
+/** 547 $efront_string__n_ */ /** text */ '\n',
+/** 548 $efront_string__n_1 */ 'n',
+/** 549 $efront_string__r_1 */ /** text */ '\r',
+/** 550 $efront_string__r_2 */ 'r',
+/** 551 $efront_string__u2028 */ /** text */ '\u2028',
+/** 552 $efront_string__u1 */ 'u2028',
+/** 553 $efront_string__u2029 */ /** text */ '\u2029',
+/** 554 $efront_string__u2 */ 'u2029',
+/** 555 $efront_string__Incor */ /** text */ 'Incorrectly classified character',
+/** 556 $efront_string__strin3 */ 'stringToArray',
+/** 557 $efront_string__7 */ '\'',
+/** 558 $efront_string__8 */ '\\\'',
+/** 559 $efront_string__n_r_u */ /** text */ '\\\n\r\u2028\u2029',
+/** 560 $efront_string__9 */ /** text */ ' ',
+/** 561 $efront_string__10 */ '~',
+/** 562 $efront_string__destr */ 'destructive',
+/** 563 $efront_string__pathN */ 'pathName',
+/** 564 $efront_string__passN */ 'passName',
+/** 565 annotate-directive.js */ [1,71,29,531,196,187,93,144,100,150,442,399,125,532,533,534,535,536,537,538,539,540,495,128,541,542,35,289,543,544,545,546,547,548,549,550,551,552,553,554,555,49,556,557,558,559,560,561,52,562,563,295,183,186,108,79,97,96,135,90,214,410,60,564,38,function(require, Error, module, $efront_string__annot, $efront_string__Synta, $efront_string__type_, $efront_string__Expre, $efront_string__expre, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__charC, $efront_string__toStr, $efront_string__5, $efront_string__b_, $efront_string__b_1, $efront_string__f_1, $efront_string__f_2, $efront_string__t_1, $efront_string__t_2, $efront_string__u_, $efront_string__0000_, $efront_string__slice1, $efront_string__lengt1, $efront_string__0_1, $efront_string__6, $efront_string__index1, $efront_string__0_, $efront_string__x0B_, $efront_string__v_, $efront_string__x_, $efront_string__00_, $efront_string__n_, $efront_string__n_1, $efront_string__r_1, $efront_string__r_2, $efront_string__u2028, $efront_string__u1, $efront_string__u2029, $efront_string__u2, $efront_string__Incor, $efront_string__undef, $efront_string__strin3, $efront_string__7, $efront_string__8, $efront_string__n_r_u, $efront_string__9, $efront_string__10, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Progr, $efront_string__Block, $efront_string__Funct1, $efront_string__Funct, $efront_string__body_, $efront_string__Direc, $efront_string__raw_, $efront_string__direc1, $efront_string__subst, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common;
         Name = $efront_string__annot;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function isDirective(stmt) {
             var expr;
@@ -2526,39 +2524,39 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = annotateDirective
     }()
 }],
-/** 568 $efront_string__11 */ '!',
-/** 569 $efront_string__12 */ '||',
-/** 570 $efront_string__13 */ '&&',
-/** 571 $efront_string__14 */ '+',
-/** 572 $efront_string__15 */ '|',
-/** 573 $efront_string__16 */ '^',
-/** 574 $efront_string__17 */ '&',
-/** 575 $efront_string__18 */ '==',
-/** 576 $efront_string__19 */ '!=',
-/** 577 $efront_string__20 */ '===',
-/** 578 $efront_string__21 */ '!==',
-/** 579 $efront_string__22 */ '<',
-/** 580 $efront_string__23 */ '>',
-/** 581 $efront_string__24 */ '<=',
-/** 582 $efront_string__25 */ '>=',
-/** 583 $efront_string__26 */ '<<',
-/** 584 $efront_string__27 */ '>>',
-/** 585 $efront_string__28 */ '>>>',
-/** 586 $efront_string__29 */ '%',
-/** 587 $efront_string__const1 */ 'constant',
-/** 588 $efront_string__doBin */ 'doBinary',
-/** 589 $efront_string__doUna */ 'doUnary',
-/** 590 $efront_string__doLog */ 'doLogical',
-/** 591 $efront_string__evalu */ 'evaluate',
-/** 592 $efront_string__isCon */ 'isConstant',
-/** 593 $efront_string__hasSi */ 'hasSideEffect',
-/** 594 $efront_string__boole */ 'booleanCondition',
-/** 595 evaluator.js */ [1,68,69,198,189,102,152,129,119,483,380,58,568,154,82,371,399,131,132,104,513,569,570,571,502,563,390,572,573,574,575,576,577,578,579,580,581,582,583,584,585,248,309,586,587,588,589,590,591,592,77,78,133,130,84,89,37,144,145,99,100,465,425,105,107,108,153,111,113,155,116,120,593,506,508,594,function(require, undefined, exports, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__objec1, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__delet, $efront_string__11, $efront_string__argum1, $efront_string__Binar, $efront_string__in_, $efront_string__insta, $efront_string__left_, $efront_string__right, $efront_string__Logic, $efront_string__unrea, $efront_string__12, $efront_string__13, $efront_string__14, $efront_string__4, $efront_string__10, $efront_string__typeo, $efront_string__15, $efront_string__16, $efront_string__17, $efront_string__18, $efront_string__19, $efront_string__20, $efront_string__21, $efront_string__22, $efront_string__23, $efront_string__24, $efront_string__25, $efront_string__26, $efront_string__27, $efront_string__28, $efront_string__, $efront_string__1, $efront_string__29, $efront_string__const1, $efront_string__doBin, $efront_string__doUna, $efront_string__doLog, $efront_string__evalu, $efront_string__isCon, $efront_string__Assig, $efront_string__Array, $efront_string__eleme, $efront_string__lengt1, $efront_string__CallE, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__Funct1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__Membe, $efront_string__NewEx, $efront_string__Objec, $efront_string__prope1, $efront_string__Prope, $efront_string__Seque, $efront_string__expre1, $efront_string__ThisE, $efront_string__Updat, $efront_string__hasSi, $efront_string__Array2, $efront_string__last_, $efront_string__boole) {
+/** 566 $efront_string__11 */ '!',
+/** 567 $efront_string__12 */ '||',
+/** 568 $efront_string__13 */ '&&',
+/** 569 $efront_string__14 */ '+',
+/** 570 $efront_string__15 */ '|',
+/** 571 $efront_string__16 */ '^',
+/** 572 $efront_string__17 */ '&',
+/** 573 $efront_string__18 */ '==',
+/** 574 $efront_string__19 */ '!=',
+/** 575 $efront_string__20 */ '===',
+/** 576 $efront_string__21 */ '!==',
+/** 577 $efront_string__22 */ '<',
+/** 578 $efront_string__23 */ '>',
+/** 579 $efront_string__24 */ '<=',
+/** 580 $efront_string__25 */ '>=',
+/** 581 $efront_string__26 */ '<<',
+/** 582 $efront_string__27 */ '>>',
+/** 583 $efront_string__28 */ '>>>',
+/** 584 $efront_string__29 */ '%',
+/** 585 $efront_string__const1 */ 'constant',
+/** 586 $efront_string__doBin */ 'doBinary',
+/** 587 $efront_string__doUna */ 'doUnary',
+/** 588 $efront_string__doLog */ 'doLogical',
+/** 589 $efront_string__evalu */ 'evaluate',
+/** 590 $efront_string__isCon */ 'isConstant',
+/** 591 $efront_string__hasSi */ 'hasSideEffect',
+/** 592 $efront_string__boole */ 'booleanCondition',
+/** 593 evaluator.js */ [1,67,68,196,187,100,150,127,117,481,378,57,566,152,80,369,397,129,130,102,511,567,568,569,500,561,388,570,571,572,573,574,575,576,577,578,579,580,581,582,583,246,307,584,585,586,587,588,589,590,75,76,131,128,82,87,36,142,143,97,98,463,423,103,105,106,151,109,111,153,114,118,591,504,506,592,function(require, undefined, exports, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__objec1, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__delet, $efront_string__11, $efront_string__argum1, $efront_string__Binar, $efront_string__in_, $efront_string__insta, $efront_string__left_, $efront_string__right, $efront_string__Logic, $efront_string__unrea, $efront_string__12, $efront_string__13, $efront_string__14, $efront_string__4, $efront_string__10, $efront_string__typeo, $efront_string__15, $efront_string__16, $efront_string__17, $efront_string__18, $efront_string__19, $efront_string__20, $efront_string__21, $efront_string__22, $efront_string__23, $efront_string__24, $efront_string__25, $efront_string__26, $efront_string__27, $efront_string__28, $efront_string__, $efront_string__1, $efront_string__29, $efront_string__const1, $efront_string__doBin, $efront_string__doUna, $efront_string__doLog, $efront_string__evalu, $efront_string__isCon, $efront_string__Assig, $efront_string__Array, $efront_string__eleme, $efront_string__lengt1, $efront_string__CallE, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__Funct1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__Membe, $efront_string__NewEx, $efront_string__Objec, $efront_string__prope1, $efront_string__Prope, $efront_string__Seque, $efront_string__expre1, $efront_string__ThisE, $efront_string__Updat, $efront_string__hasSi, $efront_string__Array2, $efront_string__last_, $efront_string__boole) {
     return function () {
         'use strict';
         var _a;
         var Syntax, common;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function isConstant(node, allowRegExp) {
             if (node[$efront_string__type_] === Syntax[$efront_string__Liter]) {
@@ -2830,11 +2828,11 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         exports[$efront_string__boole] = booleanCondition
     }()
 }],
-/** 596 query.js */ [1,69,53,130,57,512,function(require, exports, $efront_string__get_, $efront_string__lengt1, $efront_string__set_, $efront_string__asser) {
+/** 594 query.js */ [1,68,52,128,56,510,function(require, exports, $efront_string__get_, $efront_string__lengt1, $efront_string__set_, $efront_string__asser) {
     return function () {
         'use strict';
         var common;
-        common = require(532);
+        common = require(530);
         exports[$efront_string__get_] = function get(root, query) {
             var i, iz, name, node;
             node = root;
@@ -2857,18 +2855,18 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         }
     }()
 }],
-/** 597 $efront_string__trans */ 'transform-static-to-dynamic-property-access',
-/** 598 $efront_string__true_ */ 'true',
-/** 599 $efront_string__false */ 'false',
-/** 600 $efront_string__Infin */ 'Infinity',
-/** 601 $efront_string__resul */ 'result',
-/** 602 $efront_string__modif */ 'modified',
-/** 603 post$transform-static-to-dynamic-property-access.js */ [1,29,597,198,53,564,565,297,185,188,189,105,487,150,100,217,50,515,119,483,380,154,102,152,598,599,600,82,309,131,132,601,602,566,39,function(require, module, $efront_string__trans, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__Ident, $efront_string__name_, $efront_string__undef, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__argum1, $efront_string__Liter, $efront_string__value1, $efront_string__true_, $efront_string__false, $efront_string__Infin, $efront_string__Binar, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 595 $efront_string__trans */ 'transform-static-to-dynamic-property-access',
+/** 596 $efront_string__true_ */ 'true',
+/** 597 $efront_string__false */ 'false',
+/** 598 $efront_string__Infin */ 'Infinity',
+/** 599 $efront_string__resul */ 'result',
+/** 600 $efront_string__modif */ 'modified',
+/** 601 post$transform-static-to-dynamic-property-access.js */ [1,29,595,196,52,562,563,295,183,186,187,103,485,148,98,215,49,513,117,481,378,152,100,150,596,597,598,80,307,129,130,599,600,564,38,function(require, module, $efront_string__trans, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__Ident, $efront_string__name_, $efront_string__undef, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__argum1, $efront_string__Liter, $efront_string__value1, $efront_string__true_, $efront_string__false, $efront_string__Infin, $efront_string__Binar, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common;
         Name = $efront_string__trans;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function transformStaticToDynamicPropertyAccess(tree, options) {
             var _a, _b, _c;
@@ -2907,13 +2905,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformStaticToDynamicPropertyAccess
     }()
 }],
-/** 604 $efront_string__trans1 */ 'transform-infinity',
-/** 605 post$transform-infinity.js */ [1,29,604,198,53,564,565,297,167,188,189,102,152,501,515,82,483,309,131,132,601,602,566,39,function(require, module, $efront_string__trans1, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__numbe, $efront_string__moveL, $efront_string__Binar, $efront_string__opera, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 602 $efront_string__trans1 */ 'transform-infinity',
+/** 603 post$transform-infinity.js */ [1,29,602,196,52,562,563,295,165,186,187,100,150,499,513,80,481,307,129,130,599,600,564,38,function(require, module, $efront_string__trans1, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__numbe, $efront_string__moveL, $efront_string__Binar, $efront_string__opera, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common;
         Name = $efront_string__trans1;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function transformInfinity(tree, options) {
             var _a, _b, _c;
@@ -2935,13 +2933,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformInfinity
     }()
 }],
-/** 606 $efront_string__rewri */ 'rewrite-conditional-expression',
-/** 607 post$rewrite-conditional-expression.js */ [1,29,606,198,37,144,145,189,119,483,568,154,53,564,565,297,185,188,89,601,602,566,39,function(require, module, $efront_string__rewri, $efront_string__Synta, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__type_, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Condi, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 604 $efront_string__rewri */ 'rewrite-conditional-expression',
+/** 605 post$rewrite-conditional-expression.js */ [1,29,604,196,36,142,143,187,117,481,566,152,52,562,563,295,183,186,87,599,600,564,38,function(require, module, $efront_string__rewri, $efront_string__Synta, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__type_, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Condi, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__rewri;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function rewrite(node) {
             var test, consequent, alternate;
@@ -2971,14 +2969,14 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = rewriteConditionalExpression
     }()
 }],
-/** 608 $efront_string__rewri1 */ 'rewrite-boolean',
-/** 609 $efront_string__boole1 */ 'boolean',
-/** 610 post$rewrite-boolean.js */ [1,29,608,198,189,102,152,609,515,119,483,568,154,82,575,576,131,132,53,564,565,297,167,188,601,602,566,39,function(require, module, $efront_string__rewri1, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__boole1, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__Binar, $efront_string__18, $efront_string__19, $efront_string__left_, $efront_string__right, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 606 $efront_string__rewri1 */ 'rewrite-boolean',
+/** 607 $efront_string__boole1 */ 'boolean',
+/** 608 post$rewrite-boolean.js */ [1,29,606,196,187,100,150,607,513,117,481,566,152,80,573,574,129,130,52,562,563,295,165,186,599,600,564,38,function(require, module, $efront_string__rewri1, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__boole1, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__Binar, $efront_string__18, $efront_string__19, $efront_string__left_, $efront_string__right, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__rewri1;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function isBooleanLiteral(node) {
             return node[$efront_string__type_] === Syntax[$efront_string__Liter] && typeof node[$efront_string__value1] === $efront_string__boole1
@@ -3015,14 +3013,14 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = rewriteBoolean
     }()
 }],
-/** 611 $efront_string__omit_ */ 'omit-parens-in-void-context-iife',
-/** 612 $efront_string__prese */ 'preserveCompletionValue',
-/** 613 post$omit-parens-in-void-context-iife.js */ [1,29,611,198,189,84,139,99,53,564,565,297,612,167,188,95,174,186,518,113,155,130,119,483,568,154,187,98,601,602,566,39,function(require, module, $efront_string__omit_, $efront_string__Synta, $efront_string__type_, $efront_string__CallE, $efront_string__calle, $efront_string__Funct1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__repla, $efront_string__enter, $efront_string__Expre, $efront_string__paren1, $efront_string__pop_, $efront_string__mayBe, $efront_string__Seque, $efront_string__expre1, $efront_string__lengt1, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__leave, $efront_string__Funct, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 609 $efront_string__omit_ */ 'omit-parens-in-void-context-iife',
+/** 610 $efront_string__prese */ 'preserveCompletionValue',
+/** 611 post$omit-parens-in-void-context-iife.js */ [1,29,609,196,187,82,137,97,52,562,563,295,610,165,186,93,172,184,516,111,153,128,117,481,566,152,185,96,599,600,564,38,function(require, module, $efront_string__omit_, $efront_string__Synta, $efront_string__type_, $efront_string__CallE, $efront_string__calle, $efront_string__Funct1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__repla, $efront_string__enter, $efront_string__Expre, $efront_string__paren1, $efront_string__pop_, $efront_string__mayBe, $efront_string__Seque, $efront_string__expre1, $efront_string__lengt1, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__leave, $efront_string__Funct, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__omit_;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function isIIFE(node) {
             var callee;
@@ -3074,14 +3072,14 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = main
     }()
 }],
-/** 614 $efront_string__tree_ */ 'tree-based-constant-folding',
-/** 615 pass$tree-based-constant-folding.js */ [1,29,614,198,521,524,519,526,587,592,189,89,144,145,82,483,371,399,131,132,591,529,588,104,119,154,589,53,564,565,297,167,187,515,505,113,155,37,601,602,566,39,function(require, module, $efront_string__tree_, $efront_string__Synta, $efront_string__Speci, $efront_string__isUnd, $efront_string__isNeg, $efront_string__isNaN, $efront_string__const1, $efront_string__isCon, $efront_string__type_, $efront_string__Condi, $efront_string__conse, $efront_string__alter, $efront_string__Binar, $efront_string__opera, $efront_string__in_, $efront_string__insta, $efront_string__left_, $efront_string__right, $efront_string__evalu, $efront_string__gener4, $efront_string__doBin, $efront_string__Logic, $efront_string__Unary, $efront_string__argum1, $efront_string__doUna, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__moveL, $efront_string__sameV, $efront_string__Seque, $efront_string__expre1, $efront_string__test_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 612 $efront_string__tree_ */ 'tree-based-constant-folding',
+/** 613 pass$tree-based-constant-folding.js */ [1,29,612,196,519,522,517,524,585,590,187,87,142,143,80,481,369,397,129,130,589,527,586,102,117,152,587,52,562,563,295,165,185,513,503,111,153,36,599,600,564,38,function(require, module, $efront_string__tree_, $efront_string__Synta, $efront_string__Speci, $efront_string__isUnd, $efront_string__isNeg, $efront_string__isNaN, $efront_string__const1, $efront_string__isCon, $efront_string__type_, $efront_string__Condi, $efront_string__conse, $efront_string__alter, $efront_string__Binar, $efront_string__opera, $efront_string__in_, $efront_string__insta, $efront_string__left_, $efront_string__right, $efront_string__evalu, $efront_string__gener4, $efront_string__doBin, $efront_string__Logic, $efront_string__Unary, $efront_string__argum1, $efront_string__doUna, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__moveL, $efront_string__sameV, $efront_string__Seque, $efront_string__expre1, $efront_string__test_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, evaluator, modified;
         Name = $efront_string__tree_;
-        common = require(532);
-        evaluator = require(595);
+        common = require(530);
+        evaluator = require(593);
         Syntax = common[$efront_string__Synta];
         function isModifiedConstant(node) {
             if (common[$efront_string__Speci][$efront_string__isUnd](node)) {
@@ -3209,14 +3207,14 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = treeBasedConstantFolding
     }()
 }],
-/** 616 $efront_string__trans2 */ 'transform-typeof-undefined',
-/** 617 pass$transform-typeof-undefined.js */ [1,29,616,198,189,102,152,50,53,564,565,297,493,412,473,185,188,480,82,483,577,578,575,576,131,132,119,390,154,100,465,425,417,521,523,294,568,187,481,474,601,602,566,39,function(require, module, $efront_string__trans2, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__undef, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__enter, $efront_string__acqui, $efront_string__Binar, $efront_string__opera, $efront_string__20, $efront_string__21, $efront_string__18, $efront_string__19, $efront_string__left_, $efront_string__right, $efront_string__Unary, $efront_string__typeo, $efront_string__argum1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__resol, $efront_string__Speci, $efront_string__gener2, $efront_string__charA, $efront_string__11, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 614 $efront_string__trans2 */ 'transform-typeof-undefined',
+/** 615 pass$transform-typeof-undefined.js */ [1,29,614,196,187,100,150,49,52,562,563,295,491,410,471,183,186,478,80,481,575,576,573,574,129,130,117,388,152,98,463,423,415,519,521,292,566,185,479,472,599,600,564,38,function(require, module, $efront_string__trans2, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__undef, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__enter, $efront_string__acqui, $efront_string__Binar, $efront_string__opera, $efront_string__20, $efront_string__21, $efront_string__18, $efront_string__19, $efront_string__left_, $efront_string__right, $efront_string__Unary, $efront_string__typeo, $efront_string__argum1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__resol, $efront_string__Speci, $efront_string__gener2, $efront_string__charA, $efront_string__11, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, escope, modified;
         Name = $efront_string__trans2;
-        escope = require(496);
-        common = require(532);
+        escope = require(494);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function isUndefinedStringLiteral(node) {
             return node[$efront_string__type_] === Syntax[$efront_string__Liter] && node[$efront_string__value1] === $efront_string__undef
@@ -3266,13 +3264,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformTypeofUndefined
     }()
 }],
-/** 618 $efront_string__trans3 */ 'transform-to-sequence-expression',
-/** 619 pass$transform-to-sequence-expression.js */ [1,29,618,198,130,189,113,155,95,146,154,137,64,112,117,96,147,121,101,37,53,564,565,297,185,188,81,110,601,602,566,39,function(require, module, $efront_string__trans3, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Seque, $efront_string__expre1, $efront_string__Expre, $efront_string__expre, $efront_string__argum1, $efront_string__body_, $efront_string__push_, $efront_string__Retur, $efront_string__Throw, $efront_string__ForSt, $efront_string__init_, $efront_string__Varia, $efront_string__IfSta, $efront_string__test_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Block, $efront_string__Progr, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 616 $efront_string__trans3 */ 'transform-to-sequence-expression',
+/** 617 pass$transform-to-sequence-expression.js */ [1,29,616,196,128,187,111,153,93,144,152,135,63,110,115,94,145,119,99,36,52,562,563,295,183,186,79,108,599,600,564,38,function(require, module, $efront_string__trans3, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Seque, $efront_string__expre1, $efront_string__Expre, $efront_string__expre, $efront_string__argum1, $efront_string__body_, $efront_string__push_, $efront_string__Retur, $efront_string__Throw, $efront_string__ForSt, $efront_string__init_, $efront_string__Varia, $efront_string__IfSta, $efront_string__test_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Block, $efront_string__Progr, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__trans3;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function transform(node) {
             var _a, _b;
@@ -3356,25 +3354,25 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformToSequenceExpression
     }()
 }],
-/** 620 $efront_string__trans4 */ 'transform-to-compound-assignment',
-/** 621 $efront_string__30 */ '*=',
-/** 622 $efront_string__31 */ '/=',
-/** 623 $efront_string__32 */ '%=',
-/** 624 $efront_string__33 */ '+=',
-/** 625 $efront_string__34 */ '-=',
-/** 626 $efront_string__35 */ '<<=',
-/** 627 $efront_string__36 */ '>>=',
-/** 628 $efront_string__37 */ '>>>=',
-/** 629 $efront_string__38 */ '&=',
-/** 630 $efront_string__39 */ '^=',
-/** 631 $efront_string__40 */ '|=',
-/** 632 pass$transform-to-compound-assignment.js */ [1,29,620,198,189,100,217,248,309,586,571,502,583,584,585,574,573,572,484,621,622,623,624,625,626,627,628,629,630,631,53,564,565,297,493,412,473,185,188,480,77,483,131,132,82,465,425,187,481,474,601,602,566,39,function(require, module, $efront_string__trans4, $efront_string__Synta, $efront_string__type_, $efront_string__Ident, $efront_string__name_, $efront_string__, $efront_string__1, $efront_string__29, $efront_string__14, $efront_string__4, $efront_string__26, $efront_string__27, $efront_string__28, $efront_string__17, $efront_string__16, $efront_string__15, $efront_string__3, $efront_string__30, $efront_string__31, $efront_string__32, $efront_string__33, $efront_string__34, $efront_string__35, $efront_string__36, $efront_string__37, $efront_string__38, $efront_string__39, $efront_string__40, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__enter, $efront_string__acqui, $efront_string__Assig, $efront_string__opera, $efront_string__left_, $efront_string__right, $efront_string__Binar, $efront_string__resol1, $efront_string__isSta, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 618 $efront_string__trans4 */ 'transform-to-compound-assignment',
+/** 619 $efront_string__30 */ '*=',
+/** 620 $efront_string__31 */ '/=',
+/** 621 $efront_string__32 */ '%=',
+/** 622 $efront_string__33 */ '+=',
+/** 623 $efront_string__34 */ '-=',
+/** 624 $efront_string__35 */ '<<=',
+/** 625 $efront_string__36 */ '>>=',
+/** 626 $efront_string__37 */ '>>>=',
+/** 627 $efront_string__38 */ '&=',
+/** 628 $efront_string__39 */ '^=',
+/** 629 $efront_string__40 */ '|=',
+/** 630 pass$transform-to-compound-assignment.js */ [1,29,618,196,187,98,215,246,307,584,569,500,581,582,583,572,571,570,482,619,620,621,622,623,624,625,626,627,628,629,52,562,563,295,491,410,471,183,186,478,75,481,129,130,80,463,423,185,479,472,599,600,564,38,function(require, module, $efront_string__trans4, $efront_string__Synta, $efront_string__type_, $efront_string__Ident, $efront_string__name_, $efront_string__, $efront_string__1, $efront_string__29, $efront_string__14, $efront_string__4, $efront_string__26, $efront_string__27, $efront_string__28, $efront_string__17, $efront_string__16, $efront_string__15, $efront_string__3, $efront_string__30, $efront_string__31, $efront_string__32, $efront_string__33, $efront_string__34, $efront_string__35, $efront_string__36, $efront_string__37, $efront_string__38, $efront_string__39, $efront_string__40, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__enter, $efront_string__acqui, $efront_string__Assig, $efront_string__opera, $efront_string__left_, $efront_string__right, $efront_string__Binar, $efront_string__resol1, $efront_string__isSta, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, escope, modified;
         Name = $efront_string__trans4;
-        escope = require(496);
-        common = require(532);
+        escope = require(494);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function equals(lhs, rhs) {
             if (lhs[$efront_string__type_] !== rhs[$efront_string__type_]) {
@@ -3461,13 +3459,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformToCompoundAssignment
     }()
 }],
-/** 633 $efront_string__trans5 */ 'transform-logical-association',
-/** 634 pass$transform-logical-association.js */ [1,29,633,198,53,564,565,297,185,188,189,104,132,483,131,601,602,566,39,function(require, module, $efront_string__trans5, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Logic, $efront_string__right, $efront_string__opera, $efront_string__left_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 631 $efront_string__trans5 */ 'transform-logical-association',
+/** 632 pass$transform-logical-association.js */ [1,29,631,196,52,562,563,295,183,186,187,102,130,481,129,599,600,564,38,function(require, module, $efront_string__trans5, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Logic, $efront_string__right, $efront_string__opera, $efront_string__left_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__trans5;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function transformLogicalAssociation(tree, options) {
             var _a, _b, _c;
@@ -3490,13 +3488,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformLogicalAssociation
     }()
 }],
-/** 635 $efront_string__trans6 */ 'transform-immediate-function-call',
-/** 636 pass$transform-immediate-function-call.js */ [1,29,635,198,189,84,139,99,137,81,130,98,506,415,140,521,523,64,515,113,155,53,564,565,297,167,187,601,602,566,39,function(require, module, $efront_string__trans6, $efront_string__Synta, $efront_string__type_, $efront_string__CallE, $efront_string__calle, $efront_string__Funct1, $efront_string__body_, $efront_string__Block, $efront_string__lengt1, $efront_string__Funct, $efront_string__Array2, $efront_string__from_, $efront_string__argum, $efront_string__Speci, $efront_string__gener2, $efront_string__push_, $efront_string__moveL, $efront_string__Seque, $efront_string__expre1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 633 $efront_string__trans6 */ 'transform-immediate-function-call',
+/** 634 pass$transform-immediate-function-call.js */ [1,29,633,196,187,82,137,97,135,79,128,96,504,413,138,519,521,63,513,111,153,52,562,563,295,165,185,599,600,564,38,function(require, module, $efront_string__trans6, $efront_string__Synta, $efront_string__type_, $efront_string__CallE, $efront_string__calle, $efront_string__Funct1, $efront_string__body_, $efront_string__Block, $efront_string__lengt1, $efront_string__Funct, $efront_string__Array2, $efront_string__from_, $efront_string__argum, $efront_string__Speci, $efront_string__gener2, $efront_string__push_, $efront_string__moveL, $efront_string__Seque, $efront_string__expre1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__trans6;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function isEmptyFunctionCall(call) {
             var callee, i, iz, stmt;
@@ -3548,13 +3546,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformImmediateFunctionCall
     }()
 }],
-/** 637 $efront_string__trans7 */ 'transform-dynamic-to-static-property-definition',
-/** 638 pass$transform-dynamic-to-static-property-definition.js */ [1,300,29,637,198,53,564,565,297,185,188,189,111,151,102,152,444,514,515,100,217,127,521,529,601,602,566,39,function(require, Number, module, $efront_string__trans7, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Prope, $efront_string__key_, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__isIde3, $efront_string__moveL, $efront_string__Ident, $efront_string__name_, $efront_string__toStr, $efront_string__Speci, $efront_string__gener4, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 635 $efront_string__trans7 */ 'transform-dynamic-to-static-property-definition',
+/** 636 pass$transform-dynamic-to-static-property-definition.js */ [1,298,29,635,196,52,562,563,295,183,186,187,109,149,100,150,442,512,513,98,215,125,519,527,599,600,564,38,function(require, Number, module, $efront_string__trans7, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Prope, $efront_string__key_, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__isIde3, $efront_string__moveL, $efront_string__Ident, $efront_string__name_, $efront_string__toStr, $efront_string__Speci, $efront_string__gener4, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__trans7;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function transformDynamicToStaticPropertyDefinition(tree, options) {
             var _a, _b, _c;
@@ -3585,13 +3583,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformDynamicToStaticPropertyDefinition
     }()
 }],
-/** 639 $efront_string__trans8 */ 'transform-dynamic-to-static-property-access',
-/** 640 pass$transform-dynamic-to-static-property-access.js */ [1,300,29,639,198,53,564,565,297,185,188,189,105,487,150,102,152,444,514,515,100,217,127,521,529,601,602,566,39,function(require, Number, module, $efront_string__trans8, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__isIde3, $efront_string__moveL, $efront_string__Ident, $efront_string__name_, $efront_string__toStr, $efront_string__Speci, $efront_string__gener4, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 637 $efront_string__trans8 */ 'transform-dynamic-to-static-property-access',
+/** 638 pass$transform-dynamic-to-static-property-access.js */ [1,298,29,637,196,52,562,563,295,183,186,187,103,485,148,100,150,442,512,513,98,215,125,519,527,599,600,564,38,function(require, Number, module, $efront_string__trans8, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__isIde3, $efront_string__moveL, $efront_string__Ident, $efront_string__name_, $efront_string__toStr, $efront_string__Speci, $efront_string__gener4, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__trans8;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function transformDynamicToStaticPropertyAccess(tree, options) {
             var _a, _b, _c;
@@ -3622,13 +3620,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformDynamicToStaticPropertyAccess
     }()
 }],
-/** 641 $efront_string__trans9 */ 'transform-branch-to-expression',
-/** 642 pass$transform-branch-to-expression.js */ [1,29,641,198,53,564,565,297,612,167,187,189,101,174,518,145,144,95,515,146,89,37,112,154,113,155,521,523,117,104,483,570,131,132,94,601,602,566,39,function(require, module, $efront_string__trans9, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__repla, $efront_string__leave, $efront_string__type_, $efront_string__IfSta, $efront_string__paren1, $efront_string__mayBe, $efront_string__alter, $efront_string__conse, $efront_string__Expre, $efront_string__moveL, $efront_string__expre, $efront_string__Condi, $efront_string__test_, $efront_string__Retur, $efront_string__argum1, $efront_string__Seque, $efront_string__expre1, $efront_string__Speci, $efront_string__gener2, $efront_string__Throw, $efront_string__Logic, $efront_string__opera, $efront_string__13, $efront_string__left_, $efront_string__right, $efront_string__Empty, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 639 $efront_string__trans9 */ 'transform-branch-to-expression',
+/** 640 pass$transform-branch-to-expression.js */ [1,29,639,196,52,562,563,295,610,165,185,187,99,172,516,143,142,93,513,144,87,36,110,152,111,153,519,521,115,102,481,568,129,130,92,599,600,564,38,function(require, module, $efront_string__trans9, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__repla, $efront_string__leave, $efront_string__type_, $efront_string__IfSta, $efront_string__paren1, $efront_string__mayBe, $efront_string__alter, $efront_string__conse, $efront_string__Expre, $efront_string__moveL, $efront_string__expre, $efront_string__Condi, $efront_string__test_, $efront_string__Retur, $efront_string__argum1, $efront_string__Seque, $efront_string__expre1, $efront_string__Speci, $efront_string__gener2, $efront_string__Throw, $efront_string__Logic, $efront_string__opera, $efront_string__13, $efront_string__left_, $efront_string__right, $efront_string__Empty, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__trans9;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function transformBranchToExpression(tree, options) {
             var _a, _b, _c, _d;
@@ -3682,13 +3680,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = transformBranchToExpression
     }()
 }],
-/** 643 $efront_string__reord */ 'reordering-function-declarations',
-/** 644 pass$reordering-function-declarations.js */ [1,29,643,198,130,189,98,64,92,503,53,564,565,297,185,187,110,137,99,601,602,566,39,function(require, module, $efront_string__reord, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Funct, $efront_string__push_, $efront_string__Direc, $efront_string__conca1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__Progr, $efront_string__body_, $efront_string__Funct1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 641 $efront_string__reord */ 'reordering-function-declarations',
+/** 642 pass$reordering-function-declarations.js */ [1,29,641,196,128,187,96,63,90,501,52,562,563,295,183,185,108,135,97,599,600,564,38,function(require, module, $efront_string__reord, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Funct, $efront_string__push_, $efront_string__Direc, $efront_string__conca1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__Progr, $efront_string__body_, $efront_string__Funct1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__reord;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function reordering(array) {
             var i, iz, node, directives, declarations, others;
@@ -3732,13 +3730,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = reorderingFunctionDeclarations
     }()
 }],
-/** 645 $efront_string__remov */ 'remove-wasted-blocks',
-/** 646 pass$remove-wasted-blocks.js */ [1,29,645,198,130,189,81,137,531,503,64,53,564,565,297,167,187,110,98,99,118,85,94,601,602,566,39,function(require, module, $efront_string__remov, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Block, $efront_string__body_, $efront_string__isSco1, $efront_string__conca1, $efront_string__push_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__Progr, $efront_string__Funct, $efront_string__Funct1, $efront_string__TrySt, $efront_string__Catch, $efront_string__Empty, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 643 $efront_string__remov */ 'remove-wasted-blocks',
+/** 644 pass$remove-wasted-blocks.js */ [1,29,643,196,128,187,79,135,529,501,63,52,562,563,295,165,185,108,96,97,116,83,92,599,600,564,38,function(require, module, $efront_string__remov, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Block, $efront_string__body_, $efront_string__isSco1, $efront_string__conca1, $efront_string__push_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__Progr, $efront_string__Funct, $efront_string__Funct1, $efront_string__TrySt, $efront_string__Catch, $efront_string__Empty, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__remov;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function flattenBlockStatement(body) {
             var i, iz, j, jz, result, stmt, inner, ok;
@@ -3801,22 +3799,22 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = removeWastedBlocks
     }()
 }],
-/** 647 $efront_string__remov1 */ 'remove-unused-label',
-/** 648 $efront_string__unuse */ 'unused',
-/** 649 $efront_string__regis1 */ 'register',
-/** 650 $efront_string__dupli */ /** text */ 'duplicate label is found',
-/** 651 $efront_string__used_ */ 'used',
-/** 652 $efront_string__stmt_ */ 'stmt',
-/** 653 $efront_string__unreg */ 'unregister',
-/** 654 $efront_string__unres */ /** text */ 'unresolved label',
-/** 655 $efront_string__close */ 'close',
-/** 656 pass$remove-unused-label.js */ [1,29,647,198,57,648,439,52,649,512,189,103,138,217,56,650,651,652,653,53,58,137,465,654,655,564,565,297,167,188,110,98,99,83,90,187,601,602,566,39,function(require, module, $efront_string__remov1, $efront_string__Synta, $efront_string__set_, $efront_string__unuse, $efront_string__upper, $efront_string__proto, $efront_string__regis1, $efront_string__asser, $efront_string__type_, $efront_string__Label, $efront_string__label, $efront_string__name_, $efront_string__has_, $efront_string__dupli, $efront_string__used_, $efront_string__stmt_, $efront_string__unreg, $efront_string__get_, $efront_string__delet, $efront_string__body_, $efront_string__resol1, $efront_string__unres, $efront_string__close, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__Progr, $efront_string__Funct, $efront_string__Funct1, $efront_string__Break, $efront_string__Conti, $efront_string__leave, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 645 $efront_string__remov1 */ 'remove-unused-label',
+/** 646 $efront_string__unuse */ 'unused',
+/** 647 $efront_string__regis1 */ 'register',
+/** 648 $efront_string__dupli */ /** text */ 'duplicate label is found',
+/** 649 $efront_string__used_ */ 'used',
+/** 650 $efront_string__stmt_ */ 'stmt',
+/** 651 $efront_string__unreg */ 'unregister',
+/** 652 $efront_string__unres */ /** text */ 'unresolved label',
+/** 653 $efront_string__close */ 'close',
+/** 654 pass$remove-unused-label.js */ [1,29,645,196,56,646,437,51,647,510,187,101,136,215,55,648,649,650,651,52,57,135,463,652,653,562,563,295,165,186,108,96,97,81,88,185,599,600,564,38,function(require, module, $efront_string__remov1, $efront_string__Synta, $efront_string__set_, $efront_string__unuse, $efront_string__upper, $efront_string__proto, $efront_string__regis1, $efront_string__asser, $efront_string__type_, $efront_string__Label, $efront_string__label, $efront_string__name_, $efront_string__has_, $efront_string__dupli, $efront_string__used_, $efront_string__stmt_, $efront_string__unreg, $efront_string__get_, $efront_string__delet, $efront_string__body_, $efront_string__resol1, $efront_string__unres, $efront_string__close, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__Progr, $efront_string__Funct, $efront_string__Funct1, $efront_string__Break, $efront_string__Conti, $efront_string__leave, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, Map, common, scope, modified;
         Name = $efront_string__remov1;
-        common = require(532);
-        Map = require(67);
+        common = require(530);
+        Map = require(66);
         Syntax = common[$efront_string__Synta];
         function Scope(upper) {
             this[$efront_string__set_] = new Map;
@@ -3890,15 +3888,15 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = removeUnusedLabel
     }()
 }],
-/** 657 $efront_string__remov2 */ 'remove-unreachable-branch',
-/** 658 pass$remove-unreachable-branch.js */ [1,29,657,198,594,37,145,609,64,515,189,95,146,144,81,137,530,131,483,570,113,155,132,53,564,565,297,167,188,491,482,506,508,101,104,89,187,186,601,602,566,39,function(require, module, $efront_string__remov2, $efront_string__Synta, $efront_string__boole, $efront_string__test_, $efront_string__alter, $efront_string__boole1, $efront_string__push_, $efront_string__moveL, $efront_string__type_, $efront_string__Expre, $efront_string__expre, $efront_string__conse, $efront_string__Block, $efront_string__body_, $efront_string__deleg, $efront_string__left_, $efront_string__opera, $efront_string__13, $efront_string__Seque, $efront_string__expre1, $efront_string__right, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__Scope, $efront_string__isVar, $efront_string__Array2, $efront_string__last_, $efront_string__IfSta, $efront_string__Logic, $efront_string__Condi, $efront_string__leave, $efront_string__pop_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 655 $efront_string__remov2 */ 'remove-unreachable-branch',
+/** 656 pass$remove-unreachable-branch.js */ [1,29,655,196,592,36,143,607,63,513,187,93,144,142,79,135,528,129,481,568,111,153,130,52,562,563,295,165,186,489,480,504,506,99,102,87,185,184,599,600,564,38,function(require, module, $efront_string__remov2, $efront_string__Synta, $efront_string__boole, $efront_string__test_, $efront_string__alter, $efront_string__boole1, $efront_string__push_, $efront_string__moveL, $efront_string__type_, $efront_string__Expre, $efront_string__expre, $efront_string__conse, $efront_string__Block, $efront_string__body_, $efront_string__deleg, $efront_string__left_, $efront_string__opera, $efront_string__13, $efront_string__Seque, $efront_string__expre1, $efront_string__right, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__Scope, $efront_string__isVar, $efront_string__Array2, $efront_string__last_, $efront_string__IfSta, $efront_string__Logic, $efront_string__Condi, $efront_string__leave, $efront_string__pop_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, escope, evaluator, modified;
         Name = $efront_string__remov2;
-        escope = require(496);
-        common = require(532);
-        evaluator = require(595);
+        escope = require(494);
+        common = require(530);
+        evaluator = require(593);
         Syntax = common[$efront_string__Synta];
         function handleIfStatement(func, node) {
             var _a, _b, _c, _d, _e, _f, _g, _h;
@@ -4020,19 +4018,19 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = removeUnreachableBranch
     }()
 }],
-/** 659 $efront_string__remov3 */ 'remove-side-effect-free-expressions',
-/** 660 $efront_string__expre2 */ /** text */ 'expressions should be more than one',
-/** 661 $efront_string__resul1 */ /** text */ 'result should be more than zero',
-/** 662 $efront_string__unshi */ 'unshift',
-/** 663 $efront_string__seque */ /** text */ 'sequences\' length should be more than 1',
-/** 664 pass$remove-side-effect-free-expressions.js */ [1,29,659,198,512,155,130,660,593,64,661,521,528,662,189,95,441,53,564,565,297,612,493,412,473,167,188,480,113,663,506,508,119,483,380,154,186,515,146,94,187,481,474,601,602,566,39,function(require, module, $efront_string__remov3, $efront_string__Synta, $efront_string__asser, $efront_string__expre1, $efront_string__lengt1, $efront_string__expre2, $efront_string__hasSi, $efront_string__push_, $efront_string__resul1, $efront_string__Speci, $efront_string__canEx, $efront_string__unshi, $efront_string__type_, $efront_string__Expre, $efront_string__globa, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__Seque, $efront_string__seque, $efront_string__Array2, $efront_string__last_, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__argum1, $efront_string__pop_, $efront_string__moveL, $efront_string__expre, $efront_string__Empty, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 657 $efront_string__remov3 */ 'remove-side-effect-free-expressions',
+/** 658 $efront_string__expre2 */ /** text */ 'expressions should be more than one',
+/** 659 $efront_string__resul1 */ /** text */ 'result should be more than zero',
+/** 660 $efront_string__unshi */ 'unshift',
+/** 661 $efront_string__seque */ /** text */ 'sequences\' length should be more than 1',
+/** 662 pass$remove-side-effect-free-expressions.js */ [1,29,657,196,510,153,128,658,591,63,659,519,526,660,187,93,439,52,562,563,295,610,491,410,471,165,186,478,111,661,504,506,117,481,378,152,184,513,144,92,185,479,472,599,600,564,38,function(require, module, $efront_string__remov3, $efront_string__Synta, $efront_string__asser, $efront_string__expre1, $efront_string__lengt1, $efront_string__expre2, $efront_string__hasSi, $efront_string__push_, $efront_string__resul1, $efront_string__Speci, $efront_string__canEx, $efront_string__unshi, $efront_string__type_, $efront_string__Expre, $efront_string__globa, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__Seque, $efront_string__seque, $efront_string__Array2, $efront_string__last_, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__argum1, $efront_string__pop_, $efront_string__moveL, $efront_string__expre, $efront_string__Empty, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, escope, evaluator, modified;
         Name = $efront_string__remov3;
-        escope = require(496);
-        common = require(532);
-        evaluator = require(595);
+        escope = require(494);
+        common = require(530);
+        evaluator = require(593);
         Syntax = common[$efront_string__Synta];
         function reduce(node, scope, parent, isResultNeeded) {
             var i, iz, expr, result, prev;
@@ -4124,13 +4122,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = removeSideEffectFreeExpressions
     }()
 }],
-/** 665 $efront_string__remov4 */ 'remove-empty-statement',
-/** 666 pass$remove-empty-statement.js */ [1,29,665,198,130,189,94,64,145,144,37,515,119,483,568,154,53,564,565,297,185,188,81,110,137,115,101,114,157,506,508,509,186,601,602,566,39,function(require, module, $efront_string__remov4, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Empty, $efront_string__push_, $efront_string__alter, $efront_string__conse, $efront_string__test_, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__Switc1, $efront_string__IfSta, $efront_string__Switc, $efront_string__cases, $efront_string__Array2, $efront_string__last_, $efront_string__empty, $efront_string__pop_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 663 $efront_string__remov4 */ 'remove-empty-statement',
+/** 664 pass$remove-empty-statement.js */ [1,29,663,196,128,187,92,63,143,142,36,513,117,481,566,152,52,562,563,295,183,186,79,108,135,113,99,112,155,504,506,507,184,599,600,564,38,function(require, module, $efront_string__remov4, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Empty, $efront_string__push_, $efront_string__alter, $efront_string__conse, $efront_string__test_, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__Switc1, $efront_string__IfSta, $efront_string__Switc, $efront_string__cases, $efront_string__Array2, $efront_string__last_, $efront_string__empty, $efront_string__pop_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__remov4;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function remove(array) {
             var i, iz, node, result;
@@ -4193,21 +4191,21 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = removeEmptyStatement
     }()
 }],
-/** 667 $efront_string__remov5 */ 'remove-context-sensitive-expressions',
-/** 668 $efront_string__trans10 */ 'transform',
-/** 669 $efront_string__boole2 */ 'booleanFunction',
-/** 670 $efront_string__voidF */ 'voidFunction',
-/** 671 $efront_string__boole3 */ 'booleanTransformation',
-/** 672 $efront_string__voidT */ 'voidTransformation',
-/** 673 $efront_string__apply1 */ 'apply',
-/** 674 pass$remove-context-sensitive-expressions.js */ [1,29,667,198,668,669,670,426,52,671,189,119,483,568,154,104,131,132,569,570,515,89,37,144,145,672,380,593,673,113,155,130,506,508,53,564,565,297,612,493,412,473,167,188,480,99,98,77,78,81,82,83,84,85,90,93,91,94,95,146,97,96,147,121,148,100,101,102,103,105,107,108,110,111,112,114,115,116,117,118,120,122,123,124,187,481,474,601,602,566,39,function(require, module, $efront_string__remov5, $efront_string__Synta, $efront_string__trans10, $efront_string__boole2, $efront_string__voidF, $efront_string__scope, $efront_string__proto, $efront_string__boole3, $efront_string__type_, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__Logic, $efront_string__left_, $efront_string__right, $efront_string__12, $efront_string__13, $efront_string__moveL, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__voidT, $efront_string__void_, $efront_string__hasSi, $efront_string__apply1, $efront_string__Seque, $efront_string__expre1, $efront_string__lengt1, $efront_string__Array2, $efront_string__last_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__Funct1, $efront_string__Funct, $efront_string__Assig, $efront_string__Array, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__Catch, $efront_string__Conti, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__Expre, $efront_string__expre, $efront_string__ForIn, $efront_string__ForSt, $efront_string__init_, $efront_string__Varia, $efront_string__updat, $efront_string__Ident, $efront_string__IfSta, $efront_string__Liter, $efront_string__Label, $efront_string__Membe, $efront_string__NewEx, $efront_string__Objec, $efront_string__Progr, $efront_string__Prope, $efront_string__Retur, $efront_string__Switc, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Updat, $efront_string__Varia1, $efront_string__While, $efront_string__WithS, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 665 $efront_string__remov5 */ 'remove-context-sensitive-expressions',
+/** 666 $efront_string__trans10 */ 'transform',
+/** 667 $efront_string__boole2 */ 'booleanFunction',
+/** 668 $efront_string__voidF */ 'voidFunction',
+/** 669 $efront_string__boole3 */ 'booleanTransformation',
+/** 670 $efront_string__voidT */ 'voidTransformation',
+/** 671 $efront_string__apply1 */ 'apply',
+/** 672 pass$remove-context-sensitive-expressions.js */ [1,29,665,196,666,667,668,424,51,669,187,117,481,566,152,102,129,130,567,568,513,87,36,142,143,670,378,591,671,111,153,128,504,506,52,562,563,295,610,491,410,471,165,186,478,97,96,75,76,79,80,81,82,83,88,91,89,92,93,144,95,94,145,119,146,98,99,100,101,103,105,106,108,109,110,112,113,114,115,116,118,120,121,122,185,479,472,599,600,564,38,function(require, module, $efront_string__remov5, $efront_string__Synta, $efront_string__trans10, $efront_string__boole2, $efront_string__voidF, $efront_string__scope, $efront_string__proto, $efront_string__boole3, $efront_string__type_, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__Logic, $efront_string__left_, $efront_string__right, $efront_string__12, $efront_string__13, $efront_string__moveL, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__voidT, $efront_string__void_, $efront_string__hasSi, $efront_string__apply1, $efront_string__Seque, $efront_string__expre1, $efront_string__lengt1, $efront_string__Array2, $efront_string__last_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__Funct1, $efront_string__Funct, $efront_string__Assig, $efront_string__Array, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__Catch, $efront_string__Conti, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__Expre, $efront_string__expre, $efront_string__ForIn, $efront_string__ForSt, $efront_string__init_, $efront_string__Varia, $efront_string__updat, $efront_string__Ident, $efront_string__IfSta, $efront_string__Liter, $efront_string__Label, $efront_string__Membe, $efront_string__NewEx, $efront_string__Objec, $efront_string__Progr, $efront_string__Prope, $efront_string__Retur, $efront_string__Switc, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Updat, $efront_string__Varia1, $efront_string__While, $efront_string__WithS, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, evaluator, escope, modified;
         Name = $efront_string__remov5;
-        common = require(532);
-        evaluator = require(595);
-        escope = require(496);
+        common = require(530);
+        evaluator = require(593);
+        escope = require(494);
         Syntax = common[$efront_string__Synta];
         function Transformer(trans, booleanFunction, voidFunction, scope) {
             this[$efront_string__trans10] = trans;
@@ -4446,15 +4444,15 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = removeContextSensitiveExpressions
     }()
 }],
-/** 675 $efront_string__reduc */ 'reduce-sequence-expression',
-/** 676 pass$reduce-sequence-expression.js */ [1,29,675,198,155,130,189,113,516,64,587,592,591,129,100,465,425,593,105,487,150,53,564,565,297,493,412,473,167,188,480,187,89,37,506,508,104,131,82,132,120,119,154,521,528,77,483,484,481,474,601,602,566,39,function(require, module, $efront_string__reduc, $efront_string__Synta, $efront_string__expre1, $efront_string__lengt1, $efront_string__type_, $efront_string__Seque, $efront_string__delet1, $efront_string__push_, $efront_string__const1, $efront_string__isCon, $efront_string__evalu, $efront_string__objec1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__hasSi, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__leave, $efront_string__Condi, $efront_string__test_, $efront_string__Array2, $efront_string__last_, $efront_string__Logic, $efront_string__left_, $efront_string__Binar, $efront_string__right, $efront_string__Updat, $efront_string__Unary, $efront_string__argum1, $efront_string__Speci, $efront_string__canEx, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 673 $efront_string__reduc */ 'reduce-sequence-expression',
+/** 674 pass$reduce-sequence-expression.js */ [1,29,673,196,153,128,187,111,514,63,585,590,589,127,98,463,423,591,103,485,148,52,562,563,295,491,410,471,165,186,478,185,87,36,504,506,102,129,80,130,118,117,152,519,526,75,481,482,479,472,599,600,564,38,function(require, module, $efront_string__reduc, $efront_string__Synta, $efront_string__expre1, $efront_string__lengt1, $efront_string__type_, $efront_string__Seque, $efront_string__delet1, $efront_string__push_, $efront_string__const1, $efront_string__isCon, $efront_string__evalu, $efront_string__objec1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__hasSi, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__leave, $efront_string__Condi, $efront_string__test_, $efront_string__Array2, $efront_string__last_, $efront_string__Logic, $efront_string__left_, $efront_string__Binar, $efront_string__right, $efront_string__Updat, $efront_string__Unary, $efront_string__argum1, $efront_string__Speci, $efront_string__canEx, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, evaluator, escope, modified;
         Name = $efront_string__reduc;
-        escope = require(496);
-        common = require(532);
-        evaluator = require(595);
+        escope = require(494);
+        common = require(530);
+        evaluator = require(593);
         Syntax = common[$efront_string__Synta];
         function reduce(node) {
             var i, iz, j, jz, expr, result;
@@ -4581,13 +4579,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = reduceSequenceExpression
     }()
 }],
-/** 677 $efront_string__reduc1 */ 'reduce-multiple-if-statements',
-/** 678 pass$reduce-multiple-if-statements.js */ [1,29,677,198,53,564,565,297,185,187,189,101,145,144,37,104,483,570,131,132,601,602,566,39,function(require, module, $efront_string__reduc1, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__test_, $efront_string__Logic, $efront_string__opera, $efront_string__13, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 675 $efront_string__reduc1 */ 'reduce-multiple-if-statements',
+/** 676 pass$reduce-multiple-if-statements.js */ [1,29,675,196,52,562,563,295,183,185,187,99,143,142,36,102,481,568,129,130,599,600,564,38,function(require, module, $efront_string__reduc1, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__test_, $efront_string__Logic, $efront_string__opera, $efront_string__13, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__reduc1;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function reduceMultipleIfStatements(tree, options) {
             var _a, _b, _c;
@@ -4608,13 +4606,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = reduceMultipleIfStatements
     }()
 }],
-/** 679 $efront_string__reduc2 */ 'reduce-branch-jump',
-/** 680 pass$reduce-branch-jump.js */ [1,29,679,198,189,101,145,144,112,154,515,113,155,37,521,523,89,194,53,564,565,297,185,187,81,110,137,130,520,115,601,602,566,39,function(require, module, $efront_string__reduc2, $efront_string__Synta, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__Retur, $efront_string__argum1, $efront_string__moveL, $efront_string__Seque, $efront_string__expre1, $efront_string__test_, $efront_string__Speci, $efront_string__gener2, $efront_string__Condi, $efront_string__splic, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__lengt1, $efront_string__isFun, $efront_string__Switc1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 677 $efront_string__reduc2 */ 'reduce-branch-jump',
+/** 678 pass$reduce-branch-jump.js */ [1,29,677,196,187,99,143,142,110,152,513,111,153,36,519,521,87,192,52,562,563,295,183,185,79,108,135,128,518,113,599,600,564,38,function(require, module, $efront_string__reduc2, $efront_string__Synta, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__Retur, $efront_string__argum1, $efront_string__moveL, $efront_string__Seque, $efront_string__expre1, $efront_string__test_, $efront_string__Speci, $efront_string__gener2, $efront_string__Condi, $efront_string__splic, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__lengt1, $efront_string__isFun, $efront_string__Switc1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__reduc2;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function reduceLast(ary, index) {
             var _a, _b, _c, _d;
@@ -4709,15 +4707,15 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = reduceBranchJump
     }()
 }],
-/** 681 $efront_string__hoist */ 'hoist-variable-to-arguments',
-/** 682 $efront_string__for_i */ /** text */ 'for-in declaration length should be 1',
-/** 683 pass$hoist-variable-to-arguments.js */ [1,29,681,198,134,130,217,64,137,167,188,189,99,98,179,121,488,373,97,512,163,682,147,142,100,96,515,77,483,484,131,132,94,113,155,95,146,53,564,565,297,493,412,473,185,84,107,139,140,480,468,470,474,601,602,566,39,function(require, module, $efront_string__hoist, $efront_string__Synta, $efront_string__param, $efront_string__lengt1, $efront_string__name_, $efront_string__push_, $efront_string__body_, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Funct1, $efront_string__Funct, $efront_string__skip_, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__ForIn, $efront_string__asser, $efront_string__decla, $efront_string__for_i, $efront_string__init_, $efront_string__id_, $efront_string__Ident, $efront_string__ForSt, $efront_string__moveL, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__left_, $efront_string__right, $efront_string__Empty, $efront_string__Seque, $efront_string__expre1, $efront_string__Expre, $efront_string__expre, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__CallE, $efront_string__NewEx, $efront_string__calle, $efront_string__argum, $efront_string__acqui, $efront_string__isArg, $efront_string__isThi, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 679 $efront_string__hoist */ 'hoist-variable-to-arguments',
+/** 680 $efront_string__for_i */ /** text */ 'for-in declaration length should be 1',
+/** 681 pass$hoist-variable-to-arguments.js */ [1,29,679,196,132,128,215,63,135,165,186,187,97,96,177,119,486,371,95,510,161,680,145,140,98,94,513,75,481,482,129,130,92,111,153,93,144,52,562,563,295,491,410,471,183,82,105,137,138,478,466,468,472,599,600,564,38,function(require, module, $efront_string__hoist, $efront_string__Synta, $efront_string__param, $efront_string__lengt1, $efront_string__name_, $efront_string__push_, $efront_string__body_, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Funct1, $efront_string__Funct, $efront_string__skip_, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__ForIn, $efront_string__asser, $efront_string__decla, $efront_string__for_i, $efront_string__init_, $efront_string__id_, $efront_string__Ident, $efront_string__ForSt, $efront_string__moveL, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__left_, $efront_string__right, $efront_string__Empty, $efront_string__Seque, $efront_string__expre1, $efront_string__Expre, $efront_string__expre, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__CallE, $efront_string__NewEx, $efront_string__calle, $efront_string__argum, $efront_string__acqui, $efront_string__isArg, $efront_string__isThi, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, escope, modified;
         Name = $efront_string__hoist;
-        escope = require(496);
-        common = require(532);
+        escope = require(494);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function hoist(callee) {
             var _a;
@@ -4815,16 +4813,16 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = hoistVariableToArguments
     }()
 }],
-/** 684 $efront_string__elimi */ 'eliminate-duplicate-function-declarations',
-/** 685 $efront_string__count */ 'count',
-/** 686 $efront_string__globa1 */ /** text */ 'global map remains',
-/** 687 pass$eliminate-duplicate-function-declarations.js */ [1,29,684,198,167,188,189,98,142,217,53,685,515,94,81,179,163,130,506,508,564,565,297,56,64,57,99,187,186,63,512,686,601,602,566,39,function(require, module, $efront_string__elimi, $efront_string__Synta, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Funct, $efront_string__id_, $efront_string__name_, $efront_string__get_, $efront_string__count, $efront_string__moveL, $efront_string__Empty, $efront_string__Block, $efront_string__skip_, $efront_string__decla, $efront_string__lengt1, $efront_string__Array2, $efront_string__last_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__has_, $efront_string__push_, $efront_string__set_, $efront_string__Funct1, $efront_string__leave, $efront_string__pop_, $efront_string__keys_, $efront_string__asser, $efront_string__globa1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 682 $efront_string__elimi */ 'eliminate-duplicate-function-declarations',
+/** 683 $efront_string__count */ 'count',
+/** 684 $efront_string__globa1 */ /** text */ 'global map remains',
+/** 685 pass$eliminate-duplicate-function-declarations.js */ [1,29,682,196,165,186,187,96,140,215,52,683,513,92,79,177,161,128,504,506,562,563,295,55,63,56,97,185,184,62,510,684,599,600,564,38,function(require, module, $efront_string__elimi, $efront_string__Synta, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Funct, $efront_string__id_, $efront_string__name_, $efront_string__get_, $efront_string__count, $efront_string__moveL, $efront_string__Empty, $efront_string__Block, $efront_string__skip_, $efront_string__decla, $efront_string__lengt1, $efront_string__Array2, $efront_string__last_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__has_, $efront_string__push_, $efront_string__set_, $efront_string__Funct1, $efront_string__leave, $efront_string__pop_, $efront_string__keys_, $efront_string__asser, $efront_string__globa1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, Map, common, modified;
         Name = $efront_string__elimi;
-        common = require(532);
-        Map = require(67);
+        common = require(530);
+        Map = require(66);
         Syntax = common[$efront_string__Synta];
         function unique(map, root) {
             var _a;
@@ -4926,18 +4924,18 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = main
     }()
 }],
-/** 688 $efront_string__drop_ */ 'drop-variable-definition',
-/** 689 $efront_string__candi */ 'candidates',
-/** 690 $efront_string__slots */ 'slots',
-/** 691 $efront_string____$pa */ '__$parent$__',
-/** 692 pass$drop-variable-definition.js */ [1,29,688,198,689,448,130,431,64,690,432,427,419,420,691,189,77,122,593,415,163,194,512,185,188,472,53,564,565,297,493,412,473,167,449,425,121,488,373,36,142,96,515,94,98,480,187,481,474,601,602,566,39,function(require, module, $efront_string__drop_, $efront_string__Synta, $efront_string__candi, $efront_string__varia, $efront_string__lengt1, $efront_string__ident1, $efront_string__push_, $efront_string__slots, $efront_string__refer, $efront_string__isRea, $efront_string__isWri, $efront_string__write, $efront_string____$pa, $efront_string__type_, $efront_string__Assig, $efront_string__Varia1, $efront_string__hasSi, $efront_string__from_, $efront_string__decla, $efront_string__splic, $efront_string__asser, $efront_string__trave, $efront_string__enter, $efront_string____$es, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__varia1, $efront_string__isSta, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__index1, $efront_string__id_, $efront_string__ForSt, $efront_string__moveL, $efront_string__Empty, $efront_string__Funct, $efront_string__acqui, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 686 $efront_string__drop_ */ 'drop-variable-definition',
+/** 687 $efront_string__candi */ 'candidates',
+/** 688 $efront_string__slots */ 'slots',
+/** 689 $efront_string____$pa */ '__$parent$__',
+/** 690 pass$drop-variable-definition.js */ [1,29,686,196,687,446,128,429,63,688,430,425,417,418,689,187,75,120,591,413,161,192,510,183,186,470,52,562,563,295,491,410,471,165,447,423,119,486,371,35,140,94,513,92,96,478,185,479,472,599,600,564,38,function(require, module, $efront_string__drop_, $efront_string__Synta, $efront_string__candi, $efront_string__varia, $efront_string__lengt1, $efront_string__ident1, $efront_string__push_, $efront_string__slots, $efront_string__refer, $efront_string__isRea, $efront_string__isWri, $efront_string__write, $efront_string____$pa, $efront_string__type_, $efront_string__Assig, $efront_string__Varia1, $efront_string__hasSi, $efront_string__from_, $efront_string__decla, $efront_string__splic, $efront_string__asser, $efront_string__trave, $efront_string__enter, $efront_string____$es, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__varia1, $efront_string__isSta, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__index1, $efront_string__id_, $efront_string__ForSt, $efront_string__moveL, $efront_string__Empty, $efront_string__Funct, $efront_string__acqui, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified, escope, evaluator;
         Name = $efront_string__drop_;
-        common = require(532);
-        escope = require(496);
-        evaluator = require(595);
+        common = require(530);
+        escope = require(494);
+        evaluator = require(593);
         Syntax = common[$efront_string__Synta];
         function getCandidates(scope) {
             var _a;
@@ -5088,38 +5086,38 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = dropVariableDefinition
     }()
 }],
-/** 693 $efront_string__dead_ */ 'dead-code-elimination',
-/** 694 $efront_string__label1 */ 'labels',
-/** 695 $efront_string__NAMED */ 'NAMED_ONLY',
-/** 696 $efront_string__ITERA */ 'ITERATION',
-/** 697 $efront_string__SWITC */ 'SWITCH',
-/** 698 $efront_string__isIte */ 'isIteration',
-/** 699 $efront_string__isAno */ 'isAnonymous',
-/** 700 $efront_string__conta */ 'contains',
-/** 701 $efront_string__targe1 */ 'targets',
-/** 702 $efront_string__looku */ 'lookupContinuableTarget',
-/** 703 $efront_string__looku1 */ 'lookupBreakableTarget',
-/** 704 $efront_string__jumps */ 'jumps',
-/** 705 $efront_string__next_ */ 'next',
-/** 706 $efront_string__NEXT_ */ 'NEXT',
-/** 707 $efront_string__inser */ 'insert',
-/** 708 $efront_string__erase */ 'erase',
-/** 709 $efront_string__kill_ */ 'kill',
-/** 710 $efront_string__jumpT */ 'jumpTo',
-/** 711 $efront_string__resol2 */ 'resolveJump',
-/** 712 $efront_string__isDea */ 'isDead',
-/** 713 $efront_string__reviv */ 'revive',
-/** 714 $efront_string__isReq */ 'isRequired',
-/** 715 $efront_string__shoul */ /** text */ 'should be node',
-/** 716 $efront_string____$co */ '__$context',
-/** 717 $efront_string__looku2 */ 'lookup',
-/** 718 $efront_string__statu */ /** text */ 'status should be null',
-/** 719 pass$dead-code-elimination.js */ [1,29,693,198,168,189,694,695,696,697,52,698,699,700,36,701,702,130,217,513,703,64,186,175,439,704,705,706,707,708,194,709,56,710,711,59,712,713,649,138,653,714,512,715,110,99,98,716,474,717,101,145,144,124,103,137,81,506,508,90,517,37,515,119,483,568,154,185,188,201,165,83,85,93,91,94,95,96,147,148,97,131,132,112,114,156,157,115,117,118,158,159,162,123,121,187,53,564,565,297,718,601,602,566,39,function(require, module, $efront_string__dead_, $efront_string__Synta, $efront_string__node_, $efront_string__type_, $efront_string__label1, $efront_string__NAMED, $efront_string__ITERA, $efront_string__SWITC, $efront_string__proto, $efront_string__isIte, $efront_string__isAno, $efront_string__conta, $efront_string__index1, $efront_string__targe1, $efront_string__looku, $efront_string__lengt1, $efront_string__name_, $efront_string__unrea, $efront_string__looku1, $efront_string__push_, $efront_string__pop_, $efront_string__curre, $efront_string__upper, $efront_string__jumps, $efront_string__next_, $efront_string__NEXT_, $efront_string__inser, $efront_string__erase, $efront_string__splic, $efront_string__kill_, $efront_string__has_, $efront_string__jumpT, $efront_string__resol2, $efront_string__clear, $efront_string__isDea, $efront_string__reviv, $efront_string__regis1, $efront_string__label, $efront_string__unreg, $efront_string__isReq, $efront_string__asser, $efront_string__shoul, $efront_string__Progr, $efront_string__Funct1, $efront_string__Funct, $efront_string____$co, $efront_string__detac, $efront_string__looku2, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__WithS, $efront_string__Label, $efront_string__body_, $efront_string__Block, $efront_string__Array2, $efront_string__last_, $efront_string__Conti, $efront_string__conve, $efront_string__test_, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__trave, $efront_string__enter, $efront_string__Visit1, $efront_string__Skip_, $efront_string__Break, $efront_string__Catch, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__Expre, $efront_string__ForSt, $efront_string__init_, $efront_string__updat, $efront_string__ForIn, $efront_string__left_, $efront_string__right, $efront_string__Retur, $efront_string__Switc, $efront_string__discr, $efront_string__cases, $efront_string__Switc1, $efront_string__Throw, $efront_string__TrySt, $efront_string__block, $efront_string__handl, $efront_string__final, $efront_string__While, $efront_string__Varia, $efront_string__leave, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__statu, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 691 $efront_string__dead_ */ 'dead-code-elimination',
+/** 692 $efront_string__label1 */ 'labels',
+/** 693 $efront_string__NAMED */ 'NAMED_ONLY',
+/** 694 $efront_string__ITERA */ 'ITERATION',
+/** 695 $efront_string__SWITC */ 'SWITCH',
+/** 696 $efront_string__isIte */ 'isIteration',
+/** 697 $efront_string__isAno */ 'isAnonymous',
+/** 698 $efront_string__conta */ 'contains',
+/** 699 $efront_string__targe1 */ 'targets',
+/** 700 $efront_string__looku */ 'lookupContinuableTarget',
+/** 701 $efront_string__looku1 */ 'lookupBreakableTarget',
+/** 702 $efront_string__jumps */ 'jumps',
+/** 703 $efront_string__next_ */ 'next',
+/** 704 $efront_string__NEXT_ */ 'NEXT',
+/** 705 $efront_string__inser */ 'insert',
+/** 706 $efront_string__erase */ 'erase',
+/** 707 $efront_string__kill_ */ 'kill',
+/** 708 $efront_string__jumpT */ 'jumpTo',
+/** 709 $efront_string__resol2 */ 'resolveJump',
+/** 710 $efront_string__isDea */ 'isDead',
+/** 711 $efront_string__reviv */ 'revive',
+/** 712 $efront_string__isReq */ 'isRequired',
+/** 713 $efront_string__shoul */ /** text */ 'should be node',
+/** 714 $efront_string____$co */ '__$context',
+/** 715 $efront_string__looku2 */ 'lookup',
+/** 716 $efront_string__statu */ /** text */ 'status should be null',
+/** 717 pass$dead-code-elimination.js */ [1,29,691,196,166,187,692,693,694,695,51,696,697,698,35,699,700,128,215,511,701,63,184,173,437,702,703,704,705,706,192,707,55,708,709,58,710,711,647,136,651,712,510,713,108,97,96,714,472,715,99,143,142,122,101,135,79,504,506,88,515,36,513,117,481,566,152,183,186,199,163,81,83,91,89,92,93,94,145,146,95,129,130,110,112,154,155,113,115,116,156,157,160,121,119,185,52,562,563,295,716,599,600,564,38,function(require, module, $efront_string__dead_, $efront_string__Synta, $efront_string__node_, $efront_string__type_, $efront_string__label1, $efront_string__NAMED, $efront_string__ITERA, $efront_string__SWITC, $efront_string__proto, $efront_string__isIte, $efront_string__isAno, $efront_string__conta, $efront_string__index1, $efront_string__targe1, $efront_string__looku, $efront_string__lengt1, $efront_string__name_, $efront_string__unrea, $efront_string__looku1, $efront_string__push_, $efront_string__pop_, $efront_string__curre, $efront_string__upper, $efront_string__jumps, $efront_string__next_, $efront_string__NEXT_, $efront_string__inser, $efront_string__erase, $efront_string__splic, $efront_string__kill_, $efront_string__has_, $efront_string__jumpT, $efront_string__resol2, $efront_string__clear, $efront_string__isDea, $efront_string__reviv, $efront_string__regis1, $efront_string__label, $efront_string__unreg, $efront_string__isReq, $efront_string__asser, $efront_string__shoul, $efront_string__Progr, $efront_string__Funct1, $efront_string__Funct, $efront_string____$co, $efront_string__detac, $efront_string__looku2, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__WithS, $efront_string__Label, $efront_string__body_, $efront_string__Block, $efront_string__Array2, $efront_string__last_, $efront_string__Conti, $efront_string__conve, $efront_string__test_, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__trave, $efront_string__enter, $efront_string__Visit1, $efront_string__Skip_, $efront_string__Break, $efront_string__Catch, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__Expre, $efront_string__ForSt, $efront_string__init_, $efront_string__updat, $efront_string__ForIn, $efront_string__left_, $efront_string__right, $efront_string__Retur, $efront_string__Switc, $efront_string__discr, $efront_string__cases, $efront_string__Switc1, $efront_string__Throw, $efront_string__TrySt, $efront_string__block, $efront_string__handl, $efront_string__final, $efront_string__While, $efront_string__Varia, $efront_string__leave, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__statu, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, status, modified;
         Name = $efront_string__dead_;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function JumpTarget(node, status, type) {
             this[$efront_string__node_] = node;
@@ -5510,13 +5508,13 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = deadCodeElimination
     }()
 }],
-/** 720 $efront_string__conca2 */ 'concatenate-variable-definition',
-/** 721 pass$concatenate-variable-definition.js */ [1,29,720,198,53,564,565,297,185,187,189,81,110,137,130,121,488,373,64,163,601,602,566,39,function(require, module, $efront_string__conca2, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__type_, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__lengt1, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__push_, $efront_string__decla, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
+/** 718 $efront_string__conca2 */ 'concatenate-variable-definition',
+/** 719 pass$concatenate-variable-definition.js */ [1,29,718,196,52,562,563,295,183,185,187,79,108,135,128,119,486,371,63,161,599,600,564,38,function(require, module, $efront_string__conca2, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__type_, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__lengt1, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__push_, $efront_string__decla, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
     return function () {
         'use strict';
         var Name, Syntax, common, modified;
         Name = $efront_string__conca2;
-        common = require(532);
+        common = require(530);
         Syntax = common[$efront_string__Synta];
         function concatenateVariableDefinition(tree, options) {
             var _a, _b, _c;
@@ -5556,29 +5554,29 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = concatenateVariableDefinition
     }()
 }],
-/** 722 $efront_string__dev_ */ '-dev',
-/** 723 $efront_string___scop */ '_scope',
-/** 724 $efront_string___func */ '_functionName',
-/** 725 $efront_string__disti */ 'distinguishFunctionExpressionScope',
-/** 726 $efront_string__passA */ 'passAsUnique',
-/** 727 $efront_string__gener5 */ 'generateName',
-/** 728 $efront_string__9_ */ '9',
-/** 729 $efront_string__sort_ */ 'sort',
-/** 730 $efront_string__users */ 'users',
-/** 731 $efront_string__names */ 'names',
-/** 732 $efront_string__mangl1 */ 'mangle',
-/** 733 $efront_string__map_ */ 'map',
-/** 734 $efront_string__node_1 */ /** text */ 'node should be LabeledStatement',
-/** 735 esshorten$lib$esshorten.js */ [1,73,69,196,198,36,722,130,723,724,725,439,450,158,142,217,52,726,408,402,404,445,56,447,414,727,296,425,728,448,729,416,431,432,168,730,731,732,57,138,733,694,649,189,103,734,64,650,653,53,58,465,654,655,185,188,491,482,83,90,187,564,297,493,412,476,function(require, Error, exports, $efront_string__versi, $efront_string__Synta, $efront_string__index1, $efront_string__dev_, $efront_string__lengt1, $efront_string___scop, $efront_string___func, $efront_string__disti, $efront_string__upper, $efront_string__funct2, $efront_string__block, $efront_string__id_, $efront_string__name_, $efront_string__proto, $efront_string__passA, $efront_string__keywo, $efront_string__isKey, $efront_string__isRes, $efront_string__taint1, $efront_string__has_, $efront_string__throu, $efront_string__ident, $efront_string__gener5, $efront_string__gener, $efront_string__isSta, $efront_string__9_, $efront_string__varia, $efront_string__sort_, $efront_string__taint, $efront_string__ident1, $efront_string__refer, $efront_string__node_, $efront_string__users, $efront_string__names, $efront_string__mangl1, $efront_string__set_, $efront_string__label, $efront_string__map_, $efront_string__label1, $efront_string__regis1, $efront_string__type_, $efront_string__Label, $efront_string__node_1, $efront_string__push_, $efront_string__dupli, $efront_string__unreg, $efront_string__get_, $efront_string__delet, $efront_string__resol1, $efront_string__unres, $efront_string__close, $efront_string__trave, $efront_string__enter, $efront_string__Scope, $efront_string__isVar, $efront_string__Break, $efront_string__Conti, $efront_string__leave, $efront_string__destr, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__scope2) {
+/** 720 $efront_string__dev_ */ '-dev',
+/** 721 $efront_string___scop */ '_scope',
+/** 722 $efront_string___func */ '_functionName',
+/** 723 $efront_string__disti */ 'distinguishFunctionExpressionScope',
+/** 724 $efront_string__passA */ 'passAsUnique',
+/** 725 $efront_string__gener5 */ 'generateName',
+/** 726 $efront_string__9_ */ '9',
+/** 727 $efront_string__sort_ */ 'sort',
+/** 728 $efront_string__users */ 'users',
+/** 729 $efront_string__names */ 'names',
+/** 730 $efront_string__mangl1 */ 'mangle',
+/** 731 $efront_string__map_ */ 'map',
+/** 732 $efront_string__node_1 */ /** text */ 'node should be LabeledStatement',
+/** 733 esshorten$lib$esshorten.js */ [1,71,68,194,196,35,720,128,721,722,723,437,448,156,140,215,51,724,406,400,402,443,55,445,412,725,294,423,726,446,727,414,429,430,166,728,729,730,56,136,731,692,647,187,101,732,63,648,651,52,57,463,652,653,183,186,489,480,81,88,185,562,295,491,410,474,function(require, Error, exports, $efront_string__versi, $efront_string__Synta, $efront_string__index1, $efront_string__dev_, $efront_string__lengt1, $efront_string___scop, $efront_string___func, $efront_string__disti, $efront_string__upper, $efront_string__funct2, $efront_string__block, $efront_string__id_, $efront_string__name_, $efront_string__proto, $efront_string__passA, $efront_string__keywo, $efront_string__isKey, $efront_string__isRes, $efront_string__taint1, $efront_string__has_, $efront_string__throu, $efront_string__ident, $efront_string__gener5, $efront_string__gener, $efront_string__isSta, $efront_string__9_, $efront_string__varia, $efront_string__sort_, $efront_string__taint, $efront_string__ident1, $efront_string__refer, $efront_string__node_, $efront_string__users, $efront_string__names, $efront_string__mangl1, $efront_string__set_, $efront_string__label, $efront_string__map_, $efront_string__label1, $efront_string__regis1, $efront_string__type_, $efront_string__Label, $efront_string__node_1, $efront_string__push_, $efront_string__dupli, $efront_string__unreg, $efront_string__get_, $efront_string__delet, $efront_string__resol1, $efront_string__unres, $efront_string__close, $efront_string__trave, $efront_string__enter, $efront_string__Scope, $efront_string__isVar, $efront_string__Break, $efront_string__Conti, $efront_string__leave, $efront_string__destr, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__scope2) {
     return function () {
         'use strict';
         var escope, estraverse, esutils, utility, version, assert, Syntax, Map;
-        escope = require(496);
-        estraverse = require(301);
-        esutils = require(495);
-        utility = require(298);
-        Map = require(299);
-        version = require(288)[$efront_string__versi];
+        escope = require(494);
+        estraverse = require(299);
+        esutils = require(493);
+        utility = require(296);
+        Map = require(297);
+        version = require(286)[$efront_string__versi];
         Syntax = estraverse[$efront_string__Synta];
         assert = function assert(cond, message) {
             if (!cond) {
@@ -5768,21 +5766,21 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         exports[$efront_string__gener] = utility[$efront_string__gener]
     }()
 }],
-/** 736 $efront_string____dir */ '__direct',
-/** 737 $efront_string__don_t */ /** text */ 'don\'t create duplicate pass names',
-/** 738 $efront_string__pass_ */ 'pass',
-/** 739 $efront_string__post_ */ 'post',
-/** 740 $efront_string__requi */ 'require',
-/** 741 $efront_string__Regis */ 'Registry',
-/** 742 $efront_string____def2 */ '__defaultPipeline',
-/** 743 $efront_string__once_ */ 'once',
-/** 744 pass.js */ [1,69,736,130,512,566,737,738,739,510,56,53,293,309,740,741,742,743,function(require, exports, $efront_string____dir, $efront_string__lengt1, $efront_string__asser, $efront_string__passN, $efront_string__don_t, $efront_string__pass_, $efront_string__post_, $efront_string__Objec2, $efront_string__has_, $efront_string__get_, $efront_string__split1, $efront_string__1, $efront_string__requi, $efront_string__Regis, $efront_string____def2, $efront_string__once_) {
+/** 734 $efront_string____dir */ '__direct',
+/** 735 $efront_string__don_t */ /** text */ 'don\'t create duplicate pass names',
+/** 736 $efront_string__pass_ */ 'pass',
+/** 737 $efront_string__post_ */ 'post',
+/** 738 $efront_string__requi */ 'require',
+/** 739 $efront_string__Regis */ 'Registry',
+/** 740 $efront_string____def2 */ '__defaultPipeline',
+/** 741 $efront_string__once_ */ 'once',
+/** 742 pass.js */ [1,68,734,128,510,564,735,736,737,508,55,52,291,307,738,739,740,741,function(require, exports, $efront_string____dir, $efront_string__lengt1, $efront_string__asser, $efront_string__passN, $efront_string__don_t, $efront_string__pass_, $efront_string__post_, $efront_string__Objec2, $efront_string__has_, $efront_string__get_, $efront_string__split1, $efront_string__1, $efront_string__requi, $efront_string__Regis, $efront_string____def2, $efront_string__once_) {
     return function () {
         'use strict';
         var _a;
         var query, Registry, pass, post, common;
-        common = require(532);
-        query = require(596);
+        common = require(530);
+        query = require(594);
         Registry = {};
         Registry[$efront_string____dir] = {};
         function initialize(kind, passes) {
@@ -5797,37 +5795,37 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
             Registry[$efront_string____dir][pass[$efront_string__passN]] = pass
         }
         pass = [
-            require(683),
-            require(640),
+            require(681),
             require(638),
             require(636),
             require(634),
-            require(644),
-            require(656),
-            require(666),
-            require(646),
             require(632),
-            require(619),
             require(642),
-            require(617),
-            require(676),
-            require(680),
-            require(678),
-            require(719),
+            require(654),
             require(664),
-            require(674),
+            require(644),
+            require(630),
+            require(617),
+            require(640),
             require(615),
-            require(721),
-            require(692),
-            require(658),
-            require(687)
+            require(674),
+            require(678),
+            require(676),
+            require(717),
+            require(662),
+            require(672),
+            require(613),
+            require(719),
+            require(690),
+            require(656),
+            require(685)
         ];
         post = [
+            require(601),
             require(603),
+            require(608),
             require(605),
-            require(610),
-            require(607),
-            require(613)
+            require(611)
         ];
         initialize($efront_string__pass_, pass);
         initialize($efront_string__post_, post);
@@ -5845,12 +5843,12 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         ]
     }()
 }],
-/** 745 $efront_string__data_ */ 'data',
-/** 746 options.js */ [1,29,510,56,511,564,612,745,52,53,565,39,function(require, module, $efront_string__Objec2, $efront_string__has_, $efront_string__isObj, $efront_string__destr, $efront_string__prese, $efront_string__data_, $efront_string__proto, $efront_string__get_, $efront_string__pathN, $efront_string__expor1) {
+/** 743 $efront_string__data_ */ 'data',
+/** 744 options.js */ [1,29,508,55,509,562,610,743,51,52,563,38,function(require, module, $efront_string__Objec2, $efront_string__has_, $efront_string__isObj, $efront_string__destr, $efront_string__prese, $efront_string__data_, $efront_string__proto, $efront_string__get_, $efront_string__pathN, $efront_string__expor1) {
     return function () {
         'use strict';
         var common;
-        common = require(532);
+        common = require(530);
         function extend(result, update) {
             var prop, lhs, rhs;
             for (prop in update) {
@@ -5895,19 +5893,19 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
         module[$efront_string__expor1] = Options
     }()
 }],
-/** 747 esshorten */ [1,function(require) {
-    return require(735)
+/** 745 esshorten */ [1,function(require) {
+    return require(733)
 }],
-/** 748 $efront_string__optim1 */ 'optimize',
-/** 749 esmangle.js */ [1,72,69,198,189,101,145,103,96,97,123,124,137,185,187,144,81,92,95,146,515,102,152,216,412,74,63,55,566,217,64,130,53,564,297,602,601,742,506,126,743,738,196,732,748,function(require, Object, exports, $efront_string__Synta, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__Label, $efront_string__ForSt, $efront_string__ForIn, $efront_string__While, $efront_string__WithS, $efront_string__body_, $efront_string__trave, $efront_string__leave, $efront_string__conse, $efront_string__Block, $efront_string__Direc, $efront_string__Expre, $efront_string__expre, $efront_string__moveL, $efront_string__Liter, $efront_string__value1, $efront_string__raw_, $efront_string__direc1, $efront_string__funct1, $efront_string__keys_, $efront_string__hasOw, $efront_string__passN, $efront_string__name_, $efront_string__push_, $efront_string__lengt1, $efront_string__get_, $efront_string__destr, $efront_string__deepC, $efront_string__modif, $efront_string__resul, $efront_string____def2, $efront_string__Array2, $efront_string__isArr, $efront_string__once_, $efront_string__pass_, $efront_string__versi, $efront_string__mangl1, $efront_string__optim1) {
+/** 746 $efront_string__optim1 */ 'optimize',
+/** 747 esmangle.js */ [1,70,68,196,187,99,143,101,94,95,121,122,135,183,185,142,79,90,93,144,513,100,150,214,410,72,62,54,564,215,63,128,52,562,295,600,599,740,504,124,741,736,194,730,746,function(require, Object, exports, $efront_string__Synta, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__Label, $efront_string__ForSt, $efront_string__ForIn, $efront_string__While, $efront_string__WithS, $efront_string__body_, $efront_string__trave, $efront_string__leave, $efront_string__conse, $efront_string__Block, $efront_string__Direc, $efront_string__Expre, $efront_string__expre, $efront_string__moveL, $efront_string__Liter, $efront_string__value1, $efront_string__raw_, $efront_string__direc1, $efront_string__funct1, $efront_string__keys_, $efront_string__hasOw, $efront_string__passN, $efront_string__name_, $efront_string__push_, $efront_string__lengt1, $efront_string__get_, $efront_string__destr, $efront_string__deepC, $efront_string__modif, $efront_string__resul, $efront_string____def2, $efront_string__Array2, $efront_string__isArr, $efront_string__once_, $efront_string__pass_, $efront_string__versi, $efront_string__mangl1, $efront_string__optim1) {
     return function () {
         'use strict';
         var esshorten, common, Options, Syntax, Pass, annotateDirective;
-        esshorten = require(747);
-        common = require(532);
-        Options = require(746);
-        Pass = require(744);
-        annotateDirective = require(567);
+        esshorten = require(745);
+        common = require(530);
+        Options = require(744);
+        Pass = require(742);
+        annotateDirective = require(565);
         Syntax = common[$efront_string__Synta];
         function recover(tree, useDirectiveStatement) {
             var _a;
@@ -6017,7 +6015,7 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
             }
             return recover(tree, options[$efront_string__get_]($efront_string__direc1))
         }
-        exports[$efront_string__versi] = require(359)[$efront_string__versi];
+        exports[$efront_string__versi] = require(357)[$efront_string__versi];
         exports[$efront_string__mangl1] = esshorten[$efront_string__mangl1];
         exports[$efront_string__optim1] = optimize;
         exports[$efront_string__pass_] = Pass
@@ -6025,16 +6023,16 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
 }]],function (a, c,s) {
         var 
     z=s[9],
-    m=s[2],
-    E=69,x=s[8],
-    y=s[5],
-    o=s[4],
-    n=s[1],
-    M=29,
-    q=s[3],
-    v=s[6],
-    w=s[10],
     B=s[12],
+    y=s[5],
+    m=s[2],
+    n=s[1],
+    q=s[3],x=s[8],
+    M=29,
+    o=s[4],
+    v=s[6],
+    E=68,
+    w=s[10],
     e=s[7],
         u,p=[x,m,n,q,o,y,B,e,v,z,w,s[11]],
         h=s[M-1][0],
@@ -6066,4 +6064,4 @@ module.exports=([/*Mon Feb 22 2021 04:34:45 GMT+0800 (中国标准时间) by efr
             var S=R();T[c+1]=function(){return S};
             return S
         }
-    },[this.window||global])[748]()
+    },[this.window||global])[746]()
