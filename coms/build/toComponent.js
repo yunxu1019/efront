@@ -57,7 +57,7 @@ function toComponent(responseTree) {
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
     var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT) && !/^(false|0|null)/i.test(process.env.CRYPT);
     var compress = process.env.COMPRESS ? !/(false|0|null)/i.test(process.env.COMPRESS) && !/(false|0|null)/i.test(process.env.MANGLE) && !/^(false|0|null)/i.test(process.env.PRESS) : encoded;
-    var optimize = process.env.OPTIMIZE ? !/(false|0|null)/i.test(process.env.OPTIMIZE) : compress;
+    var optimize = process.env.OPTIMIZE && !/(false|0|null)/i.test(process.env.OPTIMIZE);
     var generateConfig = {
         format: {
             renumber: true,

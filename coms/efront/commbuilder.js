@@ -327,6 +327,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     };
 };
 var toUnicode = require("../basic/toUnicode");
+var optimize = process.env.OPTIMIZE && !/(false|0|null)/i.test(process.env.OPTIMIZE);
+
 var buildResponse = function ({ imported, params, data, required, occurs }, compress) {
     if (!isDevelop && compress !== false) {
         var [data, args, strs] = breakcode(data, occurs);
@@ -334,7 +336,7 @@ var buildResponse = function ({ imported, params, data, required, occurs }, comp
         var data = imported.length > 0 ? `function f(${params.concat(args || [])}){${data}}` : args.length ? `function f(){var [${args}]=${strs};${data}}` : `function f(){${data}}`;
         data = typescript.transpile(data, { noEmitHelpers: true });
         var code = esprima.parse(data);
-        code = esmangle.optimize(code, null);
+        if (optimize) code = esmangle.optimize(code, null);
         code = esmangle.mangle(code);
         code = code.body[0];
         params = code.params.map(id => id.name);
