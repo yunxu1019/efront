@@ -2,10 +2,11 @@
 setlocal
 set distpath=coms
 set registry=http://registry.npm.taobao.org
-
+call :typescript %*
+call :esprima %*
 @REM call :esmangle %*
 @REM call :escodegen %*
-call :lessnode %*
+@REM call :lessnode %*
 del package-lock.json
 rd /s /q node_modules
 exit /b 0
@@ -17,12 +18,14 @@ copy node_modules\typescript\AUTHORS.md %distpath%\typescript\AUTHORS.md
 copy node_modules\typescript\lib\typescript.js %distpath%\typescript\index.js
 call node tools\readHelpersFromTypescript.js
 call npm uninstall typescript
+
 goto :eof
 
 :esprima
 call npm install esprima@latest --registry=%registry%
 copy node_modules\esprima\LICENSE.BSD %distpath%\esprima\LICENSE.BSD
 copy node_modules\esprima\dist\esprima.js %distpath%\esprima\index.js
+call node coms\efront publish ./index.js --coms_path=coms/esprima --coms=./ --extt=.js --no-crypt --export_to=module.exports --public_path=coms/esprima --no-polyfill %*
 call npm uninstall esprima
 goto :eof
 
@@ -35,9 +38,8 @@ set page=./
 set app=./escodegen.js
 set export_to=module.exports
 set public_path=coms\escodegen
-set distpath=./index.js
 set extt=.js
-call efront publish --no-polyfill --no-crypt %*
+call node coms/efront publish --no-polyfill --no-crypt %*
 if exist coms\escodegen\index.js del coms\escodegen\index.js
 move coms\escodegen\escodegen.js coms\escodegen\index.js
 call npm uninstall escodegen
@@ -52,9 +54,8 @@ set page=./
 set app=./esmangle.js
 set export_to=module.exports
 set public_path=coms\esmangle
-set distpath=./index.js
 set extt=.js
-call efront publish --no-polyfill --no-crypt %*
+call node coms/efront publish --no-polyfill --no-crypt %*
 if exist coms\esmangle\index.js del coms\esmangle\index.js
 move coms\esmangle\esmangle.js coms\esmangle\index.js
 call npm uninstall esmangle
@@ -68,7 +69,6 @@ set page=./
 set app=./less/index.js
 set export_to=module.exports
 set public_path=coms\less-node
-set distpath=./index.js
 set extt=.js
 set export_as=default
 call node coms/efront publish --no-polyfill --no-crypt %*
