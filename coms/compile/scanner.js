@@ -7,23 +7,23 @@ function test(test, count) {
         }
     }
     return Date.now() - time;
-} -
-    function () {
-        single_comment_scanner.call("'", 0) === 1;
-        single_comment_scanner.call(" ", 0) === 1;
-        single_comment_scanner.call("' ", 0) === 1;
-        single_comment_scanner.call("\\'", 0) === 2;
-        single_comment_scanner.call(" ' ", 0) === 2;
-        single_comment_scanner.call("\\''", 0) === 3;
-        single_comment_scanner.call("\\'' ", 0) === 3;
-        // var t1=test(function(){
-        //     /[\r\n\u2028\u2029]/.exec(" ");
-        // },10000000);//300+
-        // var t2=test(function(){
-        //     "\r\n\u2028\u2029".indexOf(" ");
-        // },10000000);//700+
-        // console.log(t1,t2);
-    }();
+}
+// -   function () {
+//         single_comment_scanner.call("'", 0) === 1;
+//         single_comment_scanner.call(" ", 0) === 1;
+//         single_comment_scanner.call("' ", 0) === 1;
+//         single_comment_scanner.call("\\'", 0) === 2;
+//         single_comment_scanner.call(" ' ", 0) === 2;
+//         single_comment_scanner.call("\\''", 0) === 3;
+//         single_comment_scanner.call("\\'' ", 0) === 3;
+//         // var t1=test(function(){
+//         //     /[\r\n\u2028\u2029]/.exec(" ");
+//         // },10000000);//300+
+//         // var t2=test(function(){
+//         //     "\r\n\u2028\u2029".indexOf(" ");
+//         // },10000000);//700+
+//         // console.log(t1,t2);
+//     }();
 // console.log(single_quote_scanner.call("''", 0))
 
 

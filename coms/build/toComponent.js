@@ -20,46 +20,29 @@ function toComponent(responseTree) {
     var libsTree = Object.create(null);
     var has_outside_require = false;
 
-    for (var k in responseTree) {
-        if (!{}.hasOwnProperty.call(responseTree, k)) continue;
-        var response = responseTree[k];
-        if (!response.data && /^(number|function|string)$/.test(typeof response.builtin)) {
-            response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
-        }
-        if (response.type === "@" || response.type === "\\") {
-            var rel = response.destpath.replace(/\\/g, '/').replace(/^\.\//, "").replace(/\//g, '$').replace(/\.[cm]?[jt]sx?$/, '');
-            libsTree[rel] = response;
-            delete responseTree[k];
-            has_outside_require = true;
-            continue;
-        }
-        if (response.data) {
-            if (response.data instanceof Buffer) {
-                response.data = String(response.data);
-            }
-            var dependence = response.dependence;
-            if (dependence) {
-                result.push([k, dependence.require, dependence.requiredMap].concat(dependence).concat(dependence.args).concat(responseTree[k].toString().slice(dependence.offset)));
-            }
-            else result.push([k, null, null, response.data]);
-        }
-    }
-    var destMap = Object.create(null), dest = [], last_result_length = result.length, origin_result_length = last_result_length;
+
+    var destMap = Object.create(null), dest = [];
 
     var $$_efront_map_string_key = "$efront";
     var paramsMap = Object.create(null);
     var getEfrontKey = function (k, type) {
         k = String(k);
-        var key = k.replace(/[^\w\$]+/g, "_");
-        if (key.length > 6) {
-            key = key.slice(0, 6);
+        if (type === 'global') {
+            var key = k;
+        } else {
+            if (type === 'string') k = _strings.decode(k);
+            var key = k.replace(/[^\w\$]+/g, "_");
+            if (key.length > 6) {
+                key = key.slice(0, 6);
+            }
+            var hasOwnProperty = {}.hasOwnProperty;
+            var id = 0;
+            while (hasOwnProperty.call(paramsMap, key) && paramsMap[key] !== k) {
+                key = key.replace(/\d+$/, '') + ++id;
+            }
+            paramsMap[key] = k;
+            if (type === 'string') k = _strings.encode(k);
         }
-        var hasOwnProperty = {}.hasOwnProperty;
-        var id = 0;
-        while (hasOwnProperty.call(paramsMap, key) && paramsMap[key] !== k) {
-            key = key.replace(/\d+$/, '') + ++id;
-        }
-        paramsMap[key] = k;
         if (type === 'global') {
             var $key = key;
         } else {
@@ -104,7 +87,7 @@ function toComponent(responseTree) {
         return source;
     };
     var getEncodedIndex = function (key, type = "string") {
-        if (type === 'string') key = JSON.stringify(key);
+        if (type === 'string') key = _strings.encode(key);
         return destMap[getEfrontKey(key, type)];
     };
     var saveCode = function (module_body, module_key, reqMap) {
@@ -257,9 +240,9 @@ function toComponent(responseTree) {
     );
     var $charCodeAt = 'charCodeAt'.split("").reverse().map(a => `"${a}"`);
     var $fromCharCode = 'fromCharCode'.split("").reverse().map(a => `"${a}"`);
-    ['Array', 'String'].concat($charCodeAt, $fromCharCode).forEach(function (str) {
-        getEfrontKey(str, 'global');
-    });
+    // ['Array', 'String'].concat($charCodeAt, $fromCharCode).forEach(function (str) {
+    //     getEfrontKey(str, 'global');
+    // });
     var saveGlobal = function (globalName) {
         if (responseTree[globalName] && !responseTree[globalName].data && !destMap[globalName]) {
             var warn = saveOnly(globalName, globalName);
@@ -267,10 +250,65 @@ function toComponent(responseTree) {
         if (!destMap[globalName] && responseTree[globalName]) ok = false;
         return warn;
     };
-    var circle_result, PUBLIC_APP, public_index;
+    var saveImported = function (text) {
+        if (text.imported) {
+            if (!destMap[text.importedid]) saveOnly('""', text.importedid);
+            return destMap[text.importedid];
+        }
+        var c = text.charAt(0);
+        switch (c) {
+            case "'":
+            case "\"":
+                text = _strings.decode(text);
+                return getEncodedIndex(text, 'string');
+            case "/":
+                return getEncodedIndex(text, 'regexp');
+            default:
+                return getEncodedIndex(text, 'global');
+        }
+    };
+    var imported = function (_, i) {
+        return getEncodedIndex(i, 'global');
+    };
+    var saveImportedItem = function (d) {
+        d.imported = d.imported.map(saveImported);
+        saveOnly(`[${d.imported.join(',')},${d.module.replace(/"(imported\s*-\s*\d+)"/g, imported)}]`, d.importedid);
+    };
+    for (var k in responseTree) {
+        if (!{}.hasOwnProperty.call(responseTree, k)) continue;
+        var response = responseTree[k];
+        if (!response.data && /^(number|function|string)$/.test(typeof response.builtin)) {
+            response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
+        }
+        if (response.type === "@" || response.type === "\\") {
+            var rel = response.destpath.replace(/\\/g, '/').replace(/^\.\//, "").replace(/\//g, '$').replace(/\.[cm]?[jt]sx?$/, '');
+            libsTree[rel] = response;
+            delete responseTree[k];
+            has_outside_require = true;
+            continue;
+        }
+        if (response.data) {
+            var data = response.data;
+            if (data.module) {
+                data.importedid = k;
+                data.all.forEach(saveImportedItem);
+                continue;
+            }
+            if (data instanceof Buffer) {
+                response.data = String(data);
+            }
+            var dependence = response.dependence;
+            if (dependence) {
+                result.push([k, dependence.require, dependence.requiredMap, [].concat(dependence, dependence.args, responseTree[k].toString().slice(dependence.offset))]);
+            }
+            else result.push([k, null, null, [response.data]]);
+        }
+    }
+    var circle_result, PUBLIC_APP, public_index, last_result_length = result.length, origin_result_length = last_result_length
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
-            var [k, required, reqMap, ...module_body] = result[cx];
+            var [k, required, reqMap, module_body] = result[cx];
+
             required = (required || []).map(k => reqMap[k]);
             var ok = true;
             for (var r of required) {
@@ -365,9 +403,9 @@ function toComponent(responseTree) {
             }
         }else if(!a[m]){
             R=function(){${has_outside_require ? `
-                var r= function(i){return i[m]?s[${getEncodedIndex("require", "global") - 1}](i):T[i]()};
-                r[T[${getEncodedIndex(`cache`)}]()]=s[${getEncodedIndex('require', "global") - 1}][T[${getEncodedIndex('cache')}]()];
-                r[T[${getEncodedIndex(`resolve`)}]()]=s[${getEncodedIndex('require', "global") - 1}][T[${getEncodedIndex('resolve')}]()];
+                var r= function(i){return i[m]?s[${getEncodedIndex("require", "builtin") - 1}](i):T[i]()};
+                r[T[${getEncodedIndex(`cache`)}]()]=s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('cache')}]()];
+                r[T[${getEncodedIndex(`resolve`)}]()]=s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('resolve')}]()];
                 return r;`: `return function(i){return T[i]()}`}
             };
         }else{

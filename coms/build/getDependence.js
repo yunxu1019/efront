@@ -38,6 +38,7 @@ function getDependence(response) {
     if (!response.realpath) return [];
     if (response.type !== "" && response.type !== "/" && response.type !== "\\") return [];
     var { data = "" } = response;
+    if (data.module) return [];
     var ext = /\.([^\.]+)$/.exec(response.realpath);
     if (ext && !/^([cm]?[jt]sx?|vuex?|html)$/i.test(ext[1])) return [];
 

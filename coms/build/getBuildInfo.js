@@ -1,9 +1,9 @@
 "use strict";
 var commbuilder = require("../efront/commbuilder");
-var iconbuilder = require("../efront/iconbuilder");;
+var iconbuilder = require("../efront/iconbuilder");
 var htmlbuilder = require("../efront/filebuilder");
+var manybuilder = require("./unpublish");
 var setting = require("./setting");
-// var aapibuilder = require("../efront/aapibuilder");
 var path = require("path");
 var env = require("./environment");
 var noopbuilder = a => a;
@@ -39,7 +39,7 @@ function getBuildInfo(url) {
             extt = match[4] || "";
         bigloop: switch (type) {
             case "":
-                builder = commbuilder;
+                builder = manybuilder;
                 var $name = name.replace(/(\w)\$/g, "$1/");
                 fullpath = [];
                 extt = extt || [".js", ".ts", ".json", ".html", '.vue', ''];
