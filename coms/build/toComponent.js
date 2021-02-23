@@ -56,6 +56,18 @@ function toComponent(responseTree) {
     };
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
     var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT) && !/^(false|0|null)/i.test(process.env.CRYPT);
+    var compress = process.env.COMPRESS ? !/(false|0|null)/i.test(process.env.COMPRESS) && !/(false|0|null)/i.test(process.env.MANGLE) && !/^(false|0|null)/i.test(process.env.PRESS) : encoded;
+    var optimize = process.env.OPTIMIZE ? !/(false|0|null)/i.test(process.env.OPTIMIZE) : compress;
+    var generateConfig = {
+        format: {
+            renumber: true,
+            hexadecimal: true, //十六进位
+            escapeless: true,
+            compact: compress, //去空格
+            semicolons: false, //分号
+            parentheses: false //圆括号
+        }
+    };
     var symbolid = 0;
     var encode = function (source) {
         var _source = _strings.decode(source);
@@ -162,20 +174,11 @@ function toComponent(responseTree) {
 
         module_string = typescript.transpile(module_string);
         var module_code = esprima.parse(`function f(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
-        if (encoded) {
-            module_code = esmangle.optimize(module_code, null);
+        if (optimize) module_code = esmangle.optimize(module_code, null);
+        if (compress) {
             module_code = esmangle.mangle(module_code);
         }
-        module_string = escodegen.generate(module_code, {
-            format: {
-                renumber: true,
-                hexadecimal: true, //十六进位
-                escapeless: true,
-                compact: encoded, //去空格
-                semicolons: false, //分号
-                parentheses: false //圆括号
-            }
-        }).replace(/^function\s+[\$_A-Za-z][\$_\w]*\(/, "function(");
+        module_string = escodegen.generate(module_code, generateConfig).replace(/^function\s+[\$_A-Za-z][\$_\w]*\(/, "function(");
         saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
             var index = destMap[a];
             if (a === "__dirname" || a === "__filename") {
@@ -212,13 +215,13 @@ function toComponent(responseTree) {
                 }
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
             }
-            if (!encoded) {
+            if (!compress) {
                 data = `\r\n/** ${dest.length + 1} ${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
             }
             dest.push(data);
             destMap[k] = dest.length;
         } else {
-            if (!encoded) {
+            if (!compress) {
                 data = `\r\n/** ${destMap[k]} ${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
             }
             dest[destMap[k] - 1] = data;
@@ -272,7 +275,14 @@ function toComponent(responseTree) {
     };
     var saveImportedItem = function (d) {
         d.imported = d.imported.map(saveImported);
-        saveOnly(`[${d.imported.join(',')},${d.module.replace(/"(imported\s*-\s*\d+)"/g, imported)}]`, d.importedid);
+        var module = d.module.replace(/"(imported\s*-\s*\d+)"/g, imported);
+        if (compress) {
+            module = module.replace(/^function\s*\(/, 'function a(');
+            var code = esprima.parse(module);
+            code = esmangle.mangle(code);
+            module = escodegen.generate(code, generateConfig).replace(/^function \w\(/, 'function(');
+        }
+        saveOnly(`[${d.imported.join(',')},${module}]`, d.importedid);
     };
     for (var k in responseTree) {
         if (!{}.hasOwnProperty.call(responseTree, k)) continue;
@@ -439,20 +449,21 @@ function toComponent(responseTree) {
     }`;
 
     var simplie_compress = function (str) {
-        if (!encoded) return str;
-        return str.toString()
+        if (!compress) return str;
+        str = str.toString()
             .replace(/\s+/g, ' ')
             .replace(/(\W)\s+/g, "$1")
-            .replace(/\s+(\W)/g, "$1")
-            .replace(/\b[a-z]\b/ig, a => {
-                var c = a.charCodeAt(0);
-                if (c > 97) {
-                    c = ((crypt_code - c) % 26) + 65;
-                } else {
-                    c = ((crypt_code - c) % 26) + 97;
-                }
-                return String.fromCharCode(c);
-            });
+            .replace(/\s+(\W)/g, "$1");
+        if (encoded) str = str.replace(/\b[a-z]\b/ig, a => {
+            var c = a.charCodeAt(0);
+            if (c > 97) {
+                c = ((crypt_code - c) % 26) + 65;
+            } else {
+                c = ((crypt_code - c) % 26) + 97;
+            }
+            return String.fromCharCode(c);
+        });
+        return str;
     };
     var template = `([/*${new Date().toString()} by efront ${require(path.join(__dirname, "../../package.json")).version}*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]()`;
     if (EXPORT_TO) {
