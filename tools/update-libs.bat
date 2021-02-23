@@ -3,9 +3,9 @@ setlocal
 set distpath=coms
 set registry=http://registry.npm.taobao.org
 
-call :esmangle %*
-call :escodegen %*
-
+@REM call :esmangle %*
+@REM call :escodegen %*
+call :lessnode %*
 del package-lock.json
 rd /s /q node_modules
 exit /b 0
@@ -58,6 +58,23 @@ call efront publish --no-polyfill --no-crypt %*
 if exist coms\esmangle\index.js del coms\esmangle\index.js
 move coms\esmangle\esmangle.js coms\esmangle\index.js
 call npm uninstall esmangle
+goto :eof
+
+:lessnode
+call npm install less@latest --registry=%registry%
+set coms_path=node_modules\less\lib,node_modules
+set coms=./
+set page=./
+set app=./less/index.js
+set export_to=module.exports
+set public_path=coms\less-node
+set distpath=./index.js
+set extt=.js
+set export_as=default
+call node coms/efront publish --no-polyfill --no-crypt %*
+if exist coms\less-node\index.js del coms\less-node\index.js
+move coms\less-node\less.js coms\less-node\index.js
+call npm uninstall less
 goto :eof
 
 REM call %~dp0update-less.bat
