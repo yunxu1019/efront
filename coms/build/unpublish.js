@@ -145,10 +145,10 @@ var manybuilder = function (buffer, filename) {
             var params = /^\s*function[^\(]*\(([^\)]*)\)/.exec(b.module)[1].split(',');
             if (hasRequired) {
                 var requiredName = params[requiredIndex].trim();
-                b.module = b.module.replace(new RegExp(/([\=\s\-\+\/&\*\?\;~!><,\.\]\[\}\{\|'";\(\)])/.source + requiredName + /\s*\(\s*(\d+)\s*\)/.source, 'g'), function (m, eq, required) {
+                b.module = b.module.replace(new RegExp(/([\=\s\-\+\/&\*\?\;~!><,\]\[\}\{\|'";\(\)])/.source + requiredName + /\s*\(\s*(\d+)\s*([,\)])/.source, 'g'), function (m, eq, required, qt) {
                     required -= 1;
                     blocks[required].marked = true;
-                    return eq + requiredName + "(\"" + blocks[required].importedid + "\")";
+                    return eq + requiredName + "(\"" + blocks[required].importedid + "\"" + qt;
                 });
             }
 

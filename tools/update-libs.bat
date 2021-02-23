@@ -3,10 +3,10 @@ setlocal
 set distpath=coms
 set registry=http://registry.npm.taobao.org
 call :typescript %*
-call :esprima %*
-@REM call :esmangle %*
-@REM call :escodegen %*
-@REM call :lessnode %*
+call :esprima --optimize %*
+call :esmangle --optimize %*
+call :escodegen --optimize %*
+call :lessnode --optimize %*
 del package-lock.json
 rd /s /q node_modules
 exit /b 0

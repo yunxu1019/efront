@@ -13,7 +13,7 @@ var codes = text.split(/[\r\n]+var\s+ts/);
 var parsed = [], marked = ["transpile"];
 var typescript = require(typescript_file);
 codes.slice(1).forEach(function (text, id) {
-    var args = require("../coms/efront/commbuilder").break(text, "typescript.js", "typescript.js", false);
+    var args = require("../coms/efront/commbuilder").break(text, "typescript.js", "typescript - " + id + ".js", false);
     var created = [];
     text.replace(/(?:^\s*|\()ts\.([\w\$]+)\s*=/mg, function (_, c) {
         created.push(c);
@@ -48,6 +48,7 @@ if (text.length > codeText.length) {
 }
 var destpath = path.join(__dirname, '../coms/typescript-helpers');
 var helpers = Object.keys(typescript).filter(k => /Helper$/.test(k)).map(k => typescript[k]).filter(o => o instanceof Object && o.text);
+var helpersMap = {};
 helpers.forEach(o => {
     var { importName, text } = o;
     if (importName) {
@@ -60,6 +61,7 @@ helpers.forEach(o => {
                 text = text.replace(new RegExp(`^\\s{${space.length}}`, 'mg'), '');
             }
             var distname = path.join(destpath, importName + ".js");
+            helpersMap[importName] = true;
             if (fs.existsSync(distname)) {
                 var temp = fs.readFileSync(distname).toString().replace(/^\s*\/\*[\s\S]*?\*\/\s*/, '');
                 if (temp.replace(/[\r\n]+/g, "\r\n").trim() === text.replace(/[\r\n]+/g, "\r\n").trim());
@@ -72,4 +74,7 @@ helpers.forEach(o => {
             console.fail(importName, e);
         }
     }
+});
+fs.readdirSync(destpath).forEach(n => {
+    if (!helpersMap[n.replace(/\.js$/, '')]) fs.unlinkSync(path.join(destpath, n));
 });

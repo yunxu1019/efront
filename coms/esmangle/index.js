@@ -1,4 +1,4 @@
-module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efront 2.16.6*/].map||function (f, t) {
+module.exports=([/*Wed Feb 24 2021 07:13:53 GMT+0800 (中国标准时间) by efront 2.17.0*/].map||function (f, t) {
         var s = this,
         l=s[2],
         r = [],
@@ -9,56 +9,38 @@ module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efr
         return r
     }).call([
 /** 1 init */ [],
-/** 2 $efront_string__slice */ "slice",
-/** 3 $efront_string__lengt */ "length",
-/** 4 $efront_string__split */ "split",
-/** 5 $efront_string__conca */ "concat",
-/** 6 $efront_string__apply */ "apply",
-/** 7 $efront_string__rever */ "reverse",
-/** 8 $efront_string__exec_ */ "exec",
-/** 9 $efront_string__index */ "indexOf",
-/** 10 $efront_string__strin */ "string",
-/** 11 $efront_string__join_ */ "join",
-/** 12 $efront_string__call_ */ "call",
-/** 13 $efront_string__expor */ "exports",
+/** 2 $efront_string_slice */ "slice",
+/** 3 $efront_string_length */ "length",
+/** 4 $efront_string_split */ "split",
+/** 5 $efront_string_concat */ "concat",
+/** 6 $efront_string_apply */ "apply",
+/** 7 $efront_string_revers */ "reverse",
+/** 8 $efront_string_exec */ "exec",
+/** 9 $efront_string_indexO */ "indexOf",
+/** 10 $efront_string_string */ "string",
+/** 11 $efront_string_join */ "join",
+/** 12 $efront_string_call */ "call",
+/** 13 $efront_string_export */ "exports",
 /** 14 $efront_regexp__funct */ /^function[^\(]*?\(([^\)]+?)\)/,
-/** 15 Array */ Array,
-/** 16 String */ String,
-/** 17 _t_ */ "t",
-/** 18 _A_ */ "A",
-/** 19 _e_ */ "e",
-/** 20 _d_ */ "d",
-/** 21 _o_ */ "o",
-/** 22 _C_ */ "C",
-/** 23 _r_ */ "r",
-/** 24 _a_ */ "a",
-/** 25 _h_ */ "h",
-/** 26 _c_ */ "c",
-/** 27 _m_ */ "m",
-/** 28 _f_ */ "f",
-/** 29 module */ [1613967807],
-/** 30 RegExp */ RegExp,
-/** 31 $efront_string__NonAs */ 'NonAsciiIdentifierStart',
-/** 32 $efront_string__u02c1 */ /** text */ '[ªµºÀ-ÖØ-öø-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05d0-\u05ea\u05f0-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u08a0\u08a2-\u08ac\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097f\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d\u0c58\u0c59\u0c60\u0c61\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d60\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u01000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1877\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191c\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19c1-\u19c7\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4b\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1ce9-\u1cec\u1cee-\u1cf1\u1cf5\u1cf6\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2e2f\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua697\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa80-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]',
-/** 33 $efront_string__NonAs1 */ 'NonAsciiIdentifierPart',
-/** 34 $efront_string__u02c2 */ /** text */ '[ªµºÀ-ÖØ-öø-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0300-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u0483-\u0487\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u05d0-\u05ea\u05f0-\u05f2\u0610-\u061a\u0620-\u0669\u066e-\u06d3\u06d5-\u06dc\u06df-\u06e8\u06ea-\u06fc\u06ff\u0710-\u074a\u074d-\u07b1\u07c0-\u07f5\u07fa\u0800-\u082d\u0840-\u085b\u08a0\u08a2-\u08ac\u08e4-\u08fe\u0900-\u0963\u0966-\u096f\u0971-\u0977\u0979-\u097f\u0981-\u0983\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bc-\u09c4\u09c7\u09c8\u09cb-\u09ce\u09d7\u09dc\u09dd\u09df-\u09e3\u09e6-\u09f1\u0a01-\u0a03\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a59-\u0a5c\u0a5e\u0a66-\u0a75\u0a81-\u0a83\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abc-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ad0\u0ae0-\u0ae3\u0ae6-\u0aef\u0b01-\u0b03\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3c-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b56\u0b57\u0b5c\u0b5d\u0b5f-\u0b63\u0b66-\u0b6f\u0b71\u0b82\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd0\u0bd7\u0be6-\u0bef\u0c01-\u0c03\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d-\u0c44\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c58\u0c59\u0c60-\u0c63\u0c66-\u0c6f\u0c82\u0c83\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbc-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0cde\u0ce0-\u0ce3\u0ce6-\u0cef\u0cf1\u0cf2\u0d02\u0d03\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d-\u0d44\u0d46-\u0d48\u0d4a-\u0d4e\u0d57\u0d60-\u0d63\u0d66-\u0d6f\u0d7a-\u0d7f\u0d82\u0d83\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0df2\u0df3\u0e01-\u0e3a\u0e40-\u0e4e\u0e50-\u0e59\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb9\u0ebb-\u0ebd\u0ec0-\u0ec4\u0ec6\u0ec8-\u0ecd\u0ed0-\u0ed9\u0edc-\u0edf\u0f00\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f3e-\u0f47\u0f49-\u0f6c\u0f71-\u0f84\u0f86-\u0f97\u0f99-\u0fbc\u0fc6\u01000-\u1049\u1050-\u109d\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u135d-\u135f\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176c\u176e-\u1770\u1772\u1773\u1780-\u17d3\u17d7\u17dc\u17dd\u17e0-\u17e9\u180b-\u180d\u1810-\u1819\u1820-\u1877\u1880-\u18aa\u18b0-\u18f5\u1900-\u191c\u1920-\u192b\u1930-\u193b\u1946-\u196d\u1970-\u1974\u1980-\u19ab\u19b0-\u19c9\u19d0-\u19d9\u1a00-\u1a1b\u1a20-\u1a5e\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1aa7\u1b00-\u1b4b\u1b50-\u1b59\u1b6b-\u1b73\u1b80-\u1bf3\u1c00-\u1c37\u1c40-\u1c49\u1c4d-\u1c7d\u1cd0-\u1cd2\u1cd4-\u1cf6\u1d00-\u1de6\u1dfc-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u200c\u200d\u203f\u2040\u2054\u2071\u207f\u2090-\u209c\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d7f-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2de0-\u2dff\u2e2f\u3005-\u3007\u3021-\u302f\u3031-\u3035\u3038-\u303c\u3041-\u3096\u3099\u309a\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua62b\ua640-\ua66f\ua674-\ua67d\ua67f-\ua697\ua69f-\ua6f1\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua827\ua840-\ua873\ua880-\ua8c4\ua8d0-\ua8d9\ua8e0-\ua8f7\ua8fb\ua900-\ua92d\ua930-\ua953\ua960-\ua97c\ua980-\ua9c0\ua9cf-\ua9d9\uaa00-\uaa36\uaa40-\uaa4d\uaa50-\uaa59\uaa60-\uaa76\uaa7a\uaa7b\uaa80-\uaac2\uaadb-\uaadd\uaae0-\uaaef\uaaf2-\uaaf6\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabea\uabec\uabed\uabf0-\uabf9\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe00-\ufe0f\ufe20-\ufe26\ufe33\ufe34\ufe4d-\ufe4f\ufe70-\ufe74\ufe76-\ufefc\uff10-\uff19\uff21-\uff3a\uff3f\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]',
-/** 35 $efront_string__index1 */ 'indexOf',
-/** 36 $efront_string__test_ */ 'test',
-/** 37 $efront_string__fromC */ 'fromCharCode',
-/** 38 $efront_string__expor1 */ 'exports',
-/** 39 $efront_string__isDec */ 'isDecimalDigit',
-/** 40 $efront_string__isHex */ 'isHexDigit',
-/** 41 $efront_string__isOct */ 'isOctalDigit',
-/** 42 $efront_string__isWhi */ 'isWhiteSpace',
-/** 43 $efront_string__isLin */ 'isLineTerminator',
-/** 44 $efront_string__isIde */ 'isIdentifierStart',
-/** 45 $efront_string__isIde1 */ 'isIdentifierPart',
-/** 46 esutils$lib$code.js */ [30,16,29,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,function(RegExp, String, module, $efront_string__NonAs, $efront_string__u02c1, $efront_string__NonAs1, $efront_string__u02c2, $efront_string__index1, $efront_string__test_, $efront_string__fromC, $efront_string__expor1, $efront_string__isDec, $efront_string__isHex, $efront_string__isOct, $efront_string__isWhi, $efront_string__isLin, $efront_string__isIde, $efront_string__isIde1) {
-    return function () {
+/** 15 module */ [1614121520],
+/** 16 RegExp */ RegExp,
+/** 17 String */ String,
+/** 18 $efront_string_NonAsc */ "NonAsciiIdentifierStart",
+/** 19 $efront_string__0_ */ /** text */ "[\u00aa\u00b5\u00ba\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05d0-\u05ea\u05f0-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u08a0\u08a2-\u08ac\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097f\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d\u0c58\u0c59\u0c60\u0c61\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d60\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u01000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1877\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191c\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19c1-\u19c7\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4b\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1ce9-\u1cec\u1cee-\u1cf1\u1cf5\u1cf6\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2e2f\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua697\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa80-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]",
+/** 20 $efront_string_NonAsc1 */ "NonAsciiIdentifierPart",
+/** 21 $efront_string__0_1 */ /** text */ "[\u00aa\u00b5\u00ba\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0300-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u0483-\u0487\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u05d0-\u05ea\u05f0-\u05f2\u0610-\u061a\u0620-\u0669\u066e-\u06d3\u06d5-\u06dc\u06df-\u06e8\u06ea-\u06fc\u06ff\u0710-\u074a\u074d-\u07b1\u07c0-\u07f5\u07fa\u0800-\u082d\u0840-\u085b\u08a0\u08a2-\u08ac\u08e4-\u08fe\u0900-\u0963\u0966-\u096f\u0971-\u0977\u0979-\u097f\u0981-\u0983\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bc-\u09c4\u09c7\u09c8\u09cb-\u09ce\u09d7\u09dc\u09dd\u09df-\u09e3\u09e6-\u09f1\u0a01-\u0a03\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a59-\u0a5c\u0a5e\u0a66-\u0a75\u0a81-\u0a83\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abc-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ad0\u0ae0-\u0ae3\u0ae6-\u0aef\u0b01-\u0b03\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3c-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b56\u0b57\u0b5c\u0b5d\u0b5f-\u0b63\u0b66-\u0b6f\u0b71\u0b82\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd0\u0bd7\u0be6-\u0bef\u0c01-\u0c03\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d-\u0c44\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c58\u0c59\u0c60-\u0c63\u0c66-\u0c6f\u0c82\u0c83\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbc-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0cde\u0ce0-\u0ce3\u0ce6-\u0cef\u0cf1\u0cf2\u0d02\u0d03\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d-\u0d44\u0d46-\u0d48\u0d4a-\u0d4e\u0d57\u0d60-\u0d63\u0d66-\u0d6f\u0d7a-\u0d7f\u0d82\u0d83\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0df2\u0df3\u0e01-\u0e3a\u0e40-\u0e4e\u0e50-\u0e59\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb9\u0ebb-\u0ebd\u0ec0-\u0ec4\u0ec6\u0ec8-\u0ecd\u0ed0-\u0ed9\u0edc-\u0edf\u0f00\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f3e-\u0f47\u0f49-\u0f6c\u0f71-\u0f84\u0f86-\u0f97\u0f99-\u0fbc\u0fc6\u01000-\u1049\u1050-\u109d\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u135d-\u135f\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176c\u176e-\u1770\u1772\u1773\u1780-\u17d3\u17d7\u17dc\u17dd\u17e0-\u17e9\u180b-\u180d\u1810-\u1819\u1820-\u1877\u1880-\u18aa\u18b0-\u18f5\u1900-\u191c\u1920-\u192b\u1930-\u193b\u1946-\u196d\u1970-\u1974\u1980-\u19ab\u19b0-\u19c9\u19d0-\u19d9\u1a00-\u1a1b\u1a20-\u1a5e\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1aa7\u1b00-\u1b4b\u1b50-\u1b59\u1b6b-\u1b73\u1b80-\u1bf3\u1c00-\u1c37\u1c40-\u1c49\u1c4d-\u1c7d\u1cd0-\u1cd2\u1cd4-\u1cf6\u1d00-\u1de6\u1dfc-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u200c\u200d\u203f\u2040\u2054\u2071\u207f\u2090-\u209c\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d7f-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2de0-\u2dff\u2e2f\u3005-\u3007\u3021-\u302f\u3031-\u3035\u3038-\u303c\u3041-\u3096\u3099\u309a\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua62b\ua640-\ua66f\ua674-\ua67d\ua67f-\ua697\ua69f-\ua6f1\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua827\ua840-\ua873\ua880-\ua8c4\ua8d0-\ua8d9\ua8e0-\ua8f7\ua8fb\ua900-\ua92d\ua930-\ua953\ua960-\ua97c\ua980-\ua9c0\ua9cf-\ua9d9\uaa00-\uaa36\uaa40-\uaa4d\uaa50-\uaa59\uaa60-\uaa76\uaa7a\uaa7b\uaa80-\uaac2\uaadb-\uaadd\uaae0-\uaaef\uaaf2-\uaaf6\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabea\uabec\uabed\uabf0-\uabf9\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe00-\ufe0f\ufe20-\ufe26\ufe33\ufe34\ufe4d-\ufe4f\ufe70-\ufe74\ufe76-\ufefc\uff10-\uff19\uff21-\uff3a\uff3f\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]",
+/** 22 $efront_string_test */ "test",
+/** 23 $efront_string_fromCh */ "fromCharCode",
+/** 24 $efront_string_isDeci */ "isDecimalDigit",
+/** 25 $efront_string_isHexD */ "isHexDigit",
+/** 26 $efront_string_isOcta */ "isOctalDigit",
+/** 27 $efront_string_isWhit */ "isWhiteSpace",
+/** 28 $efront_string_isLine */ "isLineTerminator",
+/** 29 $efront_string_isIden */ "isIdentifierStart",
+/** 30 $efront_string_isIden1 */ "isIdentifierPart",
+/** 31 esutils$lib$code.js */ [16,17,15,18,19,20,21,9,22,23,13,24,25,26,27,28,29,30,function(RegExp, String, module, $efront_string_NonAsc, $efront_string__0_, $efront_string_NonAsc1, $efront_string__0_1, $efront_string_indexO, $efront_string_test, $efront_string_fromCh, $efront_string_export, $efront_string_isDeci, $efront_string_isHexD, $efront_string_isOcta, $efront_string_isWhit, $efront_string_isLine, $efront_string_isIden, $efront_string_isIden1) {
+    return function (_a, _b, Regex) {
         'use strict';
-        var _a, _b;
-        var Regex;
-        Regex = (_a = {}, _a[$efront_string__NonAs] = new RegExp($efront_string__u02c1), _a[$efront_string__NonAs1] = new RegExp($efront_string__u02c2), _a);
         function isDecimalDigit(ch) {
             return ch >= 48 && ch <= 57
         }
@@ -87,887 +69,630 @@ module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efr
                 8287,
                 12288,
                 65279
-            ][$efront_string__index1](ch) >= 0
+            ][$efront_string_indexO](ch) >= 0
         }
         function isLineTerminator(ch) {
             return ch === 10 || ch === 13 || ch === 8232 || ch === 8233
         }
         function isIdentifierStart(ch) {
-            return ch === 36 || ch === 95 || ch >= 65 && ch <= 90 || ch >= 97 && ch <= 122 || ch === 92 || ch >= 128 && Regex[$efront_string__NonAs][$efront_string__test_](String[$efront_string__fromC](ch))
+            return ch === 36 || ch === 95 || ch >= 65 && ch <= 90 || ch >= 97 && ch <= 122 || ch === 92 || ch >= 128 && Regex[$efront_string_NonAsc][$efront_string_test](String[$efront_string_fromCh](ch))
         }
         function isIdentifierPart(ch) {
-            return ch === 36 || ch === 95 || ch >= 65 && ch <= 90 || ch >= 97 && ch <= 122 || ch >= 48 && ch <= 57 || ch === 92 || ch >= 128 && Regex[$efront_string__NonAs1][$efront_string__test_](String[$efront_string__fromC](ch))
+            return ch === 36 || ch === 95 || ch >= 65 && ch <= 90 || ch >= 97 && ch <= 122 || ch >= 48 && ch <= 57 || ch === 92 || ch >= 128 && Regex[$efront_string_NonAsc1][$efront_string_test](String[$efront_string_fromCh](ch))
         }
-        module[$efront_string__expor1] = (_b = {}, _b[$efront_string__isDec] = isDecimalDigit, _b[$efront_string__isHex] = isHexDigit, _b[$efront_string__isOct] = isOctalDigit, _b[$efront_string__isWhi] = isWhiteSpace, _b[$efront_string__isLin] = isLineTerminator, _b[$efront_string__isIde] = isIdentifierStart, _b[$efront_string__isIde1] = isIdentifierPart, _b)
+        _a = {}, _a[$efront_string_NonAsc] = new RegExp($efront_string__0_), _a[$efront_string_NonAsc1] = new RegExp($efront_string__0_1), Regex = _a, _b = {}, _b[$efront_string_isDeci] = isDecimalDigit, _b[$efront_string_isHexD] = isHexDigit, _b[$efront_string_isOcta] = isOctalDigit, _b[$efront_string_isWhit] = isWhiteSpace, _b[$efront_string_isLine] = isLineTerminator, _b[$efront_string_isIden] = isIdentifierStart, _b[$efront_string_isIden1] = isIdentifierPart, module[$efront_string_export] = _b
     }()
 }],
-/** 47 global */ typeof global!=="undefined"?global:void 0,
-/** 48 $efront_string__Map_ */ 'Map',
-/** 49 $efront_string__undef */ 'undefined',
-/** 50 $efront_string____dat */ '__data',
-/** 51 $efront_string__proto */ 'prototype',
-/** 52 $efront_string__get_ */ 'get',
-/** 53 $efront_string__$_ */ '$',
-/** 54 $efront_string__hasOw */ 'hasOwnProperty',
-/** 55 $efront_string__has_ */ 'has',
-/** 56 $efront_string__set_ */ 'set',
-/** 57 $efront_string__delet */ 'delete',
-/** 58 $efront_string__clear */ 'clear',
-/** 59 $efront_string__forEa */ 'forEach',
-/** 60 $efront_string__subst */ 'substring',
-/** 61 $efront_string__call_1 */ 'call',
-/** 62 $efront_string__keys_ */ 'keys',
-/** 63 $efront_string__push_ */ 'push',
-/** 64 $efront_string__value */ 'values',
-/** 65 $efront_string__items */ 'items',
-/** 66 map.js */ [47,29,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,38,function(global, module, $efront_string__Map_, $efront_string__undef, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__hasOw, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__clear, $efront_string__forEa, $efront_string__subst, $efront_string__call_1, $efront_string__keys_, $efront_string__push_, $efront_string__value, $efront_string__items, $efront_string__expor1) {
-    return function () {
+/** 32 global */ typeof global!=="undefined"?global:void 0,
+/** 33 $efront_string_Map */ "Map",
+/** 34 $efront_string_undefi */ "undefined",
+/** 35 $efront_string___data */ "__data",
+/** 36 $efront_string_protot */ "prototype",
+/** 37 $efront_string_get */ "get",
+/** 38 $efront_string_$ */ "$",
+/** 39 $efront_string_hasOwn */ "hasOwnProperty",
+/** 40 $efront_string_has */ "has",
+/** 41 $efront_string_set */ "set",
+/** 42 $efront_string_delete */ "delete",
+/** 43 $efront_string_clear */ "clear",
+/** 44 $efront_string_forEac */ "forEach",
+/** 45 $efront_string_substr */ "substring",
+/** 46 $efront_string_keys */ "keys",
+/** 47 $efront_string_push */ "push",
+/** 48 $efront_string_values */ "values",
+/** 49 $efront_string_items */ "items",
+/** 50 map.js */ [32,15,33,34,35,36,37,38,39,40,41,42,43,44,45,12,46,47,48,49,13,function(global, module, $efront_string_Map, $efront_string_undefi, $efront_string___data, $efront_string_protot, $efront_string_get, $efront_string_$, $efront_string_hasOwn, $efront_string_has, $efront_string_set, $efront_string_delete, $efront_string_clear, $efront_string_forEac, $efront_string_substr, $efront_string_call, $efront_string_keys, $efront_string_push, $efront_string_values, $efront_string_items, $efront_string_export) {
+    return function (Map) {
         'use strict';
-        var Map;
-        if (typeof global[$efront_string__Map_] !== $efront_string__undef) {
-            Map = global[$efront_string__Map_]
-        } else {
-            Map = function Map() {
-                this[$efront_string____dat] = {}
-            };
-            Map[$efront_string__proto][$efront_string__get_] = function MapGet(key) {
-                key = $efront_string__$_ + key;
-                if (this[$efront_string____dat][$efront_string__hasOw](key)) {
-                    return this[$efront_string____dat][key]
-                }
-            };
-            Map[$efront_string__proto][$efront_string__has_] = function MapHas(key) {
-                key = $efront_string__$_ + key;
-                return this[$efront_string____dat][$efront_string__hasOw](key)
-            };
-            Map[$efront_string__proto][$efront_string__set_] = function MapSet(key, val) {
-                key = $efront_string__$_ + key;
-                this[$efront_string____dat][key] = val
-            };
-            Map[$efront_string__proto][$efront_string__delet] = function MapDelete(key) {
-                key = $efront_string__$_ + key;
-                return delete this[$efront_string____dat][key]
-            };
-            Map[$efront_string__proto][$efront_string__clear] = function MapClear() {
-                this[$efront_string____dat] = {}
-            };
-            Map[$efront_string__proto][$efront_string__forEa] = function MapForEach(callback, thisArg) {
-                var real, key;
-                for (real in this[$efront_string____dat]) {
-                    if (this[$efront_string____dat][$efront_string__hasOw](real)) {
-                        key = real[$efront_string__subst](1);
-                        callback[$efront_string__call_1](thisArg, this[$efront_string____dat][real], key, this)
-                    }
-                }
-            };
-            Map[$efront_string__proto][$efront_string__keys_] = function MapKeys() {
-                var real, result;
-                result = [];
-                for (real in this[$efront_string____dat]) {
-                    if (this[$efront_string____dat][$efront_string__hasOw](real)) {
-                        result[$efront_string__push_](real[$efront_string__subst](1))
-                    }
-                }
-                return result
-            };
-            Map[$efront_string__proto][$efront_string__value] = function MapValues() {
-                var real, result;
-                result = [];
-                for (real in this[$efront_string____dat]) {
-                    if (this[$efront_string____dat][$efront_string__hasOw](real)) {
-                        result[$efront_string__push_](this[$efront_string____dat][real])
-                    }
-                }
-                return result
-            };
-            Map[$efront_string__proto][$efront_string__items] = function MapItems() {
-                var real, result;
-                result = [];
-                for (real in this[$efront_string____dat]) {
-                    if (this[$efront_string____dat][$efront_string__hasOw](real)) {
-                        result[$efront_string__push_]([
-                            real[$efront_string__subst](1),
-                            this[$efront_string____dat][real]
-                        ])
-                    }
-                }
-                return result
-            }
-        }
-        module[$efront_string__expor1] = Map
+        typeof global[$efront_string_Map] !== $efront_string_undefi ? Map = global[$efront_string_Map] : (Map = function Map() {
+            this[$efront_string___data] = {}
+        }, Map[$efront_string_protot][$efront_string_get] = function MapGet(key) {
+            return key = $efront_string_$ + key, this[$efront_string___data][$efront_string_hasOwn](key) ? this[$efront_string___data][key] : void 0
+        }, Map[$efront_string_protot][$efront_string_has] = function MapHas(key) {
+            return key = $efront_string_$ + key, this[$efront_string___data][$efront_string_hasOwn](key)
+        }, Map[$efront_string_protot][$efront_string_set] = function MapSet(key, val) {
+            key = $efront_string_$ + key, this[$efront_string___data][key] = val
+        }, Map[$efront_string_protot][$efront_string_delete] = function MapDelete(key) {
+            return key = $efront_string_$ + key, delete this[$efront_string___data][key]
+        }, Map[$efront_string_protot][$efront_string_clear] = function MapClear() {
+            this[$efront_string___data] = {}
+        }, Map[$efront_string_protot][$efront_string_forEac] = function MapForEach(callback, thisArg) {
+            var real, key;
+            for (real in this[$efront_string___data])
+                this[$efront_string___data][$efront_string_hasOwn](real) && (key = real[$efront_string_substr](1), callback[$efront_string_call](thisArg, this[$efront_string___data][real], key, this))
+        }, Map[$efront_string_protot][$efront_string_keys] = function MapKeys() {
+            var real, result;
+            result = [];
+            for (real in this[$efront_string___data])
+                this[$efront_string___data][$efront_string_hasOwn](real) && result[$efront_string_push](real[$efront_string_substr](1));
+            return result
+        }, Map[$efront_string_protot][$efront_string_values] = function MapValues() {
+            var real, result;
+            result = [];
+            for (real in this[$efront_string___data])
+                this[$efront_string___data][$efront_string_hasOwn](real) && result[$efront_string_push](this[$efront_string___data][real]);
+            return result
+        }, Map[$efront_string_protot][$efront_string_items] = function MapItems() {
+            var real, result;
+            result = [];
+            for (real in this[$efront_string___data])
+                this[$efront_string___data][$efront_string_hasOwn](real) && result[$efront_string_push]([
+                    real[$efront_string_substr](1),
+                    this[$efront_string___data][real]
+                ]);
+            return result
+        }), module[$efront_string_export] = Map
     }()
 }],
-/** 67 undefined */ undefined,
-/** 68 exports */ [1417],
-/** 69 define */ typeof define!=="undefined"?define:void 0,
-/** 70 Object */ Object,
-/** 71 Error */ Error,
-/** 72 $efront_string__funct1 */ 'function',
-/** 73 $efront_string__amd_ */ 'amd',
-/** 74 $efront_string__estra */ 'estraverse',
-/** 75 $efront_string__Assig */ 'AssignmentExpression',
-/** 76 $efront_string__Array */ 'ArrayExpression',
-/** 77 $efront_string__Array1 */ 'ArrayPattern',
-/** 78 $efront_string__Arrow */ 'ArrowFunctionExpression',
-/** 79 $efront_string__Block */ 'BlockStatement',
-/** 80 $efront_string__Binar */ 'BinaryExpression',
-/** 81 $efront_string__Break */ 'BreakStatement',
-/** 82 $efront_string__CallE */ 'CallExpression',
-/** 83 $efront_string__Catch */ 'CatchClause',
-/** 84 $efront_string__Class */ 'ClassBody',
-/** 85 $efront_string__Class1 */ 'ClassDeclaration',
-/** 86 $efront_string__Class2 */ 'ClassExpression',
-/** 87 $efront_string__Condi */ 'ConditionalExpression',
-/** 88 $efront_string__Conti */ 'ContinueStatement',
-/** 89 $efront_string__Debug */ 'DebuggerStatement',
-/** 90 $efront_string__Direc */ 'DirectiveStatement',
-/** 91 $efront_string__DoWhi */ 'DoWhileStatement',
-/** 92 $efront_string__Empty */ 'EmptyStatement',
-/** 93 $efront_string__Expre */ 'ExpressionStatement',
-/** 94 $efront_string__ForSt */ 'ForStatement',
-/** 95 $efront_string__ForIn */ 'ForInStatement',
-/** 96 $efront_string__Funct */ 'FunctionDeclaration',
-/** 97 $efront_string__Funct1 */ 'FunctionExpression',
-/** 98 $efront_string__Ident */ 'Identifier',
-/** 99 $efront_string__IfSta */ 'IfStatement',
-/** 100 $efront_string__Liter */ 'Literal',
-/** 101 $efront_string__Label */ 'LabeledStatement',
-/** 102 $efront_string__Logic */ 'LogicalExpression',
-/** 103 $efront_string__Membe */ 'MemberExpression',
-/** 104 $efront_string__Metho */ 'MethodDefinition',
-/** 105 $efront_string__NewEx */ 'NewExpression',
-/** 106 $efront_string__Objec */ 'ObjectExpression',
-/** 107 $efront_string__Objec1 */ 'ObjectPattern',
-/** 108 $efront_string__Progr */ 'Program',
-/** 109 $efront_string__Prope */ 'Property',
-/** 110 $efront_string__Retur */ 'ReturnStatement',
-/** 111 $efront_string__Seque */ 'SequenceExpression',
-/** 112 $efront_string__Switc */ 'SwitchStatement',
-/** 113 $efront_string__Switc1 */ 'SwitchCase',
-/** 114 $efront_string__ThisE */ 'ThisExpression',
-/** 115 $efront_string__Throw */ 'ThrowStatement',
-/** 116 $efront_string__TrySt */ 'TryStatement',
-/** 117 $efront_string__Unary */ 'UnaryExpression',
-/** 118 $efront_string__Updat */ 'UpdateExpression',
-/** 119 $efront_string__Varia */ 'VariableDeclaration',
-/** 120 $efront_string__Varia1 */ 'VariableDeclarator',
-/** 121 $efront_string__While */ 'WhileStatement',
-/** 122 $efront_string__WithS */ 'WithStatement',
-/** 123 $efront_string__Yield */ 'YieldExpression',
-/** 124 $efront_string__isArr */ 'isArray',
-/** 125 $efront_string__toStr */ 'toString',
-/** 126 $efront_string__objec */ /** text */ '[object Array]',
-/** 127 $efront_string__objec1 */ 'object',
-/** 128 $efront_string__lengt1 */ 'length',
-/** 129 $efront_string__left_ */ 'left',
-/** 130 $efront_string__right */ 'right',
-/** 131 $efront_string__eleme */ 'elements',
-/** 132 $efront_string__param */ 'params',
-/** 133 $efront_string__defau */ 'defaults',
-/** 134 $efront_string__rest_ */ 'rest',
-/** 135 $efront_string__body_ */ 'body',
-/** 136 $efront_string__label */ 'label',
-/** 137 $efront_string__calle */ 'callee',
-/** 138 $efront_string__argum */ 'arguments',
-/** 139 $efront_string__param1 */ 'param',
-/** 140 $efront_string__id_ */ 'id',
-/** 141 $efront_string__super */ 'superClass',
-/** 142 $efront_string__conse */ 'consequent',
-/** 143 $efront_string__alter */ 'alternate',
-/** 144 $efront_string__expre */ 'expression',
-/** 145 $efront_string__init_ */ 'init',
-/** 146 $efront_string__updat */ 'update',
-/** 147 $efront_string__ForOf */ 'ForOfStatement',
-/** 148 $efront_string__prope */ 'property',
-/** 149 $efront_string__key_ */ 'key',
-/** 150 $efront_string__value1 */ 'value',
-/** 151 $efront_string__prope1 */ 'properties',
-/** 152 $efront_string__argum1 */ 'argument',
-/** 153 $efront_string__expre1 */ 'expressions',
-/** 154 $efront_string__discr */ 'discriminant',
-/** 155 $efront_string__cases */ 'cases',
-/** 156 $efront_string__block */ 'block',
-/** 157 $efront_string__handl */ 'handlers',
-/** 158 $efront_string__handl1 */ 'handler',
-/** 159 $efront_string__guard */ 'guardedHandlers',
-/** 160 $efront_string__final */ 'finalizer',
-/** 161 $efront_string__decla */ 'declarations',
-/** 162 $efront_string__Break1 */ 'Break',
-/** 163 $efront_string__Skip_ */ 'Skip',
-/** 164 $efront_string__paren */ 'parent',
-/** 165 $efront_string__repla */ 'replace',
-/** 166 $efront_string__node_ */ 'node',
-/** 167 $efront_string__path_ */ 'path',
-/** 168 $efront_string__wrap_ */ 'wrap',
-/** 169 $efront_string__ref_ */ 'ref',
-/** 170 $efront_string____cur */ '__current',
-/** 171 $efront_string____lea */ '__leavelist',
-/** 172 $efront_string__paren1 */ 'parents',
-/** 173 $efront_string__curre */ 'current',
-/** 174 $efront_string____exe */ '__execute',
-/** 175 $efront_string____sta */ '__state',
-/** 176 $efront_string__notif */ 'notify',
-/** 177 $efront_string__skip_ */ 'skip',
-/** 178 $efront_string__break */ 'break',
-/** 179 $efront_string____ini */ '__initialize',
-/** 180 $efront_string__visit */ 'visitor',
-/** 181 $efront_string__root_ */ 'root',
-/** 182 $efront_string____wor */ '__worklist',
-/** 183 $efront_string__trave */ 'traverse',
-/** 184 $efront_string__pop_ */ 'pop',
-/** 185 $efront_string__leave */ 'leave',
-/** 186 $efront_string__enter */ 'enter',
-/** 187 $efront_string__type_ */ 'type',
-/** 188 $efront_string__range */ 'range',
-/** 189 $efront_string__exten */ 'extendedRange',
-/** 190 $efront_string__attac */ /** text */ 'attachComments needs range information',
-/** 191 $efront_string__leadi */ 'leadingComments',
-/** 192 $efront_string__splic */ 'splice',
-/** 193 $efront_string__trail */ 'trailingComments',
-/** 194 $efront_string__versi */ 'version',
-/** 195 $efront_string__1_5_1 */ '1.5.1-dev',
-/** 196 $efront_string__Synta */ 'Syntax',
-/** 197 $efront_string__attac1 */ 'attachComments',
-/** 198 $efront_string__Visit */ 'VisitorKeys',
-/** 199 $efront_string__Visit1 */ 'VisitorOption',
-/** 200 $efront_string__Contr */ 'Controller',
-/** 201 estraverse$estraverse.js */ [69,68,15,70,67,71,72,73,38,49,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,51,125,61,126,54,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,36,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,63,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,function(define, exports, Array, Object, undefined, Error, $efront_string__funct1, $efront_string__amd_, $efront_string__expor1, $efront_string__undef, $efront_string__estra, $efront_string__Assig, $efront_string__Array, $efront_string__Array1, $efront_string__Arrow, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__Catch, $efront_string__Class, $efront_string__Class1, $efront_string__Class2, $efront_string__Condi, $efront_string__Conti, $efront_string__Debug, $efront_string__Direc, $efront_string__DoWhi, $efront_string__Empty, $efront_string__Expre, $efront_string__ForSt, $efront_string__ForIn, $efront_string__Funct, $efront_string__Funct1, $efront_string__Ident, $efront_string__IfSta, $efront_string__Liter, $efront_string__Label, $efront_string__Logic, $efront_string__Membe, $efront_string__Metho, $efront_string__NewEx, $efront_string__Objec, $efront_string__Objec1, $efront_string__Progr, $efront_string__Prope, $efront_string__Retur, $efront_string__Seque, $efront_string__Switc, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Unary, $efront_string__Updat, $efront_string__Varia, $efront_string__Varia1, $efront_string__While, $efront_string__WithS, $efront_string__Yield, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__hasOw, $efront_string__objec1, $efront_string__lengt1, $efront_string__left_, $efront_string__right, $efront_string__eleme, $efront_string__param, $efront_string__defau, $efront_string__rest_, $efront_string__body_, $efront_string__label, $efront_string__calle, $efront_string__argum, $efront_string__param1, $efront_string__id_, $efront_string__super, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__expre, $efront_string__init_, $efront_string__updat, $efront_string__ForOf, $efront_string__prope, $efront_string__key_, $efront_string__value1, $efront_string__prope1, $efront_string__argum1, $efront_string__expre1, $efront_string__discr, $efront_string__cases, $efront_string__block, $efront_string__handl, $efront_string__handl1, $efront_string__guard, $efront_string__final, $efront_string__decla, $efront_string__Break1, $efront_string__Skip_, $efront_string__paren, $efront_string__repla, $efront_string__node_, $efront_string__path_, $efront_string__wrap_, $efront_string__ref_, $efront_string__push_, $efront_string____cur, $efront_string____lea, $efront_string__paren1, $efront_string__curre, $efront_string____exe, $efront_string____sta, $efront_string__notif, $efront_string__skip_, $efront_string__break, $efront_string____ini, $efront_string__visit, $efront_string__root_, $efront_string____wor, $efront_string__trave, $efront_string__pop_, $efront_string__leave, $efront_string__enter, $efront_string__type_, $efront_string__range, $efront_string__exten, $efront_string__attac, $efront_string__leadi, $efront_string__splic, $efront_string__trail, $efront_string__versi, $efront_string__1_5_1, $efront_string__Synta, $efront_string__attac1, $efront_string__Visit, $efront_string__Visit1, $efront_string__Contr) {
+/** 51 undefined */ undefined,
+/** 52 exports */ [1686],
+/** 53 define */ typeof define!=="undefined"?define:void 0,
+/** 54 Array */ Array,
+/** 55 Object */ Object,
+/** 56 Error */ Error,
+/** 57 $efront_string_functi */ "function",
+/** 58 $efront_string_amd */ "amd",
+/** 59 $efront_string_estrav */ "estraverse",
+/** 60 $efront_string_Assign */ "AssignmentExpression",
+/** 61 $efront_string_ArrayE */ "ArrayExpression",
+/** 62 $efront_string_ArrayP */ "ArrayPattern",
+/** 63 $efront_string_ArrowF */ "ArrowFunctionExpression",
+/** 64 $efront_string_BlockS */ "BlockStatement",
+/** 65 $efront_string_Binary */ "BinaryExpression",
+/** 66 $efront_string_BreakS */ "BreakStatement",
+/** 67 $efront_string_CallEx */ "CallExpression",
+/** 68 $efront_string_CatchC */ "CatchClause",
+/** 69 $efront_string_ClassB */ "ClassBody",
+/** 70 $efront_string_ClassD */ "ClassDeclaration",
+/** 71 $efront_string_ClassE */ "ClassExpression",
+/** 72 $efront_string_Condit */ "ConditionalExpression",
+/** 73 $efront_string_Contin */ "ContinueStatement",
+/** 74 $efront_string_Debugg */ "DebuggerStatement",
+/** 75 $efront_string_Direct */ "DirectiveStatement",
+/** 76 $efront_string_DoWhil */ "DoWhileStatement",
+/** 77 $efront_string_EmptyS */ "EmptyStatement",
+/** 78 $efront_string_Expres */ "ExpressionStatement",
+/** 79 $efront_string_ForSta */ "ForStatement",
+/** 80 $efront_string_ForInS */ "ForInStatement",
+/** 81 $efront_string_Functi */ "FunctionDeclaration",
+/** 82 $efront_string_Functi1 */ "FunctionExpression",
+/** 83 $efront_string_Identi */ "Identifier",
+/** 84 $efront_string_IfStat */ "IfStatement",
+/** 85 $efront_string_Litera */ "Literal",
+/** 86 $efront_string_Labele */ "LabeledStatement",
+/** 87 $efront_string_Logica */ "LogicalExpression",
+/** 88 $efront_string_Member */ "MemberExpression",
+/** 89 $efront_string_Method */ "MethodDefinition",
+/** 90 $efront_string_NewExp */ "NewExpression",
+/** 91 $efront_string_Object */ "ObjectExpression",
+/** 92 $efront_string_Object1 */ "ObjectPattern",
+/** 93 $efront_string_Progra */ "Program",
+/** 94 $efront_string_Proper */ "Property",
+/** 95 $efront_string_Return */ "ReturnStatement",
+/** 96 $efront_string_Sequen */ "SequenceExpression",
+/** 97 $efront_string_Switch */ "SwitchStatement",
+/** 98 $efront_string_Switch1 */ "SwitchCase",
+/** 99 $efront_string_ThisEx */ "ThisExpression",
+/** 100 $efront_string_ThrowS */ "ThrowStatement",
+/** 101 $efront_string_TrySta */ "TryStatement",
+/** 102 $efront_string_UnaryE */ "UnaryExpression",
+/** 103 $efront_string_Update */ "UpdateExpression",
+/** 104 $efront_string_Variab */ "VariableDeclaration",
+/** 105 $efront_string_Variab1 */ "VariableDeclarator",
+/** 106 $efront_string_WhileS */ "WhileStatement",
+/** 107 $efront_string_WithSt */ "WithStatement",
+/** 108 $efront_string_YieldE */ "YieldExpression",
+/** 109 $efront_string_isArra */ "isArray",
+/** 110 $efront_string_toStri */ "toString",
+/** 111 $efront_string__objec */ /** text */ "[object Array]",
+/** 112 $efront_string_object */ "object",
+/** 113 $efront_string_left */ "left",
+/** 114 $efront_string_right */ "right",
+/** 115 $efront_string_elemen */ "elements",
+/** 116 $efront_string_params */ "params",
+/** 117 $efront_string_defaul */ "defaults",
+/** 118 $efront_string_rest */ "rest",
+/** 119 $efront_string_body */ "body",
+/** 120 $efront_string_label */ "label",
+/** 121 $efront_string_callee */ "callee",
+/** 122 $efront_string_argume */ "arguments",
+/** 123 $efront_string_param */ "param",
+/** 124 $efront_string_id */ "id",
+/** 125 $efront_string_superC */ "superClass",
+/** 126 $efront_string_conseq */ "consequent",
+/** 127 $efront_string_altern */ "alternate",
+/** 128 $efront_string_expres */ "expression",
+/** 129 $efront_string_init */ "init",
+/** 130 $efront_string_update */ "update",
+/** 131 $efront_string_ForOfS */ "ForOfStatement",
+/** 132 $efront_string_proper */ "property",
+/** 133 $efront_string_key */ "key",
+/** 134 $efront_string_value */ "value",
+/** 135 $efront_string_proper1 */ "properties",
+/** 136 $efront_string_argume1 */ "argument",
+/** 137 $efront_string_expres1 */ "expressions",
+/** 138 $efront_string_discri */ "discriminant",
+/** 139 $efront_string_cases */ "cases",
+/** 140 $efront_string_block */ "block",
+/** 141 $efront_string_handle */ "handlers",
+/** 142 $efront_string_handle1 */ "handler",
+/** 143 $efront_string_guarde */ "guardedHandlers",
+/** 144 $efront_string_finali */ "finalizer",
+/** 145 $efront_string_declar */ "declarations",
+/** 146 $efront_string_Break */ "Break",
+/** 147 $efront_string_Skip */ "Skip",
+/** 148 $efront_string_parent */ "parent",
+/** 149 $efront_string_replac */ "replace",
+/** 150 $efront_string_node */ "node",
+/** 151 $efront_string_path */ "path",
+/** 152 $efront_string_wrap */ "wrap",
+/** 153 $efront_string_ref */ "ref",
+/** 154 $efront_string___curr */ "__current",
+/** 155 $efront_string___leav */ "__leavelist",
+/** 156 $efront_string_parent1 */ "parents",
+/** 157 $efront_string_curren */ "current",
+/** 158 $efront_string___exec */ "__execute",
+/** 159 $efront_string___stat */ "__state",
+/** 160 $efront_string_notify */ "notify",
+/** 161 $efront_string_skip */ "skip",
+/** 162 $efront_string_break */ "break",
+/** 163 $efront_string___init */ "__initialize",
+/** 164 $efront_string_visito */ "visitor",
+/** 165 $efront_string_root */ "root",
+/** 166 $efront_string___work */ "__worklist",
+/** 167 $efront_string_traver */ "traverse",
+/** 168 $efront_string_pop */ "pop",
+/** 169 $efront_string_leave */ "leave",
+/** 170 $efront_string_enter */ "enter",
+/** 171 $efront_string_type */ "type",
+/** 172 $efront_string_range */ "range",
+/** 173 $efront_string_extend */ "extendedRange",
+/** 174 $efront_string_attach */ /** text */ "attachComments needs range information",
+/** 175 $efront_string_leadin */ "leadingComments",
+/** 176 $efront_string_splice */ "splice",
+/** 177 $efront_string_traili */ "trailingComments",
+/** 178 $efront_string_versio */ "version",
+/** 179 $efront_string_1_5_1_ */ "1.5.1-dev",
+/** 180 $efront_string_Syntax */ "Syntax",
+/** 181 $efront_string_attach1 */ "attachComments",
+/** 182 $efront_string_Visito */ "VisitorKeys",
+/** 183 $efront_string_Visito1 */ "VisitorOption",
+/** 184 $efront_string_Contro */ "Controller",
+/** 185 estraverse$estraverse.js */ [53,52,54,55,51,56,57,58,13,34,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,36,110,12,111,39,112,3,113,114,115,116,117,118,119,120,121,122,123,124,125,22,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,47,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,function(define, exports, Array, Object, undefined, Error, $efront_string_functi, $efront_string_amd, $efront_string_export, $efront_string_undefi, $efront_string_estrav, $efront_string_Assign, $efront_string_ArrayE, $efront_string_ArrayP, $efront_string_ArrowF, $efront_string_BlockS, $efront_string_Binary, $efront_string_BreakS, $efront_string_CallEx, $efront_string_CatchC, $efront_string_ClassB, $efront_string_ClassD, $efront_string_ClassE, $efront_string_Condit, $efront_string_Contin, $efront_string_Debugg, $efront_string_Direct, $efront_string_DoWhil, $efront_string_EmptyS, $efront_string_Expres, $efront_string_ForSta, $efront_string_ForInS, $efront_string_Functi, $efront_string_Functi1, $efront_string_Identi, $efront_string_IfStat, $efront_string_Litera, $efront_string_Labele, $efront_string_Logica, $efront_string_Member, $efront_string_Method, $efront_string_NewExp, $efront_string_Object, $efront_string_Object1, $efront_string_Progra, $efront_string_Proper, $efront_string_Return, $efront_string_Sequen, $efront_string_Switch, $efront_string_Switch1, $efront_string_ThisEx, $efront_string_ThrowS, $efront_string_TrySta, $efront_string_UnaryE, $efront_string_Update, $efront_string_Variab, $efront_string_Variab1, $efront_string_WhileS, $efront_string_WithSt, $efront_string_YieldE, $efront_string_isArra, $efront_string_protot, $efront_string_toStri, $efront_string_call, $efront_string__objec, $efront_string_hasOwn, $efront_string_object, $efront_string_length, $efront_string_left, $efront_string_right, $efront_string_elemen, $efront_string_params, $efront_string_defaul, $efront_string_rest, $efront_string_body, $efront_string_label, $efront_string_callee, $efront_string_argume, $efront_string_param, $efront_string_id, $efront_string_superC, $efront_string_test, $efront_string_conseq, $efront_string_altern, $efront_string_expres, $efront_string_init, $efront_string_update, $efront_string_ForOfS, $efront_string_proper, $efront_string_key, $efront_string_value, $efront_string_proper1, $efront_string_argume1, $efront_string_expres1, $efront_string_discri, $efront_string_cases, $efront_string_block, $efront_string_handle, $efront_string_handle1, $efront_string_guarde, $efront_string_finali, $efront_string_declar, $efront_string_Break, $efront_string_Skip, $efront_string_parent, $efront_string_replac, $efront_string_node, $efront_string_path, $efront_string_wrap, $efront_string_ref, $efront_string_push, $efront_string___curr, $efront_string___leav, $efront_string_parent1, $efront_string_curren, $efront_string___exec, $efront_string___stat, $efront_string_notify, $efront_string_skip, $efront_string_break, $efront_string___init, $efront_string_visito, $efront_string_root, $efront_string___work, $efront_string_traver, $efront_string_pop, $efront_string_leave, $efront_string_enter, $efront_string_type, $efront_string_range, $efront_string_extend, $efront_string_attach, $efront_string_leadin, $efront_string_splice, $efront_string_traili, $efront_string_versio, $efront_string_1_5_1_, $efront_string_Syntax, $efront_string_attach1, $efront_string_Visito, $efront_string_Visito1, $efront_string_Contro) {
     return function (root, factory) {
         'use strict';
-        if (typeof define === $efront_string__funct1 && define[$efront_string__amd_]) {
-            define([$efront_string__expor1], factory)
-        } else if (typeof exports !== $efront_string__undef) {
-            factory(exports)
-        } else {
-            factory(root[$efront_string__estra] = {})
-        }
+        typeof define === $efront_string_functi && define[$efront_string_amd] ? define([$efront_string_export], factory) : typeof exports !== $efront_string_undefi ? factory(exports) : factory(root[$efront_string_estrav] = {})
     }(this, function (exports) {
         'use strict';
-        var _a, _b, _c;
-        var Syntax, isArray, VisitorOption, VisitorKeys, BREAK, SKIP;
-        Syntax = (_a = {}, _a[$efront_string__Assig] = $efront_string__Assig, _a[$efront_string__Array] = $efront_string__Array, _a[$efront_string__Array1] = $efront_string__Array1, _a[$efront_string__Arrow] = $efront_string__Arrow, _a[$efront_string__Block] = $efront_string__Block, _a[$efront_string__Binar] = $efront_string__Binar, _a[$efront_string__Break] = $efront_string__Break, _a[$efront_string__CallE] = $efront_string__CallE, _a[$efront_string__Catch] = $efront_string__Catch, _a[$efront_string__Class] = $efront_string__Class, _a[$efront_string__Class1] = $efront_string__Class1, _a[$efront_string__Class2] = $efront_string__Class2, _a[$efront_string__Condi] = $efront_string__Condi, _a[$efront_string__Conti] = $efront_string__Conti, _a[$efront_string__Debug] = $efront_string__Debug, _a[$efront_string__Direc] = $efront_string__Direc, _a[$efront_string__DoWhi] = $efront_string__DoWhi, _a[$efront_string__Empty] = $efront_string__Empty, _a[$efront_string__Expre] = $efront_string__Expre, _a[$efront_string__ForSt] = $efront_string__ForSt, _a[$efront_string__ForIn] = $efront_string__ForIn, _a[$efront_string__Funct] = $efront_string__Funct, _a[$efront_string__Funct1] = $efront_string__Funct1, _a[$efront_string__Ident] = $efront_string__Ident, _a[$efront_string__IfSta] = $efront_string__IfSta, _a[$efront_string__Liter] = $efront_string__Liter, _a[$efront_string__Label] = $efront_string__Label, _a[$efront_string__Logic] = $efront_string__Logic, _a[$efront_string__Membe] = $efront_string__Membe, _a[$efront_string__Metho] = $efront_string__Metho, _a[$efront_string__NewEx] = $efront_string__NewEx, _a[$efront_string__Objec] = $efront_string__Objec, _a[$efront_string__Objec1] = $efront_string__Objec1, _a[$efront_string__Progr] = $efront_string__Progr, _a[$efront_string__Prope] = $efront_string__Prope, _a[$efront_string__Retur] = $efront_string__Retur, _a[$efront_string__Seque] = $efront_string__Seque, _a[$efront_string__Switc] = $efront_string__Switc, _a[$efront_string__Switc1] = $efront_string__Switc1, _a[$efront_string__ThisE] = $efront_string__ThisE, _a[$efront_string__Throw] = $efront_string__Throw, _a[$efront_string__TrySt] = $efront_string__TrySt, _a[$efront_string__Unary] = $efront_string__Unary, _a[$efront_string__Updat] = $efront_string__Updat, _a[$efront_string__Varia] = $efront_string__Varia, _a[$efront_string__Varia1] = $efront_string__Varia1, _a[$efront_string__While] = $efront_string__While, _a[$efront_string__WithS] = $efront_string__WithS, _a[$efront_string__Yield] = $efront_string__Yield, _a);
         function ignoreJSHintError() {
-        }
-        isArray = Array[$efront_string__isArr];
-        if (!isArray) {
-            isArray = function isArray(array) {
-                return Object[$efront_string__proto][$efront_string__toStr][$efront_string__call_1](array) === $efront_string__objec
-            }
         }
         function deepCopy(obj) {
             var ret = {}, key, val;
-            for (key in obj) {
-                if (obj[$efront_string__hasOw](key)) {
-                    val = obj[key];
-                    if (typeof val === $efront_string__objec1 && val !== null) {
-                        ret[key] = deepCopy(val)
-                    } else {
-                        ret[key] = val
-                    }
-                }
-            }
+            for (key in obj)
+                obj[$efront_string_hasOwn](key) && (val = obj[key], typeof val === $efront_string_object && val !== null ? ret[key] = deepCopy(val) : ret[key] = val);
             return ret
         }
         function shallowCopy(obj) {
             var ret = {}, key;
-            for (key in obj) {
-                if (obj[$efront_string__hasOw](key)) {
-                    ret[key] = obj[key]
-                }
-            }
+            for (key in obj)
+                obj[$efront_string_hasOwn](key) && (ret[key] = obj[key]);
             return ret
         }
-        ignoreJSHintError(shallowCopy);
         function upperBound(array, func) {
             var diff, len, i, current;
-            len = array[$efront_string__lengt1];
-            i = 0;
-            while (len) {
-                diff = len >>> 1;
-                current = i + diff;
-                if (func(array[current])) {
-                    len = diff
-                } else {
-                    i = current + 1;
-                    len -= diff + 1
-                }
-            }
+            len = array[$efront_string_length], i = 0;
+            while (len)
+                diff = len >>> 1, current = i + diff, func(array[current]) ? len = diff : (i = current + 1, len -= diff + 1);
             return i
         }
         function lowerBound(array, func) {
             var diff, len, i, current;
-            len = array[$efront_string__lengt1];
-            i = 0;
-            while (len) {
-                diff = len >>> 1;
-                current = i + diff;
-                if (func(array[current])) {
-                    i = current + 1;
-                    len -= diff + 1
-                } else {
-                    len = diff
-                }
-            }
+            len = array[$efront_string_length], i = 0;
+            while (len)
+                diff = len >>> 1, current = i + diff, func(array[current]) ? (i = current + 1, len -= diff + 1) : len = diff;
             return i
         }
-        ignoreJSHintError(lowerBound);
-        VisitorKeys = (_b = {}, _b[$efront_string__Assig] = [
-            $efront_string__left_,
-            $efront_string__right
-        ], _b[$efront_string__Array] = [$efront_string__eleme], _b[$efront_string__Array1] = [$efront_string__eleme], _b[$efront_string__Arrow] = [
-            $efront_string__param,
-            $efront_string__defau,
-            $efront_string__rest_,
-            $efront_string__body_
-        ], _b[$efront_string__Block] = [$efront_string__body_], _b[$efront_string__Binar] = [
-            $efront_string__left_,
-            $efront_string__right
-        ], _b[$efront_string__Break] = [$efront_string__label], _b[$efront_string__CallE] = [
-            $efront_string__calle,
-            $efront_string__argum
-        ], _b[$efront_string__Catch] = [
-            $efront_string__param1,
-            $efront_string__body_
-        ], _b[$efront_string__Class] = [$efront_string__body_], _b[$efront_string__Class1] = [
-            $efront_string__id_,
-            $efront_string__body_,
-            $efront_string__super
-        ], _b[$efront_string__Class2] = [
-            $efront_string__id_,
-            $efront_string__body_,
-            $efront_string__super
-        ], _b[$efront_string__Condi] = [
-            $efront_string__test_,
-            $efront_string__conse,
-            $efront_string__alter
-        ], _b[$efront_string__Conti] = [$efront_string__label], _b[$efront_string__Debug] = [], _b[$efront_string__Direc] = [], _b[$efront_string__DoWhi] = [
-            $efront_string__body_,
-            $efront_string__test_
-        ], _b[$efront_string__Empty] = [], _b[$efront_string__Expre] = [$efront_string__expre], _b[$efront_string__ForSt] = [
-            $efront_string__init_,
-            $efront_string__test_,
-            $efront_string__updat,
-            $efront_string__body_
-        ], _b[$efront_string__ForIn] = [
-            $efront_string__left_,
-            $efront_string__right,
-            $efront_string__body_
-        ], _b[$efront_string__ForOf] = [
-            $efront_string__left_,
-            $efront_string__right,
-            $efront_string__body_
-        ], _b[$efront_string__Funct] = [
-            $efront_string__id_,
-            $efront_string__param,
-            $efront_string__defau,
-            $efront_string__rest_,
-            $efront_string__body_
-        ], _b[$efront_string__Funct1] = [
-            $efront_string__id_,
-            $efront_string__param,
-            $efront_string__defau,
-            $efront_string__rest_,
-            $efront_string__body_
-        ], _b[$efront_string__Ident] = [], _b[$efront_string__IfSta] = [
-            $efront_string__test_,
-            $efront_string__conse,
-            $efront_string__alter
-        ], _b[$efront_string__Liter] = [], _b[$efront_string__Label] = [
-            $efront_string__label,
-            $efront_string__body_
-        ], _b[$efront_string__Logic] = [
-            $efront_string__left_,
-            $efront_string__right
-        ], _b[$efront_string__Membe] = [
-            $efront_string__objec1,
-            $efront_string__prope
-        ], _b[$efront_string__Metho] = [
-            $efront_string__key_,
-            $efront_string__value1
-        ], _b[$efront_string__NewEx] = [
-            $efront_string__calle,
-            $efront_string__argum
-        ], _b[$efront_string__Objec] = [$efront_string__prope1], _b[$efront_string__Objec1] = [$efront_string__prope1], _b[$efront_string__Progr] = [$efront_string__body_], _b[$efront_string__Prope] = [
-            $efront_string__key_,
-            $efront_string__value1
-        ], _b[$efront_string__Retur] = [$efront_string__argum1], _b[$efront_string__Seque] = [$efront_string__expre1], _b[$efront_string__Switc] = [
-            $efront_string__discr,
-            $efront_string__cases
-        ], _b[$efront_string__Switc1] = [
-            $efront_string__test_,
-            $efront_string__conse
-        ], _b[$efront_string__ThisE] = [], _b[$efront_string__Throw] = [$efront_string__argum1], _b[$efront_string__TrySt] = [
-            $efront_string__block,
-            $efront_string__handl,
-            $efront_string__handl1,
-            $efront_string__guard,
-            $efront_string__final
-        ], _b[$efront_string__Unary] = [$efront_string__argum1], _b[$efront_string__Updat] = [$efront_string__argum1], _b[$efront_string__Varia] = [$efront_string__decla], _b[$efront_string__Varia1] = [
-            $efront_string__id_,
-            $efront_string__init_
-        ], _b[$efront_string__While] = [
-            $efront_string__test_,
-            $efront_string__body_
-        ], _b[$efront_string__WithS] = [
-            $efront_string__objec1,
-            $efront_string__body_
-        ], _b[$efront_string__Yield] = [$efront_string__argum1], _b);
-        BREAK = {};
-        SKIP = {};
-        VisitorOption = (_c = {}, _c[$efront_string__Break1] = BREAK, _c[$efront_string__Skip_] = SKIP, _c);
         function Reference(parent, key) {
-            this[$efront_string__paren] = parent;
-            this[$efront_string__key_] = key
+            this[$efront_string_parent] = parent, this[$efront_string_key] = key
         }
-        Reference[$efront_string__proto][$efront_string__repla] = function replace(node) {
-            this[$efront_string__paren][this[$efront_string__key_]] = node
-        };
         function Element(node, path, wrap, ref) {
-            this[$efront_string__node_] = node;
-            this[$efront_string__path_] = path;
-            this[$efront_string__wrap_] = wrap;
-            this[$efront_string__ref_] = ref
+            this[$efront_string_node] = node, this[$efront_string_path] = path, this[$efront_string_wrap] = wrap, this[$efront_string_ref] = ref
         }
         function Controller() {
         }
-        Controller[$efront_string__proto][$efront_string__path_] = function path() {
-            var i, iz, j, jz, result, element;
-            function addToPath(result, path) {
-                if (isArray(path)) {
-                    for (j = 0, jz = path[$efront_string__lengt1]; j < jz; ++j) {
-                        result[$efront_string__push_](path[j])
-                    }
-                } else {
-                    result[$efront_string__push_](path)
-                }
-            }
-            if (!this[$efront_string____cur][$efront_string__path_]) {
-                return null
-            }
-            result = [];
-            for (i = 2, iz = this[$efront_string____lea][$efront_string__lengt1]; i < iz; ++i) {
-                element = this[$efront_string____lea][i];
-                addToPath(result, element[$efront_string__path_])
-            }
-            addToPath(result, this[$efront_string____cur][$efront_string__path_]);
-            return result
-        };
-        Controller[$efront_string__proto][$efront_string__paren1] = function parents() {
-            var i, iz, result;
-            result = [];
-            for (i = 1, iz = this[$efront_string____lea][$efront_string__lengt1]; i < iz; ++i) {
-                result[$efront_string__push_](this[$efront_string____lea][i][$efront_string__node_])
-            }
-            return result
-        };
-        Controller[$efront_string__proto][$efront_string__curre] = function current() {
-            return this[$efront_string____cur][$efront_string__node_]
-        };
-        Controller[$efront_string__proto][$efront_string____exe] = function __execute(callback, element) {
-            var previous, result;
-            result = undefined;
-            previous = this[$efront_string____cur];
-            this[$efront_string____cur] = element;
-            this[$efront_string____sta] = null;
-            if (callback) {
-                result = callback[$efront_string__call_1](this, element[$efront_string__node_], this[$efront_string____lea][this[$efront_string____lea][$efront_string__lengt1] - 1][$efront_string__node_])
-            }
-            this[$efront_string____cur] = previous;
-            return result
-        };
-        Controller[$efront_string__proto][$efront_string__notif] = function notify(flag) {
-            this[$efront_string____sta] = flag
-        };
-        Controller[$efront_string__proto][$efront_string__skip_] = function () {
-            this[$efront_string__notif](SKIP)
-        };
-        Controller[$efront_string__proto][$efront_string__break] = function () {
-            this[$efront_string__notif](BREAK)
-        };
-        Controller[$efront_string__proto][$efront_string____ini] = function (root, visitor) {
-            this[$efront_string__visit] = visitor;
-            this[$efront_string__root_] = root;
-            this[$efront_string____wor] = [];
-            this[$efront_string____lea] = [];
-            this[$efront_string____cur] = null;
-            this[$efront_string____sta] = null
-        };
-        Controller[$efront_string__proto][$efront_string__trave] = function traverse(root, visitor) {
-            var worklist, leavelist, element, node, nodeType, ret, key, current, current2, candidates, candidate, sentinel;
-            this[$efront_string____ini](root, visitor);
-            sentinel = {};
-            worklist = this[$efront_string____wor];
-            leavelist = this[$efront_string____lea];
-            worklist[$efront_string__push_](new Element(root, null, null, null));
-            leavelist[$efront_string__push_](new Element(null, null, null, null));
-            while (worklist[$efront_string__lengt1]) {
-                element = worklist[$efront_string__pop_]();
-                if (element === sentinel) {
-                    element = leavelist[$efront_string__pop_]();
-                    ret = this[$efront_string____exe](visitor[$efront_string__leave], element);
-                    if (this[$efront_string____sta] === BREAK || ret === BREAK) {
-                        return
-                    }
-                    continue
-                }
-                if (element[$efront_string__node_]) {
-                    ret = this[$efront_string____exe](visitor[$efront_string__enter], element);
-                    if (this[$efront_string____sta] === BREAK || ret === BREAK) {
-                        return
-                    }
-                    worklist[$efront_string__push_](sentinel);
-                    leavelist[$efront_string__push_](element);
-                    if (this[$efront_string____sta] === SKIP || ret === SKIP) {
-                        continue
-                    }
-                    node = element[$efront_string__node_];
-                    nodeType = element[$efront_string__wrap_] || node[$efront_string__type_];
-                    candidates = VisitorKeys[nodeType];
-                    current = candidates[$efront_string__lengt1];
-                    while ((current -= 1) >= 0) {
-                        key = candidates[current];
-                        candidate = node[key];
-                        if (!candidate) {
-                            continue
-                        }
-                        if (!isArray(candidate)) {
-                            worklist[$efront_string__push_](new Element(candidate, key, null, null));
-                            continue
-                        }
-                        current2 = candidate[$efront_string__lengt1];
-                        while ((current2 -= 1) >= 0) {
-                            if (!candidate[current2]) {
-                                continue
-                            }
-                            if ((nodeType === Syntax[$efront_string__Objec] || nodeType === Syntax[$efront_string__Objec1]) && $efront_string__prope1 === candidates[current]) {
-                                element = new Element(candidate[current2], [
-                                    key,
-                                    current2
-                                ], $efront_string__Prope, null)
-                            } else {
-                                element = new Element(candidate[current2], [
-                                    key,
-                                    current2
-                                ], null, null)
-                            }
-                            worklist[$efront_string__push_](element)
-                        }
-                    }
-                }
-            }
-        };
-        Controller[$efront_string__proto][$efront_string__repla] = function replace(root, visitor) {
-            var _a;
-            var worklist, leavelist, node, nodeType, target, element, current, current2, candidates, candidate, sentinel, outer, key;
-            this[$efront_string____ini](root, visitor);
-            sentinel = {};
-            worklist = this[$efront_string____wor];
-            leavelist = this[$efront_string____lea];
-            outer = (_a = {}, _a[$efront_string__root_] = root, _a);
-            element = new Element(root, null, null, new Reference(outer, $efront_string__root_));
-            worklist[$efront_string__push_](element);
-            leavelist[$efront_string__push_](element);
-            while (worklist[$efront_string__lengt1]) {
-                element = worklist[$efront_string__pop_]();
-                if (element === sentinel) {
-                    element = leavelist[$efront_string__pop_]();
-                    target = this[$efront_string____exe](visitor[$efront_string__leave], element);
-                    if (target !== undefined && target !== BREAK && target !== SKIP) {
-                        element[$efront_string__ref_][$efront_string__repla](target)
-                    }
-                    if (this[$efront_string____sta] === BREAK || target === BREAK) {
-                        return outer[$efront_string__root_]
-                    }
-                    continue
-                }
-                target = this[$efront_string____exe](visitor[$efront_string__enter], element);
-                if (target !== undefined && target !== BREAK && target !== SKIP) {
-                    element[$efront_string__ref_][$efront_string__repla](target);
-                    element[$efront_string__node_] = target
-                }
-                if (this[$efront_string____sta] === BREAK || target === BREAK) {
-                    return outer[$efront_string__root_]
-                }
-                node = element[$efront_string__node_];
-                if (!node) {
-                    continue
-                }
-                worklist[$efront_string__push_](sentinel);
-                leavelist[$efront_string__push_](element);
-                if (this[$efront_string____sta] === SKIP || target === SKIP) {
-                    continue
-                }
-                nodeType = element[$efront_string__wrap_] || node[$efront_string__type_];
-                candidates = VisitorKeys[nodeType];
-                current = candidates[$efront_string__lengt1];
-                while ((current -= 1) >= 0) {
-                    key = candidates[current];
-                    candidate = node[key];
-                    if (!candidate) {
-                        continue
-                    }
-                    if (!isArray(candidate)) {
-                        worklist[$efront_string__push_](new Element(candidate, key, null, new Reference(node, key)));
-                        continue
-                    }
-                    current2 = candidate[$efront_string__lengt1];
-                    while ((current2 -= 1) >= 0) {
-                        if (!candidate[current2]) {
-                            continue
-                        }
-                        if (nodeType === Syntax[$efront_string__Objec] && $efront_string__prope1 === candidates[current]) {
-                            element = new Element(candidate[current2], [
-                                key,
-                                current2
-                            ], $efront_string__Prope, new Reference(candidate, current2))
-                        } else {
-                            element = new Element(candidate[current2], [
-                                key,
-                                current2
-                            ], null, new Reference(candidate, current2))
-                        }
-                        worklist[$efront_string__push_](element)
-                    }
-                }
-            }
-            return outer[$efront_string__root_]
-        };
         function traverse(root, visitor) {
             var controller = new Controller;
-            return controller[$efront_string__trave](root, visitor)
+            return controller[$efront_string_traver](root, visitor)
         }
         function replace(root, visitor) {
             var controller = new Controller;
-            return controller[$efront_string__repla](root, visitor)
+            return controller[$efront_string_replac](root, visitor)
         }
         function extendCommentRange(comment, tokens) {
             var target;
-            target = upperBound(tokens, function search(token) {
-                return token[$efront_string__range][0] > comment[$efront_string__range][0]
-            });
-            comment[$efront_string__exten] = [
-                comment[$efront_string__range][0],
-                comment[$efront_string__range][1]
-            ];
-            if (target !== tokens[$efront_string__lengt1]) {
-                comment[$efront_string__exten][1] = tokens[target][$efront_string__range][0]
-            }
-            target -= 1;
-            if (target >= 0) {
-                comment[$efront_string__exten][0] = tokens[target][$efront_string__range][1]
-            }
-            return comment
+            return target = upperBound(tokens, function search(token) {
+                return token[$efront_string_range][0] > comment[$efront_string_range][0]
+            }), comment[$efront_string_extend] = [
+                comment[$efront_string_range][0],
+                comment[$efront_string_range][1]
+            ], target !== tokens[$efront_string_length] && (comment[$efront_string_extend][1] = tokens[target][$efront_string_range][0]), target -= 1, target >= 0 && (comment[$efront_string_extend][0] = tokens[target][$efront_string_range][1]), comment
         }
         function attachComments(tree, providedComments, tokens) {
-            var _a, _b;
-            var comments = [], comment, len, i, cursor;
-            if (!tree[$efront_string__range]) {
-                throw new Error($efront_string__attac)
-            }
-            if (!tokens[$efront_string__lengt1]) {
-                if (providedComments[$efront_string__lengt1]) {
-                    for (i = 0, len = providedComments[$efront_string__lengt1]; i < len; i += 1) {
-                        comment = deepCopy(providedComments[i]);
-                        comment[$efront_string__exten] = [
+            var _a, _b, comments = [], comment, len, i, cursor;
+            if (!tree[$efront_string_range])
+                throw new Error($efront_string_attach);
+            if (!tokens[$efront_string_length]) {
+                if (providedComments[$efront_string_length]) {
+                    for (i = 0, len = providedComments[$efront_string_length]; i < len; i += 1)
+                        comment = deepCopy(providedComments[i]), comment[$efront_string_extend] = [
                             0,
-                            tree[$efront_string__range][0]
-                        ];
-                        comments[$efront_string__push_](comment)
-                    }
-                    tree[$efront_string__leadi] = comments
+                            tree[$efront_string_range][0]
+                        ], comments[$efront_string_push](comment);
+                    tree[$efront_string_leadin] = comments
                 }
                 return tree
             }
-            for (i = 0, len = providedComments[$efront_string__lengt1]; i < len; i += 1) {
-                comments[$efront_string__push_](extendCommentRange(deepCopy(providedComments[i]), tokens))
-            }
-            cursor = 0;
-            traverse(tree, (_a = {}, _a[$efront_string__enter] = function (node) {
+            for (i = 0, len = providedComments[$efront_string_length]; i < len; i += 1)
+                comments[$efront_string_push](extendCommentRange(deepCopy(providedComments[i]), tokens));
+            return cursor = 0, traverse(tree, (_a = {}, _a[$efront_string_enter] = function (node) {
                 var comment;
-                while (cursor < comments[$efront_string__lengt1]) {
-                    comment = comments[cursor];
-                    if (comment[$efront_string__exten][1] > node[$efront_string__range][0]) {
-                        break
-                    }
-                    if (comment[$efront_string__exten][1] === node[$efront_string__range][0]) {
-                        if (!node[$efront_string__leadi]) {
-                            node[$efront_string__leadi] = []
-                        }
-                        node[$efront_string__leadi][$efront_string__push_](comment);
-                        comments[$efront_string__splic](cursor, 1)
-                    } else {
-                        cursor += 1
-                    }
+                while (cursor < comments[$efront_string_length]) {
+                    if (comment = comments[cursor], comment[$efront_string_extend][1] > node[$efront_string_range][0])
+                        break;
+                    comment[$efront_string_extend][1] === node[$efront_string_range][0] ? (node[$efront_string_leadin] || (node[$efront_string_leadin] = []), node[$efront_string_leadin][$efront_string_push](comment), comments[$efront_string_splice](cursor, 1)) : cursor += 1
                 }
-                if (cursor === comments[$efront_string__lengt1]) {
-                    return VisitorOption[$efront_string__Break1]
-                }
-                if (comments[cursor][$efront_string__exten][0] > node[$efront_string__range][1]) {
-                    return VisitorOption[$efront_string__Skip_]
-                }
-            }, _a));
-            cursor = 0;
-            traverse(tree, (_b = {}, _b[$efront_string__leave] = function (node) {
+                return cursor === comments[$efront_string_length] ? VisitorOption[$efront_string_Break] : comments[cursor][$efront_string_extend][0] > node[$efront_string_range][1] ? VisitorOption[$efront_string_Skip] : void 0
+            }, _a)), cursor = 0, traverse(tree, (_b = {}, _b[$efront_string_leave] = function (node) {
                 var comment;
-                while (cursor < comments[$efront_string__lengt1]) {
-                    comment = comments[cursor];
-                    if (node[$efront_string__range][1] < comment[$efront_string__exten][0]) {
-                        break
-                    }
-                    if (node[$efront_string__range][1] === comment[$efront_string__exten][0]) {
-                        if (!node[$efront_string__trail]) {
-                            node[$efront_string__trail] = []
-                        }
-                        node[$efront_string__trail][$efront_string__push_](comment);
-                        comments[$efront_string__splic](cursor, 1)
-                    } else {
-                        cursor += 1
-                    }
+                while (cursor < comments[$efront_string_length]) {
+                    if (comment = comments[cursor], node[$efront_string_range][1] < comment[$efront_string_extend][0])
+                        break;
+                    node[$efront_string_range][1] === comment[$efront_string_extend][0] ? (node[$efront_string_traili] || (node[$efront_string_traili] = []), node[$efront_string_traili][$efront_string_push](comment), comments[$efront_string_splice](cursor, 1)) : cursor += 1
                 }
-                if (cursor === comments[$efront_string__lengt1]) {
-                    return VisitorOption[$efront_string__Break1]
-                }
-                if (comments[cursor][$efront_string__exten][0] > node[$efront_string__range][1]) {
-                    return VisitorOption[$efront_string__Skip_]
-                }
-            }, _b));
-            return tree
+                return cursor === comments[$efront_string_length] ? VisitorOption[$efront_string_Break] : comments[cursor][$efront_string_extend][0] > node[$efront_string_range][1] ? VisitorOption[$efront_string_Skip] : void 0
+            }, _b)), tree
         }
-        exports[$efront_string__versi] = $efront_string__1_5_1;
-        exports[$efront_string__Synta] = Syntax;
-        exports[$efront_string__trave] = traverse;
-        exports[$efront_string__repla] = replace;
-        exports[$efront_string__attac1] = attachComments;
-        exports[$efront_string__Visit] = VisitorKeys;
-        exports[$efront_string__Visit1] = VisitorOption;
-        exports[$efront_string__Contr] = Controller
+        var _a, _b, _c, Syntax, isArray, VisitorOption, VisitorKeys, BREAK, SKIP;
+        _a = {}, _a[$efront_string_Assign] = $efront_string_Assign, _a[$efront_string_ArrayE] = $efront_string_ArrayE, _a[$efront_string_ArrayP] = $efront_string_ArrayP, _a[$efront_string_ArrowF] = $efront_string_ArrowF, _a[$efront_string_BlockS] = $efront_string_BlockS, _a[$efront_string_Binary] = $efront_string_Binary, _a[$efront_string_BreakS] = $efront_string_BreakS, _a[$efront_string_CallEx] = $efront_string_CallEx, _a[$efront_string_CatchC] = $efront_string_CatchC, _a[$efront_string_ClassB] = $efront_string_ClassB, _a[$efront_string_ClassD] = $efront_string_ClassD, _a[$efront_string_ClassE] = $efront_string_ClassE, _a[$efront_string_Condit] = $efront_string_Condit, _a[$efront_string_Contin] = $efront_string_Contin, _a[$efront_string_Debugg] = $efront_string_Debugg, _a[$efront_string_Direct] = $efront_string_Direct, _a[$efront_string_DoWhil] = $efront_string_DoWhil, _a[$efront_string_EmptyS] = $efront_string_EmptyS, _a[$efront_string_Expres] = $efront_string_Expres, _a[$efront_string_ForSta] = $efront_string_ForSta, _a[$efront_string_ForInS] = $efront_string_ForInS, _a[$efront_string_Functi] = $efront_string_Functi, _a[$efront_string_Functi1] = $efront_string_Functi1, _a[$efront_string_Identi] = $efront_string_Identi, _a[$efront_string_IfStat] = $efront_string_IfStat, _a[$efront_string_Litera] = $efront_string_Litera, _a[$efront_string_Labele] = $efront_string_Labele, _a[$efront_string_Logica] = $efront_string_Logica, _a[$efront_string_Member] = $efront_string_Member, _a[$efront_string_Method] = $efront_string_Method, _a[$efront_string_NewExp] = $efront_string_NewExp, _a[$efront_string_Object] = $efront_string_Object, _a[$efront_string_Object1] = $efront_string_Object1, _a[$efront_string_Progra] = $efront_string_Progra, _a[$efront_string_Proper] = $efront_string_Proper, _a[$efront_string_Return] = $efront_string_Return, _a[$efront_string_Sequen] = $efront_string_Sequen, _a[$efront_string_Switch] = $efront_string_Switch, _a[$efront_string_Switch1] = $efront_string_Switch1, _a[$efront_string_ThisEx] = $efront_string_ThisEx, _a[$efront_string_ThrowS] = $efront_string_ThrowS, _a[$efront_string_TrySta] = $efront_string_TrySta, _a[$efront_string_UnaryE] = $efront_string_UnaryE, _a[$efront_string_Update] = $efront_string_Update, _a[$efront_string_Variab] = $efront_string_Variab, _a[$efront_string_Variab1] = $efront_string_Variab1, _a[$efront_string_WhileS] = $efront_string_WhileS, _a[$efront_string_WithSt] = $efront_string_WithSt, _a[$efront_string_YieldE] = $efront_string_YieldE, Syntax = _a, isArray = Array[$efront_string_isArra], isArray || (isArray = function isArray(array) {
+            return Object[$efront_string_protot][$efront_string_toStri][$efront_string_call](array) === $efront_string__objec
+        }), ignoreJSHintError(shallowCopy), ignoreJSHintError(lowerBound), _b = {}, _b[$efront_string_Assign] = [
+            $efront_string_left,
+            $efront_string_right
+        ], _b[$efront_string_ArrayE] = [$efront_string_elemen], _b[$efront_string_ArrayP] = [$efront_string_elemen], _b[$efront_string_ArrowF] = [
+            $efront_string_params,
+            $efront_string_defaul,
+            $efront_string_rest,
+            $efront_string_body
+        ], _b[$efront_string_BlockS] = [$efront_string_body], _b[$efront_string_Binary] = [
+            $efront_string_left,
+            $efront_string_right
+        ], _b[$efront_string_BreakS] = [$efront_string_label], _b[$efront_string_CallEx] = [
+            $efront_string_callee,
+            $efront_string_argume
+        ], _b[$efront_string_CatchC] = [
+            $efront_string_param,
+            $efront_string_body
+        ], _b[$efront_string_ClassB] = [$efront_string_body], _b[$efront_string_ClassD] = [
+            $efront_string_id,
+            $efront_string_body,
+            $efront_string_superC
+        ], _b[$efront_string_ClassE] = [
+            $efront_string_id,
+            $efront_string_body,
+            $efront_string_superC
+        ], _b[$efront_string_Condit] = [
+            $efront_string_test,
+            $efront_string_conseq,
+            $efront_string_altern
+        ], _b[$efront_string_Contin] = [$efront_string_label], _b[$efront_string_Debugg] = [], _b[$efront_string_Direct] = [], _b[$efront_string_DoWhil] = [
+            $efront_string_body,
+            $efront_string_test
+        ], _b[$efront_string_EmptyS] = [], _b[$efront_string_Expres] = [$efront_string_expres], _b[$efront_string_ForSta] = [
+            $efront_string_init,
+            $efront_string_test,
+            $efront_string_update,
+            $efront_string_body
+        ], _b[$efront_string_ForInS] = [
+            $efront_string_left,
+            $efront_string_right,
+            $efront_string_body
+        ], _b[$efront_string_ForOfS] = [
+            $efront_string_left,
+            $efront_string_right,
+            $efront_string_body
+        ], _b[$efront_string_Functi] = [
+            $efront_string_id,
+            $efront_string_params,
+            $efront_string_defaul,
+            $efront_string_rest,
+            $efront_string_body
+        ], _b[$efront_string_Functi1] = [
+            $efront_string_id,
+            $efront_string_params,
+            $efront_string_defaul,
+            $efront_string_rest,
+            $efront_string_body
+        ], _b[$efront_string_Identi] = [], _b[$efront_string_IfStat] = [
+            $efront_string_test,
+            $efront_string_conseq,
+            $efront_string_altern
+        ], _b[$efront_string_Litera] = [], _b[$efront_string_Labele] = [
+            $efront_string_label,
+            $efront_string_body
+        ], _b[$efront_string_Logica] = [
+            $efront_string_left,
+            $efront_string_right
+        ], _b[$efront_string_Member] = [
+            $efront_string_object,
+            $efront_string_proper
+        ], _b[$efront_string_Method] = [
+            $efront_string_key,
+            $efront_string_value
+        ], _b[$efront_string_NewExp] = [
+            $efront_string_callee,
+            $efront_string_argume
+        ], _b[$efront_string_Object] = [$efront_string_proper1], _b[$efront_string_Object1] = [$efront_string_proper1], _b[$efront_string_Progra] = [$efront_string_body], _b[$efront_string_Proper] = [
+            $efront_string_key,
+            $efront_string_value
+        ], _b[$efront_string_Return] = [$efront_string_argume1], _b[$efront_string_Sequen] = [$efront_string_expres1], _b[$efront_string_Switch] = [
+            $efront_string_discri,
+            $efront_string_cases
+        ], _b[$efront_string_Switch1] = [
+            $efront_string_test,
+            $efront_string_conseq
+        ], _b[$efront_string_ThisEx] = [], _b[$efront_string_ThrowS] = [$efront_string_argume1], _b[$efront_string_TrySta] = [
+            $efront_string_block,
+            $efront_string_handle,
+            $efront_string_handle1,
+            $efront_string_guarde,
+            $efront_string_finali
+        ], _b[$efront_string_UnaryE] = [$efront_string_argume1], _b[$efront_string_Update] = [$efront_string_argume1], _b[$efront_string_Variab] = [$efront_string_declar], _b[$efront_string_Variab1] = [
+            $efront_string_id,
+            $efront_string_init
+        ], _b[$efront_string_WhileS] = [
+            $efront_string_test,
+            $efront_string_body
+        ], _b[$efront_string_WithSt] = [
+            $efront_string_object,
+            $efront_string_body
+        ], _b[$efront_string_YieldE] = [$efront_string_argume1], VisitorKeys = _b, BREAK = {}, SKIP = {}, _c = {}, _c[$efront_string_Break] = BREAK, _c[$efront_string_Skip] = SKIP, VisitorOption = _c, Reference[$efront_string_protot][$efront_string_replac] = function replace(node) {
+            this[$efront_string_parent][this[$efront_string_key]] = node
+        }, Controller[$efront_string_protot][$efront_string_path] = function path() {
+            function addToPath(result, path) {
+                if (isArray(path))
+                    for (j = 0, jz = path[$efront_string_length]; j < jz; ++j)
+                        result[$efront_string_push](path[j]);
+                else
+                    result[$efront_string_push](path)
+            }
+            var i, iz, j, jz, result, element;
+            if (!this[$efront_string___curr][$efront_string_path])
+                return null;
+            for (result = [], i = 2, iz = this[$efront_string___leav][$efront_string_length]; i < iz; ++i)
+                element = this[$efront_string___leav][i], addToPath(result, element[$efront_string_path]);
+            return addToPath(result, this[$efront_string___curr][$efront_string_path]), result
+        }, Controller[$efront_string_protot][$efront_string_parent1] = function parents() {
+            var i, iz, result;
+            for (result = [], i = 1, iz = this[$efront_string___leav][$efront_string_length]; i < iz; ++i)
+                result[$efront_string_push](this[$efront_string___leav][i][$efront_string_node]);
+            return result
+        }, Controller[$efront_string_protot][$efront_string_curren] = function current() {
+            return this[$efront_string___curr][$efront_string_node]
+        }, Controller[$efront_string_protot][$efront_string___exec] = function __execute(callback, element) {
+            var previous, result;
+            return result = undefined, previous = this[$efront_string___curr], this[$efront_string___curr] = element, this[$efront_string___stat] = null, callback && (result = callback[$efront_string_call](this, element[$efront_string_node], this[$efront_string___leav][this[$efront_string___leav][$efront_string_length] - 1][$efront_string_node])), this[$efront_string___curr] = previous, result
+        }, Controller[$efront_string_protot][$efront_string_notify] = function notify(flag) {
+            this[$efront_string___stat] = flag
+        }, Controller[$efront_string_protot][$efront_string_skip] = function () {
+            this[$efront_string_notify](SKIP)
+        }, Controller[$efront_string_protot][$efront_string_break] = function () {
+            this[$efront_string_notify](BREAK)
+        }, Controller[$efront_string_protot][$efront_string___init] = function (root, visitor) {
+            this[$efront_string_visito] = visitor, this[$efront_string_root] = root, this[$efront_string___work] = [], this[$efront_string___leav] = [], this[$efront_string___curr] = null, this[$efront_string___stat] = null
+        }, Controller[$efront_string_protot][$efront_string_traver] = function traverse(root, visitor) {
+            var worklist, leavelist, element, node, nodeType, ret, key, current, current2, candidates, candidate, sentinel;
+            this[$efront_string___init](root, visitor), sentinel = {}, worklist = this[$efront_string___work], leavelist = this[$efront_string___leav], worklist[$efront_string_push](new Element(root, null, null, null)), leavelist[$efront_string_push](new Element(null, null, null, null));
+            while (worklist[$efront_string_length]) {
+                if (element = worklist[$efront_string_pop](), element === sentinel) {
+                    if (element = leavelist[$efront_string_pop](), ret = this[$efront_string___exec](visitor[$efront_string_leave], element), this[$efront_string___stat] === BREAK || ret === BREAK)
+                        return;
+                    continue
+                }
+                if (element[$efront_string_node]) {
+                    if (ret = this[$efront_string___exec](visitor[$efront_string_enter], element), this[$efront_string___stat] === BREAK || ret === BREAK)
+                        return;
+                    if (worklist[$efront_string_push](sentinel), leavelist[$efront_string_push](element), this[$efront_string___stat] === SKIP || ret === SKIP)
+                        continue;
+                    node = element[$efront_string_node], nodeType = element[$efront_string_wrap] || node[$efront_string_type], candidates = VisitorKeys[nodeType], current = candidates[$efront_string_length];
+                    while ((current -= 1) >= 0) {
+                        if (key = candidates[current], candidate = node[key], !candidate)
+                            continue;
+                        if (!isArray(candidate)) {
+                            worklist[$efront_string_push](new Element(candidate, key, null, null));
+                            continue
+                        }
+                        current2 = candidate[$efront_string_length];
+                        while ((current2 -= 1) >= 0) {
+                            if (!candidate[current2])
+                                continue;
+                            (nodeType === Syntax[$efront_string_Object] || nodeType === Syntax[$efront_string_Object1]) && $efront_string_proper1 === candidates[current] ? element = new Element(candidate[current2], [
+                                key,
+                                current2
+                            ], $efront_string_Proper, null) : element = new Element(candidate[current2], [
+                                key,
+                                current2
+                            ], null, null), worklist[$efront_string_push](element)
+                        }
+                    }
+                }
+            }
+        }, Controller[$efront_string_protot][$efront_string_replac] = function replace(root, visitor) {
+            var _a, worklist, leavelist, node, nodeType, target, element, current, current2, candidates, candidate, sentinel, outer, key;
+            this[$efront_string___init](root, visitor), sentinel = {}, worklist = this[$efront_string___work], leavelist = this[$efront_string___leav], _a = {}, _a[$efront_string_root] = root, outer = _a, element = new Element(root, null, null, new Reference(outer, $efront_string_root)), worklist[$efront_string_push](element), leavelist[$efront_string_push](element);
+            while (worklist[$efront_string_length]) {
+                if (element = worklist[$efront_string_pop](), element === sentinel) {
+                    if (element = leavelist[$efront_string_pop](), target = this[$efront_string___exec](visitor[$efront_string_leave], element), target !== undefined && target !== BREAK && target !== SKIP && element[$efront_string_ref][$efront_string_replac](target), this[$efront_string___stat] === BREAK || target === BREAK)
+                        return outer[$efront_string_root];
+                    continue
+                }
+                if (target = this[$efront_string___exec](visitor[$efront_string_enter], element), target !== undefined && target !== BREAK && target !== SKIP && (element[$efront_string_ref][$efront_string_replac](target), element[$efront_string_node] = target), this[$efront_string___stat] === BREAK || target === BREAK)
+                    return outer[$efront_string_root];
+                if (node = element[$efront_string_node], !node)
+                    continue;
+                if (worklist[$efront_string_push](sentinel), leavelist[$efront_string_push](element), this[$efront_string___stat] === SKIP || target === SKIP)
+                    continue;
+                nodeType = element[$efront_string_wrap] || node[$efront_string_type], candidates = VisitorKeys[nodeType], current = candidates[$efront_string_length];
+                while ((current -= 1) >= 0) {
+                    if (key = candidates[current], candidate = node[key], !candidate)
+                        continue;
+                    if (!isArray(candidate)) {
+                        worklist[$efront_string_push](new Element(candidate, key, null, new Reference(node, key)));
+                        continue
+                    }
+                    current2 = candidate[$efront_string_length];
+                    while ((current2 -= 1) >= 0) {
+                        if (!candidate[current2])
+                            continue;
+                        nodeType === Syntax[$efront_string_Object] && $efront_string_proper1 === candidates[current] ? element = new Element(candidate[current2], [
+                            key,
+                            current2
+                        ], $efront_string_Proper, new Reference(candidate, current2)) : element = new Element(candidate[current2], [
+                            key,
+                            current2
+                        ], null, new Reference(candidate, current2)), worklist[$efront_string_push](element)
+                    }
+                }
+            }
+            return outer[$efront_string_root]
+        }, exports[$efront_string_versio] = $efront_string_1_5_1_, exports[$efront_string_Syntax] = Syntax, exports[$efront_string_traver] = traverse, exports[$efront_string_replac] = replace, exports[$efront_string_attach1] = attachComments, exports[$efront_string_Visito] = VisitorKeys, exports[$efront_string_Visito1] = VisitorOption, exports[$efront_string_Contro] = Controller
     })
 }],
-/** 202 $efront_string___from */ '_from',
-/** 203 $efront_string__essho */ 'esshorten@~1.1.0',
-/** 204 $efront_string___id_ */ '_id',
-/** 205 $efront_string__essho1 */ 'esshorten@1.1.1',
-/** 206 $efront_string___inBu */ '_inBundle',
-/** 207 $efront_string___inte */ '_integrity',
-/** 208 $efront_string__sha1_ */ 'sha1-F0+Wt8wmfkaHLYFOfbfCkL3/Yak=',
-/** 209 $efront_string___loca */ '_location',
-/** 210 $efront_string__essho2 */ '/esshorten',
-/** 211 $efront_string___phan */ '_phantomChildren',
-/** 212 $efront_string___requ */ '_requested',
-/** 213 $efront_string__regis */ 'registry',
-/** 214 $efront_string__raw_ */ 'raw',
-/** 215 $efront_string__name_ */ 'name',
-/** 216 $efront_string__essho3 */ 'esshorten',
-/** 217 $efront_string__escap */ 'escapedName',
-/** 218 $efront_string__rawSp */ 'rawSpec',
-/** 219 $efront_string__1_1_0 */ '~1.1.0',
-/** 220 $efront_string__saveS */ 'saveSpec',
-/** 221 $efront_string__fetch */ 'fetchSpec',
-/** 222 $efront_string___requ1 */ '_requiredBy',
-/** 223 $efront_string__esman */ '/esmangle',
-/** 224 $efront_string___reso */ '_resolved',
-/** 225 $efront_string__https */ 'https://registry.npm.taobao.org/esshorten/download/esshorten-1.1.1.tgz',
-/** 226 $efront_string___shas */ '_shasum',
-/** 227 $efront_string__174f9 */ '174f96b7cc267e46872d814e7db7c290bdff61a9',
-/** 228 $efront_string___spec */ '_spec',
-/** 229 $efront_string___wher */ '_where',
-/** 230 $efront_string__D_wor */ 'D:\\work\\efront2\\node_modules\\esmangle',
-/** 231 $efront_string__bugs_ */ 'bugs',
-/** 232 $efront_string__url_ */ 'url',
-/** 233 $efront_string__https1 */ 'https://github.com/estools/esshorten/issues',
-/** 234 $efront_string__bundl */ 'bundleDependencies',
-/** 235 $efront_string__depen */ 'dependencies',
-/** 236 $efront_string__escop */ 'escope',
-/** 237 $efront_string__1_0_1 */ '~1.0.1',
-/** 238 $efront_string__4_1_1 */ '~4.1.1',
-/** 239 $efront_string__esuti */ 'esutils',
-/** 240 $efront_string__2_0_2 */ '~2.0.2',
-/** 241 $efront_string__depre */ 'deprecated',
-/** 242 $efront_string__descr */ 'description',
-/** 243 $efront_string__Short */ /** text */ 'Shorten (mangle) names in JavaScript code',
-/** 244 $efront_string__devDe */ 'devDependencies',
-/** 245 $efront_string__chai_ */ 'chai',
-/** 246 $efront_string__ */ '*',
-/** 247 $efront_string__coffe */ 'coffee-script',
-/** 248 $efront_string__1_10_ */ '~1.10.0',
-/** 249 $efront_string__commo */ 'commonjs-everywhere',
-/** 250 $efront_string__0_9_7 */ '~0.9.7',
-/** 251 $efront_string__gulp_ */ 'gulp',
-/** 252 $efront_string__3_9_0 */ '~3.9.0',
-/** 253 $efront_string__gulp_1 */ 'gulp-jshint',
-/** 254 $efront_string__1_11_ */ '~1.11.2',
-/** 255 $efront_string__gulp_2 */ 'gulp-mocha',
-/** 256 $efront_string__2_1_3 */ '~2.1.3',
-/** 257 $efront_string__jshin */ 'jshint-stylish',
-/** 258 $efront_string__2_0_1 */ '~2.0.1',
-/** 259 $efront_string__direc */ 'directories',
-/** 260 $efront_string__lib_ */ 'lib',
-/** 261 $efront_string__lib_1 */ './lib',
-/** 262 $efront_string__engin */ 'engines',
-/** 263 $efront_string__0_6_0 */ '>=0.6.0',
-/** 264 $efront_string__homep */ 'homepage',
-/** 265 $efront_string__https2 */ 'https://github.com/estools/esshorten#readme',
-/** 266 $efront_string__licen */ 'licenses',
-/** 267 $efront_string__BSD_ */ 'BSD',
-/** 268 $efront_string__http_ */ 'http://github.com/estools/esshorten/raw/master/LICENSE.BSD',
-/** 269 $efront_string__main_ */ 'main',
-/** 270 $efront_string__lib_e */ 'lib/esshorten.js',
-/** 271 $efront_string__maint */ 'maintainers',
-/** 272 $efront_string__Yusuk */ /** text */ 'Yusuke Suzuki',
-/** 273 $efront_string__email */ 'email',
-/** 274 $efront_string__utata */ 'utatane.tea@gmail.com',
-/** 275 $efront_string__http_1 */ 'http://github.com/Constellation',
-/** 276 $efront_string__repos */ 'repository',
-/** 277 $efront_string__git_ */ 'git',
-/** 278 $efront_string__git_s */ 'git+ssh://git@github.com/estools/esshorten.git',
-/** 279 $efront_string__scrip */ 'scripts',
-/** 280 $efront_string__lint_ */ 'lint',
-/** 281 $efront_string__gulp_3 */ /** text */ 'gulp lint',
-/** 282 $efront_string__gulp_4 */ /** text */ 'gulp travis',
-/** 283 $efront_string__unit_ */ 'unit-test',
-/** 284 $efront_string__gulp_5 */ /** text */ 'gulp test',
-/** 285 $efront_string__1_1_1 */ '1.1.1',
-/** 286 esshorten$package.json */ [202,203,204,205,206,207,208,209,210,211,212,187,188,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,74,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,166,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,36,282,283,284,194,285,function($efront_string___from, $efront_string__essho, $efront_string___id_, $efront_string__essho1, $efront_string___inBu, $efront_string___inte, $efront_string__sha1_, $efront_string___loca, $efront_string__essho2, $efront_string___phan, $efront_string___requ, $efront_string__type_, $efront_string__range, $efront_string__regis, $efront_string__raw_, $efront_string__name_, $efront_string__essho3, $efront_string__escap, $efront_string__rawSp, $efront_string__1_1_0, $efront_string__saveS, $efront_string__fetch, $efront_string___requ1, $efront_string__esman, $efront_string___reso, $efront_string__https, $efront_string___shas, $efront_string__174f9, $efront_string___spec, $efront_string___wher, $efront_string__D_wor, $efront_string__bugs_, $efront_string__url_, $efront_string__https1, $efront_string__bundl, $efront_string__depen, $efront_string__escop, $efront_string__1_0_1, $efront_string__estra, $efront_string__4_1_1, $efront_string__esuti, $efront_string__2_0_2, $efront_string__depre, $efront_string__descr, $efront_string__Short, $efront_string__devDe, $efront_string__chai_, $efront_string__, $efront_string__coffe, $efront_string__1_10_, $efront_string__commo, $efront_string__0_9_7, $efront_string__gulp_, $efront_string__3_9_0, $efront_string__gulp_1, $efront_string__1_11_, $efront_string__gulp_2, $efront_string__2_1_3, $efront_string__jshin, $efront_string__2_0_1, $efront_string__direc, $efront_string__lib_, $efront_string__lib_1, $efront_string__engin, $efront_string__node_, $efront_string__0_6_0, $efront_string__homep, $efront_string__https2, $efront_string__licen, $efront_string__BSD_, $efront_string__http_, $efront_string__main_, $efront_string__lib_e, $efront_string__maint, $efront_string__Yusuk, $efront_string__email, $efront_string__utata, $efront_string__http_1, $efront_string__repos, $efront_string__git_, $efront_string__git_s, $efront_string__scrip, $efront_string__lint_, $efront_string__gulp_3, $efront_string__test_, $efront_string__gulp_4, $efront_string__unit_, $efront_string__gulp_5, $efront_string__versi, $efront_string__1_1_1) {
+/** 186 $efront_string__from */ "_from",
+/** 187 $efront_string_esshor */ "esshorten@~1.1.0",
+/** 188 $efront_string__id */ "_id",
+/** 189 $efront_string_esshor1 */ "esshorten@1.1.1",
+/** 190 $efront_string__inBun */ "_inBundle",
+/** 191 $efront_string__integ */ "_integrity",
+/** 192 $efront_string_sha1_F */ "sha1-F0+Wt8wmfkaHLYFOfbfCkL3/Yak=",
+/** 193 $efront_string__locat */ "_location",
+/** 194 $efront_string__essho */ "/esshorten",
+/** 195 $efront_string__phant */ "_phantomChildren",
+/** 196 $efront_string__reque */ "_requested",
+/** 197 $efront_string_regist */ "registry",
+/** 198 $efront_string_raw */ "raw",
+/** 199 $efront_string_name */ "name",
+/** 200 $efront_string_esshor2 */ "esshorten",
+/** 201 $efront_string_escape */ "escapedName",
+/** 202 $efront_string_rawSpe */ "rawSpec",
+/** 203 $efront_string__1_1_0 */ "~1.1.0",
+/** 204 $efront_string_saveSp */ "saveSpec",
+/** 205 $efront_string_fetchS */ "fetchSpec",
+/** 206 $efront_string__requi */ "_requiredBy",
+/** 207 $efront_string__esman */ "/esmangle",
+/** 208 $efront_string__resol */ "_resolved",
+/** 209 $efront_string_https_ */ "https://registry.npm.taobao.org/esshorten/download/esshorten-1.1.1.tgz",
+/** 210 $efront_string__shasu */ "_shasum",
+/** 211 $efront_string_174f96 */ "174f96b7cc267e46872d814e7db7c290bdff61a9",
+/** 212 $efront_string__spec */ "_spec",
+/** 213 $efront_string__where */ "_where",
+/** 214 $efront_string_D_work */ "D:\\work\\efront\\node_modules\\esmangle",
+/** 215 $efront_string_bugs */ "bugs",
+/** 216 $efront_string_url */ "url",
+/** 217 $efront_string_https_1 */ "https://github.com/estools/esshorten/issues",
+/** 218 $efront_string_bundle */ "bundleDependencies",
+/** 219 $efront_string_depend */ "dependencies",
+/** 220 $efront_string_escope */ "escope",
+/** 221 $efront_string__1_0_1 */ "~1.0.1",
+/** 222 $efront_string__4_1_1 */ "~4.1.1",
+/** 223 $efront_string_esutil */ "esutils",
+/** 224 $efront_string__2_0_2 */ "~2.0.2",
+/** 225 $efront_string_deprec */ "deprecated",
+/** 226 $efront_string_descri */ "description",
+/** 227 $efront_string_Shorte */ /** text */ "Shorten (mangle) names in JavaScript code",
+/** 228 $efront_string_devDep */ "devDependencies",
+/** 229 $efront_string_chai */ "chai",
+/** 230 $efront_string__ */ "*",
+/** 231 $efront_string_coffee */ "coffee-script",
+/** 232 $efront_string__1_10_ */ "~1.10.0",
+/** 233 $efront_string_common */ "commonjs-everywhere",
+/** 234 $efront_string__0_9_7 */ "~0.9.7",
+/** 235 $efront_string_gulp */ "gulp",
+/** 236 $efront_string__3_9_0 */ "~3.9.0",
+/** 237 $efront_string_gulp_j */ "gulp-jshint",
+/** 238 $efront_string__1_11_ */ "~1.11.2",
+/** 239 $efront_string_gulp_m */ "gulp-mocha",
+/** 240 $efront_string__2_1_3 */ "~2.1.3",
+/** 241 $efront_string_jshint */ "jshint-stylish",
+/** 242 $efront_string__2_0_1 */ "~2.0.1",
+/** 243 $efront_string_direct */ "directories",
+/** 244 $efront_string_lib */ "lib",
+/** 245 $efront_string__lib */ "./lib",
+/** 246 $efront_string_engine */ "engines",
+/** 247 $efront_string__0_6_0 */ ">=0.6.0",
+/** 248 $efront_string_homepa */ "homepage",
+/** 249 $efront_string_https_2 */ "https://github.com/estools/esshorten#readme",
+/** 250 $efront_string_licens */ "licenses",
+/** 251 $efront_string_BSD */ "BSD",
+/** 252 $efront_string_http_g */ "http://github.com/estools/esshorten/raw/master/LICENSE.BSD",
+/** 253 $efront_string_main */ "main",
+/** 254 $efront_string_lib_es */ "lib/esshorten.js",
+/** 255 $efront_string_mainta */ "maintainers",
+/** 256 $efront_string_Yusuke */ /** text */ "Yusuke Suzuki",
+/** 257 $efront_string_email */ "email",
+/** 258 $efront_string_utatan */ "utatane.tea@gmail.com",
+/** 259 $efront_string_http_g1 */ "http://github.com/Constellation",
+/** 260 $efront_string_reposi */ "repository",
+/** 261 $efront_string_git */ "git",
+/** 262 $efront_string_git_ss */ "git+ssh://git@github.com/estools/esshorten.git",
+/** 263 $efront_string_script */ "scripts",
+/** 264 $efront_string_lint */ "lint",
+/** 265 $efront_string_gulp_l */ /** text */ "gulp lint",
+/** 266 $efront_string_gulp_t */ /** text */ "gulp travis",
+/** 267 $efront_string_unit_t */ "unit-test",
+/** 268 $efront_string_gulp_t1 */ /** text */ "gulp test",
+/** 269 $efront_string_1_1_1 */ "1.1.1",
+/** 270 esshorten$package.json */ [186,187,188,189,190,191,192,193,194,195,196,171,172,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,59,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,150,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,22,266,267,268,178,269,function($efront_string__from, $efront_string_esshor, $efront_string__id, $efront_string_esshor1, $efront_string__inBun, $efront_string__integ, $efront_string_sha1_F, $efront_string__locat, $efront_string__essho, $efront_string__phant, $efront_string__reque, $efront_string_type, $efront_string_range, $efront_string_regist, $efront_string_raw, $efront_string_name, $efront_string_esshor2, $efront_string_escape, $efront_string_rawSpe, $efront_string__1_1_0, $efront_string_saveSp, $efront_string_fetchS, $efront_string__requi, $efront_string__esman, $efront_string__resol, $efront_string_https_, $efront_string__shasu, $efront_string_174f96, $efront_string__spec, $efront_string__where, $efront_string_D_work, $efront_string_bugs, $efront_string_url, $efront_string_https_1, $efront_string_bundle, $efront_string_depend, $efront_string_escope, $efront_string__1_0_1, $efront_string_estrav, $efront_string__4_1_1, $efront_string_esutil, $efront_string__2_0_2, $efront_string_deprec, $efront_string_descri, $efront_string_Shorte, $efront_string_devDep, $efront_string_chai, $efront_string__, $efront_string_coffee, $efront_string__1_10_, $efront_string_common, $efront_string__0_9_7, $efront_string_gulp, $efront_string__3_9_0, $efront_string_gulp_j, $efront_string__1_11_, $efront_string_gulp_m, $efront_string__2_1_3, $efront_string_jshint, $efront_string__2_0_1, $efront_string_direct, $efront_string_lib, $efront_string__lib, $efront_string_engine, $efront_string_node, $efront_string__0_6_0, $efront_string_homepa, $efront_string_https_2, $efront_string_licens, $efront_string_BSD, $efront_string_http_g, $efront_string_main, $efront_string_lib_es, $efront_string_mainta, $efront_string_Yusuke, $efront_string_email, $efront_string_utatan, $efront_string_http_g1, $efront_string_reposi, $efront_string_git, $efront_string_git_ss, $efront_string_script, $efront_string_lint, $efront_string_gulp_l, $efront_string_test, $efront_string_gulp_t, $efront_string_unit_t, $efront_string_gulp_t1, $efront_string_versio, $efront_string_1_1_1) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
-    return _a = {}, _a[$efront_string___from] = $efront_string__essho, _a[$efront_string___id_] = $efront_string__essho1, _a[$efront_string___inBu] = false, _a[$efront_string___inte] = $efront_string__sha1_, _a[$efront_string___loca] = $efront_string__essho2, _a[$efront_string___phan] = {}, _a[$efront_string___requ] = (_b = {}, _b[$efront_string__type_] = $efront_string__range, _b[$efront_string__regis] = true, _b[$efront_string__raw_] = $efront_string__essho, _b[$efront_string__name_] = $efront_string__essho3, _b[$efront_string__escap] = $efront_string__essho3, _b[$efront_string__rawSp] = $efront_string__1_1_0, _b[$efront_string__saveS] = null, _b[$efront_string__fetch] = $efront_string__1_1_0, _b), _a[$efront_string___requ1] = [$efront_string__esman], _a[$efront_string___reso] = $efront_string__https, _a[$efront_string___shas] = $efront_string__174f9, _a[$efront_string___spec] = $efront_string__essho, _a[$efront_string___wher] = $efront_string__D_wor, _a[$efront_string__bugs_] = (_c = {}, _c[$efront_string__url_] = $efront_string__https1, _c), _a[$efront_string__bundl] = false, _a[$efront_string__depen] = (_d = {}, _d[$efront_string__escop] = $efront_string__1_0_1, _d[$efront_string__estra] = $efront_string__4_1_1, _d[$efront_string__esuti] = $efront_string__2_0_2, _d), _a[$efront_string__depre] = false, _a[$efront_string__descr] = $efront_string__Short, _a[$efront_string__devDe] = (_e = {}, _e[$efront_string__chai_] = $efront_string__, _e[$efront_string__coffe] = $efront_string__1_10_, _e[$efront_string__commo] = $efront_string__0_9_7, _e[$efront_string__gulp_] = $efront_string__3_9_0, _e[$efront_string__gulp_1] = $efront_string__1_11_, _e[$efront_string__gulp_2] = $efront_string__2_1_3, _e[$efront_string__jshin] = $efront_string__2_0_1, _e), _a[$efront_string__direc] = (_f = {}, _f[$efront_string__lib_] = $efront_string__lib_1, _f), _a[$efront_string__engin] = (_g = {}, _g[$efront_string__node_] = $efront_string__0_6_0, _g), _a[$efront_string__homep] = $efront_string__https2, _a[$efront_string__licen] = [(_h = {}, _h[$efront_string__type_] = $efront_string__BSD_, _h[$efront_string__url_] = $efront_string__http_, _h)], _a[$efront_string__main_] = $efront_string__lib_e, _a[$efront_string__maint] = [(_j = {}, _j[$efront_string__name_] = $efront_string__Yusuk, _j[$efront_string__email] = $efront_string__utata, _j[$efront_string__url_] = $efront_string__http_1, _j)], _a[$efront_string__name_] = $efront_string__essho3, _a[$efront_string__repos] = (_k = {}, _k[$efront_string__type_] = $efront_string__git_, _k[$efront_string__url_] = $efront_string__git_s, _k), _a[$efront_string__scrip] = (_l = {}, _l[$efront_string__lint_] = $efront_string__gulp_3, _l[$efront_string__test_] = $efront_string__gulp_4, _l[$efront_string__unit_] = $efront_string__gulp_5, _l), _a[$efront_string__versi] = $efront_string__1_1_1, _a
+    return _a = {}, _a[$efront_string__from] = $efront_string_esshor, _a[$efront_string__id] = $efront_string_esshor1, _a[$efront_string__inBun] = !1, _a[$efront_string__integ] = $efront_string_sha1_F, _a[$efront_string__locat] = $efront_string__essho, _a[$efront_string__phant] = {}, _b = {}, _b[$efront_string_type] = $efront_string_range, _b[$efront_string_regist] = !0, _b[$efront_string_raw] = $efront_string_esshor, _b[$efront_string_name] = $efront_string_esshor2, _b[$efront_string_escape] = $efront_string_esshor2, _b[$efront_string_rawSpe] = $efront_string__1_1_0, _b[$efront_string_saveSp] = null, _b[$efront_string_fetchS] = $efront_string__1_1_0, _a[$efront_string__reque] = _b, _a[$efront_string__requi] = [$efront_string__esman], _a[$efront_string__resol] = $efront_string_https_, _a[$efront_string__shasu] = $efront_string_174f96, _a[$efront_string__spec] = $efront_string_esshor, _a[$efront_string__where] = $efront_string_D_work, _c = {}, _c[$efront_string_url] = $efront_string_https_1, _a[$efront_string_bugs] = _c, _a[$efront_string_bundle] = !1, _d = {}, _d[$efront_string_escope] = $efront_string__1_0_1, _d[$efront_string_estrav] = $efront_string__4_1_1, _d[$efront_string_esutil] = $efront_string__2_0_2, _a[$efront_string_depend] = _d, _a[$efront_string_deprec] = !1, _a[$efront_string_descri] = $efront_string_Shorte, _e = {}, _e[$efront_string_chai] = $efront_string__, _e[$efront_string_coffee] = $efront_string__1_10_, _e[$efront_string_common] = $efront_string__0_9_7, _e[$efront_string_gulp] = $efront_string__3_9_0, _e[$efront_string_gulp_j] = $efront_string__1_11_, _e[$efront_string_gulp_m] = $efront_string__2_1_3, _e[$efront_string_jshint] = $efront_string__2_0_1, _a[$efront_string_devDep] = _e, _f = {}, _f[$efront_string_lib] = $efront_string__lib, _a[$efront_string_direct] = _f, _g = {}, _g[$efront_string_node] = $efront_string__0_6_0, _a[$efront_string_engine] = _g, _a[$efront_string_homepa] = $efront_string_https_2, _a[$efront_string_licens] = [(_h = {}, _h[$efront_string_type] = $efront_string_BSD, _h[$efront_string_url] = $efront_string_http_g, _h)], _a[$efront_string_main] = $efront_string_lib_es, _a[$efront_string_mainta] = [(_j = {}, _j[$efront_string_name] = $efront_string_Yusuke, _j[$efront_string_email] = $efront_string_utatan, _j[$efront_string_url] = $efront_string_http_g1, _j)], _a[$efront_string_name] = $efront_string_esshor2, _k = {}, _k[$efront_string_type] = $efront_string_git, _k[$efront_string_url] = $efront_string_git_ss, _a[$efront_string_reposi] = _k, _l = {}, _l[$efront_string_lint] = $efront_string_gulp_l, _l[$efront_string_test] = $efront_string_gulp_t, _l[$efront_string_unit_t] = $efront_string_gulp_t1, _a[$efront_string_script] = _l, _a[$efront_string_versio] = $efront_string_1_1_1, _a
 }],
-/** 287 $efront_string__lastI */ 'lastIndexOf',
-/** 288 $efront_string_____ */ '__',
-/** 289 $efront_string__0_ */ '0',
-/** 290 $efront_string__01234 */ '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$',
-/** 291 $efront_string__split1 */ 'split',
-/** 292 $efront_string__charA */ 'charAt',
-/** 293 $efront_string__a_1 */ 'a',
-/** 294 $efront_string__gener */ 'generateNextName',
-/** 295 $efront_string__deepC */ 'deepCopy',
-/** 296 esshorten$lib$utility.js */ [15,70,30,67,68,124,51,125,61,126,287,288,54,127,289,290,291,128,292,35,60,293,294,295,function(Array, Object, RegExp, undefined, exports, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__lastI, $efront_string_____, $efront_string__hasOw, $efront_string__objec1, $efront_string__0_, $efront_string__01234, $efront_string__split1, $efront_string__lengt1, $efront_string__charA, $efront_string__index1, $efront_string__subst, $efront_string__a_1, $efront_string__gener, $efront_string__deepC) {
-    return function () {
+/** 271 $efront_string_lastIn */ "lastIndexOf",
+/** 272 $efront_string___ */ "__",
+/** 273 $efront_string_0 */ "0",
+/** 274 $efront_string_012345 */ "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$",
+/** 275 $efront_string_charAt */ "charAt",
+/** 276 $efront_string_a */ "a",
+/** 277 $efront_string_genera */ "generateNextName",
+/** 278 $efront_string_deepCo */ "deepCopy",
+/** 279 esshorten$lib$utility.js */ [54,55,16,51,52,109,36,110,12,111,271,272,39,112,273,274,4,3,275,9,45,276,277,278,function(Array, Object, RegExp, undefined, exports, $efront_string_isArra, $efront_string_protot, $efront_string_toStri, $efront_string_call, $efront_string__objec, $efront_string_lastIn, $efront_string___, $efront_string_hasOwn, $efront_string_object, $efront_string_0, $efront_string_012345, $efront_string_split, $efront_string_length, $efront_string_charAt, $efront_string_indexO, $efront_string_substr, $efront_string_a, $efront_string_genera, $efront_string_deepCo) {
+    return function (isArray, NameSequence, ZeroSequenceCache) {
         'use strict';
-        var isArray, NameSequence, ZeroSequenceCache;
-        isArray = Array[$efront_string__isArr];
-        if (!isArray) {
-            isArray = function isArray(array) {
-                return Object[$efront_string__proto][$efront_string__toStr][$efront_string__call_1](array) === $efront_string__objec
-            }
-        }
         function deepCopy(obj) {
             function deepCopyInternal(obj, result) {
                 var key, val;
                 for (key in obj) {
-                    if (key[$efront_string__lastI]($efront_string_____, 0) === 0) {
-                        continue
-                    }
-                    if (obj[$efront_string__hasOw](key)) {
-                        val = obj[key];
-                        if (typeof val === $efront_string__objec1 && val !== null) {
-                            if (val instanceof RegExp) {
-                                val = new RegExp(val)
-                            } else {
-                                val = deepCopyInternal(val, isArray(val) ? [] : {})
-                            }
-                        }
-                        result[key] = val
-                    }
+                    if (key[$efront_string_lastIn]($efront_string___, 0) === 0)
+                        continue;
+                    obj[$efront_string_hasOwn](key) && (val = obj[key], typeof val === $efront_string_object && val !== null && (val instanceof RegExp ? val = new RegExp(val) : val = deepCopyInternal(val, isArray(val) ? [] : {})), result[key] = val)
                 }
                 return result
             }
@@ -975,1473 +700,958 @@ module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efr
         }
         function stringRepeat(str, num) {
             var result = '';
-            for (num |= 0; num > 0; num >>>= 1, str += str) {
-                if (num & 1) {
-                    result += str
-                }
-            }
+            for (num |= 0; num > 0; num >>>= 1, str += str)
+                num & 1 && (result += str);
             return result
         }
-        ZeroSequenceCache = [];
         function zeroSequence(num) {
             var res = ZeroSequenceCache[num];
-            if (res !== undefined) {
-                return res
-            }
-            res = stringRepeat($efront_string__0_, num);
-            ZeroSequenceCache[num] = res;
-            return res
+            return res !== undefined ? res : (res = stringRepeat($efront_string_0, num), ZeroSequenceCache[num] = res, res)
         }
-        NameSequence = $efront_string__01234[$efront_string__split1]('');
         function generateNextName(name) {
             var ch, index, cur;
-            cur = name[$efront_string__lengt1] - 1;
+            cur = name[$efront_string_length] - 1;
             do {
-                ch = name[$efront_string__charA](cur);
-                index = NameSequence[$efront_string__index1](ch);
-                if (index !== NameSequence[$efront_string__lengt1] - 1) {
-                    return name[$efront_string__subst](0, cur) + NameSequence[index + 1] + zeroSequence(name[$efront_string__lengt1] - (cur + 1))
-                }
+                if (ch = name[$efront_string_charAt](cur), index = NameSequence[$efront_string_indexO](ch), index !== NameSequence[$efront_string_length] - 1)
+                    return name[$efront_string_substr](0, cur) + NameSequence[index + 1] + zeroSequence(name[$efront_string_length] - (cur + 1));
                 --cur
             } while (cur >= 0);
-            return $efront_string__a_1 + zeroSequence(name[$efront_string__lengt1])
+            return $efront_string_a + zeroSequence(name[$efront_string_length])
         }
-        exports[$efront_string__gener] = generateNextName;
-        exports[$efront_string__deepC] = deepCopy
+        isArray = Array[$efront_string_isArra], isArray || (isArray = function isArray(array) {
+            return Object[$efront_string_protot][$efront_string_toStri][$efront_string_call](array) === $efront_string__objec
+        }), ZeroSequenceCache = [], NameSequence = $efront_string_012345[$efront_string_split](''), exports[$efront_string_genera] = generateNextName, exports[$efront_string_deepCo] = deepCopy
     }()
 }],
-/** 297 esshorten$lib$map.js */ [47,29,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,38,function(global, module, $efront_string__Map_, $efront_string__undef, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__hasOw, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__clear, $efront_string__forEa, $efront_string__subst, $efront_string__call_1, $efront_string__keys_, $efront_string__push_, $efront_string__value, $efront_string__items, $efront_string__expor1) {
-    return function () {
+/** 280 esshorten$lib$map.js */ [32,15,33,34,35,36,37,38,39,40,41,42,43,44,45,12,46,47,48,49,13,function(global, module, $efront_string_Map, $efront_string_undefi, $efront_string___data, $efront_string_protot, $efront_string_get, $efront_string_$, $efront_string_hasOwn, $efront_string_has, $efront_string_set, $efront_string_delete, $efront_string_clear, $efront_string_forEac, $efront_string_substr, $efront_string_call, $efront_string_keys, $efront_string_push, $efront_string_values, $efront_string_items, $efront_string_export) {
+    return function (Map) {
         'use strict';
-        var Map;
-        if (typeof global[$efront_string__Map_] !== $efront_string__undef) {
-            Map = global[$efront_string__Map_]
-        } else {
-            Map = function Map() {
-                this[$efront_string____dat] = {}
-            };
-            Map[$efront_string__proto][$efront_string__get_] = function MapGet(key) {
-                key = $efront_string__$_ + key;
-                if (this[$efront_string____dat][$efront_string__hasOw](key)) {
-                    return this[$efront_string____dat][key]
-                }
-            };
-            Map[$efront_string__proto][$efront_string__has_] = function MapHas(key) {
-                key = $efront_string__$_ + key;
-                return this[$efront_string____dat][$efront_string__hasOw](key)
-            };
-            Map[$efront_string__proto][$efront_string__set_] = function MapSet(key, val) {
-                key = $efront_string__$_ + key;
-                this[$efront_string____dat][key] = val
-            };
-            Map[$efront_string__proto][$efront_string__delet] = function MapDelete(key) {
-                key = $efront_string__$_ + key;
-                return delete this[$efront_string____dat][key]
-            };
-            Map[$efront_string__proto][$efront_string__clear] = function MapClear() {
-                this[$efront_string____dat] = {}
-            };
-            Map[$efront_string__proto][$efront_string__forEa] = function MapForEach(callback, thisArg) {
-                var real, key;
-                for (real in this[$efront_string____dat]) {
-                    if (this[$efront_string____dat][$efront_string__hasOw](real)) {
-                        key = real[$efront_string__subst](1);
-                        callback[$efront_string__call_1](thisArg, this[$efront_string____dat][real], key, this)
-                    }
-                }
-            };
-            Map[$efront_string__proto][$efront_string__keys_] = function MapKeys() {
-                var real, result;
-                result = [];
-                for (real in this[$efront_string____dat]) {
-                    if (this[$efront_string____dat][$efront_string__hasOw](real)) {
-                        result[$efront_string__push_](real[$efront_string__subst](1))
-                    }
-                }
-                return result
-            };
-            Map[$efront_string__proto][$efront_string__value] = function MapValues() {
-                var real, result;
-                result = [];
-                for (real in this[$efront_string____dat]) {
-                    if (this[$efront_string____dat][$efront_string__hasOw](real)) {
-                        result[$efront_string__push_](this[$efront_string____dat][real])
-                    }
-                }
-                return result
-            };
-            Map[$efront_string__proto][$efront_string__items] = function MapItems() {
-                var real, result;
-                result = [];
-                for (real in this[$efront_string____dat]) {
-                    if (this[$efront_string____dat][$efront_string__hasOw](real)) {
-                        result[$efront_string__push_]([
-                            real[$efront_string__subst](1),
-                            this[$efront_string____dat][real]
-                        ])
-                    }
-                }
-                return result
-            }
-        }
-        module[$efront_string__expor1] = Map
+        typeof global[$efront_string_Map] !== $efront_string_undefi ? Map = global[$efront_string_Map] : (Map = function Map() {
+            this[$efront_string___data] = {}
+        }, Map[$efront_string_protot][$efront_string_get] = function MapGet(key) {
+            return key = $efront_string_$ + key, this[$efront_string___data][$efront_string_hasOwn](key) ? this[$efront_string___data][key] : void 0
+        }, Map[$efront_string_protot][$efront_string_has] = function MapHas(key) {
+            return key = $efront_string_$ + key, this[$efront_string___data][$efront_string_hasOwn](key)
+        }, Map[$efront_string_protot][$efront_string_set] = function MapSet(key, val) {
+            key = $efront_string_$ + key, this[$efront_string___data][key] = val
+        }, Map[$efront_string_protot][$efront_string_delete] = function MapDelete(key) {
+            return key = $efront_string_$ + key, delete this[$efront_string___data][key]
+        }, Map[$efront_string_protot][$efront_string_clear] = function MapClear() {
+            this[$efront_string___data] = {}
+        }, Map[$efront_string_protot][$efront_string_forEac] = function MapForEach(callback, thisArg) {
+            var real, key;
+            for (real in this[$efront_string___data])
+                this[$efront_string___data][$efront_string_hasOwn](real) && (key = real[$efront_string_substr](1), callback[$efront_string_call](thisArg, this[$efront_string___data][real], key, this))
+        }, Map[$efront_string_protot][$efront_string_keys] = function MapKeys() {
+            var real, result;
+            result = [];
+            for (real in this[$efront_string___data])
+                this[$efront_string___data][$efront_string_hasOwn](real) && result[$efront_string_push](real[$efront_string_substr](1));
+            return result
+        }, Map[$efront_string_protot][$efront_string_values] = function MapValues() {
+            var real, result;
+            result = [];
+            for (real in this[$efront_string___data])
+                this[$efront_string___data][$efront_string_hasOwn](real) && result[$efront_string_push](this[$efront_string___data][real]);
+            return result
+        }, Map[$efront_string_protot][$efront_string_items] = function MapItems() {
+            var real, result;
+            result = [];
+            for (real in this[$efront_string___data])
+                this[$efront_string___data][$efront_string_hasOwn](real) && result[$efront_string_push]([
+                    real[$efront_string_substr](1),
+                    this[$efront_string___data][real]
+                ]);
+            return result
+        }), module[$efront_string_export] = Map
     }()
 }],
-/** 298 Number */ Number,
-/** 299 estraverse */ [1,function(require) {
-    return require(201)
+/** 281 Number */ Number,
+/** 282 estraverse */ [1,function(require) {
+    return require(185)
 }],
-/** 300 $efront_string__esman1 */ 'esmangle@latest',
-/** 301 $efront_string__esman2 */ 'esmangle@1.0.1',
-/** 302 $efront_string__sha1_1 */ 'sha1-2bs3uPjq+/Tm1O1reqKVarvTxMI=',
-/** 303 $efront_string__tag_ */ 'tag',
-/** 304 $efront_string__esman3 */ 'esmangle',
-/** 305 $efront_string__lates */ 'latest',
-/** 306 $efront_string__USER_ */ '#USER',
-/** 307 $efront_string__1 */ '/',
-/** 308 $efront_string__https3 */ 'https://registry.npm.taobao.org/esmangle/download/esmangle-1.0.1.tgz',
-/** 309 $efront_string__d9bb3 */ 'd9bb37b8f8eafbf4e6d4ed6b7aa2956abbd3c4c2',
-/** 310 $efront_string__D_wor1 */ 'D:\\work\\efront2',
-/** 311 $efront_string__bin_ */ 'bin',
-/** 312 $efront_string__bin_e */ 'bin/esmangle.js',
-/** 313 $efront_string__https4 */ 'https://github.com/Constellation/esmangle/issues',
-/** 314 $efront_string__escod */ 'escodegen',
-/** 315 $efront_string__1_3_2 */ '~1.3.2',
-/** 316 $efront_string__espri */ 'esprima',
-/** 317 $efront_string__1_1_2 */ '~1.1.1',
-/** 318 $efront_string__1_5_0 */ '~1.5.0',
-/** 319 $efront_string__1_0_0 */ /** text */ '~ 1.0.0',
-/** 320 $efront_string__optio */ 'optionator',
-/** 321 $efront_string__0_3_0 */ '~0.3.0',
-/** 322 $efront_string__sourc */ 'source-map',
-/** 323 $efront_string__0_1_3 */ '~0.1.33',
-/** 324 $efront_string__ECMAS */ /** text */ 'ECMAScript code mangler / minifier',
-/** 325 $efront_string__async */ 'async',
-/** 326 $efront_string__0_2_9 */ '~0.2.9',
-/** 327 $efront_string__clone */ 'clone',
-/** 328 $efront_string__0_1_1 */ '~0.1.11',
-/** 329 $efront_string__0_9_4 */ '~0.9.4',
-/** 330 $efront_string__grunt */ 'grunt',
-/** 331 $efront_string__0_4_2 */ '~0.4.2',
-/** 332 $efront_string__grunt1 */ 'grunt-cli',
-/** 333 $efront_string__grunt2 */ 'grunt-contrib-clean',
-/** 334 $efront_string__0_5_0 */ '~0.5.0',
-/** 335 $efront_string__grunt3 */ 'grunt-contrib-copy',
-/** 336 $efront_string__grunt4 */ 'grunt-contrib-jshint',
-/** 337 $efront_string__0_8_0 */ '~0.8.0',
-/** 338 $efront_string__grunt5 */ 'grunt-mocha-test',
-/** 339 $efront_string__0_8_1 */ '~0.8.1',
-/** 340 $efront_string__grunt6 */ 'grunt-shell',
-/** 341 $efront_string__0_6_1 */ '~0.6.1',
-/** 342 $efront_string__grunt7 */ 'grunt-update-submodules',
-/** 343 $efront_string__0_2_1 */ '~0.2.1',
-/** 344 $efront_string__q_ */ 'q',
-/** 345 $efront_string__http_2 */ 'http://github.com/Constellation/esmangle.html',
-/** 346 $efront_string__http_3 */ 'http://github.com/Constellation/esmangle/raw/master/LICENSE.BSD',
-/** 347 $efront_string__lib_e1 */ 'lib/esmangle.js',
-/** 348 $efront_string__git_s1 */ 'git+ssh://git@github.com/Constellation/esmangle.git',
-/** 349 $efront_string__build */ 'build',
-/** 350 $efront_string__grunt8 */ /** text */ 'grunt build',
-/** 351 $efront_string__grunt9 */ /** text */ 'grunt lint',
-/** 352 $efront_string__regre */ 'regression-test',
-/** 353 $efront_string__grunt10 */ /** text */ 'grunt test:regression',
-/** 354 $efront_string__grunt11 */ /** text */ 'grunt travis',
-/** 355 $efront_string__grunt12 */ /** text */ 'grunt test',
-/** 356 $efront_string__1_0_2 */ '1.0.1',
-/** 357 esmangle$package.json */ [202,300,204,301,206,207,302,209,223,211,212,187,303,213,214,215,304,217,218,305,220,221,222,306,307,224,308,226,309,228,229,310,311,312,231,232,313,234,235,314,315,236,237,316,317,216,219,74,318,239,319,320,321,322,323,241,242,324,244,325,326,245,246,327,328,249,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,250,259,260,261,262,166,263,264,345,266,267,346,269,347,271,272,273,274,275,276,277,348,279,349,350,280,351,352,353,36,354,283,355,194,356,function($efront_string___from, $efront_string__esman1, $efront_string___id_, $efront_string__esman2, $efront_string___inBu, $efront_string___inte, $efront_string__sha1_1, $efront_string___loca, $efront_string__esman, $efront_string___phan, $efront_string___requ, $efront_string__type_, $efront_string__tag_, $efront_string__regis, $efront_string__raw_, $efront_string__name_, $efront_string__esman3, $efront_string__escap, $efront_string__rawSp, $efront_string__lates, $efront_string__saveS, $efront_string__fetch, $efront_string___requ1, $efront_string__USER_, $efront_string__1, $efront_string___reso, $efront_string__https3, $efront_string___shas, $efront_string__d9bb3, $efront_string___spec, $efront_string___wher, $efront_string__D_wor1, $efront_string__bin_, $efront_string__bin_e, $efront_string__bugs_, $efront_string__url_, $efront_string__https4, $efront_string__bundl, $efront_string__depen, $efront_string__escod, $efront_string__1_3_2, $efront_string__escop, $efront_string__1_0_1, $efront_string__espri, $efront_string__1_1_2, $efront_string__essho3, $efront_string__1_1_0, $efront_string__estra, $efront_string__1_5_0, $efront_string__esuti, $efront_string__1_0_0, $efront_string__optio, $efront_string__0_3_0, $efront_string__sourc, $efront_string__0_1_3, $efront_string__depre, $efront_string__descr, $efront_string__ECMAS, $efront_string__devDe, $efront_string__async, $efront_string__0_2_9, $efront_string__chai_, $efront_string__, $efront_string__clone, $efront_string__0_1_1, $efront_string__commo, $efront_string__0_9_4, $efront_string__grunt, $efront_string__0_4_2, $efront_string__grunt1, $efront_string__grunt2, $efront_string__0_5_0, $efront_string__grunt3, $efront_string__grunt4, $efront_string__0_8_0, $efront_string__grunt5, $efront_string__0_8_1, $efront_string__grunt6, $efront_string__0_6_1, $efront_string__grunt7, $efront_string__0_2_1, $efront_string__q_, $efront_string__0_9_7, $efront_string__direc, $efront_string__lib_, $efront_string__lib_1, $efront_string__engin, $efront_string__node_, $efront_string__0_6_0, $efront_string__homep, $efront_string__http_2, $efront_string__licen, $efront_string__BSD_, $efront_string__http_3, $efront_string__main_, $efront_string__lib_e1, $efront_string__maint, $efront_string__Yusuk, $efront_string__email, $efront_string__utata, $efront_string__http_1, $efront_string__repos, $efront_string__git_, $efront_string__git_s1, $efront_string__scrip, $efront_string__build, $efront_string__grunt8, $efront_string__lint_, $efront_string__grunt9, $efront_string__regre, $efront_string__grunt10, $efront_string__test_, $efront_string__grunt11, $efront_string__unit_, $efront_string__grunt12, $efront_string__versi, $efront_string__1_0_2) {
+/** 283 $efront_string_esmang */ "esmangle@latest",
+/** 284 $efront_string_esmang1 */ "esmangle@1.0.1",
+/** 285 $efront_string_sha1_2 */ "sha1-2bs3uPjq+/Tm1O1reqKVarvTxMI=",
+/** 286 $efront_string_tag */ "tag",
+/** 287 $efront_string_esmang2 */ "esmangle",
+/** 288 $efront_string_latest */ "latest",
+/** 289 $efront_string__USER */ "#USER",
+/** 290 $efront_string__1 */ "/",
+/** 291 $efront_string_https_3 */ "https://registry.npm.taobao.org/esmangle/download/esmangle-1.0.1.tgz",
+/** 292 $efront_string_d9bb37 */ "d9bb37b8f8eafbf4e6d4ed6b7aa2956abbd3c4c2",
+/** 293 $efront_string_D_work1 */ "D:\\work\\efront",
+/** 294 $efront_string_bin */ "bin",
+/** 295 $efront_string_bin_es */ "bin/esmangle.js",
+/** 296 $efront_string_https_4 */ "https://github.com/Constellation/esmangle/issues",
+/** 297 $efront_string_escode */ "escodegen",
+/** 298 $efront_string__1_3_2 */ "~1.3.2",
+/** 299 $efront_string_esprim */ "esprima",
+/** 300 $efront_string__1_1_1 */ "~1.1.1",
+/** 301 $efront_string__1_5_0 */ "~1.5.0",
+/** 302 $efront_string__1_0_0 */ /** text */ "~ 1.0.0",
+/** 303 $efront_string_option */ "optionator",
+/** 304 $efront_string__0_3_0 */ "~0.3.0",
+/** 305 $efront_string_source */ "source-map",
+/** 306 $efront_string__0_1_3 */ "~0.1.33",
+/** 307 $efront_string_ECMASc */ /** text */ "ECMAScript code mangler / minifier",
+/** 308 $efront_string_async */ "async",
+/** 309 $efront_string__0_2_9 */ "~0.2.9",
+/** 310 $efront_string_clone */ "clone",
+/** 311 $efront_string__0_1_1 */ "~0.1.11",
+/** 312 $efront_string__0_9_4 */ "~0.9.4",
+/** 313 $efront_string_grunt */ "grunt",
+/** 314 $efront_string__0_4_2 */ "~0.4.2",
+/** 315 $efront_string_grunt_ */ "grunt-cli",
+/** 316 $efront_string_grunt_1 */ "grunt-contrib-clean",
+/** 317 $efront_string__0_5_0 */ "~0.5.0",
+/** 318 $efront_string_grunt_2 */ "grunt-contrib-copy",
+/** 319 $efront_string_grunt_3 */ "grunt-contrib-jshint",
+/** 320 $efront_string__0_8_0 */ "~0.8.0",
+/** 321 $efront_string_grunt_4 */ "grunt-mocha-test",
+/** 322 $efront_string__0_8_1 */ "~0.8.1",
+/** 323 $efront_string_grunt_5 */ "grunt-shell",
+/** 324 $efront_string__0_6_1 */ "~0.6.1",
+/** 325 $efront_string_grunt_6 */ "grunt-update-submodules",
+/** 326 $efront_string__0_2_1 */ "~0.2.1",
+/** 327 $efront_string_q */ "q",
+/** 328 $efront_string_http_g2 */ "http://github.com/Constellation/esmangle.html",
+/** 329 $efront_string_http_g3 */ "http://github.com/Constellation/esmangle/raw/master/LICENSE.BSD",
+/** 330 $efront_string_lib_es1 */ "lib/esmangle.js",
+/** 331 $efront_string_git_ss1 */ "git+ssh://git@github.com/Constellation/esmangle.git",
+/** 332 $efront_string_build */ "build",
+/** 333 $efront_string_grunt_7 */ /** text */ "grunt build",
+/** 334 $efront_string_grunt_8 */ /** text */ "grunt lint",
+/** 335 $efront_string_regres */ "regression-test",
+/** 336 $efront_string_grunt_9 */ /** text */ "grunt test:regression",
+/** 337 $efront_string_grunt_10 */ /** text */ "grunt travis",
+/** 338 $efront_string_grunt_11 */ /** text */ "grunt test",
+/** 339 $efront_string_1_0_1 */ "1.0.1",
+/** 340 esmangle$package.json */ [186,283,188,284,190,191,285,193,207,195,196,171,286,197,198,199,287,201,202,288,204,205,206,289,290,208,291,210,292,212,213,293,294,295,215,216,296,218,219,297,298,220,221,299,300,200,203,59,301,223,302,303,304,305,306,225,226,307,228,308,309,229,230,310,311,233,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,234,243,244,245,246,150,247,248,328,250,251,329,253,330,255,256,257,258,259,260,261,331,263,332,333,264,334,335,336,22,337,267,338,178,339,function($efront_string__from, $efront_string_esmang, $efront_string__id, $efront_string_esmang1, $efront_string__inBun, $efront_string__integ, $efront_string_sha1_2, $efront_string__locat, $efront_string__esman, $efront_string__phant, $efront_string__reque, $efront_string_type, $efront_string_tag, $efront_string_regist, $efront_string_raw, $efront_string_name, $efront_string_esmang2, $efront_string_escape, $efront_string_rawSpe, $efront_string_latest, $efront_string_saveSp, $efront_string_fetchS, $efront_string__requi, $efront_string__USER, $efront_string__1, $efront_string__resol, $efront_string_https_3, $efront_string__shasu, $efront_string_d9bb37, $efront_string__spec, $efront_string__where, $efront_string_D_work1, $efront_string_bin, $efront_string_bin_es, $efront_string_bugs, $efront_string_url, $efront_string_https_4, $efront_string_bundle, $efront_string_depend, $efront_string_escode, $efront_string__1_3_2, $efront_string_escope, $efront_string__1_0_1, $efront_string_esprim, $efront_string__1_1_1, $efront_string_esshor2, $efront_string__1_1_0, $efront_string_estrav, $efront_string__1_5_0, $efront_string_esutil, $efront_string__1_0_0, $efront_string_option, $efront_string__0_3_0, $efront_string_source, $efront_string__0_1_3, $efront_string_deprec, $efront_string_descri, $efront_string_ECMASc, $efront_string_devDep, $efront_string_async, $efront_string__0_2_9, $efront_string_chai, $efront_string__, $efront_string_clone, $efront_string__0_1_1, $efront_string_common, $efront_string__0_9_4, $efront_string_grunt, $efront_string__0_4_2, $efront_string_grunt_, $efront_string_grunt_1, $efront_string__0_5_0, $efront_string_grunt_2, $efront_string_grunt_3, $efront_string__0_8_0, $efront_string_grunt_4, $efront_string__0_8_1, $efront_string_grunt_5, $efront_string__0_6_1, $efront_string_grunt_6, $efront_string__0_2_1, $efront_string_q, $efront_string__0_9_7, $efront_string_direct, $efront_string_lib, $efront_string__lib, $efront_string_engine, $efront_string_node, $efront_string__0_6_0, $efront_string_homepa, $efront_string_http_g2, $efront_string_licens, $efront_string_BSD, $efront_string_http_g3, $efront_string_main, $efront_string_lib_es1, $efront_string_mainta, $efront_string_Yusuke, $efront_string_email, $efront_string_utatan, $efront_string_http_g1, $efront_string_reposi, $efront_string_git, $efront_string_git_ss1, $efront_string_script, $efront_string_build, $efront_string_grunt_7, $efront_string_lint, $efront_string_grunt_8, $efront_string_regres, $efront_string_grunt_9, $efront_string_test, $efront_string_grunt_10, $efront_string_unit_t, $efront_string_grunt_11, $efront_string_versio, $efront_string_1_0_1) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
-    return _a = {}, _a[$efront_string___from] = $efront_string__esman1, _a[$efront_string___id_] = $efront_string__esman2, _a[$efront_string___inBu] = false, _a[$efront_string___inte] = $efront_string__sha1_1, _a[$efront_string___loca] = $efront_string__esman, _a[$efront_string___phan] = {}, _a[$efront_string___requ] = (_b = {}, _b[$efront_string__type_] = $efront_string__tag_, _b[$efront_string__regis] = true, _b[$efront_string__raw_] = $efront_string__esman1, _b[$efront_string__name_] = $efront_string__esman3, _b[$efront_string__escap] = $efront_string__esman3, _b[$efront_string__rawSp] = $efront_string__lates, _b[$efront_string__saveS] = null, _b[$efront_string__fetch] = $efront_string__lates, _b), _a[$efront_string___requ1] = [
-        $efront_string__USER_,
+    return _a = {}, _a[$efront_string__from] = $efront_string_esmang, _a[$efront_string__id] = $efront_string_esmang1, _a[$efront_string__inBun] = !1, _a[$efront_string__integ] = $efront_string_sha1_2, _a[$efront_string__locat] = $efront_string__esman, _a[$efront_string__phant] = {}, _b = {}, _b[$efront_string_type] = $efront_string_tag, _b[$efront_string_regist] = !0, _b[$efront_string_raw] = $efront_string_esmang, _b[$efront_string_name] = $efront_string_esmang2, _b[$efront_string_escape] = $efront_string_esmang2, _b[$efront_string_rawSpe] = $efront_string_latest, _b[$efront_string_saveSp] = null, _b[$efront_string_fetchS] = $efront_string_latest, _a[$efront_string__reque] = _b, _a[$efront_string__requi] = [
+        $efront_string__USER,
         $efront_string__1
-    ], _a[$efront_string___reso] = $efront_string__https3, _a[$efront_string___shas] = $efront_string__d9bb3, _a[$efront_string___spec] = $efront_string__esman1, _a[$efront_string___wher] = $efront_string__D_wor1, _a[$efront_string__bin_] = (_c = {}, _c[$efront_string__esman3] = $efront_string__bin_e, _c), _a[$efront_string__bugs_] = (_d = {}, _d[$efront_string__url_] = $efront_string__https4, _d), _a[$efront_string__bundl] = false, _a[$efront_string__depen] = (_e = {}, _e[$efront_string__escod] = $efront_string__1_3_2, _e[$efront_string__escop] = $efront_string__1_0_1, _e[$efront_string__espri] = $efront_string__1_1_2, _e[$efront_string__essho3] = $efront_string__1_1_0, _e[$efront_string__estra] = $efront_string__1_5_0, _e[$efront_string__esuti] = $efront_string__1_0_0, _e[$efront_string__optio] = $efront_string__0_3_0, _e[$efront_string__sourc] = $efront_string__0_1_3, _e), _a[$efront_string__depre] = false, _a[$efront_string__descr] = $efront_string__ECMAS, _a[$efront_string__devDe] = (_f = {}, _f[$efront_string__async] = $efront_string__0_2_9, _f[$efront_string__chai_] = $efront_string__, _f[$efront_string__clone] = $efront_string__0_1_1, _f[$efront_string__commo] = $efront_string__0_9_4, _f[$efront_string__grunt] = $efront_string__0_4_2, _f[$efront_string__grunt1] = $efront_string__0_1_1, _f[$efront_string__grunt2] = $efront_string__0_5_0, _f[$efront_string__grunt3] = $efront_string__0_5_0, _f[$efront_string__grunt4] = $efront_string__0_8_0, _f[$efront_string__grunt5] = $efront_string__0_8_1, _f[$efront_string__grunt6] = $efront_string__0_6_1, _f[$efront_string__grunt7] = $efront_string__0_2_1, _f[$efront_string__q_] = $efront_string__0_9_7, _f), _a[$efront_string__direc] = (_g = {}, _g[$efront_string__lib_] = $efront_string__lib_1, _g), _a[$efront_string__engin] = (_h = {}, _h[$efront_string__node_] = $efront_string__0_6_0, _h), _a[$efront_string__homep] = $efront_string__http_2, _a[$efront_string__licen] = [(_j = {}, _j[$efront_string__type_] = $efront_string__BSD_, _j[$efront_string__url_] = $efront_string__http_3, _j)], _a[$efront_string__main_] = $efront_string__lib_e1, _a[$efront_string__maint] = [(_k = {}, _k[$efront_string__name_] = $efront_string__Yusuk, _k[$efront_string__email] = $efront_string__utata, _k[$efront_string__url_] = $efront_string__http_1, _k)], _a[$efront_string__name_] = $efront_string__esman3, _a[$efront_string__repos] = (_l = {}, _l[$efront_string__type_] = $efront_string__git_, _l[$efront_string__url_] = $efront_string__git_s1, _l), _a[$efront_string__scrip] = (_m = {}, _m[$efront_string__build] = $efront_string__grunt8, _m[$efront_string__lint_] = $efront_string__grunt9, _m[$efront_string__regre] = $efront_string__grunt10, _m[$efront_string__test_] = $efront_string__grunt11, _m[$efront_string__unit_] = $efront_string__grunt12, _m), _a[$efront_string__versi] = $efront_string__1_0_2, _a
+    ], _a[$efront_string__resol] = $efront_string_https_3, _a[$efront_string__shasu] = $efront_string_d9bb37, _a[$efront_string__spec] = $efront_string_esmang, _a[$efront_string__where] = $efront_string_D_work1, _c = {}, _c[$efront_string_esmang2] = $efront_string_bin_es, _a[$efront_string_bin] = _c, _d = {}, _d[$efront_string_url] = $efront_string_https_4, _a[$efront_string_bugs] = _d, _a[$efront_string_bundle] = !1, _e = {}, _e[$efront_string_escode] = $efront_string__1_3_2, _e[$efront_string_escope] = $efront_string__1_0_1, _e[$efront_string_esprim] = $efront_string__1_1_1, _e[$efront_string_esshor2] = $efront_string__1_1_0, _e[$efront_string_estrav] = $efront_string__1_5_0, _e[$efront_string_esutil] = $efront_string__1_0_0, _e[$efront_string_option] = $efront_string__0_3_0, _e[$efront_string_source] = $efront_string__0_1_3, _a[$efront_string_depend] = _e, _a[$efront_string_deprec] = !1, _a[$efront_string_descri] = $efront_string_ECMASc, _f = {}, _f[$efront_string_async] = $efront_string__0_2_9, _f[$efront_string_chai] = $efront_string__, _f[$efront_string_clone] = $efront_string__0_1_1, _f[$efront_string_common] = $efront_string__0_9_4, _f[$efront_string_grunt] = $efront_string__0_4_2, _f[$efront_string_grunt_] = $efront_string__0_1_1, _f[$efront_string_grunt_1] = $efront_string__0_5_0, _f[$efront_string_grunt_2] = $efront_string__0_5_0, _f[$efront_string_grunt_3] = $efront_string__0_8_0, _f[$efront_string_grunt_4] = $efront_string__0_8_1, _f[$efront_string_grunt_5] = $efront_string__0_6_1, _f[$efront_string_grunt_6] = $efront_string__0_2_1, _f[$efront_string_q] = $efront_string__0_9_7, _a[$efront_string_devDep] = _f, _g = {}, _g[$efront_string_lib] = $efront_string__lib, _a[$efront_string_direct] = _g, _h = {}, _h[$efront_string_node] = $efront_string__0_6_0, _a[$efront_string_engine] = _h, _a[$efront_string_homepa] = $efront_string_http_g2, _a[$efront_string_licens] = [(_j = {}, _j[$efront_string_type] = $efront_string_BSD, _j[$efront_string_url] = $efront_string_http_g3, _j)], _a[$efront_string_main] = $efront_string_lib_es1, _a[$efront_string_mainta] = [(_k = {}, _k[$efront_string_name] = $efront_string_Yusuke, _k[$efront_string_email] = $efront_string_utatan, _k[$efront_string_url] = $efront_string_http_g1, _k)], _a[$efront_string_name] = $efront_string_esmang2, _l = {}, _l[$efront_string_type] = $efront_string_git, _l[$efront_string_url] = $efront_string_git_ss1, _a[$efront_string_reposi] = _l, _m = {}, _m[$efront_string_build] = $efront_string_grunt_7, _m[$efront_string_lint] = $efront_string_grunt_8, _m[$efront_string_regres] = $efront_string_grunt_9, _m[$efront_string_test] = $efront_string_grunt_10, _m[$efront_string_unit_t] = $efront_string_grunt_11, _a[$efront_string_script] = _m, _a[$efront_string_versio] = $efront_string_1_0_1, _a
 }],
-/** 358 isNaN */ isNaN,
-/** 359 $efront_string__imple */ 'implements',
-/** 360 $efront_string__inter */ 'interface',
-/** 361 $efront_string__packa */ 'package',
-/** 362 $efront_string__priva */ 'private',
-/** 363 $efront_string__prote */ 'protected',
-/** 364 $efront_string__publi */ 'public',
-/** 365 $efront_string__stati */ 'static',
-/** 366 $efront_string__let_ */ 'let',
-/** 367 $efront_string__yield */ 'yield',
-/** 368 $efront_string__if_ */ 'if',
-/** 369 $efront_string__in_ */ 'in',
-/** 370 $efront_string__do_ */ 'do',
-/** 371 $efront_string__var_ */ 'var',
-/** 372 $efront_string__for_ */ 'for',
-/** 373 $efront_string__new_ */ 'new',
-/** 374 $efront_string__try_ */ 'try',
-/** 375 $efront_string__this_ */ 'this',
-/** 376 $efront_string__else_ */ 'else',
-/** 377 $efront_string__case_ */ 'case',
-/** 378 $efront_string__void_ */ 'void',
-/** 379 $efront_string__with_ */ 'with',
-/** 380 $efront_string__enum_ */ 'enum',
-/** 381 $efront_string__while */ 'while',
-/** 382 $efront_string__catch */ 'catch',
-/** 383 $efront_string__throw */ 'throw',
-/** 384 $efront_string__const */ 'const',
-/** 385 $efront_string__class */ 'class',
-/** 386 $efront_string__super1 */ 'super',
-/** 387 $efront_string__retur */ 'return',
-/** 388 $efront_string__typeo */ 'typeof',
-/** 389 $efront_string__switc */ 'switch',
-/** 390 $efront_string__expor2 */ 'export',
-/** 391 $efront_string__impor */ 'import',
-/** 392 $efront_string__defau1 */ 'default',
-/** 393 $efront_string__final1 */ 'finally',
-/** 394 $efront_string__exten1 */ 'extends',
-/** 395 $efront_string__conti */ 'continue',
-/** 396 $efront_string__debug */ 'debugger',
-/** 397 $efront_string__insta */ 'instanceof',
-/** 398 $efront_string__eval_ */ 'eval',
-/** 399 $efront_string__charC */ 'charCodeAt',
-/** 400 $efront_string__isKey */ 'isKeywordES5',
-/** 401 $efront_string__isKey1 */ 'isKeywordES6',
-/** 402 $efront_string__isRes */ 'isRestrictedWord',
-/** 403 $efront_string__isIde2 */ 'isIdentifierName',
-/** 404 esutils$lib$keyword.js */ [1,29,359,360,361,362,363,364,365,366,367,128,368,369,370,371,372,373,374,375,376,377,378,379,380,381,178,382,383,384,385,386,387,388,57,389,390,391,392,393,394,72,395,396,397,398,138,399,44,45,38,400,401,402,403,function(require, module, $efront_string__imple, $efront_string__inter, $efront_string__packa, $efront_string__priva, $efront_string__prote, $efront_string__publi, $efront_string__stati, $efront_string__let_, $efront_string__yield, $efront_string__lengt1, $efront_string__if_, $efront_string__in_, $efront_string__do_, $efront_string__var_, $efront_string__for_, $efront_string__new_, $efront_string__try_, $efront_string__this_, $efront_string__else_, $efront_string__case_, $efront_string__void_, $efront_string__with_, $efront_string__enum_, $efront_string__while, $efront_string__break, $efront_string__catch, $efront_string__throw, $efront_string__const, $efront_string__class, $efront_string__super1, $efront_string__retur, $efront_string__typeo, $efront_string__delet, $efront_string__switc, $efront_string__expor2, $efront_string__impor, $efront_string__defau1, $efront_string__final1, $efront_string__exten1, $efront_string__funct1, $efront_string__conti, $efront_string__debug, $efront_string__insta, $efront_string__eval_, $efront_string__argum, $efront_string__charC, $efront_string__isIde, $efront_string__isIde1, $efront_string__expor1, $efront_string__isKey, $efront_string__isKey1, $efront_string__isRes, $efront_string__isIde2) {
-    return function () {
+/** 341 isNaN */ isNaN,
+/** 342 $efront_string_implem */ "implements",
+/** 343 $efront_string_interf */ "interface",
+/** 344 $efront_string_packag */ "package",
+/** 345 $efront_string_privat */ "private",
+/** 346 $efront_string_protec */ "protected",
+/** 347 $efront_string_public */ "public",
+/** 348 $efront_string_static */ "static",
+/** 349 $efront_string_let */ "let",
+/** 350 $efront_string_yield */ "yield",
+/** 351 $efront_string_if */ "if",
+/** 352 $efront_string_in */ "in",
+/** 353 $efront_string_do */ "do",
+/** 354 $efront_string_var */ "var",
+/** 355 $efront_string_for */ "for",
+/** 356 $efront_string_new */ "new",
+/** 357 $efront_string_try */ "try",
+/** 358 $efront_string_this */ "this",
+/** 359 $efront_string_else */ "else",
+/** 360 $efront_string_case */ "case",
+/** 361 $efront_string_void */ "void",
+/** 362 $efront_string_with */ "with",
+/** 363 $efront_string_enum */ "enum",
+/** 364 $efront_string_while */ "while",
+/** 365 $efront_string_catch */ "catch",
+/** 366 $efront_string_throw */ "throw",
+/** 367 $efront_string_const */ "const",
+/** 368 $efront_string_class */ "class",
+/** 369 $efront_string_super */ "super",
+/** 370 $efront_string_return */ "return",
+/** 371 $efront_string_typeof */ "typeof",
+/** 372 $efront_string_switch */ "switch",
+/** 373 $efront_string_export1 */ "export",
+/** 374 $efront_string_import */ "import",
+/** 375 $efront_string_defaul1 */ "default",
+/** 376 $efront_string_finall */ "finally",
+/** 377 $efront_string_extend1 */ "extends",
+/** 378 $efront_string_contin */ "continue",
+/** 379 $efront_string_debugg */ "debugger",
+/** 380 $efront_string_instan */ "instanceof",
+/** 381 $efront_string_eval */ "eval",
+/** 382 $efront_string_charCo */ "charCodeAt",
+/** 383 $efront_string_isKeyw */ "isKeywordES5",
+/** 384 $efront_string_isKeyw1 */ "isKeywordES6",
+/** 385 $efront_string_isRest */ "isRestrictedWord",
+/** 386 $efront_string_isIden2 */ "isIdentifierName",
+/** 387 esutils$lib$keyword.js */ [1,15,342,343,344,345,346,347,348,349,350,3,351,352,353,354,355,356,357,358,359,360,361,362,363,364,162,365,366,367,368,369,370,371,42,372,373,374,375,376,377,57,378,379,380,381,122,382,29,30,13,383,384,385,386,function(require, module, $efront_string_implem, $efront_string_interf, $efront_string_packag, $efront_string_privat, $efront_string_protec, $efront_string_public, $efront_string_static, $efront_string_let, $efront_string_yield, $efront_string_length, $efront_string_if, $efront_string_in, $efront_string_do, $efront_string_var, $efront_string_for, $efront_string_new, $efront_string_try, $efront_string_this, $efront_string_else, $efront_string_case, $efront_string_void, $efront_string_with, $efront_string_enum, $efront_string_while, $efront_string_break, $efront_string_catch, $efront_string_throw, $efront_string_const, $efront_string_class, $efront_string_super, $efront_string_return, $efront_string_typeof, $efront_string_delete, $efront_string_switch, $efront_string_export1, $efront_string_import, $efront_string_defaul1, $efront_string_finall, $efront_string_extend1, $efront_string_functi, $efront_string_contin, $efront_string_debugg, $efront_string_instan, $efront_string_eval, $efront_string_argume, $efront_string_charCo, $efront_string_isIden, $efront_string_isIden1, $efront_string_export, $efront_string_isKeyw, $efront_string_isKeyw1, $efront_string_isRest, $efront_string_isIden2) {
+    return function (_a, code) {
         'use strict';
-        var _a;
-        var code = require(46);
         function isStrictModeReservedWordES6(id) {
             switch (id) {
-            case $efront_string__imple:
-            case $efront_string__inter:
-            case $efront_string__packa:
-            case $efront_string__priva:
-            case $efront_string__prote:
-            case $efront_string__publi:
-            case $efront_string__stati:
-            case $efront_string__let_:
-                return true;
+            case $efront_string_implem:
+            case $efront_string_interf:
+            case $efront_string_packag:
+            case $efront_string_privat:
+            case $efront_string_protec:
+            case $efront_string_public:
+            case $efront_string_static:
+            case $efront_string_let:
+                return !0;
             default:
-                return false
+                return !1
             }
         }
         function isKeywordES5(id, strict) {
-            if (!strict && id === $efront_string__yield) {
-                return false
-            }
-            return isKeywordES6(id, strict)
+            return !strict && id === $efront_string_yield ? !1 : isKeywordES6(id, strict)
         }
         function isKeywordES6(id, strict) {
-            if (strict && isStrictModeReservedWordES6(id)) {
-                return true
-            }
-            switch (id[$efront_string__lengt1]) {
+            if (strict && isStrictModeReservedWordES6(id))
+                return !0;
+            switch (id[$efront_string_length]) {
             case 2:
-                return id === $efront_string__if_ || id === $efront_string__in_ || id === $efront_string__do_;
+                return id === $efront_string_if || id === $efront_string_in || id === $efront_string_do;
             case 3:
-                return id === $efront_string__var_ || id === $efront_string__for_ || id === $efront_string__new_ || id === $efront_string__try_;
+                return id === $efront_string_var || id === $efront_string_for || id === $efront_string_new || id === $efront_string_try;
             case 4:
-                return id === $efront_string__this_ || id === $efront_string__else_ || id === $efront_string__case_ || id === $efront_string__void_ || id === $efront_string__with_ || id === $efront_string__enum_;
+                return id === $efront_string_this || id === $efront_string_else || id === $efront_string_case || id === $efront_string_void || id === $efront_string_with || id === $efront_string_enum;
             case 5:
-                return id === $efront_string__while || id === $efront_string__break || id === $efront_string__catch || id === $efront_string__throw || id === $efront_string__const || id === $efront_string__yield || id === $efront_string__class || id === $efront_string__super1;
+                return id === $efront_string_while || id === $efront_string_break || id === $efront_string_catch || id === $efront_string_throw || id === $efront_string_const || id === $efront_string_yield || id === $efront_string_class || id === $efront_string_super;
             case 6:
-                return id === $efront_string__retur || id === $efront_string__typeo || id === $efront_string__delet || id === $efront_string__switc || id === $efront_string__expor2 || id === $efront_string__impor;
+                return id === $efront_string_return || id === $efront_string_typeof || id === $efront_string_delete || id === $efront_string_switch || id === $efront_string_export1 || id === $efront_string_import;
             case 7:
-                return id === $efront_string__defau1 || id === $efront_string__final1 || id === $efront_string__exten1;
+                return id === $efront_string_defaul1 || id === $efront_string_finall || id === $efront_string_extend1;
             case 8:
-                return id === $efront_string__funct1 || id === $efront_string__conti || id === $efront_string__debug;
+                return id === $efront_string_functi || id === $efront_string_contin || id === $efront_string_debugg;
             case 10:
-                return id === $efront_string__insta;
+                return id === $efront_string_instan;
             default:
-                return false
+                return !1
             }
         }
         function isRestrictedWord(id) {
-            return id === $efront_string__eval_ || id === $efront_string__argum
+            return id === $efront_string_eval || id === $efront_string_argume
         }
         function isIdentifierName(id) {
             var i, iz, ch;
-            if (id[$efront_string__lengt1] === 0) {
-                return false
-            }
-            ch = id[$efront_string__charC](0);
-            if (!code[$efront_string__isIde](ch) || ch === 92) {
-                return false
-            }
-            for (i = 1, iz = id[$efront_string__lengt1]; i < iz; ++i) {
-                ch = id[$efront_string__charC](i);
-                if (!code[$efront_string__isIde1](ch) || ch === 92) {
-                    return false
-                }
-            }
-            return true
+            if (id[$efront_string_length] === 0)
+                return !1;
+            if (ch = id[$efront_string_charCo](0), !code[$efront_string_isIden](ch) || ch === 92)
+                return !1;
+            for (i = 1, iz = id[$efront_string_length]; i < iz; ++i)
+                if (ch = id[$efront_string_charCo](i), !code[$efront_string_isIden1](ch) || ch === 92)
+                    return !1;
+            return !0
         }
-        module[$efront_string__expor1] = (_a = {}, _a[$efront_string__isKey] = isKeywordES5, _a[$efront_string__isKey1] = isKeywordES6, _a[$efront_string__isRes] = isRestrictedWord, _a[$efront_string__isIde2] = isIdentifierName, _a)
+        code = require(31), _a = {}, _a[$efront_string_isKeyw] = isKeywordES5, _a[$efront_string_isKeyw1] = isKeywordES6, _a[$efront_string_isRest] = isRestrictedWord, _a[$efront_string_isIden2] = isIdentifierName, module[$efront_string_export] = _a
     }()
 }],
-/** 405 $efront_string__code_ */ 'code',
-/** 406 $efront_string__keywo */ 'keyword',
-/** 407 esutils$lib$utils.js */ [68,1,405,406,function(exports, require, $efront_string__code_, $efront_string__keywo) {
+/** 388 $efront_string_code */ "code",
+/** 389 $efront_string_keywor */ "keyword",
+/** 390 esutils$lib$utils.js */ [52,1,388,389,function(exports, require, $efront_string_code, $efront_string_keywor) {
     return function () {
         'use strict';
-        exports[$efront_string__code_] = require(46);
-        exports[$efront_string__keywo] = require(404)
+        exports[$efront_string_code] = require(31), exports[$efront_string_keywor] = require(387)
     }()
 }],
-/** 408 $efront_string__2 */ '.',
-/** 409 $efront_string__optim */ 'optimistic',
-/** 410 $efront_string__direc1 */ 'directive',
-/** 411 $efront_string__ecmaV */ 'ecmaVersion',
-/** 412 $efront_string__ident */ 'identifier',
-/** 413 $efront_string__from_ */ 'from',
-/** 414 $efront_string__taint */ 'tainted',
-/** 415 $efront_string__resol */ 'resolved',
-/** 416 $efront_string__flag_ */ 'flag',
-/** 417 $efront_string__isWri */ 'isWrite',
-/** 418 $efront_string__write */ 'writeExpr',
-/** 419 $efront_string____may */ '__maybeImplicitGlobal',
-/** 420 $efront_string__READ_ */ 'READ',
-/** 421 $efront_string__WRITE */ 'WRITE',
-/** 422 $efront_string__RW_ */ 'RW',
-/** 423 $efront_string__isSta */ 'isStatic',
-/** 424 $efront_string__scope */ 'scope',
-/** 425 $efront_string__isRea */ 'isRead',
-/** 426 $efront_string__isRea1 */ 'isReadOnly',
-/** 427 $efront_string__isWri1 */ 'isWriteOnly',
-/** 428 $efront_string__isRea2 */ 'isReadWrite',
-/** 429 $efront_string__ident1 */ 'identifiers',
-/** 430 $efront_string__refer */ 'references',
-/** 431 $efront_string__defs_ */ 'defs',
-/** 432 $efront_string__stack */ 'stack',
-/** 433 $efront_string__Param */ 'Parameter',
-/** 434 $efront_string__Funct2 */ 'FunctionName',
-/** 435 $efront_string__Varia2 */ 'Variable',
-/** 436 $efront_string__Impli */ 'ImplicitGlobalVariable',
-/** 437 $efront_string__upper */ 'upper',
-/** 438 $efront_string__isStr */ 'isStrict',
-/** 439 $efront_string__globa */ 'global',
-/** 440 $efront_string__use_s */ /** text */ '"use strict"',
-/** 441 $efront_string__use_s1 */ /** text */ '\'use strict\'',
-/** 442 $efront_string__strin1 */ 'string',
-/** 443 $efront_string__taint1 */ 'taints',
-/** 444 $efront_string__dynam */ 'dynamic',
-/** 445 $efront_string__throu */ 'through',
-/** 446 $efront_string__varia */ 'variables',
-/** 447 $efront_string__varia1 */ 'variableScope',
-/** 448 $efront_string__funct2 */ 'functionExpressionScope',
-/** 449 $efront_string__direc2 */ 'directCallToEvalScope',
-/** 450 $efront_string__thisF */ 'thisFound',
-/** 451 $efront_string__namin */ 'naming',
-/** 452 $efront_string____def */ '__define',
-/** 453 $efront_string__child */ 'childScopes',
-/** 454 $efront_string__impli */ 'implicit',
-/** 455 $efront_string____clo */ '__close',
-/** 456 $efront_string____res */ '__resolve',
-/** 457 $efront_string____del */ '__delegateToUpperScope',
-/** 458 $efront_string____def1 */ '__defineImplicit',
-/** 459 $efront_string____ref */ '__referencing',
-/** 460 $efront_string____det */ '__detectEval',
-/** 461 $efront_string____det1 */ '__detectThis',
-/** 462 $efront_string____isC */ '__isClosed',
-/** 463 $efront_string__resol1 */ 'resolve',
-/** 464 $efront_string__scope1 */ /** text */ 'scope should be closed',
-/** 465 $efront_string__targe */ /** text */ 'target should be identifier',
-/** 466 $efront_string__isArg */ 'isArgumentsMaterialized',
-/** 467 $efront_string__alway */ /** text */ 'always have arguments variable',
-/** 468 $efront_string__isThi */ 'isThisMaterialized',
-/** 469 $efront_string__mangl */ 'mangledName',
-/** 470 $efront_string____$es */ '__$escope$__',
-/** 471 $efront_string__attac2 */ 'attach',
-/** 472 $efront_string__detac */ 'detach',
-/** 473 $efront_string__isUse */ 'isUsedName',
-/** 474 $efront_string__scope2 */ 'scopes',
-/** 475 $efront_string__attac3 */ 'attached',
-/** 476 $efront_string____get */ '__get',
-/** 477 $efront_string__isSco */ 'isScopeRequired',
-/** 478 $efront_string__acqui */ 'acquire',
-/** 479 $efront_string__relea */ 'release',
-/** 480 $efront_string__isVar */ 'isVariableScopeRequired',
-/** 481 $efront_string__opera */ 'operator',
-/** 482 $efront_string__3 */ '=',
-/** 483 $efront_string__ignor */ 'ignoreEval',
-/** 484 $efront_string__index2 */ 'index',
-/** 485 $efront_string__compu */ 'computed',
-/** 486 $efront_string__kind_ */ 'kind',
-/** 487 $efront_string__1_0_3 */ '1.0.3',
-/** 488 $efront_string__Refer */ 'Reference',
-/** 489 $efront_string__Scope */ 'Scope',
-/** 490 $efront_string__Scope1 */ 'ScopeManager',
-/** 491 $efront_string__analy */ 'analyze',
-/** 492 escope$escope.js */ [69,68,1,67,71,70,30,291,408,128,54,72,73,236,38,74,49,196,48,50,51,52,53,55,56,57,409,410,411,127,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,215,429,430,431,432,83,433,434,435,436,437,438,187,135,439,90,214,440,441,93,144,100,150,442,382,122,379,108,443,444,156,445,446,129,447,448,449,450,451,452,140,166,138,63,97,453,454,455,456,457,458,98,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,96,183,186,75,481,482,130,76,131,79,80,81,82,137,483,398,139,87,36,142,143,88,91,89,92,94,145,146,95,119,161,132,484,99,101,102,103,485,148,105,106,151,486,109,110,152,111,153,112,154,113,114,115,116,117,118,164,120,121,185,194,487,488,489,490,491,function(define, exports, require, undefined, Error, Object, RegExp, $efront_string__split1, $efront_string__2, $efront_string__lengt1, $efront_string__hasOw, $efront_string__funct1, $efront_string__amd_, $efront_string__escop, $efront_string__expor1, $efront_string__estra, $efront_string__undef, $efront_string__Synta, $efront_string__Map_, $efront_string____dat, $efront_string__proto, $efront_string__get_, $efront_string__$_, $efront_string__has_, $efront_string__set_, $efront_string__delet, $efront_string__optim, $efront_string__direc1, $efront_string__ecmaV, $efront_string__objec1, $efront_string__ident, $efront_string__from_, $efront_string__taint, $efront_string__resol, $efront_string__flag_, $efront_string__isWri, $efront_string__write, $efront_string____may, $efront_string__READ_, $efront_string__WRITE, $efront_string__RW_, $efront_string__isSta, $efront_string__scope, $efront_string__isRea, $efront_string__isRea1, $efront_string__isWri1, $efront_string__isRea2, $efront_string__name_, $efront_string__ident1, $efront_string__refer, $efront_string__defs_, $efront_string__stack, $efront_string__Catch, $efront_string__Param, $efront_string__Funct2, $efront_string__Varia2, $efront_string__Impli, $efront_string__upper, $efront_string__isStr, $efront_string__type_, $efront_string__body_, $efront_string__globa, $efront_string__Direc, $efront_string__raw_, $efront_string__use_s, $efront_string__use_s1, $efront_string__Expre, $efront_string__expre, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__catch, $efront_string__WithS, $efront_string__with_, $efront_string__Progr, $efront_string__taint1, $efront_string__dynam, $efront_string__block, $efront_string__throu, $efront_string__varia, $efront_string__left_, $efront_string__varia1, $efront_string__funct2, $efront_string__direc2, $efront_string__thisF, $efront_string__namin, $efront_string____def, $efront_string__id_, $efront_string__node_, $efront_string__argum, $efront_string__push_, $efront_string__Funct1, $efront_string__child, $efront_string__impli, $efront_string____clo, $efront_string____res, $efront_string____del, $efront_string____def1, $efront_string__Ident, $efront_string____ref, $efront_string____det, $efront_string____det1, $efront_string____isC, $efront_string__resol1, $efront_string__scope1, $efront_string__targe, $efront_string__isArg, $efront_string__alway, $efront_string__isThi, $efront_string__mangl, $efront_string____$es, $efront_string__attac2, $efront_string__detac, $efront_string__isUse, $efront_string__scope2, $efront_string__attac3, $efront_string____get, $efront_string__isSco, $efront_string__acqui, $efront_string__relea, $efront_string__isVar, $efront_string__Funct, $efront_string__trave, $efront_string__enter, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__right, $efront_string__Array, $efront_string__eleme, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__calle, $efront_string__ignor, $efront_string__eval_, $efront_string__param1, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__Conti, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__ForSt, $efront_string__init_, $efront_string__updat, $efront_string__ForIn, $efront_string__Varia, $efront_string__decla, $efront_string__param, $efront_string__index2, $efront_string__IfSta, $efront_string__Label, $efront_string__Logic, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__NewEx, $efront_string__Objec, $efront_string__prope1, $efront_string__kind_, $efront_string__Prope, $efront_string__Retur, $efront_string__argum1, $efront_string__Seque, $efront_string__expre1, $efront_string__Switc, $efront_string__discr, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Unary, $efront_string__Updat, $efront_string__paren, $efront_string__Varia1, $efront_string__While, $efront_string__leave, $efront_string__versi, $efront_string__1_0_3, $efront_string__Refer, $efront_string__Scope, $efront_string__Scope1, $efront_string__analy) {
+/** 391 $efront_string__2 */ ".",
+/** 392 $efront_string_optimi */ "optimistic",
+/** 393 $efront_string_direct1 */ "directive",
+/** 394 $efront_string_ecmaVe */ "ecmaVersion",
+/** 395 $efront_string_identi */ "identifier",
+/** 396 $efront_string_from */ "from",
+/** 397 $efront_string_tainte */ "tainted",
+/** 398 $efront_string_resolv */ "resolved",
+/** 399 $efront_string_flag */ "flag",
+/** 400 $efront_string_isWrit */ "isWrite",
+/** 401 $efront_string_writeE */ "writeExpr",
+/** 402 $efront_string___mayb */ "__maybeImplicitGlobal",
+/** 403 $efront_string_READ */ "READ",
+/** 404 $efront_string_WRITE */ "WRITE",
+/** 405 $efront_string_RW */ "RW",
+/** 406 $efront_string_isStat */ "isStatic",
+/** 407 $efront_string_scope */ "scope",
+/** 408 $efront_string_isRead */ "isRead",
+/** 409 $efront_string_isRead1 */ "isReadOnly",
+/** 410 $efront_string_isWrit1 */ "isWriteOnly",
+/** 411 $efront_string_isRead2 */ "isReadWrite",
+/** 412 $efront_string_identi1 */ "identifiers",
+/** 413 $efront_string_refere */ "references",
+/** 414 $efront_string_defs */ "defs",
+/** 415 $efront_string_stack */ "stack",
+/** 416 $efront_string_Parame */ "Parameter",
+/** 417 $efront_string_Functi2 */ "FunctionName",
+/** 418 $efront_string_Variab2 */ "Variable",
+/** 419 $efront_string_Implic */ "ImplicitGlobalVariable",
+/** 420 $efront_string_upper */ "upper",
+/** 421 $efront_string_isStri */ "isStrict",
+/** 422 $efront_string_global */ "global",
+/** 423 $efront_string__use_s */ /** text */ "\"use strict\"",
+/** 424 $efront_string__use_s1 */ /** text */ "'use strict'",
+/** 425 $efront_string_taints */ "taints",
+/** 426 $efront_string_dynami */ "dynamic",
+/** 427 $efront_string_throug */ "through",
+/** 428 $efront_string_variab */ "variables",
+/** 429 $efront_string_variab1 */ "variableScope",
+/** 430 $efront_string_functi1 */ "functionExpressionScope",
+/** 431 $efront_string_direct2 */ "directCallToEvalScope",
+/** 432 $efront_string_thisFo */ "thisFound",
+/** 433 $efront_string_naming */ "naming",
+/** 434 $efront_string___defi */ "__define",
+/** 435 $efront_string_childS */ "childScopes",
+/** 436 $efront_string_implic */ "implicit",
+/** 437 $efront_string___clos */ "__close",
+/** 438 $efront_string___reso */ "__resolve",
+/** 439 $efront_string___dele */ "__delegateToUpperScope",
+/** 440 $efront_string___defi1 */ "__defineImplicit",
+/** 441 $efront_string___refe */ "__referencing",
+/** 442 $efront_string___dete */ "__detectEval",
+/** 443 $efront_string___dete1 */ "__detectThis",
+/** 444 $efront_string___isCl */ "__isClosed",
+/** 445 $efront_string_resolv1 */ "resolve",
+/** 446 $efront_string_scope_ */ /** text */ "scope should be closed",
+/** 447 $efront_string_target */ /** text */ "target should be identifier",
+/** 448 $efront_string_isArgu */ "isArgumentsMaterialized",
+/** 449 $efront_string_always */ /** text */ "always have arguments variable",
+/** 450 $efront_string_isThis */ "isThisMaterialized",
+/** 451 $efront_string_mangle */ "mangledName",
+/** 452 $efront_string___$esc */ "__$escope$__",
+/** 453 $efront_string_attach2 */ "attach",
+/** 454 $efront_string_detach */ "detach",
+/** 455 $efront_string_isUsed */ "isUsedName",
+/** 456 $efront_string_scopes */ "scopes",
+/** 457 $efront_string_attach3 */ "attached",
+/** 458 $efront_string___get */ "__get",
+/** 459 $efront_string_isScop */ "isScopeRequired",
+/** 460 $efront_string_acquir */ "acquire",
+/** 461 $efront_string_releas */ "release",
+/** 462 $efront_string_isVari */ "isVariableScopeRequired",
+/** 463 $efront_string_operat */ "operator",
+/** 464 $efront_string__3 */ "=",
+/** 465 $efront_string_ignore */ "ignoreEval",
+/** 466 $efront_string_index */ "index",
+/** 467 $efront_string_comput */ "computed",
+/** 468 $efront_string_kind */ "kind",
+/** 469 $efront_string_1_0_3 */ "1.0.3",
+/** 470 $efront_string_Refere */ "Reference",
+/** 471 $efront_string_Scope */ "Scope",
+/** 472 $efront_string_ScopeM */ "ScopeManager",
+/** 473 $efront_string_analyz */ "analyze",
+/** 474 escope$escope.js */ [53,52,1,51,56,55,16,4,391,3,39,57,58,220,13,59,34,180,33,35,36,37,38,40,41,42,392,393,394,112,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,199,412,413,414,415,68,416,417,418,419,420,421,171,119,422,75,198,423,424,78,128,85,134,10,365,107,362,93,425,426,140,427,428,113,429,430,431,432,433,434,124,150,122,47,82,435,436,437,438,439,440,83,441,442,443,444,445,446,447,448,449,450,451,452,453,454,455,456,457,458,459,460,461,462,81,167,170,60,463,464,114,61,115,64,65,66,67,121,465,381,123,72,22,126,127,73,76,74,77,79,129,130,80,104,145,116,466,84,86,87,88,467,132,90,91,135,468,94,95,136,96,137,97,138,98,99,100,101,102,103,148,105,106,169,178,469,470,471,472,473,function(define, exports, require, undefined, Error, Object, RegExp, $efront_string_split, $efront_string__2, $efront_string_length, $efront_string_hasOwn, $efront_string_functi, $efront_string_amd, $efront_string_escope, $efront_string_export, $efront_string_estrav, $efront_string_undefi, $efront_string_Syntax, $efront_string_Map, $efront_string___data, $efront_string_protot, $efront_string_get, $efront_string_$, $efront_string_has, $efront_string_set, $efront_string_delete, $efront_string_optimi, $efront_string_direct1, $efront_string_ecmaVe, $efront_string_object, $efront_string_identi, $efront_string_from, $efront_string_tainte, $efront_string_resolv, $efront_string_flag, $efront_string_isWrit, $efront_string_writeE, $efront_string___mayb, $efront_string_READ, $efront_string_WRITE, $efront_string_RW, $efront_string_isStat, $efront_string_scope, $efront_string_isRead, $efront_string_isRead1, $efront_string_isWrit1, $efront_string_isRead2, $efront_string_name, $efront_string_identi1, $efront_string_refere, $efront_string_defs, $efront_string_stack, $efront_string_CatchC, $efront_string_Parame, $efront_string_Functi2, $efront_string_Variab2, $efront_string_Implic, $efront_string_upper, $efront_string_isStri, $efront_string_type, $efront_string_body, $efront_string_global, $efront_string_Direct, $efront_string_raw, $efront_string__use_s, $efront_string__use_s1, $efront_string_Expres, $efront_string_expres, $efront_string_Litera, $efront_string_value, $efront_string_string, $efront_string_catch, $efront_string_WithSt, $efront_string_with, $efront_string_Progra, $efront_string_taints, $efront_string_dynami, $efront_string_block, $efront_string_throug, $efront_string_variab, $efront_string_left, $efront_string_variab1, $efront_string_functi1, $efront_string_direct2, $efront_string_thisFo, $efront_string_naming, $efront_string___defi, $efront_string_id, $efront_string_node, $efront_string_argume, $efront_string_push, $efront_string_Functi1, $efront_string_childS, $efront_string_implic, $efront_string___clos, $efront_string___reso, $efront_string___dele, $efront_string___defi1, $efront_string_Identi, $efront_string___refe, $efront_string___dete, $efront_string___dete1, $efront_string___isCl, $efront_string_resolv1, $efront_string_scope_, $efront_string_target, $efront_string_isArgu, $efront_string_always, $efront_string_isThis, $efront_string_mangle, $efront_string___$esc, $efront_string_attach2, $efront_string_detach, $efront_string_isUsed, $efront_string_scopes, $efront_string_attach3, $efront_string___get, $efront_string_isScop, $efront_string_acquir, $efront_string_releas, $efront_string_isVari, $efront_string_Functi, $efront_string_traver, $efront_string_enter, $efront_string_Assign, $efront_string_operat, $efront_string__3, $efront_string_right, $efront_string_ArrayE, $efront_string_elemen, $efront_string_BlockS, $efront_string_Binary, $efront_string_BreakS, $efront_string_CallEx, $efront_string_callee, $efront_string_ignore, $efront_string_eval, $efront_string_param, $efront_string_Condit, $efront_string_test, $efront_string_conseq, $efront_string_altern, $efront_string_Contin, $efront_string_DoWhil, $efront_string_Debugg, $efront_string_EmptyS, $efront_string_ForSta, $efront_string_init, $efront_string_update, $efront_string_ForInS, $efront_string_Variab, $efront_string_declar, $efront_string_params, $efront_string_index, $efront_string_IfStat, $efront_string_Labele, $efront_string_Logica, $efront_string_Member, $efront_string_comput, $efront_string_proper, $efront_string_NewExp, $efront_string_Object, $efront_string_proper1, $efront_string_kind, $efront_string_Proper, $efront_string_Return, $efront_string_argume1, $efront_string_Sequen, $efront_string_expres1, $efront_string_Switch, $efront_string_discri, $efront_string_Switch1, $efront_string_ThisEx, $efront_string_ThrowS, $efront_string_TrySta, $efront_string_UnaryE, $efront_string_Update, $efront_string_parent, $efront_string_Variab1, $efront_string_WhileS, $efront_string_leave, $efront_string_versio, $efront_string_1_0_3, $efront_string_Refere, $efront_string_Scope, $efront_string_ScopeM, $efront_string_analyz) {
     return function (factory, global) {
         'use strict';
         function namespace(str, obj) {
             var i, iz, names, name;
-            names = str[$efront_string__split1]($efront_string__2);
-            for (i = 0, iz = names[$efront_string__lengt1]; i < iz; ++i) {
-                name = names[i];
-                if (obj[$efront_string__hasOw](name)) {
-                    obj = obj[name]
-                } else {
-                    obj = obj[name] = {}
-                }
-            }
+            for (names = str[$efront_string_split]($efront_string__2), i = 0, iz = names[$efront_string_length]; i < iz; ++i)
+                name = names[i], obj[$efront_string_hasOwn](name) ? obj = obj[name] : obj = obj[name] = {};
             return obj
         }
-        if (typeof define === $efront_string__funct1 && define[$efront_string__amd_]) {
-            define($efront_string__escop, [
-                $efront_string__expor1,
-                $efront_string__estra
-            ], function (exports, estraverse) {
-                factory(exports, global, estraverse)
-            })
-        } else if (typeof exports !== $efront_string__undef) {
-            factory(exports, global, require(299))
-        } else {
-            factory(namespace($efront_string__escop, global), global, global[$efront_string__estra])
-        }
+        typeof define === $efront_string_functi && define[$efront_string_amd] ? define($efront_string_escope, [
+            $efront_string_export,
+            $efront_string_estrav
+        ], function (exports, estraverse) {
+            factory(exports, global, estraverse)
+        }) : typeof exports !== $efront_string_undefi ? factory(exports, global, require(282)) : factory(namespace($efront_string_escope, global), global, global[$efront_string_estrav])
     }(function (exports, global, estraverse) {
         'use strict';
-        var Syntax, Map, currentScope, globalScope, scopes, options;
-        Syntax = estraverse[$efront_string__Synta];
-        if (typeof global[$efront_string__Map_] !== $efront_string__undef) {
-            Map = global[$efront_string__Map_]
-        } else {
-            Map = function Map() {
-                this[$efront_string____dat] = {}
-            };
-            Map[$efront_string__proto][$efront_string__get_] = function MapGet(key) {
-                key = $efront_string__$_ + key;
-                if (this[$efront_string____dat][$efront_string__hasOw](key)) {
-                    return this[$efront_string____dat][key]
-                }
-                return undefined
-            };
-            Map[$efront_string__proto][$efront_string__has_] = function MapHas(key) {
-                key = $efront_string__$_ + key;
-                return this[$efront_string____dat][$efront_string__hasOw](key)
-            };
-            Map[$efront_string__proto][$efront_string__set_] = function MapSet(key, val) {
-                key = $efront_string__$_ + key;
-                this[$efront_string____dat][key] = val
-            };
-            Map[$efront_string__proto][$efront_string__delet] = function MapDelete(key) {
-                key = $efront_string__$_ + key;
-                return delete this[$efront_string____dat][key]
-            }
-        }
         function assert(cond, text) {
-            if (!cond) {
+            if (!cond)
                 throw new Error(text)
-            }
         }
         function defaultOptions() {
             var _a;
-            return _a = {}, _a[$efront_string__optim] = false, _a[$efront_string__direc1] = false, _a[$efront_string__ecmaV] = 5, _a
+            return _a = {}, _a[$efront_string_optimi] = !1, _a[$efront_string_direct1] = !1, _a[$efront_string_ecmaVe] = 5, _a
         }
         function updateDeeply(target, override) {
-            var key, val;
             function isHashObject(target) {
-                return typeof target === $efront_string__objec1 && target instanceof Object && !(target instanceof RegExp)
+                return typeof target === $efront_string_object && target instanceof Object && !(target instanceof RegExp)
             }
-            for (key in override) {
-                if (override[$efront_string__hasOw](key)) {
-                    val = override[key];
-                    if (isHashObject(val)) {
-                        if (isHashObject(target[key])) {
-                            updateDeeply(target[key], val)
-                        } else {
-                            target[key] = updateDeeply({}, val)
-                        }
-                    } else {
-                        target[key] = val
-                    }
-                }
-            }
+            var key, val;
+            for (key in override)
+                override[$efront_string_hasOwn](key) && (val = override[key], isHashObject(val) ? isHashObject(target[key]) ? updateDeeply(target[key], val) : target[key] = updateDeeply({}, val) : target[key] = val);
             return target
         }
         function Reference(ident, scope, flag, writeExpr, maybeImplicitGlobal) {
-            this[$efront_string__ident] = ident;
-            this[$efront_string__from_] = scope;
-            this[$efront_string__taint] = false;
-            this[$efront_string__resol] = null;
-            this[$efront_string__flag_] = flag;
-            if (this[$efront_string__isWri]()) {
-                this[$efront_string__write] = writeExpr
-            }
-            this[$efront_string____may] = maybeImplicitGlobal
+            this[$efront_string_identi] = ident, this[$efront_string_from] = scope, this[$efront_string_tainte] = !1, this[$efront_string_resolv] = null, this[$efront_string_flag] = flag, this[$efront_string_isWrit]() && (this[$efront_string_writeE] = writeExpr), this[$efront_string___mayb] = maybeImplicitGlobal
         }
-        Reference[$efront_string__READ_] = 1;
-        Reference[$efront_string__WRITE] = 2;
-        Reference[$efront_string__RW_] = 3;
-        Reference[$efront_string__proto][$efront_string__isSta] = function isStatic() {
-            return !this[$efront_string__taint] && this[$efront_string__resol] && this[$efront_string__resol][$efront_string__scope][$efront_string__isSta]()
-        };
-        Reference[$efront_string__proto][$efront_string__isWri] = function isWrite() {
-            return this[$efront_string__flag_] & Reference[$efront_string__WRITE]
-        };
-        Reference[$efront_string__proto][$efront_string__isRea] = function isRead() {
-            return this[$efront_string__flag_] & Reference[$efront_string__READ_]
-        };
-        Reference[$efront_string__proto][$efront_string__isRea1] = function isReadOnly() {
-            return this[$efront_string__flag_] === Reference[$efront_string__READ_]
-        };
-        Reference[$efront_string__proto][$efront_string__isWri1] = function isWriteOnly() {
-            return this[$efront_string__flag_] === Reference[$efront_string__WRITE]
-        };
-        Reference[$efront_string__proto][$efront_string__isRea2] = function isReadWrite() {
-            return this[$efront_string__flag_] === Reference[$efront_string__RW_]
-        };
         function Variable(name, scope) {
-            this[$efront_string__name_] = name;
-            this[$efront_string__ident1] = [];
-            this[$efront_string__refer] = [];
-            this[$efront_string__defs_] = [];
-            this[$efront_string__taint] = false;
-            this[$efront_string__stack] = true;
-            this[$efront_string__scope] = scope
+            this[$efront_string_name] = name, this[$efront_string_identi1] = [], this[$efront_string_refere] = [], this[$efront_string_defs] = [], this[$efront_string_tainte] = !1, this[$efront_string_stack] = !0, this[$efront_string_scope] = scope
         }
-        Variable[$efront_string__Catch] = $efront_string__Catch;
-        Variable[$efront_string__Param] = $efront_string__Param;
-        Variable[$efront_string__Funct2] = $efront_string__Funct2;
-        Variable[$efront_string__Varia2] = $efront_string__Varia2;
-        Variable[$efront_string__Impli] = $efront_string__Impli;
         function isStrictScope(scope, block) {
             var body, i, iz, stmt, expr;
-            if (scope[$efront_string__upper] && scope[$efront_string__upper][$efront_string__isStr]) {
-                return true
-            }
-            if (scope[$efront_string__type_] === $efront_string__funct1) {
-                body = block[$efront_string__body_]
-            } else if (scope[$efront_string__type_] === $efront_string__globa) {
-                body = block
-            } else {
-                return false
-            }
-            if (options[$efront_string__direc1]) {
-                for (i = 0, iz = body[$efront_string__body_][$efront_string__lengt1]; i < iz; ++i) {
-                    stmt = body[$efront_string__body_][i];
-                    if (stmt[$efront_string__type_] !== $efront_string__Direc) {
-                        break
-                    }
-                    if (stmt[$efront_string__raw_] === $efront_string__use_s || stmt[$efront_string__raw_] === $efront_string__use_s1) {
-                        return true
-                    }
+            if (scope[$efront_string_upper] && scope[$efront_string_upper][$efront_string_isStri])
+                return !0;
+            if (scope[$efront_string_type] === $efront_string_functi)
+                body = block[$efront_string_body];
+            else if (scope[$efront_string_type] === $efront_string_global)
+                body = block;
+            else
+                return !1;
+            if (options[$efront_string_direct1])
+                for (i = 0, iz = body[$efront_string_body][$efront_string_length]; i < iz; ++i) {
+                    if (stmt = body[$efront_string_body][i], stmt[$efront_string_type] !== $efront_string_Direct)
+                        break;
+                    if (stmt[$efront_string_raw] === $efront_string__use_s || stmt[$efront_string_raw] === $efront_string__use_s1)
+                        return !0
                 }
-            } else {
-                for (i = 0, iz = body[$efront_string__body_][$efront_string__lengt1]; i < iz; ++i) {
-                    stmt = body[$efront_string__body_][i];
-                    if (stmt[$efront_string__type_] !== Syntax[$efront_string__Expre]) {
-                        break
-                    }
-                    expr = stmt[$efront_string__expre];
-                    if (expr[$efront_string__type_] !== Syntax[$efront_string__Liter] || typeof expr[$efront_string__value1] !== $efront_string__strin1) {
-                        break
-                    }
-                    if (expr[$efront_string__raw_] != null) {
-                        if (expr[$efront_string__raw_] === $efront_string__use_s || expr[$efront_string__raw_] === $efront_string__use_s1) {
-                            return true
-                        }
-                    } else {
-                        if (expr[$efront_string__value1] === 'use strict') {
-                            return true
-                        }
-                    }
+            else
+                for (i = 0, iz = body[$efront_string_body][$efront_string_length]; i < iz; ++i) {
+                    if (stmt = body[$efront_string_body][i], stmt[$efront_string_type] !== Syntax[$efront_string_Expres])
+                        break;
+                    if (expr = stmt[$efront_string_expres], expr[$efront_string_type] !== Syntax[$efront_string_Litera] || typeof expr[$efront_string_value] !== $efront_string_string)
+                        break;
+                    if (expr[$efront_string_raw] != null) {
+                        if (expr[$efront_string_raw] === $efront_string__use_s || expr[$efront_string_raw] === $efront_string__use_s1)
+                            return !0
+                    } else if (expr[$efront_string_value] === 'use strict')
+                        return !0
                 }
-            }
-            return false
+            return !1
         }
         function Scope(block, opt) {
-            var _a, _b, _c;
-            var variable, body;
-            this[$efront_string__type_] = block[$efront_string__type_] === Syntax[$efront_string__Catch] ? $efront_string__catch : block[$efront_string__type_] === Syntax[$efront_string__WithS] ? $efront_string__with_ : block[$efront_string__type_] === Syntax[$efront_string__Progr] ? $efront_string__globa : $efront_string__funct1;
-            this[$efront_string__set_] = new Map;
-            this[$efront_string__taint1] = new Map;
-            this[$efront_string__dynam] = this[$efront_string__type_] === $efront_string__globa || this[$efront_string__type_] === $efront_string__with_;
-            this[$efront_string__block] = block;
-            this[$efront_string__throu] = [];
-            this[$efront_string__varia] = [];
-            this[$efront_string__refer] = [];
-            this[$efront_string__left_] = [];
-            this[$efront_string__varia1] = this[$efront_string__type_] === $efront_string__globa || this[$efront_string__type_] === $efront_string__funct1 ? this : currentScope[$efront_string__varia1];
-            this[$efront_string__funct2] = false;
-            this[$efront_string__direc2] = false;
-            this[$efront_string__thisF] = false;
-            body = this[$efront_string__type_] === $efront_string__funct1 ? block[$efront_string__body_] : block;
-            if (opt[$efront_string__namin]) {
-                this[$efront_string____def](block[$efront_string__id_], (_a = {}, _a[$efront_string__type_] = Variable[$efront_string__Funct2], _a[$efront_string__name_] = block[$efront_string__id_], _a[$efront_string__node_] = block, _a));
-                this[$efront_string__funct2] = true
-            } else {
-                if (this[$efront_string__type_] === $efront_string__funct1) {
-                    variable = new Variable($efront_string__argum, this);
-                    this[$efront_string__taint1][$efront_string__set_]($efront_string__argum, true);
-                    this[$efront_string__set_][$efront_string__set_]($efront_string__argum, variable);
-                    this[$efront_string__varia][$efront_string__push_](variable)
-                }
-                if (block[$efront_string__type_] === Syntax[$efront_string__Funct1] && block[$efront_string__id_]) {
-                    new Scope(block, (_b = {}, _b[$efront_string__namin] = true, _b))
-                }
-            }
-            this[$efront_string__upper] = currentScope;
-            this[$efront_string__isStr] = isStrictScope(this, block);
-            this[$efront_string__child] = [];
-            if (currentScope) {
-                currentScope[$efront_string__child][$efront_string__push_](this)
-            }
-            currentScope = this;
-            if (this[$efront_string__type_] === $efront_string__globa) {
-                globalScope = this;
-                globalScope[$efront_string__impli] = (_c = {}, _c[$efront_string__set_] = new Map, _c[$efront_string__varia] = [], _c)
-            }
-            scopes[$efront_string__push_](this)
+            var _a, _b, _c, variable, body;
+            this[$efront_string_type] = block[$efront_string_type] === Syntax[$efront_string_CatchC] ? $efront_string_catch : block[$efront_string_type] === Syntax[$efront_string_WithSt] ? $efront_string_with : block[$efront_string_type] === Syntax[$efront_string_Progra] ? $efront_string_global : $efront_string_functi, this[$efront_string_set] = new Map, this[$efront_string_taints] = new Map, this[$efront_string_dynami] = this[$efront_string_type] === $efront_string_global || this[$efront_string_type] === $efront_string_with, this[$efront_string_block] = block, this[$efront_string_throug] = [], this[$efront_string_variab] = [], this[$efront_string_refere] = [], this[$efront_string_left] = [], this[$efront_string_variab1] = this[$efront_string_type] === $efront_string_global || this[$efront_string_type] === $efront_string_functi ? this : currentScope[$efront_string_variab1], this[$efront_string_functi1] = !1, this[$efront_string_direct2] = !1, this[$efront_string_thisFo] = !1, body = this[$efront_string_type] === $efront_string_functi ? block[$efront_string_body] : block, opt[$efront_string_naming] ? (this[$efront_string___defi](block[$efront_string_id], (_a = {}, _a[$efront_string_type] = Variable[$efront_string_Functi2], _a[$efront_string_name] = block[$efront_string_id], _a[$efront_string_node] = block, _a)), this[$efront_string_functi1] = !0) : (this[$efront_string_type] === $efront_string_functi && (variable = new Variable($efront_string_argume, this), this[$efront_string_taints][$efront_string_set]($efront_string_argume, !0), this[$efront_string_set][$efront_string_set]($efront_string_argume, variable), this[$efront_string_variab][$efront_string_push](variable)), block[$efront_string_type] === Syntax[$efront_string_Functi1] && block[$efront_string_id] && new Scope(block, (_b = {}, _b[$efront_string_naming] = !0, _b))), this[$efront_string_upper] = currentScope, this[$efront_string_isStri] = isStrictScope(this, block), this[$efront_string_childS] = [], currentScope && currentScope[$efront_string_childS][$efront_string_push](this), currentScope = this, this[$efront_string_type] === $efront_string_global && (globalScope = this, _c = {}, _c[$efront_string_set] = new Map, _c[$efront_string_variab] = [], globalScope[$efront_string_implic] = _c), scopes[$efront_string_push](this)
         }
-        Scope[$efront_string__proto][$efront_string____clo] = function __close() {
-            var _a;
-            var i, iz, ref, current, node, implicit;
-            if (!this[$efront_string__dynam] || options[$efront_string__optim]) {
-                for (i = 0, iz = this[$efront_string__left_][$efront_string__lengt1]; i < iz; ++i) {
-                    ref = this[$efront_string__left_][i];
-                    if (!this[$efront_string____res](ref)) {
-                        this[$efront_string____del](ref)
-                    }
-                }
-            } else {
-                if (this[$efront_string__type_] === $efront_string__with_) {
-                    for (i = 0, iz = this[$efront_string__left_][$efront_string__lengt1]; i < iz; ++i) {
-                        ref = this[$efront_string__left_][i];
-                        ref[$efront_string__taint] = true;
-                        this[$efront_string____del](ref)
-                    }
-                } else {
-                    for (i = 0, iz = this[$efront_string__left_][$efront_string__lengt1]; i < iz; ++i) {
-                        ref = this[$efront_string__left_][i];
-                        current = this;
-                        do {
-                            current[$efront_string__throu][$efront_string__push_](ref);
-                            current = current[$efront_string__upper]
-                        } while (current)
-                    }
-                }
-            }
-            if (this[$efront_string__type_] === $efront_string__globa) {
-                implicit = [];
-                for (i = 0, iz = this[$efront_string__left_][$efront_string__lengt1]; i < iz; ++i) {
-                    ref = this[$efront_string__left_][i];
-                    if (ref[$efront_string____may] && !this[$efront_string__set_][$efront_string__has_](ref[$efront_string__ident][$efront_string__name_])) {
-                        implicit[$efront_string__push_](ref[$efront_string____may])
-                    }
-                }
-                for (i = 0, iz = implicit[$efront_string__lengt1]; i < iz; ++i) {
-                    node = implicit[i];
-                    this[$efront_string____def1](node[$efront_string__left_], (_a = {}, _a[$efront_string__type_] = Variable[$efront_string__Impli], _a[$efront_string__name_] = node[$efront_string__left_], _a[$efront_string__node_] = node, _a))
-                }
-            }
-            this[$efront_string__left_] = null;
-            currentScope = this[$efront_string__upper]
-        };
-        Scope[$efront_string__proto][$efront_string____res] = function __resolve(ref) {
-            var variable, name;
-            name = ref[$efront_string__ident][$efront_string__name_];
-            if (this[$efront_string__set_][$efront_string__has_](name)) {
-                variable = this[$efront_string__set_][$efront_string__get_](name);
-                variable[$efront_string__refer][$efront_string__push_](ref);
-                variable[$efront_string__stack] = variable[$efront_string__stack] && ref[$efront_string__from_][$efront_string__varia1] === this[$efront_string__varia1];
-                if (ref[$efront_string__taint]) {
-                    variable[$efront_string__taint] = true;
-                    this[$efront_string__taint1][$efront_string__set_](variable[$efront_string__name_], true)
-                }
-                ref[$efront_string__resol] = variable;
-                return true
-            }
-            return false
-        };
-        Scope[$efront_string__proto][$efront_string____del] = function __delegateToUpperScope(ref) {
-            if (this[$efront_string__upper]) {
-                this[$efront_string__upper][$efront_string__left_][$efront_string__push_](ref)
-            }
-            this[$efront_string__throu][$efront_string__push_](ref)
-        };
-        Scope[$efront_string__proto][$efront_string____def1] = function __defineImplicit(node, info) {
-            var name, variable;
-            if (node && node[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                name = node[$efront_string__name_];
-                if (!this[$efront_string__impli][$efront_string__set_][$efront_string__has_](name)) {
-                    variable = new Variable(name, this);
-                    variable[$efront_string__ident1][$efront_string__push_](node);
-                    variable[$efront_string__defs_][$efront_string__push_](info);
-                    this[$efront_string__impli][$efront_string__set_][$efront_string__set_](name, variable);
-                    this[$efront_string__impli][$efront_string__varia][$efront_string__push_](variable)
-                } else {
-                    variable = this[$efront_string__impli][$efront_string__set_][$efront_string__get_](name);
-                    variable[$efront_string__ident1][$efront_string__push_](node);
-                    variable[$efront_string__defs_][$efront_string__push_](info)
-                }
-            }
-        };
-        Scope[$efront_string__proto][$efront_string____def] = function __define(node, info) {
-            var name, variable;
-            if (node && node[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                name = node[$efront_string__name_];
-                if (!this[$efront_string__set_][$efront_string__has_](name)) {
-                    variable = new Variable(name, this);
-                    variable[$efront_string__ident1][$efront_string__push_](node);
-                    variable[$efront_string__defs_][$efront_string__push_](info);
-                    this[$efront_string__set_][$efront_string__set_](name, variable);
-                    this[$efront_string__varia][$efront_string__push_](variable)
-                } else {
-                    variable = this[$efront_string__set_][$efront_string__get_](name);
-                    variable[$efront_string__ident1][$efront_string__push_](node);
-                    variable[$efront_string__defs_][$efront_string__push_](info)
-                }
-            }
-        };
-        Scope[$efront_string__proto][$efront_string____ref] = function __referencing(node, assign, writeExpr, maybeImplicitGlobal) {
-            var ref;
-            if (node && node[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                ref = new Reference(node, this, assign || Reference[$efront_string__READ_], writeExpr, maybeImplicitGlobal);
-                this[$efront_string__refer][$efront_string__push_](ref);
-                this[$efront_string__left_][$efront_string__push_](ref)
-            }
-        };
-        Scope[$efront_string__proto][$efront_string____det] = function __detectEval() {
-            var current;
-            current = this;
-            this[$efront_string__direc2] = true;
-            do {
-                current[$efront_string__dynam] = true;
-                current = current[$efront_string__upper]
-            } while (current)
-        };
-        Scope[$efront_string__proto][$efront_string____det1] = function __detectThis() {
-            this[$efront_string__thisF] = true
-        };
-        Scope[$efront_string__proto][$efront_string____isC] = function isClosed() {
-            return this[$efront_string__left_] === null
-        };
-        Scope[$efront_string__proto][$efront_string__resol1] = function resolve(ident) {
-            var ref, i, iz;
-            assert(this[$efront_string____isC](), $efront_string__scope1);
-            assert(ident[$efront_string__type_] === Syntax[$efront_string__Ident], $efront_string__targe);
-            for (i = 0, iz = this[$efront_string__refer][$efront_string__lengt1]; i < iz; ++i) {
-                ref = this[$efront_string__refer][i];
-                if (ref[$efront_string__ident] === ident) {
-                    return ref
-                }
-            }
-            return null
-        };
-        Scope[$efront_string__proto][$efront_string__isSta] = function isStatic() {
-            return !this[$efront_string__dynam]
-        };
-        Scope[$efront_string__proto][$efront_string__isArg] = function isArgumentsMaterialized() {
-            var variable;
-            if (this[$efront_string__type_] !== $efront_string__funct1) {
-                return true
-            }
-            if (!this[$efront_string__isSta]()) {
-                return true
-            }
-            variable = this[$efront_string__set_][$efront_string__get_]($efront_string__argum);
-            assert(variable, $efront_string__alway);
-            return variable[$efront_string__taint] || variable[$efront_string__refer][$efront_string__lengt1] !== 0
-        };
-        Scope[$efront_string__proto][$efront_string__isThi] = function isThisMaterialized() {
-            if (this[$efront_string__type_] !== $efront_string__funct1) {
-                return true
-            }
-            if (!this[$efront_string__isSta]()) {
-                return true
-            }
-            return this[$efront_string__thisF]
-        };
-        Scope[$efront_string__mangl] = $efront_string____$es;
-        Scope[$efront_string__proto][$efront_string__attac2] = function attach() {
-            if (!this[$efront_string__funct2]) {
-                this[$efront_string__block][Scope[$efront_string__mangl]] = this
-            }
-        };
-        Scope[$efront_string__proto][$efront_string__detac] = function detach() {
-            if (!this[$efront_string__funct2]) {
-                delete this[$efront_string__block][Scope[$efront_string__mangl]]
-            }
-        };
-        Scope[$efront_string__proto][$efront_string__isUse] = function (name) {
-            if (this[$efront_string__set_][$efront_string__has_](name)) {
-                return true
-            }
-            for (var i = 0, iz = this[$efront_string__throu][$efront_string__lengt1]; i < iz; ++i) {
-                if (this[$efront_string__throu][i][$efront_string__ident][$efront_string__name_] === name) {
-                    return true
-                }
-            }
-            return false
-        };
         function ScopeManager(scopes) {
-            this[$efront_string__scope2] = scopes;
-            this[$efront_string__attac3] = false
+            this[$efront_string_scopes] = scopes, this[$efront_string_attach3] = !1
         }
-        ScopeManager[$efront_string__proto][$efront_string____get] = function __get(node) {
-            var i, iz, scope;
-            if (this[$efront_string__attac3]) {
-                return node[Scope[$efront_string__mangl]] || null
-            }
-            if (Scope[$efront_string__isSco](node)) {
-                for (i = 0, iz = this[$efront_string__scope2][$efront_string__lengt1]; i < iz; ++i) {
-                    scope = this[$efront_string__scope2][i];
-                    if (!scope[$efront_string__funct2]) {
-                        if (scope[$efront_string__block] === node) {
-                            return scope
-                        }
-                    }
-                }
-            }
-            return null
-        };
-        ScopeManager[$efront_string__proto][$efront_string__acqui] = function acquire(node) {
-            return this[$efront_string____get](node)
-        };
-        ScopeManager[$efront_string__proto][$efront_string__relea] = function release(node) {
-            var scope = this[$efront_string____get](node);
-            if (scope) {
-                scope = scope[$efront_string__upper];
-                while (scope) {
-                    if (!scope[$efront_string__funct2]) {
-                        return scope
-                    }
-                    scope = scope[$efront_string__upper]
-                }
-            }
-            return null
-        };
-        ScopeManager[$efront_string__proto][$efront_string__attac2] = function attach() {
-            var i, iz;
-            for (i = 0, iz = this[$efront_string__scope2][$efront_string__lengt1]; i < iz; ++i) {
-                this[$efront_string__scope2][i][$efront_string__attac2]()
-            }
-            this[$efront_string__attac3] = true
-        };
-        ScopeManager[$efront_string__proto][$efront_string__detac] = function detach() {
-            var i, iz;
-            for (i = 0, iz = this[$efront_string__scope2][$efront_string__lengt1]; i < iz; ++i) {
-                this[$efront_string__scope2][i][$efront_string__detac]()
-            }
-            this[$efront_string__attac3] = false
-        };
-        Scope[$efront_string__isSco] = function isScopeRequired(node) {
-            return Scope[$efront_string__isVar](node) || node[$efront_string__type_] === Syntax[$efront_string__WithS] || node[$efront_string__type_] === Syntax[$efront_string__Catch]
-        };
-        Scope[$efront_string__isVar] = function isVariableScopeRequired(node) {
-            return node[$efront_string__type_] === Syntax[$efront_string__Progr] || node[$efront_string__type_] === Syntax[$efront_string__Funct1] || node[$efront_string__type_] === Syntax[$efront_string__Funct]
-        };
         function analyze(tree, providedOptions) {
-            var _a;
-            var resultScopes;
-            options = updateDeeply(defaultOptions(), providedOptions);
-            resultScopes = scopes = [];
-            currentScope = null;
-            globalScope = null;
-            estraverse[$efront_string__trave](tree, (_a = {}, _a[$efront_string__enter] = function enter(node) {
-                var _a, _b, _c, _d, _e;
-                var i, iz, decl;
-                if (Scope[$efront_string__isSco](node)) {
-                    new Scope(node, {})
-                }
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Assig]:
-                    if (node[$efront_string__opera] === $efront_string__3) {
-                        currentScope[$efront_string____ref](node[$efront_string__left_], Reference[$efront_string__WRITE], node[$efront_string__right], !currentScope[$efront_string__isStr] && node[$efront_string__left_][$efront_string__name_] != null && node)
-                    } else {
-                        currentScope[$efront_string____ref](node[$efront_string__left_], Reference[$efront_string__RW_], node[$efront_string__right])
-                    }
-                    currentScope[$efront_string____ref](node[$efront_string__right]);
+            var _a, resultScopes;
+            return options = updateDeeply(defaultOptions(), providedOptions), resultScopes = scopes = [], currentScope = null, globalScope = null, estraverse[$efront_string_traver](tree, (_a = {}, _a[$efront_string_enter] = function enter(node) {
+                var _a, _b, _c, _d, _e, i, iz, decl;
+                Scope[$efront_string_isScop](node) && new Scope(node, {});
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_Assign]:
+                    node[$efront_string_operat] === $efront_string__3 ? currentScope[$efront_string___refe](node[$efront_string_left], Reference[$efront_string_WRITE], node[$efront_string_right], !currentScope[$efront_string_isStri] && node[$efront_string_left][$efront_string_name] != null && node) : currentScope[$efront_string___refe](node[$efront_string_left], Reference[$efront_string_RW], node[$efront_string_right]);
+                    currentScope[$efront_string___refe](node[$efront_string_right]);
                     break;
-                case Syntax[$efront_string__Array]:
-                    for (i = 0, iz = node[$efront_string__eleme][$efront_string__lengt1]; i < iz; ++i) {
-                        currentScope[$efront_string____ref](node[$efront_string__eleme][i])
-                    }
+                case Syntax[$efront_string_ArrayE]:
+                    for (i = 0, iz = node[$efront_string_elemen][$efront_string_length]; i < iz; ++i)
+                        currentScope[$efront_string___refe](node[$efront_string_elemen][i]);
                     break;
-                case Syntax[$efront_string__Block]:
+                case Syntax[$efront_string_BlockS]:
                     break;
-                case Syntax[$efront_string__Binar]:
-                    currentScope[$efront_string____ref](node[$efront_string__left_]);
-                    currentScope[$efront_string____ref](node[$efront_string__right]);
+                case Syntax[$efront_string_Binary]:
+                    currentScope[$efront_string___refe](node[$efront_string_left]);
+                    currentScope[$efront_string___refe](node[$efront_string_right]);
                     break;
-                case Syntax[$efront_string__Break]:
+                case Syntax[$efront_string_BreakS]:
                     break;
-                case Syntax[$efront_string__CallE]:
-                    currentScope[$efront_string____ref](node[$efront_string__calle]);
-                    for (i = 0, iz = node[$efront_string__argum][$efront_string__lengt1]; i < iz; ++i) {
-                        currentScope[$efront_string____ref](node[$efront_string__argum][i])
-                    }
-                    if (!options[$efront_string__ignor] && node[$efront_string__calle][$efront_string__type_] === Syntax[$efront_string__Ident] && node[$efront_string__calle][$efront_string__name_] === $efront_string__eval_) {
-                        currentScope[$efront_string__varia1][$efront_string____det]()
-                    }
+                case Syntax[$efront_string_CallEx]:
+                    currentScope[$efront_string___refe](node[$efront_string_callee]);
+                    for (i = 0, iz = node[$efront_string_argume][$efront_string_length]; i < iz; ++i)
+                        currentScope[$efront_string___refe](node[$efront_string_argume][i]);
+                    !options[$efront_string_ignore] && node[$efront_string_callee][$efront_string_type] === Syntax[$efront_string_Identi] && node[$efront_string_callee][$efront_string_name] === $efront_string_eval && currentScope[$efront_string_variab1][$efront_string___dete]();
                     break;
-                case Syntax[$efront_string__Catch]:
-                    currentScope[$efront_string____def](node[$efront_string__param1], (_a = {}, _a[$efront_string__type_] = Variable[$efront_string__Catch], _a[$efront_string__name_] = node[$efront_string__param1], _a[$efront_string__node_] = node, _a));
+                case Syntax[$efront_string_CatchC]:
+                    currentScope[$efront_string___defi](node[$efront_string_param], (_a = {}, _a[$efront_string_type] = Variable[$efront_string_CatchC], _a[$efront_string_name] = node[$efront_string_param], _a[$efront_string_node] = node, _a));
                     break;
-                case Syntax[$efront_string__Condi]:
-                    currentScope[$efront_string____ref](node[$efront_string__test_]);
-                    currentScope[$efront_string____ref](node[$efront_string__conse]);
-                    currentScope[$efront_string____ref](node[$efront_string__alter]);
+                case Syntax[$efront_string_Condit]:
+                    currentScope[$efront_string___refe](node[$efront_string_test]);
+                    currentScope[$efront_string___refe](node[$efront_string_conseq]);
+                    currentScope[$efront_string___refe](node[$efront_string_altern]);
                     break;
-                case Syntax[$efront_string__Conti]:
+                case Syntax[$efront_string_Contin]:
                     break;
-                case Syntax[$efront_string__Direc]:
+                case Syntax[$efront_string_Direct]:
                     break;
-                case Syntax[$efront_string__DoWhi]:
-                    currentScope[$efront_string____ref](node[$efront_string__test_]);
+                case Syntax[$efront_string_DoWhil]:
+                    currentScope[$efront_string___refe](node[$efront_string_test]);
                     break;
-                case Syntax[$efront_string__Debug]:
+                case Syntax[$efront_string_Debugg]:
                     break;
-                case Syntax[$efront_string__Empty]:
+                case Syntax[$efront_string_EmptyS]:
                     break;
-                case Syntax[$efront_string__Expre]:
-                    currentScope[$efront_string____ref](node[$efront_string__expre]);
+                case Syntax[$efront_string_Expres]:
+                    currentScope[$efront_string___refe](node[$efront_string_expres]);
                     break;
-                case Syntax[$efront_string__ForSt]:
-                    currentScope[$efront_string____ref](node[$efront_string__init_]);
-                    currentScope[$efront_string____ref](node[$efront_string__test_]);
-                    currentScope[$efront_string____ref](node[$efront_string__updat]);
+                case Syntax[$efront_string_ForSta]:
+                    currentScope[$efront_string___refe](node[$efront_string_init]);
+                    currentScope[$efront_string___refe](node[$efront_string_test]);
+                    currentScope[$efront_string___refe](node[$efront_string_update]);
                     break;
-                case Syntax[$efront_string__ForIn]:
-                    if (node[$efront_string__left_][$efront_string__type_] === Syntax[$efront_string__Varia]) {
-                        currentScope[$efront_string____ref](node[$efront_string__left_][$efront_string__decla][0][$efront_string__id_], Reference[$efront_string__WRITE], null, false)
-                    } else {
-                        currentScope[$efront_string____ref](node[$efront_string__left_], Reference[$efront_string__WRITE], null, !currentScope[$efront_string__isStr] && node[$efront_string__left_][$efront_string__name_] != null && node)
-                    }
-                    currentScope[$efront_string____ref](node[$efront_string__right]);
+                case Syntax[$efront_string_ForInS]:
+                    node[$efront_string_left][$efront_string_type] === Syntax[$efront_string_Variab] ? currentScope[$efront_string___refe](node[$efront_string_left][$efront_string_declar][0][$efront_string_id], Reference[$efront_string_WRITE], null, !1) : currentScope[$efront_string___refe](node[$efront_string_left], Reference[$efront_string_WRITE], null, !currentScope[$efront_string_isStri] && node[$efront_string_left][$efront_string_name] != null && node);
+                    currentScope[$efront_string___refe](node[$efront_string_right]);
                     break;
-                case Syntax[$efront_string__Funct]:
-                    currentScope[$efront_string__upper][$efront_string____def](node[$efront_string__id_], (_b = {}, _b[$efront_string__type_] = Variable[$efront_string__Funct2], _b[$efront_string__name_] = node[$efront_string__id_], _b[$efront_string__node_] = node, _b));
-                    for (i = 0, iz = node[$efront_string__param][$efront_string__lengt1]; i < iz; ++i) {
-                        currentScope[$efront_string____def](node[$efront_string__param][i], (_c = {}, _c[$efront_string__type_] = Variable[$efront_string__Param], _c[$efront_string__name_] = node[$efront_string__param][i], _c[$efront_string__node_] = node, _c[$efront_string__index2] = i, _c))
-                    }
+                case Syntax[$efront_string_Functi]:
+                    currentScope[$efront_string_upper][$efront_string___defi](node[$efront_string_id], (_b = {}, _b[$efront_string_type] = Variable[$efront_string_Functi2], _b[$efront_string_name] = node[$efront_string_id], _b[$efront_string_node] = node, _b));
+                    for (i = 0, iz = node[$efront_string_params][$efront_string_length]; i < iz; ++i)
+                        currentScope[$efront_string___defi](node[$efront_string_params][i], (_c = {}, _c[$efront_string_type] = Variable[$efront_string_Parame], _c[$efront_string_name] = node[$efront_string_params][i], _c[$efront_string_node] = node, _c[$efront_string_index] = i, _c));
                     break;
-                case Syntax[$efront_string__Funct1]:
-                    for (i = 0, iz = node[$efront_string__param][$efront_string__lengt1]; i < iz; ++i) {
-                        currentScope[$efront_string____def](node[$efront_string__param][i], (_d = {}, _d[$efront_string__type_] = Variable[$efront_string__Param], _d[$efront_string__name_] = node[$efront_string__param][i], _d[$efront_string__node_] = node, _d[$efront_string__index2] = i, _d))
-                    }
+                case Syntax[$efront_string_Functi1]:
+                    for (i = 0, iz = node[$efront_string_params][$efront_string_length]; i < iz; ++i)
+                        currentScope[$efront_string___defi](node[$efront_string_params][i], (_d = {}, _d[$efront_string_type] = Variable[$efront_string_Parame], _d[$efront_string_name] = node[$efront_string_params][i], _d[$efront_string_node] = node, _d[$efront_string_index] = i, _d));
                     break;
-                case Syntax[$efront_string__Ident]:
+                case Syntax[$efront_string_Identi]:
                     break;
-                case Syntax[$efront_string__IfSta]:
-                    currentScope[$efront_string____ref](node[$efront_string__test_]);
+                case Syntax[$efront_string_IfStat]:
+                    currentScope[$efront_string___refe](node[$efront_string_test]);
                     break;
-                case Syntax[$efront_string__Liter]:
+                case Syntax[$efront_string_Litera]:
                     break;
-                case Syntax[$efront_string__Label]:
+                case Syntax[$efront_string_Labele]:
                     break;
-                case Syntax[$efront_string__Logic]:
-                    currentScope[$efront_string____ref](node[$efront_string__left_]);
-                    currentScope[$efront_string____ref](node[$efront_string__right]);
+                case Syntax[$efront_string_Logica]:
+                    currentScope[$efront_string___refe](node[$efront_string_left]);
+                    currentScope[$efront_string___refe](node[$efront_string_right]);
                     break;
-                case Syntax[$efront_string__Membe]:
-                    currentScope[$efront_string____ref](node[$efront_string__objec1]);
-                    if (node[$efront_string__compu]) {
-                        currentScope[$efront_string____ref](node[$efront_string__prope])
-                    }
+                case Syntax[$efront_string_Member]:
+                    currentScope[$efront_string___refe](node[$efront_string_object]);
+                    node[$efront_string_comput] && currentScope[$efront_string___refe](node[$efront_string_proper]);
                     break;
-                case Syntax[$efront_string__NewEx]:
-                    currentScope[$efront_string____ref](node[$efront_string__calle]);
-                    for (i = 0, iz = node[$efront_string__argum][$efront_string__lengt1]; i < iz; ++i) {
-                        currentScope[$efront_string____ref](node[$efront_string__argum][i])
-                    }
+                case Syntax[$efront_string_NewExp]:
+                    currentScope[$efront_string___refe](node[$efront_string_callee]);
+                    for (i = 0, iz = node[$efront_string_argume][$efront_string_length]; i < iz; ++i)
+                        currentScope[$efront_string___refe](node[$efront_string_argume][i]);
                     break;
-                case Syntax[$efront_string__Objec]:
-                    for (i = 0; i < node[$efront_string__prope1][$efront_string__lengt1]; i++) {
-                        if (node[$efront_string__prope1][i][$efront_string__kind_] === $efront_string__init_) {
-                            currentScope[$efront_string____ref](node[$efront_string__prope1][i][$efront_string__value1])
-                        }
-                    }
+                case Syntax[$efront_string_Object]:
+                    for (i = 0; i < node[$efront_string_proper1][$efront_string_length]; i++)
+                        node[$efront_string_proper1][i][$efront_string_kind] === $efront_string_init && currentScope[$efront_string___refe](node[$efront_string_proper1][i][$efront_string_value]);
                     break;
-                case Syntax[$efront_string__Progr]:
+                case Syntax[$efront_string_Progra]:
                     break;
-                case Syntax[$efront_string__Prope]:
+                case Syntax[$efront_string_Proper]:
                     break;
-                case Syntax[$efront_string__Retur]:
-                    currentScope[$efront_string____ref](node[$efront_string__argum1]);
+                case Syntax[$efront_string_Return]:
+                    currentScope[$efront_string___refe](node[$efront_string_argume1]);
                     break;
-                case Syntax[$efront_string__Seque]:
-                    for (i = 0, iz = node[$efront_string__expre1][$efront_string__lengt1]; i < iz; ++i) {
-                        currentScope[$efront_string____ref](node[$efront_string__expre1][i])
-                    }
+                case Syntax[$efront_string_Sequen]:
+                    for (i = 0, iz = node[$efront_string_expres1][$efront_string_length]; i < iz; ++i)
+                        currentScope[$efront_string___refe](node[$efront_string_expres1][i]);
                     break;
-                case Syntax[$efront_string__Switc]:
-                    currentScope[$efront_string____ref](node[$efront_string__discr]);
+                case Syntax[$efront_string_Switch]:
+                    currentScope[$efront_string___refe](node[$efront_string_discri]);
                     break;
-                case Syntax[$efront_string__Switc1]:
-                    currentScope[$efront_string____ref](node[$efront_string__test_]);
+                case Syntax[$efront_string_Switch1]:
+                    currentScope[$efront_string___refe](node[$efront_string_test]);
                     break;
-                case Syntax[$efront_string__ThisE]:
-                    currentScope[$efront_string__varia1][$efront_string____det1]();
+                case Syntax[$efront_string_ThisEx]:
+                    currentScope[$efront_string_variab1][$efront_string___dete1]();
                     break;
-                case Syntax[$efront_string__Throw]:
-                    currentScope[$efront_string____ref](node[$efront_string__argum1]);
+                case Syntax[$efront_string_ThrowS]:
+                    currentScope[$efront_string___refe](node[$efront_string_argume1]);
                     break;
-                case Syntax[$efront_string__TrySt]:
+                case Syntax[$efront_string_TrySta]:
                     break;
-                case Syntax[$efront_string__Unary]:
-                    currentScope[$efront_string____ref](node[$efront_string__argum1]);
+                case Syntax[$efront_string_UnaryE]:
+                    currentScope[$efront_string___refe](node[$efront_string_argume1]);
                     break;
-                case Syntax[$efront_string__Updat]:
-                    currentScope[$efront_string____ref](node[$efront_string__argum1], Reference[$efront_string__RW_], null);
+                case Syntax[$efront_string_Update]:
+                    currentScope[$efront_string___refe](node[$efront_string_argume1], Reference[$efront_string_RW], null);
                     break;
-                case Syntax[$efront_string__Varia]:
-                    for (i = 0, iz = node[$efront_string__decla][$efront_string__lengt1]; i < iz; ++i) {
-                        decl = node[$efront_string__decla][i];
-                        currentScope[$efront_string__varia1][$efront_string____def](decl[$efront_string__id_], (_e = {}, _e[$efront_string__type_] = Variable[$efront_string__Varia2], _e[$efront_string__name_] = decl[$efront_string__id_], _e[$efront_string__node_] = decl, _e[$efront_string__index2] = i, _e[$efront_string__paren] = node, _e));
-                        if (decl[$efront_string__init_]) {
-                            currentScope[$efront_string____ref](decl[$efront_string__id_], Reference[$efront_string__WRITE], decl[$efront_string__init_], false);
-                            currentScope[$efront_string____ref](decl[$efront_string__init_])
-                        }
-                    }
+                case Syntax[$efront_string_Variab]:
+                    for (i = 0, iz = node[$efront_string_declar][$efront_string_length]; i < iz; ++i)
+                        decl = node[$efront_string_declar][i], currentScope[$efront_string_variab1][$efront_string___defi](decl[$efront_string_id], (_e = {}, _e[$efront_string_type] = Variable[$efront_string_Variab2], _e[$efront_string_name] = decl[$efront_string_id], _e[$efront_string_node] = decl, _e[$efront_string_index] = i, _e[$efront_string_parent] = node, _e)), decl[$efront_string_init] && (currentScope[$efront_string___refe](decl[$efront_string_id], Reference[$efront_string_WRITE], decl[$efront_string_init], !1), currentScope[$efront_string___refe](decl[$efront_string_init]));
                     break;
-                case Syntax[$efront_string__Varia1]:
+                case Syntax[$efront_string_Variab1]:
                     break;
-                case Syntax[$efront_string__While]:
-                    currentScope[$efront_string____ref](node[$efront_string__test_]);
+                case Syntax[$efront_string_WhileS]:
+                    currentScope[$efront_string___refe](node[$efront_string_test]);
                     break;
-                case Syntax[$efront_string__WithS]:
-                    currentScope[$efront_string__upper][$efront_string____ref](node[$efront_string__objec1]);
+                case Syntax[$efront_string_WithSt]:
+                    currentScope[$efront_string_upper][$efront_string___refe](node[$efront_string_object]);
                     break
                 }
-            }, _a[$efront_string__leave] = function leave(node) {
-                while (currentScope && node === currentScope[$efront_string__block]) {
-                    currentScope[$efront_string____clo]()
-                }
-            }, _a));
-            assert(currentScope === null);
-            globalScope = null;
-            scopes = null;
-            options = null;
-            return new ScopeManager(resultScopes)
+            }, _a[$efront_string_leave] = function leave(node) {
+                while (currentScope && node === currentScope[$efront_string_block])
+                    currentScope[$efront_string___clos]()
+            }, _a)), assert(currentScope === null), globalScope = null, scopes = null, options = null, new ScopeManager(resultScopes)
         }
-        exports[$efront_string__versi] = $efront_string__1_0_3;
-        exports[$efront_string__Refer] = Reference;
-        exports[$efront_string__Varia2] = Variable;
-        exports[$efront_string__Scope] = Scope;
-        exports[$efront_string__Scope1] = ScopeManager;
-        exports[$efront_string__analy] = analyze
+        var Syntax, Map, currentScope, globalScope, scopes, options;
+        Syntax = estraverse[$efront_string_Syntax], typeof global[$efront_string_Map] !== $efront_string_undefi ? Map = global[$efront_string_Map] : (Map = function Map() {
+            this[$efront_string___data] = {}
+        }, Map[$efront_string_protot][$efront_string_get] = function MapGet(key) {
+            return key = $efront_string_$ + key, this[$efront_string___data][$efront_string_hasOwn](key) ? this[$efront_string___data][key] : undefined
+        }, Map[$efront_string_protot][$efront_string_has] = function MapHas(key) {
+            return key = $efront_string_$ + key, this[$efront_string___data][$efront_string_hasOwn](key)
+        }, Map[$efront_string_protot][$efront_string_set] = function MapSet(key, val) {
+            key = $efront_string_$ + key, this[$efront_string___data][key] = val
+        }, Map[$efront_string_protot][$efront_string_delete] = function MapDelete(key) {
+            return key = $efront_string_$ + key, delete this[$efront_string___data][key]
+        }), Reference[$efront_string_READ] = 1, Reference[$efront_string_WRITE] = 2, Reference[$efront_string_RW] = 3, Reference[$efront_string_protot][$efront_string_isStat] = function isStatic() {
+            return !this[$efront_string_tainte] && this[$efront_string_resolv] && this[$efront_string_resolv][$efront_string_scope][$efront_string_isStat]()
+        }, Reference[$efront_string_protot][$efront_string_isWrit] = function isWrite() {
+            return this[$efront_string_flag] & Reference[$efront_string_WRITE]
+        }, Reference[$efront_string_protot][$efront_string_isRead] = function isRead() {
+            return this[$efront_string_flag] & Reference[$efront_string_READ]
+        }, Reference[$efront_string_protot][$efront_string_isRead1] = function isReadOnly() {
+            return this[$efront_string_flag] === Reference[$efront_string_READ]
+        }, Reference[$efront_string_protot][$efront_string_isWrit1] = function isWriteOnly() {
+            return this[$efront_string_flag] === Reference[$efront_string_WRITE]
+        }, Reference[$efront_string_protot][$efront_string_isRead2] = function isReadWrite() {
+            return this[$efront_string_flag] === Reference[$efront_string_RW]
+        }, Variable[$efront_string_CatchC] = $efront_string_CatchC, Variable[$efront_string_Parame] = $efront_string_Parame, Variable[$efront_string_Functi2] = $efront_string_Functi2, Variable[$efront_string_Variab2] = $efront_string_Variab2, Variable[$efront_string_Implic] = $efront_string_Implic, Scope[$efront_string_protot][$efront_string___clos] = function __close() {
+            var _a, i, iz, ref, current, node, implicit;
+            if (!this[$efront_string_dynami] || options[$efront_string_optimi])
+                for (i = 0, iz = this[$efront_string_left][$efront_string_length]; i < iz; ++i)
+                    ref = this[$efront_string_left][i], this[$efront_string___reso](ref) || this[$efront_string___dele](ref);
+            else if (this[$efront_string_type] === $efront_string_with)
+                for (i = 0, iz = this[$efront_string_left][$efront_string_length]; i < iz; ++i)
+                    ref = this[$efront_string_left][i], ref[$efront_string_tainte] = !0, this[$efront_string___dele](ref);
+            else
+                for (i = 0, iz = this[$efront_string_left][$efront_string_length]; i < iz; ++i) {
+                    ref = this[$efront_string_left][i], current = this;
+                    do
+                        current[$efront_string_throug][$efront_string_push](ref), current = current[$efront_string_upper];
+                    while (current)
+                }
+            if (this[$efront_string_type] === $efront_string_global) {
+                for (implicit = [], i = 0, iz = this[$efront_string_left][$efront_string_length]; i < iz; ++i)
+                    ref = this[$efront_string_left][i], ref[$efront_string___mayb] && !this[$efront_string_set][$efront_string_has](ref[$efront_string_identi][$efront_string_name]) && implicit[$efront_string_push](ref[$efront_string___mayb]);
+                for (i = 0, iz = implicit[$efront_string_length]; i < iz; ++i)
+                    node = implicit[i], this[$efront_string___defi1](node[$efront_string_left], (_a = {}, _a[$efront_string_type] = Variable[$efront_string_Implic], _a[$efront_string_name] = node[$efront_string_left], _a[$efront_string_node] = node, _a))
+            }
+            this[$efront_string_left] = null, currentScope = this[$efront_string_upper]
+        }, Scope[$efront_string_protot][$efront_string___reso] = function __resolve(ref) {
+            var variable, name;
+            return name = ref[$efront_string_identi][$efront_string_name], this[$efront_string_set][$efront_string_has](name) ? (variable = this[$efront_string_set][$efront_string_get](name), variable[$efront_string_refere][$efront_string_push](ref), variable[$efront_string_stack] = variable[$efront_string_stack] && ref[$efront_string_from][$efront_string_variab1] === this[$efront_string_variab1], ref[$efront_string_tainte] && (variable[$efront_string_tainte] = !0, this[$efront_string_taints][$efront_string_set](variable[$efront_string_name], !0)), ref[$efront_string_resolv] = variable, !0) : !1
+        }, Scope[$efront_string_protot][$efront_string___dele] = function __delegateToUpperScope(ref) {
+            this[$efront_string_upper] && this[$efront_string_upper][$efront_string_left][$efront_string_push](ref), this[$efront_string_throug][$efront_string_push](ref)
+        }, Scope[$efront_string_protot][$efront_string___defi1] = function __defineImplicit(node, info) {
+            var name, variable;
+            node && node[$efront_string_type] === Syntax[$efront_string_Identi] && (name = node[$efront_string_name], this[$efront_string_implic][$efront_string_set][$efront_string_has](name) ? (variable = this[$efront_string_implic][$efront_string_set][$efront_string_get](name), variable[$efront_string_identi1][$efront_string_push](node), variable[$efront_string_defs][$efront_string_push](info)) : (variable = new Variable(name, this), variable[$efront_string_identi1][$efront_string_push](node), variable[$efront_string_defs][$efront_string_push](info), this[$efront_string_implic][$efront_string_set][$efront_string_set](name, variable), this[$efront_string_implic][$efront_string_variab][$efront_string_push](variable)))
+        }, Scope[$efront_string_protot][$efront_string___defi] = function __define(node, info) {
+            var name, variable;
+            node && node[$efront_string_type] === Syntax[$efront_string_Identi] && (name = node[$efront_string_name], this[$efront_string_set][$efront_string_has](name) ? (variable = this[$efront_string_set][$efront_string_get](name), variable[$efront_string_identi1][$efront_string_push](node), variable[$efront_string_defs][$efront_string_push](info)) : (variable = new Variable(name, this), variable[$efront_string_identi1][$efront_string_push](node), variable[$efront_string_defs][$efront_string_push](info), this[$efront_string_set][$efront_string_set](name, variable), this[$efront_string_variab][$efront_string_push](variable)))
+        }, Scope[$efront_string_protot][$efront_string___refe] = function __referencing(node, assign, writeExpr, maybeImplicitGlobal) {
+            var ref;
+            node && node[$efront_string_type] === Syntax[$efront_string_Identi] && (ref = new Reference(node, this, assign || Reference[$efront_string_READ], writeExpr, maybeImplicitGlobal), this[$efront_string_refere][$efront_string_push](ref), this[$efront_string_left][$efront_string_push](ref))
+        }, Scope[$efront_string_protot][$efront_string___dete] = function __detectEval() {
+            var current;
+            current = this, this[$efront_string_direct2] = !0;
+            do
+                current[$efront_string_dynami] = !0, current = current[$efront_string_upper];
+            while (current)
+        }, Scope[$efront_string_protot][$efront_string___dete1] = function __detectThis() {
+            this[$efront_string_thisFo] = !0
+        }, Scope[$efront_string_protot][$efront_string___isCl] = function isClosed() {
+            return this[$efront_string_left] === null
+        }, Scope[$efront_string_protot][$efront_string_resolv1] = function resolve(ident) {
+            var ref, i, iz;
+            for (assert(this[$efront_string___isCl](), $efront_string_scope_), assert(ident[$efront_string_type] === Syntax[$efront_string_Identi], $efront_string_target), i = 0, iz = this[$efront_string_refere][$efront_string_length]; i < iz; ++i)
+                if (ref = this[$efront_string_refere][i], ref[$efront_string_identi] === ident)
+                    return ref;
+            return null
+        }, Scope[$efront_string_protot][$efront_string_isStat] = function isStatic() {
+            return !this[$efront_string_dynami]
+        }, Scope[$efront_string_protot][$efront_string_isArgu] = function isArgumentsMaterialized() {
+            var variable;
+            return this[$efront_string_type] !== $efront_string_functi ? !0 : this[$efront_string_isStat]() ? (variable = this[$efront_string_set][$efront_string_get]($efront_string_argume), assert(variable, $efront_string_always), variable[$efront_string_tainte] || variable[$efront_string_refere][$efront_string_length] !== 0) : !0
+        }, Scope[$efront_string_protot][$efront_string_isThis] = function isThisMaterialized() {
+            return this[$efront_string_type] !== $efront_string_functi ? !0 : this[$efront_string_isStat]() ? this[$efront_string_thisFo] : !0
+        }, Scope[$efront_string_mangle] = $efront_string___$esc, Scope[$efront_string_protot][$efront_string_attach2] = function attach() {
+            this[$efront_string_functi1] || (this[$efront_string_block][Scope[$efront_string_mangle]] = this)
+        }, Scope[$efront_string_protot][$efront_string_detach] = function detach() {
+            this[$efront_string_functi1] || delete this[$efront_string_block][Scope[$efront_string_mangle]]
+        }, Scope[$efront_string_protot][$efront_string_isUsed] = function (name) {
+            if (this[$efront_string_set][$efront_string_has](name))
+                return !0;
+            for (var i = 0, iz = this[$efront_string_throug][$efront_string_length]; i < iz; ++i)
+                if (this[$efront_string_throug][i][$efront_string_identi][$efront_string_name] === name)
+                    return !0;
+            return !1
+        }, ScopeManager[$efront_string_protot][$efront_string___get] = function __get(node) {
+            var i, iz, scope;
+            if (this[$efront_string_attach3])
+                return node[Scope[$efront_string_mangle]] || null;
+            if (Scope[$efront_string_isScop](node))
+                for (i = 0, iz = this[$efront_string_scopes][$efront_string_length]; i < iz; ++i)
+                    if (scope = this[$efront_string_scopes][i], !scope[$efront_string_functi1] && scope[$efront_string_block] === node)
+                        return scope;
+            return null
+        }, ScopeManager[$efront_string_protot][$efront_string_acquir] = function acquire(node) {
+            return this[$efront_string___get](node)
+        }, ScopeManager[$efront_string_protot][$efront_string_releas] = function release(node) {
+            var scope = this[$efront_string___get](node);
+            if (scope) {
+                scope = scope[$efront_string_upper];
+                while (scope) {
+                    if (!scope[$efront_string_functi1])
+                        return scope;
+                    scope = scope[$efront_string_upper]
+                }
+            }
+            return null
+        }, ScopeManager[$efront_string_protot][$efront_string_attach2] = function attach() {
+            var i, iz;
+            for (i = 0, iz = this[$efront_string_scopes][$efront_string_length]; i < iz; ++i)
+                this[$efront_string_scopes][i][$efront_string_attach2]();
+            this[$efront_string_attach3] = !0
+        }, ScopeManager[$efront_string_protot][$efront_string_detach] = function detach() {
+            var i, iz;
+            for (i = 0, iz = this[$efront_string_scopes][$efront_string_length]; i < iz; ++i)
+                this[$efront_string_scopes][i][$efront_string_detach]();
+            this[$efront_string_attach3] = !1
+        }, Scope[$efront_string_isScop] = function isScopeRequired(node) {
+            return Scope[$efront_string_isVari](node) || node[$efront_string_type] === Syntax[$efront_string_WithSt] || node[$efront_string_type] === Syntax[$efront_string_CatchC]
+        }, Scope[$efront_string_isVari] = function isVariableScopeRequired(node) {
+            return node[$efront_string_type] === Syntax[$efront_string_Progra] || node[$efront_string_type] === Syntax[$efront_string_Functi1] || node[$efront_string_type] === Syntax[$efront_string_Functi]
+        }, exports[$efront_string_versio] = $efront_string_1_0_3, exports[$efront_string_Refere] = Reference, exports[$efront_string_Variab2] = Variable, exports[$efront_string_Scope] = Scope, exports[$efront_string_ScopeM] = ScopeManager, exports[$efront_string_analyz] = analyze
     }, this)
 }],
-/** 493 esutils */ [1,function(require) {
-    return require(407)
+/** 475 esutils */ [1,function(require) {
+    return require(390)
 }],
-/** 494 escope */ [1,function(require) {
-    return require(492)
+/** 476 escope */ [1,function(require) {
+    return require(474)
 }],
-/** 495 $efront_string__slice1 */ 'slice',
-/** 496 $efront_string__is_ */ 'is',
-/** 497 $efront_string__Unrea */ /** text */ 'Unreachable point. logically broken.',
-/** 498 $efront_string__loc_ */ 'loc',
-/** 499 $efront_string__numbe */ 'number',
-/** 500 $efront_string__4 */ '-',
-/** 501 $efront_string__conca1 */ 'concat',
-/** 502 $efront_string__strin2 */ 'stringRepeat',
-/** 503 $efront_string__sameV */ 'sameValue',
-/** 504 $efront_string__Array2 */ 'Array',
-/** 505 $efront_string__of_ */ 'of',
-/** 506 $efront_string__last_ */ 'last',
-/** 507 $efront_string__empty */ 'empty',
-/** 508 $efront_string__Objec2 */ 'Object',
-/** 509 $efront_string__isObj */ 'isObject',
-/** 510 $efront_string__asser */ 'assert',
-/** 511 $efront_string__unrea */ 'unreachable',
-/** 512 $efront_string__isIde3 */ 'isIdentifier',
-/** 513 $efront_string__moveL */ 'moveLocation',
-/** 514 $efront_string__delet1 */ 'deleteLocation',
-/** 515 $efront_string__conve */ 'convertToEmptyStatement',
-/** 516 $efront_string__mayBe */ 'mayBeCompletionValue',
-/** 517 $efront_string__isNeg */ 'isNegative',
-/** 518 $efront_string__isFun */ 'isFunctionBody',
-/** 519 $efront_string__Speci */ 'SpecialNode',
-/** 520 $efront_string__gener1 */ 'generateNegative',
-/** 521 $efront_string__gener2 */ 'generateUndefined',
-/** 522 $efront_string__isUnd */ 'isUndefined',
-/** 523 $efront_string__gener3 */ 'generateNaN',
-/** 524 $efront_string__isNaN */ 'isNaN',
-/** 525 $efront_string__isRef */ 'isReference',
-/** 526 $efront_string__canEx */ 'canExtractSequence',
-/** 527 $efront_string__gener4 */ 'generateFromValue',
-/** 528 $efront_string__deleg */ 'delegateVariableDeclarations',
-/** 529 $efront_string__isSco1 */ 'isScopedDeclaration',
-/** 530 common.js */ [1,15,70,30,71,16,358,67,68,196,124,51,125,61,126,127,54,495,128,496,287,288,497,406,400,402,403,187,93,97,96,79,108,135,113,142,498,198,92,100,150,499,117,481,500,152,378,80,307,129,130,98,103,82,215,398,463,423,57,388,118,183,186,119,486,366,384,161,145,63,199,163,489,480,371,95,162,501,295,502,503,504,413,505,506,507,508,509,55,165,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,527,528,529,function(require, Array, Object, RegExp, Error, String, isNaN, undefined, exports, $efront_string__Synta, $efront_string__isArr, $efront_string__proto, $efront_string__toStr, $efront_string__call_1, $efront_string__objec, $efront_string__objec1, $efront_string__hasOw, $efront_string__slice1, $efront_string__lengt1, $efront_string__is_, $efront_string__lastI, $efront_string_____, $efront_string__Unrea, $efront_string__keywo, $efront_string__isKey, $efront_string__isRes, $efront_string__isIde2, $efront_string__type_, $efront_string__Expre, $efront_string__Funct1, $efront_string__Funct, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__Switc1, $efront_string__conse, $efront_string__loc_, $efront_string__Visit, $efront_string__Empty, $efront_string__Liter, $efront_string__value1, $efront_string__numbe, $efront_string__Unary, $efront_string__opera, $efront_string__4, $efront_string__argum1, $efront_string__void_, $efront_string__Binar, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__Ident, $efront_string__Membe, $efront_string__CallE, $efront_string__name_, $efront_string__eval_, $efront_string__resol1, $efront_string__isSta, $efront_string__delet, $efront_string__typeo, $efront_string__Updat, $efront_string__trave, $efront_string__enter, $efront_string__Varia, $efront_string__kind_, $efront_string__let_, $efront_string__const, $efront_string__decla, $efront_string__init_, $efront_string__push_, $efront_string__Visit1, $efront_string__Skip_, $efront_string__Scope, $efront_string__isVar, $efront_string__var_, $efront_string__ForIn, $efront_string__Break1, $efront_string__conca1, $efront_string__deepC, $efront_string__strin2, $efront_string__sameV, $efront_string__Array2, $efront_string__from_, $efront_string__of_, $efront_string__last_, $efront_string__empty, $efront_string__Objec2, $efront_string__isObj, $efront_string__has_, $efront_string__repla, $efront_string__asser, $efront_string__unrea, $efront_string__isIde3, $efront_string__moveL, $efront_string__delet1, $efront_string__conve, $efront_string__mayBe, $efront_string__isNeg, $efront_string__isFun, $efront_string__Speci, $efront_string__gener1, $efront_string__gener2, $efront_string__isUnd, $efront_string__gener3, $efront_string__isNaN, $efront_string__isRef, $efront_string__canEx, $efront_string__gener4, $efront_string__deleg, $efront_string__isSco1) {
-    return function () {
+/** 477 $efront_string_is */ "is",
+/** 478 $efront_string_Unreac */ /** text */ "Unreachable point. logically broken.",
+/** 479 $efront_string_loc */ "loc",
+/** 480 $efront_string_number */ "number",
+/** 481 $efront_string__4 */ "-",
+/** 482 $efront_string_string1 */ "stringRepeat",
+/** 483 $efront_string_sameVa */ "sameValue",
+/** 484 $efront_string_Array */ "Array",
+/** 485 $efront_string_of */ "of",
+/** 486 $efront_string_last */ "last",
+/** 487 $efront_string_empty */ "empty",
+/** 488 $efront_string_Object2 */ "Object",
+/** 489 $efront_string_isObje */ "isObject",
+/** 490 $efront_string_assert */ "assert",
+/** 491 $efront_string_unreac */ "unreachable",
+/** 492 $efront_string_isIden3 */ "isIdentifier",
+/** 493 $efront_string_moveLo */ "moveLocation",
+/** 494 $efront_string_delete1 */ "deleteLocation",
+/** 495 $efront_string_conver */ "convertToEmptyStatement",
+/** 496 $efront_string_mayBeC */ "mayBeCompletionValue",
+/** 497 $efront_string_isNega */ "isNegative",
+/** 498 $efront_string_isFunc */ "isFunctionBody",
+/** 499 $efront_string_Specia */ "SpecialNode",
+/** 500 $efront_string_genera1 */ "generateNegative",
+/** 501 $efront_string_genera2 */ "generateUndefined",
+/** 502 $efront_string_isUnde */ "isUndefined",
+/** 503 $efront_string_genera3 */ "generateNaN",
+/** 504 $efront_string_isNaN */ "isNaN",
+/** 505 $efront_string_isRefe */ "isReference",
+/** 506 $efront_string_canExt */ "canExtractSequence",
+/** 507 $efront_string_genera4 */ "generateFromValue",
+/** 508 $efront_string_delega */ "delegateVariableDeclarations",
+/** 509 $efront_string_isScop1 */ "isScopedDeclaration",
+/** 510 common.js */ [1,54,55,16,56,17,341,51,52,180,109,36,110,12,111,112,39,2,3,477,271,272,478,389,383,385,386,171,78,82,81,64,93,119,98,126,479,182,77,85,134,480,102,463,481,136,361,65,290,113,114,83,88,67,199,381,445,406,42,371,103,167,170,104,468,349,367,145,129,47,183,147,471,462,354,80,146,5,278,482,483,484,396,485,486,487,488,489,40,149,490,491,492,493,494,495,496,497,498,499,500,501,502,503,504,505,506,507,508,509,function(require, Array, Object, RegExp, Error, String, isNaN, undefined, exports, $efront_string_Syntax, $efront_string_isArra, $efront_string_protot, $efront_string_toStri, $efront_string_call, $efront_string__objec, $efront_string_object, $efront_string_hasOwn, $efront_string_slice, $efront_string_length, $efront_string_is, $efront_string_lastIn, $efront_string___, $efront_string_Unreac, $efront_string_keywor, $efront_string_isKeyw, $efront_string_isRest, $efront_string_isIden2, $efront_string_type, $efront_string_Expres, $efront_string_Functi1, $efront_string_Functi, $efront_string_BlockS, $efront_string_Progra, $efront_string_body, $efront_string_Switch1, $efront_string_conseq, $efront_string_loc, $efront_string_Visito, $efront_string_EmptyS, $efront_string_Litera, $efront_string_value, $efront_string_number, $efront_string_UnaryE, $efront_string_operat, $efront_string__4, $efront_string_argume1, $efront_string_void, $efront_string_Binary, $efront_string__1, $efront_string_left, $efront_string_right, $efront_string_Identi, $efront_string_Member, $efront_string_CallEx, $efront_string_name, $efront_string_eval, $efront_string_resolv1, $efront_string_isStat, $efront_string_delete, $efront_string_typeof, $efront_string_Update, $efront_string_traver, $efront_string_enter, $efront_string_Variab, $efront_string_kind, $efront_string_let, $efront_string_const, $efront_string_declar, $efront_string_init, $efront_string_push, $efront_string_Visito1, $efront_string_Skip, $efront_string_Scope, $efront_string_isVari, $efront_string_var, $efront_string_ForInS, $efront_string_Break, $efront_string_concat, $efront_string_deepCo, $efront_string_string1, $efront_string_sameVa, $efront_string_Array, $efront_string_from, $efront_string_of, $efront_string_last, $efront_string_empty, $efront_string_Object2, $efront_string_isObje, $efront_string_has, $efront_string_replac, $efront_string_assert, $efront_string_unreac, $efront_string_isIden3, $efront_string_moveLo, $efront_string_delete1, $efront_string_conver, $efront_string_mayBeC, $efront_string_isNega, $efront_string_isFunc, $efront_string_Specia, $efront_string_genera1, $efront_string_genera2, $efront_string_isUnde, $efront_string_genera3, $efront_string_isNaN, $efront_string_isRefe, $efront_string_canExt, $efront_string_genera4, $efront_string_delega, $efront_string_isScop1) {
+    return function (_a, _b, _c, Syntax, isArray, arrayFrom, arrayOf, has, sameValue, estraverse, escope, esutils) {
         'use strict';
-        var _a, _b, _c;
-        var Syntax, isArray, arrayFrom, arrayOf, has, sameValue, estraverse, escope, esutils;
-        estraverse = require(299);
-        escope = require(494);
-        esutils = require(493);
-        Syntax = estraverse[$efront_string__Synta];
-        isArray = Array[$efront_string__isArr];
-        if (!isArray) {
-            isArray = function isArray(array) {
-                return Object[$efront_string__proto][$efront_string__toStr][$efront_string__call_1](array) === $efront_string__objec
-            }
-        }
         function isObject(obj) {
-            return typeof obj === $efront_string__objec1 && obj !== null
+            return typeof obj === $efront_string_object && obj !== null
         }
-        has = function () {
-            var method = {}[$efront_string__hasOw];
-            return function has(obj, prop) {
-                return method[$efront_string__call_1](obj, prop)
-            }
-        }();
-        arrayFrom = function () {
-            var slice = Array[$efront_string__proto][$efront_string__slice1];
-            return function arrayFrom(array) {
-                return slice[$efront_string__call_1](array)
-            }
-        }();
-        arrayOf = function () {
-            var slice = Array[$efront_string__proto][$efront_string__slice1];
-            return function arrayOf() {
-                return slice[$efront_string__call_1](arguments)
-            }
-        }();
         function arrayLast(array) {
-            return array[array[$efront_string__lengt1] - 1]
+            return array[array[$efront_string_length] - 1]
         }
         function arrayEmpty(array) {
-            return array[$efront_string__lengt1] === 0
+            return array[$efront_string_length] === 0
         }
         function stringRepeat(str, num) {
             var result = '';
-            for (num |= 0; num > 0; num >>>= 1, str += str) {
-                if (num & 1) {
-                    result += str
-                }
-            }
+            for (num |= 0; num > 0; num >>>= 1, str += str)
+                num & 1 && (result += str);
             return result
-        }
-        if (Object[$efront_string__is_]) {
-            sameValue = Object[$efront_string__is_]
-        } else {
-            sameValue = function sameValue(x, y) {
-                if (x === y) {
-                    return x !== 0 || 1 / x === 1 / y
-                }
-                return x !== x && y !== y
-            }
         }
         function deepCopy(obj) {
             function deepCopyInternal(obj, result) {
                 var key, val;
                 for (key in obj) {
-                    if (key[$efront_string__lastI]($efront_string_____, 0) === 0) {
-                        continue
-                    }
-                    if (obj[$efront_string__hasOw](key)) {
-                        val = obj[key];
-                        if (typeof val === $efront_string__objec1 && val !== null) {
-                            if (val instanceof RegExp) {
-                                val = new RegExp(val)
-                            } else {
-                                val = deepCopyInternal(val, isArray(val) ? [] : {})
-                            }
-                        }
-                        result[key] = val
-                    }
+                    if (key[$efront_string_lastIn]($efront_string___, 0) === 0)
+                        continue;
+                    obj[$efront_string_hasOwn](key) && (val = obj[key], typeof val === $efront_string_object && val !== null && (val instanceof RegExp ? val = new RegExp(val) : val = deepCopyInternal(val, isArray(val) ? [] : {})), result[key] = val)
                 }
                 return result
             }
             return deepCopyInternal(obj, isArray(obj) ? [] : {})
         }
         function assert(cond, text) {
-            if (!cond) {
+            if (!cond)
                 throw new Error(text)
-            }
         }
         function unreachable() {
-            throw new Error($efront_string__Unrea)
+            throw new Error($efront_string_Unreac)
         }
         function isIdentifier(name) {
-            if (esutils[$efront_string__keywo][$efront_string__isKey](name, true) || esutils[$efront_string__keywo][$efront_string__isRes](name)) {
-                return false
-            }
-            return esutils[$efront_string__keywo][$efront_string__isIde2](name)
+            return esutils[$efront_string_keywor][$efront_string_isKeyw](name, !0) || esutils[$efront_string_keywor][$efront_string_isRest](name) ? !1 : esutils[$efront_string_keywor][$efront_string_isIden2](name)
         }
         function mayBeCompletionValue(node, ancestors) {
             var i, ancestor;
-            if (node[$efront_string__type_] !== Syntax[$efront_string__Expre]) {
-                return true
-            }
-            for (i = ancestors[$efront_string__lengt1] - 1; i >= 0; --i, node = ancestor) {
+            if (node[$efront_string_type] !== Syntax[$efront_string_Expres])
+                return !0;
+            for (i = ancestors[$efront_string_length] - 1; i >= 0; --i, node = ancestor) {
                 ancestor = ancestors[i];
-                switch (ancestor[$efront_string__type_]) {
-                case Syntax[$efront_string__Funct1]:
-                case Syntax[$efront_string__Funct]:
-                    return false;
-                case Syntax[$efront_string__Block]:
-                case Syntax[$efront_string__Progr]:
-                    if (arrayLast(ancestor[$efront_string__body_]) !== node) {
-                        return false
-                    }
+                switch (ancestor[$efront_string_type]) {
+                case Syntax[$efront_string_Functi1]:
+                case Syntax[$efront_string_Functi]:
+                    return !1;
+                case Syntax[$efront_string_BlockS]:
+                case Syntax[$efront_string_Progra]:
+                    if (arrayLast(ancestor[$efront_string_body]) !== node)
+                        return !1;
                     break;
-                case Syntax[$efront_string__Switc1]:
-                    if (arrayLast(ancestor[$efront_string__conse]) !== node) {
-                        return false
-                    }
+                case Syntax[$efront_string_Switch1]:
+                    if (arrayLast(ancestor[$efront_string_conseq]) !== node)
+                        return !1;
                     break
                 }
             }
-            return true
+            return !0
         }
         function moveLocation(from, to) {
-            if (from[$efront_string__loc_] == null) {
-                return to
-            }
-            to[$efront_string__loc_] = deepCopy(from[$efront_string__loc_]);
-            return to
+            return from[$efront_string_loc] == null ? to : (to[$efront_string_loc] = deepCopy(from[$efront_string_loc]), to)
         }
         function deleteLocation(node) {
-            if (node[$efront_string__hasOw]($efront_string__loc_)) {
-                return delete node[$efront_string__loc_]
-            }
-            return false
+            return node[$efront_string_hasOwn]($efront_string_loc) ? delete node[$efront_string_loc] : !1
         }
         function convertToEmptyStatement(node) {
             var i, iz, keys;
-            keys = estraverse[$efront_string__Visit][node[$efront_string__type_]];
-            for (i = 0, iz = keys[$efront_string__lengt1]; i < iz; ++i) {
-                delete node[keys[i]]
-            }
-            node[$efront_string__type_] = Syntax[$efront_string__Empty];
-            return node
+            for (keys = estraverse[$efront_string_Visito][node[$efront_string_type]], i = 0, iz = keys[$efront_string_length]; i < iz; ++i)
+                delete node[keys[i]];
+            return node[$efront_string_type] = Syntax[$efront_string_EmptyS], node
         }
         function isNegative(value) {
             return value === value && (value < 0 || value === 0 && 1 / value < 0)
         }
         function isFunctionBody(node, parent) {
-            return node[$efront_string__type_] === Syntax[$efront_string__Block] && (parent[$efront_string__type_] === Syntax[$efront_string__Funct] || parent[$efront_string__type_] === Syntax[$efront_string__Funct1])
+            return node[$efront_string_type] === Syntax[$efront_string_BlockS] && (parent[$efront_string_type] === Syntax[$efront_string_Functi] || parent[$efront_string_type] === Syntax[$efront_string_Functi1])
         }
         function isNumberLiteral(node) {
-            return node[$efront_string__type_] === Syntax[$efront_string__Liter] && typeof node[$efront_string__value1] === $efront_string__numbe
+            return node[$efront_string_type] === Syntax[$efront_string_Litera] && typeof node[$efront_string_value] === $efront_string_number
         }
         function isOptimizedArgument(argument) {
-            return isNumberLiteral(argument) && String(argument[$efront_string__value1])[$efront_string__lengt1] === 1
+            return isNumberLiteral(argument) && String(argument[$efront_string_value])[$efront_string_length] === 1
         }
         function generateNegativeNode(value, node) {
-            var _a, _b;
-            var result;
-            result = (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__4, _a[$efront_string__argum1] = (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Liter], _b[$efront_string__value1] = -value, _b), _a);
-            return node ? moveLocation(node, result) : result
+            var _a, _b, result;
+            return _a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string__4, _b = {}, _b[$efront_string_type] = Syntax[$efront_string_Litera], _b[$efront_string_value] = -value, _a[$efront_string_argume1] = _b, result = _a, node ? moveLocation(node, result) : result
         }
         function isNegativeNode(node) {
-            return node[$efront_string__type_] === Syntax[$efront_string__Unary] && node[$efront_string__opera] === $efront_string__4 && isNumberLiteral(node[$efront_string__argum1])
+            return node[$efront_string_type] === Syntax[$efront_string_UnaryE] && node[$efront_string_operat] === $efront_string__4 && isNumberLiteral(node[$efront_string_argume1])
         }
         function generateUndefined(node) {
-            var _a, _b;
-            var result = (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__void_, _a[$efront_string__argum1] = (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Liter], _b[$efront_string__value1] = 0, _b), _a);
+            var _a, _b, result = (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string_void, _b = {}, _b[$efront_string_type] = Syntax[$efront_string_Litera], _b[$efront_string_value] = 0, _a[$efront_string_argume1] = _b, _a);
             return node ? moveLocation(node, result) : result
         }
         function isUndefined(node) {
-            return node[$efront_string__type_] === Syntax[$efront_string__Unary] && node[$efront_string__opera] === $efront_string__void_ && isOptimizedArgument(node[$efront_string__argum1])
+            return node[$efront_string_type] === Syntax[$efront_string_UnaryE] && node[$efront_string_operat] === $efront_string_void && isOptimizedArgument(node[$efront_string_argume1])
         }
         function generateNaN(node) {
-            var _a, _b, _c;
-            var result = (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Binar], _a[$efront_string__opera] = $efront_string__1, _a[$efront_string__left_] = (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Liter], _b[$efront_string__value1] = 0, _b), _a[$efront_string__right] = (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Liter], _c[$efront_string__value1] = 0, _c), _a);
+            var _a, _b, _c, result = (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Binary], _a[$efront_string_operat] = $efront_string__1, _b = {}, _b[$efront_string_type] = Syntax[$efront_string_Litera], _b[$efront_string_value] = 0, _a[$efront_string_left] = _b, _c = {}, _c[$efront_string_type] = Syntax[$efront_string_Litera], _c[$efront_string_value] = 0, _a[$efront_string_right] = _c, _a);
             return node ? moveLocation(node, result) : result
         }
         function isNaNNode(node) {
-            if (node[$efront_string__type_] === Syntax[$efront_string__Binar]) {
-                if (isOptimizedArgument(node[$efront_string__left_]) && isOptimizedArgument(node[$efront_string__right])) {
-                    return node[$efront_string__left_][$efront_string__value1] === 0 && node[$efront_string__right][$efront_string__value1] === 0
-                }
-            }
-            return false
+            return node[$efront_string_type] === Syntax[$efront_string_Binary] && isOptimizedArgument(node[$efront_string_left]) && isOptimizedArgument(node[$efront_string_right]) ? node[$efront_string_left][$efront_string_value] === 0 && node[$efront_string_right][$efront_string_value] === 0 : !1
         }
         function generateFromValue(value) {
             var _a;
-            if (typeof value === $efront_string__numbe) {
-                if (isNaN(value)) {
-                    return generateNaN()
-                }
-                if (isNegative(value)) {
+            if (typeof value === $efront_string_number) {
+                if (isNaN(value))
+                    return generateNaN();
+                if (isNegative(value))
                     return generateNegativeNode(value)
-                }
             }
-            if (value === undefined) {
-                return generateUndefined()
-            }
-            return _a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Liter], _a[$efront_string__value1] = value, _a
+            return value === undefined ? generateUndefined() : (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Litera], _a[$efront_string_value] = value, _a)
         }
         function isReference(node) {
-            var type = node[$efront_string__type_];
-            return type === Syntax[$efront_string__Ident] || type === Syntax[$efront_string__Membe]
+            var type = node[$efront_string_type];
+            return type === Syntax[$efront_string_Identi] || type === Syntax[$efront_string_Member]
         }
         function canExtractSequence(last, parent, scope) {
             var ref;
-            if (parent[$efront_string__type_] === Syntax[$efront_string__CallE]) {
-                if (last[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                    if (last[$efront_string__name_] === $efront_string__eval_) {
-                        return false
-                    }
-                    ref = scope[$efront_string__resol1](last);
-                    return ref && ref[$efront_string__isSta]()
-                }
-                return last[$efront_string__type_] !== Syntax[$efront_string__Membe]
-            } else if (parent[$efront_string__type_] === Syntax[$efront_string__Unary]) {
-                if (parent[$efront_string__opera] === $efront_string__delet) {
-                    return !isReference(last)
-                } else if (parent[$efront_string__opera] === $efront_string__typeo) {
-                    if (last[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                        ref = scope[$efront_string__resol1](last);
-                        return ref && ref[$efront_string__isSta]()
-                    }
-                }
-            } else if (parent[$efront_string__type_] === Syntax[$efront_string__Updat]) {
-                return !isReference(last)
-            }
-            return true
+            if (parent[$efront_string_type] === Syntax[$efront_string_CallEx])
+                return last[$efront_string_type] === Syntax[$efront_string_Identi] ? last[$efront_string_name] === $efront_string_eval ? !1 : (ref = scope[$efront_string_resolv1](last), ref && ref[$efront_string_isStat]()) : last[$efront_string_type] !== Syntax[$efront_string_Member];
+            if (parent[$efront_string_type] === Syntax[$efront_string_UnaryE]) {
+                if (parent[$efront_string_operat] === $efront_string_delete)
+                    return !isReference(last);
+                else if (parent[$efront_string_operat] === $efront_string_typeof && last[$efront_string_type] === Syntax[$efront_string_Identi])
+                    return ref = scope[$efront_string_resolv1](last), ref && ref[$efront_string_isStat]()
+            } else if (parent[$efront_string_type] === Syntax[$efront_string_Update])
+                return !isReference(last);
+            return !0
         }
         function delegateVariableDeclarations(stmt, func) {
-            var _a, _b, _c;
-            var decls, target;
-            decls = [];
-            estraverse[$efront_string__trave](stmt, (_a = {}, _a[$efront_string__enter] = function (node) {
+            var _a, _b, _c, decls, target;
+            return decls = [], estraverse[$efront_string_traver](stmt, (_a = {}, _a[$efront_string_enter] = function (node) {
                 var i, iz, decl;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Varia]) {
-                    if (node[$efront_string__kind_] === $efront_string__let_ || node[$efront_string__kind_] === $efront_string__const) {
-                        return
-                    }
-                    for (i = 0, iz = node[$efront_string__decla][$efront_string__lengt1]; i < iz; ++i) {
-                        decl = node[$efront_string__decla][i];
-                        delete decl[$efront_string__init_];
-                        decls[$efront_string__push_](decl)
-                    }
-                    return estraverse[$efront_string__Visit1][$efront_string__Skip_]
-                } else if (escope[$efront_string__Scope][$efront_string__isVar](node)) {
-                    return estraverse[$efront_string__Visit1][$efront_string__Skip_]
+                if (node[$efront_string_type] === Syntax[$efront_string_Variab]) {
+                    if (node[$efront_string_kind] === $efront_string_let || node[$efront_string_kind] === $efront_string_const)
+                        return;
+                    for (i = 0, iz = node[$efront_string_declar][$efront_string_length]; i < iz; ++i)
+                        decl = node[$efront_string_declar][i], delete decl[$efront_string_init], decls[$efront_string_push](decl);
+                    return estraverse[$efront_string_Visito1][$efront_string_Skip]
                 }
-            }, _a));
-            if (!decls[$efront_string__lengt1]) {
-                return null
-            }
-            target = null;
-            estraverse[$efront_string__trave](func[$efront_string__body_], (_b = {}, _b[$efront_string__enter] = function (node, parent) {
-                if (node === stmt) {
-                    return estraverse[$efront_string__Visit1][$efront_string__Skip_]
-                } else if (escope[$efront_string__Scope][$efront_string__isVar](node)) {
-                    return estraverse[$efront_string__Visit1][$efront_string__Skip_]
-                } else if (node[$efront_string__type_] === Syntax[$efront_string__Varia] && node[$efront_string__kind_] === $efront_string__var_) {
-                    if (parent[$efront_string__type_] !== Syntax[$efront_string__ForIn]) {
-                        target = node;
-                        return estraverse[$efront_string__Visit1][$efront_string__Break1]
-                    }
-                }
-            }, _b));
-            if (target) {
-                target[$efront_string__decla] = target[$efront_string__decla][$efront_string__conca1](decls);
-                return null
-            } else {
-                return _c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Varia], _c[$efront_string__kind_] = $efront_string__var_, _c[$efront_string__decla] = decls, _c
-            }
+                return escope[$efront_string_Scope][$efront_string_isVari](node) ? estraverse[$efront_string_Visito1][$efront_string_Skip] : void 0
+            }, _a)), decls[$efront_string_length] ? (target = null, estraverse[$efront_string_traver](func[$efront_string_body], (_b = {}, _b[$efront_string_enter] = function (node, parent) {
+                return node === stmt ? estraverse[$efront_string_Visito1][$efront_string_Skip] : escope[$efront_string_Scope][$efront_string_isVari](node) ? estraverse[$efront_string_Visito1][$efront_string_Skip] : node[$efront_string_type] === Syntax[$efront_string_Variab] && node[$efront_string_kind] === $efront_string_var && parent[$efront_string_type] !== Syntax[$efront_string_ForInS] ? (target = node, estraverse[$efront_string_Visito1][$efront_string_Break]) : void 0
+            }, _b)), target ? (target[$efront_string_declar] = target[$efront_string_declar][$efront_string_concat](decls), null) : (_c = {}, _c[$efront_string_type] = Syntax[$efront_string_Variab], _c[$efront_string_kind] = $efront_string_var, _c[$efront_string_declar] = decls, _c)) : null
         }
         function isScopedDeclaration(node) {
-            if (node[$efront_string__type_] === Syntax[$efront_string__Varia] && (node[$efront_string__kind_] === $efront_string__let_ || node[$efront_string__kind_] === $efront_string__const)) {
-                return true
-            } else if (node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                return true
-            }
-            return false
+            return node[$efront_string_type] === Syntax[$efront_string_Variab] && (node[$efront_string_kind] === $efront_string_let || node[$efront_string_kind] === $efront_string_const) ? !0 : node[$efront_string_type] === Syntax[$efront_string_Functi] ? !0 : !1
         }
-        exports[$efront_string__deepC] = deepCopy;
-        exports[$efront_string__strin2] = stringRepeat;
-        exports[$efront_string__sameV] = sameValue;
-        exports[$efront_string__Array2] = (_a = {}, _a[$efront_string__isArr] = isArray, _a[$efront_string__from_] = arrayFrom, _a[$efront_string__of_] = arrayOf, _a[$efront_string__last_] = arrayLast, _a[$efront_string__empty] = arrayEmpty, _a);
-        exports[$efront_string__Objec2] = (_b = {}, _b[$efront_string__isObj] = isObject, _b[$efront_string__has_] = has, _b);
-        exports[$efront_string__Synta] = Syntax;
-        exports[$efront_string__trave] = estraverse[$efront_string__trave];
-        exports[$efront_string__repla] = estraverse[$efront_string__repla];
-        exports[$efront_string__Visit] = estraverse[$efront_string__Visit];
-        exports[$efront_string__Visit1] = estraverse[$efront_string__Visit1];
-        exports[$efront_string__asser] = assert;
-        exports[$efront_string__unrea] = unreachable;
-        exports[$efront_string__isIde3] = isIdentifier;
-        exports[$efront_string__moveL] = moveLocation;
-        exports[$efront_string__delet1] = deleteLocation;
-        exports[$efront_string__conve] = convertToEmptyStatement;
-        exports[$efront_string__mayBe] = mayBeCompletionValue;
-        exports[$efront_string__isNeg] = isNegative;
-        exports[$efront_string__isFun] = isFunctionBody;
-        exports[$efront_string__Speci] = (_c = {}, _c[$efront_string__gener1] = generateNegativeNode, _c[$efront_string__isNeg] = isNegativeNode, _c[$efront_string__gener2] = generateUndefined, _c[$efront_string__isUnd] = isUndefined, _c[$efront_string__gener3] = generateNaN, _c[$efront_string__isNaN] = isNaNNode, _c[$efront_string__isRef] = isReference, _c[$efront_string__canEx] = canExtractSequence, _c[$efront_string__gener4] = generateFromValue, _c);
-        exports[$efront_string__deleg] = delegateVariableDeclarations;
-        exports[$efront_string__isSco1] = isScopedDeclaration
+        estraverse = require(282), escope = require(476), esutils = require(475), Syntax = estraverse[$efront_string_Syntax], isArray = Array[$efront_string_isArra], isArray || (isArray = function isArray(array) {
+            return Object[$efront_string_protot][$efront_string_toStri][$efront_string_call](array) === $efront_string__objec
+        }), has = function (method) {
+            return method = {}[$efront_string_hasOwn], function has(obj, prop) {
+                return method[$efront_string_call](obj, prop)
+            }
+        }(), arrayFrom = function (slice) {
+            return slice = Array[$efront_string_protot][$efront_string_slice], function arrayFrom(array) {
+                return slice[$efront_string_call](array)
+            }
+        }(), arrayOf = function (slice) {
+            return slice = Array[$efront_string_protot][$efront_string_slice], function arrayOf() {
+                return slice[$efront_string_call](arguments)
+            }
+        }(), Object[$efront_string_is] ? sameValue = Object[$efront_string_is] : sameValue = function sameValue(x, y) {
+            return x === y ? x !== 0 || 1 / x === 1 / y : x !== x && y !== y
+        }, exports[$efront_string_deepCo] = deepCopy, exports[$efront_string_string1] = stringRepeat, exports[$efront_string_sameVa] = sameValue, _a = {}, _a[$efront_string_isArra] = isArray, _a[$efront_string_from] = arrayFrom, _a[$efront_string_of] = arrayOf, _a[$efront_string_last] = arrayLast, _a[$efront_string_empty] = arrayEmpty, exports[$efront_string_Array] = _a, _b = {}, _b[$efront_string_isObje] = isObject, _b[$efront_string_has] = has, exports[$efront_string_Object2] = _b, exports[$efront_string_Syntax] = Syntax, exports[$efront_string_traver] = estraverse[$efront_string_traver], exports[$efront_string_replac] = estraverse[$efront_string_replac], exports[$efront_string_Visito] = estraverse[$efront_string_Visito], exports[$efront_string_Visito1] = estraverse[$efront_string_Visito1], exports[$efront_string_assert] = assert, exports[$efront_string_unreac] = unreachable, exports[$efront_string_isIden3] = isIdentifier, exports[$efront_string_moveLo] = moveLocation, exports[$efront_string_delete1] = deleteLocation, exports[$efront_string_conver] = convertToEmptyStatement, exports[$efront_string_mayBeC] = mayBeCompletionValue, exports[$efront_string_isNega] = isNegative, exports[$efront_string_isFunc] = isFunctionBody, _c = {}, _c[$efront_string_genera1] = generateNegativeNode, _c[$efront_string_isNega] = isNegativeNode, _c[$efront_string_genera2] = generateUndefined, _c[$efront_string_isUnde] = isUndefined, _c[$efront_string_genera3] = generateNaN, _c[$efront_string_isNaN] = isNaNNode, _c[$efront_string_isRefe] = isReference, _c[$efront_string_canExt] = canExtractSequence, _c[$efront_string_genera4] = generateFromValue, exports[$efront_string_Specia] = _c, exports[$efront_string_delega] = delegateVariableDeclarations, exports[$efront_string_isScop1] = isScopedDeclaration
     }()
 }],
-/** 531 $efront_string__annot */ 'annotate-directive',
-/** 532 $efront_string__5 */ '\\',
-/** 533 $efront_string__b_ */ '\b',
-/** 534 $efront_string__b_1 */ 'b',
-/** 535 $efront_string__f_1 */ /** text */ '\f',
-/** 536 $efront_string__f_2 */ 'f',
-/** 537 $efront_string__t_1 */ /** text */ '\t',
-/** 538 $efront_string__t_2 */ 't',
-/** 539 $efront_string__u_ */ 'u',
-/** 540 $efront_string__0000_ */ '0000',
-/** 541 $efront_string__0_1 */ '\0',
-/** 542 $efront_string__6 */ '0123456789',
-/** 543 $efront_string__x0B_ */ /** text */ '\x0B',
-/** 544 $efront_string__v_ */ 'v',
-/** 545 $efront_string__x_ */ 'x',
-/** 546 $efront_string__00_ */ '00',
-/** 547 $efront_string__n_ */ /** text */ '\n',
-/** 548 $efront_string__n_1 */ 'n',
-/** 549 $efront_string__r_1 */ /** text */ '\r',
-/** 550 $efront_string__r_2 */ 'r',
-/** 551 $efront_string__u2028 */ /** text */ '\u2028',
-/** 552 $efront_string__u1 */ 'u2028',
-/** 553 $efront_string__u2029 */ /** text */ '\u2029',
-/** 554 $efront_string__u2 */ 'u2029',
-/** 555 $efront_string__Incor */ /** text */ 'Incorrectly classified character',
-/** 556 $efront_string__strin3 */ 'stringToArray',
-/** 557 $efront_string__7 */ '\'',
-/** 558 $efront_string__8 */ '\\\'',
-/** 559 $efront_string__n_r_u */ /** text */ '\\\n\r\u2028\u2029',
-/** 560 $efront_string__9 */ /** text */ ' ',
-/** 561 $efront_string__10 */ '~',
-/** 562 $efront_string__destr */ 'destructive',
-/** 563 $efront_string__pathN */ 'pathName',
-/** 564 $efront_string__passN */ 'passName',
-/** 565 annotate-directive.js */ [1,71,29,531,196,187,93,144,100,150,442,399,125,532,533,534,535,536,537,538,539,540,495,128,541,542,35,289,543,544,545,546,547,548,549,550,551,552,553,554,555,49,556,557,558,559,560,561,52,562,563,295,183,186,108,79,97,96,135,90,214,410,60,564,38,function(require, Error, module, $efront_string__annot, $efront_string__Synta, $efront_string__type_, $efront_string__Expre, $efront_string__expre, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__charC, $efront_string__toStr, $efront_string__5, $efront_string__b_, $efront_string__b_1, $efront_string__f_1, $efront_string__f_2, $efront_string__t_1, $efront_string__t_2, $efront_string__u_, $efront_string__0000_, $efront_string__slice1, $efront_string__lengt1, $efront_string__0_1, $efront_string__6, $efront_string__index1, $efront_string__0_, $efront_string__x0B_, $efront_string__v_, $efront_string__x_, $efront_string__00_, $efront_string__n_, $efront_string__n_1, $efront_string__r_1, $efront_string__r_2, $efront_string__u2028, $efront_string__u1, $efront_string__u2029, $efront_string__u2, $efront_string__Incor, $efront_string__undef, $efront_string__strin3, $efront_string__7, $efront_string__8, $efront_string__n_r_u, $efront_string__9, $efront_string__10, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Progr, $efront_string__Block, $efront_string__Funct1, $efront_string__Funct, $efront_string__body_, $efront_string__Direc, $efront_string__raw_, $efront_string__direc1, $efront_string__subst, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 511 $efront_string_annota */ "annotate-directive",
+/** 512 $efront_string__5 */ "\\",
+/** 513 $efront_string__6 */ "\b",
+/** 514 $efront_string_b */ "b",
+/** 515 $efront_string__7 */ /** text */ "\f",
+/** 516 $efront_string_f */ "f",
+/** 517 $efront_string__8 */ /** text */ "\t",
+/** 518 $efront_string_t */ "t",
+/** 519 $efront_string_u */ "u",
+/** 520 $efront_string_0000 */ "0000",
+/** 521 $efront_string_1 */ "0123456789",
+/** 522 $efront_string__9 */ /** text */ "\u000b",
+/** 523 $efront_string_v */ "v",
+/** 524 $efront_string_x */ "x",
+/** 525 $efront_string_00 */ "00",
+/** 526 $efront_string__10 */ /** text */ "\n",
+/** 527 $efront_string_n */ "n",
+/** 528 $efront_string__11 */ /** text */ "\r",
+/** 529 $efront_string_r */ "r",
+/** 530 $efront_string__12 */ /** text */ "\u2028",
+/** 531 $efront_string_u2028 */ "u2028",
+/** 532 $efront_string__13 */ /** text */ "\u2029",
+/** 533 $efront_string_u2029 */ "u2029",
+/** 534 $efront_string_Incorr */ /** text */ "Incorrectly classified character",
+/** 535 $efront_string_string2 */ "stringToArray",
+/** 536 $efront_string__14 */ "'",
+/** 537 $efront_string__15 */ "\\'",
+/** 538 $efront_string__16 */ /** text */ "\\\n\r\u2028\u2029",
+/** 539 $efront_string__17 */ /** text */ " ",
+/** 540 $efront_string__18 */ "~",
+/** 541 $efront_string_destru */ "destructive",
+/** 542 $efront_string_pathNa */ "pathName",
+/** 543 $efront_string_passNa */ "passName",
+/** 544 annotate-directive.js */ [1,56,15,511,180,171,78,128,85,134,10,382,110,512,513,514,515,516,517,518,519,520,2,3,273,521,9,522,523,524,525,526,527,528,529,530,531,532,533,534,34,535,536,537,538,539,540,37,541,542,278,167,170,93,64,82,81,119,75,198,393,45,543,13,function(require, Error, module, $efront_string_annota, $efront_string_Syntax, $efront_string_type, $efront_string_Expres, $efront_string_expres, $efront_string_Litera, $efront_string_value, $efront_string_string, $efront_string_charCo, $efront_string_toStri, $efront_string__5, $efront_string__6, $efront_string_b, $efront_string__7, $efront_string_f, $efront_string__8, $efront_string_t, $efront_string_u, $efront_string_0000, $efront_string_slice, $efront_string_length, $efront_string_0, $efront_string_1, $efront_string_indexO, $efront_string__9, $efront_string_v, $efront_string_x, $efront_string_00, $efront_string__10, $efront_string_n, $efront_string__11, $efront_string_r, $efront_string__12, $efront_string_u2028, $efront_string__13, $efront_string_u2029, $efront_string_Incorr, $efront_string_undefi, $efront_string_string2, $efront_string__14, $efront_string__15, $efront_string__16, $efront_string__17, $efront_string__18, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_enter, $efront_string_Progra, $efront_string_BlockS, $efront_string_Functi1, $efront_string_Functi, $efront_string_body, $efront_string_Direct, $efront_string_raw, $efront_string_direct1, $efront_string_substr, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common) {
         'use strict';
-        var Name, Syntax, common;
-        Name = $efront_string__annot;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function isDirective(stmt) {
             var expr;
-            if (stmt[$efront_string__type_] === Syntax[$efront_string__Expre]) {
-                expr = stmt[$efront_string__expre];
-                if (expr[$efront_string__type_] === Syntax[$efront_string__Liter] && typeof expr[$efront_string__value1] === $efront_string__strin1) {
-                    return true
-                }
-            }
-            return false
+            return stmt[$efront_string_type] === Syntax[$efront_string_Expres] && (expr = stmt[$efront_string_expres], expr[$efront_string_type] === Syntax[$efront_string_Litera] && typeof expr[$efront_string_value] === $efront_string_string) ? !0 : !1
         }
         function escapeAllowedCharacter(ch, next) {
-            var code = ch[$efront_string__charC](0), hex = code[$efront_string__toStr](16), result = $efront_string__5;
+            var code = ch[$efront_string_charCo](0), hex = code[$efront_string_toStri](16), result = $efront_string__5;
             switch (ch) {
-            case $efront_string__b_:
-                result += $efront_string__b_1;
+            case $efront_string__6:
+                result += $efront_string_b;
                 break;
-            case $efront_string__f_1:
-                result += $efront_string__f_2;
+            case $efront_string__7:
+                result += $efront_string_f;
                 break;
-            case $efront_string__t_1:
-                result += $efront_string__t_2;
+            case $efront_string__8:
+                result += $efront_string_t;
                 break;
             default:
-                if (code > 255) {
-                    result += $efront_string__u_ + $efront_string__0000_[$efront_string__slice1](hex[$efront_string__lengt1]) + hex
-                } else if (ch === $efront_string__0_1 && $efront_string__6[$efront_string__index1](next) < 0) {
-                    result += $efront_string__0_
-                } else if (ch === $efront_string__x0B_) {
-                    result += $efront_string__v_
-                } else {
-                    result += $efront_string__x_ + $efront_string__00_[$efront_string__slice1](hex[$efront_string__lengt1]) + hex
-                }
+                code > 255 ? result += $efront_string_u + $efront_string_0000[$efront_string_slice](hex[$efront_string_length]) + hex : ch === $efront_string_0 && $efront_string_1[$efront_string_indexO](next) < 0 ? result += $efront_string_0 : ch === $efront_string__9 ? result += $efront_string_v : result += $efront_string_x + $efront_string_00[$efront_string_slice](hex[$efront_string_length]) + hex;
                 break
             }
             return result
@@ -2452,37 +1662,35 @@ module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efr
             case $efront_string__5:
                 result += $efront_string__5;
                 break;
-            case $efront_string__n_:
-                result += $efront_string__n_1;
+            case $efront_string__10:
+                result += $efront_string_n;
                 break;
-            case $efront_string__r_1:
-                result += $efront_string__r_2;
+            case $efront_string__11:
+                result += $efront_string_r;
                 break;
-            case $efront_string__u2028:
-                result += $efront_string__u1;
+            case $efront_string__12:
+                result += $efront_string_u2028;
                 break;
-            case $efront_string__u2029:
-                result += $efront_string__u2;
+            case $efront_string__13:
+                result += $efront_string_u2029;
                 break;
             default:
-                throw new Error($efront_string__Incor)
+                throw new Error($efront_string_Incorr)
             }
             return result
         }
         function escapeString(str) {
             var result = '', i, len, ch;
-            if (typeof str[0] === $efront_string__undef) {
-                str = common[$efront_string__strin3](str)
-            }
-            for (i = 0, len = str[$efront_string__lengt1]; i < len; i += 1) {
-                ch = str[i];
-                if (ch === $efront_string__7) {
-                    result += $efront_string__8;
+            for (typeof str[0] === $efront_string_undefi && (str = common[$efront_string_string2](str)), i = 0, len = str[$efront_string_length]; i < len; i += 1) {
+                if (ch = str[i], ch === $efront_string__14) {
+                    result += $efront_string__15;
                     continue
-                } else if ($efront_string__n_r_u[$efront_string__index1](ch) >= 0) {
+                }
+                if ($efront_string__16[$efront_string_indexO](ch) >= 0) {
                     result += escapeDisallowedCharacter(ch);
                     continue
-                } else if (!(ch >= $efront_string__9 && ch <= $efront_string__10)) {
+                }
+                if (!(ch >= $efront_string__17 && ch <= $efront_string__18)) {
                     result += escapeAllowedCharacter(ch, str[i + 1]);
                     continue
                 }
@@ -2491,171 +1699,122 @@ module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efr
             return result
         }
         function annotateDirective(tree, options) {
-            var _a, _b;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__enter] = function enter(node, parent) {
+            var _a, _b, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), common[$efront_string_traver](result, (_b = {}, _b[$efront_string_enter] = function enter(node, parent) {
                 var stmt, i, iz;
-                if (!(node[$efront_string__type_] === Syntax[$efront_string__Progr] || node[$efront_string__type_] === Syntax[$efront_string__Block] && (parent[$efront_string__type_] === Syntax[$efront_string__Funct1] || parent[$efront_string__type_] === Syntax[$efront_string__Funct]))) {
-                    return
+                if (!(node[$efront_string_type] === Syntax[$efront_string_Progra] || node[$efront_string_type] === Syntax[$efront_string_BlockS] && (parent[$efront_string_type] === Syntax[$efront_string_Functi1] || parent[$efront_string_type] === Syntax[$efront_string_Functi])))
+                    return;
+                for (i = 0, iz = node[$efront_string_body][$efront_string_length]; i < iz; ++i) {
+                    if (stmt = node[$efront_string_body][i], !isDirective(stmt))
+                        return;
+                    stmt[$efront_string_type] = Syntax[$efront_string_Direct], stmt[$efront_string_expres][$efront_string_raw] ? (stmt[$efront_string_direct1] = stmt[$efront_string_expres][$efront_string_raw][$efront_string_substr](1, stmt[$efront_string_expres][$efront_string_raw][$efront_string_length] - 1), stmt[$efront_string_value] = stmt[$efront_string_expres][$efront_string_value], stmt[$efront_string_raw] = stmt[$efront_string_expres][$efront_string_raw]) : (stmt[$efront_string_direct1] = escapeString(stmt[$efront_string_expres][$efront_string_value]), stmt[$efront_string_value] = stmt[$efront_string_expres][$efront_string_value], stmt[$efront_string_raw] = $efront_string__14 + stmt[$efront_string_direct1] + $efront_string__14), delete stmt[$efront_string_expres]
                 }
-                for (i = 0, iz = node[$efront_string__body_][$efront_string__lengt1]; i < iz; ++i) {
-                    stmt = node[$efront_string__body_][i];
-                    if (isDirective(stmt)) {
-                        stmt[$efront_string__type_] = Syntax[$efront_string__Direc];
-                        if (stmt[$efront_string__expre][$efront_string__raw_]) {
-                            stmt[$efront_string__direc1] = stmt[$efront_string__expre][$efront_string__raw_][$efront_string__subst](1, stmt[$efront_string__expre][$efront_string__raw_][$efront_string__lengt1] - 1);
-                            stmt[$efront_string__value1] = stmt[$efront_string__expre][$efront_string__value1];
-                            stmt[$efront_string__raw_] = stmt[$efront_string__expre][$efront_string__raw_]
-                        } else {
-                            stmt[$efront_string__direc1] = escapeString(stmt[$efront_string__expre][$efront_string__value1]);
-                            stmt[$efront_string__value1] = stmt[$efront_string__expre][$efront_string__value1];
-                            stmt[$efront_string__raw_] = $efront_string__7 + stmt[$efront_string__direc1] + $efront_string__7
-                        }
-                        delete stmt[$efront_string__expre]
-                    } else {
-                        return
-                    }
-                }
-            }, _b));
-            return result
+            }, _b)), result
         }
-        annotateDirective[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = annotateDirective
+        Name = $efront_string_annota, common = require(510), Syntax = common[$efront_string_Syntax], annotateDirective[$efront_string_passNa] = Name, module[$efront_string_export] = annotateDirective
     }()
 }],
-/** 566 $efront_string__11 */ '!',
-/** 567 $efront_string__12 */ '||',
-/** 568 $efront_string__13 */ '&&',
-/** 569 $efront_string__14 */ '+',
-/** 570 $efront_string__15 */ '|',
-/** 571 $efront_string__16 */ '^',
-/** 572 $efront_string__17 */ '&',
-/** 573 $efront_string__18 */ '==',
-/** 574 $efront_string__19 */ '!=',
-/** 575 $efront_string__20 */ '===',
-/** 576 $efront_string__21 */ '!==',
-/** 577 $efront_string__22 */ '<',
-/** 578 $efront_string__23 */ '>',
-/** 579 $efront_string__24 */ '<=',
-/** 580 $efront_string__25 */ '>=',
-/** 581 $efront_string__26 */ '<<',
-/** 582 $efront_string__27 */ '>>',
-/** 583 $efront_string__28 */ '>>>',
-/** 584 $efront_string__29 */ '%',
-/** 585 $efront_string__const1 */ 'constant',
-/** 586 $efront_string__doBin */ 'doBinary',
-/** 587 $efront_string__doUna */ 'doUnary',
-/** 588 $efront_string__doLog */ 'doLogical',
-/** 589 $efront_string__evalu */ 'evaluate',
-/** 590 $efront_string__isCon */ 'isConstant',
-/** 591 $efront_string__hasSi */ 'hasSideEffect',
-/** 592 $efront_string__boole */ 'booleanCondition',
-/** 593 evaluator.js */ [1,67,68,196,187,100,150,127,117,481,378,57,566,152,80,369,397,129,130,102,511,567,568,569,500,561,388,570,571,572,573,574,575,576,577,578,579,580,581,582,583,246,307,584,585,586,587,588,589,590,75,76,131,128,82,87,36,142,143,97,98,463,423,103,105,106,151,109,111,153,114,118,591,504,506,592,function(require, undefined, exports, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__objec1, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__delet, $efront_string__11, $efront_string__argum1, $efront_string__Binar, $efront_string__in_, $efront_string__insta, $efront_string__left_, $efront_string__right, $efront_string__Logic, $efront_string__unrea, $efront_string__12, $efront_string__13, $efront_string__14, $efront_string__4, $efront_string__10, $efront_string__typeo, $efront_string__15, $efront_string__16, $efront_string__17, $efront_string__18, $efront_string__19, $efront_string__20, $efront_string__21, $efront_string__22, $efront_string__23, $efront_string__24, $efront_string__25, $efront_string__26, $efront_string__27, $efront_string__28, $efront_string__, $efront_string__1, $efront_string__29, $efront_string__const1, $efront_string__doBin, $efront_string__doUna, $efront_string__doLog, $efront_string__evalu, $efront_string__isCon, $efront_string__Assig, $efront_string__Array, $efront_string__eleme, $efront_string__lengt1, $efront_string__CallE, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__Funct1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__Membe, $efront_string__NewEx, $efront_string__Objec, $efront_string__prope1, $efront_string__Prope, $efront_string__Seque, $efront_string__expre1, $efront_string__ThisE, $efront_string__Updat, $efront_string__hasSi, $efront_string__Array2, $efront_string__last_, $efront_string__boole) {
-    return function () {
+/** 545 $efront_string__19 */ "!",
+/** 546 $efront_string__20 */ "||",
+/** 547 $efront_string__21 */ "&&",
+/** 548 $efront_string__22 */ "+",
+/** 549 $efront_string__23 */ "|",
+/** 550 $efront_string__24 */ "^",
+/** 551 $efront_string__25 */ "&",
+/** 552 $efront_string__26 */ "==",
+/** 553 $efront_string__27 */ "!=",
+/** 554 $efront_string__28 */ "===",
+/** 555 $efront_string__29 */ "!==",
+/** 556 $efront_string__30 */ "<",
+/** 557 $efront_string__31 */ ">",
+/** 558 $efront_string__32 */ "<=",
+/** 559 $efront_string__33 */ ">=",
+/** 560 $efront_string__34 */ "<<",
+/** 561 $efront_string__35 */ ">>",
+/** 562 $efront_string__36 */ ">>>",
+/** 563 $efront_string__37 */ "%",
+/** 564 $efront_string_consta */ "constant",
+/** 565 $efront_string_doBina */ "doBinary",
+/** 566 $efront_string_doUnar */ "doUnary",
+/** 567 $efront_string_doLogi */ "doLogical",
+/** 568 $efront_string_evalua */ "evaluate",
+/** 569 $efront_string_isCons */ "isConstant",
+/** 570 $efront_string_hasSid */ "hasSideEffect",
+/** 571 $efront_string_boolea */ "booleanCondition",
+/** 572 evaluator.js */ [1,51,52,180,171,85,134,112,102,463,361,42,545,136,65,352,380,113,114,87,491,546,547,548,481,540,371,549,550,551,552,553,554,555,556,557,558,559,560,561,562,230,290,563,564,565,566,567,568,569,60,61,115,3,67,72,22,126,127,82,83,445,406,88,90,91,135,94,96,137,99,103,570,484,486,571,function(require, undefined, exports, $efront_string_Syntax, $efront_string_type, $efront_string_Litera, $efront_string_value, $efront_string_object, $efront_string_UnaryE, $efront_string_operat, $efront_string_void, $efront_string_delete, $efront_string__19, $efront_string_argume1, $efront_string_Binary, $efront_string_in, $efront_string_instan, $efront_string_left, $efront_string_right, $efront_string_Logica, $efront_string_unreac, $efront_string__20, $efront_string__21, $efront_string__22, $efront_string__4, $efront_string__18, $efront_string_typeof, $efront_string__23, $efront_string__24, $efront_string__25, $efront_string__26, $efront_string__27, $efront_string__28, $efront_string__29, $efront_string__30, $efront_string__31, $efront_string__32, $efront_string__33, $efront_string__34, $efront_string__35, $efront_string__36, $efront_string__, $efront_string__1, $efront_string__37, $efront_string_consta, $efront_string_doBina, $efront_string_doUnar, $efront_string_doLogi, $efront_string_evalua, $efront_string_isCons, $efront_string_Assign, $efront_string_ArrayE, $efront_string_elemen, $efront_string_length, $efront_string_CallEx, $efront_string_Condit, $efront_string_test, $efront_string_conseq, $efront_string_altern, $efront_string_Functi1, $efront_string_Identi, $efront_string_resolv1, $efront_string_isStat, $efront_string_Member, $efront_string_NewExp, $efront_string_Object, $efront_string_proper1, $efront_string_Proper, $efront_string_Sequen, $efront_string_expres1, $efront_string_ThisEx, $efront_string_Update, $efront_string_hasSid, $efront_string_Array, $efront_string_last, $efront_string_boolea) {
+    return function (_a, Syntax, common) {
         'use strict';
-        var _a;
-        var Syntax, common;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function isConstant(node, allowRegExp) {
-            if (node[$efront_string__type_] === Syntax[$efront_string__Liter]) {
-                if (typeof node[$efront_string__value1] === $efront_string__objec1 && node[$efront_string__value1] !== null) {
-                    return allowRegExp
-                }
-                return true
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Unary]) {
-                if (node[$efront_string__opera] === $efront_string__void_ || node[$efront_string__opera] === $efront_string__delet || node[$efront_string__opera] === $efront_string__11) {
-                    return isConstant(node[$efront_string__argum1], true)
-                }
-                return isConstant(node[$efront_string__argum1], false)
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Binar]) {
-                if (node[$efront_string__opera] === $efront_string__in_ || node[$efront_string__opera] === $efront_string__insta) {
-                    return false
-                }
-                return isConstant(node[$efront_string__left_], false) && isConstant(node[$efront_string__right], false)
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Logic]) {
-                return isConstant(node[$efront_string__left_], true) && isConstant(node[$efront_string__right], true)
-            }
-            return false
+            return node[$efront_string_type] === Syntax[$efront_string_Litera] ? typeof node[$efront_string_value] === $efront_string_object && node[$efront_string_value] !== null ? allowRegExp : !0 : node[$efront_string_type] === Syntax[$efront_string_UnaryE] ? node[$efront_string_operat] === $efront_string_void || node[$efront_string_operat] === $efront_string_delete || node[$efront_string_operat] === $efront_string__19 ? isConstant(node[$efront_string_argume1], !0) : isConstant(node[$efront_string_argume1], !1) : node[$efront_string_type] === Syntax[$efront_string_Binary] ? node[$efront_string_operat] === $efront_string_in || node[$efront_string_operat] === $efront_string_instan ? !1 : isConstant(node[$efront_string_left], !1) && isConstant(node[$efront_string_right], !1) : node[$efront_string_type] === Syntax[$efront_string_Logica] ? isConstant(node[$efront_string_left], !0) && isConstant(node[$efront_string_right], !0) : !1
         }
         function getConstant(node) {
-            if (node[$efront_string__type_] === Syntax[$efront_string__Liter]) {
-                return node[$efront_string__value1]
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Unary]) {
-                return doUnary(node[$efront_string__opera], getConstant(node[$efront_string__argum1]))
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Binar]) {
-                return doBinary(node[$efront_string__opera], getConstant(node[$efront_string__left_]), getConstant(node[$efront_string__right]))
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Logic]) {
-                return doLogical(node[$efront_string__opera], getConstant(node[$efront_string__left_]), getConstant(node[$efront_string__right]))
-            }
-            common[$efront_string__unrea]()
+            if (node[$efront_string_type] === Syntax[$efront_string_Litera])
+                return node[$efront_string_value];
+            if (node[$efront_string_type] === Syntax[$efront_string_UnaryE])
+                return doUnary(node[$efront_string_operat], getConstant(node[$efront_string_argume1]));
+            if (node[$efront_string_type] === Syntax[$efront_string_Binary])
+                return doBinary(node[$efront_string_operat], getConstant(node[$efront_string_left]), getConstant(node[$efront_string_right]));
+            if (node[$efront_string_type] === Syntax[$efront_string_Logica])
+                return doLogical(node[$efront_string_operat], getConstant(node[$efront_string_left]), getConstant(node[$efront_string_right]));
+            common[$efront_string_unreac]()
         }
         function doLogical(operator, left, right) {
-            if (operator === $efront_string__12) {
-                return left || right
-            }
-            if (operator === $efront_string__13) {
-                return left && right
-            }
-            common[$efront_string__unrea]()
+            if (operator === $efront_string__20)
+                return left || right;
+            if (operator === $efront_string__21)
+                return left && right;
+            common[$efront_string_unreac]()
         }
         function doUnary(operator, argument) {
             switch (operator) {
-            case $efront_string__14:
+            case $efront_string__22:
                 return +argument;
             case $efront_string__4:
                 return -argument;
-            case $efront_string__10:
+            case $efront_string__18:
                 return ~argument;
-            case $efront_string__11:
+            case $efront_string__19:
                 return !argument;
-            case $efront_string__delet:
-                return true;
-            case $efront_string__void_:
+            case $efront_string_delete:
+                return !0;
+            case $efront_string_void:
                 return undefined;
-            case $efront_string__typeo:
+            case $efront_string_typeof:
                 return typeof argument
             }
-            common[$efront_string__unrea]()
+            common[$efront_string_unreac]()
         }
         function doBinary(operator, left, right) {
             switch (operator) {
-            case $efront_string__15:
-                return left | right;
-            case $efront_string__16:
-                return left ^ right;
-            case $efront_string__17:
-                return left & right;
-            case $efront_string__18:
-                return left == right;
-            case $efront_string__19:
-                return left != right;
-            case $efront_string__20:
-                return left === right;
-            case $efront_string__21:
-                return left !== right;
-            case $efront_string__22:
-                return left < right;
             case $efront_string__23:
-                return left > right;
+                return left | right;
             case $efront_string__24:
-                return left <= right;
+                return left ^ right;
             case $efront_string__25:
-                return left >= right;
+                return left & right;
             case $efront_string__26:
-                return left << right;
+                return left == right;
             case $efront_string__27:
-                return left >> right;
+                return left != right;
             case $efront_string__28:
+                return left === right;
+            case $efront_string__29:
+                return left !== right;
+            case $efront_string__30:
+                return left < right;
+            case $efront_string__31:
+                return left > right;
+            case $efront_string__32:
+                return left <= right;
+            case $efront_string__33:
+                return left >= right;
+            case $efront_string__34:
+                return left << right;
+            case $efront_string__35:
+                return left >> right;
+            case $efront_string__36:
                 return left >>> right;
-            case $efront_string__14:
+            case $efront_string__22:
                 return left + right;
             case $efront_string__4:
                 return left - right;
@@ -2663,2607 +1822,1283 @@ module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efr
                 return left * right;
             case $efront_string__1:
                 return left / right;
-            case $efront_string__29:
+            case $efront_string__37:
                 return left % right
             }
-            common[$efront_string__unrea]()
+            common[$efront_string_unreac]()
         }
-        exports[$efront_string__const1] = (_a = {}, _a[$efront_string__doBin] = doBinary, _a[$efront_string__doUna] = doUnary, _a[$efront_string__doLog] = doLogical, _a[$efront_string__evalu] = getConstant, _a[$efront_string__isCon] = isConstant, _a);
         function hasSideEffect(expr, scope) {
             function visit(expr) {
                 var i, iz, ref;
-                switch (expr[$efront_string__type_]) {
-                case Syntax[$efront_string__Assig]:
-                    return true;
-                case Syntax[$efront_string__Array]:
-                    for (i = 0, iz = expr[$efront_string__eleme][$efront_string__lengt1]; i < iz; ++i) {
-                        if (expr[$efront_string__eleme][i] !== null && visit(expr[$efront_string__eleme][i])) {
-                            return true
-                        }
-                    }
-                    return false;
-                case Syntax[$efront_string__Binar]:
+                switch (expr[$efront_string_type]) {
+                case Syntax[$efront_string_Assign]:
+                    return !0;
+                case Syntax[$efront_string_ArrayE]:
+                    for (i = 0, iz = expr[$efront_string_elemen][$efront_string_length]; i < iz; ++i)
+                        if (expr[$efront_string_elemen][i] !== null && visit(expr[$efront_string_elemen][i]))
+                            return !0;
+                    return !1;
+                case Syntax[$efront_string_Binary]:
                     return !isConstant(expr);
-                case Syntax[$efront_string__CallE]:
-                    return true;
-                case Syntax[$efront_string__Condi]:
-                    return visit(expr[$efront_string__test_]) || visit(expr[$efront_string__conse]) || visit(expr[$efront_string__alter]);
-                case Syntax[$efront_string__Funct1]:
-                    return false;
-                case Syntax[$efront_string__Ident]:
-                    ref = scope[$efront_string__resol1](expr);
-                    if (ref && ref[$efront_string__isSta]()) {
-                        return false
-                    }
-                    return true;
-                case Syntax[$efront_string__Liter]:
-                    return false;
-                case Syntax[$efront_string__Logic]:
-                    return visit(expr[$efront_string__left_]) || visit(expr[$efront_string__right]);
-                case Syntax[$efront_string__Membe]:
-                    return true;
-                case Syntax[$efront_string__NewEx]:
-                    return true;
-                case Syntax[$efront_string__Objec]:
-                    for (i = 0, iz = expr[$efront_string__prope1][$efront_string__lengt1]; i < iz; ++i) {
-                        if (visit(expr[$efront_string__prope1][i])) {
-                            return true
-                        }
-                    }
-                    return false;
-                case Syntax[$efront_string__Prope]:
-                    return visit(expr[$efront_string__value1]);
-                case Syntax[$efront_string__Seque]:
-                    for (i = 0, iz = expr[$efront_string__expre1][$efront_string__lengt1]; i < iz; ++i) {
-                        if (visit(expr[$efront_string__expre1][i])) {
-                            return true
-                        }
-                    }
-                    return false;
-                case Syntax[$efront_string__ThisE]:
-                    return false;
-                case Syntax[$efront_string__Unary]:
-                    if (expr[$efront_string__opera] === $efront_string__void_ || expr[$efront_string__opera] === $efront_string__delet || expr[$efront_string__opera] === $efront_string__typeo || expr[$efront_string__opera] === $efront_string__11) {
-                        return visit(expr[$efront_string__argum1])
-                    }
-                    return !isConstant(expr);
-                case Syntax[$efront_string__Updat]:
-                    return true
+                case Syntax[$efront_string_CallEx]:
+                    return !0;
+                case Syntax[$efront_string_Condit]:
+                    return visit(expr[$efront_string_test]) || visit(expr[$efront_string_conseq]) || visit(expr[$efront_string_altern]);
+                case Syntax[$efront_string_Functi1]:
+                    return !1;
+                case Syntax[$efront_string_Identi]:
+                    ref = scope[$efront_string_resolv1](expr);
+                    return ref && ref[$efront_string_isStat]() ? !1 : !0;
+                case Syntax[$efront_string_Litera]:
+                    return !1;
+                case Syntax[$efront_string_Logica]:
+                    return visit(expr[$efront_string_left]) || visit(expr[$efront_string_right]);
+                case Syntax[$efront_string_Member]:
+                    return !0;
+                case Syntax[$efront_string_NewExp]:
+                    return !0;
+                case Syntax[$efront_string_Object]:
+                    for (i = 0, iz = expr[$efront_string_proper1][$efront_string_length]; i < iz; ++i)
+                        if (visit(expr[$efront_string_proper1][i]))
+                            return !0;
+                    return !1;
+                case Syntax[$efront_string_Proper]:
+                    return visit(expr[$efront_string_value]);
+                case Syntax[$efront_string_Sequen]:
+                    for (i = 0, iz = expr[$efront_string_expres1][$efront_string_length]; i < iz; ++i)
+                        if (visit(expr[$efront_string_expres1][i]))
+                            return !0;
+                    return !1;
+                case Syntax[$efront_string_ThisEx]:
+                    return !1;
+                case Syntax[$efront_string_UnaryE]:
+                    return expr[$efront_string_operat] === $efront_string_void || expr[$efront_string_operat] === $efront_string_delete || expr[$efront_string_operat] === $efront_string_typeof || expr[$efront_string_operat] === $efront_string__19 ? visit(expr[$efront_string_argume1]) : !isConstant(expr);
+                case Syntax[$efront_string_Update]:
+                    return !0
                 }
-                return true
+                return !0
             }
             return visit(expr)
         }
-        exports[$efront_string__hasSi] = hasSideEffect;
         function booleanCondition(expr) {
             var ret;
-            switch (expr[$efront_string__type_]) {
-            case Syntax[$efront_string__Assig]:
-                return booleanCondition(expr[$efront_string__right]);
-            case Syntax[$efront_string__Array]:
-                return true;
-            case Syntax[$efront_string__Binar]:
-                if (isConstant(expr)) {
-                    return !!getConstant(expr)
-                }
+            switch (expr[$efront_string_type]) {
+            case Syntax[$efront_string_Assign]:
+                return booleanCondition(expr[$efront_string_right]);
+            case Syntax[$efront_string_ArrayE]:
+                return !0;
+            case Syntax[$efront_string_Binary]:
+                return isConstant(expr) ? !!getConstant(expr) : null;
+            case Syntax[$efront_string_CallEx]:
                 return null;
-            case Syntax[$efront_string__CallE]:
+            case Syntax[$efront_string_Condit]:
+                ret = booleanCondition(expr[$efront_string_test]);
+                if (ret === !0)
+                    return booleanCondition(expr[$efront_string_conseq]);
+                if (ret === !1)
+                    return booleanCondition(expr[$efront_string_altern]);
+                ret = booleanCondition(expr[$efront_string_conseq]);
+                return ret === booleanCondition(expr[$efront_string_altern]) ? ret : null;
+            case Syntax[$efront_string_Functi1]:
+                return !0;
+            case Syntax[$efront_string_Identi]:
                 return null;
-            case Syntax[$efront_string__Condi]:
-                ret = booleanCondition(expr[$efront_string__test_]);
-                if (ret === true) {
-                    return booleanCondition(expr[$efront_string__conse])
-                }
-                if (ret === false) {
-                    return booleanCondition(expr[$efront_string__alter])
-                }
-                ret = booleanCondition(expr[$efront_string__conse]);
-                if (ret === booleanCondition(expr[$efront_string__alter])) {
-                    return ret
-                }
-                return null;
-            case Syntax[$efront_string__Funct1]:
-                return true;
-            case Syntax[$efront_string__Ident]:
-                return null;
-            case Syntax[$efront_string__Liter]:
+            case Syntax[$efront_string_Litera]:
                 return !!getConstant(expr);
-            case Syntax[$efront_string__Logic]:
-                if (expr[$efront_string__opera] === $efront_string__13) {
-                    ret = booleanCondition(expr[$efront_string__left_]);
-                    if (ret === null) {
-                        return null
-                    }
-                    if (!ret) {
-                        return false
-                    }
-                    return booleanCondition(expr[$efront_string__right])
-                } else {
-                    ret = booleanCondition(expr[$efront_string__left_]);
-                    if (ret === null) {
-                        return null
-                    }
-                    if (ret) {
-                        return true
-                    }
-                    return booleanCondition(expr[$efront_string__right])
-                }
+            case Syntax[$efront_string_Logica]:
+                return expr[$efront_string_operat] === $efront_string__21 ? (ret = booleanCondition(expr[$efront_string_left]), ret === null ? null : ret ? booleanCondition(expr[$efront_string_right]) : !1) : (ret = booleanCondition(expr[$efront_string_left]), ret === null ? null : ret ? !0 : booleanCondition(expr[$efront_string_right]));
+            case Syntax[$efront_string_Member]:
                 return null;
-            case Syntax[$efront_string__Membe]:
+            case Syntax[$efront_string_NewExp]:
+                return !0;
+            case Syntax[$efront_string_Object]:
+                return !0;
+            case Syntax[$efront_string_Proper]:
+                common[$efront_string_unreac]();
                 return null;
-            case Syntax[$efront_string__NewEx]:
-                return true;
-            case Syntax[$efront_string__Objec]:
-                return true;
-            case Syntax[$efront_string__Prope]:
-                common[$efront_string__unrea]();
+            case Syntax[$efront_string_Sequen]:
+                return booleanCondition(common[$efront_string_Array][$efront_string_last](expr[$efront_string_expres1]));
+            case Syntax[$efront_string_ThisEx]:
                 return null;
-            case Syntax[$efront_string__Seque]:
-                return booleanCondition(common[$efront_string__Array2][$efront_string__last_](expr[$efront_string__expre1]));
-            case Syntax[$efront_string__ThisE]:
-                return null;
-            case Syntax[$efront_string__Unary]:
-                if (expr[$efront_string__opera] === $efront_string__void_) {
-                    return false
-                }
-                if (expr[$efront_string__opera] === $efront_string__typeo) {
-                    return true
-                }
-                if (expr[$efront_string__opera] === $efront_string__11) {
-                    ret = booleanCondition(expr[$efront_string__argum1]);
-                    if (ret === null) {
-                        return null
-                    }
-                    return !ret
-                }
-                if (isConstant(expr)) {
-                    return !!getConstant(expr)
-                }
-                return null;
-            case Syntax[$efront_string__Updat]:
+            case Syntax[$efront_string_UnaryE]:
+                return expr[$efront_string_operat] === $efront_string_void ? !1 : expr[$efront_string_operat] === $efront_string_typeof ? !0 : expr[$efront_string_operat] === $efront_string__19 ? (ret = booleanCondition(expr[$efront_string_argume1]), ret === null ? null : !ret) : isConstant(expr) ? !!getConstant(expr) : null;
+            case Syntax[$efront_string_Update]:
                 return null
             }
             return null
         }
-        exports[$efront_string__boole] = booleanCondition
+        common = require(510), Syntax = common[$efront_string_Syntax], _a = {}, _a[$efront_string_doBina] = doBinary, _a[$efront_string_doUnar] = doUnary, _a[$efront_string_doLogi] = doLogical, _a[$efront_string_evalua] = getConstant, _a[$efront_string_isCons] = isConstant, exports[$efront_string_consta] = _a, exports[$efront_string_hasSid] = hasSideEffect, exports[$efront_string_boolea] = booleanCondition
     }()
 }],
-/** 594 query.js */ [1,68,52,128,56,510,function(require, exports, $efront_string__get_, $efront_string__lengt1, $efront_string__set_, $efront_string__asser) {
-    return function () {
+/** 573 query.js */ [1,52,37,3,41,490,function(require, exports, $efront_string_get, $efront_string_length, $efront_string_set, $efront_string_assert) {
+    return function (common) {
         'use strict';
-        var common;
-        common = require(530);
-        exports[$efront_string__get_] = function get(root, query) {
+        common = require(510), exports[$efront_string_get] = function get(root, query) {
             var i, iz, name, node;
-            node = root;
-            for (i = 0, iz = query[$efront_string__lengt1]; i < iz; ++i) {
-                name = query[i];
-                node = node[name]
-            }
+            for (node = root, i = 0, iz = query[$efront_string_length]; i < iz; ++i)
+                name = query[i], node = node[name];
             return node
-        };
-        exports[$efront_string__set_] = function set(root, query, value) {
+        }, exports[$efront_string_set] = function set(root, query, value) {
             var i, iz, name, node;
-            common[$efront_string__asser](query[$efront_string__lengt1] > 0);
-            node = root;
-            for (i = 0, iz = query[$efront_string__lengt1] - 1; i < iz; ++i) {
-                name = query[i];
-                node = node[name]
-            }
-            name = query[i];
-            node[name] = value
+            for (common[$efront_string_assert](query[$efront_string_length] > 0), node = root, i = 0, iz = query[$efront_string_length] - 1; i < iz; ++i)
+                name = query[i], node = node[name];
+            name = query[i], node[name] = value
         }
     }()
 }],
-/** 595 $efront_string__trans */ 'transform-static-to-dynamic-property-access',
-/** 596 $efront_string__true_ */ 'true',
-/** 597 $efront_string__false */ 'false',
-/** 598 $efront_string__Infin */ 'Infinity',
-/** 599 $efront_string__resul */ 'result',
-/** 600 $efront_string__modif */ 'modified',
-/** 601 post$transform-static-to-dynamic-property-access.js */ [1,29,595,196,52,562,563,295,183,186,187,103,485,148,98,215,49,513,117,481,378,152,100,150,596,597,598,80,307,129,130,599,600,564,38,function(require, module, $efront_string__trans, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__Ident, $efront_string__name_, $efront_string__undef, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__argum1, $efront_string__Liter, $efront_string__value1, $efront_string__true_, $efront_string__false, $efront_string__Infin, $efront_string__Binar, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 574 $efront_string_transf */ "transform-static-to-dynamic-property-access",
+/** 575 $efront_string_true */ "true",
+/** 576 $efront_string_false */ "false",
+/** 577 $efront_string_Infini */ "Infinity",
+/** 578 $efront_string_result */ "result",
+/** 579 $efront_string_modifi */ "modified",
+/** 580 post$transform-static-to-dynamic-property-access.js */ [1,15,574,180,37,541,542,278,167,170,171,88,467,132,83,199,34,493,102,463,361,136,85,134,575,576,577,65,290,113,114,578,579,543,13,function(require, module, $efront_string_transf, $efront_string_Syntax, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_enter, $efront_string_type, $efront_string_Member, $efront_string_comput, $efront_string_proper, $efront_string_Identi, $efront_string_name, $efront_string_undefi, $efront_string_moveLo, $efront_string_UnaryE, $efront_string_operat, $efront_string_void, $efront_string_argume1, $efront_string_Litera, $efront_string_value, $efront_string_true, $efront_string_false, $efront_string_Infini, $efront_string_Binary, $efront_string__1, $efront_string_left, $efront_string_right, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common) {
         'use strict';
-        var Name, Syntax, common;
-        Name = $efront_string__trans;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function transformStaticToDynamicPropertyAccess(tree, options) {
-            var _a, _b, _c;
-            var result, modified;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
-                var _a, _b, _c, _d, _e, _f;
-                var property;
-                if (node[$efront_string__type_] !== Syntax[$efront_string__Membe] || node[$efront_string__compu] || node[$efront_string__prope][$efront_string__type_] !== Syntax[$efront_string__Ident]) {
-                    return
-                }
-                property = node[$efront_string__prope];
-                switch (property[$efront_string__name_]) {
-                case $efront_string__undef:
-                    modified = true;
-                    node[$efront_string__compu] = true;
-                    node[$efront_string__prope] = common[$efront_string__moveL](property, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__void_, _a[$efront_string__argum1] = (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Liter], _b[$efront_string__value1] = 0, _b), _a));
+            var _a, _b, _c, result, modified;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, common[$efront_string_traver](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
+                var _a, _b, _c, _d, _e, _f, property;
+                if (node[$efront_string_type] !== Syntax[$efront_string_Member] || node[$efront_string_comput] || node[$efront_string_proper][$efront_string_type] !== Syntax[$efront_string_Identi])
+                    return;
+                property = node[$efront_string_proper];
+                switch (property[$efront_string_name]) {
+                case $efront_string_undefi:
+                    modified = !0;
+                    node[$efront_string_comput] = !0;
+                    node[$efront_string_proper] = common[$efront_string_moveLo](property, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string_void, _b = {}, _b[$efront_string_type] = Syntax[$efront_string_Litera], _b[$efront_string_value] = 0, _a[$efront_string_argume1] = _b, _a));
                     break;
-                case $efront_string__true_:
-                case $efront_string__false:
-                    modified = true;
-                    node[$efront_string__compu] = true;
-                    node[$efront_string__prope] = common[$efront_string__moveL](property, (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Liter], _c[$efront_string__value1] = property[$efront_string__name_] === $efront_string__true_, _c));
+                case $efront_string_true:
+                case $efront_string_false:
+                    modified = !0;
+                    node[$efront_string_comput] = !0;
+                    node[$efront_string_proper] = common[$efront_string_moveLo](property, (_c = {}, _c[$efront_string_type] = Syntax[$efront_string_Litera], _c[$efront_string_value] = property[$efront_string_name] === $efront_string_true, _c));
                     break;
-                case $efront_string__Infin:
-                    modified = true;
-                    node[$efront_string__compu] = true;
-                    node[$efront_string__prope] = common[$efront_string__moveL](property, (_d = {}, _d[$efront_string__type_] = Syntax[$efront_string__Binar], _d[$efront_string__opera] = $efront_string__1, _d[$efront_string__left_] = (_e = {}, _e[$efront_string__type_] = Syntax[$efront_string__Liter], _e[$efront_string__value1] = 1, _e), _d[$efront_string__right] = (_f = {}, _f[$efront_string__type_] = Syntax[$efront_string__Liter], _f[$efront_string__value1] = 0, _f), _d));
+                case $efront_string_Infini:
+                    modified = !0;
+                    node[$efront_string_comput] = !0;
+                    node[$efront_string_proper] = common[$efront_string_moveLo](property, (_d = {}, _d[$efront_string_type] = Syntax[$efront_string_Binary], _d[$efront_string_operat] = $efront_string__1, _e = {}, _e[$efront_string_type] = Syntax[$efront_string_Litera], _e[$efront_string_value] = 1, _d[$efront_string_left] = _e, _f = {}, _f[$efront_string_type] = Syntax[$efront_string_Litera], _f[$efront_string_value] = 0, _d[$efront_string_right] = _f, _d));
                     break
                 }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        transformStaticToDynamicPropertyAccess[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformStaticToDynamicPropertyAccess
+        Name = $efront_string_transf, common = require(510), Syntax = common[$efront_string_Syntax], transformStaticToDynamicPropertyAccess[$efront_string_passNa] = Name, module[$efront_string_export] = transformStaticToDynamicPropertyAccess
     }()
 }],
-/** 602 $efront_string__trans1 */ 'transform-infinity',
-/** 603 post$transform-infinity.js */ [1,29,602,196,52,562,563,295,165,186,187,100,150,499,513,80,481,307,129,130,599,600,564,38,function(require, module, $efront_string__trans1, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__numbe, $efront_string__moveL, $efront_string__Binar, $efront_string__opera, $efront_string__1, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 581 $efront_string_transf1 */ "transform-infinity",
+/** 582 post$transform-infinity.js */ [1,15,581,180,37,541,542,278,149,170,171,85,134,480,493,65,463,290,113,114,578,579,543,13,function(require, module, $efront_string_transf1, $efront_string_Syntax, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_replac, $efront_string_enter, $efront_string_type, $efront_string_Litera, $efront_string_value, $efront_string_number, $efront_string_moveLo, $efront_string_Binary, $efront_string_operat, $efront_string__1, $efront_string_left, $efront_string_right, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common) {
         'use strict';
-        var Name, Syntax, common;
-        Name = $efront_string__trans1;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function transformInfinity(tree, options) {
-            var _a, _b, _c;
-            var result, modified;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            result = common[$efront_string__repla](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
+            var _a, _b, _c, result, modified;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, result = common[$efront_string_replac](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
                 var _a, _b, _c;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Liter] && typeof node[$efront_string__value1] === $efront_string__numbe) {
-                    if (node[$efront_string__value1] === Infinity) {
-                        modified = true;
-                        return common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Binar], _a[$efront_string__opera] = $efront_string__1, _a[$efront_string__left_] = (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Liter], _b[$efront_string__value1] = 1, _b), _a[$efront_string__right] = (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Liter], _c[$efront_string__value1] = 0, _c), _a))
-                    }
-                }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+                return node[$efront_string_type] === Syntax[$efront_string_Litera] && typeof node[$efront_string_value] === $efront_string_number && node[$efront_string_value] === Infinity ? (modified = !0, common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Binary], _a[$efront_string_operat] = $efront_string__1, _b = {}, _b[$efront_string_type] = Syntax[$efront_string_Litera], _b[$efront_string_value] = 1, _a[$efront_string_left] = _b, _c = {}, _c[$efront_string_type] = Syntax[$efront_string_Litera], _c[$efront_string_value] = 0, _a[$efront_string_right] = _c, _a))) : void 0
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        transformInfinity[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformInfinity
+        Name = $efront_string_transf1, common = require(510), Syntax = common[$efront_string_Syntax], transformInfinity[$efront_string_passNa] = Name, module[$efront_string_export] = transformInfinity
     }()
 }],
-/** 604 $efront_string__rewri */ 'rewrite-conditional-expression',
-/** 605 post$rewrite-conditional-expression.js */ [1,29,604,196,36,142,143,187,117,481,566,152,52,562,563,295,183,186,87,599,600,564,38,function(require, module, $efront_string__rewri, $efront_string__Synta, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__type_, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Condi, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 583 $efront_string_rewrit */ "rewrite-conditional-expression",
+/** 584 post$rewrite-conditional-expression.js */ [1,15,583,180,22,126,127,171,102,463,545,136,37,541,542,278,167,170,72,578,579,543,13,function(require, module, $efront_string_rewrit, $efront_string_Syntax, $efront_string_test, $efront_string_conseq, $efront_string_altern, $efront_string_type, $efront_string_UnaryE, $efront_string_operat, $efront_string__19, $efront_string_argume1, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_enter, $efront_string_Condit, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__rewri;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function rewrite(node) {
             var test, consequent, alternate;
-            test = node[$efront_string__test_];
-            consequent = node[$efront_string__conse];
-            alternate = node[$efront_string__alter];
-            if (test[$efront_string__type_] === Syntax[$efront_string__Unary] && test[$efront_string__opera] === $efront_string__11) {
-                modified = true;
-                node[$efront_string__conse] = alternate;
-                node[$efront_string__alter] = consequent;
-                node[$efront_string__test_] = test[$efront_string__argum1]
-            }
+            test = node[$efront_string_test], consequent = node[$efront_string_conseq], alternate = node[$efront_string_altern], test[$efront_string_type] === Syntax[$efront_string_UnaryE] && test[$efront_string_operat] === $efront_string__19 && (modified = !0, node[$efront_string_conseq] = alternate, node[$efront_string_altern] = consequent, node[$efront_string_test] = test[$efront_string_argume1])
         }
         function rewriteConditionalExpression(tree, options) {
-            var _a, _b, _c;
-            var result;
-            modified = false;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
-                if (node[$efront_string__type_] === Syntax[$efront_string__Condi]) {
-                    rewrite(node)
-                }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            var _a, _b, _c, result;
+            return modified = !1, result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), common[$efront_string_traver](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
+                node[$efront_string_type] === Syntax[$efront_string_Condit] && rewrite(node)
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        rewriteConditionalExpression[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = rewriteConditionalExpression
+        Name = $efront_string_rewrit, common = require(510), Syntax = common[$efront_string_Syntax], rewriteConditionalExpression[$efront_string_passNa] = Name, module[$efront_string_export] = rewriteConditionalExpression
     }()
 }],
-/** 606 $efront_string__rewri1 */ 'rewrite-boolean',
-/** 607 $efront_string__boole1 */ 'boolean',
-/** 608 post$rewrite-boolean.js */ [1,29,606,196,187,100,150,607,513,117,481,566,152,80,573,574,129,130,52,562,563,295,165,186,599,600,564,38,function(require, module, $efront_string__rewri1, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__boole1, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__Binar, $efront_string__18, $efront_string__19, $efront_string__left_, $efront_string__right, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 585 $efront_string_rewrit1 */ "rewrite-boolean",
+/** 586 $efront_string_boolea1 */ "boolean",
+/** 587 post$rewrite-boolean.js */ [1,15,585,180,171,85,134,586,493,102,463,545,136,65,552,553,113,114,37,541,542,278,149,170,578,579,543,13,function(require, module, $efront_string_rewrit1, $efront_string_Syntax, $efront_string_type, $efront_string_Litera, $efront_string_value, $efront_string_boolea1, $efront_string_moveLo, $efront_string_UnaryE, $efront_string_operat, $efront_string__19, $efront_string_argume1, $efront_string_Binary, $efront_string__26, $efront_string__27, $efront_string_left, $efront_string_right, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_replac, $efront_string_enter, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__rewri1;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function isBooleanLiteral(node) {
-            return node[$efront_string__type_] === Syntax[$efront_string__Liter] && typeof node[$efront_string__value1] === $efront_string__boole1
+            return node[$efront_string_type] === Syntax[$efront_string_Litera] && typeof node[$efront_string_value] === $efront_string_boolea1
         }
         function rewrite(node) {
             var _a, _b, _c, _d;
-            if (isBooleanLiteral(node)) {
-                modified = true;
-                return common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__11, _a[$efront_string__argum1] = common[$efront_string__moveL](node, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Liter], _b[$efront_string__value1] = +!node[$efront_string__value1], _b)), _a))
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Binar] && node[$efront_string__opera] === $efront_string__18 || node[$efront_string__opera] === $efront_string__19) {
-                if (isBooleanLiteral(node[$efront_string__left_])) {
-                    modified = true;
-                    node[$efront_string__left_] = common[$efront_string__moveL](node[$efront_string__left_], (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Liter], _c[$efront_string__value1] = +node[$efront_string__left_][$efront_string__value1], _c));
-                    return node
-                }
-                if (isBooleanLiteral(node[$efront_string__right])) {
-                    modified = true;
-                    node[$efront_string__right] = common[$efront_string__moveL](node[$efront_string__right], (_d = {}, _d[$efront_string__type_] = Syntax[$efront_string__Liter], _d[$efront_string__value1] = +node[$efront_string__right][$efront_string__value1], _d));
-                    return node
-                }
+            if (isBooleanLiteral(node))
+                return modified = !0, common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string__19, _a[$efront_string_argume1] = common[$efront_string_moveLo](node, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_Litera], _b[$efront_string_value] = +!node[$efront_string_value], _b)), _a));
+            if (node[$efront_string_type] === Syntax[$efront_string_Binary] && node[$efront_string_operat] === $efront_string__26 || node[$efront_string_operat] === $efront_string__27) {
+                if (isBooleanLiteral(node[$efront_string_left]))
+                    return modified = !0, node[$efront_string_left] = common[$efront_string_moveLo](node[$efront_string_left], (_c = {}, _c[$efront_string_type] = Syntax[$efront_string_Litera], _c[$efront_string_value] = +node[$efront_string_left][$efront_string_value], _c)), node;
+                if (isBooleanLiteral(node[$efront_string_right]))
+                    return modified = !0, node[$efront_string_right] = common[$efront_string_moveLo](node[$efront_string_right], (_d = {}, _d[$efront_string_type] = Syntax[$efront_string_Litera], _d[$efront_string_value] = +node[$efront_string_right][$efront_string_value], _d)), node
             }
             return node
         }
         function rewriteBoolean(tree, options) {
-            var _a, _b, _c;
-            var result;
-            modified = false;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            result = common[$efront_string__repla](result, (_b = {}, _b[$efront_string__enter] = rewrite, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            var _a, _b, _c, result;
+            return modified = !1, result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), result = common[$efront_string_replac](result, (_b = {}, _b[$efront_string_enter] = rewrite, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        rewriteBoolean[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = rewriteBoolean
+        Name = $efront_string_rewrit1, common = require(510), Syntax = common[$efront_string_Syntax], rewriteBoolean[$efront_string_passNa] = Name, module[$efront_string_export] = rewriteBoolean
     }()
 }],
-/** 609 $efront_string__omit_ */ 'omit-parens-in-void-context-iife',
-/** 610 $efront_string__prese */ 'preserveCompletionValue',
-/** 611 post$omit-parens-in-void-context-iife.js */ [1,29,609,196,187,82,137,97,52,562,563,295,610,165,186,93,172,184,516,111,153,128,117,481,566,152,185,96,599,600,564,38,function(require, module, $efront_string__omit_, $efront_string__Synta, $efront_string__type_, $efront_string__CallE, $efront_string__calle, $efront_string__Funct1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__repla, $efront_string__enter, $efront_string__Expre, $efront_string__paren1, $efront_string__pop_, $efront_string__mayBe, $efront_string__Seque, $efront_string__expre1, $efront_string__lengt1, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__leave, $efront_string__Funct, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 588 $efront_string_omit_p */ "omit-parens-in-void-context-iife",
+/** 589 $efront_string_preser */ "preserveCompletionValue",
+/** 590 post$omit-parens-in-void-context-iife.js */ [1,15,588,180,171,67,121,82,37,541,542,278,589,149,170,78,156,168,496,96,137,3,102,463,545,136,169,81,578,579,543,13,function(require, module, $efront_string_omit_p, $efront_string_Syntax, $efront_string_type, $efront_string_CallEx, $efront_string_callee, $efront_string_Functi1, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_preser, $efront_string_replac, $efront_string_enter, $efront_string_Expres, $efront_string_parent1, $efront_string_pop, $efront_string_mayBeC, $efront_string_Sequen, $efront_string_expres1, $efront_string_length, $efront_string_UnaryE, $efront_string_operat, $efront_string__19, $efront_string_argume1, $efront_string_leave, $efront_string_Functi, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__omit_;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function isIIFE(node) {
             var callee;
-            if (node[$efront_string__type_] !== Syntax[$efront_string__CallE]) {
-                return false
-            }
-            callee = node[$efront_string__calle];
-            return callee[$efront_string__type_] === Syntax[$efront_string__Funct1]
+            return node[$efront_string_type] !== Syntax[$efront_string_CallEx] ? !1 : (callee = node[$efront_string_callee], callee[$efront_string_type] === Syntax[$efront_string_Functi1])
         }
         function main(tree, options) {
-            var _a, _b, _c, _d;
-            var result, stackCount, preserveCompletionValue;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            preserveCompletionValue = options[$efront_string__get_]($efront_string__prese, (_b = {}, _b[$efront_string__pathN] = Name, _b));
-            modified = false;
-            result = common[$efront_string__repla](result, (_c = {}, _c[$efront_string__enter] = function enter(node, parent) {
-                var _a;
-                var ancestors, target;
-                if (!isIIFE(node)) {
-                    return
-                }
-                target = parent;
-                if (target[$efront_string__type_] === Syntax[$efront_string__Expre]) {
-                    ancestors = this[$efront_string__paren1]();
-                    ancestors[$efront_string__pop_]();
-                    if (preserveCompletionValue && common[$efront_string__mayBe](target, ancestors)) {
+            var _a, _b, _c, _d, result, stackCount, preserveCompletionValue;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), preserveCompletionValue = options[$efront_string_get]($efront_string_preser, (_b = {}, _b[$efront_string_pathNa] = Name, _b)), modified = !1, result = common[$efront_string_replac](result, (_c = {}, _c[$efront_string_enter] = function enter(node, parent) {
+                var _a, ancestors, target;
+                if (!isIIFE(node))
+                    return;
+                if (target = parent, target[$efront_string_type] === Syntax[$efront_string_Expres]) {
+                    if (ancestors = this[$efront_string_parent1](), ancestors[$efront_string_pop](), preserveCompletionValue && common[$efront_string_mayBeC](target, ancestors))
                         return
-                    }
-                } else if (target[$efront_string__type_] === Syntax[$efront_string__Seque] && target[$efront_string__expre1][$efront_string__lengt1] >= 2 && target[$efront_string__expre1][0] === node) {
-                    ancestors = this[$efront_string__paren1]();
-                    ancestors[$efront_string__pop_]();
-                    target = ancestors[$efront_string__pop_]();
-                    if (target[$efront_string__type_] !== Syntax[$efront_string__Expre]) {
+                } else if (target[$efront_string_type] === Syntax[$efront_string_Sequen] && target[$efront_string_expres1][$efront_string_length] >= 2 && target[$efront_string_expres1][0] === node) {
+                    if (ancestors = this[$efront_string_parent1](), ancestors[$efront_string_pop](), target = ancestors[$efront_string_pop](), target[$efront_string_type] !== Syntax[$efront_string_Expres])
                         return
-                    }
-                } else {
-                    return
-                }
-                modified = true;
-                return _a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__11, _a[$efront_string__argum1] = node, _a
-            }, _c[$efront_string__leave] = function leave(node) {
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct1] || node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                    --stackCount
-                }
-            }, _c));
-            return _d = {}, _d[$efront_string__resul] = result, _d[$efront_string__modif] = modified, _d
+                } else
+                    return;
+                return modified = !0, _a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string__19, _a[$efront_string_argume1] = node, _a
+            }, _c[$efront_string_leave] = function leave(node) {
+                (node[$efront_string_type] === Syntax[$efront_string_Functi1] || node[$efront_string_type] === Syntax[$efront_string_Functi]) && --stackCount
+            }, _c)), _d = {}, _d[$efront_string_result] = result, _d[$efront_string_modifi] = modified, _d
         }
-        main[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = main
+        Name = $efront_string_omit_p, common = require(510), Syntax = common[$efront_string_Syntax], main[$efront_string_passNa] = Name, module[$efront_string_export] = main
     }()
 }],
-/** 612 $efront_string__tree_ */ 'tree-based-constant-folding',
-/** 613 pass$tree-based-constant-folding.js */ [1,29,612,196,519,522,517,524,585,590,187,87,142,143,80,481,369,397,129,130,589,527,586,102,117,152,587,52,562,563,295,165,185,513,503,111,153,36,599,600,564,38,function(require, module, $efront_string__tree_, $efront_string__Synta, $efront_string__Speci, $efront_string__isUnd, $efront_string__isNeg, $efront_string__isNaN, $efront_string__const1, $efront_string__isCon, $efront_string__type_, $efront_string__Condi, $efront_string__conse, $efront_string__alter, $efront_string__Binar, $efront_string__opera, $efront_string__in_, $efront_string__insta, $efront_string__left_, $efront_string__right, $efront_string__evalu, $efront_string__gener4, $efront_string__doBin, $efront_string__Logic, $efront_string__Unary, $efront_string__argum1, $efront_string__doUna, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__moveL, $efront_string__sameV, $efront_string__Seque, $efront_string__expre1, $efront_string__test_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 591 $efront_string_tree_b */ "tree-based-constant-folding",
+/** 592 pass$tree-based-constant-folding.js */ [1,15,591,180,499,502,497,504,564,569,171,72,126,127,65,463,352,380,113,114,568,507,565,87,102,136,566,37,541,542,278,149,169,493,483,96,137,22,578,579,543,13,function(require, module, $efront_string_tree_b, $efront_string_Syntax, $efront_string_Specia, $efront_string_isUnde, $efront_string_isNega, $efront_string_isNaN, $efront_string_consta, $efront_string_isCons, $efront_string_type, $efront_string_Condit, $efront_string_conseq, $efront_string_altern, $efront_string_Binary, $efront_string_operat, $efront_string_in, $efront_string_instan, $efront_string_left, $efront_string_right, $efront_string_evalua, $efront_string_genera4, $efront_string_doBina, $efront_string_Logica, $efront_string_UnaryE, $efront_string_argume1, $efront_string_doUnar, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_replac, $efront_string_leave, $efront_string_moveLo, $efront_string_sameVa, $efront_string_Sequen, $efront_string_expres1, $efront_string_test, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, evaluator, modified) {
         'use strict';
-        var Name, Syntax, common, evaluator, modified;
-        Name = $efront_string__tree_;
-        common = require(530);
-        evaluator = require(593);
-        Syntax = common[$efront_string__Synta];
         function isModifiedConstant(node) {
-            if (common[$efront_string__Speci][$efront_string__isUnd](node)) {
-                return false
-            }
-            if (common[$efront_string__Speci][$efront_string__isNeg](node)) {
-                return false
-            }
-            if (common[$efront_string__Speci][$efront_string__isNaN](node)) {
-                return false
-            }
-            return evaluator[$efront_string__const1][$efront_string__isCon](node, false)
+            return common[$efront_string_Specia][$efront_string_isUnde](node) ? !1 : common[$efront_string_Specia][$efront_string_isNega](node) ? !1 : common[$efront_string_Specia][$efront_string_isNaN](node) ? !1 : evaluator[$efront_string_consta][$efront_string_isCons](node, !1)
         }
         function isFoldableConditional(node) {
-            if (node[$efront_string__type_] !== Syntax[$efront_string__Condi]) {
-                return false
-            }
-            return evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__conse]) || evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__alter])
+            return node[$efront_string_type] !== Syntax[$efront_string_Condit] ? !1 : evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_conseq]) || evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_altern])
         }
         function foldConditional(node) {
             var binary, unary, operator, left, right;
-            switch (node[$efront_string__type_]) {
-            case Syntax[$efront_string__Binar]:
-                if (node[$efront_string__opera] === $efront_string__in_ || node[$efront_string__opera] === $efront_string__insta) {
-                    return node
-                }
-                if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__left_]) && isFoldableConditional(node[$efront_string__right])) {
-                    modified = true;
-                    binary = node;
-                    operator = binary[$efront_string__opera];
-                    left = evaluator[$efront_string__const1][$efront_string__evalu](binary[$efront_string__left_]);
-                    node = node[$efront_string__right];
-                    if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__conse])) {
-                        node[$efront_string__conse] = common[$efront_string__Speci][$efront_string__gener4](evaluator[$efront_string__const1][$efront_string__doBin](operator, left, evaluator[$efront_string__const1][$efront_string__evalu](node[$efront_string__conse])))
-                    } else {
-                        binary[$efront_string__right] = node[$efront_string__conse];
-                        node[$efront_string__conse] = binary
-                    }
-                    if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__alter])) {
-                        node[$efront_string__alter] = common[$efront_string__Speci][$efront_string__gener4](evaluator[$efront_string__const1][$efront_string__doBin](operator, left, evaluator[$efront_string__const1][$efront_string__evalu](node[$efront_string__alter])))
-                    } else {
-                        binary[$efront_string__right] = node[$efront_string__alter];
-                        node[$efront_string__alter] = binary
-                    }
-                } else if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__right]) && isFoldableConditional(node[$efront_string__left_])) {
-                    modified = true;
-                    binary = node;
-                    operator = binary[$efront_string__opera];
-                    right = evaluator[$efront_string__const1][$efront_string__evalu](binary[$efront_string__right]);
-                    node = node[$efront_string__left_];
-                    if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__conse])) {
-                        node[$efront_string__conse] = common[$efront_string__Speci][$efront_string__gener4](evaluator[$efront_string__const1][$efront_string__doBin](operator, evaluator[$efront_string__const1][$efront_string__evalu](node[$efront_string__conse]), right))
-                    } else {
-                        binary[$efront_string__left_] = node[$efront_string__conse];
-                        node[$efront_string__conse] = binary
-                    }
-                    if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__alter])) {
-                        node[$efront_string__alter] = common[$efront_string__Speci][$efront_string__gener4](evaluator[$efront_string__const1][$efront_string__doBin](operator, evaluator[$efront_string__const1][$efront_string__evalu](node[$efront_string__alter]), right))
-                    } else {
-                        binary[$efront_string__left_] = node[$efront_string__alter];
-                        node[$efront_string__alter] = binary
-                    }
-                }
+            switch (node[$efront_string_type]) {
+            case Syntax[$efront_string_Binary]:
+                if (node[$efront_string_operat] === $efront_string_in || node[$efront_string_operat] === $efront_string_instan)
+                    return node;
+                evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_left]) && isFoldableConditional(node[$efront_string_right]) ? (modified = !0, binary = node, operator = binary[$efront_string_operat], left = evaluator[$efront_string_consta][$efront_string_evalua](binary[$efront_string_left]), node = node[$efront_string_right], evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_conseq]) ? node[$efront_string_conseq] = common[$efront_string_Specia][$efront_string_genera4](evaluator[$efront_string_consta][$efront_string_doBina](operator, left, evaluator[$efront_string_consta][$efront_string_evalua](node[$efront_string_conseq]))) : (binary[$efront_string_right] = node[$efront_string_conseq], node[$efront_string_conseq] = binary), evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_altern]) ? node[$efront_string_altern] = common[$efront_string_Specia][$efront_string_genera4](evaluator[$efront_string_consta][$efront_string_doBina](operator, left, evaluator[$efront_string_consta][$efront_string_evalua](node[$efront_string_altern]))) : (binary[$efront_string_right] = node[$efront_string_altern], node[$efront_string_altern] = binary)) : evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_right]) && isFoldableConditional(node[$efront_string_left]) && (modified = !0, binary = node, operator = binary[$efront_string_operat], right = evaluator[$efront_string_consta][$efront_string_evalua](binary[$efront_string_right]), node = node[$efront_string_left], evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_conseq]) ? node[$efront_string_conseq] = common[$efront_string_Specia][$efront_string_genera4](evaluator[$efront_string_consta][$efront_string_doBina](operator, evaluator[$efront_string_consta][$efront_string_evalua](node[$efront_string_conseq]), right)) : (binary[$efront_string_left] = node[$efront_string_conseq], node[$efront_string_conseq] = binary), evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_altern]) ? node[$efront_string_altern] = common[$efront_string_Specia][$efront_string_genera4](evaluator[$efront_string_consta][$efront_string_doBina](operator, evaluator[$efront_string_consta][$efront_string_evalua](node[$efront_string_altern]), right)) : (binary[$efront_string_left] = node[$efront_string_altern], node[$efront_string_altern] = binary));
                 break;
-            case Syntax[$efront_string__Logic]:
+            case Syntax[$efront_string_Logica]:
                 break;
-            case Syntax[$efront_string__Unary]:
-                if (isFoldableConditional(node[$efront_string__argum1])) {
-                    modified = true;
-                    unary = node;
-                    operator = unary[$efront_string__opera];
-                    node = unary[$efront_string__argum1];
-                    if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__conse])) {
-                        node[$efront_string__conse] = common[$efront_string__Speci][$efront_string__gener4](evaluator[$efront_string__const1][$efront_string__doUna](operator, evaluator[$efront_string__const1][$efront_string__evalu](node[$efront_string__conse])))
-                    } else {
-                        unary[$efront_string__argum1] = node[$efront_string__conse];
-                        node[$efront_string__conse] = unary
-                    }
-                    if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__alter])) {
-                        node[$efront_string__alter] = common[$efront_string__Speci][$efront_string__gener4](evaluator[$efront_string__const1][$efront_string__doUna](operator, evaluator[$efront_string__const1][$efront_string__evalu](node[$efront_string__alter])))
-                    } else {
-                        unary[$efront_string__argum1] = node[$efront_string__alter];
-                        node[$efront_string__alter] = unary
-                    }
-                }
+            case Syntax[$efront_string_UnaryE]:
+                isFoldableConditional(node[$efront_string_argume1]) && (modified = !0, unary = node, operator = unary[$efront_string_operat], node = unary[$efront_string_argume1], evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_conseq]) ? node[$efront_string_conseq] = common[$efront_string_Specia][$efront_string_genera4](evaluator[$efront_string_consta][$efront_string_doUnar](operator, evaluator[$efront_string_consta][$efront_string_evalua](node[$efront_string_conseq]))) : (unary[$efront_string_argume1] = node[$efront_string_conseq], node[$efront_string_conseq] = unary), evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_altern]) ? node[$efront_string_altern] = common[$efront_string_Specia][$efront_string_genera4](evaluator[$efront_string_consta][$efront_string_doUnar](operator, evaluator[$efront_string_consta][$efront_string_evalua](node[$efront_string_altern]))) : (unary[$efront_string_argume1] = node[$efront_string_altern], node[$efront_string_altern] = unary));
                 break
             }
             return node
         }
         function treeBasedConstantFolding(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            result = common[$efront_string__repla](result, (_b = {}, _b[$efront_string__leave] = function leave(node) {
-                var _a;
-                var con, alt;
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Binar]:
-                case Syntax[$efront_string__Logic]:
-                case Syntax[$efront_string__Unary]:
-                    if (isModifiedConstant(node)) {
-                        modified = true;
-                        return common[$efront_string__moveL](node, common[$efront_string__Speci][$efront_string__gener4](evaluator[$efront_string__const1][$efront_string__evalu](node)))
-                    }
-                    return foldConditional(node);
-                case Syntax[$efront_string__Condi]:
-                    if (evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__conse]) && evaluator[$efront_string__const1][$efront_string__isCon](node[$efront_string__alter])) {
-                        con = evaluator[$efront_string__const1][$efront_string__evalu](node[$efront_string__conse]);
-                        alt = evaluator[$efront_string__const1][$efront_string__evalu](node[$efront_string__alter]);
-                        if (common[$efront_string__sameV](con, alt)) {
-                            modified = true;
-                            return common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Seque], _a[$efront_string__expre1] = [
-                                node[$efront_string__test_],
-                                common[$efront_string__Speci][$efront_string__gener4](con)
-                            ], _a))
-                        }
-                    }
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, result = common[$efront_string_replac](result, (_b = {}, _b[$efront_string_leave] = function leave(node) {
+                var _a, con, alt;
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_Binary]:
+                case Syntax[$efront_string_Logica]:
+                case Syntax[$efront_string_UnaryE]:
+                    return isModifiedConstant(node) ? (modified = !0, common[$efront_string_moveLo](node, common[$efront_string_Specia][$efront_string_genera4](evaluator[$efront_string_consta][$efront_string_evalua](node)))) : foldConditional(node);
+                case Syntax[$efront_string_Condit]:
+                    if (evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_conseq]) && evaluator[$efront_string_consta][$efront_string_isCons](node[$efront_string_altern]) && (con = evaluator[$efront_string_consta][$efront_string_evalua](node[$efront_string_conseq]), alt = evaluator[$efront_string_consta][$efront_string_evalua](node[$efront_string_altern]), common[$efront_string_sameVa](con, alt)))
+                        return modified = !0, common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Sequen], _a[$efront_string_expres1] = [
+                            node[$efront_string_test],
+                            common[$efront_string_Specia][$efront_string_genera4](con)
+                        ], _a));
                     break
                 }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        treeBasedConstantFolding[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = treeBasedConstantFolding
+        Name = $efront_string_tree_b, common = require(510), evaluator = require(572), Syntax = common[$efront_string_Syntax], treeBasedConstantFolding[$efront_string_passNa] = Name, module[$efront_string_export] = treeBasedConstantFolding
     }()
 }],
-/** 614 $efront_string__trans2 */ 'transform-typeof-undefined',
-/** 615 pass$transform-typeof-undefined.js */ [1,29,614,196,187,100,150,49,52,562,563,295,491,410,471,183,186,478,80,481,575,576,573,574,129,130,117,388,152,98,463,423,415,519,521,292,566,185,479,472,599,600,564,38,function(require, module, $efront_string__trans2, $efront_string__Synta, $efront_string__type_, $efront_string__Liter, $efront_string__value1, $efront_string__undef, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__enter, $efront_string__acqui, $efront_string__Binar, $efront_string__opera, $efront_string__20, $efront_string__21, $efront_string__18, $efront_string__19, $efront_string__left_, $efront_string__right, $efront_string__Unary, $efront_string__typeo, $efront_string__argum1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__resol, $efront_string__Speci, $efront_string__gener2, $efront_string__charA, $efront_string__11, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 593 $efront_string_transf2 */ "transform-typeof-undefined",
+/** 594 pass$transform-typeof-undefined.js */ [1,15,593,180,171,85,134,34,37,541,542,278,473,393,453,167,170,460,65,463,554,555,552,553,113,114,102,371,136,83,445,406,398,499,501,275,545,169,461,454,578,579,543,13,function(require, module, $efront_string_transf2, $efront_string_Syntax, $efront_string_type, $efront_string_Litera, $efront_string_value, $efront_string_undefi, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_analyz, $efront_string_direct1, $efront_string_attach2, $efront_string_traver, $efront_string_enter, $efront_string_acquir, $efront_string_Binary, $efront_string_operat, $efront_string__28, $efront_string__29, $efront_string__26, $efront_string__27, $efront_string_left, $efront_string_right, $efront_string_UnaryE, $efront_string_typeof, $efront_string_argume1, $efront_string_Identi, $efront_string_resolv1, $efront_string_isStat, $efront_string_resolv, $efront_string_Specia, $efront_string_genera2, $efront_string_charAt, $efront_string__19, $efront_string_leave, $efront_string_releas, $efront_string_detach, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, escope, modified) {
         'use strict';
-        var Name, Syntax, common, escope, modified;
-        Name = $efront_string__trans2;
-        escope = require(494);
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function isUndefinedStringLiteral(node) {
-            return node[$efront_string__type_] === Syntax[$efront_string__Liter] && node[$efront_string__value1] === $efront_string__undef
+            return node[$efront_string_type] === Syntax[$efront_string_Litera] && node[$efront_string_value] === $efront_string_undefi
         }
         function transformTypeofUndefined(tree, options) {
-            var _a, _b, _c, _d;
-            var result, manager, scope;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            scope = null;
-            manager = escope[$efront_string__analy](result, (_b = {}, _b[$efront_string__direc1] = true, _b));
-            manager[$efront_string__attac2]();
-            common[$efront_string__trave](result, (_c = {}, _c[$efront_string__enter] = function enter(node) {
+            var _a, _b, _c, _d, result, manager, scope;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, scope = null, manager = escope[$efront_string_analyz](result, (_b = {}, _b[$efront_string_direct1] = !0, _b)), manager[$efront_string_attach2](), common[$efront_string_traver](result, (_c = {}, _c[$efront_string_enter] = function enter(node) {
                 var target, undef, argument, ref;
-                scope = manager[$efront_string__acqui](node) || scope;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Binar] && (node[$efront_string__opera] === $efront_string__20 || node[$efront_string__opera] === $efront_string__21 || node[$efront_string__opera] === $efront_string__18 || node[$efront_string__opera] === $efront_string__19)) {
-                    if (isUndefinedStringLiteral(node[$efront_string__left_])) {
-                        undef = $efront_string__left_;
-                        target = $efront_string__right
-                    } else if (isUndefinedStringLiteral(node[$efront_string__right])) {
-                        undef = $efront_string__right;
-                        target = $efront_string__left_
-                    } else {
-                        return
-                    }
-                    if (node[target][$efront_string__type_] === Syntax[$efront_string__Unary] && node[target][$efront_string__opera] === $efront_string__typeo) {
-                        argument = node[target][$efront_string__argum1];
-                        if (argument[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                            ref = scope[$efront_string__resol1](argument);
-                            if (!ref || !ref[$efront_string__isSta]() || !ref[$efront_string__resol]) {
-                                return
-                            }
-                        }
-                        modified = true;
-                        node[undef] = common[$efront_string__Speci][$efront_string__gener2]();
-                        node[target] = argument;
-                        node[$efront_string__opera] = node[$efront_string__opera][$efront_string__charA](0) === $efront_string__11 ? $efront_string__21 : $efront_string__20
+                if (scope = manager[$efront_string_acquir](node) || scope, node[$efront_string_type] === Syntax[$efront_string_Binary] && (node[$efront_string_operat] === $efront_string__28 || node[$efront_string_operat] === $efront_string__29 || node[$efront_string_operat] === $efront_string__26 || node[$efront_string_operat] === $efront_string__27)) {
+                    if (isUndefinedStringLiteral(node[$efront_string_left]))
+                        undef = $efront_string_left, target = $efront_string_right;
+                    else if (isUndefinedStringLiteral(node[$efront_string_right]))
+                        undef = $efront_string_right, target = $efront_string_left;
+                    else
+                        return;
+                    if (node[target][$efront_string_type] === Syntax[$efront_string_UnaryE] && node[target][$efront_string_operat] === $efront_string_typeof) {
+                        if (argument = node[target][$efront_string_argume1], argument[$efront_string_type] === Syntax[$efront_string_Identi] && (ref = scope[$efront_string_resolv1](argument), !(ref && ref[$efront_string_isStat]() && ref[$efront_string_resolv])))
+                            return;
+                        modified = !0, node[undef] = common[$efront_string_Specia][$efront_string_genera2](), node[target] = argument, node[$efront_string_operat] = node[$efront_string_operat][$efront_string_charAt](0) === $efront_string__19 ? $efront_string__29 : $efront_string__28
                     }
                 }
-            }, _c[$efront_string__leave] = function leave(node) {
-                scope = manager[$efront_string__relea](node) || scope
-            }, _c));
-            manager[$efront_string__detac]();
-            return _d = {}, _d[$efront_string__resul] = result, _d[$efront_string__modif] = modified, _d
+            }, _c[$efront_string_leave] = function leave(node) {
+                scope = manager[$efront_string_releas](node) || scope
+            }, _c)), manager[$efront_string_detach](), _d = {}, _d[$efront_string_result] = result, _d[$efront_string_modifi] = modified, _d
         }
-        transformTypeofUndefined[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformTypeofUndefined
+        Name = $efront_string_transf2, escope = require(476), common = require(510), Syntax = common[$efront_string_Syntax], transformTypeofUndefined[$efront_string_passNa] = Name, module[$efront_string_export] = transformTypeofUndefined
     }()
 }],
-/** 616 $efront_string__trans3 */ 'transform-to-sequence-expression',
-/** 617 pass$transform-to-sequence-expression.js */ [1,29,616,196,128,187,111,153,93,144,152,135,63,110,115,94,145,119,99,36,52,562,563,295,183,186,79,108,599,600,564,38,function(require, module, $efront_string__trans3, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Seque, $efront_string__expre1, $efront_string__Expre, $efront_string__expre, $efront_string__argum1, $efront_string__body_, $efront_string__push_, $efront_string__Retur, $efront_string__Throw, $efront_string__ForSt, $efront_string__init_, $efront_string__Varia, $efront_string__IfSta, $efront_string__test_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Block, $efront_string__Progr, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 595 $efront_string_transf3 */ "transform-to-sequence-expression",
+/** 596 pass$transform-to-sequence-expression.js */ [1,15,595,180,3,171,96,137,78,128,136,119,47,95,100,79,129,104,84,22,37,541,542,278,167,170,64,93,578,579,543,13,function(require, module, $efront_string_transf3, $efront_string_Syntax, $efront_string_length, $efront_string_type, $efront_string_Sequen, $efront_string_expres1, $efront_string_Expres, $efront_string_expres, $efront_string_argume1, $efront_string_body, $efront_string_push, $efront_string_Return, $efront_string_ThrowS, $efront_string_ForSta, $efront_string_init, $efront_string_Variab, $efront_string_IfStat, $efront_string_test, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_enter, $efront_string_BlockS, $efront_string_Progra, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__trans3;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function transform(node) {
-            var _a, _b;
-            var i, iz, expressions, stmt, prev, body;
             function constructSeq(expressions, stmt) {
-                var _a;
-                var seq;
-                if (expressions[$efront_string__lengt1] !== 1) {
-                    modified = true;
-                    seq = (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Seque], _a[$efront_string__expre1] = expressions, _a);
-                    if (stmt[$efront_string__type_] === Syntax[$efront_string__Expre]) {
-                        stmt[$efront_string__expre] = seq
-                    } else {
-                        stmt[$efront_string__argum1] = seq
-                    }
-                }
-                return stmt
+                var _a, seq;
+                return expressions[$efront_string_length] !== 1 && (modified = !0, _a = {}, _a[$efront_string_type] = Syntax[$efront_string_Sequen], _a[$efront_string_expres1] = expressions, seq = _a, stmt[$efront_string_type] === Syntax[$efront_string_Expres] ? stmt[$efront_string_expres] = seq : stmt[$efront_string_argume1] = seq), stmt
             }
-            body = [];
-            expressions = [];
-            for (i = 0, iz = node[$efront_string__body_][$efront_string__lengt1]; i < iz; ++i) {
-                prev = stmt;
-                stmt = node[$efront_string__body_][i];
-                if (stmt[$efront_string__type_] === Syntax[$efront_string__Expre]) {
-                    expressions[$efront_string__push_](stmt[$efront_string__expre])
-                } else if (stmt[$efront_string__type_] === Syntax[$efront_string__Retur] && stmt[$efront_string__argum1] != null || stmt[$efront_string__type_] === Syntax[$efront_string__Throw]) {
-                    expressions[$efront_string__push_](stmt[$efront_string__argum1]);
-                    body[$efront_string__push_](constructSeq(expressions, stmt));
-                    expressions = []
-                } else if (stmt[$efront_string__type_] === Syntax[$efront_string__ForSt] && (!stmt[$efront_string__init_] || stmt[$efront_string__init_][$efront_string__type_] !== Syntax[$efront_string__Varia])) {
-                    if (expressions[$efront_string__lengt1]) {
-                        modified = true;
-                        if (stmt[$efront_string__init_]) {
-                            expressions[$efront_string__push_](stmt[$efront_string__init_])
-                        }
-                        if (expressions[$efront_string__lengt1] === 1) {
-                            stmt[$efront_string__init_] = expressions[0]
-                        } else {
-                            stmt[$efront_string__init_] = (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Seque], _a[$efront_string__expre1] = expressions, _a)
-                        }
-                        expressions = []
-                    }
-                    body[$efront_string__push_](stmt)
-                } else if (stmt[$efront_string__type_] === Syntax[$efront_string__IfSta]) {
-                    if (expressions[$efront_string__lengt1]) {
-                        modified = true;
-                        expressions[$efront_string__push_](stmt[$efront_string__test_]);
-                        stmt[$efront_string__test_] = (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Seque], _b[$efront_string__expre1] = expressions, _b);
-                        expressions = []
-                    }
-                    body[$efront_string__push_](stmt)
-                } else {
-                    if (expressions[$efront_string__lengt1]) {
-                        body[$efront_string__push_](constructSeq(expressions, prev));
-                        expressions = []
-                    }
-                    body[$efront_string__push_](stmt)
-                }
-            }
-            if (expressions[$efront_string__lengt1]) {
-                body[$efront_string__push_](constructSeq(expressions, stmt))
-            }
-            node[$efront_string__body_] = body
+            var _a, _b, i, iz, expressions, stmt, prev, body;
+            for (body = [], expressions = [], i = 0, iz = node[$efront_string_body][$efront_string_length]; i < iz; ++i)
+                prev = stmt, stmt = node[$efront_string_body][i], stmt[$efront_string_type] === Syntax[$efront_string_Expres] ? expressions[$efront_string_push](stmt[$efront_string_expres]) : stmt[$efront_string_type] === Syntax[$efront_string_Return] && stmt[$efront_string_argume1] != null || stmt[$efront_string_type] === Syntax[$efront_string_ThrowS] ? (expressions[$efront_string_push](stmt[$efront_string_argume1]), body[$efront_string_push](constructSeq(expressions, stmt)), expressions = []) : stmt[$efront_string_type] === Syntax[$efront_string_ForSta] && (!stmt[$efront_string_init] || stmt[$efront_string_init][$efront_string_type] !== Syntax[$efront_string_Variab]) ? (expressions[$efront_string_length] && (modified = !0, stmt[$efront_string_init] && expressions[$efront_string_push](stmt[$efront_string_init]), expressions[$efront_string_length] === 1 ? stmt[$efront_string_init] = expressions[0] : (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Sequen], _a[$efront_string_expres1] = expressions, stmt[$efront_string_init] = _a), expressions = []), body[$efront_string_push](stmt)) : stmt[$efront_string_type] === Syntax[$efront_string_IfStat] ? (expressions[$efront_string_length] && (modified = !0, expressions[$efront_string_push](stmt[$efront_string_test]), _b = {}, _b[$efront_string_type] = Syntax[$efront_string_Sequen], _b[$efront_string_expres1] = expressions, stmt[$efront_string_test] = _b, expressions = []), body[$efront_string_push](stmt)) : (expressions[$efront_string_length] && (body[$efront_string_push](constructSeq(expressions, prev)), expressions = []), body[$efront_string_push](stmt));
+            expressions[$efront_string_length] && body[$efront_string_push](constructSeq(expressions, stmt)), node[$efront_string_body] = body
         }
         function transformToSequenceExpression(tree, options) {
-            var _a, _b, _c;
-            var result;
-            modified = false;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Block]:
-                case Syntax[$efront_string__Progr]:
+            var _a, _b, _c, result;
+            return modified = !1, result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), common[$efront_string_traver](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_BlockS]:
+                case Syntax[$efront_string_Progra]:
                     transform(node);
                     break
                 }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        transformToSequenceExpression[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformToSequenceExpression
+        Name = $efront_string_transf3, common = require(510), Syntax = common[$efront_string_Syntax], transformToSequenceExpression[$efront_string_passNa] = Name, module[$efront_string_export] = transformToSequenceExpression
     }()
 }],
-/** 618 $efront_string__trans4 */ 'transform-to-compound-assignment',
-/** 619 $efront_string__30 */ '*=',
-/** 620 $efront_string__31 */ '/=',
-/** 621 $efront_string__32 */ '%=',
-/** 622 $efront_string__33 */ '+=',
-/** 623 $efront_string__34 */ '-=',
-/** 624 $efront_string__35 */ '<<=',
-/** 625 $efront_string__36 */ '>>=',
-/** 626 $efront_string__37 */ '>>>=',
-/** 627 $efront_string__38 */ '&=',
-/** 628 $efront_string__39 */ '^=',
-/** 629 $efront_string__40 */ '|=',
-/** 630 pass$transform-to-compound-assignment.js */ [1,29,618,196,187,98,215,246,307,584,569,500,581,582,583,572,571,570,482,619,620,621,622,623,624,625,626,627,628,629,52,562,563,295,491,410,471,183,186,478,75,481,129,130,80,463,423,185,479,472,599,600,564,38,function(require, module, $efront_string__trans4, $efront_string__Synta, $efront_string__type_, $efront_string__Ident, $efront_string__name_, $efront_string__, $efront_string__1, $efront_string__29, $efront_string__14, $efront_string__4, $efront_string__26, $efront_string__27, $efront_string__28, $efront_string__17, $efront_string__16, $efront_string__15, $efront_string__3, $efront_string__30, $efront_string__31, $efront_string__32, $efront_string__33, $efront_string__34, $efront_string__35, $efront_string__36, $efront_string__37, $efront_string__38, $efront_string__39, $efront_string__40, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__enter, $efront_string__acqui, $efront_string__Assig, $efront_string__opera, $efront_string__left_, $efront_string__right, $efront_string__Binar, $efront_string__resol1, $efront_string__isSta, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 597 $efront_string_transf4 */ "transform-to-compound-assignment",
+/** 598 $efront_string__38 */ "*=",
+/** 599 $efront_string__39 */ "/=",
+/** 600 $efront_string__40 */ "%=",
+/** 601 $efront_string__41 */ "+=",
+/** 602 $efront_string__42 */ "-=",
+/** 603 $efront_string__43 */ "<<=",
+/** 604 $efront_string__44 */ ">>=",
+/** 605 $efront_string__45 */ ">>>=",
+/** 606 $efront_string__46 */ "&=",
+/** 607 $efront_string__47 */ "^=",
+/** 608 $efront_string__48 */ "|=",
+/** 609 pass$transform-to-compound-assignment.js */ [1,15,597,180,171,83,199,230,290,563,548,481,560,561,562,551,550,549,464,598,599,600,601,602,603,604,605,606,607,608,37,541,542,278,473,393,453,167,170,460,60,463,113,114,65,445,406,169,461,454,578,579,543,13,function(require, module, $efront_string_transf4, $efront_string_Syntax, $efront_string_type, $efront_string_Identi, $efront_string_name, $efront_string__, $efront_string__1, $efront_string__37, $efront_string__22, $efront_string__4, $efront_string__34, $efront_string__35, $efront_string__36, $efront_string__25, $efront_string__24, $efront_string__23, $efront_string__3, $efront_string__38, $efront_string__39, $efront_string__40, $efront_string__41, $efront_string__42, $efront_string__43, $efront_string__44, $efront_string__45, $efront_string__46, $efront_string__47, $efront_string__48, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_analyz, $efront_string_direct1, $efront_string_attach2, $efront_string_traver, $efront_string_enter, $efront_string_acquir, $efront_string_Assign, $efront_string_operat, $efront_string_left, $efront_string_right, $efront_string_Binary, $efront_string_resolv1, $efront_string_isStat, $efront_string_leave, $efront_string_releas, $efront_string_detach, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, escope, modified) {
         'use strict';
-        var Name, Syntax, common, escope, modified;
-        Name = $efront_string__trans4;
-        escope = require(494);
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function equals(lhs, rhs) {
-            if (lhs[$efront_string__type_] !== rhs[$efront_string__type_]) {
-                return false
-            }
-            if (lhs[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                return lhs[$efront_string__name_] === rhs[$efront_string__name_]
-            }
-            return false
+            return lhs[$efront_string_type] !== rhs[$efront_string_type] ? !1 : lhs[$efront_string_type] === Syntax[$efront_string_Identi] ? lhs[$efront_string_name] === rhs[$efront_string_name] : !1
         }
         function compound(operator) {
             switch (operator) {
             case $efront_string__:
             case $efront_string__1:
-            case $efront_string__29:
-            case $efront_string__14:
+            case $efront_string__37:
+            case $efront_string__22:
             case $efront_string__4:
-            case $efront_string__26:
-            case $efront_string__27:
-            case $efront_string__28:
-            case $efront_string__17:
-            case $efront_string__16:
-            case $efront_string__15:
+            case $efront_string__34:
+            case $efront_string__35:
+            case $efront_string__36:
+            case $efront_string__25:
+            case $efront_string__24:
+            case $efront_string__23:
                 return operator + $efront_string__3
             }
             return null
         }
         function observableCompound(operator) {
             switch (operator) {
-            case $efront_string__30:
-            case $efront_string__31:
-            case $efront_string__32:
-            case $efront_string__33:
-            case $efront_string__34:
-            case $efront_string__35:
-            case $efront_string__36:
-            case $efront_string__37:
             case $efront_string__38:
             case $efront_string__39:
             case $efront_string__40:
+            case $efront_string__41:
+            case $efront_string__42:
+            case $efront_string__43:
+            case $efront_string__44:
+            case $efront_string__45:
+            case $efront_string__46:
+            case $efront_string__47:
+            case $efront_string__48:
                 return operator
             }
             return null
         }
         function transformToCompoundAssignment(tree, options) {
-            var _a, _b, _c, _d;
-            var result, scope, manager;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            scope = null;
-            manager = escope[$efront_string__analy](result, (_b = {}, _b[$efront_string__direc1] = true, _b));
-            manager[$efront_string__attac2]();
-            common[$efront_string__trave](result, (_c = {}, _c[$efront_string__enter] = function enter(node) {
+            var _a, _b, _c, _d, result, scope, manager;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, scope = null, manager = escope[$efront_string_analyz](result, (_b = {}, _b[$efront_string_direct1] = !0, _b)), manager[$efront_string_attach2](), common[$efront_string_traver](result, (_c = {}, _c[$efront_string_enter] = function enter(node) {
                 var left, right, operator, ref;
-                scope = manager[$efront_string__acqui](node) || scope;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Assig] && node[$efront_string__opera] === $efront_string__3) {
-                    left = node[$efront_string__left_];
-                    right = node[$efront_string__right];
-                    if (right[$efront_string__type_] === Syntax[$efront_string__Binar] && equals(right[$efront_string__left_], left)) {
-                        operator = compound(right[$efront_string__opera]);
-                        if (operator) {
-                            modified = true;
-                            node[$efront_string__opera] = operator;
-                            node[$efront_string__right] = right[$efront_string__right]
-                        }
-                    } else if (right[$efront_string__type_] === Syntax[$efront_string__Assig] && equals(right[$efront_string__left_], left)) {
-                        if (observableCompound(right[$efront_string__opera])) {
-                            ref = scope[$efront_string__resol1](node[$efront_string__left_]);
-                            if (ref[$efront_string__isSta]()) {
-                                modified = true;
-                                node[$efront_string__opera] = right[$efront_string__opera];
-                                node[$efront_string__right] = right[$efront_string__right]
-                            }
-                        }
-                    }
-                }
-            }, _c[$efront_string__leave] = function leave(node) {
-                scope = manager[$efront_string__relea](node) || scope
-            }, _c));
-            manager[$efront_string__detac]();
-            return _d = {}, _d[$efront_string__resul] = result, _d[$efront_string__modif] = modified, _d
+                scope = manager[$efront_string_acquir](node) || scope, node[$efront_string_type] === Syntax[$efront_string_Assign] && node[$efront_string_operat] === $efront_string__3 && (left = node[$efront_string_left], right = node[$efront_string_right], right[$efront_string_type] === Syntax[$efront_string_Binary] && equals(right[$efront_string_left], left) ? (operator = compound(right[$efront_string_operat]), operator && (modified = !0, node[$efront_string_operat] = operator, node[$efront_string_right] = right[$efront_string_right])) : right[$efront_string_type] === Syntax[$efront_string_Assign] && equals(right[$efront_string_left], left) && observableCompound(right[$efront_string_operat]) && (ref = scope[$efront_string_resolv1](node[$efront_string_left]), ref[$efront_string_isStat]() && (modified = !0, node[$efront_string_operat] = right[$efront_string_operat], node[$efront_string_right] = right[$efront_string_right])))
+            }, _c[$efront_string_leave] = function leave(node) {
+                scope = manager[$efront_string_releas](node) || scope
+            }, _c)), manager[$efront_string_detach](), _d = {}, _d[$efront_string_result] = result, _d[$efront_string_modifi] = modified, _d
         }
-        transformToCompoundAssignment[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformToCompoundAssignment
+        Name = $efront_string_transf4, escope = require(476), common = require(510), Syntax = common[$efront_string_Syntax], transformToCompoundAssignment[$efront_string_passNa] = Name, module[$efront_string_export] = transformToCompoundAssignment
     }()
 }],
-/** 631 $efront_string__trans5 */ 'transform-logical-association',
-/** 632 pass$transform-logical-association.js */ [1,29,631,196,52,562,563,295,183,186,187,102,130,481,129,599,600,564,38,function(require, module, $efront_string__trans5, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Logic, $efront_string__right, $efront_string__opera, $efront_string__left_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 610 $efront_string_transf5 */ "transform-logical-association",
+/** 611 pass$transform-logical-association.js */ [1,15,610,180,37,541,542,278,167,170,171,87,114,463,113,578,579,543,13,function(require, module, $efront_string_transf5, $efront_string_Syntax, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_enter, $efront_string_type, $efront_string_Logica, $efront_string_right, $efront_string_operat, $efront_string_left, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__trans5;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function transformLogicalAssociation(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, common[$efront_string_traver](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
                 var _a;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Logic]) {
-                    if (node[$efront_string__right][$efront_string__type_] === Syntax[$efront_string__Logic] && node[$efront_string__opera] === node[$efront_string__right][$efront_string__opera]) {
-                        modified = true;
-                        node[$efront_string__left_] = (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Logic], _a[$efront_string__opera] = node[$efront_string__opera], _a[$efront_string__left_] = node[$efront_string__left_], _a[$efront_string__right] = node[$efront_string__right][$efront_string__left_], _a);
-                        node[$efront_string__right] = node[$efront_string__right][$efront_string__right]
-                    }
-                }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+                node[$efront_string_type] === Syntax[$efront_string_Logica] && node[$efront_string_right][$efront_string_type] === Syntax[$efront_string_Logica] && node[$efront_string_operat] === node[$efront_string_right][$efront_string_operat] && (modified = !0, _a = {}, _a[$efront_string_type] = Syntax[$efront_string_Logica], _a[$efront_string_operat] = node[$efront_string_operat], _a[$efront_string_left] = node[$efront_string_left], _a[$efront_string_right] = node[$efront_string_right][$efront_string_left], node[$efront_string_left] = _a, node[$efront_string_right] = node[$efront_string_right][$efront_string_right])
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        transformLogicalAssociation[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformLogicalAssociation
+        Name = $efront_string_transf5, common = require(510), Syntax = common[$efront_string_Syntax], transformLogicalAssociation[$efront_string_passNa] = Name, module[$efront_string_export] = transformLogicalAssociation
     }()
 }],
-/** 633 $efront_string__trans6 */ 'transform-immediate-function-call',
-/** 634 pass$transform-immediate-function-call.js */ [1,29,633,196,187,82,137,97,135,79,128,96,504,413,138,519,521,63,513,111,153,52,562,563,295,165,185,599,600,564,38,function(require, module, $efront_string__trans6, $efront_string__Synta, $efront_string__type_, $efront_string__CallE, $efront_string__calle, $efront_string__Funct1, $efront_string__body_, $efront_string__Block, $efront_string__lengt1, $efront_string__Funct, $efront_string__Array2, $efront_string__from_, $efront_string__argum, $efront_string__Speci, $efront_string__gener2, $efront_string__push_, $efront_string__moveL, $efront_string__Seque, $efront_string__expre1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 612 $efront_string_transf6 */ "transform-immediate-function-call",
+/** 613 pass$transform-immediate-function-call.js */ [1,15,612,180,171,67,121,82,119,64,3,81,484,396,122,499,501,47,493,96,137,37,541,542,278,149,169,578,579,543,13,function(require, module, $efront_string_transf6, $efront_string_Syntax, $efront_string_type, $efront_string_CallEx, $efront_string_callee, $efront_string_Functi1, $efront_string_body, $efront_string_BlockS, $efront_string_length, $efront_string_Functi, $efront_string_Array, $efront_string_from, $efront_string_argume, $efront_string_Specia, $efront_string_genera2, $efront_string_push, $efront_string_moveLo, $efront_string_Sequen, $efront_string_expres1, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_replac, $efront_string_leave, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__trans6;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function isEmptyFunctionCall(call) {
             var callee, i, iz, stmt;
-            if (call[$efront_string__type_] !== Syntax[$efront_string__CallE]) {
-                return false
-            }
-            callee = call[$efront_string__calle];
-            if (callee[$efront_string__type_] !== Syntax[$efront_string__Funct1]) {
-                return false
-            }
-            if (callee[$efront_string__body_][$efront_string__type_] !== Syntax[$efront_string__Block]) {
-                return false
-            }
-            if (callee[$efront_string__body_][$efront_string__body_][$efront_string__lengt1] === 0) {
-                return true
-            }
-            for (i = 0, iz = callee[$efront_string__body_][$efront_string__body_][$efront_string__lengt1]; i < iz; ++i) {
-                stmt = callee[$efront_string__body_][$efront_string__body_][i];
-                if (stmt[$efront_string__type_] !== Syntax[$efront_string__Funct]) {
-                    return false
-                }
-            }
-            return true
+            if (call[$efront_string_type] !== Syntax[$efront_string_CallEx])
+                return !1;
+            if (callee = call[$efront_string_callee], callee[$efront_string_type] !== Syntax[$efront_string_Functi1])
+                return !1;
+            if (callee[$efront_string_body][$efront_string_type] !== Syntax[$efront_string_BlockS])
+                return !1;
+            if (callee[$efront_string_body][$efront_string_body][$efront_string_length] === 0)
+                return !0;
+            for (i = 0, iz = callee[$efront_string_body][$efront_string_body][$efront_string_length]; i < iz; ++i)
+                if (stmt = callee[$efront_string_body][$efront_string_body][i], stmt[$efront_string_type] !== Syntax[$efront_string_Functi])
+                    return !1;
+            return !0
         }
         function callToSequence(call) {
-            var _a;
-            var expressions;
-            expressions = common[$efront_string__Array2][$efront_string__from_](call[$efront_string__argum]);
-            if (expressions[$efront_string__lengt1] === 0) {
-                return common[$efront_string__Speci][$efront_string__gener2](call)
-            }
-            expressions[$efront_string__push_](common[$efront_string__Speci][$efront_string__gener2]());
-            return common[$efront_string__moveL](call, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Seque], _a[$efront_string__expre1] = expressions, _a))
+            var _a, expressions;
+            return expressions = common[$efront_string_Array][$efront_string_from](call[$efront_string_argume]), expressions[$efront_string_length] === 0 ? common[$efront_string_Specia][$efront_string_genera2](call) : (expressions[$efront_string_push](common[$efront_string_Specia][$efront_string_genera2]()), common[$efront_string_moveLo](call, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Sequen], _a[$efront_string_expres1] = expressions, _a)))
         }
         function transformImmediateFunctionCall(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            result = common[$efront_string__repla](result, (_b = {}, _b[$efront_string__leave] = function leave(node) {
-                if (isEmptyFunctionCall(node)) {
-                    modified = true;
-                    return callToSequence(node)
-                }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, result = common[$efront_string_replac](result, (_b = {}, _b[$efront_string_leave] = function leave(node) {
+                return isEmptyFunctionCall(node) ? (modified = !0, callToSequence(node)) : void 0
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        transformImmediateFunctionCall[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformImmediateFunctionCall
+        Name = $efront_string_transf6, common = require(510), Syntax = common[$efront_string_Syntax], transformImmediateFunctionCall[$efront_string_passNa] = Name, module[$efront_string_export] = transformImmediateFunctionCall
     }()
 }],
-/** 635 $efront_string__trans7 */ 'transform-dynamic-to-static-property-definition',
-/** 636 pass$transform-dynamic-to-static-property-definition.js */ [1,298,29,635,196,52,562,563,295,183,186,187,109,149,100,150,442,512,513,98,215,125,519,527,599,600,564,38,function(require, Number, module, $efront_string__trans7, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Prope, $efront_string__key_, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__isIde3, $efront_string__moveL, $efront_string__Ident, $efront_string__name_, $efront_string__toStr, $efront_string__Speci, $efront_string__gener4, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 614 $efront_string_transf7 */ "transform-dynamic-to-static-property-definition",
+/** 615 pass$transform-dynamic-to-static-property-definition.js */ [1,281,15,614,180,37,541,542,278,167,170,171,94,133,85,134,10,492,493,83,199,110,499,507,578,579,543,13,function(require, Number, module, $efront_string_transf7, $efront_string_Syntax, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_enter, $efront_string_type, $efront_string_Proper, $efront_string_key, $efront_string_Litera, $efront_string_value, $efront_string_string, $efront_string_isIden3, $efront_string_moveLo, $efront_string_Identi, $efront_string_name, $efront_string_toStri, $efront_string_Specia, $efront_string_genera4, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__trans7;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function transformDynamicToStaticPropertyDefinition(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
-                var _a;
-                var generated;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Prope]) {
-                    if (node[$efront_string__key_][$efront_string__type_] === Syntax[$efront_string__Liter] && typeof node[$efront_string__key_][$efront_string__value1] === $efront_string__strin1) {
-                        if (common[$efront_string__isIde3](node[$efront_string__key_][$efront_string__value1])) {
-                            modified = true;
-                            node[$efront_string__key_] = common[$efront_string__moveL](node[$efront_string__key_], (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Ident], _a[$efront_string__name_] = node[$efront_string__key_][$efront_string__value1], _a))
-                        } else if (node[$efront_string__key_][$efront_string__value1] === Number(node[$efront_string__key_][$efront_string__value1])[$efront_string__toStr]()) {
-                            generated = common[$efront_string__Speci][$efront_string__gener4](Number(node[$efront_string__key_][$efront_string__value1]));
-                            if (generated[$efront_string__type_] === Syntax[$efront_string__Liter]) {
-                                modified = true;
-                                node[$efront_string__key_] = common[$efront_string__moveL](node[$efront_string__key_], generated)
-                            }
-                        }
-                    }
-                }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, common[$efront_string_traver](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
+                var _a, generated;
+                node[$efront_string_type] === Syntax[$efront_string_Proper] && node[$efront_string_key][$efront_string_type] === Syntax[$efront_string_Litera] && typeof node[$efront_string_key][$efront_string_value] === $efront_string_string && (common[$efront_string_isIden3](node[$efront_string_key][$efront_string_value]) ? (modified = !0, node[$efront_string_key] = common[$efront_string_moveLo](node[$efront_string_key], (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Identi], _a[$efront_string_name] = node[$efront_string_key][$efront_string_value], _a))) : node[$efront_string_key][$efront_string_value] === Number(node[$efront_string_key][$efront_string_value])[$efront_string_toStri]() && (generated = common[$efront_string_Specia][$efront_string_genera4](Number(node[$efront_string_key][$efront_string_value])), generated[$efront_string_type] === Syntax[$efront_string_Litera] && (modified = !0, node[$efront_string_key] = common[$efront_string_moveLo](node[$efront_string_key], generated))))
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        transformDynamicToStaticPropertyDefinition[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformDynamicToStaticPropertyDefinition
+        Name = $efront_string_transf7, common = require(510), Syntax = common[$efront_string_Syntax], transformDynamicToStaticPropertyDefinition[$efront_string_passNa] = Name, module[$efront_string_export] = transformDynamicToStaticPropertyDefinition
     }()
 }],
-/** 637 $efront_string__trans8 */ 'transform-dynamic-to-static-property-access',
-/** 638 pass$transform-dynamic-to-static-property-access.js */ [1,298,29,637,196,52,562,563,295,183,186,187,103,485,148,100,150,442,512,513,98,215,125,519,527,599,600,564,38,function(require, Number, module, $efront_string__trans8, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__type_, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__Liter, $efront_string__value1, $efront_string__strin1, $efront_string__isIde3, $efront_string__moveL, $efront_string__Ident, $efront_string__name_, $efront_string__toStr, $efront_string__Speci, $efront_string__gener4, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 616 $efront_string_transf8 */ "transform-dynamic-to-static-property-access",
+/** 617 pass$transform-dynamic-to-static-property-access.js */ [1,281,15,616,180,37,541,542,278,167,170,171,88,467,132,85,134,10,492,493,83,199,110,499,507,578,579,543,13,function(require, Number, module, $efront_string_transf8, $efront_string_Syntax, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_enter, $efront_string_type, $efront_string_Member, $efront_string_comput, $efront_string_proper, $efront_string_Litera, $efront_string_value, $efront_string_string, $efront_string_isIden3, $efront_string_moveLo, $efront_string_Identi, $efront_string_name, $efront_string_toStri, $efront_string_Specia, $efront_string_genera4, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__trans8;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function transformDynamicToStaticPropertyAccess(tree, options) {
-            var _a, _b, _c;
-            var result;
-            modified = false;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
-                var _a;
-                var property;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Membe] && node[$efront_string__compu]) {
-                    property = node[$efront_string__prope];
-                    if (property[$efront_string__type_] === Syntax[$efront_string__Liter] && typeof property[$efront_string__value1] === $efront_string__strin1) {
-                        if (common[$efront_string__isIde3](property[$efront_string__value1])) {
-                            modified = true;
-                            node[$efront_string__compu] = false;
-                            node[$efront_string__prope] = common[$efront_string__moveL](property, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Ident], _a[$efront_string__name_] = property[$efront_string__value1], _a))
-                        } else if (property[$efront_string__value1] === Number(property[$efront_string__value1])[$efront_string__toStr]()) {
-                            modified = true;
-                            node[$efront_string__compu] = true;
-                            node[$efront_string__prope] = common[$efront_string__moveL](node[$efront_string__prope], common[$efront_string__Speci][$efront_string__gener4](Number(node[$efront_string__prope][$efront_string__value1])))
-                        }
-                    }
-                }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            var _a, _b, _c, result;
+            return modified = !1, result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), common[$efront_string_traver](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
+                var _a, property;
+                node[$efront_string_type] === Syntax[$efront_string_Member] && node[$efront_string_comput] && (property = node[$efront_string_proper], property[$efront_string_type] === Syntax[$efront_string_Litera] && typeof property[$efront_string_value] === $efront_string_string && (common[$efront_string_isIden3](property[$efront_string_value]) ? (modified = !0, node[$efront_string_comput] = !1, node[$efront_string_proper] = common[$efront_string_moveLo](property, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Identi], _a[$efront_string_name] = property[$efront_string_value], _a))) : property[$efront_string_value] === Number(property[$efront_string_value])[$efront_string_toStri]() && (modified = !0, node[$efront_string_comput] = !0, node[$efront_string_proper] = common[$efront_string_moveLo](node[$efront_string_proper], common[$efront_string_Specia][$efront_string_genera4](Number(node[$efront_string_proper][$efront_string_value]))))))
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        transformDynamicToStaticPropertyAccess[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformDynamicToStaticPropertyAccess
+        Name = $efront_string_transf8, common = require(510), Syntax = common[$efront_string_Syntax], transformDynamicToStaticPropertyAccess[$efront_string_passNa] = Name, module[$efront_string_export] = transformDynamicToStaticPropertyAccess
     }()
 }],
-/** 639 $efront_string__trans9 */ 'transform-branch-to-expression',
-/** 640 pass$transform-branch-to-expression.js */ [1,29,639,196,52,562,563,295,610,165,185,187,99,172,516,143,142,93,513,144,87,36,110,152,111,153,519,521,115,102,481,568,129,130,92,599,600,564,38,function(require, module, $efront_string__trans9, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__repla, $efront_string__leave, $efront_string__type_, $efront_string__IfSta, $efront_string__paren1, $efront_string__mayBe, $efront_string__alter, $efront_string__conse, $efront_string__Expre, $efront_string__moveL, $efront_string__expre, $efront_string__Condi, $efront_string__test_, $efront_string__Retur, $efront_string__argum1, $efront_string__Seque, $efront_string__expre1, $efront_string__Speci, $efront_string__gener2, $efront_string__Throw, $efront_string__Logic, $efront_string__opera, $efront_string__13, $efront_string__left_, $efront_string__right, $efront_string__Empty, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 618 $efront_string_transf9 */ "transform-branch-to-expression",
+/** 619 pass$transform-branch-to-expression.js */ [1,15,618,180,37,541,542,278,589,149,169,171,84,156,496,127,126,78,493,128,72,22,95,136,96,137,499,501,100,87,463,547,113,114,77,578,579,543,13,function(require, module, $efront_string_transf9, $efront_string_Syntax, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_preser, $efront_string_replac, $efront_string_leave, $efront_string_type, $efront_string_IfStat, $efront_string_parent1, $efront_string_mayBeC, $efront_string_altern, $efront_string_conseq, $efront_string_Expres, $efront_string_moveLo, $efront_string_expres, $efront_string_Condit, $efront_string_test, $efront_string_Return, $efront_string_argume1, $efront_string_Sequen, $efront_string_expres1, $efront_string_Specia, $efront_string_genera2, $efront_string_ThrowS, $efront_string_Logica, $efront_string_operat, $efront_string__21, $efront_string_left, $efront_string_right, $efront_string_EmptyS, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__trans9;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function transformBranchToExpression(tree, options) {
-            var _a, _b, _c, _d;
-            var result, preserveCompletionValue;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            preserveCompletionValue = options[$efront_string__get_]($efront_string__prese, (_b = {}, _b[$efront_string__pathN] = Name, _b));
-            modified = false;
-            result = common[$efront_string__repla](result, (_c = {}, _c[$efront_string__leave] = function leave(node) {
-                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
-                var consequent, alternate, ancestors;
-                if (node[$efront_string__type_] === Syntax[$efront_string__IfSta]) {
-                    ancestors = this[$efront_string__paren1]();
-                    if (preserveCompletionValue && common[$efront_string__mayBe](node, ancestors)) {
-                        return
-                    }
-                    if (node[$efront_string__alter]) {
-                        if (node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__Expre] && node[$efront_string__alter][$efront_string__type_] === Syntax[$efront_string__Expre]) {
-                            modified = true;
-                            return common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Expre], _a[$efront_string__expre] = common[$efront_string__moveL](node, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Condi], _b[$efront_string__test_] = node[$efront_string__test_], _b[$efront_string__conse] = node[$efront_string__conse][$efront_string__expre], _b[$efront_string__alter] = node[$efront_string__alter][$efront_string__expre], _b)), _a))
-                        }
-                        if (node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__Retur] && node[$efront_string__alter][$efront_string__type_] === Syntax[$efront_string__Retur]) {
-                            modified = true;
-                            if (!node[$efront_string__conse][$efront_string__argum1] && !node[$efront_string__alter][$efront_string__argum1]) {
-                                return common[$efront_string__moveL](node, (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Retur], _c[$efront_string__argum1] = common[$efront_string__moveL](node, (_d = {}, _d[$efront_string__type_] = Syntax[$efront_string__Seque], _d[$efront_string__expre1] = [
-                                    node[$efront_string__test_],
-                                    common[$efront_string__Speci][$efront_string__gener2]()
-                                ], _d)), _c))
-                            }
-                            consequent = node[$efront_string__conse][$efront_string__argum1] || common[$efront_string__Speci][$efront_string__gener2]();
-                            alternate = node[$efront_string__alter][$efront_string__argum1] || common[$efront_string__Speci][$efront_string__gener2]();
-                            return common[$efront_string__moveL](node, (_e = {}, _e[$efront_string__type_] = Syntax[$efront_string__Retur], _e[$efront_string__argum1] = common[$efront_string__moveL](node, (_f = {}, _f[$efront_string__type_] = Syntax[$efront_string__Condi], _f[$efront_string__test_] = node[$efront_string__test_], _f[$efront_string__conse] = consequent, _f[$efront_string__alter] = alternate, _f)), _e))
-                        }
-                        if (node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__Throw] && node[$efront_string__alter][$efront_string__type_] === Syntax[$efront_string__Throw]) {
-                            modified = true;
-                            return common[$efront_string__moveL](node, (_g = {}, _g[$efront_string__type_] = Syntax[$efront_string__Throw], _g[$efront_string__argum1] = common[$efront_string__moveL](node, (_h = {}, _h[$efront_string__type_] = Syntax[$efront_string__Condi], _h[$efront_string__test_] = node[$efront_string__test_], _h[$efront_string__conse] = node[$efront_string__conse][$efront_string__argum1], _h[$efront_string__alter] = node[$efront_string__alter][$efront_string__argum1], _h)), _g))
-                        }
-                    } else {
-                        if (node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__Expre]) {
-                            modified = true;
-                            return common[$efront_string__moveL](node, (_j = {}, _j[$efront_string__type_] = Syntax[$efront_string__Expre], _j[$efront_string__expre] = common[$efront_string__moveL](node, (_k = {}, _k[$efront_string__type_] = Syntax[$efront_string__Logic], _k[$efront_string__opera] = $efront_string__13, _k[$efront_string__left_] = node[$efront_string__test_], _k[$efront_string__right] = node[$efront_string__conse][$efront_string__expre], _k)), _j))
-                        } else if (node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__Empty]) {
-                            modified = true;
-                            return common[$efront_string__moveL](node, (_l = {}, _l[$efront_string__type_] = Syntax[$efront_string__Expre], _l[$efront_string__expre] = node[$efront_string__test_], _l))
-                        }
-                    }
+            var _a, _b, _c, _d, result, preserveCompletionValue;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), preserveCompletionValue = options[$efront_string_get]($efront_string_preser, (_b = {}, _b[$efront_string_pathNa] = Name, _b)), modified = !1, result = common[$efront_string_replac](result, (_c = {}, _c[$efront_string_leave] = function leave(node) {
+                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, consequent, alternate, ancestors;
+                if (node[$efront_string_type] === Syntax[$efront_string_IfStat]) {
+                    if (ancestors = this[$efront_string_parent1](), preserveCompletionValue && common[$efront_string_mayBeC](node, ancestors))
+                        return;
+                    if (node[$efront_string_altern]) {
+                        if (node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_Expres] && node[$efront_string_altern][$efront_string_type] === Syntax[$efront_string_Expres])
+                            return modified = !0, common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Expres], _a[$efront_string_expres] = common[$efront_string_moveLo](node, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_Condit], _b[$efront_string_test] = node[$efront_string_test], _b[$efront_string_conseq] = node[$efront_string_conseq][$efront_string_expres], _b[$efront_string_altern] = node[$efront_string_altern][$efront_string_expres], _b)), _a));
+                        if (node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_Return] && node[$efront_string_altern][$efront_string_type] === Syntax[$efront_string_Return])
+                            return modified = !0, node[$efront_string_conseq][$efront_string_argume1] || node[$efront_string_altern][$efront_string_argume1] ? (consequent = node[$efront_string_conseq][$efront_string_argume1] || common[$efront_string_Specia][$efront_string_genera2](), alternate = node[$efront_string_altern][$efront_string_argume1] || common[$efront_string_Specia][$efront_string_genera2](), common[$efront_string_moveLo](node, (_e = {}, _e[$efront_string_type] = Syntax[$efront_string_Return], _e[$efront_string_argume1] = common[$efront_string_moveLo](node, (_f = {}, _f[$efront_string_type] = Syntax[$efront_string_Condit], _f[$efront_string_test] = node[$efront_string_test], _f[$efront_string_conseq] = consequent, _f[$efront_string_altern] = alternate, _f)), _e))) : common[$efront_string_moveLo](node, (_c = {}, _c[$efront_string_type] = Syntax[$efront_string_Return], _c[$efront_string_argume1] = common[$efront_string_moveLo](node, (_d = {}, _d[$efront_string_type] = Syntax[$efront_string_Sequen], _d[$efront_string_expres1] = [
+                                node[$efront_string_test],
+                                common[$efront_string_Specia][$efront_string_genera2]()
+                            ], _d)), _c));
+                        if (node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_ThrowS] && node[$efront_string_altern][$efront_string_type] === Syntax[$efront_string_ThrowS])
+                            return modified = !0, common[$efront_string_moveLo](node, (_g = {}, _g[$efront_string_type] = Syntax[$efront_string_ThrowS], _g[$efront_string_argume1] = common[$efront_string_moveLo](node, (_h = {}, _h[$efront_string_type] = Syntax[$efront_string_Condit], _h[$efront_string_test] = node[$efront_string_test], _h[$efront_string_conseq] = node[$efront_string_conseq][$efront_string_argume1], _h[$efront_string_altern] = node[$efront_string_altern][$efront_string_argume1], _h)), _g))
+                    } else if (node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_Expres])
+                        return modified = !0, common[$efront_string_moveLo](node, (_j = {}, _j[$efront_string_type] = Syntax[$efront_string_Expres], _j[$efront_string_expres] = common[$efront_string_moveLo](node, (_k = {}, _k[$efront_string_type] = Syntax[$efront_string_Logica], _k[$efront_string_operat] = $efront_string__21, _k[$efront_string_left] = node[$efront_string_test], _k[$efront_string_right] = node[$efront_string_conseq][$efront_string_expres], _k)), _j));
+                    else if (node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_EmptyS])
+                        return modified = !0, common[$efront_string_moveLo](node, (_l = {}, _l[$efront_string_type] = Syntax[$efront_string_Expres], _l[$efront_string_expres] = node[$efront_string_test], _l))
                 }
-            }, _c));
-            return _d = {}, _d[$efront_string__resul] = result, _d[$efront_string__modif] = modified, _d
+            }, _c)), _d = {}, _d[$efront_string_result] = result, _d[$efront_string_modifi] = modified, _d
         }
-        transformBranchToExpression[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = transformBranchToExpression
+        Name = $efront_string_transf9, common = require(510), Syntax = common[$efront_string_Syntax], transformBranchToExpression[$efront_string_passNa] = Name, module[$efront_string_export] = transformBranchToExpression
     }()
 }],
-/** 641 $efront_string__reord */ 'reordering-function-declarations',
-/** 642 pass$reordering-function-declarations.js */ [1,29,641,196,128,187,96,63,90,501,52,562,563,295,183,185,108,135,97,599,600,564,38,function(require, module, $efront_string__reord, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Funct, $efront_string__push_, $efront_string__Direc, $efront_string__conca1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__Progr, $efront_string__body_, $efront_string__Funct1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 620 $efront_string_reorde */ "reordering-function-declarations",
+/** 621 pass$reordering-function-declarations.js */ [1,15,620,180,3,171,81,47,75,5,37,541,542,278,167,169,93,119,82,578,579,543,13,function(require, module, $efront_string_reorde, $efront_string_Syntax, $efront_string_length, $efront_string_type, $efront_string_Functi, $efront_string_push, $efront_string_Direct, $efront_string_concat, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_leave, $efront_string_Progra, $efront_string_body, $efront_string_Functi1, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__reord;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function reordering(array) {
             var i, iz, node, directives, declarations, others;
-            directives = [];
-            declarations = [];
-            others = [];
-            for (i = 0, iz = array[$efront_string__lengt1]; i < iz; ++i) {
-                node = array[i];
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                    if (declarations[$efront_string__lengt1] + directives[$efront_string__lengt1] !== i) {
-                        modified = true
-                    }
-                    declarations[$efront_string__push_](node)
-                } else if (node[$efront_string__type_] === Syntax[$efront_string__Direc]) {
-                    directives[$efront_string__push_](node)
-                } else {
-                    others[$efront_string__push_](node)
-                }
-            }
-            return directives[$efront_string__conca1](declarations, others)
+            for (directives = [], declarations = [], others = [], i = 0, iz = array[$efront_string_length]; i < iz; ++i)
+                node = array[i], node[$efront_string_type] === Syntax[$efront_string_Functi] ? (declarations[$efront_string_length] + directives[$efront_string_length] !== i && (modified = !0), declarations[$efront_string_push](node)) : node[$efront_string_type] === Syntax[$efront_string_Direct] ? directives[$efront_string_push](node) : others[$efront_string_push](node);
+            return directives[$efront_string_concat](declarations, others)
         }
         function reorderingFunctionDeclarations(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__leave] = function leave(node) {
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Progr]:
-                    node[$efront_string__body_] = reordering(node[$efront_string__body_]);
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, common[$efront_string_traver](result, (_b = {}, _b[$efront_string_leave] = function leave(node) {
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_Progra]:
+                    node[$efront_string_body] = reordering(node[$efront_string_body]);
                     break;
-                case Syntax[$efront_string__Funct]:
-                case Syntax[$efront_string__Funct1]:
-                    node[$efront_string__body_][$efront_string__body_] = reordering(node[$efront_string__body_][$efront_string__body_]);
+                case Syntax[$efront_string_Functi]:
+                case Syntax[$efront_string_Functi1]:
+                    node[$efront_string_body][$efront_string_body] = reordering(node[$efront_string_body][$efront_string_body]);
                     break
                 }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        reorderingFunctionDeclarations[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = reorderingFunctionDeclarations
+        Name = $efront_string_reorde, common = require(510), Syntax = common[$efront_string_Syntax], reorderingFunctionDeclarations[$efront_string_passNa] = Name, module[$efront_string_export] = reorderingFunctionDeclarations
     }()
 }],
-/** 643 $efront_string__remov */ 'remove-wasted-blocks',
-/** 644 pass$remove-wasted-blocks.js */ [1,29,643,196,128,187,79,135,529,501,63,52,562,563,295,165,185,108,96,97,116,83,92,599,600,564,38,function(require, module, $efront_string__remov, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Block, $efront_string__body_, $efront_string__isSco1, $efront_string__conca1, $efront_string__push_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__leave, $efront_string__Progr, $efront_string__Funct, $efront_string__Funct1, $efront_string__TrySt, $efront_string__Catch, $efront_string__Empty, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 622 $efront_string_remove */ "remove-wasted-blocks",
+/** 623 pass$remove-wasted-blocks.js */ [1,15,622,180,3,171,64,119,509,5,47,37,541,542,278,149,169,93,81,82,101,68,77,578,579,543,13,function(require, module, $efront_string_remove, $efront_string_Syntax, $efront_string_length, $efront_string_type, $efront_string_BlockS, $efront_string_body, $efront_string_isScop1, $efront_string_concat, $efront_string_push, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_replac, $efront_string_leave, $efront_string_Progra, $efront_string_Functi, $efront_string_Functi1, $efront_string_TrySta, $efront_string_CatchC, $efront_string_EmptyS, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__remov;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function flattenBlockStatement(body) {
             var i, iz, j, jz, result, stmt, inner, ok;
-            result = [];
-            for (i = 0, iz = body[$efront_string__lengt1]; i < iz; ++i) {
-                stmt = body[i];
-                if (stmt[$efront_string__type_] === Syntax[$efront_string__Block]) {
-                    ok = true;
-                    for (j = 0, jz = stmt[$efront_string__body_][$efront_string__lengt1]; j < jz; ++j) {
-                        inner = stmt[$efront_string__body_][j];
-                        if (common[$efront_string__isSco1](inner)) {
-                            ok = false
-                        }
-                    }
-                    if (ok) {
-                        modified = true;
-                        result = result[$efront_string__conca1](stmt[$efront_string__body_])
-                    } else {
-                        result[$efront_string__push_](stmt)
-                    }
-                } else {
-                    result[$efront_string__push_](stmt)
-                }
-            }
+            for (result = [], i = 0, iz = body[$efront_string_length]; i < iz; ++i)
+                if (stmt = body[i], stmt[$efront_string_type] === Syntax[$efront_string_BlockS]) {
+                    for (ok = !0, j = 0, jz = stmt[$efront_string_body][$efront_string_length]; j < jz; ++j)
+                        inner = stmt[$efront_string_body][j], common[$efront_string_isScop1](inner) && (ok = !1);
+                    ok ? (modified = !0, result = result[$efront_string_concat](stmt[$efront_string_body])) : result[$efront_string_push](stmt)
+                } else
+                    result[$efront_string_push](stmt);
             return result
         }
         function removeWastedBlocks(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            result = common[$efront_string__repla](result, (_b = {}, _b[$efront_string__leave] = function leave(node, parent) {
-                var _a;
-                var i, iz, stmt;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Block] || node[$efront_string__type_] === Syntax[$efront_string__Progr]) {
-                    for (i = 0, iz = node[$efront_string__body_][$efront_string__lengt1]; i < iz; ++i) {
-                        stmt = node[$efront_string__body_][i];
-                        if (stmt[$efront_string__type_] === Syntax[$efront_string__Block]) {
-                            node[$efront_string__body_] = flattenBlockStatement(node[$efront_string__body_]);
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, result = common[$efront_string_replac](result, (_b = {}, _b[$efront_string_leave] = function leave(node, parent) {
+                var _a, i, iz, stmt;
+                if (node[$efront_string_type] === Syntax[$efront_string_BlockS] || node[$efront_string_type] === Syntax[$efront_string_Progra])
+                    for (i = 0, iz = node[$efront_string_body][$efront_string_length]; i < iz; ++i)
+                        if (stmt = node[$efront_string_body][i], stmt[$efront_string_type] === Syntax[$efront_string_BlockS]) {
+                            node[$efront_string_body] = flattenBlockStatement(node[$efront_string_body]);
                             break
                         }
-                    }
-                }
-                if (parent[$efront_string__type_] === Syntax[$efront_string__Funct] || parent[$efront_string__type_] === Syntax[$efront_string__Funct1] || parent[$efront_string__type_] === Syntax[$efront_string__TrySt] || parent[$efront_string__type_] === Syntax[$efront_string__Catch]) {
-                    return
-                }
-                while (node[$efront_string__type_] === Syntax[$efront_string__Block] && node[$efront_string__body_][$efront_string__lengt1] === 1 && !common[$efront_string__isSco1](node[$efront_string__body_][0])) {
-                    modified = true;
-                    node = node[$efront_string__body_][0]
-                }
-                if (node[$efront_string__type_] === Syntax[$efront_string__Block] && node[$efront_string__body_][$efront_string__lengt1] === 0) {
-                    modified = true;
-                    return _a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Empty], _a
-                }
-                return node
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+                if (parent[$efront_string_type] === Syntax[$efront_string_Functi] || parent[$efront_string_type] === Syntax[$efront_string_Functi1] || parent[$efront_string_type] === Syntax[$efront_string_TrySta] || parent[$efront_string_type] === Syntax[$efront_string_CatchC])
+                    return;
+                while (node[$efront_string_type] === Syntax[$efront_string_BlockS] && node[$efront_string_body][$efront_string_length] === 1 && !common[$efront_string_isScop1](node[$efront_string_body][0]))
+                    modified = !0, node = node[$efront_string_body][0];
+                return node[$efront_string_type] === Syntax[$efront_string_BlockS] && node[$efront_string_body][$efront_string_length] === 0 ? (modified = !0, _a = {}, _a[$efront_string_type] = Syntax[$efront_string_EmptyS], _a) : node
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        removeWastedBlocks[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = removeWastedBlocks
+        Name = $efront_string_remove, common = require(510), Syntax = common[$efront_string_Syntax], removeWastedBlocks[$efront_string_passNa] = Name, module[$efront_string_export] = removeWastedBlocks
     }()
 }],
-/** 645 $efront_string__remov1 */ 'remove-unused-label',
-/** 646 $efront_string__unuse */ 'unused',
-/** 647 $efront_string__regis1 */ 'register',
-/** 648 $efront_string__dupli */ /** text */ 'duplicate label is found',
-/** 649 $efront_string__used_ */ 'used',
-/** 650 $efront_string__stmt_ */ 'stmt',
-/** 651 $efront_string__unreg */ 'unregister',
-/** 652 $efront_string__unres */ /** text */ 'unresolved label',
-/** 653 $efront_string__close */ 'close',
-/** 654 pass$remove-unused-label.js */ [1,29,645,196,56,646,437,51,647,510,187,101,136,215,55,648,649,650,651,52,57,135,463,652,653,562,563,295,165,186,108,96,97,81,88,185,599,600,564,38,function(require, module, $efront_string__remov1, $efront_string__Synta, $efront_string__set_, $efront_string__unuse, $efront_string__upper, $efront_string__proto, $efront_string__regis1, $efront_string__asser, $efront_string__type_, $efront_string__Label, $efront_string__label, $efront_string__name_, $efront_string__has_, $efront_string__dupli, $efront_string__used_, $efront_string__stmt_, $efront_string__unreg, $efront_string__get_, $efront_string__delet, $efront_string__body_, $efront_string__resol1, $efront_string__unres, $efront_string__close, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__Progr, $efront_string__Funct, $efront_string__Funct1, $efront_string__Break, $efront_string__Conti, $efront_string__leave, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 624 $efront_string_remove1 */ "remove-unused-label",
+/** 625 $efront_string_unused */ "unused",
+/** 626 $efront_string_regist1 */ "register",
+/** 627 $efront_string_duplic */ /** text */ "duplicate label is found",
+/** 628 $efront_string_used */ "used",
+/** 629 $efront_string_stmt */ "stmt",
+/** 630 $efront_string_unregi */ "unregister",
+/** 631 $efront_string_unreso */ /** text */ "unresolved label",
+/** 632 $efront_string_close */ "close",
+/** 633 pass$remove-unused-label.js */ [1,15,624,180,41,625,420,36,626,490,171,86,120,199,40,627,628,629,630,37,42,119,445,631,632,541,542,278,149,170,93,81,82,66,73,169,578,579,543,13,function(require, module, $efront_string_remove1, $efront_string_Syntax, $efront_string_set, $efront_string_unused, $efront_string_upper, $efront_string_protot, $efront_string_regist1, $efront_string_assert, $efront_string_type, $efront_string_Labele, $efront_string_label, $efront_string_name, $efront_string_has, $efront_string_duplic, $efront_string_used, $efront_string_stmt, $efront_string_unregi, $efront_string_get, $efront_string_delete, $efront_string_body, $efront_string_resolv1, $efront_string_unreso, $efront_string_close, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_replac, $efront_string_enter, $efront_string_Progra, $efront_string_Functi, $efront_string_Functi1, $efront_string_BreakS, $efront_string_Contin, $efront_string_leave, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, Map, common, scope, modified) {
         'use strict';
-        var Name, Syntax, Map, common, scope, modified;
-        Name = $efront_string__remov1;
-        common = require(530);
-        Map = require(66);
-        Syntax = common[$efront_string__Synta];
         function Scope(upper) {
-            this[$efront_string__set_] = new Map;
-            this[$efront_string__unuse] = [];
-            this[$efront_string__upper] = upper
+            this[$efront_string_set] = new Map, this[$efront_string_unused] = [], this[$efront_string_upper] = upper
         }
-        Scope[$efront_string__proto][$efront_string__regis1] = function register(node) {
-            var _a;
-            var name;
-            common[$efront_string__asser](node[$efront_string__type_] === Syntax[$efront_string__Label]);
-            name = node[$efront_string__label][$efront_string__name_];
-            common[$efront_string__asser](!this[$efront_string__set_][$efront_string__has_](name), $efront_string__dupli);
-            this[$efront_string__set_][$efront_string__set_](name, (_a = {}, _a[$efront_string__used_] = false, _a[$efront_string__stmt_] = node, _a))
-        };
-        Scope[$efront_string__proto][$efront_string__unreg] = function unregister(node) {
-            var name, ref;
-            if (node[$efront_string__type_] === Syntax[$efront_string__Label]) {
-                name = node[$efront_string__label][$efront_string__name_];
-                ref = this[$efront_string__set_][$efront_string__get_](name);
-                this[$efront_string__set_][$efront_string__delet](name);
-                if (!ref[$efront_string__used_]) {
-                    modified = true;
-                    return node[$efront_string__body_]
-                }
-            }
-            return node
-        };
-        Scope[$efront_string__proto][$efront_string__resol1] = function resolve(node) {
-            var name;
-            if (node[$efront_string__label]) {
-                name = node[$efront_string__label][$efront_string__name_];
-                common[$efront_string__asser](this[$efront_string__set_][$efront_string__has_](name), $efront_string__unres);
-                this[$efront_string__set_][$efront_string__get_](name)[$efront_string__used_] = true
-            }
-        };
-        Scope[$efront_string__proto][$efront_string__close] = function close() {
-            return this[$efront_string__upper]
-        };
         function removeUnusedLabel(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            scope = null;
-            modified = false;
-            result = common[$efront_string__repla](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Progr]:
-                case Syntax[$efront_string__Funct]:
-                case Syntax[$efront_string__Funct1]:
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), scope = null, modified = !1, result = common[$efront_string_replac](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_Progra]:
+                case Syntax[$efront_string_Functi]:
+                case Syntax[$efront_string_Functi1]:
                     scope = new Scope(scope);
                     break;
-                case Syntax[$efront_string__Label]:
-                    scope[$efront_string__regis1](node);
+                case Syntax[$efront_string_Labele]:
+                    scope[$efront_string_regist1](node);
                     break;
-                case Syntax[$efront_string__Break]:
-                case Syntax[$efront_string__Conti]:
-                    scope[$efront_string__resol1](node);
+                case Syntax[$efront_string_BreakS]:
+                case Syntax[$efront_string_Contin]:
+                    scope[$efront_string_resolv1](node);
                     break
                 }
-            }, _b[$efront_string__leave] = function leave(node) {
+            }, _b[$efront_string_leave] = function leave(node) {
                 var ret;
-                ret = scope[$efront_string__unreg](node);
-                if (node[$efront_string__type_] === Syntax[$efront_string__Progr] || node[$efront_string__type_] === Syntax[$efront_string__Funct] || node[$efront_string__type_] === Syntax[$efront_string__Funct1]) {
-                    scope = scope[$efront_string__close]()
-                }
-                return ret
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+                return ret = scope[$efront_string_unregi](node), (node[$efront_string_type] === Syntax[$efront_string_Progra] || node[$efront_string_type] === Syntax[$efront_string_Functi] || node[$efront_string_type] === Syntax[$efront_string_Functi1]) && (scope = scope[$efront_string_close]()), ret
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        removeUnusedLabel[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = removeUnusedLabel
+        Name = $efront_string_remove1, common = require(510), Map = require(50), Syntax = common[$efront_string_Syntax], Scope[$efront_string_protot][$efront_string_regist1] = function register(node) {
+            var _a, name;
+            common[$efront_string_assert](node[$efront_string_type] === Syntax[$efront_string_Labele]), name = node[$efront_string_label][$efront_string_name], common[$efront_string_assert](!this[$efront_string_set][$efront_string_has](name), $efront_string_duplic), this[$efront_string_set][$efront_string_set](name, (_a = {}, _a[$efront_string_used] = !1, _a[$efront_string_stmt] = node, _a))
+        }, Scope[$efront_string_protot][$efront_string_unregi] = function unregister(node) {
+            var name, ref;
+            return node[$efront_string_type] === Syntax[$efront_string_Labele] && (name = node[$efront_string_label][$efront_string_name], ref = this[$efront_string_set][$efront_string_get](name), this[$efront_string_set][$efront_string_delete](name), !ref[$efront_string_used]) ? (modified = !0, node[$efront_string_body]) : node
+        }, Scope[$efront_string_protot][$efront_string_resolv1] = function resolve(node) {
+            var name;
+            node[$efront_string_label] && (name = node[$efront_string_label][$efront_string_name], common[$efront_string_assert](this[$efront_string_set][$efront_string_has](name), $efront_string_unreso), this[$efront_string_set][$efront_string_get](name)[$efront_string_used] = !0)
+        }, Scope[$efront_string_protot][$efront_string_close] = function close() {
+            return this[$efront_string_upper]
+        }, removeUnusedLabel[$efront_string_passNa] = Name, module[$efront_string_export] = removeUnusedLabel
     }()
 }],
-/** 655 $efront_string__remov2 */ 'remove-unreachable-branch',
-/** 656 pass$remove-unreachable-branch.js */ [1,29,655,196,592,36,143,607,63,513,187,93,144,142,79,135,528,129,481,568,111,153,130,52,562,563,295,165,186,489,480,504,506,99,102,87,185,184,599,600,564,38,function(require, module, $efront_string__remov2, $efront_string__Synta, $efront_string__boole, $efront_string__test_, $efront_string__alter, $efront_string__boole1, $efront_string__push_, $efront_string__moveL, $efront_string__type_, $efront_string__Expre, $efront_string__expre, $efront_string__conse, $efront_string__Block, $efront_string__body_, $efront_string__deleg, $efront_string__left_, $efront_string__opera, $efront_string__13, $efront_string__Seque, $efront_string__expre1, $efront_string__right, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__repla, $efront_string__enter, $efront_string__Scope, $efront_string__isVar, $efront_string__Array2, $efront_string__last_, $efront_string__IfSta, $efront_string__Logic, $efront_string__Condi, $efront_string__leave, $efront_string__pop_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 634 $efront_string_remove2 */ "remove-unreachable-branch",
+/** 635 pass$remove-unreachable-branch.js */ [1,15,634,180,571,22,127,586,47,493,171,78,128,126,64,119,508,113,463,547,96,137,114,37,541,542,278,149,170,471,462,484,486,84,87,72,169,168,578,579,543,13,function(require, module, $efront_string_remove2, $efront_string_Syntax, $efront_string_boolea, $efront_string_test, $efront_string_altern, $efront_string_boolea1, $efront_string_push, $efront_string_moveLo, $efront_string_type, $efront_string_Expres, $efront_string_expres, $efront_string_conseq, $efront_string_BlockS, $efront_string_body, $efront_string_delega, $efront_string_left, $efront_string_operat, $efront_string__21, $efront_string_Sequen, $efront_string_expres1, $efront_string_right, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_replac, $efront_string_enter, $efront_string_Scope, $efront_string_isVari, $efront_string_Array, $efront_string_last, $efront_string_IfStat, $efront_string_Logica, $efront_string_Condit, $efront_string_leave, $efront_string_pop, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, escope, evaluator, modified) {
         'use strict';
-        var Name, Syntax, common, escope, evaluator, modified;
-        Name = $efront_string__remov2;
-        escope = require(494);
-        common = require(530);
-        evaluator = require(593);
-        Syntax = common[$efront_string__Synta];
         function handleIfStatement(func, node) {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
-            var test, body, decl;
-            test = evaluator[$efront_string__boole](node[$efront_string__test_]);
-            if (!node[$efront_string__alter]) {
-                if (typeof test === $efront_string__boole1) {
-                    modified = true;
-                    body = [];
-                    if (test) {
-                        body[$efront_string__push_](common[$efront_string__moveL](node[$efront_string__test_], (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Expre], _a[$efront_string__expre] = node[$efront_string__test_], _a)), node[$efront_string__conse]);
-                        return _b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Block], _b[$efront_string__body_] = body, _b
-                    } else {
-                        decl = common[$efront_string__deleg](node[$efront_string__conse], func);
-                        if (decl) {
-                            body[$efront_string__push_](decl)
-                        }
-                        body[$efront_string__push_](common[$efront_string__moveL](node[$efront_string__test_], (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Expre], _c[$efront_string__expre] = node[$efront_string__test_], _c)));
-                        return _d = {}, _d[$efront_string__type_] = Syntax[$efront_string__Block], _d[$efront_string__body_] = body, _d
-                    }
-                }
-            } else {
-                if (typeof test === $efront_string__boole1) {
-                    modified = true;
-                    body = [];
-                    if (test) {
-                        decl = common[$efront_string__deleg](node[$efront_string__alter], func);
-                        if (decl) {
-                            body[$efront_string__push_](decl)
-                        }
-                        body[$efront_string__push_](common[$efront_string__moveL](node[$efront_string__test_], (_e = {}, _e[$efront_string__type_] = Syntax[$efront_string__Expre], _e[$efront_string__expre] = node[$efront_string__test_], _e)), node[$efront_string__conse]);
-                        return _f = {}, _f[$efront_string__type_] = Syntax[$efront_string__Block], _f[$efront_string__body_] = body, _f
-                    } else {
-                        decl = common[$efront_string__deleg](node[$efront_string__conse], func);
-                        if (decl) {
-                            body[$efront_string__push_](decl)
-                        }
-                        body[$efront_string__push_](common[$efront_string__moveL](node[$efront_string__test_], (_g = {}, _g[$efront_string__type_] = Syntax[$efront_string__Expre], _g[$efront_string__expre] = node[$efront_string__test_], _g)), node[$efront_string__alter]);
-                        return _h = {}, _h[$efront_string__type_] = Syntax[$efront_string__Block], _h[$efront_string__body_] = body, _h
-                    }
-                }
-            }
+            var _a, _b, _c, _d, _e, _f, _g, _h, test, body, decl;
+            if (test = evaluator[$efront_string_boolea](node[$efront_string_test]), !node[$efront_string_altern]) {
+                if (typeof test === $efront_string_boolea1)
+                    return modified = !0, body = [], test ? (body[$efront_string_push](common[$efront_string_moveLo](node[$efront_string_test], (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Expres], _a[$efront_string_expres] = node[$efront_string_test], _a)), node[$efront_string_conseq]), _b = {}, _b[$efront_string_type] = Syntax[$efront_string_BlockS], _b[$efront_string_body] = body, _b) : (decl = common[$efront_string_delega](node[$efront_string_conseq], func), decl && body[$efront_string_push](decl), body[$efront_string_push](common[$efront_string_moveLo](node[$efront_string_test], (_c = {}, _c[$efront_string_type] = Syntax[$efront_string_Expres], _c[$efront_string_expres] = node[$efront_string_test], _c))), _d = {}, _d[$efront_string_type] = Syntax[$efront_string_BlockS], _d[$efront_string_body] = body, _d)
+            } else if (typeof test === $efront_string_boolea1)
+                return modified = !0, body = [], test ? (decl = common[$efront_string_delega](node[$efront_string_altern], func), decl && body[$efront_string_push](decl), body[$efront_string_push](common[$efront_string_moveLo](node[$efront_string_test], (_e = {}, _e[$efront_string_type] = Syntax[$efront_string_Expres], _e[$efront_string_expres] = node[$efront_string_test], _e)), node[$efront_string_conseq]), _f = {}, _f[$efront_string_type] = Syntax[$efront_string_BlockS], _f[$efront_string_body] = body, _f) : (decl = common[$efront_string_delega](node[$efront_string_conseq], func), decl && body[$efront_string_push](decl), body[$efront_string_push](common[$efront_string_moveLo](node[$efront_string_test], (_g = {}, _g[$efront_string_type] = Syntax[$efront_string_Expres], _g[$efront_string_expres] = node[$efront_string_test], _g)), node[$efront_string_altern]), _h = {}, _h[$efront_string_type] = Syntax[$efront_string_BlockS], _h[$efront_string_body] = body, _h)
         }
         function handleLogicalExpression(func, node) {
-            var _a, _b;
-            var test;
-            test = evaluator[$efront_string__boole](node[$efront_string__left_]);
-            if (typeof test === $efront_string__boole1) {
-                modified = true;
-                if (test) {
-                    if (node[$efront_string__opera] === $efront_string__13) {
-                        return common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Seque], _a[$efront_string__expre1] = [
-                            node[$efront_string__left_],
-                            node[$efront_string__right]
-                        ], _a))
-                    } else {
-                        return node[$efront_string__left_]
-                    }
-                } else {
-                    if (node[$efront_string__opera] === $efront_string__13) {
-                        return node[$efront_string__left_]
-                    } else {
-                        return common[$efront_string__moveL](node, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Seque], _b[$efront_string__expre1] = [
-                            node[$efront_string__left_],
-                            node[$efront_string__right]
-                        ], _b))
-                    }
-                }
-            }
+            var _a, _b, test;
+            return test = evaluator[$efront_string_boolea](node[$efront_string_left]), typeof test === $efront_string_boolea1 ? (modified = !0, test ? node[$efront_string_operat] === $efront_string__21 ? common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Sequen], _a[$efront_string_expres1] = [
+                node[$efront_string_left],
+                node[$efront_string_right]
+            ], _a)) : node[$efront_string_left] : node[$efront_string_operat] === $efront_string__21 ? node[$efront_string_left] : common[$efront_string_moveLo](node, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_Sequen], _b[$efront_string_expres1] = [
+                node[$efront_string_left],
+                node[$efront_string_right]
+            ], _b))) : void 0
         }
         function handleConditionalExpression(func, node) {
-            var _a, _b;
-            var test;
-            test = evaluator[$efront_string__boole](node[$efront_string__test_]);
-            if (typeof test === $efront_string__boole1) {
-                modified = true;
-                if (test) {
-                    return common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Seque], _a[$efront_string__expre1] = [
-                        node[$efront_string__test_],
-                        node[$efront_string__conse]
-                    ], _a))
-                } else {
-                    return common[$efront_string__moveL](node, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Seque], _b[$efront_string__expre1] = [
-                        node[$efront_string__test_],
-                        node[$efront_string__alter]
-                    ], _b))
-                }
-            }
+            var _a, _b, test;
+            return test = evaluator[$efront_string_boolea](node[$efront_string_test]), typeof test === $efront_string_boolea1 ? (modified = !0, test ? common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Sequen], _a[$efront_string_expres1] = [
+                node[$efront_string_test],
+                node[$efront_string_conseq]
+            ], _a)) : common[$efront_string_moveLo](node, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_Sequen], _b[$efront_string_expres1] = [
+                node[$efront_string_test],
+                node[$efront_string_altern]
+            ], _b))) : void 0
         }
         function removeUnreachableBranch(tree, options) {
-            var _a, _b, _c;
-            var result, stack;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            stack = [];
-            result = common[$efront_string__repla](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
+            var _a, _b, _c, result, stack;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, stack = [], result = common[$efront_string_replac](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
                 var func;
-                if (escope[$efront_string__Scope][$efront_string__isVar](node)) {
-                    stack[$efront_string__push_](node);
+                if (escope[$efront_string_Scope][$efront_string_isVari](node)) {
+                    stack[$efront_string_push](node);
                     return
                 }
-                func = common[$efront_string__Array2][$efront_string__last_](stack);
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__IfSta]:
+                func = common[$efront_string_Array][$efront_string_last](stack);
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_IfStat]:
                     return handleIfStatement(func, node);
-                case Syntax[$efront_string__Logic]:
+                case Syntax[$efront_string_Logica]:
                     return handleLogicalExpression(func, node);
-                case Syntax[$efront_string__Condi]:
+                case Syntax[$efront_string_Condit]:
                     return handleConditionalExpression(func, node)
                 }
-            }, _b[$efront_string__leave] = function leave(node) {
-                if (escope[$efront_string__Scope][$efront_string__isVar](node)) {
-                    stack[$efront_string__pop_]()
-                }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            }, _b[$efront_string_leave] = function leave(node) {
+                escope[$efront_string_Scope][$efront_string_isVari](node) && stack[$efront_string_pop]()
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        removeUnreachableBranch[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = removeUnreachableBranch
+        Name = $efront_string_remove2, escope = require(476), common = require(510), evaluator = require(572), Syntax = common[$efront_string_Syntax], removeUnreachableBranch[$efront_string_passNa] = Name, module[$efront_string_export] = removeUnreachableBranch
     }()
 }],
-/** 657 $efront_string__remov3 */ 'remove-side-effect-free-expressions',
-/** 658 $efront_string__expre2 */ /** text */ 'expressions should be more than one',
-/** 659 $efront_string__resul1 */ /** text */ 'result should be more than zero',
-/** 660 $efront_string__unshi */ 'unshift',
-/** 661 $efront_string__seque */ /** text */ 'sequences\' length should be more than 1',
-/** 662 pass$remove-side-effect-free-expressions.js */ [1,29,657,196,510,153,128,658,591,63,659,519,526,660,187,93,439,52,562,563,295,610,491,410,471,165,186,478,111,661,504,506,117,481,378,152,184,513,144,92,185,479,472,599,600,564,38,function(require, module, $efront_string__remov3, $efront_string__Synta, $efront_string__asser, $efront_string__expre1, $efront_string__lengt1, $efront_string__expre2, $efront_string__hasSi, $efront_string__push_, $efront_string__resul1, $efront_string__Speci, $efront_string__canEx, $efront_string__unshi, $efront_string__type_, $efront_string__Expre, $efront_string__globa, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__Seque, $efront_string__seque, $efront_string__Array2, $efront_string__last_, $efront_string__Unary, $efront_string__opera, $efront_string__void_, $efront_string__argum1, $efront_string__pop_, $efront_string__moveL, $efront_string__expre, $efront_string__Empty, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 636 $efront_string_remove3 */ "remove-side-effect-free-expressions",
+/** 637 $efront_string_expres2 */ /** text */ "expressions should be more than one",
+/** 638 $efront_string_result1 */ /** text */ "result should be more than zero",
+/** 639 $efront_string_unshif */ "unshift",
+/** 640 $efront_string_sequen */ /** text */ "sequences' length should be more than 1",
+/** 641 pass$remove-side-effect-free-expressions.js */ [1,15,636,180,490,137,3,637,570,47,638,499,506,639,171,78,422,37,541,542,278,589,473,393,453,149,170,460,96,640,484,486,102,463,361,136,168,493,128,77,169,461,454,578,579,543,13,function(require, module, $efront_string_remove3, $efront_string_Syntax, $efront_string_assert, $efront_string_expres1, $efront_string_length, $efront_string_expres2, $efront_string_hasSid, $efront_string_push, $efront_string_result1, $efront_string_Specia, $efront_string_canExt, $efront_string_unshif, $efront_string_type, $efront_string_Expres, $efront_string_global, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_preser, $efront_string_analyz, $efront_string_direct1, $efront_string_attach2, $efront_string_replac, $efront_string_enter, $efront_string_acquir, $efront_string_Sequen, $efront_string_sequen, $efront_string_Array, $efront_string_last, $efront_string_UnaryE, $efront_string_operat, $efront_string_void, $efront_string_argume1, $efront_string_pop, $efront_string_moveLo, $efront_string_expres, $efront_string_EmptyS, $efront_string_leave, $efront_string_releas, $efront_string_detach, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, escope, evaluator, modified) {
         'use strict';
-        var Name, Syntax, common, escope, evaluator, modified;
-        Name = $efront_string__remov3;
-        escope = require(494);
-        common = require(530);
-        evaluator = require(593);
-        Syntax = common[$efront_string__Synta];
         function reduce(node, scope, parent, isResultNeeded) {
             var i, iz, expr, result, prev;
-            common[$efront_string__asser](node[$efront_string__expre1][$efront_string__lengt1] > 1, $efront_string__expre2);
-            result = [];
-            for (i = 0, iz = node[$efront_string__expre1][$efront_string__lengt1]; i < iz; ++i) {
-                prev = expr;
-                expr = node[$efront_string__expre1][i];
-                if (i + 1 !== iz || !isResultNeeded) {
-                    if (!evaluator[$efront_string__hasSi](expr, scope)) {
-                        continue
-                    }
-                }
-                result[$efront_string__push_](expr)
+            for (common[$efront_string_assert](node[$efront_string_expres1][$efront_string_length] > 1, $efront_string_expres2), result = [], i = 0, iz = node[$efront_string_expres1][$efront_string_length]; i < iz; ++i) {
+                if (prev = expr, expr = node[$efront_string_expres1][i], (i + 1 !== iz || !isResultNeeded) && !evaluator[$efront_string_hasSid](expr, scope))
+                    continue;
+                result[$efront_string_push](expr)
             }
-            if (!isResultNeeded && result[$efront_string__lengt1] === 0) {
-                modified = true;
-                return expr
-            }
-            common[$efront_string__asser](result[$efront_string__lengt1] > 0, $efront_string__resul1);
+            if (!isResultNeeded && result[$efront_string_length] === 0)
+                return modified = !0, expr;
+            common[$efront_string_assert](result[$efront_string_length] > 0, $efront_string_result1);
             do {
-                if (iz === result[$efront_string__lengt1]) {
-                    return node
-                }
-                if (result[$efront_string__lengt1] === 1) {
-                    if (!common[$efront_string__Speci][$efront_string__canEx](result[0], parent, scope)) {
-                        result[$efront_string__unshi](prev);
+                if (iz === result[$efront_string_length])
+                    return node;
+                if (result[$efront_string_length] === 1) {
+                    if (!common[$efront_string_Specia][$efront_string_canExt](result[0], parent, scope)) {
+                        result[$efront_string_unshif](prev);
                         continue
                     }
-                    modified = true;
-                    return result[0]
+                    return modified = !0, result[0]
                 }
-                modified = true;
-                node[$efront_string__expre1] = result;
-                return node
-            } while (true)
+                return modified = !0, node[$efront_string_expres1] = result, node
+            } while (!0)
         }
         function removeSideEffectFreeExpressions(tree, options) {
-            var _a, _b, _c, _d, _e;
-            var result, scope, manager, preserveCompletionValue;
             function isResultNeeded(parent, scope) {
-                if (parent[$efront_string__type_] === Syntax[$efront_string__Expre] && (!preserveCompletionValue || scope[$efront_string__type_] !== $efront_string__globa)) {
-                    return false
-                }
-                return true
+                return parent[$efront_string_type] === Syntax[$efront_string_Expres] && (!preserveCompletionValue || scope[$efront_string_type] !== $efront_string_global) ? !1 : !0
             }
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            preserveCompletionValue = options[$efront_string__get_]($efront_string__prese, (_b = {}, _b[$efront_string__pathN] = Name, _b));
-            modified = false;
-            scope = null;
-            manager = escope[$efront_string__analy](result, (_c = {}, _c[$efront_string__direc1] = true, _c));
-            manager[$efront_string__attac2]();
-            result = common[$efront_string__repla](result, (_d = {}, _d[$efront_string__enter] = function enter(node, parent) {
-                var _a, _b;
-                var res, unary, trans;
-                res = node;
-                scope = manager[$efront_string__acqui](node) || scope;
-                if (res[$efront_string__type_] === Syntax[$efront_string__Seque]) {
-                    res = reduce(res, scope, parent, isResultNeeded(parent, scope))
-                }
-                if (res[$efront_string__type_] === Syntax[$efront_string__Seque]) {
-                    common[$efront_string__asser](res[$efront_string__expre1][$efront_string__lengt1] > 1, $efront_string__seque);
-                    unary = common[$efront_string__Array2][$efront_string__last_](res[$efront_string__expre1]);
-                    if (unary[$efront_string__type_] === Syntax[$efront_string__Unary] && unary[$efront_string__opera] === $efront_string__void_ && !evaluator[$efront_string__hasSi](unary[$efront_string__argum1], scope)) {
-                        modified = true;
-                        res[$efront_string__expre1][$efront_string__pop_]();
-                        trans = common[$efront_string__moveL](unary, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__void_, _a[$efront_string__argum1] = common[$efront_string__Array2][$efront_string__last_](res[$efront_string__expre1]), _a));
-                        if (res[$efront_string__expre1][$efront_string__lengt1] === 1) {
-                            res = trans
-                        } else {
-                            res[$efront_string__expre1][res[$efront_string__expre1][$efront_string__lengt1] - 1] = trans
-                        }
-                    }
-                }
-                if (!isResultNeeded(res, scope)) {
-                    if (!evaluator[$efront_string__hasSi](res[$efront_string__expre], scope)) {
-                        modified = true;
-                        res = common[$efront_string__moveL](res, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Empty], _b))
-                    }
-                }
-                return res
-            }, _d[$efront_string__leave] = function leave(node) {
-                scope = manager[$efront_string__relea](node) || scope
-            }, _d));
-            manager[$efront_string__detac]();
-            return _e = {}, _e[$efront_string__resul] = result, _e[$efront_string__modif] = modified, _e
+            var _a, _b, _c, _d, _e, result, scope, manager, preserveCompletionValue;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), preserveCompletionValue = options[$efront_string_get]($efront_string_preser, (_b = {}, _b[$efront_string_pathNa] = Name, _b)), modified = !1, scope = null, manager = escope[$efront_string_analyz](result, (_c = {}, _c[$efront_string_direct1] = !0, _c)), manager[$efront_string_attach2](), result = common[$efront_string_replac](result, (_d = {}, _d[$efront_string_enter] = function enter(node, parent) {
+                var _a, _b, res, unary, trans;
+                return res = node, scope = manager[$efront_string_acquir](node) || scope, res[$efront_string_type] === Syntax[$efront_string_Sequen] && (res = reduce(res, scope, parent, isResultNeeded(parent, scope))), res[$efront_string_type] === Syntax[$efront_string_Sequen] && (common[$efront_string_assert](res[$efront_string_expres1][$efront_string_length] > 1, $efront_string_sequen), unary = common[$efront_string_Array][$efront_string_last](res[$efront_string_expres1]), unary[$efront_string_type] === Syntax[$efront_string_UnaryE] && unary[$efront_string_operat] === $efront_string_void && !evaluator[$efront_string_hasSid](unary[$efront_string_argume1], scope) && (modified = !0, res[$efront_string_expres1][$efront_string_pop](), trans = common[$efront_string_moveLo](unary, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string_void, _a[$efront_string_argume1] = common[$efront_string_Array][$efront_string_last](res[$efront_string_expres1]), _a)), res[$efront_string_expres1][$efront_string_length] === 1 ? res = trans : res[$efront_string_expres1][res[$efront_string_expres1][$efront_string_length] - 1] = trans)), isResultNeeded(res, scope) || evaluator[$efront_string_hasSid](res[$efront_string_expres], scope) || (modified = !0, res = common[$efront_string_moveLo](res, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_EmptyS], _b))), res
+            }, _d[$efront_string_leave] = function leave(node) {
+                scope = manager[$efront_string_releas](node) || scope
+            }, _d)), manager[$efront_string_detach](), _e = {}, _e[$efront_string_result] = result, _e[$efront_string_modifi] = modified, _e
         }
-        removeSideEffectFreeExpressions[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = removeSideEffectFreeExpressions
+        Name = $efront_string_remove3, escope = require(476), common = require(510), evaluator = require(572), Syntax = common[$efront_string_Syntax], removeSideEffectFreeExpressions[$efront_string_passNa] = Name, module[$efront_string_export] = removeSideEffectFreeExpressions
     }()
 }],
-/** 663 $efront_string__remov4 */ 'remove-empty-statement',
-/** 664 pass$remove-empty-statement.js */ [1,29,663,196,128,187,92,63,143,142,36,513,117,481,566,152,52,562,563,295,183,186,79,108,135,113,99,112,155,504,506,507,184,599,600,564,38,function(require, module, $efront_string__remov4, $efront_string__Synta, $efront_string__lengt1, $efront_string__type_, $efront_string__Empty, $efront_string__push_, $efront_string__alter, $efront_string__conse, $efront_string__test_, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__enter, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__Switc1, $efront_string__IfSta, $efront_string__Switc, $efront_string__cases, $efront_string__Array2, $efront_string__last_, $efront_string__empty, $efront_string__pop_, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 642 $efront_string_remove4 */ "remove-empty-statement",
+/** 643 pass$remove-empty-statement.js */ [1,15,642,180,3,171,77,47,127,126,22,493,102,463,545,136,37,541,542,278,167,170,64,93,119,98,84,97,139,484,486,487,168,578,579,543,13,function(require, module, $efront_string_remove4, $efront_string_Syntax, $efront_string_length, $efront_string_type, $efront_string_EmptyS, $efront_string_push, $efront_string_altern, $efront_string_conseq, $efront_string_test, $efront_string_moveLo, $efront_string_UnaryE, $efront_string_operat, $efront_string__19, $efront_string_argume1, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_enter, $efront_string_BlockS, $efront_string_Progra, $efront_string_body, $efront_string_Switch1, $efront_string_IfStat, $efront_string_Switch, $efront_string_cases, $efront_string_Array, $efront_string_last, $efront_string_empty, $efront_string_pop, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__remov4;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function remove(array) {
             var i, iz, node, result;
-            result = [];
-            for (i = 0, iz = array[$efront_string__lengt1]; i < iz; ++i) {
-                node = array[i];
-                if (node[$efront_string__type_] === Syntax[$efront_string__Empty]) {
-                    modified = true
-                } else {
-                    result[$efront_string__push_](node)
-                }
-            }
+            for (result = [], i = 0, iz = array[$efront_string_length]; i < iz; ++i)
+                node = array[i], node[$efront_string_type] === Syntax[$efront_string_EmptyS] ? modified = !0 : result[$efront_string_push](node);
             return result
         }
         function removeAlternate(node) {
             var _a;
-            if (node[$efront_string__alter]) {
-                if (node[$efront_string__alter][$efront_string__type_] === Syntax[$efront_string__Empty]) {
-                    modified = true;
-                    node[$efront_string__alter] = null
-                } else if (node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__Empty]) {
-                    modified = true;
-                    node[$efront_string__conse] = node[$efront_string__alter];
-                    node[$efront_string__alter] = null;
-                    node[$efront_string__test_] = common[$efront_string__moveL](node[$efront_string__test_], (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__11, _a[$efront_string__argum1] = node[$efront_string__test_], _a))
-                }
-            }
+            node[$efront_string_altern] && (node[$efront_string_altern][$efront_string_type] === Syntax[$efront_string_EmptyS] ? (modified = !0, node[$efront_string_altern] = null) : node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_EmptyS] && (modified = !0, node[$efront_string_conseq] = node[$efront_string_altern], node[$efront_string_altern] = null, node[$efront_string_test] = common[$efront_string_moveLo](node[$efront_string_test], (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string__19, _a[$efront_string_argume1] = node[$efront_string_test], _a))))
         }
         function removeEmptyStatement(tree, options) {
-            var _a, _b, _c;
-            var result;
-            modified = false;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
+            var _a, _b, _c, result;
+            return modified = !1, result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), common[$efront_string_traver](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
                 var clause;
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Block]:
-                case Syntax[$efront_string__Progr]:
-                    node[$efront_string__body_] = remove(node[$efront_string__body_]);
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_BlockS]:
+                case Syntax[$efront_string_Progra]:
+                    node[$efront_string_body] = remove(node[$efront_string_body]);
                     break;
-                case Syntax[$efront_string__Switc1]:
-                    node[$efront_string__conse] = remove(node[$efront_string__conse]);
+                case Syntax[$efront_string_Switch1]:
+                    node[$efront_string_conseq] = remove(node[$efront_string_conseq]);
                     break;
-                case Syntax[$efront_string__IfSta]:
+                case Syntax[$efront_string_IfStat]:
                     removeAlternate(node);
                     break;
-                case Syntax[$efront_string__Switc]:
-                    if (node[$efront_string__cases][$efront_string__lengt1]) {
-                        clause = common[$efront_string__Array2][$efront_string__last_](node[$efront_string__cases]);
-                        if (!clause[$efront_string__test_] && common[$efront_string__Array2][$efront_string__empty](clause[$efront_string__conse])) {
-                            modified = true;
-                            node[$efront_string__cases][$efront_string__pop_]()
-                        }
-                    }
+                case Syntax[$efront_string_Switch]:
+                    node[$efront_string_cases][$efront_string_length] && (clause = common[$efront_string_Array][$efront_string_last](node[$efront_string_cases]), !clause[$efront_string_test] && common[$efront_string_Array][$efront_string_empty](clause[$efront_string_conseq]) && (modified = !0, node[$efront_string_cases][$efront_string_pop]()))
                 }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        removeEmptyStatement[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = removeEmptyStatement
+        Name = $efront_string_remove4, common = require(510), Syntax = common[$efront_string_Syntax], removeEmptyStatement[$efront_string_passNa] = Name, module[$efront_string_export] = removeEmptyStatement
     }()
 }],
-/** 665 $efront_string__remov5 */ 'remove-context-sensitive-expressions',
-/** 666 $efront_string__trans10 */ 'transform',
-/** 667 $efront_string__boole2 */ 'booleanFunction',
-/** 668 $efront_string__voidF */ 'voidFunction',
-/** 669 $efront_string__boole3 */ 'booleanTransformation',
-/** 670 $efront_string__voidT */ 'voidTransformation',
-/** 671 $efront_string__apply1 */ 'apply',
-/** 672 pass$remove-context-sensitive-expressions.js */ [1,29,665,196,666,667,668,424,51,669,187,117,481,566,152,102,129,130,567,568,513,87,36,142,143,670,378,591,671,111,153,128,504,506,52,562,563,295,610,491,410,471,165,186,478,97,96,75,76,79,80,81,82,83,88,91,89,92,93,144,95,94,145,119,146,98,99,100,101,103,105,106,108,109,110,112,113,114,115,116,118,120,121,122,185,479,472,599,600,564,38,function(require, module, $efront_string__remov5, $efront_string__Synta, $efront_string__trans10, $efront_string__boole2, $efront_string__voidF, $efront_string__scope, $efront_string__proto, $efront_string__boole3, $efront_string__type_, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__Logic, $efront_string__left_, $efront_string__right, $efront_string__12, $efront_string__13, $efront_string__moveL, $efront_string__Condi, $efront_string__test_, $efront_string__conse, $efront_string__alter, $efront_string__voidT, $efront_string__void_, $efront_string__hasSi, $efront_string__apply1, $efront_string__Seque, $efront_string__expre1, $efront_string__lengt1, $efront_string__Array2, $efront_string__last_, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__prese, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__Funct1, $efront_string__Funct, $efront_string__Assig, $efront_string__Array, $efront_string__Block, $efront_string__Binar, $efront_string__Break, $efront_string__CallE, $efront_string__Catch, $efront_string__Conti, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__Expre, $efront_string__expre, $efront_string__ForIn, $efront_string__ForSt, $efront_string__init_, $efront_string__Varia, $efront_string__updat, $efront_string__Ident, $efront_string__IfSta, $efront_string__Liter, $efront_string__Label, $efront_string__Membe, $efront_string__NewEx, $efront_string__Objec, $efront_string__Progr, $efront_string__Prope, $efront_string__Retur, $efront_string__Switc, $efront_string__Switc1, $efront_string__ThisE, $efront_string__Throw, $efront_string__TrySt, $efront_string__Updat, $efront_string__Varia1, $efront_string__While, $efront_string__WithS, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 644 $efront_string_remove5 */ "remove-context-sensitive-expressions",
+/** 645 $efront_string_transf10 */ "transform",
+/** 646 $efront_string_boolea2 */ "booleanFunction",
+/** 647 $efront_string_voidFu */ "voidFunction",
+/** 648 $efront_string_boolea3 */ "booleanTransformation",
+/** 649 $efront_string_voidTr */ "voidTransformation",
+/** 650 pass$remove-context-sensitive-expressions.js */ [1,15,644,180,645,646,647,407,36,648,171,102,463,545,136,87,113,114,546,547,493,72,22,126,127,649,361,570,6,96,137,3,484,486,37,541,542,278,589,473,393,453,149,170,460,82,81,60,61,64,65,66,67,68,73,76,74,77,78,128,80,79,129,104,130,83,84,85,86,88,90,91,93,94,95,97,98,99,100,101,103,105,106,107,169,461,454,578,579,543,13,function(require, module, $efront_string_remove5, $efront_string_Syntax, $efront_string_transf10, $efront_string_boolea2, $efront_string_voidFu, $efront_string_scope, $efront_string_protot, $efront_string_boolea3, $efront_string_type, $efront_string_UnaryE, $efront_string_operat, $efront_string__19, $efront_string_argume1, $efront_string_Logica, $efront_string_left, $efront_string_right, $efront_string__20, $efront_string__21, $efront_string_moveLo, $efront_string_Condit, $efront_string_test, $efront_string_conseq, $efront_string_altern, $efront_string_voidTr, $efront_string_void, $efront_string_hasSid, $efront_string_apply, $efront_string_Sequen, $efront_string_expres1, $efront_string_length, $efront_string_Array, $efront_string_last, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_preser, $efront_string_analyz, $efront_string_direct1, $efront_string_attach2, $efront_string_replac, $efront_string_enter, $efront_string_acquir, $efront_string_Functi1, $efront_string_Functi, $efront_string_Assign, $efront_string_ArrayE, $efront_string_BlockS, $efront_string_Binary, $efront_string_BreakS, $efront_string_CallEx, $efront_string_CatchC, $efront_string_Contin, $efront_string_DoWhil, $efront_string_Debugg, $efront_string_EmptyS, $efront_string_Expres, $efront_string_expres, $efront_string_ForInS, $efront_string_ForSta, $efront_string_init, $efront_string_Variab, $efront_string_update, $efront_string_Identi, $efront_string_IfStat, $efront_string_Litera, $efront_string_Labele, $efront_string_Member, $efront_string_NewExp, $efront_string_Object, $efront_string_Progra, $efront_string_Proper, $efront_string_Return, $efront_string_Switch, $efront_string_Switch1, $efront_string_ThisEx, $efront_string_ThrowS, $efront_string_TrySta, $efront_string_Update, $efront_string_Variab1, $efront_string_WhileS, $efront_string_WithSt, $efront_string_leave, $efront_string_releas, $efront_string_detach, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, evaluator, escope, modified) {
         'use strict';
-        var Name, Syntax, common, evaluator, escope, modified;
-        Name = $efront_string__remov5;
-        common = require(530);
-        evaluator = require(593);
-        escope = require(494);
-        Syntax = common[$efront_string__Synta];
         function Transformer(trans, booleanFunction, voidFunction, scope) {
-            this[$efront_string__trans10] = trans;
-            this[$efront_string__boole2] = booleanFunction;
-            this[$efront_string__voidF] = voidFunction;
-            this[$efront_string__scope] = scope
+            this[$efront_string_transf10] = trans, this[$efront_string_boolea2] = booleanFunction, this[$efront_string_voidFu] = voidFunction, this[$efront_string_scope] = scope
         }
-        Transformer[$efront_string__proto][$efront_string__boole3] = function (expr) {
-            var _a;
-            var consequent;
-            do {
-                if (expr[$efront_string__type_] === Syntax[$efront_string__Unary]) {
-                    if (expr[$efront_string__opera] === $efront_string__11 && expr[$efront_string__argum1][$efront_string__type_] === Syntax[$efront_string__Unary] && expr[$efront_string__argum1][$efront_string__opera] === $efront_string__11) {
-                        modified = true;
-                        expr = expr[$efront_string__argum1][$efront_string__argum1];
-                        continue
-                    }
-                } else if (expr[$efront_string__type_] === Syntax[$efront_string__Logic]) {
-                    if (expr[$efront_string__left_][$efront_string__type_] === Syntax[$efront_string__Unary] && expr[$efront_string__left_][$efront_string__opera] === $efront_string__11 && expr[$efront_string__right][$efront_string__type_] === Syntax[$efront_string__Unary] && expr[$efront_string__right][$efront_string__opera] === $efront_string__11) {
-                        modified = true;
-                        expr[$efront_string__left_] = expr[$efront_string__left_][$efront_string__argum1];
-                        expr[$efront_string__right] = expr[$efront_string__right][$efront_string__argum1];
-                        expr[$efront_string__opera] = expr[$efront_string__opera] === $efront_string__12 ? $efront_string__13 : $efront_string__12;
-                        expr = common[$efront_string__moveL](expr, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__11, _a[$efront_string__argum1] = expr, _a));
-                        continue
-                    }
-                } else if (expr[$efront_string__type_] === Syntax[$efront_string__Condi]) {
-                    if (expr[$efront_string__test_][$efront_string__type_] === Syntax[$efront_string__Unary] && expr[$efront_string__test_][$efront_string__opera] === $efront_string__11) {
-                        modified = true;
-                        expr[$efront_string__test_] = expr[$efront_string__test_][$efront_string__argum1];
-                        consequent = expr[$efront_string__conse];
-                        expr[$efront_string__conse] = expr[$efront_string__alter];
-                        expr[$efront_string__alter] = consequent
-                    }
-                }
-                break
-            } while (true);
-            return expr
-        };
-        Transformer[$efront_string__proto][$efront_string__voidT] = function (expr) {
-            var _a, _b;
-            var leftHasSideEffect, rightHasSideEffect;
-            do {
-                expr = this[$efront_string__boole3](expr);
-                if (expr[$efront_string__type_] === Syntax[$efront_string__Unary]) {
-                    if (expr[$efront_string__opera] === $efront_string__11 || expr[$efront_string__opera] === $efront_string__void_) {
-                        modified = true;
-                        expr = expr[$efront_string__argum1];
-                        continue
-                    }
-                } else if (expr[$efront_string__type_] === Syntax[$efront_string__Logic]) {
-                    if (expr[$efront_string__left_][$efront_string__type_] === Syntax[$efront_string__Unary] && expr[$efront_string__left_][$efront_string__opera] === $efront_string__11) {
-                        modified = true;
-                        expr[$efront_string__left_] = expr[$efront_string__left_][$efront_string__argum1];
-                        expr[$efront_string__opera] = expr[$efront_string__opera] === $efront_string__12 ? $efront_string__13 : $efront_string__12
-                    }
-                } else if (expr[$efront_string__type_] === Syntax[$efront_string__Condi]) {
-                    leftHasSideEffect = evaluator[$efront_string__hasSi](expr[$efront_string__conse], this[$efront_string__scope]);
-                    rightHasSideEffect = evaluator[$efront_string__hasSi](expr[$efront_string__alter], this[$efront_string__scope]);
-                    if (!leftHasSideEffect && !rightHasSideEffect) {
-                        modified = true;
-                        expr = expr[$efront_string__test_]
-                    } else if (!leftHasSideEffect) {
-                        modified = true;
-                        expr = common[$efront_string__moveL](expr, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Logic], _a[$efront_string__opera] = $efront_string__12, _a[$efront_string__left_] = expr[$efront_string__test_], _a[$efront_string__right] = expr[$efront_string__alter], _a))
-                    } else if (!rightHasSideEffect) {
-                        modified = true;
-                        expr = common[$efront_string__moveL](expr, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Logic], _b[$efront_string__opera] = $efront_string__13, _b[$efront_string__left_] = expr[$efront_string__test_], _b[$efront_string__right] = expr[$efront_string__conse], _b))
-                    }
-                }
-                break
-            } while (true);
-            return expr
-        };
-        Transformer[$efront_string__proto][$efront_string__apply1] = function (expr) {
-            var prev;
-            do {
-                prev = expr;
-                expr = this[$efront_string__trans10](expr);
-                if (prev !== expr) {
-                    continue
-                }
-                if (expr[$efront_string__type_] === Syntax[$efront_string__Logic]) {
-                    expr[$efront_string__left_] = this[$efront_string__boole2](expr[$efront_string__left_], this[$efront_string__scope]);
-                    expr[$efront_string__right] = this[$efront_string__voidF](expr[$efront_string__right], this[$efront_string__scope])
-                } else if (expr[$efront_string__type_] === Syntax[$efront_string__Condi]) {
-                    expr[$efront_string__conse] = this[$efront_string__voidF](expr[$efront_string__conse], this[$efront_string__scope]);
-                    expr[$efront_string__alter] = this[$efront_string__voidF](expr[$efront_string__alter], this[$efront_string__scope])
-                } else if (expr[$efront_string__type_] === Syntax[$efront_string__Seque]) {
-                    expr[$efront_string__expre1][expr[$efront_string__expre1][$efront_string__lengt1] - 1] = this[$efront_string__voidF](common[$efront_string__Array2][$efront_string__last_](expr[$efront_string__expre1]), this[$efront_string__scope])
-                }
-                break
-            } while (true);
-            return expr
-        };
         function voidContext(expr, scope) {
-            var trans = new Transformer(Transformer[$efront_string__proto][$efront_string__voidT], booleanContext, voidContext, scope);
-            return trans[$efront_string__apply1](expr)
+            var trans = new Transformer(Transformer[$efront_string_protot][$efront_string_voidTr], booleanContext, voidContext, scope);
+            return trans[$efront_string_apply](expr)
         }
         function booleanContext(expr, scope) {
-            var trans = new Transformer(Transformer[$efront_string__proto][$efront_string__boole3], booleanContext, booleanContext, scope);
-            return trans[$efront_string__apply1](expr)
+            var trans = new Transformer(Transformer[$efront_string_protot][$efront_string_boolea3], booleanContext, booleanContext, scope);
+            return trans[$efront_string_apply](expr)
         }
         function removeContextSensitiveExpressions(tree, options) {
-            var _a, _b, _c, _d, _e;
-            var result, stackCount, preserveCompletionValue, scope, manager;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            stackCount = 0;
-            preserveCompletionValue = options[$efront_string__get_]($efront_string__prese, (_b = {}, _b[$efront_string__pathN] = Name, _b));
-            scope = null;
-            manager = escope[$efront_string__analy](result, (_c = {}, _c[$efront_string__direc1] = true, _c));
-            manager[$efront_string__attac2]();
-            result = common[$efront_string__repla](result, (_d = {}, _d[$efront_string__enter] = function enter(node) {
+            var _a, _b, _c, _d, _e, result, stackCount, preserveCompletionValue, scope, manager;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, stackCount = 0, preserveCompletionValue = options[$efront_string_get]($efront_string_preser, (_b = {}, _b[$efront_string_pathNa] = Name, _b)), scope = null, manager = escope[$efront_string_analyz](result, (_c = {}, _c[$efront_string_direct1] = !0, _c)), manager[$efront_string_attach2](), result = common[$efront_string_replac](result, (_d = {}, _d[$efront_string_enter] = function enter(node) {
                 var i, iz;
-                scope = manager[$efront_string__acqui](node) || scope;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct1] || node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                    ++stackCount
-                }
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Assig]:
+                scope = manager[$efront_string_acquir](node) || scope, (node[$efront_string_type] === Syntax[$efront_string_Functi1] || node[$efront_string_type] === Syntax[$efront_string_Functi]) && ++stackCount;
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_Assign]:
                     break;
-                case Syntax[$efront_string__Array]:
+                case Syntax[$efront_string_ArrayE]:
                     break;
-                case Syntax[$efront_string__Block]:
+                case Syntax[$efront_string_BlockS]:
                     break;
-                case Syntax[$efront_string__Binar]:
+                case Syntax[$efront_string_Binary]:
                     break;
-                case Syntax[$efront_string__Break]:
+                case Syntax[$efront_string_BreakS]:
                     break;
-                case Syntax[$efront_string__CallE]:
+                case Syntax[$efront_string_CallEx]:
                     break;
-                case Syntax[$efront_string__Catch]:
+                case Syntax[$efront_string_CatchC]:
                     break;
-                case Syntax[$efront_string__Condi]:
-                    node[$efront_string__test_] = booleanContext(node[$efront_string__test_], scope);
+                case Syntax[$efront_string_Condit]:
+                    node[$efront_string_test] = booleanContext(node[$efront_string_test], scope);
                     break;
-                case Syntax[$efront_string__Conti]:
+                case Syntax[$efront_string_Contin]:
                     break;
-                case Syntax[$efront_string__DoWhi]:
-                    node[$efront_string__test_] = booleanContext(node[$efront_string__test_], scope);
+                case Syntax[$efront_string_DoWhil]:
+                    node[$efront_string_test] = booleanContext(node[$efront_string_test], scope);
                     break;
-                case Syntax[$efront_string__Debug]:
+                case Syntax[$efront_string_Debugg]:
                     break;
-                case Syntax[$efront_string__Empty]:
+                case Syntax[$efront_string_EmptyS]:
                     break;
-                case Syntax[$efront_string__Expre]:
-                    if (!preserveCompletionValue || stackCount !== 0) {
-                        node[$efront_string__expre] = voidContext(node[$efront_string__expre], scope)
-                    }
+                case Syntax[$efront_string_Expres]:
+                    (!preserveCompletionValue || stackCount !== 0) && (node[$efront_string_expres] = voidContext(node[$efront_string_expres], scope));
                     break;
-                case Syntax[$efront_string__Funct1]:
+                case Syntax[$efront_string_Functi1]:
                     break;
-                case Syntax[$efront_string__ForIn]:
+                case Syntax[$efront_string_ForInS]:
                     break;
-                case Syntax[$efront_string__Funct]:
+                case Syntax[$efront_string_Functi]:
                     break;
-                case Syntax[$efront_string__ForSt]:
-                    if (node[$efront_string__init_] && node[$efront_string__init_][$efront_string__type_] !== Syntax[$efront_string__Varia]) {
-                        node[$efront_string__init_] = voidContext(node[$efront_string__init_], scope)
-                    }
-                    if (node[$efront_string__test_]) {
-                        node[$efront_string__test_] = booleanContext(node[$efront_string__test_], scope)
-                    }
-                    if (node[$efront_string__updat]) {
-                        node[$efront_string__updat] = voidContext(node[$efront_string__updat], scope)
-                    }
+                case Syntax[$efront_string_ForSta]:
+                    node[$efront_string_init] && node[$efront_string_init][$efront_string_type] !== Syntax[$efront_string_Variab] && (node[$efront_string_init] = voidContext(node[$efront_string_init], scope));
+                    node[$efront_string_test] && (node[$efront_string_test] = booleanContext(node[$efront_string_test], scope));
+                    node[$efront_string_update] && (node[$efront_string_update] = voidContext(node[$efront_string_update], scope));
                     break;
-                case Syntax[$efront_string__Ident]:
+                case Syntax[$efront_string_Identi]:
                     break;
-                case Syntax[$efront_string__IfSta]:
-                    node[$efront_string__test_] = booleanContext(node[$efront_string__test_], scope);
+                case Syntax[$efront_string_IfStat]:
+                    node[$efront_string_test] = booleanContext(node[$efront_string_test], scope);
                     break;
-                case Syntax[$efront_string__Liter]:
+                case Syntax[$efront_string_Litera]:
                     break;
-                case Syntax[$efront_string__Label]:
+                case Syntax[$efront_string_Labele]:
                     break;
-                case Syntax[$efront_string__Logic]:
+                case Syntax[$efront_string_Logica]:
                     break;
-                case Syntax[$efront_string__Membe]:
+                case Syntax[$efront_string_Member]:
                     break;
-                case Syntax[$efront_string__NewEx]:
+                case Syntax[$efront_string_NewExp]:
                     break;
-                case Syntax[$efront_string__Objec]:
+                case Syntax[$efront_string_Object]:
                     break;
-                case Syntax[$efront_string__Progr]:
+                case Syntax[$efront_string_Progra]:
                     break;
-                case Syntax[$efront_string__Prope]:
+                case Syntax[$efront_string_Proper]:
                     break;
-                case Syntax[$efront_string__Retur]:
+                case Syntax[$efront_string_Return]:
                     break;
-                case Syntax[$efront_string__Seque]:
-                    for (i = 0, iz = node[$efront_string__expre1][$efront_string__lengt1] - 1; i < iz; ++i) {
-                        node[$efront_string__expre1][i] = voidContext(node[$efront_string__expre1][i], scope)
-                    }
+                case Syntax[$efront_string_Sequen]:
+                    for (i = 0, iz = node[$efront_string_expres1][$efront_string_length] - 1; i < iz; ++i)
+                        node[$efront_string_expres1][i] = voidContext(node[$efront_string_expres1][i], scope);
                     break;
-                case Syntax[$efront_string__Switc]:
+                case Syntax[$efront_string_Switch]:
                     break;
-                case Syntax[$efront_string__Switc1]:
+                case Syntax[$efront_string_Switch1]:
                     break;
-                case Syntax[$efront_string__ThisE]:
+                case Syntax[$efront_string_ThisEx]:
                     break;
-                case Syntax[$efront_string__Throw]:
+                case Syntax[$efront_string_ThrowS]:
                     break;
-                case Syntax[$efront_string__TrySt]:
+                case Syntax[$efront_string_TrySta]:
                     break;
-                case Syntax[$efront_string__Unary]:
-                    if (node[$efront_string__opera] === $efront_string__11) {
-                        node[$efront_string__argum1] = booleanContext(node[$efront_string__argum1], scope)
-                    } else if (node[$efront_string__opera] === $efront_string__void_) {
-                        node[$efront_string__argum1] = voidContext(node[$efront_string__argum1], scope)
-                    }
+                case Syntax[$efront_string_UnaryE]:
+                    node[$efront_string_operat] === $efront_string__19 ? node[$efront_string_argume1] = booleanContext(node[$efront_string_argume1], scope) : node[$efront_string_operat] === $efront_string_void && (node[$efront_string_argume1] = voidContext(node[$efront_string_argume1], scope));
                     break;
-                case Syntax[$efront_string__Updat]:
+                case Syntax[$efront_string_Update]:
                     break;
-                case Syntax[$efront_string__Varia]:
+                case Syntax[$efront_string_Variab]:
                     break;
-                case Syntax[$efront_string__Varia1]:
+                case Syntax[$efront_string_Variab1]:
                     break;
-                case Syntax[$efront_string__While]:
-                    node[$efront_string__test_] = booleanContext(node[$efront_string__test_], scope);
+                case Syntax[$efront_string_WhileS]:
+                    node[$efront_string_test] = booleanContext(node[$efront_string_test], scope);
                     break;
-                case Syntax[$efront_string__WithS]:
+                case Syntax[$efront_string_WithSt]:
                     break
                 }
-            }, _d[$efront_string__leave] = function leave(node) {
-                scope = manager[$efront_string__relea](node) || scope;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct1] || node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                    --stackCount
-                }
-            }, _d));
-            manager[$efront_string__detac]();
-            return _e = {}, _e[$efront_string__resul] = result, _e[$efront_string__modif] = modified, _e
+            }, _d[$efront_string_leave] = function leave(node) {
+                scope = manager[$efront_string_releas](node) || scope, (node[$efront_string_type] === Syntax[$efront_string_Functi1] || node[$efront_string_type] === Syntax[$efront_string_Functi]) && --stackCount
+            }, _d)), manager[$efront_string_detach](), _e = {}, _e[$efront_string_result] = result, _e[$efront_string_modifi] = modified, _e
         }
-        removeContextSensitiveExpressions[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = removeContextSensitiveExpressions
+        Name = $efront_string_remove5, common = require(510), evaluator = require(572), escope = require(476), Syntax = common[$efront_string_Syntax], Transformer[$efront_string_protot][$efront_string_boolea3] = function (expr) {
+            var _a, consequent;
+            do {
+                if (expr[$efront_string_type] === Syntax[$efront_string_UnaryE]) {
+                    if (expr[$efront_string_operat] === $efront_string__19 && expr[$efront_string_argume1][$efront_string_type] === Syntax[$efront_string_UnaryE] && expr[$efront_string_argume1][$efront_string_operat] === $efront_string__19) {
+                        modified = !0, expr = expr[$efront_string_argume1][$efront_string_argume1];
+                        continue
+                    }
+                } else if (expr[$efront_string_type] === Syntax[$efront_string_Logica]) {
+                    if (expr[$efront_string_left][$efront_string_type] === Syntax[$efront_string_UnaryE] && expr[$efront_string_left][$efront_string_operat] === $efront_string__19 && expr[$efront_string_right][$efront_string_type] === Syntax[$efront_string_UnaryE] && expr[$efront_string_right][$efront_string_operat] === $efront_string__19) {
+                        modified = !0, expr[$efront_string_left] = expr[$efront_string_left][$efront_string_argume1], expr[$efront_string_right] = expr[$efront_string_right][$efront_string_argume1], expr[$efront_string_operat] = expr[$efront_string_operat] === $efront_string__20 ? $efront_string__21 : $efront_string__20, expr = common[$efront_string_moveLo](expr, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string__19, _a[$efront_string_argume1] = expr, _a));
+                        continue
+                    }
+                } else
+                    expr[$efront_string_type] === Syntax[$efront_string_Condit] && expr[$efront_string_test][$efront_string_type] === Syntax[$efront_string_UnaryE] && expr[$efront_string_test][$efront_string_operat] === $efront_string__19 && (modified = !0, expr[$efront_string_test] = expr[$efront_string_test][$efront_string_argume1], consequent = expr[$efront_string_conseq], expr[$efront_string_conseq] = expr[$efront_string_altern], expr[$efront_string_altern] = consequent);
+                break
+            } while (!0);
+            return expr
+        }, Transformer[$efront_string_protot][$efront_string_voidTr] = function (expr) {
+            var _a, _b, leftHasSideEffect, rightHasSideEffect;
+            do {
+                if (expr = this[$efront_string_boolea3](expr), expr[$efront_string_type] === Syntax[$efront_string_UnaryE]) {
+                    if (expr[$efront_string_operat] === $efront_string__19 || expr[$efront_string_operat] === $efront_string_void) {
+                        modified = !0, expr = expr[$efront_string_argume1];
+                        continue
+                    }
+                } else
+                    expr[$efront_string_type] === Syntax[$efront_string_Logica] ? expr[$efront_string_left][$efront_string_type] === Syntax[$efront_string_UnaryE] && expr[$efront_string_left][$efront_string_operat] === $efront_string__19 && (modified = !0, expr[$efront_string_left] = expr[$efront_string_left][$efront_string_argume1], expr[$efront_string_operat] = expr[$efront_string_operat] === $efront_string__20 ? $efront_string__21 : $efront_string__20) : expr[$efront_string_type] === Syntax[$efront_string_Condit] && (leftHasSideEffect = evaluator[$efront_string_hasSid](expr[$efront_string_conseq], this[$efront_string_scope]), rightHasSideEffect = evaluator[$efront_string_hasSid](expr[$efront_string_altern], this[$efront_string_scope]), leftHasSideEffect || rightHasSideEffect ? leftHasSideEffect ? rightHasSideEffect || (modified = !0, expr = common[$efront_string_moveLo](expr, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_Logica], _b[$efront_string_operat] = $efront_string__21, _b[$efront_string_left] = expr[$efront_string_test], _b[$efront_string_right] = expr[$efront_string_conseq], _b))) : (modified = !0, expr = common[$efront_string_moveLo](expr, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Logica], _a[$efront_string_operat] = $efront_string__20, _a[$efront_string_left] = expr[$efront_string_test], _a[$efront_string_right] = expr[$efront_string_altern], _a))) : (modified = !0, expr = expr[$efront_string_test]));
+                break
+            } while (!0);
+            return expr
+        }, Transformer[$efront_string_protot][$efront_string_apply] = function (expr) {
+            var prev;
+            do {
+                if (prev = expr, expr = this[$efront_string_transf10](expr), prev !== expr)
+                    continue;
+                expr[$efront_string_type] === Syntax[$efront_string_Logica] ? (expr[$efront_string_left] = this[$efront_string_boolea2](expr[$efront_string_left], this[$efront_string_scope]), expr[$efront_string_right] = this[$efront_string_voidFu](expr[$efront_string_right], this[$efront_string_scope])) : expr[$efront_string_type] === Syntax[$efront_string_Condit] ? (expr[$efront_string_conseq] = this[$efront_string_voidFu](expr[$efront_string_conseq], this[$efront_string_scope]), expr[$efront_string_altern] = this[$efront_string_voidFu](expr[$efront_string_altern], this[$efront_string_scope])) : expr[$efront_string_type] === Syntax[$efront_string_Sequen] && (expr[$efront_string_expres1][expr[$efront_string_expres1][$efront_string_length] - 1] = this[$efront_string_voidFu](common[$efront_string_Array][$efront_string_last](expr[$efront_string_expres1]), this[$efront_string_scope]));
+                break
+            } while (!0);
+            return expr
+        }, removeContextSensitiveExpressions[$efront_string_passNa] = Name, module[$efront_string_export] = removeContextSensitiveExpressions
     }()
 }],
-/** 673 $efront_string__reduc */ 'reduce-sequence-expression',
-/** 674 pass$reduce-sequence-expression.js */ [1,29,673,196,153,128,187,111,514,63,585,590,589,127,98,463,423,591,103,485,148,52,562,563,295,491,410,471,165,186,478,185,87,36,504,506,102,129,80,130,118,117,152,519,526,75,481,482,479,472,599,600,564,38,function(require, module, $efront_string__reduc, $efront_string__Synta, $efront_string__expre1, $efront_string__lengt1, $efront_string__type_, $efront_string__Seque, $efront_string__delet1, $efront_string__push_, $efront_string__const1, $efront_string__isCon, $efront_string__evalu, $efront_string__objec1, $efront_string__Ident, $efront_string__resol1, $efront_string__isSta, $efront_string__hasSi, $efront_string__Membe, $efront_string__compu, $efront_string__prope, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__enter, $efront_string__acqui, $efront_string__leave, $efront_string__Condi, $efront_string__test_, $efront_string__Array2, $efront_string__last_, $efront_string__Logic, $efront_string__left_, $efront_string__Binar, $efront_string__right, $efront_string__Updat, $efront_string__Unary, $efront_string__argum1, $efront_string__Speci, $efront_string__canEx, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 651 $efront_string_reduce */ "reduce-sequence-expression",
+/** 652 pass$reduce-sequence-expression.js */ [1,15,651,180,137,3,171,96,494,47,564,569,568,112,83,445,406,570,88,467,132,37,541,542,278,473,393,453,149,170,460,169,72,22,484,486,87,113,65,114,103,102,136,499,506,60,463,464,461,454,578,579,543,13,function(require, module, $efront_string_reduce, $efront_string_Syntax, $efront_string_expres1, $efront_string_length, $efront_string_type, $efront_string_Sequen, $efront_string_delete1, $efront_string_push, $efront_string_consta, $efront_string_isCons, $efront_string_evalua, $efront_string_object, $efront_string_Identi, $efront_string_resolv1, $efront_string_isStat, $efront_string_hasSid, $efront_string_Member, $efront_string_comput, $efront_string_proper, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_analyz, $efront_string_direct1, $efront_string_attach2, $efront_string_replac, $efront_string_enter, $efront_string_acquir, $efront_string_leave, $efront_string_Condit, $efront_string_test, $efront_string_Array, $efront_string_last, $efront_string_Logica, $efront_string_left, $efront_string_Binary, $efront_string_right, $efront_string_Update, $efront_string_UnaryE, $efront_string_argume1, $efront_string_Specia, $efront_string_canExt, $efront_string_Assign, $efront_string_operat, $efront_string__3, $efront_string_releas, $efront_string_detach, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, evaluator, escope, modified) {
         'use strict';
-        var Name, Syntax, common, evaluator, escope, modified;
-        Name = $efront_string__reduc;
-        escope = require(494);
-        common = require(530);
-        evaluator = require(593);
-        Syntax = common[$efront_string__Synta];
         function reduce(node) {
             var i, iz, j, jz, expr, result;
-            result = [];
-            for (i = 0, iz = node[$efront_string__expre1][$efront_string__lengt1]; i < iz; ++i) {
-                expr = node[$efront_string__expre1][i];
-                if (expr[$efront_string__type_] === Syntax[$efront_string__Seque]) {
-                    modified = true;
-                    common[$efront_string__delet1](node);
-                    for (j = 0, jz = expr[$efront_string__expre1][$efront_string__lengt1]; j < jz; ++j) {
-                        result[$efront_string__push_](expr[$efront_string__expre1][j])
-                    }
-                } else {
-                    result[$efront_string__push_](expr)
-                }
-            }
-            node[$efront_string__expre1] = result
+            for (result = [], i = 0, iz = node[$efront_string_expres1][$efront_string_length]; i < iz; ++i)
+                if (expr = node[$efront_string_expres1][i], expr[$efront_string_type] === Syntax[$efront_string_Sequen])
+                    for (modified = !0, common[$efront_string_delete1](node), j = 0, jz = expr[$efront_string_expres1][$efront_string_length]; j < jz; ++j)
+                        result[$efront_string_push](expr[$efront_string_expres1][j]);
+                else
+                    result[$efront_string_push](expr);
+            node[$efront_string_expres1] = result
         }
         function isLoadSideEffectFree(node, scope) {
             var ref, value;
-            if (evaluator[$efront_string__const1][$efront_string__isCon](node)) {
-                value = evaluator[$efront_string__const1][$efront_string__evalu](node);
-                if (value === null || typeof value !== $efront_string__objec1) {
-                    return true
-                }
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                ref = scope[$efront_string__resol1](node);
-                return ref && ref[$efront_string__isSta]()
-            }
-            return false
+            return evaluator[$efront_string_consta][$efront_string_isCons](node) && (value = evaluator[$efront_string_consta][$efront_string_evalua](node), value === null || typeof value !== $efront_string_object) ? !0 : node[$efront_string_type] === Syntax[$efront_string_Identi] ? (ref = scope[$efront_string_resolv1](node), ref && ref[$efront_string_isStat]()) : !1
         }
         function isStoreSideEffectFree(node, scope) {
-            if (!evaluator[$efront_string__hasSi](node, scope)) {
-                return true
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Ident]) {
-                return true
-            }
-            if (node[$efront_string__type_] === Syntax[$efront_string__Membe]) {
-                if (!evaluator[$efront_string__hasSi](node[$efront_string__objec1], scope)) {
-                    if (!node[$efront_string__compu] || isLoadSideEffectFree(node[$efront_string__prope], scope)) {
-                        return true
-                    }
-                }
-                return false
-            }
-            return false
+            return evaluator[$efront_string_hasSid](node, scope) ? node[$efront_string_type] === Syntax[$efront_string_Identi] ? !0 : node[$efront_string_type] === Syntax[$efront_string_Member] ? !evaluator[$efront_string_hasSid](node[$efront_string_object], scope) && (!node[$efront_string_comput] || isLoadSideEffectFree(node[$efront_string_proper], scope)) ? !0 : !1 : !1 : !0
         }
         function reduceSequenceExpression(tree, options) {
-            var _a, _b, _c, _d;
-            var result, scope, manager;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            scope = null;
-            manager = escope[$efront_string__analy](result, (_b = {}, _b[$efront_string__direc1] = true, _b));
-            manager[$efront_string__attac2]();
-            result = common[$efront_string__repla](result, (_c = {}, _c[$efront_string__enter] = function enter(node) {
-                scope = manager[$efront_string__acqui](node) || scope
-            }, _c[$efront_string__leave] = function leave(node) {
+            var _a, _b, _c, _d, result, scope, manager;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, scope = null, manager = escope[$efront_string_analyz](result, (_b = {}, _b[$efront_string_direct1] = !0, _b)), manager[$efront_string_attach2](), result = common[$efront_string_replac](result, (_c = {}, _c[$efront_string_enter] = function enter(node) {
+                scope = manager[$efront_string_acquir](node) || scope
+            }, _c[$efront_string_leave] = function leave(node) {
                 var result, last;
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Seque]:
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_Sequen]:
                     reduce(node);
                     break;
-                case Syntax[$efront_string__Condi]:
-                    if (node[$efront_string__test_][$efront_string__type_] === Syntax[$efront_string__Seque]) {
-                        modified = true;
-                        result = node[$efront_string__test_];
-                        node[$efront_string__test_] = common[$efront_string__Array2][$efront_string__last_](result[$efront_string__expre1]);
-                        result[$efront_string__expre1][result[$efront_string__expre1][$efront_string__lengt1] - 1] = node
+                case Syntax[$efront_string_Condit]:
+                    node[$efront_string_test][$efront_string_type] === Syntax[$efront_string_Sequen] && (modified = !0, result = node[$efront_string_test], node[$efront_string_test] = common[$efront_string_Array][$efront_string_last](result[$efront_string_expres1]), result[$efront_string_expres1][result[$efront_string_expres1][$efront_string_length] - 1] = node);
+                    break;
+                case Syntax[$efront_string_Logica]:
+                    node[$efront_string_left][$efront_string_type] === Syntax[$efront_string_Sequen] && (modified = !0, result = node[$efront_string_left], node[$efront_string_left] = common[$efront_string_Array][$efront_string_last](result[$efront_string_expres1]), result[$efront_string_expres1][result[$efront_string_expres1][$efront_string_length] - 1] = node);
+                    break;
+                case Syntax[$efront_string_Binary]:
+                    node[$efront_string_left][$efront_string_type] === Syntax[$efront_string_Sequen] ? (modified = !0, result = node[$efront_string_left], node[$efront_string_left] = common[$efront_string_Array][$efront_string_last](result[$efront_string_expres1]), result[$efront_string_expres1][result[$efront_string_expres1][$efront_string_length] - 1] = node) : node[$efront_string_right][$efront_string_type] === Syntax[$efront_string_Sequen] && !evaluator[$efront_string_hasSid](node[$efront_string_left], scope) && (modified = !0, result = node[$efront_string_right], node[$efront_string_right] = common[$efront_string_Array][$efront_string_last](result[$efront_string_expres1]), result[$efront_string_expres1][result[$efront_string_expres1][$efront_string_length] - 1] = node);
+                    break;
+                case Syntax[$efront_string_Update]:
+                case Syntax[$efront_string_UnaryE]:
+                    if (node[$efront_string_argume1][$efront_string_type] === Syntax[$efront_string_Sequen]) {
+                        if (last = common[$efront_string_Array][$efront_string_last](node[$efront_string_argume1][$efront_string_expres1]), !common[$efront_string_Specia][$efront_string_canExt](last, node, scope))
+                            break;
+                        modified = !0, result = node[$efront_string_argume1], node[$efront_string_argume1] = common[$efront_string_Array][$efront_string_last](result[$efront_string_expres1]), result[$efront_string_expres1][result[$efront_string_expres1][$efront_string_length] - 1] = node
                     }
                     break;
-                case Syntax[$efront_string__Logic]:
-                    if (node[$efront_string__left_][$efront_string__type_] === Syntax[$efront_string__Seque]) {
-                        modified = true;
-                        result = node[$efront_string__left_];
-                        node[$efront_string__left_] = common[$efront_string__Array2][$efront_string__last_](result[$efront_string__expre1]);
-                        result[$efront_string__expre1][result[$efront_string__expre1][$efront_string__lengt1] - 1] = node
-                    }
-                    break;
-                case Syntax[$efront_string__Binar]:
-                    if (node[$efront_string__left_][$efront_string__type_] === Syntax[$efront_string__Seque]) {
-                        modified = true;
-                        result = node[$efront_string__left_];
-                        node[$efront_string__left_] = common[$efront_string__Array2][$efront_string__last_](result[$efront_string__expre1]);
-                        result[$efront_string__expre1][result[$efront_string__expre1][$efront_string__lengt1] - 1] = node
-                    } else if (node[$efront_string__right][$efront_string__type_] === Syntax[$efront_string__Seque] && !evaluator[$efront_string__hasSi](node[$efront_string__left_], scope)) {
-                        modified = true;
-                        result = node[$efront_string__right];
-                        node[$efront_string__right] = common[$efront_string__Array2][$efront_string__last_](result[$efront_string__expre1]);
-                        result[$efront_string__expre1][result[$efront_string__expre1][$efront_string__lengt1] - 1] = node
-                    }
-                    break;
-                case Syntax[$efront_string__Updat]:
-                case Syntax[$efront_string__Unary]:
-                    if (node[$efront_string__argum1][$efront_string__type_] === Syntax[$efront_string__Seque]) {
-                        last = common[$efront_string__Array2][$efront_string__last_](node[$efront_string__argum1][$efront_string__expre1]);
-                        if (!common[$efront_string__Speci][$efront_string__canEx](last, node, scope)) {
-                            break
-                        }
-                        modified = true;
-                        result = node[$efront_string__argum1];
-                        node[$efront_string__argum1] = common[$efront_string__Array2][$efront_string__last_](result[$efront_string__expre1]);
-                        result[$efront_string__expre1][result[$efront_string__expre1][$efront_string__lengt1] - 1] = node
-                    }
-                    break;
-                case Syntax[$efront_string__Assig]:
-                    if (node[$efront_string__opera] === $efront_string__3 && node[$efront_string__right][$efront_string__type_] === Syntax[$efront_string__Seque] && isStoreSideEffectFree(node[$efront_string__left_], scope)) {
-                        modified = true;
-                        result = node[$efront_string__right];
-                        node[$efront_string__right] = common[$efront_string__Array2][$efront_string__last_](result[$efront_string__expre1]);
-                        result[$efront_string__expre1][result[$efront_string__expre1][$efront_string__lengt1] - 1] = node
-                    }
+                case Syntax[$efront_string_Assign]:
+                    node[$efront_string_operat] === $efront_string__3 && node[$efront_string_right][$efront_string_type] === Syntax[$efront_string_Sequen] && isStoreSideEffectFree(node[$efront_string_left], scope) && (modified = !0, result = node[$efront_string_right], node[$efront_string_right] = common[$efront_string_Array][$efront_string_last](result[$efront_string_expres1]), result[$efront_string_expres1][result[$efront_string_expres1][$efront_string_length] - 1] = node);
                     break
                 }
-                scope = manager[$efront_string__relea](node) || scope;
-                return result
-            }, _c));
-            manager[$efront_string__detac]();
-            return _d = {}, _d[$efront_string__resul] = result, _d[$efront_string__modif] = modified, _d
+                return scope = manager[$efront_string_releas](node) || scope, result
+            }, _c)), manager[$efront_string_detach](), _d = {}, _d[$efront_string_result] = result, _d[$efront_string_modifi] = modified, _d
         }
-        reduceSequenceExpression[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = reduceSequenceExpression
+        Name = $efront_string_reduce, escope = require(476), common = require(510), evaluator = require(572), Syntax = common[$efront_string_Syntax], reduceSequenceExpression[$efront_string_passNa] = Name, module[$efront_string_export] = reduceSequenceExpression
     }()
 }],
-/** 675 $efront_string__reduc1 */ 'reduce-multiple-if-statements',
-/** 676 pass$reduce-multiple-if-statements.js */ [1,29,675,196,52,562,563,295,183,185,187,99,143,142,36,102,481,568,129,130,599,600,564,38,function(require, module, $efront_string__reduc1, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__test_, $efront_string__Logic, $efront_string__opera, $efront_string__13, $efront_string__left_, $efront_string__right, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 653 $efront_string_reduce1 */ "reduce-multiple-if-statements",
+/** 654 pass$reduce-multiple-if-statements.js */ [1,15,653,180,37,541,542,278,167,169,171,84,127,126,22,87,463,547,113,114,578,579,543,13,function(require, module, $efront_string_reduce1, $efront_string_Syntax, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_leave, $efront_string_type, $efront_string_IfStat, $efront_string_altern, $efront_string_conseq, $efront_string_test, $efront_string_Logica, $efront_string_operat, $efront_string__21, $efront_string_left, $efront_string_right, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__reduc1;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function reduceMultipleIfStatements(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__leave] = function leave(node) {
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, common[$efront_string_traver](result, (_b = {}, _b[$efront_string_leave] = function leave(node) {
                 var _a;
-                if (node[$efront_string__type_] === Syntax[$efront_string__IfSta] && !node[$efront_string__alter] && node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__IfSta] && !node[$efront_string__conse][$efront_string__alter]) {
-                    modified = true;
-                    node[$efront_string__test_] = (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Logic], _a[$efront_string__opera] = $efront_string__13, _a[$efront_string__left_] = node[$efront_string__test_], _a[$efront_string__right] = node[$efront_string__conse][$efront_string__test_], _a);
-                    node[$efront_string__conse] = node[$efront_string__conse][$efront_string__conse]
-                }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+                node[$efront_string_type] === Syntax[$efront_string_IfStat] && !node[$efront_string_altern] && node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_IfStat] && !node[$efront_string_conseq][$efront_string_altern] && (modified = !0, _a = {}, _a[$efront_string_type] = Syntax[$efront_string_Logica], _a[$efront_string_operat] = $efront_string__21, _a[$efront_string_left] = node[$efront_string_test], _a[$efront_string_right] = node[$efront_string_conseq][$efront_string_test], node[$efront_string_test] = _a, node[$efront_string_conseq] = node[$efront_string_conseq][$efront_string_conseq])
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        reduceMultipleIfStatements[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = reduceMultipleIfStatements
+        Name = $efront_string_reduce1, common = require(510), Syntax = common[$efront_string_Syntax], reduceMultipleIfStatements[$efront_string_passNa] = Name, module[$efront_string_export] = reduceMultipleIfStatements
     }()
 }],
-/** 677 $efront_string__reduc2 */ 'reduce-branch-jump',
-/** 678 pass$reduce-branch-jump.js */ [1,29,677,196,187,99,143,142,110,152,513,111,153,36,519,521,87,192,52,562,563,295,183,185,79,108,135,128,518,113,599,600,564,38,function(require, module, $efront_string__reduc2, $efront_string__Synta, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__Retur, $efront_string__argum1, $efront_string__moveL, $efront_string__Seque, $efront_string__expre1, $efront_string__test_, $efront_string__Speci, $efront_string__gener2, $efront_string__Condi, $efront_string__splic, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__lengt1, $efront_string__isFun, $efront_string__Switc1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 655 $efront_string_reduce2 */ "reduce-branch-jump",
+/** 656 pass$reduce-branch-jump.js */ [1,15,655,180,171,84,127,126,95,136,493,96,137,22,499,501,72,176,37,541,542,278,167,169,64,93,119,3,498,98,578,579,543,13,function(require, module, $efront_string_reduce2, $efront_string_Syntax, $efront_string_type, $efront_string_IfStat, $efront_string_altern, $efront_string_conseq, $efront_string_Return, $efront_string_argume1, $efront_string_moveLo, $efront_string_Sequen, $efront_string_expres1, $efront_string_test, $efront_string_Specia, $efront_string_genera2, $efront_string_Condit, $efront_string_splice, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_leave, $efront_string_BlockS, $efront_string_Progra, $efront_string_body, $efront_string_length, $efront_string_isFunc, $efront_string_Switch1, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__reduc2;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function reduceLast(ary, index) {
-            var _a, _b, _c, _d;
-            var node, left;
-            node = ary[index];
-            if (node[$efront_string__type_] === Syntax[$efront_string__IfSta]) {
-                if (!node[$efront_string__alter]) {
-                    if (node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__Retur]) {
-                        modified = true;
-                        left = node[$efront_string__conse][$efront_string__argum1];
-                        if (!left) {
-                            ary[index] = common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Retur], _a[$efront_string__argum1] = (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Seque], _b[$efront_string__expre1] = [
-                                node[$efront_string__test_],
-                                common[$efront_string__Speci][$efront_string__gener2]()
-                            ], _b), _a));
-                            return true
-                        }
-                        ary[index] = common[$efront_string__moveL](node, (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Retur], _c[$efront_string__argum1] = (_d = {}, _d[$efront_string__type_] = Syntax[$efront_string__Condi], _d[$efront_string__test_] = node[$efront_string__test_], _d[$efront_string__conse] = left, _d[$efront_string__alter] = common[$efront_string__Speci][$efront_string__gener2](), _d), _c));
-                        return true
-                    }
-                }
-            }
+            var _a, _b, _c, _d, node, left;
+            return node = ary[index], node[$efront_string_type] === Syntax[$efront_string_IfStat] && !node[$efront_string_altern] && node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_Return] ? (modified = !0, left = node[$efront_string_conseq][$efront_string_argume1], left ? (ary[index] = common[$efront_string_moveLo](node, (_c = {}, _c[$efront_string_type] = Syntax[$efront_string_Return], _d = {}, _d[$efront_string_type] = Syntax[$efront_string_Condit], _d[$efront_string_test] = node[$efront_string_test], _d[$efront_string_conseq] = left, _d[$efront_string_altern] = common[$efront_string_Specia][$efront_string_genera2](), _c[$efront_string_argume1] = _d, _c)), !0) : (ary[index] = common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Return], _b = {}, _b[$efront_string_type] = Syntax[$efront_string_Sequen], _b[$efront_string_expres1] = [
+                node[$efront_string_test],
+                common[$efront_string_Specia][$efront_string_genera2]()
+            ], _a[$efront_string_argume1] = _b, _a)), !0)) : void 0
         }
         function reduce(ary, index) {
-            var _a, _b, _c, _d;
-            var node, sibling, left, right;
-            node = ary[index];
-            sibling = ary[index + 1];
-            if (node[$efront_string__type_] === Syntax[$efront_string__IfSta]) {
-                if (!node[$efront_string__alter]) {
-                    if (node[$efront_string__conse][$efront_string__type_] === Syntax[$efront_string__Retur] && sibling[$efront_string__type_] === Syntax[$efront_string__Retur]) {
-                        modified = true;
-                        ary[$efront_string__splic](index, 1);
-                        left = node[$efront_string__conse][$efront_string__argum1];
-                        right = sibling[$efront_string__argum1];
-                        if (!left && !right) {
-                            ary[index] = common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Retur], _a[$efront_string__argum1] = (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Seque], _b[$efront_string__expre1] = [
-                                node[$efront_string__test_],
-                                common[$efront_string__Speci][$efront_string__gener2]()
-                            ], _b), _a));
-                            return true
-                        }
-                        if (!left) {
-                            left = common[$efront_string__Speci][$efront_string__gener2]()
-                        }
-                        if (!right) {
-                            right = common[$efront_string__Speci][$efront_string__gener2]()
-                        }
-                        ary[index] = common[$efront_string__moveL](node, (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Retur], _c[$efront_string__argum1] = (_d = {}, _d[$efront_string__type_] = Syntax[$efront_string__Condi], _d[$efront_string__test_] = node[$efront_string__test_], _d[$efront_string__conse] = left, _d[$efront_string__alter] = right, _d), _c));
-                        return true
-                    }
-                }
-            }
-            return false
+            var _a, _b, _c, _d, node, sibling, left, right;
+            return node = ary[index], sibling = ary[index + 1], node[$efront_string_type] === Syntax[$efront_string_IfStat] && !node[$efront_string_altern] && node[$efront_string_conseq][$efront_string_type] === Syntax[$efront_string_Return] && sibling[$efront_string_type] === Syntax[$efront_string_Return] ? (modified = !0, ary[$efront_string_splice](index, 1), left = node[$efront_string_conseq][$efront_string_argume1], right = sibling[$efront_string_argume1], left || right ? (left || (left = common[$efront_string_Specia][$efront_string_genera2]()), right || (right = common[$efront_string_Specia][$efront_string_genera2]()), ary[index] = common[$efront_string_moveLo](node, (_c = {}, _c[$efront_string_type] = Syntax[$efront_string_Return], _d = {}, _d[$efront_string_type] = Syntax[$efront_string_Condit], _d[$efront_string_test] = node[$efront_string_test], _d[$efront_string_conseq] = left, _d[$efront_string_altern] = right, _c[$efront_string_argume1] = _d, _c)), !0) : (ary[index] = common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Return], _b = {}, _b[$efront_string_type] = Syntax[$efront_string_Sequen], _b[$efront_string_expres1] = [
+                node[$efront_string_test],
+                common[$efront_string_Specia][$efront_string_genera2]()
+            ], _a[$efront_string_argume1] = _b, _a)), !0)) : !1
         }
         function reduceBranchJump(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__leave] = function leave(node, parent) {
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, common[$efront_string_traver](result, (_b = {}, _b[$efront_string_leave] = function leave(node, parent) {
                 var i;
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Block]:
-                case Syntax[$efront_string__Progr]:
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_BlockS]:
+                case Syntax[$efront_string_Progra]:
                     i = 0;
-                    while (i < node[$efront_string__body_][$efront_string__lengt1] - 1) {
-                        if (!reduce(node[$efront_string__body_], i)) {
-                            ++i
-                        }
-                    }
-                    if (common[$efront_string__isFun](node, parent)) {
-                        if (node[$efront_string__body_][$efront_string__lengt1] > 0) {
-                            i = node[$efront_string__body_][$efront_string__lengt1] - 1;
-                            reduceLast(node[$efront_string__body_], i)
-                        }
-                    }
+                    while (i < node[$efront_string_body][$efront_string_length] - 1)
+                        reduce(node[$efront_string_body], i) || ++i;
+                    common[$efront_string_isFunc](node, parent) && node[$efront_string_body][$efront_string_length] > 0 && (i = node[$efront_string_body][$efront_string_length] - 1, reduceLast(node[$efront_string_body], i));
                     break;
-                case Syntax[$efront_string__Switc1]:
+                case Syntax[$efront_string_Switch1]:
                     i = 0;
-                    while (i < node[$efront_string__conse][$efront_string__lengt1] - 1) {
-                        if (!reduce(node[$efront_string__conse], i)) {
-                            ++i
-                        }
-                    }
+                    while (i < node[$efront_string_conseq][$efront_string_length] - 1)
+                        reduce(node[$efront_string_conseq], i) || ++i;
                     break
                 }
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        reduceBranchJump[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = reduceBranchJump
+        Name = $efront_string_reduce2, common = require(510), Syntax = common[$efront_string_Syntax], reduceBranchJump[$efront_string_passNa] = Name, module[$efront_string_export] = reduceBranchJump
     }()
 }],
-/** 679 $efront_string__hoist */ 'hoist-variable-to-arguments',
-/** 680 $efront_string__for_i */ /** text */ 'for-in declaration length should be 1',
-/** 681 pass$hoist-variable-to-arguments.js */ [1,29,679,196,132,128,215,63,135,165,186,187,97,96,177,119,486,371,95,510,161,680,145,140,98,94,513,75,481,482,129,130,92,111,153,93,144,52,562,563,295,491,410,471,183,82,105,137,138,478,466,468,472,599,600,564,38,function(require, module, $efront_string__hoist, $efront_string__Synta, $efront_string__param, $efront_string__lengt1, $efront_string__name_, $efront_string__push_, $efront_string__body_, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Funct1, $efront_string__Funct, $efront_string__skip_, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__ForIn, $efront_string__asser, $efront_string__decla, $efront_string__for_i, $efront_string__init_, $efront_string__id_, $efront_string__Ident, $efront_string__ForSt, $efront_string__moveL, $efront_string__Assig, $efront_string__opera, $efront_string__3, $efront_string__left_, $efront_string__right, $efront_string__Empty, $efront_string__Seque, $efront_string__expre1, $efront_string__Expre, $efront_string__expre, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__trave, $efront_string__CallE, $efront_string__NewEx, $efront_string__calle, $efront_string__argum, $efront_string__acqui, $efront_string__isArg, $efront_string__isThi, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 657 $efront_string_hoist_ */ "hoist-variable-to-arguments",
+/** 658 $efront_string_for_in */ /** text */ "for-in declaration length should be 1",
+/** 659 pass$hoist-variable-to-arguments.js */ [1,15,657,180,116,3,199,47,119,149,170,171,82,81,161,104,468,354,80,490,145,658,129,124,83,79,493,60,463,464,113,114,77,96,137,78,128,37,541,542,278,473,393,453,167,67,90,121,122,460,448,450,454,578,579,543,13,function(require, module, $efront_string_hoist_, $efront_string_Syntax, $efront_string_params, $efront_string_length, $efront_string_name, $efront_string_push, $efront_string_body, $efront_string_replac, $efront_string_enter, $efront_string_type, $efront_string_Functi1, $efront_string_Functi, $efront_string_skip, $efront_string_Variab, $efront_string_kind, $efront_string_var, $efront_string_ForInS, $efront_string_assert, $efront_string_declar, $efront_string_for_in, $efront_string_init, $efront_string_id, $efront_string_Identi, $efront_string_ForSta, $efront_string_moveLo, $efront_string_Assign, $efront_string_operat, $efront_string__3, $efront_string_left, $efront_string_right, $efront_string_EmptyS, $efront_string_Sequen, $efront_string_expres1, $efront_string_Expres, $efront_string_expres, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_analyz, $efront_string_direct1, $efront_string_attach2, $efront_string_traver, $efront_string_CallEx, $efront_string_NewExp, $efront_string_callee, $efront_string_argume, $efront_string_acquir, $efront_string_isArgu, $efront_string_isThis, $efront_string_detach, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, escope, modified) {
         'use strict';
-        var Name, Syntax, common, escope, modified;
-        Name = $efront_string__hoist;
-        escope = require(494);
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function hoist(callee) {
-            var _a;
             function hoisting(ident) {
                 var hoisted, i, iz;
-                hoisted = false;
-                for (i = 0, iz = callee[$efront_string__param][$efront_string__lengt1]; i < iz; ++i) {
-                    if (ident[$efront_string__name_] === callee[$efront_string__param][i][$efront_string__name_]) {
-                        hoisted = true;
+                for (hoisted = !1, i = 0, iz = callee[$efront_string_params][$efront_string_length]; i < iz; ++i)
+                    if (ident[$efront_string_name] === callee[$efront_string_params][i][$efront_string_name]) {
+                        hoisted = !0;
                         break
                     }
-                }
-                if (!hoisted) {
-                    callee[$efront_string__param][$efront_string__push_](ident)
-                }
+                hoisted || callee[$efront_string_params][$efront_string_push](ident)
             }
-            callee[$efront_string__body_] = common[$efront_string__repla](callee[$efront_string__body_], (_a = {}, _a[$efront_string__enter] = function (node, parent) {
-                var _a, _b, _c, _d;
-                var i, iz, expressions, declaration, forstmt, expr;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct1] || node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                    this[$efront_string__skip_]();
+            var _a;
+            callee[$efront_string_body] = common[$efront_string_replac](callee[$efront_string_body], (_a = {}, _a[$efront_string_enter] = function (node, parent) {
+                var _a, _b, _c, _d, i, iz, expressions, declaration, forstmt, expr;
+                if (node[$efront_string_type] === Syntax[$efront_string_Functi1] || node[$efront_string_type] === Syntax[$efront_string_Functi]) {
+                    this[$efront_string_skip]();
                     return
                 }
-                if (node[$efront_string__type_] === Syntax[$efront_string__Varia] && node[$efront_string__kind_] === $efront_string__var_) {
-                    if (parent[$efront_string__type_] === Syntax[$efront_string__ForIn]) {
-                        common[$efront_string__asser](node[$efront_string__decla][$efront_string__lengt1] === 1, $efront_string__for_i);
-                        declaration = node[$efront_string__decla][0];
-                        if (declaration[$efront_string__init_]) {
-                            return
-                        }
-                        if (declaration[$efront_string__id_][$efront_string__type_] !== Syntax[$efront_string__Ident]) {
-                            return
-                        }
-                        hoisting(declaration[$efront_string__id_]);
-                        modified = true;
-                        return declaration[$efront_string__id_]
+                if (node[$efront_string_type] === Syntax[$efront_string_Variab] && node[$efront_string_kind] === $efront_string_var) {
+                    if (parent[$efront_string_type] === Syntax[$efront_string_ForInS])
+                        return common[$efront_string_assert](node[$efront_string_declar][$efront_string_length] === 1, $efront_string_for_in), declaration = node[$efront_string_declar][0], declaration[$efront_string_init] ? void 0 : declaration[$efront_string_id][$efront_string_type] !== Syntax[$efront_string_Identi] ? void 0 : (hoisting(declaration[$efront_string_id]), modified = !0, declaration[$efront_string_id]);
+                    for (forstmt = parent[$efront_string_type] === Syntax[$efront_string_ForSta], expressions = [], i = 0, iz = node[$efront_string_declar][$efront_string_length]; i < iz; ++i) {
+                        if (declaration = node[$efront_string_declar][i], declaration[$efront_string_id][$efront_string_type] !== Syntax[$efront_string_Identi])
+                            return;
+                        hoisting(declaration[$efront_string_id]), declaration[$efront_string_init] && expressions[$efront_string_push](common[$efront_string_moveLo](declaration, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_Assign], _a[$efront_string_operat] = $efront_string__3, _a[$efront_string_left] = declaration[$efront_string_id], _a[$efront_string_right] = declaration[$efront_string_init], _a)))
                     }
-                    forstmt = parent[$efront_string__type_] === Syntax[$efront_string__ForSt];
-                    expressions = [];
-                    for (i = 0, iz = node[$efront_string__decla][$efront_string__lengt1]; i < iz; ++i) {
-                        declaration = node[$efront_string__decla][i];
-                        if (declaration[$efront_string__id_][$efront_string__type_] !== Syntax[$efront_string__Ident]) {
-                            return
-                        }
-                        hoisting(declaration[$efront_string__id_]);
-                        if (declaration[$efront_string__init_]) {
-                            expressions[$efront_string__push_](common[$efront_string__moveL](declaration, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Assig], _a[$efront_string__opera] = $efront_string__3, _a[$efront_string__left_] = declaration[$efront_string__id_], _a[$efront_string__right] = declaration[$efront_string__init_], _a)))
-                        }
-                    }
-                    modified = true;
-                    if (expressions[$efront_string__lengt1] === 0) {
-                        if (forstmt) {
-                            return null
-                        }
-                        return common[$efront_string__moveL](node, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Empty], _b))
-                    }
-                    if (expressions[$efront_string__lengt1] === 1) {
-                        expr = expressions[0]
-                    } else {
-                        expr = common[$efront_string__moveL](node, (_c = {}, _c[$efront_string__type_] = Syntax[$efront_string__Seque], _c[$efront_string__expre1] = expressions, _c))
-                    }
-                    if (forstmt) {
-                        return expr
-                    }
-                    return common[$efront_string__moveL](node, (_d = {}, _d[$efront_string__type_] = Syntax[$efront_string__Expre], _d[$efront_string__expre] = expr, _d))
+                    return modified = !0, expressions[$efront_string_length] === 0 ? forstmt ? null : common[$efront_string_moveLo](node, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_EmptyS], _b)) : (expressions[$efront_string_length] === 1 ? expr = expressions[0] : expr = common[$efront_string_moveLo](node, (_c = {}, _c[$efront_string_type] = Syntax[$efront_string_Sequen], _c[$efront_string_expres1] = expressions, _c)), forstmt ? expr : common[$efront_string_moveLo](node, (_d = {}, _d[$efront_string_type] = Syntax[$efront_string_Expres], _d[$efront_string_expres] = expr, _d)))
                 }
             }, _a))
         }
         function hoistVariableToArguments(tree, options) {
-            var _a, _b, _c, _d;
-            var result, scope, manager;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            scope = null;
-            manager = escope[$efront_string__analy](result, (_b = {}, _b[$efront_string__direc1] = true, _b));
-            manager[$efront_string__attac2]();
-            common[$efront_string__trave](result, (_c = {}, _c[$efront_string__enter] = function enter(node) {
+            var _a, _b, _c, _d, result, scope, manager;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, scope = null, manager = escope[$efront_string_analyz](result, (_b = {}, _b[$efront_string_direct1] = !0, _b)), manager[$efront_string_attach2](), common[$efront_string_traver](result, (_c = {}, _c[$efront_string_enter] = function enter(node) {
                 var callee;
-                if (node[$efront_string__type_] === Syntax[$efront_string__CallE] || node[$efront_string__type_] === Syntax[$efront_string__NewEx]) {
-                    callee = node[$efront_string__calle];
-                    if (callee[$efront_string__type_] === Syntax[$efront_string__Funct1] && !callee[$efront_string__id_]) {
-                        if (callee[$efront_string__param][$efront_string__lengt1] === node[$efront_string__argum][$efront_string__lengt1]) {
-                            scope = manager[$efront_string__acqui](callee);
-                            if (!scope[$efront_string__isArg]() && (node[$efront_string__type_] !== Syntax[$efront_string__NewEx] || !scope[$efront_string__isThi]())) {
-                                hoist(callee)
-                            }
-                        }
-                    }
-                }
-            }, _c));
-            manager[$efront_string__detac]();
-            return _d = {}, _d[$efront_string__resul] = result, _d[$efront_string__modif] = modified, _d
+                (node[$efront_string_type] === Syntax[$efront_string_CallEx] || node[$efront_string_type] === Syntax[$efront_string_NewExp]) && (callee = node[$efront_string_callee], callee[$efront_string_type] === Syntax[$efront_string_Functi1] && !callee[$efront_string_id] && callee[$efront_string_params][$efront_string_length] === node[$efront_string_argume][$efront_string_length] && (scope = manager[$efront_string_acquir](callee), !scope[$efront_string_isArgu]() && (node[$efront_string_type] !== Syntax[$efront_string_NewExp] || !scope[$efront_string_isThis]()) && hoist(callee)))
+            }, _c)), manager[$efront_string_detach](), _d = {}, _d[$efront_string_result] = result, _d[$efront_string_modifi] = modified, _d
         }
-        hoistVariableToArguments[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = hoistVariableToArguments
+        Name = $efront_string_hoist_, escope = require(476), common = require(510), Syntax = common[$efront_string_Syntax], hoistVariableToArguments[$efront_string_passNa] = Name, module[$efront_string_export] = hoistVariableToArguments
     }()
 }],
-/** 682 $efront_string__elimi */ 'eliminate-duplicate-function-declarations',
-/** 683 $efront_string__count */ 'count',
-/** 684 $efront_string__globa1 */ /** text */ 'global map remains',
-/** 685 pass$eliminate-duplicate-function-declarations.js */ [1,29,682,196,165,186,187,96,140,215,52,683,513,92,79,177,161,128,504,506,562,563,295,55,63,56,97,185,184,62,510,684,599,600,564,38,function(require, module, $efront_string__elimi, $efront_string__Synta, $efront_string__repla, $efront_string__enter, $efront_string__type_, $efront_string__Funct, $efront_string__id_, $efront_string__name_, $efront_string__get_, $efront_string__count, $efront_string__moveL, $efront_string__Empty, $efront_string__Block, $efront_string__skip_, $efront_string__decla, $efront_string__lengt1, $efront_string__Array2, $efront_string__last_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__has_, $efront_string__push_, $efront_string__set_, $efront_string__Funct1, $efront_string__leave, $efront_string__pop_, $efront_string__keys_, $efront_string__asser, $efront_string__globa1, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 660 $efront_string_elimin */ "eliminate-duplicate-function-declarations",
+/** 661 $efront_string_count */ "count",
+/** 662 $efront_string_global1 */ /** text */ "global map remains",
+/** 663 pass$eliminate-duplicate-function-declarations.js */ [1,15,660,180,149,170,171,81,124,199,37,661,493,77,64,161,145,3,484,486,541,542,278,40,47,41,82,169,168,46,490,662,578,579,543,13,function(require, module, $efront_string_elimin, $efront_string_Syntax, $efront_string_replac, $efront_string_enter, $efront_string_type, $efront_string_Functi, $efront_string_id, $efront_string_name, $efront_string_get, $efront_string_count, $efront_string_moveLo, $efront_string_EmptyS, $efront_string_BlockS, $efront_string_skip, $efront_string_declar, $efront_string_length, $efront_string_Array, $efront_string_last, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_has, $efront_string_push, $efront_string_set, $efront_string_Functi1, $efront_string_leave, $efront_string_pop, $efront_string_keys, $efront_string_assert, $efront_string_global1, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, Map, common, modified) {
         'use strict';
-        var Name, Syntax, Map, common, modified;
-        Name = $efront_string__elimi;
-        common = require(530);
-        Map = require(66);
-        Syntax = common[$efront_string__Synta];
         function unique(map, root) {
             var _a;
-            return common[$efront_string__repla](root, (_a = {}, _a[$efront_string__enter] = function (node) {
-                var _a;
-                var name, info;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                    name = node[$efront_string__id_][$efront_string__name_];
-                    info = map[$efront_string__get_](name);
-                    --info[$efront_string__count];
-                    if (info[$efront_string__count] !== 0) {
-                        modified = true;
-                        return common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Empty], _a))
-                    }
-                }
-                if (node !== root && node[$efront_string__type_] === Syntax[$efront_string__Block]) {
-                    return this[$efront_string__skip_]()
-                }
+            return common[$efront_string_replac](root, (_a = {}, _a[$efront_string_enter] = function (node) {
+                var _a, name, info;
+                return node[$efront_string_type] === Syntax[$efront_string_Functi] && (name = node[$efront_string_id][$efront_string_name], info = map[$efront_string_get](name), --info[$efront_string_count], info[$efront_string_count] !== 0) ? (modified = !0, common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_EmptyS], _a))) : node !== root && node[$efront_string_type] === Syntax[$efront_string_BlockS] ? this[$efront_string_skip]() : void 0
             }, _a))
         }
         function uniqueInGlobal(map, root) {
             var _a;
-            return common[$efront_string__repla](root, (_a = {}, _a[$efront_string__enter] = function (node) {
-                var _a;
-                var name, info, first;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                    name = node[$efront_string__id_][$efront_string__name_];
-                    info = map[$efront_string__get_](name);
-                    first = info[$efront_string__count] === info[$efront_string__decla][$efront_string__lengt1];
-                    --info[$efront_string__count];
-                    if (info[$efront_string__decla][$efront_string__lengt1] > 1) {
-                        if (first) {
-                            modified = true;
-                            return common[$efront_string__Array2][$efront_string__last_](info[$efront_string__decla])
-                        } else {
-                            modified = true;
-                            return common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Empty], _a))
-                        }
-                    }
-                }
-                if (node !== root && node[$efront_string__type_] === Syntax[$efront_string__Block]) {
-                    return this[$efront_string__skip_]()
-                }
+            return common[$efront_string_replac](root, (_a = {}, _a[$efront_string_enter] = function (node) {
+                var _a, name, info, first;
+                return node[$efront_string_type] === Syntax[$efront_string_Functi] && (name = node[$efront_string_id][$efront_string_name], info = map[$efront_string_get](name), first = info[$efront_string_count] === info[$efront_string_declar][$efront_string_length], --info[$efront_string_count], info[$efront_string_declar][$efront_string_length] > 1) ? first ? (modified = !0, common[$efront_string_Array][$efront_string_last](info[$efront_string_declar])) : (modified = !0, common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_EmptyS], _a))) : node !== root && node[$efront_string_type] === Syntax[$efront_string_BlockS] ? this[$efront_string_skip]() : void 0
             }, _a))
         }
         function main(tree, options) {
-            var _a, _b, _c;
-            var result, stack, functionDepth, globalBlockFound;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            functionDepth = 0;
-            globalBlockFound = false;
-            stack = [new Map];
-            result = common[$efront_string__repla](result, (_b = {}, _b[$efront_string__enter] = function enter(node) {
-                var _a;
-                var map, name, info;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                    name = node[$efront_string__id_][$efront_string__name_];
-                    map = common[$efront_string__Array2][$efront_string__last_](stack);
-                    if (map[$efront_string__has_](name)) {
-                        info = map[$efront_string__get_](name);
-                        info[$efront_string__decla][$efront_string__push_](node);
-                        ++info[$efront_string__count]
-                    } else {
-                        info = (_a = {}, _a[$efront_string__decla] = [node], _a[$efront_string__count] = 1, _a);
-                        map[$efront_string__set_](name, info)
-                    }
-                }
-                if (node[$efront_string__type_] === Syntax[$efront_string__Block]) {
-                    stack[$efront_string__push_](new Map)
-                }
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct] || node[$efront_string__type_] === Syntax[$efront_string__Funct1]) {
-                    ++functionDepth
-                }
-            }, _b[$efront_string__leave] = function leave(node) {
+            var _a, _b, _c, result, stack, functionDepth, globalBlockFound;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, functionDepth = 0, globalBlockFound = !1, stack = [new Map], result = common[$efront_string_replac](result, (_b = {}, _b[$efront_string_enter] = function enter(node) {
+                var _a, map, name, info;
+                node[$efront_string_type] === Syntax[$efront_string_Functi] && (name = node[$efront_string_id][$efront_string_name], map = common[$efront_string_Array][$efront_string_last](stack), map[$efront_string_has](name) ? (info = map[$efront_string_get](name), info[$efront_string_declar][$efront_string_push](node), ++info[$efront_string_count]) : (_a = {}, _a[$efront_string_declar] = [node], _a[$efront_string_count] = 1, info = _a, map[$efront_string_set](name, info))), node[$efront_string_type] === Syntax[$efront_string_BlockS] && stack[$efront_string_push](new Map), (node[$efront_string_type] === Syntax[$efront_string_Functi] || node[$efront_string_type] === Syntax[$efront_string_Functi1]) && ++functionDepth
+            }, _b[$efront_string_leave] = function leave(node) {
                 var map, ret;
-                if (node[$efront_string__type_] === Syntax[$efront_string__Block]) {
-                    map = stack[$efront_string__pop_]();
-                    if (functionDepth === 0) {
-                        if (map[$efront_string__keys_]()[$efront_string__lengt1] !== 0) {
-                            globalBlockFound = true
-                        }
-                    } else {
-                        ret = unique(map, node)
-                    }
-                }
-                if (node[$efront_string__type_] === Syntax[$efront_string__Funct] || node[$efront_string__type_] === Syntax[$efront_string__Funct1]) {
-                    --functionDepth
-                }
-                return ret
-            }, _b));
-            common[$efront_string__asser](stack[$efront_string__lengt1] === 1, $efront_string__globa1);
-            if (!globalBlockFound) {
-                result = uniqueInGlobal(stack[0], result)
-            }
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+                return node[$efront_string_type] === Syntax[$efront_string_BlockS] && (map = stack[$efront_string_pop](), functionDepth === 0 ? map[$efront_string_keys]()[$efront_string_length] !== 0 && (globalBlockFound = !0) : ret = unique(map, node)), (node[$efront_string_type] === Syntax[$efront_string_Functi] || node[$efront_string_type] === Syntax[$efront_string_Functi1]) && --functionDepth, ret
+            }, _b)), common[$efront_string_assert](stack[$efront_string_length] === 1, $efront_string_global1), globalBlockFound || (result = uniqueInGlobal(stack[0], result)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        main[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = main
+        Name = $efront_string_elimin, common = require(510), Map = require(50), Syntax = common[$efront_string_Syntax], main[$efront_string_passNa] = Name, module[$efront_string_export] = main
     }()
 }],
-/** 686 $efront_string__drop_ */ 'drop-variable-definition',
-/** 687 $efront_string__candi */ 'candidates',
-/** 688 $efront_string__slots */ 'slots',
-/** 689 $efront_string____$pa */ '__$parent$__',
-/** 690 pass$drop-variable-definition.js */ [1,29,686,196,687,446,128,429,63,688,430,425,417,418,689,187,75,120,591,413,161,192,510,183,186,470,52,562,563,295,491,410,471,165,447,423,119,486,371,35,140,94,513,92,96,478,185,479,472,599,600,564,38,function(require, module, $efront_string__drop_, $efront_string__Synta, $efront_string__candi, $efront_string__varia, $efront_string__lengt1, $efront_string__ident1, $efront_string__push_, $efront_string__slots, $efront_string__refer, $efront_string__isRea, $efront_string__isWri, $efront_string__write, $efront_string____$pa, $efront_string__type_, $efront_string__Assig, $efront_string__Varia1, $efront_string__hasSi, $efront_string__from_, $efront_string__decla, $efront_string__splic, $efront_string__asser, $efront_string__trave, $efront_string__enter, $efront_string____$es, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__attac2, $efront_string__repla, $efront_string__varia1, $efront_string__isSta, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__index1, $efront_string__id_, $efront_string__ForSt, $efront_string__moveL, $efront_string__Empty, $efront_string__Funct, $efront_string__acqui, $efront_string__leave, $efront_string__relea, $efront_string__detac, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 664 $efront_string_drop_v */ "drop-variable-definition",
+/** 665 $efront_string_candid */ "candidates",
+/** 666 $efront_string_slots */ "slots",
+/** 667 $efront_string___$par */ "__$parent$__",
+/** 668 pass$drop-variable-definition.js */ [1,15,664,180,665,428,3,412,47,666,413,408,400,401,667,171,60,105,570,396,145,176,490,167,170,452,37,541,542,278,473,393,453,149,429,406,104,468,354,9,124,79,493,77,81,460,169,461,454,578,579,543,13,function(require, module, $efront_string_drop_v, $efront_string_Syntax, $efront_string_candid, $efront_string_variab, $efront_string_length, $efront_string_identi1, $efront_string_push, $efront_string_slots, $efront_string_refere, $efront_string_isRead, $efront_string_isWrit, $efront_string_writeE, $efront_string___$par, $efront_string_type, $efront_string_Assign, $efront_string_Variab1, $efront_string_hasSid, $efront_string_from, $efront_string_declar, $efront_string_splice, $efront_string_assert, $efront_string_traver, $efront_string_enter, $efront_string___$esc, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_analyz, $efront_string_direct1, $efront_string_attach2, $efront_string_replac, $efront_string_variab1, $efront_string_isStat, $efront_string_Variab, $efront_string_kind, $efront_string_var, $efront_string_indexO, $efront_string_id, $efront_string_ForSta, $efront_string_moveLo, $efront_string_EmptyS, $efront_string_Functi, $efront_string_acquir, $efront_string_leave, $efront_string_releas, $efront_string_detach, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified, escope, evaluator) {
         'use strict';
-        var Name, Syntax, common, modified, escope, evaluator;
-        Name = $efront_string__drop_;
-        common = require(530);
-        escope = require(494);
-        evaluator = require(593);
-        Syntax = common[$efront_string__Synta];
         function getCandidates(scope) {
-            var _a;
-            var i, iz, j, jz, identifiers, slots, v;
-            if (!scope[$efront_string__candi]) {
-                slots = [];
-                identifiers = [];
-                for (i = 0, iz = scope[$efront_string__varia][$efront_string__lengt1]; i < iz; ++i) {
-                    v = scope[$efront_string__varia][i];
-                    for (j = 0, jz = v[$efront_string__ident1][$efront_string__lengt1]; j < jz; ++j) {
-                        identifiers[$efront_string__push_](v[$efront_string__ident1][j]);
-                        slots[$efront_string__push_](v)
-                    }
-                }
-                scope[$efront_string__candi] = (_a = {}, _a[$efront_string__slots] = slots, _a[$efront_string__ident1] = identifiers, _a)
+            var _a, i, iz, j, jz, identifiers, slots, v;
+            if (!scope[$efront_string_candid]) {
+                for (slots = [], identifiers = [], i = 0, iz = scope[$efront_string_variab][$efront_string_length]; i < iz; ++i)
+                    for (v = scope[$efront_string_variab][i], j = 0, jz = v[$efront_string_identi1][$efront_string_length]; j < jz; ++j)
+                        identifiers[$efront_string_push](v[$efront_string_identi1][j]), slots[$efront_string_push](v);
+                _a = {}, _a[$efront_string_slots] = slots, _a[$efront_string_identi1] = identifiers, scope[$efront_string_candid] = _a
             }
-            return scope[$efront_string__candi]
+            return scope[$efront_string_candid]
         }
         function isRemovableDefinition(slot) {
             var i, iz, ref, parent;
-            if (slot[$efront_string__ident1][$efront_string__lengt1] !== 1) {
-                return false
-            }
-            if (slot[$efront_string__refer][$efront_string__lengt1] === 0) {
-                return true
-            }
-            for (i = 0, iz = slot[$efront_string__refer][$efront_string__lengt1]; i < iz; ++i) {
-                ref = slot[$efront_string__refer][i];
-                if (ref[$efront_string__isRea]()) {
-                    return false
-                }
-                if (ref[$efront_string__isWri]()) {
-                    if (!ref[$efront_string__write]) {
-                        return false
-                    }
-                    parent = ref[$efront_string__write][$efront_string____$pa];
-                    if (!parent) {
-                        return false
-                    }
-                    if (parent[$efront_string__type_] !== Syntax[$efront_string__Assig] && parent[$efront_string__type_] !== Syntax[$efront_string__Varia1]) {
-                        return false
-                    }
-                    if (evaluator[$efront_string__hasSi](ref[$efront_string__write], ref[$efront_string__from_])) {
-                        return false
-                    }
+            if (slot[$efront_string_identi1][$efront_string_length] !== 1)
+                return !1;
+            if (slot[$efront_string_refere][$efront_string_length] === 0)
+                return !0;
+            for (i = 0, iz = slot[$efront_string_refere][$efront_string_length]; i < iz; ++i) {
+                if (ref = slot[$efront_string_refere][i], ref[$efront_string_isRead]())
+                    return !1;
+                if (ref[$efront_string_isWrit]()) {
+                    if (!ref[$efront_string_writeE])
+                        return !1;
+                    if (parent = ref[$efront_string_writeE][$efront_string___$par], !parent)
+                        return !1;
+                    if (parent[$efront_string_type] !== Syntax[$efront_string_Assign] && parent[$efront_string_type] !== Syntax[$efront_string_Variab1])
+                        return !1;
+                    if (evaluator[$efront_string_hasSid](ref[$efront_string_writeE], ref[$efront_string_from]))
+                        return !1
                 }
             }
-            return true
+            return !0
         }
         function overrideExpression(from, to) {
             var key;
-            for (key in from) {
-                delete from[key]
-            }
-            for (key in to) {
-                from[key] = to[key]
-            }
+            for (key in from)
+                delete from[key];
+            for (key in to)
+                from[key] = to[key];
             return from
         }
         function removeDefinition(node, index, slot) {
             var i, iz, ref, parent;
-            node[$efront_string__decla][$efront_string__splic](index, 1);
-            for (i = 0, iz = slot[$efront_string__refer][$efront_string__lengt1]; i < iz; ++i) {
-                ref = slot[$efront_string__refer][i];
-                common[$efront_string__asser](!ref[$efront_string__isRea]());
-                if (ref[$efront_string__isWri]()) {
-                    parent = ref[$efront_string__write][$efront_string____$pa];
-                    if (parent[$efront_string__type_] === Syntax[$efront_string__Assig]) {
-                        overrideExpression(ref[$efront_string__write][$efront_string____$pa], ref[$efront_string__write])
-                    }
-                }
-            }
+            for (node[$efront_string_declar][$efront_string_splice](index, 1), i = 0, iz = slot[$efront_string_refere][$efront_string_length]; i < iz; ++i)
+                ref = slot[$efront_string_refere][i], common[$efront_string_assert](!ref[$efront_string_isRead]()), ref[$efront_string_isWrit]() && (parent = ref[$efront_string_writeE][$efront_string___$par], parent[$efront_string_type] === Syntax[$efront_string_Assign] && overrideExpression(ref[$efront_string_writeE][$efront_string___$par], ref[$efront_string_writeE]))
         }
         function attachParent(tree) {
             var _a;
-            return common[$efront_string__trave](tree, (_a = {}, _a[$efront_string__enter] = function (node, parent) {
-                node[$efront_string____$pa] = parent
+            return common[$efront_string_traver](tree, (_a = {}, _a[$efront_string_enter] = function (node, parent) {
+                node[$efront_string___$par] = parent
             }, _a))
         }
         function removeParent(tree) {
             var _a;
-            return common[$efront_string__trave](tree, (_a = {}, _a[$efront_string__enter] = function (node) {
-                delete node[$efront_string____$pa];
-                delete node[$efront_string____$es]
+            return common[$efront_string_traver](tree, (_a = {}, _a[$efront_string_enter] = function (node) {
+                delete node[$efront_string___$par], delete node[$efront_string___$esc]
             }, _a))
         }
         function dropVariableDefinition(tree, options) {
-            var _a, _b, _c, _d;
-            var result, manager, scope;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            scope = null;
-            manager = escope[$efront_string__analy](result, (_b = {}, _b[$efront_string__direc1] = true, _b));
-            manager[$efront_string__attac2]();
-            attachParent(result);
-            result = common[$efront_string__repla](result, (_c = {}, _c[$efront_string__enter] = function enter(node, parent) {
-                var _a, _b;
-                var i, decl, cand, index, slot, ret;
-                ret = node;
-                if (scope) {
-                    if (scope[$efront_string__varia1][$efront_string__isSta]()) {
-                        cand = getCandidates(scope[$efront_string__varia1]);
-                        if (node[$efront_string__type_] === Syntax[$efront_string__Varia] && node[$efront_string__kind_] === $efront_string__var_) {
-                            i = node[$efront_string__decla][$efront_string__lengt1];
-                            while (i--) {
-                                decl = node[$efront_string__decla][i];
-                                index = cand[$efront_string__ident1][$efront_string__index1](decl[$efront_string__id_]);
-                                if (index !== -1) {
-                                    slot = cand[$efront_string__slots][index];
-                                    if (isRemovableDefinition(slot)) {
-                                        modified = true;
-                                        removeDefinition(node, i, slot);
-                                        continue
-                                    }
-                                }
-                            }
-                            if (node[$efront_string__decla][$efront_string__lengt1] === 0) {
-                                if (parent[$efront_string__type_] === Syntax[$efront_string__ForSt]) {
-                                    ret = null
-                                } else {
-                                    ret = common[$efront_string__moveL](node, (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Empty], _a))
-                                }
-                            }
-                        }
-                        if (node[$efront_string__type_] === Syntax[$efront_string__Funct]) {
-                            index = cand[$efront_string__ident1][$efront_string__index1](node[$efront_string__id_]);
-                            if (index !== -1) {
-                                slot = cand[$efront_string__slots][index];
-                                if (slot[$efront_string__ident1][$efront_string__lengt1] === 1 && slot[$efront_string__refer][$efront_string__lengt1] === 0) {
-                                    modified = true;
-                                    ret = common[$efront_string__moveL](node, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Empty], _b));
-                                    return ret
-                                }
-                            }
-                        }
+            var _a, _b, _c, _d, result, manager, scope;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, scope = null, manager = escope[$efront_string_analyz](result, (_b = {}, _b[$efront_string_direct1] = !0, _b)), manager[$efront_string_attach2](), attachParent(result), result = common[$efront_string_replac](result, (_c = {}, _c[$efront_string_enter] = function enter(node, parent) {
+                var _a, _b, i, decl, cand, index, slot, ret;
+                if (ret = node, scope && scope[$efront_string_variab1][$efront_string_isStat]()) {
+                    if (cand = getCandidates(scope[$efront_string_variab1]), node[$efront_string_type] === Syntax[$efront_string_Variab] && node[$efront_string_kind] === $efront_string_var) {
+                        i = node[$efront_string_declar][$efront_string_length];
+                        while (i--)
+                            decl = node[$efront_string_declar][i], index = cand[$efront_string_identi1][$efront_string_indexO](decl[$efront_string_id]), index !== -1 && (slot = cand[$efront_string_slots][index], isRemovableDefinition(slot) && (modified = !0, removeDefinition(node, i, slot)));
+                        node[$efront_string_declar][$efront_string_length] === 0 && (parent[$efront_string_type] === Syntax[$efront_string_ForSta] ? ret = null : ret = common[$efront_string_moveLo](node, (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_EmptyS], _a)))
                     }
+                    if (node[$efront_string_type] === Syntax[$efront_string_Functi] && (index = cand[$efront_string_identi1][$efront_string_indexO](node[$efront_string_id]), index !== -1) && (slot = cand[$efront_string_slots][index], slot[$efront_string_identi1][$efront_string_length] === 1 && slot[$efront_string_refere][$efront_string_length] === 0))
+                        return modified = !0, ret = common[$efront_string_moveLo](node, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_EmptyS], _b)), ret
                 }
-                scope = manager[$efront_string__acqui](node) || scope;
-                return ret
-            }, _c[$efront_string__leave] = function leave(node) {
-                scope = manager[$efront_string__relea](node) || scope
-            }, _c));
-            manager[$efront_string__detac]();
-            removeParent(result);
-            return _d = {}, _d[$efront_string__resul] = result, _d[$efront_string__modif] = modified, _d
+                return scope = manager[$efront_string_acquir](node) || scope, ret
+            }, _c[$efront_string_leave] = function leave(node) {
+                scope = manager[$efront_string_releas](node) || scope
+            }, _c)), manager[$efront_string_detach](), removeParent(result), _d = {}, _d[$efront_string_result] = result, _d[$efront_string_modifi] = modified, _d
         }
-        dropVariableDefinition[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = dropVariableDefinition
+        Name = $efront_string_drop_v, common = require(510), escope = require(476), evaluator = require(572), Syntax = common[$efront_string_Syntax], dropVariableDefinition[$efront_string_passNa] = Name, module[$efront_string_export] = dropVariableDefinition
     }()
 }],
-/** 691 $efront_string__dead_ */ 'dead-code-elimination',
-/** 692 $efront_string__label1 */ 'labels',
-/** 693 $efront_string__NAMED */ 'NAMED_ONLY',
-/** 694 $efront_string__ITERA */ 'ITERATION',
-/** 695 $efront_string__SWITC */ 'SWITCH',
-/** 696 $efront_string__isIte */ 'isIteration',
-/** 697 $efront_string__isAno */ 'isAnonymous',
-/** 698 $efront_string__conta */ 'contains',
-/** 699 $efront_string__targe1 */ 'targets',
-/** 700 $efront_string__looku */ 'lookupContinuableTarget',
-/** 701 $efront_string__looku1 */ 'lookupBreakableTarget',
-/** 702 $efront_string__jumps */ 'jumps',
-/** 703 $efront_string__next_ */ 'next',
-/** 704 $efront_string__NEXT_ */ 'NEXT',
-/** 705 $efront_string__inser */ 'insert',
-/** 706 $efront_string__erase */ 'erase',
-/** 707 $efront_string__kill_ */ 'kill',
-/** 708 $efront_string__jumpT */ 'jumpTo',
-/** 709 $efront_string__resol2 */ 'resolveJump',
-/** 710 $efront_string__isDea */ 'isDead',
-/** 711 $efront_string__reviv */ 'revive',
-/** 712 $efront_string__isReq */ 'isRequired',
-/** 713 $efront_string__shoul */ /** text */ 'should be node',
-/** 714 $efront_string____$co */ '__$context',
-/** 715 $efront_string__looku2 */ 'lookup',
-/** 716 $efront_string__statu */ /** text */ 'status should be null',
-/** 717 pass$dead-code-elimination.js */ [1,29,691,196,166,187,692,693,694,695,51,696,697,698,35,699,700,128,215,511,701,63,184,173,437,702,703,704,705,706,192,707,55,708,709,58,710,711,647,136,651,712,510,713,108,97,96,714,472,715,99,143,142,122,101,135,79,504,506,88,515,36,513,117,481,566,152,183,186,199,163,81,83,91,89,92,93,94,145,146,95,129,130,110,112,154,155,113,115,116,156,157,160,121,119,185,52,562,563,295,716,599,600,564,38,function(require, module, $efront_string__dead_, $efront_string__Synta, $efront_string__node_, $efront_string__type_, $efront_string__label1, $efront_string__NAMED, $efront_string__ITERA, $efront_string__SWITC, $efront_string__proto, $efront_string__isIte, $efront_string__isAno, $efront_string__conta, $efront_string__index1, $efront_string__targe1, $efront_string__looku, $efront_string__lengt1, $efront_string__name_, $efront_string__unrea, $efront_string__looku1, $efront_string__push_, $efront_string__pop_, $efront_string__curre, $efront_string__upper, $efront_string__jumps, $efront_string__next_, $efront_string__NEXT_, $efront_string__inser, $efront_string__erase, $efront_string__splic, $efront_string__kill_, $efront_string__has_, $efront_string__jumpT, $efront_string__resol2, $efront_string__clear, $efront_string__isDea, $efront_string__reviv, $efront_string__regis1, $efront_string__label, $efront_string__unreg, $efront_string__isReq, $efront_string__asser, $efront_string__shoul, $efront_string__Progr, $efront_string__Funct1, $efront_string__Funct, $efront_string____$co, $efront_string__detac, $efront_string__looku2, $efront_string__IfSta, $efront_string__alter, $efront_string__conse, $efront_string__WithS, $efront_string__Label, $efront_string__body_, $efront_string__Block, $efront_string__Array2, $efront_string__last_, $efront_string__Conti, $efront_string__conve, $efront_string__test_, $efront_string__moveL, $efront_string__Unary, $efront_string__opera, $efront_string__11, $efront_string__argum1, $efront_string__trave, $efront_string__enter, $efront_string__Visit1, $efront_string__Skip_, $efront_string__Break, $efront_string__Catch, $efront_string__DoWhi, $efront_string__Debug, $efront_string__Empty, $efront_string__Expre, $efront_string__ForSt, $efront_string__init_, $efront_string__updat, $efront_string__ForIn, $efront_string__left_, $efront_string__right, $efront_string__Retur, $efront_string__Switc, $efront_string__discr, $efront_string__cases, $efront_string__Switc1, $efront_string__Throw, $efront_string__TrySt, $efront_string__block, $efront_string__handl, $efront_string__final, $efront_string__While, $efront_string__Varia, $efront_string__leave, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__statu, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 669 $efront_string_dead_c */ "dead-code-elimination",
+/** 670 $efront_string_labels */ "labels",
+/** 671 $efront_string_NAMED_ */ "NAMED_ONLY",
+/** 672 $efront_string_ITERAT */ "ITERATION",
+/** 673 $efront_string_SWITCH */ "SWITCH",
+/** 674 $efront_string_isIter */ "isIteration",
+/** 675 $efront_string_isAnon */ "isAnonymous",
+/** 676 $efront_string_contai */ "contains",
+/** 677 $efront_string_target1 */ "targets",
+/** 678 $efront_string_lookup */ "lookupContinuableTarget",
+/** 679 $efront_string_lookup1 */ "lookupBreakableTarget",
+/** 680 $efront_string_jumps */ "jumps",
+/** 681 $efront_string_next */ "next",
+/** 682 $efront_string_NEXT */ "NEXT",
+/** 683 $efront_string_insert */ "insert",
+/** 684 $efront_string_erase */ "erase",
+/** 685 $efront_string_kill */ "kill",
+/** 686 $efront_string_jumpTo */ "jumpTo",
+/** 687 $efront_string_resolv2 */ "resolveJump",
+/** 688 $efront_string_isDead */ "isDead",
+/** 689 $efront_string_revive */ "revive",
+/** 690 $efront_string_isRequ */ "isRequired",
+/** 691 $efront_string_should */ /** text */ "should be node",
+/** 692 $efront_string___$con */ "__$context",
+/** 693 $efront_string_lookup2 */ "lookup",
+/** 694 $efront_string_status */ /** text */ "status should be null",
+/** 695 pass$dead-code-elimination.js */ [1,15,669,180,150,171,670,671,672,673,36,674,675,676,9,677,678,3,199,491,679,47,168,157,420,680,681,682,683,684,176,685,40,686,687,43,688,689,626,120,630,690,490,691,93,82,81,692,454,693,84,127,126,107,86,119,64,484,486,73,495,22,493,102,463,545,136,167,170,183,147,66,68,76,74,77,78,79,129,130,80,113,114,95,97,138,139,98,100,101,140,141,144,106,104,169,37,541,542,278,694,578,579,543,13,function(require, module, $efront_string_dead_c, $efront_string_Syntax, $efront_string_node, $efront_string_type, $efront_string_labels, $efront_string_NAMED_, $efront_string_ITERAT, $efront_string_SWITCH, $efront_string_protot, $efront_string_isIter, $efront_string_isAnon, $efront_string_contai, $efront_string_indexO, $efront_string_target1, $efront_string_lookup, $efront_string_length, $efront_string_name, $efront_string_unreac, $efront_string_lookup1, $efront_string_push, $efront_string_pop, $efront_string_curren, $efront_string_upper, $efront_string_jumps, $efront_string_next, $efront_string_NEXT, $efront_string_insert, $efront_string_erase, $efront_string_splice, $efront_string_kill, $efront_string_has, $efront_string_jumpTo, $efront_string_resolv2, $efront_string_clear, $efront_string_isDead, $efront_string_revive, $efront_string_regist1, $efront_string_label, $efront_string_unregi, $efront_string_isRequ, $efront_string_assert, $efront_string_should, $efront_string_Progra, $efront_string_Functi1, $efront_string_Functi, $efront_string___$con, $efront_string_detach, $efront_string_lookup2, $efront_string_IfStat, $efront_string_altern, $efront_string_conseq, $efront_string_WithSt, $efront_string_Labele, $efront_string_body, $efront_string_BlockS, $efront_string_Array, $efront_string_last, $efront_string_Contin, $efront_string_conver, $efront_string_test, $efront_string_moveLo, $efront_string_UnaryE, $efront_string_operat, $efront_string__19, $efront_string_argume1, $efront_string_traver, $efront_string_enter, $efront_string_Visito1, $efront_string_Skip, $efront_string_BreakS, $efront_string_CatchC, $efront_string_DoWhil, $efront_string_Debugg, $efront_string_EmptyS, $efront_string_Expres, $efront_string_ForSta, $efront_string_init, $efront_string_update, $efront_string_ForInS, $efront_string_left, $efront_string_right, $efront_string_Return, $efront_string_Switch, $efront_string_discri, $efront_string_cases, $efront_string_Switch1, $efront_string_ThrowS, $efront_string_TrySta, $efront_string_block, $efront_string_handle, $efront_string_finali, $efront_string_WhileS, $efront_string_Variab, $efront_string_leave, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_status, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, status, modified) {
         'use strict';
-        var Name, Syntax, common, status, modified;
-        Name = $efront_string__dead_;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function JumpTarget(node, status, type) {
-            this[$efront_string__node_] = node;
-            this[$efront_string__type_] = type;
-            this[$efront_string__label1] = status[$efront_string__label1] || [];
-            status[$efront_string__label1] = null
+            this[$efront_string_node] = node, this[$efront_string_type] = type, this[$efront_string_labels] = status[$efront_string_labels] || [], status[$efront_string_labels] = null
         }
-        JumpTarget[$efront_string__NAMED] = 0;
-        JumpTarget[$efront_string__ITERA] = 2;
-        JumpTarget[$efront_string__SWITC] = 3;
-        JumpTarget[$efront_string__proto][$efront_string__isIte] = function isIteration() {
-            return this[$efront_string__type_] === JumpTarget[$efront_string__ITERA]
-        };
-        JumpTarget[$efront_string__proto][$efront_string__isAno] = function isAnonymous() {
-            return this[$efront_string__type_] & 2
-        };
-        JumpTarget[$efront_string__proto][$efront_string__conta] = function contains(label) {
-            return this[$efront_string__label1][$efront_string__index1](label) !== -1
-        };
         function Jumps() {
-            this[$efront_string__targe1] = []
+            this[$efront_string_target1] = []
         }
-        Jumps[$efront_string__proto][$efront_string__looku] = function lookupContinuableTarget(label) {
-            var i, target;
-            for (i = this[$efront_string__targe1][$efront_string__lengt1] - 1; i >= 0; --i) {
-                target = this[$efront_string__targe1][i];
-                if (target[$efront_string__isIte]() && (!label || target[$efront_string__conta](label[$efront_string__name_]))) {
-                    return target[$efront_string__node_]
-                }
-            }
-            common[$efront_string__unrea]()
-        };
-        Jumps[$efront_string__proto][$efront_string__looku1] = function lookupBreakableTarget(label) {
-            var i, target;
-            for (i = this[$efront_string__targe1][$efront_string__lengt1] - 1; i >= 0; --i) {
-                target = this[$efront_string__targe1][i];
-                if (label) {
-                    if (target[$efront_string__conta](label[$efront_string__name_])) {
-                        return target[$efront_string__node_]
-                    }
-                } else {
-                    if (target[$efront_string__isAno]()) {
-                        return target[$efront_string__node_]
-                    }
-                }
-            }
-            common[$efront_string__unrea]()
-        };
-        Jumps[$efront_string__proto][$efront_string__push_] = function push(target) {
-            this[$efront_string__targe1][$efront_string__push_](target)
-        };
-        Jumps[$efront_string__proto][$efront_string__pop_] = function pop() {
-            this[$efront_string__targe1][$efront_string__pop_]()
-        };
         function Status(upper) {
-            this[$efront_string__curre] = [];
-            this[$efront_string__upper] = upper;
-            this[$efront_string__jumps] = new Jumps;
-            this[$efront_string__label1] = null;
-            this[$efront_string__next_]()
+            this[$efront_string_curren] = [], this[$efront_string_upper] = upper, this[$efront_string_jumps] = new Jumps, this[$efront_string_labels] = null, this[$efront_string_next]()
         }
-        Status[$efront_string__NEXT_] = {};
-        Status[$efront_string__proto][$efront_string__inser] = function insert(stmt) {
-            this[$efront_string__curre][$efront_string__push_](stmt)
-        };
-        Status[$efront_string__proto][$efront_string__erase] = function erase(stmt) {
-            var index = this[$efront_string__curre][$efront_string__index1](stmt);
-            if (index === -1) {
-                return false
-            }
-            this[$efront_string__curre][$efront_string__splic](index, 1);
-            return true
-        };
-        Status[$efront_string__proto][$efront_string__kill_] = function kill() {
-            return this[$efront_string__erase](Status[$efront_string__NEXT_])
-        };
-        Status[$efront_string__proto][$efront_string__has_] = function has(stmt) {
-            return this[$efront_string__curre][$efront_string__index1](stmt) !== -1
-        };
-        Status[$efront_string__proto][$efront_string__jumpT] = function jumpTo(stmt) {
-            this[$efront_string__kill_]();
-            this[$efront_string__inser](stmt)
-        };
-        Status[$efront_string__proto][$efront_string__resol2] = function resolveJump(stmt) {
-            var index = this[$efront_string__curre][$efront_string__index1](stmt);
-            if (index !== -1) {
-                this[$efront_string__curre][$efront_string__splic](index, 1);
-                this[$efront_string__inser](Status[$efront_string__NEXT_])
-            }
-        };
-        Status[$efront_string__proto][$efront_string__clear] = function clear() {
-            this[$efront_string__curre][$efront_string__lengt1] = 0
-        };
-        Status[$efront_string__proto][$efront_string__next_] = function next() {
-            this[$efront_string__inser](Status[$efront_string__NEXT_])
-        };
-        Status[$efront_string__proto][$efront_string__isDea] = function isDead() {
-            return !this[$efront_string__has_](Status[$efront_string__NEXT_])
-        };
-        Status[$efront_string__proto][$efront_string__reviv] = function revive() {
-            if (this[$efront_string__isDea]()) {
-                this[$efront_string__next_]();
-                return true
-            }
-            return false
-        };
-        Status[$efront_string__proto][$efront_string__regis1] = function register(node) {
-            if (!this[$efront_string__label1]) {
-                this[$efront_string__label1] = []
-            }
-            this[$efront_string__label1][$efront_string__push_](node[$efront_string__label][$efront_string__name_])
-        };
-        Status[$efront_string__proto][$efront_string__unreg] = function unregister() {
-            this[$efront_string__label1] = null
-        };
-        Status[$efront_string__isReq] = function isRequired(node) {
-            var type = node[$efront_string__type_];
-            common[$efront_string__asser](node, $efront_string__shoul);
-            return type === Syntax[$efront_string__Progr] || type === Syntax[$efront_string__Funct1] || type === Syntax[$efront_string__Funct]
-        };
         function Context(node) {
-            node[$efront_string____$co] = this;
-            this[$efront_string__node_] = node
+            node[$efront_string___$con] = this, this[$efront_string_node] = node
         }
-        Context[$efront_string__proto][$efront_string__detac] = function detach() {
-            delete this[$efront_string__node_][$efront_string____$co]
-        };
-        Context[$efront_string__looku2] = function lookup(node) {
-            return node[$efront_string____$co]
-        };
         function getForwardLastNode(node) {
-            while (true) {
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__IfSta]:
-                    if (node[$efront_string__alter]) {
-                        return null
-                    }
-                    node = node[$efront_string__conse];
+            while (!0) {
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_IfStat]:
+                    if (node[$efront_string_altern])
+                        return null;
+                    node = node[$efront_string_conseq];
                     continue;
-                case Syntax[$efront_string__WithS]:
-                case Syntax[$efront_string__Label]:
-                    node = node[$efront_string__body_];
+                case Syntax[$efront_string_WithSt]:
+                case Syntax[$efront_string_Labele]:
+                    node = node[$efront_string_body];
                     continue;
-                case Syntax[$efront_string__Block]:
-                    if (node[$efront_string__body_][$efront_string__lengt1]) {
-                        node = common[$efront_string__Array2][$efront_string__last_](node[$efront_string__body_]);
+                case Syntax[$efront_string_BlockS]:
+                    if (node[$efront_string_body][$efront_string_length]) {
+                        node = common[$efront_string_Array][$efront_string_last](node[$efront_string_body]);
                         continue
                     }
                     break
@@ -5273,773 +3108,526 @@ module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efr
         }
         function visitLoopBody(loop, body) {
             var jump, last;
-            last = getForwardLastNode(body);
-            if (last) {
-                if (last[$efront_string__type_] === Syntax[$efront_string__Conti]) {
-                    jump = status[$efront_string__jumps][$efront_string__looku](last[$efront_string__label]);
-                    if (jump === loop) {
-                        modified = true;
-                        common[$efront_string__conve](last)
-                    }
-                }
-            }
-            return visit(body)
+            return last = getForwardLastNode(body), last && last[$efront_string_type] === Syntax[$efront_string_Contin] && (jump = status[$efront_string_jumps][$efront_string_lookup](last[$efront_string_label]), jump === loop && (modified = !0, common[$efront_string_conver](last))), visit(body)
         }
         function visit(target) {
-            var _a;
-            var live = false;
-            if (!target) {
-                return !status[$efront_string__isDea]()
-            }
             function eliminate(node, array) {
-                var _a;
-                var i, iz, stmt, ret, info, result;
-                result = [];
-                for (i = 0, iz = array[$efront_string__lengt1]; i < iz; ++i) {
-                    stmt = array[i];
-                    if (stmt[$efront_string__type_] === Syntax[$efront_string__IfSta]) {
-                        info = new Context(stmt);
-                        ret = visit(stmt);
-                        info[$efront_string__detac]()
-                    } else {
-                        ret = visit(stmt)
-                    }
-                    if (ret) {
-                        live |= 1;
-                        result[$efront_string__push_](stmt);
-                        if (stmt[$efront_string__type_] === Syntax[$efront_string__IfSta] && stmt[$efront_string__alter]) {
-                            if ((!info[$efront_string__conse] || !info[$efront_string__alter]) && info[$efront_string__conse] !== info[$efront_string__alter]) {
-                                modified = true;
-                                if (info[$efront_string__conse]) {
-                                    stmt[$efront_string__test_] = common[$efront_string__moveL](stmt[$efront_string__test_], (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Unary], _a[$efront_string__opera] = $efront_string__11, _a[$efront_string__argum1] = stmt[$efront_string__test_], _a));
-                                    result[$efront_string__push_](stmt[$efront_string__conse]);
-                                    stmt[$efront_string__conse] = stmt[$efront_string__alter];
-                                    stmt[$efront_string__alter] = null
-                                } else {
-                                    result[$efront_string__push_](stmt[$efront_string__alter]);
-                                    stmt[$efront_string__alter] = null
-                                }
-                            }
-                        }
-                    } else {
-                        modified = true
-                    }
-                }
+                var _a, i, iz, stmt, ret, info, result;
+                for (result = [], i = 0, iz = array[$efront_string_length]; i < iz; ++i)
+                    stmt = array[i], stmt[$efront_string_type] === Syntax[$efront_string_IfStat] ? (info = new Context(stmt), ret = visit(stmt), info[$efront_string_detach]()) : ret = visit(stmt), ret ? (live |= 1, result[$efront_string_push](stmt), stmt[$efront_string_type] === Syntax[$efront_string_IfStat] && stmt[$efront_string_altern] && !(info[$efront_string_conseq] && info[$efront_string_altern]) && info[$efront_string_conseq] !== info[$efront_string_altern] && (modified = !0, info[$efront_string_conseq] ? (stmt[$efront_string_test] = common[$efront_string_moveLo](stmt[$efront_string_test], (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_UnaryE], _a[$efront_string_operat] = $efront_string__19, _a[$efront_string_argume1] = stmt[$efront_string_test], _a)), result[$efront_string_push](stmt[$efront_string_conseq]), stmt[$efront_string_conseq] = stmt[$efront_string_altern], stmt[$efront_string_altern] = null) : (result[$efront_string_push](stmt[$efront_string_altern]), stmt[$efront_string_altern] = null))) : modified = !0;
                 return result
             }
-            common[$efront_string__trave](target, (_a = {}, _a[$efront_string__enter] = function enter(node) {
+            var _a, live = !1;
+            return target ? (common[$efront_string_traver](target, (_a = {}, _a[$efront_string_enter] = function enter(node) {
                 var i, iz, stmt, consequent, alternate, ctx, hasDefaultClause;
-                if (Status[$efront_string__isReq](node)) {
-                    status = new Status(status)
-                }
-                live |= !status[$efront_string__isDea]();
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Progr]:
-                    node[$efront_string__body_] = eliminate(node, node[$efront_string__body_]);
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Block]:
-                    status[$efront_string__jumps][$efront_string__push_](new JumpTarget(node, status, JumpTarget[$efront_string__NAMED]));
-                    node[$efront_string__body_] = eliminate(node, node[$efront_string__body_]);
-                    status[$efront_string__jumps][$efront_string__pop_]();
-                    status[$efront_string__resol2](node);
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Break]:
-                    if (node[$efront_string__label] && status[$efront_string__label1] && status[$efront_string__label1][$efront_string__index1](node[$efront_string__label])) {
-                        modified = true;
-                        common[$efront_string__conve](node)
-                    } else {
-                        status[$efront_string__jumpT](status[$efront_string__jumps][$efront_string__looku1](node[$efront_string__label]))
-                    }
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Catch]:
-                    live |= visit(node[$efront_string__body_]);
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Conti]:
-                    status[$efront_string__jumpT](status[$efront_string__jumps][$efront_string__looku](node[$efront_string__label]));
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__DoWhi]:
-                    status[$efront_string__jumps][$efront_string__push_](new JumpTarget(node, status, JumpTarget[$efront_string__ITERA]));
-                    live |= visitLoopBody(node, node[$efront_string__body_]);
-                    status[$efront_string__jumps][$efront_string__pop_]();
-                    live |= visit(node[$efront_string__test_]);
-                    status[$efront_string__resol2](node);
-                    status[$efront_string__reviv]();
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Debug]:
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Empty]:
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Expre]:
+                Status[$efront_string_isRequ](node) && (status = new Status(status)), live |= !status[$efront_string_isDead]();
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_Progra]:
+                    node[$efront_string_body] = eliminate(node, node[$efront_string_body]);
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_BlockS]:
+                    status[$efront_string_jumps][$efront_string_push](new JumpTarget(node, status, JumpTarget[$efront_string_NAMED_]));
+                    node[$efront_string_body] = eliminate(node, node[$efront_string_body]);
+                    status[$efront_string_jumps][$efront_string_pop]();
+                    status[$efront_string_resolv2](node);
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_BreakS]:
+                    node[$efront_string_label] && status[$efront_string_labels] && status[$efront_string_labels][$efront_string_indexO](node[$efront_string_label]) ? (modified = !0, common[$efront_string_conver](node)) : status[$efront_string_jumpTo](status[$efront_string_jumps][$efront_string_lookup1](node[$efront_string_label]));
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_CatchC]:
+                    live |= visit(node[$efront_string_body]);
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_Contin]:
+                    status[$efront_string_jumpTo](status[$efront_string_jumps][$efront_string_lookup](node[$efront_string_label]));
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_DoWhil]:
+                    status[$efront_string_jumps][$efront_string_push](new JumpTarget(node, status, JumpTarget[$efront_string_ITERAT]));
+                    live |= visitLoopBody(node, node[$efront_string_body]);
+                    status[$efront_string_jumps][$efront_string_pop]();
+                    live |= visit(node[$efront_string_test]);
+                    status[$efront_string_resolv2](node);
+                    status[$efront_string_revive]();
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_Debugg]:
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_EmptyS]:
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_Expres]:
                     break;
-                case Syntax[$efront_string__ForSt]:
-                    live |= visit(node[$efront_string__init_]);
-                    live |= visit(node[$efront_string__test_]);
-                    status[$efront_string__jumps][$efront_string__push_](new JumpTarget(node, status, JumpTarget[$efront_string__ITERA]));
-                    live |= visitLoopBody(node, node[$efront_string__body_]);
-                    status[$efront_string__jumps][$efront_string__pop_]();
-                    live |= visit(node[$efront_string__updat]);
-                    status[$efront_string__resol2](node);
-                    status[$efront_string__reviv]();
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__ForIn]:
-                    live |= visit(node[$efront_string__left_]);
-                    live |= visit(node[$efront_string__right]);
-                    status[$efront_string__jumps][$efront_string__push_](new JumpTarget(node, status, JumpTarget[$efront_string__ITERA]));
-                    live |= visitLoopBody(node, node[$efront_string__body_]);
-                    status[$efront_string__jumps][$efront_string__pop_]();
-                    status[$efront_string__resol2](node);
-                    status[$efront_string__reviv]();
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__IfSta]:
-                    live |= visit(node[$efront_string__test_]);
-                    live |= visit(node[$efront_string__conse]);
-                    if (!node[$efront_string__alter]) {
-                        status[$efront_string__reviv]();
-                        return common[$efront_string__Visit1][$efront_string__Skip_]
-                    }
-                    consequent = !status[$efront_string__isDea]();
-                    if (!status[$efront_string__reviv]()) {
-                        status[$efront_string__inser](node)
-                    }
-                    live |= visit(node[$efront_string__alter]);
-                    alternate = !status[$efront_string__isDea]();
-                    if (status[$efront_string__erase](node)) {
-                        status[$efront_string__reviv]()
-                    }
-                    if (ctx = Context[$efront_string__looku2](node)) {
-                        ctx[$efront_string__conse] = consequent;
-                        ctx[$efront_string__alter] = alternate
-                    }
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Label]:
-                    status[$efront_string__regis1](node);
+                case Syntax[$efront_string_ForSta]:
+                    live |= visit(node[$efront_string_init]);
+                    live |= visit(node[$efront_string_test]);
+                    status[$efront_string_jumps][$efront_string_push](new JumpTarget(node, status, JumpTarget[$efront_string_ITERAT]));
+                    live |= visitLoopBody(node, node[$efront_string_body]);
+                    status[$efront_string_jumps][$efront_string_pop]();
+                    live |= visit(node[$efront_string_update]);
+                    status[$efront_string_resolv2](node);
+                    status[$efront_string_revive]();
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_ForInS]:
+                    live |= visit(node[$efront_string_left]);
+                    live |= visit(node[$efront_string_right]);
+                    status[$efront_string_jumps][$efront_string_push](new JumpTarget(node, status, JumpTarget[$efront_string_ITERAT]));
+                    live |= visitLoopBody(node, node[$efront_string_body]);
+                    status[$efront_string_jumps][$efront_string_pop]();
+                    status[$efront_string_resolv2](node);
+                    status[$efront_string_revive]();
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_IfStat]:
+                    live |= visit(node[$efront_string_test]);
+                    live |= visit(node[$efront_string_conseq]);
+                    if (!node[$efront_string_altern])
+                        return status[$efront_string_revive](), common[$efront_string_Visito1][$efront_string_Skip];
+                    consequent = !status[$efront_string_isDead]();
+                    status[$efront_string_revive]() || status[$efront_string_insert](node);
+                    live |= visit(node[$efront_string_altern]);
+                    alternate = !status[$efront_string_isDead]();
+                    status[$efront_string_erase](node) && status[$efront_string_revive]();
+                    (ctx = Context[$efront_string_lookup2](node)) && (ctx[$efront_string_conseq] = consequent, ctx[$efront_string_altern] = alternate);
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_Labele]:
+                    status[$efront_string_regist1](node);
                     break;
-                case Syntax[$efront_string__Retur]:
-                    live |= visit(node[$efront_string__argum1]);
-                    status[$efront_string__kill_]();
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Switc]:
-                    visit(node[$efront_string__discr]);
-                    status[$efront_string__jumps][$efront_string__push_](new JumpTarget(node, status, JumpTarget[$efront_string__SWITC]));
-                    for (i = 0, iz = node[$efront_string__cases][$efront_string__lengt1]; i < iz; ++i) {
-                        stmt = node[$efront_string__cases][i];
-                        live |= visit(stmt);
-                        if (!stmt[$efront_string__test_]) {
-                            hasDefaultClause = true
-                        }
-                        if (status[$efront_string__isDea]() && i + 1 < iz) {
-                            status[$efront_string__next_]()
-                        }
-                    }
-                    status[$efront_string__jumps][$efront_string__pop_]();
-                    status[$efront_string__resol2](node);
-                    if (status[$efront_string__isDea]() && !hasDefaultClause) {
-                        status[$efront_string__next_]()
-                    }
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Switc1]:
-                    if (node[$efront_string__test_]) {
-                        live |= visit(node[$efront_string__test_])
-                    }
-                    node[$efront_string__conse] = eliminate(node, node[$efront_string__conse]);
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__Throw]:
-                    live |= visit(node[$efront_string__argum1]);
-                    status[$efront_string__kill_]();
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__TrySt]:
-                    live |= visit(node[$efront_string__block]);
-                    if (node[$efront_string__handl] && node[$efront_string__handl][$efront_string__lengt1]) {
-                        if (!status[$efront_string__reviv]()) {
-                            status[$efront_string__inser](node)
-                        }
-                        node[$efront_string__handl] = eliminate(node, node[$efront_string__handl]);
-                        if (status[$efront_string__erase](node)) {
-                            status[$efront_string__reviv]()
-                        }
-                    }
-                    if (node[$efront_string__final]) {
-                        if (!status[$efront_string__reviv]()) {
-                            status[$efront_string__inser](node)
-                        }
-                        live |= visit(node[$efront_string__final]);
-                        if (!status[$efront_string__erase](node)) {
-                            status[$efront_string__kill_]()
-                        }
-                    }
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__While]:
-                    live |= visit(node[$efront_string__test_]);
-                    status[$efront_string__jumps][$efront_string__push_](new JumpTarget(node, status, JumpTarget[$efront_string__ITERA]));
-                    live |= visitLoopBody(node, node[$efront_string__body_]);
-                    status[$efront_string__jumps][$efront_string__pop_]();
-                    status[$efront_string__resol2](node);
-                    status[$efront_string__reviv]();
-                    return common[$efront_string__Visit1][$efront_string__Skip_];
-                case Syntax[$efront_string__WithS]:
+                case Syntax[$efront_string_Return]:
+                    live |= visit(node[$efront_string_argume1]);
+                    status[$efront_string_kill]();
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_Switch]:
+                    visit(node[$efront_string_discri]);
+                    status[$efront_string_jumps][$efront_string_push](new JumpTarget(node, status, JumpTarget[$efront_string_SWITCH]));
+                    for (i = 0, iz = node[$efront_string_cases][$efront_string_length]; i < iz; ++i)
+                        stmt = node[$efront_string_cases][i], live |= visit(stmt), stmt[$efront_string_test] || (hasDefaultClause = !0), status[$efront_string_isDead]() && i + 1 < iz && status[$efront_string_next]();
+                    status[$efront_string_jumps][$efront_string_pop]();
+                    status[$efront_string_resolv2](node);
+                    status[$efront_string_isDead]() && !hasDefaultClause && status[$efront_string_next]();
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_Switch1]:
+                    node[$efront_string_test] && (live |= visit(node[$efront_string_test]));
+                    node[$efront_string_conseq] = eliminate(node, node[$efront_string_conseq]);
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_ThrowS]:
+                    live |= visit(node[$efront_string_argume1]);
+                    status[$efront_string_kill]();
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_TrySta]:
+                    live |= visit(node[$efront_string_block]);
+                    node[$efront_string_handle] && node[$efront_string_handle][$efront_string_length] && (status[$efront_string_revive]() || status[$efront_string_insert](node), node[$efront_string_handle] = eliminate(node, node[$efront_string_handle]), status[$efront_string_erase](node) && status[$efront_string_revive]());
+                    node[$efront_string_finali] && (status[$efront_string_revive]() || status[$efront_string_insert](node), live |= visit(node[$efront_string_finali]), status[$efront_string_erase](node) || status[$efront_string_kill]());
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_WhileS]:
+                    live |= visit(node[$efront_string_test]);
+                    status[$efront_string_jumps][$efront_string_push](new JumpTarget(node, status, JumpTarget[$efront_string_ITERAT]));
+                    live |= visitLoopBody(node, node[$efront_string_body]);
+                    status[$efront_string_jumps][$efront_string_pop]();
+                    status[$efront_string_resolv2](node);
+                    status[$efront_string_revive]();
+                    return common[$efront_string_Visito1][$efront_string_Skip];
+                case Syntax[$efront_string_WithSt]:
                     break;
-                case Syntax[$efront_string__Varia]:
-                case Syntax[$efront_string__Funct]:
-                    live = true;
+                case Syntax[$efront_string_Variab]:
+                case Syntax[$efront_string_Functi]:
+                    live = !0;
                     break
                 }
-            }, _a[$efront_string__leave] = function leave(node) {
-                if (Status[$efront_string__isReq](node)) {
-                    status = status[$efront_string__upper];
+            }, _a[$efront_string_leave] = function leave(node) {
+                if (Status[$efront_string_isRequ](node)) {
+                    status = status[$efront_string_upper];
                     return
                 }
-                if (node[$efront_string__type_] === Syntax[$efront_string__Label]) {
-                    status[$efront_string__unreg]()
-                }
-            }, _a));
-            return live
+                node[$efront_string_type] === Syntax[$efront_string_Labele] && status[$efront_string_unregi]()
+            }, _a)), live) : !status[$efront_string_isDead]()
         }
         function deadCodeElimination(tree, options) {
-            var _a, _b;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            status = null;
-            modified = false;
-            visit(result);
-            common[$efront_string__asser](status === null, $efront_string__statu);
-            return _b = {}, _b[$efront_string__resul] = result, _b[$efront_string__modif] = modified, _b
+            var _a, _b, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), status = null, modified = !1, visit(result), common[$efront_string_assert](status === null, $efront_string_status), _b = {}, _b[$efront_string_result] = result, _b[$efront_string_modifi] = modified, _b
         }
-        deadCodeElimination[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = deadCodeElimination
+        Name = $efront_string_dead_c, common = require(510), Syntax = common[$efront_string_Syntax], JumpTarget[$efront_string_NAMED_] = 0, JumpTarget[$efront_string_ITERAT] = 2, JumpTarget[$efront_string_SWITCH] = 3, JumpTarget[$efront_string_protot][$efront_string_isIter] = function isIteration() {
+            return this[$efront_string_type] === JumpTarget[$efront_string_ITERAT]
+        }, JumpTarget[$efront_string_protot][$efront_string_isAnon] = function isAnonymous() {
+            return this[$efront_string_type] & 2
+        }, JumpTarget[$efront_string_protot][$efront_string_contai] = function contains(label) {
+            return this[$efront_string_labels][$efront_string_indexO](label) !== -1
+        }, Jumps[$efront_string_protot][$efront_string_lookup] = function lookupContinuableTarget(label) {
+            var i, target;
+            for (i = this[$efront_string_target1][$efront_string_length] - 1; i >= 0; --i)
+                if (target = this[$efront_string_target1][i], target[$efront_string_isIter]() && (!label || target[$efront_string_contai](label[$efront_string_name])))
+                    return target[$efront_string_node];
+            common[$efront_string_unreac]()
+        }, Jumps[$efront_string_protot][$efront_string_lookup1] = function lookupBreakableTarget(label) {
+            var i, target;
+            for (i = this[$efront_string_target1][$efront_string_length] - 1; i >= 0; --i)
+                if (target = this[$efront_string_target1][i], label) {
+                    if (target[$efront_string_contai](label[$efront_string_name]))
+                        return target[$efront_string_node]
+                } else if (target[$efront_string_isAnon]())
+                    return target[$efront_string_node];
+            common[$efront_string_unreac]()
+        }, Jumps[$efront_string_protot][$efront_string_push] = function push(target) {
+            this[$efront_string_target1][$efront_string_push](target)
+        }, Jumps[$efront_string_protot][$efront_string_pop] = function pop() {
+            this[$efront_string_target1][$efront_string_pop]()
+        }, Status[$efront_string_NEXT] = {}, Status[$efront_string_protot][$efront_string_insert] = function insert(stmt) {
+            this[$efront_string_curren][$efront_string_push](stmt)
+        }, Status[$efront_string_protot][$efront_string_erase] = function erase(stmt) {
+            var index = this[$efront_string_curren][$efront_string_indexO](stmt);
+            return index === -1 ? !1 : (this[$efront_string_curren][$efront_string_splice](index, 1), !0)
+        }, Status[$efront_string_protot][$efront_string_kill] = function kill() {
+            return this[$efront_string_erase](Status[$efront_string_NEXT])
+        }, Status[$efront_string_protot][$efront_string_has] = function has(stmt) {
+            return this[$efront_string_curren][$efront_string_indexO](stmt) !== -1
+        }, Status[$efront_string_protot][$efront_string_jumpTo] = function jumpTo(stmt) {
+            this[$efront_string_kill](), this[$efront_string_insert](stmt)
+        }, Status[$efront_string_protot][$efront_string_resolv2] = function resolveJump(stmt) {
+            var index = this[$efront_string_curren][$efront_string_indexO](stmt);
+            index !== -1 && (this[$efront_string_curren][$efront_string_splice](index, 1), this[$efront_string_insert](Status[$efront_string_NEXT]))
+        }, Status[$efront_string_protot][$efront_string_clear] = function clear() {
+            this[$efront_string_curren][$efront_string_length] = 0
+        }, Status[$efront_string_protot][$efront_string_next] = function next() {
+            this[$efront_string_insert](Status[$efront_string_NEXT])
+        }, Status[$efront_string_protot][$efront_string_isDead] = function isDead() {
+            return !this[$efront_string_has](Status[$efront_string_NEXT])
+        }, Status[$efront_string_protot][$efront_string_revive] = function revive() {
+            return this[$efront_string_isDead]() ? (this[$efront_string_next](), !0) : !1
+        }, Status[$efront_string_protot][$efront_string_regist1] = function register(node) {
+            this[$efront_string_labels] || (this[$efront_string_labels] = []), this[$efront_string_labels][$efront_string_push](node[$efront_string_label][$efront_string_name])
+        }, Status[$efront_string_protot][$efront_string_unregi] = function unregister() {
+            this[$efront_string_labels] = null
+        }, Status[$efront_string_isRequ] = function isRequired(node) {
+            var type = node[$efront_string_type];
+            return common[$efront_string_assert](node, $efront_string_should), type === Syntax[$efront_string_Progra] || type === Syntax[$efront_string_Functi1] || type === Syntax[$efront_string_Functi]
+        }, Context[$efront_string_protot][$efront_string_detach] = function detach() {
+            delete this[$efront_string_node][$efront_string___$con]
+        }, Context[$efront_string_lookup2] = function lookup(node) {
+            return node[$efront_string___$con]
+        }, deadCodeElimination[$efront_string_passNa] = Name, module[$efront_string_export] = deadCodeElimination
     }()
 }],
-/** 718 $efront_string__conca2 */ 'concatenate-variable-definition',
-/** 719 pass$concatenate-variable-definition.js */ [1,29,718,196,52,562,563,295,183,185,187,79,108,135,128,119,486,371,63,161,599,600,564,38,function(require, module, $efront_string__conca2, $efront_string__Synta, $efront_string__get_, $efront_string__destr, $efront_string__pathN, $efront_string__deepC, $efront_string__trave, $efront_string__leave, $efront_string__type_, $efront_string__Block, $efront_string__Progr, $efront_string__body_, $efront_string__lengt1, $efront_string__Varia, $efront_string__kind_, $efront_string__var_, $efront_string__push_, $efront_string__decla, $efront_string__resul, $efront_string__modif, $efront_string__passN, $efront_string__expor1) {
-    return function () {
+/** 696 $efront_string_concat1 */ "concatenate-variable-definition",
+/** 697 pass$concatenate-variable-definition.js */ [1,15,696,180,37,541,542,278,167,169,171,64,93,119,3,104,468,354,47,145,578,579,543,13,function(require, module, $efront_string_concat1, $efront_string_Syntax, $efront_string_get, $efront_string_destru, $efront_string_pathNa, $efront_string_deepCo, $efront_string_traver, $efront_string_leave, $efront_string_type, $efront_string_BlockS, $efront_string_Progra, $efront_string_body, $efront_string_length, $efront_string_Variab, $efront_string_kind, $efront_string_var, $efront_string_push, $efront_string_declar, $efront_string_result, $efront_string_modifi, $efront_string_passNa, $efront_string_export) {
+    return function (Name, Syntax, common, modified) {
         'use strict';
-        var Name, Syntax, common, modified;
-        Name = $efront_string__conca2;
-        common = require(530);
-        Syntax = common[$efront_string__Synta];
         function concatenateVariableDefinition(tree, options) {
-            var _a, _b, _c;
-            var result;
-            result = options[$efront_string__get_]($efront_string__destr, (_a = {}, _a[$efront_string__pathN] = Name, _a)) ? tree : common[$efront_string__deepC](tree);
-            modified = false;
-            common[$efront_string__trave](result, (_b = {}, _b[$efront_string__leave] = function leave(node) {
+            var _a, _b, _c, result;
+            return result = options[$efront_string_get]($efront_string_destru, (_a = {}, _a[$efront_string_pathNa] = Name, _a)) ? tree : common[$efront_string_deepCo](tree), modified = !1, common[$efront_string_traver](result, (_b = {}, _b[$efront_string_leave] = function leave(node) {
                 var i, iz, j, jz, stmt, decl, target, body;
-                if (node[$efront_string__type_] !== Syntax[$efront_string__Block] && node[$efront_string__type_] !== Syntax[$efront_string__Progr]) {
-                    return
-                }
-                target = null;
-                body = [];
-                for (i = 0, iz = node[$efront_string__body_][$efront_string__lengt1]; i < iz; ++i) {
-                    stmt = node[$efront_string__body_][i];
-                    if (stmt[$efront_string__type_] === Syntax[$efront_string__Varia] && stmt[$efront_string__kind_] === $efront_string__var_) {
+                if (node[$efront_string_type] !== Syntax[$efront_string_BlockS] && node[$efront_string_type] !== Syntax[$efront_string_Progra])
+                    return;
+                for (target = null, body = [], i = 0, iz = node[$efront_string_body][$efront_string_length]; i < iz; ++i)
+                    if (stmt = node[$efront_string_body][i], stmt[$efront_string_type] === Syntax[$efront_string_Variab] && stmt[$efront_string_kind] === $efront_string_var) {
                         if (!target) {
-                            target = stmt;
-                            body[$efront_string__push_](stmt);
+                            target = stmt, body[$efront_string_push](stmt);
                             continue
                         }
-                        modified = true;
-                        for (j = 0, jz = stmt[$efront_string__decla][$efront_string__lengt1]; j < jz; ++j) {
-                            decl = stmt[$efront_string__decla][j];
-                            target[$efront_string__decla][$efront_string__push_](decl)
-                        }
-                    } else {
-                        target = null;
-                        body[$efront_string__push_](stmt)
-                    }
-                }
-                node[$efront_string__body_] = body
-            }, _b));
-            return _c = {}, _c[$efront_string__resul] = result, _c[$efront_string__modif] = modified, _c
+                        for (modified = !0, j = 0, jz = stmt[$efront_string_declar][$efront_string_length]; j < jz; ++j)
+                            decl = stmt[$efront_string_declar][j], target[$efront_string_declar][$efront_string_push](decl)
+                    } else
+                        target = null, body[$efront_string_push](stmt);
+                node[$efront_string_body] = body
+            }, _b)), _c = {}, _c[$efront_string_result] = result, _c[$efront_string_modifi] = modified, _c
         }
-        concatenateVariableDefinition[$efront_string__passN] = Name;
-        module[$efront_string__expor1] = concatenateVariableDefinition
+        Name = $efront_string_concat1, common = require(510), Syntax = common[$efront_string_Syntax], concatenateVariableDefinition[$efront_string_passNa] = Name, module[$efront_string_export] = concatenateVariableDefinition
     }()
 }],
-/** 720 $efront_string__dev_ */ '-dev',
-/** 721 $efront_string___scop */ '_scope',
-/** 722 $efront_string___func */ '_functionName',
-/** 723 $efront_string__disti */ 'distinguishFunctionExpressionScope',
-/** 724 $efront_string__passA */ 'passAsUnique',
-/** 725 $efront_string__gener5 */ 'generateName',
-/** 726 $efront_string__9_ */ '9',
-/** 727 $efront_string__sort_ */ 'sort',
-/** 728 $efront_string__users */ 'users',
-/** 729 $efront_string__names */ 'names',
-/** 730 $efront_string__mangl1 */ 'mangle',
-/** 731 $efront_string__map_ */ 'map',
-/** 732 $efront_string__node_1 */ /** text */ 'node should be LabeledStatement',
-/** 733 esshorten$lib$esshorten.js */ [1,71,68,194,196,35,720,128,721,722,723,437,448,156,140,215,51,724,406,400,402,443,55,445,412,725,294,423,726,446,727,414,429,430,166,728,729,730,56,136,731,692,647,187,101,732,63,648,651,52,57,463,652,653,183,186,489,480,81,88,185,562,295,491,410,474,function(require, Error, exports, $efront_string__versi, $efront_string__Synta, $efront_string__index1, $efront_string__dev_, $efront_string__lengt1, $efront_string___scop, $efront_string___func, $efront_string__disti, $efront_string__upper, $efront_string__funct2, $efront_string__block, $efront_string__id_, $efront_string__name_, $efront_string__proto, $efront_string__passA, $efront_string__keywo, $efront_string__isKey, $efront_string__isRes, $efront_string__taint1, $efront_string__has_, $efront_string__throu, $efront_string__ident, $efront_string__gener5, $efront_string__gener, $efront_string__isSta, $efront_string__9_, $efront_string__varia, $efront_string__sort_, $efront_string__taint, $efront_string__ident1, $efront_string__refer, $efront_string__node_, $efront_string__users, $efront_string__names, $efront_string__mangl1, $efront_string__set_, $efront_string__label, $efront_string__map_, $efront_string__label1, $efront_string__regis1, $efront_string__type_, $efront_string__Label, $efront_string__node_1, $efront_string__push_, $efront_string__dupli, $efront_string__unreg, $efront_string__get_, $efront_string__delet, $efront_string__resol1, $efront_string__unres, $efront_string__close, $efront_string__trave, $efront_string__enter, $efront_string__Scope, $efront_string__isVar, $efront_string__Break, $efront_string__Conti, $efront_string__leave, $efront_string__destr, $efront_string__deepC, $efront_string__analy, $efront_string__direc1, $efront_string__scope2) {
-    return function () {
+/** 698 $efront_string__dev */ "-dev",
+/** 699 $efront_string__scope */ "_scope",
+/** 700 $efront_string__funct1 */ "_functionName",
+/** 701 $efront_string_distin */ "distinguishFunctionExpressionScope",
+/** 702 $efront_string_passAs */ "passAsUnique",
+/** 703 $efront_string_genera5 */ "generateName",
+/** 704 $efront_string_9 */ "9",
+/** 705 $efront_string_sort */ "sort",
+/** 706 $efront_string_users */ "users",
+/** 707 $efront_string_names */ "names",
+/** 708 $efront_string_mangle1 */ "mangle",
+/** 709 $efront_string_map */ "map",
+/** 710 $efront_string_node_s */ /** text */ "node should be LabeledStatement",
+/** 711 esshorten$lib$esshorten.js */ [1,56,52,178,180,9,698,3,699,700,701,420,430,140,124,199,36,702,389,383,385,425,40,427,395,703,277,406,704,428,705,397,412,413,150,706,707,708,41,120,709,670,626,171,86,710,47,627,630,37,42,445,631,632,167,170,471,462,66,73,169,541,278,473,393,456,function(require, Error, exports, $efront_string_versio, $efront_string_Syntax, $efront_string_indexO, $efront_string__dev, $efront_string_length, $efront_string__scope, $efront_string__funct1, $efront_string_distin, $efront_string_upper, $efront_string_functi1, $efront_string_block, $efront_string_id, $efront_string_name, $efront_string_protot, $efront_string_passAs, $efront_string_keywor, $efront_string_isKeyw, $efront_string_isRest, $efront_string_taints, $efront_string_has, $efront_string_throug, $efront_string_identi, $efront_string_genera5, $efront_string_genera, $efront_string_isStat, $efront_string_9, $efront_string_variab, $efront_string_sort, $efront_string_tainte, $efront_string_identi1, $efront_string_refere, $efront_string_node, $efront_string_users, $efront_string_names, $efront_string_mangle1, $efront_string_set, $efront_string_label, $efront_string_map, $efront_string_labels, $efront_string_regist1, $efront_string_type, $efront_string_Labele, $efront_string_node_s, $efront_string_push, $efront_string_duplic, $efront_string_unregi, $efront_string_get, $efront_string_delete, $efront_string_resolv1, $efront_string_unreso, $efront_string_close, $efront_string_traver, $efront_string_enter, $efront_string_Scope, $efront_string_isVari, $efront_string_BreakS, $efront_string_Contin, $efront_string_leave, $efront_string_destru, $efront_string_deepCo, $efront_string_analyz, $efront_string_direct1, $efront_string_scopes) {
+    return function (escope, estraverse, esutils, utility, version, assert, Syntax, Map) {
         'use strict';
-        var escope, estraverse, esutils, utility, version, assert, Syntax, Map;
-        escope = require(494);
-        estraverse = require(299);
-        esutils = require(493);
-        utility = require(296);
-        Map = require(297);
-        version = require(286)[$efront_string__versi];
-        Syntax = estraverse[$efront_string__Synta];
-        assert = function assert(cond, message) {
-            if (!cond) {
-                throw new Error(message)
-            }
-        };
-        if (version[$efront_string__index1]($efront_string__dev_, version[$efront_string__lengt1] - 4) === -1) {
-            assert = function () {
-            }
-        }
         function NameGenerator(scope, options) {
-            this[$efront_string___scop] = scope;
-            this[$efront_string___func] = '';
-            if (!options[$efront_string__disti] && this[$efront_string___scop][$efront_string__upper] && this[$efront_string___scop][$efront_string__upper][$efront_string__funct2]) {
-                this[$efront_string___func] = this[$efront_string___scop][$efront_string__upper][$efront_string__block][$efront_string__id_][$efront_string__name_]
-            }
+            this[$efront_string__scope] = scope, this[$efront_string__funct1] = '', !options[$efront_string_distin] && this[$efront_string__scope][$efront_string_upper] && this[$efront_string__scope][$efront_string_upper][$efront_string_functi1] && (this[$efront_string__funct1] = this[$efront_string__scope][$efront_string_upper][$efront_string_block][$efront_string_id][$efront_string_name])
         }
-        NameGenerator[$efront_string__proto][$efront_string__passA] = function passAsUnique(name) {
-            var i, iz;
-            if (this[$efront_string___func] === name) {
-                return false
-            }
-            if (esutils[$efront_string__keywo][$efront_string__isKey](name, true) || esutils[$efront_string__keywo][$efront_string__isRes](name)) {
-                return false
-            }
-            if (this[$efront_string___scop][$efront_string__taint1][$efront_string__has_](name)) {
-                return false
-            }
-            for (i = 0, iz = this[$efront_string___scop][$efront_string__throu][$efront_string__lengt1]; i < iz; ++i) {
-                if (this[$efront_string___scop][$efront_string__throu][i][$efront_string__ident][$efront_string__name_] === name) {
-                    return false
-                }
-            }
-            return true
-        };
-        NameGenerator[$efront_string__proto][$efront_string__gener5] = function generateName(tip) {
-            do {
-                tip = utility[$efront_string__gener](tip)
-            } while (!this[$efront_string__passA](tip));
-            return tip
-        };
         function run(scope, options) {
             var i, iz, j, jz, variable, name, def, ref, generator;
-            generator = new NameGenerator(scope, options);
-            if (scope[$efront_string__isSta]()) {
-                name = $efront_string__9_;
-                scope[$efront_string__varia][$efront_string__sort_](function (a, b) {
-                    if (a[$efront_string__taint]) {
-                        return 1
-                    }
-                    if (b[$efront_string__taint]) {
-                        return -1
-                    }
-                    return b[$efront_string__ident1][$efront_string__lengt1] + b[$efront_string__refer][$efront_string__lengt1] - (a[$efront_string__ident1][$efront_string__lengt1] + a[$efront_string__refer][$efront_string__lengt1])
-                });
-                for (i = 0, iz = scope[$efront_string__varia][$efront_string__lengt1]; i < iz; ++i) {
-                    variable = scope[$efront_string__varia][i];
-                    if (variable[$efront_string__taint]) {
-                        continue
-                    }
-                    if (variable[$efront_string__ident1][$efront_string__lengt1] === 0) {
-                        continue
-                    }
-                    name = generator[$efront_string__gener5](name);
-                    for (j = 0, jz = variable[$efront_string__ident1][$efront_string__lengt1]; j < jz; ++j) {
-                        def = variable[$efront_string__ident1][j];
-                        def[$efront_string__name_] = name
-                    }
-                    for (j = 0, jz = variable[$efront_string__refer][$efront_string__lengt1]; j < jz; ++j) {
-                        ref = variable[$efront_string__refer][j];
-                        ref[$efront_string__ident][$efront_string__name_] = name
-                    }
+            if (generator = new NameGenerator(scope, options), scope[$efront_string_isStat]())
+                for (name = $efront_string_9, scope[$efront_string_variab][$efront_string_sort](function (a, b) {
+                        return a[$efront_string_tainte] ? 1 : b[$efront_string_tainte] ? -1 : b[$efront_string_identi1][$efront_string_length] + b[$efront_string_refere][$efront_string_length] - (a[$efront_string_identi1][$efront_string_length] + a[$efront_string_refere][$efront_string_length])
+                    }), i = 0, iz = scope[$efront_string_variab][$efront_string_length]; i < iz; ++i) {
+                    if (variable = scope[$efront_string_variab][i], variable[$efront_string_tainte])
+                        continue;
+                    if (variable[$efront_string_identi1][$efront_string_length] === 0)
+                        continue;
+                    for (name = generator[$efront_string_genera5](name), j = 0, jz = variable[$efront_string_identi1][$efront_string_length]; j < jz; ++j)
+                        def = variable[$efront_string_identi1][j], def[$efront_string_name] = name;
+                    for (j = 0, jz = variable[$efront_string_refere][$efront_string_length]; j < jz; ++j)
+                        ref = variable[$efront_string_refere][j], ref[$efront_string_identi][$efront_string_name] = name
                 }
-            }
         }
         function Label(node, upper) {
-            this[$efront_string__node_] = node;
-            this[$efront_string__upper] = upper;
-            this[$efront_string__users] = [];
-            this[$efront_string__names] = new Map;
-            this[$efront_string__name_] = null
+            this[$efront_string_node] = node, this[$efront_string_upper] = upper, this[$efront_string_users] = [], this[$efront_string_names] = new Map, this[$efront_string_name] = null
         }
-        Label[$efront_string__proto][$efront_string__mangl1] = function () {
-            var tip, current, i, iz;
-            tip = $efront_string__9_;
-            for (current = this[$efront_string__upper]; current; current = current[$efront_string__upper]) {
-                if (current[$efront_string__name_] !== null) {
-                    this[$efront_string__names][$efront_string__set_](current[$efront_string__name_], true)
-                }
-            }
-            do {
-                tip = utility[$efront_string__gener](tip)
-            } while (this[$efront_string__names][$efront_string__has_](tip));
-            this[$efront_string__name_] = tip;
-            for (current = this[$efront_string__upper]; current; current = current[$efront_string__upper]) {
-                current[$efront_string__names][$efront_string__set_](tip, true)
-            }
-            this[$efront_string__node_][$efront_string__label][$efront_string__name_] = tip;
-            for (i = 0, iz = this[$efront_string__users][$efront_string__lengt1]; i < iz; ++i) {
-                this[$efront_string__users][i][$efront_string__label][$efront_string__name_] = tip
-            }
-        };
         function LabelScope(upper) {
-            this[$efront_string__map_] = new Map;
-            this[$efront_string__upper] = upper;
-            this[$efront_string__label] = null;
-            this[$efront_string__label1] = []
+            this[$efront_string_map] = new Map, this[$efront_string_upper] = upper, this[$efront_string_label] = null, this[$efront_string_labels] = []
         }
-        LabelScope[$efront_string__proto][$efront_string__regis1] = function register(node) {
-            var name;
-            assert(node[$efront_string__type_] === Syntax[$efront_string__Label], $efront_string__node_1);
-            this[$efront_string__label] = new Label(node, this[$efront_string__label]);
-            this[$efront_string__label1][$efront_string__push_](this[$efront_string__label]);
-            name = node[$efront_string__label][$efront_string__name_];
-            assert(!this[$efront_string__map_][$efront_string__has_](name), $efront_string__dupli);
-            this[$efront_string__map_][$efront_string__set_](name, this[$efront_string__label])
-        };
-        LabelScope[$efront_string__proto][$efront_string__unreg] = function unregister(node) {
-            var name, ref;
-            if (node[$efront_string__type_] !== Syntax[$efront_string__Label]) {
-                return
-            }
-            name = node[$efront_string__label][$efront_string__name_];
-            ref = this[$efront_string__map_][$efront_string__get_](name);
-            this[$efront_string__map_][$efront_string__delet](name);
-            this[$efront_string__label] = ref[$efront_string__upper]
-        };
-        LabelScope[$efront_string__proto][$efront_string__resol1] = function resolve(node) {
-            var name;
-            if (node[$efront_string__label]) {
-                name = node[$efront_string__label][$efront_string__name_];
-                assert(this[$efront_string__map_][$efront_string__has_](name), $efront_string__unres);
-                this[$efront_string__map_][$efront_string__get_](name)[$efront_string__users][$efront_string__push_](node)
-            }
-        };
-        LabelScope[$efront_string__proto][$efront_string__close] = function close() {
-            var i, iz, label;
-            this[$efront_string__label1][$efront_string__sort_](function (lhs, rhs) {
-                return rhs[$efront_string__users][$efront_string__lengt1] - lhs[$efront_string__users][$efront_string__lengt1]
-            });
-            for (i = 0, iz = this[$efront_string__label1][$efront_string__lengt1]; i < iz; ++i) {
-                label = this[$efront_string__label1][i];
-                label[$efront_string__mangl1]()
-            }
-            return this[$efront_string__upper]
-        };
         function mangleLabels(tree) {
-            var _a;
-            var labelScope;
-            estraverse[$efront_string__trave](tree, (_a = {}, _a[$efront_string__enter] = function (node) {
-                if (escope[$efront_string__Scope][$efront_string__isVar](node)) {
+            var _a, labelScope;
+            return estraverse[$efront_string_traver](tree, (_a = {}, _a[$efront_string_enter] = function (node) {
+                if (escope[$efront_string_Scope][$efront_string_isVari](node)) {
                     labelScope = new LabelScope(labelScope);
                     return
                 }
-                switch (node[$efront_string__type_]) {
-                case Syntax[$efront_string__Label]:
-                    labelScope[$efront_string__regis1](node);
+                switch (node[$efront_string_type]) {
+                case Syntax[$efront_string_Labele]:
+                    labelScope[$efront_string_regist1](node);
                     break;
-                case Syntax[$efront_string__Break]:
-                case Syntax[$efront_string__Conti]:
-                    labelScope[$efront_string__resol1](node);
+                case Syntax[$efront_string_BreakS]:
+                case Syntax[$efront_string_Contin]:
+                    labelScope[$efront_string_resolv1](node);
                     break
                 }
-            }, _a[$efront_string__leave] = function (node) {
-                labelScope[$efront_string__unreg](node);
-                if (escope[$efront_string__Scope][$efront_string__isVar](node)) {
-                    labelScope = labelScope[$efront_string__close]()
-                }
-            }, _a));
-            return tree
+            }, _a[$efront_string_leave] = function (node) {
+                labelScope[$efront_string_unregi](node), escope[$efront_string_Scope][$efront_string_isVari](node) && (labelScope = labelScope[$efront_string_close]())
+            }, _a)), tree
         }
         function mangle(tree, options) {
-            var _a, _b;
-            var result, manager, i, iz;
-            if (options == null) {
-                options = (_a = {}, _a[$efront_string__destr] = true, _a)
-            }
-            result = options[$efront_string__destr] == null || options[$efront_string__destr] ? tree : utility[$efront_string__deepC](tree);
-            manager = escope[$efront_string__analy](result, (_b = {}, _b[$efront_string__direc1] = true, _b));
-            for (i = 0, iz = manager[$efront_string__scope2][$efront_string__lengt1]; i < iz; ++i) {
-                run(manager[$efront_string__scope2][i], options)
-            }
+            var _a, _b, result, manager, i, iz;
+            for (options == null && (_a = {}, _a[$efront_string_destru] = !0, options = _a), result = options[$efront_string_destru] == null || options[$efront_string_destru] ? tree : utility[$efront_string_deepCo](tree), manager = escope[$efront_string_analyz](result, (_b = {}, _b[$efront_string_direct1] = !0, _b)), i = 0, iz = manager[$efront_string_scopes][$efront_string_length]; i < iz; ++i)
+                run(manager[$efront_string_scopes][i], options);
             return mangleLabels(result)
         }
-        exports[$efront_string__mangl1] = mangle;
-        exports[$efront_string__versi] = version;
-        exports[$efront_string__gener] = utility[$efront_string__gener]
+        escope = require(476), estraverse = require(282), esutils = require(475), utility = require(279), Map = require(280), version = require(270)[$efront_string_versio], Syntax = estraverse[$efront_string_Syntax], assert = function assert(cond, message) {
+            if (!cond)
+                throw new Error(message)
+        }, version[$efront_string_indexO]($efront_string__dev, version[$efront_string_length] - 4) === -1 && (assert = function () {
+        }), NameGenerator[$efront_string_protot][$efront_string_passAs] = function passAsUnique(name) {
+            var i, iz;
+            if (this[$efront_string__funct1] === name)
+                return !1;
+            if (esutils[$efront_string_keywor][$efront_string_isKeyw](name, !0) || esutils[$efront_string_keywor][$efront_string_isRest](name))
+                return !1;
+            if (this[$efront_string__scope][$efront_string_taints][$efront_string_has](name))
+                return !1;
+            for (i = 0, iz = this[$efront_string__scope][$efront_string_throug][$efront_string_length]; i < iz; ++i)
+                if (this[$efront_string__scope][$efront_string_throug][i][$efront_string_identi][$efront_string_name] === name)
+                    return !1;
+            return !0
+        }, NameGenerator[$efront_string_protot][$efront_string_genera5] = function generateName(tip) {
+            do
+                tip = utility[$efront_string_genera](tip);
+            while (!this[$efront_string_passAs](tip));
+            return tip
+        }, Label[$efront_string_protot][$efront_string_mangle1] = function () {
+            var tip, current, i, iz;
+            for (tip = $efront_string_9, current = this[$efront_string_upper]; current; current = current[$efront_string_upper])
+                current[$efront_string_name] !== null && this[$efront_string_names][$efront_string_set](current[$efront_string_name], !0);
+            do
+                tip = utility[$efront_string_genera](tip);
+            while (this[$efront_string_names][$efront_string_has](tip));
+            for (this[$efront_string_name] = tip, current = this[$efront_string_upper]; current; current = current[$efront_string_upper])
+                current[$efront_string_names][$efront_string_set](tip, !0);
+            for (this[$efront_string_node][$efront_string_label][$efront_string_name] = tip, i = 0, iz = this[$efront_string_users][$efront_string_length]; i < iz; ++i)
+                this[$efront_string_users][i][$efront_string_label][$efront_string_name] = tip
+        }, LabelScope[$efront_string_protot][$efront_string_regist1] = function register(node) {
+            var name;
+            assert(node[$efront_string_type] === Syntax[$efront_string_Labele], $efront_string_node_s), this[$efront_string_label] = new Label(node, this[$efront_string_label]), this[$efront_string_labels][$efront_string_push](this[$efront_string_label]), name = node[$efront_string_label][$efront_string_name], assert(!this[$efront_string_map][$efront_string_has](name), $efront_string_duplic), this[$efront_string_map][$efront_string_set](name, this[$efront_string_label])
+        }, LabelScope[$efront_string_protot][$efront_string_unregi] = function unregister(node) {
+            var name, ref;
+            if (node[$efront_string_type] !== Syntax[$efront_string_Labele])
+                return;
+            name = node[$efront_string_label][$efront_string_name], ref = this[$efront_string_map][$efront_string_get](name), this[$efront_string_map][$efront_string_delete](name), this[$efront_string_label] = ref[$efront_string_upper]
+        }, LabelScope[$efront_string_protot][$efront_string_resolv1] = function resolve(node) {
+            var name;
+            node[$efront_string_label] && (name = node[$efront_string_label][$efront_string_name], assert(this[$efront_string_map][$efront_string_has](name), $efront_string_unreso), this[$efront_string_map][$efront_string_get](name)[$efront_string_users][$efront_string_push](node))
+        }, LabelScope[$efront_string_protot][$efront_string_close] = function close() {
+            var i, iz, label;
+            for (this[$efront_string_labels][$efront_string_sort](function (lhs, rhs) {
+                    return rhs[$efront_string_users][$efront_string_length] - lhs[$efront_string_users][$efront_string_length]
+                }), i = 0, iz = this[$efront_string_labels][$efront_string_length]; i < iz; ++i)
+                label = this[$efront_string_labels][i], label[$efront_string_mangle1]();
+            return this[$efront_string_upper]
+        }, exports[$efront_string_mangle1] = mangle, exports[$efront_string_versio] = version, exports[$efront_string_genera] = utility[$efront_string_genera]
     }()
 }],
-/** 734 $efront_string____dir */ '__direct',
-/** 735 $efront_string__don_t */ /** text */ 'don\'t create duplicate pass names',
-/** 736 $efront_string__pass_ */ 'pass',
-/** 737 $efront_string__post_ */ 'post',
-/** 738 $efront_string__requi */ 'require',
-/** 739 $efront_string__Regis */ 'Registry',
-/** 740 $efront_string____def2 */ '__defaultPipeline',
-/** 741 $efront_string__once_ */ 'once',
-/** 742 pass.js */ [1,68,734,128,510,564,735,736,737,508,55,52,291,307,738,739,740,741,function(require, exports, $efront_string____dir, $efront_string__lengt1, $efront_string__asser, $efront_string__passN, $efront_string__don_t, $efront_string__pass_, $efront_string__post_, $efront_string__Objec2, $efront_string__has_, $efront_string__get_, $efront_string__split1, $efront_string__1, $efront_string__requi, $efront_string__Regis, $efront_string____def2, $efront_string__once_) {
-    return function () {
+/** 712 $efront_string___dire */ "__direct",
+/** 713 $efront_string_don_t_ */ /** text */ "don't create duplicate pass names",
+/** 714 $efront_string_pass */ "pass",
+/** 715 $efront_string_post */ "post",
+/** 716 $efront_string_requir */ "require",
+/** 717 $efront_string_Regist */ "Registry",
+/** 718 $efront_string___defa */ "__defaultPipeline",
+/** 719 $efront_string_once */ "once",
+/** 720 pass.js */ [1,52,712,3,490,543,713,714,715,488,40,37,4,290,716,717,718,719,function(require, exports, $efront_string___dire, $efront_string_length, $efront_string_assert, $efront_string_passNa, $efront_string_don_t_, $efront_string_pass, $efront_string_post, $efront_string_Object2, $efront_string_has, $efront_string_get, $efront_string_split, $efront_string__1, $efront_string_requir, $efront_string_Regist, $efront_string___defa, $efront_string_once) {
+    return function (_a, query, Registry, pass, post, common) {
         'use strict';
-        var _a;
-        var query, Registry, pass, post, common;
-        common = require(530);
-        query = require(594);
-        Registry = {};
-        Registry[$efront_string____dir] = {};
         function initialize(kind, passes) {
             var i, iz, pass;
-            Registry[kind] = {};
-            for (i = 0, iz = passes[$efront_string__lengt1]; i < iz; ++i) {
-                pass = passes[i];
-                common[$efront_string__asser](Registry[kind][pass[$efront_string__passN]] == null, $efront_string__don_t);
-                Registry[kind][pass[$efront_string__passN]] = pass
-            }
-            common[$efront_string__asser](Registry[$efront_string____dir][pass[$efront_string__passN]] == null, $efront_string__don_t);
-            Registry[$efront_string____dir][pass[$efront_string__passN]] = pass
+            for (Registry[kind] = {}, i = 0, iz = passes[$efront_string_length]; i < iz; ++i)
+                pass = passes[i], common[$efront_string_assert](Registry[kind][pass[$efront_string_passNa]] == null, $efront_string_don_t_), Registry[kind][pass[$efront_string_passNa]] = pass;
+            common[$efront_string_assert](Registry[$efront_string___dire][pass[$efront_string_passNa]] == null, $efront_string_don_t_), Registry[$efront_string___dire][pass[$efront_string_passNa]] = pass
         }
-        pass = [
-            require(681),
-            require(638),
-            require(636),
-            require(634),
-            require(632),
-            require(642),
-            require(654),
-            require(664),
-            require(644),
-            require(630),
-            require(617),
-            require(640),
-            require(615),
-            require(674),
-            require(678),
-            require(676),
-            require(717),
-            require(662),
-            require(672),
-            require(613),
-            require(719),
-            require(690),
-            require(656),
-            require(685)
-        ];
-        post = [
-            require(601),
-            require(603),
-            require(608),
-            require(605),
-            require(611)
-        ];
-        initialize($efront_string__pass_, pass);
-        initialize($efront_string__post_, post);
         function passRequire(name) {
-            if (common[$efront_string__Objec2][$efront_string__has_](Registry[$efront_string____dir], name)) {
-                return Registry[$efront_string____dir][name]
-            }
-            return query[$efront_string__get_](Registry, name[$efront_string__split1]($efront_string__1))
+            return common[$efront_string_Object2][$efront_string_has](Registry[$efront_string___dire], name) ? Registry[$efront_string___dire][name] : query[$efront_string_get](Registry, name[$efront_string_split]($efront_string__1))
         }
-        exports[$efront_string__requi] = passRequire;
-        exports[$efront_string__Regis] = Registry;
-        exports[$efront_string____def2] = [
+        common = require(510), query = require(573), Registry = {}, Registry[$efront_string___dire] = {}, pass = [
+            require(659),
+            require(617),
+            require(615),
+            require(613),
+            require(611),
+            require(621),
+            require(633),
+            require(643),
+            require(623),
+            require(609),
+            require(596),
+            require(619),
+            require(594),
+            require(652),
+            require(656),
+            require(654),
+            require(695),
+            require(641),
+            require(650),
+            require(592),
+            require(697),
+            require(668),
+            require(635),
+            require(663)
+        ], post = [
+            require(580),
+            require(582),
+            require(587),
+            require(584),
+            require(590)
+        ], initialize($efront_string_pass, pass), initialize($efront_string_post, post), exports[$efront_string_requir] = passRequire, exports[$efront_string_Regist] = Registry, exports[$efront_string___defa] = [
             pass,
-            (_a = {}, _a[$efront_string__once_] = true, _a[$efront_string__pass_] = post, _a)
+            (_a = {}, _a[$efront_string_once] = !0, _a[$efront_string_pass] = post, _a)
         ]
     }()
 }],
-/** 743 $efront_string__data_ */ 'data',
-/** 744 options.js */ [1,29,508,55,509,562,610,743,51,52,563,38,function(require, module, $efront_string__Objec2, $efront_string__has_, $efront_string__isObj, $efront_string__destr, $efront_string__prese, $efront_string__data_, $efront_string__proto, $efront_string__get_, $efront_string__pathN, $efront_string__expor1) {
-    return function () {
+/** 721 $efront_string_data */ "data",
+/** 722 options.js */ [1,15,488,40,489,541,589,721,36,37,542,13,function(require, module, $efront_string_Object2, $efront_string_has, $efront_string_isObje, $efront_string_destru, $efront_string_preser, $efront_string_data, $efront_string_protot, $efront_string_get, $efront_string_pathNa, $efront_string_export) {
+    return function (common) {
         'use strict';
-        var common;
-        common = require(530);
         function extend(result, update) {
             var prop, lhs, rhs;
             for (prop in update) {
-                if (!common[$efront_string__Objec2][$efront_string__has_](update, prop)) {
-                    continue
-                }
-                if (prop in result) {
-                    lhs = result[prop];
-                    rhs = update[prop];
-                    if (common[$efront_string__Objec2][$efront_string__isObj](rhs) && common[$efront_string__Objec2][$efront_string__isObj](lhs)) {
-                        result[prop] = extend(lhs, rhs)
-                    } else {
-                        result[prop] = update[prop]
-                    }
-                } else {
-                    result[prop] = update[prop]
-                }
+                if (!common[$efront_string_Object2][$efront_string_has](update, prop))
+                    continue;
+                prop in result ? (lhs = result[prop], rhs = update[prop], common[$efront_string_Object2][$efront_string_isObje](rhs) && common[$efront_string_Object2][$efront_string_isObje](lhs) ? result[prop] = extend(lhs, rhs) : result[prop] = update[prop]) : result[prop] = update[prop]
             }
             return result
         }
         function Options(override) {
-            var _a;
-            var defaults = (_a = {}, _a[$efront_string__destr] = true, _a[$efront_string__prese] = false, _a);
+            var _a, defaults = (_a = {}, _a[$efront_string_destru] = !0, _a[$efront_string_preser] = !1, _a);
             if (override == null) {
-                this[$efront_string__data_] = defaults;
+                this[$efront_string_data] = defaults;
                 return
             }
-            this[$efront_string__data_] = extend(defaults, override)
+            this[$efront_string_data] = extend(defaults, override)
         }
-        Options[$efront_string__proto][$efront_string__get_] = function get(name, details) {
+        common = require(510), Options[$efront_string_protot][$efront_string_get] = function get(name, details) {
             var local;
-            if (details != null) {
-                if (common[$efront_string__Objec2][$efront_string__has_](details, $efront_string__pathN)) {
-                    local = this[$efront_string__data_][details[$efront_string__pathN]];
-                    if (local != null && common[$efront_string__Objec2][$efront_string__has_](local, name)) {
-                        return local[name]
-                    }
-                }
-            }
-            return this[$efront_string__data_][name]
-        };
-        module[$efront_string__expor1] = Options
+            return details != null && common[$efront_string_Object2][$efront_string_has](details, $efront_string_pathNa) && (local = this[$efront_string_data][details[$efront_string_pathNa]], local != null && common[$efront_string_Object2][$efront_string_has](local, name)) ? local[name] : this[$efront_string_data][name]
+        }, module[$efront_string_export] = Options
     }()
 }],
-/** 745 esshorten */ [1,function(require) {
-    return require(733)
+/** 723 esshorten */ [1,function(require) {
+    return require(711)
 }],
-/** 746 $efront_string__optim1 */ 'optimize',
-/** 747 esmangle.js */ [1,70,68,196,187,99,143,101,94,95,121,122,135,183,185,142,79,90,93,144,513,100,150,214,410,72,62,54,564,215,63,128,52,562,295,600,599,740,504,124,741,736,194,730,746,function(require, Object, exports, $efront_string__Synta, $efront_string__type_, $efront_string__IfSta, $efront_string__alter, $efront_string__Label, $efront_string__ForSt, $efront_string__ForIn, $efront_string__While, $efront_string__WithS, $efront_string__body_, $efront_string__trave, $efront_string__leave, $efront_string__conse, $efront_string__Block, $efront_string__Direc, $efront_string__Expre, $efront_string__expre, $efront_string__moveL, $efront_string__Liter, $efront_string__value1, $efront_string__raw_, $efront_string__direc1, $efront_string__funct1, $efront_string__keys_, $efront_string__hasOw, $efront_string__passN, $efront_string__name_, $efront_string__push_, $efront_string__lengt1, $efront_string__get_, $efront_string__destr, $efront_string__deepC, $efront_string__modif, $efront_string__resul, $efront_string____def2, $efront_string__Array2, $efront_string__isArr, $efront_string__once_, $efront_string__pass_, $efront_string__versi, $efront_string__mangl1, $efront_string__optim1) {
-    return function () {
+/** 724 $efront_string_optimi1 */ "optimize",
+/** 725 esmangle.js */ [1,55,52,180,171,84,127,86,79,80,106,107,119,167,169,126,64,75,78,128,493,85,134,198,393,57,46,39,543,199,47,3,37,541,278,579,578,718,484,109,719,714,178,708,724,function(require, Object, exports, $efront_string_Syntax, $efront_string_type, $efront_string_IfStat, $efront_string_altern, $efront_string_Labele, $efront_string_ForSta, $efront_string_ForInS, $efront_string_WhileS, $efront_string_WithSt, $efront_string_body, $efront_string_traver, $efront_string_leave, $efront_string_conseq, $efront_string_BlockS, $efront_string_Direct, $efront_string_Expres, $efront_string_expres, $efront_string_moveLo, $efront_string_Litera, $efront_string_value, $efront_string_raw, $efront_string_direct1, $efront_string_functi, $efront_string_keys, $efront_string_hasOwn, $efront_string_passNa, $efront_string_name, $efront_string_push, $efront_string_length, $efront_string_get, $efront_string_destru, $efront_string_deepCo, $efront_string_modifi, $efront_string_result, $efront_string___defa, $efront_string_Array, $efront_string_isArra, $efront_string_once, $efront_string_pass, $efront_string_versio, $efront_string_mangle1, $efront_string_optimi1) {
+    return function (esshorten, common, Options, Syntax, Pass, annotateDirective) {
         'use strict';
-        var esshorten, common, Options, Syntax, Pass, annotateDirective;
-        esshorten = require(745);
-        common = require(530);
-        Options = require(744);
-        Pass = require(742);
-        annotateDirective = require(565);
-        Syntax = common[$efront_string__Synta];
         function recover(tree, useDirectiveStatement) {
-            var _a;
             function trailingIf(node) {
-                while (true) {
-                    switch (node[$efront_string__type_]) {
-                    case Syntax[$efront_string__IfSta]:
-                        if (!node[$efront_string__alter]) {
-                            return true
-                        }
-                        node = node[$efront_string__alter];
+                while (!0) {
+                    switch (node[$efront_string_type]) {
+                    case Syntax[$efront_string_IfStat]:
+                        if (!node[$efront_string_altern])
+                            return !0;
+                        node = node[$efront_string_altern];
                         continue;
-                    case Syntax[$efront_string__Label]:
-                    case Syntax[$efront_string__ForSt]:
-                    case Syntax[$efront_string__ForIn]:
-                    case Syntax[$efront_string__While]:
-                    case Syntax[$efront_string__WithS]:
-                        node = node[$efront_string__body_];
+                    case Syntax[$efront_string_Labele]:
+                    case Syntax[$efront_string_ForSta]:
+                    case Syntax[$efront_string_ForInS]:
+                    case Syntax[$efront_string_WhileS]:
+                    case Syntax[$efront_string_WithSt]:
+                        node = node[$efront_string_body];
                         continue
                     }
-                    return false
+                    return !1
                 }
             }
-            common[$efront_string__trave](tree, (_a = {}, _a[$efront_string__leave] = function leave(node) {
+            var _a;
+            return common[$efront_string_traver](tree, (_a = {}, _a[$efront_string_leave] = function leave(node) {
                 var _a, _b;
-                if (node[$efront_string__type_] === Syntax[$efront_string__IfSta] && node[$efront_string__alter]) {
-                    if (node[$efront_string__conse][$efront_string__type_] !== Syntax[$efront_string__Block]) {
-                        if (trailingIf(node[$efront_string__conse])) {
-                            node[$efront_string__conse] = (_a = {}, _a[$efront_string__type_] = Syntax[$efront_string__Block], _a[$efront_string__body_] = [node[$efront_string__conse]], _a)
-                        }
-                    }
-                }
-                if (!useDirectiveStatement && node[$efront_string__type_] === Syntax[$efront_string__Direc]) {
-                    node[$efront_string__type_] = Syntax[$efront_string__Expre];
-                    node[$efront_string__expre] = common[$efront_string__moveL](node, (_b = {}, _b[$efront_string__type_] = Syntax[$efront_string__Liter], _b[$efront_string__value1] = node[$efront_string__value1], _b[$efront_string__raw_] = node[$efront_string__raw_], _b));
-                    delete node[$efront_string__direc1];
-                    delete node[$efront_string__value1];
-                    delete node[$efront_string__raw_]
-                }
-            }, _a));
-            return tree
+                node[$efront_string_type] === Syntax[$efront_string_IfStat] && node[$efront_string_altern] && node[$efront_string_conseq][$efront_string_type] !== Syntax[$efront_string_BlockS] && trailingIf(node[$efront_string_conseq]) && (_a = {}, _a[$efront_string_type] = Syntax[$efront_string_BlockS], _a[$efront_string_body] = [node[$efront_string_conseq]], node[$efront_string_conseq] = _a), !useDirectiveStatement && node[$efront_string_type] === Syntax[$efront_string_Direct] && (node[$efront_string_type] = Syntax[$efront_string_Expres], node[$efront_string_expres] = common[$efront_string_moveLo](node, (_b = {}, _b[$efront_string_type] = Syntax[$efront_string_Litera], _b[$efront_string_value] = node[$efront_string_value], _b[$efront_string_raw] = node[$efront_string_raw], _b)), delete node[$efront_string_direct1], delete node[$efront_string_value], delete node[$efront_string_raw])
+            }, _a)), tree
         }
         function iteration(tree, p, options) {
-            var i, iz, pass, res, changed, statuses, passes, result;
             function addPass(pass) {
                 var name;
-                if (typeof pass !== $efront_string__funct1) {
-                    name = Object[$efront_string__keys_](pass)[0];
-                    pass = pass[name]
-                }
-                if (pass[$efront_string__hasOw]($efront_string__passN)) {
-                    name = pass[$efront_string__passN]
-                } else {
-                    name = pass[$efront_string__name_]
-                }
-                passes[$efront_string__push_](pass);
-                statuses[$efront_string__push_](true)
+                typeof pass !== $efront_string_functi && (name = Object[$efront_string_keys](pass)[0], pass = pass[name]), pass[$efront_string_hasOwn]($efront_string_passNa) ? name = pass[$efront_string_passNa] : name = pass[$efront_string_name], passes[$efront_string_push](pass), statuses[$efront_string_push](!0)
             }
             function fillStatuses(bool) {
                 var i, iz;
-                for (i = 0, iz = statuses[$efront_string__lengt1]; i < iz; ++i) {
+                for (i = 0, iz = statuses[$efront_string_length]; i < iz; ++i)
                     statuses[i] = bool
-                }
             }
-            result = options[$efront_string__get_]($efront_string__destr) ? tree : common[$efront_string__deepC](tree);
-            statuses = [];
-            passes = [];
-            for (i = 0, iz = p[$efront_string__lengt1]; i < iz; ++i) {
-                addPass(p[i])
-            }
-            do {
-                changed = false;
-                for (i = 0, iz = passes[$efront_string__lengt1]; i < iz; ++i) {
-                    pass = passes[i];
-                    if (statuses[i]) {
-                        res = pass(result, options);
-                        if (res[$efront_string__modif]) {
-                            changed = true;
-                            fillStatuses(true)
-                        } else {
-                            statuses[i] = false
-                        }
-                        result = res[$efront_string__resul]
-                    }
-                }
-            } while (changed);
+            var i, iz, pass, res, changed, statuses, passes, result;
+            for (result = options[$efront_string_get]($efront_string_destru) ? tree : common[$efront_string_deepCo](tree), statuses = [], passes = [], i = 0, iz = p[$efront_string_length]; i < iz; ++i)
+                addPass(p[i]);
+            do
+                for (changed = !1, i = 0, iz = passes[$efront_string_length]; i < iz; ++i)
+                    pass = passes[i], statuses[i] && (res = pass(result, options), res[$efront_string_modifi] ? (changed = !0, fillStatuses(!0)) : statuses[i] = !1, result = res[$efront_string_result]);
+            while (changed);
             return result
         }
         function optimize(tree, pipeline, options) {
-            var _a;
-            var i, iz, j, jz, section, pass;
-            tree = annotateDirective(tree, new Options((_a = {}, _a[$efront_string__destr] = false, _a)));
-            if (null == pipeline) {
-                pipeline = Pass[$efront_string____def2]
-            }
-            options = new Options(options);
-            for (i = 0, iz = pipeline[$efront_string__lengt1]; i < iz; ++i) {
-                section = pipeline[i];
-                if (common[$efront_string__Array2][$efront_string__isArr](section)) {
-                    tree = iteration(tree, section, options)
-                } else if (section[$efront_string__once_]) {
-                    pass = section[$efront_string__pass_];
-                    for (j = 0, jz = pass[$efront_string__lengt1]; j < jz; ++j) {
-                        tree = pass[j](tree, options)[$efront_string__resul]
-                    }
-                }
-            }
-            return recover(tree, options[$efront_string__get_]($efront_string__direc1))
+            var _a, i, iz, j, jz, section, pass;
+            for (tree = annotateDirective(tree, new Options((_a = {}, _a[$efront_string_destru] = !1, _a))), null == pipeline && (pipeline = Pass[$efront_string___defa]), options = new Options(options), i = 0, iz = pipeline[$efront_string_length]; i < iz; ++i)
+                if (section = pipeline[i], common[$efront_string_Array][$efront_string_isArra](section))
+                    tree = iteration(tree, section, options);
+                else if (section[$efront_string_once])
+                    for (pass = section[$efront_string_pass], j = 0, jz = pass[$efront_string_length]; j < jz; ++j)
+                        tree = pass[j](tree, options)[$efront_string_result];
+            return recover(tree, options[$efront_string_get]($efront_string_direct1))
         }
-        exports[$efront_string__versi] = require(357)[$efront_string__versi];
-        exports[$efront_string__mangl1] = esshorten[$efront_string__mangl1];
-        exports[$efront_string__optim1] = optimize;
-        exports[$efront_string__pass_] = Pass
+        esshorten = require(723), common = require(510), Options = require(722), Pass = require(720), annotateDirective = require(544), Syntax = common[$efront_string_Syntax], exports[$efront_string_versio] = require(340)[$efront_string_versio], exports[$efront_string_mangle1] = esshorten[$efront_string_mangle1], exports[$efront_string_optimi1] = optimize, exports[$efront_string_pass] = Pass
     }()
-}]],function (a, c,s) {
+}],
+/** 726 "e" */ "e",
+/** 727 "d" */ "d",
+/** 728 "o" */ "o",
+/** 729 "C" */ "C",
+/** 730 "r" */ "r",
+/** 731 "a" */ "a",
+/** 732 "h" */ "h",
+/** 733 "m" */ "m",
+/** 734 "f" */ "f",
+/** 735 "t" */ "t",
+/** 736 "A" */ "A",
+/** 737 "c" */ "c"],function (a, c,s) {
         var 
-    z=s[9],
-    B=s[12],
-    y=s[5],
-    m=s[2],
+    w=s[10],x=s[8],
     n=s[1],
-    q=s[3],x=s[8],
-    M=29,
-    o=s[4],
-    v=s[6],
-    E=68,
-    w=s[10],
     e=s[7],
+    v=s[6],
+    o=s[4],
+    z=s[9],
+    q=s[3],
+    B=s[12],
+    m=s[2],
+    y=s[5],
+    M=15,
+    E=52,
         u,p=[x,m,n,q,o,y,B,e,v,z,w,s[11]],
         h=s[M-1][0],
-        j=s[15],
-        $=[s[18],s[19],s[20],s[21],s[22],s[23],s[24],s[21],s[26],s[20],s[22],s[27]],
-        _=[s[16],s[17],s[18],s[19],s[20],s[21],s[22],s[23],s[24],s[25]][v]()[w](''),T = this,R;
-        if (!(a instanceof s[14])){
+        j=s[16],
+        $=[s[725],s[726],s[727],s[728],s[729],s[730],s[731],s[728],s[732],s[727],s[729],s[733]],
+        _=[s[734],s[735],s[725],s[726],s[727],s[728],s[729],s[730],s[731],s[736]][v]()[w](''),T = this,R;
+        if (!(a instanceof s[53])){
             R = function(){
                 return a
             }
@@ -6064,4 +3652,4 @@ module.exports=([/*Mon Feb 22 2021 13:02:45 GMT+0800 (中国标准时间) by efr
             var S=R();T[c+1]=function(){return S};
             return S
         }
-    },[this.window||global])[746]()
+    },[this.window||global])[724]()
