@@ -84,26 +84,12 @@ function ylist(container, generator, $Y) {
         }
         return map;
     };
-    var onitemload = function () {
-        if (__animated) return;
-        var item = this;
-        if (list !== item.parentNode) return;
-        var { offsetHeight, savedHeight } = item;
-        if (savedHeight === offsetHeight) return;
-        updateItem(item);
-        if (item.offsetTop > list.scrollTop) return;
-        list.scrollTop += offsetHeight - savedHeight;
-    };
     var createItem = function (index) {
         var item = generator(index);
         if (item) {
             item.index = index;
-            on("load")(item, onitemload, true);
         }
         return item;
-    };
-    var updateItem = function (item) {
-        item.savedHeight = item.offsetHeight;
     };
     //设置当前下标
     var scrollTo = function (itemIndex) {
@@ -140,7 +126,6 @@ function ylist(container, generator, $Y) {
                 } else {
                     list.insertBefore(item, getNextSibling(last_item));
                 }
-                updateItem(item);
             } else {
                 delete childrenMap[offset];
             }
@@ -239,7 +224,6 @@ function ylist(container, generator, $Y) {
                     restHeight = cache_height;
                 }
                 list.insertBefore(item, getNextSibling(last_element));
-                updateItem(item);
             }
             if (!item.offsetHeight) {
                 console.warn(item, '!item.offsetHeight');
@@ -304,7 +288,6 @@ function ylist(container, generator, $Y) {
                 item = createItem(offset);
                 if (!item) break;
                 list.insertBefore(item, first_element);
-                updateItem(item);
                 scrollTop += flag_element.offsetTop - offsetTop;
                 offsetTop = flag_element.offsetTop;
                 first_element = item;

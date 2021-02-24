@@ -329,7 +329,7 @@ var directives = {
             savedOrigin = origin;
             savedValue = temp;
             if (/^img$/i.test(this.tagName)) {
-                this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
+                // this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
                 if (!isString(origin)) {
                     return;
                 }
