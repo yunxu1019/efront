@@ -10,22 +10,24 @@ function queue(list, count = 1, context = null) {
         count = context || temp;
         context = temp;
     }
-    return new Promise(function (ok) {
+    return new Promise(function (ok, oh) {
         var cx = 0;
         var result = [];
         var loaded_count = 0;
         var error_count = 0;
         var run = function () {
+            if (error_count && count === 1) return;
             if (cx >= list.length && loaded_count >= list.length) return ok(result);
             var saved_cx = cx;
             var args = list[cx];
             Promise.resolve(f.call(context, args, cx++, list)).then(function (data) {
                 result[saved_cx] = data;
-            }).catch(function () {
-                error_count++;
-            }).then(function () {
                 loaded_count++;
-            }).then(run);
+                run();
+            }, function (e) {
+                error_count++;
+                if (count === 1) oh(e);
+            });
         };
         if (count > list.length >> 1) {
             count = list.length >> 1;
@@ -33,7 +35,7 @@ function queue(list, count = 1, context = null) {
         if (!(count >= 1)) {
             count = 1;
         }
-        while (count-- > 0) {
+        while (cx < count) {
             run();
         }
     }).then(function (res) {
