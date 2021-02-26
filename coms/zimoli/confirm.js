@@ -50,6 +50,8 @@ function confirm() {
         head.appendChild(title);
     }
     if (isString(message)) {
+        var width = Math.sqrt(message.length) * 16;
+        element.style.width = fromPixel(width + 260);
         body.innerHTML = message;
     } else if (isNode(message)) {
         appendChild(body, message);
@@ -68,16 +70,22 @@ function confirm() {
             }
         }
         if (!options) {
-            options = ["确认", "取消"];
+            options = ["确认 ", "取消"];
         }
     }
     var buttons = options.map(function (label, index, options) {
         if (isNode(label)) return label;
+        if (options.length === 2) for (var k in defaultOptions) {
+            if (label === defaultOptions[k][1]) {
+                label += " #white";
+                break;
+            }
+        }
         var btn = button(label);
         onclick(btn, function () {
             if (isFunction(callback) && callback(label, index, options) === false) return;
             remove(element);
-        })
+        });
         return btn;
     });
     onclick(element, function () {
@@ -86,7 +94,7 @@ function confirm() {
     on('dblclick')(head, function () {
 
     })
-    drag.on(element);
+    drag.on(head, element);
     preventOverflowScrolling(element);
     appendChild(option, buttons);
     element.initialStyle = "transform:scale(.9);opacity:0;transition:transform .3s,opacity .2s";
