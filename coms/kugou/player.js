@@ -208,7 +208,6 @@ var $scope = {
          */
         $scope.playing = false;
         var _audio = document.createElement("audio");
-        _audio.crossOrigin = "";
         if (hasContext) {
             // ios设备目前未找到可视化方案
             var context = new AudioContext;
@@ -216,6 +215,7 @@ var $scope = {
             analyser = context.createAnalyser();
             analyser.fftSize = dancingArray.length;
             source.connect(analyser);
+            _audio.crossOrigin = "anonymous";
             source.crossOrigin = 'anonymous';
             source.connect(context.destination);
         }
@@ -273,7 +273,7 @@ var $scope = {
     }
 };
 var Uint8Array = window.Uint8Array;
-var hasContext = !/iPhone/.test(navigator.platform) && AudioContext && Uint8Array;
+var hasContext = AudioContext && Uint8Array;
 if (hasContext) {
     var dancingArray = new Uint8Array(2048);
     var animate = function () {
