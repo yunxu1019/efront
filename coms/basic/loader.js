@@ -819,7 +819,7 @@ var initIfNotDefined = function (defined, path, onload) {
 loadResponseTreeFromStorage();
 initIfNotDefined([].map, "[]map", map => map);
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);
-if (true || !isProduction) window.modules = modules;
+if (!isProduction) window.modules = modules;
 var onload = function () {
     window.onload = null;
     hook(--requires_count);
