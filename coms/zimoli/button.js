@@ -102,8 +102,18 @@ function button(texter, type) {
         }
     } else {
         _texter = createElement(_label);
-        if (isString(texter))
+        if (isString(texter)) {
+            if (!type) {
+                texter = texter.replace(/#\w*/, function (w) {
+                    if (/^#([a-f\d]{3,4}){1,2}$/.test(w)) {
+                        type = color.parse(w);
+                    }
+                    type = w.slice(1);
+                    return '';
+                }).trim();
+            }
             html(_texter, texter);
+        }
     }
     button = button || createElement(btn, tracker, _texter);
     bindAccesskey(button);
