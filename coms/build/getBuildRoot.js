@@ -158,7 +158,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                         }
                         var rel = getPathIn(pages_root, file);
                         if (rel) {
-                            return savePage(rel), ok();
+                            return saveCopy(rel), ok();
                         }
                         var rel = getPathIn(PAGE_PATH.split(","), file);
                         if (rel) {

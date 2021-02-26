@@ -92,6 +92,7 @@ function getBuildInfo(url) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
                         destpath = path.relative(pages_root[0], fullpath);
+                        name = '@' + name;
                         break bigloop;
                     }
                 }

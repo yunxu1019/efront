@@ -230,7 +230,7 @@ module.exports = function (responseTree) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (!v) return;
-            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data || /^\/index\.html?/.test(k)) return;
+            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data ) return;
             if (v.name !== "main") {
                 v.data = encrypt(v.data, encoded);
                 var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
