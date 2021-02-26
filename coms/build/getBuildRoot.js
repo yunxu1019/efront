@@ -15,6 +15,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
     return Promise.all(
         [].concat(fileinfo.fullpath).map(function (fullpath) {
             return new Promise(function (ok, oh) {
+                fullpath = path.resolve(fullpath);
                 fs.readFile(fullpath, function (error, data) {
                     if (error) return ok([]);
                     var result = [];
@@ -56,12 +57,15 @@ var filterHtmlImportedJs = function (roots) {
         urlsReg = new RegExp(`^(?:${urlsReg})$`, "i");
         roots = roots.map(function (root) {
             if (/^\/.*?\.js$/i.test(root)) {
-                var fullpath = getBuildInfo(root).fullpath;
-                for (var fpath of [].concat(fullpath)) {
+                var buildinfo = getBuildInfo(root);
+                var found = urlsReg.test(buildinfo.url) || urlsReg.test(buildinfo.distpath);
+                if (!found) for (var fpath of [].concat(buildinfo.fullpath)) {
                     if (fpath in simpleJsMap || urlsReg.test(fpath)) {
-                        return "@" + path.relative(PAGE_PATH.split(",")[0], fpath).replace(/[\\\/]+/g, "/");
+                        found = true;
+                        break;
                     }
                 }
+                if (found) return "@" + path.relative(PAGE_PATH.split(",")[0], fpath).replace(/[\\\/]+/g, "/");
             }
             return root;
         });

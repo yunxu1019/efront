@@ -98,6 +98,7 @@ function getBuildInfo(url) {
                 if (!destpath) {
                     destpath = path.join("/", name + extt);
                 }
+                name = '@' + name;
                 break;
             case "\\":
                 builder = noopbuilder;
