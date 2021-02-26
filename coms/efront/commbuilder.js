@@ -326,7 +326,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         params
     };
 };
-var toUnicode = require("../basic/toUnicode");
 var optimize = process.env.OPTIMIZE && !/(false|0|null)/i.test(process.env.OPTIMIZE);
 
 var buildResponse = function ({ imported, params, data, required, occurs }, compress) {
@@ -350,21 +349,18 @@ var buildResponse = function ({ imported, params, data, required, occurs }, comp
                 renumber: true,
                 hexadecimal: true, //十六进位
                 escapeless: true,
-                compact: true, //去空格
+                compact: +compress !== 0, //去空格
                 semicolons: false, //分号
                 parentheses: false //圆括号
             }
         });
         if (imported.length > 0) {
-            strs = toUnicode(strs);
             var strlength = (strs.length * 2).toString(36);
         } else {
-            data = toUnicode(data);
             strs = '';
         }
     } else {
         strs = '';
-        data = toUnicode(data);
     }
     var _arguments = [...imported, ...params];
     if (required.length >= 1) {
