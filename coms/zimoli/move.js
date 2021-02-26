@@ -27,7 +27,7 @@ function getOffsetLeft(x, offsetWidth, innerWidth) {
     return x * (innerWidth - offsetWidth);
 }
 function trimLeft(clientWidth, offsetWidth, offsetLeft, type) {
-    if (clientWidth > offsetWidth) {
+    if (clientWidth >= offsetWidth) {
         if (type <= 0) {
             offsetLeft = (clientWidth - offsetWidth) / 2;
         } else if (offsetWidth + offsetLeft > clientWidth) {
