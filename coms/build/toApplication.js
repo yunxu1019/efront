@@ -6,10 +6,72 @@ var environment = require("./environment");
 var report = require("./report");
 var setting = require("./setting");
 var getArgs = require('./getArgs');
+var strings = require("../basic/strings");
+var r21 = "'()*+,-./0123456789:;"
+var r29 = "?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
+var r34 = "]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+var codetemp = function (delta) {
+    var temp = [];
+    while (delta > 0) {
+        var mode = delta % 84;
+        if (mode < 21) {
+            temp.push(r21[mode])
+        }
+        else if (mode < 50) {
+            temp.push(r29[mode - 21]);
+        }
+        else {
+            temp.push(r34[mode - 50]);
+        }
+        delta = delta / 84 | 0;
+    }
+    return temp;
+}
+var encrypt = function (text, efrontsign) {
+    text = String(text);
+    if (!encoded) return text;
+    var start = parseInt(efrontsign, 36) % 128;
+    var rest = [];
+    for (var cx = 0, dx = text.length; cx < dx; cx++) {
+        var code = text.charCodeAt(cx);
+        var delta = code - start;
+        if (delta < 0) {
+            delta = -delta;
+            if (delta < 5) {
+                rest.push(r21[delta])
+            } else if (delta < 34) {
+                rest.push(r29[delta - 5]);
+            } else {
+                var temp = codetemp(delta - 33);
+                rest.push(r21[10 + temp.length]);
+                rest.push.apply(rest, temp);
+            }
+        }
+        else {
+            if (delta < 6) {
+                rest.push(r21[delta + 5]);
+            }
+            else if (delta < 40) {
+                rest.push(r34[delta - 6]);
+            } else {
+                var temp = codetemp(delta - 39);
+                rest.push(r21[15 + temp.length]);
+                rest.push.apply(rest, temp);
+            }
+        }
+        start = code;
+    }
+    return rest.join("");
+}
+var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT) && !/^(false|0|null)/i.test(process.env.CRYPT);
+var compress = process.env.COMPRESS ? !/(false|0|null)/i.test(process.env.COMPRESS) && !/(false|0|null)/i.test(process.env.MANGLE) && !/^(false|0|null)/i.test(process.env.PRESS) : encoded;
+var ReleaseTime = new Date();
+if (encoded) encoded = (Math.random() * ReleaseTime | 0).toString(36);
+
+ReleaseTime = String(ReleaseTime);
 var buildHtml = function (html, code) {
     var isZimoliDetected = false;
     var poweredByComment;
-    var ReleaseTime = new Date().toString();
     var html = html.toString()
         .replace(/^\s*(<!doctype[^>]*?>\s*)?<!--([\s\S]*?)--!?>/i, function (_, doctype, message) {
             // `${doctype}<!--${message}\r\n${efrontReloadVersionAttribute}-->`
@@ -33,7 +95,7 @@ var buildHtml = function (html, code) {
         });
 
     if (isZimoliDetected)
-        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
+        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo${encoded ? '-' + encoded : ''}="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
     if (process.env.IN_WATCH_MODE) {
         let WATCH_PORT = +process.env.WATCH_PORT;
         let reloadVersion = +new Date();
@@ -77,7 +139,7 @@ function toApplication(responseTree) {
     var mainScript = responseTree.main || responseTree["main.js"] || null;
     var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
     if (!indexHtml) {
-        var htmlPath = path.join(__dirname, "../apps", "index.html");
+        var htmlPath = path.join(__dirname, "../../apps", "index.html");
         indexHtml = {
             time: 0,
             needed: true,
@@ -103,14 +165,13 @@ function toApplication(responseTree) {
     delete responseTree["main.js"];
     return responseTree;
 }
-var toUnicode = require("../basic/toUnicode");
 var rebuildData = function (responseTree) {
     var imageIndex = 0;
     Object.keys(responseTree).sort().forEach(function (k) {
         var rep = function (e) {
             if (typeof e !== "string") return String(e);
 
-            return JSON.stringify(e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
+            return strings.encode(e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
                 var match = /^([\w\-\.\/]+;base64)?,([\w\+\/\-\=]+)$/i.exec(data);
                 if (!match) return _;
                 do {
@@ -128,7 +189,7 @@ var rebuildData = function (responseTree) {
 
         var { argNames, args, required, dependenceNamesOffset, strs, strend } = getArgs(data);
         if (strs && strs.length > 0) {
-            strs = toUnicode(`[${strs.map(rep)}]`);
+            strs = `[${strs.map(rep)}]`;
             data = response.data = data.slice(0, dependenceNamesOffset) + (strs.length * 2).toString(36) + strs + data.slice(strend);
         }
         if (!dependenceNamesOffset || !required) return;
@@ -154,37 +215,28 @@ module.exports = function (responseTree) {
     commbuilder.compress = false;
     var mainScript = responseTree.main || responseTree["main.js"];
     var mainScriptData = commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
-    delete commbuilder.compress;
+    commbuilder.compress = +compress;
     var versionTree = {};
     if (setting.is_file_target) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
-            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
-            if (v.name !== "main") versionTree[v.name] = String(v.data);
+            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data) return;
+            if (v.name !== "main") {
+                versionTree[v.name] = encrypt(v.data, encoded);
+                delete responseTree[k];
+            }
         });
-        delete versionTree["/index.html"];
-        delete versionTree["@index.html"];
-        for (var k in versionTree) {
-            delete responseTree[k];
-        }
     } else {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (!v) return;
-            if (/^@|^\/.*?\.[^\\\/]+$/.test(k) || !v.data) return;
-            var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
-            versionTree[v.url] = responseVersion;
+            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data || /^\/index\.html?/.test(k)) return;
+            if (v.name !== "main") {
+                v.data = encrypt(v.data, encoded);
+                var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
+                versionTree[v.url] = responseVersion;
+            }
         });
-        delete versionTree["main"];
-        delete versionTree["main.js"];
-        delete versionTree["[]map"];
-        delete versionTree["[]map.js"];
-        delete versionTree["promise"];
-        delete versionTree["promise.js"];
-        delete versionTree["Promise"];
-        delete versionTree["Promise.js"];
-        delete versionTree["/index.html"];
-        delete versionTree["@index.html"];
     }
 
     return Promise.resolve(mainScriptData).then(function (mainScriptData) {
@@ -194,9 +246,11 @@ module.exports = function (responseTree) {
         } else {
             var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*\:\s*(.+?)\b/m.exec(mainScriptData)[2];
         }
-        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${JSON.stringify(versionTree[k]).replace(/\-\-\>/g, "-- >")}`).join(",\r\n\t") + "\r\n}";
+
+        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:"${versionTree[k]}"`).join(",\r\n\t") + "\r\n}";
         var versionVariableName;
         code = mainScriptData.toString()
+            .replace(/var\s+killCircle[\s\S]*?\}\s*\};/, 'var killCircle=function(){};')
             .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
             .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
             .replace(

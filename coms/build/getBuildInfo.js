@@ -66,29 +66,26 @@ function getBuildInfo(url) {
                 break;
             case "/":
                 if (/\.html?$/i.test(extt)) {
-                    builder = pagebuilder;
                     destpath = path.join(name + extt);
+                    if (name !== 'index') {
+                        name = "/" + name;
+                        builder = pagebuilder;
+                    }
                 } else if (!/\.([cm]?[jt]sx?|vuex?)$/i.test(extt)) {
                     builder = noopbuilder;
                     destpath = path.join(name + extt);
+                    name = "/" + name;
                 } else {
                     extt = extt || "";
                     builder = commbuilder;
                     destpath = path.join("page", name + env.EXTT);
+                    name = "/" + name + env.EXTT;
                 }
-                fullpath = pages_root.map(page => path.join(page, name + extt));
-                break;
-            case "\\":
-                builder = noopbuilder;
-                destpath = name + extt;
-                for (var lib of comms_root) {
-                    fullpath = path.join(lib, name + extt);
-                    var rel = path.relative(lib, fullpath);
-                    if (/^[^\.]/i.test(rel) || !rel) {
-                        break bigloop;
-                    }
+                if (builder) {
+                    fullpath = pages_root.map(page => path.join(page, name + extt));
+                    break;
                 }
-                break;
+
             case "@":
                 builder = noopbuilder;
                 for (var page of PAGE_PATH.split(",")) {
@@ -100,6 +97,17 @@ function getBuildInfo(url) {
                 }
                 if (!destpath) {
                     destpath = path.join("/", name + extt);
+                }
+                break;
+            case "\\":
+                builder = noopbuilder;
+                destpath = name + extt;
+                for (var lib of comms_root) {
+                    fullpath = path.join(lib, name + extt);
+                    var rel = path.relative(lib, fullpath);
+                    if (/^[^\.]/i.test(rel) || !rel) {
+                        break bigloop;
+                    }
                 }
                 break;
             case ".":

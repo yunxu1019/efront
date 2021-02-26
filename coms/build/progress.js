@@ -115,7 +115,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                         if (dependence) dependence.forEach(saveDeleted);
                     }
                     for (var k in deletedMap) {
-                        console.warn(k, "required by '" + deletedMap[k].join(",") + "' skiped");
+                        if (deletedMap[k].length) console.warn(k, "required by '" + deletedMap[k].join(",") + "' skiped");
                     }
                     var writeApplication = function () {
                         return write(response, public_path);
