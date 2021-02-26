@@ -273,11 +273,13 @@ function parseConfig(api) {
 }
 var isWorseIE = /msie\s+[2-9]/i.test(navigator.userAgent);
 var parseData = function (sourceText) {
-    if (/^\s*([\{\[]|"|true|\d|false|null)/.test(sourceText)) {
+    if (/^\s*(\[[\s\S]*?\]|\{\s*[\"][\s\S]*\}|\{\s*\}|"[\s\S]*"|true|\d+(\.\d+)?(e\d+)?|false|null)\s*$/.test(sourceText)) {
         // JSON 格式
         try {
             return JSON.parse(sourceText);
-        } catch (e) { console.log(e); }
+        } catch (e) {
+            throw "数据无法解析";
+        }
     }
     if (/^\s*</i.test(sourceText)) {
         // XML 格式
@@ -299,9 +301,11 @@ var parseData = function (sourceText) {
         // JOSNP 格式
         try {
             return JSON.parse(sourceText.replace(/^[^\(]+\(([\s\S]*)\)[^\)]*$/, "$1"));
-        } catch (e) { console.log(e); }
+        } catch (e) {
+            throw "数据无法解析";
+        }
     }
-    return sourceText;
+    return { data: sourceText };
 };
 function fixApi(api, href) {
     if (!reg.test(api.url)) {
@@ -561,25 +565,25 @@ function responseCrash(e, data) {
     error_report(data.error_message, 'error');
 
 }
-function responseLoaded(response) {
-    response.is_loaded = true;
-    if (response.is_loading) {
-        response.is_loading = false;
-        this.loading_count--;
-    }
-}
-function responseLoading(response) {
-    response.is_loaded = false;
-    response.is_loading = true;
-    if (response.is_loading) this.loading_count++;
-}
 
 var data = {
     decodeStructure,
     encodeStructure,
-    responseLoaded,
+    responseLoaded(response) {
+        if (isObject(response)) {
+            response.is_loaded = true;
+            response.is_loading = false;
+        }
+        this.loading_count--;
+    },
     responseCrash,
-    responseLoading,
+    responseLoading(response) {
+        if (isObject(response)) {
+            response.is_loaded = false;
+            response.is_loading = true;
+        }
+        this.loading_count++;
+    },
     setReporter(report, checker) {
         if (report instanceof Function) {
             error_report = report;
@@ -664,6 +668,7 @@ var data = {
         if (id) this.removeInstance(id);
         var url = api.url;
         var response = this.getInstance(id || url);
+        if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
         var p = response.loading_promise = privates.fromApi(api, params).then((data) => {
             if (id) {
@@ -686,6 +691,7 @@ var data = {
         var id = parse instanceof Function ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var response = this.getInstance(id || url);
+        if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
         var p = response.loading_promise = privates.loadIgnoreConfig('get', url).then((data) => {
             if (id) {
@@ -710,6 +716,7 @@ var data = {
         var id = parse instanceof Function || params ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var response = this.getInstance(id || sid);
+        if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
         var p = response.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
             if (id) {
@@ -749,6 +756,8 @@ var data = {
         });
         var id = "." + sid;
         var instance = this.getInstance(id);
+        if (!isObject(instance)) instance = new LoadingArray;
+
         var promise1 = instance.loading_promise;
         if (promise1) {
             var params = promise1.params;
