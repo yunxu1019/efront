@@ -91,6 +91,7 @@ function paddExtension(file) {
 }
 var getBuildRoot = function (files, matchFileOnly) {
     files = [].concat(files || []);
+    if (!files.length) return Promise.resolve(files);
     var indexMap = Object.create(null);
     files.forEach((f, cx) => indexMap[f] = cx);
     var resolve;
@@ -100,8 +101,10 @@ var getBuildRoot = function (files, matchFileOnly) {
         var file1 = files.shift();
         if (!file1) return run();
         var save = function (f) {
+            if (!(f in indexMap)) {
+                result.push(f);
+            }
             indexMap[f] = indexMap[file1];
-            result.push(f);
         };
         var saveComm = function (name, file) {
             if (isLib(file)) {

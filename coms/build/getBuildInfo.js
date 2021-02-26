@@ -88,7 +88,7 @@ function getBuildInfo(url) {
 
             case "@":
                 builder = noopbuilder;
-                for (var page of PAGE_PATH.split(",")) {
+                for (var page of pages_root.concat(PAGE_PATH.split(","))) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
                         destpath = path.relative(pages_root[0], fullpath);
