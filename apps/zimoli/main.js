@@ -1,6 +1,7 @@
 // 中文编码 utf-8
 "use strict";
 var menu = div();
+var config = require("./config");
 appendChild(menu, kugou$menu, kugou$page, beian);
 i18n.loadSource({
     zh: {
