@@ -208,6 +208,7 @@ var $scope = {
          */
         $scope.playing = false;
         var _audio = document.createElement("audio");
+        _audio.crossOrigin = "";
         if (hasContext) {
             // ios设备目前未找到可视化方案
             var context = new AudioContext;
