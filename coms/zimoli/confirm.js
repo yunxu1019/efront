@@ -1,5 +1,5 @@
 var isOptionalReg = /^是否|是[吗吧]$|[？?]$|请|^难道|^确认/i;
-var conflictReg = /^确[\s\u0060]*?认[\s\u0060]*?取[\s\u0060]*?消/i;
+var conflictReg = /^确[\s\u00a0]*?认[\s\u00a0]*?取[\s\u00a0]*?消/i;
 var defaultOptions = {
     是: ["是的", "不是"],
     确认: ["确认", "取消"],
@@ -50,7 +50,8 @@ function confirm() {
         head.appendChild(title);
     }
     if (isString(message)) {
-        var width = Math.sqrt(message.length) * 16;
+        var message_length = message.length + message.slice(0, 100).replace(/[\u0000-\u0100]/g, '').length;
+        var width = Math.sqrt(message_length > 16 ? message_length - 16 : 0) * 16;
         element.style.width = fromPixel(width + 260);
         body.innerHTML = message;
     } else if (isNode(message)) {
@@ -91,9 +92,6 @@ function confirm() {
     onclick(element, function () {
         css(this, { zIndex: zIndex() });
     });
-    on('dblclick')(head, function () {
-
-    })
     drag.on(head, element);
     preventOverflowScrolling(element);
     appendChild(option, buttons);
@@ -101,12 +99,7 @@ function confirm() {
     setTimeout(function () {
         if (element.parentNode) return;
         popup(element);
-        css(element, {
-            marginLeft: fromOffset(-element.offsetWidth / 2),
-            marginTop: fromOffset(-element.offsetHeight / 2),
-            left: "50%",
-            top: "50%"
-        });
+        move.setPosition(element, [.5, .5]);
     });
     return element;
 }

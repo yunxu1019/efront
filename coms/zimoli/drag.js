@@ -108,6 +108,7 @@ var bindActionTarget = function (action, actionTarget) {
         }
     };
 };
+
 drag.on = function (target, actionTarget = target.dragTarget) {
     if (actionTarget) {
         var _mousedrag = bindActionTarget(mousedrag, actionTarget)
@@ -118,4 +119,17 @@ drag.on = function (target, actionTarget = target.dragTarget) {
     }
     onmousedown(target, _mousedrag);
     ontouchstart(target, _touchdrag);
+    var off;
+    on("append")(target, function () {
+        off = on("resize")(window, redragTarget);
+    });
+    on("remove")(target, function () {
+        off();
+    });
+};
+var redragTarget = function () {
+    var element = this;
+    var position = getScreenPosition(element);
+    if (position.left < 0 || position.right > innerWidth || position.top < 0 || position.bottom > innerHeight)
+        move.setPosition(element, [.5, .5]);
 };
