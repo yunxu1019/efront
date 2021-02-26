@@ -285,7 +285,12 @@ function compile(buildInfo, lastBuildTime, destroot) {
                 resolve();
                 return;
             }
-            var _filepath = fullpath instanceof Array ? fullpath.shift() : fullpath;
+            if (fullpath instanceof Array) {
+                _filepath = fullpath.shift();
+            } else {
+                var _filepath = fullpath;
+                fullpath = [];
+            }
             if (fs.existsSync(_filepath)) {
                 isRealpath(_filepath).then(function (is) {
                     if (!is) findRealpath();

@@ -1,5 +1,6 @@
 
 titlebar(i18n`login`);
+var config=require("../config");
 var page = div();
 page.innerHTML = login;
 var go_args;
