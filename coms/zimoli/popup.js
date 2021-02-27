@@ -82,7 +82,10 @@ var popup_path = function (path = "", parameters, target) {
         var load = function () {
             element = popup.create(path, parameters);
             loadingFactory(element);
-            if (target instanceof Event) {
+            if (isNode(target)) {
+                popup_as_extra(element, target);
+            }
+            else if (target instanceof Event) {
                 popup_to_event(element, target);
             } else if (target instanceof Array) {
                 popup_to_point(element, target);
@@ -242,14 +245,14 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
         if (height > maxHeight) {
             css(element, { height: fromOffset(maxHeight) });
         }
-        
+
         css(element, `min-width:auto;`);
         var aimedWidth = element.offsetWidth;
         //如果宽度不足其附着元素的宽度
         if (aimedWidth < target.offsetWidth) {
             aimedWidth = target.offsetWidth;
         }
-        
+
         //如果宽度超出可视区，调整宽度
         if (aimedWidth > maxWidth) {
             aimedWidth = maxWidth;
