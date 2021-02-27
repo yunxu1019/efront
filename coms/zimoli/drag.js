@@ -119,17 +119,12 @@ drag.on = function (target, actionTarget = target.dragTarget) {
     }
     onmousedown(target, _mousedrag);
     ontouchstart(target, _touchdrag);
+    target = actionTarget;
     var off;
     on("append")(target, function () {
-        off = on("resize")(window, redragTarget);
+        off = on("resize")(window, move.fixPosition.bind(target, target));
     });
     on("remove")(target, function () {
         off();
     });
-};
-var redragTarget = function () {
-    var element = this;
-    var position = getScreenPosition(element);
-    if (position.left < 0 || position.right > innerWidth || position.top < 0 || position.bottom > innerHeight)
-        move.setPosition(element, [.5, .5]);
 };
