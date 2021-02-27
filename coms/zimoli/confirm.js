@@ -30,6 +30,8 @@ function confirm() {
             options = arg;
         } else if (isFinite(arg)) {
             selected = arg | 0;
+        } else if (isFunction(arg)) {
+            callback = arg;
         }
     });
     var element = div();
@@ -84,7 +86,7 @@ function confirm() {
         }
         var btn = button(label);
         onclick(btn, function () {
-            if (isFunction(callback) && callback(label, index, options) === false) return;
+            if (isFunction(callback) && callback(options[index], index, options) === false) return;
             remove(element);
         });
         return btn;
