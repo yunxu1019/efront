@@ -1,6 +1,6 @@
-function chooseFile(accept, multiple) {
+function chooseFile(accept, multiple, extra) {
     var form = document.createElement("form");
-    form.innerHTML = `<input type='file'${accept ? ` accept="${accept}"` : ''}${multiple ? ' multiple' : ''} />`;
+    form.innerHTML = `<input ${extra ? extra + " " : ''}type='file'${accept ? ` accept="${accept}"` : ''}${multiple ? ' multiple' : ''} />`;
     var [input] = form.children;
     var result = new Promise(function (ok) {
         if (/msie\s+[2-9]/i.test(navigator.userAgent)) return alert("无法在当前浏览器操作！");
