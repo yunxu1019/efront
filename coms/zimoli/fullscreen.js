@@ -13,6 +13,9 @@ var fullscreen = {
         return hasTarget();
     }(),
     is() {
+        if(/Android|iPad|iPhone/i.test(navigator.userAgent)){
+            return hasTarget();
+        }
         if (/chrome/i.test(navigator.userAgent)) {//webkit
             var ratio = renderPixelRatio > 1 ? devicePixelRatio : 1;
             var innerHeight = window.innerHeight / ratio;
