@@ -234,7 +234,7 @@ module.exports = function (responseTree) {
             if (v.name !== "main") {
                 v.data = encrypt(v.data, encoded);
                 var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
-                versionTree[v.url] = responseVersion;
+                versionTree[v.name] = responseVersion;
             }
         });
     }
