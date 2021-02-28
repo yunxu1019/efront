@@ -8,7 +8,7 @@ var defaultOptions = {
     请: ["完成", "取消"],
 }
 function confirm() {
-    var message, title, options, callback, closable = true, selected = 0;
+    var message, title, options, callback, closable = true, selected = -1, target;
     [].map.call(arguments, function (arg) {
         if (typeof arg === "boolean") {
             closable = arg;
@@ -32,6 +32,8 @@ function confirm() {
             selected = arg | 0;
         } else if (isFunction(arg)) {
             callback = arg;
+        } else if (isObject(arg)) {
+            target = arg.currentTarget || arg.target;
         }
     });
     var element = div();
@@ -94,14 +96,18 @@ function confirm() {
     onclick(element, function () {
         css(this, { zIndex: zIndex() });
     });
-    drag.on(head, element);
     preventOverflowScrolling(element);
     appendChild(option, buttons);
-    element.initialStyle = "transform:scale(.9);opacity:0;transition:transform .3s,opacity .2s";
+    if (!target) element.initialStyle = "transform:scale(0.96);opacity:0;transition:transform .3s,opacity .2s ease-out";
+    element.tabIndex = -1;
+    on("keydown.tab")(element, function () {
+
+    })
     setTimeout(function () {
         if (element.parentNode) return;
-        popup(element);
-        move.setPosition(element, [.5, .5]);
+        popup(element, target || [.5, .5], target && 'rhomb');
+        element.focus();
+        if (!target) drag.on(head, element);
     });
     return element;
 }

@@ -162,15 +162,7 @@ var popup_with_mask = function (element, mask = createMask(element)) {
     if (!element.parentNode) global(element, false);
     return element;
 };
-var popup_as_extra = function (element, target, style) {
-    if (style) {
-        if (/^[vy]/i.test(style)) {
-            popup_as_yextra(element, target);
-        } else {
-            popup_as_xextra(element, target);
-        }
-        return;
-    }
+var isypop = function (target) {
     var { offsetParent, nextSibling, previousSibling } = target;
     if (
         nextSibling
@@ -183,21 +175,45 @@ var popup_as_extra = function (element, target, style) {
             previousSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
             || target.offsetLeft - previousSibling.offsetLeft >= previousSibling.offsetWidth / 2
         )
-    ) {
-        popup_as_yextra(element, target);
-    } else if (offsetParent) {
-        if (innerHeight - target.offsetHeight > innerWidth - target.offsetWidth && offsetParent.clientWidth !== target.offsetWidth) {
-            popup_as_yextra(element, target);
-        } else {
-            popup_as_xextra(element, target);
-        }
-    } else if (/inline|cell/i.test(getComputedStyle(target).display)) {
-        popup_as_yextra(element, target);
-    } else {
-        popup_as_xextra(element, target);
-    }
+    ) return true;
+    if (offsetParent && target.offsetTop / target.offsetHeight < .2 && offsetParent.offsetWidth / target.offsetWidth > 1.5) return true;
+
 };
-var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
+var isxpop = arriswise(isypop, arguments);
+var popup_as_extra = function (element, target, style) {
+    if (style) {
+        if (/^[vy]/i.test(style)) {
+            popup_as_yextra(element, target, style);
+            return;
+        }
+        if (/^[hx]/i.test(style)) {
+            popup_as_xextra(element, target, style);
+            return;
+        }
+
+    }
+    if (isypop(target)) {
+        popup_as_yextra(element, target, style);
+    } else if (isxpop(target)) {
+        popup_as_xextra(element, target, style);
+    } else if (isypop(target.parentNode)) {
+        popup_as_yextra(element, target, style);
+    } else if (isxpop(target.parentNode)) {
+        popup_as_xextra(element, target, style);
+    } else {
+        if (/inline|cell/i.test(getComputedStyle(target).display)) {
+            popup_as_yextra(element, target, style);
+        } else {
+            popup_as_xextra(element, target, style);
+        }
+    }
+
+};
+var _as_yextra = function (global, innerWidth, innerHeight, element, target, pointer) {
+    var withRhomb = /rhomb|rhombus|diamond|lozenge|triangle[drlt]$/i.test(pointer);
+    if (withRhomb) {
+        var _rhomb = rhomb();
+    }
     if (!element.origin) {
         element.origin = {
             height: element.style.height,
@@ -206,13 +222,16 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
             display: element.style.display
         };
     }
-    css(element, `position:absolute;z-index:${zIndex()}`);
+    var zindex = zIndex();
+    css(element, `position:absolute;z-index:${zindex}`);
+    css(_rhomb, { zIndex: zindex });
     var release1 = onremove(target, function () {
         remove(element);
     });
     var release2 = onremove(element, function () {
         release1();
         release2();
+        remove(_rhomb);
         if (document.removeEventListener) {
             document.removeEventListener("scroll", reshape, true);
             window.removeEventListener("resize", reshape);
@@ -251,29 +270,60 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target) {
         if (aimedWidth > maxWidth) {
             aimedWidth = maxWidth;
         }
+        var side;
         if (aimedWidth !== element.offsetWidth) {
             css(element, { width: fromOffset(aimedWidth) });
         }
         if (position.top + element.offsetHeight + position.height > innerHeight) {
-            css(element, `bottom:${fromOffset(viewrect.height - position.top + viewrect.top)};top:auto;`);
+            side = 'bottom';
+            var temp = `bottom:${fromOffset(viewrect.height - position.top + viewrect.top)};top:auto;`;
         } else {
-            css(element, `top:${fromOffset(position.top - viewrect.top + position.height)};bottom:auto;`);
+            side = 'top';
+            var temp = `top:${fromOffset(position.top - viewrect.top + position.height)};bottom:auto;`
         }
-        if (position.left + element.offsetWidth > innerWidth) {
-            css(element, `right:${fromOffset(viewrect.width + viewrect.left - position.left - position.width)};left:auto;`);
+        css(element, temp);
+        if (_rhomb) {
+            css(_rhomb, temp);
+            _rhomb.setSide(side);
+        }
+        if (_rhomb) {
+            var targetX = position.left + (position.width - element.offsetWidth) / 2;
+            if (targetX < 0) {
+                css(element, `left:0;right:auto`);
+                css(_rhomb, `left:${fromOffset(position.left + position.width / 2)};right:auto`);
+            }
+            else if (targetX + element.offsetWidth > innerWidth) {
+                css(element, `right:0;left:auto`);
+                css(_rhomb, `right:${fromOffset(innerWidth - position.left - position.width / 2)};left:auto`);
+            }
+            else {
+                css(element, `left:${fromOffset(targetX)};right:auto`);
+                css(_rhomb, `left:${fromOffset(position.left + position.width / 2)};right:auto`);
+
+            }
         } else {
-            css(element, `left:${fromOffset(position.left - viewrect.left)};right:auto;`);
+            if (position.left + element.offsetWidth > innerWidth) {
+                css(element, `right:${fromOffset(viewrect.width + viewrect.left - position.left - position.width)};left:auto;`);
+            }
+            else {
+                css(element, `left:${fromOffset(position.left - viewrect.left)};right:auto;`);
+            }
         }
 
         var offsetParent = target.offsetParent;
         if (offsetParent) {
             if (overlap(target, offsetParent) > 0) {
                 element.style.display = element.origin.display;
+                if (_rhomb && !_rhomb.parentNode) {
+                    element.parentNode.insertBefore(_rhomb, element)
+                }
             } else {
                 element.style.display = "none";
+                remove(_rhomb);
             };
+        } else if (_rhomb && !_rhomb.parentNode) {
+            element.parentNode.insertBefore(_rhomb, element);
         }
-
     }
     if (document.addEventListener) {
         document.addEventListener("scroll", reshape, true);

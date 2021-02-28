@@ -1,0 +1,28 @@
+@size: 9px;
+
+& {
+    display: block;
+    border: @size solid transparent;
+    margin: -@size;
+    position: absolute;
+
+}
+
+
+
+.ass (@side, @amark) {
+    @aside: ~"[@{side}]";
+
+    &@{aside} {
+        border-@{amark}: @size solid #fff;
+    }
+
+    &@{aside}+* {
+        margin-@{side}: @size - 1px;
+    }
+}
+
+.ass(left, right);
+.ass(top, bottom);
+.ass(right, left);
+.ass(bottom, top);
