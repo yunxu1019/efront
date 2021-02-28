@@ -119,12 +119,5 @@ drag.on = function (target, actionTarget = target.dragTarget) {
     }
     onmousedown(target, _mousedrag);
     ontouchstart(target, _touchdrag);
-    target = actionTarget;
-    var off;
-    on("append")(target, function () {
-        off = on("resize")(window, move.fixPosition.bind(target, target));
-    });
-    on("remove")(target, function () {
-        off();
-    });
+    move.bindPosition(actionTarget || target);
 };

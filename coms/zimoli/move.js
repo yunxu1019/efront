@@ -115,7 +115,7 @@ move.getPosition = function (target) {
     return [left / clientWidth, top / clientHeight];
 };
 
-move.setPosition = function (target, [x, y]) {
+var setPosition = move.setPosition = function (target, [x, y]) {
     var {
         offsetLeft,
         offsetTop,
@@ -131,7 +131,7 @@ move.setPosition = function (target, [x, y]) {
     move.call(target, offsetLeft, offsetTop, undefined, false);
 };
 
-move.fixPosition = function (target) {
+var fixPosition = move.fixPosition = function (target) {
     var computed = getComputedStyle(target);
     var {
         offsetLeft,
@@ -151,6 +151,32 @@ move.fixPosition = function (target) {
         css(target, { marginLeft: fromOffset(marginLeft), marginTop: fromOffset(marginTop) });
     }
 };
-
 move.coordIn = coordIn;
 move.trimCoord = trimCoord;
+var resizingTargets = [];
+on('resize')(window, function () {
+    resizingTargets.forEach(fixPosition);
+});
+var off;
+var resizeTarget = function () {
+    var target = this;
+    var index = resizingTargets.indexOf(target);
+    if (index < 0) index = resizingTargets.push(target);
+    return index;
+};
+var removeResize = function () {
+    removeFromList(resizingTargets, this);
+};
+
+move.bindPosition = function (target, position) {
+    if (position) {
+        setPosition(target, position);
+    }
+    var index = resizingTargets.indexOf(target);
+    if (index >= 0) return;
+    on("append")(target, resizeTarget);
+    on("remove")(target, removeResize);
+    if (isMounted(target)) {
+        resizeTarget();
+    }
+}

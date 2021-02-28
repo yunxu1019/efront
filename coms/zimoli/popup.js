@@ -12,14 +12,6 @@ var animationStyle = "opacity:0;transform:scale(1.2);transition:.1s opacity ease
 var setInitialStyle = function (element) {
     if (!element.initialStyle) element.initialStyle = animationStyle;
 };
-var setPosition = function (element) {
-    css(element, {
-        marginLeft: fromOffset(-element.offsetWidth / 2),
-        marginTop: fromOffset(-element.offsetHeight / 2),
-        left: "50%",
-        top: "50%"
-    });
-};
 var windowFactory = function (window) {
     css(window, `min-height:10px;min-width:10px;position:absolute;`);
     return window;
@@ -106,9 +98,9 @@ var popup_path = function (path = "", parameters, target) {
         element.$reload = fullfill;
         if (!target && target !== false && parameters !== false) {
             element.style.opacity = 0;
-            if (element.parentNode) setPosition(element), element.style.opacity = 1;
+            if (element.parentNode) move.bindPosition(element, [.5, .5]), element.style.opacity = 1;
             else once('append')(element, function () {
-                setPosition(element);
+                move.bindPosition(element, [.5, .5]);
                 element.style.opacity = 1;
             });
         }
@@ -296,8 +288,13 @@ var popup_as_single = function (element) {
     global(element, false);
 };
 var popup_to_point = function (element, [x, y]) {
-    x = calcPixel(x), y = calcPixel(y);
-    popup_fixup(element, x, y);
+    if (x <= 1 && y <= 1 && x >= 0 && y >= 0) {
+        popup_as_single(element);
+        move.bindPosition(element, [x, y]);
+    } else {
+        x = calcPixel(x), y = calcPixel(y);
+        popup_fixup(element, x, y);
+    }
 };
 var popup_fixup = function (element, x, y) {
     css(element, {
