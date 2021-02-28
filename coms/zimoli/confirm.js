@@ -78,6 +78,29 @@ function confirm() {
             options = ["确认 ", "取消"];
         }
     }
+    var clickbtn = function () {
+        if (element.hasAttribute("locked")) {
+            return;
+        }
+        if (isFunction(callback)) {
+            var index = this.index;
+            var res = callback(options[index], index, options);
+            if (res === false) return;
+            if (res instanceof Promise) {
+                element.setAttribute("locked", '');
+                this.setAttribute("loading", "");
+                res.then(function () {
+                    remove(element);
+                    element.removeAttribute('locked', '');
+                    this.removeAttribute('loading');
+                }, function () {
+                    this.removeAttribute('loading');
+                    element.removeAttribute('locked', '');
+                });
+            }
+        }
+        remove(element);
+    };
     var buttons = options.map(function (label, index, options) {
         if (isNode(label)) return label;
         if (options.length === 2) for (var k in defaultOptions) {
@@ -87,10 +110,8 @@ function confirm() {
             }
         }
         var btn = button(label);
-        onclick(btn, function () {
-            if (isFunction(callback) && callback(options[index], index, options) === false) return;
-            remove(element);
-        });
+        btn.index = index;
+        onclick(btn, clickbtn);
         return btn;
     });
     onclick(element, function () {
@@ -99,15 +120,21 @@ function confirm() {
     preventOverflowScrolling(element);
     appendChild(option, buttons);
     if (!target) element.initialStyle = "transform:scale(0.96);opacity:0;transition:transform .3s,opacity .2s ease-out";
+    else element.initialStyle = "margin:0;opacity:0;transition:margin .3s,opacity .2s ease-out";
     element.tabIndex = -1;
-    on("keydown.tab")(element, function () {
 
-    })
     setTimeout(function () {
         if (element.parentNode) return;
         popup(element, target || [.5, .5], target && 'rhomb');
         element.focus();
         if (!target) drag.on(head, element);
+        else {
+            on("blur")(element, blur, true);
+        }
     });
     return element;
 }
+var blur = lazy(function () {
+    var element = this;
+    if (!getTargetIn(element, document.activeElement)) remove(element);
+});

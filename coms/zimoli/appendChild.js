@@ -7,6 +7,10 @@ function release(node) {
     return isFunction(node) ? node() : isNode(node) ? node : document.createTextNode(node);
 }
 
+function hasEnterStyle(e) {
+    return e.initialStyle || e.enterStyle || e.leavingStyle || e.leaveStyle;
+}
+
 function _onappend(node, event) {
     if (node.isMounted) return;
     if (node.nodeType === 1 || node.nodeType === 8) node.isMounted = true;
@@ -39,7 +43,7 @@ function appendChild(parent, obj, transition) {
             var o = release(children[cx]);
             if (!o) continue;
             if (o.removeTimer) clearTimeout(o.removeTimer);
-            if (o.initialStyle && transition !== false) {
+            if (hasEnterStyle(o) && transition !== false) {
                 isFunction(appendChild.transition) && appendChild.transition(o);
             }
             if (isWorseIE) {
@@ -72,7 +76,7 @@ function insertBefore(alreadyMounted, obj, transition) {
         _insertBefore.call(parent, o, alreadyMounted);
         o.with && insertBefore(alreadyMounted, o.with, transition);
         if (isMounted(parent)) _onappend(o);
-        if (o.initialStyle && transition !== false) {
+        if (hasEnterStyle(o) && transition !== false) {
             isFunction(appendChild.transition) && appendChild.transition(o);
         }
     }
@@ -93,7 +97,7 @@ function insertAfter(alreadyMounted, obj, transition) {
         o.with && insertBefore(alreadyMounted.nextSibling, o.with, transition);
         if (isMounted(parent))
             _onappend(o);
-        if (o.initialStyle && transition !== false) {
+        if (hasEnterStyle(o) && transition !== false) {
             isFunction(appendChild.transition) && appendChild.transition(o);
         }
     }

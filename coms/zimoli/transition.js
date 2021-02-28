@@ -11,7 +11,7 @@ if (!transitionKey in document.body.style) {
         transitionKey = '';
     }
 }
-function transition(target, isLeave, _initialStyle = target.initialStyle) {
+function transition(target, isLeave, _initialStyle = target.initialStyle || target.enterStyle || target.leavingStyle || target.leaveStyle) {
     if (!target) return;
     if (typeof isLeave === "string") {
         isLeave = parseKV(isLeave, ';', ":");
@@ -19,6 +19,9 @@ function transition(target, isLeave, _initialStyle = target.initialStyle) {
     if (isObject(isLeave) && (_initialStyle === true || !_initialStyle)) {
         _initialStyle = isLeave;
         isLeave = arguments[2];
+    }
+    if (isLeave) {
+        _initialStyle = target.leavingStyle || target.leaveStyle || _initialStyle;
     }
     if (target instanceof Array) {
         target.forEach(function (target) {

@@ -315,14 +315,14 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
             if (overlap(target, offsetParent) > 0) {
                 element.style.display = element.origin.display;
                 if (_rhomb && !_rhomb.parentNode) {
-                    element.parentNode.insertBefore(_rhomb, element)
+                    appendChild.before(element, _rhomb)
                 }
             } else {
                 element.style.display = "none";
                 remove(_rhomb);
             };
         } else if (_rhomb && !_rhomb.parentNode) {
-            element.parentNode.insertBefore(_rhomb, element);
+            appendChild.before(element, _rhomb)
         }
     }
     if (document.addEventListener) {

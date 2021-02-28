@@ -13,7 +13,7 @@ function remove(node, transition) {
         node = args[cx];
         if (!node) continue;
         if (node.removeTimer) clearTimeout(node.removeTimer);
-        if (node.initialStyle && transition !== false && isFunction(remove.transition)) {
+        if (hasLeaveStyle(node) && transition !== false && isFunction(remove.transition)) {
             var duration = remove.transition(node, true);
             if (duration) {
                 node.removeTimer = setTimeout(function (node) {
@@ -21,17 +21,22 @@ function remove(node, transition) {
                         remove(node, false);
                     };
                 }(node), +duration || 100);
+                _onremove(node);
             } else {
                 remove(node, false);
             }
         } else {
-            _onremove(node);
+            if (!node.removeTimer) _onremove(node);
             node.parentNode && node.parentNode.removeChild(node);
             if (node.with) {
                 remove(node.with, transition);
             }
         }
     }
+}
+
+function hasLeaveStyle(o) {
+    return o.leavingStyle || o.leaveStyle || o.initialStyle || o.enterSytle;
 }
 
 function _onremove(node, event) {
