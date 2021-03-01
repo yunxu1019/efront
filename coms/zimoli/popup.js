@@ -44,8 +44,6 @@ var popup_path = function (path = "", parameters, target) {
         // mask
         path = path.replace(/^#/, "");
         var load = function () {
-            remove(element && element.mask);
-            element = popup.create(path, parameters);
             windowFactory(element);
             setInitialStyle(element);
             popup_with_mask(element, target);
@@ -55,7 +53,6 @@ var popup_path = function (path = "", parameters, target) {
     else if (/^@/.test(path)) {
         path = path.replace(/^@/, "");
         var load = function () {
-            element = popup.create(path, parameters);
             windowFactory(element);
             setInitialStyle(element);
             popup_as_single(element);
@@ -65,7 +62,6 @@ var popup_path = function (path = "", parameters, target) {
     else if (/^!/.test(path)) {
         path = path.replace(/^!/, "");
         var load = function () {
-            element = popup.create(path, parameters);
             loadingFactory(element);
             setInitialStyle(element);
             popup_with_mask(element);
@@ -74,7 +70,6 @@ var popup_path = function (path = "", parameters, target) {
     // 0 has no mask no control
     else {
         var load = function () {
-            element = popup.create(path, parameters);
             loadingFactory(element);
             if (isNode(target)) {
                 popup_as_extra(element, target);
@@ -93,8 +88,10 @@ var popup_path = function (path = "", parameters, target) {
     }
     var fullfill = function () {
         remove(element);
+        remove(element && element.mask);
+        element = popup.create(path, parameters);
+        if (!element) return;
         load();
-        if (!element) throw new Error(`路径不存在:${path}`);
         element.$reload = fullfill;
         if (!target && target !== false && parameters !== false) {
             element.style.opacity = 0;
