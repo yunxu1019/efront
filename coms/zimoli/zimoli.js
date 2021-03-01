@@ -356,8 +356,8 @@ function create(pagepath, args, from, needroles) {
     state.onback = function (handler) {
         _pageback_listener = handler;
     };
-    if (undefined === args || null === args) args = {};
     var _page = pg.call(state, args, from);
+    if (undefined === args || null === args) args = {};
     if (_page) {
         _page.with = _with_elements;
         if (args.initialStyle) _page.initialStyle = args.initialStyle;
