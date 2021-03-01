@@ -120,7 +120,7 @@ function confirm() {
     preventOverflowScrolling(element);
     appendChild(option, buttons);
     if (!target) element.initialStyle = "transform:scale(0.96);opacity:0;transition:transform .3s,opacity .2s ease-out";
-    else element.initialStyle = "margin:0;opacity:0;transition:margin .3s,opacity .2s ease-out";
+    else element.initialStyle = "opacity:0;transition:margin .3s,opacity .2s ease-out;";
     element.tabIndex = -1;
 
     setTimeout(function () {
