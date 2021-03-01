@@ -75,7 +75,7 @@ const formulaters = {
 function getErrorMessage(error) {
     if (!isObject(error)) return String(error);
     if (error instanceof Error) return String(error);
-    var words = "reason,message,desc,descption,msg,err,error".split(',');
+    var words = "reason,message,desc,descption,msg,err,error,data".split(',');
     while (words.length) {
         var a = words.shift();
         if (error[a]) {
