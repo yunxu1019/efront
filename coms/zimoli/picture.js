@@ -16,6 +16,20 @@ var getstation = function (n, s) {
     n = Math.round(n / step) * step;
     return n;
 };
+var _createImage = function (url, callback) {
+    var imgpic = document.createElement('img');
+    imgpic.src = url;
+    var onload = function () {
+        imgpic.onload = null;
+        callback(imgpic);
+    };
+    if (imgpic.complete) {
+        onload.call(imgpic);
+    } else {
+        imgpic.onload = onload;
+    }
+    return imgpic;
+};
 var create = function (url, key) {
     var __css = function (a) {
         css.apply(a, arguments);
@@ -23,19 +37,19 @@ var create = function (url, key) {
     };
     if (!url) return;
     var image = div();
-    var imgpic = document.createElement('img');
-    imgpic.draggable = false;
     if (isObject(url)) {
         if (key) {
             url = seek(url, key);
         }
     }
     var p = this;
+    var createImage = p.createImage || _createImage;
     var image_width, image_height;
     var scaled, x, y, min_scale, loaded_scale, click_scale, loaded_x, loaded_y;
     var max_scale = 10 * devicePixelRatio;
 
     var setInitParams = function () {
+        if (!imgpic) return;
         if (!imgpic.complete || !image.clientHeight || !image.clientWidth) {
             image.width = imgpic.width;
             image.height = imgpic.height;
@@ -50,13 +64,15 @@ var create = function (url, key) {
         loaded_scale = Math.min(image.clientHeight / image_height, image.clientWidth / image_width);
         if (loaded_scale >= 0.9) {
             if (loaded_scale < 1.2) {
-                click_scale = 2;
+                click_scale = 1;
+                loaded_scale = .8;
             } else if (loaded_scale < max_scale) {
                 click_scale = loaded_scale;
+                loaded_scale = 1;
             } else {
                 click_scale = max_scale;
+                loaded_scale = 1;
             }
-            loaded_scale = 1;
         } else {
             click_scale = 1;
         }
@@ -73,20 +89,18 @@ var create = function (url, key) {
         __css(imgpic, get_style(-1));
     };
 
-    var onload = function () {
-        imgpic.onload = null;
-        image.width = this.width;
-        image.height = this.height;
-        image.appendChild(imgpic);
+    image.url = url;
+    var imgpic;
+    createImage(url, function (_imgpic) {
+        if (!isElement(_imgpic)) _imgpic = this;
+        imgpic = _imgpic;
+        _imgpic.draggable = false;
+        image.width = _imgpic.width;
+        image.height = _imgpic.height;
+        image.appendChild(_imgpic);
         setInitParams();
         set_unlock();
-    };
-    imgpic.src = image.url = url;
-    if (imgpic.complete) {
-        onload.call(imgpic);
-    } else {
-        imgpic.onload = onload;
-    }
+    });
     on("append")(image, setInitParams);
 
 
