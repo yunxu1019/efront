@@ -50,7 +50,7 @@ var create = function (url, key) {
 
     var setInitParams = function () {
         if (!imgpic) return;
-        if (!imgpic.complete || !image.clientHeight || !image.clientWidth) {
+        if (!image.clientHeight || !image.clientWidth) {
             image.width = imgpic.width;
             image.height = imgpic.height;
             return;
@@ -94,6 +94,7 @@ var create = function (url, key) {
     createImage(url, function (_imgpic) {
         if (!isElement(_imgpic)) _imgpic = this;
         imgpic = _imgpic;
+        imgpic.setAttribute('imgpic', '');
         _imgpic.draggable = false;
         image.width = _imgpic.width;
         image.height = _imgpic.height;
