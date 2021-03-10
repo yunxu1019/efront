@@ -247,6 +247,13 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
             viewrect.bottom += innerHeight - viewrect.bottom;
             viewrect.width = viewrect.right - viewrect.left;
             viewrect.height = viewrect.bottom - viewrect.top;
+        } else {
+            viewrect.top += documentbody.clientTop;
+            viewrect.left += documentbody.clientLeft;
+            viewrect.height = documentbody.clientHeight;
+            viewrect.width = documentbody.clientWidth;
+            viewrect.right = viewrect.left + viewrect.width;
+            viewrect.bottom = viewrect.top + viewrect.height;
         }
         var maxHeight = Math.max(position.top, innerHeight - position.top - position.height);
         var maxWidth = Math.max(position.left + position.width, innerWidth - position.left);
