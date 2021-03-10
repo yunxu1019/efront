@@ -6,7 +6,7 @@ var fs = require("fs");
 require("./console");
 var loadenv = require("./loadenv");
 var memery = require("./memery");
-var detectWithExtension = require("../basic/detectWithExtension");
+var detectWithExtension = require("../build/detectWithExtension");
 var setenv = function (evn, cover) {
     var dist = process.env;
     for (var k in evn) {
