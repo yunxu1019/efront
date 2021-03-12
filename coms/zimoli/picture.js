@@ -279,6 +279,11 @@ var create = function (url, key) {
             saved_event = event;
         },
         end(event) {
+            if (saved_event) {
+                if (event.timeStamp - saved_event.timeStamp > 120) {
+                    move.reset();
+                }
+            }
             saved_event = null;
             event.moveLocked = this.locked;
             if (this.locked && onclick.preventClick) move.smooth(recover);
