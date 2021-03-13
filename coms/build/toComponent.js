@@ -465,7 +465,7 @@ function toComponent(responseTree) {
         });
         return str;
     };
-    var template = `([/*${new Date().toString()} by efront ${require(path.join(__dirname, "../../package.json")).version}*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||global])[${public_index}]()`;
+    var template = `([/*${new Date().toString()} by efront ${require(path.join(__dirname, "../../package.json")).version}*/].map||${simplie_compress(polyfill_map)}).call([${dest}],${simplie_compress(realize)},[this.window||this.globalThis||global])[${public_index}]()`;
     if (EXPORT_TO) {
         switch (EXPORT_TO) {
             case 'node':
