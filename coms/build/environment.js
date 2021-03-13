@@ -4,14 +4,17 @@ var mixin = require("../efront/mixin");
 var fs = require("fs");
 var {
     APP = ".",
-    EXPORT_AS,
-    EXPORT_TO,
+    TARGET,
+    EXPORT,
+    EXPORT_AS = EXPORT,
+    EXPORT_TO = TARGET,
     RELEASE,
     PREFIX,
     POLYFILL,
     SOURCEDIR,
     DESTPATH,
 } = process.env;
+
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : setupenv('.');
 var {

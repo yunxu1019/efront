@@ -1,8 +1,16 @@
+var mixin = require("./mixin");
 var fs = require("fs");
 var path = require("path");
 var esprima = require("../esprima");
 var getVariables = require("../compile/variables");
 var typescript = require("../typescript");
+var env = require("./setupenv")();
+var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
+var comms_root = mixin(env.COMS_PATH, env.COMM).map(joinpath).filter(fs.existsSync);
+var comms_root_length = comms_root.length;
+var buildinpath = path.join(__dirname, '..');
+comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
+if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 module.exports = function (root) {
     var rest = [].concat.apply([], arguments);
     var globals = {
@@ -28,12 +36,33 @@ module.exports = function (root) {
     };
     var map = {
     }, needs = {};
+    var founded = {};
+    var findx = comms_root.map(a => {
+        return new Promise(function (ok) {
+            fs.readdir(a, function (e, names) {
+                if (e) return;
+                names.forEach(function (c) {
+                    founded[c.replace(/\.\w+$/i, '').replace(/\-(\w)/g, (_, a) => a.toUpperCase())] = true;
+                });
+                ok();
+            });
+        })
+    });
     var log = function (k) {
         var key = k;
         console.log();
         if (!globals[key]) console.type(`<red2>${key}</red2><gray>:</gray> ${needs[k].map(a => `<gray>${path.dirname(a)}/</gray><gray>${path.basename(a)}</gray>`).join("<gray>|</gray>")}`);
         else console.type(`<gray>${key}: ${needs[k].join('|')}</gray>`);
     };
+    var color = function (a) {
+        if (a in founded) {
+            return 'white'
+        }
+        if (a in globals) {
+            return 'gray'
+        }
+        return 'red2'
+    }
     var list = function () {
         for (var k in needs) if (k in global) globals[k] = true;
         var args = Object.keys(needs).filter(a => !map[a]);
@@ -51,7 +80,10 @@ module.exports = function (root) {
             args.forEach(log);
         } else {
             console.log();
-            console.type(args.map(a => a in globals ? `<gray>${a}</gray>` : `<red2>${a}</red2>`).join("\r\n"));
+            console.type(args.map(a => {
+                var c = color(a);
+                return `<${c}>${a}</${c}>`;
+            }).join("\r\n"));
         }
     }
     var run = function () {
@@ -101,5 +133,5 @@ module.exports = function (root) {
             run();
         });
     }
-    run();
+    Promise.all(findx).then(run);
 }
