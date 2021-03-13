@@ -80,7 +80,7 @@ var buildHtml = function (html, code) {
         })
         .replace(/<!--[\s\S]*?--!?>/g, "")
         .replace(/<title>(.*?)<\/title>/i, `<title>${process.env.TITLE || "$1"}</title>`)
-        .replace(/<script\b[\s\S]*?<\/script>/ig, function (script) {
+        .replace(/<script\b[\s\S]*?<\/script>\s*/ig, function (script) {
             if (/(["'`])post\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
                 isZimoliDetected = true;
                 return "";
@@ -88,7 +88,7 @@ var buildHtml = function (html, code) {
             if (/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i.test(script)) {
                 isZimoliDetected = true;
             }
-            if (/\bdeleteoncompile\b/i.test(script)) {
+            if (/\b((delete|ignore)oncompile|efrontworker)\b/i.test(script)) {
                 return "";
             }
             return script;
@@ -230,7 +230,7 @@ module.exports = function (responseTree) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (!v) return;
-            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data ) return;
+            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data) return;
             if (v.name !== "main") {
                 v.data = encrypt(v.data, encoded);
                 var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);

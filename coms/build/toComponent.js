@@ -474,6 +474,11 @@ function toComponent(responseTree) {
             case 'return':
                 template = "return " + template;
                 break;
+            case "none":
+            case "null":
+            case "false":
+            case "undefined":
+                break;
             case 'module':
             case 'exports':
             case 'module.exports':

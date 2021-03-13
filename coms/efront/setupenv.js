@@ -49,7 +49,7 @@ var setup = module.exports = function (app) {
         env[key] = Object.keys(value_map).join(',');
     });
     extend(env, process.env);
-    if (!env.PAGE && appname) env.PAGE = appname;
+    if (!env.PAGE && appname && !/\.([cm]?[jt]sx?|json)$/i.test(app)) env.PAGE = appname;
     pollyfill(env, appname);
 
     return env;
@@ -85,7 +85,7 @@ var pollyfill = function (env, appname) {
 var normalize = function (o) {
     for (var k in o) {
         var v = o[k];
-        if (/\//.test(v)^/\\/.test(v)) {
+        if (/\//.test(v) ^ /\\/.test(v)) {
             o[k] = path.normalize(v);
         }
     }
