@@ -26,7 +26,7 @@ function queue(list, count = 1, context = null) {
                 run();
             }, function (e) {
                 error_count++;
-                if (count === 1) oh(e);
+                oh(e);
             });
         };
         if (count > list.length >> 1) {
@@ -38,8 +38,6 @@ function queue(list, count = 1, context = null) {
         while (cx < count) {
             run();
         }
-    }).then(function (res) {
-        return res;
     });
 }
 module.exports = queue;
