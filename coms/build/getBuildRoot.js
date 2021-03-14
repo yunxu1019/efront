@@ -75,7 +75,7 @@ var filterHtmlImportedJs = function (roots) {
         var urlsReg = creatReg(regUrls);
         var ignoreReg = creatReg(ignoreUrls);
         roots = roots.map(function (root) {
-            if (ignoreUrls[url] || ignoreReg.test(root)) {
+            if (ignoreUrls[root] || ignoreReg.test(root)) {
                 return '';
             }
             if (/^\/.*?\.js$/i.test(root)) {
