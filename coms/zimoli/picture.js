@@ -33,6 +33,7 @@ var _createImage = function (url, callback) {
 var create = function (url, key) {
     var __css = function (a) {
         css.apply(a, arguments);
+        if (imgpic) dispatch(imgpic, 'scaled');
         dispatch(p, 'scaled');
     };
     if (!url) return;
