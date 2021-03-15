@@ -17,11 +17,12 @@ function queue(list, count = 1, context = null) {
         var error_count = 0;
         var run = function () {
             if (error_count && count === 1) return;
-            if (cx >= list.length && loaded_count >= list.length) return ok(result);
+            if (cx >= list.length && loaded_count >= list.length) return ok(Promise.all(result));
             var saved_cx = cx;
             var args = list[cx];
-            Promise.resolve(f.call(context, args, cx++, list)).then(function (data) {
-                result[saved_cx] = data;
+            result[saved_cx] = f.call(context, args, cx++, list);
+            Promise.resolve(result[saved_cx]).then(function (data) {
+                data;
                 loaded_count++;
                 run();
             }, function (e) {
