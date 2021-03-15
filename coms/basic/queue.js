@@ -17,7 +17,7 @@ function queue(list, count = 1, context = null) {
         var error_count = 0;
         var run = function () {
             if (error_count && count === 1) return;
-            if (cx >= list.length && loaded_count >= list.length) return ok(Promise.all(result));
+            if (cx >= list.length) return ok(Promise.all(result));
             var saved_cx = cx;
             var args = list[cx];
             result[saved_cx] = f.call(context, args, cx++, list);
