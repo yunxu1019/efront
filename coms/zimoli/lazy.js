@@ -1,7 +1,17 @@
 function lazy(run, time = false) {
     var fireing, args, that;
     var fire = function () {
-        if (fireing === true) run.apply(that, args);
+        if (time > 17) {
+            if (fireing === true) {
+                setTimeout(fire, +time);
+            } else {
+                run.apply(that, args);
+            }
+        } else {
+            if (fireing === true) {
+                run.apply(that, args);
+            }
+        }
         fireing = false;
     };
     return function () {
@@ -10,7 +20,6 @@ function lazy(run, time = false) {
         if (fireing) return fireing = true;
         if (time > 0) {
             setTimeout(fire, +time);
-            fireing = true;
         } else {
             fireing = requestAnimationFrame(fire);
             if (time === false || time === 0) fireing = true;
