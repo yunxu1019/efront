@@ -99,7 +99,7 @@ var create = function (url, key) {
         _imgpic.draggable = false;
         image.width = _imgpic.width;
         image.height = _imgpic.height;
-        image.appendChild(_imgpic);
+        appendChild(image, _imgpic);
         setInitParams();
         set_unlock();
     });
