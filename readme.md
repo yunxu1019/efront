@@ -141,4 +141,3 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 
 [更新日志](https://github.com/yunxu1019/efront/commits/develop)
 
-[【导购】阿里云服务器](https://www.aliyun.com/minisite/goods?userCode=4gklptno)
