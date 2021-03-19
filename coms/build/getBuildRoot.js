@@ -25,7 +25,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
                         }
                         result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
                     });
-                    var res = result.map(url => url.replace(/\?[\s\S]*?$/, "")).map(url => path.join(path.dirname(fullpath), url));
+                    var res = result.map(url => url.replace(/\?[\s\S]*?$/, "").replace(/\\/g, "/"));
                     res.ignore = ignorelist;
                     var bodyTag = /<body\s[^\>]*?\>/i.exec(data);
                     if (bodyTag) {
@@ -63,25 +63,30 @@ var filterHtmlImportedJs = function (roots) {
         var regUrls = [], ignoreUrls = [];
         urls.forEach(function (url) {
             simpleJsMap[url] = true;
-            if (/\*/.test(url)) {
+            try {
+                var regsource = new RegExp(url.replace(/[\.\/\^\$\:]/g, "\\$&").replace(/\*/g, ".*?")).source;
                 if (ignoreJsMap[url]) {
-                    ignoreUrls.push(url);
+                    ignoreUrls.push(regsource);
                 } else {
-                    regUrls.push(url);
+                    regUrls.push(regsource);
                 }
-            }
+            } catch (e) { }
         });
-        var creatReg = urls => new RegExp(`^(?:${urls.map(a => a.replace(/[\.\|\\\/\^\$\:]/g, "\\$&").replace(/\*/g, ".*?")).join("|")})$`, "i");
+        var creatReg = urls => new RegExp(`^(?:${urls.join("|")})$`, "i");
         var urlsReg = creatReg(regUrls);
         var ignoreReg = creatReg(ignoreUrls);
+        var test = (r, m, t) => t in m || t.slice(1) in m || r.test(t) || r.test(t.slice(1));
         roots = roots.map(function (root) {
-            if (ignoreUrls[root] || ignoreReg.test(root)) {
+            if (test(ignoreReg, ignoreJsMap, root)) {
                 return '';
+            }
+            var found = test(urlsReg, simpleJsMap, root);
+            if (found) {
+                return "@" + root.slice(1);
             }
             if (/^\/.*?\.js$/i.test(root)) {
                 var buildinfo = getBuildInfo(root);
-                var found = urlsReg.test(buildinfo.url) || urlsReg.test(buildinfo.distpath);
-                if (!found) for (var fpath of [].concat(buildinfo.fullpath)) {
+                for (var fpath of [buildinfo.url, buildinfo.destpath].concat(buildinfo.fullpath)) {
                     if (fpath in simpleJsMap || urlsReg.test(fpath)) {
                         found = true;
                         break;
@@ -100,7 +105,7 @@ var filterHtmlImportedJs = function (roots) {
         });
         for (let cx = roots.length; cx >= 0; cx--) {
             let url = roots[cx];
-            if (/\.html?$/i.test(url) && url.replace(/\.html?$/i, ".js") in urlsMap) {
+            if (!/^@/.test(url) && /\.html?$/i.test(url) && url.replace(/\.html?$/i, ".js") in urlsMap) {
                 roots.splice(cx, 1);
             }
         }
