@@ -3,7 +3,7 @@ var release = function () {
     clear();
     releaseTimer = setTimeout(function () {
         remove(mounted_menus);
-    }, 0);
+    }, 120);
 };
 var clear = function () {
     clearTimeout(releaseTimer);
@@ -69,7 +69,13 @@ function main(page, items, active, generator, direction = 'y') {
             open(menu, event) {
                 active(menu, event);
             },
-            popMenu,
+            popTimer: 0,
+            popMenu() {
+                var args = arguments;
+                return setTimeout(function () {
+                    popMenu.apply(null, args);
+                }, 60);
+            },
         });
         vbox(page);
         page.renders.unshift(function () {
