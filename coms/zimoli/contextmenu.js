@@ -1,10 +1,30 @@
+var sampleElement = document.createElement('context');
+var createMenu = function (event, items) {
+    var menulist = sampleElement.cloneNode();
+    menulist.setAttribute("mode", "v");
+    menulist.tabIndex = 0;
+
+    var elem = menuList(menulist, items, function () {
+        if (action.apply(this, arguments) !== false) {
+            remove(elem);
+        }
+    });
+
+    return elem;
+}
 function contextmenu(target, menu) {
     on("contextmenu")(target, function (event) {
         event.preventDefault();
+        if (menu instanceof Function) {
+            menu = menu.call(this, event);
+        }
+        if (menu instanceof Array) {
+            menu = createMenu.call(this, event, menu);
+        }
+        if (!menu) return;
         css(menu, {
             position: "absolute",
         });
-        menu.tabIndex = 0;
         popup(menu);
         menu.focus();
         var { offsetWidth, offsetHeight } = menu;
@@ -26,6 +46,7 @@ function contextmenu(target, menu) {
             top: top + "px"
         });
         onmousedown(menu, e => e.preventDefault());
-        onblur(menu, e => remove(menu));
+        onblur(menu, lazy(e => remove(menu)));
     });
+    return sampleElement;
 }
