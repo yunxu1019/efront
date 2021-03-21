@@ -9,7 +9,7 @@ if (window.require) {
 }
 var leftArea = tree();
 addClass(leftArea, "left-bar");
-var mainArea = createWithClass(vbox, "main-area");
+var mainArea = createWithClass(div, "main-area");
 var nameArea = createWithClass(div, "name-area");
 var page = createElement(div);
 if (topbar) {
