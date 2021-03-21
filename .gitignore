@@ -18,4 +18,5 @@ tools/zanme.js
 tools/prebuilds/
 process/asm/
 *.tgz
+*.log
 report.*
