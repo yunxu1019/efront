@@ -83,7 +83,7 @@ module.exports = function (root) {
             console.type(args.map(a => {
                 var c = color(a);
                 return `<${c}>${a}</${c}>`;
-            }).join("\r\n"));
+            }).join("<gray>,</gray> "));
         }
     }
     var run = function () {
