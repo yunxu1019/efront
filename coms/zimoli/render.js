@@ -142,18 +142,20 @@ var createRepeat = function (search, id = 0) {
             throw new Error("数据量过大，取消绘制！");
         }
         var $parentScopes = element.$parentScopes || [];
+        if (element.$scope) $parentScopes = $parentScopes.concat(element.$scope);
         var clonedElements1 = keys.map(function (key, cx) {
             if (!changes[cx]) return clonedElements[cx];
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
             clone.renderid = id;
             clone.$parentScopes = $parentScopes;
-            var $scope = extend(Object.create(element.$scope), {
+            var $scope = {
                 [keyName || '$key']: key,
                 [itemName || '$item']: result[key],
                 [indexName || '$index']: cx
-            });
+            };
             clone.$scope = $scope;
+            clone.$parentScopes = $parentScopes;
             clone = renderElement(clone, $scope, clone.$parentScopes);
             return clone;
         }, this);
@@ -545,6 +547,20 @@ var emiters = {
 };
 emiters.v = emiters.ng = emiters.on;
 
+function getFromScopes(key, scope, parentScopes) {
+    if (key in scope) {
+        return scope[key];
+    }
+    if (parentScopes) for (var o of parentScopes) {
+        if (key in o) {
+            return o[key];
+        }
+    }
+    if (key in presets) {
+        return presets[key];
+    }
+}
+
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes) {
     if (!isNode(element) && element.length) {
         return [].concat.apply([], element).map(function (element) {
@@ -580,14 +596,18 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         var attrs = [].concat.apply([], element.attributes);
         var { tagName, parentNode, nextSibling } = element;
         // 替换元素
-        if (!scope[tagName]) tagName = tagName.toLowerCase();
-        if (!scope[tagName])
+        var constructor = getFromScopes(tagName, scope, parentScopes);
+        if (!constructor) {
+            tagName = tagName.toLowerCase();
+            constructor = getFromScopes(tagName, scope, parentScopes);
+        }
+        if (!constructor) {
             tagName = tagName.replace(/(?:^|\-+)([a-z])/ig, (_, w) => w.toUpperCase());
-        if (!scope[tagName]) tagName = tagName.slice(0, 1).toLowerCase() + tagName.slice(1);
-        var createReplacer = scope[tagName] || presets[tagName];
-        if (isFunction(createReplacer)) {
+            constructor = getFromScopes(tagName, scope, parentScopes);
+        }
+        if (isFunction(constructor)) {
             var attrsMap = {};
-            var replacer = createReplacer.call(scope, element);
+            var replacer = constructor.call(scope, element);
             if (isNode(replacer) && element !== replacer) {
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
