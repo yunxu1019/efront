@@ -1,6 +1,6 @@
 function evalExpress(express) {
     var o = this;
-    express = express.replace(refilm_eval_reg, function (_, b) {
+    express = express.replace(refilm_common.eval_reg, function (_, b) {
         if (!b) return parseNumber(_);
         if (b in o) {
             return +o[b];
