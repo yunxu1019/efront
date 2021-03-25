@@ -41,6 +41,7 @@ coms/server/
 coms/efront/
 coms/build/
 tools/
+coms/arch/
 coms/typescript/
 coms/esprima/
 coms/esmangle/
