@@ -33,7 +33,7 @@
 //     return decodeURIComponent(result.join(""));
 // }
 
-var decodeUTF8 = function (buff) {
+module.exports = function (buff) {
     var dist = [];
     for (var cx = 0, dx = buff.length; cx < dx; cx++) {
         var t = buff[cx], s;
