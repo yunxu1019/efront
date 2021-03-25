@@ -32,11 +32,10 @@
 //     }
 //     return decodeURIComponent(result.join(""));
 // }
-
 module.exports = function (buff) {
-    var dist = [];
+    var dist = [], s, r;
     for (var cx = 0, dx = buff.length; cx < dx; cx++) {
-        var t = buff[cx], s;
+        var t = buff[cx];
         if (t < 192 || t > 255) {//0b0xxxxxxx - 0b10xxxxxx
             s = t;
         }
@@ -58,8 +57,18 @@ module.exports = function (buff) {
         else if (t < 255) {// 0b11111110 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
             s = (buff[++cx] & 0b00111111) * Math.pow(2, 30) + (buff[++cx] & 0b00111111) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
         }
-        else {// //////////// 0b11111111 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-            s = (buff[++cx] & 0b00111111) * Math.pow(2, 36) + (buff[++cx] & 0b00111111) * Math.pow(2, 30) + (buff[++cx] & 0b00111111) * Math.pow(2, 24) + ((buff[++cx] & 0b00111111) << 18) + ((buff[++cx] & 0b00111111) << 12) + ((buff[++cx] & 0b00111111) << 6) + (buff[++cx] & 0b00111111)
+        else {// //////////// 0b11111111 110xxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+            s = t = buff[++cx];
+            r = 0;
+            while (t > 0b11011111) {
+                r++
+                t = t << 1 & 0xff
+            }
+            s = 0b00011111 >> r & s;
+            while (r > -6) {
+                s = s * 0b01000000 + (buff[++cx] & 0b00111111);
+                r--;
+            }
         }
         dist.push(String.fromCharCode(s));
     }
