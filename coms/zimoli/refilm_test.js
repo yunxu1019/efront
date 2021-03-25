@@ -46,6 +46,7 @@ var refilm_fields = refilm`
 类型/type
 大小/size
 单位/unit
+可选项/options
 备注/comment
 `
 

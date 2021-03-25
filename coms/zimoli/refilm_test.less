@@ -23,14 +23,22 @@
     overflow: auto;
     text-align: center;
 
-    >textarea,
-    >table,
     >form {
+        width: 320px;
+    }
+
+    >textarea,
+    >table {
+        width: 400px;
+    }
+
+    >textarea,
+    >form,
+    >table {
         overflow: auto;
         height: calc(~"100% - 220px");
         vertical-align: top;
         display: inline-block;
-        width: 400px;
         font-size: 16px;
         font-family: 仿宋;
     }
