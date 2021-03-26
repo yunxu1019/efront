@@ -20,3 +20,5 @@ process/asm/
 *.tgz
 *.log
 report.*
+test/arch/*.exe
+test/arch/*.obj
