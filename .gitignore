@@ -22,3 +22,4 @@ process/asm/
 report.*
 test/arch/*.exe
 test/arch/*.obj
+test/arch/*.tmp
