@@ -26,13 +26,14 @@ var replacePiece = function (piece, force) {
             piece = piece.replace(/[\u0000-\uffff]/g, toHex);
             piece = piece.slice(0, piece.length - 1);
         }
-        if(force) piece+=",0,0"
+        if (force) piece += ",0,0"
     }
     if (dup) piece += dup;
     return piece;
 };
 var exist = a => a;
 var replaceDb = function (db) {
+    if (/^A['"]/i.test(db)) return db.slice(1);
     var lastEnd = 0;
     var reg = /\\[\s\S]|["',]/g;
     var str = '';
