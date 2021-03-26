@@ -5,25 +5,31 @@ var hexindex = [[2, 4], [0, 2]];
 var toHex = function (code) {
     code = code.charCodeAt(0).toString(16);
     code = prefix[code.length] + code;
-    return hexindex.map(([a, b]) => code.slice(a, b) + "h,").join("");
+    return hexindex.map(([a, b]) => (/\d/.test(code.charAt(a)) ? "" : "0") + code.slice(a, b) + "h,").join("");
 };
 
-var replacePiece = function (piece) {
-    if (/^(\d+|\d+\.\d+|\d+\.|\.\d+)$/i.test(piece)) {
-        return piece;
+var replacePiece = function (piece, force) {
+    var match = /^([\s\S]*?)(\s*dup\((?:\?|\d+)\)\s*)$/i.exec(piece);
+    if (match) {
+        var [, piece, dup] = match;
     }
-    if (/^[\da-f]+h$/.test(piece)) {
-        if (piece.length === 3) return piece;
-        piece = '0x' + piece.slice(0, piece.length - 1);
+    if (!/^(\d+|\d+\.\d+|\d+\.|\.\d+)$/i.test(piece) || force) {
+        if (/^[\da-f]+h$/.test(piece)) {
+            if (piece.length !== 3) {
+                piece = '0x' + piece.slice(0, piece.length - 1);
+            }
+        }
+        if (/^[0\\]x[a-f\d]*$/i.test(piece)) {
+            piece = toHex(parseInt(piece.slice(2), 16));
+        }
+        else {
+            piece = piece.replace(/[\u0000-\uffff]/g, toHex);
+            piece = piece.slice(0, piece.length - 1);
+        }
+        if(force) piece+=",0,0"
     }
-    if (/^[0\\]x[a-f\d]*$/i.test(piece)) {
-        if (piece.length % 2 === 1) piece = piece + "0";
-        piece = piece.slice(2).replace(/\w\w/g, "$&h,");
-        piece = piece.slice(0, piece.length - 2);
-        return piece;
-    }
-    piece = piece.replace(/[\u0000-\uffff]/g, toHex);
-    return piece.slice(0, piece.length - 1);
+    if (dup) piece += dup;
+    return piece;
 };
 var exist = a => a;
 var replaceDb = function (db) {
@@ -41,24 +47,23 @@ var replaceDb = function (db) {
             if (!str) {
                 var piece = db.slice(lastEnd, match.index);
                 lastEnd = match.index;
-                res.push(piece);
+                if (piece) res.push(replacePiece(piece));
                 str = m;
             } else {
                 piece = db.slice(lastEnd, match.index + match.length);
                 lastEnd = match.index + m.length;
                 piece = strings.decode(piece);
-                res.push(piece);
+                if (piece) res.push(replacePiece(piece, true));
                 str = '';
             }
         } else {
             var piece = db.slice(lastEnd, match.index);
             lastEnd = match.index + m.length;
-            res.push(piece);
+            if (piece) res.push(replacePiece(piece));
         }
     }
-    if (lastEnd < db.length) res.push(db.slice(lastEnd, db.length));
-    res = res.filter(exist);
-    return res.map(replacePiece).join(",")
+    if (lastEnd < db.length) res.push(replacePiece(db.slice(lastEnd, db.length)));
+    return res.join(",");
 };
 
 var replaceRow = function (rowtext) {
