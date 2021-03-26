@@ -37,11 +37,11 @@ szButtonText1 db '登录',0
 szButtonText2 db '取消',0
 szLabel1 db '用户名',0
 szLabel2 db '密码',0
-lpszUser db a'admin',0
-lpszPass db a'123456',0
+lpszUser db 'admin'
+lpszPass db '123456'
 
-szBuffer db 0 dup(256)
-szBuffer2 db 0 dup(256)
+szBuffer db 256 dup(0)
+szBuffer2 db 256 dup(0)
 
 hInstance dd ?
 hWinMain dd ?
