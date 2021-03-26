@@ -70,7 +70,7 @@ module.exports = function (buff) {
                 r--;
             }
         }
-        dist.push(String.fromCharCode(s));
+        dist.push(String.fromCodePoint(s));
     }
     return dist.join('');
 };

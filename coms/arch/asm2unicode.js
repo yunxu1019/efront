@@ -1,11 +1,9 @@
 var decodeUTF8 = require("../basic/decodeUTF8");
-var prefix = ",0,00,000,0000".split(",").reverse();
+var encodeUTF16 = require("../basic/encodeUTF16");
 var strings = require("../basic/strings");
-var hexindex = [[2, 4], [0, 2]];
+var hex = d => (d < 16 || d > 159 ? '0' + d.toString(16) : d.toString(16)) + "h,";
 var toHex = function (code) {
-    code = code.charCodeAt(0).toString(16);
-    code = prefix[code.length] + code;
-    return hexindex.map(([a, b]) => (/\d/.test(code.charAt(a)) ? "" : "0") + code.slice(a, b) + "h,").join("");
+    return encodeUTF16(code).reverse().map(hex).join('');
 };
 
 var replacePiece = function (piece, force) {
@@ -23,7 +21,7 @@ var replacePiece = function (piece, force) {
             piece = toHex(parseInt(piece.slice(2), 16));
         }
         else {
-            piece = piece.replace(/[\u0000-\uffff]/g, toHex);
+            piece = piece.replace(/[\ud800-\udfff]{2}|[\u0000-\uffff]/g, toHex);
             piece = piece.slice(0, piece.length - 1);
         }
         if (force) piece += ",0,0"

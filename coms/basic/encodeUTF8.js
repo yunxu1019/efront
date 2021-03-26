@@ -46,7 +46,8 @@ function numberUTF8(t, dist = []) {
 function encodeUTF8(string) {
     var dist = [], t;
     for (var cx = 0, dx = string.length; cx < dx; cx++) {
-        t = string.charCodeAt(cx);
+        t = string.codePointAt(cx);
+        if (t > 0xffff) cx++;
         numberUTF8(t, dist);
     }
     return dist;
