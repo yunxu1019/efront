@@ -3,8 +3,8 @@ pushd
 setlocal
 cd %~dp0
 set masm32=/prog/masm32
-set include=%masm32%/include
-set lib=%masm32%/lib
+set include=%masm32%/include;%masm32%/macros
+set lib=%masm32%/lib;
 set bin=%masm32%/bin
 set efrontasm=..\..\coms\arch
 
