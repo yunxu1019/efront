@@ -73,7 +73,7 @@ var replaceRow = function (rowtext) {
         comment = rowtext.slice(commentIndex);
         rowtext = rowtext.slice(0, commentIndex);
     }
-    var match = /^(\s*[a-z]\w*\s+db\s+)([\s\S]*?)\s*$/i.exec(rowtext);
+    var match = /^(\s*(?:[a-z]\w*\s+)?db\s+)([\s\S]*?)\s*$/i.exec(rowtext);
     if (!match) return rowtext + comment;
     var [, prefix, db] = match;
     rowtext = prefix + replaceDb(db);
