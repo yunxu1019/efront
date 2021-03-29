@@ -1,3 +1,4 @@
+var isString = require("./isString");
 function bitTest(mask, sample, value) {
     return (value & mask) === sample;
 }
@@ -30,3 +31,4 @@ function parseNumber(str) {
     }
     return parseInt(str, s);
 }
+module.exports = parseNumber

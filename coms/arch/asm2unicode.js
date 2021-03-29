@@ -1,6 +1,7 @@
 var decodeUTF8 = require("../basic/decodeUTF8");
 var encodeUTF16 = require("../basic/encodeUTF16");
 var strings = require("../basic/strings");
+var parseNumber = require("../basic/parseNumber");
 var hex = d => (d < 16 || d > 159 ? '0' + d.toString(16) : d.toString(16)) + "h,";
 var toHex = function (code) {
     return encodeUTF16(code).reverse().map(hex).join('');
@@ -64,7 +65,14 @@ var replaceDb = function (db) {
     if (lastEnd < db.length) res.push(replacePiece(db.slice(lastEnd, db.length)));
     return res.join(",");
 };
-
+var real = function (a) {
+    a = parseNumber(a).toString();
+    if (!/\./.test(a)) a += '.0'
+    return a;
+}
+var replaceReal = function (r) {
+    return r.replace(/\s+/g, '').split(',').filter(exist).map(real).join(',');
+};
 var replaceRow = function (rowtext) {
     if (/^\s*;/.test(rowtext)) return rowtext;
     var commentIndex = rowtext.indexOf(';');
@@ -73,10 +81,18 @@ var replaceRow = function (rowtext) {
         comment = rowtext.slice(commentIndex);
         rowtext = rowtext.slice(0, commentIndex);
     }
-    var match = /^(\s*(?:[a-z]\w*\s+)?db\s+)([\s\S]*?)\s*$/i.exec(rowtext);
+    var match = /^(\s*(?:[a-z]\w*\s+)?)(db|real\d)(\s+)([\s\S]*?)\s*$/i.exec(rowtext);
     if (!match) return rowtext + comment;
-    var [, prefix, db] = match;
-    rowtext = prefix + replaceDb(db);
+    var [, prefix, type, space, db] = match;
+    switch (type) {
+        case "db":
+            db = replaceDb(db);
+            break;
+        case "real4":
+        case "real8":
+            db = replaceReal(db);
+    }
+    rowtext = prefix + type + space + db;
     return rowtext + comment;
 };
 
