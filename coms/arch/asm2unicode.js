@@ -8,10 +8,6 @@ var toHex = function (code) {
 };
 
 var replacePiece = function (piece, force) {
-    var match = /^([\s\S]*?)(\s*dup\((?:\?|\d+)\)\s*)$/i.exec(piece);
-    if (match) {
-        var [, piece, dup] = match;
-    }
     if (!/^(\d+|\d+\.\d+|\d+\.|\.\d+)$/i.test(piece) || force) {
         if (/^[\da-f]+h$/.test(piece)) {
             if (piece.length !== 3) {
@@ -27,7 +23,6 @@ var replacePiece = function (piece, force) {
         }
         if (force) piece += ",0,0"
     }
-    if (dup) piece += dup;
     return piece;
 };
 var exist = a => a;
@@ -84,7 +79,8 @@ var replaceRow = function (rowtext) {
     var match = /^(\s*(?:[a-z]\w*\s+)?)(db|real\d)(\s+)([\s\S]*?)\s*$/i.exec(rowtext);
     if (!match) return rowtext + comment;
     var [, prefix, type, space, db] = match;
-    switch (type) {
+    var match = /^([\s\S]*?)(\s*dup\((?:\?|\d+)\)\s*)$/i.test(db);
+    if (!match) switch (type) {
         case "db":
             db = replaceDb(db);
             break;
