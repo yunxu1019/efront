@@ -1,3 +1,5 @@
+var getIndexFromOrderedArray = require("./getIndexFromOrderedArray");
+var saveToOrderedArray = require("./saveToOrderedArray");
 var _dict = [];
 var _lastIndex = 0;
 var _prefix = [];
@@ -8,6 +10,13 @@ function _clear() {
     _bitDeep = 9;
     _dict = [];
 }
+var compare = function (flag, buff, matchLength) {
+    if (matchLength !== false) if (flag.length !== buff.length) return false;
+    for (var cx = 0, dx = flag.length; cx < dx; cx++) {
+        if (flag[cx] !== buff[cx]) return false;
+    }
+    return true;
+};
 function _writeTo(dist, d) {
     var half = _half;
     var nextHalf = half + _bitDeep;
