@@ -93,6 +93,7 @@ function _end(dist) {
     _prefix = [];
     _dict = [];
     _half = 0;
+    _bitDeep = 9;
     _lastIndex = 0;
     _dist = [];
     _prefix = [];
@@ -102,7 +103,7 @@ function _end(dist) {
 
 function encodeLZW(buff) {
     var encoded = _pass(buff)
-    _end();
+    _end(encoded);
     return encoded;
 }
 
