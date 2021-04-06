@@ -171,8 +171,20 @@ var helps = [
     "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
     "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
     "检查文件或文件夹中的全局变量,check FILEPATH",
+    "创建windows平台的一键安装包,packwin|pack PUBLIC_PATH PACKAGE_PATH",
+    "从一键安装包提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
 ];
 var commands = {
+    pack(readfrom, writeto) {
+        if (!writeto) {
+            console.error("请传输入目标路径！");
+            return;
+        }
+        require("../build/pack")(readfrom, writeto);
+    },
+    unpack(readfrom, writeto) {
+        require("../build/unpack")(readfrom, writeto);
+    },
     check() {
         var args = [].concat.apply([], arguments);
         args.forEach(function (arg) {
@@ -577,6 +589,8 @@ var topics = {
     ADDRESS: "efront服务器地址",
     LINKID: "efront服务器提供的连接号",
     MESSAGE: "文本消息",
+    PUBLIC_PATH: "软件发布目录",
+    PACKAGE_PATH: "安装包的路径",
     FILEPATH: "文件或文件夹的路径",
 };
 topics.VARIABLES += "," + Object.keys(topics);
