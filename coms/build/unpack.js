@@ -2,7 +2,7 @@ var fs = require("fs");
 var path = require("path");
 var decodeUTF16 = require("../basic/decodeUTF16");
 var decodeLEB128 = require("../basic/decodeLEB128");
-var decodeLZW = require("../basic/decodeLZW");
+var decodePack = require("../basic/decodePack");
 var finish = require("./finish");
 var readbuff = function (h, offset, length) {
     var buff = new Uint8Array(length);
@@ -59,7 +59,7 @@ function pack(readfrom, writeto) {
                     ok();
                 })
             } else {
-                data = decodeLZW(data);
+                data = decodePack(data);
                 fs.writeFile(p, new Uint8Array(data), function (error) {
                     if (error) return oh(error);
                     ok();

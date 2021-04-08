@@ -2,7 +2,7 @@ var fs = require("fs");
 var path = require("path");
 var encodeUTF16 = require("../basic/encodeUTF16");
 var encodeLEB128 = require("../basic/encodeLEB128");
-var encodeLZW = require("../basic/encodeLZW");
+var encodePack = require("../basic/encodePack");
 var finish = require("./finish");
 function pack(readfrom, writeto) {
     var createInfo = function ([file, size]) {
@@ -38,7 +38,7 @@ function pack(readfrom, writeto) {
                     fs.readFile(file, function (error, data) {
                         if (error) return oh(error);
 
-                        var pressed = encodeLZW(data);
+                        var pressed = encodePack(data);
                         fs.write(handle, new Uint8Array(pressed), function (error) {
                             if (error) return oh(error);
                             dist.push([file, pressed.length + 1]);
