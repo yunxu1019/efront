@@ -127,10 +127,10 @@ function scan(buff) {
         var sign = buff[cx] << 8 | buff[cx + 1];
         if (!cache[sign]) return buff[cx];
         var list = cache[sign];
-        var max_length = 1, match_position;
+        var max_length = 2, match_position;
         for (var cy = list.length - 1; cy > 0; cy--) {
             var inc = list[cy];
-            for (var cz = 1, dz = Math.min(cx - inc, buff.length - cx); cz < dz; cz++) {
+            for (var cz = 2, dz = Math.min(cx - inc, buff.length - cx); cz < dz; cz++) {
                 if (buff[cx + cz] !== buff[inc + cz]) break;
             }
             if (cz > max_length) {
@@ -138,7 +138,7 @@ function scan(buff) {
                 match_position = inc;
             }
         }
-        if (max_length > 1) {
+        if (max_length > 2) {
             sign = [max_length - 1, cx - match_position - max_length];
         } else {
             sign = buff[cx];
