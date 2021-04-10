@@ -2,6 +2,7 @@
 var commbuilder = require("../efront/commbuilder");
 var iconbuilder = require("../efront/iconbuilder");
 var htmlbuilder = require("../efront/filebuilder");
+var asmbuilder = require("../efront/asmbuilder");
 var manybuilder = require("./unpublish");
 var setting = require("./setting");
 var path = require("path");
@@ -23,7 +24,7 @@ BuildInfo.prototype = {
 };
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[cm]?[jt]sx?|\.json|\.html?|\.vuex?|\.png)?$/);
+    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+)?$/);
     var fullpath, destpath, builder;
     if (match) {
         var {
@@ -39,19 +40,20 @@ function getBuildInfo(url) {
             extt = match[4] || "";
         bigloop: switch (type) {
             case "":
-                builder = manybuilder;
+                if (/\.asm$/i.test(extt)) {
+                    builder = asmbuilder
+                } else {
+                    builder = manybuilder;
+                }
                 var $name = name.replace(/(\w)\$/g, "$1/");
                 fullpath = [];
                 extt = extt || [".js", ".ts", ".json", ".html", '.vue', ''];
-
-                if (!Array.isArray(extt)) {
-                    extt = [extt];
-                }
                 if (comms_root instanceof Array) {
                     comms_root.map(function (a) {
-                        extt.forEach(function (ext) {
+                        if (extt instanceof Array) extt.forEach(function (ext) {
                             fullpath.push(path.join(a, $name + ext));
                         });
+                        else fullpath.push(path.join(a, $name + extt));
                     });
                 } else {
                     extt.forEach(function (ext) {
@@ -72,7 +74,11 @@ function getBuildInfo(url) {
                         builder = pagebuilder;
                     }
                 } else if (!/\.([cm]?[jt]sx?|vuex?)$/i.test(extt)) {
-                    builder = noopbuilder;
+                    if (/\.asm$/i.test(extt)) {
+                        builder = asmbuilder
+                    } else {
+                        builder = noopbuilder;
+                    }
                     destpath = path.join(name + extt);
                     name = "/" + name;
                 } else {

@@ -50,17 +50,26 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
     var commbuilder = require("../efront/commbuilder");
     if (public_app) {
-        console.info("正在导出组件 <cyan>", public_app, '</cyan>\r\n');
-        //导出组件
-        var public_path = path.join(PUBLIC_PATH, public_app);
-        setting.is_commponent_package = true;
-        var toComponent = require("./toComponent");
-        commbuilder.compress = false;
-        commbuilder.prepare = false;
-        var polyfills = POLYFILL ? [path.join(__dirname, "../", "basic/[]map.js")] : [];
+        if (/\.asm$/i.test(public_app)) {
+            console.info("正在重写ASM <cyan>", public_app, '</cyan>\r\n');
+            //导出组件
+            var public_path = path.join(PUBLIC_PATH, public_app);
+            setting.is_commponent_package = true;
+            var toComponent = require("./toAsm");
+            var polyfills = [];
+        } else {
+            console.info("正在导出组件 <cyan>", public_app, '</cyan>\r\n');
+            //导出组件
+            var public_path = path.join(PUBLIC_PATH, public_app);
+            setting.is_commponent_package = true;
+            var toComponent = require("./toComponent");
+            commbuilder.compress = false;
+            commbuilder.prepare = false;
+            var polyfills = POLYFILL ? [path.join(__dirname, "../", "basic/[]map.js")] : [];
+        }
         return loadData(polyfills.concat(public_app), 0, public_path)
-            .then(toComponent)
-            .then(function (response) {
+        .then(toComponent)
+        .then(function (response) {
                 return write(response, PUBLIC_PATH);
             })
             .then(finish)

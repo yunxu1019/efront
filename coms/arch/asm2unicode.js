@@ -93,7 +93,7 @@ var replaceRow = function (rowtext) {
 };
 
 function asm2unicode(data) {
-    asm = decodeUTF8(data);
+    var asm = decodeUTF8(data);
     asm = asm.replace(/^[\s\S]+?$/mg, replaceRow);
     return asm
 }

@@ -174,21 +174,13 @@ var getBuildRoot = function (files, matchFileOnly) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
-                        if (/\.([cm]?[jt]sx?|html?|json|vuex?)$/i.test(file)) {
-                            var rel = getPathIn(comms_root, file);
-                            if (rel) {
-                                return saveComm(rel, file), ok();
-                            }
-                        }
-                        if (/\.([cm]?[jt]sx?|html?|vuex?)$/i.test(file)) {
-                            var rel = getPathIn(pages_root, file);
-                            if (rel) {
-                                return savePage(rel), ok();
-                            }
+                        var rel = getPathIn(comms_root, file);
+                        if (rel) {
+                            return saveComm(rel, file), ok();
                         }
                         var rel = getPathIn(pages_root, file);
                         if (rel) {
-                            return saveCopy(rel), ok();
+                            return savePage(rel), ok();
                         }
                         var rel = getPathIn(PAGE_PATH.split(","), file);
                         if (rel) {
