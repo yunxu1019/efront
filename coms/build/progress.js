@@ -140,6 +140,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         console.error(
             new Error(`要发布或打包的项目不存在:${PUBLIC_APP}`)
         );
+        process.exit(1);
     }
 }
 module.exports = builder;
