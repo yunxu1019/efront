@@ -84,7 +84,7 @@ function tohuff(buff, result = [], type_limit) {
     var d = new Uint32Array(type_limit);
     var f = [].slice.call(encodeFlat(c));
     c.forEach((s, i) => {
-        if (type_limit > 256) {
+        if (type_limit > 258) {
             if (b[i] < 128) {
                 f.push(b[i]);
             } else {
@@ -96,7 +96,7 @@ function tohuff(buff, result = [], type_limit) {
         a[b[i]] = s[0];
         d[b[i]] = s[1];
     });
-    if (type_limit > 256 && c[c.length - 1] >= 128) f.pop();
+    if (type_limit > 258 && b[c.length - 1] >= 128) f.pop();
     f.pop();
     result.push.apply(result, f);
     var bitoffset = result.length * 8;
@@ -198,16 +198,19 @@ function pack(buff) {
         tempoffset = byteoffset;
         samples = [];
         count1 = 0;
-        countp = null;
+        countp = samples.length;
     };
     do {
         var s = buff[tempoffset++];
         var sl = samples.length;
         saveToOrderedArray(samples, s);
-        if (sl === samples.length && tempoffset + 1 < buff.length) continue;
+        if (sl === samples.length && tempoffset < buff.length && tempoffset - byteoffset < 8192 << 12) {
+            continue;
+        }
+
         switch (samples.length) {
             case 1:
-                if (tempoffset - byteoffset > 8 && samples[0] < 256) {
+                if (tempoffset - byteoffset > 8) {
                     var f = repeat(buff, byteoffset);
                     result.push(f);
                     byteoffset = f.byteoffset;
@@ -215,15 +218,15 @@ function pack(buff) {
                     break;
                 }
             default:
-                if (tempoffset + 1 >= buff.length || tempoffset - byteoffset > 8192 << 8) {
-                    var length = tempoffset - byteoffset;
+                var length = tempoffset - byteoffset;
+                if (tempoffset >= buff.length || length > 8192 << 12) {
                     var res = [];
                     var _buff = buff.slice(byteoffset, byteoffset + length);
                     var _buff1 = scan(_buff);
                     var huffman_type = repeat_huffman;
                     var type_limit = 516;
                     if (_buff.length <= _buff1.length) {
-                        type_limit = 256;
+                        type_limit = 258;
                         huffman_type = normal_huffman;
                     } else {
                         _buff = _buff1;
