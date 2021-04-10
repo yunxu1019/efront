@@ -112,9 +112,10 @@ function scan(buff) {
     var cache = [], cacheLength = 0, cacheLimit = 32768;
     var writeCache = function (length) {
         for (var cy = cx, dy = cx + length; cy < dy; cy++) {
-            var b = buff[cy] << 8 | buff[cy + 1];
+            var b = buff[cy] << 8 | buff[cy + 1] ^ buff[cy + 2];
             if (cacheLength >= cacheLimit) {
-                var a = buff[cy - cacheLength] << 8 | buff[cy - cacheLength + 1];
+                var t = cy - cacheLength;
+                var a = buff[t++] << 8 | buff[t++] ^ buff[t];
                 cache[a].shift();
             } else {
                 cacheLength++;
@@ -124,13 +125,13 @@ function scan(buff) {
         }
     };
     var readCache = function () {
-        var sign = buff[cx] << 8 | buff[cx + 1];
+        var sign = buff[cx] << 8 | buff[cx + 1] ^ buff[cx + 2];
         if (!cache[sign]) return buff[cx];
         var list = cache[sign];
         var max_length = 2, match_position;
         for (var cy = list.length - 1; cy > 0; cy--) {
             var inc = list[cy];
-            for (var cz = 2, dz = Math.min(cx - inc, buff.length - cx); cz < dz; cz++) {
+            for (var cz = 1, dz = Math.min(cx - inc, buff.length - cx); cz < dz; cz++) {
                 if (buff[cx + cz] !== buff[inc + cz]) break;
             }
             if (cz > max_length) {
