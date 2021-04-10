@@ -37,7 +37,6 @@ function pack(readfrom, writeto) {
                 } else {
                     fs.readFile(file, function (error, data) {
                         if (error) return oh(error);
-
                         var pressed = encodePack(data);
                         fs.write(handle, new Uint8Array(pressed), function (error) {
                             if (error) return oh(error);
