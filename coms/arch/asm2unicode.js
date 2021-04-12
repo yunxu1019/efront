@@ -45,10 +45,10 @@ var replaceDb = function (db) {
                 if (piece) res.push(replacePiece(piece));
                 str = m;
             } else {
-                piece = db.slice(lastEnd, match.index + match.length);
+                piece = db.slice(lastEnd, match.index + m.length);
                 lastEnd = match.index + m.length;
                 piece = strings.decode(piece);
-                if (piece) res.push(replacePiece(piece, true));
+                if (piece) res.push(replacePiece(piece, !/\,/.test(db.charAt(lastEnd-1))));
                 str = '';
             }
         } else {
