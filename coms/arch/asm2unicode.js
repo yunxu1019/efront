@@ -8,6 +8,7 @@ var toHex = function (code) {
 };
 
 var replacePiece = function (piece, force) {
+    if (/^A['"]/i.test(piece)) return piece.slice(1);
     if (!/^(\d+|\d+\.\d+|\d+\.|\.\d+)$/i.test(piece) || force) {
         if (/^[\da-f]+h$/.test(piece)) {
             if (piece.length !== 3) {
@@ -27,7 +28,6 @@ var replacePiece = function (piece, force) {
 };
 var exist = a => a;
 var replaceDb = function (db) {
-    if (/^A['"]/i.test(db)) return db.slice(1);
     var lastEnd = 0;
     var reg = /\\[\s\S]|["',]/g;
     var str = '';
@@ -40,15 +40,12 @@ var replaceDb = function (db) {
         if (str && m !== str) continue;
         if (m !== ",") {
             if (!str) {
-                var piece = db.slice(lastEnd, match.index);
-                lastEnd = match.index;
-                if (piece) res.push(replacePiece(piece));
                 str = m;
             } else {
                 piece = db.slice(lastEnd, match.index + m.length);
                 lastEnd = match.index + m.length;
                 piece = strings.decode(piece);
-                if (piece) res.push(replacePiece(piece, !/\,/.test(db.charAt(lastEnd-1))));
+                if (piece) res.push(replacePiece(piece, !/\,/.test(db.charAt(lastEnd - 1))));
                 str = '';
             }
         } else {
