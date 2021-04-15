@@ -30,7 +30,7 @@ var getName = function (k, map) {
     }
     return t;
 };
-var lastmodel = '.model';
+var lastmodel = '.model flat,stdcall';
 var lastarch = '.386';
 var lastoption = 'option casemap:none';
 var endlabel = "";
