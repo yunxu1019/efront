@@ -103,6 +103,11 @@ buffer  word MAX_PATH dup(?)
 buffer2  word MAX_PATH dup(?)
 program db "ProgramFiles",0
 folderTitle db "选择安装目录",0
+szErrOpenFile db '无法打开源文件！'
+szErrCreateFile db '创建文件失败！',0
+hiddensetup dd 0
+
+
 folder_rect real4 20,320,440,21
 hWinMain dd 0
 bitmap dd 0
@@ -113,7 +118,15 @@ hInstance dd ?
 gptoken dd ?
 factorProc dd ?
 monitorProc dd ?
-
+filelist dd 24000 dup(?)
+filecount dd ?
+datatotal dd ?
+nametotal dd ?
+dataoffset dd ?
+nameoffset dd ?
+namecache dd MAX_PATH dup(?)
+datacache dd 36000 dup(?)
+datawrite dd 36000 dup(?)
 ;
 ;
 ;
@@ -152,6 +165,147 @@ setupstart proc
     ret
 setupstart endp
 
+opensetup proc
+    local @hFile
+    local filename[MAX_PATH]:byte
+    invoke GetModuleFileName ,0,addr filename, sizeof filename
+    invoke CreateFile,addr filename,GENERIC_READ,FILE_SHARE_READ,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0
+    .if eax==INVALID_HANDLE_VALUE
+        invoke MessageBox,hWinMain,addr szErrOpenFile,NULL,MB_OK or MB_ICONEXCLAMATION
+        ret
+    .endif
+    mov @hFile,eax
+    ret
+opensetup endp
+
+readcount proc h,e
+    local buff[8]:byte,readed,b
+    lea esi,buff
+    mov readed,0
+    invoke SetFilePointer,h,e-8,NULL,FILE_END
+    invoke ReadFile,h,esi,sizeof buff,addr readed,0
+    mov ecx,readed
+    mov eax,0
+    mov ebx,0
+    mov edx,0
+    .while ecx>0
+        dec ecx
+        mov al,BYTE ptr buff[ecx]
+        mov b,eax
+        and al,01111111b
+        .if edx==7
+            shl eax,7
+        .elseif edx==14
+            shl eax,14
+        .elseif edx==21
+            shl eax,21
+        .elseif edx==28
+            shl eax,28
+        .endif
+        add ebx,eax
+        mov eax,b
+        shr eax,7
+        .break .if eax
+        add edx,7
+    .endw
+    mov eax,ebx
+    ret
+readcount endp
+
+writenano proc h,nametype,nameleng,isfolder,dataleng
+    local namebuff[MAX_PATH]:byte,namereaded,hdst
+    local namecode[MAX_PATH]:DWORD
+    invoke ReadFile,h,addr namebuff,sizeof namebuff,addr namereaded,0
+    .if nametype
+        invoke decodeUTF8,addr namebuff,namereaded,addr namecode
+        invoke encodeUTF16,addr namebuff,eax,addr namecache
+    .else
+        mov eax,namereaded
+        mov namebuff[eax],0
+        mov namebuff[eax+1],0
+        invoke lstrcpy,addr namecache,addr namebuff
+    .endif
+    .if isfolder
+        invoke CreateDirectory,addr namecache,NULL
+    .else
+        invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
+        .if eax==INVALID_HANDLE_VALUE
+            ret
+        .endif
+        mov hdst,eax
+
+
+    .endif
+    ret
+writenano endp
+
+readindex proc h,e
+    local count,namoffset,buffname[MAX_PATH]:byte,
+    local fstart,fend,buff[65000]:byte,list[60000]:DWORD
+    local buffleng,listleng,nameleng,dataleng,nametype,isfolder
+    local readed
+    invoke readcount,h,e
+    mov count,eax
+    mov eax,e
+    sub eax,8
+    add eax,ecx
+    sub eax,count
+    mov namoffset,eax
+    invoke SetFilePointer,h,namoffset,NULL,FILE_BEGIN
+    lea esi,buff
+    invoke ReadFile,h,esi,sizeof buff,addr readed,0
+    invoke decodeLEB128,buff,readed,addr list
+    mov listleng,eax
+    mov nametotal,0
+    mov datatotal,0
+    mov ecx,0
+    mov edx,listleng
+    .while ecx<edx
+        mov eax,list[ecx]
+        mov ebx,eax
+        shr eax,1
+        mov nameleng,eax
+        mov eax,ebx
+        and eax,1
+        mov nametype,eax
+        mov eax,list[ecx+1]
+        .if eax==0
+            mov isfolder,1
+        .else
+            mov isfolder,0
+            dec eax
+        .endif
+        mov dataleng,eax
+        mov eax,datatotal
+        add eax,dataleng
+        mov datatotal,eax
+        mov eax,nametotal
+        add eax,nameleng
+        mov nametotal,eax
+        mov eax,nametype
+        push ecx
+        shl ecx,4
+        add ecx,offset filelist
+        mov DWORD ptr[ecx],eax
+        mov eax,nametype
+        mov DWORD ptr[ecx+4],eax
+        mov eax,isfolder
+        mov DWORD ptr[ecx+8],eax
+        mov eax,dataleng
+        mov DWORD ptr[ecx+12],eax
+        sub ecx,offset filelist
+        pop ecx
+        add ecx,4
+    .endw
+    mov eax,namoffset
+    sub eax,nametotal
+    mov nameoffset,eax
+    sub eax,datatotal
+    mov dataoffset,eax
+    ret
+readindex endp
+
+
 _getCommandLine proc
     invoke GetCommandLine
     
@@ -160,8 +314,31 @@ _getCommandLine proc
 _getCommandLine endp
 
 _Extract proc
-    local filename[MAX_PATH]:byte
-    invoke GetModuleFileName ,0,addr filename, sizeof filename
+    local h,e,nametype,nameleng,isfolder,dataleng
+    invoke opensetup
+    mov h,eax
+    invoke SetFilePointer,h,0,NULL,FILE_END
+    mov e,eax
+    invoke readindex,h,e
+    mov ecx,0
+    mov edx,filecount
+    .while ecx<edx
+        mov ebx,DWORD ptr[ecx+offset filelist]
+        mov nametype,ebx
+        mov ebx,DWORD ptr[ecx+offset filelist+4]
+        mov nameleng,ebx
+        mov ebx,DWORD ptr[ecx+offset filelist+8]
+        mov isfolder,ebx
+        mov ebx,DWORD ptr[ecx+offset filelist+12]
+        mov dataleng,ebx
+        add ecx,16
+        push ecx
+        push edx
+        invoke writenano,h,nametype,nameleng,isfolder,dataleng
+        pop edx
+        pop ecx
+    .endw
+    invoke CloseHandle,h
     ret
 _Extract endp
 foldersize proc f
@@ -1057,10 +1234,13 @@ start:
     invoke _SetFactor
     invoke GetEnvironmentVariable,offset program,offset buffer2,MAX_PATH
     invoke folderinit
-    call _Extract
-    invoke GdiplusStartup,offset gptoken,offset gpstart,NULL
-    call _WinMain
-    invoke _DeleteShapes
-    invoke GdiplusShutdown,gptoken
+    .if hiddensetup
+        call _Extract
+    .else
+        invoke GdiplusStartup,offset gptoken,offset gpstart,NULL
+        call _WinMain
+        invoke _DeleteShapes
+        invoke GdiplusShutdown,gptoken
+    .endif
     invoke ExitProcess,NULL
 end start

@@ -11,8 +11,12 @@ set efrontasm=..\..\coms\arch
 set filepath=%1
 if "%filepath:~1,-1%"==%filepath% set filepath=%filepath:~1,-1%
 set filename=%filepath:~0,-3%
-node %efrontasm%\asm2unicode_test.js "%filename%asm">"%filename%tmp"
-ml /c /coff /Cp "%filename%tmp"
+cd ..\..\
+call efront build "test\arch\%filename%asm"
+cd test\arch
+del "%filename%tmp"
+copy ..\..\public\"%filename%asm" "%filename%tmp"
+call ml /c /coff "%filename%tmp"
 if exist "%filename%rc" (
     node %efrontasm%\rc2unicode_test.js "%filename%rc" "%filename%tmp"
     rc /c 65001 /r "%filename%tmp"
