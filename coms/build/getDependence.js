@@ -39,8 +39,14 @@ function getDependence(response) {
     if (response.type !== "" && response.type !== "/" && response.type !== "\\") return [];
     var { data = "" } = response;
     if (data.module) return [];
-    if (data.invokes) {
-        return data.invokes.map(a => a + response.extt);
+    if (data.invokes || data.procs) {
+        var invokes = {};
+        data.invokes.forEach(k => invokes[k] = true);
+        data.procs.forEach(p => {
+            p.invokes.forEach(k => invokes[k] = true);
+        });
+        invokes = Object.keys(invokes).map(a => a + response.extt);
+        return invokes;
     }
     var ext = /\.([^\.]+)$/.exec(response.realpath);
     if (ext && !/^([cm]?[jt]sx?|vuex?|html)$/i.test(ext[1])) return [];

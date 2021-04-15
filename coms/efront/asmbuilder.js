@@ -120,7 +120,7 @@ function readrow(row) {
     }
     var match = /^local\s+/.exec(row);
     if (match) {
-        row.slice(match[0].length).split(',').forEach(addlocal);
+        row.slice(match[0].length).replace(/;[\s\S]*/, '').split(',').forEach(addlocal);
         return;
     }
     var match = /^([a-z\_@]\w*\s+)(\w+)/i.exec(row);

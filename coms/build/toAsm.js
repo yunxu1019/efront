@@ -33,6 +33,7 @@ var getName = function (k, map) {
 var lastmodel = '.model';
 var lastarch = '.386';
 var lastoption = 'option casemap:none';
+var endlabel = "";
 var format = function (codes) {
     var label_count = 1;
     var result = [];
@@ -53,7 +54,7 @@ var format = function (codes) {
         if (/^\.(code|data\??)$/i.test(c)) {
             continue;
         }
-        if (/^end\s/i.test(c)) {
+        if (/^\s*end\s/i.test(c)) {
             label_count = 0;
         }
         if (/^\s*\.end(if|w)$/i.test(c)) {
@@ -98,20 +99,45 @@ function toAsm(a) {
     });
     asms.forEach(a => {
         a.procs.forEach(p => {
-            var locals = serialize(p.locals, ',', "");
-            var codes = format(p.codes);
-            if (locals) locals = '\r\n    local ' + locals;
-            if (p.type === 'proc' || p.type === 'macro') {
-                protos[p.name] = `${p.name} PROTO ${serialize(p.params, ",", "")}`;
-                procs.push(`${p.row}${locals}\r\n${codes.join("\r\n")}\r\n${p.name} end${p.type[0]}`);
-            }
-            else {
-                protos[p.name] = `${p.name} ${p.type}\r\n    ${p.codes.join("\r\n    ")}\r\n${p.name} ends`;
-            }
-
+            procs.push(p);
         });
         codes.push.apply(codes, a.codes);
     });
+    for (var cx = 0, dx = procs.length; cx < dx; cx++) {
+        var min = cx;
+        for (var cy = cx, dy = procs.length; cy < dy; cy++) {
+            if (!procs[cy].invokes.length) {
+                min = cy;
+                break;
+            }
+            var p = procs[cy];
+            for (var cz = cx, dz = procs.length; cz < dz; cz++) {
+                if (p.invokes.indexOf(procs[cz].name) > 0) {
+                    break;
+                }
+            }
+            if (cz === dz) {
+                min = cy;
+                break;
+            }
+        }
+        if (min !== cx) {
+            var temp = procs.splice(min, 1)[0];
+            procs.splice(cx, 0, temp);
+        }
+    }
+    procs = procs.map(p => {
+        var locals = serialize(p.locals, ',', "");
+        var codes = format(p.codes);
+        if (locals) locals = '\r\n    local ' + locals;
+        if (p.type === 'proc' || p.type === 'macro') {
+            // protos[p.name] = `${p.name} PROTO ${serialize(p.params, ",", "")}`;
+            return `${p.row}${locals}\r\n${codes.join("\r\n")}\r\n${p.name} end${p.type[0]}`;
+        }
+        else {
+            protos[p.name] = `${p.name} ${p.type}\r\n    ${p.codes.join("\r\n    ")}\r\n${p.name} ends`;
+        }
+    }).filter(a => !!a);
     datas = Object.keys(datas).map(k => datas[k]);
     codes = format(codes);
     var code = `${lastarch}\r\n${lastmodel}\r\n${lastoption}
@@ -121,10 +147,10 @@ ${Object.keys(protos).map(k => protos[k]).join(`\r\n`)}
 .data
     ${Object.keys(datas).map(k => datas[k]).join('\r\n    ')}
 .code
-${codes.join('\r\n')}
 ${procs.join("\r\n")}
+${codes.join('\r\n')}
 
-`
+`.split(/[\r\n]+/).join("\r\n");
     var distpath = require("./environment").EXPORT_TO;
     code = require("../arch/asm2unicode")(Buffer.from(code));
     return {
