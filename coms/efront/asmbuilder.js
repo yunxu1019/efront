@@ -7,7 +7,7 @@ var procs = [];
 var lastdata = '';
 var locals = {}, invokes = {}, params = {};
 var registers = /^([er]?[abcd]x|[abcd][hl]|[er][sd]i|[re][sbi]p|[ecsdfg]s)$/i;
-var operators = /^(ifn?def|else|endif|echo|repeat|exitm|union|option|include(lib)?|local|end|invoke|call|push|pop|cld|rep|lea|ret|mov|inc|dec|xor|and|not|or|cmp|jmp|jn?[ez]|sh[rl]|(fi?)?(add|div|mul|sub)|fi?(stp|ld)f(chs|ld1|init)|\.\w+)(\s|$)/i;
+var operators = /^(ifn?def|else|endif|echo|repeat|exitm|union|option|include(lib)?|local|end|invoke|call|push|pop|cld|(lod|sto|mov|sca|cmp)s[bwd]|rep|loop|lea|ret|mov|inc|dec|xor|and|not|or|cmp|jmp|j[na]?[ez]|sh[rl]|(fi?)?(add|div|mul|sub)|fi?(stp|ld)f(chs|ld1|init)|\.\w+)(\s|$)/i;
 function clean() {
     queue = [];
     datas = {};
