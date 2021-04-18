@@ -23,18 +23,19 @@ readBinary proc buff,bitoffset,bitlength
         sub eax,ebx
         mov bitlength,eax
         mov eax,1
-        mov ebx,bitdelta
-        shl eax,ebx
+        mov ecx,ebx
+        shl eax,cl
         sub eax,1
         mov ebx,delta
         and eax,ebx
         mov num,eax
-        .if bitlength lt 0
+        .if bitlength < 0
             mov eax,0
             mov ebx,bitlength
             sub eax,ebx
             mov ebx,num
-            shr ebx,eax
+            mov ecx,eax
+            shr ebx,cl
             mov num,ebx
             mov bitlength,0
         .endif
@@ -63,7 +64,7 @@ readBinary proc buff,bitoffset,bitlength
         mov ecx,8
         mov ecx,bitlength
         sub ecx,edx
-        shr ebx,ecx
+        shr ebx,cl
         or eax,ebx
         mov num,eax
     .endif
