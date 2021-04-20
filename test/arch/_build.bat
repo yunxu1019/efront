@@ -17,6 +17,7 @@ cd test\arch
 del "%filename%tmp"
 copy ..\..\public\"%filename%asm" "%filename%tmp"
 call ml /c /coff "%filename%tmp"
+if not %errorlevel% equ 0 exit /b
 if exist "%filename%rc" (
     node %efrontasm%\rc2unicode_test.js "%filename%rc" "%filename%tmp"
     rc /c 65001 /r "%filename%tmp"
