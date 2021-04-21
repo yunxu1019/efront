@@ -37,6 +37,7 @@ decodeLEB128 proc srcstart,srcsize,dststart
         mov dststart,ebx
         mov temp,0
         mov delta,0
+        inc ecx
     .endw
     mov eax,dststart
     ret

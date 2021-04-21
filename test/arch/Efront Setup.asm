@@ -76,7 +76,7 @@ r3 real4 3.0
 width_10 real4 6.0
 logo_c DotsChangeParam<7.0,5.0,0.78>
 close_c DotsChangeParam<10.0,-1.0,1.0>
-cross_c DotsChangeParam<454.0,6.0,0.014>
+cross_c DotsChangeParam<454.0,8.0,0.012>
 factor_ratio real4 4.0
 w_rect SRECT <0,0,480,360>
 g_rect real4 -1,-1,481,-1,481,361,-1,361,-1,-1
@@ -106,6 +106,8 @@ folderTitle db "选择安装目录",0
 szErrOpenFile db '无法打开源文件！'
 szErrCreateFile db '创建文件失败！',0
 hiddensetup dd 0
+hiddenmark db "/s"
+hiddenmark1 db "/h"
 
 
 folder_rect real4 20,320,440,21
@@ -160,8 +162,9 @@ setupstart proc
     .if eax
         ret
     .endif
-    fld1
+    fld m_delta
     fstp m_processed;
+    invoke _Extract
     ret
 setupstart endp
 
@@ -214,7 +217,8 @@ readcount endp
 
 writenano proc h,nametype,nameleng,isfolder,dataleng
     local namebuff[MAX_PATH]:byte,namereaded,hdst
-    local namecode[MAX_PATH]:DWORD
+    local namecode[MAX_PATH]:DWORD,databuff,datareaded
+
     invoke ReadFile,h,addr namebuff,sizeof namebuff,addr namereaded,0
     .if nametype
         invoke decodeUTF8,addr namebuff,namereaded,addr namecode
@@ -228,20 +232,23 @@ writenano proc h,nametype,nameleng,isfolder,dataleng
     .if isfolder
         invoke CreateDirectory,addr namecache,NULL
     .else
+        mov databuff,eax
         invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
         .if eax==INVALID_HANDLE_VALUE
             ret
         .endif
         mov hdst,eax
-
-
+        invoke decodePackW,h,dataoffset,dataleng,hdst
+        mov eax,dataoffset
+        add eax,dataleng
+        mov dataoffset,eax
     .endif
     ret
 writenano endp
 
 readindex proc h,e
     local count,namoffset,buffname[MAX_PATH]:byte,
-    local fstart,fend,buff[65000]:byte,list[60000]:DWORD
+    local fstart,fend,buff[3620]:byte,list[3600]:DWORD
     local buffleng,listleng,nameleng,dataleng,nametype,isfolder
     local readed
     invoke readcount,h,e
@@ -254,21 +261,26 @@ readindex proc h,e
     invoke SetFilePointer,h,namoffset,NULL,FILE_BEGIN
     lea esi,buff
     invoke ReadFile,h,esi,sizeof buff,addr readed,0
-    invoke decodeLEB128,buff,readed,addr list
+    invoke decodeLEB128,addr buff,readed,addr list
+    lea ebx,list
+    sub eax,ebx
     mov listleng,eax
     mov nametotal,0
     mov datatotal,0
     mov ecx,0
     mov edx,listleng
     .while ecx<edx
-        mov eax,list[ecx]
+        lea eax,list
+        add eax,ecx
         mov ebx,eax
         shr eax,1
         mov nameleng,eax
         mov eax,ebx
         and eax,1
         mov nametype,eax
-        mov eax,list[ecx+1]
+        lea eax,list
+        add eax,ecx
+        inc eax
         .if eax==0
             mov isfolder,1
         .else
@@ -283,19 +295,17 @@ readindex proc h,e
         add eax,nameleng
         mov nametotal,eax
         mov eax,nametype
-        push ecx
-        shl ecx,4
-        add ecx,offset filelist
-        mov DWORD ptr[ecx],eax
+        mov ebx,ecx
+        shl ebx,4
+        add ebx,offset filelist
+        mov DWORD ptr[ebx],eax
         mov eax,nametype
-        mov DWORD ptr[ecx+4],eax
+        mov DWORD ptr[ebx+4],eax
         mov eax,isfolder
-        mov DWORD ptr[ecx+8],eax
+        mov DWORD ptr[ebx+8],eax
         mov eax,dataleng
-        mov DWORD ptr[ecx+12],eax
-        sub ecx,offset filelist
-        pop ecx
-        add ecx,4
+        mov DWORD ptr[ebx+12],eax
+        add ecx,2
     .endw
     mov eax,namoffset
     sub eax,nametotal
@@ -305,13 +315,88 @@ readindex proc h,e
     ret
 readindex endp
 
-
-_getCommandLine proc
+parseCommandLine proc
     invoke GetCommandLine
-    
-    invoke MessageBox,NULL,eax,addr szText,MB_OK
+    local paramstart
+    local param2start
+    local inquote
+    mov ecx,eax
+    mov eax,0
+    mov inquote,0
+    mov paramstart,0
+    mov param2start,0
+    mov edx,ecx
+    add edx,MAX_PATH
+    add edx,10
+    .while ecx<edx
+        mov ax,WORD ptr[ecx]
+        .if eax==0
+            .break 
+        .endif
+        .if eax==39 || eax==34
+            .if eax==inquote
+                mov inquote,0
+                add ecx,2
+            .else
+                mov inquote,eax
+            .endif
+        .endif
+        .if !inquote
+            mov ebx,ecx
+            .if !paramstart
+                .while eax==32 || eax==9
+                    add ebx,2
+                    mov ax,WORD ptr[ebx]
+                    mov paramstart,ebx
+                .endw
+            .elseif !param2start
+                .while eax==32 || eax==9
+                    add ebx,2
+                    mov ax,WORD ptr[ebx]
+                    mov param2start,ebx
+                .endw
+            .endif
+            .if ebx>ecx
+                sub ebx,2
+                mov ecx,ebx
+            .endif
+        .endif
+        add ecx,2
+    .endw
+    .if paramstart && ecx>paramstart
+        mov eax,paramstart
+        mov ax,WORD ptr[eax]
+        .if ax==47
+            mov hiddensetup,1
+            .if param2start
+                invoke lstrcpy,offset buffer2,param2start
+            .endif
+        .elseif param2start
+            invoke lstrcpy,offset buffer2,paramstart
+            mov eax,paramstart
+            mov ebx,param2start
+            sub ebx,eax
+            mov eax,offset buffer2
+            add eax,ebx
+            sub eax,2
+            mov ebx,eax
+            mov ax,WORD ptr[ebx]
+            .while ax==32||ax==9
+                mov WORD ptr[ebx],0
+                sub ebx,2
+                mov ax,WORD ptr[ebx]
+            .endw
+            mov eax,param2start
+            mov ax,WORD ptr[eax]
+            .if ax==47
+                mov hiddensetup,1
+            .endif
+        .else
+            invoke lstrcpy,offset buffer2,paramstart
+        .endif
+    .endif
     ret
-_getCommandLine endp
+parseCommandLine endp
 
 _Extract proc
     local h,e,nametype,nameleng,isfolder,dataleng
@@ -371,6 +456,7 @@ folderinit proc
     mov WORD ptr [ebx],ax
     mov ax,WORD ptr [ecx+2]
     mov WORD ptr [ebx+2],ax
+    invoke lstrcpy,offset folder,offset buffer
     ret
 folderinit endp
 choosingfn proc hWnd,uMsg,lParam,lpData
@@ -953,7 +1039,6 @@ _Frame proc hWnd
     invoke lstrcmp,offset buffer,offset folder
     .if eax
         invoke folderinit
-        invoke lstrcpy,offset folder,offset buffer
         invoke drawfolder,@gp
     .endif
     invoke GdipReleaseDC,@gp,@hDc
@@ -1233,9 +1318,11 @@ start:
     invoke _Brizerline
     invoke _SetFactor
     invoke GetEnvironmentVariable,offset program,offset buffer2,MAX_PATH
+    invoke parseCommandLine
     invoke folderinit
     .if hiddensetup
         call _Extract
+
     .else
         invoke GdiplusStartup,offset gptoken,offset gpstart,NULL
         call _WinMain
