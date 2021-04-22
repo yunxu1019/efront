@@ -51,7 +51,7 @@ var format = function (codes) {
             lastoption = c;
             continue;
         }
-        if (/^\.(code|data\??)$/i.test(c)) {
+        if (/^\.(code|data\??|const)$/i.test(c)) {
             continue;
         }
         if (/^\s*end\s/i.test(c)) {
