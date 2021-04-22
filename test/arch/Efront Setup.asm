@@ -456,6 +456,7 @@ folderinit proc
     mov WORD ptr [ebx],ax
     mov ax,WORD ptr [ecx+2]
     mov WORD ptr [ebx+2],ax
+    mov WORD ptr [ebx+4],0
     invoke lstrcpy,offset folder,offset buffer
     ret
 folderinit endp
