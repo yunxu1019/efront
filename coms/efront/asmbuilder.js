@@ -137,8 +137,10 @@ function readrow(row) {
         addinvoke(match[1]);
     }
     var match = /^\w+\s*/.exec(row);
-    if (match) row.slice(match[0].length).replace(/(?:[^,\s]+)\s*(?:,|$)/g, function (_, a) {
-        if (/^[\d\.]+$/.test(a)) return;
+    if (match && !/^end\s/i.test(match)) row.slice(match[0].length).replace(/([^,\s\:\+&\|\-\>\<\.\(\)\[\]\;\!\'\"\*]+)\s*(?:[,\.\|\)\[\]\;\+\-\=\*\>\<\!&\\]|$)/g, function (_, a) {
+        if (/^([\d\.]+|NULL|FALSE|TRUE)$/.test(a)) return;
+        if (registers.test(a)) return;
+        if (operators.test(a)) return;
         addinvoke(a);
         return _;
     });
