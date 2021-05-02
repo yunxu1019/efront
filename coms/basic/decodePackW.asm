@@ -96,7 +96,7 @@ decodeFlat proc buff,start,rest
         dec ebx
         mov total,ebx
         mov eax,t
-        shl eax,26
+        shl eax,24
         mov ebx,n
         or eax,ebx
         mov ebx,total
@@ -123,31 +123,110 @@ decodeFlat proc buff,start,rest
     ret
 decodeFlat endp
 
-findhuff proc hufstart,huflen,sum
-    local hufend
+findhuff proc hufstart,mapsize,sum
+    ; local hufend
+    ; mov ebx,hufstart
+    ; mov eax,mapsize
+    ; shl eax,2
+    ; add eax,ebx
+    ; mov hufend,eax
+    ; mov ebx,sum
+    ; mov eax,0
+    ; mov ecx,hufstart
+    ; mov edx,0
+    
+    ; .while ecx<hufend
+    ;     mov eax,DWORD ptr[ecx]
+    ;     .if eax==ebx
+    ;         mov eax,ecx
+    ;         sub eax,hufstart
+    ;         shr eax,2
+    ;         mov edx,1
+    ;         .break
+    ;     .endif
+    ;     add ecx,4
+    ; .endw
+    ; ret
+    mov eax,90005h
+    mov ecx,0
+    mov eax,sum
+    mov edx,mapsize
     mov ebx,hufstart
-    mov eax,huflen
-    shl eax,2
-    add eax,ebx
-    mov hufend,eax
-    mov ebx,sum
-    mov eax,0
-    mov ecx,hufstart
-    mov edx,0
-    .while ecx<hufend
-        mov eax,DWORD ptr[ecx]
-        .if eax==ebx
-            mov eax,ecx
-            sub eax,hufstart
-            shr eax,2
+    .while ecx<edx
+        mov eax,ecx
+        add eax,edx
+        shr eax,1
+        push eax
+        mov eax,DWORD ptr[eax*4+ebx]
+        .if eax<sum
+            pop ecx
+            inc ecx
+        .else
+            pop edx
+        .endif
+    .endw
+    mov eax,DWORD ptr[ecx*4+ebx]
+    .if eax==sum
+        mov eax,ecx
+        mov edx,1
+    .else
+        mov eax,DWORD ptr[edx*4+ebx]
+        .if eax==sum
+            mov eax,edx
             mov edx,1
-            .break
+        .else
+            mov edx,0
+        .endif
+    .endif
+    ret
+findhuff endp
+
+sorthuff proc hufstart,mapstart,huflen
+    local min,mi,n
+    mov eax,90004h
+    mov ecx,0
+    mov edx,huflen
+    dec edx
+    shl edx,2
+    .while ecx<edx
+        mov ebx,hufstart
+        mov mi,ecx
+        mov eax,DWORD ptr[ecx+ebx]
+        mov min,eax
+        mov n,ecx
+        add ecx,4
+        .while ecx<edx
+            mov eax,DWORD ptr[ecx+ebx]
+            .if eax<min
+                mov mi,ecx
+                mov min,eax
+            .endif
+            add ecx,4
+        .endw
+        mov ecx,n
+        .if ecx!=mi
+            mov eax,DWORD ptr[ebx+ecx]
+            mov ecx,mi
+            mov DWORD ptr[ebx+ecx],eax
+            mov eax,min
+            mov ecx,n
+            mov DWORD ptr[ebx+ecx],eax
+            mov ebx,mapstart
+            mov ecx,mi
+            mov eax,DWORD ptr[ebx+ecx]
+            mov min,eax
+            mov ecx,n
+            mov eax,DWORD ptr[ebx+ecx]
+            mov ecx,mi
+            mov DWORD ptr[ebx+ecx],eax
+            mov eax,min
+            mov ecx,n
+            mov DWORD ptr[ebx+ecx],eax
         .endif
         add ecx,4
     .endw
-    
     ret
-findhuff endp
+sorthuff endp
 
 fromhuff proc buff,bufflen,result,scanstart,type1
     local huf[516],huflen,byteoffset,map[516],codeend
@@ -200,7 +279,7 @@ fromhuff proc buff,bufflen,result,scanstart,type1
     mov byteoffset,ebx
     shl ebx,3
     mov bitoffset,ebx
-
+    invoke sorthuff,addr huf,addr map,huflen
     mov eax,bufflen
     shl eax,3
     mov codeend,eax
@@ -209,14 +288,14 @@ fromhuff proc buff,bufflen,result,scanstart,type1
     mov eax,huf[eax*4]
     mov endflag,eax
 
-    shr eax,26
+    shr eax,24
     mov s,eax
     mov t,1
     mov hufmantotal,0
     .while TRUE
         invoke readBinary,buff,bitoffset,t
         mov ebx,t
-        shl ebx,26
+        shl ebx,24
         or eax,ebx
         mov sum,eax
         mov eax,huflen
@@ -282,7 +361,7 @@ fromhuff proc buff,bufflen,result,scanstart,type1
         invoke ExitProcess,1
     .endif
     mov eax,sum
-    shr eax,26
+    shr eax,24
     add eax,bitoffset
     mov bitoffset,eax
     mov ebx,hufmantotal
