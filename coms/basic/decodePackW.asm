@@ -12,12 +12,15 @@ repeat_huffman equ 6
 .code
 
 fill proc start,leng,a
+    mov eax,90003h
     mov ecx,start
     mov edx,leng
+    shr edx,2
     add edx,ecx
     mov eax,a
     .while ecx<edx
-        mov DWORD ptr [ecx],0
+        mov DWORD ptr [ecx],eax
+        add ecx,4
     .endw
     ret
 fill endp
@@ -25,12 +28,15 @@ fill endp
 decodeFlat proc buff,start,rest
     local tcount,total,t,bitoffset,inc1,counts[516]
     local v,k,n,inc2
+    mov eax,90002h
     invoke fill,addr counts,sizeof counts,0
     mov total,0
     mov ebx,buff
     mov ecx,start
-    add ecx,1
     mov eax,0
+    mov al,BYTE ptr[ebx+ecx]
+    mov tcount,eax
+    inc ecx
     mov al,BYTE ptr[ebx+ecx]
     and eax,01fh
     mov t,eax
@@ -38,10 +44,11 @@ decodeFlat proc buff,start,rest
     mov eax,ecx
     shl eax,3
     mov bitoffset,eax
-    mov inc2,0
-    mov ecx,0
-    .while ecx<tcount
-        inc ecx
+    mov inc1,0
+    mov ecx,tcount
+    .while ecx>0
+        dec ecx
+        mov eax,bitoffset
         mov inc1,ecx
         invoke readBinary,buff,bitoffset,t
         mov v,eax
@@ -57,55 +64,62 @@ decodeFlat proc buff,start,rest
         add ebx,t
         mov bitoffset,ebx
         mov eax,k
-        mov ebx,inc2
+        mov ebx,inc1
+        shl ebx,3
         mov counts[ebx],eax
         mov eax,v
-        inc ebx
-        mov counts[ebx],eax
-        inc ebx
-        mov inc2,ebx
+        mov counts[ebx+4],eax
         mov ecx,inc1
     .endw
-    mov ecx,total
+    mov eax,total
+    mov inc2,eax
+    mov ecx,tcount
+    shl ecx,1
     mov edx,sizeof counts
     shr edx,2
     .while ecx<edx
-        mov counts[ecx],0
+        mov counts[ecx*4],0
         inc ecx
     .endw
-    mov inc2,0
-    mov inc1,0
-    .while total>0
-        mov eax,counts[ecx]
+    .while tcount>0
+        mov ecx,tcount
+        shl ecx,1
+        sub ecx,2
+        mov eax,counts[ecx*4]
         mov t,eax
+        mov eax,buff
+        mov eax,bitoffset
+        mov eax,t
         invoke readBinary,buff,bitoffset,t
         mov n,eax
         mov ebx,total
         dec ebx
         mov total,ebx
         mov eax,t
-        shl eax,16
+        shl eax,26
         mov ebx,n
-        and eax,ebx
+        or eax,ebx
         mov ebx,total
-        mov rest[ebx],eax
+        shl ebx,2
+        add ebx,rest
+        mov DWORD ptr[ebx],eax
         mov ebx,bitoffset
         add ebx,t
         mov bitoffset,ebx
-
-        mov eax,counts[ecx+1]
-        mov ebx,inc2
-        inc ebx
-        mov inc2,ebx
-        .if eax<=ebx
-            inc ecx
-            inc ecx
-            mov inc1,ecx
-            mov inc2,0
+        mov ecx,tcount
+        shl ecx,1
+        dec ecx
+        mov eax,counts[ecx*4]
+        dec eax
+        mov counts[ecx*4],eax
+        .if eax==0
+            mov ecx,tcount
+            dec ecx
+            mov tcount,ecx
         .endif
     .endw
     mov eax,bitoffset
-    mov ebx,total
+    mov ebx,inc2
     ret
 decodeFlat endp
 
@@ -113,6 +127,7 @@ findhuff proc hufstart,huflen,sum
     local hufend
     mov ebx,hufstart
     mov eax,huflen
+    shl eax,2
     add eax,ebx
     mov hufend,eax
     mov ebx,sum
@@ -120,13 +135,15 @@ findhuff proc hufstart,huflen,sum
     mov ecx,hufstart
     mov edx,0
     .while ecx<hufend
-        mov ax,WORD ptr[ecx]
-        add ecx,2
+        mov eax,DWORD ptr[ecx]
         .if eax==ebx
             mov eax,ecx
+            sub eax,hufstart
+            shr eax,2
             mov edx,1
             .break
         .endif
+        add ecx,4
     .endw
     
     ret
@@ -135,25 +152,31 @@ findhuff endp
 fromhuff proc buff,bufflen,result,scanstart,type1
     local huf[516],huflen,byteoffset,map[516],codeend
     local t,s,bitoffset,inc1,endflag,hufmantotal
-    local sum
-    mov eax,type1
+    local sum,a
+    mov eax,90001h
+    mov eax,scanstart
     .if type1
         mov type1,1
     .endif
-    invoke decodeFlat,buff,scanstart,huf
+    invoke decodeFlat,buff,scanstart,addr huf
     mov bitoffset,eax
     mov huflen,ebx
     add eax,7
     shr eax,3
     mov byteoffset,eax
-    mov ebx,eax
+    mov eax,huf[ebx*4 - 8]
+    mov eax,huf[ebx*4 - 4]
+    mov eax,byteoffset
     add eax,huflen
     dec eax
     mov codeend,eax
-    mov inc1,0
-    mov eax,edx
-    .while ebx<edx
-        mov eax,buff[ebx]
+    mov ebx,byteoffset
+    mov ecx,0
+    .while ebx<codeend
+        mov edx,ebx
+        add edx,buff
+        mov al,BYTE ptr[edx]
+        and eax,0ffh
         mov s,eax
         .if eax>=128 && type1>0
             sub eax,128
@@ -163,89 +186,128 @@ fromhuff proc buff,bufflen,result,scanstart,type1
             inc eax
             mov codeend,eax
             inc ebx
-            mov eax,buff[ebx]
-            mov ecx,s
-            or eax,ecx
-            mov ecx,inc1
-            mov map[ecx],eax
-            inc ecx
-            mov inc1,ecx
+            mov eax,s
+            mov edx,ebx
+            add edx,buff
+            mov al,BYTE ptr[edx]
+            mov map[ecx*4],eax
         .else
-            mov ecx,inc1
-            mov map[ecx],eax
+            mov map[ecx*4],eax
         .endif
         inc ecx
-        mov inc1,ecx
         inc ebx
     .endw
     mov byteoffset,ebx
     shl ebx,3
     mov bitoffset,ebx
-    mov eax,buff
-    add eax,bufflen
+
+    mov eax,bufflen
+    shl eax,3
     mov codeend,eax
     mov eax,huflen
     dec eax
-    mov eax,huf[eax]
+    mov eax,huf[eax*4]
     mov endflag,eax
-    shr eax,16
+
+    shr eax,26
     mov s,eax
     mov t,1
     mov hufmantotal,0
     .while TRUE
         invoke readBinary,buff,bitoffset,t
         mov ebx,t
-        shl ebx,16
-        and eax,ebx
+        shl ebx,26
+        or eax,ebx
         mov sum,eax
-        invoke findhuff,addr huf,sizeof huf,sum
-        mov eax,map[eax]
-        mov sum,eax
+        mov eax,huflen
+        dec eax
+        invoke findhuff,addr huf,eax,sum
         .if edx
-            mov eax,hufmantotal
+            
             mov ebx,sum
-            mov WORD ptr[eax],bx
-            add eax,2
+            mov ebx,t
+            mov eax,map[eax*4]
+            mov a,eax
+        .else 
+            mov ebx,t
+            inc ebx
+            mov t,ebx
+            mov eax,s
+            .if t>eax
+                mov eax,sum
+                .break;
+            .endif
+
+            .continue
+        .endif
+        .if edx
+                .if bitoffset>=01b9ch
+        mov eax,sum
+        mov eax,t
+        mov eax,bitoffset
+        mov eax,hufmantotal
+        mov eax,codeend
+        .endif
+            mov eax,hufmantotal
+            mov ebx,a
+            .if type1
+                shl eax,1
+                add eax,result
+                mov WORD ptr[eax],bx
+            .else
+                add eax,result
+                mov BYTE ptr[eax],bl
+            .endif
+            mov eax,hufmantotal
+            inc eax
             mov hufmantotal,eax
-            mov t,0
+            mov eax,bitoffset
+            add eax,t
+            mov bitoffset,eax
+            mov t,1
         .else
             mov eax,t
             add eax,1
             mov t,eax
         .endif
         mov eax,bitoffset
-        .if eax<codeend
-            mov eax,t
-            .break .if eax <= s
-        .endif
+        .break .if eax>codeend
     .endw
+    mov eax,sum
+    mov eax,t
+    mov eax,bitoffset
     mov eax,endflag
-    and eax,0ffffh
     .if eax!=sum
         invoke MessageBox,NULL,addr errortext,addr errortitle,MB_OK
+        invoke ExitProcess,1
     .endif
-    mov eax,bitoffset
-    add eax,s
+    mov eax,sum
+    shr eax,26
+    add eax,bitoffset
     mov bitoffset,eax
+    mov ebx,hufmantotal
     ret
 fromhuff endp
 
-inflate proc srcstart,srcsize,dststart
-    local b,cc,s
+inflate proc srcstart,srclen,dststart
+    local b,cc,s,dstlen
     mov ecx,srcstart
-    mov edx,srcsize
+    mov edx,srclen
+    shl edx,1
+    mov dstlen,0
     add edx,ecx
     .while ecx<edx
         mov eax,0
         mov ax,WORD ptr[ecx]
         .if eax<256
-            mov ebx,dststart
+            add ecx,2
+            mov ebx,dstlen
+            add ebx,dststart
             mov BYTE ptr[ebx],al
+            mov ebx,dstlen
             inc ebx
-            mov dststart,ebx
+            mov dstlen,ebx
         .else
-            push ecx
-            push edx
             and eax,07fh
             shl eax,8
             add ecx,2
@@ -268,24 +330,34 @@ inflate proc srcstart,srcsize,dststart
             mov bx,WORD ptr[ecx]
             or eax,ebx
             mov cc,eax
-            mov eax,dststart
+            add ecx,2
+            push ecx
+            push edx
+            mov eax,dstlen
             sub eax,cc
             sub eax,b
             mov s,eax
             add eax,b
             mov edx,eax
             mov ecx,s
-            mov ebx,dststart
             .while ecx<edx
-                mov al,BYTE ptr[ecx]
+                mov ebx,ecx
+                add ebx,dststart
+                mov al,BYTE ptr[ebx]
+                mov ebx,dstlen
+                add ebx,dststart
                 mov BYTE ptr[ebx],al
+                mov ebx,dstlen
                 inc ebx
+                mov dstlen,ebx
                 inc ecx
             .endw
+            mov dstlen,ebx
             pop edx
             pop ecx
         .endif
     .endw
+    mov eax,dstlen
     ret
 inflate endp
 
@@ -300,7 +372,7 @@ repeatcode proc a,count,dist
     ret
 repeatcode endp
 
-memcpy proc start,len,dist
+memcopy proc start,len,dist
     mov ecx,start
     mov edx,len
     add edx,ecx
@@ -322,10 +394,10 @@ memcpy proc start,len,dist
         inc ebx
     .endw
     ret
-memcpy endp 
+memcopy endp 
 
 unpack proc start,len,dsth
-    local writed,buff,bufflen,byteoffset,decoded,count
+    local writed,buff,bufflen,byteoffset,decoded,count,to
     mov eax,len
     .if eax<2
         invoke WriteFile,dsth,start,len,addr writed,NULL
@@ -337,32 +409,42 @@ unpack proc start,len,dsth
     add edx,ecx
     .while ecx<edx
         push edx
-        push ecx
+        mov to,ecx
         mov buff,0
         mov decoded,0
+    mov eax,90000h
         mov eax,0
         mov al,BYTE ptr[ecx+1]
         shr eax,5
         .if eax==normal_huffman
             mov eax,len
             mov ebx,32
-            shl ebx,16
+            shl ebx,20
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,ebx
             mov decoded,eax
-            invoke fromhuff,ecx,len,addr decoded,0,normal_huffman
-            add ecx,eax
-            mov count,eax
+            mov ecx,to
+            invoke fromhuff,ecx,len,decoded,0,normal_huffman
+            add eax,7
+            shr eax,3
+            add eax,to
+            mov to,eax
+            mov count,ebx
         .elseif eax==repeat_huffman
             mov eax,len
-            mov ebx,32
-            shl ebx,16
+            mov ebx,64
+            shl ebx,20
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,ebx
             mov buff,eax
-            invoke fromhuff,ecx,len,addr buff,0,repeat_huffman
-            mov bufflen,eax
+            mov ecx,to
+            invoke fromhuff,ecx,len,buff,0,repeat_huffman
+            mov bufflen,ebx
+            add eax,7
+            shr eax,3
+            add eax,to
+            mov to,eax
             mov eax,len
-            mov ebx,32
-            shl ebx,16
+            mov ebx,64
+            shl ebx,20
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,ebx
             mov decoded,eax
             invoke inflate,buff,bufflen,decoded
@@ -374,8 +456,11 @@ unpack proc start,len,dsth
             mov count,eax
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
             mov decoded,eax
+            mov ecx,to
             invoke repeatcode,BYTE ptr[ecx],count,decoded
+            mov ecx,to
             add ecx,2
+            mov to,ecx
         .elseif eax==normal_repeat2
             mov eax,0
             mov al,BYTE ptr[ecx+1]
@@ -387,11 +472,14 @@ unpack proc start,len,dsth
             mov count,eax
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
             mov decoded,eax
+            mov ecx,to
             invoke repeatcode,BYTE ptr[ecx],count,decoded
+            mov ecx,to
             add ecx,3
+            mov to,ecx
         .elseif eax==normal_nocode1
             mov eax,0
-            mov al,BYTE ptr[eax+1]
+            mov al,BYTE ptr[ecx+1]
             and eax,01fh
             mov ebx,0
             mov bl,BYTE ptr[ecx]
@@ -400,12 +488,16 @@ unpack proc start,len,dsth
             mov count,eax
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
             mov decoded,eax
+            mov ecx,to
             add ecx,2
-            invoke memcpy,decoded,ecx,count
+            invoke memcopy,ecx,count,decoded
+            mov ecx,to
             add ecx,count
+            add ecx,2
+            mov to,ecx
         .elseif eax==normal_nocode2
             mov eax,0
-            mov al,BYTE ptr[eax+1]
+            mov al,BYTE ptr[ecx+1]
             and eax,01fh
             mov ebx,0
             mov bl,BYTE ptr[ecx]
@@ -417,11 +509,15 @@ unpack proc start,len,dsth
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
             mov decoded,eax
             add ecx,2
-            invoke memcpy,decoded,ecx,count
+            mov ecx,to
+            invoke memcopy,ecx,count,decoded
+            mov ecx,to
             add ecx,count
+            add ecx,3
+            mov to,ecx
         .elseif eax==normal_nocode3
             mov eax,0
-            mov al,BYTE ptr[eax+1]
+            mov al,BYTE ptr[ecx+1]
             and eax,01fh
             mov ebx,0
             mov bl,BYTE ptr[ecx]
@@ -434,8 +530,12 @@ unpack proc start,len,dsth
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
             mov decoded,eax
             add ecx,3
-            invoke memcpy,decoded,ecx,count
+            mov ecx,to
+            invoke memcopy,ecx,count,decoded
+            mov ecx,to
+            add ecx,4
             add ecx,count
+            mov to,ecx
         .else
             invoke MessageBox,NULL,offset errortext,offset errortitle,MB_OK
             invoke ExitProcess,1
@@ -447,7 +547,7 @@ unpack proc start,len,dsth
         .if buff
             invoke GlobalFree,buff
         .endif
-        pop ecx
+        mov ecx,to
         pop edx
     .endw
     ret
@@ -457,11 +557,23 @@ unpack endp
 decodePackW proc srch,start,len,dsth
     local buff,readed
     invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,len
+
     .if !eax
         ret
     .endif
     mov buff,eax
+    mov eax,start
+    and eax,07fffffffh
+    .if start!=eax
+        invoke SetFilePointer,srch,start,NULL,FILE_END
+    .else
+        invoke SetFilePointer,srch,start,NULL,FILE_BEGIN
+    .endif
     invoke ReadFile,srch,buff,len,addr readed,0
+    mov ecx,buff
+    mov eax,95577h
+    mov eax,DWORD ptr[ecx]
+    shr eax,5
     invoke unpack,buff,len,dsth
     invoke GlobalFree,buff
     ret

@@ -25,3 +25,4 @@ test/arch/*.obj
 test/arch/*.tmp
 test/arch/*.res
 test/arch/RC*
+test/arch/'**

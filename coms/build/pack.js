@@ -47,11 +47,16 @@ function pack(readfrom, writeto) {
                 }
             });
         };
-        fs.open(writeto, 'w+', function (error, hd) {
-            if (error) return oh(error);
-            handle = hd;
+        if (typeof writeto === "string") {
+            fs.open(writeto, 'w+', function (error, hd) {
+                if (error) return oh(error);
+                handle = hd;
+                run();
+            });
+        } else {
+            handle = writeto;
             run();
-        });
+        }
     }).then(function (files) {
         var infos = files.map(createInfo);
         var index = [];

@@ -4,5 +4,6 @@
         "files.encoding": "gb18030"
     },
     "editor.acceptSuggestionOnCommitCharacter": false,
-    "vetur.format.options.tabSize": 4
+    "vetur.format.options.tabSize": 4,
+    "editor.acceptSuggestionOnEnter": "off"
 }

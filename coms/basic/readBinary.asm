@@ -1,5 +1,6 @@
 readBinary proc buff,bitoffset,bitlength
     local num,index,bitdelta,delta
+    mov eax,90007h
     mov num,0
     mov eax,bitoffset
     shr eax,3
@@ -8,62 +9,65 @@ readBinary proc buff,bitoffset,bitlength
     shl eax,3
     sub ebx,eax
     mov bitdelta,ebx
-    .if ebx
+    .if bitdelta
         mov eax,8
         sub eax,ebx
         mov bitdelta,eax
         mov ebx,buff
-        mov ecx,index
-        mov eax,[ebx + ecx]
-        inc ecx
-        mov index,ecx
+        add ebx,index
+        mov eax,0
+        mov al,BYTE ptr[ebx]
         mov delta,eax
+        mov eax,index
+        inc eax
+        mov index,eax
         mov eax,bitlength
-        mov ebx,bitdelta
-        sub eax,ebx
+        sub eax,bitdelta
         mov bitlength,eax
         mov eax,1
-        mov ecx,ebx
+        mov ecx,bitdelta
         shl eax,cl
         sub eax,1
-        mov ebx,delta
-        and eax,ebx
+        and eax,delta
         mov num,eax
-        .if bitlength < 0
+        mov eax,bitlength
+        and eax,07fffffffh
+        .if bitlength !=eax
             mov eax,0
-            mov ebx,bitlength
-            sub eax,ebx
-            mov ebx,num
+            sub eax,bitlength
             mov ecx,eax
-            shr ebx,cl
-            mov num,ebx
+            mov eax,num
+            shr eax,cl
+            mov num,eax
             mov bitlength,0
         .endif
     .endif
+    .while bitlength>=8
         mov eax,bitlength
-    .while (eax>=8)
         sub eax,8
-        mov ebx,num
-        shl ebx,8
-        mov ecx,index
-        mov edx,buff
-        mov edx,[edx + ecx]
-        inc ecx
-        mov index,ecx
-        or edx,ebx
-        mov edx,num
-    .endw
-    .if eax
-        mov ecx,index
+        mov bitlength,eax
+        mov eax,num
+        shl eax,8
         mov ebx,buff
-        mov eax,[ebx+ecx]
+        add ebx,index
+        mov al,BYTE ptr[ebx]
+        mov num,eax
+        mov eax,index
+        inc eax
+        mov index,eax
+    .endw
+    .if bitlength
+        mov ebx,buff
+        add ebx,index
+        mov al,BYTE ptr[ebx]
+        and eax,0ffh
         mov delta,eax
         mov eax,num
-        mov ebx,delta
-        shl eax,8
-        mov ecx,8
         mov ecx,bitlength
-        sub ecx,edx
+        shl eax,cl
+        mov ecx,8
+        sub ecx,bitlength
+        mov ebx,delta
         shr ebx,cl
         or eax,ebx
         mov num,eax

@@ -37,22 +37,25 @@ numberUTF16 proc t,dist
         inc ebx
     .endif
     mov eax,ebx
+
     ret
 numberUTF16 endp
 
 encodeUTF16 proc srcstart,srcleng,dststart
-    mov ecx,0
-    .while ecx<srcleng
-        mov eax,dststart
-        add eax,ecx
-        invoke numberUTF16,DWORD ptr[srcstart+ecx],eax
+    local srcend
+    mov eax,10086h
+    mov ebx,srcleng
+    mov ecx,srcstart
+    mov edx,ecx
+    add edx,srcleng
+    mov srcend,edx
+    .while ecx<srcend
+        mov eax,DWORD ptr[eax]
+        invoke numberUTF16,DWORD ptr[ecx],dststart
         mov dststart,eax
-        inc ecx
+        add ecx,4
     .endw
-    mov BYTE ptr[dststart],0
-    mov BYTE ptr[dststart+1],0
-    mov BYTE ptr[dststart+2],0
-    mov BYTE ptr[dststart+3],0
+    mov WORD ptr[dststart],0
     ret
 encodeUTF16 endp
 

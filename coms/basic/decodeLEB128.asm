@@ -1,28 +1,28 @@
 decodeLEB128 proc srcstart,srcsize,dststart
-    local temp,delta,b
+    local temp,delta,b,dstsize
     local srcend
+    mov eax,10009h
+
     mov ecx,srcstart
     mov eax,ecx
     mov ebx,srcsize
     add eax,ebx
     mov edx,eax
     mov temp,0
-    .while ecx<edx
+    mov dstsize,0
+    .while ecx <edx
         mov ebx,0
         mov bl,BYTE ptr[ecx]
         mov b,ebx
-        and bl,07fh
-        .if ebx==7
-            shl ebx,7
-        .elseif ebx==14
-            shl ebx,14
-        .elseif ebx==21
-            shl ebx,21
-        .elseif ebx==28
-            shl ebx,28
-        .endif
+        and ebx,07fh
+        push ecx
+        mov ecx,delta
+        shl ebx,cl
+        pop ecx
+        inc ecx
         mov eax,temp
         or eax,ebx
+        mov temp,eax
         mov ebx,b
         shr ebx,7
         .if ebx
@@ -32,13 +32,15 @@ decodeLEB128 proc srcstart,srcsize,dststart
             .continue
         .endif
         mov ebx,dststart
+        add ebx,dstsize
         mov DWORD ptr [ebx],eax
+        mov ebx,dstsize
         add ebx,4
-        mov dststart,ebx
+        mov dstsize,ebx
         mov temp,0
         mov delta,0
-        inc ecx
     .endw
-    mov eax,dststart
+    mov eax,dstsize
+    shr eax,2
     ret
 decodeLEB128 endp

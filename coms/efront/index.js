@@ -171,16 +171,24 @@ var helps = [
     "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
     "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
     "检查文件或文件夹中的全局变量,check FILEPATH",
-    "创建windows平台的一键安装包,packwin|pack PUBLIC_PATH PACKAGE_PATH",
-    "从一键安装包提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
+    "从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
+    "创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
+    "从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
 ];
 var commands = {
     pack(readfrom, writeto) {
         if (!writeto) {
-            console.error("请传输入目标路径！");
+            console.error("请输入目标路径！");
             return;
         }
         require("../build/pack")(readfrom, writeto);
+    },
+    packexe(readfrom, writeto) {
+        if (!writeto) {
+            console.error("请输入目标路径！");
+            return;
+        }
+        require("../build/packexe")(readfrom, writeto);
     },
     unpack(readfrom, writeto) {
         require("../build/unpack")(readfrom, writeto);

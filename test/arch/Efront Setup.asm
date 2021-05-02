@@ -121,7 +121,7 @@ gptoken dd ?
 factorProc dd ?
 monitorProc dd ?
 filelist dd 24000 dup(?)
-filecount dd ?
+filecount dd 0
 datatotal dd ?
 nametotal dd ?
 dataoffset dd ?
@@ -158,13 +158,17 @@ issetting proc
     ret
 issetting endp
 setupstart proc
+    local threadId
     invoke issetting
     .if eax
         ret
     .endif
     fld m_delta
     fstp m_processed;
-    invoke _Extract
+    invoke CreateThread,NULL,0,\
+        offset _Extract,NULL,\
+        NULL,addr threadId
+    invoke CloseHandle,eax
     ret
 setupstart endp
 
@@ -183,9 +187,9 @@ opensetup endp
 
 readcount proc h,e
     local buff[8]:byte,readed,b
-    lea esi,buff
     mov readed,0
-    invoke SetFilePointer,h,e-8,NULL,FILE_END
+    invoke SetFilePointer,h,-8,NULL,FILE_END
+    lea esi,buff
     invoke ReadFile,h,esi,sizeof buff,addr readed,0
     mov ecx,readed
     mov eax,0
@@ -194,40 +198,79 @@ readcount proc h,e
     .while ecx>0
         dec ecx
         mov al,BYTE ptr buff[ecx]
+        push ecx
         mov b,eax
-        and al,01111111b
-        .if edx==7
-            shl eax,7
-        .elseif edx==14
-            shl eax,14
-        .elseif edx==21
-            shl eax,21
-        .elseif edx==28
-            shl eax,28
-        .endif
+        and eax,01111111b
+        mov cl,dl
+        shl eax,cl
+        pop ecx
         add ebx,eax
         mov eax,b
         shr eax,7
-        .break .if eax
+        .break .if !eax
         add edx,7
     .endw
     mov eax,ebx
     ret
 readcount endp
-
+atow proc srcstart,srcleng,dststart
+    mov ecx,srcstart
+    mov edx,ecx
+    add edx,srcleng
+    mov ebx,dststart
+    mov eax,0
+    .while ecx<edx
+        mov al,BYTE ptr[ecx]
+        .if al=='/'
+            mov WORD ptr[ebx],92
+        .else
+            mov WORD ptr[ebx],ax
+        .endif
+        add ebx,2
+        inc ecx
+    .endw
+    .if eax
+        mov WORD ptr[ebx],0
+    .endif
+    ret
+atow endp
+copy proc srcstart,srcleng,dststart
+    mov ecx,srcstart
+    mov edx,ecx
+    add edx,ecx
+    add edx,srcleng
+    mov ebx,dststart
+    mov eax,0
+    .while ecx<edx
+        mov ax,WORD ptr [ecx]
+        mov WORD ptr[ebx],ax
+        add ebx,2
+        add ecx,2
+    .endw
+    .if eax
+        mov WORD ptr[ebx],0
+    .endif
+    ret
+copy endp
 writenano proc h,nametype,nameleng,isfolder,dataleng
-    local namebuff[MAX_PATH]:byte,namereaded,hdst
-    local namecode[MAX_PATH]:DWORD,databuff,datareaded
-
-    invoke ReadFile,h,addr namebuff,sizeof namebuff,addr namereaded,0
-    .if nametype
-        invoke decodeUTF8,addr namebuff,namereaded,addr namecode
-        invoke encodeUTF16,addr namebuff,eax,addr namecache
+    local namebuff,namereaded,hdst,fsize
+    local namecode,databuff,datareaded
+    mov eax,95555h
+    invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,nameleng
+    mov namebuff,eax
+    mov eax,nameleng
+    invoke SetFilePointer,h,nameoffset,NULL,FILE_END
+    invoke ReadFile,h,namebuff,nameleng,addr namereaded,0
+    invoke lstrcpy,addr namecache,addr folder
+    invoke foldersize,addr folder
+    add eax,offset namecache
+    mov WORD ptr[eax],92
+    add eax,2
+    mov fsize,eax
+    .if nametype==0
+        invoke atow,namebuff,nameleng,fsize
     .else
-        mov eax,namereaded
-        mov namebuff[eax],0
-        mov namebuff[eax+1],0
-        invoke lstrcpy,addr namecache,addr namebuff
+        invoke copy,namebuff,nameleng,fsize
     .endif
     .if isfolder
         invoke CreateDirectory,addr namecache,NULL
@@ -239,79 +282,111 @@ writenano proc h,nametype,nameleng,isfolder,dataleng
         .endif
         mov hdst,eax
         invoke decodePackW,h,dataoffset,dataleng,hdst
-        mov eax,dataoffset
-        add eax,dataleng
-        mov dataoffset,eax
+        invoke CloseHandle,hdst
     .endif
+    invoke GlobalFree,namebuff
+    invoke GlobalFree,namecode
     ret
 writenano endp
 
+processed proc count
+    finit
+    fild count
+    fidiv filecount
+    fstp m_processed
+    ret
+processed endp
+
 readindex proc h,e
-    local count,namoffset,buffname[MAX_PATH]:byte,
-    local fstart,fend,buff[3620]:byte,list[3600]:DWORD
+    local count,buffname[MAX_PATH]:byte,
+    local buffstart,buff,list
     local buffleng,listleng,nameleng,dataleng,nametype,isfolder
     local readed
+    local temp
     invoke readcount,h,e
     mov count,eax
-    mov eax,e
-    sub eax,8
+    mov eax,-8
     add eax,ecx
     sub eax,count
-    mov namoffset,eax
-    invoke SetFilePointer,h,namoffset,NULL,FILE_BEGIN
-    lea esi,buff
-    invoke ReadFile,h,esi,sizeof buff,addr readed,0
-    invoke decodeLEB128,addr buff,readed,addr list
-    lea ebx,list
-    sub eax,ebx
+    mov buffstart,eax
+    invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
+    .if !eax
+        invoke MessageBox,NULL,addr szErrOpenFile,addr szCaptionMain,MB_OK
+        ret
+    .endif
+    mov buff,eax
+    mov eax,count
+    shl eax,3
+    invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,eax
+    .if !eax
+        invoke MessageBox,NULL,addr szErrOpenFile,addr szCaptionMain,MB_OK
+        ret
+    .endif
+    mov list,eax
+    invoke SetFilePointer,h,buffstart,NULL,FILE_END
+    invoke ReadFile,h,buff,count,addr readed,0
+    mov eax,readed
+    invoke decodeLEB128,buff,readed,list
     mov listleng,eax
     mov nametotal,0
     mov datatotal,0
+    mov eax,10008h
     mov ecx,0
     mov edx,listleng
     .while ecx<edx
-        lea eax,list
-        add eax,ecx
-        mov ebx,eax
-        shr eax,1
+        mov eax,list
+        mov ebx,ecx
+        shl ebx,2
+        add ebx,eax
+        mov eax,DWORD ptr[ebx]
         mov nameleng,eax
-        mov eax,ebx
         and eax,1
         mov nametype,eax
-        lea eax,list
-        add eax,ecx
-        inc eax
+        mov eax,nameleng
+        shr eax,1
+        mov nameleng,eax
+        add ebx,4
+        mov eax,DWORD ptr[ebx]
         .if eax==0
             mov isfolder,1
+            mov dataleng,0
         .else
             mov isfolder,0
             dec eax
+            mov dataleng,eax
         .endif
-        mov dataleng,eax
         mov eax,datatotal
         add eax,dataleng
         mov datatotal,eax
         mov eax,nametotal
         add eax,nameleng
         mov nametotal,eax
-        mov eax,nametype
         mov ebx,ecx
-        shl ebx,4
+        shl ebx,3
         add ebx,offset filelist
-        mov DWORD ptr[ebx],eax
         mov eax,nametype
+        mov DWORD ptr[ebx],eax
+        mov eax,nameleng
         mov DWORD ptr[ebx+4],eax
         mov eax,isfolder
         mov DWORD ptr[ebx+8],eax
         mov eax,dataleng
         mov DWORD ptr[ebx+12],eax
         add ecx,2
+
     .endw
-    mov eax,namoffset
+    shr edx,1
+    mov filecount,edx
+    mov eax,buffstart
     sub eax,nametotal
+
     mov nameoffset,eax
     sub eax,datatotal
     mov dataoffset,eax
+
+    invoke GlobalFree,buff
+    invoke GlobalFree,list
+
     ret
 readindex endp
 
@@ -398,7 +473,7 @@ parseCommandLine proc
     ret
 parseCommandLine endp
 
-_Extract proc
+_Extract proc lParam
     local h,e,nametype,nameleng,isfolder,dataleng
     invoke opensetup
     mov h,eax
@@ -407,23 +482,40 @@ _Extract proc
     invoke readindex,h,e
     mov ecx,0
     mov edx,filecount
+    shl edx,4
     .while ecx<edx
+        mov eax,10000h
         mov ebx,DWORD ptr[ecx+offset filelist]
         mov nametype,ebx
         mov ebx,DWORD ptr[ecx+offset filelist+4]
         mov nameleng,ebx
         mov ebx,DWORD ptr[ecx+offset filelist+8]
         mov isfolder,ebx
+
         mov ebx,DWORD ptr[ecx+offset filelist+12]
         mov dataleng,ebx
         add ecx,16
         push ecx
         push edx
+        shr ecx,4
+        invoke processed,ecx
         invoke writenano,h,nametype,nameleng,isfolder,dataleng
+        mov eax,nameoffset
+        add eax,nameleng
+        mov nameoffset,eax
+        mov eax,dataoffset
+        add eax,dataleng
+        mov dataoffset,eax
         pop edx
         pop ecx
     .endw
     invoke CloseHandle,h
+    .if filecount
+        invoke processed,filecount
+    .else
+        fld1
+        fstp m_processed
+    .endif
     ret
 _Extract endp
 foldersize proc f
@@ -1322,8 +1414,7 @@ start:
     invoke parseCommandLine
     invoke folderinit
     .if hiddensetup
-        call _Extract
-
+        invoke _Extract,NULL
     .else
         invoke GdiplusStartup,offset gptoken,offset gpstart,NULL
         call _WinMain
