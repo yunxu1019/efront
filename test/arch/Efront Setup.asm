@@ -82,7 +82,7 @@ w_rect SRECT <0,0,480,360>
 g_rect real4 -1,-1,481,-1,481,361,-1,361,-1,-1
 m_actived dd 0
 m_percent real4 -0.0058
-m_delta real4 0.006
+m_delta real4 0.002
 m_processed real4 -1
 m_moved dd 0
 m_current dd 0
@@ -122,7 +122,9 @@ factorProc dd ?
 monitorProc dd ?
 filelist dd 24000 dup(?)
 filecount dd 0
-datatotal dd ?
+datatotal dd 0
+dataindex dd 0
+datapassed dd 0
 nametotal dd ?
 dataoffset dd ?
 nameoffset dd ?
@@ -281,7 +283,7 @@ writenano proc h,nametype,nameleng,isfolder,dataleng
             ret
         .endif
         mov hdst,eax
-        invoke decodePackW,h,dataoffset,dataleng,hdst
+        invoke decodePackW,h,dataoffset,dataleng,hdst,addr datapassed
         invoke CloseHandle,hdst
     .endif
     invoke GlobalFree,namebuff
@@ -291,8 +293,9 @@ writenano endp
 
 processed proc count
     finit
-    fild count
-    fidiv filecount
+    fild dataindex
+    fiadd datapassed
+    fidiv datatotal
     fstp m_processed
     ret
 processed endp
@@ -506,6 +509,9 @@ _Extract proc lParam
         mov eax,dataoffset
         add eax,dataleng
         mov dataoffset,eax
+        mov eax,dataindex
+        add eax,dataleng
+        mov dataindex,eax
         pop edx
         pop ecx
     .endw
@@ -1329,6 +1335,9 @@ _ProcWinMain proc uses ebx edi esi,hWnd,uMsg,wParam,lParam
     ;     invoke _SetFactor
     ;     invoke SetWindowPos,hWnd,NULL,w_rect.x,w_rect.y,w_rect.w,w_rect.h,SWP_NOMOVE
     .elseif eax==WM_TIMER
+        .if dataindex
+            invoke processed,0
+        .endif
         invoke _Frame,hWnd
     .elseif eax==WM_SHOWWINDOW
     .elseif eax==WM_SETCURSOR

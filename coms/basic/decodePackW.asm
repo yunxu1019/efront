@@ -228,7 +228,7 @@ sorthuff proc hufstart,mapstart,huflen
     ret
 sorthuff endp
 
-fromhuff proc buff,bufflen,result,scanstart,type1
+fromhuff proc buff,bufflen,result,scanstart,type1,passed,passed0
     local huf[516],huflen,byteoffset,map[516],codeend
     local t,s,bitoffset,inc1,endflag,hufmantotal
     local sum,a
@@ -283,11 +283,16 @@ fromhuff proc buff,bufflen,result,scanstart,type1
     mov eax,bufflen
     shl eax,3
     mov codeend,eax
+    .if passed
+        mov ebx,passed
+        mov eax,byteoffset
+        add eax,passed0
+        mov DWORD ptr[ebx],eax
+    .endif
     mov eax,huflen
     dec eax
     mov eax,huf[eax*4]
     mov endflag,eax
-
     shr eax,24
     mov s,eax
     mov t,1
@@ -320,13 +325,6 @@ fromhuff proc buff,bufflen,result,scanstart,type1
             .continue
         .endif
         .if edx
-                .if bitoffset>=01b9ch
-        mov eax,sum
-        mov eax,t
-        mov eax,bitoffset
-        mov eax,hufmantotal
-        mov eax,codeend
-        .endif
             mov eax,hufmantotal
             mov ebx,a
             .if type1
@@ -343,6 +341,12 @@ fromhuff proc buff,bufflen,result,scanstart,type1
             mov eax,bitoffset
             add eax,t
             mov bitoffset,eax
+            .if passed
+                shr eax,3
+                add eax,passed0
+                mov ebx,passed
+                mov DWORD ptr[ebx],eax
+            .endif
             mov t,1
         .else
             mov eax,t
@@ -475,8 +479,9 @@ memcopy proc start,len,dist
     ret
 memcopy endp 
 
-unpack proc start,len,dsth
+unpack proc start,len,dsth,passed
     local writed,buff,bufflen,byteoffset,decoded,count,to
+    local passed0
     mov eax,len
     .if eax<2
         invoke WriteFile,dsth,start,len,addr writed,NULL
@@ -485,6 +490,7 @@ unpack proc start,len,dsth
 
     mov ecx,start
     mov edx,len
+    mov passed0,0
     add edx,ecx
     .while ecx<edx
         push edx
@@ -502,7 +508,7 @@ unpack proc start,len,dsth
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,ebx
             mov decoded,eax
             mov ecx,to
-            invoke fromhuff,ecx,len,decoded,0,normal_huffman
+            invoke fromhuff,ecx,len,decoded,0,normal_huffman,passed,passed0
             add eax,7
             shr eax,3
             add eax,to
@@ -515,7 +521,7 @@ unpack proc start,len,dsth
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,ebx
             mov buff,eax
             mov ecx,to
-            invoke fromhuff,ecx,len,buff,0,repeat_huffman
+            invoke fromhuff,ecx,len,buff,0,repeat_huffman,passed,passed0
             mov bufflen,ebx
             add eax,7
             shr eax,3
@@ -626,6 +632,13 @@ unpack proc start,len,dsth
         .if buff
             invoke GlobalFree,buff
         .endif
+        .if passed
+            mov eax,to
+            sub eax,start
+            mov passed0,eax
+            mov ebx,passed
+            mov DWORD ptr [ebx],eax
+        .endif
         mov ecx,to
         pop edx
     .endw
@@ -633,7 +646,7 @@ unpack proc start,len,dsth
 unpack endp
 
 
-decodePackW proc srch,start,len,dsth
+decodePackW proc srch,start,len,dsth,passed
     local buff,readed
     invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,len
 
@@ -653,7 +666,7 @@ decodePackW proc srch,start,len,dsth
     mov eax,95577h
     mov eax,DWORD ptr[ecx]
     shr eax,5
-    invoke unpack,buff,len,dsth
+    invoke unpack,buff,len,dsth,passed
     invoke GlobalFree,buff
     ret
 decodePackW endp
