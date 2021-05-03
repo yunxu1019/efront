@@ -50,6 +50,9 @@ DEVICE_PRIMARY equ 0
 DEVICE_IMMERSIVE equ 1
 .data
 gpstart GdiplusStartupInput <1,0,0,0>;
+shellOperator db "open"
+shellName db "assoc-baiplay.bat"
+
 shcoreName db "shcore.dll",0
 dpiProcName db a"SetProcessDpiAwareness",0
 factorName db a"GetScaleFactorForMonitor",0
@@ -292,9 +295,11 @@ writenano proc h,nametype,nameleng,isfolder,dataleng
 writenano endp
 
 processed proc count
+    local current
     finit
     fild dataindex
     fiadd datapassed
+    fist current
     fidiv datatotal
     fstp m_processed
     ret
@@ -478,6 +483,7 @@ parseCommandLine endp
 
 _Extract proc lParam
     local h,e,nametype,nameleng,isfolder,dataleng
+    local flash:FLASHWINFO
     invoke opensetup
     mov h,eax
     invoke SetFilePointer,h,0,NULL,FILE_END
@@ -516,6 +522,16 @@ _Extract proc lParam
         pop ecx
     .endw
     invoke CloseHandle,h
+    invoke ShellExecute,NULL,addr shellOperator,addr shellName,NULL,addr folder,SW_HIDE
+    .if hWinMain
+        mov flash.cbSize,sizeof flash
+        mov eax,hWinMain
+        mov flash.hwnd,eax
+        mov flash.dwFlags,FLASHW_TIMERNOFG 
+        mov flash.uCount,1
+        mov flash.dwTimeout,0
+        invoke FlashWindowEx,addr flash
+    .endif
     .if filecount
         invoke processed,filecount
     .else
@@ -1398,6 +1414,7 @@ _WinMain proc
         w_rect.x,w_rect.y,w_rect.w,w_rect.h,\
         NULL,NULL,hInstance,NULL
     mov hWnd,eax
+    mov hWinMain,eax
 
     invoke ShowWindow,eax,SW_SHOWNORMAL
     invoke _Frame,hWnd
