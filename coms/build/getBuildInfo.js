@@ -79,6 +79,7 @@ function getBuildInfo(url) {
                     } else {
                         builder = noopbuilder;
                     }
+                    type = "@";
                     destpath = path.join(name + extt);
                     name = "/" + name;
                 } else {

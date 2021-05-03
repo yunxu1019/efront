@@ -221,6 +221,7 @@ module.exports = function (responseTree) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data) return;
+            if (v.type === "@") return;
             if (v.name !== "main") {
                 versionTree[v.name] = encrypt(v.data, encoded);
                 delete responseTree[k];
@@ -230,6 +231,7 @@ module.exports = function (responseTree) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (!v) return;
+            if (v.type === "@") return;
             if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data) return;
             if (v.name !== "main") {
                 v.data = encrypt(v.data, encoded);
