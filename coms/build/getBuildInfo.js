@@ -78,8 +78,8 @@ function getBuildInfo(url) {
                         builder = asmbuilder
                     } else {
                         builder = noopbuilder;
+                        type = "@";
                     }
-                    type = "@";
                     destpath = path.join(name + extt);
                     name = "/" + name;
                 } else {

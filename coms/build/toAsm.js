@@ -1,3 +1,5 @@
+var serialize = require("../zimoli/serialize");
+var asm2unicode = require("../arch/asm2unicode");
 function sortfile(a, b) {
     if (~a.invokes.indexOf(b.name)) {
         return -1;
@@ -152,7 +154,7 @@ ${codes.join('\r\n')}
 
 `.split(/[\r\n]+/).join("\r\n");
     var distpath = require("./environment").EXPORT_TO;
-    code = require("../arch/asm2unicode")(Buffer.from(code));
+    code = asm2unicode(Buffer.from(code));
     return {
         [distpath]: {
             destpath: distpath,

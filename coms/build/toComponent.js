@@ -112,10 +112,19 @@ function toComponent(responseTree) {
                 if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                     var reqer = reqMap[refer];
                     if (destMap[reqer]) return destMap[reqer];
+                    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
+                        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
+                    }
                     reqer = reqer.replace(/^\.?\//, '').replace(/\//g, '$');
                     if (destMap[reqer]) return destMap[reqer];
+                    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
+                        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
+                    }
                     reqer = reqer.replace(/(\.\.\$)+/, '');
                     if (destMap[reqer]) return destMap[reqer];
+                    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
+                        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
+                    }
                     if (reqer in libsTree) {
                         var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
                         k = _strings.encode(libdir);
