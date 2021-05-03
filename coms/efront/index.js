@@ -152,6 +152,7 @@ var showTopicInfo = function (commands, prefix = '') {
 };
 var helps = [
     "显示版本号,version,-v,--version",
+    "显示efront的安装路径,path,--path",
     "查看efront自身占用的内存,memery,memory,-m,--memery,--memory",
     "显示帮助信息,help,-h,--help,help COMMAND,-h COMMAND,--help COMMAND",
     "启动文档服务器,docs",
@@ -182,6 +183,9 @@ var commands = {
             return;
         }
         require("../build/pack")(readfrom, writeto);
+    },
+    path() {
+        console.type(path.join(__dirname, '../..'));
     },
     packexe(readfrom, writeto) {
         if (!writeto) {
