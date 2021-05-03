@@ -593,8 +593,8 @@ unpack proc start,len,dsth,passed
             mov count,eax
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
             mov decoded,eax
-            add ecx,2
             mov ecx,to
+            add ecx,3
             invoke memcopy,ecx,count,decoded
             mov ecx,to
             add ecx,count
@@ -614,8 +614,8 @@ unpack proc start,len,dsth,passed
             mov count,eax
             invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
             mov decoded,eax
-            add ecx,3
             mov ecx,to
+            add ecx,4
             invoke memcopy,ecx,count,decoded
             mov ecx,to
             add ecx,4
