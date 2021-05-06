@@ -51,8 +51,13 @@ DEVICE_IMMERSIVE equ 1
 .data
 gpstart GdiplusStartupInput <1,0,0,0>;
 shellOperator db "open"
-shellName db "assoc-baiplay.bat"
-
+assocname db "assoc.bat"
+unassoc db "unassoc.bat"
+uninstall db "cmd.exe"
+uninstallParam db "/c cd ..& rd /s /q ."
+uninstallName db "卸载.scr",0,0
+uninstallSize dd 0
+uninstallRest dd 0
 shcoreName db "shcore.dll",0
 dpiProcName db a"SetProcessDpiAwareness",0
 factorName db a"GetScaleFactorForMonitor",0
@@ -67,6 +72,8 @@ szCaptionMain db '白前安装程序',0
 onekey1 db '一键安装',0
 onekey2 db '正在安装',0,0,0
 onekey3 db '　完成　',0
+onekey4 db '一键卸载',0
+onekey5 db '正在卸载',0
 onekey_rect real4 336,208,100,100
 szText db '白前'
 titlerect real4 18,20,150,50
@@ -85,7 +92,7 @@ w_rect SRECT <0,0,480,360>
 g_rect real4 -1,-1,481,-1,481,361,-1,361,-1,-1
 m_actived dd 0
 m_percent real4 -0.0058
-m_delta real4 0.002
+m_delta real4 0.003
 m_processed real4 -1
 m_moved dd 0
 m_current dd 0
@@ -97,6 +104,7 @@ m_arrow dd IDC_ARROW
 m_hand dd IDC_HAND
 m_cursor dd ?
 m_folder real4 0,0,0,0
+isuninstall dd 0
 m_pos POINT <0,0>
 close EFRONT_BUTTON<0,0,0,0,0>
 setup EFRONT_BUTTON<0,0,0,0,0>
@@ -179,7 +187,7 @@ setupstart endp
 
 opensetup proc
     local @hFile
-    local filename[MAX_PATH]:byte
+    local filename[MAX_PATH]:WORD
     invoke GetModuleFileName ,0,addr filename, sizeof filename
     invoke CreateFile,addr filename,GENERIC_READ,FILE_SHARE_READ,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0
     .if eax==INVALID_HANDLE_VALUE
@@ -190,13 +198,16 @@ opensetup proc
     ret
 opensetup endp
 
-readcount proc h,e
+readcount proc h
     local buff[8]:byte,readed,b
     mov readed,0
     invoke SetFilePointer,h,-8,NULL,FILE_END
     lea esi,buff
     invoke ReadFile,h,esi,sizeof buff,addr readed,0
     mov ecx,readed
+    .if isuninstall
+        dec ecx
+    .endif
     mov eax,0
     mov ebx,0
     mov edx,0
@@ -242,7 +253,6 @@ atow endp
 copy proc srcstart,srcleng,dststart
     mov ecx,srcstart
     mov edx,ecx
-    add edx,ecx
     add edx,srcleng
     mov ebx,dststart
     mov eax,0
@@ -257,6 +267,14 @@ copy proc srcstart,srcleng,dststart
     .endif
     ret
 copy endp
+initnano proc
+    invoke lstrcpy,addr namecache,addr folder
+    invoke foldersize,addr folder
+    add eax,offset namecache
+    mov WORD ptr[eax],92
+    add eax,2
+    ret
+initnano endp
 writenano proc h,nametype,nameleng,isfolder,dataleng
     local namebuff,namereaded,hdst,fsize
     local namecode,databuff,datareaded
@@ -266,11 +284,7 @@ writenano proc h,nametype,nameleng,isfolder,dataleng
     mov eax,nameleng
     invoke SetFilePointer,h,nameoffset,NULL,FILE_END
     invoke ReadFile,h,namebuff,nameleng,addr namereaded,0
-    invoke lstrcpy,addr namecache,addr folder
-    invoke foldersize,addr folder
-    add eax,offset namecache
-    mov WORD ptr[eax],92
-    add eax,2
+    invoke initnano
     mov fsize,eax
     .if nametype==0
         invoke atow,namebuff,nameleng,fsize
@@ -278,40 +292,54 @@ writenano proc h,nametype,nameleng,isfolder,dataleng
         invoke copy,namebuff,nameleng,fsize
     .endif
     .if isfolder
-        invoke CreateDirectory,addr namecache,NULL
-    .else
-        mov databuff,eax
-        invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
-        .if eax==INVALID_HANDLE_VALUE
-            ret
+        .if isuninstall
+            invoke RemoveDirectory,addr namecache
+        .else
+            invoke CreateDirectory,addr namecache,NULL
         .endif
-        mov hdst,eax
-        invoke decodePackW,h,dataoffset,dataleng,hdst,addr datapassed
-        invoke CloseHandle,hdst
+    .else
+        .if isuninstall
+            invoke DeleteFile,addr namecache
+        .else
+            mov databuff,eax
+            invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
+            .if eax==INVALID_HANDLE_VALUE
+                ret
+            .endif
+            mov hdst,eax
+            invoke decodePackW,h,dataoffset,dataleng,hdst,addr datapassed
+            invoke CloseHandle,hdst
+        .endif
     .endif
     invoke GlobalFree,namebuff
     invoke GlobalFree,namecode
     ret
 writenano endp
 
+
 processed proc count
-    local current
+    local current,total
     finit
+    fild datatotal
+    .if !isuninstall
+        fiadd uninstallSize
+    .endif
+    fistp total
     fild dataindex
     fiadd datapassed
     fist current
-    fidiv datatotal
+    fidiv total
     fstp m_processed
     ret
 processed endp
 
-readindex proc h,e
-    local count,buffname[MAX_PATH]:byte,
+readindex proc h
+    local count,buffname[MAX_PATH]:WORD,
     local buffstart,buff,list
     local buffleng,listleng,nameleng,dataleng,nametype,isfolder
     local readed
     local temp
-    invoke readcount,h,e
+    invoke readcount,h
     mov count,eax
     mov eax,-8
     add eax,ecx
@@ -389,8 +417,13 @@ readindex proc h,e
     sub eax,nametotal
 
     mov nameoffset,eax
+    mov uninstallRest,eax
     sub eax,datatotal
     mov dataoffset,eax
+    invoke SetFilePointer,h,dataoffset,NULL,FILE_END
+    add eax,1
+    sub eax,uninstallRest
+    mov uninstallSize,eax
 
     invoke GlobalFree,buff
     invoke GlobalFree,list
@@ -481,19 +514,86 @@ parseCommandLine proc
     ret
 parseCommandLine endp
 
+folderpath proc p,s,d
+    local a
+    mov eax,p
+    mov ecx,0
+    mov edx,s
+    mov a,0
+    .while ecx<edx
+        mov ebx,eax
+        add ebx,ecx
+        mov bx,WORD ptr[ebx]
+        and bx,0ffh
+        .if ebx=='\'||ebx=='/'
+            mov a,ecx
+
+        .endif
+        add ecx,2
+    .endw
+    invoke lstrcpy,d,p
+    lea eax,d
+    add eax,a
+    mov WORD ptr[eax],0
+    ret
+folderpath endp
+
+programinit proc
+    local h
+    local filename[MAX_PATH]:WORD
+    invoke opensetup
+    mov h,eax
+    invoke readcount,h
+    .if !eax
+        invoke GetModuleFileName,0,addr filename,sizeof filename
+        invoke foldersize,addr filename
+        lea ebx,filename
+        add eax,ebx
+        .while WORD ptr[eax]!='\' && eax>ebx
+            sub eax,2
+        .endw
+        mov WORD ptr[eax],0
+        invoke lstrcpy,addr buffer2,addr filename;
+        invoke lstrcpy,addr onekey1,addr onekey4
+        invoke lstrcpy,addr onekey2,addr onekey5
+        mov isuninstall,1
+    .else 
+        mov isuninstall,0
+    .endif
+    invoke CloseHandle,h
+    ret
+programinit endp
+
 _Extract proc lParam
     local h,e,nametype,nameleng,isfolder,dataleng
     local flash:FLASHWINFO
+    local delta
+    local hdata,readed,hdst
     invoke opensetup
     mov h,eax
-    invoke SetFilePointer,h,0,NULL,FILE_END
-    mov e,eax
-    invoke readindex,h,e
-    mov ecx,0
-    mov edx,filecount
-    shl edx,4
-    .while ecx<edx
+    invoke readindex,h
+    .if isuninstall
+        mov ecx,filecount
+        shl ecx,4
+        mov edx,0
+        mov delta,3
+        fld m_delta
+        fimul delta
+        fstp m_delta
+        mov eax,nameoffset
+        add eax,nametotal
+        mov nameoffset,eax
+    .else
+        mov ecx,0
+        mov delta,16
+        mov edx,filecount
+        shl edx,4
+    .endif
+    .while ecx!=edx
         mov eax,10000h
+        .if isuninstall
+            sub ecx,16
+        .endif
         mov ebx,DWORD ptr[ecx+offset filelist]
         mov nametype,ebx
         mov ebx,DWORD ptr[ecx+offset filelist+4]
@@ -503,26 +603,65 @@ _Extract proc lParam
 
         mov ebx,DWORD ptr[ecx+offset filelist+12]
         mov dataleng,ebx
-        add ecx,16
+        .if !isuninstall
+            add ecx,16
+        .endif
         push ecx
         push edx
         shr ecx,4
         invoke processed,ecx
+        .if isuninstall
+            mov eax,nameoffset
+            sub eax,nameleng
+            mov nameoffset,eax
+        .endif
         invoke writenano,h,nametype,nameleng,isfolder,dataleng
-        mov eax,nameoffset
-        add eax,nameleng
-        mov nameoffset,eax
-        mov eax,dataoffset
-        add eax,dataleng
-        mov dataoffset,eax
-        mov eax,dataindex
-        add eax,dataleng
-        mov dataindex,eax
+        .if !isuninstall
+            mov eax,nameoffset
+            add eax,nameleng
+            mov nameoffset,eax
+            mov eax,dataoffset
+            add eax,dataleng
+            mov dataoffset,eax
+            mov eax,dataindex
+            add eax,dataleng
+            mov dataindex,eax
+        .endif
         pop edx
         pop ecx
     .endw
+    .if !isuninstall && uninstallSize
+        invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,uninstallSize
+        mov hdata,eax
+        invoke SetFilePointer,h,0,NULL,FILE_BEGIN
+        mov ecx,uninstallSize
+        sub ecx,1
+        add ecx,uninstallRest
+        invoke ReadFile,h,hdata,ecx,addr readed,0
+        invoke SetFilePointer,h,uninstallRest,NULL,FILE_END
+        mov ecx,0
+        sub ecx,uninstallRest
+        mov ebx,hdata
+        add ebx,uninstallSize
+        add ebx,uninstallRest
+        dec ebx
+        invoke ReadFile,h,ebx,ecx,addr readed,0
+        mov ecx,uninstallSize
+        dec ecx
+        add ecx,hdata
+        mov BYTE ptr[ecx],0
+        invoke initnano
+        invoke copy,addr uninstallName,sizeof uninstallName,eax
+        invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
+        mov hdst,eax
+        invoke WriteFile,hdst,hdata,uninstallSize,0,NULL
+        mov uninstallSize,0
+        invoke processed,0
+        invoke GlobalFree,hdata
+        invoke CloseHandle,hdst
+    .endif
     invoke CloseHandle,h
-    invoke ShellExecute,NULL,addr shellOperator,addr shellName,NULL,addr folder,SW_HIDE
+    invoke ShellExecute,NULL,addr shellOperator,addr assocname,NULL,addr folder,SW_HIDE
     .if hWinMain
         mov flash.cbSize,sizeof flash
         mov eax,hWinMain
@@ -532,12 +671,8 @@ _Extract proc lParam
         mov flash.dwTimeout,0
         invoke FlashWindowEx,addr flash
     .endif
-    .if filecount
-        invoke processed,filecount
-    .else
         fld1
         fstp m_processed
-    .endif
     ret
 _Extract endp
 foldersize proc f
@@ -600,7 +735,7 @@ folderinit proc
     mov bufferat,ebx
     invoke folderfind,addr findmark
     .if eax
-        invoke folderfind,addr shellName
+        invoke folderfind,addr assocname
         mov ebx,bufferat
         .if !eax
             mov ecx,offset szText
@@ -864,7 +999,11 @@ drawlogo proc @gp
     fild count
     fmul m_percent
     fistp percented
-    invoke GdipCreatePen1,0ffd4d6d6h,width_10,0,addr pen
+    .if isuninstall
+        invoke GdipCreatePen1,0ff336600h,width_10,0,addr pen
+    .else
+        invoke GdipCreatePen1,0ffd4d6d6h,width_10,0,addr pen
+    .endif
     mov eax,percented
     shr eax,31
     .if eax
@@ -879,9 +1018,24 @@ drawlogo proc @gp
     .if percented>sizeof logoline
         mov percented,sizeof logoline
     .endif
-    mov eax,percented
+    .if isuninstall
+        mov eax,sizeof logoline
+        sub eax,percented
+    .else
+        mov eax,percented
+    .endif
     shr eax,3
     mov percented,eax
+    invoke GdipSetPenColor,pen,0ffd4d6d6h
+    invoke GdipResetPath,ground.clip
+    mov eax,percented
+    shl eax,3
+    add eax,offset logoline
+    mov ebx,sizeof logoline
+    shr ebx,3
+    sub ebx,percented
+    invoke GdipAddPathLine2,ground.clip,eax,ebx
+    invoke GdipDrawPath,@gp,pen,ground.clip
     invoke GdipSetPenColor,pen,0ff336600h
     invoke GdipResetPath,ground.clip
     invoke GdipAddPathLine2,ground.clip,offset logoline,percented
@@ -1135,7 +1289,7 @@ _Frame proc hWnd
         fimul delta
         fistp delta
         mov eax,delta
-        .if eax>30
+        .if eax>23
             .if eax>=100
                 mov setup.text,offset onekey3
             .else
@@ -1476,6 +1630,39 @@ _WinMain proc
     ret
 _WinMain endp
 
+removeall proc
+    local info:SHELLEXECUTEINFO
+    local param[MAX_PATH]:WORD
+    local direc[MAX_PATH]:WORD
+    invoke lstrcpy,addr param,addr uninstallParam
+    invoke foldersize,addr param
+    mov ebx,eax
+    lea eax,param
+    add eax,ebx
+    sub eax,2
+    mov WORD ptr[eax],'"'
+    invoke lstrcat,addr param,addr folder
+    invoke foldersize,addr param
+    mov ebx,eax
+    lea eax,param
+    add eax,ebx
+    mov WORD ptr[eax],'"'
+    mov WORD ptr[eax+2],0
+    invoke folderpath,addr folder,sizeof folder,addr direc
+    mov info.cbSize , sizeof info;
+    mov info.fMask , SEE_MASK_NOCLOSEPROCESS;
+    mov info.hwnd , NULL;
+    mov info.lpVerb , NULL;
+    mov info.lpFile , offset uninstall ;
+    lea eax,param
+    mov info.lpParameters ,  eax;
+    lea eax,direc
+    mov info.lpDirectory , eax;
+    mov info.nShow , SW_HIDE;
+    mov info.hInstApp , NULL;
+    invoke ShellExecuteEx,addr info
+    ret
+removeall endp
 
 start:
     invoke _ChangeLine,addr logodots,sizeof logodots,logo_c
@@ -1485,6 +1672,7 @@ start:
     invoke _SetFactor
     invoke GetEnvironmentVariable,offset program,offset buffer2,MAX_PATH
     invoke parseCommandLine
+    invoke programinit
     invoke folderinit
     .if hiddensetup
         invoke _Extract,NULL
@@ -1493,6 +1681,11 @@ start:
         call _WinMain
         invoke _DeleteShapes
         invoke GdiplusShutdown,gptoken
+    .endif
+    .if filecount
+        .if isuninstall
+            invoke removeall
+        .endif
     .endif
     invoke ExitProcess,NULL
 end start
