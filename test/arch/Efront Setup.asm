@@ -111,7 +111,7 @@ szErrCreateFile db '创建文件失败！',0
 hiddensetup dd 0
 hiddenmark db "/s"
 hiddenmark1 db "/h"
-
+findmark db "*.*"
 
 folder_rect real4 20,320,440,21
 hWinMain dd 0
@@ -556,21 +556,68 @@ foldersize proc f
     .endw
     ret
 foldersize endp
+folderfind proc mark
+    local finded:WIN32_FIND_DATA,temppath[MAX_PATH]:WORD
+    local h,s
+    invoke lstrcpy,addr temppath,offset buffer
+    invoke lstrcat,addr temppath,mark
+    invoke FindFirstFile,addr temppath,addr finded
+    .if eax!=INVALID_HANDLE_VALUE
+        .if finded.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY
+            mov h,eax
+            mov s,0
+            .repeat
+                mov eax,s
+                add eax,1
+                mov s,eax
+                invoke FindNextFile,h,addr finded
+            .until (eax==FALSE||s>2)
+            invoke FindClose,eax
+            .if s>2
+                mov eax,1
+            .else 
+                mov eax,0
+            .endif
+        .else
+            mov eax,1
+        .endif
+    .else
+        mov eax,0
+    .endif
+    ret
+folderfind endp
 folderinit proc
+    local bufferat
     invoke lstrcpy,offset buffer,offset buffer2
     invoke foldersize,offset buffer
     add eax,offset buffer
-    mov ecx,offset szText
     mov ebx,eax
     .if WORD ptr [ebx-2]!="\"
         mov WORD ptr [ebx],"\"
         add ebx,2
+        mov WORD ptr [ebx],0
     .endif
-    mov ax,WORD ptr [ecx]
-    mov WORD ptr [ebx],ax
-    mov ax,WORD ptr [ecx+2]
-    mov WORD ptr [ebx+2],ax
-    mov WORD ptr [ebx+4],0
+    mov bufferat,ebx
+    invoke folderfind,addr findmark
+    .if eax
+        invoke folderfind,addr shellName
+        mov ebx,bufferat
+        .if !eax
+            mov ecx,offset szText
+            mov ax,WORD ptr [ecx]
+            mov WORD ptr [ebx],ax
+            mov ax,WORD ptr [ecx+2]
+            mov WORD ptr [ebx+2],ax
+            mov WORD ptr [ebx+4],0
+            add ebx,4
+        .endif
+        mov bufferat,ebx
+    .endif
+    .if WORD ptr[ebx-2]=="\"
+        mov ebx,bufferat
+        mov WORD ptr[ebx-2],0
+    .endif
+
     invoke lstrcpy,offset folder,offset buffer
     ret
 folderinit endp
