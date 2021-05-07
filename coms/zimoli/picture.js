@@ -47,6 +47,7 @@ var create = function (url, key) {
     var createImage = p.createImage || _createImage;
     var image_width, image_height;
     var scaled, x, y, min_scale, loaded_scale, click_scale, loaded_x, loaded_y;
+    var origin_width, origin_height;
     var max_scale = 10 * devicePixelRatio;
 
     var setInitParams = function () {
@@ -58,6 +59,9 @@ var create = function (url, key) {
         }
         image_width = image.width / devicePixelRatio;
         image_height = image.height / devicePixelRatio;
+        origin_width = image.clientWidth;
+        origin_height = image.clientHeight;
+        origin_rotate = 0;
         if (p.current === image) {
             p.width = image.width;
             p.height = image.height;
@@ -83,6 +87,7 @@ var create = function (url, key) {
         scaled = loaded_scale;
         x = loaded_x;
         y = loaded_y;
+        updatexy();
     };
     var set_unlock = function () {
         if (!loaded_scale) return;
@@ -142,15 +147,23 @@ var create = function (url, key) {
     var get_style = function (type) {
         var width = image_width * scaled;
         var height = image_height * scaled;
-        if (type <= 0) [x, y] = trimCoord([image.clientWidth, image.clientHeight], [x, y, width, height], type);
+        var r = image.rotate | 0;
+        var [, , w, h] = getrotatedltwh(r);
+        if (type <= 0) {
+            var x0 = x + (width - w) / 2;
+            var y0 = y + (height - h) / 2;
+            var [x1, y1] = trimCoord([image.clientWidth, image.clientHeight], [x0, y0, w, h], type);
+            x += x1 - x0;
+            y += y1 - y0;
+        }
         var [left, top, marginLeft, marginTop] = coordIn([image.clientWidth, image.clientHeight], [x, y, width, height]);
-
         return {
             imageRendering: scaled >= 3 / devicePixelRatio ? "pixelated" : "",
             width: fromOffset(width),
             height: fromOffset(height),
             left,
             top,
+            transform: `rotate(${origin_rotate}deg)`,
             marginLeft,
             marginTop
         };
@@ -297,8 +310,49 @@ var create = function (url, key) {
     on("remove")(image, function () {
         removeFromList(mountedPictures, image);
     });
+    var origin_rotate = 0;
+    var updatexy = function () {
+        var deg = image.rotate - origin_rotate;
+        if (isFinite(deg)) {
+            origin_rotate = image.rotate;
+            [x, y] = getrotatedltwh(deg, scaled);
+        }
+    };
+    var getrotatedltwh = function (a, s = scaled) {
+        var w = image_width * s;
+        var h = image_height * s;
+        var c = [image.clientWidth / 2, image.clientHeight / 2];
+        var m = x + w / 2;
+        var n = y + h / 2;
+        var [c1, c2] = rotate([m, n], -a, c);
+        c1 -= w / 2;
+        c2 -= h / 2;
+        a = origin_rotate;
+        var l = c[0] - w / 2;
+        var r = l + w;
+        var t = c[1] - h / 2;
+        var b = t + h;
+        var [x1, y1] = rotate([l, t], a, c);
+        var [x2, y2] = rotate([r, t], a, c);
+        var [x3, y3] = rotate([l, b], a, c);
+        var [x4, y4] = rotate([r, b], a, c);
+        var l = Math.min(x1, x2, x3, x4);
+        var t = Math.min(y1, y2, y3, y4);
+        var w = Math.max(x1, x2, x3, x4) - l;
+        var h = Math.max(y1, y2, y3, y4) - t;
+        return [c1, c2, w, h];
+    };
     image.update = function () {
-        if (image.locked) return;
+        if (image.locked) {
+            updatexy();
+            x += (image.clientWidth - origin_width) / 2;
+            y += (image.clientHeight - origin_height) / 2;
+            origin_height = image.clientHeight;
+            origin_width = image.clientWidth;
+            __css(imgpic, get_style(-1));
+            return;
+        }
+
         setInitParams();
         recover();
     }
@@ -355,5 +409,24 @@ function picture(url, to = 0, key) {
         return 1;
     };
     p.initialStyle = 'backdrop-filter:blur(0);opacity:0;';
+    p.rotateTo = function (deg) {
+        var img = p.current;
+        if (!img) return;
+        img.rotate = deg;
+        img.update();
+        return deg;
+    };
+    p.rotateBy = function (deg) {
+        var img = p.current;
+        if (!img) return;
+        var r = img.rotate | 0;
+        if (deg === 90 || deg === -90) {
+            r = (r / 90 | 0) * 90;
+        }
+        r += deg;
+        img.rotate = r;
+        img.update();
+        return r;
+    };
     return p;
 }
