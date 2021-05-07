@@ -76,6 +76,7 @@ var lastLogLength = 0, lastLogTime = 0;
 var logTime = function () {
     lastLogTime = new Date;
     var time = formatDate.call(lastLogTime) + ` ${colors.FgGreen2 + version + colors.Reset} `;
+    write(false, '');
     write(true, time);
 };
 var logStamp = function () {
@@ -149,5 +150,8 @@ colored.begin = function (c) {
 };
 colored.end = function () {
     return write(false, colors.Reset);
+};
+console.clear = function () {
+    return write(false, '');
 };
 module.exports = colored;

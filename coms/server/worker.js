@@ -245,6 +245,10 @@ function initServer(port) {
 }
 function netOnceDataAdapter(buf) {
     var socket_type = [0x1603, 0x434f].indexOf((buf[0] << 8) + buf[1]);
+    if (memery.loghead) {
+        console.clear();
+        console.log(String(buf));
+    }
     var socket = this;
     socket.on('error', function () { })
     socket.unshift(buf);

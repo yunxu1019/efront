@@ -5,6 +5,7 @@ var istest = test(env.IN_TEST_MODE) || test(env.IS_TEST_MODE) || test(env.TEST_M
 var noproxy;
 module.exports = {
     compress: !istest,
+    loghead: env.LOG,
     get noproxy() {
         if (noproxy !== undefined) {
             return noproxy;
