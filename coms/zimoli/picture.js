@@ -163,8 +163,8 @@ var create = function (url, key) {
             height: fromOffset(height),
             left,
             top,
-            transform: `rotate(${origin_rotate}deg)`,
             marginLeft,
+            transform: `rotate(${origin_rotate}deg)`,
             marginTop
         };
     };
@@ -342,7 +342,7 @@ var create = function (url, key) {
         var h = Math.max(y1, y2, y3, y4) - t;
         return [c1, c2, w, h];
     };
-    image.update = function () {
+    image.update = function (animate) {
         if (image.locked) {
             updatexy();
             x += (image.clientWidth - origin_width) / 2;
@@ -352,9 +352,13 @@ var create = function (url, key) {
             __css(imgpic, get_style(-1));
             return;
         }
-
         setInitParams();
-        recover();
+        if (animate !== false) {
+            recover();
+        } else {
+            __css(imgpic, get_style(-1));
+        }
+
     }
     return image;
 };
@@ -425,7 +429,7 @@ function picture(url, to = 0, key) {
         }
         r += deg;
         img.rotate = r;
-        img.update();
+        img.update(deg === 90 || deg === -90);
         return r;
     };
     return p;
