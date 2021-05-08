@@ -173,6 +173,7 @@ var helps = [
     "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
     "检查文件或文件夹中的全局变量,check FILEPATH",
     "从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
+    "对json数据进行签名,sign JSON_PATH SIGNNAME",
     "创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
 ];
@@ -183,6 +184,14 @@ var commands = {
             return;
         }
         require("../build/pack")(readfrom, writeto);
+    },
+    sign(filepath, mask) {
+        var data = fs.readFileSync(filepath).toString();
+        data = JSON.parse(data);
+        delete data.sign;
+        data.sign = require("../basic/crypt").sum(data, mask);
+        data = JSON.stringify(data);
+        fs.writeFileSync(filepath, data);
     },
     path() {
         console.type(path.join(__dirname, '../..'));
@@ -603,6 +612,8 @@ var topics = {
     MESSAGE: "文本消息",
     PUBLIC_PATH: "软件发布目录",
     PACKAGE_PATH: "安装包的路径",
+    JSON_PATH: "json文件所在的路径",
+    SIGNNAME: "签名",
     FILEPATH: "文件或文件夹的路径",
 };
 topics.VARIABLES += "," + Object.keys(topics);
