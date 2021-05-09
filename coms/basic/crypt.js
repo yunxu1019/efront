@@ -1,4 +1,5 @@
 var signkey = "efront2021";
+var JSAM = require("./JSAM");
 var calc = function (str, password) {
     str = signkey + String(str) + password;
     str += str.length;
