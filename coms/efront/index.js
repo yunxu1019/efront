@@ -188,8 +188,7 @@ var commands = {
     sign(filepath, mask) {
         var data = fs.readFileSync(filepath).toString();
         data = JSON.parse(data);
-        delete data.sign;
-        data.sign = require("../basic/crypt").sum(data, mask);
+        require("../basic/crypt").sign(data, mask);
         data = JSON.stringify(data);
         fs.writeFileSync(filepath, data);
     },

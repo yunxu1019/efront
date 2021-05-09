@@ -50,4 +50,13 @@ module.exports = {
     stringify,
     parse,
     sum: signonly,
+    sign: function (data, mask) {
+        delete data.sign;
+        data.sign = signonly(data, mask);
+    },
+    checksign: function (data, mask) {
+        var sign = data.sign;
+        delete data.sign;
+        return sign = signonly(data, mask);
+    }
 };
