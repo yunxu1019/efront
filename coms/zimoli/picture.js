@@ -425,9 +425,28 @@ function picture(url, to = 0, key) {
         if (!img) return;
         var r = img.rotate | 0;
         if (deg === 90 || deg === -90) {
-            r = (r / 90 | 0) * 90;
+            r += deg;
+            if (deg > 0) {
+                // 九进八舍
+                var a = r / 90;
+                if (Math.ceil(a) - a < .01) {
+                    r = Math.ceil(a) * 90;
+                    console.log(r, a * 90);
+                } else {
+                    r = Math.floor(a) * 90;
+                }
+            } else {
+                // 一进零舍
+                var a = r / 90;
+                if (Math.ceil(a) - a > .01) {
+                    r = Math.ceil(a) * 90;
+                } else {
+                    r = Math.floor(a) * 90;
+                }
+            }
+        } else {
+            r += deg;
         }
-        r += deg;
         img.rotate = r;
         img.update(deg === 90 || deg === -90);
         return r;
