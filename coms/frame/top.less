@@ -1,50 +1,104 @@
-@import "./config.less";
+@import "../config.less";
 
 & {
     // background-color    : #fff;
-    position               : relative;
-    z-index                : 1;
-    line-height            : 44px;
-    text-align             : right;
+    user-select: none;
+    position: relative;
+    z-index: 1;
+    line-height: 44px;
+    height: 44px;
     -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter        : saturate(180%) blur(20px);
-    background             : rgba(255, 255, 255, .7);
+    backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(255, 255, 255, .7);
+    box-shadow: 0 0 6px -4px rgba(0, 0, 0, .3);
+    overflow: hidden;
+    white-space: nowrap;
 
     >div {
         display: inline-block;
     }
 }
 
+[insert] {
+    display: inline-block;
+    position: sticky;
+    right: 0;
+    width: auto;
+    background: #fff;
+    background: linear-gradient(90deg, #fff0, #fff 10px);
+    background-clip: border-box;
+    z-index: 1;
+    right: 0;
+    padding-left: 10px;
+    margin-left: -10px;
+    box-sizing: border-box;
+}
 
-.menu-items {
-    float       : left;
-    padding-left: 2px;
+.searchbox {
+    margin: 8px 10px;
+    vertical-align: middle;
+    max-width: 100%;
+    float: right;
+    background-color: #f6f6f6;
+}
+
+>.menu-items {
+    overflow: hidden;
+    padding-left: 12px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .menu-item {
+    &:last-child {
+        margin-right: 12px;
+    }
+
     &.menu-switch {
         background-color: #F2B33F;
     }
 
-    border-radius   : 18px;
+    &.menu-page {
+        background-color: #ccc;
+    }
+
+    &.actived {
+        background-color: #5ad;
+    }
+
+    border-radius : 18px;
     background-color: #629aa9;
-    color           : #fff;
-    position        : relative;
-    display         : inline-block;
-    width           : 36px;
-    height          : 36px;
-    line-height     : 36px;
-    text-align      : center;
-    margin-left     : 10px;
-    overflow        : visible;
+    color : #fff;
+    position : relative;
+    display : inline-block;
+    width : 36px;
+    height : 36px;
+    line-height : 37px;
+    text-align : center;
+    margin-right : 10px;
+    overflow : visible;
+
+    >close {
+        position: absolute;
+        right: -12px;
+        top: -12px;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        color: #666;
+
+        &:hover {
+            color: #f24;
+        }
+    }
 
     >span {
-        position     : absolute;
-        width        : auto;
-        min-width    : 20px;
-        height       : 20px;
-        line-height  : 20px;
-        text-align   : center;
+        width: auto;
+        min-width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
         border-radius: 10px;
     }
 
@@ -64,43 +118,43 @@
 .option-items {
 
     >* {
-        height        : 60px;
-        line-height   : 60px;
-        padding       : 0 16px;
+        height: 60px;
+        line-height: 60px;
+        padding: 0 16px;
         vertical-align: top;
         // background : transparent;
         // color      : black;
-        margin-left   : 10px;
+        margin-left: 10px;
     }
 }
 
 .user-name {
-    height    : 60px;
+    height: 60px;
     text-align: left;
 
     p {
         line-height: 14px;
-        margin     : 10px 0;
-        font-size  : 14px;
-        color      : #F2B33F;
+        margin: 10px 0;
+        font-size: 14px;
+        color: #F2B33F;
         font-weight: 700;
     }
 
     span {
-        font-size     : 12px;
-        line-height   : 12px;
-        color         : #424f63;
-        font-weight   : normal;
+        font-size: 12px;
+        line-height: 12px;
+        color: #424f63;
+        font-weight: normal;
         vertical-align: top;
     }
 }
 
 .userinfo {
-    height        : 59px;
+    height: 59px;
     vertical-align: top;
-    background    : transparent;
-    color         : #ccc;
-    box-shadow    : none;
+    background: transparent;
+    color: #ccc;
+    box-shadow: none;
 
     >* {
         display: inline-block;
@@ -108,9 +162,9 @@
 
     img {
         vertical-align: top;
-        border-radius : 50%;
-        height        : 50px;
-        width         : 50px;
-        margin        : 5px;
+        border-radius: 50%;
+        height: 50px;
+        width: 50px;
+        margin: 5px;
     }
 }
