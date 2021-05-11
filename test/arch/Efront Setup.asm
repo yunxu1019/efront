@@ -257,10 +257,12 @@ copy proc srcstart,srcleng,dststart
     mov ebx,dststart
     mov eax,0
     .while ecx<edx
-        mov ax,WORD ptr [ecx]
+        mov ah,BYTE ptr [ecx]
+        inc ecx
+        mov al,BYTE ptr [ecx]
+        inc ecx
         mov WORD ptr[ebx],ax
         add ebx,2
-        add ecx,2
     .endw
     .if eax
         mov WORD ptr[ebx],0
@@ -651,7 +653,7 @@ _Extract proc lParam
         add ecx,hdata
         mov BYTE ptr[ecx],0
         invoke initnano
-        invoke copy,addr uninstallName,sizeof uninstallName,eax
+        invoke lstrcpy,eax,addr uninstallName
         invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
         mov hdst,eax
         invoke WriteFile,hdst,hdata,uninstallSize,0,NULL
