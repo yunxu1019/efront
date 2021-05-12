@@ -6,7 +6,7 @@ function packexe(readfrom, writeto) {
         if (error) return console.error(error);
         fs.readFile(exepath, function (error, data) {
             if (error) return console.error(error);
-            if (data[data.length - 4] | data[data.length - 3] | data[data.length - 2] | data[data.length - 1] !== 0) {
+            if ((data[data.length - 4] | data[data.length - 3] | data[data.length - 2] | data[data.length - 1]) !== 0) {
                 data = Buffer.concat(data, new Uint8Array(4));
             }
             fs.write(hd, data, function (error) {
