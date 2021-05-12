@@ -30,6 +30,15 @@ function pack(readfrom, writeto) {
                     fs.readdir(file, function (error, names) {
                         if (error) return oh(error);
                         var list = names.map(n => path.join(file, n));
+                        var max = 0, maxi = 0;
+                        for (var cx = 0, dx = list.length; cx < dx; cx++) {
+                            var size = fs.statSync(list[cx]).size;
+                            if (size > max) {
+                                max = size;
+                                maxi = cx;
+                            }
+                        }
+                        list.unshift.apply(list, list.splice(maxi, 1));
                         queue.push.apply(queue, list);
                         total += list.length;
                         run();
