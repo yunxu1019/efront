@@ -172,10 +172,10 @@ var helps = [
     "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
     "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
     "检查文件或文件夹中的全局变量,check FILEPATH",
-    "从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
+    "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
     "对json数据进行签名,sign JSON_PATH SIGNNAME",
-    "创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
-    "从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
+    "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
+    "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
 ];
 var commands = {
     pack(readfrom, writeto) {
@@ -342,7 +342,7 @@ var commands = {
         if (!value1) {
             var length = Math.max.apply(Math, helps.map(a => a.commands[0].length));
             showHelpLine('可以使用的命令有：');
-            helps.forEach(({ info, commands }) => showHelpLine(`efront ${commands[0]}${" ".repeat(length - commands[0].length)} ${info}`));
+            helps.forEach(({ info, commands, hide }) => !hide && showHelpLine(`efront ${commands[0]}${" ".repeat(length - commands[0].length)} ${info}`));
             showHelpLine("如要显示更具体的信息，请使用: efront help COMMAND|VARIABLES")
             showTopicInfo("COMMAND|VARIABLES", '其中');
             return;
@@ -577,7 +577,9 @@ var commands = {
 };
 helps.forEach((str, cx) => {
     var [info, ..._commands] = str.split(",");
-    var help = { info, commands: _commands, cmds: _commands };
+    var hide = /^-/.test(info);
+    info = info.replace(/^-/, '');
+    var help = { info, hide, commands: _commands, cmds: _commands };
     helps[cx] = help;
     _commands.forEach(cmd => {
         var key = cmd.replace(/[A-Z\_]([A-Z\|\_]*)/g, "").trim();
