@@ -99,6 +99,7 @@ var create = function (url, key) {
     var imgpic;
     createImage(url, function (_imgpic) {
         if (!isElement(_imgpic)) _imgpic = this;
+        if (imgpic) remove(imgpic);
         imgpic = _imgpic;
         imgpic.setAttribute('imgpic', '');
         _imgpic.draggable = false;
