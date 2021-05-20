@@ -443,7 +443,6 @@ function picture(url, to = 0, key) {
                 var a = r / 90;
                 if (Math.ceil(a) - a < .01) {
                     r = Math.ceil(a) * 90;
-                    console.log(r, a * 90);
                 } else {
                     r = Math.floor(a) * 90;
                 }
