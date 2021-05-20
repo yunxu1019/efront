@@ -97,18 +97,28 @@ var create = function (url, key) {
 
     image.url = url;
     var imgpic;
-    createImage(url, function (_imgpic) {
+    image.setImage = function (_imgpic) {
         if (!isElement(_imgpic)) _imgpic = this;
-        if (imgpic) remove(imgpic);
-        imgpic = _imgpic;
-        imgpic.setAttribute('imgpic', '');
-        _imgpic.draggable = false;
-        image.width = _imgpic.width;
-        image.height = _imgpic.height;
-        appendChild(image, _imgpic);
-        setInitParams();
-        set_unlock();
-    });
+        if (imgpic) {
+            [].forEach.call(imgpic.attributes, a => {
+                var { name, value } = a;
+                _imgpic.setAttribute(name, value);
+            })
+            remove(imgpic);
+            appendChild(image, _imgpic);
+            imgpic = _imgpic;
+        } else {
+            imgpic = _imgpic;
+            _imgpic.setAttribute('imgpic', '');
+            _imgpic.draggable = false;
+            image.width = _imgpic.width;
+            image.height = _imgpic.height;
+            appendChild(image, _imgpic);
+            setInitParams();
+            set_unlock();
+        }
+    };
+    createImage(url, image.setImage);
     on("append")(image, setInitParams);
 
 
@@ -259,6 +269,7 @@ var create = function (url, key) {
             move.reset();
         },
         move(event) {
+            if (event.moveLocked) return;
             event.moveLocked = this.locked;
             event.preventDefault();
             if (event.touches && saved_event.touches) {

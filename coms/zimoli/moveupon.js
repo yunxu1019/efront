@@ -2,8 +2,7 @@ var moveListeners = [], offhook;
 function mousemove(event) {
     moveListeners.forEach(a => a(event));
 }
-function addHookListeners(on, hook) {
-    // 后加入的要先执行
+function addHookListener(on, hook, isroot) {
     var index = moveListeners.indexOf(hook);
     if (~index) {
         moveListeners.splice(index, 1);
@@ -11,7 +10,11 @@ function addHookListeners(on, hook) {
     if (!moveListeners.length) {
         offhook = on(window, mousemove);
     }
-    moveListeners.push(hook);
+    if (isroot) {
+        moveListeners.unshift(hook);
+    } else {
+        moveListeners.push(hook);
+    }
 }
 function removeAllListeners() {
     moveListeners.splice(0, moveListeners.length);
@@ -43,13 +46,13 @@ function moveupon(target, { start, move, end }, initialEvent) {
     var hookmouse = function () {
         if (touchLocked) return;
         touchLocked = true;
-        addHookListeners(onmousemove, mousemove);
+        addHookListener(onmousemove, mousemove, target === window);
         offmouseup = onmouseup(window, cancel);
     };
     var hooktouch = function () {
         if (touchLocked) return;
         touchLocked = true;
-        addHookListeners(ontouchmove, touchmove);
+        addHookListener(ontouchmove, touchmove, target === window);
         offtouchend = ontouchend(target, cancel);
         offtouchcancel = ontouchcancel(target, cancel);
     };
