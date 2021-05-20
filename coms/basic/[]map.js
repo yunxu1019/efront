@@ -5,7 +5,6 @@ var {
     String,
     Object
 } = this;
-var undefined;
 
 function map(f, o) {
     var res = Array(this.length);
@@ -14,7 +13,7 @@ function map(f, o) {
         res = this.split("").map(f, o);
     } else {
         for (var cx = 0, dx = this.length; cx < dx; cx++) {
-            if (this[cx] !== undefined)
+            if (cx in this)
                 res[cx] = f.call(o, this[cx], cx, this);
         }
     }
@@ -26,7 +25,7 @@ function forEach(f, o) {
         this.split("").forEach(f, o);
     }
     for (var cx = 0, dx = this.length; cx < dx; cx++) {
-        if (this[cx] !== undefined)
+        if (cx in this[cx])
             f.call(o, this[cx], cx, this);
     }
 }
@@ -37,7 +36,7 @@ function filter(f, o) {
         result = this.split("").filter(f, o);
     }
     for (var cx = 0, dx = this.length; cx < dx; cx++) {
-        if (this[cx] !== undefined)
+        if (cx in this[cx])
             if (f.call(o, this[cx], cx, this))
                 result.push(this[cx]);
     }
@@ -45,7 +44,7 @@ function filter(f, o) {
 }
 function indexOf(searchElement, fromIndex = 0) {
     for (var cx = fromIndex, dx = this.length; cx < dx; cx++) {
-        if (this[cx] === searchElement) return cx;
+        if (cx in this && this[cx] === searchElement) return cx;
     }
     return -1;
 }
