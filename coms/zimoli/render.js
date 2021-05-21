@@ -607,7 +607,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         }
         if (isFunction(constructor)) {
             var attrsMap = {};
-            var replacer = constructor.call(scope, element);
+            var replacer = constructor.call(scope, element, scope, parentScopes);
             if (isNode(replacer) && element !== replacer) {
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
@@ -635,6 +635,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 });
                 element = replacer;
                 element.$scope = scope;
+                element.$parentScopes = parentScopes;
             }
             [].concat.apply([], element.attributes).forEach(attr => {
                 if (attrsMap[attr.name]) {
