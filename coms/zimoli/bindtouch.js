@@ -43,11 +43,11 @@ function bindtouch(target, bindder, lockDirection = false) {
             var pos = move.call(this, null, event);
             if (isObject(pos)) {
                 var { x = 0, y = 0 } = pos;
-                x += deltax;
-                y += deltay;
-                if (isFunction(move)) move.call(this, { x, y, deltax, deltay }, event);
-                saved_x = clientX;
-                saved_y = clientY;
+                if (isFunction(move)) {
+                    var { x: x1, y: y1 } = move.call(this, { x: x + deltax, y: y + deltay, deltax, deltay }, event);
+                    if (x1 !== x) saved_x += x1 - x;
+                    if (y1 !== y) saved_y += y1 - y;
+                }
             }
             event.moveLocked = true;
         },
@@ -57,4 +57,4 @@ function bindtouch(target, bindder, lockDirection = false) {
         }
     });
 
-} 
+}
