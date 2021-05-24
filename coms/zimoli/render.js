@@ -192,7 +192,10 @@ var createIf = function (search, id = 0) {
             element.with = this;
             if (element.renderid < 0) {
                 element.renderid = id;
-                renderElement(element);
+                var w = element.with;
+                delete element.with;
+                element = renderElement(element);
+                element.with = w;
             }
         } else {
             delete element.with;
