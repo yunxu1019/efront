@@ -36,7 +36,7 @@ function testcode(dir) {
     });
 }
 function analyse_test(text) {
-    if (!__dirname) return console.log("请在electron中打开");
+    if (!require) return console.log("请在electron中打开");
     if (text) return analyse(text);
     testxml("/book/金山打字");
     // testcode("/work/efront/coms/basic");

@@ -1,3 +1,6 @@
+// 1. 词的两端的字符左右频率有差别
+// 2. 常用词汇在数据中会重复出现
+// 3. 句子的词汇越长越优先
 function getindexes(codes) {
     var indexMap = {};
     for (var cx = 0, dx = codes.length; cx < dx; cx++) {
@@ -186,10 +189,12 @@ function analyse(text) {
         var a = tree[k];
         for (var cx = 0, dx = a.length; cx < dx; cx++) {
             var b = a[cx];
-            for (var cy = b + 1, dy = b + k.length; cy < dy; cy++) {
-                delete reslen[cy];
+            if (b + k.length > reslen[b]) {
+                for (var cy = b + 1, dy = b + k.length; cy < dy; cy++) {
+                    delete reslen[cy];
+                }
+                reslen[b] = dy;
             }
-            reslen[b] = dy;
         }
     }
     var result = [];
@@ -254,6 +259,7 @@ function split(codes) {
     var ci = 0;
     var result = [];
     var save = function () {
+        if (ci === cx) return;
         var c = codes.slice(ci, cx);
         result.push(c);
         ci = cx;
@@ -266,7 +272,7 @@ function split(codes) {
 
             if (c.slice(0, s.name.length) === s.name) {
                 var w = c.slice(0, s.name.length + 1 + +(c.codePointAt(s.name.length) > 0xffff));
-                if (s.power() / getWord(w).power() > 10) continue;
+                if (s.power() / getWord(w).power() < 10) continue;
                 cx += s.name.length;
                 save();
                 break;
@@ -279,20 +285,14 @@ function split(codes) {
 
 function main(text) {
     if (!text.length) return [];
-    var spliters = [29, 61];
+    var spliters = [29, 97, 197];
     var codes = [];
     for (var cx = 0, dx = text.length; cx < dx; cx++) {
         var c = text.codePointAt(cx);
         if (c > 0xffff) cx++;
         codes.push(c);
     }
-    for (var cx = 0, dx = spliters.length; cx < dx; cx++) {
-        var s = spliters[cx];
-        for (var cy = 0, dy = codes.length; cy < dy; cy += s) {
-            var s = codes.slice(cy, cy + s);
-            analyse(s);
-        }
-    }
+    analyse(codes);
     var splited = split(codes);
     for (var cx = 0, dx = splited.length; cx < dx; cx++) {
         analyse(splited[cx]);
@@ -303,6 +303,10 @@ function main(text) {
         var parsed = parse(splited[cx]);
         while (parsed.length) result.push.apply(result, parsed.splice(0, 1024));
     }
+    for (var cx = 0, dx = result.length; cx < dx; cx++) {
+        getWord(result[cx]).update();
+    }
+    format();
     console.log(result)
     return result;
 }
