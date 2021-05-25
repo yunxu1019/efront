@@ -282,6 +282,10 @@ var getExtts = function (extts) {
     if (extts instanceof Array && extts.length <= 1) extts = extts;
     return extts || "";
 };
+function PackageData(a) {
+    Object.assign(this, JSON.parse(a));
+}
+PackageData.prototype = Object.create(null);
 /**
  * 根椐filesroot路径设置文件缓冲
  * @param {string} filesroot 
@@ -369,17 +373,18 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                 } else {
 
                     if (promise instanceof Buffer || promise instanceof Function) return ok(promise);
+                    if (promise instanceof PackageData) return ok(Buffer.from(JSON.stringify(promise)));
                     if (promise instanceof Object && !result) {
                         var package_file = "package.json";
                         if (package_file in promise) {
                             if (promise[package_file] === false) {
-                                seekAsync.call(seeker, url + extt + "/" + package_file, tree1, a => JSON.parse(String(a))).catch(oh).then(run);
+                                seekAsync.call(seeker, url + extt + "/" + package_file, tree1, a => new PackageData(String(a))).catch(oh).then(run);
                                 return;
                             } else if (promise[package_file] instanceof Buffer) {
-                                promise[package_file] = JSON.parse(promise[package_file].toString());
+                                promise[package_file] = new PackageData(promise[package_file].toString());
                             }
                             var package_data = promise[package_file];
-                            if (package_data instanceof Object && package_data.main) {
+                            if (package_data instanceof PackageData && package_data.main) {
                                 var roots = package_data.main.split(/[\/\\]+/).filter(a => a && a !== '.' && !/\:$/.test(a));
                                 if (roots[0] in promise) {
                                     result = path.join(url, roots.join('/')).replace(/\\/g, '/');
