@@ -151,7 +151,7 @@ colored.begin = function (c) {
 colored.end = function () {
     return write(false, colors.Reset);
 };
-console.clear = function () {
+colored.clear = function () {
     return write(false, '');
 };
 module.exports = colored;
