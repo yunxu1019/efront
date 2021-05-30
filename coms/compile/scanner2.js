@@ -12,24 +12,43 @@ function createScanner(mark) {
     return Scanner;
 }
 function createPairScanner(pairs, endflag) {
-    var marks = [], scanners = [];
+    var marks = [], source = [], scanners = [];
     for (var cx = 0, dx = pairs.length; cx < dx; cx += 2) {
         var m = pairs[cx];
-        if (m instanceof RegExp) m = m.source;
+        if (m instanceof RegExp) source.push(m.source);
+        else source.push(m);
         marks.push(m);
         var s = pairs[cx + 1];
         if (!(s instanceof Function)) var s = createScanner(s);
         scanners.push(s);
     }
     marks.push(endflag);
-    var s = new RegExp(/\\[\s\S]|/.source + marks.join("|"), "g");
+    if (endflag instanceof RegExp) endflag = endflag.source;
+    source.push(endflag);
+    var s = new RegExp(/\\[\s\S]|/.source + source.join("|"), "g");
     var PairScanner = function (text, index) {
-        s.lastIndex = index;
         do {
+            s.lastIndex = index;
             var r = s.exec(text);
             if (!r) break;
-            var i = marks.indexOf(r[0]);
-            index = res.index + res[0].length;
+            if (/^\\[\s\S]$/.test(text)) continue;
+            var i = -1;
+            for (var cx = 0, dx = marks.length; cx < dx; cx++) {
+                var mark = marks[cx];
+                if (mark instanceof RegExp) {
+                    var m = mark.exec(r[0]);
+                    if (m && m[0] === r[0]) {
+                        i = cx;
+                        break;
+                    }
+                } else {
+                    if (m === r[0]) {
+                        i = cx;
+                        break;
+                    }
+                }
+            }
+            index = r.index + r[0].length;
             if (i === scanners.length) break;
             if (i > 0) index = scanners[i](text, index);
         } while (i < scanners.length);
@@ -37,30 +56,40 @@ function createPairScanner(pairs, endflag) {
     }
     return PairScanner;
 }
-var SingleQuoteString = createScanner('"');
-var DoubleQuoteString = createScanner("'");
-var RegExpBlock = createPairScanner([
+var SingleQuoteString = createScanner('\'');
+var DoubleQuoteString = createScanner("\"");
+var Regular = createPairScanner([
     /\(/, /\)/,
     /\[/, /\]/
 ], /\/\w*/);
 var SingleLineComment = createScanner(/(?=[\r\n])/);
 var MultiLinesComment = createScanner(/\*\//);
 var keywords = new RegExp("^(" + `if,in,do
-var,for,new,try,let,NaN
-this,else,case,void,with,enum,true,null
-while,break,catch,throw,const,yield,class,super,false
+var,for,new,try,let
+else,case,void,with,enum,from
+async,while,break,catch,throw,const,yield,class
 return,typeof,delete,switch,export,import
 default,finally,extends
 function,continue,debugger,Infinity
-undefined
 instanceof`.trim().split(/[\r\n,\s]+/).join("|") + ")$");
 var isKeyWord = function (text) {
     return keywords.test(text);
 };
+var internal = /^(null|true|false|NaN|Infinity|undefined|this|super|arguments)$/;
+var isInternal = function (text) {
+    return internal.test(text);
+};
+var number = /^[+-]*(\d+\.\d+|\.\d+|\d+)(e\-?\d+)?$/;
+var isNumber = function (text) {
+    return number.test(text);
+};
 var operator = /'"`\/\=\+;\|\:\?\*\<\>\-\[\]\{\}\(\)\!\~@#%\^&\*\,/.source;
-var braceend = /['"`\]\)\}]/;
-var space = /\r\n\t\s\u2028\u2029/.source;
-var programreg = new RegExp(/\\[\s\S]|/.source + `\/\*|\/\/|['"]|\=\>|${space}|[^${space}${operator}]+|[${operator}]`, 'g');
+var space = /\r\n\t\s\v\u2028\u2029/.source;
+var programreg = new RegExp(/\\[\s\S]|\/\*|\/\/|['"]|\=\>/.source + `|[${space}]+|[^${space}${operator}]+|[${operator}]`, 'g');
+var spacereg = new RegExp(`^[${space}]+$`);
+var isSpace = function (text) {
+    return spacereg.test(text);
+};
 var puncreg = new RegExp(`^[${operator}]+$`);
 var isPunctuator = function (text) {
     return puncreg.test(text);
@@ -73,15 +102,16 @@ var ScannersMap = {
     "'": SingleQuoteString,
     "//": SingleLineComment,
     "/*": MultiLinesComment,
-    "`": TemplateString
+    "`": TemplateString,
 };
+
 
 function Block(typedScanner, start, end) {
     this.type = typedScanner;
     this.start = start;
     this.end = end;
 }
-Block.prototype = {
+var prototype = Block.prototype = {
     SingleQuoteString,
     DoubleQuoteString,
     SingleLineComment,
@@ -89,7 +119,15 @@ Block.prototype = {
     TemplateString,
     Variable,
     Keyword,
-    Property,
+    Internal,
+    Regular,
+    Expression,
+    Numeric,
+    Punctuator,
+};
+for (let k in prototype) {
+    let p = prototype[k];
+    Object.defineProperty(p, 'name', { value: k });
 }
 
 function Scope(start, curve = [], emitvar = false) {
@@ -100,24 +138,80 @@ function Scope(start, curve = [], emitvar = false) {
     this.emitvar = emitvar;
     this.children = [];
     this.scopes = [];
+    this.exps = [];
 }
 
-function Variable() { };
-function Property() { };
-function Keyword() { };
-
-var braceStartReg = /[\(\[\{]/g;
-var braceEndReg = /[\)\]\}]/g;
+function Variable() { }
+function Numeric() { }
+function Keyword() { }
+function Punctuator() { }
+function Internal() { }
+function Expression() { }
+var braceStartReg = /[\(\[\{]/;
+var braceEndReg = /[\)\]\}]/;
 var EarlyEndError = new Error("代码意外中止");
 function program(text, index) {
-    var tokens = [];
     var scopes = [];
     var functions = [];
-    var lastres = '';
     var inExpression = false;
     var findings = [];
-    var curved = [];
+    var curved;
+    var exps = [];
+    var pretype = null, preprev;
+    var invar = false, inlet = false;
+    var saveOnly = function (type, start, end) {
+        switch (type) {
+            case Expression:
+                var exp = text.slice(start, end);
+                var scope = scopes[scopes.length - 1];
+                if (scope) {
+                    scope.exps.push(exp);
+                }
+                break;
+        }
+    };
     var save = function (type, start, end) {
+        preprev = pretype;
+        pretype = type;
+        saveOnly(type, start, end);
+    };
+    var saveValue = function (type, start, end) {
+        if (pretype === Scope) closeExpress();
+        save(type, start, end);
+        curved = null;
+        openExpress();
+    };
+
+    var openExpress = function () {
+        inExpression = true;
+    };
+    var closeExpress = function () {
+        var scope = findings[findings.length - 1];
+        if (scope instanceof Scope && scope.curve[1] !== undefined && scope.brace[0] === undefined) {
+            closeScope();
+        }
+        inExpression = false;
+    };
+    var openScope = function (s) {
+        var emitvar = s.emitvar;
+        findings.push(s);
+        var p = emitvar ? scopes[scopes.length - 1] : functions[functions.length - 1];
+        if (p) {
+            p.children.push(s);
+            s.parent = p;
+        }
+        s.inExpression = !emitvar && inExpression;
+        scopes.push(s);
+        if (!emitvar) functions.push(s);
+    };
+    var closeScope = function () {
+        findings.pop();
+        var f = scopes.pop();
+        if (!f.emitvar) functions.pop();
+        f.end = index;
+        save(Scope, f.start, f.end);
+        if (!f.inExpression) closeExpress();
+        else openExpress();
     };
     do {
         programreg.lastIndex = index;
@@ -125,35 +219,57 @@ function program(text, index) {
         if (!res) return index;
         var r = res[0];
         index = res.index + r.length;
-        var scanner = ScannersMap[r];
-        if (scanner) {
-            var start = index;
+        if (r.length < 3 && ScannersMap[r]) {
+            var scanner = ScannersMap[r];
+            var start = res.index;
             index = scanner(text, index);
             end = index;
-            save(scanner, start, end);
-            lastres = '';
+            if (scanner === MultiLinesComment || scanner === SingleLineComment) {
+                saveOnly(scanner, start, end);
+            } else {
+                saveValue(scanner, start, end);
+            }
         }
 
         else if (r === "/") {
             var isReg = false;
-            if (!lastres || isPunctuator(lastres) && !braceend.test(lastres) || isKeyWord(lastres)) {
-                isReg = true;
-            } else if (lastres === '}') {
+            if (pretype === Punctuator || !inExpression) {
                 isReg = true;
             }
-            index = scanner(text, index);
+            if (isReg) {
+                index = Regular(text, index);
+                saveValue(Regular, res.index, index);
+            } else {
+                save(Punctuator, res.index, index);
+            }
         }
         else if (braceStartReg.test(r)) {
             var f = findings[findings.length - 1];
+            var n = false;
             if (f instanceof Scope) {
-                if (f.curve[0] === undefined) {
+                if (r === "(" && f.curve[0] === undefined) {
                     f.curve[0] = res.index;
-                } else if (f.brace[0] === undefined) {
+                    inExpression = true;
+                }
+                else if (r === "{" && f.brace[0] === undefined) {
                     f.brace[0] = res.index;
-                } else {
-                    findings.push(res.index);
+                }
+                else {
+                    n = true;
                 }
             } else {
+                if (curved) {
+                    if (inExpression) {
+                        var s = new Scope(curved[0], curved, false);
+                        s.brace[0] = res.index;
+                        openScope(s);
+                    }
+                }
+                else {
+                    n = true;
+                }
+            }
+            if (n) {
                 findings.push(res.index);
             }
         }
@@ -163,16 +279,11 @@ function program(text, index) {
             if (f instanceof Scope) {
                 if (r === ')') {
                     f.curve[1] = index;
-                    braceStartReg.lastIndex = index;
-                    res = braceStartReg.exec(r);
-                    if (!res) throw EarlyEndError;
-                    f.brace[0] = res.index;
-                    index = res.index + res[0].length;
-                } else if (r === '}') {
+                    if (f.lead === 'do') closeScope();
+                }
+                else if (r === '}') {
                     f.brace[1] = index;
-                    findings.pop();
-                    scopes.pop();
-                    if (f.emitvar) functions.pop();
+                    if (f.lead !== 'do') closeScope();
                 }
             } else {
                 var cstart = findings.pop();
@@ -183,43 +294,65 @@ function program(text, index) {
         }
         else switch (r) {
             case "for":
+            case "if":
+            case "switch":
+            case "with":
+            case "while":
+            case "do":
+            case "try":
+            case "catch":
+            case "finaly":
                 var emitvar = true;
+            case "async":
             case "function":
-                carved = undefined;
+                curved = undefined;
+                pretype = Keyword;
             case "=>":
-                var s = new Scope(res.index, carved, emitvar);
-                findings.push(s);
-                var p = emitvar ? scopes[scopes.length - 1] : functions[functions.length - 1];
-                if (p) {
-                    p.children.push(s);
-                    s.parent = p;
-                }
-                scopes.push(s);
-                if (emitvar) functions.push(s);
+                pretype = Punctuator;
+                var s = new Scope(res.index, curved, emitvar);
+                s.lead = r;
+                openScope(s);
                 break;
             case "var":
+                invar = true;
             case "let":
             case "const":
-            default: if (!isPunctuator(r)) {
-                if (isKeyWord(r)) {
-                    save(Keyword, res.index, index);
+                inlet = true;
+            default: if (isPunctuator(r)) {
+                save(Punctuator, res.index, index);
+                if (/;/.test(r)) {
+                    closeExpress();
                 } else {
-                    var t = s;
-                    tokens.push(t);
+                    openExpress();
+                }
+            }
+            else if (isKeyWord(r)) {
+                save(Keyword, res.index, index);
+                closeExpress();
+            }
+            else if (isNumber(r)) {
+                saveValue(Numeric, res.index, index);
+            }
+            else if (isInternal(r)) {
+                saveValue(Internal, res.index, index);
+            }
+            else {
+                if (!isSpace(r)) {
+                    saveValue(Expression, res.index, index);
                 }
             }
         }
-    } while (index < text.length)
+    } while (index < text.length);
 }
 
 function javascript(text, lastIndex = 0) {
-    var reg = /\s+|['"`]|\/\*|\/\/|\/|(function)\s/g;
-    reg.lastIndex = lastIndex;
-    reg.exec(text);
+    program(text, lastIndex);
 }
 
 function scan(text) {
-    javascript(text, 0);
+    var res = javascript(String(text), 0);
+    console.log(res)
 }
+
 
 module.exports = scan;
