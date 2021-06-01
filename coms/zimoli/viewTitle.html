@@ -1,2 +1,4 @@
-<div ng-if='showTitle!==false' ng-bind="viewTitle"></div>
-<div class="close" ng-if='closeable!==false' ng-click=closeView()>×</div>
+<div class="head" ng-if='showTitle!==false'>
+    <span ng-bind="viewTitle"></span>
+    <div class="close" ng-if='closeable!==false' ng-click=closeView()>×</div>
+</div>

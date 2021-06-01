@@ -19,11 +19,12 @@ var prototype = {
         return this;
     },
     setTitle(arg) {
-        var scope = this.$scope;
+        var scope = this;
         if (!this.titleElements) {
             this.titleElements = generate(viewTitle);
             scope.showTitle = true;
             appendChild(this, [].concat.apply([], this.titleElements));
+            drag.on(this.titleElements[0], this);
         }
         switch (typeof arg) {
             case "object":
@@ -90,7 +91,7 @@ var init = function () {
     });
 };
 function view(element) {
-    var window = element || document.createElement("form");
+    var window = isNode(element) ? element : document.createElement("form");
     init();
     if (/form/i.test(window.tagName)) {
         on("submit")(window, function (event) {
@@ -98,5 +99,10 @@ function view(element) {
         });
     }
     extend(window, prototype);
+    if (window !== element) {
+        extend(window, element);
+        window.setAttribute('dragable', 'dragable');
+        resize.on(window);
+    }
     return window;
 }

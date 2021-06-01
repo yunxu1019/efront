@@ -15,6 +15,10 @@ body>& {
     -webkit-user-select: none;
 }
 
+&[dragable] {
+    position: absolute;
+}
+
 &>.body {
     padding: 6px 0;
     background: #f2f4f6;
@@ -49,7 +53,11 @@ body>& {
     text-overflow: ellipsis;
     color: #333;
     padding: 12px 16px 10px 16px;
-    margin: 0 0 -42px;
+
+    &:not(:last-child) {
+        margin: 0 0 -42px;
+    }
+
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(0, 0, 0, .16);
 
@@ -57,7 +65,8 @@ body>& {
         vertical-align: middle;
     }
 
-    .drop {
+    .drop,
+    .close {
         height: 42px;
         padding: 0 12px;
         line-height: 40px;
@@ -69,7 +78,7 @@ body>& {
         }
 
         &:active {
-            color:#823;
+            color: #823;
         }
     }
 }
