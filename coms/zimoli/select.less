@@ -7,9 +7,28 @@ select& {
     padding: 0 16px;
     outline: none;
     font-size: inherit;
+    display: inline-block;
 
     &::-ms-expand {
         display: none;
+    }
+
+    &:hover {
+        color: #fff;
+        background-color: #2ca2f9;
+    }
+
+    &:active {
+        color: #fff;
+        background-color: #1c82c9;
+    }
+
+    &[iconed] {
+        background-repeat: no-repeat;
+        background-size: auto 16px;
+        background-position-x: 8px;
+        background-position-y: 50%;
+        padding-left: 36px;
     }
 }
 

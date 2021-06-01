@@ -82,9 +82,34 @@ function select(target, list, removeOnSelect, direction) {
             bindEvent();
             initList = function () { };
         };
+        var setIcon = function () {
+        };
     } else {
         var savedOptions;
         removeOnSelect = null;
+        var lastSelected = [];
+        var setIcon = function () {
+            var hasIcon = false;
+            var selected = [].filter.call(target.querySelectorAll("option"), function (o) {
+                if (!hasIcon && o.getAttribute("icon")) {
+                    hasIcon = true;
+                }
+                return o.selected;
+            });
+            if (deepEqual.shallow(lastSelected, selected)) return;
+            lastSelected = selected;
+            if (hasIcon) {
+                var icon = selected.length === 1 && selected[0].getAttribute('icon');
+                if (icon) {
+                    css(target, { backgroundImage: `url('${icon}')` });
+                } else {
+                    css(target, { backgroundImage: '' });
+                }
+                target.setAttribute('iconed', '');
+            } else {
+                target.removeAttribute('iconed');
+            }
+        };
         var initList = function () {
             var allOptions = [].concat.apply([], target.querySelectorAll("option"));
             if (deepEqual.shallow(allOptions, savedOptions)) return;
@@ -97,7 +122,6 @@ function select(target, list, removeOnSelect, direction) {
         };
     }
     var mousedown = function () {
-
         initList();
         if (saved_list !== list) {
             _remove();
@@ -107,6 +131,10 @@ function select(target, list, removeOnSelect, direction) {
         }
         else _remove();
     };
+    if (!target.renders) {
+        target.renders = [];
+    }
+    target.renders.push(setIcon);
     onclick(target, mousedown);
     return target;
 }

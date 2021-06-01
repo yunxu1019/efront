@@ -26,11 +26,18 @@ function main(children, multiple) {
     list.value = multiple ? [] : "";
     var firstValue = false;
     var clicker = multiple ? multipleClick : singleClick;
+    var hasIcon = false, iconed = '';
     appendChild(list, [].map.call(children, function (option) {
         var item = div();
         item.innerHTML = option.innerHTML;
+        var icon = option.getAttribute("icon");
+        if (icon) {
+            hasIcon = true;
+            css(item, { backgroundImage: `url('${icon}')` });
+        }
         item.value = option.value;
         if (option.selected) {
+            iconed = icon;
             if (multiple) {
                 item.setAttribute("selected", "");
                 list.value.push(option.value);
@@ -44,5 +51,9 @@ function main(children, multiple) {
         onclick(item, clicker);
         return item;
     }));
+    if (hasIcon) {
+        list.setAttribute('iconed', '');
+    }
+    list.icon = iconed;
     return list;
 }
