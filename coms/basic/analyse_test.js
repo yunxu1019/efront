@@ -1,6 +1,5 @@
 var require = window.require;
-var fs = require("fs");
-var path = require("path");
+var fs, path;
 function test(url) {
     var data = fs.readFileSync(url);
     data = String(data);
@@ -37,6 +36,8 @@ function testcode(dir) {
 }
 function analyse_test(text) {
     if (!require) return console.log("请在electron中打开");
+    fs = require("fs");
+    path = require("path");
     if (text) return analyse(text);
     testxml("/book/金山打字");
     // testcode("/work/efront/coms/basic");
