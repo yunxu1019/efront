@@ -25,20 +25,22 @@ body>& {
     overflow-y: scroll;
     position: relative;
     box-sizing: border-box;
+    background-clip: padding-box;
 
     &:not(:nth-child(1)) {
-        padding-top: 42px;
+        border-top: 42px solid transparent;
     }
 
     &:not(:nth-last-child(1)) {
-        border-bottom: 52px solid transparent;
+        padding-bottom: 42px;
+        border-bottom: 6px solid #fff;
     }
 }
 
 
 &>.head {
+    z-index: 2;
     background: #fffc;
-    z-index: 1;
     position: relative;
     position: sticky;
     line-height: 20px;
@@ -47,7 +49,7 @@ body>& {
     text-overflow: ellipsis;
     color: #333;
     padding: 12px 16px 10px 16px;
-    margin: 0 0 -37px;
+    margin: 0 0 -42px;
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(0, 0, 0, .16);
 
@@ -62,6 +64,7 @@ body>& {
 }
 
 &>.foot {
+    z-index: 1;
     text-align: right;
     line-height: 40px;
     height: 42px;
