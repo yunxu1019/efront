@@ -111,7 +111,7 @@ var build = function () {
             if (isNode(comm)) {
                 if (!comm.isMounted) appendChild(mainArea, comm);
             }
-            else mainArea.innerHTML = `<div>${JSON.stringify(comm)}</div>`
+            else mainArea.innerHTML = `<div>[Data Object]{\r\n${isObject(comm) ? Object.keys(comm).join("\r\n\t") : comm}</div>`
             appendChild(mainArea, logpad);
             addClass(progress, 'loaded');
 
