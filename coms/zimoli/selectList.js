@@ -48,7 +48,11 @@ function main(children, multiple) {
                 list.value = option.value
             }
         }
-        onclick(item, clicker);
+        if (option.disabled) {
+            item.setAttribute('disabled', '');
+        } else {
+            onclick(item, clicker);
+        }
         return item;
     }));
     if (hasIcon) {
