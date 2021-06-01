@@ -77,7 +77,7 @@ function select(target, list, removeOnSelect, direction) {
         }
         onremove(list, onlistremove);
     };
-    if (list) {
+    if (isNode(list)) {
         var initList = function () {
             bindEvent();
             initList = function () { };
@@ -97,6 +97,7 @@ function select(target, list, removeOnSelect, direction) {
         };
     }
     var mousedown = function () {
+
         initList();
         if (saved_list !== list) {
             _remove();
