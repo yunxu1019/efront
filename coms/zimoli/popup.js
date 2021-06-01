@@ -207,7 +207,7 @@ var popup_as_extra = function (element, target, style) {
 
 };
 var _as_yextra = function (global, innerWidth, innerHeight, element, target, pointer) {
-    var withRhomb = /rhomb|rhombus|diamond|lozenge|triangle[drlt]$/i.test(pointer);
+    var withRhomb = /rhomb|rhombus|diamond|lozenge|triangle|[drlt]$/i.test(pointer);
     if (withRhomb) {
         var _rhomb = rhomb();
     }
