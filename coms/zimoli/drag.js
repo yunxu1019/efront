@@ -54,6 +54,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
                 extraTargets = [];
             }
             var [clone_left, clone_top] = getOffset(clone);
+            console.log(clone_left, clone_top, target_left, target_top)
             extraClones = extraTargets.map(toCloneTarget);
             extraClones.map(c => document.body.appendChild(c));
             saved_delta.x += clone_left - target_left;
@@ -70,6 +71,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
         var [c_left, c_top] = getOffset(clone);
         var cloneDeltaLeft = -c_left, cloneDeltaTop = -c_top;
         var [c_left, c_top] = move.call(clone, offsetLeft, offsetTop, preventOverflow);
+        console.log(getOffset(clone), offsetLeft, offsetTop)
         cloneDeltaLeft += c_left;
         cloneDeltaTop += c_top;
         if (extraClones) extraClones.map(clone => css(clone, `left:${fromOffset(clone.offsetLeft + cloneDeltaLeft)};top:${fromOffset(clone.offsetTop + cloneDeltaTop)};`));

@@ -67,17 +67,14 @@ function getParentSize(target) {
             offsetHeight,
             offsetWidth
         } = target;
-        var {
-            clientWidth = innerWidth,
-            clientHeight = innerHeight
-        } = target.offsetParent || {};
+        var [clientWidth, clientHeight] = getParentClient(target);
     }
     return [offsetWidth, offsetHeight, clientWidth, clientHeight];
 }
 
 function move(offsetLeft, offsetTop, preventOverflow, keepOriginIfPosible) {
     var [offsetWidth, offsetHeight, clientWidth, clientHeight] = getParentSize(this);
-    var [offsetLeft, offsetTop] = trimCoord([clientWidth, clientHeight], [offsetLeft, offsetTop, offsetWidth, offsetHeight], preventOverflow);
+    if (preventOverflow !== false) var [offsetLeft, offsetTop] = trimCoord([clientWidth, clientHeight], [offsetLeft, offsetTop, offsetWidth, offsetHeight], preventOverflow);
     if (isFunction(this.moveTo) && !this.style) {
         if (preventOverflow !== false) {
         }
@@ -104,17 +101,25 @@ move.getPosition = function (target) {
         offsetHeight,
         offsetWidth
     } = target;
-    var {
-        clientWidth = innerWidth,
-        clientHeight = innerHeight
-    } = target.offsetParent || {};
+    var [clientWidth, clientHeight] = getParentClient(target);
     var marginLeft = getMarginLeft(offsetLeft, offsetWidth, clientWidth);
     var marginTop = getMarginLeft(offsetTop, offsetHeight, clientHeight);
     var left = offsetLeft - marginLeft;
     var top = offsetTop - marginTop;
     return [left / clientWidth, top / clientHeight];
 };
-
+var getParentClient = function ({ offsetParent }) {
+    if (offsetParent && /^(absolute|fixed|relative)$/i.test(getComputedStyle(offsetParent).position)) {
+        var {
+            clientWidth,
+            clientHeight
+        } = offsetParent;
+    } else {
+        clientWidth = innerWidth;
+        clientHeight = innerHeight;
+    }
+    return [clientWidth, clientHeight];
+};
 var setPosition = move.setPosition = function (target, [x, y]) {
     var {
         offsetLeft,
@@ -122,10 +127,7 @@ var setPosition = move.setPosition = function (target, [x, y]) {
         offsetHeight,
         offsetWidth
     } = target;
-    var {
-        clientWidth = innerWidth,
-        clientHeight = innerHeight
-    } = target.offsetParent || {};
+    var [clientWidth, clientHeight] = getParentClient(target);
     var offsetLeft = getOffsetLeft(x, offsetWidth, clientWidth);
     var offsetTop = getOffsetLeft(y, offsetHeight, clientHeight);
     move.call(target, offsetLeft, offsetTop, undefined, false);
@@ -139,10 +141,7 @@ var fixPosition = move.fixPosition = function (target) {
         offsetHeight,
         offsetWidth
     } = target;
-    var {
-        clientWidth = innerWidth,
-        clientHeight = innerHeight
-    } = target.offsetParent || {};
+    var [clientWidth, clientHeight] = getParentClient(target);
     var pointLeft = (offsetLeft - parseFloat(computed.marginLeft)) / clientWidth;
     var pointTop = (offsetTop - parseFloat(computed.marginTop)) / clientHeight;
     var marginLeft = -offsetWidth * pointLeft;
