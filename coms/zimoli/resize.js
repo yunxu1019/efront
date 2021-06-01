@@ -44,7 +44,18 @@ var handle = {
         if (!dragging) return;
         event.moveLocked = true;
         var elem = dragging.rect;
-        var pos = getScreenPosition(elem.offsetParent);
+        if (elem.offsetParent && /^(absolute|fixed|relative)$/i.test(getComputedStyle(elem.offsetParent).position)) {
+            var pos = getScreenPosition(elem.offsetParent);
+        } else {
+            var pos = {
+                left: 0,
+                top: 0,
+                right: innerWidth,
+                bottom: innerHeight,
+                width: innerWidth,
+                height: innerHeight
+            };
+        }
         var delta = [event.clientX, event.clientY, event.clientX - pos.left, event.clientY - pos.top];
         if (!dragging.cursor) {
             if (!getTargetIn(elem.dragTarget || elem, event.target)) {
