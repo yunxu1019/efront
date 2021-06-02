@@ -1,4 +1,4 @@
-var serialize = require("../zimoli/serialize");
+var serialize = require("../basic/serialize");
 var asm2unicode = require("../arch/asm2unicode");
 function sortfile(a, b) {
     if (~a.invokes.indexOf(b.name)) {
