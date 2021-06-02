@@ -103,7 +103,9 @@ var buildjsp = function (buff, realpath) {
             if (str instanceof Function) {
                 var { imported, required } = str;
                 imported = imported.map(a => _require(required, a));
-                return Promise.all(imported).then(imported => {
+                return Promise.all(required.map(a => require2(a))).then(function () {
+                    return Promise.all(imported);
+                }).then(imported => {
                     var res = str.apply(context, imported);
                     if (res === undefined) res = '';
                     return res;

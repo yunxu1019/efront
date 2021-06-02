@@ -8,10 +8,10 @@ var initcom = function (pathname) {
         fs.readFile(pathname, function (error, data) {
             if (error) return oh(error);
             var content = String(data);
-            var { params, imported, required, data } = commbuilder.parse(content);
+            var { params, imported, required, data } = commbuilder.parse(content, pathname, pathname);
             var func = Function.apply(null, params.concat(data));
             imported = imported.map(a => require2(a, required));
-            Promise.all(imported).then(function () {
+            Promise.all(imported).then(function (imported) {
                 var res = func.apply(func, imported);
                 ok(res);
             })
@@ -27,7 +27,9 @@ function require2(pathname, required) {
     if (required_cache[pathname]) return required_cache[pathname];
     return required_cache[pathname] = detectWithExtension(pathname, ['', '.js', '.mjs', '.ts', '.json'], comspath).then(initcom, function (e) {
         return require(pathname);
-    });
+    }).then(function (res) {
+        return required_cache[pathname] = res;
+    })
 
 }
 module.exports = require2;
