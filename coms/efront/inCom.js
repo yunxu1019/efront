@@ -15,4 +15,5 @@ function inCom(fullpath) {
     }
     return false;
 }
+inCom.comms_root = comms_root;
 module.exports = inCom;

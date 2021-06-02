@@ -2,6 +2,7 @@
 var commbuilder = require("./commbuilder");
 var isDevelop = require("./isDevelop");
 var queue = require("../basic/queue");
+var require2 = require("./require2");
 var builder;
 var path = require("path");
 var autoloader = `function () {
@@ -80,14 +81,6 @@ var buildjsp = function (buff, realpath) {
     if (lastIndex < input.length - 1) splited.push(input.slice(lastIndex, input.length));
     return function (req, res) {
         var _require = function (required, pathname) {
-            if (typeof pathname === 'number') {
-                pathname = required[pathname];
-            }
-            if (/^(?:\.?[\/\\]|\w\:)/i.test(pathname)) {
-                var fullpath = path.resolve(realpath || "", pathname);
-                return require(fullpath);
-            }
-            if (global[pathname]) return global[pathname];
             switch (pathname) {
                 case "global":
                     return global;
@@ -103,16 +96,18 @@ var buildjsp = function (buff, realpath) {
                 case "require":
                     return _require.bind(null, required);
             }
-            return require(pathname);
+            return require2(pathname, required);
         };
         var context = {};
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
                 var { imported, required } = str;
                 imported = imported.map(a => _require(required, a));
-                var res = str.apply(context, imported);
-                if (res === undefined) res = '';
-                return res;
+                return Promise.all(imported).then(imported => {
+                    var res = str.apply(context, imported);
+                    if (res === undefined) res = '';
+                    return res;
+                });
             }
             return str;
         }).then(function (array) {
