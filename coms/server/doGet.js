@@ -149,6 +149,8 @@ module.exports = function (req, res) {
     }
     var url = proxy(req);
     url = url.replace(/[\:\?#][\s\S]*/g, "");
+    var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
+    req.id = id;
     var data = getfile(url, ['', 'index.html']);
     if (data instanceof Promise) {
         return data.then(function (data) {
