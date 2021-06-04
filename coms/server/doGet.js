@@ -126,9 +126,13 @@ var adapter = function (data, url, req, res) {
         }
         return adapter(data, "index.html", req, res);
     }
-    if (typeof data === "string" && data !== req.url && "/" + data !== req.url) {
+    if (typeof data === "string") {
         var new_url = data[0] === "/" ? data : "/" + data;
-        if (path.basename(new_url) === path.basename(req.url) || !req.headers.referer) {
+        if (
+            path.basename(new_url) === path.basename(req.url)
+            && data !== req.url
+            && data !== req.url.replace(/\/$/, '')
+        ) {
             res.writeHead(302, {
                 'Location': new_url
             });
@@ -152,6 +156,7 @@ module.exports = function (req, res) {
     var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;
     var data = getfile(url, ['', 'index.html']);
+
     if (data instanceof Promise) {
         return data.then(function (data) {
             adapter(data, url, req, res);

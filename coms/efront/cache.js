@@ -261,7 +261,13 @@ var seekAsync = function (url, tree, rebuild) {
         temp.stat = getVersion(path.join(String(this), curl));
         temp.name = key;
     }
-    return temp;
+    if (temps.length) {
+        if (keeys.length - temps.length < 2) return temp;
+        curl = "/" + curl.replace(/[\\]/ig, '/');
+        if (curl.replace(/^\/|\/$/g, '') !== url.replace(/^\/|\/$/g, '')) {
+            return curl;
+        }
+    }
 };
 
 /**
@@ -371,8 +377,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                         else run();
                     });
                 } else {
-
-                    if (promise instanceof Buffer || promise instanceof Function) return ok(promise);
+                    if (typeof promise === "string" || promise instanceof Buffer || promise instanceof Function) return ok(promise);
                     if (promise instanceof PackageData) return ok(Buffer.from(JSON.stringify(promise)));
                     if (promise instanceof Object && !result) {
                         var package_file = "package.json";
