@@ -570,7 +570,9 @@ _Extract proc lParam
     local h,e,nametype,nameleng,isfolder,dataleng
     local flash:FLASHWINFO
     local delta
+    local writed
     local hdata,readed,hdst
+    mov writed,0
     invoke opensetup
     mov h,eax
     invoke readindex,h
@@ -656,7 +658,7 @@ _Extract proc lParam
         invoke lstrcpy,eax,addr uninstallName
         invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
         mov hdst,eax
-        invoke WriteFile,hdst,hdata,uninstallSize,0,NULL
+        invoke WriteFile,hdst,hdata,uninstallSize,addr writed,NULL
         mov uninstallSize,0
         invoke processed,0
         invoke GlobalFree,hdata
@@ -1672,7 +1674,8 @@ start:
     invoke _ChangeLine,addr crossline,sizeof crossline,cross_c
     invoke _Brizerline
     invoke _SetFactor
-    invoke GetEnvironmentVariable,offset program,offset buffer2,MAX_PATH
+    ;invoke GetEnvironmentVariable,offset program,offset buffer2,MAX_PATH
+    invoke SHGetSpecialFolderPath,NULL,offset buffer2,CSIDL_PROGRAM_FILES,FALSE
     invoke parseCommandLine
     invoke programinit
     invoke folderinit

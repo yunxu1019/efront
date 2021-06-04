@@ -482,6 +482,7 @@ memcopy endp
 unpack proc start,len,dsth,passed
     local writed,buff,bufflen,byteoffset,decoded,count,to
     local passed0
+    mov writed,0
     mov eax,len
     .if eax<2
         invoke WriteFile,dsth,start,len,addr writed,NULL
@@ -626,7 +627,7 @@ unpack proc start,len,dsth,passed
             invoke ExitProcess,1
         .endif
         .if decoded
-            invoke WriteFile,dsth,decoded,count,0,NULL
+            invoke WriteFile,dsth,decoded,count,addr writed,NULL
             invoke GlobalFree,decoded
         .endif
         .if buff
