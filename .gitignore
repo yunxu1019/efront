@@ -19,6 +19,7 @@ tools/prebuilds/
 process/asm/
 *.tgz
 *.log
+*.scr
 report.*
 test/arch/*.exe
 test/arch/*.obj
