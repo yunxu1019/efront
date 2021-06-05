@@ -209,6 +209,7 @@ var seekAsync = function (url, tree, rebuild) {
     var research = function () {
         return seekAsync.call(that, url, tree, rebuild);
     };
+    var keypath = [''];
     search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         var key = keeys[cx];
         if (key === '' || key === '.') continue;
@@ -231,15 +232,17 @@ var seekAsync = function (url, tree, rebuild) {
                     }
                     if (searched !== undefined) {
                         temp = searched;
+                        keypath.splice(cy, keypath.length - cy);
+                        temps.splice(cy, keypath.length - cy);
                         break search;
                     }
                 }
             }
             continue;
         }
-        curl = path.join(curl, key);
+        keypath.push(key);
         if (temp[key] === false) {
-            asyncLoader.call(that, curl, temp, key, rebuild);
+            asyncLoader.call(that, keypath.join('/'), temp, key, rebuild);
         }
         temps.push(temp);
         temp = temp[key];
@@ -257,13 +260,14 @@ var seekAsync = function (url, tree, rebuild) {
     if (temp instanceof Error) {
         return temp;
     }
+    keypath.push(key);
+    var curl = keypath.join('/');
     if ((temp instanceof Buffer) && !temp.stat) {
         temp.stat = getVersion(path.join(String(this), curl));
         temp.name = key;
     }
     if (temps.length) {
         if (keeys.length - temps.length < 1) return temp;
-        curl = "/" + curl.replace(/[\\]/ig, '/');
         if (curl.replace(/^\/|\/$/g, '') !== url.replace(/^\/|\/$/g, '')) {
             if (curl.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1") === url.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1")) {
                 return curl;
