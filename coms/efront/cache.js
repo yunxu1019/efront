@@ -242,7 +242,7 @@ var seekAsync = function (url, tree, rebuild) {
         }
         keypath.push(key);
         if (temp[key] === false) {
-            asyncLoader.call(that, keypath.join('/'), temp, key, rebuild);
+            asyncLoader.call(that, keypath.slice(1).join('/'), temp, key, rebuild);
         }
         temps.push(temp);
         temp = temp[key];
