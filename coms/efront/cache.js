@@ -265,7 +265,9 @@ var seekAsync = function (url, tree, rebuild) {
         if (keeys.length - temps.length < 1) return temp;
         curl = "/" + curl.replace(/[\\]/ig, '/');
         if (curl.replace(/^\/|\/$/g, '') !== url.replace(/^\/|\/$/g, '')) {
-            return curl;
+            if (curl.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1") === url.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1")) {
+                return curl;
+            }
         }
     }
 };

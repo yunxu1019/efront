@@ -155,8 +155,19 @@ module.exports = function (req, res) {
     url = url.replace(/[\:\?#][\s\S]*/g, "");
     var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;
-    var data = getfile(url, ['', 'index.html']);
-
+    var exts = [''];
+    if (/\/$/.test(url)) exts.push(
+        'default.html',
+        'index.html', 'index.htm',
+        'index.jsp', 'index.asp', 'index.php',
+    );
+    else exts.push(
+        '.html',
+        '.jsp',
+        '.asp',
+        '.php'
+    )
+    var data = getfile(url, exts);
     if (data instanceof Promise) {
         return data.then(function (data) {
             adapter(data, url, req, res);
