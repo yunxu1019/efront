@@ -102,6 +102,7 @@ var create = function (url, key) {
         if (imgpic) {
             [].forEach.call(imgpic.attributes, a => {
                 var { name, value } = a;
+                if (/width|height/i.test(name)) return;
                 _imgpic.setAttribute(name, value);
             })
             remove(imgpic);
