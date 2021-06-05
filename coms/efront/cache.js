@@ -204,7 +204,7 @@ var seekAsync = function (url, tree, rebuild) {
     var keeys = url.split(/[\\\/]+/);
     var curl = "";
     var that = this;
-    var temps = [];
+    var temps = [tree];
 
     var research = function () {
         return seekAsync.call(that, url, tree, rebuild);
