@@ -262,7 +262,7 @@ var seekAsync = function (url, tree, rebuild) {
         temp.name = key;
     }
     if (temps.length) {
-        if (keeys.length - temps.length < 2) return temp;
+        if (keeys.length - temps.length < 1) return temp;
         curl = "/" + curl.replace(/[\\]/ig, '/');
         if (curl.replace(/^\/|\/$/g, '') !== url.replace(/^\/|\/$/g, '')) {
             return curl;
