@@ -5,6 +5,7 @@ var path = require("path");
 var isLib = require("./isLib");
 var parseURL = require("../basic/parseURL");
 var userAgent = "Efront/1.0";
+var memery = require("./memery");
 var mainLoaderPromise = new Promise(function (ok, oh) {
     fs.readFile(path.join(__dirname, "../basic/loader.js"), function (error, data) {
         if (error) oh(error);
@@ -22,7 +23,7 @@ function fromComponent(base) {
         if (/^\/?comm\b/i.test(url)) {
             try {
 
-                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: [].concat(process.env.COMS_PATH.split(','), ".") })
+                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: [].concat(memery.COMS_PATH.split(','), ".") })
                 if (isLib(temppath)) {
                     var mode = function () {
                         return require(temppath);
@@ -32,7 +33,7 @@ function fromComponent(base) {
                     return;
                 }
             } catch (e) {
-
+                
             }
         }
         var abort = function () {
@@ -41,7 +42,7 @@ function fromComponent(base) {
         requestHandles.push(abort);
         var url1 = base.replace(/[^\\\/]*$/, url);
         url1 = url1.replace(/^\/?/, "/");
-
+        
         packer(url1, function (result) {
             var index = requestHandles.indexOf(abort);
             if (index >= 0) {
@@ -68,7 +69,7 @@ function fromComponent(base) {
                                     url1 = "./" + path.relative('.', url1).replace('\\', '/');
                                 }
 
-                                var resolved = require.resolve(url1, { paths: [].concat(process.env.COMS_PATH.split(','), '.') });
+                                var resolved = require.resolve(url1, { paths: [].concat(memery.COMS_PATH.split(','), '.') });
                             } else {
                                 var resolved = require.resolve(url1);
                             }
@@ -214,7 +215,7 @@ module.exports = function (mainpath, args) {
         Object.keys(timeoutHandles).map(clearTimeout);
         requestHandles.slice(0).map(r => r());
     };
-    var fullpath = require.resolve("./" + mainpath, { paths: [].concat(process.env.COMS_PATH.split(","), '.') });
+    var fullpath = require.resolve("./" + mainpath, { paths: [].concat(memery.COMS_PATH.split(","), '.') });
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');

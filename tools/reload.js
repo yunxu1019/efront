@@ -7,7 +7,7 @@ function reload() {
 var reload_timmer;
 function reloader() {
     var xhr = new XMLHttpRequest;
-    var http_port = process.env.HTTP_PORT;
+    var http_port = require("../coms/efront/memery").HTTP_PORT;
     xhr.open("post", `http://localhost${http_port ? ":" + http_port : ""}/reload`);
     xhr.timeout = 0;
     xhr.onerror = reload;

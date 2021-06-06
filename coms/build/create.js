@@ -1,7 +1,13 @@
 var fs = require("fs");
 var path = require("path");
-var appname = process.env.APP;
-var { ENVS_PATH = "_envs", COMS_PATH = "./coms", PAGE_PATH = "./apps", PUBLIC_PATH = "./public" } = process.env;
+var memery = require('../efront/memery');
+var appname = memery.APP;
+var {
+    ENVS_PATH = "_envs",
+    COMS_PATH = "./coms",
+    PAGE_PATH = "./apps",
+    PUBLIC_PATH = "./public"
+} = memery;
 function mkdirIfNotExists(dirname) {
     if (!fs.existsSync(dirname))
         fs.mkdirSync(dirname);

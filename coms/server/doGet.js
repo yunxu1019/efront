@@ -5,15 +5,15 @@ var filebuilder = require("../efront/filebuilder");
 var checkAccess = require("./checkAccess");
 var doFile = require("./doFile");
 var isDevelop = require("../efront/isDevelop");
-var env = process.env;
+var memery = require("../efront/memery");
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
-var PUBLIC_PATH = env.PUBLIC_PATH;
-var APPS_PATH = env.PAGE_PATH;
+var PUBLIC_PATH = memery.PUBLIC_PATH;
+var APPS_PATH = memery.PAGE_PATH;
 var SERVER_ROOT_PATH = isDevelop ? APPS_PATH : PUBLIC_PATH;
 var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filename, fullpath) {
     var data = filebuilder.apply(this, arguments);
     if (/\.css$/i.test(fullpath)) {
-        if (env.APP) {
+        if (memery.APP) {
             var real = path.dirname(path.relative(SERVER_ROOT_PATH, fullpath).replace(/\\/g, '/'));
             data = Buffer.from(data.toString().replace(/url\s*\(\s*(['"]?)([^\)]*)\1\s*\)/gi, function (a, q, s) {
                 if (!/^\/|^\w+\:/i.test(s)) {
@@ -122,7 +122,7 @@ var adapter = function (data, url, req, res) {
         } else {
             if (url[url.length - 1] !== "/") url = url + "/";
             if ("index.html" in data) data = getfile(url + "index.html");
-            else data = getfile(process.env.APP + url + "index.html");
+            else data = getfile(memery.APP + url + "index.html");
         }
         return adapter(data, "index.html", req, res);
     }

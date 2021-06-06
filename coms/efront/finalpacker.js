@@ -1,24 +1,35 @@
 "use strict";
 var setupenv = require("./setupenv");
-var env = process.env;
-var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
+var memery = require("./memery");
+var path = require("path");
+var FILE_BUFFER_SIZE = memery.FILE_BUFFER_SIZE;
 var getpagefile = require("./cache");
 var commbuilder = require("./commbuilder");
 var iconbuilder = require("./iconbuilder");
 var aapibuilder = require("./aapibuilder");
 var filebuilder = require("./filebuilder");
-var getcommfile = require("./cache")(env.COMS_PATH, commbuilder).async;
-var getpagefile = require("./cache")(env.PAGE_PATH, commbuilder).async;
-var getaapifunc = require("./cache")(env.APIS_PATH, aapibuilder).async;
-var geticonfile = require("./cache")(env.ICON_PATH || require("path").join(__dirname, "../data/cons"), iconbuilder).async;
-var getonlyfile = require("./cache")(env.FILE_PATH || env.PAGE_PATH, filebuilder, FILE_BUFFER_SIZE).async;
+var getcommfile = require("./cache")(function (params) {
+    var namemap = Object.create(null);
+    var pathname = memery.COMS_PATH || "";
+    pathname.split(',').forEach(p => {
+        namemap[p] = true;
+    });
+    namemap[path.join(__dirname, '..')] = true;
+    namemap[path.join(__dirname, '../basic')] = true;
+    namemap[path.join(__dirname, '../typescript-helpers')] = true;
+    return Object.keys(namemap).join(',');
+}(), commbuilder).async;
+var getpagefile = require("./cache")(memery.PAGE_PATH, commbuilder).async;
+var getaapifunc = require("./cache")(memery.APIS_PATH, aapibuilder).async;
+var geticonfile = require("./cache")(memery.ICON_PATH || require("path").join(__dirname, "../data/cons"), iconbuilder).async;
+var getonlyfile = require("./cache")(memery.FILE_PATH || memery.PAGE_PATH, filebuilder, FILE_BUFFER_SIZE).async;
 var {
     PAGE,
     FILE = PAGE,
     COMM,
     AAPI,
     ICON
-} = env;
+} = memery;
 var ccons_root = "./" + ICON;
 var comms_root = "./" + COMM;
 var pages_root = "./" + PAGE;

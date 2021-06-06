@@ -8,10 +8,10 @@ var loadenv = require("./loadenv");
 var memery = require("./memery");
 var detectWithExtension = require("../build/detectWithExtension");
 var setenv = function (evn, cover) {
-    var dist = process.env;
+    var dist = memery;
     for (var k in evn) {
         var k1 = k.toUpperCase();
-        if (cover !== false || !(k in dist)) dist[k1] = evn[k];
+        if (cover !== false || dist[k1] === undefined) memery.set(k1, evn[k]);
     }
 };
 var startServer = function () {
@@ -31,7 +31,7 @@ var startDevelopEnv = function () {
     require("../server/main");
 };
 var setAppnameAndPorts = function (args) {
-    var appname = process.env.APP, http_port = '', https_port;
+    var appname = memery.APP, http_port = '', https_port;
     for (var cx = 0, dx = args.length; cx < dx; cx++) {
         var arg = args[cx];
         if (!arg) continue;
@@ -55,7 +55,7 @@ var detectEnvironment = function () {
         page_path: currentpath,
         comm: "",
         coms_path: '',
-        app: process.env.APP || '',
+        app: memery.APP || '',
         page: '',
     };
     var env_path = [];
@@ -99,18 +99,15 @@ var detectEnvironment = function () {
                 config.public_path = public_path[0];
             }
             if (1 !== env_path.length) {
-                setenv(config);
+                setenv(config, false);
             } else {
-                process.env.envs_path = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
+                memery.ENVS_PATH = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
                 var env = loadenv(path.join(env_path[0], "setup"));
-                if (env.COMS || env.COMM) {
-                    delete config.comm;
-                }
                 setenv(config);
                 setenv(env);
                 require("./setupenv");
             }
-            ok();
+                ok();
         });
     });
 };
@@ -370,7 +367,7 @@ var commands = {
             coms: 'docs,zimoli',
             page: './',
             apis: 'docs,zimoli',
-            app: "docs"
+            app: ""
         });
         require("./setupenv");
         require("../server/main");
@@ -383,11 +380,11 @@ var commands = {
             page_path: path.join(__dirname, "../../apps"),
             coms_path: path.join(__dirname, "../../coms"),
         });
-        if (!process.env.APP) process.env.APP = 'kugou';
+        if (!memery.APP) memery.APP = 'kugou';
         setAppnameAndPorts(arguments);
         require("./setupenv");
         require("../server/main");
-        showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${process.env.APP}`);
+        showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${memery.APP}`);
     },
     create(srcname, appname) {
         var folders = fs.readdirSync(process.cwd());
@@ -459,7 +456,7 @@ var commands = {
     live(http_port, https_port) {
 
         detectEnvironment().then(function () {
-            startDevelopEnv(process.env.APP || "", http_port, https_port);
+            startDevelopEnv(memery.APP || "", http_port, https_port);
         }).catch(console.error);
     },
     start() {
@@ -487,6 +484,7 @@ var commands = {
         startServer();
     },
     run(appname) {
+
         var args = [].concat.apply(["efront"], arguments);
         args.push("--efront");
         if (restArgv.length) args.push.apply(args, restArgv);
@@ -521,20 +519,20 @@ var commands = {
                 if (!module_Name) module_Name = /\:([^\\\/]*)$/.exec(app_Name)[1];
                 app_Name = app_Name.slice(0, app_Name.length - module_Name.length - 1);
             }
-            process.env.APP = app_Name;
+            memery.APP = app_Name;
         }
         var module_Name = module_Name || argv.slice(1).filter(a => /^([^\\\/\.\:]+)$/.test(a))[0];
         if (module_Name) {
             var [export_to, export_as] = module_Name.split("=");
             if (export_to) {
-                process.env.EXPORT_TO = export_to;
+                memery.EXPORT_TO = export_to;
             }
             if (export_as) {
-                process.env.EXPORT_AS = export_as;
+                memery.EXPORT_AS = export_as;
             }
         }
         var fullpath = process.cwd();
-        var promise = detectWithExtension(process.env.APP, ["", ".js", ".ts"], [fullpath]);
+        var promise = detectWithExtension(memery.APP, ["", ".js", ".ts"], [fullpath]);
         promise.catch(function () {
             require('../build');
         });
@@ -543,7 +541,7 @@ var commands = {
             var app = path.relative(fullpath, f);
             if (isdir) {
                 setenv({
-                    app: process.env.APP,
+                    app: memery.APP,
                     comm: (!/[^\.\\\/]+/.test(app) ? `zimoli,` : app + ',zimoli,')
                 });
                 require("../build");
@@ -677,7 +675,7 @@ var run = function (type, value1, value2, value3) {
                 break;
             case "publish":
             case "release":
-                process.env.RELEASE = 1;
+                memery.RELEASE = 1;
             case "public":
                 var publicOnly = true;
             case "build":

@@ -1,6 +1,6 @@
 chcp 936
 rem 默认应用
-if not defined app set APP=zimoli
+@REM if not defined app set APP=zimoli
 REM set HTTPS_PORT=444
 
 rem https证书路径

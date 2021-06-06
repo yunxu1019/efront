@@ -6,7 +6,7 @@ var message = require("../message");
 require("../efront/quitme");
 process.on("uncaughtException", process.exit);
 process.on("unhandledRejection", process.exit);
-var { HTTPS_PORT, HTTP_PORT } = process.env;
+var { HTTPS_PORT, HTTP_PORT } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
 HTTPS_PORT = +HTTPS_PORT || 0;
 var closed = false;
@@ -281,7 +281,7 @@ if (HTTP_PORT) {
         initServer.call(server1, HTTP_PORT);
     }
 }
-var SSL_PFX_PATH = process.env["PATH.SSL_PFX"], SSL_ENABLED = false;
+var SSL_PFX_PATH = memery.PFX_PATH, SSL_ENABLED = false;
 var httpsOptions = {
     allowHTTP1: true,
 };
@@ -292,7 +292,7 @@ if (SSL_PFX_PATH) {
         httpsOptions.pfx = fs.readFileSync(SSL_PFX_PATH);
         SSL_ENABLED = true;
     }
-    httpsOptions.passphrase = process.env["PASSWORD.SSL_PFX"];
+    httpsOptions.passphrase = memery.PFX_PASSWORD;
 }
 else if (HTTPS_PORT) {
     console.warn("<yellow>HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！</yellow>");

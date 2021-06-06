@@ -5,6 +5,7 @@ var scanner = require("../compile/scanner");
 var typescript = require("../typescript");
 var path = require("path");
 var _strings = require("../basic/strings");
+var memery = require("../efront/memery");
 var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
@@ -55,9 +56,9 @@ function toComponent(responseTree) {
         return $key;
     };
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
-    var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT) && !/^(false|0|null)/i.test(process.env.CRYPT);
-    var compress = process.env.COMPRESS ? !/(false|0|null)/i.test(process.env.COMPRESS) && !/(false|0|null)/i.test(process.env.MANGLE) && !/^(false|0|null)/i.test(process.env.PRESS) : encoded;
-    var optimize = process.env.OPTIMIZE && !/(false|0|null)/i.test(process.env.OPTIMIZE);
+    var encoded = memery.ENCRYPT;
+    var compress = memery.COMPRESS;
+    var optimize = memery.OPTIMIZE;
     var generateConfig = {
         format: {
             renumber: true,
@@ -504,7 +505,7 @@ function toComponent(responseTree) {
     }
 
     responseTree[PUBLIC_APP].data = template;
-    var DESTNAME = String(process.env.PUBLIC_NAME || PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + EXTT;
+    var DESTNAME = String(memery.PUBLIC_NAME || PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + EXTT;
     responseTree[PUBLIC_APP].destpath = DESTNAME || PUBLIC_APP;
 
     return Object.assign({

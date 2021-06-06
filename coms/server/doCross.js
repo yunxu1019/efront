@@ -4,8 +4,9 @@ var Http2ServerResponse = require("http2").Http2ServerResponse;
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 var privateKeys = Object.create(null);
 "Cookie,Connection,Referer,Host,Origin".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
+var memery = require("../efront/memery");
 var options = {
-    record_path: process.env.record_path
+    record_path: memery.RECORD_PATH
 };
 
 if (options.record_path) {

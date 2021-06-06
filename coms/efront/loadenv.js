@@ -84,6 +84,7 @@ var get = function (text) {
             var env_name = env_name.toUpperCase();
             if (env_name in env) return env[env_name];
             if (parent && env_name in parent) return parent[env_name];
+            if (env_name in process.env) return process.env[env_name];
             return `%${env_name}%`;
         }).replace(/\\/g, "/");
     var match = text.match(reg_if);
@@ -96,7 +97,7 @@ var get = function (text) {
                 ignorecase ? condition_right.toUpperCase() : condition_right
             ) ||
             exist && fs.existsSync(path.normalize(exist.replace(/[\\]+/gi, "/"))) ||
-            defined && (defined in env || defined in parent)
+            defined && (defined in env || defined in parent || defined in process.env)
         )) get(command);
     }
     var match = text.match(reg_set);
@@ -115,6 +116,7 @@ var get = function (text) {
     return text;
 };
 var env = {}, parent = {};
+
 function loadenv(file, from) {
     env = {};
     parent = from || process.env;

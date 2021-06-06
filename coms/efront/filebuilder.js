@@ -5,6 +5,7 @@ var queue = require("../basic/queue");
 var require2 = require("./require2");
 var builder;
 var path = require("path");
+var memery = require("./memery");
 var autoloader = `function () {
     var reloadCount = 0;
     var reload = function () {
@@ -33,7 +34,7 @@ var efronthook = `function (body, window) {
     xhr.send("step into my sight..");
 }.call(this, document.documentElement.children[0], this)`;
 var pixelDecoder = d => d / 16 + "rem";
-if (process.env.TRANSFORM_PIXEL) {
+if (memery.TRANSFORM_PIXEL) {
     var fixpixel = function (buff) {
         var renderPixelRatio = .75;
         return String(buff).replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt") + (quote || ""));

@@ -6,6 +6,7 @@ var asmbuilder = require("../efront/asmbuilder");
 var manybuilder = require("./unpublish");
 var setting = require("./setting");
 var path = require("path");
+var memery = require("../efront/memery");
 var env = require("./environment");
 var noopbuilder = a => a;
 var pagebuilder = function (buffer, filename) {
@@ -61,7 +62,7 @@ function getBuildInfo(url) {
                     });
                 }
                 name = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
-                destpath = path.join("comm", name + env.EXTT);
+                destpath = path.join("comm", name + memery.EXTT);
                 if (url === 'main' || url === 'main.js' && !setting.is_commponent_package) {
                     builder = noopbuilder;
                 }
@@ -85,8 +86,8 @@ function getBuildInfo(url) {
                 } else {
                     extt = extt || "";
                     builder = commbuilder;
-                    destpath = path.join("page", name + env.EXTT);
-                    name = "/" + name + env.EXTT;
+                    destpath = path.join("page", name + memery.EXTT);
+                    name = "/" + name + memery.EXTT;
                 }
                 if (builder) {
                     fullpath = pages_root.map(page => path.join(page, name + extt));

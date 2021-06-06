@@ -11,6 +11,7 @@ var inCom = require("./inCom");
 var inPage = require("./inPage");
 var fs = require("fs");
 var path = require("path");
+var memery = require("./memery");
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     if (!data) return data;
     var regs = [].concat(reg);
@@ -326,7 +327,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         params
     };
 };
-var optimize = process.env.OPTIMIZE && !/(false|0|null)/i.test(process.env.OPTIMIZE);
+var optimize = memery.OPTIMIZE;
 
 var buildResponse = function ({ imported, params, data, required, occurs }, compress) {
     if (!isDevelop && compress !== false) {

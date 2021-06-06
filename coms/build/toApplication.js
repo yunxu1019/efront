@@ -2,7 +2,6 @@
 var crc = require("../basic/crc");
 var path = require("path");
 var fs = require("fs");
-var environment = require("./environment");
 var report = require("./report");
 var setting = require("./setting");
 var getArgs = require('./getArgs');
@@ -10,6 +9,7 @@ var strings = require("../basic/strings");
 var r21 = "'()*+,-./0123456789:;"
 var r29 = "?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
 var r34 = "]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+var memory = require("../efront/memery");
 var codetemp = function (delta) {
     var temp = [];
     while (delta > 0) {
@@ -63,8 +63,8 @@ var encrypt = function (text, efrontsign) {
     }
     return rest.join("");
 }
-var encoded = !/(false|0|null)/i.test(process.env.ENCODE) && !/^(false|0|null)/i.test(process.env.ENCRYPT) && !/^(false|0|null)/i.test(process.env.CRYPT);
-var compress = process.env.COMPRESS ? !/(false|0|null)/i.test(process.env.COMPRESS) && !/(false|0|null)/i.test(process.env.MANGLE) && !/^(false|0|null)/i.test(process.env.PRESS) : encoded;
+var encoded = memory.ENCRYPT;
+var compress = memory.COMPRESS;
 var ReleaseTime = new Date();
 if (encoded) encoded = (Math.random() * ReleaseTime | 0).toString(36);
 
@@ -79,7 +79,7 @@ var buildHtml = function (html, code) {
             return "";
         })
         .replace(/<!--[\s\S]*?--!?>/g, "")
-        .replace(/<title>(.*?)<\/title>/i, `<title>${process.env.TITLE || "$1"}</title>`)
+        .replace(/<title>(.*?)<\/title>/i, `<title>${memory.TITLE || "$1"}</title>`)
         .replace(/<script\b[\s\S]*?<\/script>\s*/ig, function (script) {
             if (/(["'`])post\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
                 isZimoliDetected = true;
@@ -96,8 +96,8 @@ var buildHtml = function (html, code) {
 
     if (isZimoliDetected)
         html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo${encoded ? '-' + encoded : ''}="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
-    if (process.env.IN_WATCH_MODE) {
-        let WATCH_PORT = +process.env.WATCH_PORT;
+    if (memory.IN_WATCH_MODE) {
+        let WATCH_PORT = memory.WATCH_PORT;
         let reloadVersion = +new Date();
         let efrontReloadVersionAttribute = "efront-reload-version";
         html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script ${efrontReloadVersionAttribute}=${reloadVersion}>
@@ -128,7 +128,7 @@ var buildHtml = function (html, code) {
             load("http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload/${reloadVersion}", checkUpdate, "post");
         }();
         </script>\r\n${head}`);
-        global.WATCH_PROJECT_VERSION = reloadVersion;
+        memory.WATCH_PROJECT_VERSION = reloadVersion;
     }
     if (poweredByComment) {
         html = html.replace(/^\s*(?:<!doctype[\s\S]*?>)?/i, poweredByComment);
@@ -254,7 +254,7 @@ module.exports = function (responseTree) {
         code = mainScriptData.toString()
             .replace(/var\s+killCircle[\s\S]*?\}\s*\};/, 'var killCircle=function(){};')
             .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
-            .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${environment.EXTT}?"+` + versionVariableName})`)
+            .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
             .replace(
                 new RegExp(/\b/.source + xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
                 function (m, s1, s2) {

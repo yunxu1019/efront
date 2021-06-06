@@ -260,14 +260,13 @@ var seekAsync = function (url, tree, rebuild) {
     if (temp instanceof Error) {
         return temp;
     }
-    keypath.push(key);
     var curl = keypath.join('/');
     if ((temp instanceof Buffer) && !temp.stat) {
         temp.stat = getVersion(path.join(String(this), curl));
         temp.name = key;
     }
     if (temps.length) {
-        if (keeys.length - temps.length < 1) return temp;
+        if (keeys.length - temps.length < 2) return temp;
         if (curl.replace(/^\/|\/$/g, '') !== url.replace(/^\/|\/$/g, '')) {
             if (curl.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1") === url.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1")) {
                 return curl;

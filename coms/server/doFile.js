@@ -6,8 +6,8 @@ var checkAccess = require("./checkAccess");
 var encode62 = require("../crypt/encode62");
 var mimes = require("../efront/mime");
 var isDevelop = require("../efront/isDevelop");
-
-var { PAGE_PATH, PUBLIC_PATH } = process.env;
+var memery = require("../efront/memery");
+var { PAGE_PATH, PUBLIC_PATH } = memery;
 var root = isDevelop ? PAGE_PATH : PUBLIC_PATH;
 var cachePieceSize = 32 * 1024;
 var cacheCountLimit = 6000;

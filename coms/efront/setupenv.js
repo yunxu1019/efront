@@ -2,22 +2,9 @@
 var loadenv = require("./loadenv");
 var path = require("path");
 var fs = require("fs");
+var memery = require("./memery");
 var env = process.env;
-
-if (!env.cd && !env.CD) {
-    env.cd = process.cwd();
-}
-for (var k in env) {
-    var upperKey = k.toUpperCase();
-    var lowerKey = k.toLowerCase();
-    env[upperKey] = env[k];
-    env[lowerKey] = env[k];
-}
-var envpath = env.ENVS_PATH || env.ENV_PATH || env.CONFIG_PATH;
-if (!envpath) {
-    envpath = "./_envs," + path.join(require("os").homedir(), '.efront/_envs');
-}
-
+var envpath = memery.ENVS_PATH;
 envpath = envpath.split(",").filter(fs.existsSync);
 var cache = {};
 var setup = module.exports = function (app) {
@@ -31,33 +18,29 @@ var setup = module.exports = function (app) {
     cache[appname] = env;
     extend(env, env, appname);
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
-        var default_value = env[key] || process.env[key];
+        var default_value = env[key];
+        if (default_value !== undefined) default_value = memery[key];
         var value_map = Object.create(null);
-        if (appname) {
+        if (appname !== undefined) {
             if (!/\/|\.[cm]?[jt]sx?$/i.test(app)) value_map[appname] = true;
         }
-        if (default_value) {
+        if (default_value !== undefined) {
             default_value.split(',').forEach(k => {
                 value_map[k] = true;
             });
         } else {
             value_map["zimoli"] = true;
         }
-        value_map[""] = true;
-        value_map["basic"] = true;
-        value_map["typescript-helpers"] = true;
         env[key] = Object.keys(value_map).join(',');
     });
-    extend(env, process.env);
     if (!env.PAGE && appname && !/\.([cm]?[jt]sx?|json)$/i.test(app)) env.PAGE = appname;
     pollyfill(env, appname);
-
     return env;
 };
-var pollyfill = function (env, appname) {
+var pollyfill = function (dst, appname) {
 
-    if (env.PAGE === undefined || env.PAGE === null) env.PAGE = appname;
-    for (var k in env) {
+    if (dst.PAGE === undefined || dst.PAGE === null) dst.PAGE = appname;
+    for (var k in dst) {
         var bootfull = '';
         if (k in bootConfig) {
             bootfull = path.join(__dirname, "../../", bootConfig[k]);
@@ -68,25 +51,18 @@ var pollyfill = function (env, appname) {
         }
         bootpath = bootfull || '';
         var envma = Object.create(null);
-        env[k] = (env[k] ? env[k] : bootpath).split(",").map(a => a === ":" ? bootpath : a).map(
+        dst[k] = (dst[k] ? dst[k] : bootpath).split(",").map(a => a === ":" ? bootpath : a).map(
             k => k.replace(/\\/g, '/').replace(/^\.\//, '')
         ).filter(
             k => envma[k] ? false : envma[k] = true
         ).join(",");
     }
-    if (!env.PAGE_PATH) {
-        env.PAGE_PATH = "./apps";
-    }
-    if (!env.PUBLIC_PATH) {
-        env.PUBLIC_PATH = "./public";
-    }
-
 };
 var normalize = function (o) {
     for (var k in o) {
         var v = o[k];
-        if (/\//.test(v) ^ /\\/.test(v)) {
-            o[k] = path.normalize(v);
+        if (/\//.test(v) ^ /\\/.test(v) || /path$/i.test(k)) {
+            if (v) o[k] = path.normalize(v);
         }
     }
 };
@@ -97,24 +73,33 @@ var bootConfig = {
 
 var extend = function (dst, env) {
     var obj = {
-        EXTT: dst.EXTT || dst.PUBLIC_EXTT || dst.PUBLIC_EXT || dst.EXTT_NAME || dst.EXT_NAME || dst.EXT || env.EXTT || '',
-        COMS_PATH: dst.COMS_PATH || dst.COMM_PATH || env.COMS_PATH || "",
-        PAGE_PATH: dst.PAGE_PATH || dst.PAGES_PATH || dst.APPS_PATH || env.PAGE_PATH || "",
-        APIS_PATH: dst.APIS_PATH || dst.AAPI_PATH || env.APIS_PATH || "",
-        LIBS_PATH: dst.LIBS_PATH || dst.LIB_PATH || env.LIBS_PATH || "",
-        ICON_PATH: dst.ICON_PATH || dst.CONS_PATH || dst.CCON_PAT || dst.ICONS_PATHH || env.ICON_PATH || "",
-        PAGE: dst.PAGE || dst.APPS || env.PAGE || "",
-        COMM: dst.COMM || dst.COMS || env.COMM || "",
-        AAPI: dst.AAPI || dst.APIS || env.AAPI || "",
-        IMAG: dst.IMAG || dst.IMGS || env.IMAG || "",
-        LIBS: dst.LIBS || env.LIBS || "",
-        ICON: dst.ICON || dst.CCON || dst.CONS || dst.ICONS || env.ICON || "",
-        PUBLIC_PATH: dst.PUBLIC_PATH || env.PUBLIC_PATH || "",
+        EXTT: env.EXTT || '',
+        COMS_PATH: env.COMS_PATH || "",
+        PAGE_PATH: env.PAGE_PATH || "",
+        APIS_PATH: env.APIS_PATH || "",
+        LIBS_PATH: env.LIBS_PATH || "",
+        ICON_PATH: env.ICON_PATH || "",
+        PAGE: env.PAGE || "",
+        COMM: env.COMM || "",
+        AAPI: env.AAPI || "",
+        IMAG: env.IMAG || "",
+        LIBS: env.LIBS || "",
+        ICON: env.ICON || "",
+        PUBLIC_PATH: env.PUBLIC_PATH || "",
     };
+    for (var k in obj) {
+        obj[k] = dst[k] || env[k] || memery[k] || '';
+        if (/\_PATH$/i.test(k)) {
+            dst[k] = path.normalize(obj[k]);
+        } else {
+            dst[k] = obj[k];
+        }
+    }
+
     Object.assign(dst, obj);
     normalize(dst);
 };
-extend(process.env, process.env);
+Object.assign(memery, setup());
 envpath.forEach(function (p) {
     var env = loadenv(path.join(p, 'setup'));
     Object.keys(env).forEach(function (key) {
@@ -129,7 +114,8 @@ if ("APP" in env) {
     pollyfill(_tmp, env.APP);
     for (var k in _tmp) {
         if (/\_PATH$/i.test(k)) {
-            process.env[k] = _tmp[k];
+            memery[k] = _tmp[k];
         }
     }
+    normalize(memery);
 }

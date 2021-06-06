@@ -2,40 +2,39 @@ var setupenv = require("../efront/setupenv");
 var path = require("path");
 var mixin = require("../efront/mixin");
 var fs = require("fs");
+var memery = require('../efront/memery');
 var {
     APP = ".",
-    TARGET,
-    EXPORT,
-    EXPORT_AS = EXPORT,
-    EXPORT_TO = TARGET,
+    EXPORT_AS,
+    EXPORT_TO,
     RELEASE,
     PREFIX,
     POLYFILL,
     SOURCEDIR,
     DESTPATH,
-} = process.env;
+} = memery
 
 var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : setupenv('.');
 var {
-    PUBLIC_PATH = process.env.PUBLIC_PATH || "./public",
+    PUBLIC_PATH = memery.PUBLIC_PATH || "./public",
     EXTT
-} = env;
+} = memery;
 var PAGE = env.PAGE || "";
 var COMM = env.COMM;
 var ICON = env.ICON;
-var AAPI = env.APIS || "zimoli";
-var PAGE_PATH = env.PAGE_PATH;
-var COMS_PATH = env.COMS_PATH;
-var ICON_PATH = env.ICON_PATH;
+var AAPI = env.APIS || "";
+var PAGE_PATH = memery.PAGE_PATH;
+var COMS_PATH = memery.COMS_PATH;
+var ICON_PATH = memery.ICON_PATH;
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
-var comms_root = mixin(env.COMS_PATH, env.COMM).map(joinpath).filter(fs.existsSync);
+var comms_root = mixin(memery.COMS_PATH, env.COMM).map(joinpath).filter(fs.existsSync);
 var comms_root_length = comms_root.length;
 var buildinpath = path.join(__dirname, '..');
 comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
 if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 var ccons_root = ICON && ICON_PATH ? mixin(env.ICON_PATH, env.ICON).map(joinpath).filter(fs.existsSync) : [];
-var pages_root = mixin(env.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
+var pages_root = mixin(memery.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
 POLYFILL = !/^(0|false|null)$/i.test(POLYFILL);
 var resolve_component_file_path = function (public_path = APP, source_paths = [""].concat(pages_root, comms_root)) {
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {

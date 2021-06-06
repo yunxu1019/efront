@@ -1,6 +1,7 @@
 "use strict";
+var memery = require("../efront/memery");
 var urlProxyMap = {
-    "/": "/" + (process.env.APP || "").replace(/^\.[\/\\]?/, ''),
+    "/": "/" + (memery.APP || "").replace(/^\.[\/\\]?/, ''),
 };
 if (!/\/$/.test(urlProxyMap["/"])) {
     urlProxyMap["/"] += "/";
