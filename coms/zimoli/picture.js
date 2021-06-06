@@ -46,7 +46,7 @@ var create = function (url, key) {
     var p = this;
     var createImage = p.createImage || _createImage;
     var image_width, image_height;
-    var scaled, x, y, min_scale, loaded_scale, click_scale, loaded_x, loaded_y;
+    var scaled, x, y, min_scale, loaded_scale, locked_scale, click_scale, loaded_x, loaded_y;
     var origin_width, origin_height;
     var max_scale = 10 * devicePixelRatio;
 
@@ -66,7 +66,7 @@ var create = function (url, key) {
             p.width = image.width;
             p.height = image.height;
         }
-        loaded_scale = Math.min(image.clientHeight / image_height, image.clientWidth / image_width);
+        locked_scale = loaded_scale = Math.min(image.clientHeight / image_height, image.clientWidth / image_width);
         if (loaded_scale >= 0.9) {
             if (loaded_scale < 1.2) {
                 click_scale = 1;
@@ -263,7 +263,7 @@ var create = function (url, key) {
         start(event) {
             event.preventDefault();
             saved_event = event;
-            event.moveLocked = this.locked;
+            event.moveLocked = scaled > locked_scale;
             if (!this.locked) {
                 setInitParams();
             }
@@ -271,7 +271,7 @@ var create = function (url, key) {
         },
         move(event) {
             if (event.moveLocked) return;
-            event.moveLocked = this.locked;
+            event.moveLocked = scaled > locked_scale;
             event.preventDefault();
             if (event.touches && saved_event.touches) {
                 if (event.touches.length !== saved_event.touches.length) {
@@ -312,7 +312,8 @@ var create = function (url, key) {
                 }
             }
             saved_event = null;
-            event.moveLocked = this.locked;
+            event.moveLocked = scaled >= locked_scale;
+
             if (this.locked && onclick.preventClick) move.smooth(recover);
         }
     });
