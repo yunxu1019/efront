@@ -216,7 +216,7 @@ function refilm_parse(data, start = 0) {
                 bytes = readFromIndex(data, index, offset);
                 value = bufferToUTF8String(bytes, 0);
             }
-            else if (/^small$/i.test(field.type)) {
+            else if (/^(small|little|small-end|litte-end|end)$/i.test(field.type)) {
                 value = numberFromSmallEnd(value);
             }
             else if (/^(string|str)$/i.test(field.type)) {
