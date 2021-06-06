@@ -302,7 +302,7 @@ function parse(piece) {
         }
         if (/^[a-z\d]+\/?\d+$/i.test(type)) {
             let [_, t, d] = /^(\w*?)\/?(\d+)$/.exec(type);
-            type = d + '/' + t;
+            type = d + 'bit/' + t;
         }
         var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|bytes?|bits?|B|[^\/]*)([\/]|$|\s|\=)/i.exec(type);
         if (sizematch) {
