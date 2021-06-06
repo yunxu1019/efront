@@ -5,7 +5,7 @@ var memery = require("./memery");
 require("./setupenv");
 var {
     COMM,
-    COMS_PATH
+    coms_path: COMS_PATH
 } = memery;
 var joinpath = ([a, b, c]) => path.join(a === ":" ? path.join(__dirname, "../../") : a, b, c || '');
 var comms_root = mixin(COMS_PATH, COMM).map(joinpath).filter(fs.existsSync);

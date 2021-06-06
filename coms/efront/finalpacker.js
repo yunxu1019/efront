@@ -8,17 +8,7 @@ var commbuilder = require("./commbuilder");
 var iconbuilder = require("./iconbuilder");
 var aapibuilder = require("./aapibuilder");
 var filebuilder = require("./filebuilder");
-var getcommfile = require("./cache")(function (params) {
-    var namemap = Object.create(null);
-    var pathname = memery.COMS_PATH || "";
-    pathname.split(',').forEach(p => {
-        namemap[p] = true;
-    });
-    namemap[path.join(__dirname, '..')] = true;
-    namemap[path.join(__dirname, '../basic')] = true;
-    namemap[path.join(__dirname, '../typescript-helpers')] = true;
-    return Object.keys(namemap).join(',');
-}(), commbuilder).async;
+var getcommfile = require("./cache")(memery.coms_path, commbuilder).async;
 var getpagefile = require("./cache")(memery.PAGE_PATH, commbuilder).async;
 var getaapifunc = require("./cache")(memery.APIS_PATH, aapibuilder).async;
 var geticonfile = require("./cache")(memery.ICON_PATH || require("path").join(__dirname, "../data/cons"), iconbuilder).async;
