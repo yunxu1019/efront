@@ -104,7 +104,7 @@ module.exports = {
     RECORD_PATH: get("RECORD_PATH"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),
     PFX_PATH: get("PFX_PATH, PATH.SSL_PFX"),
-    PFX_PASSWORD: get("PFX_PASSWORD, PATH.SSL_PFX"),
+    PFX_PASSWORD: get("PFX_PASSWORD, SSL_PASSWORD, PASSWORD.SSL_PFX"),
     PAGE: get("PAGE, APPS"),
     COMM: get("COMM, COMS"),
     AAPI: get("AAPI, APIS"),
