@@ -30,7 +30,7 @@ function option(head = div(), body = div(), foot, splitter, container) {
 
 function main(arg0) {
     var head, body, foot, splitter, container;
-    if (arguments.length === 1 && isNode(arg0)) {
+    if (isNode(arg0) && !isNode(arguments[1])) {
         container = arg0;
         var [head = null, body = null, foot = null] = container.children;
         splitter = container.getAttribute("split") || undefined;
