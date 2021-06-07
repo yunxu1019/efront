@@ -42,7 +42,7 @@ var call = function (file, args = []) {
         }
         fs.readdirSync(_dir).forEach(function (name) {
             if (!_file) {
-                if (name.replace(/\.(w+)$/i, '') === _name && /\.(bat|cmd|sh)$/i.test(name)) {
+                if (name === _name || name.replace(/\.(\w+)$/i, '') === _name && /\.(bat|cmd|sh)$/i.test(name)) {
                     _file = path.join(_dir, name);
                 }
             }
