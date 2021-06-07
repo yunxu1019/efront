@@ -125,7 +125,7 @@ function go(pagepath, args, history_name, oldpagepath) {
     if (isObject(pagepath)) {
         var { path: pagepath, need, roles = need, data: args, id, options } = pagepath;
     } else {
-        var { roles, options } = getZimoliParams(pagepath);
+        var { roles, options, id } = getZimoliParams(pagepath);
     }
     if (!pagepath) return true;
     setZimoliParams(pagepath, { data: args, from: oldpagepath, options, roles, id });

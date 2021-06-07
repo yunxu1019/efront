@@ -27,10 +27,10 @@
                 }
             }
         }
-        return menu;
     };
     items.map(getChildren);
     result.update = function () {
+        var opened = data.getInstance("menu-opened");
         var historys = zimoli.getCurrentHistory();
         var map = {}, mmap = {};
         historys.forEach((a, i) => map[a] = i + 1);
@@ -47,19 +47,17 @@
                     }
                     mmap[menu.id] = menu;
                 }
+                if (menu.id === opened.active) actived = menu, actived_value = historys.length;
             }
             return res;
         };
         result.push.apply(result, items.filter(a));
-        var opened = data.getInstance("menu-opened");;
         result.opened = opened.map(a => mmap[a]).filter(a => !!a);
         var active = result.active;
         if (!active || result.indexOf(active) < 0) {
             actived = mmap[opened.active] || actived;
             if (actived) {
-                if (active && active !== actived) setActive(active, false);
                 if (actived_value === historys.length) result.open(actived);
-                else setActive(actived, true);
             } else {
                 result.open(result[0]);
             }
@@ -84,6 +82,12 @@
             setActive(menu, true);
             result.active = menu;
         }
+        if (menu.id) {
+            var opened = result.opened || [];
+            var oped = opened.map(a => a.id);
+            oped.active = menu.id;
+            data.setInstance('menu-opened', oped);
+        }
     });
     result.open = function (menu) {
         if (!menu) return;
@@ -102,9 +106,6 @@
         setActive(menu, true);
         result.load(menu);
         result.active = menu;
-        var oped = opened.map(a => a.id);
-        oped.active = result.active.id;
-        data.setInstance('menu-opened', oped);
     };
     result.close = function (menu) {
         if (menu === result[0]) return;
