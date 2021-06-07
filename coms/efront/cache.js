@@ -233,7 +233,12 @@ var seekAsync = function (url, tree, rebuild) {
                     if (searched !== undefined) {
                         temp = searched;
                         keypath.splice(cy, keypath.length - cy);
-                        temps.splice(cy, keypath.length - cy);
+                        if (typeof searched === 'string') {
+                            keypath.push.apply(keypath, searched.split('/'));
+                        } else {
+                            keypath.push.apply(keypath, keeys.slice(cx));
+                        }
+                        temps.splice(cy, keypath.length - cy, temp);
                         break search;
                     }
                 }
@@ -266,8 +271,10 @@ var seekAsync = function (url, tree, rebuild) {
         temp.name = key;
     }
     if (temps.length) {
-        if (keeys.length - temps.length < 1) return temp;
-        if (curl.replace(/^\/|\/$/g, '') !== url.replace(/^\/|\/$/g, '')) {
+        if (curl.replace(/^\/|\/$/g, '') === keeys.join('/').replace(/^\/|\/$/g, '')) {
+            return temp;
+        }
+        else {
             if (curl.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1") === url.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1")) {
                 return curl;
             }
