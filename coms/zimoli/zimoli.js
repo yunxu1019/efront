@@ -123,12 +123,12 @@ function go(pagepath, args, history_name, oldpagepath) {
         }
     }
     if (isObject(pagepath)) {
-        var { path: pagepath, need, roles = need, data: args, options } = pagepath;
+        var { path: pagepath, need, roles = need, data: args, id, options } = pagepath;
     } else {
         var { roles, options } = getZimoliParams(pagepath);
     }
     if (!pagepath) return true;
-    setZimoliParams(pagepath, { data: args, from: oldpagepath, options, roles });
+    setZimoliParams(pagepath, { data: args, from: oldpagepath, options, roles, id });
     prepare(pagepath, function (res) {
         if (!res.roles || res.roles === true) res.roles = !!roles;
     });
@@ -155,6 +155,7 @@ function go(pagepath, args, history_name, oldpagepath) {
                 roles,
                 data: args,
                 target: _page,
+                id,
                 options
             };
             dispatch(window, event);

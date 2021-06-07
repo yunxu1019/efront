@@ -1,10 +1,14 @@
 (document.body.hasAttribute("config-path") ? data.fromURL(document.body.getAttribute('config-path') || 'config/menus.json').loading_promise : Promise.resolve([])).then(function (items) {
     var result = [];
     var menuid = 0;
-    var savedChildren = {};
+    var savedChildren = Object.create(null);
+    var savedMenus = Object.create(null);
     var getChildren = function (menu) {
         if (!menu.id) {
             menu.id = ++menuid;
+        }
+        if(!savedMenus[menu.id]){
+            savedMenus[menu.id] = menu;
         }
         if (!(menu.id in savedChildren)) {
             savedChildren[menu.id] = menu.children;
@@ -13,6 +17,17 @@
                 menu.children.forEach(a => a.parent = menu);
             }
         }
+    };
+    var getChild = function (menu) {
+        if (menu.id) return savedMenus[menu.id];
+        if (menu.path) {
+            for (var k in savedMenus) {
+                if (menu.path === savedMenus[k].path) {
+                    return savedMenus[k];
+                }
+            }
+        }
+        return menu;
     };
     items.map(getChildren);
     result.update = function () {
@@ -62,6 +77,13 @@
     on("zimoli")(window, function (event) {
         var { zimoli } = event;
         data.setInstance("option-buttons", zimoli.options || [], false);
+        var menu = getChild(zimoli);
+        if (!menu) return;
+        if (menu !== result.active) {
+            setActive(result.active, false);
+            setActive(menu, true);
+            result.active = menu;
+        }
     });
     result.open = function (menu) {
         if (!menu) return;
@@ -71,10 +93,10 @@
         }
         if (menu === result.active) return;
         var opened = result.opened || [];
-        if (!~opened.indexOf(menu)) {
+        if (!~opened.indexOf(menu) && !~result.indexOf(menu)) {
             opened.push(menu);
         }
-        if (result.active) {
+        if (result.active && result.active.id !== menu.id) {
             setActive(result.active, false);
         }
         setActive(menu, true);
