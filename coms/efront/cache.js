@@ -266,7 +266,7 @@ var seekAsync = function (url, tree, rebuild) {
         temp.name = key;
     }
     if (temps.length) {
-        if (keeys.length - temps.length < 2) return temp;
+        if (keeys.length - temps.length < 1) return temp;
         if (curl.replace(/^\/|\/$/g, '') !== url.replace(/^\/|\/$/g, '')) {
             if (curl.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1") === url.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1")) {
                 return curl;
@@ -383,9 +383,10 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                         else run();
                     });
                 } else {
-                    if (!findPackage || typeof promise === "string" || promise instanceof Buffer || promise instanceof Function) return ok(promise);
+                    if (typeof promise === "string" || promise instanceof Buffer || promise instanceof Function) return ok(promise);
                     if (promise instanceof PackageData) return ok(Buffer.from(JSON.stringify(promise)));
                     if (promise instanceof Object && !result) {
+                        if (!findPackage) return ok(promise);
                         var package_file = "package.json";
                         if (package_file in promise) {
                             if (promise[package_file] === false) {

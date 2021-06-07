@@ -110,24 +110,14 @@ var adapter = function (data, url, req, res) {
     }
     if (data instanceof Promise) {
         return data.then(function (data) {
-            adapter(data, "index.html", req, res);
+            adapter(data, url, req, res);
         }).catch(function (error) {
             res.writeHead(500, {});
             res.end(String(error));
         });
     }
-    if (data instanceof Object) {
-        if (url[url.length - 1] === '/') {
-            if (data["index.html"]) {
-                data = data["index.html"];
-            } else {
-                if ("index.html" in data) data = getfile(url + "index.html");
-                else data = getfile(memery.APP + url + "index.html");
-            }
-            return adapter(data, "index.html", req, res);
-        } else {
-            data = url + "/";
-        }
+    if (data instanceof Object && !/\/$/.test(url)) {
+        data = url + '/';
     }
     if (typeof data === "string") {
         var new_url = data[0] === "/" ? data : "/" + data;
@@ -138,6 +128,15 @@ var adapter = function (data, url, req, res) {
             return res.end();
         }
     }
+    if (url) {
+        data = getfile(url, [
+            'default.html',
+            'index.html', 'index.htm',
+            'index.jsp', 'index.asp', 'index.php',
+        ]);
+        return adapter(data, "", req, res);
+    }
+
     res.writeHead(404, {});
     res.end("not found");
 };
@@ -155,17 +154,12 @@ module.exports = function (req, res) {
     var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;
     var exts = [''];
-    if (/\/$/.test(url)) exts.push(
-        'default.html',
-        'index.html', 'index.htm',
-        'index.jsp', 'index.asp', 'index.php',
-    );
-    else exts.push(
+    if (url[url.length - 1] !== '/') exts.push(
         '.html',
         '.jsp',
         '.asp',
         '.php'
-    )
+    );
     var data = getfile(url, exts);
     if (data instanceof Promise) {
         return data.then(function (data) {
