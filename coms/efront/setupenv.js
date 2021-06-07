@@ -28,9 +28,8 @@ var setup = module.exports = function (app) {
             default_value.split(',').forEach(k => {
                 value_map[k] = true;
             });
-        } else {
-            value_map["zimoli"] = true;
         }
+        if (!default_value) value_map["zimoli"] = true;
         env[key] = Object.keys(value_map).join(',');
     });
     if (!env.PAGE && appname && !/\.([cm]?[jt]sx?|json)$/i.test(app)) env.PAGE = appname;
