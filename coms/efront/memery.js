@@ -22,7 +22,7 @@ var set = function (k, v) {
     }
     k = k.toUpperCase();
     if (!(k in namemap)) {
-        console.warn("环境变量没有默认值", k);
+        console.warn("检查到未知环境变量", k);
     }
     var n = namemap[k] || k;
     this[n] = v;
