@@ -51,15 +51,15 @@ function rebuild(element) {
         dispatch(event, element);
     }
 }
-var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\.(?=[^\d])|\s*\.\s*)+/g;
+var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\s*\.(?=[^\d])|\s*\.\s*)+/g;
 var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
     if (!searchContext) return function () { };
     var ret = /[\;\r\n\u2028\u2029]/.test(searchContext) ? "" : "return ";
-    if (/\?\.(?=[^\d])/.test(searchContext)) {
+    if (/\?\s*\.(?=[^\d])/.test(searchContext)) {
         searchContext = searchContext.replace(variableReg, function (context) {
             var dist;
-            context.split(/\?\.(?=[^\d])/).forEach(function (search) {
+            context.split(/\?\s*\.(?=[^\d])/).forEach(function (search) {
                 if (dist) {
                     if (/[\=]/.test(dist)) dist = `(${dist})`;
                     dist = `${dist}!==void 0&&${dist}!==null?${dist}.${search}:null`
@@ -67,7 +67,7 @@ var createGetter = function (search, isprop = true) {
                     dist = search;
                 }
             });
-            return dist;
+            return context.length > 1 ? `(${dist})` : context;
         });
     }
     if (isprop) {
