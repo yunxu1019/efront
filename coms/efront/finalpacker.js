@@ -1,7 +1,6 @@
 "use strict";
 var setupenv = require("./setupenv");
 var memery = require("./memery");
-var path = require("path");
 var FILE_BUFFER_SIZE = memery.FILE_BUFFER_SIZE;
 var getpagefile = require("./cache");
 var commbuilder = require("./commbuilder");
@@ -13,18 +12,7 @@ var getpagefile = require("./cache")(memery.PAGE_PATH, commbuilder).async;
 var getaapifunc = require("./cache")(memery.APIS_PATH, aapibuilder).async;
 var geticonfile = require("./cache")(memery.ICON_PATH || require("path").join(__dirname, "../data/cons"), iconbuilder).async;
 var getonlyfile = require("./cache")(memery.FILE_PATH || memery.PAGE_PATH, filebuilder, FILE_BUFFER_SIZE).async;
-var {
-    PAGE,
-    FILE = PAGE,
-    COMM,
-    AAPI,
-    ICON
-} = memery;
-var ccons_root = "./" + ICON;
-var comms_root = "./" + COMM;
-var pages_root = "./" + PAGE;
-var aapis_root = "./" + AAPI;
-var files_root = "./" + FILE;
+
 var getfrompath = function (name, __root, getter, extt) {
     __root = __root.split(/,/);
     return new Promise(function (ok) {
@@ -54,12 +42,12 @@ var getfrompath = function (name, __root, getter, extt) {
     })
 };
 var geticon = function (name, env) {
-    var _ccons_root = env.ICON || ccons_root;
+    var _ccons_root = env.ICON || memery.ICON;
     return getfrompath(name, _ccons_root, geticonfile, ".png");
 };
 
 var getcomm = function (name, env, ext) {
-    var _comms_root = env.COMM || comms_root;
+    var _comms_root = env.COMM || memery.COMM;
     name = name.replace(/(\w)\$/g, "$1/");
     var exts = [".js", ".ts", ".json", ".html", '.vue', ''];
     if (ext && !~exts.indexOf(env)) {
@@ -69,7 +57,8 @@ var getcomm = function (name, env, ext) {
 };
 
 var getpage = function (name, env, ext) {
-    var _pages_root = env.PAGE || pages_root;
+    var _pages_root = env.PAGE || memery.PAGE;
+
     var exts = [".js", ".ts", ".html", '.vue', ''];
     if (ext && !~exts.indexOf(env)) {
         exts.unshift(ext);
@@ -78,12 +67,12 @@ var getpage = function (name, env, ext) {
 };
 
 var getapi = function (name, env) {
-    var _aapis_root = env.AAPI || aapis_root;
+    var _aapis_root = env.AAPI || memery.AAPI;
     return getfrompath(name, _aapis_root, getaapifunc, ".js");
 };
 
 var getfile = function (name, env) {
-    var _files_root = env.FILE || env.PAGE || files_root;
+    var _files_root = env.FILE || env.PAGE || memery.FILE_PATH;
     return getfrompath(name, _files_root, getonlyfile, [""]);
 };
 

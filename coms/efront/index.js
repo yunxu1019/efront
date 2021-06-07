@@ -53,10 +53,10 @@ var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
         page_path: currentpath,
-        comm: "",
-        coms_path: '',
+        comm: memery.COMM,
+        coms_path: memery.COMS_PATH,
         app: memery.APP || '',
-        page: '',
+        page: memery.PAGE,
     };
     var env_path = [];
     return new Promise(function (ok) {
@@ -99,7 +99,7 @@ var detectEnvironment = function () {
                 config.public_path = public_path[0];
             }
             if (1 !== env_path.length) {
-                setenv(config, false);
+                setenv(config);
             } else {
                 memery.ENVS_PATH = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
                 var env = loadenv(path.join(env_path[0], "setup"));
