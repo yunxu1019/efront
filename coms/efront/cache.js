@@ -337,6 +337,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         if (!Array.isArray(extts)) {
             extts = [extts];
         }
+        var findPackage = extts.indexOf(".js") >= 0;
         var seeker = function () { };
         seeker.toString = function () {
             return this;
@@ -382,7 +383,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                         else run();
                     });
                 } else {
-                    if (typeof promise === "string" || promise instanceof Buffer || promise instanceof Function) return ok(promise);
+                    if (!findPackage || typeof promise === "string" || promise instanceof Buffer || promise instanceof Function) return ok(promise);
                     if (promise instanceof PackageData) return ok(Buffer.from(JSON.stringify(promise)));
                     if (promise instanceof Object && !result) {
                         var package_file = "package.json";

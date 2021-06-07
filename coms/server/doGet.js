@@ -117,22 +117,21 @@ var adapter = function (data, url, req, res) {
         });
     }
     if (data instanceof Object) {
-        if (data["index.html"]) {
-            data = data["index.html"];
+        if (url[url.length - 1] === '/') {
+            if (data["index.html"]) {
+                data = data["index.html"];
+            } else {
+                if ("index.html" in data) data = getfile(url + "index.html");
+                else data = getfile(memery.APP + url + "index.html");
+            }
+            return adapter(data, "index.html", req, res);
         } else {
-            if (url[url.length - 1] !== "/") url = url + "/";
-            if ("index.html" in data) data = getfile(url + "index.html");
-            else data = getfile(memery.APP + url + "index.html");
+            data = url + "/";
         }
-        return adapter(data, "index.html", req, res);
     }
     if (typeof data === "string") {
         var new_url = data[0] === "/" ? data : "/" + data;
-        if (
-            path.basename(new_url) === path.basename(req.url)
-            && data !== req.url
-            && data !== req.url.replace(/\/$/, '')
-        ) {
+        if (new_url !== req.url) {
             res.writeHead(302, {
                 'Location': new_url
             });
