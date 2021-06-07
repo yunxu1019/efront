@@ -6,8 +6,8 @@ function watch(file, then) {
         var watcher = watch_tree[file];
         if (watcher) {
             delete watch_tree[file];
-            watcher.splice(1, watcher.length);
             watcher[0].close();
+            watcher.splice(0, watcher.length);
         }
         return;
     };
@@ -21,6 +21,7 @@ function watch(file, then) {
         clearTimeout(timmer);
         var args = arguments;
         timmer = setTimeout(function () {
+            if (watch_tree[file] !== watchers) return;
             try {
                 watchers.slice(1, watchers.length).forEach(function (watch) {
                     watch.apply(null, args);
