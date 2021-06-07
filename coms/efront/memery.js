@@ -14,7 +14,6 @@ for (var k in env) {
     env[lowerKey] = env[k];
 }
 var istest = test(env.IN_TEST_MODE) || test(env.IS_TEST_MODE) || test(env.TEST_MODE);
-var noproxy;
 var namemap = Object.create(null);
 var set = function (k, v) {
     if (k in this) {
@@ -51,6 +50,7 @@ var get = function (name, _default) {
     }
     return _default;
 };
+var noproxy;
 
 module.exports = {
     compress: !istest,
@@ -69,6 +69,17 @@ module.exports = {
             noproxy = this.compress;
         }
         return noproxy;
+    },
+    get coms_path() {
+        var namemap = Object.create(null);
+        var pathname = this.COMS_PATH || "";
+        pathname.split(',').forEach(p => {
+            namemap[p] = true;
+        });
+        namemap[path.join(__dirname, '..')] = true;
+        namemap[path.join(__dirname, '../basic')] = true;
+        namemap[path.join(__dirname, '../typescript-helpers')] = true;
+        return Object.keys(namemap).join(',');
     },
     EFRONT: false,
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),
@@ -110,5 +121,6 @@ module.exports = {
     AAPI: get("AAPI, APIS"),
     IMAG: get("IMAG, IMGS"),
     LIBS: get("LIBS, LIB"),
+
     ICON: get("ICON, CCON, CONS, ICONS"),
 };
