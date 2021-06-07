@@ -7,7 +7,7 @@
         if (!menu.id) {
             menu.id = ++menuid;
         }
-        if(!savedMenus[menu.id]){
+        if (!savedMenus[menu.id]) {
             savedMenus[menu.id] = menu;
         }
         if (!(menu.id in savedChildren)) {
@@ -93,7 +93,7 @@
         }
         if (menu === result.active) return;
         var opened = result.opened || [];
-        if (!~opened.indexOf(menu) && !~result.indexOf(menu)) {
+        if (!~opened.indexOf(menu) && !getChild(menu).id) {
             opened.push(menu);
         }
         if (result.active && result.active.id !== menu.id) {
