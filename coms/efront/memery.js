@@ -98,7 +98,7 @@ module.exports = {
     LIBS_PATH: get("LIBS_PATH, LIB_PATH"),
     FILE_PATH: get("FILE_PATH"),
     ICON_PATH: get("ICON_PATH, CONS_PATH, CCON_PATH, ICONS_PATH"),
-    PUBLIC_PATH: get("PUBLIC_PATH"),
+    PUBLIC_PATH: get("PUBLIC_PATH", 'public'),
     EXPORT_TO: get("EXPORT_TO, TARGET"),
     EXPORT_AS: get("EXPORT_AS, EXPORT"),
     RELEASE: get("RELEASE", 0),
