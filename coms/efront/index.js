@@ -107,7 +107,7 @@ var detectEnvironment = function () {
                 setenv(env);
                 require("./setupenv");
             }
-                ok();
+            ok();
         });
     });
 };
@@ -565,12 +565,26 @@ var commands = {
     ip() {
         var ip = require("./getLocalIP")();
         showHelpLine(ip);
-        require("http").get("http://efront.cc/ip.jsp", function (res) {
-            res.pipe(process.stdout);
-        });
-        require("http").get("http://us.efront.cc/ip.jsp", function (res) {
-            res.pipe(process.stdout);
-        });
+        var iplist = [];
+        var listener = function (res) {
+            var buff = [];
+            res.on('data', function (a) {
+                buff.push(a);
+            });
+            res.on("end", function (a) {
+                var a = Buffer.concat(buff).toString();
+                if (a && !~iplist.indexOf(a)) {
+                    iplist.push(a);
+                    showHelpLine(a);
+                }
+            });
+            res.on("abort", console.error);
+        };
+        var warn = function () {
+            console.warn("确认公网 IP 时存在异常！");
+        };
+        require("http").get("http://efront.cc/ip.jsp", listener).on('error', warn);
+        require("http").get("http://us.efront.cc/ip.jsp", listener).on('error', warn);
     }
 };
 helps.forEach((str, cx) => {
