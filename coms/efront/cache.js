@@ -127,15 +127,17 @@ Directory.prototype[$updateme] = function () {
                     updated = true;
                     var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
                     file[$root] = that[$root] || pathname;
-
                 } else {
-                    that[f.name][$updateme]();
+                    that[f.name][$updateme](that);
                 }
             });
             for (var k in that) {
-                if (!map[k]) {
-                    delete that[k];
-                    updated = true;
+                var o = that[k];
+                if (o instanceof Directory || o instanceof File) {
+                    if (!map[k]) {
+                        delete that[k];
+                        updated = true;
+                    }
                 }
             }
             if (updated && origin_promise) fireUpdate();
@@ -245,10 +247,9 @@ function File(pathname, rebuild, limit) {
     this[$rebuild] = rebuild;
 }
 File.prototype = Object.create(null);
-File.prototype[$updateme] = function () {
+File.prototype[$updateme] = function (folder) {
     var that = this;
     var buffer = that[$buffered];
-    that[$buffered] = null;
     var promised = that[$promised] = new Promise(function (ok, oh) {
         fs.stat(that[$pathname], function (error, stats) {
             if (promised !== that[$promised]) return that[$promised].then(ok, oh);
@@ -257,9 +258,11 @@ File.prototype[$updateme] = function () {
             }
             var needload = false;
             if (buffer) {
-                if (!buffer.stat || stats.mtime !== buffer.stat.mtime) {
+                if (!buffer.stat || +stats.mtime !== +buffer.stat.mtime) {
+                    that[$buffered] = null;
                     needload = true;
-                    fireUpdate();
+                    for (var k in folder)
+                        fireUpdate();
                 }
             } else {
                 needload = true;
