@@ -6,6 +6,7 @@ var checkAccess = require("./checkAccess");
 var doFile = require("./doFile");
 var isDevelop = require("../efront/isDevelop");
 var memery = require("../efront/memery");
+var isObject = require("../basic/isObject");
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = memery.PUBLIC_PATH;
 var APPS_PATH = memery.PAGE_PATH;
@@ -116,7 +117,7 @@ var adapter = function (data, url, req, res) {
             res.end(String(error));
         });
     }
-    if (data instanceof Object && !/\/$/.test(url)) {
+    if (isObject(data) && !/\/$/.test(url)) {
         data = url + '/';
     }
     if (typeof data === "string") {

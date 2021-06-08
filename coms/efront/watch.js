@@ -1,7 +1,7 @@
 "use strict";
 var fs = require("fs");
 var watch_tree = {};
-function watch(file, then) {
+function watch(file, then, deep) {
     if (!(then instanceof Function)) {
         var watcher = watch_tree[file];
         if (watcher) {
@@ -16,7 +16,7 @@ function watch(file, then) {
         return watch_tree[file].push(then);
     }
     var timmer = 0;
-    var watchers = [fs.watch(file, function (changeType) {
+    var watchers = [fs.watch(file, { recursive: !!deep }, function (changeType) {
         if (changeType !== "change") return;
         clearTimeout(timmer);
         var args = arguments;

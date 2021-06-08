@@ -2,9 +2,7 @@
 var fs = require("fs");
 var watch = require("../efront/watch");
 var path = require("path");
-var message = require("../message");
-var isDevelop = require("../efront/isDevelop");
-var versionTree = {};
+var isObject = require("../basic/isObject");
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
     if (loading_count > 2) return;
@@ -27,34 +25,9 @@ var getPromiseInQueue = function (runner) {
     runPromiseInQueue();
     return promise;
 };
-/**
- * 取文件夹
- * @param {string} pathname 
- */
-var getdir = function (pathname) {
-    var directory = {};
-    fs.readdirSync(pathname).forEach(function (name) {
-        directory[name] = false;
-    });
-    return directory;
-};
-var getdirAsync = function (pathname) {
-    return getPromiseInQueue(function (ok, oh) {
 
-        fs.readdir(pathname, function (error, files) {
-            if (error) oh(error);
-            else {
-                var directory = {};
-                files.forEach(function (name) {
-                    directory[name] = false;
-                });
-                ok(directory);
-            }
-        });
-    });
-};
-var getfileAsync = function (pathname, buffer_size) {
-    if (isFinite(buffer_size) && getVersion(pathname).size > buffer_size)
+var getfileAsync = function (pathname, buffer_size, stat) {
+    if (isFinite(buffer_size) && stat.size > buffer_size)
         return getFileHeadAsync(pathname, 0);
     return getPromiseInQueue(function (ok, oh) {
         fs.readFile(pathname, function (error, data) {
@@ -86,103 +59,6 @@ var getFileHeadAsync = function (pathname, buffer_size) {
 };
 
 
-var isdirAsync = function (pathname) {
-    return getPromiseInQueue(function (ok, oh) {
-        fs.stat(pathname, function (error, stats) {
-            if (error) oh(error);
-            else if (stats.isDirectory()) ok(true);
-            else {
-                versionTree[pathname] = stats;
-                ok(false);
-            }
-        });
-    });
-};
-
-var getVersion = function (pathname) {
-    return versionTree[pathname];
-};
-
-var asyncLoader = function (curl, temp, key, rebuild) {
-    var root = String(this);
-    var buffer_size = this.buffer_size;
-    var durl = path.resolve(root, curl);
-    var durls = [durl];
-    var _watch = function (_durls) {
-        durls.forEach(durl => watch(durl));
-        durls = _durls;
-        _durls.forEach(curl => watch(curl, load));
-    };
-    var pathname = path.join(root, curl);
-    var that = this;
-    var load = function (loadType) {
-        var durls = [durl];
-        var is_change = loadType === "change";
-        var saved = is_change && temp[key];
-        saved = !(saved instanceof Promise || saved instanceof Error) && saved;
-        var origin = temp[key];
-        var p0 = temp[key] = isdirAsync(pathname).then(function (isdir) {
-            if (p0 !== temp[key]) return;
-            if (isdir) {
-                var p = temp[key] = getdirAsync(pathname).then(function (dirs) {
-                    if (p !== temp[key]) return;
-                    temp[key] = dirs;
-                    if (isDevelop) {
-                        is_change = saved && Object.keys(dirs).sort().join(",") !== Object.keys(saved).sort().join(",");
-                        if (is_change) message.broadcast('reload');
-                    }
-                    if (origin) unwatch(pathname, origin);
-                    _watch(durls);
-                    console.info(root, curl, is_change ? "change" : "load");
-                }).catch(function (error) {
-                    if (p !== temp[key]) return;
-                    if (origin) unwatch(pathname, origin);
-                    temp[key] = error;
-                    _watch([]);
-                });
-            } else {
-                var p = temp[key] = getfileAsync(pathname, buffer_size).then(function (data) {
-                    if (p !== temp[key]) return;
-                    try {
-                        if (rebuild instanceof Function) {
-                            data = rebuild(data, that.getURL(), durl, durls);
-                        }
-                    } catch (e) {
-                        console.warn("Build Faild:", curl, e);
-                        data = e;
-                    }
-                    return data;
-                }).then(function (data) {
-                    if (p !== temp[key]) return;
-                    if (origin) unwatch(pathname, origin);
-                    if (typeof data === "string") {
-                        data = Buffer.from(data);
-                    }
-                    temp[key] = data;
-                    if (isDevelop) {
-                        is_change = saved && (saved instanceof Buffer && Buffer.compare(saved, data) || String(saved) !== String(data));
-                        if (is_change) message.broadcast('reload');
-                    }
-                    console.info(root, curl, is_change ? "change" : "load");
-                    _watch(durls);
-                }).catch(function (error) {
-                    if (p !== temp[key]) return;
-                    if (origin) unwatch(pathname, origin);
-                    temp[key] = error;
-                    console.error(error);
-                    _watch([]);
-                });
-            }
-        }).catch(function (error) {
-            if (p0 !== temp[key]) return;
-            if (origin) unwatch(pathname, origin);
-            temp[key] = error;
-            console.error(error);
-        });
-    };
-    load();
-    return load;
-};
 var matcherReg = /[A-Z]+/g;
 var replaceCase = function (match, index, input) {
     if (match.length === 1) {
@@ -198,18 +74,90 @@ var replaceCase = function (match, index, input) {
     return '-' + match.slice(0, match.length - 1) + "-" + match[match.length - 1].toLowerCase();
 };
 
-var seekAsync = function (url, tree, rebuild) {
-    var temp = tree;
-    if (!temp) return new Error('file system error');
-    var keeys = url.split(/[\\\/]+/);
-    var curl = "";
-    var that = this;
-    var temps = [tree];
 
-    var research = function () {
-        return seekAsync.call(that, url, tree, rebuild);
+var getExtts = function (extts) {
+    if (extts instanceof Array && extts.length <= 1) extts = extts;
+    return extts || "";
+};
+function PackageData(a) {
+    Object.assign(this, JSON.parse(a));
+}
+PackageData.prototype = Object.create(null);
+
+var $pathname = Symbol(":pathname");
+var $updateme = Symbol("?update");
+var $isloaded = Symbol(":loaded");
+var $promised = Symbol(":promised");
+var $geturl = Symbol("?getme");
+var $buffered = Symbol(":buffer");
+var $rebuild = Symbol('?rebuild');
+var $limit = Symbol(":limit");
+var $root = Symbol(":rootpath");
+
+function Directory(pathname, rebuild, limit) {
+    this[$rebuild] = rebuild;
+    this[$limit] = limit;
+    this[$pathname] = pathname;
+}
+Directory.prototype = Object.create(null);
+Directory.prototype[$updateme] = function () {
+    var that = this;
+    var origin_promise = that[$promised];
+    that[$isloaded] = false;
+    var promised = that[$promised] = new Promise(function (ok, oh) {
+        fs.readdir(that[$pathname], {
+            withFileTypes: true
+        }, function (error, files) {
+
+            if (that[$promised] !== promised) return that[$promised].then(ok, oh);
+            if (error) {
+                that[$isloaded] = true;
+                oh(error);
+                return;
+            }
+            var updated = false;
+            var map = {};
+            var pathname = that[$pathname];
+            var limit = that[$limit];
+            var rebuild = that[$rebuild];
+            files.forEach(f => {
+                var p = path.join(pathname, f.name);
+                map[f.name] = true;
+                if (!that[f.name]) {
+                    updated = true;
+                    var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
+                    file[$root] = that[$root] || pathname;
+
+                } else {
+                    that[f.name][$updateme]();
+                }
+            });
+            for (var k in that) {
+                if (!map[k]) {
+                    delete that[k];
+                    updated = true;
+                }
+            }
+            if (updated && origin_promise) fireUpdate();
+            that[$isloaded] = true;
+            ok();
+        });
+    });
+};
+Directory.prototype[$geturl] = function (url) {
+    var that = this;
+    if (!that[$promised]) that[$updateme]();
+    var reload = function () {
+        return that[$geturl](url);
     };
+    if (!that[$isloaded]) {
+        return that[$promised].then(reload);
+    }
+    var keeys = url.split(/[\\\/]+/);
+    var temps = [that];
     var keypath = [''];
+    var temp = that;
+
     search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         var key = keeys[cx];
         if (key === '' || key === '.') continue;
@@ -220,15 +168,15 @@ var seekAsync = function (url, tree, rebuild) {
             }
         }
         if (!(key in temp)) {
-            if (!that.buffer_size) {
+            if (!that[$limit]) {
                 temp = undefined;
                 break;
             }
             for (var cy = temps.length - 1; cy >= 0; cy--) {
                 if (key in temps[cy]) {
-                    let searched = seekAsync.call(that, keeys.slice(cx).join("/"), temps[cy], rebuild);
+                    let searched = temps[cy][$geturl](keeys.slice(cx).join("/"));
                     if (searched instanceof Promise) {
-                        return searched.then(research);
+                        return searched.then(reload);
                     }
                     if (searched !== undefined) {
                         temp = searched;
@@ -246,30 +194,30 @@ var seekAsync = function (url, tree, rebuild) {
             continue;
         }
         keypath.push(key);
-        if (temp[key] === false) {
-            asyncLoader.call(that, keypath.slice(1).join('/'), temp, key, rebuild);
-        }
         temps.push(temp);
         temp = temp[key];
-        if (temp instanceof Promise) {
-            return temp.then(research);
-        }
         if (!temp) break;
+        if (temp instanceof Directory) {
+            if (!temp[$promised]) temp[$updateme]();
+            if (!temp[$isloaded]) return temp[$promised].then(reload);
+        }
     }
-    if (!(temp instanceof Object)) {
-        return temp;
+    if (temp instanceof File) {
+        if (!temp[$promised]) temp[$updateme]();
+        if (!temp[$buffered]) return temp[$promised].then(reload);
+        temp = temp[$buffered];
     }
+
     if (temp instanceof Function) {
         return temp;
     }
     if (temp instanceof Error) {
         return temp;
     }
-    var curl = keypath.join('/');
-    if ((temp instanceof Buffer) && !temp.stat) {
-        temp.stat = getVersion(path.join(String(this), curl));
-        temp.name = key;
+    if (!isObject(temp)) {
+        return temp;
     }
+    var curl = keypath.join('/');
     if (temps.length) {
         if (curl.replace(/^\/|\/$/g, '') === keeys.join('/').replace(/^\/|\/$/g, '')) {
             return temp;
@@ -282,77 +230,112 @@ var seekAsync = function (url, tree, rebuild) {
     }
 };
 
-/**
- * 取消路径监听
- * @param {string} curl 
- * @param {object} temp 
- */
-var unwatch = function (curl, temp) {
-    if (temp instanceof Object) {
-        for (var k in temp) {
-            var cvrl = path.join(curl, k);
-            watch(cvrl);
-            unwatch(cvrl, temp[k]);
-        }
+var fireUpdate = function () {
+    for (var cx = 0, dx = _reload_handlers.length; cx < dx; cx++) {
+        var a = _reload_handlers[cx];
+        a();
     }
+    require("../message").reload();
+
 };
-var getExtts = function (extts) {
-    if (extts instanceof Array && extts.length <= 1) extts = extts;
-    return extts || "";
-};
-function PackageData(a) {
-    Object.assign(this, JSON.parse(a));
+
+function File(pathname, rebuild, limit) {
+    this[$pathname] = pathname;
+    this[$limit] = limit;
+    this[$rebuild] = rebuild;
 }
-PackageData.prototype = Object.create(null);
+File.prototype = Object.create(null);
+File.prototype[$updateme] = function () {
+    var that = this;
+    var buffer = that[$buffered];
+    that[$buffered] = null;
+    var promised = that[$promised] = new Promise(function (ok, oh) {
+        fs.stat(that[$pathname], function (error, stats) {
+            if (promised !== that[$promised]) return that[$promised].then(ok, oh);
+            if (error) {
+                return oh(error);
+            }
+            var needload = false;
+            if (buffer) {
+                if (!buffer.stat || stats.mtime !== buffer.stat.mtime) {
+                    needload = true;
+                    fireUpdate();
+                }
+            } else {
+                needload = true;
+            }
+            if (needload) getfileAsync(that[$pathname], that[$limit], stats).then(function (buffer) {
+                if (that[$promised] !== promised) {
+                    that[$promised].then(ok, oh);
+                    return;
+                }
+                if (that[$rebuild] instanceof Function) {
+                    var url = path.relative(that[$root], that[$pathname]);
+                    url = url.replace(/\.(\w+)$/, '');
+                    buffer = that[$rebuild](buffer, url, that[$pathname], []);
+                    var resolve = function () {
+                        if (typeof buffer === "string") buffer = Buffer.from(buffer);
+                        if (buffer instanceof Buffer) buffer.stat = stats;
+                        that[$buffered] = buffer;
+                        ok();
+                    };
+                    if (buffer instanceof Promise) {
+                        buffer.then(function (res) {
+                            if (that[$promised] !== promised) {
+                                that[$promised].then(ok, oh);
+                                return;
+                            }
+                            buffer = res;
+                            resolve();
+                        });
+                    } else {
+                        resolve();
+                    }
+                }
+            }, function (e) {
+                if (that[$promised] !== promised) {
+                    that[$promised].then(ok, oh);
+                    return;
+                }
+                that[$buffered] = e;
+                ok();
+            });
+        });
+    });
+};
+
 /**
  * 根椐filesroot路径设置文件缓冲
  * @param {string} filesroot 
  */
 var cache = function (filesroot, rebuild, buffer_size_limit) {
-    var sk = function (url, extts) {
+    var sk = function () {
     };
     filesroot = filesroot.split(",");
-    var tree = filesroot.map((froot, i) => {
+    var map = {};
+    var treeslist = filesroot.filter(fs.existsSync).map((froot, i) => {
+        var froot = fs.realpathSync(froot);
+        if (map[froot]) {
+            return;
+        }
+        map[froot] = true;
         if (fs.existsSync(froot) && fs.statSync(froot).isDirectory()) {
-            var roots = getdir(froot);
+            var roots = new Directory(froot, rebuild, isFinite(buffer_size_limit) && buffer_size_limit >= 0 ? buffer_size_limit | 0 : buffer_size_limit);
             watch(froot, function () {
-                getdirAsync(froot, function (a) {
-                    for (var k in roots) {
-                        if (!(k in a)) {
-                            delete roots[k];
-                            unwatch(path.join(froot, k));
-                        }
-                    }
-                    for (var k in a) {
-                        if (!(k in roots)) {
-                            roots[k] = false;
-                        }
-                    }
-                    message.broadcast("reload");
-                });
-            });
+                roots[$updateme]();
+            }, true);
             return roots;
         } else {
             return Object.create(null);
         }
-    });
-    if (isFinite(buffer_size_limit) && buffer_size_limit >= 0) {
-        sk.buffer_size = buffer_size_limit | 0;
-    }
+    }).filter(a => !!a);
+    map = null;
     var seekerAsync = function (url, extts = "") {
         extts = getExtts(extts);
         if (!Array.isArray(extts)) {
             extts = [extts];
         }
         var findPackage = extts.indexOf(".js") >= 0;
-        var seeker = function () { };
-        seeker.toString = function () {
-            return this;
-        }.bind(filesroot[0]);
-        seeker.getURL = function () {
-            return url;
-        };
-        seeker.buffer_size = sk.buffer_size;
         return new Promise(function (ok, oh) {
             var cy = 0;
             var cx = 0;
@@ -360,7 +343,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
             var run = function () {
                 if (cx >= extts.length) {
                     cy++;
-                    if (cy >= tree.length) {
+                    if (cy >= treeslist.length) {
                         if (result === undefined) {
                             if (matchParent) {
                                 url = url.replace(/\\/g, '/');
@@ -372,15 +355,12 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                         }
                         return ok(result);
                     }
-                    seeker.toString = function () {
-                        return this;
-                    }.bind(filesroot[cy]);
                     cx = 0;
                 }
-                var tree1 = tree[cy];
+                var tree1 = treeslist[cy];
                 var extt = extts[cx];
                 var error;
-                var promise = seekAsync.call(seeker, url + extt, tree1, rebuild);
+                var promise = tree1[$geturl](url + extt);
                 if (promise instanceof Promise) {
                     promise.catch(function (e) {
                         error = e;
@@ -392,22 +372,22 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                 } else {
                     if (typeof promise === "string" || promise instanceof Buffer || promise instanceof Function) return ok(promise);
                     if (promise instanceof PackageData) return ok(Buffer.from(JSON.stringify(promise)));
-                    if (promise instanceof Object && !result) {
+                    if (promise instanceof Directory && !result) {
                         if (!findPackage) return ok(promise);
                         var package_file = "package.json";
                         if (package_file in promise) {
-                            if (promise[package_file] === false) {
-                                seekAsync.call(seeker, url + extt + "/" + package_file, tree1, a => new PackageData(String(a))).catch(oh).then(run);
-                                return;
-                            } else if (promise[package_file] instanceof Buffer) {
-                                promise[package_file] = new PackageData(promise[package_file].toString());
-                            }
-                            var package_data = promise[package_file];
-                            if (package_data instanceof PackageData && package_data.main) {
-                                var roots = package_data.main.split(/[\/\\]+/).filter(a => a && a !== '.' && !/\:$/.test(a));
-                                if (roots[0] in promise) {
-                                    result = path.join(url, roots.join('/')).replace(/\\/g, '/');
-                                    return ok(result);
+                            var file = promise[package_file];
+                            if (file instanceof File) {
+                                if (!file[$promised]) file[$updateme]();
+                                if (!file[$buffered]) return file[$promised].then(run, oh);
+                                if (file[$buffered] instanceof Buffer) file[$buffered] = new PackageData(file[$buffered]);
+                                var package_data = file[$buffered];
+                                if (package_data instanceof PackageData && package_data.main) {
+                                    var roots = package_data.main.split(/[\/\\]+/).filter(a => a && a !== '.' && !/\:$/.test(a));
+                                    if (roots[0] in promise) {
+                                        result = path.join(url, roots.join('/')).replace(/\\/g, '/');
+                                        return ok(result);
+                                    }
                                 }
                             }
                         } else {
@@ -430,7 +410,6 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         });
     };
     sk.async = seekerAsync;
-    sk.new = cache;
     return sk;
 };
 var _reload_handlers = [];
