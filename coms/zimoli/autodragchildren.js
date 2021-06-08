@@ -79,6 +79,12 @@ var getMoveFuncs = function (child) {
         return [moveMarginY, moveChildrenY, scrollY];
     }
 };
+var bindTarget = function (index, element) {
+    var value = new Number(index);
+    value.target = element;
+    return value;
+};
+
 var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     var draggingSourceOpacity = isMovingSource !== false ? 0 : 1;
 
@@ -238,8 +244,10 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
                 var children = targetBox.children;
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
+                src = bindTarget(src, srcElement);
+                dst = bindTarget(dst, dstElement);
                 isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
-                if (srcElement && dstElement) appendSibling(dstElement, srcElement);
+                if (srcElement === children[src] && dstElement === children[dst + delta] && srcElement && dstElement) appendSibling(dstElement, srcElement);
             } else if (isMovingSource === false) {
                 move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
             }
@@ -292,8 +300,10 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
                 var children = targetBox.children;
                 var srcElement = children[src];
                 var dstElement = children[dst + delta];
-                if (srcElement && dstElement) appendSibling(dstElement, srcElement);
+                src = bindTarget(src, srcElement);
+                dst = bindTarget(dst, dstElement);
                 isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
+                if (srcElement === children[src] && dstElement === children[dst + delta] && srcElement && dstElement) appendSibling(dstElement, srcElement);
             } else if (isMovingSource === false) {
                 move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
             }

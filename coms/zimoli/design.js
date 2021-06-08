@@ -34,17 +34,13 @@ function main(fields, types) {
     }).$scope;
     var [options, fieldsContainer] = page.children;
     // vbox(fieldsContainer);
-    autodragchildren(fieldsContainer, fieldsContainer, function (src, dst) {
-        var offset = fieldsContainer.topIndex();
-        src += offset; dst += offset;
+    autodragchildren(fieldsContainer, fieldsContainer, function (src, dst, dst1) {
+        src = src.target.index;
+        dst = dst.target.index + dst - dst1;
         var fields = scope.fields;
-        if (dst >= fields.length) {
-            dst = fields.length - 1;
-        }
         var field = fields.splice(src, 1)[0];
         fields.splice(dst, 0, field);
         render.refresh();
-        console.log(JSON.stringify(fields));
     });
     return page;
 }
