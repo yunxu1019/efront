@@ -143,6 +143,9 @@ var createMask = function (element) {
     return mask;
 };
 var popup_with_mask = function (element, mask = createMask(element)) {
+    if (!mask.clean) {
+        mask.clean = new Cleanup(element.with);
+    }
     onremove(element, mask.clean);
     css(element, `z-index:${zIndex()};`);
     if (mask.parentNode) {
@@ -154,9 +157,6 @@ var popup_with_mask = function (element, mask = createMask(element)) {
         if (!~element.with.indexOf(element)) element.with.push(mask);
     } else {
         if (element.with !== element) element.with = [element.with, mask];
-    }
-    if (!mask.clean) {
-        mask.clean = new Cleanup(element.with);
     }
     if (!element.parentNode) global(element, false);
     return element;
