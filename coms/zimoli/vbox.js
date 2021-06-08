@@ -180,9 +180,11 @@ function ybox(generator) {
                     __speed = _speed(deltay);
                     scrollY.call(this, -deltay);
                 }
-                return {
-                    y: this.Top()
-                };
+                var y = -this.Top();
+                if (y === 0 && this.scrollTop <= increaser_t.offsetHeight) {
+                    y = y - this.scrollTop + increaser_t.offsetHeight;
+                }
+                return { y };
             },
             end() {
                 __speed = _speed();
