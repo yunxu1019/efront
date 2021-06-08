@@ -110,6 +110,12 @@ var bindActionTarget = function (action, actionTarget) {
 };
 
 drag.on = function (target, actionTarget = target.dragTarget) {
+    if (!actionTarget) {
+        if (target.dragHandle) {
+            actionTarget = target;
+            target = target.dragHandle;
+        }
+    }
     if (actionTarget) {
         var _mousedrag = bindActionTarget(mousedrag, actionTarget)
         var _touchdrag = bindActionTarget(touchdrag, actionTarget);

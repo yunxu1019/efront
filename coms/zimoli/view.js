@@ -1,7 +1,7 @@
 
 var prototype = {
     dragable: true,
-    resizable: true,
+    resizable: false,
     closeable: true,
     showTitle: true,
     viewTitle: '',
@@ -102,7 +102,7 @@ function view(element) {
     if (window !== element) {
         extend(window, element);
         window.setAttribute('dragable', 'dragable');
-        resize.on(window);
+        if (window.resizable) resize.on(window);
     }
     return window;
 }

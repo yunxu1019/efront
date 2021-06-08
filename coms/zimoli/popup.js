@@ -47,6 +47,7 @@ var popup_path = function (path = "", parameters, target) {
             windowFactory(element);
             setInitialStyle(element);
             popup_with_mask(element, target);
+            if (element.dragHandle) drag.on(element);
         };
     }
     // 2 has view control has no mask
@@ -56,6 +57,7 @@ var popup_path = function (path = "", parameters, target) {
             windowFactory(element);
             setInitialStyle(element);
             popup_as_single(element);
+            if (element.dragHandle) drag.on(element);
         };
     }
     // 1 has mask has no control
