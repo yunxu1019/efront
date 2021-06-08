@@ -7,6 +7,13 @@ function main(fields, types) {
         fields,
         list,
         btn: button,
+        padding,
+        focus(a) {
+            addClass(a, 'focus');
+        },
+        blur(a) {
+            removeClass(a, 'focus');
+        },
         add() {
             this.fields.push({
                 id: ++field_Id

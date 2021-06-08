@@ -2,13 +2,17 @@
     <btn class="add" ng-click=add()><i>+</i>添加</btn>
 </div>
 <list ng-src='(field,cx) in fields' class="fields">
-    <div>
-        <span ng-bind='field.id'></span>
-        <input placeholder="请输入字段名称" ng-model=field.name />
-        <select aria-placeholder="" ng-model=field.type>
-            <option value="">请选择字段类型</option>
-            <option ng-repeat="type in types"></option>
-        </select>
-        <btn ng-click=remove(field)>移除</btn>
-    </div>
+    <padding>
+        <div class="field-item">
+            <span class="index" ng-bind='field.id'></span>
+            <input @focus="focus(this.parentNode)" @blur="blur(this.parentNode)" placeholder="请输入字段名称"
+                ng-model=field.name />
+            <select @focus="focus(this.parentNode)" @blur="blur(this.parentNode)" aria-placeholder=""
+                ng-model=field.type>
+                <option value="">请选择字段类型</option>
+                <option ng-repeat="type in types"></option>
+            </select>
+            <btn ng-click=remove(field)>移除</btn>
+        </div>
+    </padding>
 </list>
