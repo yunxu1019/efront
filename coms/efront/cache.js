@@ -90,6 +90,7 @@ var $isloaded = Symbol(":loaded");
 var $promised = Symbol(":promised");
 var $geturl = Symbol("?getme");
 var $buffered = Symbol(":buffer");
+var $mtime = Symbol(":mtime");
 var $rebuild = Symbol('?rebuild');
 var $limit = Symbol(":limit");
 var $root = Symbol(":rootpath");
@@ -238,7 +239,6 @@ var fireUpdate = function () {
         a();
     }
     require("../message").reload();
-
 };
 
 function File(pathname, rebuild, limit) {
@@ -247,27 +247,37 @@ function File(pathname, rebuild, limit) {
     this[$rebuild] = rebuild;
 }
 File.prototype = Object.create(null);
-File.prototype[$updateme] = function (folder) {
+File.prototype[$updateme] = function (directory) {
     var that = this;
-    var buffer = that[$buffered];
     var promised = that[$promised] = new Promise(function (ok, oh) {
         fs.stat(that[$pathname], function (error, stats) {
             if (promised !== that[$promised]) return that[$promised].then(ok, oh);
             if (error) {
                 return oh(error);
             }
-            var needload = false;
-            if (buffer) {
-                if (!buffer.stat || +stats.mtime !== +buffer.stat.mtime) {
-                    that[$buffered] = null;
-                    needload = true;
-                    for (var k in folder)
-                        fireUpdate();
+            if (+stats.mtime === that[$mtime]) return;
+            that[$mtime] = +stats.mtime;
+            var resolve = function (buffer) {
+                if (that[$promised] !== promised) {
+                    that[$promised].then(ok, oh);
+                    return;
                 }
-            } else {
-                needload = true;
+                if (typeof buffer === "string") buffer = Buffer.from(buffer);
+                if (isObject(buffer)) buffer.stat = stats;
+                that[$buffered] = buffer;
+                ok();
+            };
+            var namecache = path.basename(that[$pathname]).replace(/\.(\w+)$/, '');
+            for (var k in directory) {
+                var o = directory[k];
+                if (o instanceof File) {
+                    if (k.replace(/\.(\w+)$/, '') === namecache && o[$promised]) {
+                        delete o[$promised];
+                        o[$updateme]();
+                    }
+                }
             }
-            if (needload) getfileAsync(that[$pathname], that[$limit], stats).then(function (buffer) {
+            getfileAsync(that[$pathname], that[$limit], stats).then(function (buffer) {
                 if (that[$promised] !== promised) {
                     that[$promised].then(ok, oh);
                     return;
@@ -276,33 +286,15 @@ File.prototype[$updateme] = function (folder) {
                     var url = path.relative(that[$root], that[$pathname]);
                     url = url.replace(/\.(\w+)$/, '');
                     buffer = that[$rebuild](buffer, url, that[$pathname], []);
-                    var resolve = function () {
-                        if (typeof buffer === "string") buffer = Buffer.from(buffer);
-                        if (buffer instanceof Buffer) buffer.stat = stats;
-                        that[$buffered] = buffer;
-                        ok();
-                    };
+
                     if (buffer instanceof Promise) {
-                        buffer.then(function (res) {
-                            if (that[$promised] !== promised) {
-                                that[$promised].then(ok, oh);
-                                return;
-                            }
-                            buffer = res;
-                            resolve();
-                        });
+                        buffer.then(resolve, resolve);
                     } else {
                         resolve();
                     }
                 }
-            }, function (e) {
-                if (that[$promised] !== promised) {
-                    that[$promised].then(ok, oh);
-                    return;
-                }
-                that[$buffered] = e;
-                ok();
-            });
+            }, resolve);
+            if (directory) fireUpdate();
         });
     });
 };
