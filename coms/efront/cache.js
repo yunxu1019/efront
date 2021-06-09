@@ -160,7 +160,6 @@ Directory.prototype[$geturl] = function (url) {
     var temps = [that];
     var keypath = [''];
     var temp = that;
-
     search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         var key = keeys[cx];
         if (key === '' || key === '.') continue;
@@ -196,6 +195,7 @@ Directory.prototype[$geturl] = function (url) {
             }
             continue;
         }
+
         keypath.push(key);
         temps.push(temp);
         temp = temp[key];
@@ -253,7 +253,8 @@ File.prototype[$updateme] = function (directory) {
         fs.stat(that[$pathname], function (error, stats) {
             if (promised !== that[$promised]) return that[$promised].then(ok, oh);
             if (error) {
-                return oh(error);
+                that[$buffered] = error;
+                return ok();
             }
             if (+stats.mtime === that[$mtime]) return;
             that[$mtime] = +stats.mtime;
@@ -270,7 +271,7 @@ File.prototype[$updateme] = function (directory) {
             var namecache = path.basename(that[$pathname]).replace(/\.(\w+)$/, '');
             for (var k in directory) {
                 var o = directory[k];
-                if (o instanceof File) {
+                if (o instanceof File && o !== that) {
                     if (k.replace(/\.(\w+)$/, '') === namecache && o[$promised]) {
                         delete o[$promised];
                         o[$updateme]();
@@ -290,7 +291,7 @@ File.prototype[$updateme] = function (directory) {
                     if (buffer instanceof Promise) {
                         buffer.then(resolve, resolve);
                     } else {
-                        resolve();
+                        resolve(buffer);
                     }
                 }
             }, resolve);
