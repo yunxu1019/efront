@@ -16,7 +16,10 @@ function watch(file, then, deep) {
         return watch_tree[file].push(then);
     }
     var timmer = 0;
-    var watchers = [fs.watch(file, { recursive: !!deep }, function (changeType) {
+    var watchers = [fs.watch(file, {
+        persistent: false,
+        recursive: /^(darwin|win32)$/i.test(process.platform) && !!deep
+    }, function (changeType) {
         if (changeType !== "change") return;
         clearTimeout(timmer);
         var args = arguments;
