@@ -323,6 +323,8 @@ File.prototype[$updateme] = function (updateonly) {
                     } else {
                         resolve(buffer);
                     }
+                } else {
+                    resolve(buffer);
                 }
             }, resolve);
         });
