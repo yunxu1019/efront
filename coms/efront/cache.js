@@ -129,7 +129,18 @@ Directory.prototype[$updateme] = function () {
                     var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
                     file[$root] = that[$root] || pathname;
                 } else {
-                    if (that[f.name][$promised]) that[f.name][$updateme](that);
+                    var file = that[f.name];
+                    if (file instanceof File) {
+                        var namecache = path.basename(file[$pathname]).replace(/\.(\w+)$/, '');
+                        for (var k in that) {
+                            var o = that[k];
+                            if (o instanceof File) {
+                                if (k.replace(/\.(\w+)$/, '') === namecache) o[$updateme](true);
+                            }
+                        }
+                    } else {
+                        if (file[$promised]) file[$updateme]();
+                    }
                 }
             });
             for (var k in that) {
@@ -253,7 +264,7 @@ function File(pathname, rebuild, limit) {
     this[$rebuild] = rebuild;
 }
 File.prototype = Object.create(null);
-File.prototype[$updateme] = function (directory) {
+File.prototype[$updateme] = function (updateonly) {
     var that = this;
     var promised = that[$promised] = new Promise(function (ok, oh) {
         fs.stat(that[$pathname], function (error, stats) {
@@ -265,6 +276,11 @@ File.prototype[$updateme] = function (directory) {
             if (+stats.mtime === that[$mtime]) return;
             var origin_time = that[$mtime];
             that[$mtime] = +stats.mtime;
+            if (updateonly) {
+                delete that[$promised];
+                if (origin_time) setUpdate();
+                return;
+            }
             var resolve = function (buffer) {
                 if (that[$promised] !== promised) {
                     that[$promised].then(ok, oh);
@@ -279,16 +295,6 @@ File.prototype[$updateme] = function (directory) {
                 that[$buffered] = buffer;
                 ok();
             };
-            var namecache = path.basename(that[$pathname]).replace(/\.(\w+)$/, '');
-            for (var k in directory) {
-                var o = directory[k];
-                if (o instanceof File && o !== that) {
-                    if (k.replace(/\.(\w+)$/, '') === namecache && o[$promised]) {
-                        delete o[$promised];
-                        o[$updateme]();
-                    }
-                }
-            }
             getfileAsync(that[$pathname], that[$limit], stats).then(function (buffer) {
                 if (that[$promised] !== promised) {
                     that[$promised].then(ok, oh);
@@ -309,7 +315,6 @@ File.prototype[$updateme] = function (directory) {
                     }
                 }
             }, resolve);
-            if (directory && origin_time) setUpdate();
         });
     });
 };
