@@ -18,6 +18,7 @@ var write = require("./write");
 var clean = require("./clean");
 var _finish = require("./finish");
 var setting = require("./setting");
+var memery = require("../efront/memery");
 var getBuiltVersion = function (filepath) {
     return new Promise(function (ok) {
         fs.stat(filepath, function (error, stats) {
@@ -58,6 +59,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             var toComponent = require("./toAsm");
             var polyfills = [];
         } else {
+            if (memery.EXTT === undefined) memery.EXTT = '.js';
             console.info("正在导出组件 <cyan>", public_app, '</cyan>\r\n');
             //导出组件
             var public_path = path.join(PUBLIC_PATH, public_app);
@@ -68,14 +70,15 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             var polyfills = POLYFILL ? [path.join(__dirname, "../", "basic/[]map.js")] : [];
         }
         return loadData(polyfills.concat(public_app), 0, public_path)
-        .then(toComponent)
-        .then(function (response) {
+            .then(toComponent)
+            .then(function (response) {
                 return write(response, PUBLIC_PATH);
             })
             .then(finish)
             .catch(console.error);
     } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
+        if (memery.EXTT === undefined) memery.EXTT = '.txt';
         console.info("正在编译项目 <cyan>", PUBLIC_APP, /\w/.test(PUBLIC_APP) ? "</cyan>\r\n" : '');
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         public_app = pages_root;

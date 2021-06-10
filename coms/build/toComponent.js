@@ -6,7 +6,7 @@ var typescript = require("../typescript");
 var path = require("path");
 var _strings = require("../basic/strings");
 var memery = require("../efront/memery");
-var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXTT, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
+var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
 var report = require("./report");
@@ -505,7 +505,7 @@ function toComponent(responseTree) {
     }
 
     responseTree[PUBLIC_APP].data = template;
-    var DESTNAME = String(memery.PUBLIC_NAME || PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + EXTT;
+    var DESTNAME = String(memery.PUBLIC_NAME || PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + memery.EXTT;
     responseTree[PUBLIC_APP].destpath = DESTNAME || PUBLIC_APP;
 
     return Object.assign({

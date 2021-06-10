@@ -72,7 +72,6 @@ var bootConfig = {
 
 var extend = function (dst, env) {
     var obj = {
-        EXTT: env.EXTT || '',
         COMS_PATH: env.COMS_PATH || "",
         PAGE_PATH: env.PAGE_PATH || "",
         APIS_PATH: env.APIS_PATH || "",

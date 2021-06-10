@@ -18,7 +18,6 @@ var PUBLIC_APP = /* process.argv[2] || */ APP;
 var env = PUBLIC_APP ? setupenv(PUBLIC_APP) : setupenv('.');
 var {
     PUBLIC_PATH = memery.PUBLIC_PATH || "./public",
-    EXTT
 } = memery;
 var PAGE = env.PAGE || "";
 var COMM = env.COMM;
@@ -79,7 +78,6 @@ module.exports = {
     PUBLIC_PATH,
     PAGE_PATH,
     COMS_PATH,
-    EXTT,
     POLYFILL,
     public_app,
     EXPORT_TO,
