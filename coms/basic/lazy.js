@@ -28,3 +28,4 @@ function lazy(run, time = false) {
         }
     };
 }
+module.exports = lazy;
