@@ -101,9 +101,10 @@ function Directory(pathname, rebuild, limit) {
     this[$pathname] = pathname;
 }
 Directory.prototype = Object.create(null);
-Directory.prototype[$updateme] = function () {
+Directory.prototype[$updateme] = function (updateonly) {
     var that = this;
-    var origin_promise = that[$promised];
+    if (that[$isloaded] === false) return;
+    if (updateonly && !that[$isloaded]) return;
     that[$isloaded] = false;
     that[$buffered] = null;
     var promised = that[$promised] = new Promise(function (ok, oh) {
@@ -130,18 +131,18 @@ Directory.prototype[$updateme] = function () {
                     updated = true;
                     var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
                     file[$root] = that[$root] || pathname;
-                } else {
+                } else if (updateonly) {
                     var file = that[f.name];
                     if (file instanceof File) {
                         var namecache = path.basename(file[$pathname]).replace(/\.(\w+)$/, '');
                         for (var k in that) {
                             var o = that[k];
                             if (o instanceof File) {
-                                if (k.replace(/\.(\w+)$/, '') === namecache) o[$updateme](true);
+                                if (k.replace(/\.(\w+)$/, '') === namecache) o[$updateme](updateonly);
                             }
                         }
                     } else {
-                        if (file[$promised]) file[$updateme]();
+                        if (file[$promised]) file[$updateme](updateonly);
                     }
                 }
             });
@@ -154,7 +155,7 @@ Directory.prototype[$updateme] = function () {
                     }
                 }
             }
-            if (updated && origin_promise) setUpdate();
+            if (updated && updateonly) setUpdate();
             that[$isloaded] = true;
             ok();
         });
@@ -214,6 +215,7 @@ Directory.prototype[$geturl] = function (url) {
         temp = temp[key];
         if (!temp) break;
         if (temp instanceof Directory) {
+
             if (!temp[$promised]) temp[$updateme]();
             if (!temp[$isloaded]) return temp[$promised].then(reload);
             if (temp[$buffered]) break;
@@ -272,22 +274,26 @@ function File(pathname, rebuild, limit) {
 File.prototype = Object.create(null);
 File.prototype[$updateme] = function (updateonly) {
     var that = this;
-    if (!updateonly) that[$buffered] = null;
+    if (that[$isloaded] === false) return;
+    if (updateonly && that[$isloaded] === false) return;
+    that[$isloaded] = false;
     var promised = that[$promised] = new Promise(function (ok, oh) {
         fs.stat(that[$pathname], function (error, stats) {
             if (promised !== that[$promised]) return that[$promised].then(ok, oh);
             if (error) {
                 that[$buffered] = error;
+                that[$isloaded] = true;
                 return ok();
             }
             if (+stats.mtime === that[$mtime]) {
+                that[$isloaded] = true;
                 return ok();
             }
-            var origin_time = that[$mtime];
             that[$mtime] = +stats.mtime;
             if (updateonly) {
-                if (origin_time) setUpdate();
+                setUpdate();
                 if (that[$buffered] === undefined) {
+                    that[$isloaded] = true;
                     return ok();
                 }
             }
@@ -296,6 +302,7 @@ File.prototype[$updateme] = function (updateonly) {
                     that[$promised].then(ok, oh);
                     return;
                 }
+                that[$isloaded] = true;
                 if (typeof buffer === "string") buffer = Buffer.from(buffer);
                 if (buffer instanceof Error) {
                     console.log(buffer);
@@ -349,7 +356,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         if (fs.existsSync(froot) && fs.statSync(froot).isDirectory()) {
             var roots = new Directory(froot, rebuild, isFinite(buffer_size_limit) && buffer_size_limit >= 0 ? buffer_size_limit | 0 : buffer_size_limit);
             watch(froot, function () {
-                roots[$updateme]();
+                roots[$updateme](true);
             }, true);
             return roots;
         } else {
