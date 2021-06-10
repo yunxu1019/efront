@@ -175,7 +175,6 @@ var rebuildData = function (responseTree) {
             return;
         }
         var k0 = k.toLowerCase().replace(/\d+$/, '');
-        if (k === 'Item') console.log(k, k0, 'k');
         if (k0 in keysmap) {
             keysmap[k0]++;
             k0 = k0 + keysmap[k0];
@@ -247,7 +246,6 @@ module.exports = function (responseTree) {
     rebuildData(responseTree);
     report(responseTree);
     if (!responseTree["main"] && !responseTree["main.js"]) {
-        console.log(Object.keys(responseTree).join(','))
         console.warn("在您所编译的项目中没有发现主程序");
         return toApplication(responseTree);
     }
