@@ -87,7 +87,7 @@ function getBuildInfo(url) {
                     extt = extt || "";
                     builder = commbuilder;
                     destpath = path.join("page", name + memery.EXTT);
-                    name = "/" + name + memery.EXTT;
+                    name = "/" + name;
                 }
                 if (builder) {
                     fullpath = pages_root.map(page => path.join(page, name + extt));
