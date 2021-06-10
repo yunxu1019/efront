@@ -103,6 +103,8 @@ var buildjsp = function (buff, realpath) {
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
                 var { imported, required } = str;
+                if (!(imported instanceof Array)) imported = [];
+                if (!(required instanceof Array)) required = [];
                 imported = imported.map(a => _require(required, a));
                 return Promise.all(required.map(a => require2(a))).then(function () {
                     return Promise.all(imported);

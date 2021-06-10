@@ -10,6 +10,7 @@ var initcom = function (pathname) {
             var content = String(data);
             var { params, imported, required, data } = commbuilder.parse(content, pathname, pathname);
             var func = Function.apply(null, params.concat(data));
+            if (!(imported instanceof Array)) imported = [];
             imported = imported.map(a => require2(a, required));
             Promise.all(imported).then(function (imported) {
                 var res = func.apply(func, imported);
