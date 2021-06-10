@@ -79,7 +79,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
         if (memery.EXTT === undefined) memery.EXTT = '.txt';
-        console.info("正在编译项目 <cyan>", PUBLIC_APP, /\w/.test(PUBLIC_APP) ? "</cyan>\r\n" : '');
+        console.info("正在编译项目", `<cyan>${PUBLIC_APP}</cyan>`, PUBLIC_APP ? "\r\n" : '');
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         public_app = pages_root;
         setting.is_commponent_package = false;
@@ -113,7 +113,10 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                     var deletedMap = {};
                     for (var k in response) {
                         if (!response[k].realpath) {
-                            if (response[k].warn) deletedMap[k] = [];
+                            if (response[k].warn) {
+                                deletedMap[k] = [];
+                                deletedMap[k].warn = response[k].warn;
+                            }
                             delete response[k];
                         }
                     }
@@ -127,7 +130,15 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                         if (dependence) dependence.forEach(saveDeleted);
                     }
                     for (var k in deletedMap) {
-                        if (deletedMap[k].length) console.warn(`<red2>${k}</red2>`, "required by <gray>" + deletedMap[k].join("</gray>, <gray>") + "</gray> skiped");
+                        if (deletedMap[k].length) {
+                            console.warn(`已跳过 <red2>${k}</red2>`, "该模块用在 <gray>" + deletedMap[k].join("</gray>, <gray>") + "</gray> 中");
+                        } else {
+                            if (deletedMap[k].warn) {
+                                console.warn(deletedMap[k].warn);
+                            } else {
+                                console.warn("已跳过:", k);
+                            }
+                        }
                     }
                     var writeApplication = function () {
                         return write(response, public_path);
@@ -146,7 +157,13 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 .then(finish).then(function () {
                     builder.ing = false;
                     if (reload) builder();
-                }).catch(console.error);
+                }).catch(function (e) {
+                    console.log(e);
+                    console.error(e);
+                    if (cleanBeforeBuild) {
+                        process.exit(1);
+                    }
+                });
         });
     } else {
         console.error(
