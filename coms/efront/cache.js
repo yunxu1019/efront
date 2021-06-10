@@ -242,7 +242,7 @@ var fireUpdate = function () {
 };
 var setUpdateHandle = 0;
 var setUpdate = function () {
-    clearTimeout(fireUpdate);
+    clearTimeout(setUpdateHandle);
     setUpdateHandle = setTimeout(fireUpdate, 60);
 };
 
@@ -309,7 +309,7 @@ File.prototype[$updateme] = function (directory) {
                     }
                 }
             }, resolve);
-            if (directory && that[origin_time]) setUpdate();
+            if (directory && origin_time) setUpdate();
         });
     });
 };
