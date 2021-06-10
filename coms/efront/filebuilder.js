@@ -71,8 +71,9 @@ var buildjsp = function (buff, realpath) {
         if (/^(?:\=|\return\s|)\s*[^[$_a-zA-Z]\w*(\s*\.\s*[$_a-zA-Z]\w*)*\s*$/.test(content)) {
             func = createseek(content);
         } else {
-            var { params, imported, required, data } = commbuilder.parse(content);
-            func = Function.apply(null, params.concat(data));
+            var res = commbuilder.parse(content);
+            var { params, imported, required, data } = res;
+            func = Function.apply(null, params instanceof Array ? params.concat(data) : [data]);
             func.required = required;
             func.imported = imported;
         }

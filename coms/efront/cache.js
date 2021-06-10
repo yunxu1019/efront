@@ -141,7 +141,7 @@ Directory.prototype[$updateme] = function () {
                     }
                 }
             }
-            if (updated && origin_promise) fireUpdate();
+            if (updated && origin_promise) setUpdate();
             that[$isloaded] = true;
             ok();
         });
@@ -240,6 +240,12 @@ var fireUpdate = function () {
     }
     require("../message").reload();
 };
+var setUpdateHandle = 0;
+var setUpdate = function () {
+    clearTimeout(fireUpdate);
+    setUpdateHandle = setTimeout(fireUpdate, 60);
+};
+
 
 function File(pathname, rebuild, limit) {
     this[$pathname] = pathname;
@@ -264,6 +270,10 @@ File.prototype[$updateme] = function (directory) {
                     return;
                 }
                 if (typeof buffer === "string") buffer = Buffer.from(buffer);
+                if (buffer instanceof Error) {
+                    console.log(buffer);
+                    console.error("编译错误:", that[$pathname]);
+                }
                 if (isObject(buffer)) buffer.stat = stats;
                 that[$buffered] = buffer;
                 ok();
@@ -286,8 +296,11 @@ File.prototype[$updateme] = function (directory) {
                 if (that[$rebuild] instanceof Function) {
                     var url = path.relative(that[$root], that[$pathname]);
                     url = url.replace(/\.(\w+)$/, '');
-                    buffer = that[$rebuild](buffer, url, that[$pathname], []);
-
+                    try {
+                        buffer = that[$rebuild](buffer, url, that[$pathname], []);
+                    } catch (e) {
+                        buffer = e;
+                    }
                     if (buffer instanceof Promise) {
                         buffer.then(resolve, resolve);
                     } else {
@@ -295,7 +308,7 @@ File.prototype[$updateme] = function (directory) {
                     }
                 }
             }, resolve);
-            if (directory) fireUpdate();
+            if (directory) setUpdate();
         });
     });
 };

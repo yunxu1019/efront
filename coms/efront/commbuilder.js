@@ -159,12 +159,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     data = typescript.transpile(data, { noEmitHelpers: true });
-    try {
-        var code = esprima.parse(data);
-    } catch (e) {
-        console.error(filename, e);
-        return data;
-    }
+    var code = esprima.parse(data);
     getvariables.computed = !isDevelop || commbuilder.compress === false;
     var {
         DeclaredVariables: declares,

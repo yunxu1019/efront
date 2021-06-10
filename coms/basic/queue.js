@@ -15,20 +15,26 @@ function queue(list, count = 1, context = null) {
         var result = [];
         var loaded_count = 0;
         var error_count = 0;
+        var reject = function (e) {
+            error_count++;
+            oh(e);
+        };
+        var next = function () {
+            loaded_count++;
+            run();
+        };
         var run = function () {
             if (error_count && count === 1) return;
-            if (cx >= list.length) return ok(Promise.all(result));
+            if (cx >= list.length) return Promise.all(result).then(ok, oh);
             var saved_cx = cx;
             var args = list[cx];
-            result[saved_cx] = f.call(context, args, cx++, list);
-            Promise.resolve(result[saved_cx]).then(function (data) {
-                data;
-                loaded_count++;
-                run();
-            }, function (e) {
-                error_count++;
+            try {
+                result[saved_cx] = f.call(context, args, cx++, list);
+            } catch (e) {
                 oh(e);
-            });
+                return;
+            }
+            Promise.resolve(result[saved_cx]).then(next, reject);
         };
         if (count > list.length >> 1) {
             count = list.length >> 1;
