@@ -55,7 +55,7 @@ var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\s*\.(?=[^\d])
 var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
     if (!searchContext) return function () { };
-    var ret = /[\;\r\n\u2028\u2029]/.test(searchContext) ? "" : "return ";
+    var ret = /\;|(\d\.|[^\{\.\+\:\?\-\=\*\/\?\\,~!<>%\^&\}\s])\s*([\r\n\u2028\u2029])\s*(\.\d|[^\.\+\-\=\*\/\?\\,~!<>%\^&\[\}\(\?\:\s])/.test(searchContext) ? "" : "return ";
     if (/\?\s*\.(?=[^\d])/.test(searchContext)) {
         searchContext = searchContext.replace(variableReg, function (context) {
             var dist;
