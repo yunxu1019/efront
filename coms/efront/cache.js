@@ -3,6 +3,7 @@ var fs = require("fs");
 var watch = require("../efront/watch");
 var path = require("path");
 var isObject = require("../basic/isObject");
+var lazy = require("../basic/lazy");
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
     if (loading_count > 2) return;
@@ -94,7 +95,8 @@ var $mtime = Symbol(":mtime");
 var $rebuild = Symbol('?rebuild');
 var $limit = Symbol(":limit");
 var $root = Symbol(":rootpath");
-
+var $linked = Symbol(":linked");
+var $checklink = Symbol("?linked");
 function Directory(pathname, rebuild, limit) {
     this[$rebuild] = rebuild;
     this[$limit] = limit;
@@ -134,13 +136,8 @@ Directory.prototype[$updateme] = function (updateonly) {
                 } else if (updateonly) {
                     var file = that[f.name];
                     if (file instanceof File) {
-                        var namecache = path.basename(file[$pathname]).replace(/\.(\w+)$/, '');
-                        for (var k in that) {
-                            var o = that[k];
-                            if (o instanceof File) {
-                                if (k.replace(/\.(\w+)$/, '') === namecache) o[$updateme](updateonly);
-                            }
-                        }
+                        file[$updateme](that);
+                        file[$checklink](updateonly);
                     } else {
                         if (file[$promised]) file[$updateme](updateonly);
                     }
@@ -155,7 +152,7 @@ Directory.prototype[$updateme] = function (updateonly) {
                     }
                 }
             }
-            if (updated && updateonly) setUpdate();
+            if (updated && updateonly) fireUpdate();
             that[$isloaded] = true;
             ok();
         });
@@ -252,18 +249,13 @@ Directory.prototype[$geturl] = function (url) {
     }
 };
 
-var fireUpdate = function () {
+var fireUpdate = lazy(function () {
     for (var cx = 0, dx = _reload_handlers.length; cx < dx; cx++) {
         var a = _reload_handlers[cx];
         a();
     }
     require("../message").reload();
-};
-var setUpdateHandle = 0;
-var setUpdate = function () {
-    clearTimeout(setUpdateHandle);
-    setUpdateHandle = setTimeout(fireUpdate, 60);
-};
+}, 60);
 
 
 function File(pathname, rebuild, limit) {
@@ -272,10 +264,34 @@ function File(pathname, rebuild, limit) {
     this[$rebuild] = rebuild;
 }
 File.prototype = Object.create(null);
-File.prototype[$updateme] = function (updateonly) {
+File.prototype[$checklink] = async function (updateonly) {
+    var that = this;
+    var linked = that[$linked];
+    if (!linked || !linked.length || !that[$mtime]) return;
+    var mtime = 0;
+    var url = path.relative(that[$root], that[$pathname]).replace(/\.\w+$/, '');
+    for (var cx = 0, dx = linked.length; cx < dx; cx++) {
+        if (path.relative(that[$root], linked[cx]).replace(/\.\w+$/, '') === url) continue;
+        var time = await new Promise(function (ok) {
+            fs.stat(linked[cx], function (error, stats) {
+                if (error) return ok(0);
+                ok(+stats.mtime);
+            });
+        });
+        if (linked !== that[$linked]) return;
+        mtime += time;
+    }
+    if (mtime !== linked[$mtime]) {
+        if (updateonly && linked[$mtime]) {
+            delete that[$mtime];
+            fireUpdate();
+        }
+        linked[$mtime] = mtime;
+    }
+};
+File.prototype[$updateme] = function (directory) {
     var that = this;
     if (that[$isloaded] === false) return;
-    if (updateonly && that[$isloaded] === false) return;
     that[$isloaded] = false;
     var promised = that[$promised] = new Promise(function (ok, oh) {
         fs.stat(that[$pathname], function (error, stats) {
@@ -289,14 +305,24 @@ File.prototype[$updateme] = function (updateonly) {
                 that[$isloaded] = true;
                 return ok();
             }
-            that[$mtime] = +stats.mtime;
-            if (updateonly) {
-                setUpdate();
+            if (directory) {
                 if (that[$buffered] === undefined) {
+                    that[$mtime] = +stats.mtime;
+                    var namecache = path.basename(that[$pathname]).replace(/\.(\w+)$/, '');
+                    for (var k in directory) {
+                        var o = directory[k];
+                        if (o instanceof File && o !== that && o[$isloaded] && o[$buffered] && k.replace(/\.(\w+)$/, '') === namecache) {
+                            delete o[$promised];
+                        }
+                    }
                     that[$isloaded] = true;
+                    fireUpdate();
                     return ok();
+                } else {
+                    if (that[$mtime]) fireUpdate();
                 }
             }
+            that[$mtime] = +stats.mtime;
             var resolve = function (buffer) {
                 if (that[$promised] !== promised) {
                     that[$promised].then(ok, oh);
@@ -310,6 +336,7 @@ File.prototype[$updateme] = function (updateonly) {
                 }
                 if (isObject(buffer)) buffer.stat = stats;
                 that[$buffered] = buffer;
+                that[$checklink]();
                 ok();
             };
             getfileAsync(that[$pathname], that[$limit], stats).then(function (buffer) {
@@ -321,7 +348,8 @@ File.prototype[$updateme] = function (updateonly) {
                     var url = path.relative(that[$root], that[$pathname]);
                     url = url.replace(/\.(\w+)$/, '');
                     try {
-                        buffer = that[$rebuild](buffer, url, that[$pathname], []);
+                        that[$linked] = [];
+                        buffer = that[$rebuild](buffer, url, that[$pathname], that[$linked]);
                     } catch (e) {
                         buffer = e;
                     }
