@@ -27,6 +27,7 @@ var unlink = function (dir) {
     });
 };
 var deeprm = async function (dir) {
+    if (!fs.existsSync(dir)) return;
     if (await isfile(dir)) {
         return await unlink(dir);
     }
