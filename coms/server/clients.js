@@ -1,3 +1,5 @@
+var getIndexFromOrderedArray = require("../basic/getIndexFromOrderedArray");
+var saveToOrderedArray = require("../basic/saveToOrderedArray");
 var clients = [], indexedKeepingClients = [];
 var increaseId = 0x1fffffff + (0x1fffffff * Math.random() | 0);
 var mark = Math.cos(Math.random()) * new Date();
