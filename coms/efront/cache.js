@@ -129,7 +129,7 @@ Directory.prototype[$updateme] = function () {
                     var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
                     file[$root] = that[$root] || pathname;
                 } else {
-                    that[f.name][$updateme](that);
+                    if (that[f.name][$promised]) that[f.name][$updateme](that);
                 }
             });
             for (var k in that) {
@@ -263,6 +263,7 @@ File.prototype[$updateme] = function (directory) {
                 return ok();
             }
             if (+stats.mtime === that[$mtime]) return;
+            var origin_time = that[$mtime];
             that[$mtime] = +stats.mtime;
             var resolve = function (buffer) {
                 if (that[$promised] !== promised) {
@@ -308,7 +309,7 @@ File.prototype[$updateme] = function (directory) {
                     }
                 }
             }, resolve);
-            if (directory) setUpdate();
+            if (directory && that[origin_time]) setUpdate();
         });
     });
 };
