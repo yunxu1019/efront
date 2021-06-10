@@ -71,10 +71,10 @@ var window = {
 };
 window.window = window;
 var componentIncreasedId = 0;
-var { class_prefix } = require("./environment");
+var { PREFIX } = require("../efront/memery");
 function getComponentId() {
     componentIncreasedId++;
-    return class_prefix + componentIncreasedId.toString(26).replace(/\d/g, a => String.fromCharCode('q'.charCodeAt(0) + +a));
+    return PREFIX + componentIncreasedId.toString(26).replace(/\d/g, a => String.fromCharCode('q'.charCodeAt(0) + +a));
 }
 
 var isRealpath = function (pathname) {

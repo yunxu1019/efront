@@ -102,7 +102,7 @@ module.exports = {
     EXPORT_TO: get("EXPORT_TO, TARGET"),
     EXPORT_AS: get("EXPORT_AS, EXPORT"),
     RELEASE: get("RELEASE", 0),
-    PREFIX: get("PREFIX"),
+    PREFIX: get("PREFIX", ''),
     POLYFILL: get("POLYFILL"),
     SOURCEDIR: get("SOURCEDIR"),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),

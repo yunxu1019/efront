@@ -166,8 +166,43 @@ function toApplication(responseTree) {
     return responseTree;
 }
 var rebuildData = function (responseTree) {
-    var imageIndex = 0;
-    Object.keys(responseTree).sort().forEach(function (k) {
+    var keys = Object.keys(responseTree).sort();
+    var keysmap = Object.create(null);
+    var renmap = Object.create(null);
+    keys.forEach(function (k) {
+        var o = responseTree[k];
+        if (!o.data || !o.destpath || !o.realpath) {
+            return;
+        }
+        var k0 = k.toLowerCase().replace(/\d+$/, '');
+        if (k === 'Item') console.log(k, k0, 'k');
+        if (k0 in keysmap) {
+            keysmap[k0]++;
+            k0 = k0 + keysmap[k0];
+            if (k0 !== k) renmap[k] = k0;
+        } else {
+            keysmap[k0] = 1;
+        }
+    });
+    Object.keys(renmap).forEach(k => {
+        var o = responseTree[k];
+        if (o.type !== '') {
+            delete renmap[k];
+            console.warn("发现可能被覆盖的路径", o.destpath);
+            return;
+        }
+
+        var k1 = renmap[k];
+        delete responseTree[k];
+        responseTree[k1] = o;
+        var m = /^(?:[\s\S]*?)(\.[^\/\\\.]+)?$/.exec(o.destpath);
+        if (m[1]) {
+            o.destpath = k1 + m[1];
+        }
+    });
+
+    Object.keys(responseTree).forEach(function (k) {
+        var imageIndex = 0;
         var rep = function (e) {
             if (typeof e !== "string") return String(e);
 
@@ -193,6 +228,10 @@ var rebuildData = function (responseTree) {
             data = response.data = data.slice(0, dependenceNamesOffset) + (strs.length * 2).toString(36) + strs + data.slice(strend);
         }
         if (!dependenceNamesOffset || !required) return;
+        args = args.map(a => {
+            if (!(a in renmap)) return a;
+            return renmap[a];
+        });
         var argstr = args.concat(argNames, required.split(";").map(a => {
             return a.replace(/\.(\w+)$/g, '').replace(/\-(\w)/g, (_, a) => a.toUpperCase());
         }).join(";")).join(",");

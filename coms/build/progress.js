@@ -131,7 +131,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                     }
                     for (var k in deletedMap) {
                         if (deletedMap[k].length) {
-                            console.warn(`已跳过 <red2>${k}</red2>`, "该模块用在 <gray>" + deletedMap[k].join("</gray>, <gray>") + "</gray> 中");
+                            console.warn(`已跳过 <red2>${k}</red2>, `, "该模块用在 <gray>" + deletedMap[k].join("</gray>, <gray>") + "</gray> 中");
                         } else {
                             if (deletedMap[k].warn) {
                                 console.warn(deletedMap[k].warn);
