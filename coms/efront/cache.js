@@ -105,6 +105,7 @@ Directory.prototype[$updateme] = function () {
     var that = this;
     var origin_promise = that[$promised];
     that[$isloaded] = false;
+    that[$buffered] = null;
     var promised = that[$promised] = new Promise(function (ok, oh) {
         fs.readdir(that[$pathname], {
             withFileTypes: true
@@ -113,7 +114,8 @@ Directory.prototype[$updateme] = function () {
             if (that[$promised] !== promised) return that[$promised].then(ok, oh);
             if (error) {
                 that[$isloaded] = true;
-                oh(error);
+                that[$buffered] = error;
+                ok();
                 return;
             }
             var updated = false;
@@ -214,11 +216,15 @@ Directory.prototype[$geturl] = function (url) {
         if (temp instanceof Directory) {
             if (!temp[$promised]) temp[$updateme]();
             if (!temp[$isloaded]) return temp[$promised].then(reload);
+            if (temp[$buffered]) break;
         }
     }
     if (temp instanceof File) {
         if (!temp[$promised]) temp[$updateme]();
         if (!temp[$buffered]) return temp[$promised].then(reload);
+        temp = temp[$buffered];
+    }
+    else if (temp instanceof Directory && temp[$buffered]) {
         temp = temp[$buffered];
     }
 
@@ -266,6 +272,7 @@ function File(pathname, rebuild, limit) {
 File.prototype = Object.create(null);
 File.prototype[$updateme] = function (updateonly) {
     var that = this;
+    if (!updateonly) that[$buffered] = null;
     var promised = that[$promised] = new Promise(function (ok, oh) {
         fs.stat(that[$pathname], function (error, stats) {
             if (promised !== that[$promised]) return that[$promised].then(ok, oh);
@@ -273,13 +280,16 @@ File.prototype[$updateme] = function (updateonly) {
                 that[$buffered] = error;
                 return ok();
             }
-            if (+stats.mtime === that[$mtime]) return;
+            if (+stats.mtime === that[$mtime]) {
+                return ok();
+            }
             var origin_time = that[$mtime];
             that[$mtime] = +stats.mtime;
             if (updateonly) {
-                delete that[$promised];
                 if (origin_time) setUpdate();
-                return;
+                if (that[$buffered] === undefined) {
+                    return ok();
+                }
             }
             var resolve = function (buffer) {
                 if (that[$promised] !== promised) {
