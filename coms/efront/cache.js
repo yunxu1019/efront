@@ -256,7 +256,8 @@ var fireUpdate = lazy(function () {
         var a = _reload_handlers[cx];
         a();
     }
-    require("../message").reload();
+    var reload = require("../message").reload;
+    if (isFunction(reload)) reload();
 }, 60);
 
 
