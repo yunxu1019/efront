@@ -270,16 +270,24 @@ File.prototype = Object.create(null);
 File.prototype[$checklink] = async function () {
     var that = this;
     var linked = that[$linked];
-    if (!linked || !linked.length || !that[$mtime]) return;
+    if (!linked || !linked.length || !that[$mtime]) return true;
     var mtime = 0;
     for (var cx = 0, dx = linked.length; cx < dx; cx++) {
         var stat = await statFile(linked[cx]);
         if (stat instanceof fs.Stats) {
             mtime += +stat.mtime;
         }
-        if (linked !== that[$linked]) return;
+        if (linked !== that[$linked]) return true;
     }
-    return mtime !== linked[$mtime];
+    if (!linked[$mtime]) {
+        linked[$mtime] = mtime;
+        return true;
+    }
+    if (linked[$mtime] !== linked[$mtime]) {
+        linked[$mtime] = mtime
+        return false;
+    }
+    return true;
 };
 File.prototype[$getbuffer] = function () {
     var that = this;
@@ -294,10 +302,11 @@ File.prototype[$updateme] = async function () {
         return that[$buffered] = stats;
     }
     if (+stats.mtime === that[$mtime]) {
-        if (!await that[$checklink]()) {
+        if (await that[$checklink]()) {
             return that[$buffered];
         }
     }
+    that[$mtime] = +stats.mtime;
     if (that[$buffered]) that[$buffered] = null, fireUpdate();
 
     var buffer = await getfileAsync(that[$pathname], that[$limit], stats);
