@@ -69,7 +69,11 @@ var run = function () {
     var workking = 0;
     var _workers = cpus.map(function () {
         counter++;
-        var worker = cluster.fork();
+        var mem = require("os").freemem() / 1024 - 256 | 0;
+        if (mem < 1024) mem = 1024;
+        var worker = cluster.fork({
+            "NODE_OPTIONS": "--max-old-space-size=" + mem,
+        });
         worker.on("listening", function () {
             workking++;
             if (workking === cpus.length) {

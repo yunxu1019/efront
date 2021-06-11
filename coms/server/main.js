@@ -8,5 +8,5 @@ var isDebug = require("../basic/isDebug");
 if (cluster.isMaster && !isDebug) {
     require("./master");
 } else {
-    require("./worker");
+    require("./waiter");
 }
