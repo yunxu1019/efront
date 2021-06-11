@@ -58,7 +58,23 @@ var getFileHeadAsync = function (pathname, buffer_size) {
         });
     });
 };
+var statFile = function (pathname) {
+    return getPromiseInQueue(function (ok, oh) {
+        fs.stat(pathname, function (error, stat) {
+            if (error) return oh(error);
+            ok(stat);
+        });
+    });
+};
 
+var readdir = function (pathame) {
+    return getPromiseInQueue(function (ok, oh) {
+        fs.readdir(pathame, { withFileTypes: true }, function (error, files) {
+            if (error) return oh(error);
+            ok(files);
+        });
+    });
+};
 
 var matcherReg = /[A-Z]+/g;
 var replaceCase = function (match, index, input) {
@@ -97,70 +113,58 @@ var $limit = Symbol(":limit");
 var $root = Symbol(":rootpath");
 var $linked = Symbol(":linked");
 var $checklink = Symbol("?linked");
+var $getbuffer = Symbol("?buffer");
 function Directory(pathname, rebuild, limit) {
     this[$rebuild] = rebuild;
     this[$limit] = limit;
     this[$pathname] = pathname;
 }
 Directory.prototype = Object.create(null);
-Directory.prototype[$updateme] = function (updateonly) {
+Directory.prototype[$updateme] = async function (updateonly) {
     var that = this;
-    if (that[$isloaded] === false) return;
-    if (updateonly && !that[$isloaded]) return;
-    that[$isloaded] = false;
-    that[$buffered] = null;
-    var promised = that[$promised] = new Promise(function (ok, oh) {
-        fs.readdir(that[$pathname], {
-            withFileTypes: true
-        }, function (error, files) {
-
-            if (that[$promised] !== promised) return that[$promised].then(ok, oh);
-            if (error) {
-                that[$isloaded] = true;
-                that[$buffered] = error;
-                ok();
-                return;
+    var files = await readdir(that[$pathname]);
+    var map = {};
+    var limit = that[$limit];
+    var rebuild = that[$rebuild];
+    var pathname = that[$pathname];
+    var updated = false;
+    for (var f of files) {
+        var p = path.join(pathname, f.name);
+        map[f.name] = true;
+        if (!that[f.name]) {
+            updated = true;
+            var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
+            file[$root] = that[$root] || pathname;
+        }
+        else if (updateonly) {
+            var file = that[f.name];
+            if (file instanceof File && file[$buffered]) {
+                file[$promised] = file[$updateme]();
             }
-            var updated = false;
-            var map = {};
-            var pathname = that[$pathname];
-            var limit = that[$limit];
-            var rebuild = that[$rebuild];
-            files.forEach(f => {
-                var p = path.join(pathname, f.name);
-                map[f.name] = true;
-                if (!that[f.name]) {
-                    updated = true;
-                    var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
-                    file[$root] = that[$root] || pathname;
-                } else if (updateonly) {
-                    var file = that[f.name];
-                    if (file instanceof File) {
-                        file[$updateme](that);
-                        file[$checklink](updateonly);
-                    } else {
-                        if (file[$promised]) file[$updateme](updateonly);
-                    }
-                }
-            });
-            for (var k in that) {
-                var o = that[k];
-                if (o instanceof Directory || o instanceof File) {
-                    if (!map[k]) {
-                        delete that[k];
-                        updated = true;
-                    }
+            else {
+                if (file[$isloaded]) {
+                    file[$promised] = file[$updateme](updateonly);
+                    await file[$promised];
                 }
             }
-            if (updated && updateonly) fireUpdate();
-            that[$isloaded] = true;
-            ok();
-        });
-    });
+        }
+    }
+    for (var k in that) {
+        var o = that[k];
+        if (o instanceof Directory || o instanceof File) {
+            if (!map[k]) {
+                delete that[k];
+                updated = true;
+            }
+        }
+    }
+    if (updated && that[$isloaded]) fireUpdate();
+    that[$isloaded] = true;
 };
 Directory.prototype[$geturl] = function (url) {
+
     var that = this;
-    if (!that[$promised]) that[$updateme]();
+    if (!that[$promised]) that[$promised] = that[$updateme]();
     var reload = function () {
         return that[$geturl](url);
     };
@@ -213,15 +217,13 @@ Directory.prototype[$geturl] = function (url) {
         if (!temp) break;
         if (temp instanceof Directory) {
 
-            if (!temp[$promised]) temp[$updateme]();
+            if (!temp[$promised]) temp[$promised] = temp[$updateme]();
             if (!temp[$isloaded]) return temp[$promised].then(reload);
             if (temp[$buffered]) break;
         }
     }
     if (temp instanceof File) {
-        if (!temp[$promised]) temp[$updateme]();
-        if (!temp[$buffered]) return temp[$promised].then(reload);
-        temp = temp[$buffered];
+        temp = temp[$getbuffer]();
     }
     else if (temp instanceof Directory && temp[$buffered]) {
         temp = temp[$buffered];
@@ -264,106 +266,56 @@ function File(pathname, rebuild, limit) {
     this[$rebuild] = rebuild;
 }
 File.prototype = Object.create(null);
-File.prototype[$checklink] = async function (updateonly) {
+File.prototype[$checklink] = async function () {
     var that = this;
     var linked = that[$linked];
     if (!linked || !linked.length || !that[$mtime]) return;
     var mtime = 0;
-    var url = path.relative(that[$root], that[$pathname]).replace(/\.\w+$/, '');
     for (var cx = 0, dx = linked.length; cx < dx; cx++) {
-        if (path.relative(that[$root], linked[cx]).replace(/\.\w+$/, '') === url) continue;
-        var time = await new Promise(function (ok) {
-            fs.stat(linked[cx], function (error, stats) {
-                if (error) return ok(0);
-                ok(+stats.mtime);
-            });
-        });
-        if (linked !== that[$linked]) return;
-        mtime += time;
-    }
-    if (mtime !== linked[$mtime]) {
-        if (updateonly && linked[$mtime]) {
-            delete that[$mtime];
-            fireUpdate();
+        var stat = await statFile(linked[cx]);
+        if (stat instanceof fs.Stats) {
+            mtime += +stat.mtime;
         }
-        linked[$mtime] = mtime;
+        if (linked !== that[$linked]) return;
     }
+    return mtime !== linked[$mtime];
 };
-File.prototype[$updateme] = function (directory) {
+File.prototype[$getbuffer] = function () {
     var that = this;
-    if (that[$isloaded] === false) return;
-    that[$isloaded] = false;
-    var promised = that[$promised] = new Promise(function (ok, oh) {
-        fs.stat(that[$pathname], function (error, stats) {
-            if (promised !== that[$promised]) return that[$promised].then(ok, oh);
-            if (error) {
-                that[$buffered] = error;
-                that[$isloaded] = true;
-                return ok();
-            }
-            if (+stats.mtime === that[$mtime]) {
-                that[$isloaded] = true;
-                return ok();
-            }
-            if (directory) {
-                if (that[$buffered] === undefined) {
-                    that[$mtime] = +stats.mtime;
-                    var namecache = path.basename(that[$pathname]).replace(/\.(\w+)$/, '');
-                    for (var k in directory) {
-                        var o = directory[k];
-                        if (o instanceof File && o !== that && o[$isloaded] && o[$buffered] && k.replace(/\.(\w+)$/, '') === namecache) {
-                            delete o[$promised];
-                        }
-                    }
-                    that[$isloaded] = true;
-                    fireUpdate();
-                    return ok();
-                } else {
-                    if (that[$mtime]) fireUpdate();
-                }
-            }
-            that[$mtime] = +stats.mtime;
-            var resolve = function (buffer) {
-                if (that[$promised] !== promised) {
-                    that[$promised].then(ok, oh);
-                    return;
-                }
-                that[$isloaded] = true;
-                if (typeof buffer === "string") buffer = Buffer.from(buffer);
-                if (buffer instanceof Error) {
-                    console.log(buffer);
-                    console.error("编译错误:", that[$pathname]);
-                }
-                if (isObject(buffer)) buffer.stat = stats;
-                that[$buffered] = buffer;
-                that[$checklink]();
-                ok();
-            };
-            getfileAsync(that[$pathname], that[$limit], stats).then(function (buffer) {
-                if (that[$promised] !== promised) {
-                    that[$promised].then(ok, oh);
-                    return;
-                }
-                if (that[$rebuild] instanceof Function) {
-                    var url = path.relative(that[$root], that[$pathname]);
-                    url = url.replace(/\.(\w+)$/, '');
-                    try {
-                        that[$linked] = [];
-                        buffer = that[$rebuild](buffer, url, that[$pathname], that[$linked]);
-                    } catch (e) {
-                        buffer = e;
-                    }
-                    if (buffer instanceof Promise) {
-                        buffer.then(resolve, resolve);
-                    } else {
-                        resolve(buffer);
-                    }
-                } else {
-                    resolve(buffer);
-                }
-            }, resolve);
-        });
-    });
+    if (that[$buffered]) return that[$buffered];
+    if (that[$promised]) return that[$promised];
+    return that[$promised] = that[$updateme]();
+};
+File.prototype[$updateme] = async function () {
+    var that = this;
+    var stats = await statFile(that[$pathname]);
+    if (!(stats instanceof fs.Stats)) {
+        return that[$buffered] = stats;
+    }
+    if (+stats.mtime === that[$mtime]) {
+        if (!await that[$checklink]()) {
+            return that[$buffered];
+        }
+    }
+    if (that[$buffered]) that[$buffered] = null, fireUpdate();
+
+    var buffer = await getfileAsync(that[$pathname], that[$limit], stats);
+    if (that[$rebuild] instanceof Function && buffer instanceof Buffer) {
+        var url = path.relative(that[$root], that[$pathname]);
+        url = url.replace(/\.(\w+)$/, '');
+        try {
+            var linked = that[$linked] = [];
+            buffer = await that[$rebuild](buffer, url, that[$pathname], that[$linked]);
+            if (linked.length) await that[$checklink]();
+        } catch (e) {
+            buffer = e;
+            console.log(e);
+            console.error("编译错误:", that[$pathname]);
+        }
+    }
+    if (typeof buffer === "string") buffer = Buffer.from(buffer);
+    if (buffer instanceof Buffer) buffer.stat = stats;
+    return that[$buffered] = buffer;
 };
 
 /**
@@ -383,9 +335,10 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         map[froot] = true;
         if (fs.existsSync(froot) && fs.statSync(froot).isDirectory()) {
             var roots = new Directory(froot, rebuild, isFinite(buffer_size_limit) && buffer_size_limit >= 0 ? buffer_size_limit | 0 : buffer_size_limit);
-            watch(froot, function () {
-                roots[$updateme](true);
-            }, true);
+            watch(froot, lazy(async function () {
+                if (roots[$isloaded]) roots[$promised] = roots[$updateme](true);
+                await roots[$promised];
+            }, 20), true);
             return roots;
         } else {
             return Object.create(null);
