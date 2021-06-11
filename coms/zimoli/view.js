@@ -1,6 +1,6 @@
 
 var prototype = {
-    dragable: true,
+    dragable: undefined,
     resizable: false,
     closeable: true,
     showTitle: true,
@@ -60,6 +60,7 @@ var prototype = {
         return this.moveTo(this.offsetLeft + deltax, this.offsetTop + deltay);
     },
     show() {
+        this.style.position = 'fixed';
         popup(this);
         this.loadPosition();
         return this;
@@ -101,7 +102,12 @@ function view(element) {
     extend(window, prototype);
     if (window !== element) {
         extend(window, element);
-        window.setAttribute('dragable', 'dragable');
+        once("append")(window, function () {
+            if (window.dragable !== true && window.dragable !== false) {
+                window.dragable = /^(fixed|absolute)$/i.test(getComputedStyle(window).position);
+            }
+            if (window.dragable) window.setAttribute('dragable', 'dragable');
+        })
         if (window.resizable) resize.on(window);
     }
     return window;
