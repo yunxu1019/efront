@@ -123,7 +123,7 @@ Directory.prototype = Object.create(null);
 Directory.prototype[$updateme] = async function (updateonly) {
     var that = this;
     var files = await readdir(that[$pathname]);
-    var map = {};
+    var map = {}, changed = {};
     var limit = that[$limit];
     var rebuild = that[$rebuild];
     var pathname = that[$pathname];
@@ -134,10 +134,33 @@ Directory.prototype[$updateme] = async function (updateonly) {
         if (!that[f.name]) {
             updated = true;
             var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
+            var key = f.name.replace(/\.\w+$/, '');
+            changed[key] = true;
             file[$root] = that[$root] || pathname;
         }
-        else if (updateonly) {
-            var file = that[f.name];
+    }
+    for (var k in that) {
+        var o = that[k];
+        if (o instanceof Directory || o instanceof File) {
+            if (!map[k]) {
+                delete that[k];
+                var key = k.replace(/\.\w+$/, '');
+                changed[key] = true;
+                updated = true;
+            }
+        }
+    }
+    for (var k in that) {
+        var key = k.replace(/\.\w+$/, '');
+        var o = that[k];
+        if (changed[key]) {
+            if (o instanceof File && o[$buffered]) {
+                delete o[$buffered];
+                delete o[$promised];
+                delete o[$mtime];
+            }
+        } else if (updateonly) {
+            var file = that[k];
             if (file instanceof File && file[$buffered]) {
                 file[$promised] = file[$updateme]();
             }
@@ -146,15 +169,6 @@ Directory.prototype[$updateme] = async function (updateonly) {
                     file[$promised] = file[$updateme](updateonly);
                     await file[$promised];
                 }
-            }
-        }
-    }
-    for (var k in that) {
-        var o = that[k];
-        if (o instanceof Directory || o instanceof File) {
-            if (!map[k]) {
-                delete that[k];
-                updated = true;
             }
         }
     }
@@ -283,7 +297,7 @@ File.prototype[$checklink] = async function () {
         linked[$mtime] = mtime;
         return true;
     }
-    if (linked[$mtime] !== linked[$mtime]) {
+    if (mtime !== linked[$mtime]) {
         linked[$mtime] = mtime
         return false;
     }
