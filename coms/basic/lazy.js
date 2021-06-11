@@ -4,16 +4,21 @@ function lazy(run, time = false) {
         if (time > 17) {
             if (fireing === true) {
                 fireing = setTimeout(fire, +time);
-            } else {
-                run.apply(that, args);
+            }
+            else if (isFinite(fireing)) {
+                fireing = run.apply(that, args);
+            }
+            else {
                 fireing = false;
             }
         } else {
             if (fireing === true) {
-                run.apply(that, args);
+                fireing = run.apply(that, args);
+            } else {
+                fireing = false;
             }
-            fireing = false;
         }
+        if (fireing instanceof Promise) fireing.then(fire, fire);
     };
     return function () {
         args = arguments;
