@@ -135,6 +135,7 @@ var createRepeat = function (search, id = 0) {
         result = extend(result instanceof Array ? [] : {}, result);
         if (savedOrigin === origin && deepEqual.shallow(savedValue, result)) return;
         var changes = getChanges(result, savedValue);
+        if (!changes) return;
         savedValue = result;
         savedOrigin = origin;
         var keys = result instanceof Array ? result.map((_, i) => i) : Object.keys(result);
