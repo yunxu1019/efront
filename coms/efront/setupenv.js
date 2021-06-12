@@ -62,7 +62,7 @@ var normalize = function (o) {
     for (var k in o) {
         var v = o[k];
         if (/\//.test(v) ^ /\\/.test(v) || /path$/i.test(k)) {
-            if (typeof v === 'string') {
+            if (typeof v === 'string' && v) {
                 o[k] = v.split(",").map(o => {
                     o = path.normalize(o);
                     if (path.isAbsolute(o)) {
