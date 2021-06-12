@@ -33,7 +33,7 @@ function fromComponent(base) {
                     return;
                 }
             } catch (e) {
-                
+
             }
         }
         var abort = function () {
@@ -42,7 +42,6 @@ function fromComponent(base) {
         requestHandles.push(abort);
         var url1 = base.replace(/[^\\\/]*$/, url);
         url1 = url1.replace(/^\/?/, "/");
-        
         packer(url1, function (result) {
             var index = requestHandles.indexOf(abort);
             if (index >= 0) {
@@ -215,7 +214,7 @@ module.exports = function (mainpath, args) {
         Object.keys(timeoutHandles).map(clearTimeout);
         requestHandles.slice(0).map(r => r());
     };
-    var fullpath = require.resolve("./" + mainpath, { paths: [].concat(memery.COMS_PATH.split(","), '.') });
+    var fullpath = require.resolve("./" + mainpath, { paths: [].concat(memery.coms_path.split(","), '.') });
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');

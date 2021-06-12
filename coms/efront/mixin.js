@@ -1,7 +1,7 @@
 // 组合工具
 function minxin() {
     var total = 1;
-    var argsList = [].map.call(arguments, (a = '') => {
+    var argsList = [].map.call(arguments, a => {
         var res = [];
         if (a instanceof Array) {
             new Set(a).forEach(a => res.push(a));

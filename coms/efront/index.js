@@ -93,7 +93,15 @@ var detectEnvironment = function () {
                 }
             });
             coms_path.push(':');
-            if (1 === coms_path.length) coms_path.push('')
+            if (1 === coms_path.length) {
+                coms_path.unshift(memery.COMM || '');
+            }
+            else if (memery.COMM) {
+                coms_path.unshift(memery.COMM);
+            }
+            else {
+                coms_path.push('');
+            }
             if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
                 config.comm += ",zimoli";
             }

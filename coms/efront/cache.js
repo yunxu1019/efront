@@ -176,7 +176,6 @@ Directory.prototype[$updateme] = async function (updateonly) {
     that[$isloaded] = true;
 };
 Directory.prototype[$geturl] = function (url) {
-
     var that = this;
     if (!that[$promised]) that[$promised] = that[$updateme]();
     var reload = function () {
@@ -349,9 +348,9 @@ File.prototype[$updateme] = async function () {
 var cache = function (filesroot, rebuild, buffer_size_limit) {
     var sk = function () {
     };
-    filesroot = filesroot.split(",");
+    filesroot = filesroot.split(",").map(path.normalize);
     var map = {};
-    var treeslist = filesroot.filter(fs.existsSync).map((froot, i) => {
+    var treeslist = filesroot.filter(fs.existsSync).map((froot) => {
         var froot = fs.realpathSync(froot);
         if (map[froot]) {
             return;
