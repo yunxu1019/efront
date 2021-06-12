@@ -416,6 +416,7 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
                         if (package_file in promise) {
                             var file = promise[package_file];
                             if (file instanceof File) {
+                                file[$rebuild] = a => a;
                                 if (!file[$promised]) file[$promised] = file[$updateme]();
                                 if (!file[$buffered]) return file[$promised].then(run, oh);
                                 if (file[$buffered] instanceof Buffer) file[$buffered] = new PackageData(file[$buffered]);

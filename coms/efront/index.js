@@ -107,10 +107,15 @@ var detectEnvironment = function () {
             }
 
             config.coms_path = coms_path.join(',');
-            if (libs_path.length) setenv({
-                libs: '',
-                libs_path: libs_path.join(',')
-            }, false);
+            if (typeof memery.LIBS_PATH === 'string') {
+                libs_path.unshift(memery.LIBS_PATH);
+            }
+            if (libs_path.length) {
+                setenv({
+                    libs: memery.LIBS || '',
+                    libs_path: libs_path.join(',')
+                });
+            }
             var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
             env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
             if (public_path.length === 1) {
