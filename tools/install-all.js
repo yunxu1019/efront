@@ -36,7 +36,7 @@ queue.call(parsed, function (version) {
     var version = parsed.pop();
     var commands = scripts.slice(0);
     commands[0] += "@" + version;
-    v = versions.split('.').map(a => parseInt(a));
+    v = version.split('.').map(a => parseInt(a));
     return queue.call(commands, run).then(function () {
         if (v[0] > 1 || v[1] >= 19) return run('efront live 80 443', 20000);
     });
