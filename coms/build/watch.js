@@ -17,7 +17,9 @@ var listener = function (event, filename) {
     buildTicker = setTimeout(progress, 60);
 };
 [].concat(pages_root, comms_root, ccons_root).forEach(function (rootpath) {
-    if (fs.existsSync(rootpath)) fs.watch(rootpath, { recursive: true }, listener);
+    var recursive = /^(darwin|win32)$/.test(process.platform);
+    console.warn("watch功能在当前操作系统可能无法使用！");
+    if (fs.existsSync(rootpath)) fs.watch(rootpath, { recursive }, listener);
 
 });
 progress(true);

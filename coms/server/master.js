@@ -107,7 +107,7 @@ var watch = {
         "../efront",
         "../compile",
         "../message",
-    ].map(a => path.join(__dirname, a)).filter(fs.existsSync).map(a => fs.watch(a, { recursive: true }, run)) : [])
+    ].map(a => path.join(__dirname, a)).filter(fs.existsSync).map(a => fs.watch(a, { recursive: /^(darwin|win32)$/i.test(process.platform) }, run)) : [])
 };
 message.quit = end;
 message.broadcast = broadcast;
