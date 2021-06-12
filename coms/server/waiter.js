@@ -268,7 +268,7 @@ function netListener(socket) {
     socket.once("data", netOnceDataAdapter);
 }
 var getIntVersion = function (version) {
-    version = version.replace(/[^\.\d]+/, '');
+    version = String(version).replace(/[^\.\d]+/, '');
     var [a, b, c] = version.split('.');
     return (+a << 16) + (+b << 8) + +c;
 };

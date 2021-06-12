@@ -23,7 +23,7 @@ function fromComponent(base) {
         if (/^\/?comm\b/i.test(url)) {
             try {
 
-                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: [].concat(memery.COMS_PATH.split(','), ".") })
+                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: [].concat(memery.coms_path.split(','), ".") })
                 if (isLib(temppath)) {
                     var mode = function () {
                         return require(temppath);
@@ -68,7 +68,7 @@ function fromComponent(base) {
                                     url1 = "./" + path.relative('.', url1).replace('\\', '/');
                                 }
 
-                                var resolved = require.resolve(url1, { paths: [].concat(memery.COMS_PATH.split(','), '.') });
+                                var resolved = require.resolve(url1, { paths: [].concat(memery.coms_path.split(','), '.') });
                             } else {
                                 var resolved = require.resolve(url1);
                             }

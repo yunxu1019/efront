@@ -5,6 +5,7 @@ var fs = require("fs");
 var memery = require("./memery");
 var env = process.env;
 var envpath = memery.ENVS_PATH;
+if (typeof envpath !== "string") envpath = "./_envs," + path.join(require("os").homedir(), '.efront/_envs');
 envpath = envpath.split(",").filter(fs.existsSync);
 var cache = {};
 var setup = module.exports = function (app) {
@@ -24,7 +25,7 @@ var setup = module.exports = function (app) {
         if (appname !== undefined) {
             if (!/\/|\.[cm]?[jt]sx?$/i.test(app)) value_map[appname] = true;
         }
-        if (default_value !== undefined) {
+        if (typeof default_value === "string") {
             default_value.split(',').forEach(k => {
                 value_map[k] = true;
             });
@@ -50,7 +51,7 @@ var pollyfill = function (dst, appname) {
         }
         bootpath = bootfull || '';
         var envma = Object.create(null);
-        dst[k] = (dst[k] ? dst[k] : bootpath).split(",").map(a => a === ":" ? bootpath : a).map(
+        dst[k] = String(dst[k] ? dst[k] : bootpath).split(",").map(a => a === ":" ? bootpath : a).map(
             k => k.replace(/\\/g, '/').replace(/^\.\//, '')
         ).filter(
             k => envma[k] ? false : envma[k] = true

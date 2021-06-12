@@ -1,6 +1,5 @@
 "use strict";
 var path = require("path");
-var default_envpath = "./_envs," + path.join(require("os").homedir(), '.efront/_envs');
 var reg = /^(0|false|null|uset|none|undefined|nil|unset)$/i;
 var test = a => !!a && !reg.test(a);
 var env = process.env;
@@ -29,7 +28,7 @@ var set = function (k, v) {
 }
 var get = function (name, _default) {
     var env = this || process.env;
-    var alias = name.split(/\s*[\|\,;:]\s*/);
+    var alias = String(name).split(/\s*[\|\,;:]\s*/);
     for (var cx = 0, dx = alias.length; cx < dx; cx++) {
         var k = alias[cx];
         namemap[k] = alias[0];
@@ -72,7 +71,7 @@ module.exports = {
     },
     get coms_path() {
         var namemap = Object.create(null);
-        var pathname = this.COMS_PATH || "";
+        var pathname = String(this.COMS_PATH || "");
         pathname.split(',').forEach(p => {
             namemap[p] = true;
         });
@@ -91,7 +90,7 @@ module.exports = {
     WATCH_PORT: get('HTTPS_PORT', 0),
     WATCH_PROJECT_VERSION: 0,
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),
-    ENVS_PATH: get("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH", default_envpath),
+    ENVS_PATH: get("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
     COMS_PATH: get("COMS_PATH, COMM_PATH"),
     PAGE_PATH: get("PAGE_PATH, PAGES_PATH, APPS_PATH"),
     APIS_PATH: get("APIS_PATH, AAPI_PATH, APPS_PATH"),

@@ -14,7 +14,7 @@ var geticonfile = require("./cache")(memery.ICON_PATH || require("path").join(__
 var getonlyfile = require("./cache")(memery.FILE_PATH || memery.PAGE_PATH, filebuilder, FILE_BUFFER_SIZE).async;
 
 var getfrompath = function (name, __root, getter, extt) {
-    __root = __root.split(/,/);
+    __root = String(__root || '').split(/,/);
     return new Promise(function (ok) {
         var inc = 0;
         var res = '';

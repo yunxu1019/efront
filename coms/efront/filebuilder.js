@@ -54,7 +54,7 @@ var seek = function (keeys, o) {
     return o;
 };
 var createseek = function (content) {
-    var keys = content.trim().split('.').map(a => a.trim());
+    var keys = String(content || '').trim().split('.').map(a => a.trim());
     var res = seek.bind(null, keys);
     res.imported = ['context'];
     return res;

@@ -603,6 +603,8 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
 
 }
 function commbuilder(buffer, filename, fullpath, watchurls) {
+    filename = String(filename || '');
+    fullpath = String(fullpath || "");
     var compress = commbuilder.compress;
     var data = String(buffer), promise;
     if (/\.json$/i.test(fullpath)) {

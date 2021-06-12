@@ -67,7 +67,7 @@ var doProxy = function (client) {
 * 如果是 GET/POST 方法，那么返回 { metod,host,port,path,httpVersion}
 */
 function parse_request(buffer) {
-    var s = buffer.toString('utf8');
+    var s = String(buffer);
     var method = s.split('\n')[0].match(/^([A-Z]+)\s/)[1];
     if (method == 'CONNECT') {
         var arr = s.match(/^([A-Z]+)\s([^\:\s]+)\:(\d+)\sHTTP\/(\d\.\d)/);
@@ -77,9 +77,9 @@ function parse_request(buffer) {
     else {
         var arr = s.match(/^([A-Z]+)\s([^\s]+)\sHTTP\/(\d\.\d)/);
         if (arr && arr[1] && arr[2] && arr[3]) {
-            var host = s.match(/Host\:\s+([^\n\s\r]+)/)[1];
-            if (host) {
-                var _p = host.split(':', 2);
+            var host = s.match(/Host\:\s+([^\n\s\r]+)/);
+            if (host && host[1]) {
+                var _p = host[1].split(':', 2);
                 return { method: arr[1], host: _p[0], port: _p[1] ? _p[1] : 80, path: arr[2], httpVersion: arr[3] };
             }
         }
