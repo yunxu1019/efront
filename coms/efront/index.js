@@ -53,7 +53,7 @@ var detectEnvironment = function () {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
         page_path: currentpath,
-        comm: memery.COMM,
+        comm: memery.COMM || '',
         coms_path: memery.COMS_PATH,
         app: memery.APP || '',
         page: memery.PAGE,
@@ -64,6 +64,7 @@ var detectEnvironment = function () {
             if (error) return console.error(error);
             var coms_path = [];
             var public_path = [];
+            var libs_path = [];
             names.filter(function (name) {
                 if (/^[\.]/i.test(name)) return;
                 try {
@@ -78,8 +79,11 @@ var detectEnvironment = function () {
                 } else if (/^src|source|^code|源|代码/i.test(name)) {
                     config.page_path = name;
                     coms_path.push(name);
-                } else if (/lib|com|fun|dep|组件|模块|依赖|库|函数/i.test(name)) {
+                } else if (/node_modules|lib|com|fun|depe|组件|模块|依赖|库|函数/i.test(name)) {
                     // 卡木|设施|员|工|匠|子|弟|臣|下|客|器|械|备|库|房|土|基|石|砖
+                    if (/node_modules|lib|模块|库/.test(name)) {
+                        libs_path.push(name);
+                    }
                     coms_path.push(name);
                 } else if (/env|conf|环境|配置|设置/i.test(name)) {
                     env_path.push(name);
@@ -89,10 +93,16 @@ var detectEnvironment = function () {
                 }
             });
             coms_path.push(':');
+            if (1 === coms_path.length) coms_path.push('')
             if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
                 config.comm += ",zimoli";
             }
+
             config.coms_path = coms_path.join(',');
+            if (libs_path.length) setenv({
+                libs: '',
+                libs_path: libs_path.join(',')
+            }, false);
             var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
             env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
             if (public_path.length === 1) {
