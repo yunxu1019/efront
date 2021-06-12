@@ -54,14 +54,14 @@ var doProxy = require("./doProxy");
 var ppid = process.ppid;
 var version = 'efront/' + ppid;
 var requestListener = function (req, res) {
-    var req_access_origin = req.getHeader("Origin");
-    var req_access_headers = req.getHeader("Access-Control-Request-Headers");
-    var req_access_method = req.getHeader("Access-Control-Request-Method");
+    var req_access_origin = req.headers["origin"];
+    var req_access_headers = req.headers["access-control-request-headers"];
+    var req_access_method = req.headers["access-control-request-method"];
     req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
     req_access_origin && res.setHeader("Access-Control-Allow-Credentials", true);
     req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
     req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
-    if (res.hasHeader("Non-Authoritative-Reason")) {
+    if (res.hasHeader instanceof Function && res.hasHeader("Non-Authoritative-Reason")) {
         res.removeHeader("Non-Authoritative-Reason");
     }
     if (/^option/i.test(req.method)) {
