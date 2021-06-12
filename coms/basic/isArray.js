@@ -4,6 +4,6 @@
  */
 
 
-function isArray(o){
+Array.isArray || function isArray(o) {
     return o instanceof Array;
 }
