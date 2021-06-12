@@ -61,9 +61,6 @@ var requestListener = function (req, res) {
     req_access_origin && res.setHeader("Access-Control-Allow-Credentials", true);
     req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
     req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
-    if (res.hasHeader instanceof Function && res.hasHeader("Non-Authoritative-Reason")) {
-        res.removeHeader("Non-Authoritative-Reason");
-    }
     if (/^option/i.test(req.method)) {
         efront:
         if (/^\/\:/.test(req.url)) {
