@@ -273,15 +273,7 @@ function parseConfig(api) {
 }
 var isWorseIE = /msie\s+[2-9]/i.test(navigator.userAgent);
 var parseData = function (sourceText) {
-    if (/^\s*(\[[\s\S]*?\]|\{\s*[\"][\s\S]*\}|\{\s*\}|"[\s\S]*"|true|\d+(\.\d+)?(e\d+)?|false|null)\s*$/.test(sourceText)) {
-        // JSON 格式
-        try {
-            return JSON.parse(sourceText);
-        } catch (e) {
-            throw "数据无法解析";
-        }
-    }
-    if (/^\s*</i.test(sourceText)) {
+    if (/^\s*<[^\s\'\"\`]/i.test(sourceText)) {
         // XML 格式
         var doc = document.implementation.createHTMLDocument('');
         if (isWorseIE) {
@@ -299,13 +291,14 @@ var parseData = function (sourceText) {
     }
     if (/^[\s\_\.\w\$]+\s*\([\s\S]*\)\s*;?\s*$/.test(sourceText)) {
         // JOSNP 格式
-        try {
-            return JSON.parse(sourceText.replace(/^[^\(]+\(([\s\S]*)\)[^\)]*$/, "$1"));
-        } catch (e) {
-            throw "数据无法解析";
-        }
+        sourceText = sourceText.replace(/^[^\(]+\(([\s\S]*)\)[^\)]*$/, "$1");
     }
-    return { data: sourceText };
+    try {
+       sourceText= parseYML(sourceText);
+    } catch (e) {
+        throw "数据无法解析";
+    }
+    return sourceText;
 };
 function fixApi(api, href) {
     if (!reg.test(api.url)) {
