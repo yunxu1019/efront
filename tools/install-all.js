@@ -2,6 +2,7 @@ var console = require("../coms/efront/colored_console");
 var child_process = require("child_process");
 var queue = require("../coms/basic/queue");
 var versions = child_process.execSync("npm view . versions");
+var localIP = require("../coms/efront/getLocalIP")();
 var parsed = JSON.parse(String(versions).replace(/\'/g, '"'));
 var scripts = `
 npm install -g efront
@@ -16,7 +17,7 @@ var run = function (script, timelimit) {
     if (timelimit < 2000) timelimit = 2000;
     var timeStart = +new Date;
     var gram = child_process.exec(script, {
-        shell: true
+        timeout: timelimit
     });
     gram.stdout.pipe(process.stderr);
     gram.stdout.pipe(process.stdout);
@@ -27,7 +28,7 @@ var run = function (script, timelimit) {
     ].map(
         a => new Promise(a)
     )).then(function () {
-        if (!gram.killed) gram.kill();
+        gram.kill();
         clearTimeout(timer);
         console.info(`执行: <gray>${script}</gray>，用时: <gray>", ${((new Date - timeStart) / 1000).toFixed(2)}</gray>秒`);
     });
@@ -38,6 +39,7 @@ queue.call(parsed, function (version) {
     commands[0] += "@" + version;
     v = version.split('.').map(a => parseInt(a));
     return queue.call(commands, run).then(function () {
+        if (!localIP) return;
         if (v[0] > 1 || v[1] >= 19) return run('efront live 80 443', 20000);
     });
 });
