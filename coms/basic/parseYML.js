@@ -1,10 +1,14 @@
 
 var eval2 = function (data) {
     if (typeof data === 'string') data = data.replace(/(\r\n|\r|\n)$/, '');
+    if (!data) return null;
     if (/^(true|TRUE|True)$/.test(data)) data = true;
     else if (/^(False|false|FALSE)$/.test(data)) data = false;
     else if (/^(NULL|null|Null)$/.test(data)) data = null;
-    else if (/^[\+\-]?(\d+|\d*\.\d+|\d+\.)(e[\-\+]?\d+)?$/.test(data)) data = parseNumber(data);
+    else if (
+        /^[\+\-]?(\d+|\d*\.\d+|\d+\.)(e[\-\+]?\d+)?$/i.test(data) ||
+        /^(0b[01]+|0x[\da-f]+|0o[0-7]+)$/i.test(data)
+    ) data = parseNumber(data);
     else data = strings.decode(data);
     return data;
 };
@@ -15,9 +19,17 @@ var scan = function (text) {
     var span = 0;
     var prop;
     var parents = [];
+    var jsonlikes = [];
     var push = function (value) {
+        if (data && prop === undefined && jsonlikes[jsonlikes.length - 1] === '{') {
+            prop = strings.decode(data);
+            data = '';
+        }
         if (!value) value = eval2(data);
         data = '';
+        if (jsonlikes.length) {
+            span = parents.length - 1;
+        }
         parents = parents.slice(0, span + 1);
         while (parents.length) {
             if (parents[parents.length - 1]) break;
@@ -46,25 +58,38 @@ var scan = function (text) {
     };
     while (rows.length) {
         var row = rows.shift();
+        if (/^['"]$/.test(rowtype)) {
+            if (jsonlikes.length) {
+                var reg = new RegExp(/\\[\s\S]|/.source + rowtype, 'g');
+                var index = -1;
+                do {
+                    var res = reg.exec(row);
+                    if (res && res[0] === rowtype) {
+                        index = res.index;
+                        break;
+                    }
+                } while (res);
+            } else {
+                index = row.indexOf(rowtype);
+            }
+            if (index < 0) {
+                data += row + "\r\n";
+                continue;
+            }
+            data += row.slice(0, index + +!!jsonlikes.length);
+            row = row.slice(index + 1)
+            unshift(spacesize, row);
+            rowtype = 0;
+            continue;
+        }
         var spacesize = /^\s*/.exec(row)[0].length;
         if (spacesize === row.length) {
             rowtype = 0;
             continue;
         }
-        if (!data && !prop) span = spacesize;
+        if (!data && !prop && !jsonlikes.length) span = spacesize;
+
         row = row.trim();
-        if (/^['"]$/.test(rowtype)) {
-            var index = row.indexOf(rowtype);
-            if (index < 0) {
-                data += row + "\r\n";
-                continue;
-            }
-            rowtype = 0;
-            data += row.slice(0, index + 1);
-            row = row.slice(index + 1)
-            unshift(spacesize, row);
-            continue;
-        }
         if (rowtype === '|') {
             rowtype = spacesize;
             continue;
@@ -80,7 +105,11 @@ var scan = function (text) {
         }
         if (/^["']/.test(row)) {
             rowtype = row[0];
-            data += row.slice(1);
+            if (jsonlikes.length) {
+                data += row[0];
+            }
+            row = row.slice(1);
+            unshift(0, row);
             continue;
         }
         if (/^\-\-+$/.test(row)) {
@@ -102,33 +131,87 @@ var scan = function (text) {
             unshift(spacesize + 1, row);
             continue;
         }
-        var match = /^([\s\S]*?)\:(|\s+[\s\S]*)$/.exec(row);
-        if (match) {
+        if (!data && /^[\[\{]/.test(row)) {
             if (data) push();
-            if (prop) {
-                var obj = {};
-                push(obj);
-                parents[spacesize] = obj;
-            }
-            span = spacesize;
-            var [_, prop, value] = match;
-            value = value.trim();
-            if (value) {
-                unshift(spacesize + 1, value);
-            }
-            prop = strings.decode(prop);
+            var obj = row[0] === "{" ? {} : [];
+            push(obj);
+            parents.push(obj);
+            jsonlikes.push(row[0]);
+            row = row.slice(1);
+            unshift(spacesize + 1, row);
             continue;
         }
+
+        if (jsonlikes.length) {
+            var match = /^\:|[\]\},]|\:[\s\[\{]/.exec(row);
+            if (match) {
+                if (match.index > 0) {
+                    data += row.slice(0, match.index);
+                    row = row.slice(match.index);
+                }
+                var pre = row[0];
+                row = row.slice(1);
+                if (pre === ":") {
+                    prop = strings.decode(data);
+                    data = '';
+                }
+                else {
+                    switch (pre) {
+                        case ",":
+                            push();
+                            break;
+                        case "]":
+                            if (jsonlikes[jsonlikes.length - 1] !== "[") console.warn('数据存在错误！');
+                            if (data) push();
+                            jsonlikes.pop();
+                            parents.pop();
+                            break;
+                        case "}":
+                            if (jsonlikes[jsonlikes.length - 1] !== "{") console.warn("数据存在错误！");
+                            if (prop !== undefined || data) push();
+                            jsonlikes.pop();
+                            parents.pop();
+                            break;
+                    }
+                }
+                if (row) unshift(0, row);
+                if (!jsonlikes.length) continue;
+                if (pre === ']' || pre === '}') {
+                    row = rows.pop();
+                    row = row.replace(/^\s*,/, '');
+                    if (row) rows.push(row);
+                }
+            }
+            continue;
+        }
+        else {
+            var match = /^([\s\S]*?)\:(|\s+[\s\S]*)$/.exec(row);
+            if (match) {
+                if (data) push();
+                if (prop) {
+                    var obj = {};
+                    push(obj);
+                    parents[spacesize] = obj;
+                }
+                var [_, prop, value] = match;
+                value = value.trim();
+                if (value) {
+                    unshift(spacesize + 1, value);
+                }
+                prop = strings.decode(prop);
+                span = spacesize;
+                continue;
+            }
+        }
+
         if (row === "|") {
             rowtype = "|"
             continue;
         }
-        data += row + "\r\n";
+        if (row) data += row + "\r\n";
     }
     if (data) push();
+    while (parents[0] === undefined && parents.length > 0) parents.shift();
     return parents[0];
 }
-function parseYML(text) {
-    text = scan(text);
-}
-module.exports = parseYML;
+module.exports = scan;
