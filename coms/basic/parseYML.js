@@ -132,7 +132,6 @@ var scan = function (text) {
             continue;
         }
         if (!data && /^[\[\{]/.test(row)) {
-            if (data) push();
             var obj = row[0] === "{" ? {} : [];
             push(obj);
             parents.push(obj);
@@ -143,6 +142,7 @@ var scan = function (text) {
         }
 
         if (jsonlikes.length) {
+
             var match = /^\:|[\]\},]|\:[\s\[\{]/.exec(row);
             if (match) {
                 if (match.index > 0) {
@@ -161,13 +161,13 @@ var scan = function (text) {
                             push();
                             break;
                         case "]":
-                            if (jsonlikes[jsonlikes.length - 1] !== "[") console.warn('数据存在错误！');
+                            if (jsonlikes[jsonlikes.length - 1] !== "[") console.warn('数据存在错误！', jsonlikes, pre);
                             if (data) push();
                             jsonlikes.pop();
                             parents.pop();
                             break;
                         case "}":
-                            if (jsonlikes[jsonlikes.length - 1] !== "{") console.warn("数据存在错误！");
+                            if (jsonlikes[jsonlikes.length - 1] !== "{") console.warn("数据存在错误！", jsonlikes, pre);
                             if (prop !== undefined || data) push();
                             jsonlikes.pop();
                             parents.pop();
@@ -177,9 +177,9 @@ var scan = function (text) {
                 if (row) unshift(0, row);
                 if (!jsonlikes.length) continue;
                 if (pre === ']' || pre === '}') {
-                    row = rows.pop();
+                    row = rows.shift();
                     row = row.replace(/^\s*,/, '');
-                    if (row) rows.push(row);
+                    if (row) rows.unshift(row);
                 }
             }
             continue;
