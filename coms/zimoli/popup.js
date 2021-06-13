@@ -40,9 +40,9 @@ var popup_path = function (path = "", parameters, target) {
     if (!popup.go || !popup.prepare) throw new Error("当前环境无法使用");
     // 3 has mask has view control
     var element;
-    if (/^#/.test(path)) {
+    if (/^[#\+]/.test(path)) {
         // mask
-        path = path.replace(/^#/, "");
+        path = path.replace(/^[#\+]/, "");
         var load = function () {
             windowFactory(element);
             setInitialStyle(element);
