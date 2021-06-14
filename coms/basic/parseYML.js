@@ -27,10 +27,6 @@ var scan = function (text) {
         }
         if (!value) value = eval2(data);
         data = '';
-        if (jsonlikes.length) {
-            span = parents.length - 1;
-        }
-        parents = parents.slice(0, span + 1);
         while (parents.length) {
             if (parents[parents.length - 1]) break;
             parents.pop();
@@ -87,7 +83,10 @@ var scan = function (text) {
             rowtype = 0;
             continue;
         }
-        if (!data && !prop && !jsonlikes.length) span = spacesize;
+        if (!data && !prop && !jsonlikes.length) {
+            span = spacesize;
+            parents = parents.slice(0, span + 1);
+        }
 
         row = row.trim();
         if (rowtype === '|') {
@@ -126,6 +125,7 @@ var scan = function (text) {
                 parents = parents.slice(0, spacesize + 1);
             }
             span = spacesize;
+            parents = parents.slice(0, span + 1);
             rowtype = row[0];
             row = row.slice(1);
             unshift(spacesize + 1, row);
@@ -200,6 +200,7 @@ var scan = function (text) {
                 }
                 prop = strings.decode(prop);
                 span = spacesize;
+                parents = parents.slice(0, span + 1);
                 continue;
             }
         }
