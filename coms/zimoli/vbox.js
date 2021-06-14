@@ -175,14 +175,12 @@ function ybox(generator) {
                 _speed(0);
             },
             move(scrolled) {
+                var y = -this.Top();
                 if (scrolled) {
                     var { deltay } = scrolled;
                     __speed = _speed(deltay);
                     scrollY.call(this, -deltay);
-                }
-                var y = -this.Top();
-                if (y === 0 && this.scrollTop <= increaser_t.offsetHeight) {
-                    y = y - this.scrollTop + increaser_t.offsetHeight;
+                    y += deltay;
                 }
                 return { y };
             },
