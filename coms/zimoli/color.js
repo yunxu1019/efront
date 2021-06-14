@@ -41,6 +41,31 @@ var trim3v = function (r, g, b) {
 	return [r, g, b];
 }
 
+var rgb2s = function (r, g, b) {
+	var m = Math.min(r, g, b);
+	if (m) {
+		r -= m;
+		g -= m;
+		b -= m;
+	}
+	return Math.max(r, g, b) / 255;
+};
+var rgb4s = function (r, g, b, s) {
+	var m = Math.min(r, g, b);
+	if (m) {
+		r -= m;
+		g -= m;
+		b -= m;
+	}
+	s = s * 255 / Math.max(r, g, b);
+	if (s) {
+		r *= s;
+		g *= s;
+		b *= s;
+	}
+	return [r, g, b];
+};
+
 // 色相
 function rotate_rgb(RGBA, theta) {
 	var [r, g, b, a] = RGBA;
@@ -284,6 +309,10 @@ extend(color, {
 	contrast(color, ratio) {
 		return doWith(contrast_rgb, color, ratio);
 	},
+	rgb2v,
+	rgb4v,
+	rgb2s,
+	rgb4s,
 	rgb2hsl,
 	hsl2rgb,
 	angle,

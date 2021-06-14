@@ -6,17 +6,7 @@ var xy2c = function (a, x, y) {
 var z2rgb = function (z) {
     var c = color.rotate(sample, z * (Math.PI + Math.PI));
     var [r, g, b] = color.parse(c);
-    var m = Math.min(r, g, b);
-    if (m) {
-        r -= m;
-        g -= m;
-        b -= m;
-    }
-    var t = 255 / Math.max(r, g, b);
-    r = r * t;
-    g = g * t;
-    b = b * t;
-    return [r, g, b];
+    return color.rgb4s(r, g, b, 1);
 };
 var z2c = function (z) {
     return color.stringify(z2rgb(z));
@@ -31,12 +21,7 @@ var rgb2l = function (r, g, b) {
 //     var m = Math.sqrt((r * r + g * g + b * b));
 //     return Math.sqrt((Math.pow(r - m, 2) + Math.pow(g - m, 2) + Math.pow(b - m, 2)) / 3);
 // };
-var rgb2v = function (r, g, b) {
-    r *= .299;
-    g *= .587;
-    b *= .114;
-    return r + g + b;
-};
+var rgb2v = color.rgb2v;
 var rgb2s = function (r, g, b) {
     var u = Math.sqrt((r * r + g * g + b * b) / 3);
     var s = Math.pow(r - u, 2) + Math.pow(g - u, 2) + Math.pow(b - u, 2);
