@@ -66,7 +66,7 @@ var normalize = function (o) {
                 o[k] = v.split(",").map(o => {
                     o = path.normalize(o);
                     if (path.isAbsolute(o)) {
-                        o = fs.realpathSync(o);
+                        if (fs.existsSync(o)) o = fs.realpathSync(o);
                     }
                     return o
                 }).join(",");
