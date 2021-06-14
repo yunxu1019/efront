@@ -6,6 +6,12 @@ var xy2c = function (a, x, y) {
 var z2rgb = function (z) {
     var c = color.rotate(sample, z * (Math.PI + Math.PI));
     var [r, g, b] = color.parse(c);
+    var m = Math.min(r, g, b);
+    if (m) {
+        r -= m;
+        g -= m;
+        b -= m;
+    }
     var t = 255 / Math.max(r, g, b);
     r = r * t;
     g = g * t;
@@ -96,7 +102,7 @@ var c2xy = function (c1, c2) {
 var getCanvas = function (e) {
     return e.getElementsByTagName('canvas')[0];
 };
-var sample = "#ff0000";
+var sample = "#ff4949";
 var buildpad = function (pad, c = sample) {
     var canvas = getCanvas(pad);
     canvas.width = 256;

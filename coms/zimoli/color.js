@@ -3,10 +3,49 @@
  */
 
 var { min, max, sin, cos, round, sqrt, random, PI, abs = a => a < 0 ? -a : a } = Math;
+
+
+var rgb4v = function (r, g, b, v) {
+	v = v - rgb2v(r, g, b);
+	[r, g, b] = trim3v(r, g, b);
+	return [r + v, g + v, b + v];
+};
+
+var trim3v = function (r, g, b) {
+	do {
+		var rest = 0;
+		var count = 1;
+		if (r >= 255) rest += (r - 255) * .299, r = 255, count -= .299;
+		if (g >= 255) rest += (g - 255) * .587, g = 255, count -= .587;
+		if (b >= 255) rest += (b - 255) * .114, b = 255, count -= .114;
+		if (count > 0.01 && rest > 0) {
+			rest = rest / count;
+			if (r < 255) r += rest;
+			if (g < 255) g += rest;
+			if (b < 255) b += rest;
+		}
+	} while (rest > 0);
+	do {
+		var rest = 0;
+		var count = 1;
+		if (r <= 0) rest += r * .299, r = 0, count -= .299;
+		if (g <= 0) rest += g * .587, g = 0, count -= .587;
+		if (b <= 0) rest += b * .114, b = 0, count -= .114;
+		if (count > 0.01 && rest > 0) {
+			rest = rest / count;
+			if (r > 0) r += rest;
+			if (g > 0) g += rest;
+			if (b > 0) b += rest;
+		}
+	} while (rest > 0);
+	return [r, g, b];
+}
+
 // 色相
 function rotate_rgb(RGBA, theta) {
 	var [r, g, b, a] = RGBA;
 	if (isNaN(theta)) return [r, g, b, a];
+	var v = rgb2v(r, g, b);
 	var u = sqrt(3) / 3;
 	var pu = 1 / 3;
 	var cosa = cos(theta);
@@ -33,6 +72,7 @@ function rotate_rgb(RGBA, theta) {
 	red += dr;
 	green += dg;
 	blue += db;
+	[red, green, blue] = rgb4v(red, green, blue, v);
 	return [red, green, blue, a];
 }
 // 对比度
