@@ -7,8 +7,7 @@ var { min, max, sin, cos, round, sqrt, random, PI, abs = a => a < 0 ? -a : a } =
 
 var rgb4v = function (r, g, b, v) {
 	v = v - rgb2v(r, g, b);
-	[r, g, b] = trim3v(r, g, b);
-	return [r + v, g + v, b + v];
+	return trim3v(r + v, g + v, b + v);
 };
 
 var trim3v = function (r, g, b) {
@@ -70,6 +69,7 @@ var rgb4s = function (r, g, b, s) {
 function rotate_rgb(RGBA, theta) {
 	var [r, g, b, a] = RGBA;
 	if (isNaN(theta)) return [r, g, b, a];
+	var s = rgb2s(r, g, b);
 	var v = rgb2v(r, g, b);
 	var u = sqrt(3) / 3;
 	var pu = 1 / 3;
@@ -97,6 +97,7 @@ function rotate_rgb(RGBA, theta) {
 	red += dr;
 	green += dg;
 	blue += db;
+	[red, green, blue] = rgb4s(red, green, blue, s);
 	[red, green, blue] = rgb4v(red, green, blue, v);
 	return [red, green, blue, a];
 }
@@ -286,19 +287,29 @@ var v2rgb = function (v, r, g, b) {
 	return [r, g, b];
 };
 
-var vsp = .587 * 255;
 var gray4 = function (RGBA, S) {
 	var [r, g, b, a] = RGBA;
 	var v = rgb2v(r, g, b);
-	if (v >= vsp) {
-		v = 255
-	} else {
-		v = 255 * 3
+	var s = rgb2s(r, g, b);
+	var p = .587 * 255;
+	if (v < .114 * 255) {
+		v = v - .3 * p + 255;
+		s = .2;
 	}
-	var [r, g, b] = v2rgb(v, r, g, b);
-	return [r, g, b, RGBA[3]];
+	else if (v > .6 * 255) {
+		v = v - p * s - p;
+		s = 1;
+	}
+	else {
+		v = 255;
+	}
+	[r, g, b] = rgb4s(r, g, b, s);
+	[r, g, b] = rgb4v(r, g, b, v);
+	return [r, g, b, a];
 };
 
+
+var random_base = Math.PI * Math.random() * 2;
 extend(color, {
 	setTransformer(transformer) {
 		extend(colorDesigner, transformer);
@@ -327,6 +338,8 @@ extend(color, {
 		return text.replace(colorReg, replacer);
 	},
 	random(base = rotated_base_color) {
-		return rotated_base_color = doWith(rotate_rgb, base, (random() * .4 + .4) * PI)
+		random_base += (random() * .4 + .4) * PI;
+		if (random_base > 2 * PI) random_base -= 2 * PI;
+		return doWith(rotate_rgb, base, random_base);
 	}
 });
