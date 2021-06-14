@@ -556,13 +556,14 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     let replace = loadUseBody(data, fullpath, watchurls, commName);
     var htmlpromise = getFileData(htmlpath)
         .then(function (htmldata) {
+            if (htmldata && !htmldata.length) htmldata = "<!-- efront template -->";
             return renderImageUrl(htmldata, htmlpath);
         });
     var jsData, lessData;
     var time = 0;
     var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(function ([lessdata, htmldata, data]) {
         var timeStart = new Date;
-        if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)?(<!doctype\b|<script\b)/i.test(htmldata)) {
+        if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)*(<!doctype\b|<script\b)/i.test(htmldata)) {
             var commHtmlName;
             if (/^main/.test(commName)) {
                 commHtmlName = 'Main';
