@@ -99,13 +99,9 @@ var detectEnvironment = function () {
             else if (memery.COMM) {
                 coms_path.unshift(memery.COMM);
             }
-            else {
-                coms_path.push('');
-            }
             if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
                 config.comm += ",zimoli";
             }
-
             config.coms_path = coms_path.join(',');
             if (typeof memery.LIBS_PATH === 'string') {
                 libs_path.unshift(memery.LIBS_PATH);
