@@ -78,7 +78,7 @@ module.exports = {
         namemap[path.join(__dirname, '..')] = true;
         namemap[path.join(__dirname, '../basic')] = true;
         namemap[path.join(__dirname, '../typescript-helpers')] = true;
-        String(this.LIBS_PATH || '').split(",").forEach(p => {
+        if (this.LIBS_PATH !== undefined) String(this.LIBS_PATH).split(",").forEach(p => {
             namemap[p] = true;
         });
         return Object.keys(namemap).join(',');

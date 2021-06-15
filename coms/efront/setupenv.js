@@ -84,7 +84,6 @@ var extend = function (dst, env) {
         COMS_PATH: env.COMS_PATH || "",
         PAGE_PATH: env.PAGE_PATH || "",
         APIS_PATH: env.APIS_PATH || "",
-        LIBS_PATH: env.LIBS_PATH || "",
         ICON_PATH: env.ICON_PATH || "",
         PAGE: env.PAGE || "",
         COMM: env.COMM || "",
