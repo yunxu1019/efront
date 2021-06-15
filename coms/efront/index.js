@@ -83,8 +83,9 @@ var detectEnvironment = function () {
                     // 卡木|设施|员|工|匠|子|弟|臣|下|客|器|械|备|库|房|土|基|石|砖
                     if (/node_modules|lib|模块|库/.test(name)) {
                         libs_path.push(name);
+                    } else {
+                        coms_path.push(name);
                     }
-                    coms_path.push(name);
                 } else if (/env|conf|环境|配置|设置/i.test(name)) {
                     env_path.push(name);
                 } else if (/d[ie]st|www|^pub|release|发布|目标|版本|输出|产品|^(?:out|output)$/i.test(name)) {
