@@ -456,6 +456,7 @@ function prepare(filename, fullpath) {
     if (!commName) console.warn("文件名无法生成导出变量！", fullpath);
     commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
+    if (!/\-/.test(className)) className += "- " + className;
     var shortName = className.replace(/^.*?(\w*?)$/g, "$1");
     var lessName = /\s/.test(className) ? className.split(/\s+/)[0] : className;
     if (shortName !== className) className = className + " " + shortName;
