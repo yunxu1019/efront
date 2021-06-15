@@ -167,15 +167,7 @@ function getUrlParamsForApi(api, url) {
 }
 function __seekprop(data, prop) {
     if (!prop) return data;
-    var props = prop.split(".");
-    while (props.length) {
-        var p = props.shift();
-        if (data !== null && data !== undefined && p in data) {
-            data = data[p];
-        } else {
-            return undefined;
-        }
-    }
+    data = seek(data, prop);
     return data;
 }
 function seekResponse(data, seeker, apiMap = {}) {
@@ -294,7 +286,7 @@ var parseData = function (sourceText) {
         sourceText = sourceText.replace(/^[^\(]+\(([\s\S]*)\)[^\)]*$/, "$1");
     }
     try {
-       sourceText= parseYML(sourceText);
+        sourceText = parseYML(sourceText);
     } catch (e) {
         throw "数据无法解析";
     }
