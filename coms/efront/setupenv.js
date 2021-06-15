@@ -42,7 +42,7 @@ var pollyfill = function (dst, appname) {
     if (dst.PAGE === undefined || dst.PAGE === null) dst.PAGE = appname;
     for (var k in dst) {
         var d = Object.getOwnPropertyDescriptor(dst, k);
-        if (!d.writable && !d.set || dst[k] === undefined) continue;
+        if (!d.writable && !d.set || typeof dst[k] !== 'string') continue;
         var bootfull = '';
         if (k in bootConfig) {
             bootfull = path.join(__dirname, "../../", bootConfig[k]);
