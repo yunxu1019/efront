@@ -94,11 +94,8 @@ var detectEnvironment = function () {
                 }
             });
             coms_path.push(':');
-            if (1 === coms_path.length) {
-                coms_path.unshift(memery.COMM || '');
-            }
-            else if (memery.COMM) {
-                coms_path.unshift(memery.COMM);
+            if (memery.COMS_PATH !== undefined) {
+                if (0 > coms_path.indexOf(memery.COMS_PATH)) coms_path.unshift(memery.COMS_PATH);
             }
             if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
                 config.comm += ",zimoli";
@@ -562,15 +559,13 @@ var commands = {
             if (isdir) {
                 setenv({
                     app: memery.APP,
-                    comm: (!/[^\.\\\/]+/.test(app) ? `zimoli,` : app + ',zimoli,')
+                    comm: (app && !/[^\.\\\/]+/.test(app) ? app + ',zimoli,' : `zimoli,`)
                 });
                 require("../build");
             } else {
                 setenv({
                     app,
-                    comm: './,typescript-helpers',
                     public_name: path.basename(f).replace(/\.(\w+)$/, ''),
-                    coms_path: './,' + path.join(__dirname, '../basic') + ',' + path.join(__dirname, '../'),
                 }, false);
                 require("./setupenv");
                 require('../build');
