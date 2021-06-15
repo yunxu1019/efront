@@ -49,7 +49,7 @@ var get = function (name, _default) {
     }
     return _default;
 };
-var noproxy;
+var noproxy, coms_path;
 
 module.exports = {
     compress: !istest,
@@ -70,6 +70,7 @@ module.exports = {
         return noproxy;
     },
     get coms_path() {
+        if (coms_path !== undefined) return coms_path;
         var namemap = Object.create(null);
         var pathname = String(this.COMS_PATH || "");
         pathname.split(',').forEach(p => {
@@ -81,7 +82,8 @@ module.exports = {
         if (this.LIBS_PATH !== undefined) String(this.LIBS_PATH).split(",").forEach(p => {
             namemap[p] = true;
         });
-        return Object.keys(namemap).join(',');
+        coms_path = Object.keys(namemap).join(',');
+        return coms_path;
     },
     EFRONT: false,
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),

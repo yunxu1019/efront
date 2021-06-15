@@ -41,6 +41,8 @@ var pollyfill = function (dst, appname) {
 
     if (dst.PAGE === undefined || dst.PAGE === null) dst.PAGE = appname;
     for (var k in dst) {
+        var d = Object.getOwnPropertyDescriptor(dst, k);
+        if (!d.writable && !d.set || dst[k] === undefined) continue;
         var bootfull = '';
         if (k in bootConfig) {
             bootfull = path.join(__dirname, "../../", bootConfig[k]);
@@ -81,10 +83,6 @@ var bootConfig = {
 
 var extend = function (dst, env) {
     var obj = {
-        COMS_PATH: env.COMS_PATH || "",
-        PAGE_PATH: env.PAGE_PATH || "",
-        APIS_PATH: env.APIS_PATH || "",
-        ICON_PATH: env.ICON_PATH || "",
         PAGE: env.PAGE || "",
         COMM: env.COMM || "",
         AAPI: env.AAPI || "",
@@ -125,3 +123,4 @@ if ("APP" in env) {
     }
     normalize(memery);
 }
+pollyfill(memery);

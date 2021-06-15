@@ -348,7 +348,7 @@ File.prototype[$updateme] = async function () {
 var cache = function (filesroot, rebuild, buffer_size_limit) {
     var sk = function () {
     };
-    filesroot = filesroot.split(",").map(path.normalize);
+    filesroot = String(filesroot || '').split(",").map(path.normalize);
     var map = {};
     var treeslist = filesroot.filter(fs.existsSync).map((froot) => {
         var froot = fs.realpathSync(froot);
