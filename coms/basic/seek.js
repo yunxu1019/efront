@@ -4,7 +4,7 @@ var seek = function (object, seeker) {
         return seeker(object);
     }
     if (typeof seeker === "string") {
-        if (/^(['"`])[\s\S]*$/i.test(seeker)) return seeker.slice(1);
+        if (/^(['"`])[\s\S]*$/i.test(seeker)) return seeker.replace(/^(['"`])([\s\S*])\1?$/, "$2");
         seeker = seeker.split(".");
     }
     if (seeker instanceof Array) {
