@@ -36,14 +36,20 @@ var renderModel = function (field, data) {
 };
 var constructors = {
     input,
+    raw: input,
+    row: textarea,
     text: textarea,
-    date({ field }) {
-        var elem = input();
-        var picker = datepicker(field.options);
-        select(elem, picker);
+    date() {
+        var elem = document.createElement("input");
+        elem.type = "date";
+        elem.renders = [function () {
+            var { data, field } = this.$scope;
+            if (data && field) elem.value = parseDate(data[field.key]);
+        }]
+        input(elem);
         return elem;
     },
-    color(field) {
+    color() {
         return colorpicker();
     },
     title() {
@@ -97,15 +103,11 @@ var constructors = {
     }
 };
 var readonly_types = {
-    "date"(field, data) {
+    "date"({ field }, data) {
         var string = data[field.key];
-        var value = new Date(string);
-        var toFixed = function (a) {
-            return a > 9 ? a : "0" + a;
-        };
-        return +value ? [value.getFullYear(), value.getMonth() + 1, value.getDate()].map(toFixed).join('-') : string;
+        return parseDate(string);
     },
-    "size"(field, data) {
+    "size"({ field }, data) {
         var f = data[field.key];
         return size(f);
     }

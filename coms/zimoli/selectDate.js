@@ -80,7 +80,7 @@ var bindValue = function () {
         return _date;
     };
 }();
-var parseDate = function (dateString = "", dst, default_value) {
+var InternelDate = function (dateString = "", dst, default_value) {
     var dd = dst || bindValue(new Date);
     dateString.replace(REGEXP, function (match) {
         for (var cx = 0, dx = arguments.length - 3; cx < dx; cx++) {
@@ -224,7 +224,6 @@ var render = function (value, models = "年月日", message = "") {
     });
     var _index = model.indexOf(models) + models.length - 1,
         _src_length, _ing;
-    build(_index);
     onclick(container, function (event) {
         var target = event.target;
         if (!target.className) return event.preventDefault();
@@ -274,13 +273,27 @@ var render = function (value, models = "年月日", message = "") {
             event.preventDefault();
         }
     });
+    var update = function () {
+        if (value !== container.value) build(_index);
+        container.value = value;
+    };
+    update();
+    container.update = function (_value) {
+        if (_value instanceof Event) {
+            _value = _value.target.value;
+        }
+        _value = parseDate(_value);
+        _value = InternelDate(_value);
+        value = _value;
+    };
+    on("append")(container, update);
     return container;
 };
 
 function main(models = "年月日", value, title) {
     value = parseDate(value);
+    value = InternelDate(value);
     var datebox = render(value, models, title);
-    datebox.value = value;
     addClass(datebox, 'date-' + models.length);
     onmousedown(datebox, e => e.preventDefault());
     return datebox;

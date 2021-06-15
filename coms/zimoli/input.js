@@ -67,7 +67,9 @@ function input(element) {
                     break;
             }
             if (format) {
-                select(element, selectDate(format, input.value));
+                var picker = selectDate(format, input.value);
+                on("change")(element, picker.update);
+                select(element, picker);
                 element.readonly = "readonly";
             }
         }
