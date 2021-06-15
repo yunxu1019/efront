@@ -83,7 +83,7 @@ var scan = function (text) {
             rowtype = 0;
             continue;
         }
-        if (!data && !prop && !jsonlikes.length) {
+        if (!data && prop === undefined && !jsonlikes.length) {
             span = spacesize;
             parents = parents.slice(0, span + 1);
         }
@@ -187,7 +187,7 @@ var scan = function (text) {
         else {
             var match = /^([\s\S]*?)\:(|\s+[\s\S]*)$/.exec(row);
             if (match) {
-                if (data) push();
+                if (data || span > spacesize) push();
                 if (prop) {
                     var obj = {};
                     push(obj);
