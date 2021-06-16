@@ -383,8 +383,7 @@ var commands = {
             page_path: path.join(__dirname, '../../docs'),
             coms: 'docs,zimoli',
             page: './',
-            apis: 'docs,zimoli',
-            app: ""
+            apis: 'docs,zimoli,third-party'
         });
         require("./setupenv");
         require("../server/main");

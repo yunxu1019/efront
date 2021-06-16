@@ -38,11 +38,16 @@ var setup = module.exports = function (app) {
     return env;
 };
 var pollyfill = function (dst, appname) {
-
     if (dst.PAGE === undefined || dst.PAGE === null) dst.PAGE = appname;
     for (var k in dst) {
         var d = Object.getOwnPropertyDescriptor(dst, k);
-        if (!d.writable && !d.set || typeof dst[k] !== 'string') continue;
+        if (!d.writable && !d.set) continue;
+        if (typeof dst[k] !== 'string') {
+            if (!(k in bootConfig)) {
+                continue;
+            }
+            memery[k] = bootConfig[k];
+        }
         var bootfull = '';
         if (k in bootConfig) {
             bootfull = path.join(__dirname, "../../", bootConfig[k]);
