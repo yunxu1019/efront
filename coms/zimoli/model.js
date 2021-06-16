@@ -107,6 +107,12 @@ var readonly_types = {
         var string = data[field.key];
         return parseDate(string);
     },
+    "url"({ field }, data) {
+        var href = data[field.key];
+        var e = anchor(href, href);
+        e.target = "_blank";
+        return e;
+    },
     "size"({ field }, data) {
         var f = data[field.key];
         return size(f);
