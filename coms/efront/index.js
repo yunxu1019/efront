@@ -381,9 +381,10 @@ var commands = {
         setenv({
             coms_path: path.join(__dirname, "../../coms"),
             page_path: path.join(__dirname, '../../docs'),
-            coms: 'docs,zimoli',
+            apis_path: path.join(__dirname, '../../apis'),
+            coms: 'docs,zimoli,third-party',
             page: './',
-            apis: 'docs,zimoli,third-party'
+            apis: 'docs,zimoli'
         });
         require("./setupenv");
         require("../server/main");
