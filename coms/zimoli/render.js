@@ -124,7 +124,7 @@ var createRepeat = function (search, id = 0) {
 
     var [context, expression] = search;
     var res = parseRepeat(expression);
-    if (!res) throw new Error(`no recognition for repeat expression: ${expression} `);
+    if (!res) throw new Error(`不能识别循环表达式: ${expression} `);
     var { keyName, itemName, indexName, srcName } = res;
     // 懒渲染
     var getter = createGetter([context, srcName]).bind(this);
@@ -182,28 +182,52 @@ var createIf = function (search, id = 0) {
     // 懒渲染
     var getter = createGetter(search).bind(this);
     var element = this;
+    var p = element;
+    loop: while (p.parentNode) {
+        p = p.parentNode;
+        for (var cx = if_top.length - 1; cx >= 0; cx--) {
+            if (if_top[cx].parent === p) {
+                break loop;
+            }
+        }
+    }
+    cx++;
+    var elements = [element, getter];
+    if_top.splice(cx, if_top.length - cx, elements);
     var savedValue;
     var renders = [function () {
-        var result = getter();
-        result = !!result;
-        if (savedValue === result) return;
-        savedValue = result;
-        if (result) {
-            appendChild.before(this, element);
-            element.with = this;
-            if (element.renderid < 0) {
-                element.renderid = id;
-                var w = element.with;
-                delete element.with;
-                element = renderElement(element);
-                element.with = w;
+        var shouldMount = -1;
+        for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
+            var getter = elements[cx + 1];
+            if (!getter || getter()) {
+                shouldMount = cx;
+                break;
             }
-        } else {
-            delete element.with;
-            remove(element);
         }
+        if (savedValue === shouldMount) return;
+        savedValue = shouldMount;
+        for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
+            var element = elements[cx];
+            if (cx === shouldMount) {
+                appendChild.before(this, element);
+                element.with = this;
+                if (element.renderid < 0) {
+                    element.renderid = id;
+                    var w = element.with;
+                    delete element.with;
+                    element = renderElement(element);
+                    element.with = w;
+                }
+            }
+            else {
+                delete element.with;
+                remove(element);
+            }
+        }
+
     }];
     if (this.parentNode) {
+        elements.parent = this.parentNode;
         initialComment.call(this, renders, "if", search[1]);
     } else {
         once("append")(this, initialComment.bind(this, renders, "if", search[1]));
@@ -212,7 +236,7 @@ var createIf = function (search, id = 0) {
 var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     var repeater = parseRepeat(repeatExpression);
     if (!repeater) {
-        throw new Error(`不能识别repeat表达式：${repeat}`);
+        throw new Error(`不能识别循环表达式：${repeat}`);
     }
     var pair = [];
     var rest = [], savedIndex = 0;
@@ -272,10 +296,14 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     };
 };
 
-var createStructure = function ({ name: ifkey, value: ifexp } = {}, { name: forkey, value: repeat } = {}, context) {
+var createStructure = function ({ name: ifkey, key, value: ifexp } = {}, { name: forkey, value: repeat } = {}, context) {
     var element = this;
-    if (!ifexp) return structures.repeat.call(element, [context, repeat]);
-    if (!repeat) return structures.if.call(element, [context, ifexp]);
+    if (!ifkey) return structures.repeat.call(element, [context, repeat]);
+    if (!repeat) return structures[key].call(element, [context, ifexp]);
+    if (!ifexp) {
+        element.removeAttribute(ifkey);
+        return structures[key].call(element, [context, ifexp]);
+    }
     var { before, after } = parseIfWithRepeat(ifexp, repeat);
     if (!after.length) {
         element.removeAttribute(ifkey);
@@ -292,20 +320,27 @@ var createStructure = function ({ name: ifkey, value: ifexp } = {}, { name: fork
     }
 };
 
+var if_top = [];
 var structures = {
     "if"(search) {
         createIf.call(this, search);
     },
+    "else"(search) {
+        var top = if_top[if_top.length - 1];
+        if (!top || top.parent !== this.parentNode) {
+            throw new Error("else,elseif前缺少同级if！");
+        }
+        if (search && search[1]) {
+            var getter = createGetter(search).bind(this);
+        }
+        top.push(this, getter);
+    },
     repeat(search) {
         createRepeat.call(this, search);
     },
-    for(search) {
-        createRepeat.call(this, search);
-    },
-    each(search) {
-        createRepeat.call(this, search);
-    }
 };
+structures["else-if"] = structures.elseif = structures.else;
+structures["for-each"] = structures.foreach = structures.for = structures.each = structures.repeat;
 var changed = function () {
     if (!this.dirty) this.dirty = true, this.setAttribute('dirty', '');
 };
@@ -714,19 +749,21 @@ function renderStructure(element, scope, parentScopes = []) {
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (structures.hasOwnProperty(key) && isFunction(structures[key])) {
             if (element.renderid <= -2) {
-                if (/^if$/i.test(key)) {
+                if (/^if$|^else/i.test(key)) {
                     if (types.if) {
-                        throw new Error(`请不要在同一元素上使用多次if结构!`);
+                        throw new Error(`暂不支持在同一元素上使用多次if结构!`);
                     }
                 } else {
                     if (types.repeat) {
-                        throw new Error(`请不要在同一元素上使用多次repeat类型的属性!`);
+                        throw new Error(`暂不支持在同一元素上使用多次repeat类型的属性!`);
                     }
                 }
             }
-            if (/^if$/i.test(key)) {
+            if (/^if$|^else/i.test(key)) {
                 types.if = attr;
-            } else {
+                attr.key = key;
+            }
+            else {
                 types.repeat = attr;
             }
             if (!element.renderid) element.renderid = -1;
@@ -737,7 +774,8 @@ function renderStructure(element, scope, parentScopes = []) {
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
 function render(element, scope, parentScopes) {
-    return renderElement(element, scope, parentScopes);
+    var e = renderElement(element, scope, parentScopes);
+    return e;
 }
 
 var digest = lazy(refresh, +{});
