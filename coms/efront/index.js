@@ -785,6 +785,7 @@ var argv = process.argv.slice(1).filter(a => {
         restArgv.push(a);
         return;
     }
+    restArgv.push(a);
     a = a.replace(/^--/, '');
     var key, value = '';
     if (/^(no|off|not|is-not|disable)-/.test(a)) {
@@ -802,7 +803,6 @@ var argv = process.argv.slice(1).filter(a => {
     }
     key = key.replace(/\-/g, '_');
     commands.set(key, value);
-    return false;
 }).slice(1);
 var [type, value1, value2, value3] = argv;
 run(type, value1, value2, value3);
