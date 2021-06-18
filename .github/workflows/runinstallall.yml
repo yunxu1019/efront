@@ -9,8 +9,6 @@ on:
       - develop
   schedule:
     - cron:  26 8,16 * * *
-    - cron:  26 16,24 * * *
-    - cron:  26 0,8 * * *
 
 jobs:
 
