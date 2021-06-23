@@ -210,7 +210,7 @@ extend(main, {
         extend(constructors, map);
     },
     setReadors(map) {
-        extend(constructors, map);
+        extend(readonly_types, map);
     },
     setModels(key, map) {
         this.setEditors(key, map);
