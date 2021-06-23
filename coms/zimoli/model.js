@@ -212,10 +212,23 @@ extend(main, {
     setReadors(map) {
         extend(constructors, map);
     },
+    setModels(key, map) {
+        this.setEditors(key, map);
+        this.setReadors(key, map);
+    },
     setEditor(key, func) {
         constructors[key] = func;
     },
     setReador(key, func) {
         readonly_types[key] = func;
     },
+    setModel(key, func) {
+        this.setEditor(key, func);
+        this.setReador(key, func);
+    },
 });
+
+main.setEditers = main.setEditors;
+main.setReaders = main.setReadors;
+main.setReader = main.setReador;
+main.setEditer = main.setEditor;
