@@ -157,7 +157,7 @@ var createRepeat = function (search, id = 0) {
             };
             clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
-            clone = renderElement(clone, $scope, clone.$parentScopes);
+            clone = render(clone, $scope, clone.$parentScopes);
             return clone;
         }, this);
         clonedElements1.forEach(function (a, cx) {
@@ -183,17 +183,18 @@ var createIf = function (search, id = 0) {
     var getter = createGetter(search).bind(this);
     var element = this;
     var p = element;
-    loop: while (p.parentNode) {
+    if (p.parentNode) {
         p = p.parentNode;
-        for (var cx = if_top.length - 1; cx >= 0; cx--) {
+        for (var cx = 0, dx = if_top.length; cx < dx; cx++) {
             if (if_top[cx].parent === p) {
-                break loop;
+                break;
             }
         }
     }
     cx++;
+    if (cx > 0) if_top.splice(cx, if_top.length - cx);
     var elements = [element, getter];
-    if_top.splice(cx, if_top.length - cx, elements);
+    if_top.push(elements);
     var savedValue;
     var renders = [function () {
         var shouldMount = -1;
@@ -215,7 +216,7 @@ var createIf = function (search, id = 0) {
                     element.renderid = id;
                     var w = element.with;
                     delete element.with;
-                    element = renderElement(element);
+                    element = render(element);
                     element.with = w;
                 }
             }
@@ -328,12 +329,13 @@ var structures = {
     "else"(search) {
         var top = if_top[if_top.length - 1];
         if (!top || top.parent !== this.parentNode) {
-            throw new Error("else,elseif前缺少同级if！");
+            throw new Error("else/elseif前缺少同级if！");
         }
         if (search && search[1]) {
             var getter = createGetter(search).bind(this);
         }
         top.push(this, getter);
+        remove(this);
     },
     repeat(search) {
         createRepeat.call(this, search);
@@ -774,7 +776,9 @@ function renderStructure(element, scope, parentScopes = []) {
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
 function render(element, scope, parentScopes) {
+    var if_top_length = if_top.length;
     var e = renderElement(element, scope, parentScopes);
+    if (if_top_length < if_top.length) if_top.splice(if_top_length, if_top.length - if_top_length);
     return e;
 }
 
