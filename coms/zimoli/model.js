@@ -142,16 +142,23 @@ function main(elem) {
             }
             remove(elem.children);
             if (readonly) {
-                elem.innerHTML = '<span ng-bind=get()></span>';
                 if (field_type === "function") {
                     field_editor(elem);
                 } else {
+                    var create = readonly_types[field_type];
+                    if (create) {
+                        var e = create(elem, data, field_ref);
+                        if (isNode(e)) {
+                            appendChild(elem, e);
+                        }
+                        else {
+                            elem.innerHTML = e;
+                        }
+                        return;
+                    }
+                    elem.innerHTML = '<span ng-bind=get()></span>';
                     render(elem, {
                         get() {
-                            var create = readonly_types[field_type];
-                            if (create) {
-                                return create(elem, data, field_ref);
-                            }
                             return seek(data, field.key);
                         }
                     });
