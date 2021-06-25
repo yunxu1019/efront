@@ -78,6 +78,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             .catch(console.error);
     } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
+        require("../efront/isLib").dispose();
         if (memery.EXTT === undefined) memery.EXTT = '.txt';
         console.info("正在编译项目", `<cyan>${PUBLIC_APP}</cyan>`, PUBLIC_APP ? "\r\n" : '');
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
@@ -95,7 +96,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 let temp = path.join(PAGE_PATH, "index.html");
                 if (fs.existsSync(temp)) indexHTML = temp;
                 if (!indexHTML.length) {
-                    indexHTML = path.join(__dirname, "..", "apps/index.html");
+                    indexHTML = path.join(__dirname, "..", "..", "apps/index.html");
                 }
             }
             polyfills = POLYFILL ? [

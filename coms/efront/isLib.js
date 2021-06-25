@@ -30,4 +30,7 @@ function isLib(fullpath) {
     }
     return false;
 }
+isLib.dispose = function () {
+    libs_root.splice(0, libs_root.length);
+};
 module.exports = isLib;
