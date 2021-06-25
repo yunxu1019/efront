@@ -76,9 +76,9 @@ var detectEnvironment = function () {
             }).forEach(function (name) {
                 if (/page|^app|界面|页面|应用|系统/i.test(name)) {
                     // 高屋|瓴|楼|台|宫|阁|殿|庙|堂|会|场|司|衙|门|党|帮|派|族|山|庄|寺|教|家|城|店|军|队|团|师|营|苟
-                    if (config.page_path === undefined) config.page_path = name;
+                    if (memery.page_path === undefined) config.page_path = name;
                 } else if (/^src|source|^code|源|代码/i.test(name)) {
-                    if (config.page_path === undefined) config.page_path = name;
+                    if (memery.page_path === undefined) config.page_path = name;
                     coms_path.push(name);
                 } else if (/node_modules|lib|com|fun|depe|组件|模块|依赖|库|函数/i.test(name)) {
                     // 卡木|设施|员|工|匠|子|弟|臣|下|客|器|械|备|库|房|土|基|石|砖
