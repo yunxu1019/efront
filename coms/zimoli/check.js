@@ -31,7 +31,10 @@ var check = function (data, needs) {
     if (!data) return false;
     if (isObject(needs)) {
         for (var k in needs) {
-            if (!checkValue(seek(data, k), needs[k])) return false;
+            if (/!$/.test(k)) {
+                if (checkValue(seek(data, k.slice(0, k.length - 1)), needs[k])) return false;
+            }
+            else if (!checkValue(seek(data, k), needs[k])) return false;
         }
         return true;
     }
