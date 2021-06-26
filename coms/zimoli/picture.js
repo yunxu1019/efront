@@ -38,6 +38,8 @@ var create = function (url, key) {
     };
     if (!url) return;
     var image = div();
+    if (广告 && !广告.parentNode) appendChild(image, 广告);
+
     if (isObject(url)) {
         if (key) {
             url = seek(url, key);
@@ -378,6 +380,12 @@ var create = function (url, key) {
 };
 
 
+var 广告 = document.createElement("欢迎使用白前看图");
+addClass(广告, 'adv');
+广告.innerHTML = `欢迎使用白前看图 `;
+var alink = anchor('http://efront.cc/baiplay', 'http://efront.cc/baiplay');
+alink.target = "_blank";
+appendChild(广告, alink);
 function picture(url, to = 0, key) {
 
     var images = {};
@@ -466,3 +474,6 @@ function picture(url, to = 0, key) {
     };
     return p;
 }
+picture.closeAdv = function (params) {
+    广告 = null;
+};

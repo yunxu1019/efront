@@ -10,6 +10,7 @@
     background-color: #000;
 }
 
+
 .grid() {
     @mask-color1 : rgba(255, 255, 255, .6);
     @mask-color2 : rgba(0, 0, 0, 0);
@@ -47,6 +48,15 @@
         .grid();
     }
 
+    >.adv {
+        color: #fff9;
+        vertical-align: top;
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+    }
+
     &:after {
         content: "";
         display: block;
@@ -56,6 +66,7 @@
         right: -1px;
         width: auto;
         height: auto;
+        pointer-events: none;
         position: absolute;
     }
 }
