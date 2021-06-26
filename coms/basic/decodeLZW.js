@@ -3,11 +3,40 @@ var _prefix = [];
 var _buff = [];
 var _bitDeep = 9;
 var _half = 0;
+var _addLength = 0;
 function _clear() {
     _bitDeep = 9;
     _dict = [];
 }
-function _readFrom(buff, cx) {
+
+var _readFrom;
+
+function _readFrom2(buff, cx) {
+    var half = _half;
+    var b = 0;
+    var bit = 0;
+    var nextHalf = half + _bitDeep;
+    if (half) {
+        b = buff[cx] >>> half;
+        bit = 8 - half;
+        cx++;
+        nextHalf -= 8;
+    }
+    if (nextHalf >= 8) {
+        nextHalf -= 8;
+        b += buff[cx] << bit;
+        bit += 8;
+        cx++;
+    }
+    if (nextHalf > 0) {
+        b += (buff[cx] << 8 - nextHalf & 0xff) >> 8 - nextHalf << bit;
+    }
+    _half = nextHalf;
+    return [b, cx];
+
+}
+
+function _readFrom1(buff, cx) {
     var half = _half;
     var b = 0;
     var nextHalf = half + _bitDeep;
@@ -30,7 +59,8 @@ function _addDict(d) {
         var dict = _dict;
         d.index = dict.length + 258;
         dict.push(d);
-        if (1 << _bitDeep <= dict.length + 259) {
+        if (1 << _bitDeep <= dict.length + 258 + _addLength) {
+            if (!_addLength && _bitDeep >= 12) return;
             _bitDeep++;
         }
     }
@@ -100,7 +130,9 @@ function _end() {
     return [];
 }
 
-function decodeLZW(buff) {
+function decodeLZW(buff, isBigEndStart) {
+    if (isBigEndStart !== false) _readFrom = _readFrom1, _addLength = 1;
+    else _readFrom = _readFrom2, _addLength = 0;
     var decoded = _pass(buff);
     _end();
     return decoded;
