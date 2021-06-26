@@ -15,6 +15,16 @@ var getResizer = function (event) {
         if (min_area > 0 && min) {
             rect = min;
         }
+        var target = event.target;
+        while (rect && target) {
+            if (target.isMask) break;
+            if (overlap(rect, target) > 0) {
+                if (+getComputedStyle(rect).zIndex < +getComputedStyle(target).zIndex) {
+                    rect = null;
+                }
+            }
+            target = target.parentNode;
+        }
         if (!rect) {
             css("body", {
                 cursor: ""
