@@ -31,7 +31,7 @@ var check = function (data, needs) {
     if (!data) return false;
     if (isObject(needs)) {
         for (var k in needs) {
-            if (!checkValue(data[k], needs[k])) return false;
+            if (!checkValue(seek(data, k), needs[k])) return false;
         }
         return true;
     }
