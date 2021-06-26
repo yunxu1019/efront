@@ -2,10 +2,25 @@ function evalExpress(express) {
     var o = this;
     express = express.replace(refilm_common.eval_reg, function (_, b) {
         if (!b) return parseNumber(_);
-        if (b in o) {
-            return +o[b];
+        switch (b) {
+            case "null":
+            case "Null":
+            case "NULL":
+                return null;
+            case "false":
+            case "False":
+            case "FALSE":
+                return false;
+            case "True":
+            case "true":
+            case "TRUE":
+                return true;
+            case "Infinity":
+                return Infinity;
+            case "NaN":
+                return NaN;
         }
-        return _;
+        return seek(o, b);
     });
     return eval(`${express}`);
 }
