@@ -17,7 +17,8 @@ var compare = function (flag, buff, matchLength) {
     }
     return true;
 };
-function _writeTo(dist, d) {
+var _writeTo;
+function _writeTo1(dist, d) {
     var half = _half;
     var nextHalf = half + _bitDeep;
     if (half) {
@@ -33,6 +34,24 @@ function _writeTo(dist, d) {
     if (1 << _bitDeep <= _dict.length + 259) {
         _bitDeep++;
     }
+}
+function _writeTo2(dist, d) {
+    var half = _half;
+    var nextHalf = half + _bitDeep;
+    if (half) {
+        dist[dist.length - 1] |= (d & (1 << 8 - half) - 1) << half;
+        nextHalf -= 8;
+    }
+    if (nextHalf >= 8) {
+        dist.push(d >>> _bitDeep - nextHalf & 0xff);
+        nextHalf -= 8;
+    }
+    if (nextHalf > 0) dist.push(d >>> _bitDeep - nextHalf);
+    _half = nextHalf;
+    if (1 << _bitDeep <= _dict.length + 258 && _bitDeep < 12) {
+        _bitDeep++;
+    }
+
 }
 function _findDict(prefix) {
     var dict = _dict;
@@ -101,8 +120,10 @@ function _end(dist) {
     return data;
 }
 
-function encodeLZW(buff) {
-    var encoded = _pass(buff)
+function encodeLZW(buff, isBigEndStart) {
+    if (isBigEndStart !== false) _writeTo = _writeTo1;
+    else _writeTo = _writeTo2;
+    var encoded = _pass(buff);
     _end(encoded);
     return encoded;
 }
