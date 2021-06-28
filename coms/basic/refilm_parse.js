@@ -1,3 +1,4 @@
+
 function evalExpress(express) {
     var o = this;
     express = express.replace(refilm_common.eval_reg, function (_, b) {
@@ -235,7 +236,6 @@ function refilm_parse(data, start = 0) {
                 value = numberFromSmallEnd(value);
             }
             else if (/^(string|str)$/i.test(field.type)) {
-                window[field.key] = value;
                 value = bufferToUTF8String(value);
             }
             else if (/^num$|^number$|^int$|^integer$|^float$|^uint$/i.test(field.type)) {
