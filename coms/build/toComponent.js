@@ -6,12 +6,29 @@ var typescript = require("../typescript");
 var path = require("path");
 var _strings = require("../basic/strings");
 var memery = require("../efront/memery");
-var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXPORT_AS, PUBLIC_PATH, include_required } = require("./environment");
+var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXPORT_AS, PUBLIC_PATH } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
 var report = require("./report");
 var isSymbol = require("./isSymbol");
 var isText = require("./isText");
+var getFromTree = function (destMap, reqer) {
+    if (reqer in destMap) return destMap[reqer];
+    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
+        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
+    }
+    reqer = reqer.replace(/^\.?\//, '').replace(/\//g, '$');
+    if (destMap[reqer]) return destMap[reqer];
+    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
+        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
+    }
+    reqer = reqer.replace(/(\.\.\$)+/, '');
+    if (destMap[reqer]) return destMap[reqer];
+    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
+        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
+    }
+
+}
 function toComponent(responseTree) {
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];
     delete responseTree["[]map"];
@@ -108,24 +125,12 @@ function toComponent(responseTree) {
         var setMatchedConstString = function (k, isReq, isProp) {
             if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
             if (k.length < 3) return k;
-            if (include_required && isReq) {
+            if (isReq) {
                 var refer = _strings.decode(k);
                 if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                     var reqer = reqMap[refer];
-                    if (destMap[reqer]) return destMap[reqer];
-                    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
-                        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
-                    }
-                    reqer = reqer.replace(/^\.?\//, '').replace(/\//g, '$');
-                    if (destMap[reqer]) return destMap[reqer];
-                    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
-                        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
-                    }
-                    reqer = reqer.replace(/(\.\.\$)+/, '');
-                    if (destMap[reqer]) return destMap[reqer];
-                    if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
-                        return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
-                    }
+                    var reqed = getFromTree(destMap, reqer);
+                    if (reqed) return reqed;
                     if (reqer in libsTree) {
                         var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
                         k = _strings.encode(libdir);
@@ -242,9 +247,7 @@ function toComponent(responseTree) {
         return warning;
     }
     if (array_map) saveCode([String(array_map.data)], "map");
-    if (include_required) {
-        saveOnly("[]", 'init', 'require');
-    }
+    saveOnly("[]", 'init', 'require');
     var freg = /^function[^\(]*?\(([^\)]+?)\)/;
     strings.map(function (str) {
         return getEfrontKey(`"${str}"`, "string");
@@ -332,9 +335,12 @@ function toComponent(responseTree) {
             required = (required || []).map(k => reqMap[k]);
             var ok = true;
             for (var r of required) {
-                if (!(r in destMap) && (r in responseTree) && responseTree[r].data) {
-                    ok = false;
-                    break;
+                if (!getFromTree(destMap, r)) {
+                    let resp = getFromTree(responseTree, r);
+                    if (resp && resp.data) {
+                        ok = false;
+                        break;
+                    }
                 }
             }
             var errored = module_body.slice(0, module_body.length >> 1).filter(saveGlobal);
