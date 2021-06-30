@@ -159,3 +159,11 @@ function TestSingleQuoteString() {
 function TestDoubleQuoteString() {
 
 }
+
+TestTypeScriptSource();
+function TestTypeScriptSource() {
+    var filepath = path.join(__dirname, "../typescript/index.js");
+    var data = fs.readFileSync(filepath).toString();
+    var data = compile(data, javascript);
+    console.log(data);
+}
