@@ -1,357 +1,371 @@
+var [
+    /*-1 */COMMENT,
+    /* 0 */SPACE,
+    /* 1 */STRAP,
+    /* 2 */STAMP,
+    /* 3 */VALUE,
+    /* 4 */QUOTED,
+    /* 5 */PIECE,
+    /* 6 */EXPRESS,
+    /* 7 */SCOPED,
+] = new Array(20).fill(0).map((_, a) => a - 1);
 
-function createScanner(mark) {
-    if (mark instanceof RegExp) mark = mark.source;
-    var reg = new RegExp(/\\[\s\S]|/.source + mark, 'g');
-    function Scanner(text, index) {
-        reg.lastIndex = index + 1;
-        do {
-            var res = reg.exec(text);
-        } while (res && res[0][0] === "\\");
-        return res ? res.index + res[0].length : text.length;
-    }
-    return Scanner;
-}
-function createPairScanner(pairs, endflag) {
-    var marks = [], source = [], scanners = [];
-    for (var cx = 0, dx = pairs.length; cx < dx; cx += 2) {
-        var m = pairs[cx];
-        if (m instanceof RegExp) source.push(m.source);
-        else source.push(m);
-        marks.push(m);
-        var s = pairs[cx + 1];
-        if (!(s instanceof Function)) var s = createScanner(s);
-        scanners.push(s);
-    }
-    marks.push(endflag);
-    if (endflag instanceof RegExp) endflag = endflag.source;
-    source.push(endflag);
-    var s = new RegExp(/\\[\s\S]|/.source + source.join("|"), "g");
-    var PairScanner = function (text, index) {
-        do {
-            s.lastIndex = index;
-            var r = s.exec(text);
-            if (!r) break;
-            if (/^\\[\s\S]$/.test(text)) continue;
-            var i = -1;
-            for (var cx = 0, dx = marks.length; cx < dx; cx++) {
-                var mark = marks[cx];
-                if (mark instanceof RegExp) {
-                    var m = mark.exec(r[0]);
-                    if (m && m[0] === r[0]) {
-                        i = cx;
+class Program extends Array {
+    COMMENT = COMMENT
+    SPACE = SPACE
+    STAMP = STRAP
+    STAMP = STAMP
+    VALUE = VALUE
+    QUOTED = QUOTED
+    PIECE = PIECE
+    EXPRESS = EXPRESS
+    SCOPED = SCOPED
+    toString() {
+        var lasttype;
+        var result = [];
+        var run = function (o) {
+            switch (o.type) {
+                case QUOTED:
+                    if (!o.length) {
+                        result.push(o.text);
                         break;
                     }
-                } else {
-                    if (m === r[0]) {
-                        i = cx;
-                        break;
+                case SCOPED:
+                    result.push(o.entry);
+                    o.forEach(run);
+                    result.push(o.leave);
+                    break;
+                default:
+                    if ([STRAP, EXPRESS, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, VALUE].indexOf(o.type) >= 0) result.push(" ");
+                    if (o instanceof Object) {
+                        result.push(o.text);
                     }
-                }
+                    else {
+                        result.push(o);
+                    }
             }
-            index = r.index + r[0].length;
-            if (i === scanners.length) break;
-            if (i > 0) index = scanners[i](text, index);
-        } while (i < scanners.length);
-        return r ? index : text.length;
+            lasttype = o.type;
+        };
+        this.forEach(run);
+        return result.join("");
     }
-    return PairScanner;
-}
-var SingleQuoteString = createScanner('\'');
-var DoubleQuoteString = createScanner("\"");
-var Regular = createPairScanner([
-    /\(/, /\)/,
-    /\[/, /\]/
-], /\/\w*/);
-var SingleLineComment = createScanner(/(?=[\r\n])/);
-var MultiLinesComment = createScanner(/\*\//);
-var keywords = new RegExp("^(" + `if,in,do
-var,for,new,try,let
-else,case,void,with,enum,from
-async,while,break,catch,throw,const,yield,class
-return,typeof,delete,switch,export,import
-default,finally,extends
-function,continue,debugger,Infinity
-instanceof`.trim().split(/[\r\n,\s]+/).join("|") + ")$");
-var isKeyWord = function (text) {
-    return keywords.test(text);
-};
-var internal = /^(null|true|false|NaN|Infinity|undefined|this|super|arguments)$/;
-var isInternal = function (text) {
-    return internal.test(text);
-};
-var number = /^[+-]*(\d+\.\d+|\.\d+|\d+)(e\-?\d+)?$/;
-var isNumber = function (text) {
-    return number.test(text);
-};
-var operator = /'"`\/\=\+;\|\:\?\*\<\>\-\[\]\{\}\(\)\!\~@#%\^&\*\,/.source;
-var space = /\r\n\t\s\v\u2028\u2029/.source;
-var programreg = new RegExp(/\\[\s\S]|\/\*|\/\/|['"]|\=\>/.source + `|[${space}]+|[^${space}${operator}]+|[${operator}]`, 'g');
-var spacereg = new RegExp(`^[${space}]+$`);
-var isSpace = function (text) {
-    return spacereg.test(text);
-};
-var puncreg = new RegExp(`^[${operator}]+$`);
-var isPunctuator = function (text) {
-    return puncreg.test(text);
-};
-var TemplateString = createPairScanner([
-    /\$\{/, program,
-], /`/);
-var ScannersMap = {
-    '"': DoubleQuoteString,
-    "'": SingleQuoteString,
-    "//": SingleLineComment,
-    "/*": MultiLinesComment,
-    "`": TemplateString,
-};
-
-
-function Block(typedScanner, start, end) {
-    this.type = typedScanner;
-    this.start = start;
-    this.end = end;
-}
-var prototype = Block.prototype = {
-    SingleQuoteString,
-    DoubleQuoteString,
-    SingleLineComment,
-    MultiLinesComment,
-    TemplateString,
-    Variable,
-    Keyword,
-    Internal,
-    Regular,
-    Expression,
-    Numeric,
-    Punctuator,
-};
-for (let k in prototype) {
-    let p = prototype[k];
-    Object.defineProperty(p, 'name', { value: k });
 }
 
-function Scope(start, curve = [], emitvar = false) {
-    this.start = start;
-    this.curve = curve;
-    this.brace = [];
-    this.parent = null;
-    this.emitvar = emitvar;
-    this.children = [];
-    this.scopes = [];
-    this.exps = [];
-}
+class Javascript {
+    quotes = [
+        [/'/, /'/, /\\[\s\S]/],
+        [/"/, /"/, /\\[\s\S]/],
+        ["/", /\/[imgyu]*/, /\\[\s\S]|\[(\\[\s\S]|[^\]])+\]/],
+        ["`", "`", /\\[\s\S]/, ["${", "}"]],
+    ]
+    comments = [
+        ["//", /(?=[\r\n\u2028\u2029])/],
+        ["/*", "*/"],
+    ]
+    scopes = [
+        ["(", ")"],
+        ["[", "]"],
+        ["{", "}"],
+    ]
+    stamps = "/=+;|:?<>-!~@#%^&*,".split("")
+    value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this)$/
+    transive = /^(new|void|in|typeof|delete|case|return|await|export|default|instanceof|throw|extends)$/
+    straps = `if,in,do
+    var,for,new,try,let
+    else,case,void,with,enum,from
+    async,while,break,catch,throw,const,yield,class,await
+    return,typeof,delete,switch,export,import
+    default,finally,extends
+    function,continue,debugger
+    instanceof`.trim().split(/[\r\n,\s]+/)
+    spaces = ["\\u00a0", " ", "\\t", "\\v", "\\b", "\\r", "\\n", "\\u2028", "\\u2029", "\\u3000"]
+    nocase = false
+    lastIndex = 0
+    compile(s) {
+        return s.replace(/\\[\s\S]|[\[\]\(\)\{\}\+\-\*\?\:\$\^\!\|\>\<\\\/]/g, function (m) {
+            if (m.length > 1) {
+                return m;
+            }
+            return "\\" + m;
+        });
+    }
+    createRegExp(source, g) {
+        source = source.map(s => s instanceof RegExp ? s.source : this.compile(s));
+        var flag = this.nocase ? "i" : "";
+        var s = source.join("|");
+        if (g) return new RegExp(`${s}`, "g" + flag);
+        if (source.length > 1) return new RegExp(`^(${s})$`, flag);
+        return new RegExp(`^${s}$`, flag);
+    }
 
-function Variable() { }
-function Numeric() { }
-function Keyword() { }
-function Punctuator() { }
-function Internal() { }
-function Expression() { }
-var braceStartReg = /[\(\[\{]/;
-var braceEndReg = /[\)\]\}]/;
-var EarlyEndError = new Error("代码意外中止");
-function program(text, index) {
-    var scopes = [];
-    var functions = [];
-    var inExpression = false;
-    var findings = [];
-    var curved;
-    var exps = [];
-    var pretype = null, preprev;
-    var invar = false, inlet = false;
-    var saveOnly = function (type, start, end) {
-        switch (type) {
-            case Expression:
-                var exp = text.slice(start, end);
-                var scope = scopes[scopes.length - 1];
-                if (scope) {
-                    scope.exps.push(exp);
-                }
-                break;
-        }
-    };
-    var save = function (type, start, end) {
-        preprev = pretype;
-        pretype = type;
-        saveOnly(type, start, end);
-    };
-    var saveValue = function (type, start, end) {
-        if (pretype === Scope) closeExpress();
-        save(type, start, end);
-        curved = null;
-        openExpress();
-    };
-
-    var openExpress = function () {
-        inExpression = true;
-    };
-    var closeExpress = function () {
-        var scope = findings[findings.length - 1];
-        if (scope instanceof Scope && scope.curve[1] !== undefined && scope.brace[0] === undefined) {
-            closeScope();
-        }
-        inExpression = false;
-    };
-    var openScope = function (s) {
-        var emitvar = s.emitvar;
-        findings.push(s);
-        var p = emitvar ? scopes[scopes.length - 1] : functions[functions.length - 1];
-        if (p) {
-            p.children.push(s);
-            s.parent = p;
-        }
-        s.inExpression = !emitvar && inExpression;
-        scopes.push(s);
-        if (!emitvar) functions.push(s);
-    };
-    var closeScope = function () {
-        findings.pop();
-        var f = scopes.pop();
-        if (!f.emitvar) functions.pop();
-        f.end = index;
-        save(Scope, f.start, f.end);
-        if (!f.inExpression) closeExpress();
-        else openExpress();
-    };
-    do {
-        programreg.lastIndex = index;
-        var res = programreg.exec(text);
-        if (!res) return index;
-        var r = res[0];
-        index = res.index + r.length;
-        if (r.length < 3 && ScannersMap[r]) {
-            var scanner = ScannersMap[r];
-            var start = res.index;
-            index = scanner(text, index);
-            end = index;
-            if (scanner === MultiLinesComment || scanner === SingleLineComment) {
-                saveOnly(scanner, start, end);
-            } else {
-                saveValue(scanner, start, end);
-            }
-        }
-
-        else if (r === "/") {
-            var isReg = false;
-            if (pretype === Punctuator || !inExpression) {
-                isReg = true;
-            }
-            if (isReg) {
-                index = Regular(text, index);
-                saveValue(Regular, res.index, index);
-            } else {
-                save(Punctuator, res.index, index);
-            }
-        }
-        else if (braceStartReg.test(r)) {
-            var f = findings[findings.length - 1];
-            var n = false;
-            if (f instanceof Scope) {
-                if (r === "(" && f.curve[0] === undefined) {
-                    f.curve[0] = res.index;
-                    inExpression = true;
-                }
-                else if (r === "{" && f.brace[0] === undefined) {
-                    f.brace[0] = res.index;
-                }
-                else {
-                    n = true;
-                }
-            } else {
-                if (curved) {
-                    if (inExpression) {
-                        var s = new Scope(curved[0], curved, false);
-                        s.brace[0] = res.index;
-                        openScope(s);
-                    }
-                }
-                else {
-                    n = true;
-                }
-            }
-            if (n) {
-                findings.push(res.index);
-            }
-        }
-        else if (braceEndReg.test(r)) {
-            if (!findings.length) return index;
-            var f = findings[findings.length - 1];
-            if (f instanceof Scope) {
-                if (r === ')') {
-                    f.curve[1] = index;
-                    if (f.lead === 'do') closeScope();
-                }
-                else if (r === '}') {
-                    f.brace[1] = index;
-                    if (f.lead !== 'do') closeScope();
-                }
-            } else {
-                var cstart = findings.pop();
-                if (r === ")") {
-                    curved = [cstart, index];
-                }
-            }
-        }
-        else switch (r) {
-            case "for":
-            case "if":
-            case "switch":
-            case "with":
-            case "while":
-            case "do":
-            case "try":
-            case "catch":
-            case "finaly":
-                var emitvar = true;
-            case "async":
-            case "function":
-                curved = undefined;
-                pretype = Keyword;
-            case "=>":
-                pretype = Punctuator;
-                var s = new Scope(res.index, curved, emitvar);
-                s.lead = r;
-                openScope(s);
-                break;
-            case "var":
-                invar = true;
-            case "let":
-            case "const":
-                inlet = true;
-            default: if (isPunctuator(r)) {
-                save(Punctuator, res.index, index);
-                if (/;/.test(r)) {
-                    closeExpress();
-                } else {
-                    openExpress();
-                }
-            }
-            else if (isKeyWord(r)) {
-                save(Keyword, res.index, index);
-                closeExpress();
-            }
-            else if (isNumber(r)) {
-                saveValue(Numeric, res.index, index);
-            }
-            else if (isInternal(r)) {
-                saveValue(Internal, res.index, index);
+    exec(text) {
+        if (!this.entry_reg) this.commit();
+        var index = this.lastIndex;
+        var parents = [];
+        var lasttype;
+        var queue = new Program;
+        var save = function (type) {
+            if (lasttype === STAMP && type === STAMP) {
+                scope.end = end;
+                scope.text = text.slice(scope.start, scope.end);
             }
             else {
-                if (!isSpace(r)) {
-                    saveValue(Expression, res.index, index);
-                }
+                lasttype = type;
+                queue.push({
+                    type,
+                    start,
+                    end,
+                    text: m
+                });
             }
+        };
+        var get4uncomment = function (list) {
+            var dist = [];
+            for (var cx = list.length - 1; cx >= 0; cx--) {
+                var u = list[cx];
+                if (u.type === COMMENT || u.type === SPACE) continue;
+                dist.unshift(u);
+                if (dist.length >= 4) break;
+            }
+            return dist;
+        };
+        loop: while (index < text.length) {
+            var reg = this.entry_reg;
+            var start = reg.lastIndex = index;
+            var match = reg.exec(text);
+            if (!match) return null;
+            var end = match[0].length + match.index;
+            this.lastIndex = index = end;
+            var m = match[0];
+            var parent = parents[parents.length - 1];
+            if (parent && this.quote_map[parent.entry] && queue.leave_map[m] === queue.entry) {
+                delete queue.leave_map;
+                queue.end = end;
+                queue.leave = m;
+                queue = parents.pop();
+                continue;
+            }
+            test: if (this.quote_map.hasOwnProperty(m) || queue.type === QUOTED) {
+                let list = get4uncomment(queue);
+                if (queue.type !== QUOTED && this.stamp_reg.test(m) && list.length > 0) {
+                    let last = list[list.length - 1];
+                    if (last.type === VALUE || last.type === EXPRESS || last.type === QUOTED) break test;
+                    let prev = list[list.length - 2];
+                    if (last.type === SCOPED) switch (last.entry) {
+                        case "[":
+                            break;
+                        case "{":
+                            if (list.length < 2) {
+                                if (!parents.length) break;
+                                let parent = parents[parents.length - 1];
+                                if (parent.entry === "(" || parent.entry === "[") break test;
+                                break;
+                            }
+                            if (prev.type === STAMP) break test;
+                            if (prev.type === STRAP) {
+                                if (this.transive.test(prev.text)) break test;
+                                break;
+                            }
+                            var prev2 = queue[queue.length - 2];
+                            if (prev2.type === STAMP && prev2.text !== ";") {
+                                break;
+                            }
+                            break;
+                        case "(":
+                            if (list.length < 2) break test;
+                            if (prev.type === STRAP) {
+                                if (/^(if|for|with|switch|while|catch)$/.test(prev.text)) break;
+                            }
+                            break test;
+                    }
+                }
+                if (queue.type === QUOTED) {
+                    var quote = this.quote_map[queue.entry];
+                    var scope = {};
+                    scope.type = PIECE;
+                } else {
+                    var scope = [];
+                    var quote = this.quote_map[m];
+                    scope.type = this.comment_entry.test(m) ? COMMENT : QUOTED;
+                }
+                scope.start = start;
+                var reg = quote.reg;
+                queue.push(scope);
+                parents.push(queue);
+                queue = scope;
+                while (index < text.length) {
+                    reg.lastIndex = index;
+                    var match = reg.exec(text);
+                    if (!match) {
+                        index = text.length;
+                        break;
+                    }
+                    var m1 = m;
+                    var m = match[0];
+                    index = this.lastIndex = match.index + m.length;
+                    if (quote.length === 2) {
+                        break;
+                    }
+                    if (quote.end.test(m)) {
+                        break;
+                    }
+                    if (quote.length === 3) {
+                        continue;
+                    }
+                    if (quote.length >= 4) {
+                        var scope = [];
+                        scope.entry = m;
+                        scope.type = SCOPED;
+                        scope.start = match.index;
+                        scope.leave_map = quote.leave;
+                        start = queue.start + queue.entry.length;
+                        end = match.index;
+                        m = text.slice(start, end);
+                        save(PIECE);
+                        queue.entry = m1;
+                        queue.push(scope);
+                        parents.push(queue);
+                        queue = scope;
+                        continue loop;
+                    }
+                }
+                if (queue.type === PIECE) {
+                    queue.text = text.slice(queue.start, match.index);
+                    queue.end = match.index;
+                    queue = parents.pop();
+                    queue.leave = m;
+                } else {
+                    queue.end = index;
+                    queue.text = text.slice(queue.start, index);
+                }
+                queue = parents.pop();
+                continue;
+            }
+            if (this.space_reg.test(m)) {
+                if (/^[\r\n\u2028\u2029]/.test(m)) {
+                    m = m.replace(/\r\n|\r|\n/g, "\r\n");
+                    save(SPACE);
+                }
+                lasttype = SPACE;
+                continue;
+            }
+            if (this.strap_reg.test(m)) {
+                save(STRAP);
+                continue;
+            }
+            if (this.value_reg.test(m)) {
+                save(VALUE);
+                continue;
+            }
+            if (this.express_reg.test(m)) {
+                save(EXPRESS);
+                continue;
+            }
+
+            if (this.scope_entry[m]) {
+                var scope = [];
+                scope.entry = m;
+                scope.type = SCOPED;
+                queue.push(scope);
+                parents.push(queue);
+                queue = scope;
+                scope.start = match.index;
+                continue;
+            }
+            if (this.scope_leave[m] && queue.entry === this.scope_leave[m]) {
+                queue.end = end;
+                queue.leave = m;
+                queue = parents.pop();
+                continue;
+            }
+
+            if (this.stamp_reg.test(m)) {
+                save(STAMP);
+            }
+
         }
-    } while (index < text.length);
+        return queue;
+    }
+    commit() {
+        this.strap_reg = this.createRegExp(this.straps);
+        this.comment_entry = this.createRegExp(this.comments.map(m => m[0]));
+        var stamps = this.stamps.join("");
+        stamps = this.compile(stamps);
+        this.stamp_reg = new RegExp(`^[${stamps}]$`);
+        var tokens = {};
+        var quote_map = {};
+        this.quote_map = quote_map;
+        var quoteslike = this.comments.concat(this.quotes);
+        quoteslike.forEach(q => {
+            var a = q[0];
+            if (a instanceof RegExp) a = a.source;
+            if (a.length === 1) tokens[a] = true;
+            var r = q.slice(2).concat(q[1]).map(q => {
+                if (q instanceof Array) {
+                    return this.compile(q[0]);
+                }
+                if (q instanceof RegExp) {
+                    return q.source;
+                }
+                return this.compile(q);
+            }).join("|");
+            q.reg = new RegExp(r, 'g');
+            q.end = this.createRegExp([q[1]]);
+            if (q.length >= 4) {
+                var map = q.entry = {};
+                var end = q.leave = {};
+                q.slice(3).forEach(k => {
+                    var [a, b] = k;
+                    map[a] = b;
+                    end[b] = a;
+                    tokens[b] = true;
+                    tokens[a] = true;
+                });
+            }
+            quote_map[a] = q;
+        });
+        var scope_entry = {};
+        this.scope_entry = scope_entry;
+        this.scope_leave = {};
+        var scope_leave = this.scope_leave;
+        this.scopes.forEach(s => {
+            var [a, b] = s;
+            scope_entry[a] = b;
+            scope_leave[b] = a;
+            tokens[a] = true;
+            tokens[b] = true;
+        });
+        this.stamps.forEach(s => {
+            tokens[s] = true;
+        });
+        this.spaces.forEach(s => {
+            tokens[s] = true;
+        });
+        var keys = Object.keys(tokens).join("");
+        keys = this.compile(keys);
+        var express = `[^${keys}]+`;
+        this.express_reg = new RegExp(`^${express}$`);
+        var scopes = this.scopes.map(a => a.join("")).join("");
+        scopes = this.compile(scopes);
+        var spaces = this.spaces.join("");
+        spaces = this.compile(spaces);
+        this.space_reg = new RegExp(`^[${spaces}]+$`);
+        var quotes = this.createRegExp(quoteslike.map(q => q[0]), true).source;
+        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${express}|[${stamps}]`], "g");
+    }
+
+
 }
 
+var program = new Javascript;
 function javascript(text, lastIndex = 0) {
-    program(text, lastIndex);
+    program.lastIndex = lastIndex;
+    return program.exec(text);
 }
 
 function scan(text) {
-    var res = javascript(String(text), 0);
-    console.log(res)
+    var res = javascript(text, 0);
+    return res;
 }
 
 
