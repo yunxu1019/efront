@@ -32,6 +32,7 @@ class Program extends Array {
                     }
                 case SCOPED:
                     result.push(o.entry);
+                    lasttype = SCOPED;
                     o.forEach(run);
                     result.push(o.leave);
                     break;
@@ -106,6 +107,7 @@ class Javascript {
         var queue = new Program;
         var save = function (type) {
             if (lasttype === STAMP && type === STAMP) {
+                var scope = queue[queue.length - 1];
                 scope.end = end;
                 scope.text = text.slice(scope.start, scope.end);
             }
@@ -143,6 +145,7 @@ class Javascript {
                 queue.end = end;
                 queue.leave = m;
                 queue = parents.pop();
+                lasttype = queue.type;
                 continue;
             }
             test: if (this.quote_map.hasOwnProperty(m) || queue.type === QUOTED) {
@@ -188,6 +191,7 @@ class Javascript {
                     var quote = this.quote_map[m];
                     scope.type = this.comment_entry.test(m) ? COMMENT : QUOTED;
                 }
+                lasttype = scope.type;
                 scope.start = start;
                 var reg = quote.reg;
                 queue.push(scope);
@@ -225,6 +229,7 @@ class Javascript {
                         queue.entry = m1;
                         queue.push(scope);
                         parents.push(queue);
+                        lasttype = scope.type;
                         queue = scope;
                         continue loop;
                     }
@@ -239,6 +244,7 @@ class Javascript {
                     queue.text = text.slice(queue.start, index);
                 }
                 queue = parents.pop();
+                lasttype = queue.type;
                 continue;
             }
             if (this.space_reg.test(m)) {
@@ -270,12 +276,14 @@ class Javascript {
                 parents.push(queue);
                 queue = scope;
                 scope.start = match.index;
+                lasttype = scope.type;
                 continue;
             }
             if (this.scope_leave[m] && queue.entry === this.scope_leave[m]) {
                 queue.end = end;
                 queue.leave = m;
                 queue = parents.pop();
+                lasttype = queue.type;
                 continue;
             }
 
