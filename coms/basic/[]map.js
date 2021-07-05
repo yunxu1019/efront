@@ -7,7 +7,7 @@ var {
 } = this;
 
 function map(f, o) {
-    var res = Array(this.length);
+    var res = new this.constructor(this.length);
     if (!(f instanceof Function)) return res;
     if (this instanceof String) {
         res = this.split("").map(f, o);
@@ -31,7 +31,7 @@ function forEach(f, o) {
 }
 function filter(f, o) {
     if (!(f instanceof Function)) return;
-    var result = [];
+    var result = new this.constructor;
     if (this instanceof String) {
         result = this.split("").filter(f, o);
     }
