@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
 
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "scanner2",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/coms/compile/scanner2_test.js"
+        },
         {
             "type": "node",
             "request": "launch",
