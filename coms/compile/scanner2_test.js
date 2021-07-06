@@ -14,7 +14,7 @@ function test(parser, name) {
 var scanner = require("./scanner2");
 var esprima = require("../esprima/index");
 var scanned = test(scanner, 'scanner2');
-console.log(scanned.toString().slice(0, 1600));
+console.log(scanned.toScoped());
 test(esprima.parse, 'esprima.parse');
 test(esprima.tokenize, 'esprima.tokenize');
 

@@ -12,6 +12,116 @@ var [
     /* 9 */PROPERTY,
 ] = new Array(20).fill(0).map((_, a) => a - 1);
 
+var saveTo = function (used, k, o) {
+    if (!used[k]) used[k] = [];
+    used[k].push(o);
+};
+
+var mergeTo = function (used, used0) {
+    for (var k in used0) {
+        var v = used0[k];
+        for (var s of v) saveTo(used, k, s);
+    }
+};
+
+var skipAssignment = function (o) {
+    loop: while (o) switch (o.type) {
+        case STAMP:
+            switch (o.text) {
+                case ",":
+                case ";":
+                    break loop;
+                case "++":
+                case "--":
+                    o = o.next;
+                    if (!o) break loop;
+                    if (o.type !== STAMP) {
+                        o = o.next;
+                        break loop;
+                    }
+                    break;
+                default:
+                    o = o.next;
+            }
+            break;
+        case SCOPED:
+            if (o.entry === "{") break loop;
+            o = o.next;
+            break;
+        case EXPRESS:
+            if (/\.$/.test(o.text)) {
+                o = o.next;
+                break;
+            }
+        case VALUE:
+        case QUOTED:
+            o = o.next;
+            if (!o) break loop;
+            if (o.type === SCOPED && o.entry !== "{") break;
+            if (o.type === EXPRESS) {
+                if (/^\./.test(o.text)) break;
+                break loop;
+            }
+            if (o.type === STRAP) {
+                if (/^(in|instanceof|extends)$/i.test(o.text)) break;
+                break loop;
+            }
+            if (o.type !== STAMP) break loop;
+
+            break;
+        case STRAP:
+            if (!o.isExpress) break loop;
+            if (o.text === "class") {
+                o = o.next;
+                while (o && !o.isClass) o = o.next;
+                while (o && o.isClass) o = o.next;
+                break;
+            }
+            if (o.text === "function") {
+                o = o.next;
+                if (o && o.type === EXPRESS) o = o.next;
+                if (o) o = o.next;
+                if (o) o = o.next;
+                break;
+            }
+            o = o.next;
+            break;
+        default:
+            o = o.next;
+    }
+    return o;
+};
+var getDeclared = function (o) {
+    var declared = {}, used = {};
+    loop: while (o) {
+        switch (o.type) {
+            case EXPRESS:
+                declared[o.text] = true;
+                saveTo(used, o.text, o);
+                o = o.next;
+                break;
+            case SCOPED:
+                var [d, u] = getDeclared(o.first);
+                mergeTo(used, u);
+                Object.assign(declared, d);
+                o = o.next;
+                break;
+            case STAMP:
+                if (o.text === "=") {
+                    o = skipAssignment(o.next);
+                    break;
+                }
+                if (o.text === ";") break loop;
+                if (o.text !== ",") break loop;
+                o = o.next;
+                break;
+            default:
+                break loop;
+        }
+    }
+    return [declared, used, o];
+}
+
 class Program extends Array {
     COMMENT = COMMENT
     SPACE = SPACE
@@ -67,6 +177,182 @@ class Program extends Array {
         };
         this.forEach(run);
         return result.join("");
+    }
+    toScoped() {
+        var root = this;
+        var used = {}; var vars = {}, lets = {};
+        var run = function (o, index) {
+            while (o) {
+                var isFunction = false;
+                var isScope = false;
+                check: switch (o.type) {
+                    case QUOTED:
+                    case STAMP:
+                        break;
+                    case EXPRESS:
+                        var u = o.text.split(".")[0];
+                        if (!u || program.value_reg.test(u)) break;
+                        if (o.next && o.next.type === STAMP && o.next.text === "=>") {
+                            isScope = true;
+                            isFunction = true;
+                        }
+                        else {
+                            saveTo(used, u, o);
+                        }
+                        break;
+                    case LABEL:
+                        var name = o.text;
+                        name = name.slice(0, name.length - 1);
+                        vars[name] = true;
+                        saveTo(used, name, o);
+                        break;
+
+                    case STRAP:
+                        var s = o.text;
+                        switch (s) {
+                            case "var":
+                            case "import":
+                                var m = vars;
+                            case "let":
+                            case "const":
+                                m = m || lets;
+                                var [declared, used0, o0] = getDeclared(o.next);
+                                o = o0;
+                                mergeTo(used, used0);
+                                Object.assign(m, declared);
+                                break check;
+                            case "function":
+                                isFunction = true;
+                            case "class":
+                                if (!o.isExpress) {
+                                    o = o.next;
+                                    if (o.type === EXPRESS) {
+                                        vars[o.text] = true;
+                                        saveTo(used, o.text, o);
+                                        o = o.next;
+                                    }
+                                }
+                                isScope = true;
+                                break;
+
+                        }
+                        break;
+                    case SCOPED:
+                        if (o.entry === "(") {
+                            if (o.next && o.next.type === STAMP && o.next.text === "=>"
+                                || o.prev && o.prev.type === PROPERTY) {
+                                isFunction = true;
+                                isScope = true;
+                            }
+                            else if (!o.isExpress) {
+                                isScope = true;
+                            }
+                            else {
+                                run(o.first);
+                            }
+                        }
+                        else if (o.entry === "{") {
+                            isScope = true;
+                        }
+                        else {
+                            run(o.first);
+                        }
+                        break;
+                }
+                if (isScope) {
+                    var u = used;
+                    var l = lets;
+                    var v = vars;
+                    used = {};
+                    lets = {};
+                    vars = {};
+                    if (o.next && o.next.type === STAMP && o.next.text === "=>");
+                    else if (o.isExpress && o.type !== SCOPED) {
+                        o = o.next;
+                        if (o.type === EXPRESS) {
+                            vars[o.text] = true;
+                            saveTo(used, o.text, o);
+                            o = o.next;
+                        }
+                    }
+                    while (o.type !== SCOPED) {
+                        if (o.next && o.next.type === STAMP && o.next.text === "=>") break;
+                        o = run(o, 0);
+                        o = o.next;
+                    }
+                    if (o.entry === "(") {
+                        if (isFunction) {
+                            var [declared, used0] = getDeclared(o.first);
+                            mergeTo(used, used0);
+                            Object.assign(vars, declared);
+                        }
+                        else {
+                            run(o.first);
+                        }
+                        o = o.next;
+                        if (o.type === STAMP && o.text === "=>") o = o.next;
+                    }
+                    else if (o.next && o.next.type === STAMP && o.next.text === "=>") {
+                        vars[o.text] = true;
+                        saveTo(used, o.text, o);
+                        o = o.next.next;
+                    }
+                    if (!o) break;
+                    if (o.type === SCOPED) {
+                        run(o.first);
+                    }
+                    else {
+                        do {
+                            if (o.type === STAMP && o.text === ";") break;
+                            o = run(o, 0);
+                            var next = o.next;
+                            if (!next) break;
+                            if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) || ~[EXPRESS, VALUE, QUOTED, SCOPED].indexOf(o.type)) {
+                                if (~[EXPRESS, VALUE, QUOTED, PROPERTY, LABEL].indexOf(next.type)) break;
+                                if (next.type === SCOPED && next.entry === "{") break;
+                            }
+                            o = next;
+                        } while (o);
+                    }
+
+                    if (isFunction) {
+                        o.used = used;
+                        Object.assign(vars, lets);
+                        o.vars = vars;
+                        var map = vars;
+                    }
+                    else {
+                        Object.assign(v, vars);
+
+                        o.lets = lets;
+                        o.used = used;
+                        var map = lets;
+                    }
+
+                    used = u;
+                    lets = l;
+                    vars = v;
+                    for (var k in o.used) {
+                        if (!(k in map)) {
+                            for (var u of o.used[k]) {
+                                saveTo(used, k, u);
+                            }
+                        }
+                    }
+                }
+                if (index >= 0) break;
+                if (o) o = o.next;
+            }
+            return o;
+        };
+        run(this.first);
+        for (var k in lets) {
+            used[k].declared = true;
+        }
+        for (var k in vars) {
+            used[k].declared = true;
+        }
+        return used;
     }
 }
 
@@ -221,11 +507,10 @@ class Javascript {
         var isProperty = function () {
             var prev = queue.lastUncomment;
             if (queue.isObject) {
-                return !prev || prev.type === STAMP && prev.text === ","
+                return !prev || prev.type === STAMP && prev.text === "," || prev.type === PROPERTY && /^(get|set)$/.test(prev.text);
             }
             if (queue.isClass) {
-                return !prev || prev.type === EXPRESS && prev.text !== "." || ~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type) || prev.type === STAMP && prev.text === ";"
-                    || prev.type === STRAP && /^(\+\+|\-\-|;)$/.test(prev.text);
+                return !prev || prev.type === EXPRESS && !/\.$/.test(prev.text) || ~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type) || prev.type === STAMP && /^(\+\+|\-\-|;)$/.test(prev.text);
             }
             return false;
         };
@@ -368,6 +653,7 @@ class Javascript {
                     }
                 }
                 else {
+                    scope.isExpress = queue.inExpress;
                     scope.inExpress = true;
                 }
 
