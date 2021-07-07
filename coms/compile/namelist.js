@@ -93,6 +93,7 @@ function create(n, length) {
 }
 function namelist(count, prevent) {
     var dist = [];
+    if (!prevent) prevent = {};
     for (var cy = 0, dy = counts.length; cy < dy; cy++) {
         if (count <= 0) break;
         var limit = counts[cy];
