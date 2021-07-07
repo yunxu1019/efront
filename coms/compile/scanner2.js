@@ -258,6 +258,10 @@ class Program extends Array {
                 var isScope = false;
                 switch (o.type) {
                     case QUOTED:
+                        if (o.length) {
+                            run(o.first);
+                        }
+                        break;
                     case STAMP:
                         break;
                     case EXPRESS:
