@@ -179,8 +179,7 @@ class Program extends Array {
         return result.join("");
     }
     toScoped() {
-        var root = this;
-        var used = {}; var vars = {}, lets = {};
+        var used = {}; var vars = {}, lets = {}; var scoped = [];
         var run = function (o, index) {
             while (o) {
                 var isFunction = false;
@@ -260,12 +259,14 @@ class Program extends Array {
                         break;
                 }
                 if (isScope) {
-                    var u = used;
-                    var l = lets;
-                    var v = vars;
+                    var _used = used;
+                    var _lets = lets;
+                    var _vars = vars;
+                    var _scoped = scoped;
                     used = {};
                     lets = {};
                     vars = {};
+                    scoped = [];
                     if (o.next && o.next.type === STAMP && o.next.text === "=>");
                     else if (o.isExpress && o.type !== SCOPED) {
                         o = o.next;
@@ -322,20 +323,21 @@ class Program extends Array {
                         var map = vars;
                     }
                     else {
-                        Object.assign(v, vars);
-
+                        Object.assign(_vars, vars);
                         o.lets = lets;
                         o.used = used;
                         var map = lets;
                     }
-
-                    used = u;
-                    lets = l;
-                    vars = v;
+                    o.scoped = scoped;
+                    used = _used;
+                    lets = _lets;
+                    vars = _vars;
+                    scoped = _scoped;
+                    scoped.push(o);
                     for (var k in o.used) {
                         if (!(k in map)) {
-                            for (var u of o.used[k]) {
-                                saveTo(used, k, u);
+                            for (var _used of o.used[k]) {
+                                saveTo(used, k, _used);
                             }
                         }
                     }
@@ -346,13 +348,10 @@ class Program extends Array {
             return o;
         };
         run(this.first);
-        for (var k in lets) {
-            used[k].declared = true;
-        }
-        for (var k in vars) {
-            used[k].declared = true;
-        }
-        return used;
+        scoped.used = used;
+        scoped.vars = vars;
+        scoped.lets = lets;
+        return scoped;
     }
 }
 
@@ -646,7 +645,7 @@ class Javascript {
                     }
                     else if (!queue.lastUncomment || ~[STAMP, STRAP].indexOf(queue.lastUncomment.type)) {
                         scope.inExpress = queue.inExpress;
-                        if (queue.lastUncomment.text !== "=>") scope.isObject = scope.inExpress;
+                        if (queue.lastUncomment && queue.lastUncomment.text !== "=>") scope.isObject = scope.inExpress;
                     }
                     else {
                         scope.inExpress = false;
