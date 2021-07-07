@@ -1,4 +1,6 @@
-var [
+var createNamelist = require("./namelist");
+
+const [
     /*-1 */COMMENT,
     /* 0 */SPACE,
     /* 1 */STRAP,
@@ -45,7 +47,7 @@ var skipAssignment = function (o) {
             }
             break;
         case SCOPED:
-            if (o.entry === "{") break loop;
+            if (!o.isObject && o.entry === "{") break loop;
             o = o.next;
             break;
         case EXPRESS:
@@ -63,7 +65,7 @@ var skipAssignment = function (o) {
                 break loop;
             }
             if (o.type === STRAP) {
-                if (/^(in|instanceof|extends)$/i.test(o.text)) break;
+                if (/^(in|of|as|instanceof|extends)$/i.test(o.text)) break;
                 break loop;
             }
             if (o.type !== STAMP) break loop;
@@ -91,24 +93,61 @@ var skipAssignment = function (o) {
     }
     return o;
 };
+
+var needBreak = function (prev, next) {
+    if (!prev || !next) return;
+    if (prev.type === STAMP && /^[,;]$/.test(prev.text)) return;
+    if (next.type === STAMP && /^[,;]$/.test(next.text)) return;
+    if (prev.type === EXPRESS && /\.$/.test(prev.text)) return;
+    if (next.type === EXPRESS && /^\./.test(next.text)) return;
+    if (next.type === PROPERTY) return ";";
+    if (
+        [EXPRESS, VALUE, QUOTED].indexOf(prev.type) >= 0
+        || prev.type === STAMP && /^(\+\+|\-\-)$/.test(prev.text)
+        || prev.type === SCOPED && (prev.isExpress || prev.isObject)
+    ) {
+        if ([EXPRESS, VALUE, QUOTED, LABEL].indexOf(next.type) >= 0) return ";";
+        if (next.type === STRAP) {
+            if (!/^(in|of|extends|instanceof|as)$/.test(next.text)) return ";";
+            return " ";
+        }
+        if (next.type === SCOPED) {
+            if (!next.isExpress) return ";";
+        }
+        return;
+    }
+    if (prev.type === STRAP) {
+        if ([STRAP, EXPRESS, VALUE, QUOTED].indexOf(next.type) >= 0) return " ";
+        if (next.type === LABEL) return ";";
+    }
+};
+
 var getDeclared = function (o) {
-    var declared = {}, used = {};
+    var declared = {}, used = {}; var skiped = [];
     loop: while (o) {
         switch (o.type) {
             case EXPRESS:
+
                 declared[o.text] = true;
                 saveTo(used, o.text, o);
                 o = o.next;
                 break;
             case SCOPED:
-                var [d, u] = getDeclared(o.first);
+                var [d, u, _, s] = getDeclared(o.first);
+                while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
                 mergeTo(used, u);
                 Object.assign(declared, d);
                 o = o.next;
                 break;
             case STAMP:
                 if (o.text === "=") {
-                    o = skipAssignment(o.next);
+                    o = o.next;
+                    var o0 = skipAssignment(o);
+                    do {
+                        skiped.push(o);
+                        o = o.next;
+                    } while (o !== o0);
+                    o = o0;
                     break;
                 }
                 if (o.text === ";") break loop;
@@ -119,8 +158,26 @@ var getDeclared = function (o) {
                 break loop;
         }
     }
-    return [declared, used, o];
+    return [declared, used, o, skiped];
 }
+
+var compress = function (scoped, prevent) {
+    var { lets, vars, used } = scoped;
+    var map = Object.assign({}, vars, lets);
+    var keys = Object.keys(map);
+    if (keys.length) {
+        var names = createNamelist(keys.length, prevent);
+        keys.forEach((k, i) => {
+            var name = names[i];
+            map[name] = k;
+            var list = used[k];
+            for (var u of list) {
+                u.text = name + u.text.replace(/^[^\.\:]+/i, "");
+            }
+        });
+    }
+    scoped.forEach(s => compress(s, map));
+};
 
 class Program extends Array {
     COMMENT = COMMENT
@@ -134,25 +191,38 @@ class Program extends Array {
     SCOPED = SCOPED
     LABEL = LABEL
     PROPERTY = PROPERTY
+    pressed = false
     toString() {
         var lasttype;
         var result = [];
-        var run = function (o, i, a) {
+        var run = (o, i, a) => {
             switch (o.type) {
+                case COMMENT:
+                    // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
+                    result.push(o.text);
+                    if (/^\/\//.test(o.text)) {
+                        result.push("\r\n");
+                    }
+                    break;
+                case SPACE:
+                    if (!o.prev || !o.next) break;
+                    var b = needBreak(o.prev, o.next);
+                    if (b) result.push(b);
+                    break;
                 case QUOTED:
                     if (!o.length) {
                         result.push(o.text);
                         break;
                     }
                 case SCOPED:
-                    if (o.entry !== "[" && (lasttype === STRAP || lasttype === SCOPED)) result.push(" ");
+                    if (!this.pressed && o.entry !== "[" && (lasttype === STRAP || lasttype === SCOPED) && o.type !== QUOTED) result.push(" ");
                     result.push(o.entry);
                     if (o.entry === "{" && result[0] && result[0].type !== SPACE) {
-                        result.push(" ");
+                        if (!this.pressed) result.push(" ");
                     }
                     lasttype = undefined;
                     o.forEach(run);
-                    if (o.leave === "}" && o.length > 0 && o[o.length - 1].type !== SPACE) {
+                    if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o.length > 0 && o[o.length - 1].type !== SPACE) {
                         result.push(" ");
                     }
                     result.push(o.leave);
@@ -160,14 +230,16 @@ class Program extends Array {
                 default:
                     if ([STRAP, EXPRESS, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, VALUE].indexOf(o.type) >= 0) result.push(" ");
                     if (o instanceof Object) {
-                        if (o.type === STAMP && !/^([,;]|\+\+|\-\-)$/.test(o.text)) {
-                            result.push(" ");
+                        if (o.prev && o.type === STAMP && !/^([,;]|\+\+|\-\-)$/.test(o.text) && result[result.length - 1] !== " ") {
+                            if (o.text !== ":" || o.prev.type !== STRAP && o.prev.prev && o.prev.prev.type !== STRAP) {
+                                if (!this.pressed) result.push(" ");
+                            }
                         }
-                        else if (lasttype === SCOPED && o.type !== SPACE && o.type !== COMMENT && o.type !== STAMP) {
+                        else if (lasttype === SCOPED && !~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type)) {
                             if (o.type !== EXPRESS || !/^\./.test(o.text)) result.push(" ");
                         }
                         result.push(o.text);
-                        if (o.type === STAMP && i + 1 < a.length && !/^(\+\+|\-\-)$/.test(o.text)) result.push(" ");
+                        if (!this.pressed && o.type === STAMP && i + 1 < a.length && !/^(\+\+|\-\-|\!|~)$/.test(o.text)) result.push(" ");
                     }
                     else {
                         result.push(o);
@@ -180,7 +252,7 @@ class Program extends Array {
     }
     toScoped() {
         var used = {}; var vars = {}, lets = {}; var scoped = [];
-        var run = function (o, index) {
+        var run = function (o, id) {
             loop: while (o) {
                 var isFunction = false;
                 var isScope = false;
@@ -189,6 +261,9 @@ class Program extends Array {
                     case STAMP:
                         break;
                     case EXPRESS:
+                        if (o.prev && o.prev.type === EXPRESS) {
+                            if (/\.$/.test(o.prev.text)) break;
+                        }
                         var u = o.text.split(".")[0];
                         if (!u || program.value_reg.test(u)) break;
                         if (o.next && o.next.type === STAMP && o.next.text === "=>") {
@@ -215,7 +290,13 @@ class Program extends Array {
                             case "let":
                             case "const":
                                 m = m || lets;
-                                var [declared, used0, o0] = getDeclared(o.next);
+                                var [declared, used0, o0, skiped] = getDeclared(o.next);
+                                while (skiped.length) {
+                                    var o1 = run(skiped[0], 0);
+                                    let sindex = skiped.indexOf(o1);
+                                    if (sindex < 0) break;
+                                    skiped.splice(0, sindex + 1);
+                                }
                                 o = o0;
                                 mergeTo(used, used0);
                                 Object.assign(m, declared);
@@ -267,6 +348,17 @@ class Program extends Array {
                     lets = {};
                     vars = {};
                     scoped = [];
+                    _scoped.push(scoped);
+                    var isExpress = o.isExpress;
+                    if (isFunction) {
+                        scoped.used = used;
+                        scoped.vars = vars;
+                        lets = vars;
+                    } else {
+                        vars = _vars;
+                        scoped.lets = lets;
+                        scoped.used = used;
+                    }
                     if (o.next && o.next.type === STAMP && o.next.text === "=>");
                     else if (o.isExpress && o.type !== SCOPED) {
                         o = o.next;
@@ -282,8 +374,16 @@ class Program extends Array {
                         o = o.next;
                     }
                     if (o.entry === "(") {
+                        o.isExpress = isExpress;
                         if (isFunction) {
-                            var [declared, used0] = getDeclared(o.first);
+
+                            var [declared, used0, o0, skiped] = getDeclared(o.first);
+                            while (skiped.length) {
+                                var o1 = run(skiped[0], 0);
+                                var sindex = skiped.indexOf(o1);
+                                if (sindex < 0) break;
+                                skiped.splice(0, sindex + 1);
+                            }
                             mergeTo(used, used0);
                             Object.assign(vars, declared);
                         }
@@ -300,6 +400,7 @@ class Program extends Array {
                     }
                     if (!o) break;
                     if (o.type === SCOPED) {
+                        o.isExpress = isExpress;
                         run(o.first);
                     }
                     else {
@@ -315,34 +416,20 @@ class Program extends Array {
                             o = next;
                         } while (o);
                     }
-
-                    if (isFunction) {
-                        o.used = used;
-                        Object.assign(vars, lets);
-                        o.vars = vars;
-                        var map = vars;
+                    var map = isFunction ? vars : lets;
+                    for (var k in used) {
+                        if (!(k in map)) {
+                            for (var u of used[k]) {
+                                saveTo(_used, k, u);
+                            }
+                        }
                     }
-                    else {
-                        Object.assign(_vars, vars);
-                        o.lets = lets;
-                        o.used = used;
-                        var map = lets;
-                    }
-                    o.scoped = scoped;
                     used = _used;
                     lets = _lets;
                     vars = _vars;
                     scoped = _scoped;
-                    scoped.push(o);
-                    for (var k in o.used) {
-                        if (!(k in map)) {
-                            for (var _used of o.used[k]) {
-                                saveTo(used, k, _used);
-                            }
-                        }
-                    }
                 }
-                if (index >= 0) break;
+                if (id >= 0) break;
                 if (o) o = o.next;
             }
             return o;
@@ -352,6 +439,12 @@ class Program extends Array {
         scoped.vars = vars;
         scoped.lets = lets;
         return scoped;
+    }
+    press() {
+        this.pressed = true;
+        var scoped = this.toScoped();
+        compress(scoped);
+        return this;
     }
 }
 
@@ -418,6 +511,14 @@ class Javascript {
                 }
                 if (!queue.first) queue.first = scope;
                 queue.lastUncomment = scope;
+                for (var cx = queue.length - 1; cx >= 0; cx--) {
+                    var q = queue[cx];
+                    if (q === last) break;
+                    q.next = scope;
+                }
+            }
+            else {
+                scope.prev = last;
             }
             queue.push(scope);
         };
@@ -450,6 +551,7 @@ class Javascript {
                     break;
                 case STAMP:
                     if (last) switch (m) {
+
                         case ";":
                             queue.inExpress = false;
                             break;
@@ -462,6 +564,22 @@ class Javascript {
                                 last.end = end;
                                 return;
                             }
+                        case ",":
+                            if (queue.isObject) {
+                                if (last.type === PROPERTY) {
+                                    var _m = m;
+                                    var _end = end;
+                                    end = start;
+                                    m = ":";
+                                    save(STAMP);
+                                    m = last.text;
+                                    save(EXPRESS);
+                                    m = _m;
+                                    end = _end;
+                                }
+
+                            }
+                            break;
                         default:
                             queue.inExpress = true;
                     }
@@ -491,13 +609,10 @@ class Javascript {
             scope.entry = m;
             scope.type = SCOPED;
             scope.inExpress = true;
-            scope.start = match.index;
             scope.leave_map = quote.leave;
-            start = queue.start + m1.length;
             end = match.index;
             m = text.slice(start, end);
             save(PIECE);
-            queue.entry = m1;
             queue_push(scope);
             parents.push(queue);
             lasttype = scope.type;
@@ -586,6 +701,8 @@ class Javascript {
                         continue;
                     }
                     if (quote.length >= 4 && m in quote.entry) {
+                        queue.entry = m1;
+                        start += m1.length;
                         push_quote();
                         continue loop;
                     }
@@ -664,6 +781,21 @@ class Javascript {
                 continue;
             }
             if (this.scope_leave[m] && queue.entry === this.scope_leave[m]) {
+                var lastUncomment = queue.lastUncomment;
+                if (lastUncomment) {
+                    if (lastUncomment.type === PROPERTY) {
+                        var _start = start;
+                        var _m = m;
+                        start = end;
+                        m = ":";
+                        save(STAMP);
+                        m = lastUncomment.text;
+                        save(EXPRESS);
+                        m = _m;
+                        start = _start;
+                    }
+                }
+
                 queue.end = end;
                 queue.leave = m;
                 queue = parents.pop();

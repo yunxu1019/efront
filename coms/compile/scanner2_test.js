@@ -14,7 +14,9 @@ function test(parser, name) {
 var scanner = require("./scanner2");
 var esprima = require("../esprima/index");
 var scanned = test(scanner, 'scanner2');
-console.log(scanned.toScoped());
+var data3 = scanned.press().toString();
+fs.writeFileSync(path.join(__dirname, "./scanner2_temp.js"), data3);
+
 test(esprima.parse, 'esprima.parse');
 test(esprima.tokenize, 'esprima.tokenize');
 
