@@ -99,7 +99,7 @@ function namelist(count, prevent) {
         var limit = counts[cy];
         count -= limit;
         for (var cx = 0, dx = count < 0 ? limit + count : limit; cx < dx; cx++) {
-            a = create(cx, cy);
+            var a = create(cx, cy);
             if (keywords.test(a) || a in prevent) {
                 if (dx < limit) {
                     dx++;
