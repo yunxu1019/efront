@@ -15,7 +15,7 @@ const [
 ] = new Array(20).fill(0).map((_, a) => a - 1);
 
 var saveTo = function (used, k, o) {
-    if (!used[k]) used[k] = [];
+    if (!(used[k] instanceof Array)) used[k] = [];
     used[k].push(o);
 };
 
@@ -126,8 +126,11 @@ var getDeclared = function (o) {
     var declared = {}, used = {}; var skiped = [];
     loop: while (o) {
         switch (o.type) {
+            case VALUE:
+            case STRAP:
+                o = o.next;
+                break;
             case EXPRESS:
-
                 declared[o.text] = true;
                 saveTo(used, o.text, o);
                 o = o.next;
@@ -354,6 +357,7 @@ class Program extends Array {
                     scoped = [];
                     _scoped.push(scoped);
                     var isExpress = o.isExpress;
+
                     if (isFunction) {
                         scoped.used = used;
                         scoped.vars = vars;
@@ -377,18 +381,18 @@ class Program extends Array {
                         o = run(o, 0);
                         o = o.next;
                     }
+
                     if (o.entry === "(") {
                         o.isExpress = isExpress;
                         if (isFunction) {
-
                             var [declared, used0, o0, skiped] = getDeclared(o.first);
+                            mergeTo(used, used0);
                             while (skiped.length) {
                                 var o1 = run(skiped[0], 0);
                                 var sindex = skiped.indexOf(o1);
                                 if (sindex < 0) break;
                                 skiped.splice(0, sindex + 1);
                             }
-                            mergeTo(used, used0);
                             Object.assign(vars, declared);
                         }
                         else {
@@ -506,6 +510,7 @@ class Javascript {
         var parents = [];
         var lasttype;
         var queue = new Program;
+        queue.__proto__ = Program.prototype;
         var queue_push = function (scope) {
             var last = queue.lastUncomment;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
@@ -846,8 +851,8 @@ class Javascript {
                     var [a, b] = k;
                     map[a] = b;
                     end[b] = a;
-                    tokens[b] = true;
-                    tokens[a] = true;
+                    // tokens[b] = true;
+                    // tokens[a] = true;
                 });
             }
             quote_map[a] = q;
