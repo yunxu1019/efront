@@ -181,10 +181,10 @@ class Program extends Array {
     toScoped() {
         var used = {}; var vars = {}, lets = {}; var scoped = [];
         var run = function (o, index) {
-            while (o) {
+            loop: while (o) {
                 var isFunction = false;
                 var isScope = false;
-                check: switch (o.type) {
+                switch (o.type) {
                     case QUOTED:
                     case STAMP:
                         break;
@@ -219,7 +219,7 @@ class Program extends Array {
                                 o = o0;
                                 mergeTo(used, used0);
                                 Object.assign(m, declared);
-                                break check;
+                                continue loop;
                             case "function":
                                 isFunction = true;
                             case "class":
