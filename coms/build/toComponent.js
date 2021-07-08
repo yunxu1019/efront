@@ -1,3 +1,4 @@
+var scanner2 = require("../compile/scanner2");
 var escodegen = require("../escodegen");
 var esprima = require("../esprima");
 var esmangle = require("../esmangle");
@@ -188,7 +189,11 @@ function toComponent(responseTree) {
         }).join("");
 
         module_string = typescript.transpile(module_string);
-        var module_code = esprima.parse(`function f(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`);
+        module_string = `function f(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
+        if (compress) {
+            module_string = scanner2(module_string).press().toString();
+        }
+        var module_code = esprima.parse(module_string);
         if (optimize) module_code = esmangle.optimize(module_code, null);
         if (compress) {
             module_code = esmangle.mangle(module_code);
@@ -291,6 +296,7 @@ function toComponent(responseTree) {
         var module = d.module.replace(/"(imported\s*-\s*\d+)"/g, imported);
         if (compress) {
             module = module.replace(/^function\s*\(/, 'function a(');
+            module = scanner2(module).press().toString();
             var code = esprima.parse(module);
             code = esmangle.mangle(code);
             module = escodegen.generate(code, generateConfig).replace(/^function \w\(/, 'function(');

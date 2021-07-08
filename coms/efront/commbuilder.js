@@ -4,6 +4,7 @@ var esprima = require("../esprima");
 var esmangle = require("../esmangle");
 var escodegen = require("../escodegen");
 var typescript = require("../typescript");
+var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
 var less;
 var isDevelop = require("./isDevelop");
@@ -329,6 +330,7 @@ var buildResponse = function ({ imported, params, data, required, occurs }, comp
         var [data, args, strs] = breakcode(data, occurs);
         strs = `[${strs}]`;
         var data = imported.length > 0 ? `function f(${params.concat(args || [])}){${data}}` : args.length ? `function f(){var [${args}]=${strs};${data}}` : `function f(){${data}}`;
+        data = scanner2(data).press().toString();
         data = typescript.transpile(data, { noEmitHelpers: true });
         var code = esprima.parse(data);
         if (optimize) code = esmangle.optimize(code, null);
@@ -630,16 +632,12 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     if (promise) {
         var promise1 = promise.then(function (data) {
-            try {
-                var timeStart = new Date;
-                data = buildResponse(data, compress);
-                data = Buffer.from(data);
-                data.path = fullpath;
-                data.time = new Date - timeStart + promise.time;
-                return data;
-            } catch (e) {
-                console.error(fullpath, e);
-            }
+            var timeStart = new Date;
+            data = buildResponse(data, compress);
+            data = Buffer.from(data);
+            data.path = fullpath;
+            data.time = new Date - timeStart + promise.time;
+            return data;
         });
     }
     return promise1 || data;
