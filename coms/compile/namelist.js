@@ -103,6 +103,7 @@ function namelist(count, prevent) {
             if (keywords.test(a) || a in prevent) {
                 if (dx < limit) {
                     dx++;
+                    count++;
                 } else {
                     count++;
                 }
