@@ -123,11 +123,21 @@ var needBreak = function (prev, next) {
 };
 
 var getDeclared = function (o) {
-    var declared = {}, used = {}; var skiped = [];
+    var declared = Object.create(null), used = Object.create(null); var skiped = [];
     loop: while (o) {
         switch (o.type) {
-            case VALUE:
             case STRAP:
+                if (/^(in|of)$/.test(o.text)) {
+                    o = o.next;
+                    var o0 = skipAssignment(o);
+                    do {
+                        skiped.push(o);
+                        o = o.next;
+                    } while (o !== o0);
+                    o = o0;
+                    break;
+                }
+            case VALUE:
                 o = o.next;
                 break;
             case EXPRESS:
@@ -164,22 +174,30 @@ var getDeclared = function (o) {
     return [declared, used, o, skiped];
 }
 
-var compress = function (scoped, prevent) {
+var compress = function (scoped, __prevent, maped) {
     var { lets, vars, used } = scoped;
     var map = Object.assign({}, vars, lets);
+    if (!__prevent) __prevent = {};
+    for (var k in used) {
+        if (!(k in map) && !(maped && k in maped)) {
+            __prevent[k] = true;
+        }
+    }
     var keys = Object.keys(map);
+    Object.assign(map, maped);
     if (keys.length) {
-        var names = createNamelist(keys.length, prevent);
+        var names = createNamelist(keys.length, __prevent);
         keys.forEach((k, i) => {
             var name = names[i];
-            map[name] = k;
+            __prevent[name] = k;
             var list = used[k];
-            for (var u of list) {
+            if (list) for (var u of list) {
+                if (!u) continue;
                 u.text = name + u.text.replace(/^[^\.\:]+/i, "");
             }
         });
     }
-    scoped.forEach(s => compress(s, map));
+    scoped.forEach(s => compress(s, __prevent, map));
 };
 
 class Program extends Array {
@@ -203,11 +221,15 @@ class Program extends Array {
                 case COMMENT:
                     // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
                     result.push(o.text);
-                    if (/^\/\//.test(o.text)) {
+                    if (this.pressed && /^\/\//.test(o.text)) {
                         result.push("\r\n");
                     }
                     break;
                 case SPACE:
+                    if (!this.pressed) {
+                        result.push(o.text);
+                        break;
+                    }
                     if (!o.prev || !o.next) break;
                     var b = needBreak(o.prev, o.next);
                     if (b) result.push(b);
@@ -233,16 +255,20 @@ class Program extends Array {
                 default:
                     if ([STRAP, EXPRESS, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, VALUE].indexOf(o.type) >= 0) result.push(" ");
                     if (o instanceof Object) {
+                        // var broker = needBreak(o.prev, o);
+                        // if (broker) result.push(broker);
                         if (o.prev && o.type === STAMP && !/^([,;]|\+\+|\-\-)$/.test(o.text) && result[result.length - 1] !== " ") {
-                            if (o.text !== ":" || o.prev.type !== STRAP && o.prev.prev && o.prev.prev.type !== STRAP) {
+                            if (o.prev.type === STAMP) {
+                                result.push(" ");
+                            }
+                            else if (o.text !== ":" || o.prev.type !== STRAP && o.prev.prev && o.prev.prev.type !== STRAP) {
                                 if (!this.pressed) result.push(" ");
                             }
                         }
                         else if (lasttype === SCOPED && !~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type)) {
-                            if (o.type !== EXPRESS || !/^\./.test(o.text)) result.push(" ");
+                            if (!this.pressed) if (o.type !== EXPRESS || !/^\./.test(o.text)) result.push(" ");
                         }
                         result.push(o.text);
-                        if (!this.pressed && o.type === STAMP && i + 1 < a.length && !/^(\+\+|\-\-|\!|~)$/.test(o.text)) result.push(" ");
                     }
                     else {
                         result.push(o);
@@ -254,7 +280,7 @@ class Program extends Array {
         return result.join("");
     }
     toScoped() {
-        var used = {}; var vars = {}, lets = {}; var scoped = [];
+        var used = Object.create(null); var vars = Object.create(null), lets = Object.create(null); var scoped = [];
         var run = function (o, id) {
             loop: while (o) {
                 var isFunction = false;
@@ -331,9 +357,6 @@ class Program extends Array {
                                 isFunction = true;
                                 isScope = true;
                             }
-                            else if (!o.isExpress) {
-                                isScope = true;
-                            }
                             else {
                                 run(o.first);
                             }
@@ -351,9 +374,9 @@ class Program extends Array {
                     var _lets = lets;
                     var _vars = vars;
                     var _scoped = scoped;
-                    used = {};
-                    lets = {};
-                    vars = {};
+                    used = Object.create(null);
+                    lets = Object.create(null);
+                    vars = Object.create(null);
                     scoped = [];
                     _scoped.push(scoped);
                     var isExpress = o.isExpress;
@@ -399,6 +422,7 @@ class Program extends Array {
                             run(o.first);
                         }
                         o = o.next;
+                        if (!o) break;
                         if (o.type === STAMP && o.text === "=>") o = o.next;
                     }
                     else if (o.next && o.next.type === STAMP && o.next.text === "=>") {
