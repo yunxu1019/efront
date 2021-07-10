@@ -118,8 +118,9 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
         }
         if (!commName) commName = realName;
         if (~loadJsBody(data, 'main.js', '', 'main', '').imported.indexOf('module')) {
-            if (/module.exports\s*=/.test(data)) {
-                data = data.replace(/\bmodule.exports\s*=/g, commName ? "var " + commName + " =" : "return ");
+            var module_reg = /\bmodule(.exports|\[(['"`])exports\1\])\s*=/g;
+            if (module_reg.test(data)) {
+                data = data.replace(module_reg, commName ? "var " + commName + " =" : "return ");
                 return data;
             }
         }
@@ -245,7 +246,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     } else {
         code_body = code.body;
         if (undeclares.module) {
-            commName = "module.exports";
+            commName = `module["exports"]`;
         } else if (undeclares.exports) {
             commName = "exports";
         }
@@ -334,7 +335,6 @@ var buildResponse = function ({ imported, params, data, required, occurs }, comp
         data = typescript.transpile(data, { noEmitHelpers: true });
         var code = esprima.parse(data);
         if (optimize) code = esmangle.optimize(code, null);
-        code = esmangle.mangle(code);
         code = code.body[0];
         params = code.params.map(id => id.name);
         code = {
@@ -473,7 +473,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
     var jsData = '', htmlData = '', lessData = '';
     // js中可能出现一些特殊字符，这里优先匹配
     data = data.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/i, function (_, script) {
-        jsData = script + `;\r\nif(exports)exports=extendIfNeeded(exports.default||exports,exports,{call:moue$call,apply:moue$apply});exports.default=exports`;
+        jsData = script + `;\r\nif(exports)exports=extendIfNeeded(exports["default"]||exports,exports,{call:moue$call,apply:moue$apply});exports["default"]=exports`;
         return '';
     });
     data = data.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, function (_, style) {
