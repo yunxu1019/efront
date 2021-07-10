@@ -50,6 +50,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
     var commbuilder = require("../efront/commbuilder");
+    var promise;
     if (public_app) {
         if (/\.asm$/i.test(public_app)) {
             console.info("正在重写ASM <cyan>", public_app, '</cyan>\r\n');
@@ -69,13 +70,12 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             commbuilder.prepare = false;
             var polyfills = POLYFILL ? [path.join(__dirname, "../", "basic/[]map.js")] : [];
         }
-        return loadData(polyfills.concat(public_app), 0, public_path)
+        promise = loadData(polyfills.concat(public_app), 0, public_path)
             .then(toComponent)
             .then(function (response) {
                 return write(response, PUBLIC_PATH);
             })
             .then(finish)
-            .catch(console.error);
     } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
         require("../efront/isLib").dispose();
@@ -87,7 +87,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         setting.is_file_target = /\.html?$/i.test(environment.APP);
         commbuilder.prepare = !setting.is_file_target;
         var toApplication = require("./toApplication");
-        return getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
+        promise = getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
             if (cleanBeforeBuild) {
                 lastBuildTime = 0;
             }
@@ -103,7 +103,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 path.join(__dirname, "../", "zimoli/Promise.js"),
                 path.join(__dirname, "../", "basic/[]map.js")
             ] : [];
-            loadData(pages_root.concat(
+            return loadData(pages_root.concat(
                 indexHTML,
                 polyfills,
                 path.join(__dirname, "../", "zimoli/main.js"),
@@ -158,12 +158,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 .then(finish).then(function () {
                     builder.ing = false;
                     if (reload) builder();
-                }).catch(function (e) {
-                    console.log(e);
-                    console.error(e);
-                    if (cleanBeforeBuild) {
-                        process.exit(1);
-                    }
                 });
         });
     } else {
@@ -172,5 +166,13 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         );
         process.exit(1);
     }
+    if (promise) promise.catch(function (e) {
+        console.log(e);
+        console.error(e);
+        if (cleanBeforeBuild) {
+            process.exit(1);
+        }
+    });
+    return promise;
 }
 module.exports = builder;

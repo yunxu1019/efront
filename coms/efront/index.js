@@ -765,6 +765,7 @@ var quit = function (e) {
         console.log(e);
         console.end();
     } else {
+        console.log(e);
         console.error(e);
         console.log("异常退出");
     }
