@@ -175,31 +175,41 @@ var getDeclared = function (o) {
     return [declared, used, o, skiped];
 }
 
-var compress = function (scoped, __prevent, maped, skip = 0) {
+var compress = function (scoped, maped) {
     var { lets, vars, used } = scoped;
     var map = lets || vars;
-    __prevent = Object.create(__prevent || null);
+    var __prevent = Object.create(null);
+    maped = Object.create(maped || null);
     for (var k in used) {
-        if (!(k in map) && !(maped && k in maped)) {
+        if (!(k in map)) {
+            if (k in maped) {
+                k = maped[k];
+            }
+            else {
+                maped[k] = true;
+            }
             __prevent[k] = true;
         }
     }
     var keys = Object.keys(map);
     if (keys.length) {
-        var names = createNamelist(keys.length, __prevent, skip);
-        skip = names.skip;
-        keys.forEach((k, i) => {
-            var name = names[i];
+        var names = createNamelist(keys.length, __prevent);
+        for (var cx = 0, dx = keys.length; cx < dx; cx++) {
+            var k = keys[cx];
+            var name = names[cx];
             var list = used[k];
             if (list) for (var u of list) {
                 if (!u) continue;
                 u.text = name + u.text.replace(/^[^\.\:]+/i, "");
             }
-        });
+        }
     }
     if (scoped.length) {
-        map = Object.assign(Object.create(maped || null), map);
-        scoped.forEach(s => compress(s, __prevent, map, skip));
+        for (var cx = 0, dx = keys.length; cx < dx; cx++) {
+            var k = keys[cx];
+            maped[k] = names[cx];
+        }
+        scoped.forEach(s => compress(s, maped));
     }
 };
 
@@ -469,7 +479,6 @@ class Program extends Array {
                             for (var u of used[k]) {
                                 saveTo(_used, k, u);
                             }
-                            delete used[k];
                         }
                     }
                     used = _used;
