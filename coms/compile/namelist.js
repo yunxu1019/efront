@@ -91,14 +91,20 @@ function create(n, length) {
     rest[0] = source[n];
     return rest.join("");
 }
-function namelist(count, prevent) {
+function namelist(count, prevent, skip) {
     var dist = [];
     if (!prevent) prevent = {};
+    var skip0 = skip;
     for (var cy = 0, dy = counts.length; cy < dy; cy++) {
         if (count <= 0) break;
         var limit = counts[cy];
+        if (skip >= limit) {
+            skip -= limit;
+            continue;
+        }
+        if (skip) count += skip;
         count -= limit;
-        for (var cx = 0, dx = count < 0 ? limit + count : limit; cx < dx; cx++) {
+        for (var cx = skip | 0, dx = count < 0 ? limit + count : limit; cx < dx; cx++) {
             var a = create(cx, cy);
             if (keywords.test(a) || a in prevent) {
                 if (dx < limit) {
@@ -111,7 +117,10 @@ function namelist(count, prevent) {
                 dist.push(a);
             }
         }
+        skip0 += dx - skip;
+        skip = 0;
     }
+    dist.skip = skip0;
     return dist;
 }
 module.exports = namelist;
