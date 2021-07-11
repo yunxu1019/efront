@@ -176,15 +176,14 @@ var getDeclared = function (o) {
 
 var compress = function (scoped, __prevent, maped, skip = 0) {
     var { lets, vars, used } = scoped;
-    var map = Object.assign({}, vars, lets);
-    __prevent = Object.assign({}, __prevent);
+    var map = lets || vars;
+    __prevent = Object.create(__prevent || null);
     for (var k in used) {
         if (!(k in map) && !(maped && k in maped)) {
             __prevent[k] = true;
         }
     }
     var keys = Object.keys(map);
-    Object.assign(map, maped);
     if (keys.length) {
         var names = createNamelist(keys.length, __prevent, skip);
         skip = names.skip;
@@ -197,7 +196,10 @@ var compress = function (scoped, __prevent, maped, skip = 0) {
             }
         });
     }
-    scoped.forEach(s => compress(s, __prevent, map, skip));
+    if (scoped.length) {
+        map = Object.assign(Object.create(maped || null), map);
+        scoped.forEach(s => compress(s, __prevent, map, skip));
+    }
 };
 
 class Program extends Array {

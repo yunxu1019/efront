@@ -31,6 +31,7 @@ var getFromTree = function (destMap, reqer) {
 
 }
 function toComponent(responseTree) {
+    console.info("正在合成");
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];
     delete responseTree["[]map"];
     delete responseTree["[]map.js"];
@@ -191,13 +192,12 @@ function toComponent(responseTree) {
         module_string = typescript.transpile(module_string);
         module_string = `function f(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
         if (compress) {
+            var time = new Date;
             module_string = scanner2(module_string).press().toString();
+            console.log(new Date - time);
         }
         var module_code = esprima.parse(module_string);
         if (optimize) module_code = esmangle.optimize(module_code, null);
-        if (compress) {
-            module_code = esmangle.mangle(module_code);
-        }
         module_string = escodegen.generate(module_code, generateConfig).replace(/^function\s+[\$_A-Za-z][\$_\w]*\(/, "function(");
         saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
             var index = destMap[a];
@@ -298,7 +298,6 @@ function toComponent(responseTree) {
             module = module.replace(/^function\s*\(/, 'function a(');
             module = scanner2(module).press().toString();
             var code = esprima.parse(module);
-            code = esmangle.mangle(code);
             module = escodegen.generate(code, generateConfig).replace(/^function \w\(/, 'function(');
         }
         saveOnly(`[${d.imported.join(',')},${module}]`, d.importedid);
