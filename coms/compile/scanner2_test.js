@@ -5,7 +5,7 @@ var data2 = fs.readFileSync(path.join(__dirname, "./scanner2.js")).toString();
 // data='{ \r\na( ){ return a;} }';
 function test(parser, name) {
     var time = new Date;
-    var parsed = parser(data2);
+    var parsed = parser(data);
     // var scanned1 = scanner(`\`a\${b}c\``);
     console.log(new Date - time, name);
     return parsed;
@@ -14,7 +14,9 @@ function test(parser, name) {
 var scanner = require("./scanner2");
 var esprima = require("../esprima/index");
 var scanned = test(scanner, 'scanner2');
+var start = new Date();
 var data3 = scanned.press().toString();
+console.log(new Date - start, 'press().toString()');
 fs.writeFileSync(path.join(__dirname, "./scanner2_temp.js"), data3);
 
 test(esprima.parse, 'esprima.parse');

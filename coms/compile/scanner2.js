@@ -174,10 +174,10 @@ var getDeclared = function (o) {
     return [declared, used, o, skiped];
 }
 
-var compress = function (scoped, __prevent, maped) {
+var compress = function (scoped, __prevent, maped, skip = 0) {
     var { lets, vars, used } = scoped;
     var map = Object.assign({}, vars, lets);
-    if (!__prevent) __prevent = {};
+    __prevent = Object.assign({}, __prevent);
     for (var k in used) {
         if (!(k in map) && !(maped && k in maped)) {
             __prevent[k] = true;
@@ -186,10 +186,10 @@ var compress = function (scoped, __prevent, maped) {
     var keys = Object.keys(map);
     Object.assign(map, maped);
     if (keys.length) {
-        var names = createNamelist(keys.length, __prevent);
+        var names = createNamelist(keys.length, __prevent, skip);
+        skip = names.skip;
         keys.forEach((k, i) => {
             var name = names[i];
-            __prevent[name] = k;
             var list = used[k];
             if (list) for (var u of list) {
                 if (!u) continue;
@@ -197,7 +197,7 @@ var compress = function (scoped, __prevent, maped) {
             }
         });
     }
-    scoped.forEach(s => compress(s, __prevent, map));
+    scoped.forEach(s => compress(s, __prevent, map, skip));
 };
 
 class Program extends Array {
@@ -257,9 +257,17 @@ class Program extends Array {
                     if (o instanceof Object) {
                         // var broker = needBreak(o.prev, o);
                         // if (broker) result.push(broker);
-                        if (o.prev && o.type === STAMP && !/^([,;]|\+\+|\-\-)$/.test(o.text) && result[result.length - 1] !== " ") {
-                            if (o.prev.type === STAMP) {
+                        if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text) && result[result.length - 1] !== " ") {
+                            if (lasttype === STAMP) {
                                 result.push(" ");
+                            }
+                            else if (/^(\+\+|\-\-)$/.test(o.prev.text) && o.prev.prev) {
+                                var prev_prev = o.prev.prev;
+                                if (
+                                    prev_prev.type === STRAP && !prev_prev.isExpress
+                                    || prev_prev.type === EXPRESS
+                                    || prev_prev.type === VALUE
+                                ) result.push(";");
                             }
                             else if (o.text !== ":" || o.prev.type !== STRAP && o.prev.prev && o.prev.prev.type !== STRAP) {
                                 if (!this.pressed) result.push(" ");
@@ -339,9 +347,11 @@ class Program extends Array {
                             case "class":
                                 if (!o.isExpress) {
                                     o = o.next;
+
                                     if (o.type === EXPRESS) {
                                         vars[o.text] = true;
                                         saveTo(used, o.text, o);
+
                                         o = o.next;
                                     }
                                 }
@@ -403,6 +413,7 @@ class Program extends Array {
                         if (o.next && o.next.type === STAMP && o.next.text === "=>") break;
                         o = run(o, 0);
                         o = o.next;
+                        if (!o) break loop;
                     }
 
                     if (o.entry === "(") {
@@ -498,7 +509,7 @@ class Javascript {
     ]
     stamps = "/=+;|:?<>-!~@#%^&*,".split("")
     value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this)$/
-    number_reg = /^[\+\-]?(\d+\.?|\d*\.\d+)(e[\+\-]?\d+|[\w]+)?$/i;
+    number_reg = /^[\+\-]?(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
     transive = /^(new|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|from)$/
     straps = `if,in,do,as,of
     var,for,new,try,let
@@ -579,24 +590,16 @@ class Javascript {
                     }
                     else if (isProperty()) type = PROPERTY;
                     else if (m === "as") {
-                        last.type = PROPERTY;
+                        if (!last || last.type === STAMP) {
+                            type = EXPRESS;
+                            break;
+                        }
+                        if (~[EXPRESS, VALUE].indexOf(last.type)) last.type = PROPERTY;
                     }
                     break;
                 case STAMP:
-                    if (last) switch (m) {
-
-                        case ";":
-                            queue.inExpress = false;
-                            break;
-                        case ":":
-                            if (queue.inExpress) break;
-                            if (last && last.type === EXPRESS) {
-                                // label
-                                last.type = LABEL;
-                                last.text += ":";
-                                last.end = end;
-                                return;
-                            }
+                    if (m === ";") queue.inExpress = false;
+                    else if (last) switch (m) {
                         case ",":
                             if (queue.isObject) {
                                 if (last.type === PROPERTY) {
@@ -610,9 +613,17 @@ class Javascript {
                                     m = _m;
                                     end = _end;
                                 }
-
                             }
                             break;
+                        case ":":
+                            if (queue.inExpress) break;
+                            if (last && last.type === EXPRESS) {
+                                // label
+                                last.type = LABEL;
+                                last.text += ":";
+                                last.end = end;
+                                return;
+                            }
                         default:
                             queue.inExpress = true;
                     }
@@ -769,7 +780,7 @@ class Javascript {
                 queue.inExpress = this.transive.test(m);
                 continue;
             }
-            if (this.value_reg.test(m)) {
+            if (this.value_reg.test(m) || this.number_reg.test(m)) {
                 save(VALUE);
                 queue.inExpress = true;
                 continue;
@@ -795,7 +806,8 @@ class Javascript {
                     }
                     else if (!queue.lastUncomment || ~[STAMP, STRAP].indexOf(queue.lastUncomment.type)) {
                         scope.inExpress = queue.inExpress;
-                        if (queue.lastUncomment && queue.lastUncomment.text !== "=>") scope.isObject = scope.inExpress;
+                        if (queue.inExpress) scope.isObject = true;
+                        else if (queue.lastUncomment && queue.lastUncomment.text !== "=>") scope.isObject = scope.inExpress;
                     }
                     else {
                         scope.inExpress = false;
@@ -908,7 +920,7 @@ class Javascript {
         spaces = this.compile(spaces);
         this.space_reg = new RegExp(`^[${spaces}]+$`);
         var quotes = this.createRegExp(quoteslike.map(q => q[0]), true).source;
-        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${express}|[${stamps}]`], "g");
+        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${this.number_reg.source.replace(/^\^|\$$/g, "")}|${express}|[${stamps}]`], "gi");
     }
 
 
