@@ -147,6 +147,7 @@ var getDeclared = function (o) {
                 break;
             case SCOPED:
                 var [d, u, _, s] = getDeclared(o.first);
+                if (o.findIndex(a => a.text === "areTypesComparable") >= 0) console.log(o.prev.prev.prev);
                 while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
                 mergeTo(used, u);
                 Object.assign(declared, d);
@@ -463,10 +464,12 @@ class Program extends Array {
                     }
                     var map = isFunction ? vars : lets;
                     for (var k in used) {
+                        // if (k === 'areTypesComparable') console.log(vars, lets, isFunction);
                         if (!(k in map)) {
                             for (var u of used[k]) {
                                 saveTo(_used, k, u);
                             }
+                            delete used[k];
                         }
                     }
                     used = _used;
@@ -512,7 +515,7 @@ class Javascript {
     stamps = "/=+;|:?<>-!~@#%^&*,".split("")
     value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this)$/
     number_reg = /^[\+\-]?(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
-    transive = /^(new|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|from)$/
+    transive = /^(new|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     straps = `if,in,do,as,of
     var,for,new,try,let
     else,case,void,with,enum,from
@@ -546,8 +549,9 @@ class Javascript {
         var index = this.lastIndex;
         var parents = [];
         var lasttype;
-        var queue = new Program;
+        var queue = new Program();
         queue.__proto__ = Program.prototype;
+        var origin = queue;
         var queue_push = function (scope) {
             var last = queue.lastUncomment;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
@@ -601,7 +605,12 @@ class Javascript {
                     break;
                 case STAMP:
                     if (m === ";") queue.inExpress = false;
-                    else if (last) switch (m) {
+                    else if (last) check: switch (m) {
+                        case "?":
+                            queue.inExpress = true;
+                            if (!queue.question) queue.question = 1;
+                            else queue.question++;
+                            break;
                         case ",":
                             if (queue.isObject) {
                                 if (last.type === PROPERTY) {
@@ -618,14 +627,38 @@ class Javascript {
                             }
                             break;
                         case ":":
-                            if (queue.inExpress) break;
-                            if (last && last.type === EXPRESS) {
+                            if (queue.question) {
+                                queue.question--;
+                                queue.inExpress = true;
+                                break;
+                            }
+                            if (queue.isObject) {
+                                if (last.type === PROPERTY) {
+                                    queue.inExpress = true;
+                                    break;
+                                }
+                                if (last.type === SCOPED && (!last.prev || !last.prev.type === STAMP && last.prev.text === ",")) {
+                                    queue.inExpress = true;
+                                }
+                                break;
+                            }
+                            var temp = last;
+                            while (temp) {
+                                if (temp.type === STRAP && /^(case|default)$/.test(temp.text)) {
+                                    queue.inExpress = false;
+                                    break check;
+                                }
+                                temp = temp.prev;
+                            }
+                            queue.inExpress = false;
+                            if (last.type === EXPRESS) {
                                 // label
                                 last.type = LABEL;
                                 last.text += ":";
                                 last.end = end;
                                 return;
                             }
+                            break;
                         default:
                             queue.inExpress = true;
                     }
