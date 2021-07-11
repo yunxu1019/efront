@@ -192,9 +192,7 @@ function toComponent(responseTree) {
         module_string = typescript.transpile(module_string);
         module_string = `function f(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
         if (compress) {
-            var time = new Date;
             module_string = scanner2(module_string).press().toString();
-            console.log(new Date - time);
         }
         var module_code = esprima.parse(module_string);
         if (optimize) module_code = esmangle.optimize(module_code, null);
