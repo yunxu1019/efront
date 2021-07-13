@@ -741,6 +741,11 @@ var saveResponseTreeToStorage = function () {
 };
 var loadResponseTreeFromStorage = function () {
     "use ./crc.js";
+    if (efrontsign) {
+        var codes = [];
+        for (var i in efrontsign) codes[i] = efrontsign.charCodeAt(i);
+        modules.efrontsign = "?" + crc(codes).toString(36);
+    }
     var load = function (name) {
         var data = localStorage.getItem(responseTree_storageKey);
         if (!data) return;
@@ -789,6 +794,7 @@ var modules = {
     load: loadModule,
     devicePixelRatio,
     renderPixelRatio,
+    efrontsign: "",
     debug() {
         document.addEventListener("blur", e => e.stopPropagation(), true);
     },
