@@ -227,12 +227,12 @@ var rebuildData = function (responseTree) {
             strs = `[${strs.map(rep)}]`;
             data = response.data = data.slice(0, dependenceNamesOffset) + (strs.length * 2).toString(36) + strs + data.slice(strend);
         }
-        if (!dependenceNamesOffset || !required) return;
-        args = args.map(a => {
+        if (!dependenceNamesOffset) return;
+        if (args) args = args.map(a => {
             if (!(a in renmap)) return a;
             return renmap[a];
         });
-        var argstr = args.concat(argNames, required.split(";").map(a => {
+        var argstr = args.concat(argNames, !required ? [] : required.split(";").map(a => {
             return a.replace(/\.(\w+)$/g, '').replace(/\-(\w)/g, (_, a) => a.toUpperCase());
         }).join(";")).join(",");
         var arglen = (argstr.length << 1).toString(36);
