@@ -83,6 +83,9 @@ var buildjsp = function (buff, realpath) {
     if (lastIndex < input.length - 1) splited.push(input.slice(lastIndex, input.length));
     return function (req, res) {
         var _require = function (required, pathname) {
+            if (typeof pathname === 'number') {
+                pathname = required[pathname];
+            }
             switch (pathname) {
                 case "global":
                     return global;
@@ -98,7 +101,7 @@ var buildjsp = function (buff, realpath) {
                 case "require":
                     return _require.bind(null, required);
             }
-            return require2(pathname, required);
+            return require2(pathname, _require);
         };
         var context = {};
         return queue.call(splited, function (str) {
@@ -107,7 +110,7 @@ var buildjsp = function (buff, realpath) {
                 if (!(imported instanceof Array)) imported = [];
                 if (!(required instanceof Array)) required = [];
                 imported = imported.map(a => _require(required, a));
-                return Promise.all(required.map(a => require2(a))).then(function () {
+                return Promise.all(required.map(a => _require(required, a))).then(function () {
                     return Promise.all(imported);
                 }).then(imported => {
                     var res = str.apply(context, imported);
