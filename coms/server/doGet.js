@@ -70,6 +70,9 @@ var response = function (data, url, req, res) {
             if (mime) {
                 headers['Content-Type'] = mime;
             }
+            else if (/^(php|asp|jsp)$/i.test(extend[1])) {
+                headers['Content-Type'] = 'text/plain;charset=utf-8';
+            }
         }
         var status = 200;
         if (data.stat) {
