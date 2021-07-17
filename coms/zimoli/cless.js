@@ -17,6 +17,11 @@ function create(commFactory, className) {
         result.prototype = commFactory.prototype;
         commFactory.className = className;
         keys(commFactory).map(k => result[k] = commFactory[k]);
+        if ({}.hasOwnProperty.call(commFactory, 'toString')) {
+            result.toString = function () {
+                return create(commFactory.toString(), className);
+            };
+        }
         return result;
     }
     if (isNode(commFactory)) {
