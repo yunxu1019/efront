@@ -113,7 +113,7 @@ var detectEnvironment = function () {
             }
             var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
             env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
-            if (public_path.length === 1) {
+            if (public_path.length === 1 && !process.env.PUBLIC_PATH) {
                 config.public_path = public_path[0];
             }
             if (1 !== env_path.length) {
