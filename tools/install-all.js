@@ -41,5 +41,6 @@ queue.call(parsed, function (version) {
     return queue.call(commands, run).then(function () {
         if (!localIP) return;
         if (v[0] > 1 || v[1] >= 19) return run('efront live 80 443', 20000);
+        return new Promise(a => setTimeout(a, 16000));
     });
 });
