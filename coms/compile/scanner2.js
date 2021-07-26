@@ -709,7 +709,7 @@ class Javascript {
         var isProperty = function () {
             var prev = queue.lastUncomment;
             if (queue.isObject) {
-                return !prev || prev.type === STAMP && prev.text === "," || prev.type === PROPERTY && /^(get|set)$/.test(prev.text);
+                return !prev || prev.type === STAMP && prev.text === "," || prev.type === PROPERTY && /^(get|set|async)$/.test(prev.text);
             }
             if (queue.isClass) {
                 return !prev || prev.type === EXPRESS && !/\.$/.test(prev.text) || ~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type) || prev.type === STAMP && /^(\+\+|\-\-|;)$/.test(prev.text);
