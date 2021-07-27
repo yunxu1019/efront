@@ -674,6 +674,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                             }
                     }
                 });
+                replacer.renderid = element.renderid;
                 element = replacer;
                 element.$scope = scope;
                 element.$parentScopes = parentScopes;
