@@ -93,12 +93,55 @@
     }
 }
 
-&.active {
+&.active,
+&[loading] {
     >.track {
         background: #0003;
     }
 
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.3) inset;
+}
+
+&[loading] {
+    @keyframes ltr {
+        0% {
+            left: -30%;
+        }
+
+        30% {
+            left: -30%;
+        }
+
+        60% {
+            left: 20%;
+        }
+
+        90% {
+            left: 60%;
+        }
+
+        100% {
+            left: 130%;
+        }
+
+    }
+
+    &:before {
+        transform: rotate(-12deg);
+        display: block;
+        content: "";
+        position: absolute;
+        left: -30%;
+        top: -10%;
+        width: 6px;
+        margin-left: -2px;
+        height: 200%;
+        background: #fff9;
+        border-left: 1px #fff3 solid;
+        border-right: 3px #fff6 solid;
+        animation: ltr 3s linear 1s infinite;
+    }
+
 }
 
 &:focus {

@@ -39,7 +39,7 @@ var active = function () {
     __addClass(this, "hover active");
 };
 var checkclick = function () {
-    if (this.hasAttribute("disabled") || this.disabled) onclick.preventClick = true;
+    if (this.hasAttribute("disabled") || this.disabled || this.hasAttribute("loading") || this.loading) onclick.preventClick = true;
 };
 var resetactive = function () {
     removeClass(this, "active");
