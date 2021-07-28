@@ -89,20 +89,29 @@ function confirm() {
             if (res instanceof Promise) {
                 element.setAttribute("locked", '');
                 this.setAttribute("loading", "");
-                res.then(function () {
+                res.then(() => {
                     remove(element);
-                    element.removeAttribute('locked', '');
+                    element.removeAttribute('locked');
                     this.removeAttribute('loading');
-                }, function () {
+                }, () => {
                     this.removeAttribute('loading');
-                    element.removeAttribute('locked', '');
+                    element.removeAttribute('locked');
                 });
             }
+            else {
+                remove(element);
+            }
         }
-        remove(element);
+        else {
+            remove(element);
+        }
     };
     var buttons = options.map(function (label, index, options) {
-        if (isNode(label)) return label;
+        if (isNode(label)) {
+            label.index = index;
+            if (isFunction(callback)) onclick(label, clickbtn);
+            return label;
+        }
         if (options.length === 2) for (var k in defaultOptions) {
             if (label === defaultOptions[k][1]) {
                 label += " #white";
