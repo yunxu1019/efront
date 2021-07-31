@@ -529,7 +529,7 @@ class Javascript {
     var,for,new,try,let
     else,case,void,with,enum,from
     async,while,break,catch,throw,const,yield,class,await
-    return,typeof,delete,switch,export,import
+    return,typeof,delete,switch,export,import,static
     default,finally,extends
     function,continue,debugger
     instanceof`.trim().split(/[\r\n,\s]+/)
