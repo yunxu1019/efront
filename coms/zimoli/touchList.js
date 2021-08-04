@@ -13,6 +13,10 @@ var createDelete = function () {
     css(this, "position:relative");
     return _div;
 };
+var removeDeleted = lazy(function () {
+    dispatch(this.parentNode, 'delete');
+    remove(this.parentNode);
+});
 var touchstart = function (event) {
     var target = getTargetIn(this, event.target, false);
     if (currentTarget && currentTarget !== target) {
@@ -27,10 +31,7 @@ var touchstart = function (event) {
             overflow: "hidden"
         });
         var $delete = createDelete.call(target);
-        on("click")($delete, function () {
-            dispatch(this.parentNode, 'delete');
-            remove(this.parentNode);
-        });
+        on("click")($delete, removeDeleted);
         appendChild(target, $delete);
     }
 };
