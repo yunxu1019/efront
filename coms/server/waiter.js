@@ -143,7 +143,7 @@ var requestListener = function (req, res) {
         return doFile(req, res);
     }
     if (/^\/(\{|%7b)/i.test(req.url)) {
-        return doCross(req, res);
+        return doCross(req, res, false);
     }
     if (/^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(req.headers.referer)) {
         return doCross(req, res, req.headers.referer);

@@ -140,7 +140,7 @@ function cross(req, res, referer) {
             var headers = response.headers;
             var setCookie = headers["set-cookie"];
             if (setCookie && !is_proxy) headers["efront-cookie"] = setCookie, delete headers["set-cookie"];
-            if (headers.location && referer) {
+            if (headers.location && referer === false) {
                 headers["efront-location"] = headers.location;
                 delete headers.location;
             }
