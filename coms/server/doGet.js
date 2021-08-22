@@ -71,7 +71,8 @@ var response = function (data, url, req, res) {
                 headers['Content-Type'] = mime;
             }
             else if (/^(php|asp|jsp)$/i.test(extend[1])) {
-                headers['Content-Type'] = 'text/plain;charset=utf-8';
+                if (/^\s*\<\!/.test(data)) headers['Content-Type'] = 'text/html;charset=utf-8';
+                else headers['Content-Type'] = 'text/plain;charset=utf-8';
             }
         }
         var status = 200;
