@@ -52,7 +52,7 @@ module.exports = function (root) {
         var key = k;
         console.log();
         if (!globals[key]) console.type(`<red2>${key}</red2><gray>:</gray> ${needs[k].map(a => `<gray>${path.dirname(a)}/</gray><gray>${path.basename(a)}</gray>`).join("<gray>|</gray>")}`);
-        else console.type(`<gray>${key}: ${needs[k].join('|')}</gray>`);
+        else console.type(`<white>${key}</white><gray>: ${needs[k].join('|')}</gray>`);
     };
     var color = function (a) {
         if (a in founded) {
