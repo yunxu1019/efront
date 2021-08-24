@@ -138,14 +138,15 @@ var createRepeat = function (search, id = 0) {
         if (!changes) return;
         savedValue = result;
         savedOrigin = origin;
-        var keys = result instanceof Array ? result.map((_, i) => i) : Object.keys(result);
+        var isArrayResult = result instanceof Array;
+        var keys = isArrayResult ? result.map((_, i) => i) : Object.keys(result);
         if (keys.length > 600) {
             throw new Error("数据量过大，取消绘制！");
         }
         var $parentScopes = element.$parentScopes || [];
         if (element.$scope) $parentScopes = $parentScopes.concat(element.$scope);
         var clonedElements1 = keys.map(function (key, cx) {
-            if (!changes[cx]) return clonedElements[cx];
+            if (isArrayResult ? !changes[cx] : !changes[key]) return clonedElements[cx];
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
             clone.renderid = id;
@@ -161,7 +162,7 @@ var createRepeat = function (search, id = 0) {
             return clone;
         }, this);
         clonedElements1.forEach(function (a, cx) {
-            var c = changes[cx];
+            var c = isArrayResult ? changes[cx] : changes[keys[cx]];
             if (!c) return;
             if (c && c.previous) {
                 appendChild.replace(clonedElements[cx], a);
