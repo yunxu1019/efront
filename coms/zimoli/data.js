@@ -13,6 +13,7 @@ function decodeStructure(object) {
     }
     return [];
 }
+
 function encodeStructure(array) {
     if (!(array instanceof Array)) return;
     var source = {};
@@ -84,6 +85,7 @@ function getErrorMessage(error) {
     }
     return JSON.stringify(error);
 }
+
 function getTranspile(url) {
     var transpile;
     var keys = ['id', 'name', 'icon'];
@@ -101,6 +103,7 @@ function getTranspile(url) {
     return transpile;
 }
 var transpileMap = null;
+
 function transpile(src, trans, apiMap, delTransMap) {
     if (!trans) return src;
     if (src instanceof Array) {
@@ -116,11 +119,12 @@ function transpile(src, trans, apiMap, delTransMap) {
         var v = trans[k];
         if (!(k in data)) {
             var value;
-            if (v in data) {
+            if (v in data && !(v in trans)) {
                 value = data[v];
                 delete data[v];
             } else {
-                value = seekResponse(src, v, apiMap);
+                value = seekResponse(data, v);
+                if (isEmpty(value)) value = seekResponse(src, v, apiMap);
             }
             if (!k) {
                 if (value instanceof Array) {
@@ -135,11 +139,13 @@ function transpile(src, trans, apiMap, delTransMap) {
     }
     return data;
 }
+
 function getParamsFromUrl(url, s = "?") {
     var index = url.indexOf(s);
     if (index < 0 || index >= url.length - 1) return;
     return parseKV(url.slice(index + 1));
 }
+
 function getUrlParamsForApi(api, url) {
     var r = /([\s\S]*?)/.source;
     var cap = [];
@@ -165,11 +171,13 @@ function getUrlParamsForApi(api, url) {
     params = serialize(params);
     return api.id + "?" + params;
 }
+
 function __seekprop(data, prop) {
     if (!prop) return data;
     data = seek(data, prop);
     return data;
 }
+
 function seekResponse(data, seeker, apiMap = {}) {
     if (data && data.querySelector) {
         if (!seeker) return data;
@@ -234,15 +242,29 @@ function parseConfig(api) {
     // `method url(?key=value(&key=value)*)?(#vid(&vname(&vicon)?)?)? name id(?key1)?(&key3)* comment?`
     var { method = "", url = "", id = "", name = "", comment } = api;
     var required = [];
-    id = id.replace(/\?(.+?)$/, function (m, s) {
+    var prepared = [];
+    var autotrim = false;
+
+    id = id.replace(/[\?\|\:;](.+?)$/, function (m, s) {
+        autotrim = /^[\|;]/.test(m);
+        if (/^[\|\/]/.test(s)) autotrim = true, s = s.slice(1);
         s = s.split('&');
+        var map = /^[\:;]$/.test(m) ? prepared : required;
         s.forEach(function (p) {
             if (p) {
-                var [k, v = k] = p.split("=");
-                if (!required[k]) {
-                    required.push(k);
+                var [k, v] = p.split("=");
+                if (isEmpty(v)) {
+                    if (!required[k]) {
+                        required.push(k);
+                    }
+                    required[k] = k;
                 }
-                required[k] = v;
+                else {
+                    if (!map[k]) {
+                        map.push(k);
+                    }
+                    map[k] = v;
+                }
             }
         });
         return '';
@@ -259,6 +281,8 @@ function parseConfig(api) {
         url,
         id,
         name,
+        prepared,
+        autotrim,
         comment,
         required
     };
@@ -292,7 +316,10 @@ var parseData = function (sourceText) {
     }
     return sourceText;
 };
+
 function fixApi(api, href) {
+    api.transpile = getTranspile(api.url);
+    api.url = api.url.replace(/#[\s\S]*$/, '');
     if (!reg.test(api.url)) {
         if (href) {
             var paramReg = /(?:\?([\s\S]*?))?(?:#([\s\S]*))?$/, extraSearch, extraHash, search, hash;
@@ -300,6 +327,8 @@ function fixApi(api, href) {
                 [, extraSearch, extraHash] = paramReg.exec(href);
                 href = href.replace(paramReg, '');
             }
+            api.base = href;
+            api.path = api.url;
             if (/^\.([\?\#][\s\S]*)?$/.test(api.url)) {
                 api.url = href + api.url.replace(/^\./, "");
             } else {
@@ -325,10 +354,12 @@ function fixApi(api, href) {
     api.method = api.method.replace(/^\w+/, a => a.toLowerCase());
 }
 const reg = /^(https?\:\/\/|\.?\/)/i;
+
 function createApiMap(data) {
     const apiMap = {};
     var hasOwnProperty = {}.hasOwnProperty;
     var href, _headers;
+
     function checkApi(api) {
         fixApi(api, href);
         if (hasOwnProperty.call(apiMap, api.id)) {
@@ -340,6 +371,7 @@ function createApiMap(data) {
         api.headers = _headers;
         return api;
     }
+
     function buildItem(k1) {
         return k1 + " " + item1[k1];
     }
@@ -396,21 +428,46 @@ var privates = {
     },
     fromApi(api, params) {
         let url = api.url;
-        if (this.validApi(api, params)) return this.loadIgnoreConfig(api.method, url, params, api);
+
+        if (this.validApi(api, params)) {
+            params = this.repare(api, params);
+            return this.loadIgnoreConfig(api.method, url, params, api);
+        }
         return Promise.resolve();
+    },
+    repare(api, params) {
+        var { required, autotrim, prepared } = api;
+        if (!required.length && !prepared.length) return params;
+        var params1 = {};
+        required.forEach(k => {
+            var v = seekResponse(params, required[k]);
+            params1[k] = v;
+        });
+        prepared.forEach(k => {
+            var v = params[k];
+            if (isEmpty(v)) {
+                v = prepared[k];
+            }
+            params1[k] = v;
+        });
+        if (!autotrim) {
+            for (var k in params) {
+                if (!(k in params1)) {
+                    params1[k] = params[k];
+                }
+            }
+        }
+        return params1;
     },
 
     validApi(api, params) {
         if (api.required) {
-            var lacks = api.required;
+            var required = api.required;
+            var lacks = required;
             if (params) {
-                lacks = lacks.filter(a => isEmpty(params[a]));
-                lacks.filter(k => {
-                    var v = seekResponse(dataSourceMap, k)
+                lacks = lacks.filter(k => {
+                    var v = seekResponse(params, required[k]);
                     if (isEmpty(v)) return true;
-                    if (!(k in params)) {
-                        params[k] = v;
-                    }
                 });
             }
             if (lacks.length) {
@@ -425,7 +482,7 @@ var privates = {
         return this.getConfigPromise().then((apiMap) => {
             serviceId = serviceId.replace(/[\?\:][\s\S]*$/, "");
             const api = apiMap[serviceId];
-            if (!api) { throw new Error(`没有找到对应的接口 id ${serviceId}.`); }
+            if (!api) throw new Error(`没有找到对应的接口 id ${serviceId}.`);
             return extend({}, api, { root: apiMap });
         });
     },
@@ -495,7 +552,8 @@ var privates = {
             var data = parseData(response);
             var checked = error_check(data);
             var apiMap = api && api.root;
-            data = transpile(seekResponse(data, selector), getTranspile(url), apiMap);
+            var trans = api ? api.transpile : getTranspile(url);
+            data = transpile(seekResponse(data, selector), trans, apiMap);
             if (isDefined(checked)) {
                 return checked;
             }
@@ -608,7 +666,7 @@ var data = {
             params = {};
         }
         if (isObject(ref)) {
-            return this.fromApi(ref, params);
+            return this.fromApi(ref, params, parse);
         } else
             if (/^\.*\/|\.\w+$/.test(ref)) {
                 return this.fromURL(ref, parse);
@@ -791,7 +849,7 @@ var data = {
                 });
             }).then(function (response) {
 
-                return transpile(seekResponse(parseData(response), selector), getTranspile(api.url), api.root);
+                return transpile(seekResponse(parseData(response), selector), api.transpile, api.root);
             });
             return promise;
         }).then((data) => {
@@ -923,7 +981,7 @@ var data = {
         }
     },
     rebuildInstance(instance, data, old = instance) {
-        if (instance === data) { return; }
+        if (instance === data) return;
         if (!isObject(instance) || !isObject(data)) throw new Error("只支持object类型的数据！");
         if (instance instanceof Array) instance.splice(0, instance.length);
         var sample = new LoadingArray;
@@ -935,6 +993,7 @@ var data = {
         extend(instance, data);
     }
 };
+
 function setItem(instanceId, data, rememberWithStorage = 0) {
     const storageId = userPrefix + instanceId + pagePathName;
     if (rememberWithStorage !== false) {
@@ -944,6 +1003,7 @@ function setItem(instanceId, data, rememberWithStorage = 0) {
         localStorage.setItem(storageId, JSAM.stringify(data));
     }
 }
+
 function getItem(instanceId, onlyFromLocalStorage = false) {
     const storageId = userPrefix + instanceId + pagePathName;
     var data = loadInstance(localStorage, storageId);
@@ -954,8 +1014,7 @@ function getItem(instanceId, onlyFromLocalStorage = false) {
     }
     return data;
 }
-var instanceListenerMap = {
-};
+var instanceListenerMap = {};
 var fireListener = function (instanceId) {
     var listeners = instanceListenerMap[instanceId];
     if (!listeners) return;
