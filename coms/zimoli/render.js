@@ -145,32 +145,34 @@ var createRepeat = function (search, id = 0) {
         }
         var $parentScopes = element.$parentScopes || [];
         if (element.$scope) $parentScopes = $parentScopes.concat(element.$scope);
-        var clonedElements1 = keys.map(function (key, cx) {
-            if (isArrayResult ? !changes[cx] : !changes[key]) return clonedElements[cx];
+        var clonedElements1 = Object.create(null);
+        var cloned = keys.map(function (key, cx) {
+            var k = isArrayResult ? cx : key;
+            var c = changes[k];
+            if (clonedElements[k]) if (!c || !isObject(c.previous) && !isObject(c.current)) return clonedElements1[k] = clonedElements[k];
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
             clone.renderid = id;
             clone.$parentScopes = $parentScopes;
             var $scope = {
-                [keyName || '$key']: key,
-                [itemName || '$item']: result[key],
+                [keyName || '$key']: k,
+                [itemName || '$item']: result[k],
                 [indexName || '$index']: cx
             };
             clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
             clone = render(clone, $scope, clone.$parentScopes);
+            clonedElements1[k] = clone;
             return clone;
         }, this);
-        clonedElements1.forEach(function (a, cx) {
-            var c = isArrayResult ? changes[cx] : changes[keys[cx]];
-            if (!c) return;
-            if (c && c.previous) {
-                appendChild.replace(clonedElements[cx], a);
-            } else {
-                appendChild.before(this, a);
-            }
+        var last = this;
+        cloned.forEach(function (a, cx) {
+            if (a.previousSibling !== last) appendChild.after(last, a);
+            last = a;
         }, this);
-        remove(clonedElements.filter((_, cx) => changes[cx]));
+        for (var k in clonedElements) {
+            if (clonedElements1[k] !== clonedElements[k]) remove(clonedElements[k]);
+        }
         clonedElements = clonedElements1;
     }];
     if (this.parentNode) {
