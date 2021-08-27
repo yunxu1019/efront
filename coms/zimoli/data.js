@@ -647,17 +647,16 @@ var data = {
         return privates.getApi(a);
     },
     setConfig(data) {
-        configPormise = Promise.resolve(data).then(createApiMap);
+        data = this.parseConfig(data);
+        configPormise = Promise.resolve(data);
     },
     parseConfig(o) {
         if (o instanceof Promise) {
             return o.then(createApiMap);
         }
+        if (isString(o)) o = parseYML(o);
         if (isObject(o)) {
             return createApiMap(o);
-        }
-        if (isString(o)) {
-            return privates.loadIgnoreConfig('get', o).then(createApiMap);
         }
     },
     from(ref, params, parse) {
@@ -667,12 +666,13 @@ var data = {
         }
         if (isObject(ref)) {
             return this.fromApi(ref, params, parse);
-        } else
-            if (/^\.*\/|\.\w+$/.test(ref)) {
-                return this.fromURL(ref, parse);
-            } else {
-                return this.asyncInstance(ref, params, parse);
-            }
+        }
+        else if (/^\.*\/|\.\w+$/.test(ref)) {
+            return this.fromURL(ref, parse);
+        }
+        else {
+            return this.asyncInstance(ref, params, parse);
+        }
     },
 
     enrich(config = configPormise) {
