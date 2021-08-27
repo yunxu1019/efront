@@ -322,19 +322,12 @@ if (is_addEventListener_enabled) {
         if (abs(event.clientX - mouse_x) >= MOVELOCK_DELTA || abs(event.clientY - mouse_y) >= MOVELOCK_DELTA)
             clickcancel.call(this, event);
     });
-    ontouchstart(window, function (event) {
-        extendTouchEvent(event);
-        touch_x = event.clientX, touch_y = event.clientY;
-        clickstart.call(this, event);
-    });
-    ontouchmove(window, function (event) {
-        extendTouchEvent(event);
-        if (abs(event.clientX - touch_x) >= MOVELOCK_DELTA || abs(event.clientY - touch_y) >= MOVELOCK_DELTA)
-            clickcancel.call(this, event);
-    });
+    ontouchstart(window, clickstart);
+    ontouchmove(window, clickcancel);
     if (window.addEventListener) {
         window.addEventListener("touchend", function (event) {
             if (event.touches.length > 1) return;
+            if (onclick.preventClick) return;
             needFireClick = true;
             touchendFired = true;
             var target = event.target;
