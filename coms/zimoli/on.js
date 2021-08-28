@@ -293,12 +293,12 @@ if (is_addEventListener_enabled) {
 
 (function () {
     // fastclick
+    if (document.efronton) return on = document.efronton;
+    document.efronton = on;
     var onclick = on("click");
     var onmousedown = on("mousedown");
     var onmousemove = on("mousemove");
-    var ontouchstart = on("touchstart");
-    var ontouchmove = on("touchmove");
-    var mouse_x, mouse_y, touch_x, touch_y, lasttime_click;
+    var mouse_x, mouse_y, lasttime_click;
     var needFireClick = false;
     var isClickWithPointer = false;
     var touchendFired = false;
@@ -322,9 +322,9 @@ if (is_addEventListener_enabled) {
         if (abs(event.clientX - mouse_x) >= MOVELOCK_DELTA || abs(event.clientY - mouse_y) >= MOVELOCK_DELTA)
             clickcancel.call(this, event);
     });
-    ontouchstart(window, clickstart);
-    ontouchmove(window, clickcancel);
     if (window.addEventListener) {
+        window.addEventListener("touchmove", clickcancel, true);
+        window.addEventListener("touchstart", clickstart, true);
         window.addEventListener("touchend", function (event) {
             if (event.touches.length > 1) return;
             if (onclick.preventClick) return;
