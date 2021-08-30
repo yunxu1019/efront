@@ -380,7 +380,7 @@ var create = function (url, key) {
 };
 
 
-var 广告 = document.createElement("欢迎使用白前看图");
+var 广告 = document.createElement(/Trident/i.test(navigator.userAgent) ? "Welcome" : "欢迎使用白前看图");
 addClass(广告, 'adv');
 广告.innerHTML = `欢迎使用白前看图 `;
 var alink = anchor('http://efront.cc/baiplay', 'http://efront.cc/baiplay');
