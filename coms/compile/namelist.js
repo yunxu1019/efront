@@ -2,7 +2,7 @@ var js_keywords = `
 if,in,do,
 var,for,new,try,let,
 this,else,case,void,with,enum,elif,from,
-async,while,break,catch,throw,const,yield,class,
+async,while,break,catch,throw,const,yield,class,await
 return,typeof,delete,switch,export,import,
 default,finally,extends,
 function,continue,debugger,Infinity,abstract,nonlocal,
@@ -74,12 +74,14 @@ keywords = new RegExp(`^(${keywords})$`, 'i');
 var source = `abcdefghijklmnopqrstuvwxyz`;
 source += source.toUpperCase() + "_$";
 var number = source + '0123456789';
+source += "ªµºΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρςστυφχψω";
+var source_length = source.length;
 var counts = [
-    54,
-    54 * 64,
-    54 * 64 * 64,
-    54 * 64 * 64 * 64,
-    54 * 64 * 64 * 64 * 64
+    source_length,
+    source_length * 64,
+    source_length * 64 * 64,
+    source_length * 64 * 64 * 64,
+    source_length * 64 * 64 * 64 * 64
 ];
 function create(n, length) {
     var rest = [];
