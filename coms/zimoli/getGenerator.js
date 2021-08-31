@@ -42,6 +42,23 @@ var getGenerator = function (container, parsedSrc) {
             newItem.with = render(item.with, newScope);
         } else {
             var newScope = container.src[index];
+            if (!isObject(newScope)) newScope = {
+                get $item() {
+                    return container.src[this.$index];
+                },
+                set $item(v) {
+                    container.src[this.$index] = v;
+                    this.value = v;
+                },
+                $key: index,
+                $index: index,
+                toString() {
+                    return this.$item;
+                },
+                valueOf() {
+                    return this.$item;
+                }
+            }
             var newItem = render(item, newScope, [container.$scope]);
             newItem.with = render(newItem.with = item.with, newScope, [container.$scope]);
         }
