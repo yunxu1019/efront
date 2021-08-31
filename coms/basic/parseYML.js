@@ -54,6 +54,7 @@ var scan = function (text) {
     };
     while (rows.length) {
         var row = rows.shift();
+
         if (/^['"]$/.test(rowtype)) {
             if (jsonlikes.length) {
                 var reg = new RegExp(/\\[\s\S]|/.source + rowtype, 'g');
@@ -78,9 +79,11 @@ var scan = function (text) {
             rowtype = 0;
             continue;
         }
+
         var spacesize = /^\s*/.exec(row)[0].length;
         if (spacesize === row.length) {
             rowtype = 0;
+            if (prop || data) push();
             continue;
         }
         if (!data && prop === undefined && !jsonlikes.length) {
@@ -91,7 +94,6 @@ var scan = function (text) {
         row = row.trim();
         if (rowtype === '|') {
             rowtype = spacesize;
-            continue;
         }
         if (rowtype && spacesize >= rowtype) {
             data += row + "\r\n";
@@ -116,7 +118,7 @@ var scan = function (text) {
         }
 
         if (/^\-(\s|$)/.test(row)) {
-            if (data) push();
+            if (data || span > spacesize) push();
             if (!parents[spacesize]) {
                 var obj = [];
                 push(obj);
@@ -187,7 +189,7 @@ var scan = function (text) {
         else {
             var match = /^([\s\S]*?)\:(|\s+[\s\S]*)$/.exec(row);
             if (match) {
-                if (data || span > spacesize) push();
+                if (data || prop && span >= spacesize) push();
                 if (prop) {
                     var obj = {};
                     push(obj);
@@ -211,7 +213,7 @@ var scan = function (text) {
         }
         if (row) data += row + "\r\n";
     }
-    if (data) push();
+    if (data || prop) push();
     while (parents[0] === undefined && parents.length > 0) parents.shift();
     return parents[0];
 }
