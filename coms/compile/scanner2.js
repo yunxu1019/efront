@@ -192,6 +192,7 @@ var compress = function (scoped, maped) {
         }
     }
     var keys = Object.keys(map);
+    keys.sort((a, b) => used[b].length - used[a].length);
     if (keys.length) {
         var names = createNamelist(keys.length, __prevent);
         for (var cx = 0, dx = keys.length; cx < dx; cx++) {
