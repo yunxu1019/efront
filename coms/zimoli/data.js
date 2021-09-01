@@ -354,9 +354,11 @@ function fixApi(api, href) {
     api.method = api.method.replace(/^\w+/, a => a.toLowerCase());
 }
 const reg = /^(https?\:\/\/|\.?\/)/i;
-
+var ApiMap = function () { };
+ApiMap.prototype = null;
 function createApiMap(data) {
-    const apiMap = {};
+    if (data instanceof ApiMap) return data;
+    const apiMap = new ApiMap;
     var hasOwnProperty = {}.hasOwnProperty;
     var href, _headers;
 
