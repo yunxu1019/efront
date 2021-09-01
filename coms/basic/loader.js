@@ -141,8 +141,8 @@ var readFile = function (names, then) {
             if (errorcount < 2) {
                 errorcount++;
                 setTimeout(tryload, 200 + 1000 * errorcount);
+                return;
             }
-            return;
         }
         loadingTree[key].error = e;
         loadingTree[key].forEach(a => a(1));
