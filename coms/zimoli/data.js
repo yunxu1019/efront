@@ -355,7 +355,7 @@ function fixApi(api, href) {
 }
 const reg = /^(https?\:\/\/|\.?\/)/i;
 var ApiMap = function () { };
-ApiMap.prototype = null;
+ApiMap.prototype = Object.create(null);
 function createApiMap(data) {
     if (data instanceof ApiMap) return data;
     const apiMap = new ApiMap;
@@ -396,6 +396,7 @@ function createApiMap(data) {
         var items = Object.keys(item1).map(buildItem);
         formulaters.string('id method url name comment', items).map(parseConfig).map(checkApi);
     }
+    console.log(apiMap)
     return apiMap;
 }
 var _configfileurl;
