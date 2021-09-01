@@ -162,7 +162,8 @@ var getVariables = function (ast) {
                 } = getVariables(ast.value);
                 if (!ast.computed) {
                     //用以兼容IE5-9
-                    ast.computed = setComputed(ast.key);
+                    ast.computed = false;
+                    ast.raw = JSON.stringify(ast.value);
                 }
                 ast.shorthand = false; //让esmangle兼容shorthand
                 break;
