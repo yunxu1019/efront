@@ -396,7 +396,6 @@ function createApiMap(data) {
         var items = Object.keys(item1).map(buildItem);
         formulaters.string('id method url name comment', items).map(parseConfig).map(checkApi);
     }
-    console.log(apiMap)
     return apiMap;
 }
 var _configfileurl;
