@@ -160,10 +160,9 @@ var getVariables = function (ast) {
                     DeclaredVariables,
                     unDeclaredVariables
                 } = getVariables(ast.value);
-                if (!ast.computed) {
+                if (!ast.computed && Variables.computed) {
                     //用以兼容IE5-9
-                    ast.computed = false;
-                    ast.raw = JSON.stringify(ast.value);
+                    ast.computed = setComputed(ast.key);
                 }
                 ast.shorthand = false; //让esmangle兼容shorthand
                 break;
