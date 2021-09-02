@@ -7,7 +7,7 @@ var path = require("path");
 function getInitReferenced(dependence, args, argNames, data) {
     var requires = ["init"].map(a => dependence.indexOf(a)).filter(a => ~a);
     if (!requires.length) return [];
-    var initReg = new RegExp(`\\b(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`]|)([_$\w\/\\\.\-]+)\1\s*[,\)]/.source}`, 'g');
+    var initReg = new RegExp(`${/[^\w\u00aa-\uffff]/.source}(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`]|)([^'"`,]+)\1\s*[,\)]/.source}`, 'g');
     var required = [];
     args = args.slice(args.length - argNames.length);
     data.replace(initReg, function (match, quote, refer) {
