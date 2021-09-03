@@ -82,7 +82,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         if (memery.EXTT === undefined) memery.EXTT = '.txt';
         console.info("正在编译项目", `<cyan>${PUBLIC_APP}</cyan>`, PUBLIC_APP ? "\r\n" : '');
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
-        public_app = pages_root;
         setting.is_commponent_package = false;
         setting.is_file_target = /\.html?$/i.test(environment.APP);
         commbuilder.prepare = !setting.is_file_target;
