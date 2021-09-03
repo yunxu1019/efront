@@ -4,7 +4,7 @@ var listener = function (req, res) {
         var origin = req.headers.origin;
         origin && res.setHeader("Access-Control-Allow-Origin", origin);
         var version = /^\/reload\/(\d+)$/i.exec(req.url);
-        if (version && +version[1] === memery.WATCH_PROJECT_VERSION) {
+        if (version && +version[1] === +memery.WATCH_PROJECT_VERSION) {
             return reloadListeners.push(res);
         }
     }

@@ -12,8 +12,7 @@ var {
     comms_root,
     ccons_root,
 } = environment;
-var buildTicker = 0;
-var listener = lazy(() => progress(true), 60);
+var listener = lazy(() => progress(true), 1000);
 [].concat(pages_root, comms_root, ccons_root).forEach(function (rootpath) {
     var recursive = /^(darwin|win32)$/.test(process.platform);
     if (!recursive) console.warn("watch功能在当前操作系统可能无法使用！");

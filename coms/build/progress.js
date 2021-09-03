@@ -39,6 +39,7 @@ var getBuiltVersion = function (filepath) {
 };
 
 function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
+    memery.WATCH_PROJECT_VERSION++;
     console.time();
     if (builder.ing) return reload++;
     builder.ing = true;

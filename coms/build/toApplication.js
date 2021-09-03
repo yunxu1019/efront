@@ -98,7 +98,7 @@ var buildHtml = function (html, code) {
         html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo${encoded ? '-' + encoded : ''}="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
     if (memory.IN_WATCH_MODE) {
         let WATCH_PORT = memory.WATCH_PORT;
-        let reloadVersion = +new Date();
+        let reloadVersion = memory.WATCH_PROJECT_VERSION;
         let efrontReloadVersionAttribute = "efront-reload-version";
         html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script ${efrontReloadVersionAttribute}=${reloadVersion}>
         -function(){
@@ -128,7 +128,6 @@ var buildHtml = function (html, code) {
             load("http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload/${reloadVersion}", checkUpdate, "post");
         }();
         </script>\r\n${head}`);
-        memory.WATCH_PROJECT_VERSION = reloadVersion;
     }
     if (poweredByComment) {
         html = html.replace(/^\s*(?:<!doctype[\s\S]*?>)?/i, poweredByComment);
