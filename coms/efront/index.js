@@ -783,7 +783,7 @@ var restArgv = [];
 var argv = process.argv.slice(1).filter(a => {
     if (a in helps) return true;
     if (!/^--/.test(a)) return true;
-    if (/^--(?:inspect|debug)-brk/.test(a)) {
+    if (/^--(?:inspect|debug)(-brk)?(\=\d*)?$/.test(a)) {
         restArgv.push(a);
         return;
     }

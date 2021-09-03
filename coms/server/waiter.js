@@ -9,7 +9,6 @@ process.on("unhandledRejection", process.exit);
 var { HTTPS_PORT, HTTP_PORT } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
 HTTPS_PORT = +HTTPS_PORT || 0;
-var closed = false;
 var reload = require("./liveload");
 var closeListener = function () {
     if (!portedServersList.filter(s => s && s.listening).length) {
@@ -19,7 +18,6 @@ var closeListener = function () {
     }
 };
 var safeQuitProcess = function () {
-    closed = true;
     portedServersList.forEach((server) => {
         server.removeAllListeners();
         server.close(closeListener);

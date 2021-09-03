@@ -1,6 +1,7 @@
 "use strict";
 var cluster = require("cluster");
 var isDevelop = require("../efront/isDevelop");
+var isDebug = require("../efront/isDebug")
 var message = require("../message");
 var clients = require("./clients");
 var fs = require("fs");
@@ -11,7 +12,7 @@ var counter = 0;
 var quitting = [], notkilled = [];
 var workers = [];
 var cpus = require('os').cpus().map(a => 0);
-if (isDevelop) {
+if (isDevelop || isDebug) {
     cpus = [0];
 }
 var end = function () {

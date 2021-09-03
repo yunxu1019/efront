@@ -1,7 +1,6 @@
 "use strict";
 //为了防止因message而形成环形引用，message文件夹中的内容不允许被外界调用
 var cluster = require("cluster");
-var isDebug = require("../basic/isDebug");
 var JSAM = require("../basic/JSAM");
 // message 文件夹中定义主进程的方法
 // 子进程可通过message的属性访问主进程中的方法
@@ -39,7 +38,7 @@ var onmessage = function (msg, __then) {
             var crash = function (error) {
                 error = String(error);
                 status = 403,
-                then(null);
+                    then(null);
             };
             try {
                 Promise.resolve(run.call(onmessage, params)).then(then, crash);
@@ -74,10 +73,10 @@ var send, __send = send = function (worker, key, params, onsuccess, onerror, onf
         params, stamp
     })].join(":"));
 };
-if (isDebug) {
-    __send = send = function () {
-    };
-}
+// if (isDebug) {
+//     __send = send = function () {
+//     };
+// }
 //收到其他进程的回复
 var onresponse = function ({ stamp, params, error }) {
     var callback = callback_maps[stamp];
@@ -97,7 +96,7 @@ var onresponse = function ({ stamp, params, error }) {
 };
 onmessage.onresponse = onresponse;
 
-if (cluster.isMaster && !isDebug) {
+if (cluster.isMaster) {
     onmessage["abpi"] = require("./abpi");
     onmessage["count"] = require("./count");
     onmessage["log"] = require("./log");
