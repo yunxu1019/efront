@@ -1,18 +1,23 @@
 // 部分逻辑参考 https://www.cnblogs.com/ycloneal/p/5191256.html
+
 const MAX_FREQUENCY = 0XFFFF;
 class BitTree extends Array {
     counts = [];
     length = 0;
     total = 0;
-    constructor(arr) {
+    constructor(arr, a) {
         if (isFinite(arr)) {
             arr = new Array(arr);
-            for (var cx = 0, dx = arr.length; cx < dx; cx++)arr[cx] = 1;
+            if (a === undefined) a = 1;
+            for (var cx = 0, dx = arr.length; cx < dx; cx++)arr[cx] = a;
         }
         if (!arr || !arr.length) throw new Error("参数错误！");
         this.counts = arr;
+        this.rebuild();
+    }
+    rebuild() {
+        var arr = this.counts;
         this.length = arr.length + 1;
-        this.total = arr.length;
         for (var cx = 0, dx = this.length; cx < dx; cx++)this[cx] = 0;
         for (var cx = 1, dx = this.length; cx < dx; cx++) {
             var k = cx;
@@ -21,17 +26,19 @@ class BitTree extends Array {
                 k += k & -k;
             }
         }
+        this.total = this.sumTo(arr.length);
     }
     count(index) {
-        if (this.counts[index] >= MAX_FREQUENCY) {
+        if (this.total >= MAX_FREQUENCY) {
             var arr = this.counts;
             for (var cx = 0, dx = arr.length; cx < dx; cx++) {
                 arr[cx] = arr[cx] + 1 >>> 1;
             }
-            this.total = this.sumTo(this.length);
+            this.rebuild();
         }
         this.update(index, this.counts[index] + 1);
         this.total++;
+
     }
     update(index, val) {
         var a = val - this.counts[index];
@@ -56,17 +63,17 @@ class BitTree extends Array {
     }
     find(ef) {
         var dx = this.counts.length;
-        var cx = 1;
+        var cx = 0;
         while (cx + 1 < dx) {
             var ci = cx + dx >> 1;
             var a = this.sumTo(ci);
             if (a > ef) {
-                dx = a;
+                dx = ci;
             }
             else {
-                cx = a;
+                cx = ci;
             }
         }
-        return cx - 1;
+        return cx;
     }
 }

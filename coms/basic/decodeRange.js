@@ -1,39 +1,55 @@
-const R_max = 0x80000000;
-const R_min = 1 << 23;
-var V = 0;
-var R = 0;
+"include ./encodeRange.h";
+var R = R_max,
+	L = 0,
+	d = 0;
 var __buff;
 var __input = 0;
-function guess(T) {
+
+function init() {
+	L = 0;
+	R = R_max;
+	d = 0;
+	var i = code_bits + 1;
+	do {
+		i -= 8;
+		d = shl(d, 8) | input();
+	} while (i > 0);
+}
+
+function input() {
+	if (__input >= __buff.length) return 0;
+	return __buff[__input++];
+}
+
+function guess(T) {// DecodeTarget
 	var code = T;
-	code = V >> 1;
-	R = R / T;
+	code = shr(d, 1);
+	R = R / T | 0;
 	var result;
 	if (code < L) {
-		result = (code + R_max - L) / R;
+		result = (code + R_max - L) / R | 0;
 	}
 	else {
-		result = (code - L) / R;
+		result = (code - L) / R | 0;
 	}
 	return result;
 }
+
 function decode(cf, f) {
 	L += cf * R;
 	R = f * R;
 	while (R <= R_min) {
-		L = L >> 8 & R_max - 1;
-		R = R << 8;
-		V = V << 8 | __buff[__input++];
+		L = shl(L, 8) & R_max - 1;
+		R = shl(R, 8);
+		d = shl(d, 8) | input();
 	}
-	return V;
 }
+
 function main(buff) {
 	__input = 0;
-	R = 0;
-	V = 0;
 	__buff = buff;
-	__buff = null;
-	var tree = new BitTree;
+	init();
+	var tree = new BitTree(symbol_no);
 	var f, cf;
 	var result = [];
 	while (__input < buff.length) {
@@ -41,8 +57,11 @@ function main(buff) {
 		var i = tree.find(g);
 		var cf = tree.sumTo(i);
 		var f = tree.counts[i];
-		var c = decode(cf, f);
-		result.push(c);
+		decode(cf, f);
+		tree.count(i);
+		result.push(i);
 	}
+	__buff = null;
 	return result;
 }
+module.exports = main;
