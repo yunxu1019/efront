@@ -61,6 +61,24 @@ class BitTree extends Array {
     sumRange(start, end) {
         return this.sumTo(end + 1) - this.sumTo(start);
     }
+    find2(ef) {
+        var res = 0;
+        var mask = this.counts.length >>> 1;
+        var id;
+        while (mask !== 0) {
+            id = res + mask;
+            if (ef === this[id]) {
+                res = id;
+                break;
+            }
+            if (ef > this[id]) {
+                res = id;
+                ef -= this[id];
+            }
+            mask = mask >>> 1;
+        }
+        return res;
+    }
     find(ef) {
         var dx = this.counts.length;
         var cx = 0;
