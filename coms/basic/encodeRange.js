@@ -92,6 +92,7 @@ function main(buff) {
 	init();
 	var tree = new BitTree(symbol_no);
 	var dist = __dist = [];
+	writeLEB128(dist, 0, buff.length);
 	for (var cx = 0, dx = buff.length; cx < dx; cx++) {
 		var b = buff[cx];
 		var f = tree.counts[b];

@@ -46,21 +46,23 @@ function decode(cf, f) {
 }
 
 function main(buff) {
-	__input = 0;
+	var [total, offset] = readLEB128(buff, 0);
+	__input = offset;
 	__buff = buff;
 	init();
 	var tree = new BitTree(symbol_no);
 	var f, cf;
 	var result = [];
-	while (__input < buff.length) {
+	while (result.length < total) {
 		var g = guess(tree.total);
-		var i = tree.find(g);
+		var i = tree.find2(g);
 		var cf = tree.sumTo(i);
 		var f = tree.counts[i];
 		decode(cf, f);
 		tree.count(i);
 		result.push(i);
 	}
+	console.log(d);
 	__buff = null;
 	return result;
 }

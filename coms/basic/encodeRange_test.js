@@ -1,13 +1,13 @@
 function test(size) {
     var source = Array(size);
-    for (var cx = 0, dx = source.length; cx < dx; cx++)source[cx] = Math.random() * 256 | 0;
+    for (var cx = 0, dx = source.length; cx < dx; cx++)source[cx] = 32 + Math.random() * 80 | 0;
     var time = new Date;
     var encoded = encodeRange(source);
     var d1 = new Date - time;
     time = new Date;
     var decoded = decodeRange(encoded);
     var d2 = new Date - time;
-    for (var cx = 0, dx = size; cx < dx; cx++) {
+    for (var cx = 0, dx = size + 1; cx < dx; cx++) {
         if (decoded[cx] !== source[cx]) {
             console.log({
                 size,
@@ -15,6 +15,9 @@ function test(size) {
                 encoded,
                 decoded,
                 cx,
+                scx: source[cx],
+                ecx: encoded[cx],
+                dcx: decoded[cx],
             })
             throw new Error("解码异常！");
         }

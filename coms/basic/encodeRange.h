@@ -1,4 +1,4 @@
-const symbol_no = 256;
+const symbol_no = 512;
 const eom = symbol_no;
 const code_bits = 31;
 const shift_bits = code_bits - 8; //shift_bits
