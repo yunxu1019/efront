@@ -383,7 +383,7 @@ var create = function (url, key) {
 var 广告 = document.createElement(/Trident/i.test(navigator.userAgent) ? "Welcome" : "欢迎使用白前看图");
 addClass(广告, 'adv');
 广告.innerHTML = `欢迎使用白前看图 `;
-var alink = anchor('http://efront.cc/baiplay', 'http://efront.cc/baiplay');
+var alink = anchor2('http://efront.cc/baiplay', 'http://efront.cc/baiplay');
 alink.target = "_blank";
 appendChild(广告, alink);
 function picture(url, to = 0, key) {
