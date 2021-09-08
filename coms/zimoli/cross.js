@@ -2,17 +2,21 @@ var FormData = this.FormData;
 var cookiesMap = {};
 //               /////  1   ////////// 2 /////// 3 ////    4  //
 var domainReg = /^(?:(https?)\:)?\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
-var { efrontURI, cross_host = efrontURI } = this;
+var base = domainReg.test(location.href) ? '/' : "http://efront.cc/";
 var location_host = location.href.replace(domainReg, '$1://$2/');
-if (cross_host) {
-    if (!domainReg.test(cross_host)) {
-        console.error("cross_host格式不正确", cross_host);
-        cross_host = "/";
-    } else {
-        cross_host = (/^https/.test(location_host) ? "https://" : "http://") + cross_host.replace(domainReg, '$2/');
+var setHost = function (host) {
+    if (host) {
+        if (!domainReg.test(host)) {
+            console.error("cross_host格式不正确", host);
+            host = "/";
+        } else {
+            host = (/^https/.test(location_host) ? "https://" : "http://") + host.replace(domainReg, '$2/');
+        }
     }
-}
-var base = cross_host || (domainReg.test(location.href) ? '/' : "http://efront.cc/");
+    if (host) base = host;
+};
+var { efrontURI, cross_host = efrontURI } = this;
+if (cross_host) setHost(cross_host);
 var HeadersKeys = ["Content-Type"];
 var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
 var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
@@ -322,6 +326,7 @@ function notCross(domain) {
     return false;
 }
 extend(cross, {
+    setHost,
     getCookies,
     addCookie,
     addDirect,
