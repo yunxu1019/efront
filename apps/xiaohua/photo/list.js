@@ -19,7 +19,7 @@ var scope = render(page, {
         return this.videos ? this.videos.map((e, i) => `.photo-${i}{background-image:url('${this.encode(e)}')}`).join("\r\n") : '';
     },
     encode(src) {
-        return "/@/data/xiaohua/photos" + String(src.href).replace(/\.?[^\.]+$/, function (m) {
+        return "http://efront.cc/@/data/xiaohua/photos" + String(src.href).replace(/\.?[^\.]+$/, function (m) {
             return "!" + user.getPassport() + m;
         });
     },
