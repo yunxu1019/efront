@@ -1,7 +1,7 @@
 var transitionKey = 'transition';
-var bodyStyle = document.body.style;
-if (!transitionKey in document.body.style) {
-    if ('mozTransition' in document.body.style) transitionKey = 'mozTransition';
+var bodyStyle = document.documentElement.style;
+if (!(transitionKey in bodyStyle)) {
+    if ('mozTransition' in bodyStyle) transitionKey = 'mozTransition';
     else if ('webkitTransition' in bodyStyle) {
         transitionKey = 'webkitTransition';
     }
