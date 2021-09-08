@@ -31,6 +31,7 @@ var _createImage = function (url, callback) {
     return imgpic;
 };
 var create = function (url, key) {
+
     var __css = function (a) {
         css.apply(a, arguments);
         if (imgpic) dispatch(imgpic, 'scaled');
@@ -38,6 +39,7 @@ var create = function (url, key) {
     };
     if (!url) return;
     var image = div();
+    image.url = url;
     if (广告 && !广告.parentNode) appendChild(image, 广告);
 
     if (isObject(url)) {
@@ -97,7 +99,6 @@ var create = function (url, key) {
         __css(imgpic, get_style(-1));
     };
 
-    image.url = url;
     var imgpic;
     image.setImage = function (_imgpic) {
         if (!isElement(_imgpic)) _imgpic = this;
@@ -392,6 +393,7 @@ function picture(url, to = 0, key) {
     var gen = function (index, ratio) {
         if (index >= urls.length || index < 0) return null;
         if (images[index] && images[index].url !== urls[index]) {
+            console.log(images[index].url, urls[index]);
             delete images[index];
         }
         if (!images[index]) {
