@@ -9,8 +9,6 @@
   "bin": {
     "efront": "tools/run-efront.bat"
   },
-  "dependencies": {},
-  "devDependencies": {},
   "scripts": {
     "prepare": "node tools/build-efront.js",
     "start": "efront ./efront/ --libs=typescript,esprima,escodegen,esmangle,pngjs,less-node"
