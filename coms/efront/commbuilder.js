@@ -168,6 +168,16 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         allVariables,
         unDeclaredVariables: undeclares
     } = getvariables(code);
+    if (commbuilder.compress === false) {
+        data = escodegen.generate(code);
+        data = typescript.transpile(data, { noEmitHelpers: true });
+        code = esprima.parse(data);
+        var {
+            DeclaredVariables: declares,
+            allVariables,
+            unDeclaredVariables: undeclares
+        } = getvariables(code);
+    }
     var { require: required } = undeclares;
     var globals = Object.keys(undeclares);
     var globalsmap = {};
