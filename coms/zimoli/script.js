@@ -15,15 +15,36 @@ function script(url, judger) {
         clear();
         if (!needcallback || needcallback > 1000) return;
         var res = seek(window, judger);
-        if (res !== undefined) return ok(res), resolve(res);
+        if (res !== undefined){
+            if (res && res.then instanceof Function) {
+                var proto = Object.getPrototypeOf instanceof Function ? Object.getPrototypeOf(res) : res.__proto__;
+                if (Object.setPrototypeOf instanceof Function) Object.setPrototypeOf(res, null);
+                else res.__proto__ = null;
+                if (res.then instanceof Function) {
+                    var _then = res.then;
+                    res.then = null;
+                    if (res.then) _then = null;
+    
+                }
+                resolve(res.then instanceof Function ? null : res);
+                if (proto) {
+                    if (Object.setPrototypeOf instanceof Function) Object.setPrototypeOf(res, proto);
+                    else res.__proto__ = proto;
+                }
+                if (_then) res.then = _then;
+            } else {
+                resolve(res);
+            }
+            return ok(res);
+        } 
         requestAnimationFrame(onload);
         needcallback++;
     };
     var onerror = function (e) {
         clear();
         if (!needcallback || needcallback > 1000) return;
-        oh(e);
         reject(e);
+        oh(e);
     };
     on('load')(script, onload);
     on('error')(script, onerror);
