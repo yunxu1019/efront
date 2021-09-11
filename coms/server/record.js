@@ -59,6 +59,15 @@ function record($url, response, res) {
     };
     var _write = function (error, data, compress) {
         if (error) return _error(error);
+        if (/^\s*<!/.test(data)) {
+            data = String(data)
+                .replace(/<meta[^>]*?\sname=(['"`])referer\1.*?>/ig, '')
+                .replace(/(\<base[^>]*?\shref=)(['"`]|)(.*?)\2/ig, (_, a, b, c) => `${a}${b}${/^\//.test(c) ?
+                    parseURL($url).pathname.slice(1).split("/").map(() => "..").join("/").slice(1) + c
+                    : c
+                    }${b} `)
+                ;
+        }
         if (/(text|javascript|json)/i.test(headers["content-type"]) || /^\s*<!/.test(data)) {
             var reg = /(\s*src=|<(?:link|a)[^>]*\shref=|:\s*|\(|\s)([`'"]?)(?:http(s?):)?\/\/([^\/\2\s\?\#]*)/gi;
             if (record.enabled) {
@@ -70,7 +79,9 @@ function record($url, response, res) {
         } else {
             if (record.enabled) write(fullpath, data);
         }
+        data = Buffer.from(data);
         if (compress === false) {
+            headers["content-length"] = data.length;
             res.writeHead(response.statusCode, headers);
             res.end(data);
             return;
