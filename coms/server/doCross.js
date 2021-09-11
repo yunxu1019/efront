@@ -4,18 +4,9 @@ var Http2ServerResponse = require("http2").Http2ServerResponse;
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 var privateKeys = Object.create(null);
 "Cookie,Connection,Referer,Host,Origin".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
-var memery = require("../efront/memery");
-var options = {
-    record_path: memery.RECORD_PATH
-};
+var record = require("./record");
+var options = {};
 
-if (options.record_path) {
-    let { record_path } = options.record_path;
-    let parseKV = require("../basic/parseKV");
-    if (/\=/.test(record_path)) {
-        options.record_path = parseKV(record_path);
-    }
-}
 -function () {
     var fs = require("fs");
     var path = require("path");
@@ -158,65 +149,10 @@ function cross(req, res, referer) {
                 delete headers["connection"];
             }
             if (!closed) {
-                res.writeHead(response.statusCode, headers);
-                let { record_path } = options;
-                try {
-                    $url = decodeURI($url);
-                } catch (e) {
-                    $url = escape($url);
-                }
-                let { pathname, hostname } = parseURL($url);
-                if (record_path instanceof Object) {
-                    record_path = record_path[hostname];
-                    if (!record_path) {
-                        console.warn("已跳过", $url);
-                    }
-                }
-                if (record_path && response.statusCode === 200) {
-                    let fs = require("fs");
-                    let path = require("path");
-                    if (/[\/\\]$/.test(pathname)) {
-                        pathname = path.join(pathname, 'index.html');
-                    }
-                    let fullpath = path.join(record_path, pathname);
-                    response.pipe(res);
-                    var buffers = [];
-                    response.on("data", function (data) {
-                        buffers.push(data);
-                    });
-                    response.on("end", function () {
-                        fs.mkdir(path.dirname(fullpath), { recursive: true }, function (error) {
-                            if (error) {
-                                console.error("创建文件夹失败", error);
-                            }
-                            var stream = fs.createWriteStream(fullpath);
-                            var data = Buffer.concat(buffers);
-                            var write = function (error, data) {
-                                if (error) {
-                                    console.error(fullpath, error);
-                                    return;
-                                }
-                                console.info('grap', fullpath);
-                                stream.write(data);
-                                stream.end();
-                            };
-                            switch (response.headers["content-encoding"]) {
-                                case "gzip":
-                                    require("zlib").gunzip(data, write);
-                                    break;
-                                case null:
-                                case "":
-                                case undefined:
-                                    write(null, data);
-                                    break;
-                                default:
-                                    console.warn(response.headers["content-encoding"], "not support!");
-                                    write(null, data);
-                            }
-                            // console.log(data);
-                        });
-                    })
+                if (record.enabled && response.statusCode === 200) {
+                    record($url, response, res);
                 } else {
+                    res.writeHead(response.statusCode, headers);
                     response.pipe(res);
                 }
             } else {
