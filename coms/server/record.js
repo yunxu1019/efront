@@ -61,7 +61,7 @@ function record($url, response, res) {
         if (error) return _error(error);
         if (/^\s*<!/.test(data)) {
             data = String(data)
-                .replace(/<meta[^>]*?\sname=(['"`])referer\1.*?>/ig, '')
+                .replace(/<meta[^>]*?\sname=(['"`])referrer\1.*?>/ig, '')
                 .replace(/(\<base[^>]*?\shref=)(['"`]|)(.*?)\2/ig, (_, a, b, c) => `${a}${b}${/^\//.test(c) ?
                     parseURL($url).pathname.slice(1).split("/").map(() => "..").join("/").slice(1) + c
                     : c
