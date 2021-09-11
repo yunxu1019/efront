@@ -36,18 +36,24 @@ function parseUrl(hostpath, real) {
         var realpath = pathname.slice(1);
         hostpath = `${protocol}//${hostname}${port ? ':' + port : ''}/`;
     } else {
-
-        var slice_end = pathname.indexOf("@");
+        if (pathname[1] === "*") var slice_end = pathname.indexOf("/", 2);
+        else slice_end = pathname.indexOf("@", 2);
         if (slice_end < 0) slice_end = pathname.length;
         var realpath = real ? real.slice(1) : pathname.slice(slice_end + 1) + (search || "");
         var jsonlike = pathname.slice(1, slice_end);
-        var matchlike = /^(?:\{|%7b)(s?)(\/|%2f)\2(.*?)\2(.*?)(?:\}|%7d)$/i.exec(jsonlike);
+        // //////////////// 1 -- 2 - /// 3 ////////// 4 /////
+        var matchlike = /^(\*([\*,&])?)(.*?)(?:[\,&](.*?))?$/.exec(jsonlike);
+        if (!matchlike) matchlike = /^(?:\{|%7b)(s?)(\/|%2f)\2(.*?)\2(.*?)(?:\}|%7d)$/i.exec(jsonlike);
         if (matchlike) {
             // {s//wx2.qq.com/k=v,k=v,k=v}
+            // *wx2.qq.com,k=v,k=v,k=v    http only
+            // **wx2.qq.com,k=v,k=v,k=v   https only
+
             var headers = {};
             let [, s, , host, header] = matchlike;
+            if (/\*/.test(s)) s = s.length > 1 ? 's' : '';
             var hostpath = `http${s}://${host}/`;
-            header.split(/[,&]/).forEach(function (kv) {
+            if (header) header.split(/[,&]/).forEach(function (kv) {
                 var [k, v] = kv.split("=");
                 if (k && v) try {
                     headers[decodeURIComponent(k)] = decodeURIComponent(v);
@@ -99,7 +105,7 @@ function cross(req, res, referer) {
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
         var is_proxy = false;
-        if (/^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(_headers.referer) && !headers.referer) {
+        if (/^https?\:\/\/[^\/]*\/(?:\{|%7b|\*)/i.test(_headers.referer) && !headers.referer) {
             headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
             is_proxy = true;
         } else if (_headers.referer || _headers.origin === 'null') {

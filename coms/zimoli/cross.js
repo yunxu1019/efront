@@ -118,10 +118,9 @@ var getCrossUrl = function (domain, headers) {
         _headers.Cookie = _cookies;
     }
     extend(_headers, headers);
-    var spliter = encodeURIComponent("/");
     return domain
         .replace(/^s?\/\//i, "http$&")
-        .replace(domainReg, base + `%7B${/^(https\:|s\/\/)/i.test(domain) ? "s" : ""}${spliter + spliter}$2${spliter}${serialize(_headers)}%7D@$3$4`);
+        .replace(domainReg, base + `*${/^(https\:|s\/\/)/i.test(domain) ? "*" : ""}$2,${serialize(_headers)}/$3$4`);
 };
 function cross(method, url, headers) {
     var originDomain = getDomainPath(url);

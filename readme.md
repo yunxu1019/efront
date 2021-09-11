@@ -102,20 +102,20 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 ```bat
  efront watch --APP=kugou --PUBLIC_PATH=... --PAGE_PATH=...
 ```
-| 配置项 |说明|
-|--|--|
-| `APP` | 应用名，影响最终生成应用的路径和默认的源文件路径
-| `PAGE_PATH`| 页面文件所存放的根路径，默认为`./apps`
-| `COMM_PATH`| 组件文件所存放的根路径，如果存在多个，可以用 `,` 分割，可以使用 `:` 指定为`efront`所提供的组件的路径，默认为`./coms`
-| `PUBLIC_PATH`| 发布的目标根路径，最终生成的代码路径为`PUBLIC_PATH\APP`，如果此项被指定为`PAGE_PATH`，efront将禁用发布功能，在执行`efront start`后，可以通过浏览器访问压缩版本的代码
-| `PUBLIC_EXTT`| 发布的逻辑代码的扩展名，默认`.js`或`.txt`
-| `PAGE`| 页面文件存放的路径，默认为应用名`APP`
-| `COMM`| 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`
-| `PREFIX`| 发布时指定组件className前缀，默认无前缀
-| `NOPROXY`| 传统代理，默认在开发环境开启传统代理，在生产环境禁用传统代理
-| `PATH.SSL_PFX`| ssl证书的路径，证书要使用pfx格式的
-| `PASSWORD.SSL_PFX`| ssl证书密码
-| `DIRECT` | 如果是用`pathname`作为单页应用的页面路径，可以配置此参数，以使空路都指向该参数所指定的路径。如果配置为数值，则自动截取用户路径的前几级，如果指定为字符串，则所有空路径都返回该字符串路径下的内容。
+| 配置项             | 说明                                                                                                                                                                                               |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `APP`              | 应用名，影响最终生成应用的路径和默认的源文件路径                                                                                                                                                   |
+| `PAGE_PATH`        | 页面文件所存放的根路径，默认为`./apps`                                                                                                                                                             |
+| `COMM_PATH`        | 组件文件所存放的根路径，如果存在多个，可以用 `,` 分割，可以使用 `:` 指定为`efront`所提供的组件的路径，默认为`./coms`                                                                               |
+| `PUBLIC_PATH`      | 发布的目标根路径，最终生成的代码路径为`PUBLIC_PATH\APP`，如果此项被指定为`PAGE_PATH`，efront将禁用发布功能，在执行`efront start`后，可以通过浏览器访问压缩版本的代码                               |
+| `PUBLIC_EXTT`      | 发布的逻辑代码的扩展名，默认`.js`或`.txt`                                                                                                                                                          |
+| `PAGE`             | 页面文件存放的路径，默认为应用名`APP`                                                                                                                                                              |
+| `COMM`             | 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`                                                                                                                                     |
+| `PREFIX`           | 发布时指定组件className前缀，默认无前缀                                                                                                                                                            |
+| `NOPROXY`          | 传统代理，默认在开发环境开启传统代理，在生产环境禁用传统代理                                                                                                                                       |
+| `PATH.SSL_PFX`     | ssl证书的路径，证书要使用pfx格式的                                                                                                                                                                 |
+| `PASSWORD.SSL_PFX` | ssl证书密码                                                                                                                                                                                        |
+| `DIRECT`           | 如果是用`pathname`作为单页应用的页面路径，可以配置此参数，以使空路都指向该参数所指定的路径。如果配置为数值，则自动截取用户路径的前几级，如果指定为字符串，则所有空路径都返回该字符串路径下的内容。 |
 
 # 功能选项
 
@@ -125,9 +125,11 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 * efront 默认的初始化脚本是`zimoli('/main');`，可以在body标签上加上`main-path=...`属性指定初始化脚本的路径
 * efront 默认将`page_path`指向的路径中的`.ts,.js,.less,.html`文件识别为页面文件，可以在index.html加上`<script src='libpath/*' type=deleteoncompile></script>`，其中`libpath/*`指向静态文件的路径，efront编译过程将识别并做出正确的处理
 * 如果仅做为跨域服务器使用，可以将开发环境的url改写为如下形式，以使返回结果加上跨域头：
-`http://EFRONT_HOST/{//BACKEND_HOST:PORT/}@APIPATH`
+1. 转发http 用 `*` `http://EFRONT_HOST/*BACKEND_HOST/PATHNAME`
+2. 转发https 用 `**` `http://EFRONT_HOST/**BACKEND_HOST/PATHNAME`
+
 <br/>如：
-如果在本机的88端口启动efront服务器，要访问`http://im.qq.com/` ，可以请求`http://localhost:88/{//im.qq.com/}@`取得带跨域头的数据
+在本机的88端口启动efront服务器，要访问`https://im.qq.com/index` ，可以请求`http://localhost:88/**im.qq.com/index`取得带跨域头的数据
 
 # 注意事项
 
