@@ -176,6 +176,6 @@ move.bindPosition = function (target, position) {
     on("append")(target, resizeTarget);
     on("remove")(target, removeResize);
     if (isMounted(target)) {
-        resizeTarget();
+        resizeTarget.call(target);
     }
 }
