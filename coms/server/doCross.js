@@ -9,7 +9,6 @@ var options = {};
 var crossmark = /[~,;\.&\*]/;
 // ------------ //////////////1--------------- --/ 2 ----------------- ///// 3 ////////// 4 /////
 var matchmark = new RegExp(`^(${crossmark.source}(${crossmark.source}?))${/(.*?)(?:[\,&](.*?))?$/.source}`);
-var prefixreg = new RegExp(/^\//.source + crossmark.source);
 -function () {
     var fs = require("fs");
     var path = require("path");
@@ -191,5 +190,6 @@ function cross(req, res, referer) {
         res.end(String(e));
     }
 }
-cross.prefix = prefixreg;
+cross.prefix = new RegExp(`${/^\//.source}(?:${/\{/.source}|%7b|${crossmark.source})`, 'i');
+cross.referer = new RegExp(`${/^https?\:\/\/[^\/]*/.source}${cross.prefix.source.slice(1)}`, 'i');
 module.exports = cross;
