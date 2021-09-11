@@ -15,7 +15,7 @@ if (memery.RECORD) {
 
 
 function getBasepath(hostname) {
-    var basepath = record_path;
+    var basepath = record_path || '';
     if (basepath instanceof Object) {
         basepath = basepath[hostname];
     }
@@ -26,6 +26,7 @@ function getBasepath(hostname) {
     return basepath;
 }
 function getFilepath($url) {
+    if (!record_path) return;
     try {
         $url = decodeURI($url);
     } catch (e) {
@@ -51,7 +52,6 @@ function write(fullpath, data) {
     });
 }
 function record($url, response, res) {
-    if (!record_path) return;
     var fullpath = getFilepath($url);
     var _error = function (error) {
         res.writeHead(response.statusCode, response.headers);
@@ -60,12 +60,15 @@ function record($url, response, res) {
     var _write = function (error, data, compress) {
         if (error) return _error(error);
         if (/(text|javascript|json)/i.test(headers["content-type"]) || /^\s*<!/.test(data)) {
-            var reg = /(<script[^>]* src|<link[^>]* href)=(['"])http(s?):\/\/([^\/\2]*)/gi;
-            var data1 = String(data).replace(reg, (_, a, b, c, d) => `${a}=${b}/${getBasepath(d)}`);
-            write(fullpath, data1);
-            data = String(data).replace(reg, (_, a, b, c, d) => `${a}=${b}/*${c ? "*" : ''}${d}`);
+            var reg = /(\s*src=|<(?:link|a)[^>]*\shref=|:\s*|\(|\s)([`'"]?)(?:http(s?):)?\/\/([^\/\2\s\?\#]*)/gi;
+            if (record.enabled) {
+                var data1 = String(data).replace(reg, (_, a, b, c, d) => `${a}${b}/${getBasepath(d)}`);
+                write(fullpath, data1);
+            }
+            var mark = record.enabled ? "*" : "~";
+            data = String(data).replace(reg, (_, a, b, c, d) => `${a}${b}/${mark}${c ? mark : ''}${d}`);
         } else {
-            write(fullpath, data);
+            if (record.enabled) write(fullpath, data);
         }
         if (compress === false) {
             res.writeHead(response.statusCode, headers);

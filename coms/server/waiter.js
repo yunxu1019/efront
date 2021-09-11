@@ -140,10 +140,10 @@ var requestListener = function (req, res) {
     if (/^\/@/i.test(req.url)) {
         return doFile(req, res);
     }
-    if (/^\/(\{|%7b|\*)/i.test(req.url)) {
+    if (doCross.prefix.test(req.url) || /^\/(\{|%7b)/i.test(req.url)) {
         return doCross(req, res, false);
     }
-    if (/^https?\:\/\/[^\/]*\/(?:\{|%7b|\*)/i.test(req.headers.referer)) {
+    if (doCross.prefix.test(req.headers.referer) || /^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(req.headers.referer)) {
         return doCross(req, res, req.headers.referer);
     }
     if (req.headers.range) {

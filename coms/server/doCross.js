@@ -6,7 +6,10 @@ var privateKeys = Object.create(null);
 "Cookie,Connection,Referer,Host,Origin".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
 var record = require("./record");
 var options = {};
-
+var crossmark = /[~,;\.&\*]/;
+// ------------ //////////////1--------------- --/ 2 ----------------- ///// 3 ////////// 4 /////
+var matchmark = new RegExp(`^(${crossmark.source}(${crossmark.source}?))${/(.*?)(?:[\,&](.*?))?$/.source}`);
+var prefixreg = new RegExp(/^\//.source + crossmark.source);
 -function () {
     var fs = require("fs");
     var path = require("path");
@@ -27,13 +30,13 @@ function parseUrl(hostpath, real) {
         var realpath = pathname.slice(1);
         hostpath = `${protocol}//${hostname}${port ? ':' + port : ''}/`;
     } else {
-        if (pathname[1] === "*") var slice_end = pathname.indexOf("/", 2);
+        if (crossmark.test(pathname[1])) var slice_end = pathname.indexOf("/", 2);
         else slice_end = pathname.indexOf("@", 2);
         if (slice_end < 0) slice_end = pathname.length;
         var realpath = real ? real.slice(1) : pathname.slice(slice_end + 1) + (search || "");
         var jsonlike = pathname.slice(1, slice_end);
         // //////////////// 1 -- 2 - /// 3 ////////// 4 /////
-        var matchlike = /^(\*([\*,&])?)(.*?)(?:[\,&](.*?))?$/.exec(jsonlike);
+        var matchlike = matchmark.exec(jsonlike);
         if (!matchlike) matchlike = /^(?:\{|%7b)(s?)(\/|%2f)\2(.*?)\2(.*?)(?:\}|%7d)$/i.exec(jsonlike);
         if (matchlike) {
             // {s//wx2.qq.com/k=v,k=v,k=v}
@@ -42,7 +45,7 @@ function parseUrl(hostpath, real) {
 
             var headers = {};
             let [, s, , host, header] = matchlike;
-            if (/\*/.test(s)) s = s.length > 1 ? 's' : '';
+            if (crossmark.test(s)) s = s.length > 1 ? 's' : '';
             var hostpath = `http${s}://${host}/`;
             if (header) header.split(/[,&]/).forEach(function (kv) {
                 var [k, v] = kv.split("=");
@@ -81,7 +84,7 @@ function cross(req, res, referer) {
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
             if (/^head|^get/i.test(req.method)) {
-                var redirect = "/" + unescape(jsonlike) + "@" + realpath;
+                var redirect = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
                 res.writeHead(302, {
                     "Location": redirect
                 });
@@ -96,7 +99,7 @@ function cross(req, res, referer) {
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
         var is_proxy = false;
-        if (/^https?\:\/\/[^\/]*\/(?:\{|%7b|\*)/i.test(_headers.referer) && !headers.referer) {
+        if ((/^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(_headers.referer) || crossmark.test(_headers.referer)) && !headers.referer) {
             headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
             is_proxy = true;
         } else if (_headers.referer || _headers.origin === 'null') {
@@ -149,7 +152,7 @@ function cross(req, res, referer) {
                 delete headers["connection"];
             }
             if (!closed) {
-                if (record.enabled && response.statusCode === 200) {
+                if ((record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                     record($url, response, res);
                 } else {
                     res.writeHead(response.statusCode, headers);
@@ -188,4 +191,5 @@ function cross(req, res, referer) {
         res.end(String(e));
     }
 }
+cross.prefix = prefixreg;
 module.exports = cross;
