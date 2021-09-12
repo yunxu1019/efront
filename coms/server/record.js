@@ -78,8 +78,9 @@ function record($url, request, response, req, res) {
                     .replace(reg, (_, a, b, c, d) => `${a}${b}/${getBasepath(d)}`);
                 write(fullpath, data1);
             }
-            data = String(data).replace(reg0, (_, b, c) => `${b}//${req.headers.host}/&${c}`
-            ).replace(reg, (_, a, b, c, d) => `${a}${b}/${mark}${c ? mark : ''}${d}`);
+            var host = (req.headers.host || parseURL(req.referer).host);
+            data = String(data).replace(reg0, (_, b, c) => `${b}${host ? '//' + host : ''}/&${c}${b}`)
+                .replace(reg, (_, a, b, c, d) => `${a}${b}/${mark}${c ? mark : ''}${d}`);
         } else {
             if (record.enabled) write(fullpath, data);
         }
