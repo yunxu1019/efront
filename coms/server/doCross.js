@@ -93,13 +93,13 @@ function cross(req, res, referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
         }
         if (/^&/.test(jsonlike)) hostpath = hostpath.replace(/^https?:/i, req.protocol);
-
+        
         var $url = hostpath + realpath;
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
         var is_proxy = false;
-        if ((/^https?\:\/\/[^\/]*\/(?:\{|%7b)/i.test(_headers.referer) || crossmark.test(_headers.referer)) && !headers.referer) {
+        if (cross.referer.test(_headers.referer) && !headers.referer) {
             headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
             is_proxy = true;
         } else if (_headers.referer || _headers.origin === 'null') {
@@ -132,7 +132,7 @@ function cross(req, res, referer) {
         } else {
             http = require("http");
         }
-
+        
         var request = http.request(Object.assign({
             method: method,
             headers: headers,
