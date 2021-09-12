@@ -1,6 +1,7 @@
 let fs = require("fs");
 let path = require("path");
 var memery = require("../efront/memery");
+var parseURL = require("../basic/parseURL");
 var record_path;
 if (memery.RECORD) {
     let { RECORD } = memery;
@@ -74,7 +75,7 @@ function record($url, request, response, req, res) {
             var reg0 = /(['"`])\/\/(.*?)\1/g;
             var reg = /([\.\]](?:src|href|)\s*=\s*|<(?:link|a)[^>]*\shref=|url\()([`'"]?)http(s?):\/\/([^\/\2\s\?\#]*)/gi;
             if (record.enabled) {
-                var data1 = data.replace(reg0, (_, b, c) => `${b}/${getBasepath(c)}`)
+                var data1 = String(data).replace(reg0, (_, b, c) => `${b}/${getBasepath(c)}`)
                     .replace(reg, (_, a, b, c, d) => `${a}${b}/${getBasepath(d)}`);
                 write(fullpath, data1);
             }
