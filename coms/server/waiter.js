@@ -52,6 +52,7 @@ var doProxy = require("./doProxy");
 var ppid = process.ppid;
 var version = 'efront/' + ppid;
 var requestListener = function (req, res) {
+    req.protocol = this === server1 ? 'http:' : 'https:';
     var req_access_origin = req.headers["origin"];
     var req_access_headers = req.headers["access-control-request-headers"];
     var req_access_method = req.headers["access-control-request-method"];

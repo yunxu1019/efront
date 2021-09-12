@@ -89,11 +89,12 @@ function cross(req, res, referer) {
                 });
                 return res.end();
             }
-            var $url = hostpath + realpath;
         } else {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
-            var $url = hostpath + realpath;
         }
+        if (/^&/.test(jsonlike)) hostpath = hostpath.replace(/^https?:/i, req.protocol);
+
+        var $url = hostpath + realpath;
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
@@ -131,6 +132,7 @@ function cross(req, res, referer) {
         } else {
             http = require("http");
         }
+
         var request = http.request(Object.assign({
             method: method,
             headers: headers,
@@ -152,7 +154,7 @@ function cross(req, res, referer) {
             }
             if (!closed) {
                 if ((record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
-                    record($url, response, res);
+                    record($url, request, response, req, res);
                 } else {
                     res.writeHead(response.statusCode, headers);
                     response.pipe(res);

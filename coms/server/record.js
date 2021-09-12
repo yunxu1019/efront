@@ -51,7 +51,7 @@ function write(fullpath, data) {
         console.info('grap', fullpath);
     });
 }
-function record($url, response, res) {
+function record($url, request, response, req, res) {
     var fullpath = getFilepath($url);
     var _error = function (error) {
         res.writeHead(response.statusCode, response.headers);
@@ -59,6 +59,7 @@ function record($url, response, res) {
     };
     var _write = function (error, data, compress) {
         if (error) return _error(error);
+        var mark = record.enabled ? "*" : "~";
         if (/^\s*<!/.test(data)) {
             data = String(data)
                 .replace(/<meta[^>]*?\sname=(['"`])referrer\1.*?>/ig, '')
@@ -69,13 +70,16 @@ function record($url, response, res) {
                 ;
         }
         if (/(text|javascript|json)/i.test(headers["content-type"]) || /^\s*<!/.test(data)) {
-            var reg = /(\s*src=|<(?:link|a)[^>]*\shref=|:\s*|\(|\s)([`'"]?)(?:http(s?):)?\/\/([^\/\2\s\?\#]*)/gi;
+            // ```````//1------------------------------------------------------1// -2-- //////3 ///////// ----- 4 ----- /
+            var reg0 = /(['"`])\/\/(.*?)\1/g;
+            var reg = /([\.\]](?:src|href|)\s*=\s*|<(?:link|a)[^>]*\shref=|url\()([`'"]?)http(s?):\/\/([^\/\2\s\?\#]*)/gi;
             if (record.enabled) {
-                var data1 = String(data).replace(reg, (_, a, b, c, d) => `${a}${b}/${getBasepath(d)}`);
+                var data1 = data.replace(reg0, (_, b, c) => `${b}/${getBasepath(c)}`)
+                    .replace(reg, (_, a, b, c, d) => `${a}${b}/${getBasepath(d)}`);
                 write(fullpath, data1);
             }
-            var mark = record.enabled ? "*" : "~";
-            data = String(data).replace(reg, (_, a, b, c, d) => `${a}${b}/${mark}${c ? mark : ''}${d}`);
+            data = String(data).replace(reg0, (_, b, c) => `${b}//${req.headers.host}/&${c}`
+            ).replace(reg, (_, a, b, c, d) => `${a}${b}/${mark}${c ? mark : ''}${d}`);
         } else {
             if (record.enabled) write(fullpath, data);
         }
