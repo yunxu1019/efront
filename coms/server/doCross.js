@@ -151,7 +151,7 @@ function cross(req, res, referer) {
                 delete headers["connection"];
             }
             if (!closed) {
-                if ((record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
+                if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                     record($url, request, response, req, res);
                 } else {
                     res.writeHead(response.statusCode, headers);

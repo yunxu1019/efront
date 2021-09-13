@@ -4,8 +4,11 @@ var path = require("path");
 var filebuilder = require("../efront/filebuilder");
 var checkAccess = require("./checkAccess");
 var doFile = require("./doFile");
+var doCross = require("./doCross");
 var isDevelop = require("../efront/isDevelop");
 var memery = require("../efront/memery");
+var transfer = require("./transfer");
+var parseURL = require("../basic/parseURL");
 var isObject = require("../basic/isObject");
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var PUBLIC_PATH = memery.PUBLIC_PATH;
@@ -24,6 +27,9 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
                 return `url(${q || ''}${s}${q || ''})`;
             }));
         }
+    }
+    if (memery.TRANSFER && /\.(m?[tj]sx?|html?|json|css|less)$/i.test(fullpath)) {
+        data = Buffer.from(transfer(data));
     }
     return new Promise(function (ok, oh) {
         if (data instanceof Function) {
@@ -149,6 +155,12 @@ var adapter = function (data, url, req, res) {
         data = getfile(direct, ['', 'default.html', "index.html", 'index.htm', 'index.jsp', 'index.asp', 'index.php']);
         return adapter(data, direct, req, res);
     }
+    if (typeof memery.TRANSFER === "string") {
+        var p = parseURL(memery.TRANSFER);
+        req.url = "/" + (/^https:/i.test(p.protocol) ? '~~' : !p.protocol ? "&" : "~") + p.host + p.path + req.url;
+        return doCross(req, res);
+    }
+
     res.writeHead(404, {});
     res.end("not found");
 };

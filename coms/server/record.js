@@ -23,7 +23,7 @@ function getBasepath(hostname) {
     if (basepath === true || basepath === '*') {
         basepath = hostname;
     }
-    if (basepath === '.') basepath = '';
+    if (basepath === '.' || hostname === parseURL(memery.TRANSFER).host) basepath = './';
     return basepath;
 }
 function getFilepath($url) {
@@ -48,7 +48,6 @@ function write(fullpath, data) {
         var stream = fs.createWriteStream(fullpath);
         stream.write(data);
         stream.end();
-
         console.info('grap', fullpath);
     });
 }
@@ -75,9 +74,7 @@ function record($url, request, response, req, res) {
             var reg0 = /(['"`])\/\/(.*?)\1/g;
             var reg = /([\.\]](?:src|href|url|)\s*=\s*|\ssrc\s*=|<(?:link|a)[^>]*\shref=|url\(|(?=['"`]))([`'"]?)http(s?):\/\/([^\/'"`\s\?\#]*)/gi;
             if (record.enabled) {
-                var data1 = String(data).replace(reg0, (_, b, c) => `${b}/${getBasepath(c)}`)
-                    .replace(reg, (_, a, b, c, d) => `${a}${b}/${getBasepath(d)}`);
-                write(fullpath, data1);
+                write(fullpath, data);
             }
             var host = req.headers.host || parseURL(req.referer).host;
             data = String(data).replace(reg0, (_, b, c) => `${b}${host ? '//' + host : ''}/&${c}${b}`)
