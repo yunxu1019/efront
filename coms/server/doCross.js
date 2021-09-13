@@ -82,26 +82,17 @@ function cross(req, res, referer) {
     try {
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
-            if (/^head|^get/i.test(req.method)) {
-                var redirect = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
-                res.writeHead(302, {
-                    "Location": redirect
-                });
-                return res.end();
-            }
-        } else {
-            var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
+            req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
         }
+        var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
         if (/^&/.test(jsonlike)) hostpath = hostpath.replace(/^https?:/i, req.protocol);
-        
+
         var $url = hostpath + realpath;
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
-        var is_proxy = false;
         if (cross.referer.test(_headers.referer) && !headers.referer) {
             headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
-            is_proxy = true;
         } else if (_headers.referer || _headers.origin === 'null') {
             headers.referer = hostpath;
         }
@@ -132,7 +123,7 @@ function cross(req, res, referer) {
         } else {
             http = require("http");
         }
-        
+
         var request = http.request(Object.assign({
             method: method,
             headers: headers,
@@ -140,8 +131,15 @@ function cross(req, res, referer) {
         }, parseURL($url), options), function (response) {
             var headers = response.headers;
             var setCookie = headers["set-cookie"];
-            if (setCookie && !is_proxy) headers["efront-cookie"] = setCookie, delete headers["set-cookie"];
-            if (headers.location && referer === false) {
+            if (setCookie && req.referer && referer === false) headers["efront-cookie"] = setCookie, delete headers["set-cookie"];
+            a: if (headers.location && referer === false) {
+                var parsed = parseURL(headers.location);
+                if (parsed.host) {
+                    var mark = crossmark.test(jsonlike[0]) ? jsonlike[0] : '~';
+                    if (parsed.protocol) mark = "~";
+                    headers["location"] = "/" + mark + (/^https:/i.test(parsed.protocol || req.protocol) ? mark : "") + parsed.host + parsed.path;
+                    break a;
+                }
                 headers["efront-location"] = headers.location;
                 delete headers.location;
             }

@@ -73,13 +73,13 @@ function record($url, request, response, req, res) {
         if (/(text|javascript|json)/i.test(headers["content-type"]) || /^\s*<!/.test(data)) {
             // ```````//1------------------------------------------------------1// -2-- //////3 ///////// ----- 4 ----- /
             var reg0 = /(['"`])\/\/(.*?)\1/g;
-            var reg = /([\.\]](?:src|href|)\s*=\s*|<(?:link|a)[^>]*\shref=|url\()([`'"]?)http(s?):\/\/([^\/\2\s\?\#]*)/gi;
+            var reg = /([\.\]](?:src|href|url|)\s*=\s*|\ssrc\s*=|<(?:link|a)[^>]*\shref=|url\(|(?=['"`]))([`'"]?)http(s?):\/\/([^\/'"`\s\?\#]*)/gi;
             if (record.enabled) {
                 var data1 = String(data).replace(reg0, (_, b, c) => `${b}/${getBasepath(c)}`)
                     .replace(reg, (_, a, b, c, d) => `${a}${b}/${getBasepath(d)}`);
                 write(fullpath, data1);
             }
-            var host = (req.headers.host || parseURL(req.referer).host);
+            var host = req.headers.host || parseURL(req.referer).host;
             data = String(data).replace(reg0, (_, b, c) => `${b}${host ? '//' + host : ''}/&${c}${b}`)
                 .replace(reg, (_, a, b, c, d) => `${a}${b}/${mark}${c ? mark : ''}${d}`);
         } else {
