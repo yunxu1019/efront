@@ -388,7 +388,10 @@ function create(pagepath, args, from, needroles) {
     return _page;
 
 }
+
+var zimoliid = 0;
 function zimoli(pagepath, args, history_name, oldpagepath) {
+    var zid = ++zimoliid;
     if (arguments.length === 0) {
         history_name = current_history;
         var _history = history[history_name] || [];
@@ -405,6 +408,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
     }
     if (page_generators[pagepath]) return go(pagepath, args, history_name, oldpagepath);
     return prepare(pagepath, function () {
+        if (zid !== zimoliid) return;
         return go(pagepath, args, history_name, oldpagepath);
     });
 }
