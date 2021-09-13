@@ -12,6 +12,7 @@ var PUBLIC_PATH = memery.PUBLIC_PATH;
 var APPS_PATH = memery.PAGE_PATH;
 var SERVER_ROOT_PATH = isDevelop ? APPS_PATH : PUBLIC_PATH;
 var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filename, fullpath) {
+    var origin_size = data.length;
     var data = filebuilder.apply(this, arguments);
     if (/\.css$/i.test(fullpath)) {
         if (memery.APP) {
@@ -32,11 +33,12 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
             }
             return ok(data);
         }
+        data.origin_size = origin_size;
         zlib.gzip(data, function (error, result) {
             if (error) {
                 oh(error);
             } else if (data.length > result.length) {
-                result.origin_size = data.length;
+                result.origin_size = origin_size;
                 ok(result);
             } else {
                 ok(data);
