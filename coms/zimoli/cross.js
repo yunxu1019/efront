@@ -5,15 +5,11 @@ var domainReg = /^(?:(https?)\:)?\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
 var base = domainReg.test(location.href) ? '/' : "http://efront.cc/";
 var location_host = location.href.replace(domainReg, '$1://$2/');
 var setHost = function (host) {
-    if (host) {
-        if (!domainReg.test(host)) {
-            console.error("cross_host格式不正确", host);
-            host = "/";
-        } else {
-            host = (/^https/.test(location_host) ? "https://" : "http://") + host.replace(domainReg, '$2/');
-        }
-    }
-    if (host) base = host;
+    var parsed = parseURL(host);
+    if (!host) return console.error("cross_host格式不正确", host);
+    var host = parsed.host + (parsed.pathname || '/');
+    host = (/^https/.test(location_host) ? "https://" : "http://") + host;
+    base = host;
 };
 var { efrontURI, cross_host = efrontURI } = this;
 if (cross_host) setHost(cross_host);
@@ -33,9 +29,9 @@ function getDomainPath(url) {
 }
 function getRequestProtocol(url) {
     if (/^https:/i.test(url)) {
-        return "https";
+        return "https:";
     }
-    return "http";
+    return "http:";
 }
 function getCookies(domainPath) {
     var cookieObject = {};
@@ -118,9 +114,11 @@ var getCrossUrl = function (domain, headers) {
         _headers.Cookie = _cookies;
     }
     extend(_headers, headers);
+    _headers = serialize(_headers);
+    if (_headers) _headers = "," + _headers;
     return domain
         .replace(/^s?\/\//i, "http$&")
-        .replace(domainReg, base + `*${/^(https\:|s\/\/)/i.test(domain) ? "*" : ""}$2,${serialize(_headers)}/$3$4`);
+        .replace(domainReg, base + `*${/^(https\:|s\/\/)/i.test(domain) ? "*" : ""}$2${_headers}/$3$4`);
 };
 function cross(method, url, headers) {
     var originDomain = getDomainPath(url);
@@ -196,7 +194,7 @@ function cross(method, url, headers) {
                             } else {
                                 location = originDomain.replace(/[^\/+]$/, location);
                             }
-                            location = getRequestProtocol(url) + "://" + location;
+                            location = getRequestProtocol(url) + "//" + location;
                         }
                         var crs = cross("get", location, headers);
                         crs.isRedirected = (xhr.isRedirected || 0) + 1;
