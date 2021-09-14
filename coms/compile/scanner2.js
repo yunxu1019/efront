@@ -25,7 +25,6 @@ var mergeTo = function (used, used0) {
         for (var s of v) saveTo(used, k, s);
     }
 };
-
 var skipAssignment = function (o) {
     loop: while (o) switch (o.type) {
         case STAMP:
@@ -37,9 +36,20 @@ var skipAssignment = function (o) {
                 case "--":
                     o = o.next;
                     if (!o) break loop;
+                    if (o.type === EXPRESS) {
+                        if (o.prev.prev && prev.prev.type === EXPRESS) break loop;
+                        continue loop;
+                    }
                     if (o.type !== STAMP) {
                         o = o.next;
                         break loop;
+                    }
+                    break;
+                case "=>":
+                    o = o.next;
+                    if (!o) break loop;
+                    if (o.type === SCOPED && o.entry === "{") {
+                        o.isfunc = true;
                     }
                     break;
                 default:
@@ -48,6 +58,7 @@ var skipAssignment = function (o) {
             break;
         case SCOPED:
             if (!o.isObject && o.entry === "{") break loop;
+            if (o.entry === '(' && o.prev.type === SCOPED && !o.prev.isfunc) break loop;
             o = o.next;
             break;
         case EXPRESS:
@@ -84,6 +95,7 @@ var skipAssignment = function (o) {
                 if (o && o.type === EXPRESS) o = o.next;
                 if (o) o = o.next;
                 if (o) o = o.next;
+                o.isfunc = true;
                 break;
             }
             o = o.next;
@@ -122,7 +134,7 @@ var needBreak = function (prev, next) {
     }
 };
 
-var getDeclared = function (o) {
+var getDeclared = function (o, kind) {
     var declared = Object.create(null), used = Object.create(null); var skiped = [];
     loop: while (o) {
         switch (o.type) {
@@ -142,12 +154,12 @@ var getDeclared = function (o) {
                 break;
             case EXPRESS:
                 declared[o.text] = true;
+                o.kind = kind;
                 saveTo(used, o.text, o);
                 o = o.next;
                 break;
             case SCOPED:
-                var [d, u, _, s] = getDeclared(o.first);
-                if (o.findIndex(a => a.text === "areTypesComparable") >= 0) console.log(o.prev.prev.prev);
+                var [d, u, _, s] = getDeclared(o.first, kind);
                 while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
                 mergeTo(used, u);
                 Object.assign(declared, d);
@@ -302,7 +314,7 @@ class Program extends Array {
         return result.join("");
     }
     toScoped() {
-        var used = Object.create(null); var vars = Object.create(null), lets = Object.create(null); var scoped = [];
+        var used = Object.create(null); var vars = Object.create(null), lets = vars; var scoped = [];
         var run = function (o, id) {
             loop: while (o) {
                 var isFunction = false;
@@ -316,6 +328,7 @@ class Program extends Array {
                     case STAMP:
                         break;
                     case EXPRESS:
+
                         if (o.prev && o.prev.type === EXPRESS) {
                             if (/\.$/.test(o.prev.text)) break;
                         }
@@ -333,6 +346,7 @@ class Program extends Array {
                         var name = o.text;
                         name = name.slice(0, name.length - 1);
                         vars[name] = true;
+                        o.kind = "label";
                         saveTo(used, name, o);
                         break;
 
@@ -345,7 +359,7 @@ class Program extends Array {
                             case "let":
                             case "const":
                                 m = m || lets;
-                                var [declared, used0, o0, skiped] = getDeclared(o.next);
+                                var [declared, used0, o0, skiped] = getDeclared(o.next, s);
                                 while (skiped.length) {
                                     var o1 = run(skiped[0], 0);
                                     let sindex = skiped.indexOf(o1);
@@ -364,6 +378,7 @@ class Program extends Array {
 
                                     if (o.type === EXPRESS) {
                                         vars[o.text] = true;
+                                        o.kind = isFunction ? 'function' : 'class';
                                         saveTo(used, o.text, o);
 
                                         o = o.next;
@@ -419,6 +434,7 @@ class Program extends Array {
                         o = o.next;
                         if (o.type === EXPRESS) {
                             vars[o.text] = true;
+                            o.kind = isFunction ? 'function' : 'class';
                             saveTo(used, o.text, o);
                             o = o.next;
                         }
@@ -433,7 +449,7 @@ class Program extends Array {
                     if (o.entry === "(") {
                         o.isExpress = isExpress;
                         if (isFunction) {
-                            var [declared, used0, o0, skiped] = getDeclared(o.first);
+                            var [declared, used0, o0, skiped] = getDeclared(o.first, 'argument');
                             mergeTo(used, used0);
                             while (skiped.length) {
                                 var o1 = run(skiped[0], 0);
@@ -452,6 +468,7 @@ class Program extends Array {
                     }
                     else if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         vars[o.text] = true;
+                        o.kind = 'argument';
                         saveTo(used, o.text, o);
                         o = o.next.next;
                     }
@@ -466,8 +483,10 @@ class Program extends Array {
                             o = run(o, 0);
                             var next = o.next;
                             if (!next) break;
-                            if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) || ~[EXPRESS, VALUE, QUOTED, SCOPED].indexOf(o.type)) {
-                                if (~[EXPRESS, VALUE, QUOTED, PROPERTY, LABEL].indexOf(next.type)) break;
+                            var e = o;
+                            if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) || ~[VALUE, QUOTED, SCOPED].indexOf(o.type) || EXPRESS === o.type && !/\.$/.test(o.text)) {
+                                if (~[VALUE, QUOTED, PROPERTY, LABEL].indexOf(next.type)) break;
+                                if (EXPRESS === next.type && !/^\./.test(next.text)) break;
                                 if (next.type === SCOPED && next.entry === "{") break;
                             }
                             o = next;
@@ -475,7 +494,6 @@ class Program extends Array {
                     }
                     var map = isFunction ? vars : lets;
                     for (var k in used) {
-                        // if (k === 'areTypesComparable') console.log(vars, lets, isFunction);
                         if (!(k in map)) {
                             for (var u of used[k]) {
                                 saveTo(_used, k, u);
@@ -495,8 +513,17 @@ class Program extends Array {
         run(this.first);
         scoped.used = used;
         scoped.vars = vars;
-        scoped.lets = lets;
         return scoped;
+    }
+    getUndecleared() {
+        var { vars, lets, used } = this.toScoped();
+        var globals = Object.create(null);
+        for (var u in used) {
+            if (!(u in vars)) {
+                globals[u] = true;
+            }
+        }
+        return globals;
     }
     press() {
         this.pressed = true;
@@ -658,6 +685,7 @@ class Javascript {
                                     queue.inExpress = false;
                                     break check;
                                 }
+                                if (!temp.isExpress) break;
                                 temp = temp.prev;
                             }
                             queue.inExpress = false;
@@ -851,8 +879,7 @@ class Javascript {
                     }
                     else if (!queue.lastUncomment || ~[STAMP, STRAP].indexOf(queue.lastUncomment.type)) {
                         scope.inExpress = queue.inExpress;
-                        if (queue.inExpress) scope.isObject = true;
-                        else if (queue.lastUncomment && queue.lastUncomment.text !== "=>") scope.isObject = scope.inExpress;
+                        if (queue.lastUncomment && !/try|do|=>|;/i.test(queue.lastUncomment.text)) scope.isObject = scope.inExpress;
                     }
                     else {
                         scope.inExpress = false;
