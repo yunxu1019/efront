@@ -4,8 +4,6 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-
         {
             "type": "node",
             "request": "launch",
@@ -20,8 +18,8 @@
             "cwd": "${workspaceFolder}",
             "env": {
                 "public_path": "public",
-                "libs_path":"./",
-                "libs":"typescript,esprima,escodegen,esmangle,pngjs,less-node"
+                "libs_path": "./",
+                "libs": "typescript,esprima,escodegen,esmangle,pngjs,less-node"
             },
             "args": [
                 "./efront/index",
@@ -42,8 +40,8 @@
                 "app": "efront/index.js",
                 "extt": ".js",
                 "coms": "./",
-                "libs_path":"./",
-                "libs":"typescript,esprima,escodegen,esmangle,pngjs,less-node",
+                "libs_path": "./",
+                "libs": "typescript,esprima,escodegen,esmangle,pngjs,less-node",
                 "destpath": "efront.js"
             },
             "args": [

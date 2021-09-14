@@ -136,8 +136,15 @@ var needBreak = function (prev, next) {
 };
 
 var getDeclared = function (o, kind) {
+
     var declared = Object.create(null), used = Object.create(null); var skiped = [];
     loop: while (o) {
+        if (o.isprop) {
+            if (o.next && o.next.type === STAMP && o.next.text === ":") {
+                o = o.next;
+                o = o.next;
+            }
+        }
         switch (o.type) {
             case STRAP:
                 if (/^(in|of)$/.test(o.text)) {
@@ -153,6 +160,9 @@ var getDeclared = function (o, kind) {
             case VALUE:
                 o = o.next;
                 break;
+            case QUOTED:
+                if (!o.isprop) break loop;
+            case PROPERTY:
             case EXPRESS:
                 declared[o.text] = true;
                 o.kind = kind;
@@ -166,6 +176,7 @@ var getDeclared = function (o, kind) {
                 Object.assign(declared, d);
                 o = o.next;
                 break;
+
             case STAMP:
                 if (o.text === "=") {
                     o = o.next;
@@ -594,6 +605,9 @@ class Javascript {
         queue.__proto__ = Program.prototype;
         var origin = queue;
         var queue_push = function (scope) {
+            if (~[VALUE, QUOTED, SCOPED, EXPRESS, PROPERTY].indexOf(scope.type)) {
+                scope.isprop = isProperty();
+            }
             var last = queue.lastUncomment;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (last) {
@@ -883,7 +897,7 @@ class Javascript {
                     }
                     else if (!queue.lastUncomment || ~[STAMP, STRAP].indexOf(queue.lastUncomment.type)) {
                         scope.inExpress = queue.inExpress;
-                        if (queue.lastUncomment && !/try|do|=>|;/i.test(queue.lastUncomment.text)) scope.isObject = scope.inExpress;
+                        if (queue.lastUncomment && !/try|do|=>|;|else|catch/i.test(queue.lastUncomment.text)) scope.isObject = true;
                     }
                     else {
                         scope.inExpress = false;

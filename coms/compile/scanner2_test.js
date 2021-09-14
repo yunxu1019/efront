@@ -1,5 +1,8 @@
 var fs = require("fs");
 var path = require("path");
+var esprima = require("../esprima/index");
+var typescript = require("../typescript/index");
+var console = require("../efront/colored_console");
 var scanner = require("./scanner2");
 var data = fs.readFileSync(path.join(__dirname, "../typescript/index.js")).toString();
 var data2 = fs.readFileSync(path.join(__dirname, "./scanner2.js")).toString();
@@ -13,7 +16,6 @@ function test(parser, name) {
 }
 function testSpeed() {
 
-    var esprima = require("../esprima/index");
     var scanned = test(scanner, 'scanner2');
     var start = new Date();
     var data3 = scanned.press().toString();
@@ -25,8 +27,40 @@ function testSpeed() {
 }
 
 function testVariables() {
-    var globals = scanner(data2).getUndecleared();
-    console.log(globals);
+    var rootpath = path.join(__dirname, "../zimoli/");
+    var getVariables = require("./variables");
+    var names = fs.readdirSync(rootpath);
+    names.forEach(n => {
+        if (!/\.js$/i.test(n)) return;
+        var data3 = fs.readFileSync(path.join(rootpath, n)).toString().replace(/^\s*#!/, '//');
+        try {
+            var jst = esprima.parse(data3);
+        } catch (e) {
+            data3 = typescript.transpile(data3);
+            jst = esprima.parse(data3);
+        }
+        console.info(n);
+        if (n === "arriswise.js") debugger;
+        var globals = scanner(data3).getUndecleared();
+        var {
+            unDeclaredVariables: undeclares
+        } = getVariables(jst);
+        var warn = false;
+        for (var k in globals) {
+            if (!(k in undeclares)) {
+                warn = true;
+                if (warn) console.warn(n, k, globals[k], undeclares[k]);
+            }
+        }
+        for (var k in undeclares) {
+            if (!(k in globals)) {
+                warn = true;
+                if (warn) console.warn(n, k, globals[k], undeclares[k]);
+            }
+        }
+
+
+    })
 }
 // testSpeed();
 testVariables();
