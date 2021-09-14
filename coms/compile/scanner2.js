@@ -37,7 +37,8 @@ var skipAssignment = function (o) {
                     o = o.next;
                     if (!o) break loop;
                     if (o.type === EXPRESS) {
-                        if (o.prev.prev && prev.prev.type === EXPRESS) break loop;
+                        var prev = o.prev && o.prev.prev;
+                        if (prev && prev.type === EXPRESS) break loop;
                         continue loop;
                     }
                     if (o.type !== STAMP) {
@@ -317,6 +318,7 @@ class Program extends Array {
         var used = Object.create(null); var vars = Object.create(null), lets = vars; var scoped = [];
         var run = function (o, id) {
             loop: while (o) {
+                var isCatch = false;
                 var isFunction = false;
                 var isScope = false;
                 switch (o.type) {
@@ -372,6 +374,8 @@ class Program extends Array {
                                 continue loop;
                             case "function":
                                 isFunction = true;
+                            case "catch":
+                                isCatch = true;
                             case "class":
                                 if (!o.isExpress) {
                                     o = o.next;
@@ -448,7 +452,7 @@ class Program extends Array {
 
                     if (o.entry === "(") {
                         o.isExpress = isExpress;
-                        if (isFunction) {
+                        if (isFunction || isCatch) {
                             var [declared, used0, o0, skiped] = getDeclared(o.first, 'argument');
                             mergeTo(used, used0);
                             while (skiped.length) {
