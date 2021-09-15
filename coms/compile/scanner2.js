@@ -46,20 +46,12 @@ var skipAssignment = function (o) {
                         break loop;
                     }
                     break;
-                case "=>":
-                    o = o.next;
-                    if (!o) break loop;
-                    if (o.type === SCOPED && o.entry === "{") {
-                        o.isfunc = true;
-                    }
-                    break;
                 default:
                     o = o.next;
             }
             break;
         case SCOPED:
             if (!o.isObject && o.entry === "{") break loop;
-            if (o.entry === '(' && o.prev.type === SCOPED && !o.prev.isfunc) break loop;
             o = o.next;
             break;
         case EXPRESS:
@@ -96,7 +88,6 @@ var skipAssignment = function (o) {
                 if (o && o.type === EXPRESS) o = o.next;
                 if (o) o = o.next;
                 if (o) o = o.next;
-                o.isfunc = true;
                 break;
             }
             o = o.next;
