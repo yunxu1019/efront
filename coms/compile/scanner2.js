@@ -342,6 +342,10 @@ class Program extends Array {
                         break;
                     case STAMP:
                         break;
+                    case PROPERTY:
+                        if (o.next) {
+                            if (o.next.type !== STAMP || o.next.text !== ",") break;
+                        }
                     case EXPRESS:
 
                         if (o.prev && o.prev.type === EXPRESS) {
@@ -490,7 +494,7 @@ class Program extends Array {
                         o = o.next.next;
                     }
                     if (!o) break;
-                    if (o.type === SCOPED) {
+                    if (o.type === SCOPED && o.entry === "{") {
                         o.isExpress = isExpress;
                         run(o.first);
                     }
