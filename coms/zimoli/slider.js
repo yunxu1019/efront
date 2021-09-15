@@ -93,7 +93,7 @@ function slider(autoplay, circle = true) {
         var childNodes = outter.childNodes;
         for (var dx = childNodes.length - 1; dx >= 0; dx--) {
             var childNode = childNodes[dx];
-            if (childNode !== _imageMain && childNode !== _imageHelp) {
+            if (isFinite(childNode.index) && childNode !== _imageMain && childNode !== _imageHelp) {
                 remove(childNode);
             }
         }
