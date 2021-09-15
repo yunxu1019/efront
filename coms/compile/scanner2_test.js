@@ -49,13 +49,13 @@ function testVariables() {
         for (var k in globals) {
             if (!(k in undeclares)) {
                 warn = true;
-                if (warn) console.warn(n, k, globals[k], undeclares[k]);
+                if (warn) console.warn(n, k, 'globals:', globals[k], 'undeclared:', undeclares[k]);
             }
         }
         for (var k in undeclares) {
             if (!(k in globals)) {
                 warn = true;
-                if (warn) console.warn(n, k, globals[k], undeclares[k]);
+                if (warn) console.warn(n, k, 'globals:', globals[k], 'undeclared:', undeclares[k]);
             }
         }
 

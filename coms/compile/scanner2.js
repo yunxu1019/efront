@@ -815,6 +815,7 @@ class Javascript {
                 parents.push(queue);
                 queue = scope;
                 lasttype = scope.type;
+                var m0 = m;
                 while (index < text.length) {
                     var reg = quote.reg;
                     reg.lastIndex = index;
@@ -823,7 +824,6 @@ class Javascript {
                         index = text.length;
                         break;
                     }
-                    var m1 = m;
                     var m = match[0];
                     index = this.lastIndex = match.index + m.length;
                     if (quote.length === 2) {
@@ -836,8 +836,8 @@ class Javascript {
                         continue;
                     }
                     if (quote.length >= 4 && m in quote.entry) {
-                        queue.entry = m1;
-                        start += m1.length;
+                        queue.entry = m0;
+                        start += m0.length;
                         push_quote();
                         continue loop;
                     }
