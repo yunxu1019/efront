@@ -40,7 +40,7 @@ function testVariables() {
             jst = esprima.parse(data3);
         }
         console.info(n);
-        if (n === "alert.js") debugger;
+        if (n === "tree.js") debugger;
         var globals = scanner(data3).getUndecleared();
         var {
             unDeclaredVariables: undeclares

@@ -632,10 +632,13 @@ class Javascript {
         var save = (type) => {
             if (lasttype === STAMP && type === STAMP && !/[,;\:\?]/.test(m)) {
                 var scope = queue[queue.length - 1];
-                scope.end = end;
-                scope.text = text.slice(scope.start, scope.end);
-                queue.inExpress = true;
-                return;
+                if (/=>$/i.test(scope.text) || /=$/.test(scope.text) && /[^>=]/.test(m)) {
+                } else {
+                    scope.end = end;
+                    scope.text = text.slice(scope.start, scope.end);
+                    queue.inExpress = true;
+                    return;
+                }
             }
             var last = queue.lastUncomment;
             switch (type) {
