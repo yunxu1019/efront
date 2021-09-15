@@ -1,9 +1,7 @@
 var mixin = require("./mixin");
 var fs = require("fs");
 var path = require("path");
-var esprima = require("../esprima");
 var getVariables = require("../compile/variables");
-var typescript = require("../typescript");
 var env = require("./setupenv")();
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
 var comms_root = mixin(env.COMS_PATH, env.COMM).map(joinpath).filter(fs.existsSync);
@@ -11,6 +9,19 @@ var comms_root_length = comms_root.length;
 var buildinpath = path.join(__dirname, '..');
 comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
 if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
+var find1 = function (data) {
+    var typescript = require("../typescript");
+    data = typescript.transpile(data);
+    var esprima = require("../esprima");
+    var jst = esprima.parse(data);
+    var {
+        unDeclaredVariables: undeclares
+    } = getVariables(jst);
+    return undeclares;
+};
+var find = function (data) {
+    return require("../compile/scanner2")(data).getUndecleared();
+};
 module.exports = function (root) {
     var rest = [].concat.apply([], arguments);
     var globals = {
@@ -114,10 +125,8 @@ module.exports = function (root) {
                 fs.readFile(fullpath, function (error, data) {
                     if (error) return console.error(error);
                     try {
-                        var jst = esprima.parse(typescript.transpile(String(data).replace(/^\s*#!/, '//')));
-                        var {
-                            unDeclaredVariables: undeclares
-                        } = getVariables(jst);
+                        data = String(data).replace(/^\s*#!/, '//');
+                        var undeclares = find(data);
                         delete undeclares[path.basename(fullpath).replace(/\.[cm]?[jt]sx?$/i, '')];
                         Object.keys(undeclares).map(k => k).forEach(k => {
                             if (!needs[k]) needs[k] = [];
