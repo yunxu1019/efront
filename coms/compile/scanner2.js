@@ -26,6 +26,8 @@ var mergeTo = function (used, used0) {
     }
 };
 var skipAssignment = function (o) {
+    var needpunc = false;
+    var o0 = o;
     loop: while (o) switch (o.type) {
         case STAMP:
             switch (o.text) {
@@ -35,66 +37,72 @@ var skipAssignment = function (o) {
                 case "++":
                 case "--":
                     o = o.next;
-                    if (!o) break loop;
-                    if (o.type === EXPRESS) {
-                        var prev = o.prev && o.prev.prev;
-                        if (prev && prev.type === EXPRESS) break loop;
-                        continue loop;
-                    }
-                    if (o.type !== STAMP) {
-                        o = o.next;
-                        break loop;
-                    }
+                    break;
+                case "!":
+                case "~":
+                case "+":
+                case "-":
+                    o = o.next;
+                    needpunc = false;
                     break;
                 default:
+                    if (/^[!~\+\-]+$/.test(o.text)) {
+                        needpunc = false;
+                        o = o.next;
+                        break;
+                    }
+                    if (!needpunc) break loop;
+                    needpunc = false;
                     o = o.next;
             }
             break;
         case SCOPED:
-            if (!o.isObject && o.entry === "{") break loop;
+            if (needpunc && o.entry === "{") break loop;
             o = o.next;
+            needpunc = true;
             break;
         case EXPRESS:
-            if (/\.$/.test(o.text)) {
+            if (/^\.|\.$/.test(o.text)) {
                 o = o.next;
                 break;
             }
         case VALUE:
         case QUOTED:
+            if (needpunc) break loop;
+            needpunc = true;
             o = o.next;
-            if (!o) break loop;
-            if (o.type === SCOPED && o.entry !== "{") break;
-            if (o.type === EXPRESS) {
-                if (/^\./.test(o.text)) break;
-                break loop;
-            }
-            if (o.type === STRAP) {
-                if (/^(in|of|as|instanceof|extends)$/i.test(o.text)) break;
-                break loop;
-            }
-            if (o.type !== STAMP) break loop;
-
             break;
         case STRAP:
-            if (!o.isExpress) break loop;
-            if (o.text === "class") {
+            if (needpunc) {
+                if (!/^(in|instanceof)$/.test(o.text)) break loop;
+                o = o.next;
+                needpunc = false;
+            }
+            else if (o.text === "class") {
                 o = o.next;
                 while (o && !o.isClass) o = o.next;
                 while (o && o.isClass) o = o.next;
+                needpunc = true;
                 break;
             }
-            if (o.text === "function") {
+            else if (o.text === "function") {
                 o = o.next;
                 if (o && o.type === EXPRESS) o = o.next;
                 if (o) o = o.next;
                 if (o) o = o.next;
+                needpunc = true;
                 break;
             }
-            o = o.next;
+            else {
+                o = o.next;
+                needpunc = false;
+            }
             break;
         default:
+            throw new Error('代码结构异常！');
             o = o.next;
     }
+    if (o === o0) throw new Error("代码结构异常！");
     return o;
 };
 
@@ -130,6 +138,8 @@ var getDeclared = function (o, kind) {
 
     var declared = Object.create(null), used = Object.create(null); var skiped = [];
     loop: while (o) {
+        while (o && o.type === STAMP && o.text === ',') o = o.next;
+        if (!o) break;
         if (o.isprop) {
             if (o.next && o.next.type === STAMP && o.next.text === ":") {
                 o = o.next;
@@ -138,21 +148,6 @@ var getDeclared = function (o, kind) {
         }
         switch (o.type) {
             case STRAP:
-                if (/^(in|of)$/.test(o.text)) {
-                    o = o.next;
-                    var o0 = skipAssignment(o);
-                    do {
-                        skiped.push(o);
-                        o = o.next;
-                    } while (o !== o0);
-                    o = o0;
-                    break;
-                }
-            case VALUE:
-                o = o.next;
-                break;
-            case QUOTED:
-                if (!o.isprop) break loop;
             case PROPERTY:
             case EXPRESS:
                 declared[o.text] = true;
@@ -168,6 +163,24 @@ var getDeclared = function (o, kind) {
                 o = o.next;
                 break;
 
+            default:
+                console.log(o);
+                throw new Error("代码结构异常");
+        }
+        if (!o) break;
+        switch (o.type) {
+            case STRAP:
+                if (/^(in|of)$/.test(o.text)) {
+                    o = o.next;
+                    var o0 = skipAssignment(o);
+                    do {
+                        skiped.push(o);
+                        o = o.next;
+                    } while (o !== o0);
+                    o = o0;
+                    break;
+                }
+                break loop;
             case STAMP:
                 if (o.text === "=") {
                     o = o.next;
@@ -179,13 +192,11 @@ var getDeclared = function (o, kind) {
                     o = o0;
                     break;
                 }
-                if (o.text === ";") break loop;
-                if (o.text !== ",") break loop;
-                o = o.next;
                 break;
-            default:
-                break loop;
         }
+        if (!o) break;
+        if (o.type !== STAMP) break;
+        if (o.text !== ',') break;
     }
     return [declared, used, o, skiped];
 }
@@ -398,7 +409,7 @@ class Program extends Array {
                     case SCOPED:
                         if (o.entry === "(") {
                             if (o.next && o.next.type === STAMP && o.next.text === "=>"
-                                || o.prev && o.prev.type === PROPERTY) {
+                                || o.prev && (o.prev.type === PROPERTY || o.prev.isprop)) {
                                 isFunction = true;
                                 isScope = true;
                             }

@@ -40,7 +40,7 @@ function testVariables() {
             jst = esprima.parse(data3);
         }
         console.info(n);
-        if (n === "avatarEditor.js") debugger;
+        if (n === "alert.js") debugger;
         var globals = scanner(data3).getUndecleared();
         var {
             unDeclaredVariables: undeclares
