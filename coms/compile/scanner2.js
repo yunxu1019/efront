@@ -886,7 +886,11 @@ class Javascript {
                             scope.inExpress = false;
                         }
                     }
-                    else if (!queue.lastUncomment || ~[STAMP, STRAP].indexOf(queue.lastUncomment.type)) {
+                    else if (!queue.lastUncomment) {
+                        scope.isObject = queue.inExpress;
+                        scope.inExpress = queue.inExpress;
+                    }
+                    else if (~[STAMP, STRAP].indexOf(queue.lastUncomment.type)) {
                         scope.inExpress = queue.inExpress;
                         if (queue.lastUncomment && !/try|do|=>|;|else|catch/i.test(queue.lastUncomment.text)) scope.isObject = true;
                     }
