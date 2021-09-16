@@ -218,7 +218,7 @@ var compress = function (scoped, maped) {
             __prevent[k] = true;
         }
     }
-    var keys = Object.keys(map);
+    var keys = Object.keys(map).filter(k => /^(this|arguments)$/.test(k));
     keys.sort((a, b) => used[b].length - used[a].length);
     if (keys.length) {
         var names = createNamelist(keys.length, __prevent);
@@ -542,7 +542,7 @@ class Program extends Array {
         var envs = Object.create(null);
         for (var u in used) {
             if (!(u in vars)) {
-                if (!/^(true|false|null|this|arguments)/.test(u)) envs[u] = true;
+                if (!/^(true|false|null|this|arguments)$/.test(u)) envs[u] = true;
             }
         }
         scoped.envs = envs;
