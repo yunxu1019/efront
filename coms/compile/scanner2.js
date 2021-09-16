@@ -526,6 +526,10 @@ class Program extends Array {
                             }
                         }
                     }
+                    if (vars.this) {
+                        delete vars.this;
+                        delete vars.arguments;
+                    }
                     used = _used;
                     lets = _lets;
                     vars = _vars;
