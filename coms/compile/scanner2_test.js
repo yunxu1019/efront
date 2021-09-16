@@ -16,6 +16,7 @@ function test(parser, name) {
 }
 function testSpeed() {
 
+    console.log(data.slice(6426300,6426400))
     var scanned = test(scanner, 'scanner2');
     var start = new Date();
     var data3 = scanned.press().toString();

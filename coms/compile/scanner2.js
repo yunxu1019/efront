@@ -148,6 +148,7 @@ var getDeclared = function (o, kind) {
         }
         switch (o.type) {
             case STRAP:
+            case VALUE:
             case PROPERTY:
             case EXPRESS:
                 declared[o.text] = true;
@@ -334,6 +335,7 @@ class Program extends Array {
                 var isCatch = false;
                 var isFunction = false;
                 var isScope = false;
+                var isArrow = false;
                 switch (o.type) {
                     case QUOTED:
                         if (o.length) {
@@ -346,16 +348,17 @@ class Program extends Array {
                         if (o.next) {
                             if (o.next.type !== STAMP || o.next.text !== ",") break;
                         }
+                    case VALUE:
+                        if (program.number_reg.test(o.text)) break;
                     case EXPRESS:
-
                         if (o.prev && o.prev.type === EXPRESS) {
                             if (/\.$/.test(o.prev.text)) break;
                         }
                         var u = o.text.split(".")[0];
-                        if (!u || program.value_reg.test(u)) break;
+                        if (!u) break;
                         if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                             isScope = true;
-                            isFunction = true;
+                            isArrow = true;
                         }
                         else {
                             saveTo(used, u, o);
@@ -414,7 +417,7 @@ class Program extends Array {
                         if (o.entry === "(") {
                             if (o.next && o.next.type === STAMP && o.next.text === "=>"
                                 || o.prev && (o.prev.type === PROPERTY || o.prev.isprop)) {
-                                isFunction = true;
+                                isArrow = true;
                                 isScope = true;
                             }
                             else {
@@ -441,16 +444,18 @@ class Program extends Array {
                     _scoped.push(scoped);
                     var isExpress = o.isExpress;
 
-                    if (isFunction) {
+                    if (isFunction || isArrow) {
                         scoped.used = used;
                         scoped.vars = vars;
                         lets = vars;
+                        if (isFunction) vars.this = true, vars.arguments = true;
+                        isFunction = true;
                     } else {
                         vars = _vars;
                         scoped.lets = lets;
                         scoped.used = used;
                     }
-                    if (o.next && o.next.type === STAMP && o.next.text === "=>");
+                    if (isArrow);
                     else if (o.isExpress && o.type !== SCOPED) {
                         o = o.next;
                         if (o.type === EXPRESS) {
@@ -460,8 +465,8 @@ class Program extends Array {
                             o = o.next;
                         }
                     }
-                    while (o.type !== SCOPED) {
-                        if (o.next && o.next.type === STAMP && o.next.text === "=>") break;
+                    if (!isFunction) while (o.type !== SCOPED) {
+                        // if (o.next && o.next.type === STAMP && o.next.text === "=>") break;
                         o = run(o, 0);
                         o = o.next;
                         if (!o) break loop;
@@ -487,7 +492,7 @@ class Program extends Array {
                         if (!o) break;
                         if (o.type === STAMP && o.text === "=>") o = o.next;
                     }
-                    else if (o.next && o.next.type === STAMP && o.next.text === "=>") {
+                    else if (isArrow) {
                         vars[o.text] = true;
                         o.kind = 'argument';
                         saveTo(used, o.text, o);
@@ -541,7 +546,7 @@ class Program extends Array {
         var globals = Object.create(null);
         for (var u in used) {
             if (!(u in vars)) {
-                globals[u] = true;
+                if (!program.value_reg.test(u)) globals[u] = true;
             }
         }
         return globals;
@@ -906,14 +911,12 @@ class Javascript {
                     }
                     else if (!queue.lastUncomment) {
                         scope.isObject = queue.inExpress;
-                        scope.inExpress = queue.inExpress;
                     }
                     else if (~[STAMP, STRAP].indexOf(queue.lastUncomment.type)) {
-                        scope.inExpress = queue.inExpress;
-                        if (queue.lastUncomment && !/try|do|=>|;|else|catch/i.test(queue.lastUncomment.text)) scope.isObject = true;
-                    }
-                    else {
-                        scope.inExpress = false;
+                        if (queue.lastUncomment.type === STAMP && queue.lastUncomment.text === ':') {
+                            scope.isObject = queue.inExpress;
+                        }
+                        else if (!/try|do|=>|;|else|catch/i.test(queue.lastUncomment.text)) scope.isObject = true;
                     }
                 }
                 else {
