@@ -483,7 +483,7 @@ class Program extends Array {
                                 if (sindex < 0) break;
                                 skiped.splice(0, sindex + 1);
                             }
-                            Object.assign(vars, declared);
+                            Object.assign(isCatch ? lets : vars, declared);
                         }
                         else {
                             run(o.first);
