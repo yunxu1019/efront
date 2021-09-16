@@ -218,7 +218,7 @@ var compress = function (scoped, maped) {
             __prevent[k] = true;
         }
     }
-    var keys = Object.keys(map).filter(k => /^(this|arguments)$/.test(k));
+    var keys = Object.keys(map);
     keys.sort((a, b) => used[b].length - used[a].length);
     if (keys.length) {
         var names = createNamelist(keys.length, __prevent);
@@ -668,12 +668,33 @@ class Javascript {
                         type = EXPRESS;
                     }
                     else if (isProperty()) type = PROPERTY;
-                    else if (m === "as") {
-                        if (!last || last.type === STAMP) {
+                    else if (m === 'from') {
+                        if (!last || last.type === STRAP && last.text !== 'import') {
                             type = EXPRESS;
                             break;
                         }
-                        if (~[EXPRESS, VALUE].indexOf(last.type)) last.type = PROPERTY;
+                        var temp = last;
+                        while (temp.type === EXPRESS || temp.type === VALUE || temp.type === SCOPED) {
+                            var prev = last.prev;
+                            if (!prev) break;
+                            if (prev.type !== STAMP || prev.text !== ',') break;
+                            temp = prev.prev;
+                            if (!temp) break;
+                        }
+                        if (temp.type !== STRAP || temp.text !== 'import') {
+                            type = EXPRESS;
+                        }
+                    }
+                    else if (m === 'as') {
+                        if (!last) {
+                            type = EXPRESS;
+                            break;
+                        }
+                        if (~[EXPRESS, VALUE].indexOf(last.type)) {
+                            last.type = PROPERTY;
+                        } else {
+                            type = EXPRESS;
+                        }
                     }
                     break;
                 case STAMP:
