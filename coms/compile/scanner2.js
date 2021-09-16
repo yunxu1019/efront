@@ -539,17 +539,17 @@ class Program extends Array {
         run(this.first);
         scoped.used = used;
         scoped.vars = vars;
+        var envs = Object.create(null);
+        for (var u in used) {
+            if (!(u in vars)) {
+                if (!/^(true|false|null|this|arguments)/.test(u)) envs[u] = true;
+            }
+        }
+        scoped.envs = envs;
         return scoped;
     }
     getUndecleared() {
-        var { vars, lets, used } = this.toScoped();
-        var globals = Object.create(null);
-        for (var u in used) {
-            if (!(u in vars)) {
-                if (!program.value_reg.test(u)) globals[u] = true;
-            }
-        }
-        return globals;
+        return this.toScoped().envs;
     }
     press() {
         this.pressed = true;
