@@ -1,7 +1,6 @@
 var mixin = require("./mixin");
 var fs = require("fs");
 var path = require("path");
-var getVariables = require("../compile/variables");
 var env = require("./setupenv")();
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
 var comms_root = mixin(env.COMS_PATH, env.COMM).map(joinpath).filter(fs.existsSync);
@@ -9,16 +8,17 @@ var comms_root_length = comms_root.length;
 var buildinpath = path.join(__dirname, '..');
 comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
 if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
-var find1 = function (data) {
-    var typescript = require("../typescript");
-    data = typescript.transpile(data);
-    var esprima = require("../esprima");
-    var jst = esprima.parse(data);
-    var {
-        unDeclaredVariables: undeclares
-    } = getVariables(jst);
-    return undeclares;
-};
+// var find1 = function (data) {
+//     var getVariables = require("../compile/variables");
+//     var typescript = require("../typescript");
+//     data = typescript.transpile(data);
+//     var esprima = require("../esprima");
+//     var jst = esprima.parse(data);
+//     var {
+//         unDeclaredVariables: undeclares
+//     } = getVariables(jst);
+//     return undeclares;
+// };
 var find = function (data) {
     return require("../compile/scanner2")(data).getUndecleared();
 };
