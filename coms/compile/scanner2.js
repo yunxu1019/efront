@@ -241,6 +241,7 @@ var compress = function (scoped, maped) {
     }
 };
 
+
 class Program extends Array {
     COMMENT = COMMENT
     SPACE = SPACE
@@ -254,6 +255,21 @@ class Program extends Array {
     LABEL = LABEL
     PROPERTY = PROPERTY
     pressed = false
+    _scoped = null;
+    isExpress() {
+        if (!this.first) return false;
+        var first = this.first;
+        if (first.type === SCOPED) {
+            if (first.entry === '{') return false;
+        }
+        else if (first.type === STRAP) {
+            if (!/^(new|void|typeof|delete|class|function|await)/.test(first.text)) return false;
+        }
+        else if (!~[EXPRESS, STAMP, QUOTED, SCOPED, VALUE].indexOf(first.type)) return false;
+        var last = skipAssignment(this.first);
+        return this.lastUncomment === last || !last;
+    }
+
     toString() {
         var lasttype;
         var result = [];
@@ -294,7 +310,7 @@ class Program extends Array {
                     result.push(o.leave);
                     break;
                 default:
-                    if ([STRAP, EXPRESS, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, VALUE].indexOf(o.type) >= 0) result.push(" ");
+                    if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) result.push(" ");
                     if (o instanceof Object) {
                         // var broker = needBreak(o.prev, o);
                         // if (broker) result.push(broker);
@@ -328,8 +344,20 @@ class Program extends Array {
         this.forEach(run);
         return result.join("");
     }
-    toScoped() {
-        var used = Object.create(null); var vars = Object.create(null), lets = vars; var scoped = [];
+    get envs() {
+        return this.scoped.envs;
+    }
+    get vars() {
+        return this.scoped.vars;
+    }
+    get used() {
+        return this.scoped.used;
+    }
+    get scoped() {
+        if (this._scoped) return this._scoped;
+        var used = Object.create(null); var vars = Object.create(null), lets = vars;
+        var scoped = this._scoped = [];
+        scoped.code = this;
         var run = function (o, id) {
             loop: while (o) {
                 var isCatch = false;
@@ -550,15 +578,14 @@ class Program extends Array {
             }
         }
         scoped.envs = envs;
-        return scoped;
+        return this._scoped;
     }
     getUndecleared() {
-        return this.toScoped().envs;
+        return this.envs;
     }
     press() {
         this.pressed = true;
-        var scoped = this.toScoped();
-        compress(scoped);
+        compress(this.scoped);
         return this;
     }
 }
