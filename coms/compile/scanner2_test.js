@@ -63,7 +63,7 @@ function testVariables() {
 
     })
 }
-// testSpeed();
+testSpeed();
 testVariables();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });

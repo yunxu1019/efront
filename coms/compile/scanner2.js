@@ -225,6 +225,7 @@ var compress = function (scoped, maped) {
         for (var cx = 0, dx = keys.length; cx < dx; cx++) {
             var k = keys[cx];
             var name = names[cx];
+            map[k] = name;
             var list = used[k];
             if (list) for (var u of list) {
                 if (!u) continue;
@@ -583,6 +584,15 @@ class Program extends Array {
     getUndecleared() {
         return this.envs;
     }
+    // 绕开低版本ie的异常属性
+    detour() {
+    }
+    // 标记要保留的代码
+    ahchor() { }
+    // 清理无效的代码
+    clean() {
+    }
+    // 压缩
     press() {
         this.pressed = true;
         compress(this.scoped);
