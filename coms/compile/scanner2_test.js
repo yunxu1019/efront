@@ -16,7 +16,7 @@ function test(parser, name) {
 }
 function testSpeed() {
 
-    console.log(data.slice(6426300,6426400))
+    console.log(data.slice(6426300, 6426400))
     var scanned = test(scanner, 'scanner2');
     var start = new Date();
     var data3 = scanned.press().toString();
@@ -63,7 +63,12 @@ function testVariables() {
 
     })
 }
+function testRegexp() {
+    var m = scanner(`/${/[^\u0130\u0131\u00DFa-z0-9\\/:\-_\. ]+/g.source}/g/** a */`)
+    console.log(m)
+}
 testSpeed();
 testVariables();
+testRegexp();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });

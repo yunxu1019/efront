@@ -155,9 +155,10 @@ var getDeclared = function (o, kind) {
             case STRAP:
             case VALUE:
             case EXPRESS:
-                declared[o.text] = true;
+                var n = o.text.replace(/^\.\.\.|\.\.\.$/g, '');
+                declared[n] = true;
                 o.kind = kind;
-                saveTo(used, o.text, o);
+                saveTo(used, n, o);
                 o = o.next;
                 break;
             case SCOPED:
@@ -233,7 +234,12 @@ var compress = function (scoped, maped) {
             var list = used[k];
             if (list) for (var u of list) {
                 if (!u) continue;
-                u.text = name + u.text.replace(/^[^\.\:]+/i, "");
+                var text = u.text;
+                var doted = /^\.\.\./.test(text);
+                if (doted) text = text.slice(3);
+                text = name + text.replace(/^[^\.\:]+/i, "");
+                if (doted) text = "..." + text;
+                u.text = text;
             }
         }
     }
