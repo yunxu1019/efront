@@ -147,9 +147,13 @@ var getDeclared = function (o, kind) {
             }
         }
         switch (o.type) {
+            case PROPERTY:
+                if (o.next && o.next.type === STAMP && o.next.text === ":") {
+                    o = o.next.next;
+                    continue;
+                }
             case STRAP:
             case VALUE:
-            case PROPERTY:
             case EXPRESS:
                 declared[o.text] = true;
                 o.kind = kind;
@@ -619,7 +623,7 @@ class Javascript {
     stamps = "/=+;|:?<>-!~@#%^&*,".split("")
     value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this)$/
     number_reg = /^[\+\-]?(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
-    transive = /^(new|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
+    transive = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     straps = `if,in,do,as,of
     var,for,new,try,let
     else,case,void,with,enum,from
@@ -974,12 +978,17 @@ class Javascript {
                     else if (!queue.lastUncomment) {
                         scope.isObject = queue.inExpress;
                     }
-                    else if (~[STAMP, STRAP].indexOf(queue.lastUncomment.type)) {
-                        if (queue.lastUncomment.type === STAMP && queue.lastUncomment.text === ':') {
+                    else if (queue.lastUncomment.type === STAMP) {
+                        if (queue.lastUncomment.text === ':') {
                             scope.isObject = queue.inExpress;
                         }
-                        else if (!/try|do|=>|;|else|catch/i.test(queue.lastUncomment.text)) scope.isObject = true;
+                        else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(queue.lastUncomment.text);
                     }
+                    else if (STRAP === queue.lastUncomment.type) {
+                        if (queue[queue.length - 1].type === SPACE && queue.lastUncomment.text === 'return');
+                        else scope.isObject = queue.inExpress;
+                    }
+                    queue.inExpress = scope.isObject;
                 }
                 else {
                     scope.isExpress = queue.inExpress;
