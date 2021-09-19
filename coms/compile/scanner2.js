@@ -66,6 +66,11 @@ var skipAssignment = function (o) {
                 o = o.next;
                 break;
             }
+            else if (/^\[/.test(o.text)) {
+                needpunc = true;
+                o = o.next;
+                break;
+            }
         case VALUE:
         case QUOTED:
             if (needpunc) break loop;
@@ -252,6 +257,37 @@ var compress = function (scoped, maped) {
     }
 };
 
+var strings = require("../basic/strings");
+
+var detour = function (o, ie) {
+    while (o) {
+        switch (o.type) {
+            case SCOPED:
+                detour(o.first, ie);
+                break;
+            case EXPRESS:
+                if (!/^\.\.\.|\.\.\.$/.test(o.text)) {
+                    o.text = o.text.replace(/\.([^\.]+)/g, (_, a) => !ie || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
+                }
+                break;
+            case QUOTED:
+                if (o.length) {
+                    detour(o.first, ie);
+                    break;
+                }
+                if (!o.isprop) break;
+            case PROPERTY:
+                if (/^(get|set|async)$/.test(o.text) && o.next && o.next.type === PROPERTY) break;
+                if (!ie || program.strap_reg.test(o.text)) {
+                    if (!/^\[/.test(o.text)) {
+                        o.text = `[${strings.encode(strings.decode(o.text))}]`;
+                    }
+                }
+                break;
+        }
+        o = o.next;
+    }
+}
 
 class Program extends Array {
     COMMENT = COMMENT
@@ -393,7 +429,7 @@ class Program extends Array {
                         if (o.prev && o.prev.type === EXPRESS) {
                             if (/\.$/.test(o.prev.text)) break;
                         }
-                        var u = o.text.split(".")[0];
+                        var u = o.text.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
                         if (!u) break;
                         if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                             isScope = true;
@@ -594,8 +630,15 @@ class Program extends Array {
     getUndecleared() {
         return this.envs;
     }
+    // 提前处理属性
+    break() {
+        detour(this.first);
+        return this;
+    }
     // 绕开低版本ie的异常属性
     detour() {
+        detour(this.first, true);
+        return this;
     }
     // 标记要保留的代码
     ahchor() { }
@@ -627,12 +670,12 @@ class Javascript {
         ["{", "}"],
     ]
     stamps = "/=+;|:?<>-!~@#%^&*,".split("")
-    value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this)$/
+    value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this|eval)$/
     number_reg = /^[\+\-]?(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
     transive = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     straps = `if,in,do,as,of
     var,for,new,try,let
-    else,case,void,with,enum,from
+    else,case,void,with,enum,from,eval
     async,while,break,catch,throw,const,yield,class,await
     return,typeof,delete,switch,export,import,static
     default,finally,extends
@@ -774,7 +817,7 @@ class Javascript {
                                 break;
                             }
                             if (queue.isObject) {
-                                if (last.type === PROPERTY) {
+                                if (last.type === PROPERTY || last.isprop) {
                                     queue.inExpress = true;
                                     break;
                                 }
