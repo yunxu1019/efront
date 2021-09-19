@@ -18,6 +18,7 @@ var window = {
     escape() { },
     String,
     Object,
+    NaN,
     Math,
     module: true,
     exports: true,
@@ -279,9 +280,9 @@ function compile(buildInfo, lastBuildTime, destroot) {
         };
         var findRealpath = function () {
             if (fullpath instanceof Array && !fullpath.length) {
-                if (window.modules[name]) console.info(`${url} will be replaced by the builtin module`), moduleValue = window.modules[name];
-                else if (!window[name]) responseWithWarning = `没有发现文件：${url}`;
-                else console.info(`${url} will be replaced by the global variables`);
+                if (window.modules[name]) console.info(`${url} 将被内置模块替换！`), moduleValue = window.modules[name];
+                else if (!window.hasOwnProperty(name)) responseWithWarning = `没有发现文件：${url}`;
+                else console.info(`${url} 将使用运行环境的全局变量`);
                 resolve();
                 return;
             }
