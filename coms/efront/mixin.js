@@ -1,4 +1,5 @@
 // 组合工具
+var isEmpty = require("../basic/isEmpty");
 function minxin() {
     var total = 1;
     var argsList = [].map.call(arguments, a => {
@@ -9,7 +10,7 @@ function minxin() {
             new Set(a.split(/[,;]/).map(
                 a => a.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/^/, '')
             )).forEach(a => res.push(a));
-        } else {
+        } else if (!isEmpty(a)) {
             res.push(a);
         }
         total *= res.length;
