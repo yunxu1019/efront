@@ -7,6 +7,26 @@ require("./console");
 var loadenv = require("./loadenv");
 var memery = require("./memery");
 var detectWithExtension = require("../build/detectWithExtension");
+var detect = function (module_path) {
+    var search_path = [];
+    var joinpath = a => path.join.apply(path, a);
+    var apppath = require("./mixin")(memery.PAGE_PATH, memery.PAGE).map(joinpath);
+    var compath = require("./mixin")(memery.COMS_PATH, memery.COMM).map(joinpath);
+    apppath.push(path.join(__dirname, '../../apps'));
+    compath.push(path.join(__dirname, '../../coms'));
+    if (/^[\\\/]/.test(module_path)) {
+        search_path = search_path.concat(apppath, compath);
+    }
+    else {
+        search_path = search_path.concat(compath, apppath);
+    }
+    search_path.unshift(
+        process.cwd()
+    );
+    var search_object = Object.create(null);
+    search_path = search_path.filter(a => search_object[a] ? false : search_object[a] = true);
+    return detectWithExtension(module_path, [".js", ".ts", "", '.jsx', '.tsx', '.vue', "/index.js", "/index.ts", '/index.jsx', '/index.tsx'], search_path);
+};
 var setenv = function (evn, cover) {
     var dist = memery;
     for (var k in evn) {
@@ -94,13 +114,14 @@ var detectEnvironment = function () {
                     public_path.push(name);
                 }
             });
-            coms_path.push(':');
+            coms_path.push(path.join(__dirname, '../../coms'));
             if (memery.COMS_PATH !== undefined) {
                 if (0 > coms_path.indexOf(memery.COMS_PATH)) coms_path.unshift(memery.COMS_PATH);
             }
             if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
                 config.comm += ",zimoli";
             }
+            config.comm += ',basic,typescript-helpers';
             config.coms_path = coms_path.join(',');
             if (typeof memery.LIBS_PATH === 'string') {
                 libs_path.unshift(memery.LIBS_PATH);
@@ -189,6 +210,7 @@ var helps = [
     "检查文件或文件夹中的全局变量,check FILEPATH",
     "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
     "对json数据进行签名,sign JSON_PATH SIGNNAME",
+    "根据模块的模糊路径查找真实路径,detect MODULE_PATH",
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
 ];
@@ -209,6 +231,11 @@ var commands = {
     },
     path() {
         console.type(path.join(__dirname, '../..'));
+    },
+    detect(appname) {
+        detectEnvironment().then(function () {
+            detect(appname, [process.cwd()]).then(console.info, console.error);
+        }, console.error);
     },
     packexe(readfrom, writeto) {
         if (!writeto) {
@@ -644,6 +671,7 @@ var topics = {
     JSON_PATH: "json文件所在的路径",
     SIGNNAME: "签名",
     FILEPATH: "文件或文件夹的路径",
+    MODULE_PATH: '源文件的模糊路径',
 };
 topics.VARIABLES += "," + Object.keys(topics);
 var run = function (type, value1, value2, value3) {
