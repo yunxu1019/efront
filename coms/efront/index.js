@@ -382,6 +382,7 @@ var commands = {
     help(value1) {
         // 帮肋信息
         if (!value1) {
+            helps.sort((a, b) => a.commands[0] > b.commands[0] ? 1 : a.commands[0] < b.commands[0] ? -1 : 0);
             var length = Math.max.apply(Math, helps.map(a => a.commands[0].length));
             showHelpLine('可以使用的命令有：');
             helps.forEach(({ info, commands, hide }) => !hide && showHelpLine(`efront ${commands[0]}${" ".repeat(length - commands[0].length)} ${info}`));
