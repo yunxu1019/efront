@@ -324,9 +324,11 @@ class Program extends Array {
             switch (o.type) {
                 case COMMENT:
                     // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
-                    result.push(o.text);
-                    if (this.pressed && /^\/\//.test(o.text)) {
-                        result.push("\r\n");
+                    if (!this.pressed) {
+                        result.push(o.text);
+                        if (this.pressed && /^\/\//.test(o.text)) {
+                            result.push("\r\n");
+                        }
                     }
                     break;
                 case SPACE:
