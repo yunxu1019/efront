@@ -13,7 +13,11 @@ var detect = function (module_path) {
     var apppath = require("./mixin")(memery.PAGE_PATH, memery.PAGE).map(joinpath);
     var compath = require("./mixin")(memery.COMS_PATH, memery.COMM).map(joinpath);
     apppath.push(path.join(__dirname, '../../apps'));
-    compath.push(path.join(__dirname, '../../coms'));
+    compath.push(
+        path.join(__dirname, '../../coms'),
+        path.join(__dirname, '../../coms/basic'),
+        path.join(__dirname, '../../coms/typescript-index')
+    );
     if (/^[\\\/]/.test(module_path)) {
         search_path = search_path.concat(apppath, compath);
     }
@@ -21,7 +25,8 @@ var detect = function (module_path) {
         search_path = search_path.concat(compath, apppath);
     }
     search_path.unshift(
-        process.cwd()
+        process.cwd(),
+        path.join(__dirname, '../../')
     );
     var search_object = Object.create(null);
     search_path = search_path.filter(a => search_object[a] ? false : search_object[a] = true);
