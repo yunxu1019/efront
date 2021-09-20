@@ -6,3 +6,4 @@ function isEmpty(value) {
     }
     return false;
 }
+module.exports = isEmpty;
