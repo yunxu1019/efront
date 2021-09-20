@@ -30,6 +30,7 @@ function detectWithExtension(filename, extensions = [""], folders = [""]) {
                 fs.stat(f, function (error, stats) {
                     if (error) return run();
                     if (stats.isFile()) {
+                        f = path.normalize(f);
                         return ok(f);
                     }
                     if (!findedFolder) {
