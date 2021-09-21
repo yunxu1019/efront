@@ -267,7 +267,7 @@ var detour = function (o, ie) {
                 break;
             case EXPRESS:
                 if (!/^\.\.\.|\.\.\.$/.test(o.text)) {
-                    o.text = o.text.replace(/\.([^\.]+)/g, (_, a) => !ie || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
+                    o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => !ie || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
                 }
                 break;
             case QUOTED:
