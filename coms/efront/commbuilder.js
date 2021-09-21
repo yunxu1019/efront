@@ -1,11 +1,8 @@
 "use strict";
-var getvariables = require("../compile/variables");
-var esprima = require("../esprima");
-var esmangle = require("../esmangle");
-var escodegen = require("../escodegen");
 var typescript = require("../typescript");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
+var strings = require("../basic/strings");
 var less;
 var isDevelop = require("./isDevelop");
 var inCom = require("./inCom");
@@ -149,9 +146,6 @@ var convertColor = function (a) {
         }
     });
 };
-var createExpression = function (expression) {
-    return esprima.parse(expression).body;
-};
 var trimNodeEnvHead = function (data) {
     data = String(data || "").replace(/^\s*\#\!/, '//');
     return data;
@@ -161,24 +155,26 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     data = typescript.transpile(data, { noEmitHelpers: true, jsx: "react" });
-    var code = esprima.parse(data);
-    getvariables.computed = !isDevelop || commbuilder.compress === false;
+    var code = scanner2(data);
+    code.detour();
     var {
-        DeclaredVariables: declares,
-        allVariables,
-        unDeclaredVariables: undeclares
-    } = getvariables(code);
-    if (commbuilder.compress === false) {
-        data = escodegen.generate(code);
+        vars: declares,
+        used: allVariables,
+        envs: undeclares
+    } = code;
+    if (!isDevelop || commbuilder.compress === false) {
+        code.break();
+        data = code.toString();
         data = typescript.transpile(data, { noEmitHelpers: true });
-        code = esprima.parse(data);
+        var code = scanner2(data);
+        code.break();
         var {
-            DeclaredVariables: declares,
-            allVariables,
-            unDeclaredVariables: undeclares
-        } = getvariables(code);
+            vars: declares,
+            used: allVariables,
+            envs: undeclares
+        } = code;
     }
-    var { require: required } = undeclares;
+    if (undeclares.require) var required = allVariables.require;
     var globals = Object.keys(undeclares);
     var globalsmap = {};
     globals.forEach(g => globalsmap[g] = g);
@@ -214,77 +210,74 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         var stringifiedpaths = destpaths.length === 1 ? JSON.stringify(destpaths[0]) : JSON.stringify(destpaths);
         if (!declares.prepare) {
             globalsmap.prepare = "prepare";
-            prepareCodeBody = createExpression(`prepare(${stringifiedpaths});`);
+            prepareCodeBody = scanner2(`prepare(${stringifiedpaths});`);
         } else if (!declares.go) {
             globalsmap.go = "go";
-            prepareCodeBody = createExpression(`go.prepare(${stringifiedpaths});`);
+            prepareCodeBody = scanner2(`go.prepare(${stringifiedpaths});`);
         } else if (!declares.state) {
             globalsmap.state = "state";
-            prepareCodeBody = createExpression(`state.prepare(${stringifiedpaths});`);
+            prepareCodeBody = scanner2(`state.prepare(${stringifiedpaths});`);
         } else {
             console.warn(`将不处理此文件的页面自动预载<gray>${filename}</gray>`);
         }
     }
-    var code_body;
-    if (code.body.length === 1 && "ExpressionStatement" === code.body[0].type) {
+    var code_body = code;
+    if (code.isExpress()) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
-        code_body = [
-            {
-                "type": "ReturnStatement",
-                "argument": hasless ? {
-                    "type": "CallExpression",
-                    "callee": {
-                        "type": "Identifier",
-                        "name": globalsmap.cless
+        while (code_body[code_body.length - 1].type === code_body.SPACE || code_body[code_body.length - 1].type === code_body.STAMP && /[,;]/.test(code_body[code_body.length - 1].text)) {
+            code_body.pop();
+        }
+        if (hasless) code_body.unshift(
+            { type: code_body.EXPRESS, text: 'cless' },
+            Object.assign(
+                code_body.splice(0, code_body.length).concat(
+                    { type: code_body.STAMP, text: ',' },
+                    {
+                        type: code_body.QUOTED,
+                        text: JSON.stringify(lessdata),
                     },
-                    "arguments": [
-                        code.body[0].expression,
-                        {
-                            "type": "Literal",
-                            "value": lessdata,
-                            "raw": JSON.stringify(lessdata)
-                        },
-                        {
-                            "type": "Literal",
-                            "value": className,
-                            "raw": JSON.stringify(className)
-                        }
-                    ]
-                } : code.body[0].expression
-            }
-        ];
+                    { type: code_body.STAMP, text: ',' },
+                    {
+                        type: code_body.QUOTED,
+                        text: JSON.stringify(className)
+                    }
+                ), { type: code_body.SCOPED, entry: "(", leave: ")" })
+        ), code_body.first = code_body[0];
+        code_body.splice(
+            code_body.indexOf(code_body.first), 0,
+            { type: code_body.STRAP, text: "return" },
+            { type: code_body.SPACE, text: " " }
+        );
+
     } else {
-        code_body = code.body;
         if (undeclares.module) {
             commName = `module["exports"]`;
         } else if (undeclares.exports) {
             commName = "exports";
         }
         if (commName) {
-            code_body = code.body.concat({
-                "type": "ReturnStatement",
-                "argument": hasless ? {
-                    "type": "CallExpression",
-                    "callee": {
-                        "type": "Identifier",
-                        "name": globalsmap.cless
-                    },
-                    "arguments": [
-                        esprima.parse(commName).body[0].expression,
-                        {
-                            "type": "Literal",
-                            "value": lessdata,
-                            "raw": JSON.stringify(lessdata)
-                        },
-                        {
-                            "type": "Literal",
-                            "value": className,
-                            "raw": JSON.stringify(className)
-                        }
-                    ]
-                } : esprima.parse(commName).body[0].expression
-
-            });
+            code_body.push(
+                { type: code_body.STRAP, text: "return" },
+                { type: code_body.SPACE, text: " " }
+            )
+            if (hasless) {
+                code_body.push(
+                    { type: code_body.EXPRESS, text: "cless" },
+                    Object.assign([
+                        { type: code_body.EXPRESS, text: commName },
+                        { type: code_body.STAMP, text: ',' },
+                        { type: code_body.QUOTED, text: JSON.stringify(lessdata) },
+                        { type: code_body.STAMP, text: ',' },
+                        { type: code_body.QUOTED, text: JSON.stringify(className) },
+                    ], {
+                        entry: "(",
+                        type: code_body.SCOPED,
+                        leave: ")"
+                    }),
+                )
+            } else {
+                code_body.push({ type: code_body.EXPRESS, text: commName });
+            }
         } else {
             if (!/\bmain|\bindex/i.test(path.basename(filename))) {
                 if (filename.length > 48) {
@@ -294,36 +287,25 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             }
         }
     }
-    code_body = prepareCodeBody.concat(code_body);
+    code_body.unshift.apply(code_body, prepareCodeBody);
     globals = Object.keys(globalsmap);
     var required_map = {}, required_paths = [];
-    if (required instanceof Array) required.forEach((r, cx) => {
-        if (typeof r.value !== "string") return;
-        r.value = r.value.replace(/\\/g, '/');
+    if (required instanceof Array) required.forEach(({ next }, cx) => {
+        if (!next || next.type !== code_body.SCOPED || next.entry !== "(") return;
+        var r = next.first;
+        if (r.type !== code_body.QUOTED || r.length || r.text[0] === '/') return;
+        r.value = strings.decode(r.text).replace(/[\\]+/g, '/');
         if (!required_map[r.value]) {
             required_map[r.value] = required_paths.length;
             required_paths.push(r.value);
         }
         if (commbuilder.compress !== false) {
             r.value = required_map[r.value];
+            r.text = String(r.value);
         }
-        r.raw = String(r.value);
-    });
-    code = {
-        "type": "Program",
-        "sourceType": "script",
-        body: code_body
-    };
-    data = escodegen.generate(code, {
-        format: {
-            renumber: true,
-            hexadecimal: true, //十六进位
-            escapeless: false,
-            compact: false, //去空格
-            semicolons: true, //分号
-            parentheses: true //圆括号
-        }
-    });
+    })
+
+    data = code_body.toString();
     var params = globals.map(g => globalsmap[g]);
     data = convertColor(data);
     return {
@@ -336,32 +318,54 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
 };
 var optimize = memery.OPTIMIZE;
 
+// var buildPress1 = function (imported, params, data, args, strs) {
+//     var data = imported.length > 0 ? `function f(${params.concat(args || [])}){${data}}` : args.length ? `function f(){var [${args}]=${strs};${data}}` : `function f(){${data}}`;
+//     data = scanner2(data).press().toString();
+
+//     data = typescript.transpile(data, { noEmitHelpers: true });
+//     var code = esprima.parse(data);
+//     if (optimize) code = esmangle.optimize(code, null);
+//     code = code.body[0];
+//     params = code.params.map(id => id.name);
+//     code = {
+//         "type": "Program",
+//         "sourceType": "script",
+//         body: code.body.body
+//     };
+//     data = escodegen.generate(code, {
+//         format: {
+//             renumber: true,
+//             hexadecimal: true, //十六进位
+//             escapeless: true,
+//             compact: true, //去空格
+//             semicolons: false, //分号
+//             parentheses: false //圆括号
+//         }
+//     });
+//     return [imported, params, data];
+// };
+var buildPress2 = function (imported, params, data, args, strs) {
+    var data1 = imported.length > 0 ? `var [${params.concat(args || [])}];${data}` : args.length ? `var [${args}]=${strs};${data}` : data;
+    var code = scanner2(data1).press();
+
+    if (imported.length > 0) {
+        params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
+        code.splice(0, 2);
+    }
+    data1 = code.toString();
+    data1 = typescript.transpile(data1, { noEmitHelpers: true });
+    return [imported, params, data1];
+}
+
 var buildResponse = function ({ imported, params, data, required, occurs }, compress) {
     if (!isDevelop && compress !== false) {
         var [data, args, strs] = breakcode(data, occurs);
         strs = `[${strs}]`;
-        var data = imported.length > 0 ? `function f(${params.concat(args || [])}){${data}}` : args.length ? `function f(){var [${args}]=${strs};${data}}` : `function f(){${data}}`;
-        data = scanner2(data).press().toString();
-        data = typescript.transpile(data, { noEmitHelpers: true });
-        var code = esprima.parse(data);
-        if (optimize) code = esmangle.optimize(code, null);
-        code = code.body[0];
-        params = code.params.map(id => id.name);
-        code = {
-            "type": "Program",
-            "sourceType": "script",
-            body: code.body.body
-        };
-        data = escodegen.generate(code, {
-            format: {
-                renumber: true,
-                hexadecimal: true, //十六进位
-                escapeless: true,
-                compact: +compress !== 0, //去空格
-                semicolons: false, //分号
-                parentheses: false //圆括号
-            }
-        });
+        // var [imported1, params1, data1] = buildPress1(imported, params, data, args, strs);
+        var [imported2, params2, data2] = buildPress2(imported, params, data, args, strs);
+        data = data2;
+        imported = imported2;
+        params = params2;
         if (imported.length > 0) {
             var strlength = (strs.length * 2).toString(36);
         } else {
@@ -370,6 +374,7 @@ var buildResponse = function ({ imported, params, data, required, occurs }, comp
     } else {
         strs = '';
     }
+
     var _arguments = [...imported, ...params];
     if (required.length >= 1) {
         _arguments.push(required.join(';'));

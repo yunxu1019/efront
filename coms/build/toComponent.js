@@ -1,7 +1,4 @@
 var scanner2 = require("../compile/scanner2");
-var escodegen = require("../escodegen");
-var esprima = require("../esprima");
-var esmangle = require("../esmangle");
 var scanner = require("../compile/scanner");
 var typescript = require("../typescript");
 var path = require("path");
@@ -190,13 +187,10 @@ function toComponent(responseTree) {
         }).join("");
 
         module_string = typescript.transpile(module_string);
-        module_string = `function f(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
+        module_string = `function(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
         if (compress) {
             module_string = scanner2(module_string).press().toString();
         }
-        var module_code = esprima.parse(module_string);
-        if (optimize) module_code = esmangle.optimize(module_code, null);
-        module_string = escodegen.generate(module_code, generateConfig).replace(/^function\s+[\$_A-Za-z][\$_\w]*\(/, "function(");
         saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
             var index = destMap[a];
             if (a === "__dirname" || a === "__filename") {
@@ -293,10 +287,7 @@ function toComponent(responseTree) {
         d.imported = d.imported.map(saveImported);
         var module = d.module.replace(/"(imported\s*-\s*\d+)"/g, imported);
         if (compress) {
-            module = module.replace(/^function\s*\(/, 'function a(');
             module = scanner2(module).press().toString();
-            var code = esprima.parse(module);
-            module = escodegen.generate(code, generateConfig).replace(/^function \w\(/, 'function(');
         }
         saveOnly(`[${d.imported.join(',')},${module}]`, d.importedid);
     };

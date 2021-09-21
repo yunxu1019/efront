@@ -406,7 +406,6 @@ class Program extends Array {
         if (this._scoped) return this._scoped;
         var used = Object.create(null); var vars = Object.create(null), lets = vars;
         var scoped = this._scoped = [];
-        scoped.code = this;
         var run = function (o, id) {
             loop: while (o) {
                 var isCatch = false;
