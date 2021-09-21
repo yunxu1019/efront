@@ -65,10 +65,8 @@
             "type": "node",
             "request": "launch",
             "name": "build:kugou",
-            "env": {
-                "app": "kugou"
-            },
             "args": [
+                "build",
                 "kugou"
             ],
             "program": "${workspaceFolder}/coms/efront/index.js"

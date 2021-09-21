@@ -162,18 +162,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         used: allVariables,
         envs: undeclares
     } = code;
-    if (!isDevelop || commbuilder.compress === false) {
-        code.break();
-        data = code.toString();
-        data = typescript.transpile(data, { noEmitHelpers: true });
-        var code = scanner2(data);
-        code.break();
-        var {
-            vars: declares,
-            used: allVariables,
-            envs: undeclares
-        } = code;
-    }
     if (undeclares.require) var required = allVariables.require;
     var globals = Object.keys(undeclares);
     var globalsmap = {};
@@ -288,6 +276,19 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         }
     }
     code_body.unshift.apply(code_body, prepareCodeBody);
+    if (!isDevelop || commbuilder.compress === false) {
+        code.break();
+        data = code.toString();
+        data = typescript.transpile(data, { noEmitHelpers: true });
+        var code = scanner2(data);
+        code.break();
+        var {
+            vars: declares,
+            used: allVariables,
+            envs: undeclares
+        } = code;
+    }
+
     globals = Object.keys(globalsmap);
     var required_map = {}, required_paths = [];
     if (required instanceof Array) required.forEach(({ next }, cx) => {
