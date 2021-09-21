@@ -1,5 +1,6 @@
 var scanner = require("./scanner");
 var keywords = require("./keywords");
+var strings = require("../basic/strings");
 var hasOwnProperty = {}.hasOwnProperty;
 var getReadableKey = function ($key, value) {
     value = value.replace(/-->/g, '--\\>');
@@ -21,9 +22,8 @@ var setMatchedConstString = function (k) {
 
     if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
     if (k.length < 3) return k;
-    k = k.replace(/^(['"])(.*?)\1$/, function (match, quote, string) {
-        return "\"" + string.replace(/\\([\s\S])/g, (a, b) => b === "'" ? b : a).replace(/"/g, "\\\"") + "\"";
-    });
+    k = strings.decode(k);
+    k = strings.encode(k);
     var $key = "str_" + k.replace(/^(['"])([\s\S]*)\1$/g, '$2');
     var key = getReadableKey($key, k);
     return " " + key + " ";
@@ -36,9 +36,7 @@ var setMatchedConstRegExp = function (k) {
 var trimStringLiteral = function (block) {
     var block_string = module_string.slice(block.start, block.end);
     if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
-        requireReg.lastIndex = block.start;
-        var isRequire = requireReg.exec(module_string);
-        return setMatchedConstString(block_string, isRequire);
+        return setMatchedConstString(block_string);
     }
     if (block.type === block.regexp_quote_scanner) {
         return setMatchedConstRegExp(block_string);
@@ -46,7 +44,6 @@ var trimStringLiteral = function (block) {
     return block_string;
 };
 var paramsMap = Object.create(null);
-var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
 var module_string = '';
 function breakcode(data, args) {
     if (!args) return [data];
