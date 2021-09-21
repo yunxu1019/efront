@@ -1,0 +1,10 @@
+{
+    "javascript.suggest.autoImports": false,
+    "[bat]": {
+        "files.encoding": "gb18030"
+    },
+    "editor.acceptSuggestionOnCommitCharacter": false,
+    "vetur.format.options.tabSize": 4,
+    "editor.acceptSuggestionOnEnter": "off",
+    "compile-hero.disable-compile-files-on-did-save-code": true
+}

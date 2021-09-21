@@ -7,11 +7,89 @@
         {
             "type": "node",
             "request": "launch",
-            "runtimeExecutable": "efront",
-            "runtimeArgs": [
-                "syntax$javascript_test.js"
+            "name": "scanner2",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/coms/compile/scanner2_test.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "start efront2",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "public_path": "public",
+                "libs_path": "./",
+                "libs": "typescript,esprima,escodegen,esmangle,pngjs,less-node"
+            },
+            "args": [
+                "./efront/index",
+                "demo"
             ],
-            "name": "javascript scan"
+            "program": "${workspaceFolder}/coms/efront/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "build-efront2",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "coms_path": "./coms,",
+                "page_path": "./coms",
+                "public_path": "./public",
+                "page": "./",
+                "app": "efront/index.js",
+                "extt": ".js",
+                "coms": "./",
+                "libs_path": "./",
+                "libs": "typescript,esprima,escodegen,esmangle,pngjs,less-node",
+                "destpath": "efront.js"
+            },
+            "args": [
+                "publish"
+            ],
+            "program": "${workspaceFolder}/coms/efront/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Slider",
+            "env": {
+                "app": "slider.js"
+            },
+            "args": [
+                "build"
+            ],
+            "program": "${workspaceFolder}/main.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "build:kugou",
+            "env": {
+                "app": "kugou"
+            },
+            "args": [
+                "kugou"
+            ],
+            "program": "${workspaceFolder}/coms/efront/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "demo:kugou",
+            "args": [
+                "demo"
+            ],
+            "program": "${workspaceFolder}/coms/efront/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "docs",
+            "args": [
+                "docs"
+            ],
+            "program": "${workspaceFolder}/coms/efront/index.js"
         }
     ]
 }

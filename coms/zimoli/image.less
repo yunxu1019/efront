@@ -1,0 +1,55 @@
+& {
+    height: 80px;
+    width: 80px;
+    display: inline-block;
+    background: #fff;
+    vertical-align: top;
+    position: relative;
+    text-align: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+
+    >.button {
+        border: none;
+
+        >.track {
+
+            &,
+            &.hover,
+            &.active {
+                opacity: 0;
+            }
+        }
+    }
+}
+
+>.plus {
+    height: 100%;
+    color: #409EFF;
+    display: block;
+    background: transparent;
+    box-sizing: border-box;
+    box-shadow: none;
+
+    >div.icon {
+        font-family: 'Times New Roman', Times, "宋体", sans-serif;
+        font-weight: 600;
+        padding-top: 18px;
+        line-height: 32px;
+        font-size: 32px;
+    }
+}
+
+>.label {
+    font-size: 16px;
+    line-height: 20px;
+    background: #0009;
+    color: #fff;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}

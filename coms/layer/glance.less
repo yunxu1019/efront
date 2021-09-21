@@ -1,0 +1,55 @@
+& {
+    line-height: 1.6;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    // margin    : 0 auto;
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+    border-left: @left-width solid transparent;
+    box-sizing: border-box;
+    overflow: visible;
+    border-top: 44px solid transparent;
+    transition: border-left-width 0.2s ease-out, margin-left .2s ease-out, left .2s ease-out;
+}
+
+@left-width: 260px;
+
+&>[layer=left] {
+    background-color: #222d32;
+    color: #fff;
+    width: @left-width;
+    margin-left: -@left-width;
+    height: 100%;
+    position: absolute;
+    top: 0;
+}
+
+
+
+>[layer=top] {
+    min-height: 44px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .16);
+}
+
+&.close {
+    border-left-width: 0 !important;
+}
+
+@media all and(min-width:961px) {
+    &.open {
+        margin-left: 0 !important;
+    }
+}
+
+@media all and (max-width:960px) {
+    & {
+        border-radius: 0;
+        border-left-width: 0 !important;
+        margin-left: 0;
+    }
+}

@@ -1,0 +1,82 @@
+& {
+    white-space: nowrap;
+    overflow: auto;
+}
+
+&>div {
+    >span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        width: 60px;
+        text-align: center;
+        color: green;
+
+        &:before {
+            content: "c";
+        }
+    }
+
+    display: inline-block;
+    vertical-align: top;
+    width: 420px;
+    position: relative;
+    pointer-events: none;
+
+    button {
+        pointer-events: all;
+    }
+
+    &.odd {
+
+        button {
+            margin: 0 2px;
+            width: 56px;
+            background: #fff;
+            color: #333;
+            height: 280px;
+            padding: 80px 0 0 0;
+
+            box-shadow: 0 0 20px -6px rgba(0, 0, 0, .3);
+
+            span {
+                vertical-align: bottom;
+            }
+        }
+    }
+
+    &.even {
+        margin-left: -420px;
+        z-index: 2;
+
+        button {
+            width: 40px;
+            margin: 0 10px;
+            box-shadow: 0 0 20px -6px rgba(0, 0, 0, .3);
+
+            &:nth-child(1) {
+                margin-left: 40px;
+            }
+
+            span {
+                writing-mode: horizontal-tb;
+            }
+
+
+            background: #333;
+            color: #fff;
+            height: 120px;
+
+            &:nth-child(7n+2) {
+                margin-right: 70px;
+            }
+        }
+
+    }
+
+    button.pressed {
+        color: red;
+    }
+
+}

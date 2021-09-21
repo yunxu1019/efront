@@ -1,0 +1,5 @@
+{
+    "http://efront.cc:5989/": {
+        "menus": "get:docs ./data/menus.json#name=F_Name&icon=F_Icon 菜单列表 "
+    }
+}

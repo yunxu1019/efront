@@ -1,0 +1,113 @@
+pointer {
+    display   : block;
+    height    : 6px;
+    border    : 1px solid #fff;
+    background: #ccc;
+    top       : 0;
+    left      : 0;
+    box-sizing: border-box;
+    position  : absolute;
+}
+
+>div {
+    display : inline-block;
+    position: relative;
+
+
+    &+div {
+        margin-left: 10px;
+    }
+
+    &.pad {
+        font-size: 0;
+
+        >pointer {
+            width : 6px;
+            margin: -3px;
+        }
+
+        >canvas {
+            width     : 256px;
+            height    : 256px;
+            background: #fff;
+        }
+    }
+
+    &.hue {
+        font-size: 0;
+
+        >pointer {
+            margin: -3px -1px;
+            width : 12px;
+        }
+
+        >canvas {
+            background: #000;
+            width     : 10px;
+            height    : 256px;
+        }
+    }
+
+    &.val {
+        margin : 0;
+        padding: 10px 0 0 0;
+
+        >input {
+
+            &:focus {
+                z-index: 1;
+            }
+
+            color: inherit;
+            text-transform  : lowercase;
+            background-color: transparent;
+            box-sizing      : border-box;
+            padding         : 0 3px;
+            position        : relative;
+            font-size       : 12px;
+            border          : none;
+            text-align      : left;
+            min-width       : 40px;
+            width           : 30%;
+
+            &+input {
+                margin-left: 6px;
+            }
+        }
+
+        >.hex {
+            width: 56px;
+        }
+
+        >.rgb {
+            width: 114px;
+        }
+
+        >.hsl {
+            width: 114px;
+        }
+    }
+}
+
+& {
+    width        : 312px;
+    background   : #fff;
+    padding      : 17px 0 7px 0;
+    text-align   : center;
+    user-select  : none;
+    border-radius: 3px;
+    position     : relative;
+}
+
+&>.bg {
+    display            : block;
+    left               : 2px;
+    top                : 2px;
+    right              : 2px;
+    bottom             : 2px;
+    border-radius      : 2px;
+    border-color       : inherit;
+    border             : 2px solid;
+    border-bottom-width: 26px;
+    position           : absolute;
+}

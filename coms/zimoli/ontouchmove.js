@@ -1,0 +1,1 @@
+var ontouchmove=on("touchmove");

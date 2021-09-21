@@ -1,0 +1,43 @@
+@import "./color-config.less";
+
+& {
+    box-sizing: border-box;
+    cursor: text;
+    border: 1px solid @border-solid;
+    padding: 0 6px;
+    height: 28px;
+    line-height: 26px;
+    border-radius: 3px;
+    font-size: 16px;
+    -webkit-appearance: none;
+    box-shadow: none;
+    outline: none;
+
+    &:focus {
+        border: 1px solid @border-focus;
+    }
+}
+
+&::-ms-clear {
+    display: none;
+}
+
+&::-webkit-inner-spin-button {
+    display: none;
+}
+
+&::-webkit-inner-spin-button {
+    display: none;
+}
+
+&::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+&::-webkit-calendar-picker-indicator:hover {
+    display: none;
+}
+
+&::-webkit-clear-button {
+    display: none;
+}

@@ -1,28 +1,32 @@
 {
-  "name": "efront",
-  "version": "2.0.0",
-  "description": "Efront envronment for frontend developers.",
-  "main": "index.js",
-  "dependencies": {
-    "typescript": "^3.5.3"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yunxu1019/efront.git"
-  },
-  "keywords": [
-    "frontend",
-    "开发环境",
-    "前端"
-  ],
-  "author": "不枝雀",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/yunxu1019/efront/issues"
-  },
-  "homepage": "https://github.com/yunxu1019/efront#readme"
+    "name": "efront",
+    "version": "2.43.1",
+    "description": "一个开发工具，开放源代码，自带组件库和编译环境，可以用来开发web组件，web应用或nodejs模块，或做为已有代码的加密工具，也可以做为静态页面服务器或跨域中转服务器使用",
+    "main": "public/efront.js",
+    "directories": {
+        "test": "test"
+    },
+    "bin": {
+        "efront": "public/efront.js"
+    },
+    "scripts": {
+        "prepare": "node tools/build-efront.js",
+        "start": "efront ./efront/ --libs=typescript,esprima,escodegen,esmangle,pngjs,less-node"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yunxu1019/efront.git"
+    },
+    "keywords": [
+        "angular",
+        "angularjs",
+        "react",
+        "vue",
+        "jquery",
+        "commonjs",
+        "cross",
+        "server"
+    ],
+    "author": "yunxu1019",
+    "license": "MIT"
 }

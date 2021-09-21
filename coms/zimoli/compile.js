@@ -1,0 +1,1 @@
+"use ../compile/compile.js"

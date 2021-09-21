@@ -1,0 +1,1 @@
+'use ../build/write.js';

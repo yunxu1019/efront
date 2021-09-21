@@ -1,0 +1,40 @@
+<hbox class="topbar">
+    <btn @click="index=i" v-for="(s,i) in steps" type_="i&lt;=index?'default':'white'">
+        <span ng-bind="s[0].name"></span>
+    </btn>
+</hbox>
+<div class="body">
+    <textarea _value="refilm_encode(steps[index])">
+
+    </textarea>
+    <table class="form">
+        <thead>
+            <tr>
+                <td ng-repeat="(f,i) in refilms">
+                    <span ng-bind="f.name"></span>
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="s in steps[index]">
+                <td ng-repeat="r in refilms">
+                    <span bg-bind="String(s[r.key]||'')"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <form class="form">
+        <field ng-src="[f,data]" ng-repeat="(f,i) in steps[index]"></field>
+    </form>
+    <div class="step">
+        <div class="page-number">
+            <span ng-bind=index+1></span>
+            /
+            <span ng-bind="steps.length"></span>
+        </div>
+    </div>
+    <div class="foot">
+        <btn @click="prevStep()">上一步</btn>
+        <btn @click="nextStep()">下一步</btn>
+    </div>
+</div>

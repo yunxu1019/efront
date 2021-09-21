@@ -1,0 +1,45 @@
+& {
+    display         : inline-block;
+    width           : auto;
+    height          : auto;
+    background-color: #fff;
+    box-shadow      : 0 0 20px -6px rgba(0, 0, 0, .6);
+    line-height     : 28px;
+    padding         : 6px 0;
+
+    >menu-item {
+        display         : block;
+        position        : relative;
+        padding         : 0 16px;
+        border-radius   : 0;
+        background-color: inherit;
+        color           : inherit;
+        box-shadow      : none;
+        text-align      : inherit;
+
+        &.has-children {
+            padding: 0 24px 0 16px;
+
+            &:after {
+                content    : ">";
+                display    : block;
+                width      : 20px;
+                height     : 20px;
+                line-height: 20px;
+                font-size  : 18px;
+                transform  : scaleX(.56);
+                position   : absolute;
+                right      : 6px;
+                top        : 50%;
+                margin-top : -10px;
+                text-align : right;
+            }
+        }
+
+    }
+}
+
+i {
+    display: inline-block;
+    width  : 20px;
+}

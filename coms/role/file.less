@@ -1,0 +1,24 @@
+& {
+    height: 40px;
+    line-height: 40px;
+    position: relative;
+    border-left: 3px solid #eee;
+}
+
+.container {
+    display: table-row;
+    >.body {
+        position: unset;
+        padding-left: 16px;
+        padding-right: 0;
+        display: table-cell;
+    }
+    >.head {
+        padding-left: 16px;
+        display: table-cell;
+        position: unset;
+        color: #cccccc;
+        width: 100%;
+        max-width: 100%;
+    }
+}

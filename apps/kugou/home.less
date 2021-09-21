@@ -1,0 +1,139 @@
+.title-bar {
+    position: absolute;
+    // background-color: #fffb;
+    left: 0;
+    right: 0;
+    top: 0;
+    opacity: .98;
+    height: 44px;
+    line-height: 44px;
+    font-size: 16px;
+    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .1);
+    backdrop-filter: blur(20px);
+    z-index: 1;
+    padding: 0 10px;
+    padding-right: 60px;
+    cursor: default;
+    white-space: nowrap;
+    background-color: #1f4a3bd4;
+
+    >tag {
+        width: 25%;
+        position: relative;
+        max-width: 80px;
+        height: 44px;
+        line-height: 42px;
+        color: #ffff;
+        display: inline-block;
+        text-align: center;
+        box-shadow: none;
+        vertical-align: top;
+        background: transparent;
+
+        >span {
+            position: relative;
+        }
+
+        &.hover>.track {
+            margin-top: 0px !important;
+        }
+
+        &.active>.track {
+            margin-top: 0px !important;
+        }
+
+        .track() {
+            opacity: 1;
+            box-shadow: none;
+            background-color: #22a2c4;
+            transition: margin-top .2s ease-out;
+        }
+
+        &.activate {
+
+            &.active,
+            &.hover {
+                .track();
+            }
+        }
+
+        &.moving,
+        &.activate:not(.active):not(.hover) {
+            >.track {
+                .track();
+            }
+        }
+    }
+
+    .search-btn {
+        position: absolute;
+        right: 0;
+        width: 50px;
+        height: 100%;
+        background: transparent;
+    }
+
+    .search-icon {
+        display: inline-block;
+        height: 44px;
+        width: 24px;
+        vertical-align: middle;
+        background: url('http://m.kugou.com/v3/static/images/index/search.png') no-repeat center/ 16px auto;
+    }
+}
+
+&>.pages {
+    height: 100%;
+    display: block;
+}
+
+& {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: auto;
+    left: 0;
+    right: 0;
+    font-size: 16px;
+    width: auto;
+    background: inherit;
+    margin-bottom: -60px;
+}
+
+.player+body>& {
+    >* {
+
+        >.vbox,
+        :not(.vbox)>.vbox {
+            padding-bottom: 60px;
+        }
+    }
+
+    transition: padding-bottom .2s ease-out;
+}
+
+
+.search-box {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding-right: 4px;
+}
+
+@media(max-width:520px) {
+    .search-box {
+        display: none;
+    }
+}
+
+@media(min-width:521px) {
+    .title-bar {
+        padding-right: 232px;
+    }
+
+    .search-box {
+        display: none;
+    }
+}

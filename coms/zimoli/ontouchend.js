@@ -1,0 +1,1 @@
+var ontouchend=on("touchend");

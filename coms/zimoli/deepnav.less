@@ -1,0 +1,27 @@
+& {
+    height: 36px;
+    line-height: 34px;
+    display: block;
+    border: 1px solid #ddd;
+    width: 100%;
+}
+
+>navitem,
+>[navitem] {
+    margin-left: 10px;
+    display: inline-block;
+
+    &+navitem,
+    &+[navitem] {
+        &:before {
+            pointer-events: none;
+            content: ">";
+            font-weight: 600;
+            color: #aaa;
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0 4px 0 -6px;
+            transform: scaleX(.6);
+            display: inline-block;
+        }
+    }
+}

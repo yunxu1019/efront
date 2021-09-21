@@ -1,0 +1,103 @@
+& {
+    padding: 16px 0;
+    position: relative;
+}
+
+
+
+
+
+>.options {
+    text-align: right;
+    padding: 0 16px;
+    width: 392px;
+}
+
+.padding {
+    display: block;
+    padding: 8px 10px 0;
+}
+
+.field-item {
+    .index {
+        position: absolute;
+        font-size: 10px;
+        margin-top: -12px;
+        top: 0;
+        left: 6px;
+        padding: 0 14px;
+        line-height: 1;
+        background: #fff;
+        display: block;
+        border: 1px solid;
+        border-color: inherit;
+        border-bottom: none;
+    }
+
+    border-radius: 3px;
+    text-align: right;
+    display: block;
+    width: 360px;
+    max-width: 100%;
+    position: relative;
+    border: 1px solid #0006;
+    border-left: 4px solid #0006;
+    background: #fff;
+
+    &.focus {
+        border-color: #39c;
+
+        .index {
+            border-color: inherit;
+        }
+    }
+
+    >input,
+    >select,
+    >btn {
+        position: relative;
+        width: auto;
+        height: 28px;
+        border: none;
+        line-height: 28px;
+        display: inline-block;
+        vertical-align: middle;
+        box-sizing: border-box;
+        outline: none;
+        appearance: none;
+    }
+
+    >input {
+        border-radius: 3px 0 0 3px;
+        padding-left: 6px;
+    }
+
+    >btn {
+        padding: 0 6px;
+        border-radius: 0 3px 3px 0;
+    }
+}
+
+&>.fields {
+    max-height: 372px;
+    overflow: hidden;
+    height: 260px;
+
+    >.focus {
+        outline: 1px solid #39c;
+    }
+
+}
+
+i {
+    font-style: normal;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.add {
+    width: auto;
+    padding: 0 16px;
+    height: 28px;
+    line-height: 28px;
+}

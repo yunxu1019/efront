@@ -1,0 +1,1 @@
+d => d * .75 / renderPixelRatio;

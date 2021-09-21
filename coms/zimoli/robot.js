@@ -1,0 +1,7 @@
+class Robot {
+    constructor() {
+    }
+    config() {
+        
+    }
+}

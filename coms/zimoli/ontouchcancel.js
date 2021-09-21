@@ -1,0 +1,1 @@
+var ontouchcancel=on("touchcancel");

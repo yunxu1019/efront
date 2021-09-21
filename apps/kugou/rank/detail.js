@@ -1,0 +1,1 @@
+buildScroll("rank-info");

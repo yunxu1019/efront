@@ -1,0 +1,1 @@
+buildScroll('singer-list','/singer/detail');

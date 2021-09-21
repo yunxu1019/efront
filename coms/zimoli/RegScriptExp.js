@@ -1,0 +1,1 @@
+/<script\b[\s\S]*?<\/script>/gi

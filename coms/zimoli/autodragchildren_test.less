@@ -1,0 +1,20 @@
+list {
+    >div {
+        display: inline-block;
+    }
+}
+
+.row(@x) {
+    @row: ~"[row@{x}]";
+
+    @{row}>td {
+        &:after {
+            content:"@{x}";
+        }
+    }
+}
+
+.row(1);
+.row(2);
+.row(3);
+.row(4);

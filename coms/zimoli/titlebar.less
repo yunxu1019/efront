@@ -1,0 +1,58 @@
+& {
+    color           : #ffffff;
+    opacity         : 0.98;
+    z-index         : 2;
+    text-align      : center;
+    line-height     : 50px;
+    font-size       : 24px;
+    height          : 50px;
+    position        : absolute;
+    top             : 0px;
+    left            : 0px;
+    right           : 0px;
+    width           : 100%;
+    border          : 1px solid #18333c;
+    background-color: #18333c99;
+    backdrop-filter : blur(20px);
+    box-shadow      : inset 0 0 6px #51ddf6, inset 200px -160px 200px -200px #51ddf6;
+    cursor          : default;
+
+    >label {
+        overflow     : hidden;
+        text-overflow: ellipsis;
+        padding      : 0 10px;
+        display      : block;
+        max-height   : 100%;
+    }
+}
+
+>div,
+>back {
+    position        : absolute;
+    background-color: transparent;
+    top             : 0;
+    bottom          : 0;
+    height          : 100%;
+    line-height     : 50px;
+}
+
+&>back {
+    display: block;
+    left   : 0;
+    width  : 60px;
+}
+
+&>.menus>.button {
+    height        : 100%;
+    position      : relative;
+    vertical-align: top;
+    display       : inline-block;
+    min-width     : 60px;
+    background    : transparent;
+}
+
+&>.menus,
+&>.menu {
+    min-width: 60px;
+    right    : 0;
+}

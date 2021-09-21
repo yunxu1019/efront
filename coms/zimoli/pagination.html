@@ -1,0 +1,17 @@
+<btn class="start" ng-click="start()">
+    |◀
+</btn>
+<btn class="prev" ng-click="prev()">
+    ◀
+</btn>
+<xlist elementid='pglist' ng-src="page in pages" ng-style="{width:fromPixel(40*pages.length)}">
+    <btn class="item">
+        <span ng-bind=page></span>
+    </btn>
+</xlist>
+<btn class="next" ng-click='next()'>
+    ▶
+</btn>
+<btn class="end" ng-click='end()'>
+    ▶|
+</btn>

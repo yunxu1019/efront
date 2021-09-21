@@ -1,0 +1,1 @@
+var onselectstart=on("selectstart");

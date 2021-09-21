@@ -1,0 +1,1 @@
+buildList('rank-list','/rank/detail');

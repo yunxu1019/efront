@@ -1,0 +1,43 @@
+& {
+    background: #ffffff;
+    @box-shadow: 0 0 20px -6px rgba(0, 0, 0, .3);
+    box-shadow: @box-shadow;
+
+    >.button {
+        display: block;
+        padding: 0 16px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    &:before {
+        box-shadow: @box-shadow;
+    }
+
+    &:before,
+    &:after {
+        content: "";
+        position: absolute;
+        display: block;
+        width: 16px;
+        height: 16px;
+        margin-top: -16px;
+        top: 0;
+        border: 8px solid transparent;
+        border-bottom-color: #ffffff;
+    }
+}
+
+&:before,
+&:after {
+    left: 17px;
+}
+
+@media all and(max-width:720px) {
+
+    &:before,
+    &:after {
+        right: 17px;
+        left: auto;
+    }
+}

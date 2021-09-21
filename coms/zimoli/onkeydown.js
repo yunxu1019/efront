@@ -1,0 +1,1 @@
+var onkeydown=on("keydown");

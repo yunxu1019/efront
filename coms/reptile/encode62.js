@@ -1,0 +1,1 @@
+"use ../crypt/encode62.js";

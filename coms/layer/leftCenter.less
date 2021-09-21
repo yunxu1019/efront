@@ -1,0 +1,45 @@
+& {
+    line-height: 1.6;
+    width: 1000px;
+    height: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+    padding-left: @left-width;
+    >div {
+        display: inline-block;
+        position: relative;
+        height: 100%;
+        vertical-align: top;
+    }
+}
+
+@left-width: 320px;
+>[layer=left] {
+    width: @left-width;
+    margin-left: -@left-width;
+    height: 100%;
+    overflow: hidden;
+}
+
+>[layer=main] {
+    width: 100%;
+    right: 0;
+    height: 100%;
+}
+
+@media all and (max-width:720px) {
+    & {
+        border-radius: 0;
+        padding-left: 0;
+    }
+    &>[layer=main] {
+        display: none;
+    }
+    &>[layer=left] {
+        margin-left: 0;
+        width: 100%;
+    }
+}

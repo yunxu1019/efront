@@ -1,0 +1,255 @@
+@default-color: #0092cc;
+
+& {
+    font-size: 14px;
+    width: auto;
+    line-height: 28px;
+    background-color: @default-color;
+    color: #ffffff;
+    border-radius: 2px;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2) inset;
+    position: relative;
+    border: none;
+    margin: 0;
+    display: inline-block;
+    white-space: nowrap;
+    text-align: center;
+    // cursor: default;
+    overflow: hidden;
+    outline: none;
+}
+
+
+@keyframes busy-loading {
+    0% {
+        margin-left: -130%;
+    }
+
+    70% {
+        margin-left: 50%;
+    }
+
+    90% {
+        margin-left: 80%;
+    }
+
+    100% {
+        margin-left: 120%;
+    }
+}
+
+&>input {
+    position: absolute;
+    opacity: 0;
+    -webkit-appearance: none;
+    border: none;
+    outline: none;
+    display: block;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    cursor: pointer;
+}
+
+// &>.label {
+//     height       : 1em;
+//     line-height  : 1em;
+//     top          : 50%;
+//     margin-top   : -.5em;
+//     margin-bottom: .5em;
+//     text-align   : inherit;
+//     box-sizing   : border-box;
+//     display      : block;
+//     overflow     : hidden;
+//     position     : relative;
+//     text-overflow: ellipsis;
+// }
+
+&>.track {
+    border-radius: inherit;
+    transition: box-shadow .1s, background-color .2s;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #0000;
+}
+
+&.space>.label {
+    padding-left: 5px;
+    letter-spacing: 5px;
+}
+
+&.hover {
+    // text-shadow: 0 0 6px #fff;
+
+    >.track {
+        background: #0001;
+        box-shadow: inset 0 0 6px 6px #6fc3;
+    }
+}
+
+&.active,
+&[loading] {
+    >.track {
+        background: #0003;
+    }
+
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3) inset;
+}
+
+&[loading] {
+    @keyframes ltr {
+        0% {
+            left: -30%;
+        }
+
+        30% {
+            left: -30%;
+        }
+
+        60% {
+            left: 20%;
+        }
+
+        90% {
+            left: 60%;
+        }
+
+        100% {
+            left: 130%;
+        }
+
+    }
+
+    &:before {
+        transform: rotate(-12deg);
+        display: block;
+        content: "";
+        position: absolute;
+        left: -30%;
+        top: -10%;
+        width: 6px;
+        margin-left: -2px;
+        height: 200%;
+        background: #fff9;
+        border-left: 1px #fff3 solid;
+        border-right: 3px #fff6 solid;
+        animation: ltr 3s linear 1s infinite;
+    }
+
+}
+
+&:focus {
+    z-index: 1;
+}
+
+&.busy {
+    text-shadow: none;
+
+    >.track {
+        background-color: #999;
+        box-shadow: none;
+    }
+
+    &:before {
+        content: "";
+        display: block;
+        transform: rotate(25deg);
+        width: 20px;
+        height: 200%;
+        top: -50%;
+        position: absolute;
+        background: #fff;
+        animation: busy-loading 3s linear 0s infinite;
+    }
+}
+
+a&,
+&[type$=anchor] {
+    padding: 0;
+    box-shadow: none;
+    text-shadow: none;
+    background: none;
+    color: @default-color;
+    cursor: pointer;
+    outline: none;
+
+    .clear() {
+        text-shadow: none;
+        box-shadow: none;
+        background: none;
+
+        >.track {
+            opacity: 0;
+            box-shadow: none;
+            background: none;
+        }
+    }
+
+
+    &.hover {
+        color: lighten(@default-color, 10%);
+        .clear();
+    }
+
+    &.active,
+    &:active {
+        color: darken(@default-color, 10%);
+        .clear();
+    }
+}
+
+.type(@type, @color, @colortext, @hover: lighten(@color, 10%)) {
+
+    &[type="@{type}"],
+    &.@{type},
+    &[@{type}] {
+        color: @colortext;
+        background-color: @color;
+        border-radius: 3px;
+    }
+
+    @anchored: ~"@{type}-anchor";
+
+    a&[type="@{type}"],
+    a&.@{type},
+    a&[@{type}],
+    &[type='@{anchored}'],
+    &.@{anchored},
+    &[@{anchored}] {
+        color: @color;
+        background: none;
+
+        &.hover {
+            color: @hover;
+        }
+
+        &:active,
+        &.active {
+            color: darken(@color, 10%);
+        }
+    }
+}
+
+.type(candidate, #218546, #fff, #41c586);
+.type(inactive, #94a5bd, #fff);
+.type(disabled, #ccc, #fff);
+.type(dark, #000, #fff);
+.type(white, #fff, #666);
+.type(danger, #c26, #fff, #f46);
+.type(delete, #c26, #fff, #f46);
+.type(grey, #F2F4F5, #333);
+
+&[disabled] {
+    >.track {
+        background-color: #ccc8;
+        box-shadow: none;
+    }
+
+    text-shadow: none;
+}

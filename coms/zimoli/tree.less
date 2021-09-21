@@ -1,0 +1,39 @@
+& {
+    height: 100%;
+    background: #222d32;
+    color: #fff;
+
+    >div {
+        display: block;
+        text-align: left;
+        height: auto;
+        background-color: inherit;
+        color: inherit;
+        padding-right: 10px;
+    }
+}
+
+.count {
+    &:before {
+        content: "（ ";
+    }
+
+    &:after {
+        content: " ）";
+    }
+
+    margin: 0 10px;
+    color: #ccc;
+    display: none;
+}
+
+.closed .count {
+
+    display: inline-block;
+}
+
+
+t {
+    display: inline-block;
+    width: 16px;
+}

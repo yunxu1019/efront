@@ -1,0 +1,20 @@
+<titlebar>
+    <back></back>
+    <input placeholder="请输入关键字搜索" ng-model=keyword
+        ng-keyup="event.which===13?confirm():search(this.value)" />
+    <icon class="loading" ng-if="result?.loading"></icon>
+    <btn ng-click="keyword='';search()">清空</btn>
+</titlebar>
+<div ng-if="!keyword">
+    <padding class="empty" ng-if="!searchHistory.length">
+        搜索历史为空
+    </padding>
+    <padding ng-repeat="s in searchHistory">
+        <btn ng-click="search(s,0)" type=white><span ng-bind="s"></span></btn>
+    </padding>
+</div>
+<list ng-if="keyword" ng-src="s in result">
+    <padding>
+        <song _mark=keyword ng-click="play(s.hash)" ng-src=s></song>
+    </padding>
+</list>

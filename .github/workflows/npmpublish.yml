@@ -1,0 +1,105 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: EFront编译发布
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  publish-efront:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: rd /s /q public& if exist *.tgz del *.tgz
+        shell: cmd
+      - run: npm pack
+        shell: cmd
+      - run: if not exist public/efront.js (echo 编译错误&exit 1)
+        shell: cmd
+      - run: call node public/efront.js help & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+        shell: cmd
+      - name: 检查版本号
+        run: |
+          for /f "usebackq delims==" %%v in (`npm view . version`) do set published=%%v
+          for /f "usebackq delims==" %%v in (`dir /b *.tgz`) do set packed=%%v
+          if %packed% == efront-%published%.tgz (echo 已是最新版本&exit 0)
+          del *.tgz
+
+        shell: cmd
+      - name: 发布
+        run: |
+          if exist *.tgz (echo 无需发布&exit 0)
+          npm publish
+        shell: cmd
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+  run-efront-on-windows:
+    needs: publish-efront
+    runs-on: windows-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: npm install -g efront
+        shell: cmd
+      - run: efront version
+        shell: cmd
+      - run: efront ip
+        shell: cmd
+      - run: efront help
+        shell: cmd
+      - run: efront help version
+        shell: cmd
+      - run: efront -v
+        shell: cmd
+      - run: efront --version
+        shell: cmd
+      - run: efront simple from kugou
+        shell: cmd
+      - run: efront build
+        shell: cmd
+
+  run-efront-on-linux:
+    needs: publish-efront
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: npm install -g efront
+      - run: efront version
+      - run: efront ip
+      - run: efront help
+      - run: efront help version
+      - run: efront -v
+      - run: efront --version
+      - run: efront simple from kugou
+      - run: efront build
+
+  run-efront-on-darwin:
+    needs: publish-efront
+    runs-on: macos-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: npm install -g efront
+      - run: efront version
+      - run: efront ip
+      - run: efront help
+      - run: efront help version
+      - run: efront -v
+      - run: efront --version
+      - run: efront simple from kugou
+      - run: efront build

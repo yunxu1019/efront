@@ -1,0 +1,1 @@
+var onmousemove=on("mousemove");

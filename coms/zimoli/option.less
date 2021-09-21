@@ -1,0 +1,105 @@
+& {
+    width: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    padding: 0 !important;
+    color: #333;
+    right: 0;
+    display: block;
+
+    >.head,
+    >.body,
+    >.foot {
+        display: table-cell;
+        position: relative;
+        vertical-align: top;
+    }
+
+    >.head {
+        text-align: start;
+        font-size: 16px;
+        padding: 10px 16px;
+        left: 0;
+        min-width: 61px;
+        height: 100%;
+        top: 0;
+        bottom: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        white-space: nowrap;
+    }
+
+    &.has-next>.body {
+        padding-right: 40px;
+    }
+
+    >.body {
+        right: 0;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        width: 100%;
+        font-size: 16px;
+        padding: 10px 16px 10px 1px;
+        text-align: right;
+        overflow: hidden;
+    }
+
+    >.foot {
+        position: absolute;
+        right: 0;
+        min-width: 40px;
+        top: 0;
+        bottom: 0;
+        text-align: right;
+        padding: 10px 16px 10px 0;
+        height: 100%;
+
+        >.next {
+            height: 16px;
+            width: 16px;
+            top: 21px;
+            display: block;
+            line-height: 16px;
+            margin-top: -9px;
+            opacity: .6;
+            position: absolute;
+            right: 10px;
+
+            &:after {
+                content: "›";
+                font-size: 20px;
+            }
+        }
+    }
+}
+
+& {
+    width: 100%;
+    position: relative;
+    background: transparent;
+    line-height: 22px;
+    box-shadow: none;
+}
+
+&+& {
+    margin-top: -1px;
+
+    >.body {
+        box-shadow: 0 1px 0 0 rgba(0, 0, 0, .1) inset;
+    }
+}
+
+
+&.active>.body {
+    box-shadow: none;
+    border-top-color: transparent;
+}
+
+&.active+&>.body {
+    box-shadow: none;
+    border-top-color: transparent;
+}

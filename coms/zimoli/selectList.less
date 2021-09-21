@@ -1,0 +1,52 @@
+& {
+    max-width: 100%;
+    background-color: #fff;
+    line-height: 30px;
+    box-shadow: 0 0 20px -6px rgba(0, 0, 0, .3);
+
+    >div {
+        cursor: default;
+        padding: 0 16px;
+
+        &[selected] {
+            color: #26f;
+        }
+
+        &:hover {
+            background-color: #2ca2f9;
+            color: #fff;
+        }
+
+        &:active {
+            background-color: #1c82c9;
+            color: #fff;
+        }
+
+        &[disabled] {
+            color: #bbb;
+            background-color: transparent;
+        }
+    }
+}
+
+&[iconed] {
+    border-left: 30px solid #f2f4f6;
+
+    >div {
+        filter: grayscale(1);
+
+        &:hover,
+        &:active,
+        &[selected] {
+            filter: grayscale(0);
+        }
+
+
+        margin-left: -30px;
+        padding-left: 36px;
+        background-repeat: no-repeat;
+        background-size: auto 16px;
+        background-position-y: 50%;
+        background-position-x: 8px;
+    }
+}

@@ -1,0 +1,7 @@
+<png ng-if=config.imgurl ng-src=config.imgurl></png>
+<list ng-src="d in datas">
+    <padding>
+        <song ng-src=d ng-click=run(d)></song>
+    </padding>
+</list>
+<loading ng-if="datas.is_loading"></loading>

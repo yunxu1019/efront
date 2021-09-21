@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+if [ -L $0 ]
+then
+__dirname=`dirname $(readlink $0)`
+else
+__dirname=`dirname $0`
+fi
+cd $__dirname/..
+clear
+pwd
+export coms_path=./coms
+export page_path=./coms
+export public_path=./public
+export export_to=node
+export page=./
+export app=efront/index.js
+export extt=.js
+export coms=./
+# libs_path=./
+# libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
+export destpath=efront.js
+rm -rf "$public_path"
+node coms/efront publish $*

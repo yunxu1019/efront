@@ -1,0 +1,1 @@
+buildList("plist-index","/plist/detail");

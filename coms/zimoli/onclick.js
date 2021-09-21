@@ -1,0 +1,1 @@
+var onclick = on("click");

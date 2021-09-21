@@ -1,0 +1,12 @@
+<div class="head">
+    媒体设备管理器
+</div>
+<div class="body">
+    <device class="device" _device=m ng-click="run(m)" ng-class="{running:m.isRunning}" ng-repeat="m in devices">
+        <audioview _device=m></audioview>
+        <div class="type" ng-class="m.kind"></div>
+        <!-- <marquee class="name" direction="left" ng-bind=m.label>...</marquee> -->
+        <span class="name" ng-bind=m.label></span>
+    </device>
+    <music class="device"></music>
+</div>

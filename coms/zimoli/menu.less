@@ -1,0 +1,255 @@
+& {
+    white-space: nowrap;
+}
+
+&>div.lack+div.more {
+    width: 100%;
+}
+
+&>div>div,
+&>div>div>div {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+&>.more {
+    position: absolute;
+    right: 0;
+    width: 40px;
+    height: 100%;
+    color: #fff;
+    background: transparent;
+    border-right: 1px solid #18333c;
+
+    &::after {
+        content: "";
+        position: absolute;
+        display: block;
+        @size : 8px;
+        width: @size;
+        height: @size;
+        right: 20px;
+        top: 50%;
+        margin: -@size/2;
+        box-sizing: border-box;
+        border-top: 2px solid;
+        border-bottom: 2px solid;
+    }
+}
+
+body:active & {
+
+    // 仅在拖动过程中使用动画
+    >.lattice {
+        >div>div {
+            @time : .1s;
+            transition: margin @time;
+        }
+    }
+}
+
+&>.lattice {
+    right: 40px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: auto;
+
+    >div+div {
+        display: none;
+    }
+
+    &.complete {
+        right: 0;
+    }
+
+    &.lack {
+        >div {
+            opacity: 0;
+        }
+    }
+}
+
+&>.complete+.more {
+    display: none;
+}
+
+&>.lack+.more {
+    width: 100%;
+}
+
+&[mode=vertical],
+&[type=vertical] {
+    display: block;
+}
+
+&[mode=horizonal],
+&[type=horizonal] {
+    display: block;
+    overflow: hidden;
+    text-overflow: hidden;
+    height: 40px;
+    position: relative;
+    border: 1px solid #18333c;
+    background-color: #18333c;
+    box-shadow: inset 0 0 12px #51ddf6, inset 0px -120px 120px -120px #51ddf6;
+    border-right: none;
+
+    >div {
+        vertical-align: top;
+    }
+
+    .button {
+        line-height: 40px;
+    }
+}
+
+&[mode=tree],
+&[type=tree],
+&[mode=inline],
+&[type=inline] {
+    height: auto;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+
+    // &[browser=samsung] {
+    //     .tab1 {
+    //         &.open s {
+    //             overflow   : visible;
+    //             text-indent: -6.6pt;
+    //         }
+    //         &.closed s{
+    //             overflow   : visible;
+    //             text-indent: 3.1pt;
+    //         }
+    //     }
+    // }
+
+    // &[browser=firefox] {
+    //     .tab1 {
+    //         &.open s {
+    //             text-indent: -8.6px;
+    //         }
+
+    //         &.closed s {
+    //             text-indent: -4.1px;
+    //         }
+    //     }
+    // }
+
+    // &[browser=safari] {
+    //     .tab1 {
+    //         &.open s {
+    //             text-indent: -5.6px;
+    //         }
+
+    //         &.closed s {
+    //             text-indent: -1.1px;
+    //         }
+    //     }
+    // }
+
+    .tab1 {
+        &.open {
+            color: #fff;
+            background: #1e282c;
+
+            & s:after {
+                top: -10px;
+            }
+        }
+
+        &.checked,
+        &.actived,
+        &.selected {
+            border-left-color: #3c8dbc;
+        }
+
+        & s {
+            display: block;
+            height: 5px;
+            width: 20px;
+            right: 10px;
+            position: absolute;
+            overflow: hidden;
+            top: 50%;
+            margin-top: -2.5px;
+            text-decoration: none;
+        }
+
+        & s:after {
+            content: "×";
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 20px;
+            line-height: 20px;
+            height: 20px;
+            padding: 0;
+            font-weight: normal;
+            text-align: center;
+            display: block;
+            text-align: start;
+            position: absolute;
+            right: 0;
+            left: 0;
+            color: #fff;
+            transition: top .2s ease-out;
+        }
+
+        &.closed s:after {
+            top: -5px;
+        }
+
+        &.empty s {
+            display: none;
+        }
+
+        border-left: 3px solid transparent;
+        display : block;
+        height : 44px;
+        line-height: 44px;
+        font-size : 14px;
+        color : #b8c7ce;
+    }
+
+    >.button {
+        box-shadow: none;
+
+
+        >b {
+            font-weight: normal;
+        }
+
+        &:not(.tab1) {
+            display: block;
+            height: 36px;
+            line-height: 36px;
+            font-size: 14px;
+            background: #2c3b41;
+            color: #8aa4af;
+
+            &.checked,
+            &.actived,
+            &.selected {
+                color: #fff;
+            }
+        }
+
+        i {
+            margin-right: 10px;
+        }
+
+
+        &.hover {
+            text-shadow: none;
+            color: #fff;
+        }
+
+    }
+
+}

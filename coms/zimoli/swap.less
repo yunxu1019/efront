@@ -1,0 +1,77 @@
+&[ie] {
+    width: 46px;
+    height: 24px;
+    margin: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    opacity: 0;
+    z-index: 1;
+    position: relative;
+    vertical-align: middle;
+    margin-right: -46px;
+}
+
+&[ie]+label,
+&:not([ie]) {
+    display: inline-block;
+    width: 46px;
+    margin: 0;
+    height: 24px;
+    border-radius: 12px;
+    border: none;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    vertical-align: middle;
+    background-color: #ccc;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+    &:before {
+        background-color: #26f;
+        transition: all .1s ease-out;
+        left: 50%;
+        top: 50%;
+        right: 50%;
+        bottom: 50%;
+        content: "";
+        position: absolute;
+        border-radius: inherit;
+    }
+    &:after {
+        border-radius: 11px;
+        content: "";
+        display: block;
+        margin-left: -22px;
+        left: 50%;
+        width: 22px;
+        height: 22px;
+        top: 50%;
+        margin-top: -11px;
+        background-color: #fff;
+        box-shadow: 0 0 20px -6px rgba(0, 0, 0, .3);
+        transition: margin-left .2s ease-out, width .2s ease-out;
+        position: absolute;
+    }
+    &:active:after {
+        width: 32px;
+    }
+}
+
+&[ie]:checked+label,
+&:not([ie]):checked {
+    &:before {
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+    &:after {
+        margin-left: 0;
+    }
+    &:active:after {
+        margin-left: -10px;
+    }
+}

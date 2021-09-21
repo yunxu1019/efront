@@ -1,0 +1,1 @@
+var onresize=on("resize");

@@ -1,0 +1,58 @@
+
+function create(commFactory, className) {
+    if (!className) return commFactory;
+    if (commFactory instanceof Promise) {
+        return commFactory.then(function (result) {
+            return create(result, className);
+        });
+    }
+    if (isFunction(commFactory)) {
+        var result = function () {
+            var commRelease = commFactory.apply(result, arguments);
+            if (commRelease) {
+                commRelease = create(commRelease, className);
+            }
+            return commRelease;
+        };
+        result.prototype = commFactory.prototype;
+        commFactory.className = className;
+        keys(commFactory).map(k => result[k] = commFactory[k]);
+        if ({}.hasOwnProperty.call(commFactory, 'toString')) {
+            result.toString = function () {
+                return create(commFactory.toString(), className);
+            };
+        }
+        return result;
+    }
+    if (isNode(commFactory)) {
+        try {
+            addClass(commFactory, className);
+        } catch (e) {
+            console.error(e, "bindClassNameError");
+        }
+    } else if (isString(commFactory)) {
+        var template = document.createElement("div");
+        template.innerHTML = commFactory;
+        [].forEach.call(template.children, function (child) {
+            addClass(child, className);
+        });
+        commFactory = template.innerHTML;
+    }
+    return commFactory;
+}
+var head = document.getElementsByTagName("head")[0];
+function cless(commFactory, innerCss, className) {
+    if (innerCss) {
+        var stylesheet = document.createElement("style");
+        stylesheet.type = "text/css";
+        stylesheet.savedText = innerCss;
+        innerCss = color.transform(innerCss);
+        if (stylesheet.styleSheet) {
+            stylesheet.styleSheet.cssText = innerCss;
+        } else {
+            stylesheet.innerHTML = innerCss;
+        }
+        appendChild(head, stylesheet);
+    }
+    return create(commFactory, className);
+}

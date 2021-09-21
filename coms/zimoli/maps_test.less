@@ -1,0 +1,17 @@
+& {
+    @background-size: 20px;
+    background-color: #fff;
+    background-image: linear-gradient(45deg, #ccc, 25%, #ccc, 25%, rgba(0, 0, 0, 0), 75%, rgba(0, 0, 0, 0), 75%, #ccc), linear-gradient(45deg, #ccc, 25%, #ccc, 25%, rgba(0, 0, 0, 0), 75%, rgba(0, 0, 0, 0), 75%, #ccc);
+    background-size: @background-size @background-size;
+    background-repeat: repeat, repeat;
+    background-position: 0 0, @background-size/2 @background-size/2;
+    height: 200px;
+}
+canvas{
+    background-color: #035;
+}
+.button {
+    height: 40px;
+    width: 100%;
+    display: block;
+}

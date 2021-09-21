@@ -1,0 +1,100 @@
+&.dragging {
+    box-shadow: 0 0 20px -6px #00000033;
+
+    >thead,
+    >tbody,
+    & {
+        >tr {
+
+            >th,
+            >td {}
+        }
+    }
+}
+
+thead,
+tbody,
+th,
+td,
+tr,
+table {
+    box-sizing: border-box;
+}
+
+.y-ing {
+    &:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, .06);
+    }
+
+    >* {
+        position: relative;
+    }
+}
+
+@cell-padding: 0 10px;
+
+& {
+    // text-align: center;
+    border-collapse: collapse;
+    table-layout: fixed;
+    white-space: nowrap;
+
+    >thead {
+        user-select: none;
+        line-height: 36px;
+
+        >tr {
+
+            >td,
+            >th {
+                padding: @cell-padding;
+                position: relative;
+                color: #fff;
+                background-color: #999;
+            }
+        }
+    }
+
+    >tbody {
+        line-height: 32px;
+
+        >tr {
+
+            >td,
+            >th {
+                padding: @cell-padding;
+                position: relative;
+            }
+
+            &:nth-child(even) {
+
+                >td,
+                >th {
+                    background-color: #eee;
+                }
+            }
+
+            &:nth-child(odd) {
+
+                >td,
+                >th {
+                    background-color: #fff;
+                }
+            }
+
+            &:hover {
+
+                >td,
+                >th {
+                    background: #dddddd;
+                }
+            }
+        }
+    }
+}

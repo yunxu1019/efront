@@ -1,0 +1,433 @@
+.song {
+    color: #fff;
+}
+
+.singer {
+    color: #ccc;
+}
+
+.time {
+    position: absolute;
+    right: 8px;
+    bottom: 4px;
+    text-align: right;
+}
+
+@main-color: #2c7bb5;
+
+&.pause .play:before {
+    content: "";
+    display: inline-block;
+    border: .4em solid;
+    border-left: .7em solid;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-right: 0 solid;
+    vertical-align: middle;
+}
+
+&.play .play:before {
+    content: "";
+    display: inline-block;
+    border: .4em solid;
+    vertical-align: middle;
+}
+
+.avatar,
+&:after {
+    border-radius: 50%;
+    width: 72px;
+    height: 72px;
+    top: -12px;
+    left: 8px;
+    position: absolute;
+    background-size: cover;
+    border: 3px solid #000;
+    background-clip: content-box;
+}
+
+&.play .avatar {
+    opacity: 1; // animation-play-state: running;
+    // -webkit-animation-play-state: running;
+}
+
+@keyframes rotate {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.avatar {
+    opacity: .2;
+    transition: opacity .6s ease;
+    box-sizing: border-box;
+    box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset; // animation: 25s rotate infinite linear;
+    // animation-play-state        : paused;
+    // -webkit-animation-play-state: paused;
+}
+
+&:after {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+}
+
+&.play,
+&.pause {
+    height: 60px;
+
+    &+body {
+        position: relative;
+        border-bottom: 60px solid transparent;
+    }
+}
+
+
+&>.track,
+&>.progress>.track {
+    position: absolute;
+    height: 60px;
+    width: 100%;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    z-index: -1;
+
+    &:after {
+        @size : 10000px;
+        @blank-size : 70px;
+        @margin-y: @size + 35px;
+        @margin-x: @size + 35px;
+        box-sizing: content-box;
+        content: "";
+        display: block;
+        background-color: transparent;
+        position: absolute;
+        width: @blank-size;
+        height: @blank-size;
+        border: @size solid #000;
+        margin: -@margin-x -@margin-y;
+        top: 24px;
+        left: 44px;
+    }
+
+    &:after {
+        border-radius: 50%;
+    }
+}
+
+&>div.progress {
+    z-index: 1;
+
+    >.track:after,
+    >.avatar {
+        border-color: @main-color;
+        opacity: 1;
+        box-shadow: 0 0 6px -3px @main-color;
+    }
+
+    >.track {
+        transition: height .3s;
+        top: 12px;
+    }
+
+    >.avatar {
+        top: 0;
+    }
+
+    position : absolute;
+    left : 0;
+    overflow : hidden;
+    padding : 0;
+    height : 72px;
+    margin-top: -12px;
+}
+
+& {
+    display: block;
+    z-index: 10;
+    height: 0;
+    width: 100%;
+    user-select: none;
+    position: fixed;
+    bottom: 0;
+    color: #fff;
+    left: 0;
+    right: 0;
+    padding: 0 0 0 78px;
+    background-color: transparent;
+    opacity: .95;
+    transition: height .3s ease-out, opacity .5s;
+
+    >btn,
+    >sbtn {
+        text-align: center;
+        line-height: 60px;
+        width: 50px;
+        height: 60px;
+        vertical-align: top;
+        position: relative;
+        background: transparent;
+
+        &.info,
+        &.prev,
+        &.list,
+        &.next,
+        &.play {
+            z-index: 2;
+        }
+    }
+
+    >.info {
+        width: 100%;
+        margin-right: -200px;
+        line-height: 10px;
+        text-align: left;
+        padding: 46px 5px 0 5px;
+        z-index: 2;
+        position: relative;
+        font-size: 8px;
+
+        .spliter {
+            .singer;
+        }
+
+
+        >div {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    }
+
+    >div {
+        display: inline-block;
+        height: 60px;
+    }
+}
+
+&.page {
+    height: 100%;
+    z-index: 10;
+    opacity: 1;
+
+    >div.progress>.track {
+        height: 3px;
+    }
+
+    >.track {
+        // display: none;
+    }
+}
+
+
+&>.krc {
+    position: absolute;
+    left: 0;
+    right: 0;
+    transition: margin-top .2s ease-out;
+    overflow: hidden;
+    width: auto;
+    z-index: 1;
+}
+
+
+&:not(.page)>.krc {
+    top: 0;
+    height: 16px;
+    font-size: 8px;
+    text-align: left;
+    line-height: 16px;
+    padding-left: 84px;
+
+    .active,
+    .active+.after {
+        margin-right: 10px;
+        float: left;
+    }
+
+    .after-active+.after {
+        clear: both;
+    }
+
+}
+
+&.page>.krc {
+    text-align: center;
+    line-height: 36px;
+    margin-bottom: -80px;
+    bottom: 50%;
+    height: 180px;
+    max-height: 60%;
+    top: auto;
+    padding: 0;
+    font-size: 16px;
+}
+
+&:not(.play):not(.page)>.background {
+    opacity: 0;
+    transition: opacity .4s ease;
+}
+
+&>.background {
+    background-color: #999;
+    opacity: 1;
+    transition: opacity 1s ease-in;
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+    bottom: -30px;
+    left: -30px;
+    right: -30px;
+    margin: 0;
+    width: auto;
+    height: auto;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    &:before {
+        content: "";
+        display: block;
+        position: absolute;
+        background: inherit;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        filter: blur(15px);
+    }
+
+    &:after {
+        background-color: #000;
+        opacity: .6;
+        content: "";
+        display: block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+}
+
+>.list {
+    &:before {
+        content: "";
+        display: inline-block;
+        height: .8em;
+        width: .8em;
+        border-top: .1em solid;
+        border-bottom: .1em solid;
+        vertical-align: middle;
+    }
+
+    &:after {
+        content: "";
+        display: inline-block;
+        width: .8em;
+        margin-left: -.8em;
+        border-bottom: .1em solid;
+        vertical-align: middle;
+    }
+}
+
+>.prev {
+    &:before {
+        content: "";
+        display: inline-block;
+        border: .4em solid;
+        border-left: .1em solid;
+        border-right: 0 solid;
+        vertical-align: middle;
+    }
+
+    &:after {
+        content: "";
+        display: inline-block;
+        border: .4em solid;
+        border-right: .7em solid;
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        border-left: 0 solid;
+        vertical-align: middle;
+    }
+}
+
+>.next {
+    &:before {
+
+        content: "";
+        display: inline-block;
+        border: .4em solid;
+        border-left: .7em solid;
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        border-right: 0 solid;
+        vertical-align: middle;
+
+    }
+
+    &:after {
+        content: "";
+        display: inline-block;
+        border: .4em solid;
+        border-left: 0 solid;
+        border-right: .1em solid;
+        vertical-align: middle;
+
+    }
+}
+
+>canvas {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 72px;
+    z-index: 1;
+    bottom: 0;
+    pointer-events: none;
+
+    &+.avatar {
+        border-color: transparent;
+        z-index: 1;
+    }
+}
+
+// & {
+//     >.track {
+//         height: 60px;
+//         margin-top: 0;
+//         border-top: 0 solid #666;
+//         transition: margin-top .2s ease-out, border-top .2s ease-out, height .2s ease-out;
+//     }
+// }
+
+// &.effect {
+//     opacity: 1;
+
+//     >.track {
+//         height: 420px;
+//         margin-top: -360px;
+//         border-top: 360px solid #666;
+//     }
+// }
+
+&:not(.page)>canvas {
+    top: -12px;
+}
+
+&.dragging {
+    opacity: .95;
+
+    >.background {
+        opacity: 1 !important;
+    }
+}

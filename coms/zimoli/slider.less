@@ -1,0 +1,23 @@
+&:active {
+    // 没有这个必要，切换状态显得不自然
+    // cursor: move;
+}
+
+& {
+    box-sizing: border-box;
+    height: auto;
+    user-select: none;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    padding-bottom: 38.8889%;
+    >.slider-item {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        width: 100%;
+        height: 100%;
+    }
+}

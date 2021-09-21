@@ -1,0 +1,108 @@
+& {
+    height: 100%;
+    position: absolute;
+    left:0;
+    top:0;
+    right:0;
+    bottom: 0;
+
+    >div.left-bar {
+        top: 0;
+        bottom: 0;
+        height: auto;
+        left: 0;
+        position: absolute;
+        display: block;
+        width: 320px;
+        background: #18333c;
+        color: #fff;
+
+        >div {
+            width: auto;
+            border-radius: 0;
+            margin: 0;
+            width: 100%;
+            position: relative;
+            text-align: left;
+        }
+
+        i {
+            color: yellow;
+        }
+
+        b {
+            font-weight: normal;
+        }
+
+        >.tab1 {
+            height: 36px;
+            line-height: 36px;
+            border-left: 5px solid #009E94;
+            padding: 0 10px;
+            background-color: #333;
+        }
+
+        >.tab2+.tab2 {
+            border-top: 1px solid #6e6e6e;
+        }
+
+        >.tab2 {
+            height: 32px;
+            line-height: 31px;
+            background-color: #666;
+        }
+    }
+
+    >.name-area {
+        padding: 10px 20px;
+        input {
+            height: 28px;
+            width: 100%;
+            display: inline-block;
+            font-size: 18px;
+            margin: 0;
+            position: relative;
+        }
+
+        position: absolute;
+        bottom: 0;
+        height: 50px;
+        left: 320px;
+        right: 0;
+
+        >div {
+            position: absolute;
+            left:0;
+            top:0;
+            bottom: 0;
+            background: #359;
+            &.error{
+                background: #824;
+                transition: background-color .3s;
+            }
+            &.loaded{
+                transition: background-color .3s;
+                background: #392;
+            }
+        }
+    }
+
+    >.main-area {
+        width: auto;
+        top: 0;
+        background-color: #eee;
+        left: 320px;
+        height: auto;
+        position: absolute;
+        overflow: auto;
+        right: 0;
+        bottom: 50px;
+    }
+    // padding-top: 50px;
+}
+&+.titlebar{
+    .button[type="close"]{
+        font-family: 宋体;
+        font-size: 24px;
+    }
+}

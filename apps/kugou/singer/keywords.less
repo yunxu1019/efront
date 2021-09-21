@@ -1,0 +1,36 @@
+& {
+    padding-top: 50px;
+}
+
+>group {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    display: block;
+    border: solid transparent;
+    border-width: 6px 0;
+    
+    >padding {
+        height: auto;
+        display: block;
+        border: solid transparent;
+        border-width: 0 6px;
+        >song{
+            line-height: 30px;
+        }
+    }
+}
+
+@media(min-width:721px) {
+    >group {
+        
+        >padding {
+            width: 33.3333%;
+            line-height: 40px;
+            font-size: 24px;
+            display: inline-block;
+            vertical-align: top;
+            max-width: 480px;
+        }
+    }
+}

@@ -1,0 +1,4 @@
+#include <resource.h>
+#define ICO_MAIN 0x1000
+ICO_MAIN    ICON "package.ico"
+1 24  "Efront Setup.xml"
