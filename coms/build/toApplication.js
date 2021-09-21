@@ -280,10 +280,10 @@ module.exports = function (responseTree) {
 
     return Promise.resolve(mainScriptData).then(function (mainScriptData) {
         if (setting.is_file_target) {
-            var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*\:\s*(.+?)\b/m.exec(mainScriptData)[2];
+            var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData)[2];
             commbuilder.prepare = false;
         } else {
-            var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*\:\s*(.+?)\b/m.exec(mainScriptData)[2];
+            var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData)[2];
         }
 
         var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:"${versionTree[k]}"`).join(",\r\n\t") + "\r\n}";
