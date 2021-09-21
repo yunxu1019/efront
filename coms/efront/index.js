@@ -11,9 +11,10 @@ var detect = function (module_path) {
     var search_path = [];
     var joinpath = a => path.join.apply(path, a);
     var apppath = require("./mixin")(memery.PAGE_PATH, memery.PAGE).map(joinpath);
-    var compath = require("./mixin")(memery.COMS_PATH, memery.COMM).map(joinpath);
+    var compath = require("./mixin")(memery.coms_path, memery.COMM).map(joinpath);
     apppath.push(path.join(__dirname, '../../apps'));
     compath.push(
+        path.join(__dirname, '../../'),
         path.join(__dirname, '../../coms'),
         path.join(__dirname, '../../coms/basic'),
         path.join(__dirname, '../../coms/typescript-index')
@@ -26,7 +27,6 @@ var detect = function (module_path) {
     }
     search_path.unshift(
         process.cwd(),
-        path.join(__dirname, '../../')
     );
     var search_object = Object.create(null);
     search_path = search_path.filter(a => search_object[a] ? false : search_object[a] = true);
@@ -126,7 +126,6 @@ var detectEnvironment = function () {
             if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
                 config.comm += ",zimoli";
             }
-            config.comm += ',basic,typescript-helpers';
             config.coms_path = coms_path.join(',');
             if (typeof memery.LIBS_PATH === 'string') {
                 libs_path.unshift(memery.LIBS_PATH);
