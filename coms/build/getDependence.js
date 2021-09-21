@@ -1,8 +1,6 @@
 "use strict";
 var getRequired = require("../compile/required");
 var getArgs = require("./getArgs");
-var getPathIn = require("./getPathIn");
-var { comms_root } = require("./environment");
 var path = require("path");
 function getInitReferenced(dependence, args, argNames, data) {
     var requires = ["init"].map(a => dependence.indexOf(a)).filter(a => ~a);
