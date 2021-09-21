@@ -97,8 +97,9 @@ var filterHtmlImportedJs = function (roots) {
             return root;
         }).filter(a => !!a);
         var urlsMap = {};
+        mainPaths = mainPaths.map(m => m.replace(/\.[^\.]*$/i, "") + ".js");
         roots = roots.concat(mainPaths).filter(name => {
-            name = name.replace(/\.[^\.]*$/i, "") + ".js";
+            name = name.replace(/\.[mc]?[jt]sx?$/i, "") + ".js";
             var keep = !urlsMap[name];
             if (keep) urlsMap[name] = true;
             return keep;
