@@ -211,10 +211,10 @@ var helps = [
     "连接一台efront服务器，取得连接号,link ADDRESS",
     "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
     "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
-    "检查文件或文件夹中的全局变量,check FILEPATH",
+    "检查文件或文件夹中的外部变量,check FILEPATH",
     "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
     "对json数据进行签名,sign JSON_PATH SIGNNAME",
-    "根据模块的模糊路径查找真实路径,detect MODULE_PATH",
+    "根据模块的搜索路径查找真实路径,detect MODULE_PATH",
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
 ];
@@ -251,11 +251,14 @@ var commands = {
     unpack(readfrom, writeto) {
         require("../build/unpack")(readfrom, writeto);
     },
-    check() {
-        var args = [].concat.apply([], arguments);
-        args.forEach(function (arg) {
-            require("./checkVariable")(arg);
-        });
+    async check(...args) {
+        args = [].concat.apply([], args);
+        for (var a of args) {
+            await detect(a).then(
+                require("./checkVariable"),
+                console.error
+            );
+        }
     },
     version() {
         // 版本号

@@ -83,9 +83,9 @@ module.exports = function (root) {
         var isFolder = fs.statSync(root).isDirectory();
         var name = isFolder ? "路径" : "文件";
         if (!args.length) {
-            console.type(`${name} <cyan>${root}</cyan> 中没有找到全局变量`);
+            console.type(`${name} <cyan>${root}</cyan> 中没有找到外部变量`);
         } else {
-            console.type(`${name} <cyan>${root}</cyan> 中共有 <white>${args.length}</white> 个全局变量`);
+            console.type(`${name} <cyan>${root}</cyan> 中共有 <white>${args.length}</white> 个外部变量`);
         }
         if (isFolder) {
             args.forEach(log);
