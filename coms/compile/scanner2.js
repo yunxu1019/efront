@@ -711,8 +711,16 @@ class Javascript {
         queue.__proto__ = Program.prototype;
         var origin = queue;
         var queue_push = function (scope) {
-            if (~[VALUE, QUOTED, SCOPED, EXPRESS, PROPERTY].indexOf(scope.type)) {
+            if (~[VALUE, QUOTED].indexOf(scope.type)) {
                 scope.isprop = isProperty();
+            }
+            else if (scope.type === SCOPED && scope.entry === '[') {
+                if (queue.isObject) {
+                    scope.isprop = !scope.prev || scope.prev.type === STAMP && /^(\+\+|\-\-|;)$/.test(scope.text)
+                }
+                else if (queue.isClass) {
+                    scope.isprop = !scope.prev || scope.prev.type === STAMP && scope.text === ','
+                }
             }
             var last = queue.lastUncomment;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
@@ -889,7 +897,9 @@ class Javascript {
                 return !prev || prev.type === STAMP && prev.text === "," || prev.type === PROPERTY && /^(get|set|async)$/.test(prev.text);
             }
             if (queue.isClass) {
-                return !prev || prev.type === EXPRESS && !/\.$/.test(prev.text) || ~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type) || prev.type === STAMP && /^(\+\+|\-\-|;)$/.test(prev.text);
+                if (!prev) return true;
+                if (prev.type === STAMP) return /^(\+\+|\-\-|;)$/.test(prev.text);
+                return prev.type === EXPRESS && !/\.$/.test(prev.text) || ~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type);
             }
             return false;
         };
