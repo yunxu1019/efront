@@ -138,14 +138,29 @@ var requestListener = function (req, res) {
         }
         return doCross(req, res);
     }
-    if (/^\/@/i.test(req.url)) {
-        return doFile(req, res);
-    }
     if (doCross.prefix.test(req.url)) {
         return doCross(req, res, false);
     }
     if (doCross.referer.test(req.headers.referer)) {
         return doCross(req, res, req.headers.referer);
+    }
+    if (/^\/\*{1,2}$/.test(req.url) && !req.headers.authorization || /^\/\*{3,}$/.test(req.url)) {
+        res.writeHead(401, {
+            "WWW-Authenticate": "Basic",
+        });
+        res.end(`<script>location.href="/"</script>`);
+        return;
+    }
+    else if (req.headers.authorization) {
+        var auth = Buffer.from(req.headers.authorization.replace(/^Basic\s+/i, ''), 'base64').toString();
+        if (/^~~/.test(auth)) {
+            auth = auth.replace(/\:$/, '');
+            req.url = "/" + auth + req.url.replace(/^\/\*+/, '');
+            return doCross(req, res);
+        }
+    }
+    if (/^\/@/i.test(req.url)) {
+        return doFile(req, res);
     }
     if (req.headers.range) {
         return doFile(req, res);
