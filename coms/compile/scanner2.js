@@ -711,18 +711,18 @@ class Javascript {
         queue.__proto__ = Program.prototype;
         var origin = queue;
         var queue_push = function (scope) {
+            var last = queue.lastUncomment;
             if (~[VALUE, QUOTED].indexOf(scope.type)) {
                 scope.isprop = isProperty();
             }
             else if (scope.type === SCOPED && scope.entry === '[') {
                 if (queue.isObject) {
-                    scope.isprop = !scope.prev || scope.prev.type === STAMP && /^(\+\+|\-\-|;)$/.test(scope.text)
+                    scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
                 }
                 else if (queue.isClass) {
-                    scope.isprop = !scope.prev || scope.prev.type === STAMP && scope.text === ','
+                    scope.isprop = !last || last.type === STAMP && last.text === ','
                 }
             }
-            var last = queue.lastUncomment;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (last) {
                     scope.prev = last;
