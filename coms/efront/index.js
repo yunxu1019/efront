@@ -234,12 +234,16 @@ var commands = {
         fs.writeFileSync(filepath, data);
     },
     path() {
+        if (arguments.length > 0) return this.detect.apply(this, arguments);
         console.type(path.join(__dirname, '../..'));
     },
-    detect(appname) {
-        detectEnvironment().then(function () {
-            detect(appname, [process.cwd()]).then(console.info, console.error);
-        }, console.error);
+    detect(...appnames) {
+        if (!appnames.length) return this.path();
+        appnames.forEach(appname => {
+            detectEnvironment().then(function () {
+                detect(appname, [process.cwd()]).then(console.info, console.error);
+            }, console.error);
+        });
     },
     packexe(readfrom, writeto) {
         if (!writeto) {
