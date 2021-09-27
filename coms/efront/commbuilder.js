@@ -346,16 +346,25 @@ var optimize = memery.OPTIMIZE;
 //     return [imported, params, data];
 // };
 var buildPress2 = function (imported, params, data, args, strs) {
-    var data1 = imported.length > 0 ? `var [${params.concat(args || [])}];${data}` : args.length ? `var [${args}]=${strs};${data}` : data;
-    var code = scanner2(data1).press();
-
     if (imported.length > 0) {
+        var code = scanner2(`var [${params.concat(args || [])}];${data}`).press();
         params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
         code.splice(0, 2);
     }
-    data1 = code.toString();
-    data1 = typescript.transpile(data1, { noEmitHelpers: true });
-    return [imported, params, data1];
+    else if (args.length > 0) {
+        strs = eval(strs);
+        var code = scanner2(`var ${args.map((a, i) => {
+            var s = strs[i];
+            if (typeof s === 'string') s = strings.encode(s);
+            else if (s instanceof RegExp) s = `/${s.source}/${s.flags}`;
+            return `${a}=${s}`;
+        }).join(',')};${data}`).press();
+    }
+    else {
+        var code = scanner2(data).press();
+    }
+    data = code.toString();
+    return [imported, params, data];
 }
 
 var buildResponse = function ({ imported, params, data, required, occurs }, compress) {
