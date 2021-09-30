@@ -114,7 +114,7 @@ function transpile(src, trans, apiMap, delTransMap) {
         }
         return res;
     }
-    data = extend({}, src && src.querySelector ? null : src);
+    var data = extend({}, src && src.querySelector ? null : src);
     for (var k in trans) {
         var v = trans[k];
         if (!(k in data)) {

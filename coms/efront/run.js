@@ -214,7 +214,8 @@ module.exports = function (mainpath, args) {
         Object.keys(timeoutHandles).map(clearTimeout);
         requestHandles.slice(0).map(r => r());
     };
-    var fullpath = require.resolve("./" + mainpath, { paths: [].concat(memery.coms_path.split(","), '.') });
+    var _mainpath = "./" + mainpath.replace(/\\/g, '/').replace(/^\.\//, '');
+    var fullpath = require.resolve(_mainpath, { paths: [].concat(memery.coms_path.split(","), '.') });
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
@@ -236,7 +237,6 @@ module.exports = function (mainpath, args) {
             Object.assign(window.process, {
                 argv: args
             });
-
             mainLoaderPromise.then(function (loader) {
                 new Function(loader).call(window);
             }).catch(function (e) {
