@@ -816,6 +816,7 @@ class Javascript {
                             else queue.question++;
                             break;
                         case ",":
+                        case "=":
                             if (queue.isObject) {
                                 if (last.type === PROPERTY) {
                                     var _m = m;
@@ -829,6 +830,7 @@ class Javascript {
                                     end = _end;
                                 }
                             }
+                            queue.inExpress = true;
                             break;
                         case ":":
                             if (queue.question) {
@@ -1101,6 +1103,7 @@ class Javascript {
             }
 
         }
+        if (queue !== origin) throw new Error("代码异常结束");
         return queue;
     }
     commit() {
