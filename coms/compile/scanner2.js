@@ -517,7 +517,6 @@ class Program extends Array {
                     lets = Object.create(null);
                     vars = Object.create(null);
                     scoped = [];
-                    _scoped.push(scoped);
                     var isExpress = o.isExpress;
 
                     if (isFunction || isArrow) {
@@ -595,12 +594,24 @@ class Program extends Array {
                         } while (o);
                     }
                     var map = isFunction ? vars : lets;
-                    for (var k in used) {
-                        if (!(k in map)) {
-                            for (var u of used[k]) {
-                                saveTo(_used, k, u);
+                    var keepscope = false;
+                    for (var k in map) {
+                        keepscope = true;
+                        break;
+                    }
+                    if (keepscope) {
+                        for (var k in used) {
+                            if (!(k in map)) {
+                                for (var u of used[k]) {
+                                    saveTo(_used, k, u);
+                                }
                             }
                         }
+                        _scoped.push(scoped);
+                    }
+                    else {
+                        mergeTo(_used, used);
+                        if (scoped.length) _scoped.push(scoped);
                     }
                     if (vars.this) {
                         delete vars.this;
