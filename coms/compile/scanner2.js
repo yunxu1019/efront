@@ -768,6 +768,11 @@ class Javascript {
                 case QUOTED:
                     if (isProperty()) type = PROPERTY;
                     break;
+                case SPACE:
+                    if (last && last.type === STRAP && last.text === 'retrun') {
+                        queue.inExpress = false;
+                    }
+                    break;
                 case EXPRESS:
                     if (!/^\./.test(m) && isProperty()) type = PROPERTY;
                     else if (this.number_reg.test(m)) type = VALUE;
@@ -920,9 +925,10 @@ class Javascript {
         loop: while (index < text.length) {
             if (queue.type === QUOTED) {
                 var quote = this.quote_map[queue.entry];
+                var reg = quote.reg;
+                start = index;
                 while (index < text.length) {
-                    var reg = quote.reg;
-                    start = reg.lastIndex = index;
+                    reg.lastIndex = index;
                     var match = reg.exec(text);
                     if (!match) {
                         index = text.length;
@@ -939,6 +945,7 @@ class Javascript {
                     }
                     if (m in quote.entry) {
                         push_quote();
+                        start = index;
                         continue loop;
                     }
                 }
@@ -1020,8 +1027,8 @@ class Javascript {
                 continue;
             }
             if (this.strap_reg.test(m)) {
-                save(STRAP);
                 queue.inExpress = this.transive.test(m);
+                save(STRAP);
                 continue;
             }
             if (this.value_reg.test(m) || this.number_reg.test(m)) {
