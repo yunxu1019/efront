@@ -41,6 +41,21 @@ var trimStringLiteral = function (block) {
     if (block.type === block.regexp_quote_scanner) {
         return setMatchedConstRegExp(block_string);
     }
+    if (block.type === block.template_quote_scanner) {
+        var { start, end } = block;
+        if (block.children) {
+            var res = [];
+            for (var c of block.children) {
+                res.push(
+                    module_string.slice(start, c.start),
+                    trimStringLiteral(c)
+                );
+                start = c.end;
+            }
+            res.push(module_string.slice(start, end));
+            return res.join('');
+        }
+    }
     return block_string;
 };
 var paramsMap = Object.create(null);

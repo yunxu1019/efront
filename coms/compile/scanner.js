@@ -158,7 +158,7 @@ function template_quote_scanner(index, blocks) {
             return this.length;
         }
         if (res[0] === "${") {
-            index = block_code_scanner.call(this, res.index + 2, blocks) + 1;
+            index = block_code_scanner.call(this, res.index + 2, blocks);
         } else if (res[0].length === 1) {
             return res.index + 1;
         } else {
@@ -294,9 +294,9 @@ function single_comment_scanner2(index) {
 // }, count); //3354+
 // console.log(t1, t2);
 function block_code_scanner(index, blocks = []) {
-    var save = (blocks instanceof Array) ? function (scanner) {
+    var save = (blocks instanceof Array) ? function (scanner, children) {
         if (saved_index < index) {
-            blocks.push(new Block(scanner, saved_index, index));
+            blocks.push(new Block(scanner, saved_index, index, children));
             saved_index = index;
         }
     } : function () { };
@@ -374,8 +374,9 @@ function block_code_scanner(index, blocks = []) {
                 break;
             case "`": //     `
                 save(block_code_scanner);
-                index = template_quote_scanner.call(this, index);
-                save(template_quote_scanner);
+                var children = [];
+                index = template_quote_scanner.call(this, index, children);
+                save(template_quote_scanner, children);
                 break;
             case "'": //         '
                 save(block_code_scanner);
@@ -459,7 +460,7 @@ function block_code_scanner2(index, blocks) {
                 break;
             case "`": //     `
                 save(block_code_scanner);
-                index = template_quote_scanner.call(this, index);
+                index = template_quote_scanner.call(this, index, blocks);
                 save(template_quote_scanner);
                 break;
             case "'": //         '
@@ -629,9 +630,10 @@ var scanner = module.exports = function (s) {
     // console.log(blocks.map(a => s.slice(a.start, a.end)).join())
     return blocks;
 };
-function Block(scanner, start, end) {
+function Block(scanner, start, end, children) {
     this.type = scanner;
     this.start = start;
+    if (children) this.children = children;
     this.end = end;
 }
 Block.prototype = {
