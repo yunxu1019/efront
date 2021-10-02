@@ -259,6 +259,23 @@ var compress = function (scoped, maped) {
 
 var strings = require("../basic/strings");
 
+var insertAfter = function (o,) {
+    var queue = o.queue;
+    var index = queue.indexOf(o) + 1;
+    var os = [].slice.call(arguments, 1);
+    queue.splice.apply(queue, [index, 0].concat(os));
+    var prev = o, next = o.next;
+    for (var o of os) {
+        prev.next = o;
+        o.prev = prev;
+        prev = o;
+    }
+    if (next) {
+        o.next = next;
+        next.prev = o;
+    }
+};
+
 var detour = function (o, ie) {
     while (o) {
         switch (o.type) {
@@ -278,24 +295,12 @@ var detour = function (o, ie) {
                 if (!o.isprop) break;
             case PROPERTY:
                 if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
+                if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
                 if (!ie || program.strap_reg.test(o.text)) {
                     if (!/^\[/.test(o.text)) {
                         var after = '';
                         if (o.short) {
-                            var next = o.next;
-                            o.next = {
-                                text: ":",
-                                type: STAMP,
-                                prev: o,
-                            };
-                            o.next.next = {
-                                text: o.text,
-                                type: EXPRESS,
-                                isExpress: true,
-                                prev: o.next,
-                                next
-                            };
-                            o.queue.splice(o.queue.indexOf(o) + 1, 0, o.next, o.next.next);
+                            insertAfter(o, { text: ':', type: STAMP }, { text: o.text, type: EXPRESS, isExpress: true });
                             o.short = false;
                         }
                         else if (!o.next || o.next.type === PROPERTY) {
@@ -773,6 +778,7 @@ class Javascript {
                     scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
                 }
             }
+            if (scope.type === PROPERTY || scope.isprop) scope.queue = queue;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (last) {
                     scope.prev = last;
@@ -859,6 +865,7 @@ class Javascript {
                         }
                         if (~[EXPRESS, VALUE].indexOf(last.type)) {
                             last.type = PROPERTY;
+                            last.queue = queue;
                         } else {
                             type = EXPRESS;
                         }
@@ -877,7 +884,6 @@ class Javascript {
                             if (queue.isObject) {
                                 if (last.type === PROPERTY) {
                                     last.short = true;
-                                    last.queue = queue;
                                 }
                             }
                             queue.inExpress = true;
@@ -957,12 +963,17 @@ class Javascript {
         var isProperty = function () {
             var prev = queue.lastUncomment;
             if (queue.isObject) {
-                return !prev || prev.type === STAMP && prev.text === "," || prev.type === PROPERTY && /^(get|set|async)$/.test(prev.text);
+                if (!prev || prev.type === STAMP && prev.text === ",") return true;
             }
             if (queue.isClass) {
                 if (!prev) return true;
                 if (prev.type === STAMP) return /^(\+\+|\-\-|;)$/.test(prev.text);
-                return prev.type === EXPRESS && !/\.$/.test(prev.text) || ~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type);
+                if (prev.type === EXPRESS && !/\.$/.test(prev.text)) return true;
+                if (~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type)) return true;
+            }
+            if (!prev) return false;
+            if (prev.type === PROPERTY && /^(get|set|async|static)$/.test(prev.text)) {
+                return true;
             }
             return false;
         };
@@ -1142,7 +1153,6 @@ class Javascript {
                 if (lastUncomment) {
                     if (lastUncomment.type === PROPERTY) {
                         lastUncomment.short = true;
-                        lastUncomment.queue = queue;
                     }
                 }
 
