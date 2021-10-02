@@ -36,7 +36,8 @@ if (PREVENT_FRAMEWORK_MODE !== false) {
     } catch (e) {
         document.write(message);
         top.location.reload();
-        throw message;
+        console.error(message);
+        return;
     }
 }
 var _devicePixelRatio = devicePixelRatio;
