@@ -69,11 +69,9 @@ var bindValue = function () {
         };
         defineProperty(m, function get() {
             return genLength(this['get' + _model[c]]() + i, l);
-        },
-            function set(v) {
-                return this['set' + _model[c]](trim.call(this, v - i));
-            }
-            , c);
+        }, function set(v) {
+            return this['set' + _model[c]](trim.call(this, v - i));
+        }, c);
     });
     return function bindValue(_date) {
         for (var k in date) _date[k] = date[k];
