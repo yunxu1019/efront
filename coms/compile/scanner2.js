@@ -277,10 +277,31 @@ var detour = function (o, ie) {
                 }
                 if (!o.isprop) break;
             case PROPERTY:
-                if (/^(get|set|async|static)$/.test(o.text) && o.next && o.next.type === PROPERTY) break;
+                if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (!ie || program.strap_reg.test(o.text)) {
                     if (!/^\[/.test(o.text)) {
-                        o.text = `[${strings.encode(strings.decode(o.text))}]`;
+                        var after = '';
+                        if (o.short) {
+                            var next = o.next;
+                            o.next = {
+                                text: ":",
+                                type: STAMP,
+                                prev: o,
+                            };
+                            o.next.next = {
+                                text: o.text,
+                                type: EXPRESS,
+                                isExpress: true,
+                                prev: o.next,
+                                next
+                            };
+                            o.queue.splice(o.queue.indexOf(o) + 1, 0, o.next, o.next.next);
+                            o.short = false;
+                        }
+                        else if (!o.next || o.next.type === PROPERTY) {
+                            after = ';';
+                        }
+                        o.text = `[${strings.encode(strings.decode(o.text))}]${after}`;
                     }
                 }
                 break;
@@ -321,6 +342,17 @@ class Program extends Array {
         var lasttype;
         var result = [];
         var run = (o, i, a) => {
+            if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && lasttype !== SPACE && !this.pressed) {
+                var prev = o.prev;
+                if (~[QUOTED, SCOPED, STRAP].indexOf(lasttype)
+                    || prev && prev.type === STAMP && !/(\+\+|\-\-|~|!)$/.test(prev.text) && prev.prev && prev.prev.type !== STAMP) {
+                    if (o.type !== EXPRESS || !/^\./.test(o.text)) {
+                        result.push(" ");
+                        lasttype = SPACE
+                    }
+                }
+
+            }
             switch (o.type) {
                 case COMMENT:
                     // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
@@ -348,23 +380,28 @@ class Program extends Array {
                 case SCOPED:
                     if (!this.pressed && o.entry !== "[" && (lasttype === STRAP || lasttype === SCOPED) && o.type !== QUOTED) result.push(" ");
                     result.push(o.entry);
-                    if (o.entry === "{" && result[0] && result[0].type !== SPACE) {
-                        if (!this.pressed) result.push(" ");
-                    }
-                    lasttype = undefined;
-                    o.forEach(run);
-                    if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o.length > 0 && o[o.length - 1].type !== SPACE) {
-                        result.push(" ");
+                    if (o.length > 0) {
+                        if (o.entry === "{" && result[0].type !== SPACE) {
+                            if (!this.pressed) {
+                                result.push(" ");
+                            }
+                        }
+                        lasttype = undefined;
+                        o.forEach(run);
+                        if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
+                            result.push(" ");
+                        }
                     }
                     result.push(o.leave);
                     break;
                 default:
-                    if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) result.push(" ");
                     if (o instanceof Object) {
                         // var broker = needBreak(o.prev, o);
                         // if (broker) result.push(broker);
-                        if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text) && result[result.length - 1] !== " ") {
-                            if (lasttype === STAMP) {
+                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) result.push(" ");
+                        else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
+                            if (result[result.length - 1] === " " || lasttype === PROPERTY && o.text === ':') { }
+                            else if (lasttype === STAMP) {
                                 result.push(" ");
                             }
                             else if (/^(\+\+|\-\-)$/.test(o.prev.text) && o.prev.prev) {
@@ -375,12 +412,9 @@ class Program extends Array {
                                     || prev_prev.type === VALUE
                                 ) result.push(";");
                             }
-                            else if (o.text !== ":" || o.prev.type !== STRAP && o.prev.prev && o.prev.prev.type !== STRAP) {
+                            else if (!/^(\+\+|\-\-)$/.test(o.text)) {
                                 if (!this.pressed) result.push(" ");
                             }
-                        }
-                        else if (lasttype === SCOPED && !~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type)) {
-                            if (!this.pressed) if (o.type !== EXPRESS || !/^\./.test(o.text)) result.push(" ");
                         }
                         result.push(o.text);
                     }
@@ -389,6 +423,7 @@ class Program extends Array {
                     }
             }
             lasttype = o.type;
+            if (o.isprop) lasttype = PROPERTY;
         };
         this.forEach(run);
         return result.join("");
@@ -738,6 +773,11 @@ class Javascript {
                 if (last) {
                     scope.prev = last;
                     last.next = scope;
+                    if (!scope.isprop && last.type === STRAP) {
+                        if (/^(get|set|static)$/.test(last.text) && ~[SCOPED, STAMP, STRAP].indexOf(scope.type)
+                            || last.text === 'async' && scope.text !== "function")
+                            last.type = EXPRESS;
+                    }
                 }
                 if (!queue.first) queue.first = scope;
                 queue.lastUncomment = scope;
@@ -755,10 +795,18 @@ class Javascript {
         var save = (type) => {
             if (lasttype === STAMP && type === STAMP && !/[,;\:\?]/.test(m)) {
                 var scope = queue[queue.length - 1];
-                if (/=>$/i.test(scope.text) || /=$/.test(scope.text) && /[^>=]/.test(m)) {
+                if (/=>$/i.test(scope.text) || /=$/.test(scope.text) && /[^>=]/.test(m) || scope.end !== start) {
                 } else {
                     scope.end = end;
                     scope.text = text.slice(scope.start, scope.end);
+                    if (scope.text === '=>') {
+                        if (scope.prev && scope.prev.prev) {
+                            var pp = scope.prev.prev;
+                            if (pp.type === EXPRESS && pp.text === 'async') {
+                                pp.type = STRAP;
+                            }
+                        }
+                    }
                     queue.inExpress = true;
                     return;
                 }
@@ -824,15 +872,8 @@ class Javascript {
                         case "=":
                             if (queue.isObject) {
                                 if (last.type === PROPERTY) {
-                                    var _m = m;
-                                    var _end = end;
-                                    end = start;
-                                    m = ":";
-                                    save(STAMP);
-                                    m = last.text;
-                                    save(EXPRESS);
-                                    m = _m;
-                                    end = _end;
+                                    last.short = true;
+                                    last.queue = queue;
                                 }
                             }
                             queue.inExpress = true;
@@ -1086,15 +1127,8 @@ class Javascript {
                 var lastUncomment = queue.lastUncomment;
                 if (lastUncomment) {
                     if (lastUncomment.type === PROPERTY) {
-                        var _start = start;
-                        var _m = m;
-                        start = end;
-                        m = ":";
-                        save(STAMP);
-                        m = lastUncomment.text;
-                        save(EXPRESS);
-                        m = _m;
-                        start = _start;
+                        lastUncomment.short = true;
+                        lastUncomment.queue = queue;
                     }
                 }
 
