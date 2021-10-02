@@ -161,10 +161,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         used: allVariables,
         envs: undeclares
     } = code;
-    if (undeclares.require) var required = allVariables.require;
-    var globals = Object.keys(undeclares);
     var globalsmap = {};
-    globals.forEach(g => globalsmap[g] = g);
     if (commName) {
         //如果声明了main方法或main对象，默认用main作为返回值
         if (declares.main) {
@@ -287,8 +284,11 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             used: allVariables,
             envs: undeclares
         } = code;
+        code_body = code;
     }
-
+    if (undeclares.require) var required = allVariables.require;
+    var globals = Object.keys(undeclares);
+    globals.forEach(g => globalsmap[g] = g);
     globals = Object.keys(globalsmap);
     var required_map = {}, required_paths = [];
     if (required instanceof Array) required.forEach(({ next }, cx) => {
@@ -549,9 +549,7 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
     return promise;
 }
 
-var compile_finish_timer = 0;
 function getScriptPromise(data, filename, fullpath, watchurls) {
-    clearTimeout(compile_finish_timer);
     if (path.isAbsolute(fullpath)) console.info("编译", fullpath);
     var [commName, lessName, className] = prepare(filename, fullpath);
     let htmlpath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".html");
@@ -601,9 +599,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         var data = loadJsBody(jsData, fullpath, lessData, commName, className);
         time += new Date - timeStart;
         promise.time = time;
-        compile_finish_timer = setTimeout(function () {
-            console.type("");
-        }, 600);
+        console.drop();
         return data;
     });
     return promise;
