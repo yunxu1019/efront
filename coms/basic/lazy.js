@@ -1,35 +1,44 @@
+// 1.如果time大于0，传的和函数会延迟time执行，如果期间有新的调用，前一个调用会被忽略
+// 2.如果time小于0，传入的函数会立即执行，并忽略-time内的连续调用，time时间后触发最后一次调用
+// 如果time传false或0 使用requestAnimationFrame代替setTimeout按第1步执行
+// 如果time传null或undefined或NaN使用requestAnimationFrame代替setTimeout按第2步执行
 function lazy(run, time = false) {
-    var fireing, args, that;
+    var wait = +time ? setTimeout : requestAnimationFrame;
+    var ing, args, that;
     var fire = function () {
-        if (time > 17) {
-            if (fireing === true) {
-                fireing = setTimeout(fire, +time);
+        if (time >= 0) {
+            if (ing === true) {
+                ing = wait(fire, +time);
             }
-            else if (isFinite(fireing)) {
-                fireing = run.apply(that, args);
+            else if (isFinite(ing)) {
+                ing = run.apply(that, args);
             }
             else {
-                fireing = false;
-            }
-        } else {
-            if (fireing === true) {
-                fireing = run.apply(that, args);
-            } else {
-                fireing = false;
+                ing = false;
             }
         }
-        if (fireing instanceof Promise) fireing.then(fire, fire);
+        else {
+            if (ing === true) {
+                ing = run.apply(that, args);
+                wait(fire, -time);
+                if (!ing) ing = 1;
+            } else {
+                ing = false;
+            }
+        }
+        if (ing instanceof Promise) ing.then(fire, fire);
     };
     return function () {
         args = arguments;
         that = this;
-        if (fireing) return fireing = true;
-        if (time > 0) {
-            fireing = setTimeout(fire, +time);
-        } else {
-            fireing = requestAnimationFrame(fire);
-            if (time === false || time === 0) fireing = true;
-            else run();
+        if (ing) return ing = true;
+        if (time >= 0) {
+            ing = wait(fire, +time);
+        }
+        else {
+            ing = run.apply(that, args);
+            if (ing instanceof Promise) ing.then(fire, fire);
+            ing = wait(fire, -time);
         }
     };
 }
