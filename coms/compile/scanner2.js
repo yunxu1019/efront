@@ -277,7 +277,7 @@ var detour = function (o, ie) {
                 }
                 if (!o.isprop) break;
             case PROPERTY:
-                if (/^(get|set|async)$/.test(o.text) && o.next && o.next.type === PROPERTY) break;
+                if (/^(get|set|async|static)$/.test(o.text) && o.next && o.next.type === PROPERTY) break;
                 if (!ie || program.strap_reg.test(o.text)) {
                     if (!/^\[/.test(o.text)) {
                         o.text = `[${strings.encode(strings.decode(o.text))}]`;
@@ -686,9 +686,9 @@ class Javascript {
     number_reg = /^[\+\-]?(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
     transive = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     straps = `if,in,do,as,of
-    var,for,new,try,let
+    var,for,new,try,let,get,set
     else,case,void,with,enum,from,eval
-    async,while,break,catch,throw,const,yield,class,await
+    async,while,break,catch,throw,const,yield,class,await,super
     return,typeof,delete,switch,export,import,static
     default,finally,extends
     function,continue,debugger
