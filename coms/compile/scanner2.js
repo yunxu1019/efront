@@ -403,10 +403,8 @@ class Program extends Array {
                     break;
                 default:
                     if (o instanceof Object) {
-                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0) {
-                            if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
-                                result.push(" ");
-                            }
+                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
+                            result.push(" ");
                         }
                         else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
                             if (result[result.length - 1] === " " || lasttype === PROPERTY && o.text === ':') { }
@@ -778,7 +776,7 @@ class Javascript {
                     scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
                 }
             }
-            if (scope.type === PROPERTY || scope.isprop) scope.queue = queue;
+            if (scope.type === PROPERTY) scope.queue = queue;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (last) {
                     scope.prev = last;
