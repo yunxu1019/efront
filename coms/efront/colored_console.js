@@ -2,7 +2,7 @@
 var colored = Object.create(null);
 var path = require("path");
 var version = `efront/(${String(require(path.join(__dirname, "../../package.json")).version).replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
-
+var lazy = require("../basic/lazy");
 var colors = {
     Reset: "\x1b[0m",
     Bright: "\x1b[1m",
@@ -76,8 +76,8 @@ var lastLogLength = 0, lastLogTime = 0;
 var logTime = function () {
     lastLogTime = new Date;
     var time = formatDate.call(lastLogTime) + ` ${colors.FgGreen2 + version + colors.Reset} `;
-    write(false, '');
-    write(true, time);
+    write1(false, '');
+    write1(true, time);
 };
 var logStamp = function () {
     if (new Date - lastLogTime > 600) logTime();
@@ -136,22 +136,40 @@ var write = function (hasNewLine, str) {
         var time_stamp = '';
         if (logTime) logStamp();
         var str = [time_stamp, label, ...args].join(" ");
-        write(hasNewLine, str);
+        if (queue.length > 1 && !queue[queue.length - 2] && !/[\r\n\u2028\u2029]/.test(queue[queue.length - 1])) {
+            queue.pop();
+            queue.pop();
+        }
+        write1(hasNewLine, str);
     };
     colored[log] = logger;
 });
+var queue = [];
+var flush = function () {
+    while (queue.length) write(queue.shift(), queue.shift());
+};
+var write0 = lazy(flush, -60);
+var write1 = function (hasNewLine, str) {
+    queue.push(hasNewLine, str);
+    write0();
+};
+colored.flush = flush;
 colored.time = logTime;
 colored.type = function (...args) {
-    write(false, args.join(' '));
+    write1(false, args.join(' '));
 };
-colored.log = console.log;
+var _log = console.log;
+colored.log = function () {
+    flush();
+    _log.apply(console, arguments);
+};
 colored.begin = function (c) {
-    return write(false, getColor(c));
+    return write1(false, getColor(c));
 };
 colored.end = function () {
-    return write(false, colors.Reset);
+    return write1(false, colors.Reset);
 };
 colored.clear = function () {
-    return write(false, '');
+    return write1(false, '');
 };
 module.exports = colored;

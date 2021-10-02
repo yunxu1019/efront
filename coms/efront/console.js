@@ -23,4 +23,6 @@ var colored = require("./colored_console");
     }
     console[log] = logger;
 });
+console.log = colored.log;
+console.flush = colored.flush;
 module.exports = console;
