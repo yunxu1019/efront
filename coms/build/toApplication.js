@@ -289,7 +289,7 @@ module.exports = function (responseTree) {
         var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:"${versionTree[k]}"`).join(",\r\n\t") + "\r\n}";
         var versionVariableName;
         code = mainScriptData.toString()
-            .replace(/var\s+killCircle[\s\S]*?\}\s*\};/, 'var killCircle=function(){};')
+            .replace(/var\s+killCircle[\s\S]*?\}\);?\s*\}\s*\};/, 'var killCircle=function(){};')
             .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
             .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
             .replace(
