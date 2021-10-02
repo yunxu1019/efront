@@ -140,12 +140,12 @@ var needBreak = function (prev, next) {
 };
 
 var getDeclared = function (o, kind) {
-
     var declared = Object.create(null), used = Object.create(null); var skiped = [];
     loop: while (o) {
         while (o && o.type === STAMP && o.text === ',') o = o.next;
         if (!o) break;
         if (o.isprop) {
+            skiped.push(o);
             if (o.next && o.next.type === STAMP && o.next.text === ":") {
                 o = o.next;
                 o = o.next;
@@ -728,10 +728,10 @@ class Javascript {
             }
             else if (scope.type === SCOPED && scope.entry === '[') {
                 if (queue.isObject) {
-                    scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
+                    scope.isprop = !last || last.type === STAMP && last.text === ','
                 }
                 else if (queue.isClass) {
-                    scope.isprop = !last || last.type === STAMP && last.text === ','
+                    scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
                 }
             }
             if (scope.type !== COMMENT && scope.type !== SPACE) {
