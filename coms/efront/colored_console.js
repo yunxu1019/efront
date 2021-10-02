@@ -150,6 +150,7 @@ var flush = function () {
 };
 var write0 = lazy(flush, -60);
 var write1 = function (hasNewLine, str) {
+    writeid++;
     queue.push(hasNewLine, str);
     write0();
 };
@@ -165,6 +166,13 @@ colored.log = function () {
 };
 colored.begin = function (c) {
     return write1(false, getColor(c));
+};
+var writeid = 0;
+var drop = lazy(function (dropid) {
+    if (dropid === writeid) write1(false, "");
+}, 160);
+colored.drop = function () {
+    drop(++writeid);
 };
 colored.end = function () {
     return write1(false, colors.Reset);

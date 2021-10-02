@@ -2,6 +2,7 @@
 var cluster = require("cluster");
 var message = require("../message");
 var colored = require("./colored_console");
+if (console.type) return;
 [
     "begin",
     "end",
@@ -12,7 +13,9 @@ var colored = require("./colored_console");
     "test",
     "info",
     "warn",
-    "error"
+    "error",
+    "drop",
+    "flush"
 ].forEach(function (log) {
     if (cluster.isMaster) {
         var logger = colored[log];
@@ -24,5 +27,4 @@ var colored = require("./colored_console");
     console[log] = logger;
 });
 console.log = colored.log;
-console.flush = colored.flush;
 module.exports = console;
