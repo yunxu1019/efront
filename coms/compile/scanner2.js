@@ -140,12 +140,12 @@ var needBreak = function (prev, next) {
 };
 
 var getDeclared = function (o, kind) {
-
     var declared = Object.create(null), used = Object.create(null); var skiped = [];
     loop: while (o) {
         while (o && o.type === STAMP && o.text === ',') o = o.next;
         if (!o) break;
         if (o.isprop) {
+            skiped.push(o);
             if (o.next && o.next.type === STAMP && o.next.text === ":") {
                 o = o.next;
                 o = o.next;
@@ -277,10 +277,31 @@ var detour = function (o, ie) {
                 }
                 if (!o.isprop) break;
             case PROPERTY:
-                if (/^(get|set|async)$/.test(o.text) && o.next && o.next.type === PROPERTY) break;
+                if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (!ie || program.strap_reg.test(o.text)) {
                     if (!/^\[/.test(o.text)) {
-                        o.text = `[${strings.encode(strings.decode(o.text))}]`;
+                        var after = '';
+                        if (o.short) {
+                            var next = o.next;
+                            o.next = {
+                                text: ":",
+                                type: STAMP,
+                                prev: o,
+                            };
+                            o.next.next = {
+                                text: o.text,
+                                type: EXPRESS,
+                                isExpress: true,
+                                prev: o.next,
+                                next
+                            };
+                            o.queue.splice(o.queue.indexOf(o) + 1, 0, o.next, o.next.next);
+                            o.short = false;
+                        }
+                        else if (!o.next || o.next.type === PROPERTY) {
+                            after = ';';
+                        }
+                        o.text = `[${strings.encode(strings.decode(o.text))}]${after}`;
                     }
                 }
                 break;
@@ -321,6 +342,17 @@ class Program extends Array {
         var lasttype;
         var result = [];
         var run = (o, i, a) => {
+            if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && lasttype !== SPACE && !this.pressed) {
+                var prev = o.prev;
+                if (~[QUOTED, SCOPED, STRAP].indexOf(lasttype)
+                    || prev && prev.type === STAMP && !/(\+\+|\-\-|~|!)$/.test(prev.text) && prev.prev && prev.prev.type !== STAMP) {
+                    if (o.type !== EXPRESS || !/^\./.test(o.text)) {
+                        result.push(" ");
+                        lasttype = SPACE
+                    }
+                }
+
+            }
             switch (o.type) {
                 case COMMENT:
                     // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
@@ -348,23 +380,28 @@ class Program extends Array {
                 case SCOPED:
                     if (!this.pressed && o.entry !== "[" && (lasttype === STRAP || lasttype === SCOPED) && o.type !== QUOTED) result.push(" ");
                     result.push(o.entry);
-                    if (o.entry === "{" && result[0] && result[0].type !== SPACE) {
-                        if (!this.pressed) result.push(" ");
-                    }
-                    lasttype = undefined;
-                    o.forEach(run);
-                    if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o.length > 0 && o[o.length - 1].type !== SPACE) {
-                        result.push(" ");
+                    if (o.length > 0) {
+                        if (o.entry === "{" && result[0].type !== SPACE) {
+                            if (!this.pressed) {
+                                result.push(" ");
+                            }
+                        }
+                        lasttype = undefined;
+                        o.forEach(run);
+                        if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
+                            result.push(" ");
+                        }
                     }
                     result.push(o.leave);
                     break;
                 default:
-                    if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) result.push(" ");
                     if (o instanceof Object) {
                         // var broker = needBreak(o.prev, o);
                         // if (broker) result.push(broker);
-                        if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text) && result[result.length - 1] !== " ") {
-                            if (lasttype === STAMP) {
+                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) result.push(" ");
+                        else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
+                            if (result[result.length - 1] === " " || lasttype === PROPERTY && o.text === ':') { }
+                            else if (lasttype === STAMP) {
                                 result.push(" ");
                             }
                             else if (/^(\+\+|\-\-)$/.test(o.prev.text) && o.prev.prev) {
@@ -375,12 +412,9 @@ class Program extends Array {
                                     || prev_prev.type === VALUE
                                 ) result.push(";");
                             }
-                            else if (o.text !== ":" || o.prev.type !== STRAP && o.prev.prev && o.prev.prev.type !== STRAP) {
+                            else if (!/^(\+\+|\-\-)$/.test(o.text)) {
                                 if (!this.pressed) result.push(" ");
                             }
-                        }
-                        else if (lasttype === SCOPED && !~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type)) {
-                            if (!this.pressed) if (o.type !== EXPRESS || !/^\./.test(o.text)) result.push(" ");
                         }
                         result.push(o.text);
                     }
@@ -389,6 +423,7 @@ class Program extends Array {
                     }
             }
             lasttype = o.type;
+            if (o.isprop) lasttype = PROPERTY;
         };
         this.forEach(run);
         return result.join("");
@@ -517,7 +552,6 @@ class Program extends Array {
                     lets = Object.create(null);
                     vars = Object.create(null);
                     scoped = [];
-                    _scoped.push(scoped);
                     var isExpress = o.isExpress;
 
                     if (isFunction || isArrow) {
@@ -595,12 +629,24 @@ class Program extends Array {
                         } while (o);
                     }
                     var map = isFunction ? vars : lets;
-                    for (var k in used) {
-                        if (!(k in map)) {
-                            for (var u of used[k]) {
-                                saveTo(_used, k, u);
+                    var keepscope = false;
+                    for (var k in map) {
+                        keepscope = true;
+                        break;
+                    }
+                    if (keepscope) {
+                        for (var k in used) {
+                            if (!(k in map)) {
+                                for (var u of used[k]) {
+                                    saveTo(_used, k, u);
+                                }
                             }
                         }
+                        _scoped.push(scoped);
+                    }
+                    else {
+                        mergeTo(_used, used);
+                        if (scoped.length) _scoped.push(scoped);
                     }
                     if (vars.this) {
                         delete vars.this;
@@ -675,9 +721,9 @@ class Javascript {
     number_reg = /^[\+\-]?(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
     transive = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     straps = `if,in,do,as,of
-    var,for,new,try,let
+    var,for,new,try,let,get,set
     else,case,void,with,enum,from,eval
-    async,while,break,catch,throw,const,yield,class,await
+    async,while,break,catch,throw,const,yield,class,await,super
     return,typeof,delete,switch,export,import,static
     default,finally,extends
     function,continue,debugger
@@ -717,16 +763,21 @@ class Javascript {
             }
             else if (scope.type === SCOPED && scope.entry === '[') {
                 if (queue.isObject) {
-                    scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
+                    scope.isprop = !last || last.type === STAMP && last.text === ','
                 }
                 else if (queue.isClass) {
-                    scope.isprop = !last || last.type === STAMP && last.text === ','
+                    scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
                 }
             }
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (last) {
                     scope.prev = last;
                     last.next = scope;
+                    if (!scope.isprop && last.type === STRAP) {
+                        if (/^(get|set|static)$/.test(last.text) && ~[SCOPED, STAMP, STRAP].indexOf(scope.type)
+                            || last.text === 'async' && scope.text !== "function")
+                            last.type = EXPRESS;
+                    }
                 }
                 if (!queue.first) queue.first = scope;
                 queue.lastUncomment = scope;
@@ -744,10 +795,18 @@ class Javascript {
         var save = (type) => {
             if (lasttype === STAMP && type === STAMP && !/[,;\:\?]/.test(m)) {
                 var scope = queue[queue.length - 1];
-                if (/=>$/i.test(scope.text) || /=$/.test(scope.text) && /[^>=]/.test(m)) {
+                if (/=>$/i.test(scope.text) || /=$/.test(scope.text) && /[^>=]/.test(m) || scope.end !== start) {
                 } else {
                     scope.end = end;
                     scope.text = text.slice(scope.start, scope.end);
+                    if (scope.text === '=>') {
+                        if (scope.prev && scope.prev.prev) {
+                            var pp = scope.prev.prev;
+                            if (pp.type === EXPRESS && pp.text === 'async') {
+                                pp.type = STRAP;
+                            }
+                        }
+                    }
                     queue.inExpress = true;
                     return;
                 }
@@ -756,6 +815,11 @@ class Javascript {
             switch (type) {
                 case QUOTED:
                     if (isProperty()) type = PROPERTY;
+                    break;
+                case SPACE:
+                    if (last && last.type === STRAP && last.text === 'retrun') {
+                        queue.inExpress = false;
+                    }
                     break;
                 case EXPRESS:
                     if (!/^\./.test(m) && isProperty()) type = PROPERTY;
@@ -805,19 +869,14 @@ class Javascript {
                             else queue.question++;
                             break;
                         case ",":
+                        case "=":
                             if (queue.isObject) {
                                 if (last.type === PROPERTY) {
-                                    var _m = m;
-                                    var _end = end;
-                                    end = start;
-                                    m = ":";
-                                    save(STAMP);
-                                    m = last.text;
-                                    save(EXPRESS);
-                                    m = _m;
-                                    end = _end;
+                                    last.short = true;
+                                    last.queue = queue;
                                 }
                             }
+                            queue.inExpress = true;
                             break;
                         case ":":
                             if (queue.question) {
@@ -907,9 +966,10 @@ class Javascript {
         loop: while (index < text.length) {
             if (queue.type === QUOTED) {
                 var quote = this.quote_map[queue.entry];
+                var reg = quote.reg;
+                start = index;
                 while (index < text.length) {
-                    var reg = quote.reg;
-                    start = reg.lastIndex = index;
+                    reg.lastIndex = index;
                     var match = reg.exec(text);
                     if (!match) {
                         index = text.length;
@@ -926,6 +986,7 @@ class Javascript {
                     }
                     if (m in quote.entry) {
                         push_quote();
+                        start = index;
                         continue loop;
                     }
                 }
@@ -1007,8 +1068,8 @@ class Javascript {
                 continue;
             }
             if (this.strap_reg.test(m)) {
-                save(STRAP);
                 queue.inExpress = this.transive.test(m);
+                save(STRAP);
                 continue;
             }
             if (this.value_reg.test(m) || this.number_reg.test(m)) {
@@ -1066,15 +1127,8 @@ class Javascript {
                 var lastUncomment = queue.lastUncomment;
                 if (lastUncomment) {
                     if (lastUncomment.type === PROPERTY) {
-                        var _start = start;
-                        var _m = m;
-                        start = end;
-                        m = ":";
-                        save(STAMP);
-                        m = lastUncomment.text;
-                        save(EXPRESS);
-                        m = _m;
-                        start = _start;
+                        lastUncomment.short = true;
+                        lastUncomment.queue = queue;
                     }
                 }
 
@@ -1090,6 +1144,7 @@ class Javascript {
             }
 
         }
+        if (queue !== origin) throw new Error("代码异常结束");
         return queue;
     }
     commit() {
