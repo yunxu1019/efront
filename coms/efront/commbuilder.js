@@ -1,5 +1,4 @@
 "use strict";
-var typescript = require("../typescript");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
 var strings = require("../basic/strings");
@@ -154,7 +153,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
-    data = typescript.transpile(data, { noEmitHelpers: true, jsx: "react" });
+    if (/x$|ts$/i.test(filename)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext' });
     var code = scanner2(data);
     code.detour();
     var {
@@ -245,6 +244,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         }
         if (commName) {
             code_body.push(
+                { type: code_body.STAMP, text: ";\r\n" },
                 { type: code_body.STRAP, text: "return" },
                 { type: code_body.SPACE, text: " " }
             )
@@ -279,7 +279,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     if (!isDevelop || commbuilder.compress === false) {
         code.break();
         data = code.toString();
-        data = typescript.transpile(data, { noEmitHelpers: true });
+        data = require("../typescript").transpile(data, { noEmitHelpers: true });
         var code = scanner2(data);
         code.break();
         var {
@@ -305,7 +305,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
             r.text = String(r.value);
         }
     })
-
     data = code_body.toString();
     var params = globals.map(g => globalsmap[g]);
     data = convertColor(data);
@@ -317,34 +316,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         params
     };
 };
-var optimize = memery.OPTIMIZE;
 
-// var buildPress1 = function (imported, params, data, args, strs) {
-//     var data = imported.length > 0 ? `function f(${params.concat(args || [])}){${data}}` : args.length ? `function f(){var [${args}]=${strs};${data}}` : `function f(){${data}}`;
-//     data = scanner2(data).press().toString();
-
-//     data = typescript.transpile(data, { noEmitHelpers: true });
-//     var code = esprima.parse(data);
-//     if (optimize) code = esmangle.optimize(code, null);
-//     code = code.body[0];
-//     params = code.params.map(id => id.name);
-//     code = {
-//         "type": "Program",
-//         "sourceType": "script",
-//         body: code.body.body
-//     };
-//     data = escodegen.generate(code, {
-//         format: {
-//             renumber: true,
-//             hexadecimal: true, //十六进位
-//             escapeless: true,
-//             compact: true, //去空格
-//             semicolons: false, //分号
-//             parentheses: false //圆括号
-//         }
-//     });
-//     return [imported, params, data];
-// };
 var buildPress2 = function (imported, params, data, args, strs) {
     if (imported.length > 0) {
         var code = scanner2(`var [${params.concat(args || [])}];${data}`).press();
@@ -576,8 +548,11 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
     });
     return promise;
 }
+
+var compile_finish_timer = 0;
 function getScriptPromise(data, filename, fullpath, watchurls) {
-    if (path.isAbsolute(fullpath)) console.info("正在编译", fullpath);
+    clearTimeout(compile_finish_timer);
+    if (path.isAbsolute(fullpath)) console.info("编译", fullpath);
     var [commName, lessName, className] = prepare(filename, fullpath);
     let htmlpath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".html");
     let lesspath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".less");
@@ -626,6 +601,9 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         var data = loadJsBody(jsData, fullpath, lessData, commName, className);
         time += new Date - timeStart;
         promise.time = time;
+        compile_finish_timer = setTimeout(function () {
+            console.type("");
+        }, 600);
         return data;
     });
     return promise;
