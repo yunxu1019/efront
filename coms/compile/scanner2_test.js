@@ -67,8 +67,19 @@ function testRegexp() {
     var m = scanner(`/${/[^\u0130\u0131\u00DFa-z0-9\\/:\-_\. ]+/g.source}/g/** a */`)
     console.log(m)
 }
-testSpeed();
-testVariables();
-testRegexp();
+function testStatic() {
+    var m = scanner(`class a{static{console.log(1)}}`);
+    console.log(m);
+}
+function testAssign() {
+    var m = scanner(`a=function(){}
+    a()`);
+    console.log(m.press().toString());
+}
+// testSpeed();
+// testVariables();
+// testRegexp();
+// testStatic();
+testAssign();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });

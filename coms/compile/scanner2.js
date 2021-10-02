@@ -351,7 +351,6 @@ class Program extends Array {
                         lasttype = SPACE
                     }
                 }
-
             }
             switch (o.type) {
                 case COMMENT:
@@ -388,6 +387,9 @@ class Program extends Array {
                         }
                         lasttype = undefined;
                         o.forEach(run);
+                        if (/^[,;]$/.test(result[result.length - 1]) && this.pressed) {
+                            if (!o.prev || o.prev.text !== 'for') result.pop();
+                        }
                         if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
                             result.push(" ");
                         }
@@ -396,9 +398,11 @@ class Program extends Array {
                     break;
                 default:
                     if (o instanceof Object) {
-                        // var broker = needBreak(o.prev, o);
-                        // if (broker) result.push(broker);
-                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) result.push(" ");
+                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0) {
+                            if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
+                                result.push(" ");
+                            }
+                        }
                         else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
                             if (result[result.length - 1] === " " || lasttype === PROPERTY && o.text === ':') { }
                             else if (lasttype === STAMP) {
@@ -1068,7 +1072,17 @@ class Javascript {
                 continue;
             }
             if (this.strap_reg.test(m)) {
-                queue.inExpress = this.transive.test(m);
+                if (!/^(async|function|class)$/.test(m)) queue.inExpress = this.transive.test(m);
+                else {
+                    var last = queue.lastUncomment;
+                    if (!last) queue.inExpress = false;
+                    else if (last.type === STAMP) {
+                        queue.inExpress = !/^(;|\+\+|\-\-)$/.test(last.text);
+                    }
+                    else if (last.type !== STRAP) {
+                        queue.inExpress = false;
+                    }
+                }
                 save(STRAP);
                 continue;
             }
@@ -1079,6 +1093,7 @@ class Javascript {
             }
             if (this.express_reg.test(m)) {
                 save(EXPRESS);
+                queue.inExpress = true;
                 continue;
             }
 
@@ -1088,7 +1103,10 @@ class Javascript {
                 scope.type = SCOPED;
                 var last = queue.lastUncomment;
                 if (m === "{") {
-                    if (last && queue.classed > 0) {
+                    if (!last) {
+                        scope.isObject = queue.inExpress;
+                    }
+                    else if (queue.classed > 0) {
                         if (last.type !== STAMP || last.text !== "=>") {
                             queue.classed--;
                             scope.isClass = true;
@@ -1096,20 +1114,16 @@ class Javascript {
                             scope.inExpress = false;
                         }
                     }
-                    else if (!queue.lastUncomment) {
-                        scope.isObject = queue.inExpress;
-                    }
-                    else if (queue.lastUncomment.type === STAMP) {
-                        if (queue.lastUncomment.text === ':') {
+                    else if (last.type === STAMP) {
+                        if (last.text === ':') {
                             scope.isObject = queue.inExpress;
                         }
-                        else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(queue.lastUncomment.text);
+                        else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
                     }
-                    else if (STRAP === queue.lastUncomment.type) {
-                        if (queue[queue.length - 1].type === SPACE && queue.lastUncomment.text === 'return');
+                    else if (last.type === STRAP) {
+                        if (queue[queue.length - 1].type === SPACE && last.text === 'return');
                         else scope.isObject = queue.inExpress;
                     }
-                    queue.inExpress = scope.isObject;
                 }
                 else {
                     scope.isExpress = queue.inExpress;
