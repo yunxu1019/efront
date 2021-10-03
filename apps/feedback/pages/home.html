@@ -3,9 +3,11 @@
     <btn ng-click="go('/pages/list')">反馈列表</btn>
 </div>
 <grid _editable=true class="body">
-    <list></list>
+    <div>
+        <list ng-src="a in items">
+            <span ng-bind="a.content"></span>
+        </list>
+        <btn class="send" disabled_="!data.content.trim()&&user.id" ng-click="send()">发送(S)</btn>
+    </div>
     <textarea ng-model=data.content></textarea>
 </grid>
-<div class="foot">
-    <btn ng-click="send()">发送(S)</btn>
-</div>

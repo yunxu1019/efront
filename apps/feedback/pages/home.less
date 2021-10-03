@@ -28,13 +28,33 @@
     }
 }
 
-grid.body {
+>grid.body {
     padding-top: 0;
     margin-bottom: 0;
+
+    >div {
+        height: 100%;
+        position: relative;
+    }
+}
+
+>.foot {
+    background: transparent;
+    backdrop-filter: none;
+    pointer-events: none;
+    border: none;
+}
+
+btn.send {
+    position: absolute;
+    bottom: -40px;
+    right: 16px;
+    z-index: 1;
+    padding: 0 20px;
 }
 
 .editor-height(@height) {
-    grid.body {
+    >grid.body {
         padding-bottom: @height;
     }
 
@@ -57,7 +77,11 @@ textarea {
     width: 100%;
     line-height: 28px;
     font-size: 16px;
+    border: none;
+    outline: none;
+    border-top: 1px solid #000;
     ime-mode: active;
+    padding-right: 120px;
 }
 
 

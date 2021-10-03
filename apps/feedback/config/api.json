@@ -1,4 +1,7 @@
 {
+    "http://efront.cc/": {
+        "ip": "get ip.jsp"
+    },
     "http://efront.cc:5989/": {
         "add": "put advice/:_id",
         "load-list": "post:docs advice/_find"
