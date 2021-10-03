@@ -1,4 +1,4 @@
-var host;
+var host, cookie, Skey;
 
 function pushhost(e, t, a, n) {
     var i;
@@ -165,7 +165,7 @@ var utilFactory = {
     isRoomContact: function (e) {
         return !!e && /^@@|@chatroom$/.test(e)
     },
-    initMsgNoticePlayer: function (e, ) {
+    initMsgNoticePlayer: function (e,) {
         host.e(2, function (require) {
             var a = (host(281),
                 document.querySelector("#msgNoticePlayer"));
