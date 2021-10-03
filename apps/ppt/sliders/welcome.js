@@ -124,7 +124,7 @@ var btns = data.map(function (data) {
             var [, a1, a2, b1, b2] = /(\d+):(\d+)\s*-+\s*(\d+):(\d+)/.exec(log);
             nm_time += (b1 - a1) * 60 + (b2 - a2);
             console.log(a1, a2, b1, b2);
-            nm_data.push(data.date + log.replace(/\s*(\d+):(\d+)\s*-+\s*(\d+):(\d+)\s*/,`${a1}:${a2}-${b1}:${b2}\t`));
+            nm_data.push(data.date + log.replace(/\s*(\d+):(\d+)\s*-+\s*(\d+):(\d+)\s*/, `${a1}:${a2}-${b1}:${b2}\t`));
 
         }
     })
@@ -138,6 +138,5 @@ console.log(zc_count, zc_time, fc_count, fc_time, jk_count, jk_time);
 page.innerHTML = btns.join("<br/>").replace(/学习/g, "<b style=color:white;background-color:red;>$&</b>");
 css(page, "position:absolute;left:0;right:0;top:0;bottom:0;");
 function main() {
-    document.title = title;
     return page;
 }
