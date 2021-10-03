@@ -151,8 +151,8 @@ var flush = function () {
 var write0 = lazy(flush, -60);
 var write1 = function (hasNewLine, str) {
     writeid++;
-    queue.push(hasNewLine, str);
-    write0();
+    // queue.push(hasNewLine, str);
+    write(hasNewLine, str);
 };
 colored.flush = flush;
 colored.time = logTime;
