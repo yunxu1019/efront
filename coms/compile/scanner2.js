@@ -259,6 +259,23 @@ var compress = function (scoped, maped) {
 
 var strings = require("../basic/strings");
 
+var insertAfter = function (o,) {
+    var queue = o.queue;
+    var index = queue.indexOf(o) + 1;
+    var os = [].slice.call(arguments, 1);
+    queue.splice.apply(queue, [index, 0].concat(os));
+    var prev = o, next = o.next;
+    for (var o of os) {
+        prev.next = o;
+        o.prev = prev;
+        prev = o;
+    }
+    if (next) {
+        o.next = next;
+        next.prev = o;
+    }
+};
+
 var detour = function (o, ie) {
     while (o) {
         switch (o.type) {
@@ -278,37 +295,21 @@ var detour = function (o, ie) {
                 if (!o.isprop) break;
             case PROPERTY:
                 if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
+                if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
                 if (!ie || program.strap_reg.test(o.text)) {
-                    if (!/^\[/.test(o.text)) {
-                        var after = '';
+                    if (!/^\[/.test(o.text) && o.queue.isObject) {
                         if (o.short) {
-                            var next = o.next;
-                            o.next = {
-                                text: ":",
-                                type: STAMP,
-                                prev: o,
-                            };
-                            o.next.next = {
-                                text: o.text,
-                                type: EXPRESS,
-                                isExpress: true,
-                                prev: o.next,
-                                next
-                            };
-                            o.queue.splice(o.queue.indexOf(o) + 1, 0, o.next, o.next.next);
+                            insertAfter(o, { text: ':', type: STAMP }, { text: o.text, type: EXPRESS, isExpress: true });
                             o.short = false;
                         }
-                        else if (!o.next || o.next.type === PROPERTY) {
-                            after = ';';
-                        }
-                        o.text = `[${strings.encode(strings.decode(o.text))}]${after}`;
+                        o.text = `[${strings.encode(strings.decode(o.text))}]`;
                     }
                 }
                 break;
         }
         o = o.next;
     }
-}
+};
 
 class Program extends Array {
     COMMENT = COMMENT
@@ -351,7 +352,6 @@ class Program extends Array {
                         lasttype = SPACE
                     }
                 }
-
             }
             switch (o.type) {
                 case COMMENT:
@@ -368,7 +368,6 @@ class Program extends Array {
                         result.push(o.text);
                         break;
                     }
-                    if (!o.prev || !o.next) break;
                     var b = needBreak(o.prev, o.next);
                     if (b) result.push(b);
                     break;
@@ -388,6 +387,9 @@ class Program extends Array {
                         }
                         lasttype = undefined;
                         o.forEach(run);
+                        if (/^[,;]$/.test(result[result.length - 1]) && this.pressed) {
+                            if (!o.prev || o.prev.text !== 'for') result.pop();
+                        }
                         if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
                             result.push(" ");
                         }
@@ -396,9 +398,9 @@ class Program extends Array {
                     break;
                 default:
                     if (o instanceof Object) {
-                        // var broker = needBreak(o.prev, o);
-                        // if (broker) result.push(broker);
-                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) result.push(" ");
+                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
+                            result.push(" ");
+                        }
                         else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
                             if (result[result.length - 1] === " " || lasttype === PROPERTY && o.text === ':') { }
                             else if (lasttype === STAMP) {
@@ -770,12 +772,15 @@ class Javascript {
                 }
             }
             if (scope.type !== COMMENT && scope.type !== SPACE) {
+                if (scope.type === PROPERTY || scope.isprop) scope.queue = queue;
+                else if (scope.type === STRAP && /^(get|set|static)$/.test(scope.text)) {
+                    scope.type = EXPRESS;
+                }
                 if (last) {
                     scope.prev = last;
                     last.next = scope;
                     if (!scope.isprop && last.type === STRAP) {
-                        if (/^(get|set|static)$/.test(last.text) && ~[SCOPED, STAMP, STRAP].indexOf(scope.type)
-                            || last.text === 'async' && scope.text !== "function")
+                        if (last.text === 'async' && scope.text !== "function")
                             last.type = EXPRESS;
                     }
                 }
@@ -855,6 +860,7 @@ class Javascript {
                         }
                         if (~[EXPRESS, VALUE].indexOf(last.type)) {
                             last.type = PROPERTY;
+                            last.queue = queue;
                         } else {
                             type = EXPRESS;
                         }
@@ -873,7 +879,6 @@ class Javascript {
                             if (queue.isObject) {
                                 if (last.type === PROPERTY) {
                                     last.short = true;
-                                    last.queue = queue;
                                 }
                             }
                             queue.inExpress = true;
@@ -953,12 +958,17 @@ class Javascript {
         var isProperty = function () {
             var prev = queue.lastUncomment;
             if (queue.isObject) {
-                return !prev || prev.type === STAMP && prev.text === "," || prev.type === PROPERTY && /^(get|set|async)$/.test(prev.text);
+                if (!prev || prev.type === STAMP && prev.text === ",") return true;
             }
             if (queue.isClass) {
                 if (!prev) return true;
                 if (prev.type === STAMP) return /^(\+\+|\-\-|;)$/.test(prev.text);
-                return prev.type === EXPRESS && !/\.$/.test(prev.text) || ~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type);
+                if (prev.type === EXPRESS && !/\.$/.test(prev.text)) return true;
+                if (~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type)) return true;
+            }
+            if (!prev) return false;
+            if (prev.type === PROPERTY && /^(get|set|async|static)$/.test(prev.text)) {
+                return true;
             }
             return false;
         };
@@ -1068,7 +1078,17 @@ class Javascript {
                 continue;
             }
             if (this.strap_reg.test(m)) {
-                queue.inExpress = this.transive.test(m);
+                if (!/^(async|function|class)$/.test(m)) queue.inExpress = this.transive.test(m);
+                else {
+                    var last = queue.lastUncomment;
+                    if (!last) queue.inExpress = false;
+                    else if (last.type === STAMP) {
+                        queue.inExpress = !/^(;|\+\+|\-\-)$/.test(last.text);
+                    }
+                    else if (last.type !== STRAP) {
+                        queue.inExpress = false;
+                    }
+                }
                 save(STRAP);
                 continue;
             }
@@ -1079,6 +1099,7 @@ class Javascript {
             }
             if (this.express_reg.test(m)) {
                 save(EXPRESS);
+                queue.inExpress = true;
                 continue;
             }
 
@@ -1088,7 +1109,10 @@ class Javascript {
                 scope.type = SCOPED;
                 var last = queue.lastUncomment;
                 if (m === "{") {
-                    if (last && queue.classed > 0) {
+                    if (!last) {
+                        scope.isObject = queue.inExpress;
+                    }
+                    else if (queue.classed > 0) {
                         if (last.type !== STAMP || last.text !== "=>") {
                             queue.classed--;
                             scope.isClass = true;
@@ -1096,20 +1120,16 @@ class Javascript {
                             scope.inExpress = false;
                         }
                     }
-                    else if (!queue.lastUncomment) {
-                        scope.isObject = queue.inExpress;
-                    }
-                    else if (queue.lastUncomment.type === STAMP) {
-                        if (queue.lastUncomment.text === ':') {
+                    else if (last.type === STAMP) {
+                        if (last.text === ':') {
                             scope.isObject = queue.inExpress;
                         }
-                        else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(queue.lastUncomment.text);
+                        else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
                     }
-                    else if (STRAP === queue.lastUncomment.type) {
-                        if (queue[queue.length - 1].type === SPACE && queue.lastUncomment.text === 'return');
+                    else if (last.type === STRAP) {
+                        if (queue[queue.length - 1].type === SPACE && last.text === 'return');
                         else scope.isObject = queue.inExpress;
                     }
-                    queue.inExpress = scope.isObject;
                 }
                 else {
                     scope.isExpress = queue.inExpress;
@@ -1128,7 +1148,6 @@ class Javascript {
                 if (lastUncomment) {
                     if (lastUncomment.type === PROPERTY) {
                         lastUncomment.short = true;
-                        lastUncomment.queue = queue;
                     }
                 }
 
