@@ -297,23 +297,19 @@ var detour = function (o, ie) {
                 if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
                 if (!ie || program.strap_reg.test(o.text)) {
-                    if (!/^\[/.test(o.text)) {
-                        var after = '';
+                    if (!/^\[/.test(o.text) && o.queue.isObject) {
                         if (o.short) {
                             insertAfter(o, { text: ':', type: STAMP }, { text: o.text, type: EXPRESS, isExpress: true });
                             o.short = false;
                         }
-                        else if (!o.next || o.next.type === PROPERTY) {
-                            after = ';';
-                        }
-                        o.text = `[${strings.encode(strings.decode(o.text))}]${after}`;
+                        o.text = `[${strings.encode(strings.decode(o.text))}]`;
                     }
                 }
                 break;
         }
         o = o.next;
     }
-}
+};
 
 class Program extends Array {
     COMMENT = COMMENT
@@ -372,7 +368,6 @@ class Program extends Array {
                         result.push(o.text);
                         break;
                     }
-                    if (!o.prev || !o.next) break;
                     var b = needBreak(o.prev, o.next);
                     if (b) result.push(b);
                     break;
@@ -776,14 +771,16 @@ class Javascript {
                     scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
                 }
             }
-            if (scope.type === PROPERTY) scope.queue = queue;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
+                if (scope.type === PROPERTY || scope.isprop) scope.queue = queue;
+                else if (scope.type === STRAP && /^(get|set|static)$/.test(scope.text)) {
+                    scope.type = EXPRESS;
+                }
                 if (last) {
                     scope.prev = last;
                     last.next = scope;
                     if (!scope.isprop && last.type === STRAP) {
-                        if (/^(get|set|static)$/.test(last.text) && ~[SCOPED, STAMP, STRAP].indexOf(scope.type)
-                            || last.text === 'async' && scope.text !== "function")
+                        if (last.text === 'async' && scope.text !== "function")
                             last.type = EXPRESS;
                     }
                 }
