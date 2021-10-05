@@ -689,11 +689,6 @@ class Program extends Array {
         detour(this.first, true);
         return this;
     }
-    // 标记要保留的代码
-    ahchor() { }
-    // 清理无效的代码
-    clean() {
-    }
     // 压缩
     press() {
         this.pressed = true;
