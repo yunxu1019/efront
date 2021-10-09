@@ -117,7 +117,7 @@ var getCrossUrl = function (domain, headers) {
     _headers = serialize(_headers);
     if (_headers) _headers = "," + _headers;
     return domain
-        .replace(/^s?\/\//i, "http$&")
+        .replace(/^(s?)(\/\/)/i, "http$1:$2")
         .replace(domainReg, base + `*${/^(https\:|s\/\/)/i.test(domain) ? "*" : ""}$2${_headers}/$3$4`);
 };
 function cross(method, url, headers) {
