@@ -114,4 +114,8 @@ var exports = module.exports = function (url, callback) {
         response(result);
     }
 };
+exports.reset = function () {
+    getcommfile.reset();
+    getpagefile.reset();
+}
 Object.assign(exports, managers);

@@ -102,18 +102,18 @@ function PackageData(a) {
 PackageData.prototype = Object.create(null);
 
 var $pathname = Symbol(":pathname");
-var $updateme = Symbol("?update");
+var $updateme = Symbol("/update");
 var $isloaded = Symbol(":loaded");
 var $promised = Symbol(":promised");
-var $geturl = Symbol("?getme");
+var $geturl = Symbol("/getme");
 var $buffered = Symbol(":buffer");
 var $mtime = Symbol(":mtime");
-var $rebuild = Symbol('?rebuild');
+var $rebuild = Symbol("/rebuild");
 var $limit = Symbol(":limit");
 var $root = Symbol(":rootpath");
 var $linked = Symbol(":linked");
-var $checklink = Symbol("?linked");
-var $getbuffer = Symbol("?buffer");
+var $checklink = Symbol("/linked");
+var $getbuffer = Symbol("/buffer");
 function Directory(pathname, rebuild, limit) {
     this[$rebuild] = rebuild;
     this[$limit] = limit;
@@ -447,6 +447,11 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
             };
             run();
         });
+    };
+    sk.reset = seekerAsync.reset = function () {
+        for (var t of treeslist) {
+            delete t[$promised];
+        }
     };
     sk.async = seekerAsync;
     return sk;

@@ -123,6 +123,7 @@ module.exports = {
     APP: get("APP, APPNAME"),
     TITLE: get("TITLE", ''),
     PASSWORD: get('PASSWORD'),
+    MSIE: get("IE,MSIE,Trident,IEXPLORE,DETOUR"),
     HTTP_PORT: get('HTTP_PORT', 0),
     HTTPS_PORT: get('HTTPS_PORT', 0),
     WATCH_PORT: get('HTTPS_PORT', 0),

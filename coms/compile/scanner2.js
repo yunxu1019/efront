@@ -302,7 +302,8 @@ var detour = function (o, ie) {
                             insertAfter(o, { text: ':', type: STAMP }, { text: o.text, type: EXPRESS, isExpress: true });
                             o.short = false;
                         }
-                        o.text = `[${strings.encode(strings.decode(o.text))}]`;
+                        var text = strings.encode(strings.decode(o.text));
+                        o.text = ie ? text : `[${text}]`;
                     }
                 }
                 break;

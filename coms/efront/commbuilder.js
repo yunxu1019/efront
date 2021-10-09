@@ -8,6 +8,8 @@ var inCom = require("./inCom");
 var inPage = require("./inPage");
 var fs = require("fs");
 var path = require("path");
+var memery = require("./memery");
+
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     if (!data) return data;
     var regs = [].concat(reg);
@@ -152,9 +154,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
-    if (/x$|ts$|ue$|\.mjs$/i.test(filename) || /^\s*(ex|im)port\s/m.test(data)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext', module: "commonjs" });
+    if (memery.MSIE || /x$|ts$|ue$|\.mjs$/i.test(filename) || /^\s*(ex|im)port\s/m.test(data)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: memery.MSIE ? "es5" : 'esnext', module: "commonjs" });
     var code = scanner2(data);
-    code.detour();
+    if (memery.MSIE) code.detour();
     var {
         vars: declares,
         used: allVariables,

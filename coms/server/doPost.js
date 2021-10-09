@@ -49,6 +49,13 @@ var doPost = module.exports = function (req, res) {
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
     }
+    if (/MSIE|Trident/.test(req.headers["user-agent"])) {
+        var memery = require("../efront/memery");
+        if (!memery.MSIE) {
+            memery.MSIE = true;
+            finalpacker.reset();
+        }
+    }
     url = proxy(req);
     finalpacker(url, function (result, type) {
         if (!(result instanceof Buffer || result instanceof Function)) {
