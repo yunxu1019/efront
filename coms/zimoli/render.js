@@ -577,14 +577,16 @@ var emiters = {
     on(key, search) {
         var getter = createGetter(search, false);
         on(key)(this, function (e) {
-            getter.call(this, e);
+            var res = getter.call(this, e);
+            if (res && isFunction(res.then)) res.then(digest, digest);
             digest();
         });
     },
     once(key, search) {
         var getter = createGetter(search, false);
         once(key)(this, function (e) {
-            getter.call(this, e);
+            var res = getter.call(this, e);
+            if (res && isFunction(res.then)) res.then(digest, digest);
             digest();
         });
     }
@@ -786,7 +788,7 @@ function render(element, scope, parentScopes) {
     return e;
 }
 
-var digest = lazy(refresh, +{});
+var digest = lazy(refresh, -{});
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
 var eventsHandlers = "fullscreenchange,change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
@@ -804,20 +806,4 @@ render.register = function (key, name) {
     } else if (arguments.length === 2) {
         register(key, name);
     }
-};
-
-var promisePrototype = Promise.prototype;
-var __then = promisePrototype.then;
-var __wrap = function (f) {
-    if (f instanceof Function) {
-        return function () {
-            var res = f.apply(this, arguments);
-            digest();
-            return res;
-        };
-    }
-    return f;
-};
-promisePrototype.then = function () {
-    return __then.apply(this, [].map.call(arguments, __wrap));
 };
