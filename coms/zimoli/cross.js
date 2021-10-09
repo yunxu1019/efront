@@ -102,7 +102,7 @@ function isChildPath(relative, path) {
     return relative.replace(/^(.*\/)[^\/]*$/, path);
 }
 var digest = function () {
-    if (cross.digest instanceof Function) cross.digest();
+    dispatch('render', window);
 };
 
 var getCrossUrl = function (domain, headers) {
@@ -212,6 +212,11 @@ function cross(method, url, headers) {
         xhr.setRequestHeader = function (key, value) {
             realHeaders[key] = value;
         };
+        xhr.then = function (ok, oh) {
+            onloads.push(ok);
+            onerrors.push(oh);
+            flush();
+        };
         setTimeout(function () {
             var isform = /^f/i.test(method);
             if (isform) {
@@ -244,24 +249,32 @@ function cross(method, url, headers) {
             send.call(xhr, datas);
         }, 0);
     }
+    var loaded, errored;
     var onload = function (xhr) {
         if (xhr.decoder) {
             xhr = xhr.decoder(xhr);
         }
-        onloads.map(e => e instanceof Function && e(xhr));
+        loaded = xhr;
+        flush();
         digest();
     };
     var onerror = function (xhr) {
-        onerrors.map(e => e instanceof Function && e(xhr));
+        errored = xhr;
+        flush();
         digest();
+    };
+    var flush = function () {
+        var then = xhr.then;
+        delete xhr.then;
+        if (loaded) onloads.splice(0, onloads.length).map(e => e instanceof Function && e(xhr));
+        if (errored) onerrors.splice(0, onerrors.length).map(e => e instanceof Function && e(xhr));
+        xhr.then = then;
     };
     var onloads = [], onerrors = [];
     xhr.done = xhr.success = function (on, asqueue = true) {
-        if (asqueue) {
-            onloads.push(on);
-        } else {
-            onload = on;
-        }
+        if (!asqueue) onloads.splice(0, onloads.length);
+        onloads.push(on);
+        flush();
         return xhr;
     };
     var send = xhr.send;
@@ -296,12 +309,11 @@ function cross(method, url, headers) {
         }
     };
     xhr.fail = xhr.error = function (on, asqueue = true) {
-        if (asqueue) {
-            onerrors.push(on);
-        } else {
-            onerror = on;
+        if (!asqueue) {
+            onerrors.splice(0, onerrors.length);
         }
-        onerror = on;
+        onerrors.push(on);
+        flush();
         return xhr;
     };
     return xhr;
