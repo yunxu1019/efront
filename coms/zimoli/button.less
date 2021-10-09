@@ -94,6 +94,7 @@
 }
 
 &.active,
+&[pending],
 &[loading] {
     >.track {
         background: #0003;
@@ -102,6 +103,7 @@
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.3) inset;
 }
 
+&[pending],
 &[loading] {
     @keyframes ltr {
         0% {

@@ -112,8 +112,8 @@ var getXYFromMouseEvent = function (event) {
     var grid = this;
     var position = getScreenPosition(grid);
     var computed = getComputedStyle(grid);
-    var clientX = event.clientX - position.left;
-    var clientY = event.clientY - position.top;
+    var clientX = event.clientX - position.left - grid.clientLeft;
+    var clientY = event.clientY - position.top - grid.clientTop;
     var [padLeft, padTop, padRight, padBottom] = [
         computed.paddingLeft,
         computed.paddingTop,
@@ -302,7 +302,7 @@ function grid(breakpoints) {
 }
 class Point extends Array {
     constructor(value, range) {
-        if (!this) return new Point(value);
+        super();
         var solid = false;
         if (isObject(value)) {
             this.value = value.value;
@@ -324,7 +324,7 @@ class Point extends Array {
         return this.value;
     }
 }
-var createPoints = function (values, direction = "x", result = Point(0)) {
+var createPoints = function (values, direction = "x", result = new Point(0)) {
     if (!(values instanceof Array)) values = arguments;
     for (var cx = 0, dx = values.length; cx < dx; cx++) {
         var value = values[cx];
@@ -332,7 +332,7 @@ var createPoints = function (values, direction = "x", result = Point(0)) {
             if (!result.length) throw new Error("数据转换为grid失败！");
             createPoints(value, direction === "x" ? "y" : "x", result[result.length - 1]);
         } else {
-            var breakpoint = Point(value);
+            var breakpoint = new Point(value);
             breakpoint.direction = direction;
             breakpoint.parent = result;
             result.push(breakpoint);
@@ -412,7 +412,7 @@ var grid_prototype = {
     _reshape() {
         var grid = this;
         var bounds = this.bounds;
-        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = Point(grid.width), current_b = Point(grid.height);
+        var current_l, current_t, current_w, current_h, current_d = this.breakpoints.direction, current_r = new Point(grid.width), current_b = new Point(grid.height);
         // var xPoints = [];
         // var yPoints = [];
         var getDivSize = function (top, height, bounds_top, bounds_bottom, grid_height, grid_padding_top, grid_padding_bottom) {
@@ -569,14 +569,14 @@ var grid_prototype = {
         }
     },
     seprate(x) {
-        saveToOrderedArray(this.breakpoints, Point(x));
+        saveToOrderedArray(this.breakpoints, new Point(x));
     },
     nearby(x, y) {
         var breakpoints = this.breakpoints;
         var breakpath = [];
-        var maxXStart = Point(0), maxYStart = Point(0);
-        var minXEnd = Point(this.width);
-        var minYEnd = Point(this.height);
+        var maxXStart = new Point(0), maxYStart = new Point(0);
+        var minXEnd = new Point(this.width);
+        var minYEnd = new Point(this.height);
         var isX = true;
         do {
             var value = isX ? x : y;// 先 y 后 x

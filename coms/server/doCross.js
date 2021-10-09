@@ -3,7 +3,7 @@ var parseURL = require("../basic/parseURL");
 var Http2ServerResponse = require("http2").Http2ServerResponse;
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 var privateKeys = Object.create(null);
-"Cookie,Connection,Referer,Host,Origin".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
+"Cookie,Connection,Referer,Host,Origin,Authorization".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
 var record = require("./record");
 var options = {};
 var crossmark = /[~,;\.&\*]/;
@@ -190,6 +190,6 @@ function cross(req, res, referer) {
         res.end(String(e));
     }
 }
-cross.prefix = new RegExp(`${/^\//.source}(?:${/\{/.source}|%7b|${crossmark.source})`, 'i');
+cross.prefix = new RegExp(`${/^\//.source}(?:${/\{/.source}|%7b|${crossmark.source}+[^${crossmark.source.replace(/^\[|\]/g, '')}])`, 'i');
 cross.referer = new RegExp(`${/^https?\:\/\/[^\/]*/.source}${cross.prefix.source.slice(1)}`, 'i');
 module.exports = cross;

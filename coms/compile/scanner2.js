@@ -302,7 +302,8 @@ var detour = function (o, ie) {
                             insertAfter(o, { text: ':', type: STAMP }, { text: o.text, type: EXPRESS, isExpress: true });
                             o.short = false;
                         }
-                        o.text = `[${strings.encode(strings.decode(o.text))}]`;
+                        var text = strings.encode(strings.decode(o.text));
+                        o.text = ie ? text : `[${text}]`;
                     }
                 }
                 break;
@@ -688,11 +689,6 @@ class Program extends Array {
     detour() {
         detour(this.first, true);
         return this;
-    }
-    // 标记要保留的代码
-    ahchor() { }
-    // 清理无效的代码
-    clean() {
     }
     // 压缩
     press() {

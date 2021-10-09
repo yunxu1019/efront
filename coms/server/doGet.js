@@ -45,6 +45,7 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
                 oh(error);
             } else if (data.length > result.length) {
                 result.origin_size = origin_size;
+                result.isgzip = true;
                 ok(result);
             } else {
                 ok(data);
@@ -95,7 +96,7 @@ var response = function (data, url, req, res) {
                 // status = 206;
             }
         }
-        if (data.origin_size > data.length) {
+        if (data.isgzip) {
             headers["Content-Encoding"] = "gzip";
         }
         res.writeHead(status, headers);
