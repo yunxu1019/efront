@@ -104,10 +104,10 @@ var skipAssignment = function (o) {
             }
             break;
         default:
+            console.log(o);
             throw new Error('代码结构异常！');
             o = o.next;
     }
-    if (o === o0) throw new Error("代码结构异常！");
     return o;
 };
 
