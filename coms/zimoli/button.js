@@ -19,7 +19,7 @@ on("keydown")(window, function (event) {
                         dispatch(window, 'mousedown');
                         element.click();
                     } else {
-                        delete keyMap[which];
+                        delete keyMap[key];
                     }
                 }
             }
