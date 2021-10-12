@@ -829,7 +829,6 @@ var data = {
             this.responseLoading(instance);
             var params = privates.pack(sid, params1);
             if (!privates.validApi(api, params)) throw aborted;
-
             var { method, uri, params, selector } = privates.prepare(api.method, api.url, params);
             var promise = new Promise(function (ok, oh) {
                 var headers = api.headers;
@@ -850,7 +849,6 @@ var data = {
                     }
                 });
             }).then(function (response) {
-
                 return transpile(seekResponse(parseData(response), selector), api.transpile, api.root);
             });
             return promise;

@@ -218,6 +218,7 @@ function cross(method, url, headers) {
             flush();
         };
         setTimeout(function () {
+            digest();
             var isform = /^f/i.test(method);
             if (isform) {
                 if (method === 'form') method = 'post';
