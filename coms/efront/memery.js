@@ -35,7 +35,7 @@ var get = function (name, _default, fix) {
         var k = alias[cx];
         namemap[k] = alias[0];
     }
-    if (fix) fixme[alias[0]] = true;
+    if (fix) fixme[alias[0]] = fix;
     for (var cx = 0, dx = alias.length; cx < dx; cx++) {
         var k = alias[cx];
         if (k in env) {
@@ -57,10 +57,11 @@ var fixme = {};
 var fixpath = function (key) {
     var exports = module.exports;
     var url = exports[key];
+    var type = fixme[key];
     if (!fixme[key]) fixme[key] = true;
     if (!url && url !== '') return;
     var fs = require("fs");
-    if (url > 0 && !fs.existsSync(url)) {
+    if (url && url >= 0 && !fs.existsSync(url)) {
         url = +url;
         exports[key] = function (deep, path) {
             if (!path || typeof path !== 'string') return '';
@@ -69,19 +70,20 @@ var fixpath = function (key) {
         }.bind(null, url);
         return;
     }
-    if (typeof url !== 'string') url = '';
+    if (typeof url !== 'string') url = "";
     url = url.replace(/[\/\\]+$/, '').replace(/\\/g, '/');
-    fs.stat(url, function (error, stats) {
+    fs.stat(url === "" ? "." : url, function (error, stats) {
         if (error) {
             throw error;
         }
         if (stats.isDirectory()) {
             url += '/';
         }
-        exports[key] = path.normalize(url);
+        if (type === 2) url = path.normalize(url);
+        exports[key] = url;
     });
 };
-var getpath = name => get(name, null, true);
+var geturlpath = name => get(name, null, 1);
 
 module.exports = {
     compress: !istest,
@@ -117,7 +119,7 @@ module.exports = {
         coms_path = Object.keys(namemap).join(',');
         return coms_path;
     },
-    DIRECT: getpath("DIRECT,DIRECT_PAGE,DIRECT_PATH,SINGLE,SINGLE_PAGE,SINGLE_PATH"),
+    DIRECT: geturlpath("DIRECT,DIRECT_PAGE,DIRECT_PATH,SINGLE,SINGLE_PAGE,SINGLE_PATH"),
     EFRONT: false,
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),
     APP: get("APP, APPNAME"),

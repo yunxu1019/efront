@@ -150,7 +150,7 @@ var adapter = function (data, url, req, res) {
         ]);
         return adapter(data, "", req, res);
     }
-    if (!req.headers.referer && !req.direct && memery.DIRECT) {
+    if (!req.direct && memery.DIRECT) {
         var direct = req.direct = memery.DIRECT;
         if (typeof direct === 'function') direct = direct(req.url);
         data = getfile(direct, ['', 'default.html', "index.html", 'index.htm', 'index.jsp', 'index.asp', 'index.php']);
