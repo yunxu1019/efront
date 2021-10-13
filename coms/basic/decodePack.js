@@ -1,5 +1,6 @@
+"include ./encodePack.h";
 var readBinary = require("./readBinary");
-
+var decodeRange = require("./decodeRange");
 function decodeFlat(buff, start = 0) {
     var tcount = buff[start];
     var total = 0;
@@ -109,14 +110,14 @@ function repeat(a, count) {
     }
     return new Uint8Array(result);
 }
-var normal_huffman = 0;
-var normal_repeat1 = 1;
-var normal_repeat2 = 2;
-var normal_nocode1 = 3;
-var normal_nocode2 = 4;
-var normal_nocode3 = 5;
-var repeat_huffman = 6;
-
+function readint(buff) {
+    var n = 0;
+    for (var cx = 0, dx = buff.length; cx < dx; cx++) {
+        var b = buff[cx];
+        n = n * 256 + b;
+    }
+    return n;
+}
 var concatByte = require("./concatByte");
 function unpack(buff) {
     if (buff.length < 2) return buff;
@@ -173,6 +174,24 @@ function unpack(buff) {
                 var res = buff.slice(byteoffset, byteoffset + count);
                 result.push(res);
                 byteoffset += count;
+                break;
+            case other_compress:
+                var size = buff[byteoffset + 1] & 0x1f;
+                var type1 = buff[byteoffset];
+                var count = buff.slice(byteoffset += 2, byteoffset += size);
+                count = readint(count);
+                switch (type1) {
+                    case range_compress:
+                        var res = buff.slice(byteoffset, byteoffset += count);
+                        res = decodeRange(res);
+                        res = new Uint16Array(res);
+                        res = inflate(res);
+                        res = new Uint8Array(res);
+                        result.push(res);
+                        break;
+                    default:
+                        throw new Error("编码异常！");
+                }
                 break;
             default:
                 throw new Error("数据异常！");

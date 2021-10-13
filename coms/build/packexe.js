@@ -11,7 +11,7 @@ function packexe(readfrom, writeto) {
             }
             fs.write(hd, data, function (error) {
                 if (error) return console.error(error);
-                pack(readfrom, hd);
+                pack(readfrom, hd, 1);
             });
         });
     });

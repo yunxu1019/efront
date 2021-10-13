@@ -4,7 +4,7 @@ var encodeUTF16 = require("../basic/encodeUTF16");
 var encodeLEB128 = require("../basic/encodeLEB128");
 var encodePack = require("../basic/encodePack");
 var finish = require("./finish");
-function pack(readfrom, writeto) {
+function pack(readfrom, writeto, type) {
     var createInfo = function ([file, size]) {
         var p = path.relative(readfrom, file);
         var nametype = +!/^[\u0000-\u00ff]*$/.test(p);
@@ -46,7 +46,7 @@ function pack(readfrom, writeto) {
                 } else {
                     fs.readFile(file, function (error, data) {
                         if (error) return oh(error);
-                        var pressed = encodePack(data);
+                        var pressed = encodePack(data, type);
                         fs.write(handle, new Uint8Array(pressed), function (error) {
                             if (error) return oh(error);
                             dist.push([file, pressed.length + 1]);

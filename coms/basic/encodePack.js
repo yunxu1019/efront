@@ -1,6 +1,8 @@
+"include ./encodePack.h";
 var getIndexFromOrderedArray = require("./getIndexFromOrderedArray");
 var saveToOrderedArray = require("./saveToOrderedArray");
 var writeBinary = require("./writeBinary");
+var encodeRange = require("./encodeRange");
 var createHuffman = function (counts) {
     var rest = [];
     var counts = [].slice.call(counts);
@@ -180,13 +182,6 @@ function repeat(buff, readstart = 0) {
     f.byteoffset = cx;
     return f;
 }
-var normal_huffman = 0;
-var normal_repeat1 = 1;
-var normal_repeat2 = 2;
-var normal_nocode1 = 3;
-var normal_nocode2 = 4;
-var normal_nocode3 = 5;
-var repeat_huffman = 6;
 var concatTypedArray = require("./concatByte");
 
 function pack(buff) {
@@ -241,7 +236,10 @@ function pack(buff) {
         }
     } while (tempoffset < buff.length);
     result = concatTypedArray(result);
+    return pack0(buff, result);
+}
 
+function pack0(buff, result) {
     var length = buff.length;
     if (length < 8192 && result.length - length > 2) {
         result = concatTypedArray([
@@ -263,4 +261,47 @@ function pack(buff) {
     }
     return result;
 }
-module.exports = pack
+
+function int(n) {
+    var dist = [];
+    while (n > 0) {
+        dist.push(n & 0xff);
+        n = n / 256 | 0;
+    }
+    dist.reverse();
+    return dist;
+}
+
+
+function pack2(buff) {
+    var result = [];
+    for (var cx = 0, dx = buff.length, bx = 32 * 1024 * 1024; cx < dx; cx += bx) {
+        var b = buff.slice(cx, cx + bx);
+        var [l, p, b] = scan(b);
+        l = encodeRange(l);
+        p = encodeRange(p);
+        var e = encodeRange(b);
+        var el = int(e.length);
+        result.push(concatTypedArray([
+            [
+                range_compress,
+                other_compress << 5 | el.length,
+                l.length >> 8,
+                l.length & 0xff,
+                p.length >> 8,
+                p.length & 0xff
+            ],
+            el, l, p, e]));
+    }
+    result = concatTypedArray(result);
+    return pack0(buff, result);
+}
+module.exports = function (buff, type) {
+    switch (type) {
+        case 1:
+            return pack(buff);
+        case 2:
+            return pack2(buff);
+    }
+    return pack2(buff);
+};
