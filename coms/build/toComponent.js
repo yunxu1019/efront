@@ -75,16 +75,6 @@ function toComponent(responseTree) {
     var encoded = memery.ENCRYPT;
     var compress = memery.COMPRESS;
     var optimize = memery.OPTIMIZE;
-    var generateConfig = {
-        format: {
-            renumber: true,
-            hexadecimal: true, //十六进位
-            escapeless: true,
-            compact: compress, //去空格
-            semicolons: false, //分号
-            parentheses: false //圆括号
-        }
-    };
     var symbolid = 0;
     var encode = function (source) {
         var _source = _strings.decode(source);
