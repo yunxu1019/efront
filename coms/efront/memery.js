@@ -68,23 +68,36 @@ var fixpath = function (key) {
             return path.replace(/\\/g, '/').replace(/^\/|\/$/g, '')
                 .split('/').slice(0, deep).join("/") + "/";
         }.bind(null, url);
+        exports[key].toString = function (a) { return a }.bind(url);
         return;
     }
-    if (typeof url !== 'string') url = "";
-    url = url.replace(/[\/\\]+$/, '').replace(/\\/g, '/');
-    fs.stat(url === "" ? "." : url, function (error, stats) {
-        if (error) {
-            throw error;
-        }
-        if (stats.isDirectory()) {
-            url += '/';
-        }
-        if (type === 2) url = path.normalize(url);
-        exports[key] = url;
-    });
+    if (typeof url !== 'string' || /^\.[\/\\]?$/.test(url)) url = "";
+    switch (type) {
+        case 1:
+            url = path.normalize(url).replace(/[\/\\]+$/, '').replace(/\\/g, '/').replace(/^\.\/|^\.$/, '');
+            var temp = path.join(PUBLIC_PATH, url);
+            if (fs.existsSync(temp)) fs.stat(temp, function (error, stats) {
+                if (error) {
+                    throw error;
+                }
+                if (stats.isDirectory()) {
+                    url += '/';
+                }
+                exports[key] = url;
+            });
+            else exports[key] = url;
+            break;
+        case 2:
+            exports[key] = url.split(/[,;]/).map(u => u ? path.normalize(u).replace(/^\.[\/\\]|^\.$/, '') : u).join(",");
+            break;
+        default:
+            if (url !== exports[key]) exports[key] = url;
+    }
 };
 var geturlpath = name => get(name, null, 1);
-
+var getdirpath = (name, _default) => get(name, _default, 2);
+var COMS_PATH = getdirpath("COMS_PATH, COMM_PATH");
+var PUBLIC_PATH = getdirpath("PUBLIC_PATH", 'public');
 module.exports = {
     compress: !istest,
     loghead: get('LOGHEAD, LOG'),
@@ -106,7 +119,7 @@ module.exports = {
     get coms_path() {
         if (coms_path !== undefined) return coms_path;
         var namemap = Object.create(null);
-        var pathname = String(this.COMS_PATH || "");
+        var pathname = String(COMS_PATH || "");
         pathname.split(',').forEach(p => {
             namemap[p] = true;
         });
@@ -132,36 +145,47 @@ module.exports = {
     TRANSFER: get('TRANSFER,TRANSFER_LINK,TRANSFER_HOST,TRANS,TRANS_LINK,TRANS_HOST'),
     WATCH_PROJECT_VERSION: 0,
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),
-    ENVS_PATH: get("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
-    COMS_PATH: get("COMS_PATH, COMM_PATH"),
-    PAGE_PATH: get("PAGE_PATH, PAGES_PATH, APPS_PATH"),
-    APIS_PATH: get("APIS_PATH, AAPI_PATH, APPS_PATH"),
-    LIBS_PATH: get("LIBS_PATH, LIB_PATH"),
-    FILE_PATH: get("FILE_PATH"),
-    ICON_PATH: get("ICON_PATH, CONS_PATH, CCON_PATH, ICONS_PATH"),
-    PUBLIC_PATH: get("PUBLIC_PATH", 'public'),
+    ENVS_PATH: getdirpath("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
+    COMS_PATH: getdirpath("COMS_PATH, COMM_PATH"),
+    get COMS_PATH() {
+        if (typeof COMS_PATH === 'string') return this.coms_path;
+        return COMS_PATH;
+    },
+    set COMS_PATH(v) {
+        COMS_PATH = v;
+    },
+    PAGE_PATH: getdirpath("PAGE_PATH, PAGES_PATH, APPS_PATH"),
+    APIS_PATH: getdirpath("APIS_PATH, AAPI_PATH, APPS_PATH"),
+    LIBS_PATH: getdirpath("LIBS_PATH, LIB_PATH"),
+    FILE_PATH: getdirpath("FILE_PATH"),
+    ICON_PATH: getdirpath("ICON_PATH, CONS_PATH, CCON_PATH, ICONS_PATH"),
+    get PUBLIC_PATH() { return PUBLIC_PATH },
+    set PUBLIC_PATH(v) {
+        PUBLIC_PATH = v;
+        for (var k in fixme) if (fixme[k] === 1) fixpath(k);
+    },
     EXPORT_TO: get("EXPORT_TO, TARGET"),
     EXPORT_AS: get("EXPORT_AS, EXPORT"),
     RELEASE: get("RELEASE", 0),
     PREFIX: get("PREFIX", ''),
-    POLYFILL: get("POLYFILL"),
-    SOURCEDIR: get("SOURCEDIR"),
+    POLYFILL: get("POLYFILL", false),
+    SOURCEDIR: get("SOURCEDIR", false),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),
-    DESTPATH: get("DESTPATH, DEST_PATH"),
+    DESTPATH: getdirpath("DESTPATH, DEST_PATH"),
     PUBLIC_NAME: get("PUBLIC_NAME", ''),
     IN_WATCH_MODE: get("IN_WATCH_MODE", false),
     ENCRYPT: get("ENCRYPT, CRYPT, ENCODE", true),
     COMPRESS: get("COMPRESS, PRESS, ENCRYPT, ENCODE", true),
     OPTIMIZE: get("OPTIMIZE", false),
-    RECORD: get("RECORD_PATH,RECORD"),
+    RECORD: getdirpath("RECORD_PATH,RECORD"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),
-    PFX_PATH: get("PFX_PATH, PATH.SSL_PFX"),
+    PFX_PATH: getdirpath("PFX_PATH, PATH.SSL_PFX"),
     PFX_PASSWORD: get("PFX_PASSWORD, SSL_PASSWORD, PASSWORD.SSL_PFX"),
-    PAGE: get("PAGE, APPS"),
-    COMM: get("COMM, COMS"),
-    AAPI: get("AAPI, APIS"),
-    IMAG: get("IMAG, IMGS"),
-    LIBS: get("LIBS, LIB"),
-    ICON: get("ICON, CCON, CONS, ICONS"),
+    PAGE: getdirpath("PAGE, APPS"),
+    COMM: getdirpath("COMM, COMS"),
+    AAPI: getdirpath("AAPI, APIS"),
+    IMAG: getdirpath("IMAG, IMGS"),
+    LIBS: getdirpath("LIBS, LIB"),
+    ICON: getdirpath("ICON, CCON, CONS, ICONS"),
 };
 Object.keys(fixme).forEach(fixpath);

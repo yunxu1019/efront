@@ -13,6 +13,9 @@ function main(efrontComponent, events) {
                 this.$emit(event.type, event);
             }
         },
+        created() {
+            this.$vnode.ns = "math";
+        },
         mounted() {
             events.forEach(e => {
                 on(e)(this.$el, this.emit);
