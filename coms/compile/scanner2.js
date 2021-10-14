@@ -284,7 +284,9 @@ var detour = function (o, ie) {
                 break;
             case EXPRESS:
                 if (!/^\.\.\.|\.\.\.$/.test(o.text)) {
+                    var ot = o.text;
                     o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => !ie || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
+                    if (/c.charCodeAt/.test(ot) && o.next && o.next.next) o.mark = true, console.log(o.start, o.next.next.text);
                 }
                 break;
             case QUOTED:
@@ -348,7 +350,7 @@ class Program extends Array {
                 var prev = o.prev;
                 if (~[QUOTED, SCOPED, STRAP].indexOf(lasttype)
                     || prev && prev.type === STAMP && !/(\+\+|\-\-|~|!)$/.test(prev.text) && prev.prev && prev.prev.type !== STAMP) {
-                    if (o.type !== EXPRESS || !/^\./.test(o.text)) {
+                    if (o.type !== SCOPED && (o.type !== EXPRESS || !/^\./.test(o.text))) {
                         result.push(" ");
                         lasttype = SPACE
                     }
@@ -378,7 +380,7 @@ class Program extends Array {
                         break;
                     }
                 case SCOPED:
-                    if (!this.pressed && o.entry !== "[" && (lasttype === STRAP || lasttype === SCOPED) && o.type !== QUOTED) result.push(" ");
+                    if (!this.pressed && (lasttype === STRAP || lasttype === SCOPED && o.entry === "{") && o.type !== QUOTED) result.push(" ");
                     result.push(o.entry);
                     if (o.length > 0) {
                         if (o.entry === "{" && result[0].type !== SPACE) {
