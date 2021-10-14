@@ -86,7 +86,7 @@ var isMaybeVisible = function (node) {
     if (style.overflow === "hidden") {
         if (node.offsetHeight === 0 || node.offsetWidth === 0) return;
     }
-    if (!overlap(node, node.offsetParent)) return;
+    if (node.offsetParent && !overlap(node, node.offsetParent)) return;
     return true;
 }
 var clonePseudo = function (node, pseudo) {
@@ -147,7 +147,7 @@ var cloneVisible = function (td) {
                 var copy = cloneCell(td);
                 result.appendChild(copy);
             } else {
-                var copy = document.createElement(td.tagName);
+                var copy = createElementFromNode(td);
                 copyStyle(style, copy.style);
                 result.appendChild(copy);
                 cloneChildren(td, copy, clone);
@@ -196,13 +196,20 @@ var cloneVisible = function (td) {
     return result;
 };
 
+var createElementFromNode = function (node) {
+    if (node.namespaceURI && !/html$/i.test(node.namespaceURI)) {
+        return document.createElementNS(node.namespaceURI, node.tagName);
+    }
+    return document.createElement(node.tagName);
+}
+
 function cloneCell(node, parentPosition) {
     if (!node || node.nodeType > 3 || node.nodeType === 2) return;
     var style = node.style;
     if (!style) return node.cloneNode();
     if (!isMaybeVisible(node)) return;
     style = getComputedStyle(node);
-    var clone = document.createElement(node.tagName);
+    var clone = createElementFromNode(node);
     var cloneStyle = clone.style;
     copyStyle(style, cloneStyle);
     var screenPosition = getScreenPosition(node);
