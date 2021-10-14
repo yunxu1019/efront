@@ -218,7 +218,7 @@ var rebuildData = function (responseTree) {
             }));
         };
         var response = responseTree[k];
-        if (!response.data) return;
+        if (!isEfrontCode(response)) return;
         var data = String(response.data);
 
         var { argNames, args, required, dependenceNamesOffset, strs, strend } = getArgs(data);
@@ -241,6 +241,12 @@ var rebuildData = function (responseTree) {
         response.data = arglen + argstr + data.slice(dependenceNamesOffset);
     });
 };
+var isEfrontCode = function (response) {
+    if (!response) return;
+    if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(response.name) || !response.data) return;
+    if (response.type === "@") return;
+    return true;
+}
 module.exports = function (responseTree) {
     rebuildData(responseTree);
     report(responseTree);
@@ -257,8 +263,7 @@ module.exports = function (responseTree) {
     if (setting.is_file_target) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
-            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data) return;
-            if (v.type === "@") return;
+            if (!isEfrontCode(v)) return;
             if (v.name !== "main") {
                 versionTree[v.name] = encrypt(v.data, encoded);
                 delete responseTree[k];
@@ -267,9 +272,7 @@ module.exports = function (responseTree) {
     } else {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
-            if (!v) return;
-            if (v.type === "@") return;
-            if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(v.name) || !v.data) return;
+            if (!isEfrontCode(v)) return;
             if (v.name !== "main") {
                 v.data = encrypt(v.data, encoded);
                 var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
