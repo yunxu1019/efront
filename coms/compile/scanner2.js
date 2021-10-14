@@ -286,7 +286,6 @@ var detour = function (o, ie) {
                 if (!/^\.\.\.|\.\.\.$/.test(o.text)) {
                     var ot = o.text;
                     o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => !ie || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
-                    if (/c.charCodeAt/.test(ot) && o.next && o.next.next) o.mark = true, console.log(o.start, o.next.next.text);
                 }
                 break;
             case QUOTED:
