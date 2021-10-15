@@ -3,9 +3,9 @@
 const MAX_FREQUENCY = 0XFFFF;
 class BitTree extends Array {
     counts = [];
-    length = 0;
     total = 0;
     constructor(arr, a) {
+        super();
         if (isFinite(arr)) {
             arr = new Array(arr);
             if (a === undefined) a = 1;
