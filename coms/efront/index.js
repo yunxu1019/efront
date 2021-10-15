@@ -279,7 +279,7 @@ var commands = {
     parse(address) {
         var opt = {
             method: 'options',
-            host: '::',
+            host: '127.0.0.1',
             rejectUnauthorized: false,
             allowHTTP1: true,
 

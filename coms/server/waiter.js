@@ -68,7 +68,7 @@ var requestListener = function (req, res) {
                 req.socket.remoteAddress ||
                 req.connection.socket.remoteAddress;
             if (option === version) res.setHeader("Powered-By", version);
-            else if (address !== '::1') {
+            else if (!/^(?:\:\:1?|(?:\:\:ffff\:)?127\.0\.0\.1)$/i.test(address)) {
             }
             else switch (option) {
                 case "quit":
