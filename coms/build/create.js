@@ -8,6 +8,13 @@ var {
     PAGE_PATH = "./apps",
     PUBLIC_PATH = "./public"
 } = memery;
+function getFirstPath(p) {
+    return p.split(/[,;]/)[0];
+}
+ENVS_PATH = getFirstPath(ENVS_PATH);
+COMS_PATH = getFirstPath(COMS_PATH);
+PAGE_PATH = getFirstPath(PAGE_PATH);
+PUBLIC_PATH = getFirstPath(PUBLIC_PATH);
 function mkdirIfNotExists(dirname) {
     if (!fs.existsSync(dirname))
         fs.mkdirSync(dirname);
