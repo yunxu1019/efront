@@ -297,6 +297,7 @@ function pack2(buff) {
     return pack0(buff, result);
 }
 module.exports = function (buff, type) {
+    type = 1;
     switch (type) {
         case 1:
             return pack(buff);
