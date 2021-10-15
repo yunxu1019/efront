@@ -154,6 +154,18 @@ module.exports = {
     set COMS_PATH(v) {
         COMS_PATH = v;
     },
+    get PROXY() {
+        return !noproxy;
+    },
+    set PROXY(v) {
+        noproxy = !v;
+    },
+    get NOPROXY() {
+        return noproxy;
+    },
+    set NOPROXY(v) {
+        noproxy = v;
+    },
     PAGE_PATH: getdirpath("PAGE_PATH, PAGES_PATH, APPS_PATH"),
     APIS_PATH: getdirpath("APIS_PATH, AAPI_PATH, APPS_PATH"),
     LIBS_PATH: getdirpath("LIBS_PATH, LIB_PATH"),
