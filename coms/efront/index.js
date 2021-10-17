@@ -326,7 +326,7 @@ var commands = {
                 quitme(function () {
                     req.removeAllListeners();
                     req.on("error", () => { });
-                    req.abort();
+                    req.destroy();
                 });
             }
             var data = [];
