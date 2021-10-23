@@ -15,6 +15,7 @@ var number_reg = /^[\+\-]?(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+
 var skipAssignment = function (o) {
     var needpunc = false;
     var o0 = o;
+    var qcount = 0;
     loop: while (o) switch (o.type) {
         case STAMP:
             switch (o.text) {
@@ -31,6 +32,17 @@ var skipAssignment = function (o) {
                 case "-":
                     o = o.next;
                     needpunc = false;
+                    break;
+                case "?":
+                    qcount++;
+                    needpunc = false;
+                    o = o.next;
+                    break;
+                case ":":
+                    qcount--;
+                    if (qcount < 0) break loop;
+                    needpunc = false;
+                    o = o.next;
                     break;
                 default:
                     if (/^[!~\+\-]+$/.test(o.text)) {
