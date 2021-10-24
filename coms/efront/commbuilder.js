@@ -568,7 +568,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)*(<!doctype\b|<script\b)/i.test(htmldata)) {
             var commHtmlName;
             if (/^main/.test(commName)) {
-                commHtmlName = 'Main';
+                commHtmlName = 'Main,template,template=Main';
             } else {
                 commHtmlName = commName[0].toUpperCase() + commName.slice(1);
                 if (commHtmlName !== commName) {
