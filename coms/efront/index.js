@@ -215,6 +215,7 @@ var helps = [
     "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
     "对json数据进行签名,sign JSON_PATH SIGNNAME",
     "根据模块的搜索路径查找真实路径,detect MODULE_PATH",
+    "-设置远程访问的密码,password",
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
 ];
@@ -524,7 +525,8 @@ var commands = {
     set(key, value) {
         setenv({ [key]: value });
     },
-    password() {
+    async password() {
+        await new Promise(ok => setTimeout(ok, require("../basic/isProduction") ? 0 : 360));
         require("./password").requestPassword();
     },
     record() {
