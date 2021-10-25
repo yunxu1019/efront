@@ -71,7 +71,7 @@ var createGetter = function (search, isprop = true) {
         });
     }
     if (isprop) {
-        return new Function('event', `try{${withContext}with(this.$scope){${ret}${searchContext}}}catch(e){/*console.warn(String(e))*/}`);
+        return new Function('event', `${withContext}with(this.$scope){${ret}${searchContext}}`);
     }
     return new Function("event", `${withContext}with(this.$scope){${/([\=\(\+\-])/.test(searchContext) ? ret + searchContext : `${ret}${searchContext}.call(this.$scope,event)`}}`);
 };
