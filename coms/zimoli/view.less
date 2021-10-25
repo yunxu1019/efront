@@ -19,7 +19,8 @@ body>& {
     position: absolute;
 }
 
-&>.body {
+&>.body,
+>[body] {
     padding: 6px 0;
     background: #f2f4f6;
     display: block;
@@ -42,7 +43,8 @@ body>& {
 }
 
 
-&>.head {
+&>.head,
+>[head] {
     z-index: 2;
     background: #fffc;
     position: relative;
@@ -83,12 +85,14 @@ body>& {
     }
 }
 
-&>.foot {
+&>.foot,
+>[foot] {
     white-space: nowrap;
     overflow: auto;
 }
 
-&>.foot {
+&>.foot,
+>[foot] {
     z-index: 1;
     text-align: right;
     line-height: 1;
