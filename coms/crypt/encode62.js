@@ -90,24 +90,8 @@ Object.assign(encode62, {
         y.split("").forEach((a, j) => y_map[a] = j);
         return z.split("").map(c => src[y_map[c]]).join("");
     },
-    ab2c(a, b) {
-        return this.huan(a, b);
-    },
-    ba2d(a, b) {
-        return this.huan(b, a);
-    },
-    ca2b(c, a) {
-        return this.yuan(c, a);
-    },
-    cb2a(c, b) {
-        return this.suan(c, b);
-    },
-    da2b(d, a) {
-        return this.suan(d, a);
-    },
-    db2a(d, b) {
-        return this.yuan(d, b);
-    }
 });
-
+encode62.ab2c = encode62.ba2d = encode62.huan;
+encode62.db2a = encode62.ca2b = encode62.yuan;
+encode62.da2b = encode62.cb2a = encode62.suan;
 encode62.decode62 = encode62.encode62;

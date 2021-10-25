@@ -32,7 +32,8 @@ describe("encode62_test", function () {
         c = encode62.ab2c(a, b);
     });
     it("ba2d", function () {
-        d = encode62.ba2d(a, b);
+        // 注意，参数顺序已变更
+        d = encode62.ba2d(b, a);
     });
     it("ca2b", function () {
         expect(encode62.ca2b(c, a)).to.be.eq(b);
