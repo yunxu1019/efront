@@ -346,9 +346,6 @@ var structures = {
 };
 structures["else-if"] = structures.elseif = structures.else;
 structures["for-each"] = structures.foreach = structures.for = structures.each = structures.repeat;
-var changed = function () {
-    if (!this.dirty) this.dirty = true, this.setAttribute('dirty', '');
-};
 var directives = {
     src(search) {
         var getter = createGetter(search).bind(this);
@@ -462,7 +459,6 @@ var directives = {
         }
         var onchange = change;
         eventsHandlers.map(on => on(this, onchange));
-        eventsHandlers.map(on => on(this, changed));
     },
     hide(search) {
         var getter = createGetter(search).bind(this);
