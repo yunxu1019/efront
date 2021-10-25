@@ -346,10 +346,42 @@ var structures = {
 };
 structures["else-if"] = structures.elseif = structures.else;
 structures["for-each"] = structures.foreach = structures.for = structures.each = structures.repeat;
+var createBinder = function (binder) {
+    return function (search) {
+        var getter = createGetter(search).bind(this);
+        var oldValue;
+        this.renders.push(function () {
+            var value = getter();
+            if (deepEqual.shallow(value, oldValue)) return;
+            oldValue = value;
+            if (isNode(value) || isArray(value)) {
+                if (value !== this.firstChild) {
+                    remove(this.childNodes);
+                    appendChild(this, value);
+                }
+            } else {
+                if (isEmpty(value)) value = '';
+                if (binder(this) !== value) binder(this, value);
+            }
+        });
+
+    }
+}
 var directives = {
+    bind: createBinder(text),
+    html: createBinder(html),
+    hide: createBinder(function (elem, value) {
+        if (arguments.length === 1) return elem.style.display === 'none';
+        elem.style.display = value ? 'none' : '';
+    }),
+    show: createBinder(function (elem, value) {
+        if (arguments.length === 1) return elem.style.display !== 'none';
+        elem.style.display = value ? '' : 'none';
+    }),
+    style: createBinder(css),
     src(search) {
         var getter = createGetter(search).bind(this);
-        var savedValue, savedOrigin, pending;
+        var savedValue, pending;
         var refresh = function () {
             that.src = savedValue;
             removeClass(that, "pending");
@@ -369,10 +401,8 @@ var directives = {
             }
             var changes = getChanges(temp, savedValue);
             if (!changes) return;
-            savedOrigin = origin;
             savedValue = temp;
             if (/^img$/i.test(this.tagName)) {
-                // this.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=");
                 if (!isString(origin)) {
                     return;
                 }
@@ -388,23 +418,6 @@ var directives = {
             } else {
                 this.src = origin;
                 cast(this, origin);
-            }
-        });
-    },
-    bind(search) {
-        var getter = createGetter(search).bind(this);
-        var oldValue;
-        this.renders.push(function () {
-            var value = getter();
-            if (deepEqual(value, oldValue)) return;
-            oldValue = value;
-            if (isNode(value) || isArray(value)) {
-                if (value !== this.firstChild) {
-                    remove(this.childNodes);
-                    appendChild(this, value);
-                }
-            } else {
-                if (text(this) !== value) text(this, value);
             }
         });
     },
@@ -460,34 +473,6 @@ var directives = {
         var onchange = change;
         eventsHandlers.map(on => on(this, onchange));
     },
-    hide(search) {
-        var getter = createGetter(search).bind(this);
-        var oldValue;
-        this.renders.push(function () {
-            var value = !!getter();
-            if (deepEqual(oldValue, value)) return;
-            oldValue = value;
-            if (value) {
-                this.style.display = "none";
-            } else {
-                this.style.display = "";
-            }
-        });
-    },
-    show(search) {
-        var getter = createGetter(search).bind(this);
-        var oldValue;
-        this.renders.push(function () {
-            var value = !!getter();
-            if (deepEqual(oldValue, value)) return;
-            oldValue = value;
-            if (value) {
-                this.style.display = "";
-            } else {
-                this.style.display = "none";
-            }
-        });
-    },
 
     "class"(search) {
         var getter = createGetter(search).bind(this);
@@ -524,16 +509,6 @@ var directives = {
             }
         });
     },
-    style(search) {
-        var getter = createGetter(search).bind(this);
-        var oldValue;
-        this.renders.push(function () {
-            var stylesheet = getter();
-            if (deepEqual(oldValue, stylesheet)) return;
-            oldValue = stylesheet;
-            css(this, stylesheet);
-        });
-    }
 };
 // property binder
 var binders = {
