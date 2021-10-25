@@ -12,14 +12,16 @@ function main(elem) {
             field: f
         });
         elem.oldValue = data[f.key];
+        elem.setAttribute("field", f.key);
     }, false);
-
+    elem.setAttribute("field", '');
     elem.renders = [function () {
         if (!this.src) return;
         var [f, data] = this.src;
         if (!f || !data) return;
         var v = data[f.key];
-        if (v === this.oldValue || isEmpty(this.oldValue) && isEmpty(v)) return;
+        if (!this.checked) if (v === this.oldValue || isEmpty(this.oldValue) && isEmpty(v)) return;
+        this.checked = false;
         this.setAttribute("dirty", '');
         var error = valid(f, data);
         if (error) {
