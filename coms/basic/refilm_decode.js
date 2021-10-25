@@ -260,8 +260,16 @@ function parse(piece) {
     }
     var [name, type, options] = piece, key, repeat;
     if (piece.length === 1 && isObject(name)) {
-        var { name, needs, type, key, size, unit, endwith, ratio, value, repeat, comment, options } = name;
+        var { name, needs, required, checks, type, key, size, unit, endwith, ratio, value, repeat, comment, options } = name;
     } else {
+        var is_require = a => {
+            if (/^\*|\*$/.test(a)) {
+                required = true;
+                return a.replace(/^\*|\*$/, '');
+            }
+            return a;
+        };
+        type = is_require(type);
         if (typeof name === 'string') {
             if (!isContainer) {
                 if (!type) {
@@ -362,14 +370,17 @@ function parse(piece) {
             type = type.slice(1);
         }
         if (typeof options === "string") {
+            options = is_require(options);
             var needUnfold = /^\[|\]$/.test(options);
             options = options.replace(/^\[|\]$/g, '');
             if (/,/.test(options)) options = scanSlant(options, ',');
             else options = scanSlant(options, "");
             if (needUnfold) unfoldOptions(size, options);
         }
+        name = is_require(name);
+        key = is_require(key);
     }
-    var field = { name, needs, type, key, size, unit, endwith, ratio, value, repeat, comment, options };
+    var field = { name, checks, required, needs, type, key, size, unit, endwith, ratio, value, repeat, comment, options };
     var parent = piecepath[piecepath.length - 1];
     if (parent) {
         field.parent = parent;
