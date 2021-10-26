@@ -51,7 +51,7 @@ var doFile = require("./doFile");
 var doProxy = require("./doProxy");
 var ppid = process.ppid;
 var version = 'efront/' + ppid;
-var requestListener = function (req, res) {
+var requestListener = async function (req, res) {
     req.protocol = this === server1 ? 'http:' : 'https:';
     var req_access_origin = req.headers["origin"];
     var req_access_headers = req.headers["access-control-request-headers"];
@@ -76,10 +76,28 @@ var requestListener = function (req, res) {
                     let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
                     process.send('quit');
                     res.end(`已关闭${ports.join("、")}端口`);
-                    break efront;
+                    return;
             }
+            res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
             var type = /^(\w+)([\/\w\-]+)?(\?[\s\S]*)?$/.exec(option);
-            if (type) switch (type[1]) {
+            if (type && await require("./checkAuth")(req.headers.authorization)) {
+                switch (type[1]) {
+                    case "clear":
+                        doGet.reset();
+                        res.write("清理完成")
+                        break;
+                }
+            }
+            else if (type) switch (type[1]) {
+                case "login":
+                    var a = type[2] || '';
+                    return require("./login")(a.slice(1)).then(b => {
+                        if (!b) throw "密码不正确！";
+                        res.end(b);
+                    }).catch(e => {
+                        res.writeHead(403);
+                        res.end(String(e));
+                    });
                 case "link":
                     var id = clients.create().id;
                     res.write(String(id));

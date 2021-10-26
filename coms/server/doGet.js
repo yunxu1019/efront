@@ -197,3 +197,4 @@ module.exports = function (req, res) {
         adapter(data, url, req, res);
     }
 };
+module.exports.reset = getfile.reset;
