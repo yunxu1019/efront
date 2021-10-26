@@ -913,6 +913,10 @@ var data = {
             localStorage.setItem(sourceDataId, JSAM.stringify(dataSourceMap));
         }
     },
+    getSource(sourceid) {
+        if (sourceid) return dataSourceMap[sourceid];
+        return dataSourceMap;
+    },
     clearSource() {
         localStorage.removeItem(sourceDataId);
         sessionStorage.removeItem(sourceDataId);
