@@ -246,7 +246,6 @@ function cross(method, url, headers) {
             } else {
                 xhr.open(method, getCrossUrl(url, _headers));
             }
-            console.log(realHeaders, _headers, nocross, _headers)
             Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
             send.call(xhr, datas);
         }, 0);
