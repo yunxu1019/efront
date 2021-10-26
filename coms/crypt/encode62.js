@@ -7,7 +7,7 @@ src.split("").forEach((s, i) => map[s] = i);
 function encode62(string) {
     string = String(string)
     string = string.length + string + "2017-08-19";
-    var buff = Buffer.from(src);
+    var buff = src.split('');
     for (var cx = 0, dx = buff.length + src.length, sl = string.length, cl = buff.length; cx < dx; cx++) {
         var s1 = string.charCodeAt(cx % sl) % cl;
         var s2 = cx % cl;
@@ -15,7 +15,7 @@ function encode62(string) {
         buff[s1] = buff[s2];
         buff[s2] = btemp;
     }
-    return buff.toString();
+    return buff.join('');
 };
 
 
@@ -40,7 +40,7 @@ Object.assign(encode62, {
         var time_rest = time_stamp % time_delta;
         var time_rest_str = time_rest.toString(36);
         var time_delta_str = time_delta.toString(36);
-        return this.encode(string, time_stamp.toString(36)) + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
+        return this.encode62(string, time_stamp.toString(36)) + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
     },
     timeupdate(string) {
         var { time_delta } = this;
@@ -65,15 +65,6 @@ Object.assign(encode62, {
             if (s >= src.length) return w;
             return src[s];
         });
-        return result;
-    },
-    encode(data, sign) {
-        if (!sign) return data;
-        var result = Buffer.from(data);
-        sign = Buffer.from(sign);
-        for (var cx = 0, dx = data.length; cx < dx; cx++) {
-            result[cx] = result[cx] ^ sign[cx % sign.length];
-        }
         return result;
     },
     decode(data, sign) {
@@ -108,4 +99,5 @@ Object.assign(encode62, {
 encode62.ab2c = encode62.ba2d = encode62.huan;
 encode62.db2a = encode62.ca2b = encode62.yuan;
 encode62.da2b = encode62.cb2a = encode62.suan;
+encode62.encode = encode62.decode;
 encode62.decode62 = encode62.encode62;

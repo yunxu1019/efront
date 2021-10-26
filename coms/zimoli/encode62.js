@@ -5,6 +5,19 @@ var encode62 = {
     src,
     map,
     time_delta: parseInt("zzzzz", 36),
+    geta(string) {
+        string = String(string)
+        string = string.length + string + "2017-08-19";
+        var buff = src.split('');
+        for (var cx = 0, dx = buff.length + src.length, sl = string.length, cl = buff.length; cx < dx; cx++) {
+            var s1 = string.charCodeAt(cx % sl) % cl;
+            var s2 = cx % cl;
+            var btemp = buff[s1];
+            buff[s1] = buff[s2];
+            buff[s2] = btemp;
+        }
+        return buff.join('');
+    },
     timedecode(string) {
         var { time_delta } = this;
         var time_rest = string.slice(string.length - time_delta.toString(36).length, string.length);
