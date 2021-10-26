@@ -1,9 +1,13 @@
 var styles = {
-    log: "#2a53cd",
-    info: "#228B22",
-    warn: "#dd6a16",
-    error: "#dc352e"
+    blue: "#2a53cd",
+    green: "#228B22",
+    orange: "#dd6a16",
+    red: "#dc352e"
 };
+styles.success = styles.pass = styles.green;
+styles.info = styles.blue;
+styles.error = styles.danger = styles.red;
+styles.warn = styles.orange;
 var alerts = [];
 var clean = Cleanup(alerts);
 var build = function () {
