@@ -246,6 +246,7 @@ function cross(method, url, headers) {
             } else {
                 xhr.open(method, getCrossUrl(url, _headers));
             }
+            console.log(realHeaders, _headers, nocross, _headers)
             Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
             send.call(xhr, datas);
         }, 0);
@@ -323,7 +324,7 @@ function addDirect(a) {
     if (typeof a === 'string' || a instanceof RegExp) cors_hosts.push(a);
 }
 function notCross(domain) {
-    if (location_host === domain.slice(0, location_host.length)) return true;
+    if (location_host === domain.slice(0, location_host.length) || !/^https?\:\/\/|^s?\/\//.test(domain)) return true;
     for (var cx = 0, dx = cors_hosts.length; cx < dx; cx++) {
         var host = cors_hosts[cx];
         if (host instanceof RegExp) {
