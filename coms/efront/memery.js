@@ -199,5 +199,6 @@ module.exports = {
     IMAG: getdirpath("IMAG, IMGS"),
     LIBS: getdirpath("LIBS, LIB"),
     ICON: getdirpath("ICON, CCON, CONS, ICONS"),
+    FORCE: get("FORCE", false),
 };
 Object.keys(fixme).forEach(fixpath);

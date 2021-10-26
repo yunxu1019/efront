@@ -87,11 +87,15 @@ async function setPassword(p) {
     await setItem('password-c', c);
     await setItem('password-d', d);
 }
+async function hasPassword(p) {
+    return !!await getItem("password-c");
+}
 module.exports = {
     save,
     load,
     setItem,
     getItem,
+    hasPassword,
     setPassword,
     checkPassword,
 }
