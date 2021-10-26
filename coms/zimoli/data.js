@@ -269,9 +269,9 @@ function parseConfig(api) {
         });
         return '';
     });
-    url.replace(/[\?\#][\s\S]*$/, '').replace(/\:\w+/g, function (p) {
+    url.replace(/[\?\#][\s\S]*$/, '').replace(/([\:\\]\:|\:\w+)/g, function (p) {
         p = p.slice(1);
-        if (!required[p]) {
+        if (!required[p] && p !== ':') {
             required.push(p);
             required[p] = p;
         }
@@ -495,8 +495,9 @@ var privates = {
         var coinmethod = method.slice(0, spliterIndex).toLowerCase();
         var realmethod = coinmethod.replace(/\W+$/g, '');
         var rest = [];
-        var uri = url.replace(/#[\s\S]*$/, "").replace(/\:[a-z\_][\w]*/gi, function (d) {
+        var uri = url.replace(/#[\s\S]*$/, "").replace(/[\\\:]\:|\:[a-z\_][\w]*/gi, function (d) {
             d = d.slice(1);
+            if (d === ":") return d;
             rest.push(d);
             return seekResponse(params, d) || '';
         });
