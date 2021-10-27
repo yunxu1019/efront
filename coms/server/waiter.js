@@ -80,7 +80,8 @@ var requestListener = async function (req, res) {
             }
             res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
             var type = /^(\w+)([\/\w\-]+)?(\?[\s\S]*)?$/.exec(option);
-            if (type && await require("./checkAuth")(req.headers.authorization)) {
+            var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+            if (type && await require("./checkAuth")(req.headers.authorization, remoteAddress)) {
                 switch (type[1]) {
                     case "clear":
                         doGet.reset();
@@ -91,7 +92,7 @@ var requestListener = async function (req, res) {
             else if (type) switch (type[1]) {
                 case "login":
                     var a = type[2] || '';
-                    return require("./login")(a.slice(1)).then(b => {
+                    return require("./login")(a.slice(1), remoteAddress).then(b => {
                         if (!b) throw "密码不正确！";
                         res.end(b);
                     }).catch(e => {

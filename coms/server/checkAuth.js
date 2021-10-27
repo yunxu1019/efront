@@ -1,8 +1,10 @@
 var userdata = require("../efront/userdata");
 var encode62 = require("../crypt/encode62");
-module.exports = function (b) {
-    if (!b) return false;
-    b = b.replace(/^[\w]*\s+/, '');
-    b = encode62.timedecode(b);
+module.exports = function (c, sign) {
+    if (!c) return false;
+    c = encode62.timedecode(c);
+    var a = encode62.geta(sign);
+    c = c.replace(/^[\w]*\s+/, '');
+    var b = encode62.ca2b(c, a)
     return userdata.checkPasswordB(b);
 }
