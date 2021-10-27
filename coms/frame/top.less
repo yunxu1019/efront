@@ -1,12 +1,10 @@
-@import "../config.less";
-
 & {
     // background-color    : #fff;
     user-select: none;
     position: relative;
     z-index: 1;
-    line-height: 44px;
-    height: 44px;
+    padding: 4px 0;
+    line-height: 0;
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
     background: rgba(255, 255, 255, .7);
@@ -87,6 +85,7 @@
         line-height: 24px;
         text-align: center;
         color: #666;
+        z-index: 2;
 
         &:hover {
             color: #f24;
@@ -102,17 +101,17 @@
         border-radius: 10px;
     }
 
-    &:nth-child(2)>span {
-        background-color: @primary-dot-color;
-    }
+    // &:nth-child(2)>span {
+    //     background-color: @primary-dot-color;
+    // }
 
-    &:nth-child(3)>span {
-        background-color: @extra-dot-color1;
-    }
+    // &:nth-child(3)>span {
+    //     background-color: @extra-dot-color1;
+    // }
 
-    &:nth-child(4)>span {
-        background-color: @extra-dot-color2;
-    }
+    // &:nth-child(4)>span {
+    //     background-color: @extra-dot-color2;
+    // }
 }
 
 .option-items {
