@@ -150,7 +150,7 @@ var trimNodeEnvHead = function (data) {
     data = String(data || "").replace(/^\s*\#\!/, '//');
     return data;
 };
-var loadJsBody = function (data, filename, lessdata, commName, className) {
+var loadJsBody = function (data, filename, lessdata, commName, className, htmlData) {
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
@@ -163,6 +163,25 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
         envs: undeclares
     } = code;
     var globalsmap = {};
+    var templateName;
+    if (htmlData) {
+        if (undeclares.template) {
+            templateName = 'template';
+        }
+        else if (undeclares.main) {
+            templateName = "main";
+        }
+        else if (undeclares.Main) {
+            templateName = "Main";
+        }
+        else if (undeclares.MAIN) {
+            templateName = "MAIN";
+        }
+        else if (undeclares[commName]) {
+            templateName = commName;
+        }
+    }
+
     if (commName) {
         //如果声明了main方法或main对象，默认用main作为返回值
         if (declares.main) {
@@ -272,6 +291,30 @@ var loadJsBody = function (data, filename, lessdata, commName, className) {
                 console.info(`没有导出变量 文件：<gray>${shortpath(filename)}</gray>\r\n`);
             }
         }
+    }
+    if (templateName) {
+        var template = scanner2(`var ${templateName}=${htmlData};`);
+        var { envs, vars, used } = template;
+        Object.assign(declares, vars);
+        for (var k in vars) {
+            delete undeclares[k];
+        }
+        for (var k in envs) {
+            if (k in declares);
+            else {
+                undeclares[k] = true;
+            }
+        }
+        for (var k in used) {
+            if (!allVariables[k]) allVariables[k] = [];
+            for (var u of used[k]) {
+                allVariables[k].unshift(u);
+            }
+        }
+        for (var k in declares) {
+            if (!allVariables[k]) allVariables[k] = used[k];
+        }
+        code_body.unshift.apply(code_body, template);
     }
     code_body.unshift.apply(code_body, prepareCodeBody);
     if (!isDevelop || commbuilder.compress === false) {
@@ -498,7 +541,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         function fire() {
             var timeStart = new Date;
             if (htmlData) {
-                jsData = `var template=\`${htmlData.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&")}\`;\r\n` + jsData;
+                jsData = `var template=\`${htmlData.replace(/>\s+</g, "><").replace(/\\[\s\S]/g, "\\$&")}\`;\r\n` + jsData;
                 if (lessData) {
                     jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
                 }
@@ -529,7 +572,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
 function getHtmlPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     let lesspath = fullpath.replace(/\.html?$/i, ".less");
-    var jsData = "`" + data.replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
+    var jsData = "`" + data.replace(/>\s+</g, "><").replace(/\\[\s\S]/g, "\\$&") + "`";
     var lessData;
     var time = 0;
     var promise = getFileData(lesspath).then(function (lessdata) {
@@ -561,7 +604,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
             if (htmldata && !htmldata.length) htmldata = "<!-- efront template -->";
             return renderImageUrl(htmldata, htmlpath);
         });
-    var jsData, lessData;
+    var jsData, lessData, htmlData;
     var time = 0;
     var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(function ([lessdata, htmldata, data]) {
         var timeStart = new Date;
@@ -575,17 +618,12 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
                     commHtmlName = `${commName},${commHtmlName},template,template=${commHtmlName}=${commName}`;
                 }
             }
-            htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/(?<=[^\\]|^)\\['"]/g, "\\$&") + "`";
+            htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/\\[\s\S]/g, "\\$&") + "`";
             htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+</g, "<").replace(/<\!\-\-.*?\-\-\>/g, "");
-            if (data) {
-                jsData = `\r\nvar ${commHtmlName}={toString:()=>${htmldata}};\r\n` + data;
-            } else {
-                jsData = htmldata;
-            }
+            htmlData = htmldata;
             watchurls.push(htmlpath);
-        } else {
-            jsData = String(data);
         }
+        jsData = String(data);
         if (lessdata instanceof Buffer) {
             var lessPromise = renderLessData(lessdata, lesspath, watchurls, lessName);
             lessPromise.then(data => {
@@ -597,7 +635,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         time += new Date - timeStart;
     }).then(function () {
         var timeStart = new Date;
-        var data = loadJsBody(jsData, fullpath, lessData, commName, className);
+        var data = loadJsBody(jsData, fullpath, lessData, commName, className, htmlData);
         time += new Date - timeStart;
         promise.time = time;
         console.drop();
