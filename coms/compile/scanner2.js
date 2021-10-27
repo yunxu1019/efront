@@ -315,7 +315,7 @@ var detour = function (o, ie) {
 class Program extends Array {
     COMMENT = COMMENT
     SPACE = SPACE
-    STAMP = STRAP
+    STRAP = STRAP
     STAMP = STAMP
     VALUE = VALUE
     QUOTED = QUOTED
