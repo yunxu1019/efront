@@ -101,6 +101,14 @@ function main(elem, mode) {
         // }
         // elem.setAttribute('browser', os);
         var mode = elem.getAttribute('mode') || elem.getAttribute('type');
+        if (!mode) {
+            if (/^[xyhvtci]/i.test(elem.tagName)) {
+                mode = elem.tagName.slice(0, 1);
+            }
+            else if (/[xyhvtci]$/i.test(elem.tagName)) {
+                mode = elem.tagName.slice(0, 1);
+            }
+        }
         mode = mode ? mode.toLowerCase() : "horizonal";
         var src = elem.getAttribute("src") || elem.getAttribute("ng-src") || elem.getAttribute("v-src");
         if (src) {
@@ -133,12 +141,14 @@ function main(elem, mode) {
                     });
                     elem.renders.push(function () {
                         var src = this.src;
+                        var hasIcon = false;
                         for (var cx = 0, dx = src; cx < dx; cx++) {
                             if (src[cx].icon) {
+                                hasIcon = true;
                                 break;
                             }
                         }
-                        elem.useIcon = true;
+                        elem.useIcon = hasIcon;
                     });
                 } else {
                     var nodes = getTreeNodes(elem);
