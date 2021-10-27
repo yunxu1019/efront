@@ -4,7 +4,6 @@ function main(elem) {
     }
     if (!/^img$/i.test(elem.tagName)) {
         care(elem, function (src) {
-            console.log(elem);
             css(elem, { backgroundImage: `url('${src}')` });
         })
     }
