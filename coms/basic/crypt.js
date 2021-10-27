@@ -58,6 +58,6 @@ module.exports = {
     checksign: function (data, mask) {
         var sign = data.sign;
         delete data.sign;
-        return sign = signonly(data, mask);
+        return sign === signonly(data, mask);
     }
 };
