@@ -172,8 +172,9 @@
         result.load(result.active);
         return result;
     };
-    result.fetch = async function (url) {
-        result.update(await data.from(url).loading_promise);
+    result.fetch = function (url) {
+        data.from(url).loading_promise.then(result.update);
+        return result;
     };
     if (items.length) result.update(items);
 
