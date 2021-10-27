@@ -1,4 +1,4 @@
-(document.body.hasAttribute("config-path") ? data.fromURL(document.body.getAttribute('config-path') || 'config/menus.json').loading_promise : Promise.resolve([])).then(function (items) {
+(document.body.hasAttribute('menu-path') || document.body.hasAttribute("menu") || document.body.hasAttribute("config-path") ? data.fromURL(document.body.getAttribute('menu-path') || document.body.getAttribute('menu') || document.body.getAttribute('config-path') || 'menu.yml').loading_promise : Promise.resolve([])).then(function (items) {
     var result = [];
     var menuid = 0;
     var savedChildren = Object.create(null);
@@ -9,6 +9,9 @@
         }
         if (!savedMenus[menu.id]) {
             savedMenus[menu.id] = menu;
+        }
+        if (!menu.name) {
+            menu.name = Object.keys(menu)[0];
         }
         if (!(menu.id in savedChildren)) {
             savedChildren[menu.id] = menu.children;
@@ -28,8 +31,46 @@
             }
         }
     };
-    items.map(getChildren);
-    result.update = function () {
+    var parseMenuList = function (items) {
+        if (items instanceof Array) {
+            console.log(items)
+            return items;
+        }
+        if (items instanceof Object) {
+            var keys = Object.keys(items);
+            items = keys.map(k => {
+                var c = items[k];
+                var item = {};
+                if (c instanceof Object) {
+                    item.children = parseMenuList(c);
+                }
+                else if (typeof c === 'string') {
+                    var [path, data] = c.split(/\?/);
+                }
+                var [icon] = k.split(/\s+/);
+                if (icon.length < k.length) {
+                    item.icon = icon;
+                    var name = k.slice(icon.length).trim();
+                } else name = k;
+                if (/,/.test(name)) {
+                    var [name, ...roles] = name.split(',');
+                }
+                item.name = name;
+                if (roles) item.roles = roles;
+                if (path) item.path = path;
+                if (data) item.params = parseKV(data);
+                if (/,/.test(name)) {
+
+                }
+                return item;
+            });
+            return items;
+        }
+        return [];
+    };
+    result.update = function (items) {
+        items = parseMenuList(items);
+        items.map(getChildren);
         var opened = data.getInstance("menu-opened");
         var historys = zimoli.getCurrentHistory();
         var map = {}, mmap = {};
@@ -62,6 +103,7 @@
                 result.open(result[0]);
             }
         }
+        return result;
     };
     var setActive = function (p, active) {
         while (p) {
@@ -71,6 +113,7 @@
     };
     result.load = function (menu) {
         zimoli.go(menu);
+        return result;
     };
     on("zimoli")(window, function (event) {
         var { zimoli } = event;
@@ -127,8 +170,12 @@
     };
     result.reload = function () {
         result.load(result.active);
+        return result;
     };
-    result.update();
+    result.fetch = async function (url) {
+        result.update(await data.from(url).loading_promise);
+    };
+    if (items.length) result.update(items);
 
     return result;
 });
