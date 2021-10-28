@@ -6,5 +6,6 @@ module.exports = async function (a, sign) {
     if (!b) return;
     var a1 = encode62.geta(sign);
     var c = encode62.ab2c(a1, b);
+    c = userdata.sign(c);
     return encode62.timeencode(c);
 };
