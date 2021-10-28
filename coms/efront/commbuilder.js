@@ -168,6 +168,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         if (undeclares.template) {
             templateName = 'template';
         }
+        else if (undeclares[commName]) {
+            templateName = commName;
+        }
         else if (undeclares.main) {
             templateName = "main";
         }
@@ -177,8 +180,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         else if (undeclares.MAIN) {
             templateName = "MAIN";
         }
-        else if (undeclares[commName]) {
-            templateName = commName;
+        else {
+            var commHtmlName = commName[0].toUpperCase() + commName.slice(1);
+            if (undeclares[commHtmlName]) templateName = commHtmlName;
         }
     }
 
@@ -293,7 +297,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
     }
     if (templateName) {
-        var template = scanner2(`var ${templateName}=${htmlData};`);
+        var template = scanner2(`var ${templateName}=${htmlData};\r\n`);
         var { envs, vars, used } = template;
         Object.assign(declares, vars);
         for (var k in vars) {
@@ -541,7 +545,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         function fire() {
             var timeStart = new Date;
             if (htmlData) {
-                jsData = `var template=\`${htmlData.replace(/>\s+</g, "><").replace(/\\[\s\S]/g, "\\$&")}\`;\r\n` + jsData;
+                jsData = `var template=\`${htmlData.replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&")}\`;\r\n` + jsData;
                 if (lessData) {
                     jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
                 }
@@ -572,7 +576,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
 function getHtmlPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     let lesspath = fullpath.replace(/\.html?$/i, ".less");
-    var jsData = "`" + data.replace(/>\s+</g, "><").replace(/\\[\s\S]/g, "\\$&") + "`";
+    var jsData = "`" + data.replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&") + "`";
     var lessData;
     var time = 0;
     var promise = getFileData(lesspath).then(function (lessdata) {
@@ -609,16 +613,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(function ([lessdata, htmldata, data]) {
         var timeStart = new Date;
         if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)*(<!doctype\b|<script\b)/i.test(htmldata)) {
-            var commHtmlName;
-            if (/^main/.test(commName)) {
-                commHtmlName = 'Main,template,template=Main';
-            } else {
-                commHtmlName = commName[0].toUpperCase() + commName.slice(1);
-                if (commHtmlName !== commName) {
-                    commHtmlName = `${commName},${commHtmlName},template,template=${commHtmlName}=${commName}`;
-                }
-            }
-            htmldata = "`" + String(htmldata).replace(/>\s+</g, "><").replace(/\\[\s\S]/g, "\\$&") + "`";
+            htmldata = "{toString:()=>`" + String(htmldata).replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&") + "`}";
             htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+</g, "<").replace(/<\!\-\-.*?\-\-\>/g, "");
             htmlData = htmldata;
             watchurls.push(htmlpath);
