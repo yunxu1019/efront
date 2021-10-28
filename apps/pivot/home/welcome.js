@@ -15,8 +15,10 @@ function main() {
         },
         logout() {
             data.setSource('authorization', null);
-            go('/auth/login');
+            user.logout();
+            location.reload();
         }
     });
+    console.log(page)
     return page;
 }

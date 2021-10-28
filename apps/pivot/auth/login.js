@@ -20,7 +20,8 @@ function main() {
             }).loading_promise;
             info = encode62.timeupdate(info);
             data.setSource({ authorization: info });
-            go('/home/main')
+            user.login({})
+            go('/main')
         } catch {
         }
         this.$scope.pending = false;
