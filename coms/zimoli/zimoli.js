@@ -418,7 +418,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
 }
 var global = {};
 var history = {};
-var current_history, default_history = current_history = "zimoli";
+var current_history, default_history = current_history = "";
 history[current_history] = [];
 var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
