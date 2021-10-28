@@ -58,7 +58,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
             if (currentHash && currentHash === targetHash) return;
             var targetHashIndex = targetHash.indexOf("#" + current_history);
             if (targetHashIndex < 0) return;
-            var targetpath = targetHash.slice(targetHashIndex + current_history.length + 1);
+            var targetpath = targetHash.slice(targetHashIndex + current_history.length);
             go(targetpath);
             return;
         }
@@ -110,7 +110,7 @@ var setZimoliParams = function (pagepath, args) {
 };
 var fullfill_is_dispatched = 0;
 function go(pagepath, args, history_name, oldpagepath) {
-    if (!history_name)
+    if (history_name === undefined)
         history_name = current_history;
     if (isNumber(pagepath)) {
         if (isString(history_name)) {
@@ -297,7 +297,7 @@ function prepare(pgpath, ok) {
         // rolesA中的role1,role2,...等所有身份都必须具备才可以确定一种访问权限
         // 符合rolesA,rolesB,rolesC任意一种权限都可以访问
         if (!roles) roles = [];
-        for (var cx = 0, dx = arguments.length; cx < dx; cx++) {
+        if (arguments.length) for (var cx = 0, dx = arguments.length; cx < dx; cx++) {
             roles.push(arguments[cx]);
         }
     };
@@ -408,6 +408,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         args = data;
         oldpagepath = from;
     }
+
     if (page_generators[pagepath]) return go(pagepath, args, history_name, oldpagepath);
     return prepare(pagepath, function () {
         if (isNode(history_name)) {
@@ -428,7 +429,7 @@ try {
 var root_path;
 var pushstate = function (path_name, history_name, oldpagepath) {
     var isDestroy = false;
-    if (!history_name) {
+    if (history_name === undefined) {
         history_name = current_history;
     }
     if (!isString(history_name)) return;
@@ -454,7 +455,7 @@ var pushstate = function (path_name, history_name, oldpagepath) {
     return isDestroy;
 };
 var popstate = function (path_name, history_name) {
-    if (!history_name) history_name = current_history;
+    if (history_name === undefined) history_name = current_history;
     if (!isString(history_name)) return;
     if (!history[history_name]) return;
     var _history = history[history_name];
@@ -467,11 +468,12 @@ var popstate = function (path_name, history_name) {
 };
 var getCurrentHash = function () {
     var _historylist = history[current_history];
+    var history_name = current_history.replace(/\/$/, '');
     if (rootElements.length) {
-        return `#${current_history}/`;
+        return `#${history_name}/`;
     }
     if (_historylist.length < 2) return "";
-    var targeturl = `#${current_history}${_historylist.length ? _historylist[_historylist.length - 1] : ""}`;
+    var targeturl = `#${history_name}${_historylist.length ? _historylist[_historylist.length - 1] : ""}`;
     return targeturl;
 };
 
@@ -575,7 +577,7 @@ function addGlobal(element, name = null, isDestroy) {
 }
 var _switch = zimoli.switch = function (history_name = default_history, target_body = document.body, emptyState) {
     if (isString(history_name))
-        current_history = history_name;
+        current_history = history_name = history_name.replace(/\/$/, '') + "/";
     if (target_body)
         body = target_body;
     if (emptyState !== false && !history[history_name]) root_path = (history[history_name] = [].concat(emptyState || ":empty"))[0];
