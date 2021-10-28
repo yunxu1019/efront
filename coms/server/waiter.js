@@ -80,16 +80,9 @@ var requestListener = async function (req, res) {
             }
             res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
             var type = /^(\w+)([\/\w\-]+)?(\?[\s\S]*)?$/.exec(option);
+            var needLogin = false;
             var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-            if (type && await require("./checkAuth")(req.headers.authorization, remoteAddress)) {
-                switch (type[1]) {
-                    case "clear":
-                        doGet.reset();
-                        res.write("清理完成")
-                        break;
-                }
-            }
-            else if (type) switch (type[1]) {
+            if (type) switch (type[1]) {
                 case "login":
                     var a = type[2] || '';
                     return require("./login")(a.slice(1), remoteAddress).then(b => {
@@ -144,6 +137,16 @@ var requestListener = async function (req, res) {
                         }
                         message.send("deliver", [id, msgid]);
                     }
+                    break;
+                case "clear":
+                    break;
+                default:
+                    needLogin = true;
+            }
+            if (needLogin && await require("./checkAuth")(req.headers.authorization, remoteAddress)) switch (type[1]) {
+                case "clear":
+                    doGet.reset();
+                    res.write("清理完成");
                     break;
             }
         }
