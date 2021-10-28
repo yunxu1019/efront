@@ -1,6 +1,13 @@
-<div class="navbar-header">
-    <span class="fa fa-area-chart"></span>
+<div ng-if="!user.isLogin" class="navbar-header">
+    <!-- <avatar></avatar> -->
+    <a @click="popup('#/user/login')" class="dashboard_text">请登录</a>
+</div>
+<div -else class="navbar-header">
+    <span class="dashboard_text" @click="go('/user/profile')">
+        <avatar ng-src="user.avatar" size=30></avatar>
+        <span ng-bind="user.name"></span>
+        <span ng-bind="user.roles"></span>
+    </span>
 </div>
 <ylist mode=inline ng-src="menu in menus" class="sidebar-menu" ng-active="menus.open(event.value)">
 </ylist>
-<btn class="setting" ng-click="go('/user/setting')"><i class="fa fa-gear"></i>设置</btn>
