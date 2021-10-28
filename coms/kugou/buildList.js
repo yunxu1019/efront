@@ -6,6 +6,7 @@ function main(dataid, datapath) {
         padding,
         song,
         loading,
+        musicList,
         run(s) {
             if (s.hash) {
                 kugou$player.play(s.hash);
