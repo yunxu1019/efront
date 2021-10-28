@@ -38,4 +38,5 @@ extend(renderDefaults, {
     swap,
     password,
     table,
+    form,
 });

@@ -1,43 +1,31 @@
-& {    
-    vertical-align: top;
-}
-
 >a {
     line-height: inherit;
     margin-right: 10px;
-    vertical-align: top;
 
     >r {
+        font-family: sans-serif;
         display: inline-block;
-        height: 1em;
-        width: 1em;
-        border-radius: 50%;
-        border: .1em solid;
         position: relative;
-        vertical-align: middle;
         margin-right: 4px;
-
+        line-height: 1;
+        text-align: center;
+        
         >s {
             display: none;
-            border-radius: 50%;
-            border: .2em solid;
-            width: .4em;
-            height: .4em;
             position: absolute;
-            margin: -.2em;
-            top: 50%;
-            left: 50%;
+            text-decoration: none;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
         }
     }
 
-    >span {
-        vertical-align: middle;
-    }
 
     &.activate {
         >r {
             >s {
-                display: block;
+                display: inline;
             }
         }
     }

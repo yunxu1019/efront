@@ -33,3 +33,22 @@
 .input {
     width: 100%;
 }
+
+.required {
+    color: #c24;
+    display: inline-block;
+}
+
+&.error,
+&[error] {
+    background: #f322;
+
+    model>* {
+        background: #f322;
+        border-color: #f32;
+        outline: 1px solid #f32;
+    }
+    .error{
+        color:#c32;
+    }
+}

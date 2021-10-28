@@ -38,6 +38,7 @@ var constructors = {
     input,
     raw: input,
     row: textarea,
+    password,
     text: textarea,
     date() {
         var elem = document.createElement("input");

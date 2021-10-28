@@ -94,11 +94,6 @@ var init = function () {
 function view(element) {
     var window = isNode(element) ? element : document.createElement("form");
     init();
-    if (/form/i.test(window.tagName)) {
-        on("submit")(window, function (event) {
-            event.preventDefault();
-        });
-    }
     extend(window, prototype);
     if (window !== element) {
         extend(window, element);

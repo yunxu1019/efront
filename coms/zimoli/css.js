@@ -166,6 +166,7 @@ function cssTargetStyleSheet(stylesheet, innerCss) {
  * @param {|string} oValue 
  */
 var css = function (target, oStyle, oValue) {
+    if (!oStyle) return;
     if (isElement(target)) {
         if (/^style$/i.test(target.tagName)) {
             cssTargetStyleSheet(target, oStyle, oValue);
