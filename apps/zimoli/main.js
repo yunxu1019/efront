@@ -2,7 +2,7 @@
 "use strict";
 var menu = div();
 var config = require("./config");
-appendChild(menu, kugou$menu, kugou$page, beian);
+appendChild(menu, kugou$menu, kugou$page);
 i18n.loadSource({
     zh: {
         "name": "用户名"

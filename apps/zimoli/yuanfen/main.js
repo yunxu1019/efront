@@ -8,7 +8,7 @@ css(qq_icon, "width:28px;height:28px;margin:-14px;top:50%;left:50%;position:abso
 css(loginBtn, "display:inline-block;position:absolute;right:0;top:0;height:100%;width:60px;background-color:transparent");
 var tbar = titlebar("EFRONT.cc", [loginBtn], false);
 css(tbar,"text-align:left;padding-left:20px;")
-var page = createElement(div, beian, tbar, slider());
+var page = createElement(div, tbar, slider());
 css(page, "font-size:40px;color:#fff;padding-top:50px;");
 
 var group_sample = createElement(div);
