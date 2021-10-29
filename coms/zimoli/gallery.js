@@ -121,18 +121,8 @@ function main() {
             minWidth = arg;
         }
     });
-    var src = element.getAttribute("src") || element.getAttribute("ng-src") || element.getAttribute("v-src");
-    if (src) {
-        var parsedSrc = render.parseRepeat(src);
-        if (!parsedSrc) {
-            element.setAttribute("ng-src", src);
-            element.removeAttribute("src");
-            var generator = getGenerator(element);
-        } else {
-            element.setAttribute("ng-src", parsedSrc.srcName);
-            element.removeAttribute("src");
-            var generator = getGenerator(element, parsedSrc);
-        }
+    if ("$src" in element) {
+        var generator = getGenerator(element);
         care(element, function () {
             var index = element.index();
             element.clean();

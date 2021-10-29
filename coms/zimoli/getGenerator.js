@@ -1,6 +1,6 @@
 
 var _slider = createElement(div);
-var getGenerator = function (container, parsedSrc) {
+var getGenerator = function (container) {
     if (!container) return;
     var template = document.createElement("div");
     var templates = [].concat.apply([], container.childNodes).filter(a => {
@@ -31,6 +31,7 @@ var getGenerator = function (container, parsedSrc) {
         if (!template1.childNodes.length) return template1;
         var item = template1.childNodes[0];
         item.with = [].concat.apply([], template1.childNodes).slice(1);
+        var parsedSrc = container.$src;
         if (parsedSrc) {
             var { keyName, itemName, indexName } = parsedSrc;
             var newScope = extend(Object.create(container.$scope), {

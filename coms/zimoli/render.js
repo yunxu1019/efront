@@ -367,6 +367,29 @@ var createBinder = function (binder) {
 
     }
 }
+var src1 = createBinder(function (elem, value) {
+    if (arguments.length === 2) elem.src = value || '';
+});
+var src2 = function (search) {
+    var getter = createGetter(search).bind(this);
+    var savedValue;
+    this.renders.push(function () {
+        var origin = getter();
+        var temp = origin;
+        if (origin instanceof Array) {
+            temp = extend([], origin);
+        } else if (isObject(origin)) {
+            temp = extend({}, origin);
+        } else if (isEmpty(origin)) {
+            temp = "";
+        }
+        var changes = getChanges(temp, savedValue);
+        if (!changes) return;
+        savedValue = temp;
+        this.src = origin;
+        cast(this, origin);
+    });
+}
 var directives = {
     bind: createBinder(text),
     html: createBinder(html),
@@ -379,47 +402,10 @@ var directives = {
         elem.style.display = value ? '' : 'none';
     }),
     style: createBinder(css),
-    src(search) {
-        var getter = createGetter(search).bind(this);
-        var savedValue, pending;
-        var refresh = function () {
-            that.src = savedValue;
-            removeClass(that, "pending");
-            pending = 0;
-        };
-        var img = document.createElement("img");
-        var that = this;
-        this.renders.push(function () {
-            var origin = getter();
-            var temp = origin;
-            if (origin instanceof Array) {
-                temp = extend([], origin);
-            } else if (isObject(origin)) {
-                temp = extend({}, origin);
-            } else if (isEmpty(origin)) {
-                temp = "";
-            }
-            var changes = getChanges(temp, savedValue);
-            if (!changes) return;
-            savedValue = temp;
-            if (/^img$/i.test(this.tagName)) {
-                if (!isString(origin)) {
-                    return;
-                }
-                if (origin) {
-                    img.src = origin;
-                    if (img.complete) {
-                        this.src = origin;
-                    } else if (!pending) {
-                        addClass(this, "pending");
-                        pending = setTimeout(refresh);
-                    }
-                }
-            } else {
-                this.src = origin;
-                cast(this, origin);
-            }
-        });
+    src([s, src]) {
+        if (!this.childNodes.length) return src1.apply(this, arguments);
+        var parsedSrc = this.$src;
+        return src2.call(this, [s, parsedSrc ? parsedSrc.srcName : src]);
     },
     model(search) {
         var getter = createGetter(search).bind(this);
@@ -607,10 +593,43 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (parentNode) {
         if (parentNode.renderid > 1 || parentNode.isMounted) element.renderid = 2;
     }
-    var ons = [];
 
     if (isFirstRender) {
         var attrs = [].concat.apply([], element.attributes);
+        element.renders = element.renders ? [].concat(element.renders) : [];
+        var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
+        var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
+        var ons = [];
+        var copys = [];
+        var binds = {};
+        var _attrs = {};
+        var props = {};
+        attrs.map(function (attr) {
+            var { name, value } = attr;
+            if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) return copys.push(attr);
+            var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
+            if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
+                binds[key] = value;
+                element.removeAttribute(name);
+            }
+            else if (emiter_reg.test(name)) {
+                var match = emiter_reg.exec(name);
+                var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
+                element.removeAttribute(name);
+                ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
+            }
+            else if (/[_@\:\.]$/.test(name)) {
+                _attrs[name.replace(/[_@\:\.]$/, "")] = value;
+                element.removeAttribute(name);
+            }
+            else {
+                props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
+            }
+        });
+
+        if (binds.src) {
+            element.$src = parseRepeat(binds.src);
+        }
         var { tagName, parentNode, nextSibling } = element;
         // 替换元素
         var constructor = getFromScopes(tagName, scope, parentScopes);
@@ -629,7 +648,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
-                attrs.map(function (attr) {
+                copys.forEach(function (attr) {
                     var { name, value } = attr;
                     switch (name.toLowerCase()) {
                         case "class":
@@ -643,62 +662,39 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                             replacer[name] = value;
                             break;
                         default:
-                            if (!/[\-@\:\._]/.test(name)) {
-                                replacer.setAttribute(name, value);
-                            } else {
-                                attrsMap[name] = attr;
-                            }
+                            replacer.setAttribute(name, value);
                     }
                 });
                 replacer.renderid = element.renderid;
+                replacer.renders = element.renders;
+                replacer.$src = element.$src;
                 element = replacer;
                 element.$scope = scope;
                 element.$parentScopes = parentScopes;
             }
-            [].concat.apply([], element.attributes).forEach(attr => {
-                if (attrsMap[attr.name]) {
-                    delete attrsMap[attr.name];
-                }
-                attrsMap[attr.name] = attr;
-            });
-            attrs = Object.keys(attrsMap).map(key => attrsMap[key]);
         }
     }
     if (element.children.length) renderElement(element.children, scope, parentScopes);
     if (!isFirstRender) return element;
-    // 解析属性
-    element.renders = element.renders ? [].concat(element.renders) : [];
-    var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
-    var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
-    attrs.map(function (attr) {
-        var { name, value } = attr;
-        if (/^(?:class|style|src|\:)$/i.test(name)) return;
-        var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]/i, "").toLowerCase();
-        if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
-            directives[key].call(element, [withContext, value]);
-            element.removeAttribute(name);
-        } else if (emiter_reg.test(name)) {
-            var match = emiter_reg.exec(name);
-            var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
-            element.removeAttribute(name);
-            ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
-        } else if (/^([\_\:\.]|v\-bind\:)/.test(name)) {
-            binders._.call(element, name.replace(/^([\_\:\.]|v\-bind\:)/, ""), [withContext, value]);
-            element.removeAttribute(name);
-        } else if (/[_@\:\.]$/.test(name)) {
-            binders[""].call(element, name.replace(/[_@\:\.]$/, ""), [withContext, value]);
-            element.removeAttribute(name);
-        } else {
-            name = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
-            try {
-                element[name] = value === '' ? true : value;
-            } catch (e) {
-            }
+    for (var k in binds) {
+        if (directives.hasOwnProperty(k)) {
+            directives[k].call(element, [withContext, binds[k]])
         }
-    });
-    rebuild(element);
+        else {
+            binders._.call(element, k, [withContext, binds[k]]);
+        }
+    }
+    for (var k in _attrs) {
+        binders[""].call(element, k, [withContext, _attrs[k]]);
+    }
+    for (var k in props) {
+        try {
+            element[k] = props[k];
+        } catch (e) { }
+    }
     ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
     if (element.renders.length) {
+        rebuild(element);
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
         if (element.isMounted || element.renderid > 1) addRenderElement.call(element);
