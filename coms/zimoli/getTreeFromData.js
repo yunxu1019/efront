@@ -29,15 +29,21 @@ function getTreeFromData(array) {
     var tab = 0;
     var run = function (item, parent) {
         item.tab = tab;
-        var total = 0;
+        var count = 0, total = 0;
         item.parent = parent;
         item.root = root;
         if (item.length) {
             tab++;
-            item.forEach(item => total += run(item, parent));
+            for (var cx = 0, dx = item.length; cx < dx; cx++) {
+                var i = item[cx];
+                run(i, parent);
+                count += i.count || 1;
+                total += i.total;
+            }
             tab--;
         }
-        return item.total = total || 1;
+        item.total = total + item.length;
+        return item.count = count;
     };
     run(root);
     return root;
