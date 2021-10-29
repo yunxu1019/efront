@@ -135,6 +135,7 @@ var adapter = function (data, url, req, res) {
     }
     if (typeof data === "string") {
         var new_url = data[0] === "/" ? data : "/" + data;
+        new_url = new_url.replace(/(default|index)\.(\w+)$/i, '');
         if (new_url !== req.url) {
             res.writeHead(302, {
                 'Location': new_url
