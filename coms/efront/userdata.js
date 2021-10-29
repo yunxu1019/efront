@@ -88,7 +88,7 @@ async function checkPasswordA(a) {
     return null;
 }
 
-async function checkPasswordB(b){
+async function checkPasswordB(b) {
     var c = await getItem('password-c');
     var d = await getItem('password-d');
     var a = encode62.db2a(d, b);
@@ -117,4 +117,10 @@ module.exports = {
     checkPassword,
     checkPasswordA,
     checkPasswordB,
+    sign(a) {
+        return encode62.ab2c(profile.code, a);
+    },
+    unsign(c) {
+        return encode62.ca2b(c, profile.code);
+    },
 }
