@@ -310,7 +310,11 @@ var parseData = function (sourceText) {
         sourceText = sourceText.replace(/^[^\(]+\(([\s\S]*)\)[^\)]*$/, "$1");
     }
     try {
-        sourceText = parseYML(sourceText);
+        if (/^[\[\{][\d\:,]+[\}\]],|^(Infinity|''|NaN|\d+|)$|^\/[\s\S]*?\/\w*$/.test(sourceText)) {
+            sourceText = JSAM.parse(sourceText);
+        } else {
+            sourceText = parseYML(sourceText);
+        }
     } catch (e) {
         throw "数据无法解析";
     }
