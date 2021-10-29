@@ -7,17 +7,35 @@
         display: inline-block;
         position: relative;
         margin-right: .3em;
-        line-height: 1;
         text-align: center;
+        vertical-align: middle;
+        width: 1em;
+        height: 1em;
+        border: .1em solid;
+        border-radius: 50%;
 
         >s {
             display: none;
             position: absolute;
             text-decoration: none;
-            left: 0;
-            right: 0;
-            top: -.02em;
-            bottom: 0;
+            overflow: hidden;
+            border-radius: 50%;
+            width: .4em;
+            height: .4em;
+            top: 50%;
+            left: 50%;
+            margin: -.2em;
+
+            text-indent: -.5em;
+
+            &:after {
+                position: absolute;
+                left: 0;
+                top: 0;
+                display: block;
+                content: "";
+                border: .3em solid;
+            }
         }
     }
 
@@ -25,7 +43,7 @@
     &.activate {
         >r {
             >s {
-                display: inline;
+                display: block;
             }
         }
     }
