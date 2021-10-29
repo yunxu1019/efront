@@ -367,9 +367,7 @@ var createBinder = function (binder) {
 
     }
 }
-var src1 = createBinder(function (elem, value) {
-    if (arguments.length === 2) elem.src = value || '';
-});
+
 var src2 = function (search) {
     var getter = createGetter(search).bind(this);
     var savedValue;
@@ -403,7 +401,6 @@ var directives = {
     }),
     style: createBinder(css),
     src([s, src]) {
-        if (!this.childNodes.length) return src1.apply(this, arguments);
         var parsedSrc = this.$src;
         return src2.call(this, [s, parsedSrc ? parsedSrc.srcName : src]);
     },
