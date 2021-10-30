@@ -304,19 +304,17 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
 
 var createStructure = function ({ name: ifkey, key, value: ifexp } = {}, { name: forkey, value: repeat } = {}, context) {
     var element = this;
-    if (!ifkey) return structures.repeat.call(element, [context, repeat]);
-    if (!repeat) return structures[key].call(element, [context, ifexp]);
+    if (!ifkey) return element.removeAttribute(forkey), structures.repeat.call(element, [context, repeat]);
+    if (!repeat) return element.removeAttribute(ifkey), structures[key].call(element, [context, ifexp]);
     if (!ifexp) {
         element.removeAttribute(ifkey);
         return structures[key].call(element, [context, ifexp]);
     }
     var { before, after } = parseIfWithRepeat(ifexp, repeat);
-    if (!after.length) {
-        element.removeAttribute(ifkey);
-    } else {
-        element.setAttribute(ifkey, after.join("&&"));
+    element.removeAttribute(ifkey);
+    if (after.length) {
+        element.setAttribute("a-if", after.join("&&"));
     }
-
     if (before.length > 0) {
         // 懒渲染
         createIf.call(element, [context, before.join("&&")], null);
@@ -719,7 +717,7 @@ function renderStructure(element, scope, parentScopes = []) {
             }
             if (!element.renderid) element.renderid = -1;
             else element.renderid = -2;
-            element.removeAttribute(name);
+            // element.removeAttribute(name);
         }
         var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
