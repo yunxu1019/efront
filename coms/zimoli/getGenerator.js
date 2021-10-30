@@ -20,27 +20,27 @@ var getGenerator = function (container) {
     appendChild(template, templates);
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
+    var scopes = container.$parentScopes.concat(container.$scope);
     return function (index, com) {
         if (!com) {
             if (!container.src || index >= container.src.length) return;
             com = container.src[index];
         }
         if (!com) return;
-        var template1 = template.cloneNode();
-        template1.innerHTML = template.innerHTML;
+        var template1 = template.cloneNode(true);
         if (!template1.childNodes.length) return template1;
         var item = template1.childNodes[0];
         item.with = [].concat.apply([], template1.childNodes).slice(1);
         var parsedSrc = container.$src;
         if (parsedSrc) {
             var { keyName, itemName, indexName } = parsedSrc;
-            var newScope = extend(Object.create(container.$scope), {
+            var newScope = {
                 [keyName || '$key']: index,
                 [itemName || '$item']: com,
                 [indexName || '$index']: index
-            });
-            var newItem = render(item, newScope);
-            newItem.with = render(item.with, newScope);
+            };
+            var newItem = render(item, newScope, scopes);
+            if (item.with.length) newItem.with = render(item.with, newScope, scopes);
         } else {
             var newScope = container.src[index];
             if (!isObject(newScope)) newScope = {
@@ -60,8 +60,8 @@ var getGenerator = function (container) {
                     return this.$item;
                 }
             }
-            var newItem = render(item, newScope, [container.$scope]);
-            newItem.with = render(newItem.with = item.with, newScope, [container.$scope]);
+            var newItem = render(item, newScope, scopes);
+            newItem.with = render(newItem.with = item.with, newScope, scopes);
         }
         return newItem;
     };
