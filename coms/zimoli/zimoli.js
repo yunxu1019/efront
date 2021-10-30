@@ -576,11 +576,17 @@ function addGlobal(element, name = null, isDestroy) {
     }
 }
 var _switch = zimoli.switch = function (history_name = default_history, target_body = document.body, emptyState) {
-    if (isString(history_name))
-        current_history = history_name = history_name.replace(/\/$/, '') + "/";
-    if (target_body)
-        body = target_body;
-    if (emptyState !== false && !history[history_name]) root_path = (history[history_name] = [].concat(emptyState || ":empty"))[0];
+    if (!arguments.length) {
+        current_history = default_history;
+        body = document.body;
+    }
+    else {
+        if (isString(history_name)) {
+            current_history = history_name = history_name.replace(/\/$/, '') + "/";
+        }
+        if (target_body) body = target_body;
+    }
+    if (emptyState !== false && !history[current_history]) root_path = (history[current_history] = [].concat(emptyState || ":empty"))[0];
 };
 popup.global = zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
