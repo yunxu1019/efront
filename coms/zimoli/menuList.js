@@ -8,7 +8,7 @@ var release = function () {
 var clear = function () {
     clearTimeout(releaseTimer);
 };
-function main(page, items, active, generator, direction = 'y') {
+function main(page, items, active, direction = 'y') {
     if (!isNode(page)) {
         var page = div();
     }
@@ -21,7 +21,7 @@ function main(page, items, active, generator, direction = 'y') {
         if (!item.children || !item.children.length) return;
         var clone = template.cloneNode();
         clone.innerHTML = template.innerHTML;
-        var menu = main(clone, item.children, active, generator);
+        var menu = main(clone, item.children, active);
         mounted_menus.push(menu);
 
         page.active = menu;
@@ -46,7 +46,7 @@ function main(page, items, active, generator, direction = 'y') {
         template.innerHTML = page.innerHTML;
         page.tempalte = template;
     }
-    if (!generator || !page.children.length || page.menutype === 1) {
+    if (!page.children.length || page.menutype === 1) {
         page.innerHTML = menuList;
         page.menutype = 1;
         var hasIcon = function () {
@@ -82,6 +82,7 @@ function main(page, items, active, generator, direction = 'y') {
             this.$scope.hasIcon = hasIcon();
         });
     } else {
+        var generator = getGenerator(page);
         list(page, function (index) {
             var elem = generator(index);
             if (!elem) return;

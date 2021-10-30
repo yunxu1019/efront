@@ -110,7 +110,6 @@ function main(elem, mode) {
             }
         }
         mode = mode ? mode.toLowerCase() : "horizonal";
-        var generator = getGenerator(elem);
 
         switch (mode) {
             case "i":
@@ -119,6 +118,7 @@ function main(elem, mode) {
             case "t":
             case "tree":
                 if (elem) {
+                    var generator = getGenerator(elem);
                     tree(elem, function (index, item) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
@@ -156,7 +156,7 @@ function main(elem, mode) {
                 };
                 if ("$src" in elem) {
                     care(elem, function (src) {
-                        menuList(elem, getTreeFromData(src), emit, generator, direction);
+                        menuList(elem, getTreeFromData(src), emit, direction);
                     });
                 } else {
                     var nodes = getArrayNodes(elem);
