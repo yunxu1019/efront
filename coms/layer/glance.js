@@ -90,14 +90,14 @@ function main(mainPath, historyName = "") {
         var hook = function () {
             if (--index !== 0) return;
             if (leftPath) {
-                var page = zimoli.go(leftPath, null, leftLayer);
+                var page = zimoli.create(leftPath);
                 page.setAttribute('layer', 'left');
                 appendChild.replace(leftLayer, page);
                 leftLayer = page;
                 dragview({ page: layer, toLeft: layer.closeLeft, toRight: layer.openLeft, menu: leftLayer });
             }
             if (topPath) {
-                var page = zimoli.go(topPath, null, topLayer);
+                var page = zimoli.create(topPath);
                 page.setAttribute('layer', 'top');
                 appendChild.replace(topLayer, page);
                 topLayer = page;
