@@ -145,7 +145,9 @@ var createRepeat = function (search, id = 0) {
         }
         var $parentScopes = element.$parentScopes || [];
         var $struct = element.$struct;
-        if (element.$scope) $struct = Object.assign({}, $struct, { context: $struct.context + `with(this.$parentScopes[${$parentScopes.length}])` }), $parentScopes = $parentScopes.concat(element.$scope);
+        if (element.$scope) {
+            $struct = Object.assign({}, $struct, { context: $struct.context + `with(this.$parentScopes[${$parentScopes.length}])` }), $parentScopes = $parentScopes.concat(element.$scope);
+        }
         var clonedElements1 = Object.create(null);
         var cloned = keys.map(function (key, cx) {
             var k = isArrayResult ? cx : key;
@@ -691,10 +693,12 @@ function renderStructure(element, scope, parentScopes = []) {
     var binds = {};
     var attr1 = {};
     var props = {};
-
-    attrs.map(function (attr) {
+    for (var attr of attrs) {
         var { name, value } = attr;
-        if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) return copys.push(attr);
+        if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) {
+            copys.push(attr);
+            continue;
+        }
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (structures.hasOwnProperty(key) && isFunction(structures[key])) {
             if (element.renderid <= -2) {
@@ -719,6 +723,7 @@ function renderStructure(element, scope, parentScopes = []) {
             else element.renderid = -2;
             // element.removeAttribute(name);
         }
+        if (element.$struct) continue;
         var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
             binds[key] = value;
@@ -737,8 +742,8 @@ function renderStructure(element, scope, parentScopes = []) {
         else {
             props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
         }
-    });
-    element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext };
+    }
+    if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext };
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
 function render(element, scope, parentScopes) {
