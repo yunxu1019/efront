@@ -45,56 +45,64 @@ table {
     table-layout: fixed;
     white-space: nowrap;
 
-    >thead {
-        user-select: none;
-        line-height: 36px;
+}
 
-        >tr {
+>thead {
+    user-select: none;
+    line-height: 36px;
+
+    >tr {
+
+        >td,
+        >th {
+            padding: @cell-padding;
+            position: relative;
+            color: #fff;
+            background-color: #999;
+        }
+    }
+}
+
+>tbody {
+    line-height: 32px;
+    height: 100%;
+    min-height: 30px;
+
+    display: table-row-group;
+
+    >tr {
+
+        >td,
+        >th {
+            padding: @cell-padding;
+            position: relative;
+        }
+
+        &:nth-child(even) {
 
             >td,
             >th {
-                padding: @cell-padding;
-                position: relative;
-                color: #fff;
-                background-color: #999;
+                background-color: #eee;
             }
         }
-    }
 
-    >tbody {
-        line-height: 32px;
-
-        >tr {
+        &:nth-child(odd) {
 
             >td,
             >th {
-                padding: @cell-padding;
-                position: relative;
+                background-color: #fff;
             }
+        }
 
-            &:nth-child(even) {
+        &:hover {
 
-                >td,
-                >th {
-                    background-color: #eee;
-                }
-            }
-
-            &:nth-child(odd) {
-
-                >td,
-                >th {
-                    background-color: #fff;
-                }
-            }
-
-            &:hover {
-
-                >td,
-                >th {
-                    background: #dddddd;
-                }
+            >td,
+            >th {
+                background: #dddddd;
             }
         }
     }
+}
+.button{
+    margin-right: 10px;
 }

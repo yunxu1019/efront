@@ -153,10 +153,24 @@ function table(elem) {
     table.dragbox = function () {
         return thead;
     };
+    care(table, function ([fields, data]) {
+        this.innerHTML = template;
+        render(this, {
+            fields,
+            tbody: list,
+            data,
+            a: button,
+        }, this.$parentScopes.concat(this.$scope));
+    })
     autodragchildren(
         table,
         cellMatchManager,
         function (src, dst, rel, append, parentNode) {
+            if (table.src) {
+                var [fields] = table.src;
+                var [f] = fields.splice(src, 1);
+                fields.splice(dst, 0, f);
+            }
             var children = parentNode.children;
             var srcElement = children[src];
             var dstElement = children[rel];
