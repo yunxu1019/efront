@@ -37,6 +37,7 @@ var trim3v = function (r, g, b) {
 			if (b > 0) b += rest;
 		}
 	} while (rest > 0);
+
 	return [r, g, b];
 }
 
@@ -56,7 +57,7 @@ var rgb4s = function (r, g, b, s) {
 		g -= m;
 		b -= m;
 	}
-	s = s * 255 / Math.max(r, g, b);
+	s = s * 255 / (Math.max(r, g, b) || 1);
 	if (s) {
 		r *= s;
 		g *= s;
@@ -276,7 +277,7 @@ var rgb2v = function (r, g, b) {
 	r *= .299;
 	g *= .587;
 	b *= .114;
-	return r + g + b;
+	return Math.max(r, g, b) / .587;
 };
 var v2rgb = function (v, r, g, b) {
 	var t = r + g + b || 1;
