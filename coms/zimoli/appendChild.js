@@ -116,6 +116,7 @@ appendChild.insert = function (parent, element, relative = parent.childNodes[0] 
     }
 };
 appendChild.replace = function (alreadyMounted, element) {
+    if (alreadyMounted === element) return;
     if (!alreadyMounted || !alreadyMounted.parentNode) return;
     insertBefore(alreadyMounted, element);
     remove(alreadyMounted);
