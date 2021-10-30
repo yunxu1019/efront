@@ -144,7 +144,8 @@ var createRepeat = function (search, id = 0) {
             throw new Error("数据量过大，取消绘制！");
         }
         var $parentScopes = element.$parentScopes || [];
-        if (element.$scope) $parentScopes = $parentScopes.concat(element.$scope);
+        var $struct = element.$struct;
+        if (element.$scope) $struct = Object.assign({}, $struct, { context: $struct.context + `with(this.$parentScopes[${$parentScopes.length}])` }), $parentScopes = $parentScopes.concat(element.$scope);
         var clonedElements1 = Object.create(null);
         var cloned = keys.map(function (key, cx) {
             var k = isArrayResult ? cx : key;
@@ -161,6 +162,7 @@ var createRepeat = function (search, id = 0) {
             };
             clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
+            clone.$struct = $struct;
             clone = render(clone, $scope, clone.$parentScopes);
             clonedElements1[k] = clone;
             return clone;
@@ -593,38 +595,9 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
 
     if (isFirstRender) {
-        var attrs = [].concat.apply([], element.attributes);
         element.renders = element.renders ? [].concat(element.renders) : [];
-        var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
-        var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
-        var ons = [];
-        var copys = [];
-        var binds = {};
-        var _attrs = {};
-        var props = {};
-        attrs.map(function (attr) {
-            var { name, value } = attr;
-            if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) return copys.push(attr);
-            var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
-            if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
-                binds[key] = value;
-                element.removeAttribute(name);
-            }
-            else if (emiter_reg.test(name)) {
-                var match = emiter_reg.exec(name);
-                var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
-                element.removeAttribute(name);
-                ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
-            }
-            else if (/[_@\:\.]$/.test(name)) {
-                _attrs[name.replace(/[_@\:\.]$/, "")] = value;
-                element.removeAttribute(name);
-            }
-            else {
-                props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
-            }
-        });
-
+        var { ons, copys, attrs, props, binds, context: withContext } = element.$struct;
+        delete element.$struct;
         if (binds.src) {
             element.$src = parseRepeat(binds.src);
         }
@@ -640,7 +613,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             constructor = getFromScopes(tagName, scope, parentScopes);
         }
         if (isFunction(constructor)) {
-            var attrsMap = {};
             var replacer = constructor.call(scope, element, scope, parentScopes);
             if (isNode(replacer) && element !== replacer) {
                 if (nextSibling) appendChild.before(nextSibling, replacer);
@@ -665,7 +637,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 });
                 replacer.renderid = element.renderid;
                 replacer.renders = element.renders;
-                replacer.$src = element.$src;
+                if (binds.src) replacer.$src = element.$src;
                 element = replacer;
                 element.$scope = scope;
                 element.$parentScopes = parentScopes;
@@ -682,8 +654,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             binders._.call(element, k, [withContext, binds[k]]);
         }
     }
-    for (var k in _attrs) {
-        binders[""].call(element, k, [withContext, _attrs[k]]);
+    for (var k in attrs) {
+        binders[""].call(element, k, [withContext, attrs[k]]);
     }
     for (var k in props) {
         try {
@@ -714,11 +686,17 @@ function renderStructure(element, scope, parentScopes = []) {
     }
     var attrs = [].concat.apply([], element.attributes);
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
-    attrs = attrs.filter(a => structures.hasOwnProperty(a.name.replace(/^(ng|V|.*?)\-/i, '').toLowerCase()));
     var types = {};
-    if (attrs.length > 2) throw new Error(`请不要在同一元素上使用三次及以上的结构属性:${attrs.map(a => a.name)}`);
+    var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
+    var ons = [];
+    var copys = [];
+    var binds = {};
+    var attr1 = {};
+    var props = {};
+
     attrs.map(function (attr) {
-        var { name } = attr;
+        var { name, value } = attr;
+        if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) return copys.push(attr);
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (structures.hasOwnProperty(key) && isFunction(structures[key])) {
             if (element.renderid <= -2) {
@@ -743,7 +721,26 @@ function renderStructure(element, scope, parentScopes = []) {
             else element.renderid = -2;
             element.removeAttribute(name);
         }
+        var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
+        if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
+            binds[key] = value;
+            element.removeAttribute(name);
+        }
+        else if (emiter_reg.test(name)) {
+            var match = emiter_reg.exec(name);
+            var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
+            element.removeAttribute(name);
+            ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
+        }
+        else if (/[_@\:\.]$/.test(name)) {
+            attr1[name.replace(/[_@\:\.]$/, "")] = value;
+            element.removeAttribute(name);
+        }
+        else {
+            props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
+        }
     });
+    element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext };
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
 function render(element, scope, parentScopes) {
