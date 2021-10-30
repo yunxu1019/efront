@@ -148,6 +148,10 @@ var requestListener = async function (req, res) {
                     doGet.reset();
                     res.write("清理完成");
                     break;
+                case "share":
+                    doGet.reset();
+                    res.write(JSAM.stringify(require("./checkAccess").roots));
+                    break;
             }
         }
         return res.end();

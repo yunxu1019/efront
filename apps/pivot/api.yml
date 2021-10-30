@@ -1,3 +1,4 @@
 ./aapi/ authorization: 
   login: options /::login-:a
   run: options /:::run
+  share: options /::share

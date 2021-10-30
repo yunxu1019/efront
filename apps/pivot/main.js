@@ -1,6 +1,9 @@
 data.loadConfig("api.yml");
 user.loginPath = '/auth/login';
-// user.token = data.getSource('authorization');
+var token = data.getSource('authorization');
+if (token) {
+    user.login({});
+}
 setInterval(function () {
     var auth = data.getSource('authorization');
     if (!auth) return;

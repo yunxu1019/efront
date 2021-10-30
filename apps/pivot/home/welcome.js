@@ -13,12 +13,12 @@ function main() {
             } catch { }
             target.removeAttribute('pending');
         },
-        logout() {
+        async logout() {
             data.setSource('authorization', null);
-            user.logout();
-            location.reload();
+            await user.Logout();
+            zimoli.switch();
+            zimoli();
         }
     });
-    console.log(page)
     return page;
 }

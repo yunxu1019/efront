@@ -1,3 +1,5 @@
 首页: /home/welcome
-工作台: /home/short
+共享目录管理: /share/list
+短链接: /home/short
+# 用户: /home/short
 # 用户列表: /user/list
