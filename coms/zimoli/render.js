@@ -493,6 +493,7 @@ var directives = {
         });
     },
 };
+directives.text = directives.bind;
 // property binder
 var binders = {
     _(attr, search) {
