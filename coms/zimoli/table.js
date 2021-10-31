@@ -142,6 +142,7 @@ function table(elem) {
     var cellMatchManager = function (element) {
         if (!thead) [thead] = table.getElementsByTagName("thead");
         if (table.resizing) return false;
+        if (!getTargetIn(thead, element)) return false;
         if (!tdElementReg.test(element.tagName)) return false;
         var savedRowDeltas = [];
         [].map.call(thead.children, function (tr) {

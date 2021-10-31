@@ -8,7 +8,7 @@
     <tr>
         <td -repeat="f in fields">
             <span -if="f.key" -text="d[f.key]"></span>
-            <a on-click="o.do(d)" -if="f.type==='btn'" -repeat="o in f.options">
+            <a on-click="o.do(d)" -if="f.options" -repeat="o in f.options">
                 <span -text=o.name></span>
             </a>
         </td>
