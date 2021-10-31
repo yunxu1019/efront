@@ -4,9 +4,7 @@ var xy2c = function (a, x, y) {
     return a * x * (1 - y) + (.5 + x / 2) * y * 255;
 };
 var z2rgb = function (z) {
-    var c = color.rotate(sample, z * (Math.PI + Math.PI));
-    var [r, g, b] = color.parse(c);
-    return color.rgb4s(r, g, b, 1);
+    return color.rgb4h(255, 0, 0, z * 360);
 };
 var z2c = function (z) {
     return color.stringify(z2rgb(z));
@@ -87,7 +85,7 @@ var c2xy = function (c1, c2) {
 var getCanvas = function (e) {
     return e.getElementsByTagName('canvas')[0];
 };
-var sample = "#ff4949";
+var sample = "#ff0000";
 var buildpad = function (pad, c = sample) {
     var canvas = getCanvas(pad);
     canvas.width = 256;

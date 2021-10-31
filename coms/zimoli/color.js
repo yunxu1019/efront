@@ -3,61 +3,92 @@
  */
 
 var { min, max, sin, cos, round, sqrt, random, PI, abs = a => a < 0 ? -a : a } = Math;
-
+var [v_r, v_g, v_b] = [.299, .587, .114];
 
 var rgb4v = function (r, g, b, v) {
-	v = v - rgb2v(r, g, b);
-	return trim3v(r + v, g + v, b + v);
+	var d = v - rgb2v(r, g, b);
+	return [r + d, g + d, b + d];
 };
 
-var trim3v = function (r, g, b) {
-	do {
-		var rest = 0;
-		var count = 1;
-		if (r >= 255) rest += (r - 255) * .299, r = 255, count -= .299;
-		if (g >= 255) rest += (g - 255) * .587, g = 255, count -= .587;
-		if (b >= 255) rest += (b - 255) * .114, b = 255, count -= .114;
-		if (count > 0.01 && rest > 0) {
-			rest = rest / count;
-			if (r < 255) r += rest;
-			if (g < 255) g += rest;
-			if (b < 255) b += rest;
-		}
-	} while (rest > 0);
-	do {
-		var rest = 0;
-		var count = 1;
-		if (r <= 0) rest += r * .299, r = 0, count -= .299;
-		if (g <= 0) rest += g * .587, g = 0, count -= .587;
-		if (b <= 0) rest += b * .114, b = 0, count -= .114;
-		if (count > 0.01 && rest > 0) {
-			rest = rest / count;
-			if (r > 0) r += rest;
-			if (g > 0) g += rest;
-			if (b > 0) b += rest;
-		}
-	} while (rest > 0);
 
+
+var rgb4h = function (r, g, b, h) {
+	var [p, q, s] = [r, g, b].sort();
+	var m = s - p;
+	h = (h % 360 + 360) % 360;
+	if (h < 60) {
+		r = s;
+		g = p + m * h / 60;
+		b = p;
+	}
+	else if (h < 120) {
+		r = p + m * (120 - h) / 60;
+		g = s;
+		b = p;
+	}
+	else if (h < 180) {
+		r = p;
+		g = s;
+		b = p + m * (h - 120) / 60
+	}
+	else if (h < 240) {
+		r = p;
+		g = p + m * (240 - h) / 60;
+		b = s;
+	}
+	else if (h < 300) {
+		r = p + m * (h - 240) / 60;
+		g = p;
+		b = s;
+	}
+	else {
+		r = s;
+		g = p;
+		b = p + m * (360 - h) / 60;
+	}
 	return [r, g, b];
-}
+};
+
+
+var rgb2h = function (r, g, b) {
+	var m = max(r, g, b);
+	var n = min(r, g, b);
+	var h;
+	if (m === n) h = 0;
+	else if (m === r) {
+		if (g >= b) {
+			h = 60 * (g - b) / (m - n);
+		} else {
+			h = 360 + 60 * (g - b) / (m - n);
+		}
+	}
+	else if (m === g) {
+		h = 120 + 60 * (b - r) / (m - n);
+	}
+	else if (m === b) {
+		h = 240 + 60 * (r - g) / (m - n);
+
+	}
+	return h;
+};
 
 var rgb2s = function (r, g, b) {
-	var m = Math.min(r, g, b);
+	var m = min(r, g, b);
 	if (m) {
 		r -= m;
 		g -= m;
 		b -= m;
 	}
-	return Math.max(r, g, b) / 255;
+	return max(r, g, b) / 255;
 };
 var rgb4s = function (r, g, b, s) {
-	var m = Math.min(r, g, b);
+	var m = min(r, g, b);
 	if (m) {
 		r -= m;
 		g -= m;
 		b -= m;
 	}
-	s = s * 255 / (Math.max(r, g, b) || 1);
+	s = s * 255 / (max(r, g, b) || 1);
 	if (s) {
 		r *= s;
 		g *= s;
@@ -70,37 +101,45 @@ var rgb4s = function (r, g, b, s) {
 function rotate_rgb(RGBA, theta) {
 	var [r, g, b, a] = RGBA;
 	if (isNaN(theta)) return [r, g, b, a];
+	var h = rgb2h(r, g, b);
 	var s = rgb2s(r, g, b);
 	var v = rgb2v(r, g, b);
-	var u = sqrt(3) / 3;
-	var pu = 1 / 3;
-	var cosa = cos(theta);
-	var sina = sin(theta);
-	var vera = 1 - cosa;
-	var red = (cosa + pu * vera) * r + (pu * vera - u * sina) * g + (pu * vera + u * sina) * b;
-	var green = (pu * vera + u * sina) * r + (cosa + pu * vera) * g + (pu * vera - u * sina) * b;
-	var blue = (pu * vera - u * sina) * r + (pu * vera + u * sina) * g + (cosa + pu * vera) * b;
-	var m = mode([red, green, blue]);
-	var _min = min(red, green, blue);
-	var d = [m - red, m - green, m - blue]
-	if (_min < 0) {
-		var index = red < 0 ? 0 : green < 0 ? 1 : 2;
-		var [dr, dg, db] = single(d, -_min / d[index]);
-	} else {
-		var _max = max(red, green, blue);
-		if (_max > 255) {
-			var index = red > 255 ? 0 : green > 255 ? 1 : 2;
-			var [dr, dg, db] = single(d, (255 - _max) / d[index]);
-		} else {
-			var dr, dg, db = dr = dg = 0;
-		}
-	}
-	red += dr;
-	green += dg;
-	blue += db;
-	[red, green, blue] = rgb4s(red, green, blue, s);
-	[red, green, blue] = rgb4v(red, green, blue, v);
-	return [red, green, blue, a];
+	h += theta * 180 / Math.PI;
+	[r, g, b] = rgb4h(r, g, b, h);
+	[r, g, b] = rgb4s(r, g, b, s);
+	[r, g, b] = rgb4v(r, g, b, v);
+	return [r, g, b];
+	// var s = rgb2s(r, g, b);
+	// var v = rgb2v(r, g, b);
+	// var u = sqrt(3) / 3;
+	// var pu = 1 / 3;
+	// var cosa = cos(theta);
+	// var sina = sin(theta);
+	// var vera = 1 - cosa;
+	// var red = (cosa + pu * vera) * r + (pu * vera - u * sina) * g + (pu * vera + u * sina) * b;
+	// var green = (pu * vera + u * sina) * r + (cosa + pu * vera) * g + (pu * vera - u * sina) * b;
+	// var blue = (pu * vera - u * sina) * r + (pu * vera + u * sina) * g + (cosa + pu * vera) * b;
+	// var m = mode([red, green, blue]);
+	// var _min = min(red, green, blue);
+	// var d = [m - red, m - green, m - blue]
+	// if (_min < 0) {
+	// 	var index = red < 0 ? 0 : green < 0 ? 1 : 2;
+	// 	var [dr, dg, db] = single(d, -_min / d[index]);
+	// } else {
+	// 	var _max = max(red, green, blue);
+	// 	if (_max > 255) {
+	// 		var index = red > 255 ? 0 : green > 255 ? 1 : 2;
+	// 		var [dr, dg, db] = single(d, (255 - _max) / d[index]);
+	// 	} else {
+	// 		var dr, dg, db = dr = dg = 0;
+	// 	}
+	// }
+	// red += dr;
+	// green += dg;
+	// blue += db;
+	// [red, green, blue] = rgb4s(red, green, blue, s);
+	// [red, green, blue] = rgb4v(red, green, blue, v);
+	// return [red, green, blue, a];
 }
 // 对比度
 function contrast_rgb(RGBA, ratio) {
@@ -226,22 +265,24 @@ function single(c, u) {
 	return [r * u, g * u, b * u];
 }
 function angle(c1, c2) {
-	c1 = parse(c1);
-	c2 = parse(c2);
-	c1 = normal(c1);
-	c2 = normal(c2);
-	var [r1, g1, b1] = single(c1);
-	var [r2, g2, b2] = single(c2);
-	var c = [g1 * b2 - g2 * b1, b1 * r2 - b2 * r1, r1 * g2 - r2 * g1];
-	var d = r1 * r2 + g1 * g2 + b1 * b2;
-	var e = c[0] > 0 ? mode(c) : -mode(c);
-	var theta = Math.asin(e > 1 ? 1 : e < -1 ? -1 : e);
-	var phi = Math.acos(d > 1 ? 1 : d < -1 ? -1 : d);
-	if (theta < 0) {
-		theta = Math.PI * 2 - phi;
-	} else {
-		theta = phi;
-	}
+	var theta = rgb2h(c2[0], c2[1], c2[2]) - rgb2h(c1[0], c1[1], c1[2]);
+	if (theta < 0) theta += 360;
+	// c1 = parse(c1);
+	// c2 = parse(c2);
+	// c1 = normal(c1);
+	// c2 = normal(c2);
+	// var [r1, g1, b1] = single(c1);
+	// var [r2, g2, b2] = single(c2);
+	// var c = [g1 * b2 - g2 * b1, b1 * r2 - b2 * r1, r1 * g2 - r2 * g1];
+	// var d = r1 * r2 + g1 * g2 + b1 * b2;
+	// var e = c[0] > 0 ? mode(c) : -mode(c);
+	// var theta = Math.asin(e > 1 ? 1 : e < -1 ? -1 : e);
+	// var phi = Math.acos(d > 1 ? 1 : d < -1 ? -1 : d);
+	// if (theta < 0) {
+	// 	theta = Math.PI * 2 - phi;
+	// } else {
+	// 	theta = phi;
+	// }
 	return theta;
 }
 function equal(c1, c2) {
@@ -274,10 +315,10 @@ var colorDesigner = {
 	contrast: 1
 };
 var rgb2v = function (r, g, b) {
-	r *= .299;
-	g *= .587;
-	b *= .114;
-	return Math.max(r, g, b) / .587;
+	r *= v_r;
+	g *= v_g;
+	b *= v_b;
+	return r + g + b;
 };
 var v2rgb = function (v, r, g, b) {
 	var t = r + g + b || 1;
@@ -321,6 +362,9 @@ extend(color, {
 	contrast(color, ratio) {
 		return doWith(contrast_rgb, color, ratio);
 	},
+	rgb2h,
+	rgb4h,
+	rgb4s,
 	rgb2v,
 	rgb4v,
 	rgb2s,
