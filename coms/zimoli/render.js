@@ -55,7 +55,7 @@ var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\s*\.(?=[^\d])
 var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
     if (!searchContext) return function () { };
-    var ret = /\;|(\d\.|[^\{\.\+\:\?\-\=\*\/\?\\,~!<>%\^&\}\s])\s*([\r\n\u2028\u2029])\s*(\.\d|[^\.\+\-\=\*\/\?\\,~!<>%\^&\[\}\(\?\:\s])/.test(searchContext) ? "" : "return ";
+    var ret = /\;/.test(searchContext) ? "" : "return ";
     if (/\?\s*\.(?=[^\d])/.test(searchContext)) {
         searchContext = searchContext.replace(variableReg, function (context) {
             var dist;
@@ -537,6 +537,7 @@ var emiters = {
             var res = getter.call(this, e);
             if (res && isFunction(res.then)) res.then(digest, digest);
             digest();
+            return res;
         });
     },
     once(key, search) {
@@ -545,6 +546,7 @@ var emiters = {
             var res = getter.call(this, e);
             if (res && isFunction(res.then)) res.then(digest, digest);
             digest();
+            return res;
         });
     }
 };
