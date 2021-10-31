@@ -1,13 +1,14 @@
-&.dragging {
-    box-shadow: 0 0 20px -6px #00000033;
-
+& {
+    
     >thead,
     >tbody,
     & {
         >tr {
-
+            
             >th,
-            >td {}
+            >td {
+                box-shadow: 0 0 20px -6px #00000033;
+            }
         }
     }
 }
@@ -17,8 +18,13 @@ tbody,
 th,
 td,
 tr,
-table {
+table,
+& {
     box-sizing: border-box;
+}
+
+& {
+    outline: 1px solid #0006;
 }
 
 .y-ing {
@@ -78,7 +84,7 @@ table {
             position: relative;
         }
 
-        &:nth-child(even) {
+        &:nth-of-type(even) {
 
             >td,
             >th {
@@ -86,7 +92,7 @@ table {
             }
         }
 
-        &:nth-child(odd) {
+        &:nth-of-type(odd) {
 
             >td,
             >th {
@@ -103,7 +109,8 @@ table {
         }
     }
 }
-.button{
+
+.button {
     margin-right: 10px;
     vertical-align: middle;
     display: inline-block;

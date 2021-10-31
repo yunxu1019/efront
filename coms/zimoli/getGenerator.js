@@ -2,6 +2,7 @@
 var _slider = createElement(div);
 var getGenerator = function (container) {
     if (!container) return;
+    if (container.$generator) return container.$generator;
     var template = document.createElement("div");
     var templates = [].concat.apply([], container.childNodes).filter(a => {
         if (a.hasAttribute('insert')) {
@@ -21,7 +22,7 @@ var getGenerator = function (container) {
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
     var scopes = container.$parentScopes.concat(container.$scope);
-    return function (index, com) {
+    return container.$generator = function (index, com) {
         if (!com) {
             if (!container.src || index >= container.src.length) return;
             com = container.src[index];
