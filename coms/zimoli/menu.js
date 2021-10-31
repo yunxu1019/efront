@@ -155,6 +155,7 @@ function main(elem, mode) {
                     active(elem, item, item.value);
                 };
                 if ("$src" in elem) {
+                    getGenerator(elem);
                     care(elem, function (src) {
                         menuList(elem, getTreeFromData(src), emit, direction);
                     });

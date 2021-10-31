@@ -1,8 +1,12 @@
 
 var _slider = createElement(div);
+var empty = function (index, item) {
+    if (!item) return;
+    return document.createElement('empty');
+};
 var getGenerator = function (container) {
     if (!container) return;
-    if (container.$generator) return container.$generator;
+    if (!container.childNodes.length) return container.$generator || empty;
     var template = document.createElement("div");
     var templates = [].concat.apply([], container.childNodes).filter(a => {
         if (a.hasAttribute('insert')) {
