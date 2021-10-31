@@ -91,6 +91,10 @@ var adaptTarget = function (event) {
             }
             if (target) target = getFirstSingleColCell(this, target.colend);
             if (target) {
+                if (position.right >= getSelection(this).right - 7) {
+                    target = this;
+                    return;
+                }
                 css(this, { 'cursor': 'e-resize' });
                 result = {
                     target,
@@ -165,9 +169,9 @@ function table(elem) {
     })
     autodragchildren(
         table,
-        function(a){
+        function (a) {
             console.log('match')
-            return cellMatchManager.apply(this,arguments);
+            return cellMatchManager.apply(this, arguments);
         },
         function (src, dst, rel, append, parentNode) {
             if (table.src) {
