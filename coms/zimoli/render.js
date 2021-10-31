@@ -55,7 +55,7 @@ var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\s*\.(?=[^\d])
 var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
     if (!searchContext) return function () { };
-    var ret = /\;|(\d\.|[^\{\.\+\:\?\-\=\*\/\?\\,~!<>%\^&\}\s])\s*([\r\n\u2028\u2029])\s*(\.\d|[^\.\+\-\=\*\/\?\\,~!<>%\^&\[\}\(\?\:\s])/.test(searchContext) ? "" : "return ";
+    var ret = /\;/.test(searchContext) ? "" : "return ";
     if (/\?\s*\.(?=[^\d])/.test(searchContext)) {
         searchContext = searchContext.replace(variableReg, function (context) {
             var dist;
@@ -144,7 +144,10 @@ var createRepeat = function (search, id = 0) {
             throw new Error("数据量过大，取消绘制！");
         }
         var $parentScopes = element.$parentScopes || [];
-        if (element.$scope) $parentScopes = $parentScopes.concat(element.$scope);
+        var $struct = element.$struct;
+        if (element.$scope) {
+            $struct = Object.assign({}, $struct, { context: $struct.context + `with(this.$parentScopes[${$parentScopes.length}])` }), $parentScopes = $parentScopes.concat(element.$scope);
+        }
         var clonedElements1 = Object.create(null);
         var cloned = keys.map(function (key, cx) {
             var k = isArrayResult ? cx : key;
@@ -161,6 +164,7 @@ var createRepeat = function (search, id = 0) {
             };
             clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
+            clone.$struct = $struct;
             clone = render(clone, $scope, clone.$parentScopes);
             clonedElements1[k] = clone;
             return clone;
@@ -302,19 +306,17 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
 
 var createStructure = function ({ name: ifkey, key, value: ifexp } = {}, { name: forkey, value: repeat } = {}, context) {
     var element = this;
-    if (!ifkey) return structures.repeat.call(element, [context, repeat]);
-    if (!repeat) return structures[key].call(element, [context, ifexp]);
+    if (!ifkey) return element.removeAttribute(forkey), structures.repeat.call(element, [context, repeat]);
+    if (!repeat) return element.removeAttribute(ifkey), structures[key].call(element, [context, ifexp]);
     if (!ifexp) {
         element.removeAttribute(ifkey);
         return structures[key].call(element, [context, ifexp]);
     }
     var { before, after } = parseIfWithRepeat(ifexp, repeat);
-    if (!after.length) {
-        element.removeAttribute(ifkey);
-    } else {
-        element.setAttribute(ifkey, after.join("&&"));
+    element.removeAttribute(ifkey);
+    if (after.length) {
+        element.setAttribute("a-if", after.join("&&"));
     }
-
     if (before.length > 0) {
         // 懒渲染
         createIf.call(element, [context, before.join("&&")], null);
@@ -367,6 +369,27 @@ var createBinder = function (binder) {
 
     }
 }
+
+var src2 = function (search) {
+    var getter = createGetter(search).bind(this);
+    var savedValue;
+    this.renders.push(function () {
+        var origin = getter();
+        var temp = origin;
+        if (origin instanceof Array) {
+            temp = extend([], origin);
+        } else if (isObject(origin)) {
+            temp = extend({}, origin);
+        } else if (isEmpty(origin)) {
+            temp = "";
+        }
+        var changes = getChanges(temp, savedValue);
+        if (!changes || isEmpty(origin) && isEmpty(this.src)) return;
+        savedValue = temp;
+        this.src = origin;
+        cast(this, origin);
+    });
+}
 var directives = {
     bind: createBinder(text),
     html: createBinder(html),
@@ -379,47 +402,9 @@ var directives = {
         elem.style.display = value ? '' : 'none';
     }),
     style: createBinder(css),
-    src(search) {
-        var getter = createGetter(search).bind(this);
-        var savedValue, pending;
-        var refresh = function () {
-            that.src = savedValue;
-            removeClass(that, "pending");
-            pending = 0;
-        };
-        var img = document.createElement("img");
-        var that = this;
-        this.renders.push(function () {
-            var origin = getter();
-            var temp = origin;
-            if (origin instanceof Array) {
-                temp = extend([], origin);
-            } else if (isObject(origin)) {
-                temp = extend({}, origin);
-            } else if (isEmpty(origin)) {
-                temp = "";
-            }
-            var changes = getChanges(temp, savedValue);
-            if (!changes) return;
-            savedValue = temp;
-            if (/^img$/i.test(this.tagName)) {
-                if (!isString(origin)) {
-                    return;
-                }
-                if (origin) {
-                    img.src = origin;
-                    if (img.complete) {
-                        this.src = origin;
-                    } else if (!pending) {
-                        addClass(this, "pending");
-                        pending = setTimeout(refresh);
-                    }
-                }
-            } else {
-                this.src = origin;
-                cast(this, origin);
-            }
-        });
+    src([s, src]) {
+        var parsedSrc = this.$src;
+        return src2.call(this, [s, parsedSrc ? parsedSrc.srcName : src]);
     },
     model(search) {
         var getter = createGetter(search).bind(this);
@@ -510,6 +495,7 @@ var directives = {
         });
     },
 };
+directives.text = directives.bind;
 // property binder
 var binders = {
     _(attr, search) {
@@ -551,6 +537,7 @@ var emiters = {
             var res = getter.call(this, e);
             if (res && isFunction(res.then)) res.then(digest, digest);
             digest();
+            return res;
         });
     },
     once(key, search) {
@@ -559,6 +546,7 @@ var emiters = {
             var res = getter.call(this, e);
             if (res && isFunction(res.then)) res.then(digest, digest);
             digest();
+            return res;
         });
     }
 };
@@ -607,10 +595,14 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (parentNode) {
         if (parentNode.renderid > 1 || parentNode.isMounted) element.renderid = 2;
     }
-    var ons = [];
 
     if (isFirstRender) {
-        var attrs = [].concat.apply([], element.attributes);
+        element.renders = element.renders ? [].concat(element.renders) : [];
+        var { ons, copys, attrs, props, binds, context: withContext } = element.$struct;
+        delete element.$struct;
+        if (binds.src) {
+            element.$src = parseRepeat(binds.src);
+        }
         var { tagName, parentNode, nextSibling } = element;
         // 替换元素
         var constructor = getFromScopes(tagName, scope, parentScopes);
@@ -623,13 +615,12 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             constructor = getFromScopes(tagName, scope, parentScopes);
         }
         if (isFunction(constructor)) {
-            var attrsMap = {};
             var replacer = constructor.call(scope, element, scope, parentScopes);
             if (isNode(replacer) && element !== replacer) {
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
-                attrs.map(function (attr) {
+                copys.forEach(function (attr) {
                     var { name, value } = attr;
                     switch (name.toLowerCase()) {
                         case "class":
@@ -643,62 +634,39 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                             replacer[name] = value;
                             break;
                         default:
-                            if (!/[\-@\:\._]/.test(name)) {
-                                replacer.setAttribute(name, value);
-                            } else {
-                                attrsMap[name] = attr;
-                            }
+                            replacer.setAttribute(name, value);
                     }
                 });
                 replacer.renderid = element.renderid;
+                replacer.renders = element.renders;
+                if (binds.src) replacer.$src = element.$src;
                 element = replacer;
                 element.$scope = scope;
                 element.$parentScopes = parentScopes;
             }
-            [].concat.apply([], element.attributes).forEach(attr => {
-                if (attrsMap[attr.name]) {
-                    delete attrsMap[attr.name];
-                }
-                attrsMap[attr.name] = attr;
-            });
-            attrs = Object.keys(attrsMap).map(key => attrsMap[key]);
         }
     }
     if (element.children.length) renderElement(element.children, scope, parentScopes);
     if (!isFirstRender) return element;
-    // 解析属性
-    element.renders = element.renders ? [].concat(element.renders) : [];
-    var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
-    var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
-    attrs.map(function (attr) {
-        var { name, value } = attr;
-        if (/^(?:class|style|src|\:)$/i.test(name)) return;
-        var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]/i, "").toLowerCase();
-        if (directives.hasOwnProperty(key) && isFunction(directives[key])) {
-            directives[key].call(element, [withContext, value]);
-            element.removeAttribute(name);
-        } else if (emiter_reg.test(name)) {
-            var match = emiter_reg.exec(name);
-            var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
-            element.removeAttribute(name);
-            ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
-        } else if (/^([\_\:\.]|v\-bind\:)/.test(name)) {
-            binders._.call(element, name.replace(/^([\_\:\.]|v\-bind\:)/, ""), [withContext, value]);
-            element.removeAttribute(name);
-        } else if (/[_@\:\.]$/.test(name)) {
-            binders[""].call(element, name.replace(/[_@\:\.]$/, ""), [withContext, value]);
-            element.removeAttribute(name);
-        } else {
-            name = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
-            try {
-                element[name] = value === '' ? true : value;
-            } catch (e) {
-            }
+    for (var k in binds) {
+        if (directives.hasOwnProperty(k)) {
+            directives[k].call(element, [withContext, binds[k]])
         }
-    });
-    rebuild(element);
+        else {
+            binders._.call(element, k, [withContext, binds[k]]);
+        }
+    }
+    for (var k in attrs) {
+        binders[""].call(element, k, [withContext, attrs[k]]);
+    }
+    for (var k in props) {
+        try {
+            element[k] = props[k];
+        } catch (e) { }
+    }
     ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
     if (element.renders.length) {
+        rebuild(element);
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
         if (element.isMounted || element.renderid > 1) addRenderElement.call(element);
@@ -720,11 +688,19 @@ function renderStructure(element, scope, parentScopes = []) {
     }
     var attrs = [].concat.apply([], element.attributes);
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
-    attrs = attrs.filter(a => structures.hasOwnProperty(a.name.replace(/^(ng|V|.*?)\-/i, '').toLowerCase()));
     var types = {};
-    if (attrs.length > 2) throw new Error(`请不要在同一元素上使用三次及以上的结构属性:${attrs.map(a => a.name)}`);
-    attrs.map(function (attr) {
-        var { name } = attr;
+    var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
+    var ons = [];
+    var copys = [];
+    var binds = {};
+    var attr1 = {};
+    var props = {};
+    for (var attr of attrs) {
+        var { name, value } = attr;
+        if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) {
+            copys.push(attr);
+            continue;
+        }
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (structures.hasOwnProperty(key) && isFunction(structures[key])) {
             if (element.renderid <= -2) {
@@ -747,9 +723,29 @@ function renderStructure(element, scope, parentScopes = []) {
             }
             if (!element.renderid) element.renderid = -1;
             else element.renderid = -2;
+            // element.removeAttribute(name);
+        }
+        if (element.$struct) continue;
+        var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
+        if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
+            binds[key] = value;
             element.removeAttribute(name);
         }
-    });
+        else if (emiter_reg.test(name)) {
+            var match = emiter_reg.exec(name);
+            var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
+            element.removeAttribute(name);
+            ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
+        }
+        else if (/[_@\:\.]$/.test(name)) {
+            attr1[name.replace(/[_@\:\.]$/, "")] = value;
+            element.removeAttribute(name);
+        }
+        else {
+            props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
+        }
+    }
+    if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext };
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
 function render(element, scope, parentScopes) {

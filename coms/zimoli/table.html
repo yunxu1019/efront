@@ -1,0 +1,16 @@
+<thead>
+    <tr>
+        <td -repeat="f in fields"><i -if="f.icon" -class="f.icon"></i></span><span -if="f.name" -html="f.name"></span>
+        </td>
+    </tr>
+</thead>
+<tbody -src="d in data">
+    <tr>
+        <td -repeat="f in fields">
+            <span -if="f.key" -text="d[f.key]"></span>
+            <a on-click="o.do(d)" -if="f.options" -repeat="o in f.options">
+                <span -text=o.name></span>
+            </a>
+        </td>
+    </tr>
+</tbody>

@@ -57,7 +57,7 @@ var doPost = module.exports = function (req, res) {
         }
     }
     url = proxy(req);
-    finalpacker(url, function (result, type) {
+    finalpacker(url, async function (result, type) {
         if (!(result instanceof Buffer || result instanceof Function)) {
             result = String(result);
         } else {
@@ -65,13 +65,8 @@ var doPost = module.exports = function (req, res) {
         }
         switch (type) {
             case "api":
-                if (result instanceof Function) result(req, res);
-                else res.writeHead(404, {
-                    "Connection": "close"
-                }) | res.end();
-                break;
             case "aapi":
-                if (result instanceof Function) res.end(result());
+                if (result instanceof Function) res = res.end(await result(req, res));
                 else res.writeHead(404, {
                     "Connection": "close"
                 }) | res.end();

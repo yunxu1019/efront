@@ -91,6 +91,10 @@ var adaptTarget = function (event) {
             }
             if (target) target = getFirstSingleColCell(this, target.colend);
             if (target) {
+                if (position.right >= getSelection(this).right - 7) {
+                    target = this;
+                    return;
+                }
                 css(this, { 'cursor': 'e-resize' });
                 result = {
                     target,
@@ -142,6 +146,7 @@ function table(elem) {
     var cellMatchManager = function (element) {
         if (!thead) [thead] = table.getElementsByTagName("thead");
         if (table.resizing) return false;
+        if (!getTargetIn(thead, element)) return false;
         if (!tdElementReg.test(element.tagName)) return false;
         var savedRowDeltas = [];
         [].map.call(thead.children, function (tr) {
@@ -153,10 +158,27 @@ function table(elem) {
     table.dragbox = function () {
         return thead;
     };
+    care(table, function ([fields, data]) {
+        this.innerHTML = template;
+        render(this, {
+            fields,
+            tbody: list,
+            data,
+            a: button,
+        }, this.$parentScopes.concat(this.$scope));
+    })
     autodragchildren(
         table,
-        cellMatchManager,
+        function (a) {
+            console.log('match')
+            return cellMatchManager.apply(this, arguments);
+        },
         function (src, dst, rel, append, parentNode) {
+            if (table.src) {
+                var [fields] = table.src;
+                var [f] = fields.splice(src, 1);
+                fields.splice(dst, 0, f);
+            }
             var children = parentNode.children;
             var srcElement = children[src];
             var dstElement = children[rel];

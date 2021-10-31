@@ -310,7 +310,11 @@ var parseData = function (sourceText) {
         sourceText = sourceText.replace(/^[^\(]+\(([\s\S]*)\)[^\)]*$/, "$1");
     }
     try {
-        sourceText = parseYML(sourceText);
+        if (/^[\[\{][\d\:,]+[\}\]],|^(Infinity|''|NaN|\d+|)$|^\/[\s\S]*?\/\w*$/.test(sourceText)) {
+            sourceText = JSAM.parse(sourceText);
+        } else {
+            sourceText = parseYML(sourceText);
+        }
     } catch (e) {
         throw "数据无法解析";
     }
@@ -539,7 +543,8 @@ var privates = {
                     ok(e.response || e.responseText);
                 }).error(xhr => {
                     try {
-                        oh(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
+                        var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
+                        oh({ status: xhr.status, error: e })
                     } catch (error) {
                         oh(error);
                     }
@@ -608,8 +613,7 @@ function responseCrash(e, data) {
     } else {
         data.error = e;
     }
-    error_report(data.error_message, 'error');
-
+    error_report(data.error_message, e.status < 500 ? 'warn' : 'error');
 }
 
 var data = {

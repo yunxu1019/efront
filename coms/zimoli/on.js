@@ -144,6 +144,22 @@ function checkKeyNeed(eventtypes, e) {
     }
     return true;
 }
+function wrapHandler(h) {
+    if (h instanceof Function) {
+        return function () {
+            var res = h.apply(this, arguments);
+            if (res && isFunction(res.then)) {
+                this.setAttribute('pending', '');
+                var removePending = () => {
+                    this.removeAttribute('pending');
+                };
+                res.then(removePending, removePending);
+            }
+            return res;
+        }
+    }
+    return h;
+}
 if (is_addEventListener_enabled) {
     var on = function (k) {
         var on_event_path = "on" + k;
@@ -151,6 +167,7 @@ if (is_addEventListener_enabled) {
         var eventtypes = parseEventTypes(k);
         k = k.replace(eventtypereg, '');
         function addhandler(element, handler, firstmost) {
+            handler = wrapHandler(handler);
             if (eventtypes.capture) firstmost = true;
             if (k === changes_key) {
                 if (!element.needchanges) element.needchanges = 0;
@@ -190,6 +207,7 @@ if (is_addEventListener_enabled) {
 
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
         function addhandler(element, handler, firstmost = false) {
+            handler = wrapHandler(handler);
             if (eventtypes.capture) {
                 console.warn("当前运行环境不支持事件capture");
                 firstmost = true;

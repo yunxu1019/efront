@@ -1,7 +1,12 @@
 
 var _slider = createElement(div);
-var getGenerator = function (container, parsedSrc) {
+var empty = function (index, item) {
+    if (!item) return;
+    return document.createElement('empty');
+};
+var getGenerator = function (container) {
     if (!container) return;
+    if (!container.childNodes.length) return container.$generator || empty;
     var template = document.createElement("div");
     var templates = [].concat.apply([], container.childNodes).filter(a => {
         if (a.hasAttribute('insert')) {
@@ -20,26 +25,27 @@ var getGenerator = function (container, parsedSrc) {
     appendChild(template, templates);
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
-    return function (index, com) {
+    var scopes = container.$parentScopes.concat(container.$scope);
+    return container.$generator = function (index, com) {
         if (!com) {
             if (!container.src || index >= container.src.length) return;
             com = container.src[index];
         }
         if (!com) return;
-        var template1 = template.cloneNode();
-        template1.innerHTML = template.innerHTML;
+        var template1 = template.cloneNode(true);
         if (!template1.childNodes.length) return template1;
         var item = template1.childNodes[0];
         item.with = [].concat.apply([], template1.childNodes).slice(1);
+        var parsedSrc = container.$src;
         if (parsedSrc) {
             var { keyName, itemName, indexName } = parsedSrc;
-            var newScope = extend(Object.create(container.$scope), {
+            var newScope = {
                 [keyName || '$key']: index,
                 [itemName || '$item']: com,
                 [indexName || '$index']: index
-            });
-            var newItem = render(item, newScope);
-            newItem.with = render(item.with, newScope);
+            };
+            var newItem = render(item, newScope, scopes);
+            if (item.with.length) newItem.with = render(item.with, newScope, scopes);
         } else {
             var newScope = container.src[index];
             if (!isObject(newScope)) newScope = {
@@ -59,8 +65,8 @@ var getGenerator = function (container, parsedSrc) {
                     return this.$item;
                 }
             }
-            var newItem = render(item, newScope, [container.$scope]);
-            newItem.with = render(newItem.with = item.with, newScope, [container.$scope]);
+            var newItem = render(item, newScope, scopes);
+            newItem.with = render(newItem.with = item.with, newScope, scopes);
         }
         return newItem;
     };

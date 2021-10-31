@@ -1,15 +1,17 @@
-&.dragging {
-    box-shadow: 0 0 20px -6px #00000033;
-
+&[dragchildren] {
     >thead,
     >tbody,
     & {
         >tr {
 
             >th,
-            >td {}
+            >td {
+                box-shadow: 1px 0 0 0 #00000033, -1px 0 0 0 #00000033;
+            }
+
         }
     }
+
 }
 
 thead,
@@ -17,8 +19,13 @@ tbody,
 th,
 td,
 tr,
-table {
+table,
+& {
     box-sizing: border-box;
+}
+
+& {
+    outline: 1px solid #0006;
 }
 
 .y-ing {
@@ -45,56 +52,67 @@ table {
     table-layout: fixed;
     white-space: nowrap;
 
-    >thead {
-        user-select: none;
-        line-height: 36px;
+}
 
-        >tr {
+>thead {
+    user-select: none;
+    line-height: 36px;
+
+    >tr {
+
+        >td,
+        >th {
+            padding: @cell-padding;
+            position: relative;
+            color: #fff;
+            background-color: #999;
+        }
+    }
+}
+
+>tbody {
+    line-height: 32px;
+    height: 100%;
+    min-height: 30px;
+
+    display: table-row-group;
+
+    >tr {
+
+        >td,
+        >th {
+            padding: @cell-padding;
+            position: relative;
+        }
+
+        &:nth-of-type(even) {
 
             >td,
             >th {
-                padding: @cell-padding;
-                position: relative;
-                color: #fff;
-                background-color: #999;
+                background-color: #eee;
             }
         }
-    }
 
-    >tbody {
-        line-height: 32px;
-
-        >tr {
+        &:nth-of-type(odd) {
 
             >td,
             >th {
-                padding: @cell-padding;
-                position: relative;
+                background-color: #fff;
             }
+        }
 
-            &:nth-child(even) {
+        &:hover {
 
-                >td,
-                >th {
-                    background-color: #eee;
-                }
-            }
-
-            &:nth-child(odd) {
-
-                >td,
-                >th {
-                    background-color: #fff;
-                }
-            }
-
-            &:hover {
-
-                >td,
-                >th {
-                    background: #dddddd;
-                }
+            >td,
+            >th {
+                background: #dddddd;
             }
         }
     }
+}
+
+.button {
+    margin-right: 10px;
+    vertical-align: middle;
+    display: inline-block;
 }

@@ -1,13 +1,14 @@
 var styles = {
-    blue: "#2a53cd",
+    blue: "#2a83cd",
     green: "#228B22",
-    orange: "#dd6a16",
-    red: "#dc352e"
+    orange: "#fdca86",
+    red: "#cc352e"
 };
 styles.success = styles.pass = styles.green;
 styles.info = styles.blue;
 styles.error = styles.danger = styles.red;
 styles.warn = styles.orange;
+styles.default = '#000';
 var alerts = [];
 var clean = Cleanup(alerts);
 var build = function () {
@@ -21,15 +22,15 @@ var build = function () {
 };
 var fontSize = 16;
 var singleHeight = fontSize * 3.125 | 0;
-var _text = function (color, parameters) {
+var _text = function (bgcolor, parameters) {
     var box = div();
     css(box, `top:${fromPixel(alerts.length ? Math.max.apply(Math, alerts.map(e => e.offsetTop + e.children[0].offsetHeight)) : 0)};height:0;line-height:${fromPixel(singleHeight - 20)};left:0;right:0;font-size:${fromPixel(fontSize)}; transition: all 0.2s ease-out;position:absolute;color:#fff;text-align:center;`);
-    box.innerHTML = `<div style='width: 720px;white-space:pre-wrap;max-width:100%;display:inline-block;height:auto;padding:${fromPixel(10)} ${fromPixel(20)};background-color:${color};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
+    box.innerHTML = `<div style='width: 720px;white-space:pre-wrap;max-width:100%;display:inline-block;height:auto;padding:${fromPixel(10)} ${fromPixel(20)};background-color:${bgcolor};color:${color.pair(bgcolor)};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
     box.initialStyle = `margin:-${fromPixel(singleHeight)} auto;opacity:0;`;
     return box;
 };
 function alert() {
-    var color = String(this), text, autoclose = true, onclose;
+    var color = String(isString(this) && this || styles.default), text, autoclose = true, onclose;
     var color_reg = /^#(?:\w{6}|\w{3})$/;
     [].map.call(arguments, function (arg) {
         switch (typeof arg) {

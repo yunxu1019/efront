@@ -25,7 +25,8 @@ var safeQuitProcess = function () {
     reload.splice(0, reload.length).forEach(res => res.end(''));
     process.removeAllListeners();
     clients.destroy();
-    process.exit();
+    process.stdin.unref();
+    process.stdout.unref();
 };
 
 message.quit = safeQuitProcess;
@@ -76,8 +77,9 @@ var requestListener = function (req, res) {
                     let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
                     process.send('quit');
                     res.end(`已关闭${ports.join("、")}端口`);
-                    break efront;
+                    return;
             }
+            res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
             var type = /^(\w+)([\/\w\-]+)?(\?[\s\S]*)?$/.exec(option);
             if (type) switch (type[1]) {
                 case "link":
@@ -320,6 +322,9 @@ if (SSL_ENABLED) {
     initServer.call(server2, HTTPS_PORT);
 }
 process.on('exit', function (event) {
+    process.stdin.unref();
+    process.stderr.unref();
+    process.stdout.unref();
     if (event instanceof Error) console.error(event);
 });
 message.count("boot");

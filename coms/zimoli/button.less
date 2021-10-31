@@ -18,7 +18,9 @@
     overflow: hidden;
     outline: none;
 }
-
+>.label{
+    position: relative;
+}
 
 @keyframes busy-loading {
     0% {
@@ -139,9 +141,11 @@
         margin-left: -2px;
         height: 200%;
         background: #fff9;
+        background: inherit;
+        opacity: 0.9;
         border-left: 1px #fff3 solid;
         border-right: 3px #fff6 solid;
-        animation: ltr 3s linear 1s infinite;
+        animation: ltr 2s linear 0s infinite;
     }
 
 }

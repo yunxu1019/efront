@@ -86,6 +86,16 @@ var bindTarget = function (index, element) {
 };
 
 var hooka = function (matcher, move, event, targetChild, isMovingSource) {
+    var dragbox = this.dragbox;
+    if (dragbox instanceof Function) {
+        dragbox = dragbox.call(this);
+        if (dragbox && !getTargetIn(dragbox, event.target)) return;
+    }
+    else {
+        dragbox = this;
+    }
+    var that = this;
+
     var draggingSourceOpacity = isMovingSource !== false ? 0 : 1;
 
     var recover = function (element) {
@@ -130,41 +140,89 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     }
     var targetBox, saved_opacity, saved_filter, moveMargin, moveChildren;
     var previousElements, followedElements, rebuildTargets, scroll;
-    if (getTargetIn(this, targetChild)) {
-        targetBox = targetChild.parentNode;
-        previousElements = getPreviousElementSiblings(targetChild);
-        followedElements = getFollowedElementSiblings(targetChild);
-        saved_filter = targetBox.style.filter;
-        saved_opacity = targetBox.style.opacity;
-        rebuildTargets = function () { };
-        [moveMargin, moveChildren, scroll] = getMoveFuncs(targetChild);
-        moveChildren = moveChildren.bind(null, targetBox, previousElements, followedElements, moveMargin, recover);
-    } else {
-        previousElements = [];
-        followedElements = [];
-        moveChildren = () => { };
-        rebuildTargets = function () {
-            var temp = matcher(drag.target);
-            if (temp === targetBox) return;
-            if (previousElements) previousElements.map(recover);
-            if (followedElements) followedElements.map(recover);
-            if (targetBox) {
-                removeClass(targetBox, "dropping");
-            }
-            targetBox = temp;
-            if (!targetBox) {
-                previousElements = [];
-                followedElements = [];
-                moveChildren = () => { };
-                return;
-            }
-            addClass(targetBox, "dropping");
-            previousElements = [].slice.call(targetBox.children, 0).reverse();
-            followedElements = [];
-            [moveMargin, moveChildren, scroll] = getMoveFuncs(previousElements[0]);
+    var that = this;
+    var draginit = function () {
+        that.setAttribute('dragchildren', '');
+        if (targetBox) addClass(targetBox, 'dropping');
+        if (getTargetIn(dragbox, targetChild)) {
+            targetBox = targetChild.parentNode;
+            previousElements = getPreviousElementSiblings(targetChild);
+            followedElements = getFollowedElementSiblings(targetChild);
+            saved_filter = targetBox.style.filter;
+            saved_opacity = targetBox.style.opacity;
+            rebuildTargets = function () { };
+            [moveMargin, moveChildren, scroll] = getMoveFuncs(targetChild);
             moveChildren = moveChildren.bind(null, targetBox, previousElements, followedElements, moveMargin, recover);
-        };
-    }
+        } else {
+            previousElements = [];
+            followedElements = [];
+            moveChildren = () => { };
+            rebuildTargets = function () {
+                var temp = matcher(drag.target);
+                if (temp === targetBox) return;
+                if (previousElements) previousElements.map(recover);
+                if (followedElements) followedElements.map(recover);
+                if (targetBox) {
+                    removeClass(targetBox, "dropping");
+                }
+                targetBox = temp;
+                if (!targetBox) {
+                    previousElements = [];
+                    followedElements = [];
+                    moveChildren = () => { };
+                    return;
+                }
+                addClass(targetBox, "dropping");
+                previousElements = [].slice.call(targetBox.children, 0).reverse();
+                followedElements = [];
+                [moveMargin, moveChildren, scroll] = getMoveFuncs(previousElements[0]);
+                moveChildren = moveChildren.bind(null, targetBox, previousElements, followedElements, moveMargin, recover);
+            };
+        }
+    };
+    var dragfire = function () {
+        that.removeAttribute('dragchildren');
+        removeClass(targetBox, "dropping");
+        var dst, appendSibling, delta;
+        var src = previousElements.length;
+        if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
+            if (!previousElements[cx]) {
+                dst = 0;
+                delta = 0;
+                appendSibling = appendChild.before;
+            } else if (!previousElements[cx].moved) {
+                dst = previousElements.length - cx;
+                delta = -1;
+                appendSibling = appendChild.after;
+                break;
+            }
+        }
+
+        if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
+            if (!followedElements[cx]) {
+                dst = followedElements.length + previousElements.length;
+                delta = 0;
+                appendSibling = appendChild.after;
+            } else if (!followedElements[cx].moved) {
+                dst = previousElements.length + cx;
+                delta = 1;
+                appendSibling = appendChild.before;
+                break;
+            }
+        }
+        if (appendSibling) {
+            var children = targetBox.children;
+            var srcElement = children[src];
+            var dstElement = children[dst + delta];
+            src = bindTarget(src, srcElement);
+            dst = bindTarget(dst, dstElement);
+            isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
+            if (srcElement === children[src] && dstElement === children[dst + delta] && srcElement && dstElement) appendSibling(dstElement, srcElement);
+        } else if (isMovingSource === false) {
+            move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
+        }
+    };
+
     var offall = function () {
         offmousup();
         offtouchend();
@@ -190,8 +248,8 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
 
     // 修改margin无效的情况
     function dragclone() {
+        draginit();
         rebuildTargets();
-        if (targetBox) addClass(targetBox, 'dropping');
         var _previousElements = previousElements.map(cloneCell);
         var _followedElements = followedElements.map(cloneCell);
         previousElements.splice(0, previousElements.length);
@@ -204,109 +262,33 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         var offall = function () {
             offdragmove();
             offdragend();
-            removeClass(targetBox, "dropping");
         };
         var offdragend = on("dragend")(targetChild, function () {
             offall();
+            dragfire();
             css(targetBox, { opacity: saved_opacity, filter: saved_filter });
             remove(previousElements);
             remove(followedElements);
-            var dst, appendSibling, delta;
-            var src = previousElements.length;
-            if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
-                if (!previousElements[cx]) {
-                    dst = 0;
-                    delta = 0;
-                    appendSibling = appendChild.before;
-                } else if (!previousElements[cx].moved) {
-                    dst = previousElements.length - cx;
-                    delta = -1;
-                    appendSibling = appendChild.after;
-                    break;
-                }
-            }
-
-            if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
-                if (!followedElements[cx]) {
-                    dst = followedElements.length + previousElements.length;
-                    delta = 0;
-                    appendSibling = appendChild.after;
-                } else if (!followedElements[cx].moved) {
-                    dst = previousElements.length + cx;
-                    delta = 1;
-                    appendSibling = appendChild.before;
-                    break;
-                }
-            }
             previousElements.map(recover);
             followedElements.map(recover);
-            if (appendSibling) {
-                var children = targetBox.children;
-                var srcElement = children[src];
-                var dstElement = children[dst + delta];
-                src = bindTarget(src, srcElement);
-                dst = bindTarget(dst, dstElement);
-                isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
-                if (srcElement === children[src] && dstElement === children[dst + delta] && srcElement && dstElement) appendSibling(dstElement, srcElement);
-            } else if (isMovingSource === false) {
-                move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
-            }
         });
         var offdragmove = on("dragmove")(targetChild, dragmove);
     }
     // 仅修改Margin就可以实现拖拽效果
     function draglist() {
+        draginit();
         rebuildTargets();
-        if (targetBox) addClass(targetBox, 'dropping');
         autoScroll();
         var offall = function () {
             cancelScroll();
             offdragmove();
             offdragend();
-            if (targetBox) removeClass(targetBox, "dropping");
         };
         var offdragend = on("dragend")(targetChild, function () {
             offall();
-            var dst, appendSibling, delta;
-            var src = previousElements.length;
-            if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
-                if (!previousElements[cx]) {
-                    dst = 0;
-                    delta = 0;
-                    appendSibling = appendChild.before;
-                } else if (!previousElements[cx].moved) {
-                    dst = previousElements.length - cx;
-                    delta = -1;
-                    appendSibling = appendChild.after;
-                    break;
-                }
-            }
-
-            if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
-                if (!followedElements[cx]) {
-                    dst = followedElements.length + previousElements.length;
-                    delta = 0;
-                    appendSibling = appendChild.after;
-                } else if (!followedElements[cx].moved) {
-                    dst = previousElements.length + cx;
-                    delta = 1;
-                    appendSibling = appendChild.before;
-                    break;
-                }
-            }
+            dragfire();
             previousElements.map(e => moveMargin(e, false));
             followedElements.map(e => moveMargin(e, false));
-            if (appendSibling) {
-                var children = targetBox.children;
-                var srcElement = children[src];
-                var dstElement = children[dst + delta];
-                src = bindTarget(src, srcElement);
-                dst = bindTarget(dst, dstElement);
-                isFunction(move) && move(src, dst, dst + delta, appendSibling, targetBox);
-                if (srcElement === children[src] && dstElement === children[dst + delta] && srcElement && dstElement) appendSibling(dstElement, srcElement);
-            } else if (isMovingSource === false) {
-                move(previousElements.length, previousElements.length, previousElements.length, null, targetBox);
-            }
         });
         var offdragmove = on("dragmove")(targetChild, dragmove);
     }
@@ -320,9 +302,7 @@ var hookEvent = function (matcher, move, event) {
     if (event.target === this) return;
     var targetChild = getTargetIn(matcher, event.target, false);
     if (!targetChild) return;
-    var dragbox = this.dragbox;
-    if (dragbox instanceof Function) dragbox = dragbox.call(this);
-    hooka.call(dragbox || this, matcher, move, event, targetChild);
+    hooka.call(this, matcher, move, event, targetChild);
 };
 function addhook() {
     var mousedownEvent, targetElement, callback, matcher, dropid, allowdrops;

@@ -62,7 +62,6 @@ function main(buff) {
 		tree.count(i);
 		result.push(i);
 	}
-	console.log(d);
 	__buff = null;
 	return result;
 }

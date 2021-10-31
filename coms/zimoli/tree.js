@@ -251,7 +251,7 @@ function tree() {
                 com.forEach(z);
                 setState();
             };
-
+            var time = size => (Math.log(-size / 30 + 2) * 100 | 0) / 1000;
             if (com.isClosed() && com.length) {
                 z0();
                 setState(true);
@@ -265,7 +265,7 @@ function tree() {
                     marginTop = top.offsetTop - bottom.offsetTop - bottom.offsetHeight;
                 }
                 var res = transition(top, {
-                    transition: 'margin-top .2s ease-out',
+                    transition: `margin-top ${time(marginTop)}s ease-out`,
                     marginTop: fromOffset(marginTop)
                 }, true);
                 if (res) timeout(refresh, res);
@@ -282,7 +282,7 @@ function tree() {
                 }
                 setState(false);
                 z0();
-                var res = transition(change_elem, { transition: "margin-top .2s ease-out", marginTop: fromOffset(margin_top) }, false);
+                var res = transition(change_elem, { transition: `margin-top ${time(margin_top)}s ease-out`, marginTop: fromOffset(margin_top) }, false);
                 timeout(z1, res);
             }
         });
@@ -307,7 +307,7 @@ function tree() {
     };
     var refresh = function () {
         var index = banner.index();
-        var needremoves = dom.map(d => d.target).filter(d=>!!d);
+        var needremoves = dom.map(d => d.target).filter(d => !!d);
         dom = getArrayFromTree(root, true);
         needremoves.forEach(_div => {
             delete _div.initialStyle;

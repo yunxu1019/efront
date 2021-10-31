@@ -433,18 +433,8 @@ function list() {
         bindSrc = container;
         container = div();
     } else if (container && !generator) {
-        var src = container.getAttribute("src") || container.getAttribute("ng-src") || container.getAttribute("v-src");
-        if (src) {
-            var parsedSrc = render.parseRepeat(src);
-            if (!parsedSrc) {
-                container.setAttribute("ng-src", src);
-                container.removeAttribute("src");
-                var generator = getGenerator(container);
-            } else {
-                container.setAttribute("ng-src", parsedSrc.srcName);
-                container.removeAttribute("src");
-                var generator = getGenerator(container, parsedSrc);
-            }
+        if ("$src" in container) {
+            generator = getGenerator(container);
             care(container, function () {
                 var index = container.index();
                 container.clean();

@@ -110,18 +110,6 @@ function main(elem, mode) {
             }
         }
         mode = mode ? mode.toLowerCase() : "horizonal";
-        var src = elem.getAttribute("src") || elem.getAttribute("ng-src") || elem.getAttribute("v-src");
-        if (src) {
-            var parsedSrc = render.parseRepeat(src);
-            if (!parsedSrc) {
-                elem.removeAttribute("src");
-                var generator = getGenerator(elem);
-            } else {
-                elem.removeAttribute("src");
-                var generator = getGenerator(elem, parsedSrc);
-            }
-            elem.setAttribute("ng-src", parsedSrc ? parsedSrc.srcName : src);
-        }
 
         switch (mode) {
             case "i":
@@ -130,6 +118,7 @@ function main(elem, mode) {
             case "t":
             case "tree":
                 if (elem) {
+                    var generator = getGenerator(elem);
                     tree(elem, function (index, item) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
@@ -165,9 +154,10 @@ function main(elem, mode) {
                 var emit = function (item) {
                     active(elem, item, item.value);
                 };
-                if (src) {
+                if ("$src" in elem) {
+                    getGenerator(elem);
                     care(elem, function (src) {
-                        menuList(elem, getTreeFromData(src), emit, generator, direction);
+                        menuList(elem, getTreeFromData(src), emit, direction);
                     });
                 } else {
                     var nodes = getArrayNodes(elem);
