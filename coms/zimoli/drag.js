@@ -46,6 +46,8 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             var [target_left, target_top] = getOffset(target);
             if (abs(target_left - event.screenX - saved_delta.x) < MOVELOCK_DELTA && abs(target_top - event.screenY - saved_delta.y) < MOVELOCK_DELTA) return;
             saved_delta.ing = true;
+            drag.target = target;
+            dispatch("dragstart", target);
             if (isElement(target) && !/absolute|fixed/.test(getComputedStyle(target).position)) {
                 clone = toCloneTarget(target, isMovingSource);
                 appendChild(document.body, clone);
@@ -62,7 +64,6 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
                 clone.style.zIndex = zIndex();
                 extraClones.map(e => e.style.zIndex = clone.style.zIndex);
             }
-            dispatch("dragstart", target);
         }
         drag.target = clone;
         var offsetLeft = saved_delta.x + event.screenX;
