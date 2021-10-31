@@ -1,8 +1,8 @@
 var styles = {
-    blue: "#2a53cd",
+    blue: "#2a83cd",
     green: "#228B22",
-    orange: "#dd6a16",
-    red: "#dc352e"
+    orange: "#fdca86",
+    red: "#cc352e"
 };
 styles.success = styles.pass = styles.green;
 styles.info = styles.blue;
