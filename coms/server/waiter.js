@@ -25,7 +25,8 @@ var safeQuitProcess = function () {
     reload.splice(0, reload.length).forEach(res => res.end(''));
     process.removeAllListeners();
     clients.destroy();
-    process.exit();
+    process.stdin.unref();
+    process.stdout.unref();
 };
 
 message.quit = safeQuitProcess;
@@ -362,6 +363,9 @@ if (SSL_ENABLED) {
     initServer.call(server2, HTTPS_PORT);
 }
 process.on('exit', function (event) {
+    process.stdin.unref();
+    process.stderr.unref();
+    process.stdout.unref();
     if (event instanceof Error) console.error(event);
 });
 message.count("boot");
