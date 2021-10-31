@@ -149,8 +149,24 @@ var requestListener = async function (req, res) {
                     res.write("清理完成");
                     break;
                 case "share":
-                    doGet.reset();
-                    res.write(JSAM.stringify(require("./checkAccess").roots));
+                    var opt = type[2] && type[2].slice(1);
+                    switch (opt) {
+                        case 'list':
+                            res.write(JSAM.stringify(require("./checkAccess").roots));
+                            break;
+                        case 'create':
+                            var optname = '添加'
+                        case 'delete':
+                            var optname = optname || '删除'
+                        case 'update':
+                            var optname = optname || '修改'
+                            res.writeHead(403);
+                            res.write(`暂不支持${optname}共享路径！`);
+                            break;
+                        default:
+                            res.writeHead(403);
+                            res.write("非法操作！");
+                    }
                     break;
             }
         }
