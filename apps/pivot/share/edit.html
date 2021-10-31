@@ -1,0 +1,10 @@
+<div head>修改</div>
+<div body>
+    <form>
+        <field -repeat="f in fields" -src="[f,data]"></field>
+    </form>
+</div>
+<div foot>
+    <button white @click="close()">取消</button>
+    <button @click="save()"> 保存 </button>
+</div>
