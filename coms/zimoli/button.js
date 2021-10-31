@@ -95,6 +95,11 @@ function button(texter, type) {
         if (_texter.tagName) {
             var button = _texter;
             if (button.childNodes.length) {
+                if (button.childNodes.length === 1 && button.childNodes[0].nodeType !== 1) {
+                    _texter = createElement(_label);
+                    _texter.appendChild(button.childNodes[0]);
+                    button.appendChild(_texter);
+                }
                 appendChild.before(button.childNodes[0], tracker);
             } else {
                 appendChild(button, tracker);
