@@ -38,21 +38,13 @@ var exit = function () {
     quitting.splice(0).forEach(function (worker) {
         var timeout = setTimeout(function () {
             worker.kill();
+            worker.off('disconnect', remove);
         }, isQuit ? 100 : 24 * 60 * 60 * 1000);
         var remove = function () {
             clearTimeout(timeout);
-            var index = notkilled.indexOf(worker);
-            notkilled.splice(index);
-            if (!notkilled.length) {
-                clients.destroy();
-                if (!workers.length && !quitting.length) {
-                    process.exit();
-                }
-            }
         }
         worker.on("disconnect", remove);
         message.send(worker, 'quit');
-        notkilled.push(worker);
     });
 };
 var broadcast = function (data) {

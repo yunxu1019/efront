@@ -20,13 +20,15 @@ var closeListener = function () {
 var safeQuitProcess = function () {
     portedServersList.forEach((server) => {
         server.removeAllListeners();
-        server.close(function(){});
+        server.close(function () { });
+        server.unref();
     });
     reload.splice(0, reload.length).forEach(res => res.end(''));
     process.removeAllListeners();
     clients.destroy();
     process.stdin.unref();
     process.stdout.unref();
+    process.exit();
 };
 
 message.quit = safeQuitProcess;
