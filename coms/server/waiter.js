@@ -17,19 +17,26 @@ var closeListener = function () {
         safeQuitProcess();
     }
 };
+var closed = false;
 var safeQuitProcess = function () {
+    closed = true;
     portedServersList.forEach((server) => {
         server.removeAllListeners();
-        server.close(function () { });
-        server.unref();
+        var timeout = setTimeout(function () {
+            server.unref();
+        }, process.stdin.isTTY ? 100 : 24 * 60 * 60 * 1000);
+        var remove = function () {
+            clearTimeout(timeout);
+        }
+        server.close(remove);
+
     });
     reload.splice(0, reload.length).forEach(res => res.end(''));
     process.removeAllListeners();
     clients.destroy();
-    process.stdin.unref();
-    process.stdout.unref();
-    process.exit();
 };
+// process.stdin.unref();
+// process.stdout.unref();
 
 message.quit = safeQuitProcess;
 message.deliver = function (a) {
@@ -55,6 +62,7 @@ var doProxy = require("./doProxy");
 var ppid = process.ppid;
 var version = 'efront/' + ppid;
 var requestListener = async function (req, res) {
+    if(closed)return req.destroy();
     req.protocol = this === server1 ? 'http:' : 'https:';
     var req_access_origin = req.headers["origin"];
     var req_access_headers = req.headers["access-control-request-headers"];

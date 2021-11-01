@@ -27,7 +27,7 @@ var end = function () {
 var afterend = function () {
     process.removeAllListeners();
     watch.close();
-    notkilled.forEach(a => a.kill());
+    notkilled.forEach(a => a.kill("SIGKILL"));
     clients.destroy();
     process.stdin.unref();
     process.stdout.unref();
@@ -36,14 +36,6 @@ var afterend = function () {
 var exit = function () {
     if (!workers.length) var isQuit = true;
     quitting.splice(0).forEach(function (worker) {
-        var timeout = setTimeout(function () {
-            worker.kill();
-            worker.off('disconnect', remove);
-        }, isQuit ? 100 : 24 * 60 * 60 * 1000);
-        var remove = function () {
-            clearTimeout(timeout);
-        }
-        worker.on("disconnect", remove);
         message.send(worker, 'quit');
     });
 };
