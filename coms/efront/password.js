@@ -19,7 +19,7 @@ async function getPassword(name) {
                     break;
                 case 3:// cancel
                     process.stdin.off("data", ondata);
-                    throw new Error("已取消");
+                    oh("已取消");
                     break;
                 case 13:// enter
                     process.stdin.off("data", ondata);
@@ -39,7 +39,9 @@ async function getPassword(name) {
     p.then(a => {
         process.stdin.setRawMode(false);
         process.stdin.unref()
-    }, console.error);
+    }, function () {
+        process.stdin.unref();
+    });
     return p;
 }
 var clearRow = function () {
@@ -68,6 +70,6 @@ module.exports = {
     requestPassword() {
         requestPassword().then(function (a) {
             userdata.setPassword(a);
-        }, console.error);
+        }, function () { });
     },
 };
