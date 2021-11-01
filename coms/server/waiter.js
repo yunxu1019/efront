@@ -20,7 +20,7 @@ var closeListener = function () {
 var safeQuitProcess = function () {
     portedServersList.forEach((server) => {
         server.removeAllListeners();
-        server.close(closeListener);
+        server.close(function(){});
     });
     reload.splice(0, reload.length).forEach(res => res.end(''));
     process.removeAllListeners();
