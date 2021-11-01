@@ -67,7 +67,9 @@ async function setItem(k, v) {
 async function getItem(k) {
     await loadProfileAsync();
     var k0 = encode62.geta(k + profile.code);
-    return String(encode62.decode(profile[k0], k0));
+    var v = profile[k0];
+    if (!v) return;
+    return String(encode62.decode(v, k0));
 }
 
 async function checkPassword(p) {
