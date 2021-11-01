@@ -69,7 +69,7 @@ var send, __send = send = function (worker, key, params, onsuccess, onerror, onf
         } while (stamp in callback_maps);
         callback_maps[stamp] = [onsuccess, onerror, onfinish];
     }
-    worker.connected && worker.send([key, JSAM.stringify({
+    (worker.process || worker).connected && worker.send([key, JSAM.stringify({
         params, stamp
     })].join(":"));
 };
