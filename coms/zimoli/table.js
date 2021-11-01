@@ -171,10 +171,7 @@ function table(elem) {
     })
     autodragchildren(
         table,
-        function (a) {
-            console.log('match')
-            return cellMatchManager.apply(this, arguments);
-        },
+        cellMatchManager,
         function (src, dst, rel, append, parentNode) {
             if (table.src) {
                 var [fields] = table.src;
