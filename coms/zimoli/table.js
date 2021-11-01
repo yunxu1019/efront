@@ -121,6 +121,7 @@ function table(elem) {
         move: resizeTarget,
     });
     onmousemove(tableElement, function (event) {
+        if (!thead) [thead] = table.getElementsByTagName("thead");
         if (!getTargetIn(thead, event.target)) return;
         var tds = getTargetIn(cellMatchManager, event.target);
         if (!isArray(tds)) tds = [];
@@ -159,6 +160,7 @@ function table(elem) {
         return thead;
     };
     care(table, function ([fields, data]) {
+        thead = null;
         this.innerHTML = template;
         render(this, {
             fields,
@@ -169,10 +171,7 @@ function table(elem) {
     })
     autodragchildren(
         table,
-        function (a) {
-            console.log('match')
-            return cellMatchManager.apply(this, arguments);
-        },
+        cellMatchManager,
         function (src, dst, rel, append, parentNode) {
             if (table.src) {
                 var [fields] = table.src;
