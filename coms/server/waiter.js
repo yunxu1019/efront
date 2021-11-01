@@ -271,10 +271,6 @@ var showServerInfo = function () {
     var maxLength = Math.max(msg[1].length, msg[2].length);
     process.title = msg.map(a => a.trim()).filter(a => !!a).join('，').replace(/\s/g, '');
     if (!ipLoged) ipLoged = true, console.info(msg[0] + "\r\n");
-    if (~port.indexOf(null)) {
-        console.log(port)
-        return;
-    }
     msg = msg.map(a => a.length && a.length < maxLength ? a + " ".repeat(maxLength - a.length) : a);
     var showError = function (i, e = portedServersList[i].error) {
         var s = portedServersList[i];
