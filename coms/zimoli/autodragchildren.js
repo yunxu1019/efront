@@ -152,7 +152,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             saved_opacity = targetBox.style.opacity;
             rebuildTargets = function () { };
             [moveMargin, moveChildren, scroll] = getMoveFuncs(targetChild);
-            moveChildren = moveChildren.bind(null, targetBox, previousElements, followedElements, moveMargin, recover);
+            moveChildren = moveChildren.bind(null, that, previousElements, followedElements, moveMargin, recover);
         } else {
             previousElements = [];
             followedElements = [];
@@ -176,7 +176,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
                 previousElements = [].slice.call(targetBox.children, 0).reverse();
                 followedElements = [];
                 [moveMargin, moveChildren, scroll] = getMoveFuncs(previousElements[0]);
-                moveChildren = moveChildren.bind(null, targetBox, previousElements, followedElements, moveMargin, recover);
+                moveChildren = moveChildren.bind(null, that, previousElements, followedElements, moveMargin, recover);
             };
         }
     };
