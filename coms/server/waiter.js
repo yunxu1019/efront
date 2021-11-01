@@ -35,8 +35,6 @@ var safeQuitProcess = function () {
     process.removeAllListeners();
     clients.destroy();
 };
-// process.stdin.unref();
-// process.stdout.unref();
 
 message.quit = safeQuitProcess;
 message.deliver = function (a) {
@@ -62,7 +60,7 @@ var doProxy = require("./doProxy");
 var ppid = process.ppid;
 var version = 'efront/' + ppid;
 var requestListener = async function (req, res) {
-    if(closed)return req.destroy();
+    if (closed) return req.destroy();
     req.protocol = this === server1 ? 'http:' : 'https:';
     var req_access_origin = req.headers["origin"];
     var req_access_headers = req.headers["access-control-request-headers"];
@@ -263,50 +261,76 @@ var checkServerState = function (http, port) {
         req.end();
     });
 };
-
+var loaded = 0;
 var showServerInfo = function () {
+    if (++loaded < portedServersList.length) return;
     var address = require("../efront/getLocalIP")();
     var port = portedServersList.map(a => a && a.address());
-    port = port.map(a => a && a.port);
+    port = port.map((a, i) => a && a.port || portedServersList[i].port);
     var msg = [`服务器地址：${address}`, port[0] ? `http端口  ：${port[0]}` : '', port[1] ? `https端口 ：${port[1]}` : ''].map(a => a.toUpperCase());
     var maxLength = Math.max(msg[1].length, msg[2].length);
     process.title = msg.map(a => a.trim()).filter(a => !!a).join('，').replace(/\s/g, '');
     if (!ipLoged) ipLoged = true, console.info(msg[0] + "\r\n");
     if (~port.indexOf(null)) {
+        console.log(port)
         return;
     }
     msg = msg.map(a => a.length && a.length < maxLength ? a + " ".repeat(maxLength - a.length) : a);
-    if (msg[1]) checkServerState(http, HTTP_PORT).then(function () {
-        console.info(msg[1] + "\t<green>正常访问</green>\r\n");
-    }).catch(function (error) {
-        showServerError.call(portedServersList[0], msg[1] + "\t" + error);
-    });
-    if (msg[2]) checkServerState(require("https"), HTTPS_PORT).then(function () {
-        console.info(msg[2] + "\t<green>正常访问</green>\r\n");
-    }).catch(function (error) {
-        showServerError.call(portedServersList[1], msg[2] + "\t" + error);
-    });
+    var showError = function (i, e = portedServersList[i].error) {
+        var s = portedServersList[i];
+        s.removeAllListeners();
+        console.error(msg[i + 1] + "\t" + e);
+        s.close(closeListener);
+    };
+    var showValid = function (i) {
+        console.info(msg[i + 1] + "\t<green>正常访问</green>\r\n");
+    }
+    if (msg[1]) {
+        if (portedServersList[0].error) {
+            showError(0);
+        }
+        else checkServerState(http, HTTP_PORT).then(function () {
+            showValid(0);
+        }).catch(function (error) {
+            showError(0, error);
+        });
+    }
+    if (msg[2]) {
+        if (portedServersList[1].error) {
+            showError(1);
+        }
+        else checkServerState(require("https"), HTTPS_PORT).then(function () {
+            showValid(1);
+        }).catch(function (error) {
+            showError(1, error);
+        });
+    }
 };
 var showServerError = function (error) {
     var s = this;
     if (!s) return;
 
-    s.removeAllListeners();
     if (error instanceof Error) {
         switch (error.code) {
             case "EADDRINUSE":
-                error = `<red>${error.port}</red>端口被占用`;
+                error = `端口被占用`;
                 break;
+            case "EACCES":
+                error = "没有权限";
+                break;
+            default:
+                error = error.code;
         }
     }
-    console.error(error || `${error.port}端口打开失败!`);
-    s.close(closeListener);
+    s.error = error || `端口打开失败`;
+    showServerInfo.call(s);
 };
 var portedServersList = [];
 function initServer(port) {
     var server = this.once("error", showServerError)
         .once("listening", showServerInfo)
         .listen(+port);
+    server.port = port;
     portedServersList.push(server);
     return server;
 }
