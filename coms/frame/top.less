@@ -167,3 +167,25 @@
         margin: 5px;
     }
 }
+
+btn {
+    vertical-align: top;
+}
+@keyframes rotate {
+    0%{
+        transform: rotate(0deg);
+    }
+    50%{
+        transform: rotate(240deg);
+    }
+    100%{
+        transform: rotate(360deg);
+    }
+}
+.load{
+    >.label{
+        display: inline-block;
+        animation: rotate 1s infinite;
+    }
+    
+}
