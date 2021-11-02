@@ -70,6 +70,9 @@ var requestListener = async function (req, res) {
     req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
     req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
     if (/^option/i.test(req.method)) {
+        if (req_access_method || req_access_headers) {
+            return res.end();
+        }
         efront:
         if (/^\/\:/.test(req.url)) {
             var option = req.url.slice(2);
@@ -223,10 +226,6 @@ var requestListener = async function (req, res) {
         return res.end(doPost.ccon(name, color));
     }
     if (/^get/i.test(req.method)) {
-        var match = req.url.match(/\/:(?:comm|page|ccon|aa?pi)\/.*?$/i);
-        if (match) {
-            return doPost(req, res);
-        }
         if (SSL_ENABLED && req.socket.localPort === 80) {
             // 现代浏览器不会给http网站标记为不安全，并且火狐等浏览器对网站进行云检查以判断是否安全
             // 没有必要自动转向https，所以请让以下代码胎死腹中

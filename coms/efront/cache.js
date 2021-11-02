@@ -4,6 +4,7 @@ var watch = require("../efront/watch");
 var path = require("path");
 var isObject = require("../basic/isObject");
 var lazy = require("../basic/lazy");
+var mimes = require("./mime");
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
     if (loading_count > 2) return;
@@ -338,6 +339,12 @@ File.prototype[$updateme] = async function () {
     }
     if (typeof buffer === "string") buffer = Buffer.from(buffer);
     if (buffer instanceof Buffer) buffer.stat = stats;
+    var extend = String(that[$pathname]).match(/\.([^\.]*?)$/);
+    buffer.mime = mimes[extend[1]];
+    if (!buffer.mime && /^(asp|php|jsp)$/i.test(extend[1])) {
+        if (/^\s*\<\!/.test(buffer)) buffer.mime = 'text/html;charset=utf-8';
+    }
+
     return that[$buffered] = buffer;
 };
 

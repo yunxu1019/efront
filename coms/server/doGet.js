@@ -53,7 +53,6 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
         });
     });
 }, FILE_BUFFER_SIZE).async;
-var mimes = require("../efront/mime");
 var message = require("../message");
 var proxy = require("./url-proxy");
 /**
@@ -70,20 +69,13 @@ var response = function (data, url, req, res) {
         res.writeHead(304, {});
     }
     else {
-        var extend = (data.name || url).match(/\.([^\.]*?)$/);
         var headers = {
             "Content-Length": data.length
         };
-        if (extend) {
-            var mime = mimes[extend[1]];
-            if (mime) {
-                headers['Content-Type'] = mime;
-            }
-            else if (/^(php|asp|jsp)$/i.test(extend[1])) {
-                if (/^\s*\<\!/.test(data)) headers['Content-Type'] = 'text/html;charset=utf-8';
-                else headers['Content-Type'] = 'text/plain;charset=utf-8';
-            }
+        if(data.mime){
+            headers['Content-Type'] = data.mime;
         }
+        headers["Cache-Control"] = "no-cache";
         var status = 200;
         if (data.stat) {
             headers["Last-Modified"] = data.stat.mtime.toUTCString();

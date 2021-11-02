@@ -61,7 +61,7 @@ var doPost = module.exports = function (req, res) {
         if (!(result instanceof Buffer || result instanceof Function)) {
             result = String(result);
         } else {
-            res.setHeader("Content-Type", result.mime || "application/json;charset:UTF-8");
+            if (result.mime) res.setHeader("Content-Type", result.mime);
         }
         switch (type) {
             case "api":
