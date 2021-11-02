@@ -1,1 +1,1 @@
-module.exports = !require("./memery").compress;
+module.exports = require("./memery").isDevelop;

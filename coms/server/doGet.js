@@ -5,15 +5,12 @@ var filebuilder = require("../efront/filebuilder");
 var checkAccess = require("./checkAccess");
 var doFile = require("./doFile");
 var doCross = require("./doCross");
-var isDevelop = require("../efront/isDevelop");
 var memery = require("../efront/memery");
 var transfer = require("./transfer");
 var parseURL = require("../basic/parseURL");
 var isObject = require("../basic/isObject");
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
-var PUBLIC_PATH = memery.PUBLIC_PATH;
-var APPS_PATH = memery.PAGE_PATH;
-var SERVER_ROOT_PATH = isDevelop ? APPS_PATH : PUBLIC_PATH;
+var SERVER_ROOT_PATH = memery.webroot;
 var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filename, fullpath) {
     var origin_size = data.length;
     var data = filebuilder.apply(this, arguments);
@@ -72,7 +69,7 @@ var response = function (data, url, req, res) {
         var headers = {
             "Content-Length": data.length
         };
-        if(data.mime){
+        if (data.mime) {
             headers['Content-Type'] = data.mime;
         }
         headers["Cache-Control"] = "no-cache";
@@ -96,6 +93,7 @@ var response = function (data, url, req, res) {
     }
     return res.end();
 };
+var utf8 = { "Content-Type": "text/plain;charset=utf-8" };
 /**
  * 根据数据类型进行不同的响应处理
  * @param {Buffer|Object|string} data 
@@ -108,7 +106,7 @@ var adapter = function (data, url, req, res) {
         return response(data, url, req, res);
     }
     if (data instanceof Error) {
-        res.writeHead(404, {});
+        res.writeHead(404, utf8);
         return res.end(String(data));
     }
     if (data instanceof Function) {
@@ -118,7 +116,7 @@ var adapter = function (data, url, req, res) {
         return data.then(function (data) {
             adapter(data, url, req, res);
         }).catch(function (error) {
-            res.writeHead(500, {});
+            res.writeHead(500, utf8);
             res.end(String(error));
         });
     }
@@ -155,8 +153,8 @@ var adapter = function (data, url, req, res) {
         return doCross(req, res);
     }
 
-    res.writeHead(404, {});
-    res.end("not found");
+    res.writeHead(404, utf8);
+    res.end("未找到指定的资源");
 };
 /**
  * doGet

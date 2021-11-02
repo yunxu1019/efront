@@ -5,10 +5,7 @@ var proxy = require("./url-proxy");
 var checkAccess = require("./checkAccess");
 var encode62 = require("../crypt/encode62");
 var mimes = require("../efront/mime");
-var isDevelop = require("../efront/isDevelop");
-var memery = require("../efront/memery");
-var { PAGE_PATH, PUBLIC_PATH } = memery;
-var root = isDevelop ? PAGE_PATH : PUBLIC_PATH;
+var root = require("../efront/memery").webroot;
 var cachePieceSize = 32 * 1024;
 var cacheCountLimit = 6000;
 var allowSocketTime = 24 * 60 * 60 * 1000;
@@ -65,8 +62,8 @@ function piperead(h, start, end, res, sign) {
 function doGetFile(req, res, filepath, code) {
     var [, start, end] = String(req.headers.range).match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)/) || [];
     if (!fs.existsSync(filepath)) {
-        res.writeHead(404, {});
-        res.end("not found");
+        res.writeHead(404, utf8);
+        res.end("文件不存在");
         return;
     }
     fs.stat(filepath, function (err, stats) {
@@ -76,8 +73,8 @@ function doGetFile(req, res, filepath, code) {
             return;
         }
         if (stats.isDirectory()) {
-            res.writeHead(400, {});
-            res.end("folder");
+            res.writeHead(400, utf8);
+            res.end("请求无效");
             return;
         }
         start = +start | 0;
@@ -85,15 +82,15 @@ function doGetFile(req, res, filepath, code) {
             start = 0;
         }
         if (start > stats.size || end && end < start || start < 0) {
-            res.writeHead(416, {});
-            res.end("out of range");
+            res.writeHead(416, utf8);
+            res.end("文件内容不足");
             return;
         }
         if (code) {
             var sign = encode62.timedecode(code);
             if (!sign) {
-                res.writeHead(404, {});
-                res.end("not found");
+                res.writeHead(400, utf8);
+                res.end("请求无效");
                 return;
             }
         }
@@ -129,6 +126,7 @@ function doGetFile(req, res, filepath, code) {
         });
     });
 }
+var utf8 = { "Content-Type": "text/plain;charset=utf-8" };
 
 function doDeleteFile(req, res, filepath) {
     if (!fs.existsSync(filepath)) {
@@ -149,14 +147,14 @@ function doDeleteFile(req, res, filepath) {
 function doPutFile(req, res, filepath, code) {
     if (!fs.existsSync(path.dirname(filepath))) {
 
-        res.writeHead(403, {});
-        res.end(`Directory not exists.`);
+        res.writeHead(403, utf8);
+        res.end(`路径不存在`);
         return;
     }
     if (fs.existsSync(filepath)) {
 
-        res.writeHead(409, {});
-        res.end(`File already exists.`);
+        res.writeHead(409, utf8);
+        res.end(`文件已存在`);
         return;
     }
     if (cacheCountLimit <= 1) {
@@ -208,8 +206,8 @@ function doFile(req, res) {
     if (/^\/@/.test(req.url)) {
         var filepath = req.url.slice(2);
         if (!checkAccess(filepath)) {
-            res.writeHead(406, {});
-            res.end();
+            res.writeHead(406, utf8);
+            res.end("拒绝访问");
             return;
         }
     } else {
@@ -222,8 +220,8 @@ function doFile(req, res) {
     }
     if (!/get/i.test(req.method)) {
         if (!checkAccess(filepath)) {
-            res.writeHead(406, {});
-            res.end();
+            res.writeHead(406, utf8);
+            res.end("拒绝访问");
             return;
         }
     }
@@ -243,8 +241,8 @@ function doFile(req, res) {
             doDeleteFile(req, res, filepath, code);
             break;
         default:
-            res.writeHead(405, {});
-            res.end(`${req.method} not allowed.`);
+            res.writeHead(405, utf8);
+            res.end(`${req.method} 请求方法无效`);
     }
 }
 module.exports = doFile;

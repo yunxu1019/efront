@@ -200,5 +200,11 @@ module.exports = {
     LIBS: getdirpath("LIBS, LIB"),
     ICON: getdirpath("ICON, CCON, CONS, ICONS"),
     FORCE: get("FORCE", false),
+    get webroot() {
+        return this.isDevelop ? this.PAGE_PATH : this.PUBLIC_PATH;
+    },
+    get isDevelop() {
+        return !this.compress;
+    },
 };
 Object.keys(fixme).forEach(fixpath);
