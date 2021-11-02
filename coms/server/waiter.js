@@ -150,8 +150,6 @@ var requestListener = async function (req, res) {
                         message.send("deliver", [id, msgid]);
                     }
                     break;
-                case "clear":
-                    break;
                 default:
                     needLogin = true;
             }
