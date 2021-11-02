@@ -175,8 +175,8 @@ function cross(method, url, headers) {
                             onerror({ status: "网络断开" });
                             break;
                         }
-                        if (!navigator.response) {
-                            onerror({ status: "服务器无响应" });
+                        if (!xhr.response) {
+                            onerror({ status: "无法访问服务器" });
                             break;
                         }
                     case 200:
@@ -268,7 +268,7 @@ function cross(method, url, headers) {
         var then = xhr.then;
         delete xhr.then;
         if (loaded) onloads.splice(0, onloads.length).map(e => e instanceof Function && e(xhr));
-        if (errored) onerrors.splice(0, onerrors.length).map(e => e instanceof Function && e(xhr));
+        if (errored) onerrors.splice(0, onerrors.length).map(e => e instanceof Function && e(errored));
         xhr.then = then;
     };
     var onloads = [], onerrors = [];
