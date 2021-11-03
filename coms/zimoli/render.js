@@ -723,7 +723,7 @@ function renderStructure(element, scope, parentScopes = []) {
             }
             if (!element.renderid) element.renderid = -1;
             else element.renderid = -2;
-            // element.removeAttribute(name);
+            continue;
         }
         if (element.$struct) continue;
         var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
