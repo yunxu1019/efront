@@ -337,7 +337,7 @@ function addhook() {
     }
     if (!mousedownEvent) return;
     var target = targetElement || mousedownEvent.currentTarget;
-    hooka(function (target) {
+    hooka.call(targetElement, function (target) {
         var res = [].filter.call(allowdrops || (matcher ? matcher(target) : document.querySelectorAll("[allowdrop]")), function (child) {
             return target && overlap(child, target);
         }).filter(e => {
