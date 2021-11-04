@@ -3,7 +3,7 @@ function main(config, item, params) {
         if (!config) return ok();
         if (isObject(config)) {
             if (config.do instanceof Function) {
-                config.do();
+                config.do(item, params);
                 return;
             }
             if (config.modal) {
