@@ -76,6 +76,7 @@ async function checkPassword(p) {
     var a = encode62.geta(p);
     var c = await getItem('password-c');
     var d = await getItem('password-d');
+    if (!c || !d) return false;
     var b = encode62.da2b(d, a);
     var c0 = encode62.ab2c(a, b);
     return c0 === c;
@@ -84,6 +85,7 @@ async function checkPassword(p) {
 async function checkPasswordA(a) {
     var c = await getItem('password-c');
     var d = await getItem('password-d');
+    if (!c || !d) return null;
     var b = encode62.da2b(d, a);
     var c0 = encode62.ab2c(a, b);
     if (c0 === c) return b;
@@ -93,6 +95,7 @@ async function checkPasswordA(a) {
 async function checkPasswordB(b) {
     var c = await getItem('password-c');
     var d = await getItem('password-d');
+    if (!c || !d) return null;
     var a = encode62.db2a(d, b);
     var c0 = encode62.ab2c(a, b);
     return c0 === c;
