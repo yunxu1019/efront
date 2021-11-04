@@ -12,6 +12,7 @@ async function getPassword(name) {
                 case 27: case 9: // tab
                     break;
                 case 8:// backspace
+                case 127:// backspace
                     if (passwords.length) {
                         process.stdout.write("\b  \b\b");
                         passwords.pop();
