@@ -142,7 +142,7 @@ function main(elem) {
                 elem.setAttribute("type", field_type);
             }
             remove(elem.children);
-            if (readonly) {
+            if (readonly || field.readonly) {
                 if (field_type === "function") {
                     field_editor(elem);
                 } else {
