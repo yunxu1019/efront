@@ -1,0 +1,10 @@
+<div class="address">
+    <input _value="pathlist.join('/')" />
+</div>
+<lattice ng-src="d in data">
+    <padding>
+        <item @click="open(d)" ng-class="{focus:active===this}">
+            <span ng-text=d.name></span>
+        </item>
+    </padding>
+</lattice>

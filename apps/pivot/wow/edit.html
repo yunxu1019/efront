@@ -1,0 +1,10 @@
+<div head>
+    <span v-text="origin?'修改':'添加'"></span>文件夹
+</div>
+<div body>
+    <field v-if="!f.readonly||!!data[f.key]" -repeat="f in fields" ng-src="[f,data]"></field>
+</div>
+<div foot>
+    <btn @click="remove()" class="white">取消</btn>
+    <button type="submit">保存</button>
+</div>

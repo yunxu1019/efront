@@ -57,6 +57,7 @@ var doPost = require("./doPost");
 var doCross = require("./doCross");
 var doFile = require("./doFile");
 var doProxy = require("./doProxy");
+var doFolder = require("./doFolder");
 var ppid = process.ppid;
 var version = 'efront/' + ppid;
 var requestListener = async function (req, res) {
@@ -91,13 +92,13 @@ var requestListener = async function (req, res) {
                     return;
             }
             res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
-            var type = /^(\w+)([\/\w\-]+)?(\?[\s\S]*)?$/.exec(option);
+            var type = /^(\w+)(?:\-([\/\w]+))?(?:[\?\-\:]([\s\S]*))?$/.exec(option);
             var needLogin = false;
             var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
             if (type) switch (type[1]) {
                 case "login":
                     var a = type[2] || '';
-                    return require("./login")(a.slice(1), remoteAddress).then(b => {
+                    return require("./login")(a, remoteAddress).then(b => {
                         if (!b) throw "密码不正确！";
                         res.end(b);
                     }).catch(e => {
@@ -111,7 +112,6 @@ var requestListener = async function (req, res) {
                 case "care":
                     var id = type[2];
                     if (id) {
-                        id = id.slice(1);
                         var client = clients.attach(id);
                         if (!client) {
                             res.writeHead(403, {});
@@ -136,8 +136,6 @@ var requestListener = async function (req, res) {
                 case "cast":
                     var id = type[2], msgid = type[3];
                     if (id && msgid) {
-                        id = id.slice(1);
-                        msgid = msgid.slice(1);
                         if (msgid.length > 8096) {
                             res.writeHead(400);
                             break;
@@ -153,13 +151,27 @@ var requestListener = async function (req, res) {
                 default:
                     needLogin = true;
             }
-            if (needLogin && await require("./checkAuth")(req.headers.authorization, remoteAddress)) switch (type[1]) {
+            if (needLogin && !await require("./checkAuth")(req.headers.authorization, remoteAddress)) {
+                res.writeHead(401);
+                res.write("无权访问");
+                needLogin = false;
+            }
+            if (needLogin) switch (type[1]) {
                 case "clear":
                     doGet.reset();
                     res.write("清理完成");
                     break;
+                case "file":
+                    try {
+                        var data = await doFolder(type[2], type[3]);
+                        res.end(data);
+                    } catch (e) {
+                        res.writeHead(e.status || 500, {});
+                        res.end(String(e));
+                    }
+                    break;
                 case "share":
-                    var opt = type[2] && type[2].slice(1);
+                    var opt = type[2];
                     switch (opt) {
                         case 'list':
                             res.write(JSAM.stringify(require("./checkAccess").roots));
@@ -174,11 +186,12 @@ var requestListener = async function (req, res) {
                             res.write(`暂不支持${optname}共享路径！`);
                             break;
                         default:
-                            res.writeHead(403);
+                            res.writeHead(400);
                             res.write("非法操作！");
                     }
                     break;
             }
+
         }
         return res.end();
     }
