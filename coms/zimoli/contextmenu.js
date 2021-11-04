@@ -8,8 +8,8 @@ var createMenu = function (event, items) {
         if (!item.when(event)) return false;
         return true;
     });
-    var elem = menuList(menulist, items, function (item) {
-        if (action.call(this, item, event.target) !== false) {
+    var elem = menuList(menulist, items, async function (item) {
+        if (await action.call(this, item, event.target) !== false) {
             remove(elem);
         }
     });
