@@ -51,7 +51,7 @@ function rebuild(element) {
         dispatch(event, element);
     }
 }
-var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s]|\?\s*\.(?=[^\d])|\s*\.\s*)+/g;
+var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s\[\]\(\)]|\?\s*\.(?=[^\d])|\s*\.\s*)+/g;
 var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
     if (!searchContext) return function () { };
@@ -62,12 +62,12 @@ var createGetter = function (search, isprop = true) {
             context.split(/\?\s*\.(?=[^\d])/).forEach(function (search) {
                 if (dist) {
                     if (/[\=]/.test(dist)) dist = `(${dist})`;
-                    dist = `${dist}!==void 0&&${dist}!==null?${dist}.${search}:null`
+                    dist = `${dist}!==void 0&&${dist}!==null?${dist}.${search}:''`
                 } else {
                     dist = search;
                 }
             });
-            return context.length > 1 ? `(${dist})` : context;
+            return dist.length > 1 ? `(${dist})` : context;
         });
     }
     if (isprop) {
@@ -723,7 +723,7 @@ function renderStructure(element, scope, parentScopes = []) {
             }
             if (!element.renderid) element.renderid = -1;
             else element.renderid = -2;
-            // element.removeAttribute(name);
+            continue;
         }
         if (element.$struct) continue;
         var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();

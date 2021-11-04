@@ -3,8 +3,7 @@ function main(config, item, params) {
         if (!config) return ok();
         if (isObject(config)) {
             if (config.do instanceof Function) {
-                config.do();
-                return;
+                return ok(config.do(item, params));
             }
             if (config.modal) {
                 var path = isString(config.modal) ? config.modal : config.modal.path;

@@ -36,12 +36,12 @@ var afterend = function () {
 var exit = function () {
     if (!workers.length) var isQuit = true;
     quitting.splice(0).forEach(function (worker) {
-        message.send(worker, 'quit');
+        if (worker.working) message.send(worker, 'quit');
     });
 };
 var broadcast = function (data) {
     quitting.concat(workers).forEach(function (worker) {
-        message.send(worker, 'onbroadcast', data);
+        if (worker.working) message.send(worker, 'onbroadcast', data);
     });
 };
 var run = function () {
@@ -53,7 +53,7 @@ var run = function () {
     run.ing = true;
     quitting = quitting.concat(workers);
     if (quitting.length) console.info(`${quitting.length}个子进程准备退出:${quitting.map(a => a.id)}`);
-    var workking = 0;
+    var working = 0;
     var _workers = cpus.map(function () {
         counter++;
         var mem = require("os").freemem() / 1024 - 256 | 0;
@@ -62,8 +62,9 @@ var run = function () {
             "NODE_OPTIONS": "--max-old-space-size=" + mem,
         });
         worker.on("listening", function () {
-            workking++;
-            if (workking === cpus.length) {
+            this.working = true;
+            working++;
+            if (working === cpus.length) {
                 console.info(`${workers.length}个子进程已启动:${workers.map(a => a.id)}`);
                 run.ing = false;
                 exit();
@@ -72,7 +73,7 @@ var run = function () {
         worker.on("exit", function () {
             if (worker.exitedAfterDisconnect !== true) {
                 for (var cx = workers.length - 1; cx >= 0; cx--) {
-                    if (workers[cx] === worker) workers.splice(cx, 1);
+                    if (workers[cx] === this) workers.splice(cx, 1);
                 }
             }
             counter--;
@@ -110,7 +111,7 @@ message.deliver = function (a) {
     var rest = workers.length;
     client.refresh();
     workers.forEach(function (worker) {
-        message.send(worker, 'deliver', [clientid, msgid], function (a) {
+        if (worker.working) message.send(worker, 'deliver', [clientid, msgid], function (a) {
             count += +a || 0;
             rest--;
             if (!rest && !count) {
@@ -126,7 +127,7 @@ message.getmark = function () {
 message.addmark = function (m) {
     clients.addMark(m);
     workers.forEach(function (worker) {
-        message.send(worker, 'addmark', m);
+        if (worker.working) message.send(worker, 'addmark', m);
     });
 };
 message.receive = function (clientid) {
@@ -139,9 +140,3 @@ message.receive = function (clientid) {
 };
 require("../efront/quitme")(end);
 run();
-process.on("uncaughtException", function () {
-    console.error.apply(console, arguments);
-});
-process.on("unhandledRejection", function () {
-    console.error.apply(console, arguments);
-});

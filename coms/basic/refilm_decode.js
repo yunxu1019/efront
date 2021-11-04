@@ -260,16 +260,31 @@ function parse(piece) {
     }
     var [name, type, options] = piece, key, repeat;
     if (piece.length === 1 && isObject(name)) {
-        var { name, needs, required, checks, type, key, size, unit, endwith, ratio, value, repeat, comment, options } = name;
+        var {
+            name, type, key, value, comment, options,
+            size, unit, ratio,
+            needs, checks, repeat, endwith,
+            required, inlist, hidden, readonly,
+            delete_onempty, delete_onsubmit,
+        } = name;
     } else {
-        var is_require = a => {
-            if (/^\*|\*$/.test(a)) {
-                required = true;
-                return a.replace(/^\*|\*$/, '');
+        var test = (reg,a) => {
+            if (reg.test(a)) {
+                return true;
             }
-            return a;
         };
-        type = is_require(type);
+        var is = function (a) {
+            var reg = /^[\*\+\-\!\-\$&\?\~]|[\*\+\-\!\-\$&\?\~]$/;
+            if (!reg.test(a)) return a;
+            required = test(/^\*|\*$/, a);
+            inlist = test(/^[\+\!]|[\+\!]$/, a);
+            hidden = test(/^\-|\-$/, a);
+            readonly = test(/^[\$&]|[\$&]$/, a);
+            delete_onempty = test(/^\?|\?$/, a);
+            delete_onsubmit = test(/^\~|\~$/, a);
+            return a.replace(reg, '');
+        };
+        type = is(type);
         if (typeof name === 'string') {
             if (!isContainer) {
                 if (!type) {
@@ -370,17 +385,23 @@ function parse(piece) {
             type = type.slice(1);
         }
         if (typeof options === "string") {
-            options = is_require(options);
+            options = is(options);
             var needUnfold = /^\[|\]$/.test(options);
             options = options.replace(/^\[|\]$/g, '');
             if (/,/.test(options)) options = scanSlant(options, ',');
             else options = scanSlant(options, "");
             if (needUnfold) unfoldOptions(size, options);
         }
-        name = is_require(name);
-        key = is_require(key);
+        name = is(name);
+        key = is(key);
     }
-    var field = { name, checks, required, needs, type, key, size, unit, endwith, ratio, value, repeat, comment, options };
+    var field = {
+        name, type, key, value, comment, options,
+        size, unit, ratio,
+        needs, checks, repeat, endwith,
+        required, inlist, hidden, readonly,
+        delete_onempty, delete_onsubmit,
+    };
     var parent = piecepath[piecepath.length - 1];
     if (parent) {
         field.parent = parent;

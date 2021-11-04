@@ -4,15 +4,12 @@ var memery = require("../efront/memery");
 var clients = require("./clients");
 var message = require("../message");
 require("../efront/quitme");
-process.on("uncaughtException", process.exit);
-process.on("unhandledRejection", process.exit);
 var { HTTPS_PORT, HTTP_PORT } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
 HTTPS_PORT = +HTTPS_PORT || 0;
 var reload = require("./liveload");
 var closeListener = function () {
     if (!portedServersList.filter(s => s && s.listening).length) {
-        process.removeAllListeners();
         require("../efront/watch").close();
         safeQuitProcess();
     }
@@ -70,6 +67,9 @@ var requestListener = function (req, res) {
     req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
     req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
     if (/^option/i.test(req.method)) {
+        if (req_access_method || req_access_headers) {
+            return res.end();
+        }
         efront:
         if (/^\/\:/.test(req.url)) {
             var option = req.url.slice(2);
@@ -182,19 +182,6 @@ var requestListener = function (req, res) {
         return res.end(doPost.ccon(name, color));
     }
     if (/^get/i.test(req.method)) {
-        var match = req.url.match(/\/:(?:comm|page|ccon|aa?pi)\/.*?$/i);
-        if (match) {
-            return doPost(req, res);
-        }
-        if (SSL_ENABLED && req.socket.localPort === 80) {
-            // 现代浏览器不会给http网站标记为不安全，并且火狐等浏览器对网站进行云检查以判断是否安全
-            // 没有必要自动转向https，所以请让以下代码胎死腹中
-            // if (req.headers["upgrade-insecure-requests"] && req.headers.host) {
-            //     res.writeHead(302, { "Location": "https://" + req.headers.host + req.url });
-            //     return res.end();
-            // }
-            // res.setHeader("Content-Security-Policy", "upgrade-insecure-requests");
-        }
         return doGet(req, res);
     } else {
         return doPost.call(this, req, res);
@@ -318,43 +305,57 @@ var getIntVersion = function (version) {
     var [a, b, c] = version.split('.');
     return (+a << 16) + (+b << 8) + +c;
 };
-if (HTTP_PORT) {
-    var server1 = http.createServer(requestListener).setTimeout(0);
-    if (getIntVersion(process.version) >= getIntVersion('12.19.0')) {
-        var server0 = require("net").createServer(netListener);
-        initServer.call(server0, HTTP_PORT);
-    } else {
-        initServer.call(server1, HTTP_PORT);
-    }
-}
-var SSL_PFX_PATH = memery.PFX_PATH, SSL_ENABLED = false;
+var server0, server1, server2;
 var httpsOptions = {
     allowHTTP1: true,
 };
 var fs = require("fs");
 var path = require("path");
-if (SSL_PFX_PATH) {
-    if (fs.existsSync(SSL_PFX_PATH)) {
-        httpsOptions.pfx = fs.readFileSync(SSL_PFX_PATH);
-        SSL_ENABLED = true;
+var createHttpsServer = function () {
+    if (httpsOptions.pfx || httpsOptions.cert && httpsOptions.key) {
+        HTTPS_PORT = +HTTPS_PORT || 443;
+        server2 = http2.createSecureServer(httpsOptions, requestListener).setTimeout(0);
+        initServer.call(server2, HTTPS_PORT);
     }
-    httpsOptions.passphrase = memery.PFX_PASSWORD;
-}
-else if (HTTPS_PORT) {
-    console.warn("<yellow>HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！</yellow>");
-    httpsOptions.key = fs.readFileSync(path.join(__dirname, '../../data/keystore/cross-key.pem'));
-    httpsOptions.cert = fs.readFileSync(path.join(__dirname, '../../data/keystore/cross-cert.pem'));
-    SSL_ENABLED = true;
-}
-if (SSL_ENABLED) {
-    HTTPS_PORT = +HTTPS_PORT || 443;
-    var server2 = http2.createSecureServer(httpsOptions, requestListener).setTimeout(0);
-    initServer.call(server2, HTTPS_PORT);
-}
-process.on('exit', function (event) {
+};
+
+var createHttpServer = function () {
+    server1 = http.createServer(requestListener).setTimeout(0);
+    if (getIntVersion(process.version) >= getIntVersion('12.19.0')) {
+        server0 = require("net").createServer(netListener);
+        initServer.call(server0, HTTP_PORT);
+    } else {
+        initServer.call(server1, HTTP_PORT);
+    }
+};
+
+process.on('exit', function () {
     process.stdin.unref();
     process.stderr.unref();
     process.stdout.unref();
-    if (event instanceof Error) console.error(event);
 });
+
 message.count("boot");
+if (memery.PFX_PATH) {
+    httpsOptions.passphrase = memery.PFX_PASSWORD;
+    fs.readFile(memery.PFX_PATH, function (error, buff) {
+        if (error) return console.error(error);
+        httpsOptions.pfx = buff;
+        createHttpsServer();
+    });
+}
+else if (HTTPS_PORT) {
+    console.warn("<yellow>HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！</yellow>");
+    fs.readFile(path.join(__dirname, '../../data/keystore/cross-key.pem'), function (error, buff) {
+        if (error) return console.error(error);
+        httpsOptions.key = buff;
+        createHttpsServer();
+    });
+    fs.readFile(path.join(__dirname, '../../data/keystore/cross-cert.pem'), function (error, buff) {
+        if (error) return console.error(error);
+        httpsOptions.cert = buff;
+        createHttpsServer();
+    });
+}
+
+if (HTTP_PORT) createHttpServer();
