@@ -3,6 +3,7 @@ require("../efront/setupenv");
 var memery = require("../efront/memery");
 var clients = require("./clients");
 var message = require("../message");
+var JSAM = require("../basic/JSAM");
 require("../efront/quitme");
 var { HTTPS_PORT, HTTP_PORT } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
