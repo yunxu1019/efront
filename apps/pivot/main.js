@@ -13,8 +13,8 @@ setInterval(function () {
 }, 2000);
 login();
 var layer = layer$glance({
-    left: "frame$left",
-    top: 'frame$top'
+    left: frame$left,
+    top: frame$top
 });
 function main() {
     return layer;
