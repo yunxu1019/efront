@@ -337,11 +337,17 @@ function prepare(pgpath, ok) {
     }, state);
 }
 function create(pagepath, args, from, needroles) {
-    var page_object = isObject(pagepath) ? pagepath : page_generators[getpgpath(pagepath)];
-    if (!page_object) {
-        throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
+    if (typeof pagepath === 'string') {
+        var page_object = isObject(pagepath) ? pagepath : page_generators[getpgpath(pagepath)];
+        if (!page_object) {
+            throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
+        }
+        var { pg, "with": _with_elements, state, onback: _pageback_listener, roles } = page_object;
     }
-    var { pg, "with": _with_elements, state, onback: _pageback_listener, roles } = page_object;
+    else if (isFunction(pagepath)) {
+        var pg = pagepath;
+        var { with: _with_elements, state = {}, onback: _pageback_listener, roles } = pg;
+    }
     if (!checkroles(user.roles, roles) || !checkroles(user.roles, needroles)) {
         // 检查权限
         if (!user.isLogin && user.loginPath) {
