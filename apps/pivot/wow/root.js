@@ -24,7 +24,7 @@ function main() {
             if (p) p = String(p.name || '').replace(/\/$/, '');
             if (p) this.pathlist.push(p);
             this.data = data.from("folder", { opt: 'list', path: "/" + this.pathlist.join('/') }, files => {
-                if (files) return files.map(f => {
+                if (files) return sortname(files).map(f => {
                     return {
                         name: f,
                         type: /\/$/.test(f) ? 'folder' : 'file'
