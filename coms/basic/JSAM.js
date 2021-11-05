@@ -51,7 +51,7 @@ function stringify(memery) {
         o[""] = arr;
         for (var k in memery) {
             var m = memery[k];
-            if (inc === +k) {
+            if (inc === +k && k !== '') {
                 var kindex = "";
                 inc++;
             } else {
