@@ -170,22 +170,27 @@ var requestListener = async function (req, res) {
                     break;
                 case "share":
                     var opt = type[2];
-                    switch (opt) {
-                        case 'list':
-                            res.write(JSAM.stringify(require("./checkAccess").roots));
-                            break;
-                        case 'create':
-                            var optname = '添加'
-                        case 'delete':
-                            var optname = optname || '删除'
-                        case 'update':
-                            var optname = optname || '修改'
-                            res.writeHead(403);
-                            res.write(`暂不支持${optname}共享路径！`);
-                            break;
-                        default:
-                            res.writeHead(400);
-                            res.write("非法操作！");
+                    try {
+                        if (type[3]) var p = decodeURIComponent(type[3])
+                        var shared = require("./checkAccess");
+                        switch (opt) {
+                            case 'list':
+                                res.write(JSAM.stringify(shared.roots));
+                                break;
+                            case 'create':
+                                await shared.append(p);
+                                break;
+                            case 'delete':
+                                await shared.remove(p);
+                                break;
+                            default:
+                                res.writeHead(400);
+                                res.write("非法操作！");
+                        }
+                    }
+                    catch (e) {
+                        res.writeHead(e.status || 500, {});
+                        res.end(String(e.error || e));
                     }
                     break;
             }

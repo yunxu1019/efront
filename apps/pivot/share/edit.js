@@ -6,8 +6,10 @@ function main({ fields, item }) {
         close() {
             return remove(page);
         },
-        save() {
-            return data.from("share", { opt: item ? 'update' : 'create', data: this.data }).loading_promise;
+        async save() {
+            await data.from("share", { opt: 'create', path: this.data.path }).loading_promise;
+            dispatch(page, 'submited');
+            remove(page);
         },
         data: Object.assign({}, item)
     });
