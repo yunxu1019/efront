@@ -98,9 +98,9 @@
         if (!active || result.indexOf(active) < 0) {
             actived = mmap[opened.active] || actived;
             if (actived) {
-                if (actived_value === historys.length) result.open(actived);
-            } else {
-                result.open(result[0]);
+                if (actived_value === historys.length) {
+                    result.active = actived;
+                };
             }
         }
         return result;
@@ -133,7 +133,10 @@
         }
     });
     result.open = function (menu) {
-        if (!menu) return;
+        if (!menu) {
+            menu = result.active || result[0];
+            delete result.active;
+        }
         if (!menu.path) {
             menu.closed = !menu.closed;
             return;
@@ -176,7 +179,6 @@
         data.from(url).loading_promise.then(result.update);
         return result;
     };
-    if (items.length) result.update(items);
-
+    result.update(items);
     return result;
 });
