@@ -104,10 +104,10 @@ function main(mainPath, historyName = "") {
             }
             zimoli();
         };
-        if (leftPath) {
+        if (typeof leftPath === 'string') {
             zimoli.prepare(leftPath, hook);
         } else hook();
-        if (topPath) {
+        if (typeof topPath === 'string') {
             zimoli.prepare(topPath, hook);
         } else hook();
     });
