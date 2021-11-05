@@ -1,23 +1,36 @@
 "use strict";
 var path = require("path");
 var os = require("os");
+var fs = require("fs");
 var loadjson = require("../efront/loadjson");
 var getFile = function (configfilepath) {
-    loadjson.async(configfilepath, true).then(function (json) {
-        if (json instanceof Array) {
-            rootDirectorys.splice(0, rootDirectorys.length);
-            rootDirectorys.push.apply(rootDirectorys, json.map(function (dir) {
-                return path.normalize(dir);
-            }));
-        }
-    }).catch(function (error) {
-        console.warn('加载共享路径出错', error);
-        // 未配置网络路径
+    if (!fs.existsSync(configfilepath)) return;
+    fs.readFile(configfilepath, function (error, data) {
+        if (error) return console.warn("加载共享路径出错", error);
+        if (/^\s*\[\s*"[\s\S]*\]\s*$/.test(data)) data = JSON.parse(String(data));
+        else data = String(data).split(/[\r\n]+/).filter(a => !!a);
+        rootDirectorys.splice(0, rootDirectorys.length);
+        rootDirectorys.push.apply(rootDirectorys, data.map(function (dir) {
+            return path.normalize(dir);
+        }));
     });
 };
-getFile('data/shared.json');
+if (fs.existsSync('data/shared.json')) fs.rename('data/shared.json', 'data/shared.txt', function (error) {
+    if (error) return;
+    getFile('data/shared.txt');
+});
 var configpath = path.join(os.userInfo().homedir, '.efront/shared.json');
-getFile(configpath);
+var configpath1 = configpath.replace(/\.json$/g, ".txt");
+if (fs.existsSync(configpath)) {
+    fs.rename(configpath, configpath1, function (error) {
+        if (!error) configpath = configpath1;
+        getFile(configpath);
+    })
+}
+else {
+    configpath = configpath1;
+    getFile(configpath);
+}
 
 var rootDirectorys = [];
 
@@ -33,7 +46,7 @@ function checkAccess(fullpath) {
 }
 var save = function () {
     return new Promise((ok, oh) => {
-        require("fs").writeFile(configpath, JSON.stringify(rootDirectorys, null, 4), function (e) {
+        require("fs").writeFile(configpath, rootDirectorys.join("\r\n"), function (e) {
             if (e) return oh(e);
             ok();
         });
