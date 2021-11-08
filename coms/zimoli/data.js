@@ -333,25 +333,23 @@ function fixApi(api, href) {
             }
             api.base = href;
             api.path = api.url;
-            if (/^\.([\?\#][\s\S]*)?$/.test(api.url)) {
-                api.url = href + api.url.replace(/^\./, "");
-            } else {
-                api.url = href + api.url;
+            if (/^\.([\?\#][\s\S]*)?$/.test(api.path)) {
+                api.path = api.path.replace(/^\./, "");
             }
             if (extraSearch || extraHash) {
                 if (/[\?#]/.test(api.url)) {
                     var [, search, hash] = paramReg.exec(api.url);
                 }
-                var url = api.url.replace(paramReg, '');
+                var path = api.path.replace(paramReg, '');
                 if (extraSearch) {
                     search = search ? extraSearch + '&' + search : extraSearch;
                 }
                 if (extraHash) {
                     hash = hash ? extraHash + '&' + hash : extraHash;
                 }
-                if (search) url += '?' + search;
-                if (hash) url += "#" + hash;
-                api.url = url;
+                if (search) path += '?' + search;
+                if (hash) path += "#" + hash;
+                api.path = path;
             }
         }
     }
@@ -434,6 +432,9 @@ var privates = {
     },
     fromApi(api, params) {
         let url = api.url;
+        var base = api.base;
+        if (base) url = base + api.path;
+        console.log(url, base);
 
         if (this.validApi(api, params)) {
             params = this.repare(api, params);
@@ -656,6 +657,9 @@ var data = {
     setConfig(data) {
         data = this.parseConfig(data);
         configPormise = Promise.resolve(data);
+    },
+    getConfig() {
+        return privates.getConfigPromise();
     },
     parseConfig(o) {
         if (o instanceof Promise) {
