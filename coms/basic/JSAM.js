@@ -40,6 +40,10 @@ function stringify(memery) {
     if (memery instanceof Date) return date(memery);
     if (memery instanceof RegExp) return regexp(memery);
     if (!convertReg.test(typeof memery)) return string(memery);
+    m: if (typeof memery === 'function') {
+        for (var k in memery) break m;
+        return '';
+    }
     var dist = [memery];
     var rest = [memery];
     var trimed = [memery instanceof Array ? [] : {}];
@@ -51,6 +55,10 @@ function stringify(memery) {
         o[""] = arr;
         for (var k in memery) {
             var m = memery[k];
+            f: if (typeof m === 'function') {
+                for (var k in m) break f;
+                continue;
+            }
             if (inc === +k && k !== '') {
                 var kindex = "";
                 inc++;
