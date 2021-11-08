@@ -41,6 +41,9 @@ message.deliver = function (a) {
 message.addmark = function (a) {
     return clients.addMark(a);
 };
+message.getClients = function () {
+    return clients.map(c => ({ id: c.id, optime: c.optime }));
+};
 message.send('getmark', null, function (markList) {
     markList.forEach(clients.addMark, clients);
 }, null);
@@ -155,6 +158,31 @@ var requestListener = async function (req, res) {
                 needLogin = false;
             }
             if (needLogin) switch (type[1]) {
+                case "cluster":
+                    switch (type[2]) {
+                        case "list":
+                            if (type[3]) {
+                                message.send("cluster", [+type[3], "getClients"], function (error, clients) {
+                                    if (error) {
+                                        res.write(400);
+                                        res.end(String(error));
+                                        return;
+                                    }
+                                    res.end(JSAM.stringify(clients));
+                                });
+                                return;
+                            }
+                            message.send("clusterList", type[3], function (error, list) {
+                                if (error) {
+                                    res.writeHead(500);
+                                    res.end(String(error));
+                                    return;
+                                }
+                                res.end(JSAM.stringify(list));
+                            });
+                            return;
+                    }
+                    break;
                 case "clear":
                     doGet.reset();
                     res.write("清理完成");

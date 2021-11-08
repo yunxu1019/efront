@@ -2,5 +2,5 @@
 共享目录管理: /share/list
 短链接: /home/short
 WEB文件管理: /wow/root
-# 用户: /home/short
+长连接管理: /link/list
 # 用户列表: /user/list

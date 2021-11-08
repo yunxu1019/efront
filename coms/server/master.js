@@ -138,5 +138,19 @@ message.receive = function (clientid) {
         return messages;
     }
 };
+message.cluster = function ([id, methord, params]) {
+    for (var w of workers) {
+        if (w.id === id) return new Promise(function (ok, oh) {
+            message.send(w, methord, params, function (error, res) {
+                if (error) return oh(error);
+                ok(res);
+            });
+        })
+    }
+    throw "进程已退出";
+};
+message.clusterList = function (id) {
+    return workers.map(w => w.id);
+};
 require("../efront/quitme")(end);
 run();

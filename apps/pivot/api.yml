@@ -3,3 +3,4 @@
   run: options /:::run
   share: options /::share-:opt?:path
   folder: options /::file-:opt:::path?:to
+  cluster: options /::cluster-:opt?:id
