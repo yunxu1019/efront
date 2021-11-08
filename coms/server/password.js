@@ -1,7 +1,7 @@
 "use strict";
 var readline = require("readline");
 var userdata = require("./userdata");
-var memery = require("./memery");
+var memery = require("../efront/memery");
 async function getPassword(name) {
     var passwords = [];
     process.stdout.write(name);

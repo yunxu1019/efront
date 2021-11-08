@@ -1,4 +1,4 @@
-var userdata = require("../efront/userdata");
+var userdata = require("./userdata");
 var encode62 = require("../crypt/encode62");
 module.exports = function (c, sign) {
     if (!c) return false;

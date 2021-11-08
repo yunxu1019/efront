@@ -527,7 +527,7 @@ var commands = {
     },
     async password() {
         await new Promise(ok => setTimeout(ok, require("../basic/isProduction") ? 0 : 360));
-        require("./password").requestPassword();
+        require("../server/password").requestPassword();
     },
     record() {
         var fullpath = process.cwd();

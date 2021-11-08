@@ -1,5 +1,5 @@
 var encode62 = require("../crypt/encode62");
-var userdata = require("../efront/userdata");
+var userdata = require("./userdata");
 module.exports = async function (a, sign) {
     a = encode62.timedecode(a);
     var b = await userdata.checkPasswordA(a);

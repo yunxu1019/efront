@@ -1,5 +1,5 @@
 "use strict";
-var { load, save } = require("../efront/userdata");
+var { load, save } = require("../server/userdata");
 /**
  * 只在主线程中使用
  */
