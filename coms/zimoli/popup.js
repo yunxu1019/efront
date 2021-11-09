@@ -162,20 +162,22 @@ var popup_with_mask = function (element, mask = createMask(element)) {
     return element;
 };
 var isypop = function (target) {
+    if (!target) return false;
     var { offsetParent, nextSibling, previousSibling } = target;
     if (
-        nextSibling
+        nextSibling && nextSibling.tagName === target.tagName
         && (
             nextSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
             || target.offsetLeft - nextSibling.offsetLeft >= nextSibling.offsetWidth / 2
         )
-        || previousSibling
+        || previousSibling && previousSibling.tagName === target.tagName
         && (
             previousSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
             || target.offsetLeft - previousSibling.offsetLeft >= previousSibling.offsetWidth / 2
         )
     ) return true;
-    if (offsetParent && target.offsetTop / target.offsetHeight < .2 && offsetParent.offsetWidth / target.offsetWidth > 1.5) return true;
+    var padding = parseFloat(getComputedStyle(offsetParent).paddingTop) + parseFloat(getComputedStyle(offsetParent).paddingBottom);
+    if (offsetParent && target.offsetTop / target.offsetHeight < .2 && (offsetParent.clientWidth - padding) / target.offsetWidth > 1.5) return true;
 
 };
 var isxpop = arriswise(isypop, arguments);
@@ -194,10 +196,11 @@ var popup_as_extra = function (element, target, style) {
     if (isypop(target)) {
         popup_as_yextra(element, target, style);
     } else if (isxpop(target)) {
+        console.log(target)
         popup_as_xextra(element, target, style);
-    } else if (isypop(target.parentNode)) {
+    } else if (isypop(target.offsetParent)) {
         popup_as_yextra(element, target, style);
-    } else if (isxpop(target.parentNode)) {
+    } else if (isxpop(target.offsetParent)) {
         popup_as_xextra(element, target, style);
     } else {
         if (/inline|cell/i.test(getComputedStyle(target).display)) {
