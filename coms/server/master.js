@@ -152,5 +152,14 @@ message.cluster = function ([id, methord, params]) {
 message.clusterList = function (id) {
     return workers.map(w => w.id);
 };
+message.rehost = function () {
+    var argv = process.__proto__ && process.__proto__.argv || process.argv;
+    end();
+    var child = require("child_process").spawn(argv[0], argv.slice(1), {
+        detached: true,
+        stdio: 'ignore'
+    });
+    child.unref();
+};
 require("../efront/quitme")(end);
 run();

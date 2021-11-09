@@ -1,10 +1,14 @@
-
 <div>
     已登录到服务器，您可以进行如下操作
 </div>
 <block>
     <padding>
         清理服务器缓存 <btn @click="run('clear-cache',this)">清理</btn>
+    </padding>
+</block>
+<block>
+    <padding>
+        重启服务器 <btn @click="run('rehost',this)" type="danger">重启</btn>
     </padding>
 </block>
 <block>

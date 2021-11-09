@@ -187,6 +187,11 @@ var requestListener = async function (req, res) {
                     doGet.reset();
                     res.write("清理完成");
                     break;
+                case "rehost":
+                    message.send('rehost', null, function () {
+                        res.end("正在重启");
+                    });
+                    return;
                 case "file":
                     try {
                         var data = await doFolder(type[2], type[3]);
