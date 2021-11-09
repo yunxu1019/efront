@@ -6,6 +6,7 @@ var singleClick = function () {
     node.activeNode = this;
     if (node.value === this.value) return;
     node.value = this.value;
+    node.name = this.name;
     dispatch(node, "change");
 };
 var multipleClick = function () {
@@ -21,16 +22,21 @@ var multipleClick = function () {
     }
     dispatch(node, "change");
 };
-function main(children, multiple) {
+
+function main(children, multiple, addable) {
     var list = div();
     list.value = multiple ? [] : "";
     var firstValue = false;
     var clicker = multiple ? multipleClick : singleClick;
-    var hasIcon = false, iconed = '';
-    appendChild(list, [].map.call(children, function (option) {
-        var item = div();
-        item.innerHTML = option.innerHTML;
-        var icon = option.getAttribute("icon");
+    var itemMap = Object.create(null);
+    function createItem(option) {
+        if (option.value in itemMap) return itemMap[option.value];
+        var item = itemMap[option.value] = document.createElement('div');
+
+        item.setAttribute("item", '');
+        item.innerHTML = option.innerHTML || option.name;
+        item.name = option.name || option.innerHTML;
+        var icon = option.getAttribute ? option.getAttribute("icon") : option.icon;
         if (icon) {
             hasIcon = true;
             css(item, { backgroundImage: `url('${icon}')` });
@@ -54,10 +60,59 @@ function main(children, multiple) {
             onclick(item, clicker);
         }
         return item;
-    }));
+
+    }
+    var hasIcon = false, iconed = '';
+    appendChild(list, [].map.call(children, createItem));
+    if (addable) {
+        var adder = document.createElement("div");;
+        adder.innerHTML = "<a>添加</a><a>管理</a>";
+        button(adder.firstChild);
+        button(adder.children[1]);
+        on("click")(adder, async function (event) {
+            event.preventDefault();
+            var target = getTargetIn(this, event.target, false);
+            switch (target) {
+                case this.children[0]:
+                    var a = prompt("请输入", a => {
+                        if (a in itemMap) {
+                            alert(`选项 ${a} 已存在！`);
+                            return false;
+                        }
+                    });
+                    list.with = a;
+                    on('remove')(a, function () {
+                        list.with = null;
+                    });
+                    a = await a;
+                    if (a in itemMap) return false;
+                    cast(list.target, "add-option", a);
+                    list.insertBefore(createItem({
+                        name: a,
+                        value: a,
+                    }), adder);
+                    break;
+                case this.children[1]:
+                    var options = [].slice.call(list.children, 0, list.children.length - 1);
+                    var edit = selectListEdit(options.slice(0));
+                    list.with = edit;
+                    on("remove")(edit, function () {
+                        list.with = null;
+                        remove([].slice.call(list.children, 0, list.children.length - 1));
+                        appendChild.before(adder, edit.$scope.options.map(createItem));
+                        cast(list.target, 'set-options', edit.$scope.options);
+                    });
+                    popup(edit, [.5, .5]);
+                    break;
+            }
+        })
+        adder.setAttribute("adder", '');
+        list.appendChild(adder)
+    }
     if (hasIcon) {
         list.setAttribute('iconed', '');
     }
     list.icon = iconed;
+    on('mousedown')(list, e => e.preventDefault());
     return list;
 }

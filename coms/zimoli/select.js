@@ -51,15 +51,21 @@ function select(target, list, removeOnSelect, direction) {
         onmousedown(target, preventDefault);
         care(target, 'add-option', function (a) {
             var o = document.createElement('option');
-            o.value = a.key || a;
+            o.value = a.value || a;
             o.innerHTML = a.name || a;
             this.appendChild(o);
+        });
+        care(target, 'set-options', function (options) {
+            this.innerHTML = options.map(o => `<option value="${o.value}">${o.name}</option>`).join("");
         });
         on('focus')(target, preventDefault);
     }
     var onlistchange = function () {
         if (target.multiple) {
         } else {
+            if (!target.children.length) {
+                target.innerHTML = `<option selected value="${this.value}">${this.name || this.value}</option>`
+            }
             target.value = this.value;
             dispatch(target, "change");
         }
@@ -122,7 +128,7 @@ function select(target, list, removeOnSelect, direction) {
             var allOptions = [].concat.apply([], target.querySelectorAll("option"));
             if (deepEqual.shallow(allOptions, savedOptions)) return;
             savedOptions = allOptions;
-            list = selectList(allOptions, target.multiple);
+            list = selectList(allOptions, target.multiple, target.editable);
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }

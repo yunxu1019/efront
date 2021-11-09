@@ -2,11 +2,11 @@
     max-width: 100%;
     background-color: #fff;
     line-height: 30px;
-    box-shadow: 0 0 20px -6px rgba(0, 0, 0, .3);
+    box-shadow: 0 0 20px -6px rgba(0, 0, 0, .1);
     box-sizing: border-box;
     border: 1px solid #0003;
 
-    >div {
+    >[item] {
         cursor: default;
         padding: 0 16px;
 
@@ -50,5 +50,16 @@
         background-size: auto 16px;
         background-position-y: 50%;
         background-position-x: 8px;
+    }
+}
+
+>[adder] {
+    padding: 0 16px;
+    text-align: right;
+
+    a {
+        cursor: pointer;
+        vertical-align: top;
+        margin-left: 10px;
     }
 }
