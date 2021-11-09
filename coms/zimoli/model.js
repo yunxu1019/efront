@@ -72,9 +72,16 @@ var constructors = {
         cast(elem, field);
         return elem;
     },
-    select() {
-        var elem = select();
-        elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
+    select(_, t) {
+        if (!t) {
+            var elem = select();
+            elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
+        }
+        else if (t === 'a') {
+            var { field } = _;
+            var pad = selectList(field.options, field.multi, true);
+            elem = select(null, pad);
+        }
         return elem;
     },
     "repeat"(_, field_type) {

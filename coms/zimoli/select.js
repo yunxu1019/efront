@@ -63,7 +63,7 @@ function select(target, list, removeOnSelect, direction) {
     var onlistchange = function () {
         if (target.multiple) {
         } else {
-            if (!target.children.length) {
+            if (!savedOptions) {
                 target.innerHTML = `<option selected value="${this.value}">${this.name || this.value}</option>`
             }
             target.value = this.value;

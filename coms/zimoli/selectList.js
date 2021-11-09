@@ -30,7 +30,8 @@ function main(children, multiple, addable) {
     var clicker = multiple ? multipleClick : singleClick;
     var itemMap = Object.create(null);
     function createItem(option) {
-        if (option.value in itemMap) return itemMap[option.value];
+        var key = option.key || option.value;
+        if (key in itemMap) return itemMap[key];
         var item = itemMap[option.value] = document.createElement('div');
 
         item.setAttribute("item", '');
@@ -41,7 +42,7 @@ function main(children, multiple, addable) {
             hasIcon = true;
             css(item, { backgroundImage: `url('${icon}')` });
         }
-        item.value = option.value;
+        item.value = key;
         if (option.selected) {
             iconed = icon;
             if (multiple) {
@@ -87,6 +88,7 @@ function main(children, multiple, addable) {
                     a = await a;
                     if (a in itemMap) return false;
                     cast(list.target, "add-option", a);
+                    children.push({ name: a, key: a });
                     list.insertBefore(createItem({
                         name: a,
                         value: a,
@@ -95,10 +97,13 @@ function main(children, multiple, addable) {
                 case this.children[1]:
                     var options = [].slice.call(list.children, 0, list.children.length - 1);
                     var edit = selectListEdit(options.slice(0));
+
                     list.with = edit;
                     on("remove")(edit, function () {
                         list.with = null;
                         remove([].slice.call(list.children, 0, list.children.length - 1));
+                        children.splice(0, children.length);
+                        children.push.apply(children, edit.$scope.options.map(o => ({ key: o.key || o.value, name: o.name || o.innerHTML })))
                         appendChild.before(adder, edit.$scope.options.map(createItem));
                         cast(list.target, 'set-options', edit.$scope.options);
                     });
