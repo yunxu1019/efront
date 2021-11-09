@@ -116,7 +116,7 @@ function select(target, list, removeOnSelect, direction) {
             savedOptions = allOptions;
             list = selectList(allOptions, target.multiple);
             if (!target.multiple) {
-                onclick(list, _remove);
+                onclick(list, onlistclick);
             }
             bindEvent();
         };
