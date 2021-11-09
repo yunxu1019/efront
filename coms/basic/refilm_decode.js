@@ -268,7 +268,7 @@ function parse(piece) {
             delete_onempty, delete_onsubmit,
         } = name;
     } else {
-        var test = (reg,a) => {
+        var test = (reg, a) => {
             if (reg.test(a)) {
                 return true;
             }
@@ -388,7 +388,7 @@ function parse(piece) {
             options = is(options);
             var needUnfold = /^\[|\]$/.test(options);
             options = options.replace(/^\[|\]$/g, '');
-            if (/,/.test(options)) options = scanSlant(options, ',');
+            if (needUnfold || /,/.test(options)) options = scanSlant(options, ',');
             else options = scanSlant(options, "");
             if (needUnfold) unfoldOptions(size, options);
         }
