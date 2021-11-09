@@ -4,8 +4,10 @@
 onkeydown(document, function (e) {
     if (e.which === 27 && rootElements.length) {
         var r = rootElements.pop();
-        r.blur();
-        remove(r);
+        if (r) {
+            r.blur();
+            remove(r);
+        }
     }
 });
 var animationStyle = "opacity:0;transform:scale(1.2);transition:.1s opacity ease-out,.2s transform ease-out;";
