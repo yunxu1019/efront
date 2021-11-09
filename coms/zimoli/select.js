@@ -2,21 +2,22 @@ var saved_list;
 var _remove = function () {
     var removing_list = saved_list;
     if (removing_list) {
-        var target = this;
-        setTimeout(function () {
+        setTimeout(function run() {
             if (removing_list !== saved_list) return remove(removing_list);
             var { activeElement } = document;
-            if (!getTargetIn(removing_list, activeElement)) {
+            a: if (!getTargetIn(removing_list, activeElement)) {
+                var extras = [].concat(removing_list.with);
+                for (var e of extras) {
+                    if (getTargetIn(e, activeElement)) break a;
+                }
                 remove(removing_list);
                 if (removing_list === saved_list) saved_list = null;
-            } else {
-                once('blur')(activeElement, function () {
-                    setTimeout(function () {
-                        if (document.activeElement === target) return;
-                        _remove();
-                    });
-                });
+                return;
             }
+            once('blur')(activeElement, function () {
+                if (!isMounted(this)) return removing_list.target.focus();
+                run();
+            });
         });
     }
 };
@@ -48,6 +49,13 @@ function select(target, list, removeOnSelect, direction) {
     onblur(target, removeByBlur);
     if (/select/i.test(target.tagName)) {
         onmousedown(target, preventDefault);
+        care(target, 'add-option', function (a) {
+            var o = document.createElement('option');
+            o.value = a.key || a;
+            o.innerHTML = a.name || a;
+            this.appendChild(o);
+        });
+        on('focus')(target, preventDefault);
     }
     var onlistchange = function () {
         if (target.multiple) {
