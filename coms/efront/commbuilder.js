@@ -484,7 +484,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
         .then(function (lessdata) {
             var timeStart = new Date;
             var lessData;
-            less.render(`.${className}{${convertColor(String(lessdata))}}`, {
+            less.render(`.${className}{\r\n${convertColor(String(lessdata))}\r\n}`, {
                 compress: !isDevelop,
                 filename: lesspath
             }, function (err, data_2) {
