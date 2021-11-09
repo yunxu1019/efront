@@ -78,9 +78,19 @@ var constructors = {
             elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
         }
         else if (t === 'a') {
-            var { field } = _;
+            var { field, data } = _;
             var pad = selectList(field.options, field.multi, true);
-            elem = select(null, pad);
+            var e = document.createElement('select');
+            var opt = null;
+            for (var o of field.options) {
+                if (o.key === data[field.key]) {
+                    opt = o;
+                    break;
+                }
+            }
+            e.innerHTML = `<option selected value="${opt ? opt.key : ''}">${opt ? opt.name : '请选择'}</option>`;
+            e.value = opt ? opt.key : '';
+            elem = select(e, pad);
         }
         return elem;
     },
