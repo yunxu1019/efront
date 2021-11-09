@@ -66,12 +66,6 @@ function input(element) {
                     on("keydown")(element, number);
                     break;
             }
-            if (format) {
-                var picker = selectDate(format, input.value);
-                on("change")(element, picker.update);
-                select(element, picker);
-                element.readonly = "readonly";
-            }
         }
         return element;
     }
