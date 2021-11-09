@@ -269,10 +269,10 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
         }
 
         css(element, `min-width:auto;`);
-        var aimedWidth = element.offsetWidth;
+        var aimedWidth = getScreenPosition(element).width;
         //如果宽度不足其附着元素的宽度
-        if (aimedWidth < target.offsetWidth) {
-            aimedWidth = target.offsetWidth;
+        if (aimedWidth < position.width) {
+            aimedWidth = position.width;
         }
 
         //如果宽度超出可视区，调整宽度
