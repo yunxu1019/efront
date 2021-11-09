@@ -182,6 +182,7 @@ var isypop = function (target) {
 };
 var isxpop = arriswise(isypop, arguments);
 var popup_as_extra = function (element, target, style) {
+    element.target = target;
     if (style) {
         if (/^[vy]/i.test(style)) {
             popup_as_yextra(element, target, style);
@@ -196,7 +197,6 @@ var popup_as_extra = function (element, target, style) {
     if (isypop(target)) {
         popup_as_yextra(element, target, style);
     } else if (isxpop(target)) {
-        console.log(target)
         popup_as_xextra(element, target, style);
     } else if (isypop(target.offsetParent)) {
         popup_as_yextra(element, target, style);
