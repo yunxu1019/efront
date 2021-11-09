@@ -1,4 +1,4 @@
-function prompt(msg = "请输入") {
+function prompt(msg = "请输入", check) {
     var ipt = input();
     var oked, ohed;
     var oks = [], ohs = [];
@@ -12,6 +12,7 @@ function prompt(msg = "请输入") {
     var c = confirm(msg, ipt, ["确认", "取消"], function (_) {
         if (oked || ohed) return;
         if (_ === "确认") {
+            if (check && check(ipt.value) === false) return false;
             oked = true;
         } else {
             ohed = true;
@@ -25,6 +26,7 @@ function prompt(msg = "请输入") {
     })
     on("mousedown")(c, e => e.target !== ipt && e.preventDefault() | ipt.focus());
     on("keydown.enter")(c, function () {
+        if (check && check(ipt.value) === false) return;
         oked = true;
         remove(c);
         fire();
