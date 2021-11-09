@@ -9,15 +9,22 @@ var dispatch = "dispatchEvent" in document ? function dispatchEvent(target, even
     }
 };
 function main() {
-    var target, event;
+    var target, event, value;
     for (var cx = 0, dx = arguments.length; cx < dx; cx++) {
         var arg = arguments[cx];
-        if (isString(arg)) {
-            event = createEvent(arg);
-        } else if (isNode(arg) || arg === window || arg === document) {
+        if (isNode(arg) || arg === window || arg === document) {
             target = arg;
-        } else {
-            event = arg;
+        }
+        else if (!event) {
+            if (isString(arg)) {
+                event = createEvent(arg);
+            }
+            else {
+                event = arg;
+            }
+        }
+        else {
+            event.value = arg;
         }
     }
     if (dispatch(target || window, event)) {
