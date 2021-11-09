@@ -1,6 +1,6 @@
-./aapi/ authorization: 
-  login: options /::login-:a
-  run: options /:::run
-  share: options /::share-:opt?:path
-  folder: options /::file-:opt:::path?:to
-  cluster: options /::cluster-:opt?:id
+/ authorization: 
+  login: options ::login-:a
+  run: options :::run
+  share: options ::share-:opt?:path
+  folder: options ::file-:opt:::path?:to
+  cluster: options ::cluster-:opt?:id
