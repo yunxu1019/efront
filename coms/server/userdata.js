@@ -5,6 +5,7 @@ var userdatafile = path.join(userpath, 'profile');
 var JSAM = require("../basic/JSAM");
 var lazy = require("../basic/lazy");
 var encode62 = require('../crypt/encode62');
+var isEmpty = require("../basic/isEmpty");
 var profile = {
     code: encode62.geta(Math.random().toString(36).slice(2)),
 };
@@ -71,6 +72,14 @@ async function getItem(k) {
     if (!v) return;
     return String(encode62.decode(v, k0));
 }
+async function removeItem(k) {
+    await loadProfileAsync();
+    var k0 = encode62.geta(k + profile.code);
+    if (k0 in profile) {
+        delete profile[k0];
+        saveProfileAsync();
+    }
+}
 
 async function checkPassword(p) {
     var a = encode62.geta(p);
@@ -112,6 +121,8 @@ async function setPassword(p) {
 async function hasPassword(p) {
     return !!await getItem("password-c");
 }
+var privatelist = "private-options";
+var privateprefix = "private:";
 module.exports = {
     save,
     load,
@@ -122,6 +133,46 @@ module.exports = {
     checkPassword,
     checkPasswordA,
     checkPasswordB,
+    reload() {
+        profile_promise = null;
+    },
+    async option(key, value) {
+        if (!key) {
+            var options = await getItem(privatelist);
+            if (options) options = JSON.parse(options);
+            else options = [];
+            var keys = options;
+            options = options.map(o => getItem(privateprefix + o));
+            options = await Promise.all(options);
+            options = options.map((o, i) => o ? JSON.parse(o) : { key: keys[i] });
+            return encode62.timeencode(JSAM.stringify(options));
+        }
+        key = encode62.timedecode(key);
+        var key0 = privateprefix + key;
+        if (value === undefined) {
+            return getItem(key0);
+        }
+        value = encode62.timedecode(value);
+        var options = await getItem(privatelist);
+        if (options) options = JSON.parse(options);
+        else options = [];
+        if (isEmpty(value)) {
+            await removeItem(key0);
+            var index = options.indexOf(key);
+            if (index >= 0) {
+                options.splice(index, 1);
+                await setItem(privatelist, JSON.stringify(options));
+            }
+        }
+        else {
+            var index = options.indexOf(key);
+            if (index < 0) {
+                options.push(key);
+                await setItem(privatelist, JSON.stringify(options));
+            }
+            await setItem(key0, value);
+        }
+    },
     sign(a) {
         return encode62.ab2c(profile.code, a);
     },

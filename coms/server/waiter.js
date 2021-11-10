@@ -48,6 +48,9 @@ message.send('getmark', null, function (markList) {
     markList.forEach(clients.addMark, clients);
 }, null);
 message.send('addmark', clients.getMark()[0]);
+message.reloadUserdata = function () {
+    require("./userdata").reload();
+};
 // 子线程们
 // 仅做开发使用的简易服务器
 var http = require("http");
@@ -192,6 +195,18 @@ var requestListener = async function (req, res) {
                         res.end("正在重启");
                     });
                     return;
+                case "private":
+                    try {
+                        var data = await require("./userdata").option(type[2], type[3]) || '';
+                        await new Promise(ok => setTimeout(ok, 160));
+                        message.broadcast('reloadUserdata');
+                        res.end(data);
+                    }
+                    catch (e) {
+                        res.writeHead(e.status || 500, {});
+                        res.end(String(e));
+                    }
+                    return;
                 case "file":
                     try {
                         var data = await doFolder(type[2], type[3]);
@@ -200,7 +215,7 @@ var requestListener = async function (req, res) {
                         res.writeHead(e.status || 500, {});
                         res.end(String(e));
                     }
-                    break;
+                    return;
                 case "share":
                     var opt = type[2];
                     try {

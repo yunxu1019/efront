@@ -8,7 +8,8 @@
     <tr>
         <td -repeat="f in fields">
             <span -if="f.key" -text="d[f.key]"></span>
-            <a on-click="o.do(d)" -if="f.options" _type="o.type" -repeat="o in f.options">
+            <a on-click="o.do(d)" -if="f.options" _type="o.type instanceof Function?o.type(d):o.type"
+                -repeat="o in f.options">
                 <span -text="o.name instanceof Function?o.name(d):o.name"></span>
             </a>
         </td>

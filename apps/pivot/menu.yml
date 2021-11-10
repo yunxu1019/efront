@@ -3,4 +3,5 @@
 短链接: /home/short
 WEB文件管理: /wow/root
 长连接管理: /link/list
+密钥管理: /token/list
 # 用户列表: /user/list
