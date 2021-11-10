@@ -521,39 +521,63 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         return exec.apply(_this, args);
     });
 };
-var bindthen = function (callback) {
-    return function (data) {
-        if (Promise && data instanceof Promise) {
-            data.then(callback);
-        } else {
-            callback(data);
-        }
-    };
-};
-
 
 var init = function (name, then, prebuilds) {
-    then = bindthen(then);
+    // then = bindthen(then);
     var key = keyprefix + name;
     if (prebuilds) {
         if (name in prebuilds) {
-            return then(prebuilds[name]);
+            if (then) then(prebuilds[name]);
+            return prebuilds[name];
         }
     }
     if (hasOwnProperty.call(modules, name)) {
-        then(modules[name]);
-        return;
+        if (then) then(modules[name]);
+        return modules[name];
     }
     if (window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name)) {
-        then(modules[name] = window[name]);
-        return;
+        modules[name] = window[name]
+        if (then) then(modules[name]);
+        return modules[name];
     }
+    var oks = [];
+    if (then) oks.push(then);
+    var ohs = [];
+    var res = {
+        oks,
+        ohs,
+        resolved: null,
+        errored: null,
+        then(ok, oh) {
+            if (ok) this.oks.push(ok);
+            if (oh) this.ohs.push(oh);
+            this.fire();
+        },
+        fire() {
+            if (this.resolved || this.errored) {
+                var oks = this.oks.splice(0, this.oks.length);
+                var ohs = this.ohs.splice(0, this.ohs.length);
+                if (this.resolved) for (var o of oks) o(this.resolved);
+                if (this.errored) for (var o of ohs) o(this.errored);
+            }
+        },
+    };
+    then = function (created) {
+        if (Promise && created instanceof Promise) return created.then(then, crack);
+        res.resolved = created;
+        res.fire();
+    };
+    var crack = function (error) {
+        res.errored = error;
+        res.fire();
+    };
     loadModule(name, function (error) {
         if (hasOwnProperty.call(modules, name)) {
             then(modules[name]);
             return;
         }
-        if (error) return;
+        if (error) return crack(error);
+
         var module = loadedModules[key];
         var args = module.args || [];
 
@@ -593,6 +617,7 @@ var init = function (name, then, prebuilds) {
 
         then(created);
     }, prebuilds);
+    return res;
 };
 var forceRequest = {};
 var removeGlobalProperty = function (property) {
