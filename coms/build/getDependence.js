@@ -3,20 +3,29 @@ var getRequired = require("../compile/required");
 var getArgs = require("./getArgs");
 var path = require("path");
 function getInitReferenced(dependence, args, argNames, data) {
-    var requires = ["init"].map(a => dependence.indexOf(a)).filter(a => ~a);
+    var requires = ["init", "popup"].map(a => dependence.indexOf(a)).filter(a => ~a);
     if (!requires.length) return [];
-    var initReg = new RegExp(`${/[^\w\u00aa-\uffff]/.source}(?:${requires.map(a => args[a]).join("|")})${/\s*\((['"`]|)([^'"`,]+)\1\s*[,\)]/.source}`, 'g');
+    var initReg = new RegExp(`${/[^\w\u00aa-\uffff]/.source}(${requires.map(a => args[a]).join("|")})${/\s*\((['"`]|)([^'"`,]+?)\2\s*[,\)]/.source}`, 'g');
     var required = [];
+    var index = dependence.indexOf('popup');
+    if (index >= 0) var popup = args[index];
     args = args.slice(args.length - argNames.length);
-    data.replace(initReg, function (match, quote, refer) {
-        if (quote) {
-
-            required.push(refer);
-        } else {
+    data.replace(initReg, function (match, type, quote, refer) {
+        if (!quote) {
             var index = args.indexOf(refer);
             if (~index) {
-                required.push(argNames[index]);
+                refer = argNames[index];
             }
+            else {
+                refer = null;
+            }
+        }
+        if (refer) {
+            if (type === popup) {
+                refer = refer.replace(/^[#!@\+]+/, '');
+                if (/^[\\\/]/.test(refer)) return;
+            }
+            required.push(refer);
         }
         return match;
     });

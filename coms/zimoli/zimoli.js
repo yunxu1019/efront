@@ -249,11 +249,31 @@ function prepare(pgpath, ok) {
         return _with_elements;
     };
     state.path = function (url) {
-        if (isString(url) && /^[^\\\/]/.test(url)) {
+        if (isString(url) && /^\.+[\\\/]/.test(url)) {
+            url = url.replace(/^\.[\\\/]/, '');
             url = pgpath.replace(/[^\/]*$/, url);
+            var ps = url.split(/[\\\/]/);
+            var ds = [];
+            for (var p of ps) {
+                if (p === "..") {
+                    ds.pop();
+                }
+                else if (p !== ".") {
+                    ds.push(p);
+                }
+            }
+            url = ds.join('/');
         }
         return url;
-    }
+    };
+    state.popup = function (a) {
+        a = state.path(a);
+        return popup.apply(this, [a].concat([].slice.call(arguments, 1)));
+    };
+    state.init = function (a) {
+        a = state.path(a);
+        return init.apply(this, [a].concat([].slice.call(arguments, 1)));
+    };
     state.go = function (url, args, _history_name) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
         var to = function (_url, args, _history_name) {
