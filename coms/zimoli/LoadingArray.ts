@@ -8,4 +8,7 @@ class LoadingArray extends Array {
     is_readonly = null;
     loading = null;
     loading_promise = null;
+    then(ok, oh) {
+        if (this.loading_promise) this.loading_promise.then(ok, oh);
+    }
 }
