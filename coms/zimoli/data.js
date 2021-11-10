@@ -434,8 +434,6 @@ var privates = {
         let url = api.url;
         var base = api.base;
         if (base) url = base + api.path;
-        console.log(url, base);
-
         if (this.validApi(api, params)) {
             params = this.repare(api, params);
             return this.loadIgnoreConfig(api.method, url, params, api);
