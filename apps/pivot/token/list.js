@@ -6,8 +6,8 @@ frame$list.bind(null, "密钥管理", {
         return data.from("private-edit", { key: encode62.timeencode(o.key), value: encode62.timeencode("") }).loading_promise;
     },
     fields: refilm`
-显示名/name input
-*键名/key
-密钥/value
-备注/comment
+*键名/key 100
+显示名/name input/300
+密钥/value text/100
+备注/comment text/200
 `}, "/token/edit");

@@ -18,7 +18,7 @@ function main(title, { submit }, { data: origin, fields, }) {
     });
     on('submit')(page, async function (e) {
         e.preventDefault();
-        await submit(item);
+        await submit(item, fields);
         dispatch(this, 'submited');
         remove(this);
     });
