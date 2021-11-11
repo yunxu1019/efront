@@ -90,7 +90,7 @@ var initialComment = function (renders, type, expression) {
 var parseRepeat = function (expression) {
     var reg =
         // /////////////////////////////////////////// i //       r       /////////////////////////  o  ///// a ///////////////////// t /////
-        /^(?:let\b|var\b|const\b)?\s*(?:[\(\{\[]\s*)?(.+?)((?:\s*,\s*.+?)*)?(?:\s*[\)\}\]]\s*|\s+)(in|of)\s+(.+?)(\s+?:track\s*by\s+(.+?))?$/i;
+        /^(?:let\b|var\b|const\b)?\s*(?:[\(\{\[]\s*)?(.+?)((?:\s*,\s*.+?)*)?(?:\s*[\)\}\]]\s*|\s+)(in|of)\s+(.+?)(?:\s+track\s*by\s+(.+?))?$/i;
     var res = reg.exec(expression);
     if (!res) return res;
     var [_, i, k, r, s, t] = res;
@@ -125,7 +125,7 @@ var createRepeat = function (search, id = 0) {
     var [context, expression] = search;
     var res = parseRepeat(expression);
     if (!res) throw new Error(`不能识别循环表达式: ${expression} `);
-    var { keyName, itemName, indexName, srcName } = res;
+    var { keyName, itemName, indexName, srcName, trackBy } = res;
     // 懒渲染
     var getter = createGetter([context, srcName]).bind(this);
     var element = this, clonedElements = [], savedValue, savedOrigin;
@@ -151,17 +151,26 @@ var createRepeat = function (search, id = 0) {
         var clonedElements1 = Object.create(null);
         var cloned = keys.map(function (key, cx) {
             var k = isArrayResult ? cx : key;
-            var c = changes[k];
-            if (clonedElements[k]) if (!c || !isObject(c.previous) && !isObject(c.current)) return clonedElements1[k] = clonedElements[k];
-            var clone = element.cloneNode();
-            clone.innerHTML = element.innerHTML;
-            clone.renderid = id;
-            clone.$parentScopes = $parentScopes;
             var $scope = {
                 [keyName || '$key']: k,
                 [itemName || '$item']: result[k],
                 [indexName || '$index']: cx
             };
+            if (trackBy) {
+                k = seek($scope, trackBy);
+                if (clonedElements[k]) {
+                    clonedElements[k].$scope = $scope;
+                    return clonedElements1[k] = clonedElements[k];
+                }
+            }
+            else {
+                var c = changes[k];
+                if (clonedElements[k]) if (!c || !isObject(c.previous) && !isObject(c.current)) return clonedElements1[k] = clonedElements[k];
+            }
+            var clone = element.cloneNode();
+            clone.innerHTML = element.innerHTML;
+            clone.renderid = id;
+            clone.$parentScopes = $parentScopes;
             clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
             clone.$struct = $struct;
