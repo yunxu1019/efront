@@ -62,7 +62,7 @@ var saveProfileAsync = lazy(async function () {
 async function setItem(k, v) {
     await loadProfileAsync();
     var k0 = encode62.geta(k + profile.code);
-    profile[k0] = String(encode62.encode(v, k0));
+    profile[k0] = encode62.encodestr(v, k0);
     saveProfileAsync();
 }
 async function getItem(k) {
@@ -70,7 +70,7 @@ async function getItem(k) {
     var k0 = encode62.geta(k + profile.code);
     var v = profile[k0];
     if (!v) return;
-    return String(encode62.decode(v, k0));
+    return encode62.decodestr(v, k0);
 }
 async function removeItem(k) {
     await loadProfileAsync();
@@ -144,7 +144,12 @@ module.exports = {
             var keys = options;
             options = options.map(o => getItem(privateprefix + o));
             options = await Promise.all(options);
-            options = options.map((o, i) => o ? JSON.parse(o) : { key: keys[i] });
+            options = options.map((o, i) => {
+                try {
+                    if (o) return JSON.parse(o);
+                } catch { };
+                return { key: keys[i], value: o };
+            });
             return encode62.timeencode(JSAM.stringify(options));
         }
         key = encode62.timedecode(key);

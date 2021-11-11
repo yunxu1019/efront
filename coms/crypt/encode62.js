@@ -1,5 +1,7 @@
 "use strict";
 module.exports = encode62;
+var encodeUTF8 = require("../basic/encodeUTF8");
+var decodeUTF8 = require("../basic/decodeUTF8");
 var src = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 var map = {};
 src.split("").forEach((s, i) => map[s] = i);
@@ -69,6 +71,20 @@ Object.assign(encode62, {
         });
         return result;
     },
+    encodestr(data, sign) {
+        if (!sign) return data;
+        var result = encodeUTF8(data);
+        sign = Buffer.from(sign);
+        var delta = 0, c = 0;
+        for (var cx = 0, dx = data.length; cx < dx; cx++) {
+            if (result[cx] < 128) result[cx] = result[cx] ^ sign[cx % sign.length];
+            else if (result[cx] < 192) {
+                var c = c << 8 | sign[(delta += 6) / 8 | 0];
+                result[cx] = result[cx] ^ (c >> 8 - delta % 8 & 0x3f);
+            }
+        }
+        return decodeUTF8(result);
+    },
     decode(data, sign) {
         if (!sign) return data;
         var result = Buffer.from(data);
@@ -101,5 +117,6 @@ Object.assign(encode62, {
 encode62.ab2c = encode62.ba2d = encode62.huan;
 encode62.db2a = encode62.ca2b = encode62.yuan;
 encode62.da2b = encode62.cb2a = encode62.suan;
+encode62.decodestr = encode62.encodestr;
 encode62.encode = encode62.decode;
 encode62.decode62 = encode62.encode62;
