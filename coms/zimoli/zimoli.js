@@ -249,9 +249,11 @@ function prepare(pgpath, ok) {
         return _with_elements;
     };
     state.path = function (url) {
+        if (/^\.+\//.test(url)) {
+            url = pgpath.replace(/[^\/]*$/, url);
+        }
         if (isString(url) && (/[\\\/\.]/.test(url))) {
             url = url.replace(/^\.[\\\/]/, '');
-            url = pgpath.replace(/[^\/]*$/, url);
             var ps = url.split(/[\\\/]/);
             var ds = [];
             for (var p of ps) {
