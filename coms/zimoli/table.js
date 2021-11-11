@@ -95,7 +95,7 @@ var adaptTarget = function (event) {
                     target = this;
                     return;
                 }
-                css(this, { 'cursor': 'e-resize' });
+                css(document.body, { 'cursor': 'col-resize' });
                 result = {
                     target,
                     restX: event.clientX - target.offsetWidth
@@ -106,18 +106,66 @@ var adaptTarget = function (event) {
     }
     if (!result) {
         this.resizing = false;
-        css(this, { 'cursor': 'default' });
+        css(document.body, { 'cursor': '' });
     }
 };
 var tdElementReg = /^t[hd]$/i;
 var trElementReg = /^tr$/i;
+var id = 0;
+function enrichField(f) {
+    if (!f.id) f.id = ++id;
+    if (f.width) return;
+    var width;
+    if (f.size) {
+        width = f.size;
+        if (width < 40) width = width * 16;
+    }
+    else switch (f.type) {
+        case "text":
+            width = 30;
+            break;
+        case "input":
+            width = 200;
+            break;
+        case "date":
+            width = 180;
+        case "datetime":
+            width = 200;
+            break;
+        case "time":
+            width = 120;
+            break;
+        default:
+            if (f.options) {
+                width = f.options.map(o => o.name instanceof Function ? o.name() : o.name).join(" ").length * 20;
+            } else {
+                width = String(f.name || f.key).length * 16;
+            }
+    }
+    if (width > 600) width = 600;
+    f.width = width + 60;
+}
+
 
 function table(elem) {
     var tableElement = isElement(elem) ? elem : document.createElement("table");
     var activeCols = [];
-    onmousemove(tableElement, adaptTarget);
+    var adaptCursor = adaptTarget.bind(tableElement);
+    var off;
+    tableElement.init = function () {
+        off = on("mousemove")(window, adaptCursor);
+    };
+    tableElement.dispose = tableElement.destroy = function () {
+        off();
+    };
+    on("append")(tableElement, tableElement.init);
+    on("remove")(tableElement, tableElement.destroy);
+    if (isMounted(tableElement)) tableElement.init();
+
     moveupon(tableElement, {
-        start() { },
+        start(event) {
+            if (this.resizing) event.preventDefault();
+        },
         move: resizeTarget,
     });
     onmousemove(tableElement, function (event) {
@@ -142,7 +190,7 @@ function table(elem) {
             removeClass(td, "y-ing");
         });
     });
-    var table = tableElement.hasAttribute("ng-src") || tableElement.hasAttribute("src") ? list(tableElement) : tableElement;
+    var table = tableElement;
     var thead;
     var cellMatchManager = function (element) {
         if (!thead) [thead] = table.getElementsByTagName("thead");
@@ -162,10 +210,14 @@ function table(elem) {
     care(table, function ([fields, data]) {
         thead = null;
         this.innerHTML = template;
+        fields.forEach(enrichField);
         render(this, {
             fields,
             tbody: list,
             data,
+            setWidth(target, f) {
+                css(target, { width: f.width });
+            },
             a: button,
         }, this.$parentScopes.concat(this.$scope));
     })
