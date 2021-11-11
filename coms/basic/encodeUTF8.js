@@ -1,6 +1,6 @@
 var d = 0b10000000, s = 0b00111111;
 function numberUTF8(t, dist = []) {
-    if (t < 127) {//0b0xxxxxxx - 0b10xxxxxx
+    if (t < 128) {//0b0xxxxxxx - 0b10xxxxxx
         dist.push(0b00000000 | t)
     }
     else if (t < 2048) {// 0b110xxxxx 10xxxxxx
