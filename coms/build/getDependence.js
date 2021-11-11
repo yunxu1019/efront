@@ -2,33 +2,48 @@
 var getRequired = require("../compile/required");
 var getArgs = require("./getArgs");
 var path = require("path");
+var scanner2 = require("../compile/scanner2");
+var strings = require("../basic/strings");
 function getInitReferenced(dependence, args, argNames, data) {
     var requires = ["init", "popup"].map(a => dependence.indexOf(a)).filter(a => ~a);
     if (!requires.length) return [];
-    var initReg = new RegExp(`${/[^\w\u00aa-\uffff]/.source}(${requires.map(a => args[a]).join("|")})${/\s*\((['"`]|)([^'"`,]+?)\2\s*[,\)]/.source}`, 'g');
     var required = [];
     var index = dependence.indexOf('popup');
     if (index >= 0) var popup = args[index];
-    args = args.slice(args.length - argNames.length);
-    data.replace(initReg, function (match, type, quote, refer) {
-        if (!quote) {
-            var index = args.indexOf(refer);
+    var arg1 = args.slice(args.length - argNames.length);
+    var scaned = scanner2(data);
+    var { envs, used } = scaned;
+
+    var get = function (u) {
+        var next = u.next;
+        if (!next || next.type !== scaned.SCOPED || next.entry !== "(") return;
+        var a = next.first;
+        if (!a) return;
+        if (a.type === scaned.QUOTED) {
+            var refer = strings.decode(a.text);
+        }
+        else if (a.type === scaned.EXPRESS) {
+            if (!(a.text in envs)) return;
+            if (!used[a.text] || !~used[a.text].indexOf(a)) return;
+            var index = arg1.indexOf(a.text);
             if (~index) {
                 refer = argNames[index];
             }
-            else {
-                refer = null;
-            }
         }
         if (refer) {
-            if (type === popup) {
+            if (u.text === popup) {
                 refer = refer.replace(/^[#!@\+]+/, '');
                 if (/^[\\\/]/.test(refer)) return;
             }
             required.push(refer);
         }
-        return match;
-    });
+    };
+    for (var r of requires) {
+        var a = args[r];
+        if (a in envs) {
+            used[a].forEach(get);
+        }
+    }
     return required;
 }
 var get_relatives = function (name, required, dependence) {
