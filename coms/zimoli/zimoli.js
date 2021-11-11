@@ -252,7 +252,7 @@ function prepare(pgpath, ok) {
         if (/^\.+\//.test(url)) {
             url = pgpath.replace(/[^\/]*$/, url);
         }
-        if (isString(url) && (/[\\\/\.]/.test(url))) {
+        if (isString(url) && /[\\\/\.]/.test(url)) {
             url = url.replace(/^\.[\\\/]/, '');
             var ps = url.split(/[\\\/]/);
             var ds = [];
@@ -264,7 +264,7 @@ function prepare(pgpath, ok) {
                     ds.push(p);
                 }
             }
-            url = ds.join('/');
+            url = "/" + ds.join('/').replace(/^\//, '');
         }
         return url;
     };
