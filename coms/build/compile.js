@@ -26,6 +26,7 @@ var window = {
     Date,
     Infinity,
     Error,
+    TypeError,
     devidePixelRatio: 1,
     isFinite,
     isNaN,
