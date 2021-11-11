@@ -91,7 +91,7 @@ var adaptTarget = function (event) {
             }
             if (target) target = getFirstSingleColCell(this, target.colend);
             if (target) {
-                if (position.right >= getSelection(this).right - 7) {
+                if (position.right >= getScreenPosition(this).right - 7) {
                     target = this;
                     return;
                 }
