@@ -96,7 +96,7 @@ var requestListener = async function (req, res) {
                     return;
             }
             res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
-            var type = /^(\w+)(?:\-([\/\w]+))?(?:[\?\-\:]([\s\S]*))?$/.exec(option);
+            var type = /^(\w+)(?:\-([\/\w]+))?(?:[\?\/\:]([\s\S]*))?$/.exec(option);
             var needLogin = false;
             var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
             if (type) switch (type[1]) {
