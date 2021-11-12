@@ -3,21 +3,21 @@ function main() {
     page.innerHTML = template;
     renderWithDefaults(page, {
         async load() {
-            var cs = this.clusters = data.from("cluster", { opt: "list" });
-            await cs.loading_promise;
+            this.clusters = data.from("cluster", { opt: "list" });
+            await this.clusters;
             this.active();
         },
-        index: 0,
+        index: data.getInstance("index").index || 0,
         clusters: [],
         filterTime(d) {
             return ((new Date - d) / 1000 | 0) + "秒";
         },
         clients: [],
-        async active() {
-            var index = this.index;
+        active(index = this.index) {
+            data.setInstance('index', { index });
             var clusters = this.clusters;
             if (index >= clusters.length) index = clusters.length - 1;
-            this.clients = data.lazyInstance("cluster", { opt: "list", id: clusters[index] });
+            this.clients = data.from("cluster", { opt: "list", id: clusters[index] });
         },
     });
     page.$scope.load();

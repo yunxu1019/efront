@@ -1,5 +1,5 @@
 <div class="clusters">
-    <a -repeat="(c,i) in clusters" @click="active(i)">
+    <a -repeat="(c,i) in clusters" ng-class="{current:i===index}" @click="active(i,c)">
         <span -text="c"></span>
     </a>
 </div>
@@ -7,6 +7,6 @@
     <padding>
         <span -text=c.id></span>
         <span class="time" -text=filterTime(c.optime)></span>
-        
+
     </padding>
 </lattice>
