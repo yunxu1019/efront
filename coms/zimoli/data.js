@@ -402,6 +402,12 @@ function createApiMap(data) {
 }
 var _configfileurl;
 var configPormise;
+function LoadingArray_then(ok, oh) {
+    if (this.loading_promise) this.loading_promise.then(ok, oh);
+    else if (this.is_errored) oh(this.error_message);
+    else ok();
+}
+
 var privates = {
     loadAfterConfig(serviceId, params) {
         var promise = this.getApi(serviceId).then((api) => {
@@ -622,6 +628,7 @@ var data = {
         if (isObject(response)) {
             response.is_loaded = true;
             response.is_loading = false;
+            if (response.then === LoadingArray_then) delete response.then;
         }
         this.loading_count--;
     },
@@ -630,6 +637,7 @@ var data = {
         if (isObject(response)) {
             response.is_loaded = false;
             response.is_loading = true;
+            response.then = LoadingArray_then;
         }
         this.loading_count++;
     },
