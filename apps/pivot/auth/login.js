@@ -4,7 +4,6 @@ var fields = refilm`
 服务器地址/host* select?a ${hosts}
 密码/password* password
 `;
-console.log(fields)
 function main() {
     var page = view();
     page.innerHTML = login;
