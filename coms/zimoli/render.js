@@ -565,7 +565,8 @@ function getFromScopes(key, scope, parentScopes) {
     if (key in scope) {
         return scope[key];
     }
-    if (parentScopes) for (var o of parentScopes) {
+    if (parentScopes) for (var cx = parentScopes.length - 1; cx >= 0; cx--) {
+        var o = parentScopes[cx];
         if (key in o) {
             return o[key];
         }
