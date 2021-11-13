@@ -37,6 +37,8 @@ var renderModel = function (field, data) {
 var constructors = {
     input,
     raw: input,
+    swap,
+    switch: swap,
     row: textarea,
     password,
     text: textarea,
@@ -222,7 +224,6 @@ function main(elem) {
         }
     };
     on("changes")(elem, function ({ changes }) {
-
         if (changes.data || changes.field || changes.readonly) {
             build();
         }
