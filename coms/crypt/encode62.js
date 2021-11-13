@@ -79,7 +79,7 @@ Object.assign(encode62, {
         for (var cx = 0, dx = data.length; cx < dx; cx++) {
             if (result[cx] < 128) result[cx] = result[cx] ^ sign[cx % sign.length];
             else if (result[cx] < 192) {
-                var c = c << 8 | sign[(delta += 6) / 8 | 0];
+                var c = c << 8 | sign[(delta += 6) / 8 % sign.length | 0];
                 result[cx] = result[cx] ^ (c >> 8 - delta % 8 & 0x3f);
             }
         }
