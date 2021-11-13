@@ -215,6 +215,7 @@ function table(elem) {
             fields,
             tbody: list,
             data,
+            model,
             setWidth(target, f) {
                 css(target, { width: f.width });
             },
