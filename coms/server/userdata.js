@@ -121,8 +121,8 @@ async function setPassword(p) {
 async function hasPassword(p) {
     return !!await getItem("password-c");
 }
-var privatelist = "private-options";
-var privateprefix = "private:";
+var listmark = "-options";
+var optionmark = ":";
 module.exports = {
     save,
     load,
@@ -136,13 +136,15 @@ module.exports = {
     reload() {
         profile_promise = null;
     },
-    async option(key, value) {
+    async option(key, value, type = 'private') {
+        var key_privatelist = type + listmark;
+        var key_privateprefix = type + optionmark;
         if (!key) {
-            var options = await getItem(privatelist);
+            var options = await getItem(key_privatelist);
             if (options) options = JSON.parse(options);
             else options = [];
             var keys = options;
-            options = options.map(o => getItem(privateprefix + o));
+            options = options.map(o => getItem(key_privateprefix + o));
             options = await Promise.all(options);
             options = options.map((o, i) => {
                 try {
@@ -153,12 +155,12 @@ module.exports = {
             return encode62.timeencode(JSAM.stringify(options));
         }
         key = encode62.timedecode(key);
-        var key0 = privateprefix + key;
+        var key0 = key_privateprefix + key;
         if (value === undefined) {
             return getItem(key0);
         }
         value = encode62.timedecode(value);
-        var options = await getItem(privatelist);
+        var options = await getItem(key_privatelist);
         if (options) options = JSON.parse(options);
         else options = [];
         if (isEmpty(value)) {
@@ -166,14 +168,14 @@ module.exports = {
             var index = options.indexOf(key);
             if (index >= 0) {
                 options.splice(index, 1);
-                await setItem(privatelist, JSON.stringify(options));
+                await setItem(key_privatelist, JSON.stringify(options));
             }
         }
         else {
             var index = options.indexOf(key);
             if (index < 0) {
                 options.push(key);
-                await setItem(privatelist, JSON.stringify(options));
+                await setItem(key_privatelist, JSON.stringify(options));
             }
             await setItem(key0, value);
         }

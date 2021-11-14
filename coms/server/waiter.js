@@ -195,9 +195,10 @@ var requestListener = async function (req, res) {
                         res.end("正在重启");
                     });
                     return;
+                case "task":
                 case "private":
                     try {
-                        var data = await require("./userdata").option(type[2], type[3]) || '';
+                        var data = await require("./userdata").option(type[2], type[3], type[1]) || '';
                         await new Promise(ok => setTimeout(ok, 160));
                         message.broadcast('reloadUserdata');
                         res.end(data);

@@ -37,7 +37,16 @@ var renderModel = function (field, data) {
 var constructors = {
     input,
     raw: input,
-    swap,
+    swap(e) {
+        var { field } = e;
+        e = swap(e);
+        if (field.options) {
+            e.getValue = function () {
+                return field.options[+this.checked].value;
+            };
+        }
+        return e;
+    },
     switch: swap,
     row: textarea,
     password,
@@ -136,8 +145,18 @@ var readonly_types = {
     "size"({ field }, data) {
         var f = data[field.key];
         return size(f);
-    }
+    },
+    swap(e, data) {
+        var { field } = e;
+        var v = data[field.key];
+        if (field.options) {
+            var o = field.options[v];
+            if (o) return o.name;
+        }
+        return v;
+    },
 };
+readonly_types.select = readonly_types.swap;
 function main(elem) {
     var build = function () {
         var { data, readonly, field } = elem;

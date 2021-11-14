@@ -1,0 +1,1 @@
+pedit.bind(null, "任务", "task");

@@ -4,5 +4,5 @@
   share: options ::share-:opt?:path
   folder: options ::file-:opt:::path?:to
   cluster: options ::cluster-:opt?:id
-  private-list: options ::private
-  private-edit: options ::private-:key?:value
+  list: options :::type
+  edit: options :::type-:key?:value

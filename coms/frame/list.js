@@ -1,4 +1,4 @@
-function main(title, { fields, load, remove }, edit_ref) {
+function main(title, { fields, options: options0, load, remove }, edit_ref) {
     prepare(edit_ref);
     var page = document.createElement("div");
     var edit = function (o) {
@@ -11,6 +11,40 @@ function main(title, { fields, load, remove }, edit_ref) {
         })
     };
     page.innerHTML = template;
+    var options = [
+        {
+            name: "修改",
+            do(o) {
+                edit(o);
+            },
+        },
+        {
+            type: "danger",
+            name(o) {
+                return this.confirm === o ? "确认删除" : "删除";
+            },
+            type(o) {
+                return this.confirm === o ? "dark" : "danger";
+            },
+            confirm: false,
+            timer: 0,
+            async do(o) {
+                if (this.confirm !== o) {
+                    this.confirm = o;
+                    clearTimeout(this.timer);
+                    var that = this;
+                    this.timer = setTimeout(function () {
+                        that.confirm = null;
+                        render.refresh();
+                    }, 2000);
+                    return;
+                }
+                await remove(o);
+                page.$scope.load();
+            }
+        }
+    ];
+    if (options0) options = options.concat(options0);
     renderWithDefaults(page, {
         title,
         load() {
@@ -18,39 +52,7 @@ function main(title, { fields, load, remove }, edit_ref) {
         },
         fields: fields.concat({
             name: "操作",
-            options: [
-                {
-                    name: "修改",
-                    do(o) {
-                        edit(o);
-                    },
-                },
-                {
-                    type: "danger",
-                    name(o) {
-                        return this.confirm === o ? "确认删除" : "删除";
-                    },
-                    type(o) {
-                        return this.confirm === o ? "dark" : "danger";
-                    },
-                    confirm: false,
-                    timer: 0,
-                    async do(o) {
-                        if (this.confirm !== o) {
-                            this.confirm = o;
-                            clearTimeout(this.timer);
-                            var that = this;
-                            this.timer = setTimeout(function () {
-                                that.confirm = null;
-                                render.refresh();
-                            }, 2000);
-                            return;
-                        }
-                        await remove(o);
-                        page.$scope.load();
-                    }
-                }
-            ]
+            options
         }),
         data: [],
         add() {
