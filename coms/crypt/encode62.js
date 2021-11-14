@@ -1,5 +1,7 @@
 "use strict";
 module.exports = encode62;
+var encodeUTF8 = require("../basic/encodeUTF8");
+var decodeUTF8 = require("../basic/decodeUTF8");
 var src = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 var map = {};
 src.split("").forEach((s, i) => map[s] = i);
@@ -7,7 +9,7 @@ src.split("").forEach((s, i) => map[s] = i);
 function encode62(string) {
     string = String(string)
     string = string.length + string + "2017-08-19";
-    var buff = Buffer.from(src);
+    var buff = src.split('');
     for (var cx = 0, dx = buff.length + src.length, sl = string.length, cl = buff.length; cx < dx; cx++) {
         var s1 = string.charCodeAt(cx % sl) % cl;
         var s2 = cx % cl;
@@ -15,7 +17,7 @@ function encode62(string) {
         buff[s1] = buff[s2];
         buff[s2] = btemp;
     }
-    return buff.toString();
+    return buff.join('');
 };
 
 
@@ -31,13 +33,29 @@ Object.assign(encode62, {
         var time_rest = string.slice(string.length - time_delta.toString(36).length, string.length);
         var time_start = parseInt((new Date() - parseInt(time_rest, 36)) / time_delta) * time_delta;
         var time_stamp = time_start + parseInt(time_rest, 36);
-        return this.decode62(string.slice(0, string.length - time_delta.toString(36).length), time_stamp.toString(36));
+        string = this.decode62(string.slice(0, string.length - time_delta.toString(36).length), time_stamp.toString(36)).replace(/\.\.?/g, a => a === '.' ? "%" : ".");
+        return decodeURIComponent(string);
     },
     timeencode(string) {
         var { time_delta } = this;
-        var time_stamp = +new Date();
+        var time_free = time_delta / 6 | 0;
+        var time_stamp = +new Date() - time_free;
         var time_rest = time_stamp % time_delta;
-        return this.encode62(string, time_stamp.toString(36)) + time_rest.toString(36).padStart(time_delta.toString(36).length, '0');
+        var time_rest_str = time_rest.toString(36);
+        var time_delta_str = time_delta.toString(36);
+        string = encodeURIComponent(string).replace(/\./g, '..').replace(/%/g, '.');
+        return this.encode62(string, time_stamp.toString(36)) + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
+    },
+    timeupdate(string) {
+        var { time_delta } = this;
+        var time_rest = string.slice(string.length - time_delta.toString(36).length, string.length);
+        var time_start = parseInt((new Date() - parseInt(time_rest, 36)) / time_delta) * time_delta;
+        var time_stamp = time_start + parseInt(time_rest, 36);
+        if (time_stamp + (time_delta >> 1) > +new Date()) {
+            return string;
+        } else {
+            return this.timeencode(this.timedecode(string));
+        }
     },
     encode62(data, sign) {
         if (!sign) return data;
@@ -53,14 +71,19 @@ Object.assign(encode62, {
         });
         return result;
     },
-    encode(data, sign) {
+    encodestr(data, sign) {
         if (!sign) return data;
-        var result = Buffer.from(data);
+        var result = encodeUTF8(data);
         sign = Buffer.from(sign);
+        var delta = 0, c = 0;
         for (var cx = 0, dx = data.length; cx < dx; cx++) {
-            result[cx] = result[cx] ^ sign[cx % sign.length];
+            if (result[cx] < 128) result[cx] = result[cx] ^ sign[cx % sign.length];
+            else if (result[cx] < 192) {
+                var c = c << 8 | sign[(delta += 6) / 8 % sign.length | 0];
+                result[cx] = result[cx] ^ (c >> 8 - delta % 8 & 0x3f);
+            }
         }
-        return result;
+        return decodeUTF8(result);
     },
     decode(data, sign) {
         if (!sign) return data;
@@ -75,7 +98,7 @@ Object.assign(encode62, {
         return encode62(string);
     },
     genb() {
-        return encode62(Date.now() + "" + Math.random());
+        return encode62(Date.now() * Math.random() + "" + Math.random().toString(36) + Math.random().toString(36).toUpperCase());
     },
     huan(x, y) {
         return x.split("").map(s => y[map[s]]).join("");
@@ -90,24 +113,10 @@ Object.assign(encode62, {
         y.split("").forEach((a, j) => y_map[a] = j);
         return z.split("").map(c => src[y_map[c]]).join("");
     },
-    ab2c(a, b) {
-        return this.huan(a, b);
-    },
-    ba2d(a, b) {
-        return this.huan(b, a);
-    },
-    ca2b(c, a) {
-        return this.yuan(c, a);
-    },
-    cb2a(c, b) {
-        return this.suan(c, b);
-    },
-    da2b(d, a) {
-        return this.suan(d, a);
-    },
-    db2a(d, b) {
-        return this.yuan(d, b);
-    }
 });
-
+encode62.ab2c = encode62.ba2d = encode62.huan;
+encode62.db2a = encode62.ca2b = encode62.yuan;
+encode62.da2b = encode62.cb2a = encode62.suan;
+encode62.decodestr = encode62.encodestr;
+encode62.encode = encode62.decode;
 encode62.decode62 = encode62.encode62;

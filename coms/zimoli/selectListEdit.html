@@ -1,0 +1,15 @@
+<div head>管理选项</div>
+<div body>
+    <div>
+        <input placeholder="搜索或添加" v-model="search" @keydown.enter="add()" /><a @click="add()"
+            -if="search&&!filtered.hasFullmatch">添加</a>
+    </div>
+    <div class="item" -repeat="o in (search?filtered:options)">
+        <span -html=o.name></span>
+        <a type="danger" @click="del(o)">删除</a>
+    </div>
+</div>
+<div foot>
+    <btn @click="save()">确定</btn>
+    <btn type="white" @click="remove()">取消</btn>
+</div>

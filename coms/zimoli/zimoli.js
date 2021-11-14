@@ -249,11 +249,33 @@ function prepare(pgpath, ok) {
         return _with_elements;
     };
     state.path = function (url) {
-        if (isString(url) && /^[^\\\/]/.test(url)) {
+        if (/^\.+\//.test(url)) {
             url = pgpath.replace(/[^\/]*$/, url);
         }
+        if (isString(url) && /[\\\/\.]/.test(url)) {
+            url = url.replace(/^\.[\\\/]/, '');
+            var ps = url.split(/[\\\/]/);
+            var ds = [];
+            for (var p of ps) {
+                if (p === "..") {
+                    ds.pop();
+                }
+                else if (p !== ".") {
+                    ds.push(p);
+                }
+            }
+            url = "/" + ds.join('/').replace(/^\//, '');
+        }
         return url;
-    }
+    };
+    state.popup = function (a) {
+        a = state.path(a);
+        return popup.apply(this, [a].concat([].slice.call(arguments, 1)));
+    };
+    state.init = function (a) {
+        a = state.path(a);
+        return init.apply(this, [a].concat([].slice.call(arguments, 1)));
+    };
     state.go = function (url, args, _history_name) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
         var to = function (_url, args, _history_name) {
@@ -337,11 +359,17 @@ function prepare(pgpath, ok) {
     }, state);
 }
 function create(pagepath, args, from, needroles) {
-    var page_object = isObject(pagepath) ? pagepath : page_generators[getpgpath(pagepath)];
-    if (!page_object) {
-        throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
+    if (typeof pagepath === 'string') {
+        var page_object = isObject(pagepath) ? pagepath : page_generators[getpgpath(pagepath)];
+        if (!page_object) {
+            throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
+        }
+        var { pg, "with": _with_elements, state, onback: _pageback_listener, roles } = page_object;
     }
-    var { pg, "with": _with_elements, state, onback: _pageback_listener, roles } = page_object;
+    else if (isFunction(pagepath)) {
+        var pg = pagepath;
+        var { with: _with_elements, state = {}, onback: _pageback_listener, roles } = pg;
+    }
     if (!checkroles(user.roles, roles) || !checkroles(user.roles, needroles)) {
         // 检查权限
         if (!user.isLogin && user.loginPath) {

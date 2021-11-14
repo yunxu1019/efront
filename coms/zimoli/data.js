@@ -333,25 +333,23 @@ function fixApi(api, href) {
             }
             api.base = href;
             api.path = api.url;
-            if (/^\.([\?\#][\s\S]*)?$/.test(api.url)) {
-                api.url = href + api.url.replace(/^\./, "");
-            } else {
-                api.url = href + api.url;
+            if (/^\.([\?\#][\s\S]*)?$/.test(api.path)) {
+                api.path = api.path.replace(/^\./, "");
             }
             if (extraSearch || extraHash) {
                 if (/[\?#]/.test(api.url)) {
                     var [, search, hash] = paramReg.exec(api.url);
                 }
-                var url = api.url.replace(paramReg, '');
+                var path = api.path.replace(paramReg, '');
                 if (extraSearch) {
                     search = search ? extraSearch + '&' + search : extraSearch;
                 }
                 if (extraHash) {
                     hash = hash ? extraHash + '&' + hash : extraHash;
                 }
-                if (search) url += '?' + search;
-                if (hash) url += "#" + hash;
-                api.url = url;
+                if (search) path += '?' + search;
+                if (hash) path += "#" + hash;
+                api.path = path;
             }
         }
     }
@@ -404,6 +402,12 @@ function createApiMap(data) {
 }
 var _configfileurl;
 var configPormise;
+function LoadingArray_then(ok, oh) {
+    if (this.loading_promise) this.loading_promise.then(ok, oh);
+    else if (this.is_errored) oh(this.error_message);
+    else ok();
+}
+
 var privates = {
     loadAfterConfig(serviceId, params) {
         var promise = this.getApi(serviceId).then((api) => {
@@ -434,7 +438,8 @@ var privates = {
     },
     fromApi(api, params) {
         let url = api.url;
-
+        var base = api.base;
+        if (base) url = base + api.path;
         if (this.validApi(api, params)) {
             params = this.repare(api, params);
             return this.loadIgnoreConfig(api.method, url, params, api);
@@ -623,6 +628,7 @@ var data = {
         if (isObject(response)) {
             response.is_loaded = true;
             response.is_loading = false;
+            if (response.then === LoadingArray_then) delete response.then;
         }
         this.loading_count--;
     },
@@ -631,6 +637,7 @@ var data = {
         if (isObject(response)) {
             response.is_loaded = false;
             response.is_loading = true;
+            response.then = LoadingArray_then;
         }
         this.loading_count++;
     },
@@ -656,6 +663,9 @@ var data = {
     setConfig(data) {
         data = this.parseConfig(data);
         configPormise = Promise.resolve(data);
+    },
+    getConfig() {
+        return privates.getConfigPromise();
     },
     parseConfig(o) {
         if (o instanceof Promise) {

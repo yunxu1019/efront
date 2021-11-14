@@ -4,8 +4,10 @@
 onkeydown(document, function (e) {
     if (e.which === 27 && rootElements.length) {
         var r = rootElements.pop();
-        r.blur();
-        remove(r);
+        if (r) {
+            r.blur();
+            remove(r);
+        }
     }
 });
 var animationStyle = "opacity:0;transform:scale(1.2);transition:.1s opacity ease-out,.2s transform ease-out;";
@@ -162,24 +164,27 @@ var popup_with_mask = function (element, mask = createMask(element)) {
     return element;
 };
 var isypop = function (target) {
+    if (!target) return false;
     var { offsetParent, nextSibling, previousSibling } = target;
     if (
-        nextSibling
+        nextSibling && nextSibling.tagName === target.tagName
         && (
             nextSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
             || target.offsetLeft - nextSibling.offsetLeft >= nextSibling.offsetWidth / 2
         )
-        || previousSibling
+        || previousSibling && previousSibling.tagName === target.tagName
         && (
             previousSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
             || target.offsetLeft - previousSibling.offsetLeft >= previousSibling.offsetWidth / 2
         )
     ) return true;
-    if (offsetParent && target.offsetTop / target.offsetHeight < .2 && offsetParent.offsetWidth / target.offsetWidth > 1.5) return true;
+    var padding = parseFloat(getComputedStyle(offsetParent).paddingTop) + parseFloat(getComputedStyle(offsetParent).paddingBottom);
+    if (offsetParent && target.offsetTop / target.offsetHeight < .2 && (offsetParent.clientWidth - padding) / target.offsetWidth > 1.5) return true;
 
 };
 var isxpop = arriswise(isypop, arguments);
 var popup_as_extra = function (element, target, style) {
+    element.target = target;
     if (style) {
         if (/^[vy]/i.test(style)) {
             popup_as_yextra(element, target, style);
@@ -195,9 +200,9 @@ var popup_as_extra = function (element, target, style) {
         popup_as_yextra(element, target, style);
     } else if (isxpop(target)) {
         popup_as_xextra(element, target, style);
-    } else if (isypop(target.parentNode)) {
+    } else if (isypop(target.offsetParent)) {
         popup_as_yextra(element, target, style);
-    } else if (isxpop(target.parentNode)) {
+    } else if (isxpop(target.offsetParent)) {
         popup_as_xextra(element, target, style);
     } else {
         if (/inline|cell/i.test(getComputedStyle(target).display)) {
@@ -266,10 +271,10 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
         }
 
         css(element, `min-width:auto;`);
-        var aimedWidth = element.offsetWidth;
+        var aimedWidth = getScreenPosition(element).width;
         //如果宽度不足其附着元素的宽度
-        if (aimedWidth < target.offsetWidth) {
-            aimedWidth = target.offsetWidth;
+        if (aimedWidth < position.width) {
+            aimedWidth = position.width;
         }
 
         //如果宽度超出可视区，调整宽度

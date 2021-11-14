@@ -37,6 +37,17 @@ var renderModel = function (field, data) {
 var constructors = {
     input,
     raw: input,
+    swap(e) {
+        var { field } = e;
+        e = swap(e);
+        if (field.options) {
+            e.getValue = function () {
+                return field.options[+this.checked].value;
+            };
+        }
+        return e;
+    },
+    switch: swap,
     row: textarea,
     password,
     text: textarea,
@@ -72,9 +83,26 @@ var constructors = {
         cast(elem, field);
         return elem;
     },
-    select() {
-        var elem = select();
-        elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
+    select(_, t) {
+        if (!t) {
+            var elem = select();
+            elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
+        }
+        else if (t === 'a') {
+            var { field, data } = _;
+            var pad = selectList(field.options, field.multi, true);
+            var e = document.createElement('select');
+            var opt = null;
+            for (var o of field.options) {
+                if (o.key === data[field.key]) {
+                    opt = o;
+                    break;
+                }
+            }
+            e.innerHTML = `<option selected value="${opt ? opt.key : ''}">${opt ? opt.name : '请选择'}</option>`;
+            e.value = opt ? opt.key : '';
+            elem = select(e, pad);
+        }
         return elem;
     },
     "repeat"(_, field_type) {
@@ -117,8 +145,18 @@ var readonly_types = {
     "size"({ field }, data) {
         var f = data[field.key];
         return size(f);
-    }
+    },
+    swap(e, data) {
+        var { field } = e;
+        var v = data[field.key];
+        if (field.options) {
+            var o = field.options[v];
+            if (o) return o.name;
+        }
+        return v;
+    },
 };
+readonly_types.select = readonly_types.swap;
 function main(elem) {
     var build = function () {
         var { data, readonly, field } = elem;
@@ -205,7 +243,6 @@ function main(elem) {
         }
     };
     on("changes")(elem, function ({ changes }) {
-
         if (changes.data || changes.field || changes.readonly) {
             build();
         }

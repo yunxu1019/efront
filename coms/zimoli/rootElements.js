@@ -25,6 +25,7 @@ rootElements.pop = function (elem) {
     if (cx < 0) {
         cx = rootElements.length - 1;
     }
+    if (isFunction(rootElements[cx].onback) && rootElements[cx].onback() === false) return;
     return rootElements.splice(cx, 1)[0];
 };
 rootElements.mount = function (elem) {
