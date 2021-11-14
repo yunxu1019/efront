@@ -155,6 +155,7 @@ function getUrlParamsForApi(api, url) {
             cap.push(a.slice(1));
             return r;
         });
+    if (api.base) base = api.base + base;
     var params = {};
     url = url.replace(/[\?#]*$/g, function (match) {
         match.split(/[&#\?]+/).forEach(function (s) {
@@ -844,7 +845,10 @@ var data = {
             this.responseLoading(instance);
             var params = privates.pack(sid, params1);
             if (!privates.validApi(api, params)) throw aborted;
-            var { method, uri, params, selector } = privates.prepare(api.method, api.url, params);
+            let url = api.url;
+            var base = api.base;
+            if (base) url = base + api.path;
+            var { method, uri, params, selector } = privates.prepare(api.method, url, params);
             var promise = new Promise(function (ok, oh) {
                 var headers = api.headers;
                 if (headers) {
