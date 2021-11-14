@@ -12,7 +12,7 @@
         "singer-list": "get:[].singer-img-list>li         singer/list/:id#href=a!href&=a!href\\singer-info&imgurl=img!_src&name=p|innerText",
         "singer-info": "mget:[].singer-songs-list>li       singer/info/:id#hash=!id&singer=.singer-name|innerText&name=.song-name|innerText&data=em/innerText"
     },
-    "https://mobilecdn.kugou.com/": {
+    "http://mobilecdn.kugou.com/": {
         "search?keyword": "get:data.info                            api/v3/search/song?format=json&page=1&pagesize=30&showtype=1"
     }
 })
