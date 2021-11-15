@@ -262,7 +262,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
             viewrect.right = viewrect.left + viewrect.width;
             viewrect.bottom = viewrect.top + viewrect.height;
         }
-        var maxHeight = Math.max(position.top, innerHeight - position.top - position.height);
+        var maxHeight = Math.max(position.top, innerHeight - position.top - position.height) | 0;
         var maxWidth = Math.max(position.left + position.width, innerWidth - position.left);
         var height = element.offsetHeight;
         //如果高度超出可视区，调整高度
