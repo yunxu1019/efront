@@ -24,8 +24,8 @@ var multipleClick = function () {
 };
 
 function main(children, multiple, addable) {
-    var list = div();
-    list.value = multiple ? [] : "";
+    var page = div();
+    page.value = multiple ? [] : "";
     var firstValue = false;
     var clicker = multiple ? multipleClick : singleClick;
     var itemMap = Object.create(null);
@@ -33,7 +33,6 @@ function main(children, multiple, addable) {
         var key = option.key || option.value;
         if (key in itemMap) return itemMap[key];
         var item = itemMap[option.value] = document.createElement('div');
-
         item.setAttribute("item", '');
         item.innerHTML = option.innerHTML || option.name;
         item.name = option.name || option.innerHTML;
@@ -47,12 +46,12 @@ function main(children, multiple, addable) {
             iconed = icon;
             if (multiple) {
                 item.setAttribute("selected", "");
-                list.value.push(option.value);
+                page.value.push(option.value);
             } else if (!firstValue) {
                 item.setAttribute("selected", "");
-                list.activeNode = item;
+                page.activeNode = item;
                 firstValue = true;
-                list.value = option.value
+                page.value = option.value
             }
         }
         if (option.disabled) {
@@ -64,10 +63,22 @@ function main(children, multiple, addable) {
 
     }
     var hasIcon = false, iconed = '';
-    appendChild(list, [].map.call(children, createItem));
+    var page = list(page, function (i) {
+        if (i < 0 || i >= children.length) return;
+        return createItem(children[i]);
+    });
+    on("append")(page, function () {
+        page.clean();
+        page.go(0);
+        if (adder) {
+            remove(adder);
+            appendChild(page, adder);
+        }
+    })
     if (addable) {
         var adder = document.createElement("div");;
         adder.innerHTML = "<a>添加</a><a>管理</a>";
+        adder.setAttribute('insert', '');
         button(adder.firstChild);
         button(adder.children[1]);
         on("click")(adder, async function (event) {
@@ -81,43 +92,43 @@ function main(children, multiple, addable) {
                             return false;
                         }
                     });
-                    list.with = a;
+                    page.with = a;
                     on('remove')(a, function () {
-                        list.with = null;
+                        page.with = null;
                     });
                     a = await a;
                     if (a in itemMap) return false;
-                    cast(list.target, "add-option", a);
+                    cast(page.target, "add-option", a);
                     children.push({ name: a, key: a });
-                    list.insertBefore(createItem({
+                    page.insertBefore(createItem({
                         name: a,
                         value: a,
                     }), adder);
                     break;
                 case this.children[1]:
-                    var options = [].slice.call(list.children, 0, list.children.length - 1);
+                    var options = [].slice.call(children, 0, children.length);
                     var edit = selectListEdit(options.slice(0));
-
-                    list.with = edit;
+                    page.with = edit;
                     on("remove")(edit, function () {
-                        list.with = null;
-                        remove([].slice.call(list.children, 0, list.children.length - 1));
+                        page.with = null;
                         children.splice(0, children.length);
                         children.push.apply(children, edit.$scope.options.map(o => ({ key: o.key || o.value, name: o.name || o.innerHTML })))
-                        appendChild.before(adder, edit.$scope.options.map(createItem));
-                        cast(list.target, 'set-options', edit.$scope.options);
+                        cast(page.target, 'set-options', edit.$scope.options);
+                        page.clean();
+                        remove(adder);
+                        page.go(0);
+                        appendChild(page, adder);
                     });
                     popup(edit, [.5, .5]);
                     break;
             }
-        })
+        });
         adder.setAttribute("adder", '');
-        list.appendChild(adder)
     }
     if (hasIcon) {
-        list.setAttribute('iconed', '');
+        page.setAttribute('iconed', '');
     }
-    list.icon = iconed;
-    on('mousedown')(list, e => e.preventDefault());
-    return list;
+    page.icon = iconed;
+    on('mousedown')(page, e => e.preventDefault());
+    return page;
 }

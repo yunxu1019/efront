@@ -20,7 +20,6 @@ function main(options) {
                 }
             }
             if (i >= 0) options.splice(i, 1);
-            console.log(i)
             this.research();
         },
         get search() {

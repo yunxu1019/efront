@@ -16,7 +16,7 @@ var _remove = function () {
             }
             once('blur')(activeElement, function () {
                 if (!isMounted(this)) return removing_list.target.focus();
-                run();
+                _remove();
             });
         });
     }
@@ -137,8 +137,8 @@ function select(target, list, removeOnSelect, direction) {
     }
     var mousedown = function () {
         initList();
-        if (saved_list !== list) {
-            _remove();
+        if (saved_list !== list || !isMounted(list)) {
+            if (saved_list && saved_list !== list) _remove();
             if (document.activeElement !== target) target.focus();
             popup(list, target, direction);
             saved_list = list;
