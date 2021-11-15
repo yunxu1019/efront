@@ -1,7 +1,28 @@
 & {
-    width: 40px;
+    width: 180px;
     height: 20px;
-    background: #ccc;
     display: inline-block;
+    text-align: center;
+    font-size: 10px;
+    line-height: 20px;
+    position: relative;
+    .grid();
+    background-color: transparent;
 
+    >option {
+        position: relative;
+    }
+
+    &:before {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        content: "";
+        display: block;
+        background-color: inherit;
+    }
 }
+
+@import "./bggrid-func.less";

@@ -2,7 +2,7 @@ function main(element = document.createElement("div")) {
     element.innerHTML = colorpicker;
     var saved_value;
     var selector = element.firstChild;
-    select(selector, colorpad(), false);
+    select(selector, colorpad(), false, 'y');
     render(element, {
         a: button,
         colorlabel,

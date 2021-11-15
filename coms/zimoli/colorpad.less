@@ -1,16 +1,18 @@
+@import "./bggrid-func.less";
+
 pointer {
-    display   : block;
-    height    : 6px;
-    border    : 1px solid #fff;
+    display: block;
+    height: 6px;
+    outline: 1px solid #fff;
     background: #ccc;
-    top       : 0;
-    left      : 0;
+    top: 0;
+    left: 0;
     box-sizing: border-box;
-    position  : absolute;
+    position: absolute;
 }
 
 >div {
-    display : inline-block;
+    display: inline-block;
     position: relative;
 
 
@@ -22,34 +24,38 @@ pointer {
         font-size: 0;
 
         >pointer {
-            width : 6px;
+            width: 6px;
             margin: -3px;
         }
 
         >canvas {
-            width     : 256px;
-            height    : 256px;
+            width: 256px;
+            height: 256px;
             background: #fff;
         }
     }
 
-    &.hue {
+    &.hue,
+    &.opa {
         font-size: 0;
 
         >pointer {
             margin: -3px -1px;
-            width : 12px;
+            width: 10px;
+            padding: 0 1px;
+            box-sizing: content-box;
         }
 
         >canvas {
-            background: #000;
-            width     : 10px;
-            height    : 256px;
+            background: #fff;
+            width: 10px;
+            height: 256px;
+            .grid();
         }
     }
 
     &.val {
-        margin : 0;
+        margin: 0;
         padding: 10px 0 0 0;
 
         >input {
@@ -59,55 +65,51 @@ pointer {
             }
 
             color: inherit;
-            text-transform  : lowercase;
+            text-transform : lowercase;
             background-color: transparent;
-            box-sizing      : border-box;
-            padding         : 0 3px;
-            position        : relative;
-            font-size       : 12px;
-            border          : none;
-            text-align      : left;
-            min-width       : 40px;
-            width           : 30%;
-
-            &+input {
-                margin-left: 6px;
-            }
+            box-sizing : border-box;
+            padding : 0 3px;
+            position : relative;
+            font-size : 12px;
+            border : none;
+            text-align : left;
+            min-width : 40px;
+            width : 30%;
         }
 
         >.hex {
-            width: 56px;
+            width: 76px;
         }
 
         >.rgb {
-            width: 114px;
+            width: 156px;
         }
 
         >.hsl {
-            width: 114px;
+            width: 186px;
         }
     }
 }
 
 & {
-    width        : 312px;
-    background   : #fff;
-    padding      : 17px 0 7px 0;
-    text-align   : center;
-    user-select  : none;
+    width: 462px;
+    min-width: 372px;
+    background: #fff;
+    padding: 17px 0 7px 0;
+    text-align: center;
+    user-select: none;
     border-radius: 3px;
-    position     : relative;
+    position: relative;
 }
 
 &>.bg {
-    display            : block;
-    left               : 2px;
-    top                : 2px;
-    right              : 2px;
-    bottom             : 2px;
-    border-radius      : 2px;
-    border-color       : inherit;
-    border             : 2px solid;
+    display: block;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-color: inherit;
+    border: 2px solid;
     border-bottom-width: 26px;
-    position           : absolute;
+    position: absolute;
 }

@@ -232,7 +232,7 @@ function parse(color) {
 		return [R, G, B, a || 1];
 	} else if (rgbReg.test(color)) {
 		var [_, R, G, B, a] = rgbReg.exec(color);
-		return [R > 255 ? 255 : R, G > 255 ? 255 : G, B > 255 ? 255 : B, a || 1];
+		return [R > 255 ? 255 : +R, G > 255 ? 255 : +G, B > 255 ? 255 : +B, a ? +a : 1];
 	} else if (rgbHex.test(color)) {
 		var [_, R, G, B, A] = rgbHex.exec(color).map(a => parseInt(a + a, 16));
 		return [R, G, B, A >= 0 ? A / 0xff : 1];
@@ -244,6 +244,10 @@ function parse(color) {
 function stringify(color) {
 	var [R, G, B, a] = color;
 	if (a >= 0 && a < 1) {
+		R = R.toFixed();
+		G = G.toFixed();
+		B = B.toFixed();
+		a = +a.toFixed(3);
 		return `rgba(${R},${G},${B},${a})`;
 	} else {
 		return "#" + [R, G, B].map(hex256).join("");
@@ -301,12 +305,12 @@ function equal(c1, c2) {
 	var [r2, g2, b2, a2] = parse(c2);
 	return abs(r1 - r2) < 1 && abs(g1 - g2) < 1 && abs(b1 - b2) < 1 && abs(a1 - a2) < .01;
 }
-var hslReg = /^hsla?\s*\(\s*(\d+(?:deg)?)\s*[,\s]\s*(\d+%?)\s*[,\s]\s*(\d+%?)(?:[,\/\s]\s*([\d\.]+%?))?\)$/i;
-var rgbReg = /^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:,\s*([\d\.]+))?\)$/i;
+var hslReg = /^hsla?\s*\(\s*([\d\.]+(?:deg)?)\s*[,\s]\s*([\d\.]+%?)\s*[,\s]\s*([\d\.]+%?)(?:[,\/\s]\s*([\d\.]+%?))?\)$/i;
+var rgbReg = /^rgba?\s*\(\s*([\d\.]+)\s*[,\s]\s*([\d\.]+)\s*[,\s]\s*([\d\.]+)(?:[,\s]\s*([\d\.]+))?\)$/i;
 var rgbHex = /^#([\da-f])([\da-f])([\da-f])([\da-f])?$/i;
 var rgbHex2 = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})?$/i;
 var rotated_base_color = "#d16969";
-var colorReg = /rgba?\s*\([\,\.\d]+\)|#[\da-f]{3,8}/ig;
+var colorReg = /(?:rgb|hsl)a?\s*\([\,\.\d\s%]+\)|#[\da-f]{3,8}/ig;
 function isColor(text) {
 	return rgbReg.test(text) || rgbHex.test(text) || rgbHex2.test(text) || hslReg.test(text);
 }
