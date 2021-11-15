@@ -267,7 +267,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
         var height = element.offsetHeight;
         //如果高度超出可视区，调整高度
         if (height > maxHeight) {
-            css(element, { height: fromOffset(maxHeight) });
+            css(element, { height: fromOffset(maxHeight), maxHeight: fromOffset(maxHeight) });
         }
 
         css(element, `min-width:auto;`);
