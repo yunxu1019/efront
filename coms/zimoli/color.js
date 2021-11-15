@@ -215,9 +215,19 @@ function hsl2rgb([h, s, l]) {
 	var b = h - 1 / 3;
 	return [r, g, b].map(t => t2rgb(t, p, q));
 }
+function percent(a) {
+	if (/%$/.test(a)) {
+		a = a.replace(/%$/, '') / 100;
+	}
+	return +a;
+}
 function parse(color) {
 	if (hslReg.test(color)) {
 		var [_, H, S, L, a] = hslReg.exec(color);
+		H = parseFloat(H);
+		S = percent(S);
+		L = percent(L);
+		a = percent(a);
 		[R, G, B] = hsl2rgb([H, S, L]);
 		return [R, G, B, a || 1];
 	} else if (rgbReg.test(color)) {
@@ -291,7 +301,7 @@ function equal(c1, c2) {
 	var [r2, g2, b2, a2] = parse(c2);
 	return abs(r1 - r2) < 1 && abs(g1 - g2) < 1 && abs(b1 - b2) < 1 && abs(a1 - a2) < .01;
 }
-var hslReg = /^hsla?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:,\s*([\d\.]+))?\)$/i;
+var hslReg = /^hsla?\s*\(\s*(\d+(?:deg)?)\s*[,\s]\s*(\d+%?)\s*[,\s]\s*(\d+%?)(?:[,\/\s]\s*([\d\.]+%?))?\)$/i;
 var rgbReg = /^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:,\s*([\d\.]+))?\)$/i;
 var rgbHex = /^#([\da-f])([\da-f])([\da-f])([\da-f])?$/i;
 var rgbHex2 = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})?$/i;
