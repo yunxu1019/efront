@@ -136,7 +136,7 @@ module.exports = {
     reload() {
         profile_promise = null;
     },
-    async option(key, value, type = 'private') {
+    async option(type, key, value) {
         var key_privatelist = type + listmark;
         var key_privateprefix = type + optionmark;
         if (!key) {
