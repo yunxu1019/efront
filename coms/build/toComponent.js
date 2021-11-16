@@ -420,10 +420,10 @@ function toComponent(responseTree) {
                 return r;`: `return function(i){return T[i]()}`}
             };
         }else{
-            R=function(){
+            R=function(O){
                 if(~[E,M][x](c+1))return s[c][0];
                 var r=s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f);
-                if(~a[x](E)||~a[x](M))I={},I[B]={};
+                if(~a[x](E)||~a[x](M))I={},I[B]=O;
                 for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:a[i]?T[a[i]]():T[0];
                 if (l) {
                     l = l[1][q](',');
@@ -434,8 +434,8 @@ function toComponent(responseTree) {
             }
         }
         return T[c + 1] = function(){
-            var S=R();T[c+1]=function(){return S};
-            return S
+            T[c+1]=function(){return S};
+            return S={},S=R(S);
         }
     }`;
     var polyfill_map = `function (f, t) {
