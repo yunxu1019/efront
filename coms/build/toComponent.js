@@ -420,10 +420,10 @@ function toComponent(responseTree) {
                 return r;`: `return function(i){return T[i]()}`}
             };
         }else{
-            R=function(O){
+            R=function(Q){
                 if(~[E,M][x](c+1))return s[c][0];
                 var r=s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f);
-                if(~a[x](E)||~a[x](M))I={},I[B]=O;
+                if(~a[x](E)||~a[x](M))I={},I[B]=Q;
                 for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:a[i]?T[a[i]]():T[0];
                 if (l) {
                     l = l[1][q](',');
@@ -433,7 +433,7 @@ function toComponent(responseTree) {
                 return I?I[B]:r;
             }
         }
-        return T[c + 1] = function(){
+        return T[c + 1] = function(S){
             T[c+1]=function(){return S};
             return S={},S=R(S);
         }
