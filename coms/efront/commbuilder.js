@@ -324,7 +324,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     if (!isDevelop || commbuilder.compress === false) {
         code.break();
         data = code.toString();
-        data = require("../typescript").transpile(data, { noEmitHelpers: true });
+        if (!memery.UPLEVEL) data = require("../typescript").transpile(data, { noEmitHelpers: true });
         var code = scanner2(data);
         code.break();
         var {
@@ -367,7 +367,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
 
 var buildPress2 = function (imported, params, data, args, strs) {
     if (imported.length > 0) {
-        var code = scanner2(`var [${params.concat(args || [])}];${data}`).press();
+        var code = scanner2(`var [${params.concat(args || [])}];${data}`);
+        if (memery.COMPRESS) code.press();
         params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
         code.splice(0, 2);
     }
@@ -378,10 +379,12 @@ var buildPress2 = function (imported, params, data, args, strs) {
             if (typeof s === 'string') s = strings.encode(s);
             else if (s instanceof RegExp) s = `/${s.source}/${s.flags}`;
             return `${a}=${s}`;
-        }).join(',')};${data}`).press();
+        }).join(',')};${data}`);
+        if (memery.COMPRESS) code.press();
     }
     else {
-        var code = scanner2(data).press();
+        var code = scanner2(data);
+        if (memery.COMPRESS) code.press();
     }
     data = code.toString();
     return [imported, params, data];
