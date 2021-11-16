@@ -180,7 +180,7 @@ module.exports = {
     EXPORT_AS: get("EXPORT_AS, EXPORT"),
     RELEASE: get("RELEASE", 0),
     PREFIX: get("PREFIX", ''),
-    POLYFILL: get("POLYFILL", false),
+    POLYFILL: get("POLYFILL", true),
     SOURCEDIR: get("SOURCEDIR", false),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),
     DESTPATH: getdirpath("DESTPATH, DEST_PATH"),
