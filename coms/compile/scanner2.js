@@ -210,6 +210,18 @@ var detour = function (o, ie) {
                         var text = strings.encode(strings.decode(o.text));
                         o.text = ie !== undefined ? text : `[${text}]`;
                     }
+                    if (!/^\[/.test(o.text) && o.queue.isClass) {
+                        if (o.text === 'constructor') break;
+                        var text = strings.encode(strings.decode(o.text));
+                        if (o.prev && (o.prev.type !== STAMP || o.prev.text !== ';')) {
+                            insertAfter(o.prev, { text: ';', type: STAMP });
+                        }
+                        o.text = `[${text}]`;
+                        if (o.next && o.next.type === SCOPED && o.next.entry === "(") { }
+                        else if (!o.next || o.next.type !== STAMP || o.next.text !== "=") {
+                            insertAfter(o, { text: "=", type: STAMP }, { text: "undefined", type: VALUE, isExpress: true });
+                        }
+                    }
                 }
                 break;
         }
@@ -387,7 +399,7 @@ class Javascript {
         ["{", "}"],
     ]
     stamps = "/=+;|:?<>-!~@#%^&*,".split("")
-    value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this|eval)$/
+    value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this|eval|super)$/
     number_reg = number_reg;
     transive = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     straps = `if,in,do,as,of
@@ -433,7 +445,7 @@ class Javascript {
             }
             else if (scope.type === SCOPED && scope.entry === '[') {
                 if (queue.isObject) scope.isprop = isProperty();
-                if (queue.isClass) scope.isprop = !last || last.isprop;
+                if (queue.isClass) scope.isprop = !last || last.isprop || last.type === STAMP && last.text === ';';
             }
             else if (scope.type === PROPERTY) {
                 scope.isprop = true;
