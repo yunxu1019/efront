@@ -387,8 +387,11 @@ class Javascript {
             else {
                 scope.prev = last;
             }
+            scope.row = row;
+            scope.col = scope.start - colstart;
             queue.push(scope);
         };
+        var row = 1, colstart = -1;
         var save = (type) => {
             if (lasttype === STAMP && type === STAMP && !/[,;\:\?]/.test(m)) {
                 var scope = queue[queue.length - 1];
@@ -663,7 +666,9 @@ class Javascript {
             }
             if (this.space_reg.test(m)) {
                 if (/[\r\n\u2028\u2029]/.test(m)) {
+                    colstart = match.index + m.length - 1;
                     m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n/g, "\r\n");
+                    row += m.replace(/[^\r\n]+/, '').length >> 1;
                     save(SPACE);
                 }
                 lasttype = SPACE;
