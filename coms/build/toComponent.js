@@ -175,8 +175,9 @@ function toComponent(responseTree) {
             }
             return block_string;
         }).join("");
-
-        module_string = typescript.transpile(module_string);
+        if (!memery.UPLEVEL) {
+            module_string = typescript.transpile(module_string);
+        }
         module_string = `function(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
         if (compress) {
             module_string = scanner2(module_string).press().toString();
