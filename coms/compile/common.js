@@ -137,7 +137,9 @@ var createScoped = function (parsed) {
                     if (o.prev && o.prev.type === EXPRESS) {
                         if (/\.$/.test(o.prev.text)) break;
                     }
-                    var u = o.text.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
+                    var u = o.text;
+                    if (/^\.\.\./.test(u)) u = u.slice(3);
+                    var u = u.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
                     if (!u) break;
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
