@@ -35,12 +35,12 @@ if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 var ccons_root = ICON && ICON_PATH ? mixin(env.ICON_PATH, env.ICON).map(joinpath).filter(fs.existsSync) : [];
 var pages_root = mixin(memery.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
 POLYFILL = !/^(0|false|null)$/i.test(POLYFILL);
-var resolve_component_file_path = function (public_path = APP, source_paths = [""].concat(pages_root, comms_root)) {
+var resolve_component_file_path = function (public_path = APP, source_paths = ["."].concat(pages_root, comms_root)) {
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
         var temp_path = source_paths[cx];
         var public_app = path.join(temp_path, public_path);
         if (fs.existsSync(public_app) && fs.statSync(public_app).isFile()) {
-            if (cx === 0) pages_root = [""];
+            if (cx === 0) pages_root = ["."];
             return public_app;
         }
     }
