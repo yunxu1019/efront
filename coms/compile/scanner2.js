@@ -124,10 +124,29 @@ var detourTemplate = function (raw, params) {
     str1.pop();
     for (var p of params) template.push(spliter, p);
     return template;
-}
+};
+var detourImport = function (o) {
+    var dist = [], from;
+    console.log(o.text);
+    while (o) {
+        if (o.type === 'from') {
+            from = o.next;
+            break;
+        }
+        if (o.type === EXPRESS) {
+            dist.push("default:" + o.text);
+        }
+        o = o.next;
+    }
+};
 var detour = function (o, ie) {
     while (o) {
         switch (o.type) {
+            case STRAP:
+                if (o.text === 'import') {
+                    detourImport(o);
+                }
+                break;
             case SCOPED:
                 detour(o.first, ie);
                 break;
@@ -511,14 +530,21 @@ class Javascript {
                             break;
                         }
                         var temp = last;
-                        while (temp.type === EXPRESS || temp.type === VALUE || temp.type === SCOPED) {
-                            var prev = last.prev;
+                        while (temp.type === PROPERTY || temp.type === EXPRESS || temp.type === VALUE || temp.type === SCOPED) {
+                            var prev = temp.prev;
                             if (!prev) break;
-                            if (prev.type !== STAMP || prev.text !== ',') break;
+                            if (prev.type === STRAP && prev.text === "as") {
+                                temp = prev.prev;
+                                continue;
+                            }
+                            if (prev.type !== STAMP || prev.text !== ',') {
+                                temp = prev;
+                                break;
+                            }
                             temp = prev.prev;
                             if (!temp) break;
                         }
-                        if (temp.type !== STRAP || temp.text !== 'import') {
+                        if (!temp || temp.type !== STRAP || temp.text !== 'import') {
                             type = EXPRESS;
                         }
                     }
@@ -527,7 +553,8 @@ class Javascript {
                             type = EXPRESS;
                             break;
                         }
-                        if (~[EXPRESS, VALUE].indexOf(last.type)) {
+                        if (~[EXPRESS, VALUE].indexOf(last.type)
+                            || last.type === STAMP && last.text === "*" && last.prev && ~[STRAP, STAMP].indexOf(last.prev.type)) {
                             last.type = PROPERTY;
                             last.queue = queue;
                         } else {
