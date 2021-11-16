@@ -118,6 +118,7 @@ var createScoped = function (parsed) {
             var isFunction = false;
             var isScope = false;
             var isArrow = false;
+            var isDeclare = false;
             switch (o.type) {
                 case QUOTED:
                     if (o.length) {
@@ -184,6 +185,7 @@ var createScoped = function (parsed) {
 
                                 if (o.type === EXPRESS) {
                                     vars[o.text] = true;
+                                    isDeclare = true;
                                     o.kind = isFunction ? 'function' : 'class';
                                     saveTo(used, o.text, o);
 
@@ -237,7 +239,7 @@ var createScoped = function (parsed) {
                     scoped.used = used;
                 }
                 if (isArrow);
-                else if (o.isExpress && o.type !== SCOPED) {
+                else if (o.isExpress && o.type !== SCOPED && !isDeclare) {
                     o = o.next;
                     if (o.type === EXPRESS) {
                         vars[o.text] = true;
