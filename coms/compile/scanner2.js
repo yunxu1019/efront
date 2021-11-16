@@ -95,8 +95,8 @@ var compress = function (scoped, maped) {
 
 var strings = require("../basic/strings");
 
-var insertAfter = function (o,) {
-    var queue = o.queue;
+var insertAfter = function (o) {
+    var queue = o.queue || this;
     var index = queue.indexOf(o) + 1;
     var os = [].slice.call(arguments, 1);
     queue.splice.apply(queue, [index, 0].concat(os));
@@ -111,7 +111,20 @@ var insertAfter = function (o,) {
         next.prev = o;
     }
 };
-
+var detourTemplate = function (raw, params) {
+    var spliter = { text: ",", type: STAMP };
+    var template = scan(`extend([],{["raw"]:[]})`);
+    var str0 = template[1].first;
+    var str1 = template[1][2][2];
+    for (var r of raw) {
+        str0.push({ text: strings.encode(strings.decode(r.text)), type: QUOTED }, spliter);
+        str1.push({ text: strings.encode(r.text), type: QUOTED }, spliter);
+    }
+    str0.pop();
+    str1.pop();
+    for (var p of params) template.push(spliter, p);
+    return template;
+}
 var detour = function (o, ie) {
     while (o) {
         switch (o.type) {
@@ -126,8 +139,62 @@ var detour = function (o, ie) {
                 break;
             case QUOTED:
                 if (o.length) {
-                    detour(o.first, ie);
+                    if (!o.prev || o.prev.type === STAMP || o.prev.type === STRAP) {
+                        o.type = SCOPED;
+                        o.entry = '[';
+                        o.leave = `]["join"]('')`;
+                        for (var cx = o.length - 1; cx >= 0; cx--) {
+                            var c = o[cx];
+                            if (c.type === PIECE) {
+                                c.type = QUOTED;
+                                c.text = strings.encode(strings.decode("`" + c.text + "`"));
+                            }
+                            else {
+                                insertAfter.call(o, c.prev, { type: STAMP, text: ',' });
+                                c.entry = "(";
+                                c.leave = ")";
+                                insertAfter.call(o, c, { type: STAMP, text: ',' });
+                                detour(c.first, ie);
+                            }
+                        }
+                    }
+                    else {
+                        var raw = [];
+                        var params = [];
+
+                        for (var c of o) {
+                            if (c.type === PIECE) {
+                                raw.push(c);
+                            } else {
+                                c.entry = '(';
+                                c.leave = ")";
+                                detour(c, ie);
+                                params.push(c.length === 1 ? c[0] : c);
+                            }
+                        }
+                        o.type = SCOPED;
+                        o.entry = "(";
+                        o.leave = ")";
+                        var temp = detourTemplate(raw, params);
+                        o.splice(0, o.length);
+                        o.push.apply(o, temp);
+                    }
                     break;
+                }
+                else if (!o.prev || o.prev.type === STAMP || o.prev.type === STRAP) {
+                    if (/^[`'"]/.test(o.text)) {
+                        o.text = strings.encode(strings.decode(o.text));
+                    }
+                }
+                else {
+                    if (/^`/.test(o.text)) {
+                        var template = detourTemplate([o], []);
+                        o.type = SCOPED;
+                        o.entry = "(";
+                        o.leave = ")";
+                        delete o.text;
+                        o.push.apply(o, template);
+                    }
                 }
                 if (!o.isprop) break;
             case PROPERTY:
@@ -215,7 +282,7 @@ class Program extends Array {
                         break;
                     }
                 case SCOPED:
-                    if (!this.pressed && (lasttype === STRAP || lasttype === SCOPED && o.entry === "{") && o.type !== QUOTED) result.push(" ");
+                    if (!this.pressed && (lasttype === STRAP || lasttype === STAMP || lasttype === SCOPED && o.entry === "{") && o.type !== QUOTED) result.push(" ");
                     result.push(o.entry);
                     if (o.length > 0) {
                         if (o.entry === "{" && result[0].type !== SPACE) {
@@ -674,7 +741,7 @@ class Javascript {
             if (this.space_reg.test(m)) {
                 if (/[\r\n\u2028\u2029]/.test(m)) {
                     colstart = match.index + m.length - 1;
-                    m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n/g, "\r\n");
+                    m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
                     row += m.replace(/[^\r\n]+/, '').length >> 1;
                     save(SPACE);
                 }
