@@ -52,7 +52,7 @@ var startDevelopEnv = function () {
     setAppnameAndPorts(arguments);
     require("./setupenv");
     require("./console");
-    memery.compress = false;
+    memery.istest = true;
     require("../server/main");
 };
 var setAppnameAndPorts = function (args) {
@@ -418,7 +418,7 @@ var commands = {
     docs() {
         setAppnameAndPorts(arguments);
         // 文档
-        memery.compress = false;
+        memery.istest = true;
         setenv({
             coms_path: path.join(__dirname, "../../coms"),
             page_path: path.join(__dirname, '../../docs'),
@@ -432,7 +432,7 @@ var commands = {
         showHelpLine('可以通过浏览器访问打开的端口以查看文档');
     },
     demo() {
-        memery.compress = false;
+        memery.istest = true;
         setenv({
             public_path: path.join(__dirname, "../../apps"),
             page_path: path.join(__dirname, "../../apps"),
@@ -555,13 +555,13 @@ var commands = {
         var detectPromise = detectWithExtension(appname, [".js", ".ts", "", "/index.js", "/index.ts"], [fullpath]);
         detectPromise.catch(function () {
             detectEnvironment().then(function () {
-                memery.compress = false;
+                memery.istest = true;
                 require("./setupenv");
                 require("./run")(appname, args);
             });
         });
         detectPromise.then(function (f) {
-            memery.compress = false;
+            memery.istest = true;
             setenv({
                 app: path.relative(fullpath, f),
                 comm: './,basic,typescript-helpers',

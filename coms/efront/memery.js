@@ -99,7 +99,7 @@ var getdirpath = (name, _default) => get(name, _default, 2);
 var COMS_PATH = getdirpath("COMS_PATH, COMM_PATH");
 var PUBLIC_PATH = getdirpath("PUBLIC_PATH", 'public');
 module.exports = {
-    compress: !istest,
+    istest,
     loghead: get('LOGHEAD, LOG'),
     get,
     set,
@@ -112,7 +112,7 @@ module.exports = {
         } else if (env.PROXY) {
             noproxy = !test(env.PROXY);
         } else {
-            noproxy = this.compress;
+            noproxy = !this.istest;
         }
         return noproxy;
     },
@@ -200,11 +200,12 @@ module.exports = {
     LIBS: getdirpath("LIBS, LIB"),
     ICON: getdirpath("ICON, CCON, CONS, ICONS"),
     FORCE: get("FORCE", false),
+    UPLEVEL: get("UPLEVEL", false),
     get webroot() {
         return this.isDevelop ? this.PAGE_PATH : this.PUBLIC_PATH;
     },
     get isDevelop() {
-        return !this.compress;
+        return this.istest;
     },
 };
 Object.keys(fixme).forEach(fixpath);
