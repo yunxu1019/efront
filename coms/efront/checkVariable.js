@@ -120,7 +120,7 @@ module.exports = function (root) {
                 if (/\.(html?|xml)$/i.test(basename)) {
                     map[path.basename(basename).replace(/\.(html?|xml)$/i, "")] = true;
                 }
-                if (!/\.[jt]sx?$/i.test(fullpath)) return run();
+                if (!/\.[cm]?[jt]sx?$/i.test(fullpath)) return run();
                 map[basename.replace(/\.[cm]?[jt]sx?$/i, "")] = true;
                 fs.readFile(fullpath, function (error, data) {
                     if (error) return console.error(error);
