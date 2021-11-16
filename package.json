@@ -10,7 +10,7 @@
     "efront": "tools/run-efront.bat"
   },
   "scripts": {
-    "prepare": "node tools/build-efront.js",
+    "prepare": "node tools/build-efront.js --uplevel",
     "start": "efront ./efront/ --libs=typescript,esprima,escodegen,esmangle,pngjs,less-node"
   },
   "repository": {
