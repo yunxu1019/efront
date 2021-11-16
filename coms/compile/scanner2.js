@@ -360,16 +360,8 @@ class Javascript {
         var origin = queue;
         var queue_push = function (scope) {
             var last = queue.lastUncomment;
-            if (~[VALUE, QUOTED].indexOf(scope.type)) {
+            if (~[VALUE, QUOTED].indexOf(scope.type) || scope.type === SCOPED && scope.entry === '[') {
                 scope.isprop = isProperty();
-            }
-            else if (scope.type === SCOPED && scope.entry === '[') {
-                if (queue.isObject) {
-                    scope.isprop = !last || last.type === STAMP && last.text === ','
-                }
-                else if (queue.isClass) {
-                    scope.isprop = !last || last.type === STAMP && /^(\+\+|\-\-|;)$/.test(last.text)
-                }
             }
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (scope.type === PROPERTY || scope.isprop) scope.queue = queue;
