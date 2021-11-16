@@ -156,8 +156,11 @@ module.exports = {
         }
         key = encode62.timedecode(key);
         var key0 = key_privateprefix + key;
-        if (value === undefined) {
-            return getItem(key0);
+        if (value === undefined || value === false || value === 0) {
+            var data = await getItem(key0);
+            if (value === undefined) return encode62.timeencode(data);
+            if (value === false) return data;
+            return JSON.parse(data);
         }
         value = encode62.timedecode(value);
         var options = await getItem(key_privatelist);
