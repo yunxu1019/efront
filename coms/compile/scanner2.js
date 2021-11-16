@@ -125,35 +125,17 @@ var detourTemplate = function (raw, params) {
     for (var p of params) template.push(spliter, p);
     return template;
 };
-var detourImport = function (o) {
-    var dist = [], from;
-    console.log(o.text);
-    while (o) {
-        if (o.type === 'from') {
-            from = o.next;
-            break;
-        }
-        if (o.type === EXPRESS) {
-            dist.push("default:" + o.text);
-        }
-        o = o.next;
-    }
-};
+
 var detour = function (o, ie) {
     while (o) {
         switch (o.type) {
-            case STRAP:
-                if (o.text === 'import') {
-                    detourImport(o);
-                }
-                break;
             case SCOPED:
                 detour(o.first, ie);
                 break;
             case EXPRESS:
                 if (!/^\.\.\.|\.\.\.$/.test(o.text)) {
                     var ot = o.text;
-                    o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => !ie || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
+                    o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => ie === undefined || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
                 }
                 break;
             case QUOTED:
@@ -219,19 +201,19 @@ var detour = function (o, ie) {
             case PROPERTY:
                 if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
-                if (!ie || program.strap_reg.test(o.text)) {
+                if (ie === undefined || program.strap_reg.test(o.text)) {
                     if (!/^\[/.test(o.text) && o.queue.isObject) {
                         if (o.short) {
                             insertAfter(o, { text: ':', type: STAMP }, { text: o.text, type: EXPRESS, isExpress: true });
                             o.short = false;
                         }
                         var text = strings.encode(strings.decode(o.text));
-                        o.text = ie ? text : `[${text}]`;
+                        o.text = ie !== undefined ? text : `[${text}]`;
                     }
                 }
                 break;
         }
-        o = o.next;
+        if (o) o = o.next;
     }
 };
 
@@ -376,8 +358,8 @@ class Program extends Array {
         return this;
     }
     // 绕开低版本ie的异常属性
-    detour() {
-        detour(this.first, true);
+    detour(ie) {
+        detour(this.first, !!ie);
         return this;
     }
     // 压缩
@@ -457,7 +439,8 @@ class Javascript {
                 scope.isprop = true;
             }
             if (scope.type !== COMMENT && scope.type !== SPACE) {
-                if (scope.type === PROPERTY || scope.isprop) scope.queue = queue;
+                Object.defineProperty(scope, 'queue', { value: queue });
+                if (scope.type === PROPERTY || scope.isprop);
                 else if (scope.type === STRAP && /^(get|set|static)$/.test(scope.text)) {
                     scope.type = EXPRESS;
                 }
@@ -525,26 +508,26 @@ class Javascript {
                     }
                     else if (isProperty()) type = PROPERTY;
                     else if (m === 'from') {
-                        if (!last || last.type === STRAP && last.text !== 'import') {
+                        if (!last || last.type === STRAP && !/^(im|ex)port$/.test(last.text)) {
                             type = EXPRESS;
                             break;
                         }
                         var temp = last;
-                        while (temp.type === PROPERTY || temp.type === EXPRESS || temp.type === VALUE || temp.type === SCOPED) {
+                        while (temp.type === STAMP && temp.text === "*" || temp.type === EXPRESS || temp.type === VALUE || temp.type === SCOPED) {
                             var prev = temp.prev;
                             if (!prev) break;
                             if (prev.type === STRAP && prev.text === "as") {
                                 temp = prev.prev;
                                 continue;
                             }
-                            if (prev.type !== STAMP || prev.text !== ',') {
+                            if (prev.type !== STAMP || prev.text !== ',' && (prev.text !== "*" || !prev.prev || !~[STRAP, STAMP].indexOf(prev.prev.type))) {
                                 temp = prev;
                                 break;
                             }
                             temp = prev.prev;
                             if (!temp) break;
                         }
-                        if (!temp || temp.type !== STRAP || temp.text !== 'import') {
+                        if (!temp || temp.type !== STRAP || !/^(im|ex)port$/.test(temp.text)) {
                             type = EXPRESS;
                         }
                     }
@@ -553,10 +536,9 @@ class Javascript {
                             type = EXPRESS;
                             break;
                         }
-                        if (~[EXPRESS, VALUE].indexOf(last.type)
+                        if (~[PROPERTY, EXPRESS, VALUE].indexOf(last.type)
                             || last.type === STAMP && last.text === "*" && last.prev && ~[STRAP, STAMP].indexOf(last.prev.type)) {
-                            last.type = PROPERTY;
-                            last.queue = queue;
+                            Object.defineProperty(last, 'queue', { value: queue });
                         } else {
                             type = EXPRESS;
                         }
@@ -665,6 +647,9 @@ class Javascript {
             if (!prev) return false;
             if (prev.type === PROPERTY && /^(get|set|async|static)$/.test(prev.text)) {
                 return true;
+            }
+            if (queue.prev && queue.prev.type === STRAP && queue.prev.text === 'export') {
+                if (prev.type === STRAP && prev.text === "as") return true;
             }
             return false;
         };
@@ -825,7 +810,7 @@ class Javascript {
                         else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
                     }
                     else if (last.type === STRAP) {
-                        if (queue[queue.length - 1].type === SPACE && last.text === 'return');
+                        if (queue[queue.length - 1].type === SPACE && /^(return|export)$/.test(last.text));
                         else scope.isObject = queue.inExpress;
                     }
                 }

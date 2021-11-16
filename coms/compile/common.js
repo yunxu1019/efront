@@ -131,6 +131,9 @@ var createScoped = function (parsed) {
                     if (o.next) {
                         if (o.next.type !== STAMP || o.next.text !== ",") break;
                     }
+                    if (o.prev && o.prev.type === STRAP && o.prev.text === 'as') {
+                        break;
+                    }
                 case VALUE:
                     if (number_reg.test(o.text)) break;
                 case EXPRESS:
@@ -160,6 +163,9 @@ var createScoped = function (parsed) {
                 case STRAP:
                     var s = o.text;
                     switch (s) {
+                        case "as":
+                        case "from":
+                            break;
                         case "var":
                         case "import":
                             var m = vars;
@@ -362,9 +368,16 @@ var getDeclared = function (o, kind) {
             }
         }
         switch (o.type) {
+            case STAMP:
+                if (o.text === "*" && o.next) {
+                    if (o.next.type === STRAP && o.next.text === 'as') {
+                        o = o.next.next;
+                        continue;
+                    }
+                }
             case PROPERTY:
                 if (o.next) {
-                    if (o.next.type === STAMP && o.next.text === ":" || o.text === "*" && o.next.type === STRAP && o.next.text === 'as') {
+                    if (o.next.type === STAMP && o.next.text === ":") {
                         o = o.next.next;
                         continue;
                     }
