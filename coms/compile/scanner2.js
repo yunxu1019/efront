@@ -182,7 +182,7 @@ var detour = function (o, ie) {
                     break;
                 }
                 else if (!o.prev || o.prev.type === STAMP || o.prev.type === STRAP) {
-                    if (/^[`'"]/.test(o.text)) {
+                    if (/^[`]/.test(o.text)) {
                         o.text = strings.encode(strings.decode(o.text));
                     }
                 }
