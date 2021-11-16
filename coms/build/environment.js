@@ -39,7 +39,10 @@ var resolve_component_file_path = function (public_path = APP, source_paths = ["
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
         var temp_path = source_paths[cx];
         var public_app = path.join(temp_path, public_path);
-        if (fs.existsSync(public_app) && fs.statSync(public_app).isFile()) return public_app;
+        if (fs.existsSync(public_app) && fs.statSync(public_app).isFile()) {
+            if (cx === 0) pages_root = [""];
+            return public_app;
+        }
     }
     return "";
 };
