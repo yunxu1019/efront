@@ -363,9 +363,11 @@ var getDeclared = function (o, kind) {
         }
         switch (o.type) {
             case PROPERTY:
-                if (o.next && o.next.type === STAMP && o.next.text === ":") {
-                    o = o.next.next;
-                    continue;
+                if (o.next) {
+                    if (o.next.type === STAMP && o.next.text === ":" || o.text === "*" && o.next.type === STRAP && o.next.text === 'as') {
+                        o = o.next.next;
+                        continue;
+                    }
                 }
             case STRAP:
             case VALUE:
@@ -383,7 +385,6 @@ var getDeclared = function (o, kind) {
                 Object.assign(declared, d);
                 o = o.next;
                 break;
-
             default:
                 console.log(o);
                 throw new Error("代码结构异常");
