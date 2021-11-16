@@ -360,8 +360,15 @@ class Javascript {
         var origin = queue;
         var queue_push = function (scope) {
             var last = queue.lastUncomment;
-            if (~[VALUE, QUOTED].indexOf(scope.type) || scope.type === SCOPED && scope.entry === '[') {
+            if (~[VALUE, QUOTED].indexOf(scope.type)) {
                 scope.isprop = isProperty();
+            }
+            else if (scope.type === SCOPED && scope.entry === '[') {
+                if (queue.isObject) scope.isprop = isProperty();
+                if (queue.isClass) scope.isprop = !last || last.isprop;
+            }
+            else if (scope.type === PROPERTY) {
+                scope.isprop = true;
             }
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (scope.type === PROPERTY || scope.isprop) scope.queue = queue;
