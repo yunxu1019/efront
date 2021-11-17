@@ -117,7 +117,7 @@ var detourTemplate = function (raw, params) {
     var str0 = template[1].first;
     var str1 = template[1][2][2];
     for (var r of raw) {
-        str0.push({ text: strings.encode(strings.decode(r.text)), type: QUOTED }, spliter);
+        str0.push({ text: strings.encode(strings.decode("`" + r.text + "`")), type: QUOTED }, spliter);
         str1.push({ text: strings.encode(r.text), type: QUOTED }, spliter);
     }
     str0.pop();
@@ -189,6 +189,7 @@ var detour = function (o, ie) {
                 }
                 else {
                     if (/^`/.test(o.text)) {
+                        o.text = o.text.replace(/^`|`$/g, '');
                         var template = detourTemplate([o], []);
                         o.type = SCOPED;
                         o.entry = "(";
