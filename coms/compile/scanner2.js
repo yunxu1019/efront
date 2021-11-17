@@ -212,9 +212,14 @@ var detour = function (o, ie) {
                     }
                     if (!/^\[/.test(o.text) && o.queue.isClass) {
                         if (o.text === 'constructor') break;
+                        if (o.text === 'get') console.log(o.text, o.type, o.next);
                         var text = strings.encode(strings.decode(o.text));
-                        if (o.prev && (o.prev.type !== STAMP || o.prev.text !== ';')) {
-                            insertAfter(o.prev, { text: ';', type: STAMP });
+                        if (o.prev) {
+                            var prev = o.prev;
+                            if (prev && prev.type === PROPERTY && /^(get|set|static|async)$/.test(prev.text)) {
+                                prev = prev.prev;
+                            }
+                            if (prev && (prev.type !== STAMP || prev.text !== ';')) insertAfter(prev, { text: ';', type: STAMP });
                         }
                         o.text = `[${text}]`;
                         if (o.next && o.next.type === SCOPED && o.next.entry === "(") { }
