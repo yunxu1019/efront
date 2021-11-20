@@ -803,7 +803,7 @@ class Javascript {
                 }
                 if (m === 'yield') {
                     var temp = queue;
-                    var type;
+                    var type = STRAP;
                     while (temp) {
                         if (temp.entry != "{" || !temp.prev || temp.prev.type !== SCOPED || temp.prev.entry !== '(') {
                             temp = temp.queue;
