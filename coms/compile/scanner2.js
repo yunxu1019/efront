@@ -365,6 +365,15 @@ class Program extends Array {
     get used() {
         return this.scoped.used;
     }
+    get yield() {
+        return this.scoped.yield;
+    }
+    get async() {
+        return this.scoped.async;
+    }
+    get await() {
+        return this.scoped.await;
+    }
     get scoped() {
         if (this._scoped) return this._scoped;
         return this._scoped = createScoped(this);

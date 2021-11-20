@@ -1,4 +1,4 @@
-console.log(typeof yield);
+// console.log(typeof yield);
 
 yield function* a() { }
 

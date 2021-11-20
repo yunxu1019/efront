@@ -1,6 +1,6 @@
 var scanner2 = require("../compile/scanner2");
 var scanner = require("../compile/scanner");
-var typescript = require("../typescript");
+var downLevel = require("../compile/downLevel");
 var path = require("path");
 var _strings = require("../basic/strings");
 var memery = require("../efront/memery");
@@ -25,8 +25,8 @@ var getFromTree = function (destMap, reqer) {
     if (reqer.replace(/\.[mc]?[jt]sx?$/i, '') in destMap) {
         return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
     }
+};
 
-}
 function toComponent(responseTree) {
     console.info("正在合成");
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];
@@ -74,7 +74,6 @@ function toComponent(responseTree) {
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
     var encoded = memery.ENCRYPT;
     var compress = memery.COMPRESS;
-    var optimize = memery.OPTIMIZE;
     var symbolid = 0;
     var encode = function (source) {
         var _source = _strings.decode(source);
@@ -175,10 +174,13 @@ function toComponent(responseTree) {
             }
             return block_string;
         }).join("");
+        var [, isAsync, isYield] = /^(@?)(\*?)/.exec(module_string);
+        if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
         if (!memery.UPLEVEL) {
-            module_string = typescript.transpile(module_string);
+            module_string = downLevel(module_string, isAsync, isYield);
+            if(isAsync||isYield)console.log(module_string);
         }
-        module_string = `function(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
+        module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
         if (compress) {
             module_string = scanner2(module_string).press().toString();
         }

@@ -167,6 +167,9 @@ var createScoped = function (parsed) {
                 case STRAP:
                     var s = o.text;
                     switch (s) {
+                        case "await":
+                            funcbody.async = funcbody.await = true;
+                            break;
                         case "yield":
                             if (!funcbody.yield) {
                                 var next = o.next;
@@ -391,7 +394,8 @@ var createScoped = function (parsed) {
             if (!/^(true|false|null|this|arguments)$/.test(u)) envs[u] = true;
         }
     }
-    if (scoped.yield !== false) {
+    if (vars.yield) scoped.yield = false;
+    if (scoped.yield !== false && envs.yield) {
         scoped.yield = true;
         delete envs.yield;
         delete used.yield;

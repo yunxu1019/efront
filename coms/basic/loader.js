@@ -154,8 +154,8 @@ var readFile = function (names, then) {
     tryload();
 
 };
-var createFunction = function (name, body, args) {
-    return window.eval(`[function/*${name}*/(${args || ''}){\r\n${body}\r\n}][0]`);
+var createFunction = function (name, body, args, isAsync, isYield) {
+    return window.eval(`[${isAsync ? 'async ' : ''}function${isYield ? "*" : ""}/*${name}*/(${args || ''}){\r\n${body}\r\n}][0]`);
 };
 
 var FILE_NAME_REG = /^https?\:|\.(html?|css|asp|jsp|php)$/i;
@@ -269,13 +269,13 @@ var loadModule = function (name, then, prebuilds = {}) {
                 flushTree(loadedModules, key);
                 return;
             }
-            var [argNames, body, args, required, strs] = getArgs(data);
+            var [argNames, body, args, required, strs, isAsync, isYield] = getArgs(data);
             if (isProduction) {
                 strs = strs.map ? strs.map(toRem) : strs;
             } else {
                 body = toRem(body);
             }
-            var mod = createFunction(name, body, argNames);
+            var mod = createFunction(name, body, argNames, isAsync, isYield);
             if (!mod) console.log(name, mod);
             mod.args = args;
             mod.argNames = argNames;
@@ -399,8 +399,10 @@ var getArgs = function (text) {
     } else {
         functionBody = text;
     }
+    var [, isAsync, isYield] = /^(@?)(\*?)/.exec(functionBody);
+    if (isAsync || isYield) functionBody = functionBody.slice(+!!isAsync + +!!isYield);
     functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)*/i, "\"use strict\";\r\n");
-    return [argNames || [], functionBody, args || [], required || '', strs || []];
+    return [argNames || [], functionBody, args || [], required || '', strs || [], !!isAsync, !!isYield];
 };
 var get_relatives = function (name, required, prefix = "") {
     var required_base = name.replace(/[^\/\$]+$/, "");
