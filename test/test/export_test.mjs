@@ -7,4 +7,5 @@ setTimeout(function () {
 setTimeout(function () {
     console.log(b);
 }, 200);
+export {D as A}
 import { c } from "./import_test.mjs";

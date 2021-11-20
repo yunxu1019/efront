@@ -868,7 +868,8 @@ class Javascript {
                         else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
                     }
                     else if (last.type === STRAP) {
-                        if (queue[queue.length - 1].type === SPACE && /^(return|export)$/.test(last.text));
+                        if (queue[queue.length - 1].type === SPACE && /^(return|yield)$/.test(last.text));
+                        else if (/^export$/.test(last.text));
                         else scope.isObject = queue.inExpress;
                     }
                 }

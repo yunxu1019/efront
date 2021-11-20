@@ -1,6 +1,6 @@
 import * as http from "http";
 import * as ex from "./export_test.mjs";
-import { b } from "./export_test.mjs";
+import { b as A } from "./export_test.mjs";
 console.log(ex, b);
 setTimeout(function () {
     console.log(ex, b);

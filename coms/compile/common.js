@@ -379,7 +379,7 @@ var getDeclared = function (o, kind) {
                 }
             case PROPERTY:
                 if (o.next) {
-                    if (o.next.type === STAMP && o.next.text === ":") {
+                    if (o.next.type === STAMP && o.next.text === ":" || o.next.type === STRAP && o.next.text === "as") {
                         o = o.next.next;
                         continue;
                     }
