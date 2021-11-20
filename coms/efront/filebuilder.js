@@ -72,8 +72,8 @@ var buildjsp = function (buff, realpath) {
             func = createseek(content);
         } else {
             var res = commbuilder.parse(content);
-            var { params, imported, required, data } = res;
-            func = Function.apply(null, params instanceof Array ? params.concat(data) : [data]);
+            var { params, imported, required, data, isAsync, isYield } = res;
+            func = eval(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`);
             func.required = required;
             func.imported = imported;
         }
