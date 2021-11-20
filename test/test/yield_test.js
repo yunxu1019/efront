@@ -1,10 +1,14 @@
-function* a() { }
+console.log(typeof yield);
+
+yield function* a() { }
 
 b = function* c() { }
 
+yield 1;
+
 [function* d() { }][0]
 
-class M {
+yield class M {
     a = b
     c
     *e() { }
@@ -14,9 +18,9 @@ class M {
         yield* x;
     }
     A() {
-        console.log(typeof yield);
+        // console.log(typeof yield);
         // console.log(yield.a);
-        console.log(A, B);
+        // console.log(A, B);
     }
 }
 

@@ -112,7 +112,8 @@ var skipAssignment = function (o) {
 };
 var createScoped = function (parsed) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
-    var scoped = [];
+    var scoped = [], funcbody = scoped;
+    scoped.isfunc = true;
     var run = function (o, id) {
         loop: while (o) {
             var isCatch = false;
@@ -120,6 +121,7 @@ var createScoped = function (parsed) {
             var isScope = false;
             var isArrow = false;
             var isDeclare = false;
+            var isYield = false;
             switch (o.type) {
                 case QUOTED:
                     if (o.length) {
@@ -145,6 +147,7 @@ var createScoped = function (parsed) {
                     if (/^\.\.\./.test(u)) u = u.slice(3);
                     var u = u.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
                     if (!u) break;
+                    if (u === 'yield') funcbody.yield = false;
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
                         isArrow = true;
@@ -164,6 +167,21 @@ var createScoped = function (parsed) {
                 case STRAP:
                     var s = o.text;
                     switch (s) {
+                        case "yield":
+                            if (!funcbody.yield) {
+                                var next = o.next;
+                                if (next) {
+
+                                    if (next.type === STAMP && !/[~!,;:]+$/.test(next.text)
+                                        || next.type === STRAP && /in|of|as|from|instanceof/.test(next.text)
+                                        || next.type === EXPRESS && /^\./.test(next.text)
+                                    ) {
+                                        funcbody.yield = false;
+                                    }
+                                }
+                                saveTo(used, 'yield', o);
+                            }
+                            break;
                         case "as":
                         case "from":
                             break;
@@ -186,7 +204,10 @@ var createScoped = function (parsed) {
                             continue loop;
                         case "function":
                             isFunction = true;
-                            if (o.next.type === STAMP) o = o.next;
+                            if (o.next.type === STAMP) {
+                                isYield = true;
+                                o = o.next;
+                            }
                         case "catch":
                             isCatch = true;
                         case "class":
@@ -209,10 +230,17 @@ var createScoped = function (parsed) {
                     break;
                 case SCOPED:
                     if (o.entry === "(") {
-                        if (o.next && o.next.type === STAMP && o.next.text === "=>"
-                            || o.prev && (o.prev.type === PROPERTY || o.prev.isprop)) {
+                        if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                             isArrow = true;
                             isScope = true;
+                        }
+                        else if (o.prev && (o.prev.type === PROPERTY || o.prev.isprop)) {
+                            isFunction = true;
+                            isScope = true;
+                            var pp = o.prev.prev;
+                            if (pp && pp.type === STAMP && pp.isprop) {
+                                isYield = true;
+                            }
                         }
                         else {
                             run(o.first);
@@ -241,8 +269,13 @@ var createScoped = function (parsed) {
                     scoped.used = used;
                     scoped.vars = vars;
                     lets = vars;
-                    if (isFunction) vars.this = true, vars.arguments = true;
+                    if (isFunction) {
+                        vars.this = true, vars.arguments = true;
+                        scoped.yield = isYield;
+                    }
+                    scoped.isfunc = true;
                     isFunction = true;
+                    funcbody = scoped;
                 } else {
                     vars = _vars;
                     scoped.lets = lets;
@@ -335,6 +368,10 @@ var createScoped = function (parsed) {
                     delete vars.this;
                     delete vars.arguments;
                 }
+                if (_scoped.isfunc && !funcbody.yield) {
+                    if (used.yield) _scoped.yield = false;
+                    funcbody = _scoped;
+                }
                 used = _used;
                 lets = _lets;
                 vars = _vars;
@@ -353,6 +390,11 @@ var createScoped = function (parsed) {
         if (!(u in vars)) {
             if (!/^(true|false|null|this|arguments)$/.test(u)) envs[u] = true;
         }
+    }
+    if (scoped.yield !== false) {
+        scoped.yield = true;
+        delete envs.yield;
+        delete used.yield;
     }
     scoped.envs = envs;
     return scoped;
