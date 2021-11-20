@@ -72,6 +72,11 @@ async function getItem(k) {
     if (!v) return;
     return encode62.decodestr(v, k0);
 }
+async function hasItem(k) {
+    await loadProfileAsync();
+    var k0 = encode62.geta(k + profile.code);
+    return k0 in profile;
+}
 async function removeItem(k) {
     await loadProfileAsync();
     var k0 = encode62.geta(k + profile.code);
@@ -154,13 +159,14 @@ module.exports = {
             });
             return encode62.timeencode(JSAM.stringify(options));
         }
-        key = encode62.timedecode(key);
+        if (typeof value === 'string' || value === undefined) key = encode62.timedecode(key);
         var key0 = key_privateprefix + key;
-        if (value === undefined || value === false || value === 0) {
+        if (value === undefined || value === false || value === 0 || value === null) {
+            if (value === null) return hasItem(key0);
             var data = await getItem(key0);
             if (value === undefined) return encode62.timeencode(data);
             if (value === false) return data;
-            return JSON.parse(data);
+            return data ? JSON.parse(data) : null;
         }
         value = encode62.timedecode(value);
         var options = await getItem(key_privatelist);

@@ -101,7 +101,7 @@ var buildjsp = function (buff, realpath) {
                 case "require":
                     return _require.bind(null, required);
             }
-            return require2(pathname, _require);
+            return require2(pathname, _require.bind(null, required));
         };
         var context = {};
         return queue.call(splited, function (str) {
