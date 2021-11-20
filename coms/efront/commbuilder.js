@@ -160,7 +160,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var {
         vars: declares,
         used: allVariables,
-        envs: undeclares
+        envs: undeclares,
+        async: isAsync,
+        yield: isYield
     } = code;
     var globalsmap = {};
     var templateName;
@@ -324,12 +326,16 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     if (!isDevelop || commbuilder.compress === false) {
         code.break();
         data = code.toString();
-        if (!memery.UPLEVEL) data = require("../typescript").transpile(data, { noEmitHelpers: true });
+        if (!memery.UPLEVEL) {
+            data = require("../compile/downLevel")(data, isAsync, isYield);
+        }
         var code = scanner2(data);
         code.break();
         var {
             vars: declares,
             used: allVariables,
+            async: isAsync,
+            yield: isYield,
             envs: undeclares
         } = code;
         code_body = code;
@@ -356,11 +362,14 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     data = code_body.toString();
     var params = globals.map(g => globalsmap[g]);
     data = convertColor(data);
+
     return {
         imported: globals,
         required: required_paths,
         occurs: allVariables,
         data,
+        isAsync,
+        isYield,
         params
     };
 };
@@ -390,7 +399,7 @@ var buildPress2 = function (imported, params, data, args, strs) {
     return [imported, params, data];
 }
 
-var buildResponse = function ({ imported, params, data, required, occurs }, compress) {
+var buildResponse = function ({ imported, params, data, required, occurs, isAsync, isYield }, compress) {
     if (!isDevelop && compress !== false) {
         var [data, args, strs] = breakcode(data, occurs);
         strs = `[${strs}]`;
@@ -419,6 +428,8 @@ var buildResponse = function ({ imported, params, data, required, occurs }, comp
     } else if (length.length === 2) {
         length = "0" + length;
     }
+    if (isYield) data = "*" + data;
+    if (isAsync) data = "@" + data;
     // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
     data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength + strs : '') + (parseInt(data.slice(0, 3), 36) % 2 === 0 || /^\w{1,6}\[/.test(data) && parseInt(data.slice(0, 6), 36) % 2 === 0 ? ";" : "") + data;
     return data;
@@ -688,8 +699,8 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
 };
 commbuilder.break = function (data, filename, fullpath, compress) {
     var parsed = commbuilder.parse(data, filename, fullpath, compress);
-    var { imported, params, data, required, occurs } = parsed;
+    var { imported, params, data, required, occurs, isAsync, isYield } = parsed;
     var [data, res, val] = breakcode(data, occurs);
-    return [data, res, val];
+    return [data, res, val, isAsync, isYield];
 }
 module.exports = commbuilder;

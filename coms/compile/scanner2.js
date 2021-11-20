@@ -365,6 +365,15 @@ class Program extends Array {
     get used() {
         return this.scoped.used;
     }
+    get yield() {
+        return this.scoped.yield;
+    }
+    get async() {
+        return this.scoped.async;
+    }
+    get await() {
+        return this.scoped.await;
+    }
     get scoped() {
         if (this._scoped) return this._scoped;
         return this._scoped = createScoped(this);
@@ -804,7 +813,14 @@ class Javascript {
                 if (m === 'yield') {
                     var temp = queue;
                     var type = STRAP;
-                    while (temp) {
+                    var last = queue.lastUncomment;
+                    if (queue.entry === '[' || queue.isClass || queue.isObject || last && (last.type === STAMP && (
+                        queue[queue.length - 1].type !== SPACE && /^(\+\+|\-\-)$/.test(last.text)
+                        || !/^(>>>?=|<<=|[^><!=]=|[,;])/.test(last.text)
+                    ) || last.type === STRAP)) {
+                        type = EXPRESS;
+                    }
+                    if (type === STRAP) while (temp) {
                         if (temp.entry != "{" || !temp.prev || temp.prev.type !== SCOPED || temp.prev.entry !== '(') {
                             temp = temp.queue;
                             continue;
