@@ -91,6 +91,7 @@ var skipAssignment = function (o) {
             }
             else if (o.text === "function") {
                 o = o.next;
+                if (o && o.type === STAMP) o = o.next;
                 if (o && o.type === EXPRESS) o = o.next;
                 if (o) o = o.next;
                 if (o) o = o.next;
@@ -185,6 +186,7 @@ var createScoped = function (parsed) {
                             continue loop;
                         case "function":
                             isFunction = true;
+                            if (o.next.type === STAMP) o = o.next;
                         case "catch":
                             isCatch = true;
                         case "class":

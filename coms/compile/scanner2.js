@@ -26,6 +26,7 @@ var needBreak = function (prev, next) {
     if (prev.type === EXPRESS && /\.$/.test(prev.text)) return;
     if (next.type === EXPRESS && /^\./.test(next.text)) return;
     if (next.type === PROPERTY) return ";";
+    if (next.type === STAMP && next.text === "*") return ";";
     if (
         [EXPRESS, VALUE, QUOTED].indexOf(prev.type) >= 0
         || prev.type === STAMP && /^(\+\+|\-\-)$/.test(prev.text)
@@ -104,6 +105,7 @@ var insertAfter = function (o) {
     for (var o of os) {
         prev.next = o;
         o.prev = prev;
+        Object.defineProperty(o, 'queue', { value: queue });
         prev = o;
     }
     if (next) {
@@ -213,13 +215,13 @@ var detour = function (o, ie) {
                     }
                     if (!/^\[/.test(o.text) && o.queue.isClass) {
                         if (o.text === 'constructor') break;
-                        if (o.text === 'get') console.log(o.text, o.type, o.next);
                         var text = strings.encode(strings.decode(o.text));
                         if (o.prev) {
                             var prev = o.prev;
                             if (prev && prev.type === PROPERTY && /^(get|set|static|async)$/.test(prev.text)) {
                                 prev = prev.prev;
                             }
+                            if (prev && prev.type === STAMP && prev.isprop) prev = prev.prev;
                             if (prev && (prev.type !== STAMP || prev.text !== ';')) insertAfter(prev, { text: ';', type: STAMP });
                         }
                         o.text = `[${text}]`;
@@ -315,7 +317,7 @@ class Program extends Array {
                             if (!o.prev || o.prev.text !== 'for') result.pop();
                         }
                         if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
-                            result.push(" ");
+                            if (!this.pressed) result.push(" ");
                         }
                     }
                     result.push(o.leave);
@@ -339,7 +341,7 @@ class Program extends Array {
                                 ) result.push(";");
                             }
                             else if (!/^(\+\+|\-\-)$/.test(o.text)) {
-                                if (!this.pressed) result.push(" ");
+                                if (!this.pressed && lasttype !== SPACE) result.push(" ");
                             }
                         }
                         result.push(o.text);
@@ -446,15 +448,20 @@ class Javascript {
         var origin = queue;
         var queue_push = function (scope) {
             var last = queue.lastUncomment;
-            if (~[VALUE, QUOTED].indexOf(scope.type)) {
-                scope.isprop = isProperty();
-            }
-            else if (scope.type === SCOPED && scope.entry === '[') {
-                if (queue.isObject) scope.isprop = isProperty();
-                if (queue.isClass) scope.isprop = !last || last.isprop || last.type === STAMP && last.text === ';';
-            }
-            else if (scope.type === PROPERTY) {
-                scope.isprop = true;
+            if (queue.isObject || queue.isClass) {
+                if (~[VALUE, QUOTED].indexOf(scope.type)) {
+                    scope.isprop = isProperty();
+                }
+                else if (scope.type === SCOPED && scope.entry === '[') {
+                    if (queue.isObject) scope.isprop = isProperty();
+                    if (queue.isClass) scope.isprop = !last || last.isprop || last.type === STAMP && last.text === ';';
+                }
+                else if (scope.type === STAMP) {
+                    scope.isprop = scope.text === "*" && isProperty();
+                }
+                else if (scope.type === PROPERTY) {
+                    scope.isprop = true;
+                }
             }
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 Object.defineProperty(scope, 'queue', { value: queue });
@@ -655,10 +662,14 @@ class Javascript {
             var prev = queue.lastUncomment;
             if (queue.isObject) {
                 if (!prev || prev.type === STAMP && prev.text === ",") return true;
+                if (prev.type === STAMP && prev.isprop) return true;
             }
             if (queue.isClass) {
                 if (!prev) return true;
-                if (prev.type === STAMP) return /^(\+\+|\-\-|;)$/.test(prev.text);
+                if (prev.type === STAMP) {
+                    if (prev.isprop) return true;
+                    return /^(\+\+|\-\-|;)$/.test(prev.text);
+                }
                 if (prev.type === EXPRESS && !/\.$/.test(prev.text)) return true;
                 if (~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type)) return true;
             }
@@ -790,7 +801,36 @@ class Javascript {
                         queue.inExpress = false;
                     }
                 }
-                save(STRAP);
+                if (m === 'yield') {
+                    var temp = queue;
+                    var type;
+                    while (temp) {
+                        if (temp.entry != "{" || !temp.prev || temp.prev.type !== SCOPED || temp.prev.entry !== '(') {
+                            temp = temp.queue;
+                            continue;
+                        }
+                        var pp = temp.prev.prev;
+                        var isprop = pp.isprop;
+                        if (pp && pp.type === EXPRESS || pp.isprop) pp = pp.prev;
+                        if (!pp || pp.type === STRAP && !/^function$/.test(pp.text)) {
+                            temp = temp.queue;
+                            continue;
+                        }
+                        if (pp.type === STAMP && pp.text === "*" && (pp.isprop || pp.prev && pp.prev.type === STRAP && pp.prev.text === "function")) {
+                            type = STRAP;
+                            break;
+                        }
+                        if (isprop || pp.type === STRAP && pp.text === "function") {
+                            type = EXPRESS;
+                            break;
+                        }
+                        temp = temp.queue;
+                    }
+                    save(type);
+                }
+                else {
+                    save(STRAP);
+                }
                 continue;
             }
             if (this.value_reg.test(m) || this.number_reg.test(m)) {
