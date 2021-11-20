@@ -770,7 +770,7 @@ class Javascript {
             }
             if (this.space_reg.test(m)) {
                 if (/[\r\n\u2028\u2029]/.test(m)) {
-                    colstart = match.index + m.length - 1;
+                    colstart = match.index + 1;
                     m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
                     row += m.replace(/[^\r\n]+/, '').length >> 1;
                     save(SPACE);
