@@ -56,20 +56,7 @@ var createGetter = function (search, isprop = true) {
     var [withContext, searchContext] = search;
     if (!searchContext) return function () { };
     var ret = /\;/.test(searchContext) ? "" : "return ";
-    if (/\?\s*\.(?=[^\d])/.test(searchContext)) {
-        searchContext = searchContext.replace(variableReg, function (context) {
-            var dist;
-            context.split(/\?\s*\.(?=[^\d])/).forEach(function (search) {
-                if (dist) {
-                    if (/[\=]/.test(dist)) dist = `(${dist})`;
-                    dist = `${dist}!==void 0&&${dist}!==null?${dist}.${search}:''`
-                } else {
-                    dist = search;
-                }
-            });
-            return dist.length > 1 ? `(${dist})` : context;
-        });
-    }
+    searchContext = renderExpress(searchContext);
     if (isprop) {
         return new Function('event', `${withContext}with(this.$scope){${ret}${searchContext}}`);
     }
@@ -94,7 +81,7 @@ var parseRepeat = function (expression) {
     var res = reg.exec(expression);
     if (!res) return res;
     var [_, i, k, r, s, t] = res;
-    var keyName, itemName, indexName, trackBy = t, srcName = s;
+    var keyName, itemName, indexName, trackBy = t, srcName = renderExpress(s);
     switch (r) {
         case "in":
             if (i) itemName = i;
