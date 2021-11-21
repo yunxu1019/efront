@@ -22,7 +22,7 @@ var taskmap = {};
 var gettask = async function (taskid) {
     var task = await userdata.option("task", taskid, 0);
     if (!task) throw new Error(`指定的任务 ${taskid} 不存在！`);
-    if (!task) return null;
+    if (task.status !== 1) throw new Error(`任务 ${taskid} 未启用！`);
     var task = createFunction(task.code, async function (pathname) {
         if (global[pathname] !== undefined) return global[pathname];
         switch (pathname) {
