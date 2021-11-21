@@ -12,6 +12,7 @@ var rebuildOptions = function () {
     var new_options = seek(data, options_from);
     if (new_options !== options) {
         field.options = new_options;
+        delete field.optionsMap;
         render.refresh();
     }
 };
@@ -198,7 +199,22 @@ function main(elem) {
                     elem.innerHTML = '<span ng-bind=get()></span>';
                     render(elem, {
                         get() {
-                            return seek(data, field.key);
+                            var value = seek(data, field.key);
+                            if (field.options) {
+                                if (!field.optionsMap) {
+                                    var map = Object.create(null);
+                                    for (var o of field.options) {
+                                        var v = getValue(o);
+                                        map[v] = o;
+                                    }
+                                    field.optionsMap = map;
+                                }
+                                var map = field.optionsMap;
+                                if (value in map) {
+                                    value = getName(map[value]);
+                                }
+                            }
+                            return value;
                         }
                     });
                 }
