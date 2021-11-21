@@ -30,7 +30,11 @@ var detect = function (module_path, matchIndex = true) {
     );
     var search_object = Object.create(null);
     search_path = search_path.filter(a => search_object[a] ? false : search_object[a] = true);
-    return detectWithExtension(module_path, [".js", ".ts", "", '.jsx', '.tsx', '.vue', "/index.js", "/index.ts", '/index.jsx', '/index.tsx'], search_path);
+    var extensions = [".js", ".ts", "", '.jsx', '.tsx', '.vue'];
+    if (matchIndex) {
+        extensions.unshift("/index.js", "/index.ts", '/index.jsx', '/index.tsx');
+    }
+    return detectWithExtension(module_path, extensions, search_path);
 };
 var setenv = function (evn, cover) {
     var dist = memery;
