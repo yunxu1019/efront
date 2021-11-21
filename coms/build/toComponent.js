@@ -165,7 +165,7 @@ function toComponent(responseTree) {
                 var isProp = !!(isPropStart && isPropEnd);
                 if (hasRequire) {
                     requireReg.lastIndex = block.start;
-                    var isRequire = requireReg.exec(module_string);
+                    var isRequire = !!requireReg.exec(module_string);
                 }
                 return setMatchedConstString(block_string, isRequire, isProp);
             }
@@ -178,7 +178,6 @@ function toComponent(responseTree) {
         if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
         if (!memery.UPLEVEL) {
             module_string = downLevel(module_string, isAsync, isYield);
-            if(isAsync||isYield)console.log(module_string);
         }
         module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
         if (compress) {

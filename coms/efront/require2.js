@@ -41,9 +41,6 @@ var gettask = async function (taskid) {
             case "_private":
                 return _private;
         }
-        if (pathname === 'undefined') return undefined;
-        if (pathname === 'require') return require;
-        if (pathname === 'http') return http;
     }, 'private/main');
     return task;
 };
