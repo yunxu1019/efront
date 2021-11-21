@@ -327,7 +327,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         code.break();
         data = code.toString();
         if (!memery.UPLEVEL) {
-            data = require("../compile/downLevel")(data, isAsync, isYield);
+            data = require("./downLevel")(data, isAsync, isYield);
         }
         var code = scanner2(data);
         code.break();

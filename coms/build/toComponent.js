@@ -1,6 +1,6 @@
 var scanner2 = require("../compile/scanner2");
 var scanner = require("../compile/scanner");
-var downLevel = require("../compile/downLevel");
+var downLevel = require("../efront/downLevel");
 var path = require("path");
 var _strings = require("../basic/strings");
 var memery = require("../efront/memery");
