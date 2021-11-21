@@ -2,7 +2,8 @@ function main(element = document.createElement("div")) {
     element.innerHTML = colorpicker;
     var saved_value;
     var selector = element.firstChild;
-    select(selector, colorpad(), false, 'y');
+    var pad = colorpad();
+    select(selector, pad, false, 'y');
     render(element, {
         a: button,
         colorlabel,
@@ -25,6 +26,7 @@ function main(element = document.createElement("div")) {
     element.setValue = function (value) {
         element.value = value;
         cast(selector, value);
+        pad.setValue(value);
     };
     return element;
 }
