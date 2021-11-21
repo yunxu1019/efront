@@ -7,7 +7,7 @@ require("./console");
 var loadenv = require("./loadenv");
 var memery = require("./memery");
 var detectWithExtension = require("../build/detectWithExtension");
-var detect = function (module_path) {
+var detect = function (module_path, matchIndex = true) {
     var search_path = [];
     var joinpath = a => path.join.apply(path, a);
     var apppath = require("./mixin")(memery.PAGE_PATH, memery.PAGE).map(joinpath);
@@ -242,7 +242,7 @@ var commands = {
         if (!appnames.length) return this.path();
         appnames.forEach(appname => {
             detectEnvironment().then(function () {
-                detect(appname, [process.cwd()]).then(console.info, console.error);
+                detect(appname).then(console.info, console.error);
             }, console.error);
         });
     },
@@ -259,7 +259,7 @@ var commands = {
     async check(...args) {
         args = [].concat.apply([], args);
         for (var a of args) {
-            await detect(a).then(
+            await detect(a, false).then(
                 require("./checkVariable"),
                 console.error
             );
