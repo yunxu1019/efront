@@ -320,7 +320,7 @@ function parse(piece) {
                     name = name.slice(0, commaindex);
                 }
             }
-            [name, key] = scanSlant(name, '/');
+            [name, key] = scanSlant(name, '/', 0, name.length + 1);
             if (key === undefined && !/^(title|label|headline)$/i.test(type)) key = name;
         }
         if (/^[a-z\d]+\/?\d+$/i.test(type)) {
