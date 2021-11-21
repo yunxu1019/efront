@@ -1,12 +1,3 @@
-var hasOwnProperty = {}.hasOwnProperty;
-var getValue = function (o) {
-    if (hasOwnProperty.call(o, 'valueOf')) return o.valueOf();
-    if ("id" in o) return o.id;
-    if ("key" in o) return o.key;
-    if ("value" in o) return o.value;
-    if (hasOwnProperty.call(o, 'toString')) return o.toString();
-    return o;
-};
 function main(elem = document.createElement("radio-group")) {
     care(elem, function (field) {
         elem.innerHTML = radio;
