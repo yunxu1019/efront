@@ -334,9 +334,9 @@ var checkServerState = function (http, port) {
         req.end();
     });
 };
-var loaded = 0;
+var loading = 0;
 var showServerInfo = function () {
-    if (++loaded < portedServersList.length) return;
+    if (--loading > 0) return;
     var address = require("../efront/getLocalIP")();
     var port = portedServersList.map(a => a && a.address());
     port = port.map((a, i) => a && a.port || portedServersList[i].port);
@@ -399,8 +399,8 @@ function initServer(port) {
     var server = this.once("error", showServerError)
         .once("listening", showServerInfo)
         .listen(+port);
-    server.port = port;
     portedServersList.push(server);
+    server.port = port;
     return server;
 }
 function netOnceDataAdapter(buf) {
@@ -464,6 +464,7 @@ process.on('exit', function () {
 
 message.count("boot");
 if (memery.PFX_PATH) {
+    loading++;
     httpsOptions.passphrase = memery.PFX_PASSWORD;
     fs.readFile(memery.PFX_PATH, function (error, buff) {
         if (error) return console.error(error);
@@ -472,6 +473,7 @@ if (memery.PFX_PATH) {
     });
 }
 else if (HTTPS_PORT) {
+    loading++;
     console.warn("<yellow>HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！</yellow>");
     fs.readFile(path.join(__dirname, '../../data/keystore/cross-key.pem'), function (error, buff) {
         if (error) return console.error(error);
@@ -485,4 +487,4 @@ else if (HTTPS_PORT) {
     });
 }
 
-if (HTTP_PORT) createHttpServer();
+if (HTTP_PORT) loading++, createHttpServer();
