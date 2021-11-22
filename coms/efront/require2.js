@@ -18,7 +18,7 @@ var createFunction = async function (data, __require, pathname) {
     return func.apply(func, imported_1);
 };
 
-var taskmap = {};
+var taskmap = {}, loadtime = userdata.loadtime;
 var gettask = async function (taskid) {
     var task = await userdata.option("task", taskid, 0);
     if (!task) throw new Error(`指定的任务 ${taskid} 不存在！`);
@@ -46,6 +46,10 @@ var gettask = async function (taskid) {
 };
 
 var _runtask = required_cache.runtask = async function (taskid, ...params) {
+    if (loadtime !== userdata.loadtime) {
+        loadtime = userdata.loadtime;
+        for (var k in taskmap) delete taskmap[k];
+    }
     if (!taskmap[taskid]) taskmap[taskid] = gettask(taskid);
     var t = await taskmap[taskid];
     return t(...params);

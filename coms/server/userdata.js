@@ -138,8 +138,10 @@ module.exports = {
     checkPassword,
     checkPasswordA,
     checkPasswordB,
+    loadtime: Date.now(),
     reload() {
         profile_promise = null;
+        this.loadtime = Date.now();
     },
     async option(type, key, value) {
         var key_privatelist = type + listmark;
