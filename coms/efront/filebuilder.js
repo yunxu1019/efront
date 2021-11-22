@@ -71,7 +71,7 @@ var buildjsp = function (buff, realpath) {
         if (/^(?:\=|\return\s|)\s*[^[$_a-zA-Z]\w*(\s*\.\s*[$_a-zA-Z]\w*)*\s*$/.test(content)) {
             func = createseek(content);
         } else {
-            var res = commbuilder.parse(content, undefined, undefined, false);
+            var res = commbuilder.parse(content);
             var { params, imported, required, data, isAsync, isYield } = res;
             func = eval(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`);
             func.required = required;

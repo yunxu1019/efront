@@ -7,7 +7,7 @@ var required_cache = Object.create(null);
 
 var createFunction = async function (data, __require, pathname) {
     var content = String(data);
-    var { params, imported, required, data } = commbuilder.parse(content, pathname, pathname, false);
+    var { params, imported, required, data } = commbuilder.parse(content, pathname, pathname);
     var func = Function.apply(null, params.concat(data));
     if (!(imported instanceof Array)) imported = [];
     imported = imported.map(a => {

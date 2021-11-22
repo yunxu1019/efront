@@ -689,16 +689,20 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     return promise1 || data;
 }
-commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress) {
+commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = false) {
+    var savedIsDevelop = isDevelop;
+    isDevelop = !breakcode;
     var savedCompress = commbuilder.compress;
     commbuilder.compress = compress;
     var [commName, lessName, className] = prepare(filename, fullpath);
     var res = loadJsBody(data, filename, null, commName, lessName, className);
     if (savedCompress === undefined) delete commbuilder.compress;
+    else commbuilder.compress = savedCompress;
+    isDevelop = savedIsDevelop;
     return res;
 };
 commbuilder.break = function (data, filename, fullpath, compress) {
-    var parsed = commbuilder.parse(data, filename, fullpath, compress);
+    var parsed = commbuilder.parse(data, filename, fullpath, compress, true);
     var { imported, params, data, required, occurs, isAsync, isYield } = parsed;
     var [data, res, val] = breakcode(data, occurs);
     return [data, res, val, isAsync, isYield];
