@@ -276,6 +276,7 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
         if (reg.lastIndex < savedIndex) break;
         run();
     }
+    if (savedIndex < ifExpression.length) rest.push(ifExpression.slice(savedIndex))
     var beforeRepeat = [], afterRepeat = [];
     rest.forEach(function (result) {
         var match = false;
