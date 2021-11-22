@@ -3,7 +3,7 @@ function main(a) {
     page.innerHTML = template;
     drag.on(page.firstChild, page);
     var fields = data.from("params", { key: a.key }, function (a) {
-        return JSON.parse(encode62.timedecode(a));
+        return a ? JSON.parse(encode62.timedecode(a)) : [];
     });
     var taskid = 0;
     renderWithDefaults(page, {
@@ -16,11 +16,11 @@ function main(a) {
         output: '',
         async run() {
             var id = ++taskid;
+            this.output = "正在执行..";
             var params = JSON.stringify(this.data);
             var res = await data.from("invoke", { key: a.key, params: encode62.timeencode(params) }, function (a) {
-                return encode62.timedecode(a);
+                return a ? encode62.timedecode(a) : '完成！';
             });
-            console.log(res);
             if (id !== taskid) return;
             this.output = res;
         }
