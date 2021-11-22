@@ -8,7 +8,7 @@
         <field -repeat="f in fields" -src="[f,data]"></field>
         <pre -text="task.code"></pre>
     </div>
-    <div class="right">
+    <div class="right" :class="{error:error}">
         <pre -text="output"></pre>
     </div>
 </div>
