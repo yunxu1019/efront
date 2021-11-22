@@ -43,7 +43,7 @@ Object.assign(encode62, {
         var time_rest = time_stamp % time_delta;
         var time_rest_str = time_rest.toString(36);
         var time_delta_str = time_delta.toString(36);
-        string = encodeURIComponent(string).replace(/\./g, '..').replace(/%/g, '.');
+        string = encodeURIComponent(string).replace(/\./g, '..').replace(/[\!'\(\)~]/g, a => escape(a)).replace(/%/g, '.');
         return this.encode62(string, time_stamp.toString(36)) + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
     },
     timeupdate(string) {
