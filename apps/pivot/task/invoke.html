@@ -1,0 +1,17 @@
+<div head>
+    <span -text="task.name"></span>
+    (<span -text="task.key"></span>)
+    <close @click="remove()"></close>
+</div>
+<div body>
+    <div class="left">
+        <field -repeat="f in fields" -src="[f,data]"></field>
+        <pre -text="task.code"></pre>
+    </div>
+    <div class="right">
+        <pre -text="output"></pre>
+    </div>
+</div>
+<div foot>
+    <btn @click="run">执行</btn>
+</div>

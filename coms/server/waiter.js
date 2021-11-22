@@ -195,6 +195,26 @@ var requestListener = async function (req, res) {
                         res.end("正在重启");
                     });
                     return;
+                case "params":
+                    try {
+                        var data = await require("../efront/require2").getTaskParams(type[2]);
+                        res.end(data);
+                    }
+                    catch (e) {
+                        res.writeHead(500);
+                        res.end(String(e));
+                    }
+                    return;
+                case "invoke":
+                    try {
+                        var data = await require("../efront/require2").invokeTask(type[2], type[3]);
+                        res.end(data);
+                    }
+                    catch (e) {
+                        res.writeHead(500);
+                        res.end(String(e));
+                    }
+                    return;
                 case "task":
                 case "private":
                     try {

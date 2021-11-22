@@ -23,7 +23,7 @@ var gettask = async function (taskid) {
     var task = await userdata.option("task", taskid, 0);
     if (!task) throw new Error(`指定的任务 ${taskid} 不存在！`);
     if (task.status !== 1) throw new Error(`任务 ${taskid} 未启用！`);
-    var task = createFunction(task.code, async function (pathname) {
+    var task = await createFunction(task.code, async function (pathname) {
         if (global[pathname] !== undefined) return global[pathname];
         switch (pathname) {
             case "undefined": return undefined;
@@ -42,21 +42,32 @@ var gettask = async function (taskid) {
                 return _private;
         }
     }, 'private/main');
+    var params = /\(\s*([\s\S]*?)\s*\)/.exec(task);
+    if (params) {
+        task.params = params[1].split(",").map(p => {
+            var [key] = p.split("=");
+            if (key) key = key.trim();
+            return { key, name: key };
+        });
+    }
     return task;
 };
-
-var _runtask = required_cache.runtask = async function (taskid, ...params) {
+var getLoadedTask = async function (taskid) {
     if (loadtime !== userdata.loadtime) {
         loadtime = userdata.loadtime;
         for (var k in taskmap) delete taskmap[k];
     }
     if (!taskmap[taskid]) taskmap[taskid] = gettask(taskid);
-    var t = await taskmap[taskid];
+    return await taskmap[taskid];
+};
+var _runtask = required_cache.runtask = async function (taskid, ...params) {
+    var t = await getLoadedTask(taskid);
     return t(...params);
 };
 
 var _private = async function (privateid) {
     var data = await userdata.option("private", privateid, 0);
+    if (!data) throw `密钥 ${privateid} 不存在！`;
     return data.value;
 };
 
@@ -79,4 +90,24 @@ function require2(pathname, __require) {
     })
 
 }
+require2.getTaskParams = async function (taskid) {
+    var task = await getLoadedTask(taskid);
+    var params = JSON.stringify(task.params);
+    return require("../crypt/encode62").timeencode(params);
+};
+require2.invokeTask = async function (taskid, data) {
+    var task = await getLoadedTask(taskid);
+    var params = task.params;
+    if (params) {
+        data = require("../crypt/encode62").timedecode(data);
+        data = JSON.parse(data);
+        params = params.map(p => data[p.key]);
+        var res = await task(...params);
+    }
+    else {
+        var res = await task();
+    }
+    if (res) res = require("../crypt/encode62").timeencode(JSON.stringify(res));
+    return res;
+};
 module.exports = require2;
