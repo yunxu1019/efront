@@ -507,7 +507,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
             result = res;
             created = true;
             _ok(res);
-        }, prebuilds);
+        });
         if (created) return result;
         return promise;
     });
