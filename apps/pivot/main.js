@@ -4,6 +4,13 @@ var token = data.getSource('authorization');
 if (token) {
     user.login({});
 }
+data.bindInstance("base", async function (base) {
+    cross.addDirect(base.base);
+    var apimap = await data.getConfig();
+    for (var k in apimap) {
+        apimap[k].base = base.base;
+    }
+});
 setInterval(function () {
     var auth = data.getSource('authorization');
     if (!auth) return;

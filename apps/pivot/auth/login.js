@@ -13,7 +13,8 @@ function main() {
     });
     renderWithDefaults(page, {
         fields, data: {
-            host: location.host,
+            host: data.getInstance("base").host || location.host,
+
         }, pending: false
     });
     on("submit")(page, async function () {
@@ -24,14 +25,10 @@ function main() {
         try {
             var login = await data.getApi("login");
             login.base = location.protocol + "//" + parseURL(this.$scope.data.host).host + "/";
-            cross.addDirect(login.base);
+            data.setInstance("base", { base: login.base, host: parseURL(login.base).host });
             var info = await data.from(login, {
                 a: encode62.timeencode(encode62.geta(password))
             }).loading_promise;
-            var apimap = await data.getConfig();
-            for (var k in apimap) {
-                apimap[k].base = login.base;
-            }
             info = encode62.timeupdate(info);
             data.setSource({ authorization: info });
             user.login({})
