@@ -73,7 +73,7 @@ const formulaters = {
     }
 };
 
-function getErrorMessage(error) {
+function getErrorMessage(error = this) {
     if (!isObject(error)) return String(error);
     if (error instanceof Error) return String(error);
     var words = "reason,message,desc,descption,msg,err,error,data".split(',');
@@ -550,7 +550,7 @@ var privates = {
                 }).error(xhr => {
                     try {
                         var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
-                        oh({ status: xhr.status, error: e })
+                        oh({ status: xhr.status, error: e, toString: getErrorMessage })
                     } catch (error) {
                         oh(error);
                     }
