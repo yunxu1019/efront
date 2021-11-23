@@ -123,7 +123,7 @@ function toComponent(responseTree) {
                         var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
                         k = _strings.encode(libdir);
                     } else if (/^[\.\/]/.test(reqer)) {
-                        k = path.relative(PUBLIC_PATH, path.join(module_key.replace(/([\s\S])\$/g, '$1/'), reqer)).replace(/\\/g, '/');
+                        k = path.relative(PUBLIC_PATH, path.join(responseTree[module_key].realpath, reqer)).replace(/\\/g, '/');
                         k = _strings.encode(k);
                     } else {
                         k = _strings.encode(reqMap[refer]);
