@@ -3,6 +3,7 @@ function main() {
     page.innerHTML = template;
     renderWithDefaults(page, {
         status: [],
+        version: data.from("version"),
         async run(id, target) {
             target.setAttribute('pending', '')
             try {

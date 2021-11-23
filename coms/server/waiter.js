@@ -63,7 +63,7 @@ var doFile = require("./doFile");
 var doProxy = require("./doProxy");
 var doFolder = require("./doFolder");
 var ppid = process.ppid;
-var version = 'efront/' + ppid;
+var version = `efront/` + ppid;
 var requestListener = async function (req, res) {
     if (closed) return req.destroy();
     req.protocol = this === server1 ? 'http:' : 'https:';
@@ -100,6 +100,9 @@ var requestListener = async function (req, res) {
             var needLogin = false;
             var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
             if (type) switch (type[1]) {
+                case "version":
+                    res.write("efront " + require("../../package.json").version);
+                    break;
                 case "login":
                     var a = type[2] || '';
                     return require("./login")(a, remoteAddress).then(b => {
