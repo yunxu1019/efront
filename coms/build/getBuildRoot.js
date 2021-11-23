@@ -191,7 +191,8 @@ var getBuildRoot = function (files, matchFileOnly) {
                             var name = path.parse(file).base.replace(/[\\\/]+/g, "/");
                             return save("." + name), ok();
                         }
-                        console.warn(`<gray>${file}</gray>`, "已跳过");
+                        if (!erroredFiles[file]) console.warn(`<gray>${file}</gray>`, "已跳过");
+                        erroredFiles[file] = true;
                         ok();
                     } else if (matchFileOnly) {
                         var f = path.join(file, 'package.json');
@@ -249,7 +250,8 @@ var getBuildRoot = function (files, matchFileOnly) {
         }).then(run);
     };
     return new Promise(function (ok) {
-        resolve = function (result) {
+        resolve = async function (result) {
+            var result = await filterHtmlImportedJs(result);
             var res = [];
             if (matchFileOnly) {
                 result.forEach(function (a) {
@@ -258,7 +260,6 @@ var getBuildRoot = function (files, matchFileOnly) {
             } else {
                 res = result;
             }
-            var res = filterHtmlImportedJs(res);
             ok(res);
         };
         run();
