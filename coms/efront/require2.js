@@ -7,8 +7,8 @@ var required_cache = Object.create(null);
 
 var createFunction = async function (data, __require, pathname) {
     var content = String(data);
-    var { params, imported, required, data } = commbuilder.parse(content, pathname, pathname);
-    var func = Function.apply(null, params.concat(data));
+    var { params, imported, required, data, isAsync, isYield } = commbuilder.parse(content, pathname, pathname);
+    var func = eval(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`);
     if (!(imported instanceof Array)) imported = [];
     imported = imported.map(a => {
         if (typeof a === 'number') return __require(required[a]);
