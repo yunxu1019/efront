@@ -21,13 +21,13 @@ var safeQuitProcess = function () {
     portedServersList.forEach((server) => {
         server.removeAllListeners();
         var timeout = setTimeout(function () {
-            server.unref();
-        }, process.stdin.isTTY ? 100 : 24 * 60 * 60 * 1000);
+            process.exit();
+        }, process.stdin.isTTY ? 100 : 2 * 60 * 60 * 1000);
         var remove = function () {
             clearTimeout(timeout);
         }
+        server.unref();
         server.close(remove);
-
     });
     reload.splice(0, reload.length).forEach(res => res.end(''));
     process.removeAllListeners();
@@ -457,9 +457,9 @@ var createHttpServer = function () {
 };
 
 process.on('exit', function () {
-    process.stdin.unref();
-    process.stderr.unref();
-    process.stdout.unref();
+    if (process.stdin.unref) process.stdin.unref();
+    if (process.stderr.unref) process.stderr.unref();
+    if (process.stdout.unref) process.stdout.unref();
 });
 
 message.count("boot");
