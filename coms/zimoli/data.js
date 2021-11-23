@@ -621,7 +621,7 @@ function responseCrash(e, data) {
     }
     error_report(data.error_message, e.status < 500 ? 'warn' : 'error');
 }
-
+var getData = function () { return this.data };
 var data = {
     decodeStructure,
     encodeStructure,
@@ -898,12 +898,11 @@ var data = {
     getInstance(instanceId, onlyFromLocalStorage = false) {
         if (!instanceDataMap[instanceId]) {
             var data = getItem(instanceId, onlyFromLocalStorage);
-            if (isObject(data) || isEmpty(data)) {
-                data = extend(new LoadingArray, data);
-                data.is_loading = false;
-                data.is_loaded = true;
-            }
-            instanceDataMap[instanceId] = data;
+            var instance = new LoadingArray;
+            this.rebuildInstance(instance, data);
+            instance.is_loading = false;
+            instance.is_loaded = true;
+            instanceDataMap[instanceId] = instance;
         }
         return instanceDataMap[instanceId];
 
@@ -947,7 +946,7 @@ var data = {
      */
     setInstance(instanceId, data, rememberWithStorage = 0) {
         const instance = this.getInstance(instanceId);
-        if (isObject(data) && isObject(instance)) {
+        if (isObject(instance)) {
             this.rebuildInstance(instance, data);
         } else {
             instanceDataMap[instanceId] = data;
@@ -1005,7 +1004,8 @@ var data = {
     },
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) return;
-        if (!isObject(instance) || !isObject(data)) throw new Error("只支持object类型的数据！");
+        if (!isObject(instance)) throw new Error("只支持object类型的数据！");
+        if (!isObject(data)) data = { data }, data.toString = data.valueOf = getData;
         if (instance instanceof Array) instance.splice(0, instance.length);
         var sample = new LoadingArray;
         Object.keys(old).forEach(function (k) {
