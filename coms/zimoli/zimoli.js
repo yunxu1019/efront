@@ -185,32 +185,8 @@ var loading_tree = {};
 var getpgpath = function (pagepath) {
     return /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
 };
-function prepare(pgpath, ok) {
+function createState(pgpath) {
     var pgpath = getpgpath(pgpath);
-    if (page_generators[pgpath]) {
-        if (isFunction(ok)) {
-            var res = page_generators[pgpath];
-            if (!res.roles) {
-                ok(res);
-            } else {
-                prepare(user.loginPath, _ => {
-                    ok(res);
-                });
-            }
-        }
-        return;
-    }
-    if (loading_tree[pgpath]) {
-        if (isFunction(ok)) {
-            loading_tree[pgpath].push(ok);
-        }
-        return;
-    }
-    loading_tree[pgpath] = [];
-    if (isFunction(ok)) {
-        loading_tree[pgpath].push(ok);
-    }
-
     var _zimoli_state_key = _zimoli_state_prefix + pgpath;
     var state = function state(condition, setAsAdditional = condition !== null) {
         var state_string = hostoryStorage.getItem(_zimoli_state_key);
@@ -242,6 +218,34 @@ function prepare(pgpath, ok) {
         }
         return state_object;
     };
+    return state;
+}
+function prepare(pgpath, ok) {
+    var pgpath = getpgpath(pgpath);
+    if (page_generators[pgpath]) {
+        if (isFunction(ok)) {
+            var res = page_generators[pgpath];
+            if (!res.roles) {
+                ok(res);
+            } else {
+                prepare(user.loginPath, _ => {
+                    ok(res);
+                });
+            }
+        }
+        return;
+    }
+    if (loading_tree[pgpath]) {
+        if (isFunction(ok)) {
+            loading_tree[pgpath].push(ok);
+        }
+        return;
+    }
+    loading_tree[pgpath] = [];
+    if (isFunction(ok)) {
+        loading_tree[pgpath].push(ok);
+    }
+    var state = createState(pgpath);
     state.state = state;
     var _with_elements = [];
     state.with = function (element) {
@@ -299,6 +303,7 @@ function prepare(pgpath, ok) {
             return Promise.resolve(res);
         };
     });
+
     var prepares = [];
     state.prepare = state.go.prepare = function (urls) {
         prepares.push.apply(prepares, [].concat(urls).map(state.path));
@@ -352,8 +357,8 @@ function prepare(pgpath, ok) {
         delete loading_tree[pgpath];
     };
     return init(pgpath, function (pg) {
-
         if (!pg) return;
+        extendIfNeeded(pg, state);
         if (roles) return prepare(user.loginPath, () => emit(pg));
         emit(pg);
     }, state);
@@ -655,3 +660,4 @@ zimoli.getCurrentHistory = function () {
     return history[current_history];
 };
 zimoli.inithash = locationInitHash;
+zimoli.createState = createState;
