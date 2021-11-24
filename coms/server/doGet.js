@@ -52,6 +52,10 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
 }, FILE_BUFFER_SIZE).async;
 var message = require("../message");
 var proxy = require("./url-proxy");
+var setHeader2 = function (k, v) {
+    if (this.headersSent !== false) return;
+    this.setHeader(k, v);
+};
 /**
  * 返回数据
  * @param {Buffer} data 
@@ -61,29 +65,27 @@ var proxy = require("./url-proxy");
  */
 var response = function (data, url, req, res) {
     message.count({ path: url, update: true });
+    var setHeader = setHeader2.bind(res);
     var requiredVersion = req.headers["if-modified-since"];
     if (requiredVersion && data.stat && new Date(requiredVersion) - new Date(data.stat.mtime.toUTCString()) >= 0) {
         res.writeHead(304, {});
     }
     else {
-        var headers = {
-            "Content-Length": data.length
-        };
+        setHeader("Content-Length", data.length);
         if (data.mime) {
-            headers['Content-Type'] = data.mime;
+            res.setHeader("Content-Type", data.mime);
         }
-        headers["Cache-Control"] = "no-cache";
-        var status = 200;
+        setHeader("Cache-Control", "no-cache");
         if (data.stat) {
-            headers["Last-Modified"] = data.stat.mtime.toUTCString();
+            setHeader("Last-Modified", data.stat.mtime.toUTCString());
             if ((data.origin_size || data.length) < data.stat.size) {
                 return doFile(req, res);
             }
         }
         if (data.isgzip) {
-            headers["Content-Encoding"] = "gzip";
+            setHeader("Content-Encoding", "gzip");
         }
-        res.writeHead(status, headers);
+        if (res.headersSent === false && !res.statusCode) res.writeHead(200);
         res.write(data);
     }
     return res.end();
