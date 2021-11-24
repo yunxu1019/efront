@@ -619,6 +619,9 @@ var commands = {
         }, function () { });
     },
     watch() {
+        setAppnameAndPorts(arguments);
+        memery.ENCRYPT = false;
+        memery.istest = true;
         detectEnvironment().then(function () {
             require("../build/watch-index");
         });

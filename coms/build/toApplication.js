@@ -283,12 +283,15 @@ module.exports = function (responseTree) {
 
     return Promise.resolve(mainScriptData).then(function (mainScriptData) {
         if (setting.is_file_target) {
-            var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData)[2];
+            var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
+            if (xTreeName) xTreeName = xTreeName[2];
+            else xTreeName = "responseTree";
             commbuilder.prepare = false;
         } else {
-            var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData)[2];
+            var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
+            if (xTreeName) xTreeName = xTreeName[2];
+            else xTreeName = "versionTree";
         }
-
         var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:"${versionTree[k]}"`).join(",\r\n\t") + "\r\n}";
         var versionVariableName;
         code = mainScriptData.toString()
