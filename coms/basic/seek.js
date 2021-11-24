@@ -1,10 +1,11 @@
 var seek = function (object, seeker) {
-    if (seeker === null || seeker === undefined || !object) return;
+    if (seeker === null || seeker === undefined || isEmpty(object)) return;
     if (seeker instanceof Function) {
         return seeker(object);
     }
     if (typeof seeker === "string") {
         if (/^(['"`])[\s\S]*$/i.test(seeker)) return seeker.replace(/^(['"`])([\s\S*])\1?$/, "$2");
+        if (seeker === '' || seeker === ".") return object;
         seeker = seeker.split(".");
     }
     if (seeker instanceof Array) {
