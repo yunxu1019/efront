@@ -8,7 +8,7 @@ function create(commFactory, className) {
     }
     if (isFunction(commFactory)) {
         var result = function () {
-            var commRelease = commFactory.apply(result, arguments);
+            var commRelease = commFactory.apply(this || result, arguments);
             if (commRelease) {
                 commRelease = create(commRelease, className);
             }
