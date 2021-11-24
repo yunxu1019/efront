@@ -78,11 +78,6 @@ var response = function (data, url, req, res) {
             headers["Last-Modified"] = data.stat.mtime.toUTCString();
             if ((data.origin_size || data.length) < data.stat.size) {
                 return doFile(req, res);
-                // headers["Accept-Ranges"] = "bytes";
-                // headers["Content-Range"] = "bytes 0-" + (data.length - 1) + "/" + data.stat.size;
-                // headers["Content-Length"] = data.length;
-
-                // status = 206;
             }
         }
         if (data.isgzip) {
@@ -102,6 +97,7 @@ var utf8 = { "Content-Type": "text/plain;charset=utf-8" };
  * @param {httpResponse} res 
  */
 var adapter = function (data, url, req, res) {
+    if (res.writableEnded || res.finished) return;
     if (data instanceof Buffer) {
         return response(data, url, req, res);
     }
