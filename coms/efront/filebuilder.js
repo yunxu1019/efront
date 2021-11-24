@@ -1,5 +1,4 @@
 "use strict";
-var commbuilder = require("./commbuilder");
 var isDevelop = require("./isDevelop");
 var queue = require("../basic/queue");
 var require2 = require("./require2");
@@ -63,6 +62,7 @@ var buildjsp = function (buff, realpath) {
     var splited = [];
     var lastIndex = 0;
     var input = String(buff);
+    var prebuilds = { req: null, res: null, request: null, response: null, context: null };
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
     // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//
     input.replace(/\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi, function (match, split, content, index, input) {
@@ -71,52 +71,23 @@ var buildjsp = function (buff, realpath) {
         if (/^(?:\=|\return\s|)\s*[^[$_a-zA-Z]\w*(\s*\.\s*[$_a-zA-Z]\w*)*\s*$/.test(content)) {
             func = createseek(content);
         } else {
-            var res = commbuilder.parse(content);
-            var { params, imported, required, data, isAsync, isYield } = res;
-            func = eval(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`);
-            func.required = required;
-            func.imported = imported;
+            func = require2.createFunction(content, realpath, prebuilds);
         }
         splited.push(str, func);
         return match;
     });
     if (lastIndex < input.length - 1) splited.push(input.slice(lastIndex, input.length));
     return function (req, res) {
-        var _require = function (required, pathname) {
-            if (typeof pathname === 'number') {
-                pathname = required[pathname];
-            }
-            switch (pathname) {
-                case "global":
-                    return global;
-                case "req":
-                case "request":
-                    return req;
-                case "res":
-                case "response":
-                    return res;
-                case "ctx":
-                case "context":
-                    return context;
-                case "require":
-                    return _require.bind(null, required);
-            }
-            return require2(pathname, _require.bind(null, required));
-        };
-        var context = {};
+        Object.assign(prebuilds, {
+            req: req,
+            request: req,
+            res: res,
+            response: res,
+            context: {}
+        });
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
-                var { imported, required } = str;
-                if (!(imported instanceof Array)) imported = [];
-                if (!(required instanceof Array)) required = [];
-                imported = imported.map(a => _require(required, a));
-                return Promise.all(required.map(a => _require(required, a))).then(function () {
-                    return Promise.all(imported);
-                }).then(imported => {
-                    var res = str.apply(context, imported);
-                    if (res === undefined) res = '';
-                    return res;
-                });
+                return require2.invokeFunction(str, prebuilds.context);
             }
             return str;
         }).then(function (array) {

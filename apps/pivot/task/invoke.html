@@ -4,8 +4,10 @@
     <close @click="remove()"></close>
 </div>
 <div body>
-    <div class="left">
+    <div class="top">
         <field -repeat="f in fields" -src="[f,data]"></field>
+    </div>
+    <div class="left">
         <pre -text="task.code"></pre>
     </div>
     <div class="right" :class="{error:error}">

@@ -2,22 +2,34 @@
     position: absolute;
     width: 800px;
 }
-
+>[body]{
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+}
 >[body]>div {
     display: inline-block;
-    width: 50%;
     vertical-align: top;
     overflow: auto;
     font-size: 12px;
-    border-bottom: 50px solid transparent;
-    padding: 0 10px;
+
+    &.top {
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    &.left,
+    &.right {
+        height: 100%;
+        width: 50%;
+    }
 
     &.right {
         background: #000;
         color: #fff;
-        height: 100%;
     }
-    &.error{
+
+    &.error {
         color: #c26;
     }
 }

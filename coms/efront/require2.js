@@ -3,19 +3,85 @@ var commbuilder = require("./commbuilder");
 var userdata = require("../server/userdata");
 var comspath = require("./inCom").comms_root;
 var fs = require('fs');
+var path = require("path");
 var required_cache = Object.create(null);
+var hasOwnProperty = {}.hasOwnProperty;
+var loadingTree = Object.create(null);
+var loadedModules = Object.create(null);
+var prepareFunction = function (pathname) {
+    if (loadedModules[pathname]) return loadedModules[pathname];
+    if (loadingTree[pathname]) return loadingTree[pathname];
+    return loadingTree[pathname] = new Promise(function (ok, oh) {
+        fs.readFile(pathname, function (error, data) {
+            if (error) return oh(error);
+            var f = createFunction(data, pathname);
+            loadedModules[pathname] = f;
+            delete loadingTree[pathname];
+            f.prepare().then(function () {
+                ok(f);
+            }, oh);
+        });
+    });
+};
+var createModule = function (required, prebuilds, pathmap, modname) {
+    if (typeof modname === "number") modname = required[modname];
+    if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
+    switch (modname) {
+        case "require": return this.require;
+        case "undefined": return undefined;
+        case "runtask": case "_runtask": return _runtask;
+        case "module": return this;
+        case "exports": return this.exports;
+    }
+    if (global[modname] !== undefined) return global[modname];
+    if (hasOwnProperty.call(pathmap, modname)) return require2(pathmap[modname]);
+    return require(modname);
+};
+var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
+    if (typeof modname === "number") modname = required[modname];
+    if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return;
+    if (/^(require|_runtask|undefined|module)$/.test(modname)) return;
+    if (/^(module|exports)$/.test(modname)) return;
+    if (global[modname] !== undefined) return;
+    if (/^[\.\/\\]/.test(modname)) var searchpath = [dirname].concat(comspath);
+    else var searchpath = comspath;
+    return detectWithExtension(modname, ['', '.js', '.mjs', '.ts', '.json'], searchpath).then(p => {
+        pathmap[modname] = p;
+        return prepareFunction(p);
+    }, () => { });
+};
 
-var createFunction = async function (data, __require, pathname) {
+var createFunction = function (data, pathname, prebuilds) {
     var content = String(data);
-    var { params, imported, required, data, isAsync, isYield } = commbuilder.parse(content, pathname, pathname);
+    var { params, imported, data, required, isAsync, isYield } = commbuilder.parse(content, pathname, pathname);
     var func = eval(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`);
     if (!(imported instanceof Array)) imported = [];
-    imported = imported.map(a => {
-        if (typeof a === 'number') return __require(required[a]);
-        return __require(a);
+    var pathmap = {};
+    func.require = createModule.bind(func, required, prebuilds, pathmap);
+    func.require.cache = required_cache;
+    func.imported = imported;
+    func.required = required;
+    func.prepare = async function () {
+        var dirname = path.dirname(pathname);
+        var prepare = prepareModule.bind(func, dirname, required, prebuilds, pathmap);
+        if (!(imported instanceof Array)) imported = [];
+        if (!(required instanceof Array)) required = [];
+        imported = imported.map(prepare);
+        required = imported.map(prepare);
+        await Promise.all(imported);
+        await Promise.all(required);
+        delete func.prepare;
+    };
+    return func;
+};
+var invokeFunction = function (func, context) {
+    if (func.prepare) return func.prepare().then(function () {
+        return invokeFunction(func, context);
     });
-    const imported_1 = await Promise.all(imported);
-    return func.apply(func, imported_1);
+    var { imported, require } = func;
+    func.exports = context || {};
+    imported = imported.map(require);
+    return func.apply(context, imported);
 };
 
 var taskmap = {}, loadtime = userdata.loadtime;
@@ -23,25 +89,8 @@ var gettask = async function (taskid) {
     var task = await userdata.option("task", taskid, 0);
     if (!task) throw new Error(`指定的任务 ${taskid} 不存在！`);
     if (task.status !== 1) throw new Error(`任务 ${taskid} 未启用！`);
-    var task = await createFunction(task.code, async function (pathname) {
-        if (global[pathname] !== undefined) return global[pathname];
-        switch (pathname) {
-            case "undefined": return undefined;
-            case "require": return require;
-            case "os":
-            case "vm":
-            case "net":
-            case "zlib":
-            case "http":
-            case "https":
-            case "crypto":
-                return require(pathname);
-            case "runtask":
-                return _runtask;
-            case "_private":
-                return _private;
-        }
-    }, 'private/main');
+    var func = createFunction(task.code, 'private/main', { _private });
+    var task = await invokeFunction(func);
     var params = /\(\s*([\s\S]*?)\s*\)/.exec(task);
     if (params) {
         task.params = params[1].split(",").map(p => {
@@ -71,25 +120,20 @@ var _private = async function (privateid) {
     return data.value;
 };
 
-var initcom = function (__require, pathname) {
-    return new Promise(function (ok, oh) {
-        fs.readFile(pathname, function (error, data) {
-            if (error) return oh(error);
-            createFunction(data, __require, pathname).then(ok, oh);
+
+function require2(pathname) {
+    if (hasOwnProperty.call(required_cache, pathname)) return required_cache[pathname];
+    var func = prepareFunction(pathname);
+    if (func instanceof Promise) {
+        return required_cache[pathname] = func.then(f => {
+            required_cache[pathname] = f.exports || {};
+            return required_cache[pathname] = invokeFunction(f, required_cache[pathname]);
         });
-    });
-};
-
-function require2(pathname, __require) {
-    if (global[pathname]) return global[pathname];
-    if (required_cache[pathname]) return required_cache[pathname];
-    return required_cache[pathname] = detectWithExtension(pathname, ['', '.js', '.mjs', '.ts', '.json'], comspath).then(initcom.bind(null, __require), function (e) {
-        return require(pathname);
-    }).then(function (res) {
-        return required_cache[pathname] = res;
-    })
-
+    }
+    return invokeFunction(func);
 }
+require2.createFunction = createFunction;
+require2.invokeFunction = invokeFunction;
 require2.getTaskParams = async function (taskid) {
     var task = await getLoadedTask(taskid);
     var params = JSON.stringify(task.params);
