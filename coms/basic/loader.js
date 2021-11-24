@@ -503,11 +503,19 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         var promise = new Promise(function (ok) {
             _ok = ok;
         });
+        if (prebuilds.init) {
+            var prebuilds2 = Object.create(null);
+            for (var k in prebuilds) prebuilds2[k] = prebuilds[k];
+            prebuilds = prebuilds2;
+            delete prebuilds.popup;
+            delete prebuilds.action;
+            delete prebuilds.init;
+        }
         init(argName, function (res) {
             result = res;
             created = true;
             _ok(res);
-        });
+        }, prebuilds);
         if (created) return result;
         return promise;
     });
