@@ -561,6 +561,7 @@ var privates = {
                         oh(error);
                     }
                 });
+                updateLoadingCount();
             });
             promise.search = search;
             promise.params = temp;
@@ -615,7 +616,6 @@ var loadInstance = function (storage, id) {
 };
 
 function responseCrash(e, data) {
-    if (data.is_loading) this.loading_count--;
     data.is_errored = true;
     data.is_loading = false;
     data.error_message = getErrorMessage(e);
@@ -626,18 +626,23 @@ function responseCrash(e, data) {
         data.error = e;
     }
     error_report(data.error_message, e.status < 500 ? 'warn' : 'error');
+    updateLoadingCount();
 }
 var getData = function () { return this.data };
+var updateLoadingCount = function () {
+    data.loading_count = cross.requests.length;
+};
 var data = {
     decodeStructure,
     encodeStructure,
+    abortAll: cross.abortAll,
     responseLoaded(response) {
         if (isObject(response)) {
             response.is_loaded = true;
             response.is_loading = false;
             if (response.then === LoadingArray_then) delete response.then;
         }
-        this.loading_count--;
+        updateLoadingCount();
     },
     responseCrash,
     responseLoading(response) {
@@ -646,7 +651,6 @@ var data = {
             response.is_loading = true;
             response.then = LoadingArray_then;
         }
-        this.loading_count++;
     },
     setReporter(report, checker) {
         if (report instanceof Function) {
@@ -846,7 +850,6 @@ var data = {
             if (promise1 !== instance.loading_promise) throw outdate;
             if (instance.loading) {
                 instance.loading.abort();
-                data.loading_count--;
             }
             this.responseLoading(instance);
             var params = privates.pack(sid, params1);
@@ -873,6 +876,7 @@ var data = {
                         oh(error);
                     }
                 });
+                updateLoadingCount();
             }).then(function (response) {
                 return transpile(seekResponse(parseData(response), selector), api.transpile, api.root);
             });
@@ -890,7 +894,6 @@ var data = {
         });
         promise1.catch((e) => {
             if (e === outdate) return;
-            if (e === aborted) return data.loading_count--;
             this.responseCrash(e, instance);
         });
 

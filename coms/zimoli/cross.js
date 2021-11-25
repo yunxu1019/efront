@@ -154,13 +154,19 @@ function cross(method, url, headers) {
         xhr.onerror = function (e) {
             onerror(e);
         };
+        xhr.abort = function () {
+            removeFromList(requests, this);
+            remove(this);
+        };
     } else {
         var nocross = notCross(url);
         var xhr = new XMLHttpRequest;
         var abort = xhr.abort;
         xhr.abort = function () {
             xhr.onreadystatechange = null;
+            removeFromList(requests, this);
             abort.call(this);
+            clearTimeout(sendtimer);
         };
 
         xhr.onreadystatechange = function () {
@@ -217,7 +223,7 @@ function cross(method, url, headers) {
             onerrors.push(oh);
             flush();
         };
-        setTimeout(function () {
+        var sendtimer = setTimeout(function () {
             digest();
             var isform = /^f/i.test(method);
             if (isform) {
@@ -252,6 +258,7 @@ function cross(method, url, headers) {
     }
     var loaded, errored;
     var onload = function (xhr) {
+        removeFromList(requests, xhr);
         if (xhr.decoder) {
             xhr = xhr.decoder(xhr);
         }
@@ -260,6 +267,7 @@ function cross(method, url, headers) {
         digest();
     };
     var onerror = function (xhr) {
+        removeFromList(requests, xhr);
         errored = xhr;
         flush();
         digest();
@@ -317,6 +325,7 @@ function cross(method, url, headers) {
         flush();
         return xhr;
     };
+    requests.push(xhr);
     return xhr;
 }
 function addDirect(a) {
@@ -335,7 +344,14 @@ function notCross(domain) {
     }
     return false;
 }
+
+var requests = [];
 extend(cross, {
+    requests,
+    abortAll() {
+        var rs = requests.splice(0, requests.length);
+        for (var r of rs) r.abort();
+    },
     setHost,
     getCookies,
     addCookie,
