@@ -72,7 +72,13 @@ const formulaters = {
         return formulate(data, params);
     }
 };
-
+var seekFromSource = function (obj, base) {
+    var source = dataSourceMap;
+    if (base && base in dataSourceMap) source = source[base];
+    obj = seek(source, obj);
+    if (isObject(obj)) for (var k in obj) if (obj[k] === dataSourceMap) delete obj[k];
+    return obj;
+};
 function getErrorMessage(error = this) {
     if (!isObject(error)) return String(error);
     if (error instanceof Error) return String(error);
@@ -543,7 +549,7 @@ var privates = {
         if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
             var promise = new Promise(function (ok, oh) {
                 if (headers) {
-                    headers = seek(dataSourceMap, headers);
+                    headers = seekFromSource(headers, api.base);
                 }
                 cross(realmethod, uri, headers).send(params).done(e => {
                     ok(e.response || e.responseText);
@@ -852,7 +858,7 @@ var data = {
             var promise = new Promise(function (ok, oh) {
                 var headers = api.headers;
                 if (headers) {
-                    headers = seek(dataSourceMap, headers);
+                    headers = seekFromSource(headers, api.base);
                 }
                 instance.loading = cross(method, uri, headers).send(params).done(xhr => {
                     if (instance.loading !== xhr) return oh(aborted);
