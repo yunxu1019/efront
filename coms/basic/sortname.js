@@ -71,7 +71,6 @@ var getDelta = function (a, b, reg, parse) {
         }
         if (delta) return delta;
     }
-    console.log(a, match1, b, match2)
     if (match1) return -1;
     if (match2) return 1;
     return 0;
