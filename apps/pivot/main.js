@@ -1,5 +1,11 @@
 data.loadConfig("api.yml");
 user.loginPath = '/auth/login';
+data.setReporter(function (m, t, c) {
+    alert(m, t);
+    var base = data.getInstance("base").base;
+    data.setSource(base, '');
+    if (c === 401) location.reload();
+});
 data.bindInstance("base", async function (base) {
     if (!base.base) return;
     cross.addDirect(base.base);
