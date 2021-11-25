@@ -625,7 +625,7 @@ function responseCrash(e, data) {
     } else {
         data.error = e;
     }
-    error_report(data.error_message, e.status < 500 ? 'warn' : 'error');
+    error_report(e, e.status < 500 ? 'warn' : 'error');
     updateLoadingCount();
 }
 var getData = function () { return this.data };
@@ -871,7 +871,8 @@ var data = {
                     if (instance.loading !== xhr) return oh(aborted);
                     instance.loading = null;
                     try {
-                        oh(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
+                        var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
+                        oh({ status: xhr.status, error: e, toString: getErrorMessage })
                     } catch (error) {
                         oh(error);
                     }

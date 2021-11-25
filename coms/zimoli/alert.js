@@ -35,6 +35,8 @@ function alert() {
     [].map.call(arguments, function (arg) {
         switch (typeof arg) {
             case "string":
+            case "object":
+                arg = String(arg);
                 if (!text) {
                     text = arg;
                 } else if (color_reg.test(text)) {

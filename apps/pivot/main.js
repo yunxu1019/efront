@@ -1,10 +1,10 @@
 data.loadConfig("api.yml");
 user.loginPath = '/auth/login';
-data.setReporter(function (m, t, c) {
+data.setReporter(function (m, t) {
     alert(m, t);
     var base = data.getInstance("base").base;
     data.setSource(base, '');
-    if (c === 401) location.reload();
+    if (m.status === 401) location.reload();
 });
 data.bindInstance("base", async function (base) {
     if (!base.base) return;
