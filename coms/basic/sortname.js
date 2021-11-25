@@ -71,6 +71,7 @@ var getDelta = function (a, b, reg, parse) {
         }
         if (delta) return delta;
     }
+    console.log(a, match1, b, match2)
     if (match1) return -1;
     if (match2) return 1;
     return 0;
@@ -82,17 +83,17 @@ var parse干支 = function (a) {
     return (12 + g - z) % 12 / 2 * 10 + g + 1;
 };
 var compare = function (a, b) {
-    for (var cx1 = a.length - 1, cx2 = a.length - 1; cx1 >= 0 && cx2 >= 0; cx1--, cx2--) {
+    for (var cx1 = a.length - 1, cx2 = b.length - 1; cx1 >= 0 && cx2 >= 0; cx1--, cx2--) {
         while (/\s\u00a0/.test(a[cx1])) cx1--;
         while (/\s\u00a0/.test(b[cx2])) cx2--;
-        if (a[cx1] !== b[cx2] || a[cx1] in map子丑寅 || a[cx1] in map一二三 || a in power) break;
+        if (a[cx1] !== b[cx2] || a[cx1] in map子丑寅 || a[cx1] in map一二三 || a in power || /^\d$/.test(a[cx1])) break;
     }
     a = a.slice(0, cx1 + 1);
     b = b.slice(0, cx2 + 1);
-    for (var cx1 = 0, cx2 = 0, dx1 = a.length, dx2 = b.length; cx1 < dx1 && cx2 < dx2; cx1++, cx2++) {
+    for (var cx1 = 0, cx2 = 0, dx1 = b.length, dx2 = b.length; cx1 < dx1 && cx2 < dx2; cx1++, cx2++) {
         while (/[\s\u00a0]/.test(a[cx1])) cx1++;
         while (/[\s\u00a0]/.test(b[cx2])) cx2++;
-        if (a[cx1] !== b[cx2] || a[cx1] in map甲乙丙 || a[cx1] in map一二三 || a in power) break;
+        if (a[cx1] !== b[cx2] || a[cx1] in map甲乙丙 || a[cx1] in map一二三 || a in power || /^\d/.test(a[cx1])) break;
     }
     if (cx1) a = a.slice(cx1);
     if (cx2) b = b.slice(cx2);
