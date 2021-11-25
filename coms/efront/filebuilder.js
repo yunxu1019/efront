@@ -55,7 +55,6 @@ var seek = function (keeys, o) {
 var createseek = function (content) {
     var keys = String(content || '').trim().split('.').map(a => a.trim());
     var res = seek.bind(null, keys);
-    res.imported = ['context'];
     return res;
 };
 var buildjsp = function (buff, realpath) {
@@ -87,6 +86,7 @@ var buildjsp = function (buff, realpath) {
         });
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
+                if (!str.imported) str.imported = [prebuilds.context];
                 return require2.invokeFunction(str, prebuilds.context);
             }
             return str;

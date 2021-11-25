@@ -80,8 +80,8 @@ var invokeFunction = function (func, context) {
     });
     var { imported, require } = func;
     func.exports = context || {};
-    imported = imported.map(require);
-    return func.apply(context, imported);
+    if (imported instanceof Array && require instanceof Function) imported = imported.map(require);
+    return imported instanceof Array ? func.apply(context, imported) : func.call(context);
 };
 
 var taskmap = {}, loadtime = userdata.loadtime;
