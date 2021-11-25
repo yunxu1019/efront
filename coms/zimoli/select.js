@@ -42,6 +42,9 @@ function select(target, list, removeOnSelect, direction) {
         direction = removeOnSelect;
         removeOnSelect = arguments[3];
     }
+    if (direction === undefined) {
+        direction = target.getAttribute("direction") || target.direction;
+    }
     if (!target) {
         target = document.createElement("select");
     }
