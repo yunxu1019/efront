@@ -129,17 +129,29 @@ Directory.prototype[$updateme] = async function (updateonly) {
     var rebuild = that[$rebuild];
     var pathname = that[$pathname];
     var updated = false;
+    var rest = [];
     for (var f of files) {
-        var p = path.join(pathname, f.name);
         map[f.name] = true;
         if (!that[f.name]) {
             updated = true;
+            var p = path.join(pathname, f.name);
             var file = that[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
             var key = f.name.replace(/\.\w+$/, '');
             changed[key] = true;
             file[$root] = that[$root] || pathname;
         }
+        if (/\-/.test(f.name)) {
+            rest.push(f);
+        }
     }
+    for (var f of rest) {
+        var newName = f.name.replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
+        if (!map[newName]) {
+            map[newName] = true;
+            that[newName] = that[f.name];
+        }
+    }
+
     for (var k in that) {
         var o = that[k];
         if (o instanceof Directory || o instanceof File) {
