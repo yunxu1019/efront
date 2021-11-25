@@ -15,7 +15,8 @@ function main() {
             target.removeAttribute('pending');
         },
         async logout() {
-            data.setSource('authorization', null);
+            var base = data.getInstance("base").base;
+            data.setSource(base, null);
             await user.Logout();
             zimoli.switch();
             zimoli();

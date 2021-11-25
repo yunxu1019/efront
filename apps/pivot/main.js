@@ -8,15 +8,16 @@ data.bindInstance("base", async function (base) {
         apimap[k].base = base.base;
     }
 });
-var token = data.getSource(data.getInstance('base').base);
+var base = data.getInstance('base').base;
+var token = base && data.getSource(base);
 if (token) {
     user.login({});
 }
 setInterval(function () {
     var base = data.getInstance("base");
-    if (!base.base) return;
+    if (!base.base) return user.token = null;
     var auth = data.getSource(base.base);
-    if (!auth) return;
+    if (!auth) return user.token = null;
     var auth1 = encode62.timeupdate(auth);
     if (auth1 !== auth) data.setSource(base.base, auth1);
     user.token = auth1;
