@@ -23,14 +23,13 @@ function main() {
         this.$scope.pending = true;
         page.disabled = true;
         try {
-            var login = await data.getApi("login");
-            login.base = location.protocol + "//" + parseURL(this.$scope.data.host).host + "/";
-            data.setInstance("base", { base: login.base, host: parseURL(login.base).host });
-            var info = await data.from(login, {
+            var base = location.protocol + "//" + parseURL(this.$scope.data.host).host + "/";
+            data.setInstance("base", { base, host: parseURL(base).host });
+            var info = await data.from("login", {
                 a: encode62.timeencode(encode62.geta(password))
             }).loading_promise;
             info = encode62.timeupdate(info);
-            data.setSource({ authorization: info });
+            data.setSource(base, info);
             user.login({})
             go('/main')
         } catch (e) {

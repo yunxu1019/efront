@@ -1,26 +1,31 @@
 data.loadConfig("api.yml");
 user.loginPath = '/auth/login';
-var token = data.getSource('authorization');
-if (token) {
-    user.login({});
-}
 data.bindInstance("base", async function (base) {
+    if (!base.base) return;
     cross.addDirect(base.base);
     var apimap = await data.getConfig();
     for (var k in apimap) {
         apimap[k].base = base.base;
     }
 });
+var token = data.getSource(data.getInstance('base').base);
+if (token) {
+    user.login({});
+}
 setInterval(function () {
-    var auth = data.getSource('authorization');
+    var base = data.getInstance("base");
+    if (!base.base) return;
+    var auth = data.getSource(base.base);
     if (!auth) return;
     var auth1 = encode62.timeupdate(auth);
-    if (auth1 !== auth) data.setSource("authorization", auth1);
+    if (auth1 !== auth) data.setSource(base.base, auth1);
     user.token = auth1;
 }, 2000);
 login();
 var layer = layer$glance({
-    left: frame$left,
+    left: frame$left.bind({
+        head: await init("left-header")
+    }),
     top: frame$top
 });
 on("append")(layer, function () {
