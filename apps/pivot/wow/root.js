@@ -10,7 +10,7 @@ function main() {
         if (!$scope.pathlist.length) {
             return;
         }
-        $scope.pathlist.pop();
+        data.setInstance("pathlist", $scope.pathlist.slice(0, -1));
         $scope.open();
         return false;
     }
@@ -18,11 +18,11 @@ function main() {
 
     renderWithDefaults(page, {
         lattice,
-        pathlist: [],
+        pathlist: data.getInstance("pathlist"),
         active: null,
         open(p) {
             if (p) p = String(p.name || '').replace(/\/$/, '');
-            if (p) this.pathlist.push(p);
+            if (p) data.setInstance("pathlist", this.pathlist.concat(p));
             this.data = data.from("folder", { opt: 'list', path: "/" + this.pathlist.join('/') }, files => {
                 if (files) return sortname(files).map(f => {
                     return {
