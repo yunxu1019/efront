@@ -63,11 +63,13 @@ function select(target, list, removeOnSelect, direction) {
     var onlistchange = function () {
         if (target.multiple) {
         } else {
-            if (!savedOptions) {
-                target.innerHTML = `<option selected value="${this.value}">${this.name || this.value}</option>`
+            if (target.value !== this.value) {
+                if (!savedOptions) {
+                    target.innerHTML = `<option selected value="${this.value}">${this.name || this.value}</option>`
+                }
+                target.value = this.value;
+                dispatch(target, "change");
             }
-            target.value = this.value;
-            dispatch(target, "change");
         }
     };
     var onlistclick = function (event) {
