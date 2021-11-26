@@ -304,7 +304,6 @@ module.exports =async  function (responseTree) {
                     return xTreeName + `${s1}=${s2}${code}`;
                 }
             );
-        console.log(versionVariableName,memory.EXTT);
         return commbuilder(code, "main.js", mainScript.realpath, []);
     }).then(function (mainScriptData) {
         mainScript.data = mainScriptData;
