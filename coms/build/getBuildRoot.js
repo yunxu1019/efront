@@ -76,10 +76,7 @@ var filterHtmlImportedJs = function (roots) {
         var urlsReg = creatReg(regUrls);
         var ignoreReg = creatReg(ignoreUrls);
         var test = (r, m, t) => t in m || t.slice(1) in m || r.test(t) || r.test(t.slice(1));
-        var rootMap = Object.create(null);
         roots = roots.map(function (root) {
-            rootMap[root] = root;
-            root = String(root);
             if (test(ignoreReg, ignoreJsMap, root)) {
                 return '';
             }
@@ -113,7 +110,7 @@ var filterHtmlImportedJs = function (roots) {
                 roots.splice(cx, 1);
             }
         }
-        return roots.map(r => rootMap[r] || r);
+        return roots;
     });
 };
 function paddExtension(file) {
@@ -132,9 +129,9 @@ var getBuildRoot = function (files, matchFileOnly) {
         if (!files.length) return resolve(result);
         var file1 = files.shift();
         if (!file1) return run();
-        var save = function (f, fullpath) {
+        var save = function (f) {
             if (!(f in indexMap)) {
-                result.push({ url: f, fullpath, toString });
+                result.push(f);
             }
             indexMap[f] = indexMap[file1];
         };
@@ -145,19 +142,19 @@ var getBuildRoot = function (files, matchFileOnly) {
             }
             var name = String(rel)
                 .replace(/[\\\/]+/g, "$");
-            save(name, rel.real);
+            save(name);
         };
         var savePage = function (rel) {
             var name = String(rel).replace(/[\\\/]+/g, "/");
-            save("/" + name, rel.real);
+            save("/" + name);
         };
         var saveCopy = function (rel) {
             var name = "@" + String(rel).replace(/[\\\/]+/g, "/");
-            save(name, rel.real);
+            save(name);
         };
         var saveLlib = function (rel) {
             var name = "\\" + String(rel).replace(/[\\\/]+/g, "/");
-            save(name, rel.real);
+            save(name);
         };
         var saveFolder = function (folder) {
             var rel = getPathIn(comms_root, folder);

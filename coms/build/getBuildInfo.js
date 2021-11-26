@@ -25,8 +25,8 @@ BuildInfo.prototype = {
 };
 
 function getBuildInfo(url) {
-    var match = String(url).match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+)?$/);
-    var fullpath = url.fullpath, destpath, builder, searchpath, searchname;
+    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+)?$/);
+    var fullpath = url, destpath, builder, searchpath, searchname;
     if (match) {
         var {
             comms_root,
@@ -48,8 +48,7 @@ function getBuildInfo(url) {
                 }
                 searchname = name.replace(/(\w)\$/g, "$1/");
                 extt = extt || [".js", ".ts", ".json", ".html", '.vue', ''];
-                if (fullpath) searchpath = null;
-                else if (comms_root instanceof Array) {
+                if (comms_root instanceof Array) {
                     searchpath = comms_root;
                 } else {
                     searchpath = [comms_root];
@@ -82,13 +81,13 @@ function getBuildInfo(url) {
                     name = "/" + name;
                 }
                 if (builder) {
-                    if (!fullpath) fullpath = pages_root.map(page => path.join(page, name + extt));
+                    fullpath = pages_root.map(page => path.join(page, name + extt));
                     break;
                 }
 
             case "@":
                 builder = noopbuilder;
-                if (!fullpath) for (var page of pages_root.concat(PAGE_PATH.split(","))) {
+                for (var page of pages_root.concat(PAGE_PATH.split(","))) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
                         destpath = path.relative(pages_root[0], fullpath);
@@ -104,7 +103,7 @@ function getBuildInfo(url) {
             case "\\":
                 builder = noopbuilder;
                 destpath = name + extt;
-                if (!fullpath) for (var lib of comms_root) {
+                for (var lib of comms_root) {
                     fullpath = path.join(lib, name + extt);
                     var rel = path.relative(lib, fullpath);
                     if (/^[^\.]/i.test(rel) || !rel) {
@@ -115,7 +114,7 @@ function getBuildInfo(url) {
             case ".":
                 builder = iconbuilder;
                 extt = ".png";
-                if (!fullpath) fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
+                fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
                 destpath = path.join("ccon", name);
                 break;
             // case "_":
@@ -136,7 +135,7 @@ function getBuildInfo(url) {
             fullpath,
             destpath,
             name,
-            url: String(url)
+            url
         });
     }
     console.warn("路径不支持", url);

@@ -1,9 +1,8 @@
 var path = require("path");
-var toString = function () { return this.rel };
 function getPathIn(search, p) {
     for (var comm of search) {
         var rel = path.relative(comm, p);
-        if (!/^\.\./.test(rel) && !path.isAbsolute(rel)) return { rel, real: p, toString };
+        if (!/^\.\./.test(rel) && !path.isAbsolute(rel)) return rel;
     }
     return null;
 }

@@ -247,7 +247,7 @@ var isEfrontCode = function (response) {
     if (response.type === "@") return;
     return true;
 }
-module.exports = function (responseTree) {
+module.exports =async  function (responseTree) {
     rebuildData(responseTree);
     report(responseTree);
     if (!responseTree["main"] && !responseTree["main.js"]) {
@@ -297,13 +297,14 @@ module.exports = function (responseTree) {
         code = mainScriptData.toString()
             .replace(/var\s+killCircle[\s\S]*?\}\);?\s*\}\s*\};/, 'var killCircle=function(){};')
             .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
-            .replace(/(['"])post\1\s*,(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
+            .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
             .replace(
                 new RegExp(/\b/.source + xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
                 function (m, s1, s2) {
                     return xTreeName + `${s1}=${s2}${code}`;
                 }
             );
+        console.log(versionVariableName,memory.EXTT);
         return commbuilder(code, "main.js", mainScript.realpath, []);
     }).then(function (mainScriptData) {
         mainScript.data = mainScriptData;
