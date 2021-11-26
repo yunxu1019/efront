@@ -25,8 +25,8 @@ BuildInfo.prototype = {
 };
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+)?$/);
-    var fullpath, destpath, builder;
+    var match = String(url).match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+)?$/);
+    var fullpath = url.fullpath, destpath, builder, searchpath, searchname;
     if (match) {
         var {
             comms_root,
@@ -46,22 +46,14 @@ function getBuildInfo(url) {
                 } else {
                     builder = manybuilder;
                 }
-                var $name = name.replace(/(\w)\$/g, "$1/");
-                fullpath = [];
+                searchname = name.replace(/(\w)\$/g, "$1/");
                 extt = extt || [".js", ".ts", ".json", ".html", '.vue', ''];
-                if (comms_root instanceof Array) {
-                    comms_root.map(function (a) {
-                        if (extt instanceof Array) extt.forEach(function (ext) {
-                            fullpath.push(path.join(a, $name + ext));
-                        });
-                        else fullpath.push(path.join(a, $name + extt));
-                    });
+                if (fullpath) searchpath = null;
+                else if (comms_root instanceof Array) {
+                    searchpath = comms_root;
                 } else {
-                    extt.forEach(function (ext) {
-                        fullpath.push(path.join(comms_root, $name + ext));
-                    });
+                    searchpath = [comms_root];
                 }
-                name = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
                 destpath = path.join("comm", name + memery.EXTT);
                 if (url === 'main' || url === 'main.js' && !setting.is_commponent_package) {
                     builder = noopbuilder;
@@ -90,13 +82,13 @@ function getBuildInfo(url) {
                     name = "/" + name;
                 }
                 if (builder) {
-                    fullpath = pages_root.map(page => path.join(page, name + extt));
+                    if (!fullpath) fullpath = pages_root.map(page => path.join(page, name + extt));
                     break;
                 }
 
             case "@":
                 builder = noopbuilder;
-                for (var page of pages_root.concat(PAGE_PATH.split(","))) {
+                if (!fullpath) for (var page of pages_root.concat(PAGE_PATH.split(","))) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
                         destpath = path.relative(pages_root[0], fullpath);
@@ -112,7 +104,7 @@ function getBuildInfo(url) {
             case "\\":
                 builder = noopbuilder;
                 destpath = name + extt;
-                for (var lib of comms_root) {
+                if (!fullpath) for (var lib of comms_root) {
                     fullpath = path.join(lib, name + extt);
                     var rel = path.relative(lib, fullpath);
                     if (/^[^\.]/i.test(rel) || !rel) {
@@ -123,7 +115,7 @@ function getBuildInfo(url) {
             case ".":
                 builder = iconbuilder;
                 extt = ".png";
-                fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
+                if (!fullpath) fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
                 destpath = path.join("ccon", name);
                 break;
             // case "_":
@@ -139,10 +131,12 @@ function getBuildInfo(url) {
             type,
             extt,
             builder,
+            searchpath,
+            searchname,
             fullpath,
             destpath,
             name,
-            url
+            url: String(url)
         });
     }
     console.warn("路径不支持", url);

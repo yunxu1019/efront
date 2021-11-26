@@ -3,6 +3,7 @@ var fs = require("fs");
 var path = require("path");
 var getDepedence = require("./getDependence");
 var detectWithExtension = require("./detectWithExtension");
+var searchPath = require("./searchPath");
 var window = {
     setTimeout,
     setInterval,
@@ -115,14 +116,19 @@ function wait(args) {
     });
 }
 
-function compile(buildInfo, lastBuildTime, destroot) {
+async function compile(buildInfo, lastBuildTime, destroot) {
     if (!linesEnabled) return wait(arguments);
     linesEnabled--;
-    var { fullpath, name, url, builder, destpath } = buildInfo;
-
+    var { searchpath, searchname, fullpath, name, url, builder, extt, destpath } = buildInfo;
     var componentId = getComponentId();
     destpath = path.join(destroot, destpath);
-    var fullpath = fullpath.slice(0);
+    var fullpath;
+    if (searchpath && searchname) {
+        fullpath = await searchPath(searchpath, searchname, extt);
+    }
+    else {
+        fullpath = [].concat(fullpath);
+    }
     return new Promise(function (ok, oh) {
         var responseText,
             responsePath,

@@ -76,7 +76,10 @@ var filterHtmlImportedJs = function (roots) {
         var urlsReg = creatReg(regUrls);
         var ignoreReg = creatReg(ignoreUrls);
         var test = (r, m, t) => t in m || t.slice(1) in m || r.test(t) || r.test(t.slice(1));
+        var rootMap = Object.create(null);
         roots = roots.map(function (root) {
+            rootMap[root] = root;
+            root = String(root);
             if (test(ignoreReg, ignoreJsMap, root)) {
                 return '';
             }
@@ -99,7 +102,7 @@ var filterHtmlImportedJs = function (roots) {
         var urlsMap = {};
         mainPaths = mainPaths.map(m => m.replace(/\.[^\.]*$/i, "") + ".js");
         roots = roots.concat(mainPaths).filter(name => {
-            name = name.replace(/\.[mc]?[jt]sx?$/i, "") + ".js";
+            name = String(name).replace(/\.[mc]?[jt]sx?$/i, "") + ".js";
             var keep = !urlsMap[name];
             if (keep) urlsMap[name] = true;
             return keep;
@@ -110,13 +113,14 @@ var filterHtmlImportedJs = function (roots) {
                 roots.splice(cx, 1);
             }
         }
-        return roots;
+        return roots.map(r => rootMap[r] || r);
     });
 };
 function paddExtension(file) {
     var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
     return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parents);
 }
+var toString = function () { return this.url };
 var getBuildRoot = function (files, matchFileOnly) {
     files = [].concat(files || []);
     if (!files.length) return Promise.resolve(files);
@@ -128,32 +132,32 @@ var getBuildRoot = function (files, matchFileOnly) {
         if (!files.length) return resolve(result);
         var file1 = files.shift();
         if (!file1) return run();
-        var save = function (f) {
+        var save = function (f, fullpath) {
             if (!(f in indexMap)) {
-                result.push(f);
+                result.push({ url: f, fullpath, toString });
             }
             indexMap[f] = indexMap[file1];
         };
-        var saveComm = function (name, file) {
+        var saveComm = function (rel, file) {
             if (isLib(file)) {
-                saveLlib(name);
+                saveLlib(rel);
                 return;
             }
-            name = name
+            var name = String(rel)
                 .replace(/[\\\/]+/g, "$");
-            save(name);
+            save(name, rel.real);
         };
         var savePage = function (rel) {
-            var name = rel.replace(/[\\\/]+/g, "/");
-            save("/" + name);
+            var name = String(rel).replace(/[\\\/]+/g, "/");
+            save("/" + name, rel.real);
         };
         var saveCopy = function (rel) {
-            var name = "@" + rel.replace(/[\\\/]+/g, "/");
-            save(name);
+            var name = "@" + String(rel).replace(/[\\\/]+/g, "/");
+            save(name, rel.real);
         };
         var saveLlib = function (rel) {
-            var name = "\\" + rel.replace(/[\\\/]+/g, "/");
-            save(name);
+            var name = "\\" + String(rel).replace(/[\\\/]+/g, "/");
+            save(name, rel.real);
         };
         var saveFolder = function (folder) {
             var rel = getPathIn(comms_root, folder);

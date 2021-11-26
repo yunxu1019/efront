@@ -54,7 +54,7 @@ function build(pages_root, lastBuiltTime, dest_root) {
                 return getBuildRoot(required2, true).then(function (required3) {
                     var map = a.requiredMap;
                     required3.forEach((r, cx) => {
-                        map[required[cx]] = r;
+                        map[required[cx]] = String(r);
                     });
                     a.concat(required3).forEach(k => deps[k] = true);
                 });
