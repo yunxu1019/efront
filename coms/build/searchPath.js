@@ -1,6 +1,6 @@
 var fs = require("fs");
 var path = require("path");
-var cache = {};
+var cache = Object.create(null);
 function readdir(fullpath) {
     return new Promise(function (ok, oh) {
         fs.readdir(fullpath, { withFileTypes: true }, function (err, names) {
@@ -39,20 +39,24 @@ async function seek(fullpath, search) {
         }
         if (s in map) {
             pathlist.push(map[s].name);
+            if (map[s].isFile()) break;
             continue;
         }
         return null;
     }
+    if (search.length) return null;
     return path.join(...pathlist);
 }
 async function getFromPath(dirs, name, extt) {
     if (!(dirs instanceof Array)) dirs = [dirs];
     if (!(extt instanceof Array)) extt = [extt];
+    var dist = [];
     for (var d of dirs) {
         for (var e of extt) {
             var p = await seek(d, name + e);
-            if (p) return p;
+            if (p) dist.push(p);
         }
     }
+    return dist;
 }
 module.exports = getFromPath;
