@@ -329,6 +329,7 @@ function cross(method, url, headers) {
     return xhr;
 }
 function addDirect(a) {
+    if (cors_hosts.indexOf(a) >= 0) return;
     if (typeof a === 'string' || a instanceof RegExp) cors_hosts.push(a);
 }
 function notCross(domain) {
