@@ -2,6 +2,7 @@ function main(a) {
     var page = view();
     page.innerHTML = template;
     drag.on(page.firstChild, page);
+    resize.on(page);
     var fields = data.from("params", { key: a.key }, function (a) {
         return a ? JSON.parse(encode62.timedecode(a)) : [];
     });

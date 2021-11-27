@@ -2,6 +2,7 @@ function main(task) {
     var page = view();
     page.innerHTML = template;
     drag.on(page.firstChild, page);
+    resize.on(page);
     renderWithDefaults(page, {
         task,
         checkbox(e) {
