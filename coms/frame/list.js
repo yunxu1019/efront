@@ -5,7 +5,6 @@ function main(title, { fields, options: options0, load, remove }, edit_ref) {
         zimoli.prepare(edit_ref, function () {
             var p = popup(edit_ref, { fields, data: o })
             on("submited")(p, function () {
-                console.log("submited")
                 page.$scope.load();
             })
         })
