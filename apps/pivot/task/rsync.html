@@ -1,0 +1,16 @@
+<div head>
+    同步任务&nbsp;-&nbsp; <span -text=task.name></span>(<span -text=task.key></span>)
+    <close @click="remove()"></close>
+</div>
+<div body>
+    <padding ng-repeat="h in hosts">
+        <a @click="checked[h.key]=!checked[h.key]" disabled:="h.key===base.host" :class="{finished:finished[h.key]}">
+            <checker -model="checked[h.key]"></checker>
+            <span -text="h.name"></span>
+            <span v-if="h.key===base.host">（当前）</span>
+        </a>
+    </padding>
+</div>
+<div foot>
+    <btn @click="flush()">同步</btn>
+</div>
