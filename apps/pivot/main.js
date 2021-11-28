@@ -1,10 +1,26 @@
 data.loadConfig("api.yml");
 user.loginPath = '/auth/login';
+cross.addReform(async function ({ status, url, headers }, reform, reject) {
+    if (status === 401) {
+        var base = data.getInstance("base").base;
+        var { protocol, host } = parseURL(url);
+        var base1 = protocol + "//" + host + "/";
+        if (base !== base1) {
+            data.setSource(base1, null);
+            var page = await popup("/auth/login", base1);
+            care(page, "login", function (info) {
+                data.setSource(base1, info);
+                headers.authorization = info;
+                reform();
+            });
+            on("remove")(page, reject);
+            return false;
+        }
+        location.reload();
+    }
+})
 data.setReporter(function (m, t) {
     alert(m, t);
-    var base = data.getInstance("base").base;
-    data.setSource(base, '');
-    if (m.status === 401) location.reload();
 });
 data.bindInstance("base", async function (base) {
     if (!base.base) return;

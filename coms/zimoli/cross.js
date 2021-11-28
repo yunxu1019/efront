@@ -223,8 +223,7 @@ function cross(method, url, headers) {
             onerrors.push(oh);
             flush();
         };
-        var sendtimer = setTimeout(function () {
-            digest();
+        var fire = function () {
             var isform = /^f/i.test(method);
             if (isform) {
                 if (method === 'form') method = 'post';
@@ -254,7 +253,9 @@ function cross(method, url, headers) {
             }
             Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
             send.call(xhr, datas);
-        }, 0);
+            digest();
+        };
+        var sendtimer = setTimeout(fire, 0);
     }
     var loaded, errored;
     var onload = function (xhr) {
@@ -266,11 +267,18 @@ function cross(method, url, headers) {
         flush();
         digest();
     };
-    var onerror = function (xhr) {
-        removeFromList(requests, xhr);
-        errored = xhr;
+    var onerror1 = function (e) {
+        removeFromList(requests, e);
+        errored = e || "未知错误！";
         flush();
         digest();
+    };
+    var onerror = async function (e) {
+        for (var r of reforms) {
+            var r = await reform(r, { method, url, status: xhr.status, headers: _headers }, fire, onerror1, e);
+            if (r === false) return;
+        }
+        onerror1(e);
     };
     var flush = function () {
         var then = xhr.then;
@@ -347,6 +355,22 @@ function notCross(domain) {
 }
 
 var requests = [];
+var reforms = [];
+function reform(r, info, fire, cancel, e) {
+    var fired = false;
+    return r(info, function () {
+        if (fired) return;
+        fired = true;
+        fire();
+    }, function () {
+        if (fired) return;
+        fired = true;
+        cancel(e);
+    })
+}
+function addReform(r) {
+    if (isFunction(r)) reforms.push(r);
+}
 extend(cross, {
     requests,
     abortAll() {
@@ -354,6 +378,7 @@ extend(cross, {
         for (var r of rs) r.abort();
     },
     setHost,
+    addReform,
     getCookies,
     addCookie,
     addDirect,
