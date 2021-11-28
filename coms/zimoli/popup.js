@@ -105,9 +105,16 @@ var popup_path = function (path = "", parameters, target) {
                 element.style.opacity = 1;
             });
         }
+        callbacks.forEach(f => f(element));
     };
+    var callbacks = [];
     popup.prepare(path, fullfill);
-    return element;
+    return element || {
+        then(ok) {
+            if (element) return ok(element);
+            else callbacks.push(ok);
+        }, fullfill
+    };
 };
 
 var popup_view = function (element, target, style) {
