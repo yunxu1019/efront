@@ -539,9 +539,9 @@ var privates = {
         rest.forEach(k => delete params[k]);
         return { method: realmethod, coinmethod, selector: method.slice(spliterIndex + 1), search, baseuri, uri, params };
     },
-    loadIgnoreConfig(method, url, params, api) {
+    loadIgnoreConfig(method, url, params1, api) {
         var headers = api && api.headers;
-        var { method: realmethod, uri, baseuri, coinmethod, search, selector, params } = this.prepare(method, url, params);
+        var { method: realmethod, uri, baseuri, coinmethod, search, selector, params } = this.prepare(method, url, params1);
         var id = realmethod + " " + baseuri;
         var promise = cachedLoadingPromise[id];
         var temp = JSON.stringify(params);
@@ -556,7 +556,7 @@ var privates = {
                 }).error(xhr => {
                     try {
                         var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
-                        oh({ status: xhr.status, error: e, toString: getErrorMessage })
+                        oh({ status: xhr.status, api, params: params1, error: e, toString: getErrorMessage })
                     } catch (error) {
                         oh(error);
                     }
@@ -852,12 +852,12 @@ var data = {
                 instance.loading.abort();
             }
             this.responseLoading(instance);
-            var params = privates.pack(sid, params1);
-            if (!privates.validApi(api, params)) throw aborted;
+            var params2 = privates.pack(sid, params1);
+            if (!privates.validApi(api, params2)) throw aborted;
             let url = api.url;
             var base = api.base;
             if (base) url = base + api.path;
-            var { method, uri, params, selector } = privates.prepare(api.method, url, params);
+            var { method, uri, params, selector } = privates.prepare(api.method, url, params2);
             var promise = new Promise(function (ok, oh) {
                 var headers = api.headers;
                 if (headers) {
@@ -872,7 +872,7 @@ var data = {
                     instance.loading = null;
                     try {
                         var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
-                        oh({ status: xhr.status, error: e, toString: getErrorMessage })
+                        oh({ status: xhr.status, error: e, api, params: params2, toString: getErrorMessage })
                     } catch (error) {
                         oh(error);
                     }
