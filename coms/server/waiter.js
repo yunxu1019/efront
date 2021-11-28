@@ -34,7 +34,7 @@ var safeQuitProcess = function () {
     clients.destroy();
 };
 
-message.quit = safeQuitProcess;
+process.on("disconnect", safeQuitProcess);
 message.deliver = function (a) {
     return clients.deliver(a[0], a[1]);
 };

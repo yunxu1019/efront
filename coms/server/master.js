@@ -8,7 +8,8 @@ var fs = require("fs");
 var path = require("path");
 
 
-var counter = 0;
+var working = 0;
+
 var quitting = [], notkilled = [];
 var workers = [];
 var cpus = require('os').cpus().map(a => 0);
@@ -34,16 +35,49 @@ var afterend = function () {
     if (process.stdout.unref) process.stdout.unref();
 };
 var exit = function () {
-    if (!workers.length) var isQuit = true;
     quitting.splice(0).forEach(function (worker) {
-        if (worker.working) message.send(worker, 'quit');
+        worker.disconnect();
     });
 };
 var broadcast = function (data) {
     quitting.concat(workers).forEach(function (worker) {
-        if (worker.working) message.send(worker, 'onbroadcast', data);
+        message.send(worker, 'onbroadcast', data);
     });
 };
+var workerLisening = function () {
+    working++;
+    if (working === cpus.length) {
+        run.ing = false;
+        exit();
+    }
+};
+var workerExit = function () {
+    if (this.exitedAfterDisconnect !== true) {
+        var index = workers.indexOf(this);
+        if (index >= 0) {
+            workers[index] = createWorker();
+        }
+        return;
+    }
+    for (var cx = workers.length - 1; cx >= 0; cx--) {
+        if (workers[cx] === this) workers.splice(cx, 1);
+    }
+    if (!workers.length) {
+        afterend();
+    }
+}
+var createWorker = function () {
+    var mem = require("os").freemem() / 1024 - 256 | 0;
+    if (mem < 1024) mem = 1024;
+    var worker = cluster.fork({
+        "NODE_OPTIONS": "--max-old-space-size=" + mem,
+    });
+    worker.on("listening", workerLisening);
+    worker.on("exit", workerExit);
+    worker.on("message", message);
+    return worker;
+
+}
 var run = function () {
     if (quitting.length) return;
     if (run.ing) {
@@ -53,37 +87,7 @@ var run = function () {
     run.ing = true;
     quitting = quitting.concat(workers);
     if (quitting.length) console.info(`${quitting.length}个子进程准备退出:${quitting.map(a => a.id)}`);
-    var working = 0;
-    var _workers = cpus.map(function () {
-        counter++;
-        var mem = require("os").freemem() / 1024 - 256 | 0;
-        if (mem < 1024) mem = 1024;
-        var worker = cluster.fork({
-            "NODE_OPTIONS": "--max-old-space-size=" + mem,
-        });
-        worker.on("listening", function () {
-            this.working = true;
-            working++;
-            if (working === cpus.length) {
-                console.info(`${workers.length}个子进程已启动:${workers.map(a => a.id)}`);
-                run.ing = false;
-                exit();
-            }
-        });
-        worker.on("exit", function () {
-            if (worker.exitedAfterDisconnect !== true) {
-                for (var cx = workers.length - 1; cx >= 0; cx--) {
-                    if (workers[cx] === this) workers.splice(cx, 1);
-                }
-            }
-            counter--;
-            if (!counter && !workers.length) {
-                afterend();
-            }
-        });
-        worker.on("message", message);
-        return worker;
-    });
+    var _workers = cpus.map(createWorker);
     workers.push.apply(workers, _workers);
 };
 var isProduction = function develop() { return develop.name === 'develop' }();
@@ -111,7 +115,7 @@ message.deliver = function (a) {
     var rest = workers.length;
     client.refresh();
     workers.forEach(function (worker) {
-        if (worker.working) message.send(worker, 'deliver', [clientid, msgid], function (a) {
+        message.send(worker, 'deliver', [clientid, msgid], function (a) {
             count += +a || 0;
             rest--;
             if (!rest && !count) {
@@ -127,7 +131,7 @@ message.getmark = function () {
 message.addmark = function (m) {
     clients.addMark(m);
     workers.forEach(function (worker) {
-        if (worker.working) message.send(worker, 'addmark', m);
+        message.send(worker, 'addmark', m);
     });
 };
 message.receive = function (clientid) {
