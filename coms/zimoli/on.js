@@ -167,8 +167,13 @@ if (is_addEventListener_enabled) {
         var eventtypes = parseEventTypes(k);
         k = k.replace(eventtypereg, '');
         function addhandler(element, handler, firstmost) {
+            var target = this;
             handler = wrapHandler(handler);
             if (eventtypes.capture) firstmost = true;
+            if (target && element !== target) {
+                handler = handler.bind(element);
+                element = target;
+            }
             if (k === changes_key) {
                 if (!element.needchanges) element.needchanges = 0;
                 element.needchanges++;
@@ -207,10 +212,15 @@ if (is_addEventListener_enabled) {
 
         if (handlersMap[on_event_path]) return handlersMap[on_event_path];
         function addhandler(element, handler, firstmost = false) {
+            var target = this;
             handler = wrapHandler(handler);
             if (eventtypes.capture) {
                 console.warn("当前运行环境不支持事件capture");
                 firstmost = true;
+            }
+            if (target && element !== target) {
+                handler = handler.bind(element);
+                element = target;
             }
             if (k === changes_key) {
                 if (!element.needchanges) element.needchanges = 0;
