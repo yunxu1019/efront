@@ -345,7 +345,7 @@ var showServerInfo = function () {
     port = port.map((a, i) => a && a.port || portedServersList[i].port);
     var msg = [`服务器地址：${address}`, port[0] ? `http端口  ：${port[0]}` : '', port[1] ? `https端口 ：${port[1]}` : ''].map(a => a.toUpperCase());
     var maxLength = Math.max(msg[1].length, msg[2].length);
-    process.title = msg.map(a => a.trim()).filter(a => !!a).join('，').replace(/\s/g, '');
+    if (process.stdin.isTTY) process.title = msg.map(a => a.trim()).filter(a => !!a).join('，').replace(/\s/g, '');
     if (!ipLoged) ipLoged = true, console.info(msg[0] + "\r\n");
     msg = msg.map(a => a.length && a.length < maxLength ? a + " ".repeat(maxLength - a.length) : a);
     var showError = function (i, e = portedServersList[i].error) {

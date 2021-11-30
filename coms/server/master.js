@@ -51,8 +51,8 @@ var workerLisening = function () {
         exit();
     }
 };
-var workerExit = function () {
-    if (this.exitedAfterDisconnect !== true) {
+var workerExit = function (code) {
+    if (code !== 0 && this.exitedAfterDisconnect !== true) {
         var index = workers.indexOf(this);
         if (index >= 0) {
             workers[index] = createWorker();
