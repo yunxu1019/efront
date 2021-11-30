@@ -93,7 +93,8 @@ var gettask = async function (taskid) {
     var task = await invokeFunction(func);
     var params = /\(\s*([\s\S]*?)\s*\)/.exec(task);
     if (params) {
-        task.params = params[1].split(",").map(p => {
+        params = params[1];
+        if (params) task.params = params.split(",").map(p => {
             var [key] = p.split("=");
             if (key) key = key.trim();
             return { key, name: key };
@@ -137,7 +138,7 @@ require2.invokeFunction = invokeFunction;
 require2.getTaskParams = async function (taskid) {
     var task = await getLoadedTask(taskid);
     var params = JSON.stringify(task.params);
-    return require("../crypt/encode62").timeencode(params);
+    return require("../crypt/encode62").timeencode(params || null);
 };
 require2.invokeTask = async function (taskid, data) {
     var task = await getLoadedTask(taskid);
