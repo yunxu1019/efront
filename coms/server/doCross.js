@@ -91,6 +91,7 @@ function cross(req, res, referer) {
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
+        req.referer = _headers.referer;
         if (cross.referer.test(_headers.referer) && !headers.referer) {
             headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
         } else if (_headers.referer || _headers.origin === 'null') {
