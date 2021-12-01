@@ -146,7 +146,6 @@ module.exports = {
     WATCH_PROJECT_VERSION: 0,
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),
     ENVS_PATH: getdirpath("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
-    COMS_PATH: getdirpath("COMS_PATH, COMM_PATH"),
     get COMS_PATH() {
         if (typeof COMS_PATH === 'string') return this.coms_path;
         return COMS_PATH;

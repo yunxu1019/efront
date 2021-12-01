@@ -78,11 +78,11 @@ var setAppnameAndPorts = function (args) {
     });
 }
 
-var detectEnvironment = function () {
+var detectEnvironment = function (comm) {
     let fs = require("fs");
     let currentpath = process.cwd(), config = {
         page_path: memery.PAGE_PATH,
-        comm: memery.COMM || '',
+        comm: memery.COMM || comm || '',
         coms_path: memery.COMS_PATH,
         app: memery.APP || '',
         page: memery.PAGE,
@@ -127,8 +127,13 @@ var detectEnvironment = function () {
             if (memery.COMS_PATH !== undefined) {
                 if (0 > coms_path.indexOf(memery.COMS_PATH)) coms_path.unshift(memery.COMS_PATH);
             }
-            if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
-                config.comm += ",zimoli";
+            if (!memery.COMM) {
+                if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
+                    config.comm += ",zimoli";
+                }
+                else {
+                    config.comm += ",reptile";
+                }
             }
             config.coms_path = coms_path.join(',');
             if (typeof memery.LIBS_PATH === 'string') {
@@ -578,7 +583,7 @@ var commands = {
         var fullpath = process.cwd();
         var detectPromise = detectWithExtension(appname, [".js", ".ts", "", "/index.js", "/index.ts"], [fullpath]);
         detectPromise.catch(function () {
-            detectEnvironment().then(function () {
+            detectEnvironment("reptile").then(function () {
                 memery.istest = true;
                 require("./setupenv");
                 require("./run")(appname, args);

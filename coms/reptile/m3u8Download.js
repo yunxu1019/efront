@@ -23,7 +23,7 @@ function main(m3u8, dst) {
             console.info(file);
             var fileurl = URL.resolve(m3u8, file);
             return fetch(fileurl).then(function (buff) {
-                return fs(path.join(dst, index(cx, list.length) + '.' + file)).writeSync(buff);
+                return fs2(path.join(dst, index(cx, list.length) + '.' + file)).writeSync(buff);
             });
         });
     });
