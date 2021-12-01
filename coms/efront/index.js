@@ -216,6 +216,7 @@ var helps = [
     "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
     "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
     "检查文件或文件夹中的外部变量,check FILEPATH",
+    "查找含有指定的外部变量的文件,find FILEPATH",
     "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
     "对json数据进行签名,sign JSON_PATH SIGNNAME",
     "根据模块的搜索路径查找真实路径,detect MODULE_PATH",
@@ -268,6 +269,14 @@ var commands = {
                 console.error
             );
         }
+    },
+    async find(argName, ...files) {
+        await detectEnvironment();
+        files = [].concat.apply([], files);
+        argName = argName.split(",");
+        if (!files.length) files.push.apply(files, memery.coms_path.split(","));
+        var findVariable = require("./findVariable");
+        await findVariable(argName, files);
     },
     version() {
         // 版本号
