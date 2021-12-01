@@ -14,32 +14,27 @@ var scanner2 = require("../compile/scanner2");
 var readdir = wrap.bind(fs, fs.readdir);
 var readFile = wrap.bind(fs, fs.readFile);
 var stat = wrap.bind(fs, fs.stat);
-var list = function (finded, variables) {
-    if (!finded.length) {
-        console.info("没有找到");
+var log = function (p, vs, vmap) {
+    if (p instanceof Array) {
+        var [p, r] = p;
+        p = `<cyan>${r}</cyan><cyan2>${p.slice(r.length)}</cyan2>`;
+    }
+
+    vs = vs.map(v => vmap[v] ? `<red2>${v}</red2>` : `<gray>${v}</gray>`).join(",");
+    console.type(p + `\r\n`);
+    console.type(vs + "\r\n");
+
+}
+var logcount = function (count) {
+    if (!count) {
+        console.info("没有找到指定的全局变量");
         return;
     }
-    var vmap = Object.create(null);
-    for (var v of variables) vmap[v] = true;
-    console.type(`在 <cyan>${finded.length >> 1}</cyan> 个文件中发现了指定的全局变量\r\n`);
-    for (var cx = 0, dx = finded.length; cx < dx; cx++) {
-        var p = finded[cx++];
-        var r = '';
-        if (p instanceof Array) {
-            [p, r] = p;
-            p = `<cyan>${r}</cyan><cyan2>${p.slice(r.length)}</cyan2>`;
-        }
-
-        var vs = Object.keys(finded[cx]);
-        vs = vs.map(v => vmap[v] ? `<red2>${v}</red2>` : `<gray>${v}</gray>`).join(",");
-        console.type(p + `\r\n`);
-        console.type(vs + "\r\n");
-    }
-};
-var format = function (r) {
-
+    console.type(`在以上 <cyan>${count}</cyan> 个文件中找到了指定的全局变量\r\n`);
 };
 module.exports = async function (variables, rootpath) {
+    var vmap = Object.create(null);
+    for (var v of variables) vmap[v] = true;
     var rest = [];
     for (var r of [].concat(rootpath)) {
         r = path.normalize(r);
@@ -47,9 +42,9 @@ module.exports = async function (variables, rootpath) {
         if (stats.isDirectory()) {
             r = r.replace(/[\\\/]$/, '') + path.sep;
         }
-        rest.push(r);
+        rest.unshift(r);
     }
-    var finded = [];
+    var finded = 0;
     var passed = Object.create(null);
     while (rest.length) {
         var fullpath = rest.pop();
@@ -75,7 +70,8 @@ module.exports = async function (variables, rootpath) {
             delete undeclares[path.basename(fullpath).replace(/\.\w+$/, "")];
             for (var v of variables) {
                 if (undeclares[v]) {
-                    finded.push([fullpath, root], undeclares);
+                    finded++;
+                    log([fullpath, root], Object.keys(undeclares), vmap);
                     break;
                 }
             }
@@ -85,5 +81,5 @@ module.exports = async function (variables, rootpath) {
             rest.push.apply(rest, names.map(n => [root, path.join(fullpath, n)]));
         }
     }
-    list(finded, variables);
+    logcount(finded);
 }
