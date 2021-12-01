@@ -113,10 +113,29 @@ var write = function (hasNewLine, str) {
         if (color) return color + s + colors.Reset;
         return s;
     });
-    var width = process.stdout.columns;
-    var cleaner = ("\r" + " ".repeat(width - 1) + "\b".repeat(width - 1)).repeat(parseInt(lastLogLength / width) + 1);
-    hasNewLine ? process.stdout.write((lastLogLength ? cleaner : "") + str + "\r\n") : process.stdout.write(cleaner + "\r" + str);
-    lastLogLength = hasNewLine ? 0 : str.length + str.replace(/[\x20-\xff]/g, "").length;
+    process.stdout.cork();
+    var hasNextLine = /[\r\n\u2028\u2029]/.test(str);
+    if (process.stdout.isTTY) {
+        if (lastLogLength) {
+            var width = process.stdout.columns;
+            var dx = lastLogLength % width;
+            var dy = (lastLogLength - 1) / width | 0;
+            process.stdout.moveCursor(-dx, -dy);
+            process.stdout.clearScreenDown();
+        }
+    }
+    else {
+        if (!hasNewLine && !hasNextLine) str = '';
+    }
+    hasNewLine && !hasNextLine ? process.stdout.write(str + "\r\n") : process.stdout.write("\r" + str);
+    if (hasNextLine) hasNewLine = true;
+    if (hasNewLine) {
+        lastLogLength = 0;
+    } else {
+        str = str.replace(/\x1b\[\d+m/g, '').replace(/\b/g, '');
+        lastLogLength = str.length + str.replace(/[\x20-\xff]/g, "").length;
+    }
+    process.stdout.uncork();
 };
 [
     "pass:[ ✔ ]:FgGreen:",
