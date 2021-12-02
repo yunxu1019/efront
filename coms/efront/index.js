@@ -128,7 +128,12 @@ var detectEnvironment = function (comm) {
                 if (0 > coms_path.indexOf(memery.COMS_PATH)) coms_path.unshift(memery.COMS_PATH);
             }
             if (!memery.COMM) {
-                if (fs.existsSync(path.join(config.page_path, 'index.html'))) {
+                var hasindex = function (index) {
+                    var appindex = path.join(config.page_path, config.page || String(config.app || '').replace(/\.\w+$/, ''), index);
+                    var pageindex = path.join(config.page_path, index);
+                    return fs.existsSync(pageindex) || fs.existsSync(appindex);
+                }
+                if (hasindex('index.html')) {
                     config.comm += ",zimoli";
                 }
                 else {
