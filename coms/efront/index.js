@@ -267,6 +267,7 @@ var commands = {
         require("../build/unpack")(readfrom, writeto);
     },
     async check(...args) {
+        await detectEnvironment();
         args = [].concat.apply([], args);
         for (var a of args) {
             await detect(a, false).then(
