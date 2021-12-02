@@ -35,7 +35,9 @@ jobs:
         shell: cmd
       - run: call node public/efront.js detect isString & if errorlevel 1 (echo 目标代码无法执行&exit 1)
         shell: cmd
-      - run: call node public/efront.js check zimoli & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+      - run: call node public/efront.js check zimoli/ & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+        shell: cmd
+      - run: call node public/efront.js find repeat & if errorlevel 1 (echo 目标代码无法执行&exit 1)
         shell: cmd
       - name: 检查版本号
         run: |
