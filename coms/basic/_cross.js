@@ -75,6 +75,9 @@ function _cross(jsonp, digest = noop, method, url, headers) {
         digest();
     };
     var onerror = async function (e) {
+        if (e.type === 'error') {
+            e = { status: "无法访问服务器" };
+        }
         for (var r of reforms) {
             var r = await reform(r, { method, url, status: xhr.status, headers: _headers }, fire, onerror1, e);
             if (r === false) return;
@@ -261,7 +264,7 @@ function addDirect(a) {
     if (typeof a === 'string' || a instanceof RegExp) cors_hosts.push(a);
 }
 function notCross(domain) {
-    if (!base || !location_href || location_href === domain.slice(0, location_href.length) || !/^https?\:\/\/|^s?\/\//.test(domain)) return true;
+    if (!base || location_href && location_href === domain.slice(0, location_href.length) || !/^https?\:\/\/|^s?\/\//.test(domain)) return true;
     for (var cx = 0, dx = cors_hosts.length; cx < dx; cx++) {
         var host = cors_hosts[cx];
         if (host instanceof RegExp) {
@@ -312,4 +315,5 @@ _cross.bind = function () {
 _cross.setHost = setHost;
 _cross.setLocation = function (host) {
     location_href = host;
+    if (!base) base = /^https?\:/i.test(location_href) ? '/' : "http://efront.cc/";
 };

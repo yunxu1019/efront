@@ -3,10 +3,9 @@ var saveCookie = lazy(function () {
     sessionStorage.setItem(cookieItemsInSessionStorageKey, JSON.stringify(cookiesMap));
 }, 20);
 var { efrontURI, cross_host = efrontURI } = this;
-var base = /^/.test(location.href) ? '/' : "http://efront.cc/";
 var location_href = parseURL(location.href);
 location_href = `${location_href.protocol}//${location_href.host}/`;
-if (cross_host) _cross.setHost(cross_host);
+_cross.setLocation(location_href);
 
 var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
 var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
@@ -29,6 +28,7 @@ var cross = _cross.bind(function (callback, onerror) {
         xhr.onreadystatechange = null;
         abort.call(this);
     };
+    xhr.onerror = onerror;
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -57,3 +57,4 @@ cross.setHost = function (host) {
     host = (/^https/.test(location_href) ? "https://" : "http://") + host;
     _cross.setHost(host);
 };
+if (cross_host) cross.setHost(cross_host);

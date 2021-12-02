@@ -71,7 +71,7 @@ var requestListener = async function (req, res) {
     var req_access_headers = req.headers["access-control-request-headers"];
     var req_access_method = req.headers["access-control-request-method"];
     req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
-    req_access_origin && res.setHeader("Access-Control-Allow-Credentials", true);
+    /^https:/i.test(req_access_origin) && res.setHeader("Access-Control-Allow-Credentials", true);
     req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
     req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
     if (/^option/i.test(req.method)) {
