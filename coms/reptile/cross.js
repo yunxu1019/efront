@@ -37,7 +37,6 @@ return _cross.bind(function (callback, onerror) {
                     data = Buffer.concat(data);
                     xhr.response = data;
                     callback(res.statusCode, data);
-                    console.log(String(data), res.statusCode);
                 });
                 res.on("error", function (e) {
                     onerror(e);
