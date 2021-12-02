@@ -24,6 +24,7 @@ var parseCookieFromText = function (cookie) {
 
 function addCookie(cookie_text, originDomain = "") {
     if (!cookie_text) return;
+    if (cookie_text instanceof Array) cookie_text = cookie_text.join(",");
     var cookies = cookie_text.replace(/(^|;|,)\s*(expires)=(\w*),([^=]*)(;|$)/ig, "$1$2=$3.$4$5")
         .split(/,\s*/).map(parseCookieFromText);
     for (var cookie of cookies) {

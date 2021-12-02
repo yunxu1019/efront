@@ -6,9 +6,10 @@ return _cross.bind(function (callback, onerror) {
         url: null,
         http: null,
         headers: {},
+        responseHeaders: {},
         response: null,
         getResponseHeader(key) {
-            return response.headers[key];
+            return this.responseHeaders[key];
         },
         send(data) {
             var { hostname, port, path, auth } = parseURL(this.url);
@@ -25,11 +26,9 @@ return _cross.bind(function (callback, onerror) {
                 headers: this.headers,
             }, function (res) {
                 var data = [];
-                var session_text = res.headers["set-cookie"];
-                if (session_text instanceof Array) session_text.forEach(t => cookie.addCookie(t));
-                else if (typeof session_text === "string") cookie.addCookie(session_text);
                 xhr.status = res.statusCode;
                 xhr.response = res;
+                xhr.responseHeaders = res.headers;
                 res.on("data", function (chunk) {
                     data.push(chunk);
                 });

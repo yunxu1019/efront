@@ -114,8 +114,8 @@ function _cross(jsonp, digest = noop, method, url, headers) {
     else {
         var nocross = notCross(url);
         var callback = function (status, response) {
-            if (xhr.getResponseHeader && !nocross) {
-                var cookie = xhr.getResponseHeader("efront-cookie");
+            if (xhr.getResponseHeader) {
+                var cookie = xhr.getResponseHeader(nocross ? "set-cookie" : "efront-cookie");
                 addCookie(cookie, originDomain);
             }
             switch (status) {
@@ -132,8 +132,8 @@ function _cross(jsonp, digest = noop, method, url, headers) {
                 case 307:
                 case 302:
                 case 301:
-                    if (xhr.isRedirected > 2 || nocross) break;
-                    var location = xhr.getResponseHeader("efront-location");
+                    if (xhr.isRedirected > 2) break;
+                    var location = xhr.getResponseHeader(nocross ? "location" : "efront-location");
                     if (!domainReg.test(location)) {
                         if (/^\//.test(location)) {
                             location = originDomain.replace(/\/.*$/, location);
