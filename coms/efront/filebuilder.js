@@ -91,7 +91,9 @@ var buildjsp = function (buff, realpath) {
             }
             return str;
         }).then(function (array) {
-            return Buffer.from(array.join(''));
+            var data = Buffer.from(array.join(''));
+            data.mime = "text/html;charset=utf-8";
+            return data;
         });
     };
 };
