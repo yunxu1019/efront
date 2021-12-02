@@ -160,8 +160,8 @@ var detectEnvironment = function (comm) {
             } else {
                 memery.ENVS_PATH = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
                 var env = loadenv(path.join(env_path[0], "setup"));
+                setenv(env, false);
                 setenv(config);
-                setenv(env);
                 require("./setupenv");
             }
             ok();
@@ -606,7 +606,7 @@ var commands = {
             require('./run')(appname, args);
         }, function () { });
     },
-    public(app_Name, module_Name) {
+    async public(app_Name, module_Name, publicOnly) {
         if (app_Name) {
             if (app_Name === ".") app_Name += "/";
             if (/:[^\\\/]*$/.test(app_Name)) {
@@ -625,6 +625,7 @@ var commands = {
                 memery.EXPORT_AS = export_as;
             }
         }
+        if (!publicOnly) await detectEnvironment();
         var fullpath = process.cwd();
         var promise = detectWithExtension(memery.APP, ["", ".js", ".ts"], [fullpath]);
         promise.catch(function () {
@@ -789,13 +790,7 @@ var run = function (type, value1, value2, value3) {
             case "public":
                 var publicOnly = true;
             case "build":
-                if (!publicOnly) {
-                    detectEnvironment().then(function () {
-                        build(value1, value2);
-                    });
-                } else {
-                    build(value1, value2);
-                }
+                build(value1, value2, publicOnly);
                 break;
 
             case "run":
