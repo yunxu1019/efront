@@ -42,12 +42,12 @@ module.exports = async function (variables, rootpath) {
         if (stats.isDirectory()) {
             r = r.replace(/[\\\/]$/, '') + path.sep;
         }
-        rest.unshift(r);
+        rest.push(r);
     }
     var finded = 0;
     var passed = Object.create(null);
     while (rest.length) {
-        var fullpath = rest.pop();
+        var fullpath = rest.shift();
         var root = fullpath;
         if (fullpath instanceof Array) {
             root = fullpath[0];
