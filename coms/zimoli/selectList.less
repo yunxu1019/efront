@@ -36,10 +36,22 @@
 }
 
 &[iconed] {
-    border-left: 30px solid #f2f4f6;
+    padding-left: 30px;
+
+    &:before {
+        content: "";
+        display: block;
+        position: absolute;
+        height: 100%;
+        top: 0;
+        left: 0;
+        width: 30px;
+        background: #f2f4f6;
+    }
 
     >div {
         filter: grayscale(1);
+        position: relative;
 
         &:hover,
         &:active,

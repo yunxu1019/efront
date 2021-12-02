@@ -38,6 +38,9 @@ function main(children, multiple, addable) {
         item.name = option.name || option.innerHTML;
         var icon = option.getAttribute ? option.getAttribute("icon") : option.icon;
         if (icon) {
+            if (!hasIcon) {
+                page.setAttribute('iconed', '');
+            }
             hasIcon = true;
             css(item, { backgroundImage: `url('${icon}')` });
         }
@@ -124,9 +127,6 @@ function main(children, multiple, addable) {
             }
         });
         adder.setAttribute("adder", '');
-    }
-    if (hasIcon) {
-        page.setAttribute('iconed', '');
     }
     page.icon = iconed;
     on('mousedown')(page, e => e.preventDefault());
