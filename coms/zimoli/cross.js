@@ -41,7 +41,7 @@ var cross = _cross.bind(function (callback, onerror) {
                     }
                     break;
                 default:
-                    callback(xhr.status, xhr.response);
+                    callback(xhr.status, xhr.response || xhr.responseText);
             }
             saveCookie();
         }

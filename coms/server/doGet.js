@@ -73,7 +73,7 @@ var response = function (data, url, req, res) {
     else {
         setHeader("Content-Length", data.length);
         if (data.mime) {
-            res.setHeader("Content-Type", data.mime);
+            setHeader("Content-Type", data.mime);
         }
         setHeader("Cache-Control", "no-cache");
         if (data.stat) {
@@ -85,7 +85,7 @@ var response = function (data, url, req, res) {
         if (data.isgzip) {
             setHeader("Content-Encoding", "gzip");
         }
-        if (res.headersSent === false && !res.statusCode) res.writeHead(200);
+        if (res.headersSent === false && !data.mime) res.writeHead(200, utf8);
         res.write(data);
     }
     return res.end();

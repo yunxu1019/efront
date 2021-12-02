@@ -42,10 +42,12 @@ var getCrossUrl = function (domain, headers) {
         .replace(domainReg, base + `*${/^(https\:|s\/\/)/i.test(domain) ? "*" : ""}$2${_headers}/$3$4`);
 };
 function noop() { }
-
+function toResponse() {
+    return this.response;
+}
 function _cross(jsonp, digest = noop, method, url, headers) {
     var originDomain = getDomainPath(url);
-    if (!originDomain) throw new Error("Unsupposed url format!");
+    if (!originDomain) throw new Error("路径格式错误！");
     var _cookies = getCookies(originDomain);
     var _headers = {};
     if (_cookies) {
@@ -146,7 +148,7 @@ function _cross(jsonp, digest = noop, method, url, headers) {
                     crs.error(onerror, false);
                     break;
                 default:
-                    onerror(xhr);
+                    onerror({ status, response: String(response), toString: toResponse });
             }
         };
         var cross = this;

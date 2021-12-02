@@ -1,9 +1,15 @@
 var detectWithExtension = require("../build/detectWithExtension");
 var commbuilder = require("./commbuilder");
 var userdata = require("../server/userdata");
-var comspath = require("./inCom").comms_root;
+var mixin = require("./mixin");
+var { COMM, coms_path } = require("./memery");
+COMM = COMM.split(",");
+var index = COMM.indexOf('zimoli');
+if (index >= 0) COMM.splice(index, 0, 'reptile');
+else COMM.push('reptile');
 var fs = require('fs');
 var path = require("path");
+var comspath = mixin(coms_path, COMM).map(c => path.join.apply(path, c)).filter(fs.existsSync);
 var required_cache = Object.create(null);
 var hasOwnProperty = {}.hasOwnProperty;
 var loadingTree = Object.create(null);
@@ -81,6 +87,16 @@ var invokeFunction = function (func, context) {
     var { imported, require } = func;
     func.exports = context || {};
     if (imported instanceof Array && require instanceof Function) imported = imported.map(require);
+    a: if (!context) {
+        var ismodule = false;
+        for (var m of imported) {
+            if (/^(exports|module)$/.test(m)) {
+                ismodule = true;
+                break a;
+            }
+        }
+        context = global;
+    }
     return imported instanceof Array ? func.apply(context, imported) : func.call(context);
 };
 
