@@ -23,5 +23,8 @@ function jsonp(url, params) {
         url += /\?/.test(url) ? "&" + search : "?" + search;
     }
     var s = script(url);
+    s.abort = function () {
+        remove(this);
+    };
     return s;
 }
