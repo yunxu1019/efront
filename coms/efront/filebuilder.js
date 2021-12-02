@@ -26,7 +26,7 @@ var efronthook = `function (body, window) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             new Function(xhr.responseText).call(window);
-            console.log("%cEfront%c Start", 'color:#6c2', 'color:333');
+            console.log("%cefront%c start", 'color:#6c2', 'color:333');
         }
     };
     xhr.open('POST', 'comm/main');
