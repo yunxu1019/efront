@@ -39,6 +39,7 @@ return _cross.bind(function (callback, onerror) {
         },
         send(data) {
             var { hostname, port, path, auth } = parseURL(this.url);
+            if (data instanceof FormData) data = String(data);
             if (data) {
                 data = Buffer.from(data);
                 this.headers["Content-Length"] = data.length;
