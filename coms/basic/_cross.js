@@ -43,6 +43,7 @@ var getCrossUrl = function (domain, headers) {
 };
 function noop() { }
 function toResponse() {
+    if (this.responseType === 'json') return JSON.stringify(this.response);
     return this.response;
 }
 function _cross(jsonp, digest = noop, method, url, headers) {
@@ -112,7 +113,7 @@ function _cross(jsonp, digest = noop, method, url, headers) {
     }
     else {
         var nocross = notCross(url);
-        var callback = function (status, response) {
+        var callback = function () {
             var exposeHeaders = xhr.getResponseHeader("access-control-expose-headers");
             var exposeMap = {};
             if (exposeHeaders) exposeHeaders.split(",").forEach(h => exposeMap[h.toLowerCase()] = true);
@@ -123,16 +124,16 @@ function _cross(jsonp, digest = noop, method, url, headers) {
                     addCookie(cookie, originDomain);
                 }
             }
-            switch (status) {
+            switch (xhr.status) {
                 case 0:
-                    if (!response) {
+                    if (!xhr.response) {
                         onerror({ status: 0, response: "无法访问服务器", toString: toResponse });
                         break;
                     }
                 case 200:
                 case 201:
                 case 304:
-                    onload({ status, response, toString: toResponse });
+                    onload(xhr);
                     break;
                 case 307:
                 case 302:
@@ -154,12 +155,13 @@ function _cross(jsonp, digest = noop, method, url, headers) {
                     crs.error(onerror, false);
                     break;
                 default:
-                    onerror({ status, response: String(response), toString: toResponse });
+                    onerror(xhr);
             }
         };
         var cross = this;
         var xhr = cross(callback, onerror);
         var send = xhr.send;
+        xhr.toString = toResponse;
         xhr.json = xhr.data = xhr.send = function (data, value) {
             if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = data instanceof Array ? [] : {};
             if (FormData && data instanceof FormData) {

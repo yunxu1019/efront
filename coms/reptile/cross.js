@@ -61,7 +61,7 @@ return _cross.bind(function (callback, onerror) {
                 res.on("end", function () {
                     response = Buffer.concat(data);
                     xhr.readyState = 4;
-                    callback(res.statusCode, xhr.response);
+                    callback();
                 });
                 res.on("error", function (e) {
                     xhr.readyState = 4;
