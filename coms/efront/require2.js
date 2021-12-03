@@ -147,7 +147,7 @@ function require2(pathname) {
             return required_cache[pathname] = invokeFunction(f, required_cache[pathname]);
         });
     }
-    return invokeFunction(func);
+    return required_cache[pathname] = invokeFunction(func);
 }
 require2.createFunction = createFunction;
 require2.invokeFunction = invokeFunction;
