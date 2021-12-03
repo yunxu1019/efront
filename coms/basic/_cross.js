@@ -61,24 +61,24 @@ function _cross(jsonp, digest = noop, method, url, headers) {
         method = method.slice(1);
     }
     var loaded, errored;
-    var onload = function (xhr) {
+    var onload = function (data) {
         removeFromList(requests, xhr);
         if (xhr.decoder) {
-            xhr = xhr.decoder(xhr);
+            data = xhr.decoder(data);
         }
-        loaded = xhr;
+        loaded = data;
         flush();
         digest();
     };
     var onerror1 = function (e) {
-        removeFromList(requests, e);
+        removeFromList(requests, xhr);
         errored = e || "未知错误！";
         flush();
         digest();
     };
     var onerror = async function (e) {
         if (e.type === 'error') {
-            e = { status: "无法访问服务器" };
+            e = { response: "无法访问服务器", toString: toResponse };
         }
         for (var r of reforms) {
             var r = await reform(r, { method, url, status: xhr.status, headers: _headers }, fire, onerror1, e);
@@ -105,8 +105,7 @@ function _cross(jsonp, digest = noop, method, url, headers) {
         });
         var xhr = jsonp(url, {
             [cb](a) {
-                xhr.response = xhr.responseText = JSON.stringify(a);
-                onload(xhr);
+                onload({ status: 200, response: JSON.stringify(a), toString: toResponse });
             }
         });
         xhr.onerror = onerror;
@@ -114,26 +113,33 @@ function _cross(jsonp, digest = noop, method, url, headers) {
     else {
         var nocross = notCross(url);
         var callback = function (status, response) {
+            var exposeHeaders = xhr.getResponseHeader("access-control-expose-headers");
+            var exposeMap = {};
+            if (exposeHeaders) exposeHeaders.split(",").forEach(h => exposeMap[h.toLowerCase()] = true);
             if (xhr.getResponseHeader) {
-                var cookie = xhr.getResponseHeader(nocross ? "set-cookie" : "efront-cookie");
-                addCookie(cookie, originDomain);
+                var exposekey = nocross ? "set-cookie" : "efront-cookie";
+                if (exposeMap[exposekey]) {
+                    var cookie = xhr.getResponseHeader(exposekey);
+                    addCookie(cookie, originDomain);
+                }
             }
             switch (status) {
                 case 0:
                     if (!response) {
-                        onerror({ status: "无法访问服务器" });
+                        onerror({ status: 0, response: "无法访问服务器", toString: toResponse });
                         break;
                     }
                 case 200:
                 case 201:
                 case 304:
-                    onload(xhr);
+                    onload({ status, response, toString: toResponse });
                     break;
                 case 307:
                 case 302:
                 case 301:
                     if (xhr.isRedirected > 2) break;
-                    var location = xhr.getResponseHeader(nocross ? "location" : "efront-location");
+                    var exposekey = nocross ? "location" : "efront-location";
+                    var location = exposeMap[exposekey] && xhr.getResponseHeader(exposekey);
                     if (!domainReg.test(location)) {
                         if (/^\//.test(location)) {
                             location = originDomain.replace(/\/.*$/, location);

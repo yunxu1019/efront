@@ -131,8 +131,9 @@ function cross(req, res, referer) {
             rejectUnauthorized: false// 放行证书不可用的网站
         }, parseURL($url), options), function (response) {
             var headers = response.headers;
+            var exposeHeaders = [];
             var setCookie = headers["set-cookie"];
-            if (setCookie && req.referer && referer === false) headers["efront-cookie"] = setCookie, delete headers["set-cookie"];
+            if (setCookie && req.referer && referer === false) headers["efront-cookie"] = setCookie, delete headers["set-cookie"], exposeHeaders.push("efront-cookie");
             a: if (headers.location && referer === false) {
                 var parsed = parseURL(headers.location);
                 if (parsed.host) {
@@ -142,9 +143,10 @@ function cross(req, res, referer) {
                     break a;
                 }
                 headers["efront-location"] = headers.location;
+                exposeHeaders.push("efront-location");
                 delete headers.location;
             }
-            headers["access-control-expose-headers"] = ["efront-location", "efront-cookie"].join();
+            headers["access-control-expose-headers"] = exposeHeaders.join();
             delete headers["access-control-allow-origin"];
             delete headers["access-control-allow-methods"];
             delete headers["access-control-allow-credentials"];
