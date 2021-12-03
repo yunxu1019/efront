@@ -962,7 +962,7 @@ var data = {
             instanceDataMap[instanceId] = data;
         }
         setItem(instanceId, data, rememberWithStorage);
-        fireListener(instanceId);
+        fireListener(instanceId, data);
         return instanceDataMap[instanceId];
     },
     patchInstance(instanceId, data, rememberWithStorage = 0) {
@@ -999,7 +999,7 @@ var data = {
         if (!~listeners.indexOf(callback)) {
             listeners.push(callback);
         }
-        callback(this.getInstance(instanceId));
+        if (hasItem(instanceId)) callback(getItem(instanceId));
     },
     unbindInstance(instanceId, callback) {
         if (!instanceListenerMap[instanceId]) return;
@@ -1047,12 +1047,14 @@ function getItem(instanceId, onlyFromLocalStorage = false) {
     }
     return data;
 }
+function hasItem(instanceId) {
+    return sessionStorage.getItem(instanceId) || localStorage.getItem(instanceId);
+}
 var instanceListenerMap = {};
-var fireListener = function (instanceId) {
+var fireListener = function (instanceId, data) {
     var listeners = instanceListenerMap[instanceId];
     if (!listeners) return;
-    var instance = instanceDataMap[instanceId];
-    listeners.forEach(a => a(instance));
+    listeners.forEach(a => a(data));
 };
 data.setItem = data.setInstance;
 data.getItem = data.getInstance;
