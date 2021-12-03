@@ -162,6 +162,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         used: allVariables,
         envs: undeclares,
         async: isAsync,
+        return: hasReturn,
         yield: isYield
     } = code;
     var globalsmap = {};
@@ -294,7 +295,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                 if (filename.length > 48) {
                     filename = ".." + filename.slice(filename.length - 46);
                 }
-                console.info(`没有导出变量 文件：<gray>${shortpath(filename)}</gray>\r\n`);
+                if (!hasReturn) console.info(`没有导出变量 文件：<gray>${shortpath(filename)}</gray>\r\n`);
             }
         }
     }

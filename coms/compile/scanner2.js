@@ -374,6 +374,9 @@ class Program extends Array {
     get await() {
         return this.scoped.await;
     }
+    get return() {
+        return this.scoped.return;
+    }
     get scoped() {
         if (this._scoped) return this._scoped;
         return this._scoped = createScoped(this);

@@ -167,6 +167,9 @@ var createScoped = function (parsed) {
                 case STRAP:
                     var s = o.text;
                     switch (s) {
+                        case "return":
+                            funcbody.return = true;
+                            break;
                         case "await":
                             funcbody.async = funcbody.await = true;
                             break;
