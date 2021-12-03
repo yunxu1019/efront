@@ -144,9 +144,11 @@ function cross(req, res, referer) {
                 headers["efront-location"] = headers.location;
                 delete headers.location;
             }
-            headers["Access-Control-Expose-Headers"] = ["efront-location", "efront-cookie"].join();
+            headers["access-control-expose-headers"] = ["efront-location", "efront-cookie"].join();
             delete headers["access-control-allow-origin"];
             delete headers["access-control-allow-methods"];
+            delete headers["access-control-allow-credentials"];
+            delete headers["access-control-allow-headers"];
             if (res instanceof Http2ServerResponse) {
                 delete headers["transfer-encoding"];
                 delete headers["connection"];
