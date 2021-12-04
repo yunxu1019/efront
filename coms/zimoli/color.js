@@ -254,13 +254,15 @@ function stringify(color) {
 	}
 }
 function doWith(manager, color, args) {
-	var c = parse(color);
+	var isparsed = color instanceof Array,
+		c = isparsed ? color : parse(color);
 	if (!c) {
 		console.warn(`颜色数据不正确:${color}`);
 		return color;
 	}
 	c = manager(c, args);
-	return stringify(c);
+	if (!isparsed) c = stringify(c);
+	return c;
 }
 
 function normal([r, g, b]) {
