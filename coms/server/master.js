@@ -156,6 +156,9 @@ message.cluster = function ([id, methord, params]) {
 message.clusterList = function (id) {
     return workers.map(w => w.id);
 };
+message.uptime = function () {
+    return process.uptime();
+};
 message.rehost = function () {
     var argv = process.__proto__ && process.__proto__.argv || process.argv;
     end();

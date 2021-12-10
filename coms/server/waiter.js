@@ -103,6 +103,16 @@ var requestListener = async function (req, res) {
                 case "version":
                     res.write("efront " + require("../../package.json").version);
                     break;
+                case "uptime":
+                    return message.send("uptime", null, function (error, time) {
+                        if (error) {
+                            res.writeHead(403, {});
+                            res.end(String(error));
+                            return;
+                        }
+                        res.end(String(time));
+                    })
+                    break;
                 case "login":
                     var a = type[2] || '';
                     return require("./login")(a, remoteAddress).then(b => {
