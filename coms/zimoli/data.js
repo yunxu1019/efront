@@ -1048,7 +1048,8 @@ function getItem(instanceId, onlyFromLocalStorage = false) {
     return data;
 }
 function hasItem(instanceId) {
-    return sessionStorage.getItem(instanceId) || localStorage.getItem(instanceId);
+    const storageId = userPrefix + instanceId + pagePathName;
+    return sessionStorage.getItem(storageId) || localStorage.getItem(storageId);
 }
 var instanceListenerMap = {};
 var fireListener = function (instanceId, data) {
