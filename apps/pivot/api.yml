@@ -9,3 +9,4 @@
   params: options ::params-:key
   invoke: options ::invoke-:key?:params
   version: options ::version
+  uptime: options ::uptime

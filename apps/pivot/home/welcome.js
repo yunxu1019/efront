@@ -4,6 +4,8 @@ function main() {
     renderWithDefaults(page, {
         status: [],
         version: data.from("version"),
+        hrtime: data.from("uptime", a => Date.now() - a),
+        filterTime,
         async run(id, target) {
             target.setAttribute('pending', '')
             try {
