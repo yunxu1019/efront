@@ -33,7 +33,6 @@
     };
     var parseMenuList = function (items) {
         if (items instanceof Array) {
-            console.log(items)
             return items;
         }
         if (items instanceof Object) {
