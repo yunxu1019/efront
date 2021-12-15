@@ -148,6 +148,7 @@ function main(elem, mode) {
             case "x":
             case "horizonal":
                 var direction = 'x';
+                mode = "horizonal";
             case "v":
             case "y":
             case "vertical":
@@ -161,7 +162,7 @@ function main(elem, mode) {
                     });
                 } else {
                     var nodes = getArrayNodes(elem);
-                    elem = menuList(elem, nodes, emit);
+                    elem = menuList(elem, nodes, emit, direction);
                 }
                 break;
             default:
