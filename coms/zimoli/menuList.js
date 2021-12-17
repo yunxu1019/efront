@@ -111,9 +111,13 @@ function main(page, items, active, direction = 'y') {
                 if (!item) return;
                 var a = menuItem(null, item, $scope.hasIcon);
                 var scope = {};
+                if (item instanceof Item) item = item.value;
                 if (src.itemName) scope[src.itemName] = item;
+                else scope.$item = item;
                 if (src.keyName) scope[src.keyName] = index;
+                else scope.$key = index;
                 if (src.indexName) scope[src.indexName] = index;
+                else scope.$index = index;
                 if (src.srcName) scope[src.srcName] = items;
                 if (src.itemName) a.setAttribute("e-if", notHidden);
                 on("mouseleave")(a, function () {
@@ -123,7 +127,7 @@ function main(page, items, active, direction = 'y') {
                     $scope.popTimer = $scope.popMenu(item, this);
                 });
                 on("click")(a, function () {
-                    $scope.open(item, this);
+                    $scope.open(items[index], this);
                 });
                 a.setAttribute("e-class", className);
                 a = button(a);
