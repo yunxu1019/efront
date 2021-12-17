@@ -527,25 +527,51 @@ var binders = {
         });
     }
 };
-var emiters = {
-    on(key, search) {
+var createEmiter = function (on) {
+    return function (key, search) {
+        if (this.$src) {
+            var parsedSrc = this.$src;
+            var scopes = this.$parentScopes;
+            search = search.slice();
+            search[0] += `with(this.$parentScopes[${scopes.length}])`;
+            this.$parentScopes = scopes.concat(this.$scope);
+        }
         var getter = createGetter(search, false);
         on(key)(this, function (e) {
-            var res = getter.call(this, e);
+            if (parsedSrc) {
+                var target = e.currentTarget || e.target;
+                var scopes = target && target.$parentScopes;
+                if (scopes) {
+                    var scope = null;
+                    for (var cx = scopes.length - 1; cx >= 0; cx--) {
+                        var s = scopes[cx];
+                        if (s === this.$scope) {
+                            scope = scopes[cx + 1];
+                            break;
+                        }
+                    }
+                }
+                if (!scope && target.$scope !== this.$scope) scope = target.$scope;
+            }
+            var res;
+            if (scope) {
+                var temp = this.$scope;
+                this.$scope = scope;
+                res = getter.call(this, e);
+                this.$scope = temp;
+            }
+            else {
+                res = getter.call(this, e);
+            }
             if (res && isFunction(res.then)) res.then(digest, digest);
             digest();
             return res;
         });
-    },
-    once(key, search) {
-        var getter = createGetter(search, false);
-        once(key)(this, function (e) {
-            var res = getter.call(this, e);
-            if (res && isFunction(res.then)) res.then(digest, digest);
-            digest();
-            return res;
-        });
-    }
+    };
+};
+var emiters = {
+    on: createEmiter(on),
+    once: createEmiter(once),
 };
 emiters.v = emiters.ng = emiters.on;
 
