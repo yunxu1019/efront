@@ -152,15 +152,16 @@ function main(elem, mode) {
             case "v":
             case "y":
             case "vertical":
-                var emit = function (item) {
-                    active(elem, item, item.value);
+                var emit = function (item, target) {
+                    active(elem, item, item.value, target);
                 };
                 if ("$src" in elem) {
                     getGenerator(elem);
                     care(elem, function (src) {
                         menuList(elem, getTreeFromData(src), emit, direction);
                     });
-                } else {
+                }
+                else {
                     var nodes = getArrayNodes(elem);
                     elem = menuList(elem, nodes, emit, direction);
                 }

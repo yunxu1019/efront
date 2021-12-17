@@ -13,10 +13,9 @@ on("keydown")(window, function (event) {
             if (event.altKey) {
                 var key = String.fromCharCode(which);
                 var element = keyMap[key];
-
                 if (element) {
                     if (isMounted(element)) {
-                        dispatch(window, 'mousedown');
+                        event.preventDefault();
                         element.click();
                     } else {
                         delete keyMap[key];
