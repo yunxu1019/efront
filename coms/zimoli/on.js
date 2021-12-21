@@ -2,7 +2,7 @@
 var is_addEventListener_enabled = "addEventListener" in window;
 var handlersMap = {};
 var changes_key = 'changes';
-var eventtypereg = /(?:\.once|\.prevent|\.stop|\.capture|\.self|\.passive|\.[a-z0-9]+)+$/i;
+var eventtypereg = /(?:\.once|\.prevent|\.stop|\.capture|\.self|\.passive|\.[a-z0-9]+)+\.?$/i;
 var keyCodeMap = {
     backspace: 8,
     tab: 9,
@@ -118,6 +118,9 @@ var parseEventTypes = function (eventtypes) {
                 case "ctrl":
                     keyneed.push(t);
                     break;
+                case "":
+                    if (!types.keyCode) types.keyCode = true;
+                    break;
                 default:
                     if (isFinite(t)) {
                         types.keyCode = +t;
@@ -133,11 +136,19 @@ var parseEventTypes = function (eventtypes) {
     return types;
 }
 function checkKeyNeed(eventtypes, e) {
+    var keyneed = eventtypes.keyNeed;
     if (eventtypes.keyNeed) {
-        for (var cx = 0, dx = eventtypes.keyNeed.length; cx < dx; cx++) {
-            var key = eventtypes.keyNeed[cx];
+        for (var cx = 0, dx = keyneed.length; cx < dx; cx++) {
+            var key = keyneed[cx];
             if (!e[key + "Key"]) return false;
         }
+    }
+    if (eventtypes.keyCode === true) {
+        for (var cx = 0, dx = keyneed.length; cx < dx; cx++) {
+            var key = keyneed[cx];
+            if (e.keyCode === keyCodeMap[key]) return true;
+        }
+        return false;
     }
     if (eventtypes.keyCode) {
         return e.keyCode === eventtypes.keyCode;

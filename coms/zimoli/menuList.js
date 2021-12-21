@@ -1,4 +1,4 @@
-var mounted_menus = [], releaseTimer = 0;
+var mounted_menus = [], releaseTimer = 0, root_menu;
 var release = function () {
     clear();
     releaseTimer = setTimeout(function () {
@@ -12,6 +12,137 @@ var unfocus = function () {
     remove(mounted_menus);
     this.ispop = false;
 };
+var setFocus = function (focused = this.firstMenu) {
+    var page = this;
+    if (page.ispop || page === document.activeElement) {
+        if (page.focused !== focused) {
+            if (page.focused) removeClass(page.focused, 'focus');
+            if (focused) addClass(focused, "focus");
+            page.focused = focused;
+        }
+    }
+    else {
+        if (page.focused) {
+            removeClass(page.focused, 'focus');
+            page.focused = null;
+        }
+    }
+};
+var moveFocus = function (delta) {
+    var page = this;
+    var focused = page.focused;
+    var newIndex = 0;
+    if (!focused) {
+        if (delta > 0) newIndex = 0;
+        else newIndex = page.total - 1;
+    }
+    else {
+        var newIndex = focused.index + delta;
+        var total = page.total;
+        if (page !== root_menu) {
+            total++;
+        }
+        if (newIndex < 0) newIndex = total + newIndex;
+        if (newIndex > total - 1) newIndex = newIndex - total;
+    }
+
+    var e = page.getIndexedElement(newIndex);
+    if (!e) page.setFocus(null);
+    else page.open(e);
+};
+var openFocus = function () {
+    var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
+    if (!menu.ispop) menu.ispop = 1;
+    menu.open(menu.focused);
+};
+var closeFocus = function () {
+    var menu = mounted_menus[mounted_menus.length - 1];
+    remove(menu);
+};
+var keyAction = function (deltax, deltay) {
+    if (root_menu !== document.activeElement) return;
+    var menu = mounted_menus[mounted_menus.length - 1];
+    if (menu) var parent = mounted_menus[mounted_menus.length - 2] || root_menu;
+    else menu = root_menu;
+
+    if (menu.direction === 'y') {
+        if (deltax === 1) {
+            if (menu.focused) openFocus();
+            else if (parent && parent.direction !== 'y') {
+                parent.moveFocus(deltax);
+            }
+        }
+        else if (deltax === -1) {
+            if (parent) {
+                if (parent.direction === 'y') remove(mounted_menus.pop());
+                else if (!menu.focused) parent.moveFocus(deltax);
+            }
+        }
+        else {
+            menu.moveFocus(deltay);
+        }
+    }
+    else {
+        if (deltay === 1) {
+            if (menu.focused) openFocus();
+            else if (parent && parent.direction === 'y') {
+                parent.moveFocus(deltay);
+            }
+        }
+        else if (deltay === -1) {
+            if (parent) {
+                if (parent.direction !== 'y') remove(mounted_menus.pop());
+                else if (!menu.focused) parent.moveFocus(deltay);
+            }
+        }
+        else {
+            menu.moveFocus(deltax);
+        }
+    }
+};
+function keyalt() {
+    if (root_menu === document.activeElement) root_menu.blur();
+    else {
+        root_menu.tabIndex = 0;
+        root_menu.focus();
+    }
+    root_menu.setFocus();
+}
+function keyesc() {
+    if (root_menu === document.activeElement && !mounted_menus.length) {
+        if (!root_menu.ispop) root_menu.blur(), root_menu.setFocus();
+        else root_menu.ispop = false;
+    }
+}
+function keyup() {
+    keyAction(0, -1);
+}
+function keydown() {
+    keyAction(0, 1);
+}
+function keyleft() {
+    keyAction(-1, 0)
+}
+function keyright() {
+    keyAction(1, 0);
+}
+function keyspace() {
+    if (root_menu !== document.activeElement) return;
+    var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
+    menu.focused.click();
+}
+function register() {
+    // on('keydown.alt')(window, e => e.preventDefault());
+    on('keydown.alt.')(window, keyalt);
+    on('keydown.esc')(window, keyesc);
+    on('keydown.left')(window, keyleft);
+    on('keydown.right')(window, keyright);
+    on('keydown.up')(window, keyup);
+    on('keydown.down')(window, keydown);
+    on('keydown.enter')(window, keyspace);
+    on('keydown.space')(window, keyspace);
+    root_menu = this;
+}
 function main(page, items, active, direction = 'y') {
     if (!isNode(page)) {
         var page = div();
@@ -23,6 +154,7 @@ function main(page, items, active, direction = 'y') {
             clear();
             remove(page.active);
         }
+        page.setFocus(target);
         if (!item.children || !item.children.length) return;
         var clone = template.cloneNode();
         clone.$parentScopes = page.$parentScopes;
@@ -60,6 +192,39 @@ function main(page, items, active, direction = 'y') {
         template.innerHTML = page.innerHTML;
         page.tempalte = template;
     }
+    var popTimer = 0;
+    var open = function () {
+        cancel();
+        var elem = this;
+        page.setFocus(elem);
+        if (page.ispop) popTimer = setTimeout(function () {
+            popMenu(elem.menu, elem);
+        }, 60);
+    };
+    var cancel = function () {
+        clearTimeout(popTimer);
+    }
+    var fire = function () {
+        cancel();
+        var pop = active(this.menu, this);
+        if (pop === false) return;
+        var root = page.root || page;
+        if (root.ispop === 1) root.ispop = false;
+        if (page.active && page.active.target === this) {
+            if (!mounted_menus.length) {
+                popMenu(this.menu, this);
+            }
+            else {
+                unfocus.call(page);
+            }
+        }
+        else {
+            while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page) remove(mounted_menus.pop());
+            popMenu(this.menu, this);
+        }
+    };
+
+
     if (!page.children.length || page.menutype === 1) {
         page.menutype = 1;
         var hasIcon = function () {
@@ -73,32 +238,19 @@ function main(page, items, active, direction = 'y') {
         };
         var $scope = {
             "menu-item": function (e, s) {
-                return button(
-                    menuItem(e, s)
+                var a = bindAccesskey(
+                    menuItem(e, s, this.hasIcon)
                 );
+                if (!page.firstMenu) {
+                    page.firstMenu = a;
+                }
+                return a;
             },
             menus: items,
             hasIcon: hasIcon(),
-            open(menu, elem) {
-                var pop = active(menu, elem);
-                if (pop === false) return;
-                var root = page.root || page;
-                if (root.ispop === 1) root.ispop = false;
-                if (!mounted_menus.length) {
-                    popMenu.apply(this, arguments);
-                }
-                else {
-                    unfocus.call(page);
-                }
-            },
-            popTimer: 0,
-            popMenu() {
-                if (!page.ispop) return;
-                var args = arguments;
-                return setTimeout(function () {
-                    popMenu.apply(null, args);
-                }, 60);
-            },
+            open: fire,
+            cancel,
+            popMenu: open,
         };
         if (page.$src) {
             var src = page.$src;
@@ -106,10 +258,11 @@ function main(page, items, active, direction = 'y') {
             var itemName = src.itemName;
             var className = `{'has-children':${itemName}.children&&${itemName}.children.length,'warn':${itemName}.type==='danger'||${itemName}.type==='warn'||${itemName}.type==='red'}`;
             var notHidden = `!${itemName}.hidden`;
+
             list(page, function (index) {
                 var item = items[index];
                 if (!item) return;
-                var a = menuItem(null, item, $scope.hasIcon);
+                var a = $scope["menu-item"](null, item);
                 var scope = {};
                 if (item instanceof Item) item = item.value;
                 if (src.itemName) scope[src.itemName] = item;
@@ -120,17 +273,11 @@ function main(page, items, active, direction = 'y') {
                 else scope.$index = index;
                 if (src.srcName) scope[src.srcName] = items;
                 if (src.itemName) a.setAttribute("e-if", notHidden);
-                on("mouseleave")(a, function () {
-                    clearTimeout($scope.popTimer);
-                });
-                on("mouseenter")(a, function () {
-                    $scope.popTimer = $scope.popMenu(item, this);
-                });
-                on("click")(a, function () {
-                    $scope.open(items[index], this);
-                });
+                a.menu = item;
+                on("mouseleave")(a, cancel);
+                on("mouseenter")(a, open);
+                on("click")(a, fire);
                 a.setAttribute("e-class", className);
-                a = button(a);
                 render(a, scope, parentScopes);
                 return a;
             });
@@ -143,31 +290,39 @@ function main(page, items, active, direction = 'y') {
             render(page, $scope);
             vbox(page);
         }
+        page.total = items.length;
         page.renders.unshift(function () {
             this.$scope.hasIcon = hasIcon();
         });
-    } else {
+    }
+    else {
         var generator = getGenerator(page);
+
         list(page, function (index) {
             var elem = generator(index);
             if (!elem) return;
-            on("mouseenter")(elem, function () {
-                if (page.ispop) popMenu(this.src[index], this);
-            });
-            on("click")(elem, function () {
-                var pop = active(this.src[index], this);
-                if (pop === false) return;
-                var root = page.root || page;
-                if (root.ispop === 1) root.ispop = false;
-                if (!mounted_menus.length) {
-                    popMenu(this.src[index], this);
-                }
-                else {
-                    unfocus.call(page);
-                }
-            });
+            if (!page.firstMenu) {
+                page.firstMenu = elem;
+                page.total = this.src.length;
+            }
+            elem.menu = this.src[index];
+            on("mouseleave")(elem, cancel);
+            on("mouseenter")(elem, open);
+            on("click")(elem, fire);
             return elem;
         }, direction);
     }
+    page.open = function (a) {
+        open.call(a);
+    };
+    page.active = function (a) {
+        fire.call(a);
+    };
+    page.registerAsRoot = register;
+    page.setFocus = setFocus;
+    page.moveFocus = moveFocus;
+    page.openFocus = openFocus;
+    page.closeFocus = closeFocus;
+    page.direction = direction;
     return page;
 }

@@ -1,4 +1,4 @@
-<menu-item ng-repeat="menu in menus" ng-if="!menu.hidden" ng-click="open(menu,this)"
-    ng-mouseleave="clearTimeout(popTimer)" ng-mouseenter="popTimer=popMenu(menu,this)"
+<menu-item ng-repeat="menu in menus" ng-if="!menu.hidden" ng-click="open.call(this)"
+    ng-mouseleave="cancel()" ng-mouseenter="popMenu.call(this)"
     ng-class="{'has-children':menu.children&&menu.children.length,'warn':menu.type==='danger'||menu.type==='warn'||menu.type==='red'}">
 </menu-item>

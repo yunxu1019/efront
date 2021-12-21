@@ -159,11 +159,13 @@ function main(elem, mode) {
                     getGenerator(elem);
                     care(elem, function (src) {
                         menuList(elem, getTreeFromData(src), emit, direction);
+                        elem.registerAsRoot();
                     });
                 }
                 else {
                     var nodes = getArrayNodes(elem);
                     elem = menuList(elem, nodes, emit, direction);
+                    elem.registerAsRoot();
                 }
                 break;
             default:

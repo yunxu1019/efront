@@ -2,29 +2,6 @@ var _label = createElement("span");
 var track = createElement(div);
 track.className = "track";
 _label.className = "label";
-var keyMap = {};
-on("keydown")(window, function (event) {
-    var { which } = event;
-    switch (event.which) {
-        case 18:
-            event.preventDefault();
-            break;
-        default:
-            if (event.altKey) {
-                var key = String.fromCharCode(which);
-                var elems = keyMap[key];
-                var elem = elems[elems.length - 1];
-                if (elem) {
-                    if (isMounted(elem)) {
-                        event.preventDefault();
-                        elem.click();
-                    } else {
-                        delete keyMap[key];
-                    }
-                }
-            }
-    }
-});
 
 var btn = document.createElement("button");
 btn.tabIndex = 0;
@@ -75,23 +52,6 @@ var touchstart = function () {
     var canceltouchcancel = ontouchcancel(this, cancel);
     var canceltouchend = ontouchend(this, cancel);
     active.call(this);
-};
-var bindAccesskey = function (btn) {
-    var { innerText } = btn;
-    var match = /\(\s*\_?\w\s*\)|\[\s*\_?\w\s*\]|\{\s*\_?\w\s*\}/.exec(innerText);
-    if (match) {
-        var accesskey = match[0].replace(/^\W*(\w)\W*$/g, '$1');
-    } else {
-        var accesskey = btn.getAttribute("accesskey");
-    }
-    if (!accesskey) return;
-    var k = accesskey.toUpperCase();
-    if (!keyMap[k]) keyMap[k] = [];
-    removeFromList(keyMap[k], btn);
-    keyMap[k].push(btn);
-    once("remove")(btn, function () {
-        removeFromList(keyMap[k], btn);
-    });
 };
 function button(texter, type) {
     var tracker = createElement(track);
