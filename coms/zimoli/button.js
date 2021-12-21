@@ -12,11 +12,12 @@ on("keydown")(window, function (event) {
         default:
             if (event.altKey) {
                 var key = String.fromCharCode(which);
-                var element = keyMap[key];
-                if (element) {
-                    if (isMounted(element)) {
+                var elems = keyMap[key];
+                var elem = elems[elems.length - 1];
+                if (elem) {
+                    if (isMounted(elem)) {
                         event.preventDefault();
-                        element.click();
+                        elem.click();
                     } else {
                         delete keyMap[key];
                     }
@@ -84,7 +85,13 @@ var bindAccesskey = function (btn) {
         var accesskey = btn.getAttribute("accesskey");
     }
     if (!accesskey) return;
-    keyMap[accesskey.toUpperCase()] = btn;
+    var k = accesskey.toUpperCase();
+    if (!keyMap[k]) keyMap[k] = [];
+    removeFromList(keyMap[k], btn);
+    keyMap[k].push(btn);
+    once("remove")(btn, function () {
+        removeFromList(keyMap[k], btn);
+    });
 };
 function button(texter, type) {
     var tracker = createElement(track);
