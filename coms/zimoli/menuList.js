@@ -11,6 +11,7 @@ var clear = function () {
 var unfocus = function () {
     remove(mounted_menus);
     this.ispop = false;
+    this.setFocus();
 };
 var setFocus = function (focused = this.firstMenu) {
     var page = this;
@@ -128,8 +129,11 @@ function keyright() {
 }
 function keyspace() {
     if (root_menu !== document.activeElement) return;
-    var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
-    menu.focused.click();
+    var menu = mounted_menus[mounted_menus.length - 1];
+    if (!menu || !menu.focused) menu = mounted_menus[mounted_menus.length - 2] || root_menu;
+    if (menu.focused) {
+        menu.focused.click();
+    }
 }
 function register() {
     // on('keydown.alt')(window, e => e.preventDefault());
@@ -150,9 +154,9 @@ function main(page, items, active, direction = 'y') {
     var main = this;
     if (direction !== 'x') page.ispop = true;
     function popMenu(item, target) {
-        if (page.active) {
+        if (page.actived) {
             clear();
-            remove(page.active);
+            remove(page.actived);
         }
         page.setFocus(target);
         if (!item.children || !item.children.length) return;
@@ -162,7 +166,7 @@ function main(page, items, active, direction = 'y') {
         clone.innerHTML = template.innerHTML;
         var menu = main(clone, item.children, active);
         mounted_menus.push(menu);
-        page.active = menu;
+        page.actived = menu;
         menu.root = page.root || page;
         popup(menu, target);
         if (page.ispop === true) {
@@ -210,7 +214,7 @@ function main(page, items, active, direction = 'y') {
         if (pop === false) return;
         var root = page.root || page;
         if (root.ispop === 1) root.ispop = false;
-        if (page.active && page.active.target === this) {
+        if (page.actived && page.actived.target === this) {
             if (!mounted_menus.length) {
                 popMenu(this.menu, this);
             }
@@ -221,6 +225,9 @@ function main(page, items, active, direction = 'y') {
         else {
             while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page) remove(mounted_menus.pop());
             popMenu(this.menu, this);
+            if (!page.actived) {
+                (page.root || page).blur();
+            }
         }
     };
 
