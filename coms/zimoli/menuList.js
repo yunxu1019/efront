@@ -169,6 +169,7 @@ function main(page, items, active, direction = 'y') {
         if (!item.children || !item.children.length) return;
         var clone = template.cloneNode();
         clone.$parentScopes = page.$parentScopes;
+        clone.$scope = page.$scope;
         clone.$src = src;
         clone.innerHTML = template.innerHTML;
         var menu = main(clone, item.children, active);
