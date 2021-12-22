@@ -217,6 +217,7 @@ function main(page, items, active, direction = 'y') {
     }
     var fire = function () {
         cancel();
+        if (this.menu.line) return;
         var pop = active(this.menu, this);
         if (pop === false) return;
         var root = page.root || page;

@@ -1,3 +1,4 @@
+var preventDefault = function (e) { e.preventDefault() };
 function main(elem, scope, hasIcon) {
     var item = elem || document.createElement('menu-item');
     item.innerHTML = menuItem;
@@ -11,5 +12,6 @@ function main(elem, scope, hasIcon) {
     var icon = scope.icon;
     if (hasIcon === undefined) hasIcon = !!icon;
     render(item.children, { useIcon: hasIcon, hasIcon, name, icon });
+    if (scope.line) item.setAttribute("line", ''), on("click")(item, preventDefault);
     return item;
 }

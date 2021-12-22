@@ -33,10 +33,23 @@
     };
     var parseMenuList = function (items) {
         if (items instanceof Array) {
+            if (!items[0] || !items[0].name) {
+                var items1 = [];
+                for (var cx = 0, dx = items.length; cx < dx; cx++) {
+                    var item = items[cx];
+                    if (!item) continue;
+                    item = parseMenuList(item);
+                    items1.push.apply(items1, item);
+                    items1.push({ line: true });
+                }
+                items1.pop();
+                items = items1;
+            }
             return items;
         }
         if (items instanceof Object) {
             var keys = Object.keys(items);
+
             items = keys.map(k => {
                 var c = items[k];
                 var item = {};
@@ -54,7 +67,8 @@
                 if (/,/.test(name)) {
                     var [name, ...roles] = name.split(',');
                 }
-                item.name = name;
+                if (/^\-+$/.test(name)) item.line = true;
+                else item.name = name;
                 if (roles) item.roles = roles;
                 if (path) item.path = path;
                 if (data) item.params = parseKV(data);

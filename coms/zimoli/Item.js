@@ -19,6 +19,7 @@ function Item(value) {
         this.icon = value.icon;
         this.color = value.color;
         this.test = value.test;
+        this.line = value.line;
     }
     this.count = 0;//子项中的叶子节点数
     this.total = 0;//子项中的节点数

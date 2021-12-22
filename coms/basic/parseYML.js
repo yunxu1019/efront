@@ -118,7 +118,7 @@ var scan = function (text) {
         }
 
         if (/^\-(\s|$)/.test(row)) {
-            if (data || span > spacesize) push();
+            if (data || span >= spacesize) push();
             if (!parents[spacesize]) {
                 var obj = [];
                 push(obj);

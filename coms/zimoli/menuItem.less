@@ -2,3 +2,18 @@ i{
     display: inline-block;
     width: 1em;
 }
+&.line,
+&[line] {
+    box-shadow: none;
+    >.track{
+        display: none;
+    }
+    line-height: 0;
+    font-size: 0;
+    &:after {
+        content: "";
+        display: block;
+        border-bottom: 1px solid #000;
+        margin: 0 -20px;
+    }
+}
