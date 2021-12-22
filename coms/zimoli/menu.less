@@ -92,12 +92,12 @@ body:active & {
     display: block;
     overflow: hidden;
     text-overflow: hidden;
-    line-height: 40px;
     position: relative;
     border-bottom: 1px solid #18333c;
     padding: 0;
-
+    
     menu-item {
+        line-height: 24px;
         display: inline-block;
 
         &.has-children:after {
@@ -110,9 +110,6 @@ body:active & {
         vertical-align: top;
     }
 
-    .button {
-        line-height: 40px;
-    }
 }
 
 &[mode=tree],

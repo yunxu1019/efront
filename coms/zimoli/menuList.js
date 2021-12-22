@@ -253,7 +253,7 @@ function main(page, items, active, direction = 'y') {
         };
         var $scope = {
             "menu-item": function (e, s) {
-                var a = bindAccesskey(
+                var a = button(
                     menuItem(e, s, this.hasIcon)
                 );
                 if (!page.firstMenu) {
