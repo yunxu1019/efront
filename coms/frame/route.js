@@ -68,6 +68,8 @@
         return [];
     };
     result.update = function (items) {
+        delete result.loading_promise;
+        delete result.then;
         items = parseMenuList(items);
         items.map(getChildren);
         var opened = data.getInstance("menu-opened");
@@ -174,9 +176,18 @@
         result.load(result.active);
         return result;
     };
-    result.fetch = function (url) {
-        data.from(url).loading_promise.then(result.update);
+    result.from = result.fetch = function (url) {
+        result.loading_promise = data.from(url).loading_promise.then(result.update);
+        result.then = then;
         return result;
+    };
+    var then = function (ok, oh) {
+        if (this.loading_promise) {
+            return this.loading_promise.then(ok, oh);
+        }
+        delete result.then;
+        ok(result);
+        result.then = then;
     };
     result.update(items);
     return result;
