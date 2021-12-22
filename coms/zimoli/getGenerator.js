@@ -35,7 +35,7 @@ var getGenerator = function (container, tagName = 'item') {
                 element = template1;
             }
             else {
-                element = template1.childNodes[1];
+                element = template1.childNodes[0];
                 if (template1.childNodes.length > 1) element.with = [].concat.apply([], template1.childNodes).slice(1);
             }
         }
