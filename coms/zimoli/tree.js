@@ -132,16 +132,18 @@ function tree() {
         }
         var tabs = new Array(com.tab + 1).join("<t></t>");
         if (isFunction(generator)) {
-            var elem = generator(index, com);
+            var elem = generator(index, com instanceof Item ? com.value : com);
             if (!elem) return;
-            span = document.createElement('div');
+            span = document.createElement('span');
             span.innerHTML = tabs;
-            span.appendChild(elem);
+            elem.insertBefore(span, elem.firstChild);
+            span = elem;
         } else {
-            span = div();
+            span = document.createElement("node");
             html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}<a class=count>${com.count}</a>`);
         }
         var _div = button(span);
+        _div.setAttribute("node", '');
         _div.index = index;
 
         if (!com.saved) {
@@ -222,7 +224,7 @@ function tree() {
         _div.refresh();
         onclick(_div, function () {
             var isClosed = com.isClosed();
-            if (!active(banner, com.value, com)) {
+            if (!active(banner, com.value, com, _div)) {
                 return;
             }
             if (isClosed === com.isClosed() && com.length) {

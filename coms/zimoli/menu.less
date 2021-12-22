@@ -94,6 +94,9 @@ body:active & {
     text-overflow: hidden;
     position: relative;
     border-bottom: 1px solid #18333c;
+    border-top: none;
+    border-left: none;
+    border-right: none;
     padding: 0;
 
     menu-item {
@@ -113,53 +116,53 @@ body:active & {
 }
 
 &[mode=tree],
+&[mode=tree],
 &[type=tree],
 &[mode=inline],
 &[type=inline] {
     height: auto;
     box-shadow: none;
     padding: 0;
-    margin: 0;
 
-    // &[browser=samsung] {
-    //     .tab1 {
-    //         &.open s {
-    //             overflow   : visible;
-    //             text-indent: -6.6pt;
-    //         }
-    //         &.closed s{
-    //             overflow   : visible;
-    //             text-indent: 3.1pt;
-    //         }
-    //     }
-    // }
+    >.button {
+        box-shadow: none;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        line-height: 20px;
+        font-size: 14px;
 
-    // &[browser=firefox] {
-    //     .tab1 {
-    //         &.open s {
-    //             text-indent: -8.6px;
-    //         }
+        >b {
+            font-weight: normal;
+        }
 
-    //         &.closed s {
-    //             text-indent: -4.1px;
-    //         }
-    //     }
-    // }
+        &:not(.tab1) {
+            display: block;
+            background: #2c3b41;
+            color: #8aa4af;
 
-    // &[browser=safari] {
-    //     .tab1 {
-    //         &.open s {
-    //             text-indent: -5.6px;
-    //         }
+            &.checked,
+            &.actived,
+            &.selected {
+                color: #fff;
+            }
+        }
 
-    //         &.closed s {
-    //             text-indent: -1.1px;
-    //         }
-    //     }
-    // }
+        i {
+            margin-right: 10px;
+        }
 
 
-    .tab1 {
+        &.hover {
+            text-shadow: none;
+            color: #fff;
+        }
+
+    }
+
+    >.tab1 {
+        font-size: 16px;
+        line-height: 28px;
+
         &.open {
             color: #fff;
             background: #1e282c;
@@ -216,45 +219,13 @@ body:active & {
 
         border-left: 3px solid transparent;
         display : block;
-        height : 44px;
-        line-height: 44px;
         font-size : 14px;
         color : #b8c7ce;
     }
 
-    >.button {
-        box-shadow: none;
-
-
-        >b {
-            font-weight: normal;
-        }
-
-        &:not(.tab1) {
-            display: block;
-            height: 36px;
-            line-height: 36px;
-            font-size: 14px;
-            background: #2c3b41;
-            color: #8aa4af;
-
-            &.checked,
-            &.actived,
-            &.selected {
-                color: #fff;
-            }
-        }
-
-        i {
-            margin-right: 10px;
-        }
-
-
-        &.hover {
-            text-shadow: none;
-            color: #fff;
-        }
-
+    >[line],
+    >.line {
+        line-height: 0;
+        font-size: 0;
     }
-
 }

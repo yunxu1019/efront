@@ -3,13 +3,26 @@
     background: #222d32;
     color: #fff;
 
-    >div {
+    >[node] {
         display: block;
         text-align: left;
         height: auto;
         background-color: inherit;
         color: inherit;
         padding-right: 10px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        box-shadow: none;
+
+        &.line,
+        &[line] {
+            box-shadow: none;
+            line-height: 0;
+
+            >.track {
+                display: none;
+            }
+        }
     }
 }
 

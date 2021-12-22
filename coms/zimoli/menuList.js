@@ -253,7 +253,7 @@ function main(page, items, active, direction = 'y') {
             return false;
         };
         var $scope = {
-            "menu-item": function (e, s) {
+            "menu-item"(e, s) {
                 var a = button(
                     menuItem(e, s, this.hasIcon)
                 );
@@ -270,31 +270,23 @@ function main(page, items, active, direction = 'y') {
         };
         if (page.$src) {
             var src = page.$src;
-            var parentScopes = page.$parentScopes;
             var itemName = src.itemName;
             var className = `{'has-children':${itemName}.children&&${itemName}.children.length,'warn':${itemName}.type==='danger'||${itemName}.type==='warn'||${itemName}.type==='red'}`;
             var notHidden = `!${itemName}.hidden`;
+            var generator = getGenerator(page, 'menu-item');
 
             list(page, function (index) {
                 var item = items[index];
                 if (!item) return;
-                var a = $scope["menu-item"](null, item);
-                var scope = {};
                 if (item instanceof Item) item = item.value;
-                if (src.itemName) scope[src.itemName] = item;
-                else scope.$item = item;
-                if (src.keyName) scope[src.keyName] = index;
-                else scope.$key = index;
-                if (src.indexName) scope[src.indexName] = index;
-                else scope.$index = index;
-                if (src.srcName) scope[src.srcName] = items;
+                var a = $scope["menu-item"](null, item);
                 if (src.itemName) a.setAttribute("e-if", notHidden);
+                a.setAttribute("e-class", className);
+                a = generator(index, item, a);
                 a.menu = item;
                 on("mouseleave")(a, cancel);
                 on("mouseenter")(a, open);
                 on("click")(a, fire);
-                a.setAttribute("e-class", className);
-                render(a, scope, parentScopes);
                 return a;
             });
             on("append")(page, function () {
@@ -312,7 +304,7 @@ function main(page, items, active, direction = 'y') {
         });
     }
     else {
-        var generator = getGenerator(page);
+        var generator = getGenerator(page, 'menu-item');
 
         list(page, function (index) {
             var elem = generator(index);

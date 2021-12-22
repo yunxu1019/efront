@@ -529,14 +529,14 @@ var binders = {
 };
 var createEmiter = function (on) {
     return function (key, search) {
-        if (this.$src) {
-            var parsedSrc = this.$src;
+        var parsedSrc = this.$src;
+        var getter0 = createGetter(search, false), getter1;
+        if (parsedSrc) {
             var scopes = this.$parentScopes;
             search = search.slice();
             search[0] += `with(this.$parentScopes[${scopes.length}])`;
-            this.$parentScopes = scopes.concat(this.$scope);
+            getter1 = createGetter(search, false);
         }
-        var getter = createGetter(search, false);
         on(key)(this, function (e) {
             if (parsedSrc) {
                 var target = e.currentTarget || e.target;
@@ -556,12 +556,14 @@ var createEmiter = function (on) {
             var res;
             if (scope) {
                 var temp = this.$scope;
+                this.$parentScopes.push(temp);
                 this.$scope = scope;
-                res = getter.call(this, e);
+                res = getter1.call(this, e);
+                this.$parentScopes.pop();
                 this.$scope = temp;
             }
             else {
-                res = getter.call(this, e);
+                res = getter0.call(this, e);
             }
             if (res && isFunction(res.then)) res.then(digest, digest);
             digest();
@@ -581,7 +583,7 @@ function getFromScopes(key, scope, parentScopes) {
     }
     if (parentScopes) for (var cx = parentScopes.length - 1; cx >= 0; cx--) {
         var o = parentScopes[cx];
-        if (key in o) {
+        if (o && key in o) {
             return o[key];
         }
     }
@@ -614,13 +616,13 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         return element;
     }
     var isFirstRender = !element.renderid;
-    element.renderid = 1;
-    var parentNode = element.parentNode;
-    if (parentNode) {
-        if (parentNode.renderid > 1 || parentNode.isMounted) element.renderid = 2;
-    }
 
     if (isFirstRender) {
+        element.renderid = 1;
+        var parentNode = element.parentNode;
+        if (parentNode) {
+            if (parentNode.renderid > 1 || parentNode.isMounted) element.renderid = 2;
+        }
         element.renders = element.renders ? [].concat(element.renders) : [];
         var { ons, copys, attrs, props, binds, context: withContext } = element.$struct;
         delete element.$struct;

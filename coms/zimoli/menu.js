@@ -117,8 +117,9 @@ function main(elem, mode) {
             case "inline":
             case "t":
             case "tree":
+                mode = "tree";
                 if (elem) {
-                    var generator = getGenerator(elem);
+                    var generator = getGenerator(elem, 'menu-item');
                     tree(elem, function (index, item) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
@@ -156,7 +157,7 @@ function main(elem, mode) {
                     active(elem, item, item.value, target);
                 };
                 if ("$src" in elem) {
-                    getGenerator(elem);
+                    getGenerator(elem, 'menu-item');
                     care(elem, function (src) {
                         menuList(elem, getTreeFromData(src), emit, direction);
                         elem.registerAsRoot();
