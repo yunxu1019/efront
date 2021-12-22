@@ -11,11 +11,11 @@ var clear = function () {
 var unfocus = function () {
     remove(mounted_menus);
     this.ispop = false;
-    this.setFocus();
+    this.setFocus(null);
 };
-var setFocus = function (focused = this.firstMenu) {
+var setFocus = function (focused) {
     var page = this;
-    if (page.ispop || page === document.activeElement) {
+    if (focused) {
         if (page.focused !== focused) {
             if (page.focused) removeClass(page.focused, 'focus');
             if (focused) addClass(focused, "focus");
@@ -106,12 +106,18 @@ function keyalt() {
     else {
         root_menu.tabIndex = 0;
         root_menu.focus();
+        root_menu.setFocus(this.firstMenu);
     }
-    root_menu.setFocus();
+}
+function keytab(event) {
+    if (root_menu !== document.activeElement) return;
+    var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
+    event.preventDefault();
+    menu.moveFocus(1);
 }
 function keyesc() {
     if (root_menu === document.activeElement && !mounted_menus.length) {
-        if (!root_menu.ispop) root_menu.blur(), root_menu.setFocus();
+        if (!root_menu.ispop) root_menu.blur();
         else root_menu.ispop = false;
     }
 }
@@ -137,6 +143,7 @@ function keyspace() {
 }
 function register() {
     // on('keydown.alt')(window, e => e.preventDefault());
+    on('keydown.tab')(window, keytab);
     on('keydown.alt.')(window, keyalt);
     on('keydown.esc')(window, keyesc);
     on('keydown.left')(window, keyleft);
@@ -215,11 +222,12 @@ function main(page, items, active, direction = 'y') {
         var root = page.root || page;
         if (root.ispop === 1) root.ispop = false;
         if (page.actived && page.actived.target === this) {
+            while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page.actived) remove(mounted_menus.pop());
             if (!mounted_menus.length) {
                 popMenu(this.menu, this);
             }
             else {
-                unfocus.call(page);
+                remove(mounted_menus.pop());
             }
         }
         else {
