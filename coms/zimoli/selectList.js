@@ -1,12 +1,17 @@
 var singleClick = function () {
     var node = this.parentNode;
     if (node.activeNode === this) return;
-    if (node.activeNode) node.activeNode.removeAttribute("selected");
+    if (node.activeNode) {
+        if (node.activeNode.origin) node.activeNode.origin.selected = false;
+        node.activeNode.removeAttribute("selected");
+    }
     this.setAttribute("selected", "");
+
     node.activeNode = this;
     if (node.value === this.value) return;
     node.value = this.value;
     node.name = this.name;
+    if (this.origin) this.origin.selected = true;
     dispatch(node, "change");
 };
 var multipleClick = function () {
@@ -20,13 +25,13 @@ var multipleClick = function () {
         values.splice(index, 1);
         this.removeAttribute("selected");
     }
+    if (this.origin) this.origin.selected = true;
     dispatch(node, "change");
 };
 
 function main(children, multiple, addable) {
     var page = div();
     page.value = multiple ? [] : "";
-    var firstValue = false;
     var clicker = multiple ? multipleClick : singleClick;
     var itemMap = Object.create(null);
     function createItem(option) {
@@ -36,6 +41,7 @@ function main(children, multiple, addable) {
         item.setAttribute("item", '');
         item.innerHTML = option.innerHTML || option.name;
         item.name = option.name || option.innerHTML;
+        item.origin = option;
         var icon = option.getAttribute ? option.getAttribute("icon") : option.icon;
         if (icon) {
             if (!hasIcon) {
@@ -50,10 +56,10 @@ function main(children, multiple, addable) {
             if (multiple) {
                 item.setAttribute("selected", "");
                 page.value.push(option.value);
-            } else if (!firstValue) {
+            }
+            else {
                 item.setAttribute("selected", "");
                 page.activeNode = item;
-                firstValue = true;
                 page.value = option.value
             }
         }
