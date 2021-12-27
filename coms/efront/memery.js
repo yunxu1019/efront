@@ -14,21 +14,31 @@ for (var k in env) {
 }
 var istest = test(env.IN_TEST_MODE) || test(env.IS_TEST_MODE) || test(env.TEST_MODE);
 var namemap = Object.create(null);
+
 var set = function (k, v) {
+    var n
     if (k in this) {
-        this[k] = v;
-        if (fixme[k]) fixpath(k);
-        return;
+        n = k;
     }
-    k = k.toUpperCase();
-    if (!(k in namemap)) {
-        console.warn("检查到未知环境变量", k);
+    else {
+        k = k.toUpperCase();
+        if (!(k in namemap)) {
+            console.warn("检查到未知环境变量", k);
+        }
+        var n = namemap[k] || k;
     }
-    var n = namemap[k] || k;
+    switch (typeof this[n]) {
+        case "number":
+            v = +v;
+            break;
+        case "boolean":
+            v = !reg.test(v);
+            break;
+    }
     this[n] = v;
     if (fixme[n]) fixpath(n);
-}
-var get = function (name, _default, fix) {
+};
+var get = function (name, _default, fix, limits) {
     var env = this || process.env;
     var alias = String(name).split(/\s*[\|\,;:]\s*/);
     for (var cx = 0, dx = alias.length; cx < dx; cx++) {
@@ -36,21 +46,23 @@ var get = function (name, _default, fix) {
         namemap[k] = alias[0];
     }
     if (fix) fixme[alias[0]] = fix;
+    if (limits) limits[alias[0]] = limits;
+    var value = _default;
     for (var cx = 0, dx = alias.length; cx < dx; cx++) {
         var k = alias[cx];
         if (k in env) {
             var v = env[k];
             switch (typeof _default) {
                 case "number":
-                    return +v;
+                    value = +v;
                 case "boolean":
-                    return test(v);
+                    value = reg.test(v);
                 default:
-                    return v;
+                    value = v;
             }
         }
     }
-    return _default;
+    return value;
 };
 var noproxy, coms_path;
 var fixme = {};
@@ -137,6 +149,7 @@ module.exports = {
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),
     APP: get("APP, APPNAME"),
     TITLE: get("TITLE", ''),
+    CPUS: get("CPUS, CLUSTERS, SPREADS", istest ? 1 : require("os").cpus().length),
     PASSWORD: get('PASSWORD'),
     MSIE: get("IE,MSIE,Trident,IEXPLORE,DETOUR"),
     HTTP_PORT: get('HTTP_PORT', 0),

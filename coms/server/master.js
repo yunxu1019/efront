@@ -6,16 +6,13 @@ var message = require("../message");
 var clients = require("./clients");
 var fs = require("fs");
 var path = require("path");
-
+var memery = require("../efront/memery");
 
 var working = 0;
 
 var quitting = [], notkilled = [];
 var workers = [];
-var cpus = require('os').cpus().map(a => 0);
-if (isDevelop || isDebug) {
-    cpus = [0];
-}
+var cpus = new Array(memery.CPUS).fill(0);
 var end = function () {
     quitting = quitting.concat(workers);
     if (!quitting.length) {
