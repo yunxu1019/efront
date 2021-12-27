@@ -7,13 +7,13 @@ function main() {
             await this.clusters;
             this.active();
         },
-        index: data.getInstance("index").index || 0,
+        index: data.getInstance("index"),
         clusters: [],
         filterTime(d) {
             return ((new Date - d) / 1000 | 0) + "秒";
         },
         clients: [],
-        active(index = this.index) {
+        active(index = this.index.index | 0) {
             data.setInstance('index', { index });
             var clusters = this.clusters;
             if (index >= clusters.length) index = clusters.length - 1;

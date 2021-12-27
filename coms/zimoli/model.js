@@ -91,15 +91,17 @@ var constructors = {
         }
         else if (t === 'a') {
             var { field, data } = _;
-            var pad = selectList(field.options, field.multi, true);
-            var e = document.createElement('select');
             var opt = null;
-            for (var o of field.options) {
+            for (var cx = 0, options = field.options, dx = options.length; cx < dx; cx++) {
+                var o = options[cx];
                 if (o.key === data[field.key]) {
                     opt = o;
+                    o.selected = true;
                     break;
                 }
             }
+            var pad = selectList(field.options, field.multi, true);
+            var e = document.createElement('select');
             e.innerHTML = `<option selected value="${opt ? opt.key : ''}">${opt ? opt.name : '请选择'}</option>`;
             e.value = opt ? opt.key : '';
             elem = select(e, pad);
