@@ -66,6 +66,7 @@ var get = function (name, _default, fix, limits) {
 };
 var noproxy, coms_path;
 var fixme = {};
+var cpus = 0;
 var fixpath = function (key) {
     var exports = module.exports;
     var url = exports[key];
@@ -149,7 +150,13 @@ module.exports = {
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),
     APP: get("APP, APPNAME"),
     TITLE: get("TITLE", ''),
-    CPUS: get("CPUS, CLUSTERS, SPREADS", istest ? 1 : require("os").cpus().length),
+    get cpus() {
+        if (cpus > 0) return cpus;
+        return cpus = get("CPUS, CLUSTERS, SPREADS", this.istest ? 1 : require("os").cpus().length);
+    },
+    set cpus(v) {
+        cpus = v;
+    },
     PASSWORD: get('PASSWORD'),
     MSIE: get("IE,MSIE,Trident,IEXPLORE,DETOUR"),
     HTTP_PORT: get('HTTP_PORT', 0),
