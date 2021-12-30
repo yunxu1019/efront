@@ -24,11 +24,11 @@ var getGenerator = function (container, tagName = 'item') {
     var scopes = container.$parentScopes || [];
     if (container.$scope) scopes = scopes.concat(container.$scope);
     return container.$generator = function (index, com, element) {
-        if (!com) {
+        if (com === undefined) {
             if (!container.src || index >= container.src.length) return;
             com = container.src[index];
         }
-        if (!com) return;
+        if (com === undefined) return;
         if (!element) {
             var template1 = template.cloneNode(true);
             if (!template1.childNodes.length) {
