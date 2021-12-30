@@ -113,7 +113,7 @@ function keytab(event) {
     if (root_menu !== document.activeElement) return;
     var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
     event.preventDefault();
-    menu.moveFocus(1);
+    menu.moveFocus(event.shiftKey ? -1 : 1);
 }
 function keyesc() {
     if (root_menu === document.activeElement && !mounted_menus.length) {
