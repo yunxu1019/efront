@@ -103,7 +103,23 @@ function select(target, list, removeOnSelect, direction) {
         };
         var setIcon = function () {
         };
-    } else {
+    }
+    else if (target.$src) {
+        var generator = getGenerator(target);
+        var initList2 = function (src) {
+            list = selectList(generator, src, target.multiple, target.editable);
+            if (!target.multiple) {
+                onclick(list, onlistclick);
+            }
+            bindEvent();
+        };
+        care(target, initList2);
+        var initList = function () {
+        };
+        var setIcon = function () {
+        };
+    }
+    else {
         var savedOptions;
         removeOnSelect = null;
         var lastSelected = [];

@@ -34,8 +34,27 @@ function keyup() {
 
 function keydown() { }
 
-function main(children, multiple, addable) {
-    var page = div();
+function main() {
+    var children, multiple, addable, generator, page;
+    for (let a of arguments) {
+        if (a instanceof Array) children = a;
+        switch (typeof a) {
+            case "function":
+                generator = a;
+                break;
+            case "boolean":
+                if (multiple === void 0) multiple = a;
+                else addable = a;
+            case "object":
+                if (isNode(a)) {
+                    page = a;
+                    if (!generator) generator = getGenerator(page);
+                }
+                else if (a.length) children = a;
+
+        }
+    }
+    if (!page) page = div();
     page.value = multiple ? [] : "";
     var clicker = multiple ? multipleClick : singleClick;
     var itemMap = Object.create(null);
@@ -79,12 +98,12 @@ function main(children, multiple, addable) {
     var hasIcon = false, iconed = '';
     var page = list(page, function (i) {
         if (i < 0 || i >= children.length) return;
-        return createItem(children[i]);
+        return createItem(generator ? generator(i) : children[i]);
     });
-    on("append")(page, function () {
-        page.clean();
+    once("append")(page, function () {
         var index = 0;
         for (var cx = 0, dx = children.length; cx < dx; cx++)if (children[cx].selected) index = cx;
+        page.clean();
         page.go(index);
         if (adder) {
             remove(adder);
