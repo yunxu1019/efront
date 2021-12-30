@@ -142,17 +142,16 @@ function keyspace() {
     }
 }
 function register() {
-    // on('keydown.alt')(window, e => e.preventDefault());
-    on('keydown.tab')(window, keytab);
-    on('keydown.alt.')(window, keyalt);
-    on('keydown.esc')(window, keyesc);
-    on('keydown.left')(window, keyleft);
-    on('keydown.right')(window, keyright);
-    on('keydown.up')(window, keyup);
-    on('keydown.down')(window, keydown);
-    on('keydown.enter')(window, keyspace);
-    on('keydown.space')(window, keyspace);
     root_menu = this;
+    bind('keydown.tab')(root_menu, keytab);
+    bind('keydown.alt.')(root_menu, keyalt);
+    bind('keydown.esc')(root_menu, keyesc);
+    bind('keydown.left')(root_menu, keyleft);
+    bind('keydown.right')(root_menu, keyright);
+    bind('keydown.up')(root_menu, keyup);
+    bind('keydown.down')(root_menu, keydown);
+    bind('keydown.enter')(root_menu, keyspace);
+    bind('keydown.space')(root_menu, keyspace);
 }
 function main(page, items, active, direction = 'y') {
     if (!isNode(page)) {
