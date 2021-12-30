@@ -378,13 +378,20 @@ function ylist(container, generator, $Y) {
     };
     if (!/^i(Phone|Pod|Watch|Pad)|^Mac/i.test(navigator.platform)) var __scrollBy = list.scrollBy;
     list.scrollBy = scrollBy;
-    list.index = function () {
+    list.index = function (update) {
+        if (update === false) return saved_itemIndex;
         var firstElement = getFirstVisibleElement();
         if (!firstElement) return saved_itemIndex;
         var index = firstElement.index;
         var scrolled = (list.scrollTop - firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop)) / firstElement.offsetHeight;
-        return index + scrolled;
+        return saved_itemIndex = index + scrolled;
     };
+    on("remove")(list, function () {
+        saved_itemIndex = list.index();
+    });
+    on("append")(list, function () {
+        if (isFinite(saved_itemIndex)) list.go(saved_itemIndex);
+    })
     list.topIndex = function () {
         var element = getFirstElement(1);
         return element ? element.index : 0;
