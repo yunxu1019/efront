@@ -29,6 +29,11 @@ var multipleClick = function () {
     dispatch(node, "change");
 };
 
+function keyup() {
+}
+
+function keydown() { }
+
 function main(children, multiple, addable) {
     var page = div();
     page.value = multiple ? [] : "";
@@ -78,7 +83,9 @@ function main(children, multiple, addable) {
     });
     on("append")(page, function () {
         page.clean();
-        page.go(0);
+        var index = 0;
+        for (var cx = 0, dx = children.length; cx < dx; cx++)if (children[cx].selected) index = cx;
+        page.go(index);
         if (adder) {
             remove(adder);
             appendChild(page, adder);

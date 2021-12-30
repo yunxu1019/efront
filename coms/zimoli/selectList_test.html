@@ -2,9 +2,9 @@
     <option>选项一</option>
     <option>选项二</option>
     <option>选项三</option>
+    <option selected>简单选项</option>
 </select>
 <select>
-    <option>选项一</option>
-    <option>选项二</option>
-    <option>选项三</option>
+    <option -repeat="(o,i) in options600" -text="'选项'+o">选项</option>
+    <option selected>600个选项</option>
 </select>
