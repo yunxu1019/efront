@@ -48,11 +48,13 @@ var parse一二三 = function (a) {
 };
 var map甲乙丙 = createMap("甲乙丙丁戊己庚辛壬癸");
 var map子丑寅 = createMap("子丑寅卯辰巳午未申酉戌亥");
+var map上中下 = createMap("前上中下后");
 
 var reg123 = /^(\d+|\d+[\.\d]+\d+)[\s\S]*$/;
 var reg一二三 = /^([一二三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟萬零〇]+)[\s\S]*$/;
 var reg甲乙丙 = /^([甲乙丙丁戊己庚辛壬癸])[\s\S]*$/;
 var reg子丑寅 = /^([子丑寅卯辰巳午未申酉戌亥])[\s\S]*$/;
+var reg上中下 = /^([前上中下后])[\s\S]*$/;
 var reg天干地支 = /^([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])[\s\S]*$/;
 
 var getDelta = function (a, b, reg, parse) {
@@ -85,14 +87,14 @@ var compare = function (a, b) {
     for (var cx1 = a.length - 1, cx2 = b.length - 1; cx1 >= 0 && cx2 >= 0; cx1--, cx2--) {
         while (/\s\u00a0/.test(a[cx1])) cx1--;
         while (/\s\u00a0/.test(b[cx2])) cx2--;
-        if (a[cx1] !== b[cx2] || a[cx1] in map子丑寅 || a[cx1] in map一二三 || a in power || /^\d$/.test(a[cx1])) break;
+        if (a[cx1] !== b[cx2] || a[cx1] in map子丑寅 || a[cx1] in map上中下 || a[cx1] in map一二三 || a in power || /^\d$/.test(a[cx1])) break;
     }
     a = a.slice(0, cx1 + 1);
     b = b.slice(0, cx2 + 1);
     for (var cx1 = 0, cx2 = 0, dx1 = b.length, dx2 = b.length; cx1 < dx1 && cx2 < dx2; cx1++, cx2++) {
         while (/[\s\u00a0]/.test(a[cx1])) cx1++;
         while (/[\s\u00a0]/.test(b[cx2])) cx2++;
-        if (a[cx1] !== b[cx2] || a[cx1] in map甲乙丙 || a[cx1] in map一二三 || a in power || /^\d/.test(a[cx1])) break;
+        if (a[cx1] !== b[cx2] || a[cx1] in map甲乙丙 || a[cx1] in map上中下 || a[cx1] in map一二三 || a in power || /^\d/.test(a[cx1])) break;
     }
     if (cx1) a = a.slice(cx1);
     if (cx2) b = b.slice(cx2);
@@ -107,6 +109,8 @@ var compare = function (a, b) {
     delta = getDelta(a, b, reg甲乙丙, d => map甲乙丙[d]);
     if (delta) return delta;
     delta = getDelta(a, b, reg子丑寅, d => map子丑寅[d]);
+    if (delta) return delta;
+    delta = getDelta(a, b, reg上中下, d => map上中下[d]);
     if (delta) return delta;
     return 0;
 }
