@@ -207,8 +207,8 @@ function main(page, items, active, direction = 'y') {
     var open = function () {
         cancel();
         var elem = this;
-        page.setFocus(elem);
         if (page.ispop) popTimer = setTimeout(function () {
+            page.setFocus(elem);
             popMenu(elem.menu, elem);
         }, 60);
     };
@@ -260,6 +260,7 @@ function main(page, items, active, direction = 'y') {
                 if (!page.firstMenu) {
                     page.firstMenu = a;
                 }
+                a.menu = s.menu;
                 return a;
             },
             menus: items,

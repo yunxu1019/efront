@@ -165,6 +165,7 @@ function main(elem, mode) {
                 }
                 else {
                     var nodes = getArrayNodes(elem);
+                    remove(elem.children);
                     elem = menuList(elem, nodes, emit, direction);
                     elem.registerAsRoot();
                 }
