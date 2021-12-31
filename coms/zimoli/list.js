@@ -60,6 +60,28 @@ function ylist(container, generator, $Y) {
         }
         return null;
     };
+    var hasCover = function (child) {
+        var scrollTop = list.scrollTop;
+        if (child.offsetTop + child.offsetHeight < scrollTop || child.offsetTop >= scrollTop + list.clientHeight) return false;
+        if (child.offsetTop <= scrollTop && child.offsetTop + child.offsetHeight >= scrollTop + list.clientHeight) return true;
+        if (child.offsetTop < scrollTop) return false;
+        if (child.offsetTop + child.offsetHeight > scrollTop + list.clientHeight) return false;
+        return true;
+    };
+    var scrollIfNotCover = function (index) {
+        var c = getIndexedElement(index);
+        if (!c) return scrollTo(index);
+        if (hasCover(c)) return;
+        var scrollTop = list.scrollTop;
+        var deltat = scrollTop - c.offsetTop;
+        var deltab = c.offsetTop + c.offsetHeight - scrollTop - list.clientHeight;
+        if (deltat > 0) {
+            return scrollBy(-deltab > deltat ? -deltat : -deltab);
+        }
+        if (deltab > 0) {
+            return scrollBy(deltab < deltat ? deltat : deltab);
+        }
+    };
     var getLastVisibleElement = function (deltaY = 0) {
         var { scrollTop } = list;
         scrollTop += deltaY;
@@ -313,7 +335,6 @@ function ylist(container, generator, $Y) {
         } else {
             deltaScroll = patchTop(deltaY, animate);
         }
-
         if (deltaScroll) {
             if (animate && __scrollBy) {
                 list.scrollTop += deltaScroll - deltaY;
@@ -399,6 +420,7 @@ function ylist(container, generator, $Y) {
     list.getIndexedElement = getIndexedElement;
     list.patchBottom = patchBottom;
     list.patchTop = patchTop;
+    list.scrollIfNotCover = scrollIfNotCover;
     vbox(list, $Y);
     return list;
 }

@@ -94,6 +94,15 @@ function select(target, list, removeOnSelect, direction) {
         if (removeOnSelect === null) {
             onmousedown(list, preventDefault);
         }
+        on("keydown.up")(target, preventDefault);
+        on("keydown.down")(target, preventDefault);
+        on("keydown.enter")(target, preventDefault);
+        on("keydown.space")(target, preventDefault);
+        var pop = function () {
+            if (saved_list !== list) mousedown.call(this);
+        };
+        on("keydown.down")(target, pop);
+        on("keydown.enter")(target, pop);
         onremove(list, onlistremove);
     };
     if (isNode(list)) {

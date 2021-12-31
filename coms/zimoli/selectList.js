@@ -29,10 +29,6 @@ var multipleClick = function () {
     dispatch(node, "change");
 };
 
-function keyup() {
-}
-
-function keydown() { }
 
 function main() {
     var children, multiple, addable, generator, page;
@@ -91,10 +87,18 @@ function main() {
             item.setAttribute('disabled', '');
         } else {
             onclick(item, clicker);
+            on("mouseenter")(item, mouseenter);
         }
         return item;
 
     }
+    var mouseenter = function () {
+        if (!mouse) return;
+        focus = this.index;
+        setFocus();
+    };
+
+
     var hasIcon = false, iconed = '';
     var page = list(page, function (i) {
         if (i < 0 || i >= children.length) return;
@@ -161,6 +165,60 @@ function main() {
         adder.setAttribute("adder", '');
     }
     page.icon = iconed;
+    var focus = 0, focused, mouse = false;
+    var setFocus = function () {
+        var e = page.getIndexedElement(focus);
+        if (e === focused) return;
+        if (focused) removeClass(focused, 'focus');
+        focused = e;
+        if (e) addClass(e, 'focus');
+        mouse = false;
+    };
+    var setMouse = function () {
+        mouse = true;
+    }
+    onmousemove(page, setMouse);
+    onmousewheel(page, setMouse);
+    var moveFocus = function (delta) {
+        focus += delta;
+        if (focus < 0) focus = 0;
+        if (focus >= children.length) focus = children.length - 1;
+        page.scrollIfNotCover(focus);
+        setFocus();
+    };
+    bind('keydown.up')(page, function () {
+        moveFocus(-1);
+    });
+    bind('keydown.down')(page, function () {
+        moveFocus(1);
+    });
+    bind('keydown.tab')(page, function (event) {
+        if (document.activeElement === page.target) event.preventDefault();
+        moveFocus(event.shiftKey ? -1 : 1);
+    });
+    bind("keydown.home")(page, function (e) {
+        moveFocus(-focus);
+    });
+    bind("keydown.end")(page, function (e) {
+        moveFocus(children.length - 1 - focus);
+    });
+    bind("keydown.pagedown")(page, function (e) {
+        page.scrollBy(page.clientHeight);
+        focus = page.index() | 0;
+        moveFocus(0);
+    })
+    bind("keydown.pageup")(page, function (e) {
+        page.scrollBy(-page.clientHeight);
+        focus = page.index() | 0;
+        moveFocus(0);
+    })
+    var enter = function (e) {
+        e.preventDefault();
+        var e = page.getIndexedElement(focus);
+        if (e) e.click();
+    };
+    bind('keydown.enter')(page, enter);
+    bind('keydown.space')(page, enter);
     on('mousedown')(page, e => e.preventDefault());
     return page;
 }
