@@ -107,7 +107,6 @@ function ylist(container, generator, $Y) {
         return map;
     };
     var createItem = function (index) {
-        console.log(index)
         var item = generator(index);
         if (item) {
             item.index = index;
