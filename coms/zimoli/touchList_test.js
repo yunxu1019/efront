@@ -1,7 +1,7 @@
-var listY = list(function (data, index) {
+var listY = list(function (index) {
     var item = div();
     css(item, `width:100%;height:${Math.random() * 110 + 30}px;border:1px solid;`);
-    text(item, data);
+    text(item, index);
     return item;
 }, "Y");
 onappend(listY, function () {

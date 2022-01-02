@@ -107,6 +107,7 @@ function ylist(container, generator, $Y) {
         return map;
     };
     var createItem = function (index) {
+        console.log(index)
         var item = generator(index);
         if (item) {
             item.index = index;
@@ -124,10 +125,10 @@ function ylist(container, generator, $Y) {
         }
         var cache_height = list.offsetHeight;
         var index = itemIndex | 0;
+        if (itemIndex < 0) index--;
         var ratio = itemIndex - index || 0;
-        if (index < 0) index = 0;
         var childrenMap = getChildrenMap();
-        var offsetBottom = 0, ratioTop = 0, offset = +index || 0, last_item = getFirstElement() || null, last_index = last_item && last_item.index || offset;
+        var offsetBottom = 0, ratioTop = 0, offset = index, last_item = getFirstElement() || null, last_index = last_item && last_item.index || offset;
         var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
         var indexed_item;
         while (offsetBottom - ratioTop <= list.clientHeight + cache_height || indexed_item && top_item && indexed_item.offsetTop - top_item.offsetTop < cache_height) {
@@ -203,7 +204,9 @@ function ylist(container, generator, $Y) {
     var currentY = function () {
         var firstElement = getFirstElement(1);
         if (!firstElement) return;
-        return firstElement.index * firstElement.offsetHeight + list.scrollTop;
+        var index = firstElement.index;
+        if (index < 0) index = index - index | 0;
+        return index * firstElement.offsetHeight + list.scrollTop;
     };
     var getBottomElement = function (last_element) {
         if (!last_element) return null;
@@ -259,8 +262,6 @@ function ylist(container, generator, $Y) {
             let item = childrenMap[k];
             if (item.offsetTop + getOffsetHeight(item) + cache_height < scrollTop) {
                 collection.push(item);
-            } else {
-                break;
             }
         }
         if (collection.length) {
@@ -301,9 +302,6 @@ function ylist(container, generator, $Y) {
             offset--;
             if (!(scrollTop < targetHeight)) {
                 paddingCount--;
-            }
-            if (!(offset >= 0)) {
-                break;
             }
             var item = childrenMap[offset];
             if (!item) {
@@ -429,7 +427,7 @@ var xlist = arriswise(ylist, allArgumentsNames.concat([].slice.call(arguments, 0
 
 var getGeneratorFromArray = function (source) {
     return function (index) {
-        if (index >= source.length) return null;
+        if (index >= source.length || index < 0) return null;
         return block(source[index]);
     };
 };
