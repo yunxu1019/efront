@@ -927,6 +927,7 @@ var data = {
     setSource(sourceid, value) {
         var rememberWithStorage;
         if (isObject(sourceid)) {
+
             this.rebuildInstance(dataSourceMap, sourceid);
             rememberWithStorage = value;
         } else {
@@ -975,7 +976,7 @@ var data = {
         if (key === true || key === false || isEmpty(key)) {
             rememberWithStorage = key;
             key = null;
-            var value = instance;
+            var value = instance.valueOf();
         } else {
             var value = instance[key];
         }
