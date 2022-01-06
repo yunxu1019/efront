@@ -401,7 +401,7 @@ function ylist(container, generator, $Y) {
         var firstElement = getFirstVisibleElement();
         if (!firstElement) return saved_itemIndex;
         var index = firstElement.index;
-        var scrolled = (list.scrollTop - firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop)) / firstElement.offsetHeight;
+        var scrolled = (list.scrollTop - firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop) + .5 | 0) / firstElement.offsetHeight;
         return index + scrolled;
     };
     on("remove")(list, function () {
