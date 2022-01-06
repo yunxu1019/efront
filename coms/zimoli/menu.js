@@ -154,7 +154,7 @@ function main(elem, mode) {
             case "y":
             case "vertical":
                 var emit = function (item, target) {
-                    active(elem, item, item.value, target);
+                    active(elem, item.value, item, target);
                 };
                 if ("$src" in elem) {
                     getGenerator(elem, 'menu-item');

@@ -275,7 +275,6 @@ function main(page, items, active, direction = 'y') {
             var className = `{'has-children':${itemName}.children&&${itemName}.children.length,'warn':${itemName}.type==='danger'||${itemName}.type==='warn'||${itemName}.type==='red'}`;
             var notHidden = `!${itemName}.hidden`;
             var generator = getGenerator(page, 'menu-item');
-
             list(page, function (index) {
                 var item = items[index];
                 if (!item) return;

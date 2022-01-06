@@ -2,7 +2,7 @@
 var _slider = createElement(div);
 var getGenerator = function (container, tagName = 'item') {
     if (!container) return;
-    if (!container.childNodes.length && container.$generator) return container.$generator;
+    if (container.$generator) return container.$generator;
     var template = document.createElement(tagName);
     var templates = [].concat.apply([], container.childNodes).filter(a => {
         if (a.hasAttribute('insert')) {
