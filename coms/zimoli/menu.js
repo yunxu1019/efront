@@ -158,9 +158,19 @@ function main(elem, mode) {
                 };
                 if ("$src" in elem) {
                     getGenerator(elem, 'menu-item');
-                    care(elem, function (src) {
-                        menuList(elem, getTreeFromData(src), emit, direction);
+                    on("append")(elem, function () {
                         elem.registerAsRoot();
+                    });
+                    var src0 = [];
+                    menuList(elem, src0, emit, direction);
+                    care(elem, function (src) {
+                        src0.splice(0, src0.length);
+                        var s = getTreeFromData(src);
+                        var i = 0;
+                        while (i < s.length) {
+                            src0.push.apply(src0, s.slice(i, i += 1000));
+                        }
+                        elem.go(0);
                     });
                 }
                 else {
