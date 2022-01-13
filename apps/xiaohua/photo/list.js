@@ -18,27 +18,9 @@ var scope = render(page, {
     getStyles() {
         return this.videos ? this.videos.map((e, i) => `.photo-${i}{background-image:url('${this.encode(e)}')}`).join("\r\n") : '';
     },
-    encode(src) {
-        return "http://efront.cc/@/data/xiaohua/photos" + String(src.href).replace(/\.?[^\.]+$/, function (m) {
-            return "!" + user.getPassport() + m;
-        });
-    },
+    encode: encodeurl,
     view(src, index) {
-        var elem = picture.apply(null, arguments);
-        var head = document.createElement("span");
-        var foot = document.createElement("span");
-        var update = function (index) {
-            foot.innerHTML = `${index + 1}/${src.length}`;
-            head.innerHTML = src[index].href;
-        };
-        update(index);
-        on('park')(elem, function (event) {
-            var { index } = event;
-            update(index);
-        });
-        var windows = confirm(head, elem, [foot]);
-        css(elem, "position:relative;height:500px;width:800px");
-        css(windows, "height:600px;width:800px");
+        popup('/photo/view', { src, index });
     },
     video(element) {
         onclick(element, e => element.play());
