@@ -17,8 +17,15 @@ var getstation = function (n, s) {
     return n;
 };
 var _createImage = function (url, callback) {
-    var imgpic = document.createElement('img');
-    imgpic.src = url;
+    var imgpic;
+    if (url instanceof Image) {
+        imgpic = new Image;
+        imgpic.src = url.src;
+    }
+    else {
+        imgpic = document.createElement('img');
+        imgpic.src = url;
+    }
     var onload = function () {
         imgpic.onload = null;
         callback(imgpic);
@@ -393,7 +400,6 @@ function picture(url, to = 0, key) {
     var gen = function (index, ratio) {
         if (index >= urls.length || index < 0) return null;
         if (images[index] && images[index].url !== urls[index]) {
-            console.log(images[index].url, urls[index]);
             delete images[index];
         }
         if (!images[index]) {
