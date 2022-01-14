@@ -1,6 +1,7 @@
-var page = div();
 function main({ src, index }) {
     var page = view();
+    var d = data.getInstance("photo");
+    css(page, { width: d.width, height: d.height });
     page.innerHTML = template;
     var head = document.createElement("span");
     var foot = document.createElement("span");
@@ -21,6 +22,12 @@ function main({ src, index }) {
         remove() {
             remove(page);
         },
+    })
+    drag.on(page.firstChild, page);
+    resize.on(page);
+    on("resize")(page, function () {
+        var s = this.style;
+        data.setInstance("photo", { width: s.width, height: s.height });
     })
     // var windows = confirm(head, elem, [foot]);
     // css(elem, "position:relative;height:500px;width:800px");
