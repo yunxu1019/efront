@@ -13,23 +13,9 @@ main.upload = upload;
 function createThumbnail(file) {
     var { URL } = window;
     var url = URL.createObjectURL(file);
-    var c = document.createElement('canvas');
-    var context = c.getContext('2d');
     var img = new Image;
     img.src = url;
-    var onload = function () {
-        c.width = img.width;
-        c.height = img.height;
-        context.drawImage(img, 0, 0);
-    };
-    if (img.complete) {
-        onload();
-    }
-    else {
-        img.onload = onload;
-    }
-    c.file = file;
-    return c;
+    return img;
 }
 function main(files, base) {
     var page = view();
@@ -38,6 +24,9 @@ function main(files, base) {
     renderWithDefaults(page, {
         c(c, { f }) {
             return f;
+        },
+        view(i) {
+            popup("show", { src: files, index: i });
         },
         files
     });

@@ -2,5 +2,5 @@
     添加图片
 </div>
 <div body>
-    <c -if="!f.url" -repeat="f in files" />
+    <c -if="!f.url" -repeat="(f,i) in files" @click="view(i)" />
 </div>

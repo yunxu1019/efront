@@ -20,7 +20,7 @@ var scope = render(page, {
     },
     encode: encodeurl,
     view(src, index) {
-        popup('/photo/view', { src, index });
+        popup('show', { src, index });
     },
     video(element) {
         onclick(element, e => element.play());
