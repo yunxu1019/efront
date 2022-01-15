@@ -16,7 +16,25 @@ var active = function () {
     __addClass(this, "hover active");
 };
 var checkclick = function () {
-    if (this.hasAttribute("disabled") || this.disabled || this.hasAttribute("loading") || this.loading || this.hasAttribute("pending") || this.pending) onclick.preventClick = true;
+    if (this.hasAttribute("disabled") || this.disabled || this.hasAttribute("loading") || this.loading || this.hasAttribute("pending") || this.pending) {
+        onclick.preventClick = true;
+        return;
+    }
+    if (this.hasAttribute("confirm") || this.confirm) {
+        if (!this.confirm_sign) {
+            addClass(this, 'confirm');
+            var that = this;
+            that.confirm_sign = true;
+            setTimeout(function () {
+                removeClass(that, "confirm");
+                delete that.confirm_sign;
+            }, 2000);
+            onclick.preventClick = true;
+            return;
+        }
+        delete this.confirm_sign;
+        removeClass(this, "confirm");
+    }
 };
 var resetactive = function () {
     removeClass(this, "active");
