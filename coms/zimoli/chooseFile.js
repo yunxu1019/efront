@@ -27,6 +27,8 @@ function chooseFile(accept, multiple, extra) {
             }
         });
     });
-    input.click();
+    setTimeout(function(){
+        input.click();
+    });
     return result;
 }
