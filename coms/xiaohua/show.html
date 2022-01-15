@@ -9,6 +9,7 @@
     <picture @park="update(event.index)"></picture>
 </div>
 <div foot>
+    <btn type=default -if="!thumb" @click="createThumb()" >生成小图</btn>
     <btn type=danger @click="del()" confirm >删除</btn>
     <btn type=white @click="remove()" >关闭</btn>
 </div>

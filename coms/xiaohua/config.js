@@ -2,6 +2,7 @@ new Promise(function (ok) {
     var config = {
         target: 'fc',
         api_domain: "efront.cc:5989",
+        filebase: "//efront.cc/@/data/xiaohua/photos/",
         api_base: "http://efront.cc:5989/",
     };
     data.loadConfig("data/source-config.json");

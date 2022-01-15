@@ -18,11 +18,18 @@ function main({ src, index }) {
         head,
         foot,
         update,
+        get thumb() {
+            return src[_index].thumb;
+        },
         async del() {
             var f = src[_index];
             await data.from("photo-delete", { _id: f._id, _rev: f._rev });
             src.splice(index, 1);
             remove(page);
+        },
+        async createThumb() {
+            var f = src[_index];
+            await upload.createThumb(f);
         },
         picture() {
             var elem = picture(src, index, encodeurl);

@@ -9,7 +9,7 @@ function upload(f, base) {
         xhr.onerror = oh;
         if (xhr.upload) xhr.upload.onprogress = function (event) {
             var { total, loaded } = event;
-            f.percent = +(total / loaded * 100).toFixed(2) + "%";
+            f.percent = +(loaded / total * 100).toFixed(2) + "%";
             f.total = total;
             f.loaded = loaded;
             render.digest();
@@ -21,18 +21,54 @@ function couchdb() {
 
 }
 main.upload = upload;
-function createThumbnail(file) {
+function createURL(file) {
     var { URL } = window;
     var url = URL.createObjectURL(file);
     file.src = url;
     file.filename = file.name;
     return file;
 }
+function createThumb(src) {
+    return new Promise(function (ok) {
+        var img = new Image;
+        img.src = src;
+        var onload = function () {
+            var canvas = document.createElement("canvas");
+            var context = canvas.getContext("2d");
+            var ratio = Math.max(480 / img.width, 360 / img.height);
+            if (ratio > 1) ratio = 1;
+            if (isFinite(ratio)) {
+                canvas.width = img.width * ratio;
+                canvas.height = img.height * ratio;
+                context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                console.log(ratio)
+                canvas.toBlob(ok, 'image/jpeg');
+                console.log(ratio)
+            }
+        };
+        if (img.complete) {
+            onload();
+        }
+        else {
+            img.onload = onload;
+        }
+    })
+}
+var base = config.filebase;
+main.createThumb = async function (a) {
+    if (a.thumb) return;
+    var u = encodeurl(a);
+    var thumb = await createThumb(u);
+    a.thumb = 'thumb-' + a.href.replace(/^\//, '');
+    thumb.filename = a.thumb;
+    await upload(thumb, base);
+    var res = await data.from("photo-update", a);
+    a._rev = res.rev;
+};
 function main(files, listpage) {
     var page = view();
     page.innerHTML = template;
-    files = Array.prototype.map.call(files, createThumbnail);
-    var base = '/@/data/xiaohua/photos/';
+    files = Array.prototype.map.call(files, createURL);
     renderWithDefaults(page, {
         base,
         fields: [
@@ -45,7 +81,7 @@ function main(files, listpage) {
         async add() {
             var fs = await chooseFile(null, true);
             for (var f of fs) {
-                f = createThumbnail(f);
+                f = createURL(f);
                 files.push(f);
             }
         },
@@ -72,10 +108,19 @@ function main(files, listpage) {
                     if (xhr.status !== 200) {
                         throw xhr.responseText || xhr.response;
                     }
+                    var thumb = await createThumb(f.src);
+                    if (thumb.size < f.size) {
+                        thumb.filename = "thumb-" + f.filename;
+                        await upload(thumb, base);
+                    }
+                    else {
+                        thumb = f;
+                    }
                     var d = new Date(f.lastModified);
                     await data.from('photo-add', {
                         _id: "cc.efront.photo:" + _id++,
                         href: f.filename,
+                        thumb: thumb.filename,
                         name: f.name,
                         year: d.getFullYear(),
                         type: "photo",

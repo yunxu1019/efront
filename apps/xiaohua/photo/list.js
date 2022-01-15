@@ -16,7 +16,7 @@ var scope = render(page, {
     ],
     lattice,
     getStyles() {
-        return this.videos ? this.videos.map((e, i) => `.photo-${i}{background-image:url('${this.encode(e)}')}`).join("\r\n") : '';
+        return this.videos ? this.videos.map((e, i) => `.photo-${i}{background-image:url('${this.encode(e, true)}')}`).join("\r\n") : '';
     },
     encode: encodeurl,
     view(src, index) {
