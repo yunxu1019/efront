@@ -381,7 +381,7 @@ var src2 = function (search) {
             temp = "";
         }
         var changes = getChanges(temp, savedValue);
-        if (!changes || isEmpty(origin) && isEmpty(this.src)) return;
+        if (!changes || isEmpty(origin) && isEmpty(this.src) && isEmpty(savedValue)) return;
         savedValue = temp;
         this.src = origin;
         cast(this, origin);
