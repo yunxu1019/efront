@@ -1,13 +1,90 @@
 & {
     position: absolute;
+    width: 600px;
+
 }
 
-canvas {
-    max-width: 60px;
-    max-height: 60px;
+.c {
+    padding: 0 10px 0 130px;
+    border: 1px solid transparent;
+
+    >.drop {
+        margin: -2px;
+        display: none;
+    }
+
+    >bg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        border: 1px solid #ccc;
+        margin: -1px;
+        pointer-events: none;
+        display: none;
+    }
+
+    &:hover {
+
+        >.drop,
+        >bg {
+            display: block;
+        }
+    }
+
+    >c {
+        width: 120px;
+        left: 10px;
+        height: 100%;
+        position: absolute;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+
+        border: 2px solid transparent;
+        line-height: 0;
+
+        &:hover {
+            border-color: #29c;
+
+        }
+    }
+
+    >.drop:hover+bg {
+        border-color: #c24;
+    }
+
+    >percent {
+        display: block;
+        height: 0;
+        background: #29c3;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    &.error {
+        
+        >percent {
+            display: none;
+            background: #c243;
+        }
+        
+        >error {
+            top: 10px;
+            right: 40px;
+            width: auto;
+            position: absolute;
+        }
+
+        color: #c24;
+        text-align: right;
+    }
+
 }
 
-img {
-    max-width: 120px;
-    max-height: 120px;
+.padding {
+    text-align: center;
 }

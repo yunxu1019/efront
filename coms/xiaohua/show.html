@@ -1,10 +1,14 @@
 <div head>
-    查看图片 &nbsp; <span bind="head"></span>
+    查看图片 &nbsp; 
+    (<span bind="foot"></span>)
+    &nbsp;
+    <span bind="head"></span>
     <close @click="remove()"></close>
 </div>
 <div body>
     <picture @park="update(event.index)"></picture>
 </div>
 <div foot>
-    <span bind="foot"></span>
+    <btn type=danger @click="del()" confirm >删除</btn>
+    <btn type=white @click="remove()" >关闭</btn>
 </div>

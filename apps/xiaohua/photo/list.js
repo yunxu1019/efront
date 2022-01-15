@@ -8,7 +8,7 @@ on("remove")(page, function () {
 on("append")(page, function () {
     offdrag = on("drop")(window, function (event) {
         event.preventDefault();
-        upload(event.dataTransfer.files)
+        upload(event.dataTransfer.files, null, page)
     });
 });
 var scope = render(page, {
@@ -34,23 +34,27 @@ onappend(page, function () {
         name: "添加",
         tip: "",
         do() {
-            chooseFile().then(e => upload(e, '/@/data/xiaohua/photos/'));
+            chooseFile(null, true).then(e => upload(e, page));
         },
     },]);
-});
-onremove(page, function () {
-    data.setInstance("option-buttons", []);
-})
-function main() {
 
-    api("/photos/_find", {
+});
+once("append")(page, function () {
+    page.load();
+});
+page.load = function () {
+
+    scope.videos = data.from("photo-list", {
         selector: {
         },
         skip: 0,
         limit: 600,
         "sort": [{ 'year': "desc" }]
-    }).success(function (data) {
-        scope.videos = data.docs;
     });
+};
+onremove(page, function () {
+    data.setInstance("option-buttons", []);
+})
+function main() {
     return page;
 }
