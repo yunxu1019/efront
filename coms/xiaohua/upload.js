@@ -74,13 +74,12 @@ function main(files, listpage) {
                     }
                     var d = new Date(f.lastModified);
                     await data.from('photo-add', {
-                        _id: _id++,
+                        _id: "cc.efront.photo:" + _id++,
                         href: f.filename,
                         name: f.name,
                         year: d.getFullYear(),
                         type: "photo",
                         describe: f.desc,
-                        _id: "cc.efront.photo:" + f
                     });
                     count++;
                 } catch (e) {
