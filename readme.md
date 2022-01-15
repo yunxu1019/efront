@@ -138,7 +138,7 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
     npm install -g efront@版本号
   ```
 其中`版本号`替换为您要安装的版本。
-您也可以在[github](https://github.com/yunxu1019/efront)上提issue，可以使用中文或中文，其他语言不禁止，但作者不一定能理解到位。
+您也可以在[github](https://github.com/yunxu1019/efront/issues)上提issue，可以使用中文或中文，其他语言不禁止，但作者不一定能理解到位。
 
 * efront 为组件生成的较长的 `className` 选择器 (含中划线，如`.comm-button`)可能会发生变化，如果要为嵌入的组件设置样式，可以使用 efront 为其生成的较短的 `className` 选择器 (不含中划线`-`，如`.button`)
 * efront 将不在首字符位置的`$`识别为快捷分割符，以便以变量名的方式引入多级文件夹中的模块，文件命名时不要在文件名的中间位置使用`$`符号
