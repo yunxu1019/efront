@@ -165,6 +165,7 @@ function getUrlParamsForApi(api, url) {
     var params = {};
     url = url.replace(/[\?#]*$/g, function (match) {
         match.split(/[&#\?]+/).forEach(function (s) {
+            if (!s) return;
             var [k, v] = s.split("=");
             params[k] = v;
         });
@@ -176,7 +177,7 @@ function getUrlParamsForApi(api, url) {
         });
     });
     params = serialize(params);
-    return api.id + "?" + params;
+    return params;
 }
 
 function __seekprop(data, prop) {
@@ -204,7 +205,7 @@ function seekResponse(data, seeker, apiMap = {}) {
         }
         if (data && prop) {
             var reg1 = /[\:\>\\]/, next;
-            var getNextValue = /[\>\\]/.test(prop);
+            var getNextValue = !/\:/.test(prop);
             if (reg1.test(prop)) {
                 var [prop, next, pick] = prop.split(reg1);
                 next = apiMap[next];
@@ -231,8 +232,8 @@ function seekResponse(data, seeker, apiMap = {}) {
                 data = JSON.parse(data);
             }
             if (next) {
-                data = getUrlParamsForApi(next, data);
-                if (pick || getNextValue) {
+                data = (pick || next.id) + "?" + getUrlParamsForApi(next, data);
+                if (getNextValue) {
                     data = getParamsFromUrl(data);
                     if (pick) data = data[pick];
                 }

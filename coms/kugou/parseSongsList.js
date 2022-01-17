@@ -4,7 +4,6 @@ a => {
         if (!m) throw new Error("无法加载数据！");
         if (m) a = m[1];
         a = JSON.parse(a);
-        console.log(a)
     }
     return a.map(b => {
         var data = {};
