@@ -404,12 +404,6 @@ function ylist(container, generator, $Y) {
         var scrolled = (list.scrollTop - firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop) + .5 | 0) / firstElement.offsetHeight;
         return index + scrolled;
     };
-    on("remove")(list, function () {
-        saved_itemIndex = list.index();
-    });
-    on("append")(list, function () {
-        if (isFinite(saved_itemIndex)) list.go(saved_itemIndex);
-    })
     list.topIndex = function () {
         var element = getFirstElement(1);
         return element ? element.index : 0;
@@ -419,6 +413,12 @@ function ylist(container, generator, $Y) {
     list.patchTop = patchTop;
     list.scrollIfNotCover = scrollIfNotCover;
     vbox(list, $Y);
+    on("remove")(list, function () {
+        saved_itemIndex = list.index();
+    });
+    on("append")(list, function () {
+        if (isFinite(saved_itemIndex)) list.go(saved_itemIndex);
+    })
     return list;
 }
 var allArgumentsNames = arguments[arguments.length - 1];

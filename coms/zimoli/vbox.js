@@ -201,7 +201,7 @@ function ybox(generator) {
         }
         this.YScrollBoxId = +scrollId + 1;
     }
-    if (_box.isMounted) initScrollId.call(_box);
+    if (isMounted(_box)) initScrollId.call(_box);
     on("append")(_box, initScrollId);
     _box.cancelFrame = function () {
         cancelAnimationFrame(smooth_timer);
