@@ -1,4 +1,4 @@
-return _cross.bind(function (callback, onerror) {
+return cross_.bind(function (callback, onerror) {
     var response, responseObject, responseType = "", error;
     var xhr = {
         status: 0,

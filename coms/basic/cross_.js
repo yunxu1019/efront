@@ -46,7 +46,7 @@ function toResponse() {
     if (this.responseType === 'json') return JSON.stringify(this.response);
     return this.response;
 }
-function _cross(jsonp, digest = noop, method, url, headers) {
+function cross_(jsonp, digest = noop, method, url, headers) {
     var originDomain = getDomainPath(url);
     if (!originDomain) throw new Error("路径格式错误！");
     var _cookies = getCookies(originDomain);
@@ -149,7 +149,7 @@ function _cross(jsonp, digest = noop, method, url, headers) {
                         }
                         location = getRequestProtocol(url) + "//" + location;
                     }
-                    var crs = _cross("get", location, _headers);
+                    var crs = cross_("get", location, _headers);
                     crs.isRedirected = (xhr.isRedirected || 0) + 1;
                     crs.done(onload, false);
                     crs.error(onerror, false);
@@ -304,10 +304,10 @@ function reform(r, info, fire, cancel, e) {
 function addReform(r) {
     if (isFunction(r)) reforms.push(r);
 }
-var bind = _cross.bind;
-_cross.bind = function () {
-    var _cross = bind.apply(this, arguments);
-    extend(_cross, {
+var bind = cross_.bind;
+cross_.bind = function () {
+    var cross_ = bind.apply(this, arguments);
+    extend(cross_, {
         requests,
         abortAll() {
             var rs = requests.splice(0, requests.length);
@@ -320,10 +320,10 @@ _cross.bind = function () {
         addDirect,
         getCrossUrl
     });
-    return _cross;
+    return cross_;
 }
-_cross.setHost = setHost;
-_cross.setLocation = function (host) {
+cross_.setHost = setHost;
+cross_.setLocation = function (host) {
     location_href = host;
     if (!base) base = /^https?\:/i.test(location_href) ? '/' : "http://efront.cc/";
 };

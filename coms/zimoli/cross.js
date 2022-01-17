@@ -5,7 +5,7 @@ var saveCookie = lazy(function () {
 var { efrontURI, cross_host = efrontURI } = this;
 var location_href = parseURL(location.href);
 location_href = `${location_href.protocol}//${location_href.host}/`;
-_cross.setLocation(location_href);
+cross_.setLocation(location_href);
 
 var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
 var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
@@ -21,7 +21,7 @@ var digest = function () {
     dispatch('render', window);
 };
 
-var cross = _cross.bind(function (callback, onerror) {
+var cross = cross_.bind(function (callback, onerror) {
     var xhr = new XMLHttpRequest;
     var abort = xhr.abort;
     xhr.abort = function () {
@@ -55,6 +55,6 @@ cross.setHost = function (host) {
     if (!host) return console.error("cross_host格式不正确", host);
     var host = parsed.host + (parsed.pathname || '/');
     host = (/^https/.test(location_href) ? "https://" : "http://") + host;
-    _cross.setHost(host);
+    cross_.setHost(host);
 };
 if (cross_host) cross.setHost(cross_host);
