@@ -122,17 +122,23 @@ function slider(autoplay, circle = true) {
     };
     var park = function () {
         direction = 0;
-        if (delta_negative_index > 0) {
-            if (negative_index - floor(negative_index) > 0.3 / (1 + abs(_speed())))
+        var singleTarget = getSingleTarget();
+        if (singleTarget) {
+            negative_index = round(negative_index);
+        }
+        else if (delta_negative_index > 0) {
+            if (negative_index - floor(negative_index) > 0.2 / (1 + 6 * abs(_speed())))
                 negative_index = ceil(negative_index);
             else
                 negative_index = floor(negative_index);
-        } else if (delta_negative_index < 0) {
-            if (ceil(negative_index) - negative_index > 0.3 / (1 + abs(_speed())))
+        }
+        else if (delta_negative_index < 0) {
+            if (ceil(negative_index) - negative_index > 0.2 / (1 + 6 * abs(_speed())))
                 negative_index = floor(negative_index);
             else
                 negative_index = ceil(negative_index);
-        } else {
+        }
+        else {
             negative_index = round(negative_index);
         }
         animate();
@@ -173,9 +179,10 @@ function slider(autoplay, circle = true) {
         }
         return enabled;
     };
+    var getSingleTarget = () => (!_imageMain || !_imageHelp) && (_imageMain || _imageHelp);
     var moveDeltaX = function (deltax, event) {
         var width = outter.clientWidth;
-        var singleTarget = (!_imageMain || !_imageHelp) && (_imageMain || _imageHelp);
+        var singleTarget = getSingleTarget();
         if (singleTarget) {
             var current_Left = singleTarget.offsetLeft;
             var avail_deltaWidth = round(width >> 2);
