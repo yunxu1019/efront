@@ -153,9 +153,9 @@ function cssTargetStyleSheet(stylesheet, innerCss) {
     var styleSheet = stylesheet.styleSheet;
     if (styleSheet) {
         //IE
-        styleSheet.cssText = innerCss;
+        if (styleSheet.cssText !== innerCss) styleSheet.cssText = innerCss;
     } else {
-        stylesheet.innerHTML = innerCss;
+        if (stylesheet.innerHTML !== innerCss) stylesheet.innerHTML = innerCss;
     }
 }
 
