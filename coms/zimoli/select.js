@@ -42,11 +42,11 @@ function select(target, list, removeOnSelect, direction) {
         direction = removeOnSelect;
         removeOnSelect = arguments[3];
     }
-    if (direction === undefined) {
-        direction = target.getAttribute("direction") || target.direction;
-    }
     if (!target) {
         target = document.createElement("select");
+    }
+    if (direction === undefined) {
+        direction = target.getAttribute("direction") || target.direction;
     }
     target.tabIndex = 0;
     onblur(target, removeByBlur);
