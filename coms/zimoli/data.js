@@ -895,7 +895,7 @@ var data = {
             return data;
         });
         promise1.catch((e) => {
-            if (e === outdate) return;
+            if (e === outdate || e === aborted) return;
             this.responseCrash(e, instance);
         });
 
