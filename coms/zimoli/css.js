@@ -19,8 +19,14 @@ var transfromSimpleValue = function (value) {
 };
 var transformValue = function (value, k) {
     if (ratioPropReg.test(k) || !value) return value;
-    if (/^[\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : String(value).split(/\s/).map(transfromSimpleValue).join(' ');
+    if (/^[\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : String(value).split(/\s+/).map(transfromSimpleValue).join(' ');
     return value;
+};
+var partifyValue = function (v) {
+    return String(v).toLowerCase().split(/['"`]|\s+/).join(" ");
+};
+var isSameValue = function (v1, v2) {
+    return partifyValue(v1) === partifyValue(v2);
 };
 /**
  * 将中划线转成驼峰式
@@ -86,7 +92,8 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
                 var key = transformNodeKey(k);
                 if (key in styleobject) {
                     try {
-                        styleobject[key] = transformValue(oStyle[k], key);
+                        var value = transformValue(oStyle[k], key);
+                        if (!isSameValue(value, styleobject[value])) styleobject[key] = transformValue(oStyle[k], key);
                     } catch (e) {
                         console.warn(key, oStyle[k], "无效");
                     }
@@ -95,7 +102,8 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
         } else {
             for (var k in oStyle) {
                 var key = transformNodeKey(k);
-                if (key in styleobject) styleobject[key] = transformValue(oStyle[k], key);
+                var value = transformValue(oStyle[k], key);
+                if (key in styleobject && !isSameValue(value, styleobject[key])) styleobject[key] = value;
             }
         }
     }
