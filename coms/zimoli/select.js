@@ -116,7 +116,7 @@ function select(target, list, removeOnSelect, direction) {
     else if (target.$src) {
         var generator = getGenerator(target);
         var initList2 = function (src) {
-            list = selectList(generator, src, target.multiple, target.editable);
+            list = selectList(generator, src, !!target.multiple, !!target.editable);
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }
@@ -158,7 +158,7 @@ function select(target, list, removeOnSelect, direction) {
             var allOptions = [].concat.apply([], target.querySelectorAll("option"));
             if (deepEqual.shallow(allOptions, savedOptions)) return;
             savedOptions = allOptions;
-            list = selectList(allOptions, target.multiple, target.editable);
+            list = selectList(allOptions, !!target.multiple, !!target.editable);
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }

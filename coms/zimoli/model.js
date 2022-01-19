@@ -100,7 +100,7 @@ var constructors = {
                     break;
                 }
             }
-            var pad = selectList(field.options, field.multi, true);
+            var pad = selectList(field.options, !!field.multi, true);
             var e = document.createElement('select');
             e.innerHTML = `<option selected value="${opt ? opt.key : ''}">${opt ? opt.name : '请选择'}</option>`;
             e.value = opt ? opt.key : '';

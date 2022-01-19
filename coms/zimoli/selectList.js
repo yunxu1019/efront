@@ -39,14 +39,17 @@ function main() {
                 generator = a;
                 break;
             case "boolean":
-                if (multiple === void 0) multiple = a;
-                else addable = a;
+            case "undefined":
+                if (multiple === void 0) multiple = !!a;
+                else addable = !!a;
+                break;
             case "object":
                 if (isNode(a)) {
                     page = a;
                     if (!generator) generator = getGenerator(page);
                 }
                 else if (a.length) children = a;
+                break;
 
         }
     }
