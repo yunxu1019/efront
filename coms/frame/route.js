@@ -195,6 +195,7 @@
         result.then = then;
         return result;
     };
+    result.parse = parseMenuList;
     var then = function (ok, oh) {
         if (this.loading_promise) {
             return this.loading_promise.then(ok, oh);
