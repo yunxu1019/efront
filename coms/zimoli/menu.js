@@ -153,14 +153,12 @@ function main(elem, mode) {
             case "v":
             case "y":
             case "vertical":
+                if (!direction) mode = "vertical", direction = 'y';
                 var emit = function (item, target) {
                     active(elem, item.value, item, target);
                 };
                 if ("$src" in elem) {
                     getGenerator(elem, 'menu-item');
-                    on("append")(elem, function () {
-                        elem.registerAsRoot();
-                    });
                     var src0 = [];
                     menuList(elem, src0, emit, direction);
                     care(elem, function (src) {
@@ -177,7 +175,6 @@ function main(elem, mode) {
                     var nodes = getArrayNodes(elem);
                     remove(elem.children);
                     elem = menuList(elem, nodes, emit, direction);
-                    elem.registerAsRoot();
                 }
                 break;
             default:

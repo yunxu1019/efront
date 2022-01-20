@@ -102,23 +102,23 @@ var keyAction = function (deltax, deltay) {
     }
 };
 function keyalt() {
-    if (root_menu === document.activeElement) root_menu.blur();
-    else {
+    if (this === document.activeElement) this.blur();
+    else if (root_menu === this && root_menu !== document.activeElement) {
         root_menu.tabIndex = 0;
         root_menu.focus();
-        root_menu.setFocus(this.firstMenu);
+        root_menu.setFocus(root_menu.firstMenu);
     }
 }
 function keytab(event) {
-    if (root_menu !== document.activeElement) return;
     var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
     event.preventDefault();
     menu.moveFocus(event.shiftKey ? -1 : 1);
 }
 function keyesc() {
-    if (root_menu === document.activeElement && !mounted_menus.length) {
-        if (!root_menu.ispop) root_menu.blur();
-        else root_menu.ispop = false;
+    if (this !== document.activeElement) return;
+    if (!mounted_menus.length) {
+        if (!this.ispop) this.blur();
+        else this.ispop = false;
     }
 }
 function keyup() {
@@ -134,7 +134,6 @@ function keyright() {
     keyAction(1, 0);
 }
 function keyspace() {
-    if (root_menu !== document.activeElement) return;
     var menu = mounted_menus[mounted_menus.length - 1];
     if (!menu || !menu.focused) menu = mounted_menus[mounted_menus.length - 2] || root_menu;
     if (menu.focused) {
@@ -142,16 +141,17 @@ function keyspace() {
     }
 }
 function register() {
-    root_menu = this;
-    bind('keydown.tab')(root_menu, keytab);
-    bind('keydown.alt.')(root_menu, keyalt);
-    bind('keydown.esc')(root_menu, keyesc);
-    bind('keydown.left')(root_menu, keyleft);
-    bind('keydown.right')(root_menu, keyright);
-    bind('keydown.up')(root_menu, keyup);
-    bind('keydown.down')(root_menu, keydown);
-    bind('keydown.enter')(root_menu, keyspace);
-    bind('keydown.space')(root_menu, keyspace);
+    var menu = this;
+    // if (!root_menu) root_menu = this;
+    bind('keydown.alt.')(menu, keyalt);
+    bind('keydown.esc')(menu, keyesc);
+    on('keydown.tab')(menu, keytab);
+    on('keydown.left')(menu, keyleft);
+    on('keydown.right')(menu, keyright);
+    on('keydown.up')(menu, keyup);
+    on('keydown.down')(menu, keydown);
+    on('keydown.enter')(menu, keyspace);
+    on('keydown.space')(menu, keyspace);
 }
 function main(page, items, active, direction = 'y') {
     if (!isNode(page)) {
@@ -240,7 +240,6 @@ function main(page, items, active, direction = 'y') {
         }
     };
 
-
     if (!page.children.length || page.menutype === 1) {
         page.menutype = 1;
         var hasIcon = function () {
@@ -326,11 +325,14 @@ function main(page, items, active, direction = 'y') {
     page.active = function (a) {
         fire.call(a);
     };
-    page.registerAsRoot = register;
     page.setFocus = setFocus;
     page.moveFocus = moveFocus;
     page.openFocus = openFocus;
     page.closeFocus = closeFocus;
     page.direction = direction;
+    register.call(page);
+    page.registerAsRoot = function () {
+        root_menu = this;
+    };
     return page;
 }
