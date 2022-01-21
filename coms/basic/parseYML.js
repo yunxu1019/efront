@@ -207,7 +207,7 @@ var scan = function (text) {
             }
         }
 
-        if (row === "|") {
+        if (row === "|" || row === ">") {
             rowtype = "|"
             continue;
         }
