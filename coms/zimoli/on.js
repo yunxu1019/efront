@@ -273,7 +273,7 @@ if (is_addEventListener_enabled) {
                     }
                     if (e.button) {
                         if (e.buttons === undefined) e.buttons = e.button;
-                        if (e.which === undefined) e.which = e.button;
+                        if (e.which === undefined) e.which = e.button + 1;
                     }
                     if (e.keyCode) {
                         if (e.which === undefined) e.which = e.keyCode;
