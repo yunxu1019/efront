@@ -102,22 +102,33 @@ function main(elem, mode) {
         // elem.setAttribute('browser', os);
         var mode = elem.getAttribute('mode') || elem.getAttribute('type');
         if (!mode) {
+            if (elem.hasAttribute("inline")) mode = 'inline';
+            else if (elem.hasAttribute("vertical")) mode = "vertical";
+            else if (elem.hasAttribute("horizonal")) mode = "horizonal";
+            else if (
+                elem.hasAttribute("toolbar")
+                || elem.hasAttribute('tool')
+                || elem.hasAttribute('tools')
+                || elem.hasAttribute('bar')
+            ) mode = "toolbar";
+        }
+        if (!mode) {
             if (/^[xyhvtci]/i.test(elem.tagName)) {
                 mode = elem.tagName.slice(0, 1);
+                if (/^t$/i.test(mode)) mode = elem.tagName.slice(0, 2);
             }
-            else if (/[xyhvtci]$/i.test(elem.tagName)) {
-                mode = elem.tagName.slice(0, 1);
+            else if (/[xyhvci]$/i.test(elem.tagName)) {
+                mode = elem.tagName.slice(elem.tagName.length - 1);
             }
         }
         mode = mode ? mode.toLowerCase() : "horizonal";
-
+        var direction;
         switch (mode) {
+            case "tr":
             case "i":
             case "c":
             case "inline":
-            case "t":
-            case "tree":
-                mode = "tree";
+                mode = "inline";
                 if (elem) {
                     var generator = getGenerator(elem, 'menu-item');
                     tree(elem, function (index, item) {
@@ -145,11 +156,22 @@ function main(elem, mode) {
                     elem = inlineMenu.call(elem, nodes);
                 }
                 break;
+            case "to":
+            case "t":
+            case "b":
+            case "tool":
+            case "tools":
+            case "bar":
+            case "toolbar":
+                direction = 't';
+                mode = "toolbar";
             case "h":
             case "x":
             case "horizonal":
-                var direction = 'x';
-                mode = "horizonal";
+                if (!direction) {
+                    direction = 'x';
+                    mode = "horizonal";
+                }
             case "v":
             case "y":
             case "vertical":
@@ -184,7 +206,8 @@ function main(elem, mode) {
         mode = mode || "horizonal";
         elem = menu.apply(null, arguments);
     }
-    elem.setAttribute('mode', mode);
+    if (!elem.hasAttribute('mode')) elem.setAttribute('mode', mode);
+    if (!elem.hasAttribute(mode)) elem.setAttribute(mode, '');
     return elem;
 
 }

@@ -152,13 +152,15 @@ function register() {
     on('keydown.down')(menu, keydown);
     on('keydown.enter')(menu, keyspace);
     on('keydown.space')(menu, keyspace);
+    on("contextmenu")(menu, e => e.preventDefault());
 }
 function main(page, items, active, direction = 'y') {
     if (!isNode(page)) {
         var page = div();
     }
     var main = this;
-    if (direction !== 'x') page.ispop = true;
+    if (direction == 'y') page.ispop = true;
+    var istoolbar = direction === 't';
     function popMenu(item, target) {
         if (page.actived) {
             clear();
@@ -195,7 +197,7 @@ function main(page, items, active, direction = 'y') {
             if (offenter1) offenter1();
         });
     }
-    if (!page.ispop) on("blur")(page, unfocus);
+    on("blur")(page, unfocus);
     var template = page.tempalte || document.createElement("ylist");
     if (!page.tempalte) {
         template.className = '';
@@ -203,14 +205,19 @@ function main(page, items, active, direction = 'y') {
         template.innerHTML = page.innerHTML;
         page.tempalte = template;
     }
-    var popTimer = 0;
-    var open = function () {
+    var popTimer = 0, byMousedown;
+    var open = function (time) {
         cancel();
         var elem = this;
-        if (page.ispop) popTimer = setTimeout(function () {
+        time = +time;
+        if (byMousedown && !time) return;
+        if (time) byMousedown = false;
+
+        if (page.ispop || time) popTimer = setTimeout(function () {
+            if (time) byMousedown = elem;
             page.setFocus(elem);
             popMenu(elem.menu, elem);
-        }, 60);
+        }, time || 60);
     };
     var cancel = function () {
         clearTimeout(popTimer);
@@ -218,13 +225,29 @@ function main(page, items, active, direction = 'y') {
     var fire = function () {
         cancel();
         if (this.menu.line) return;
+        if (byMousedown) return;
         var pop = active(this.menu, this);
         if (pop === false) return;
         var root = page.root || page;
+        if (root.direction === 't') {
+            var menu = this.menu;
+            if (root !== page) {
+                delete menu.children;
+                var target = root.actived.target;
+                menu = extend(target.menu, menu);
+            }
+            else {
+                target = this;
+            }
+            if (root.selected) root.selected.selected = false;
+            menu.selected = true;
+            root.selected = target.menu;
+        }
         if (root.ispop === 1) root.ispop = false;
         if (page.actived && page.actived.target === this) {
             while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page.actived) remove(mounted_menus.pop());
             if (!mounted_menus.length) {
+                if (byMousedown === false) return;
                 popMenu(this.menu, this);
             }
             else {
@@ -233,13 +256,17 @@ function main(page, items, active, direction = 'y') {
         }
         else {
             while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page) remove(mounted_menus.pop());
+            if (byMousedown === false) return;
             popMenu(this.menu, this);
             if (!page.actived) {
                 (page.root || page).blur();
             }
         }
     };
-
+    var open1 = function (event) {
+        if (event.which === 3) event.preventDefault();
+        if (istoolbar) open.call(this, event.button ? 20 : 600);
+    };
     if (!page.children.length || page.menutype === 1) {
         page.menutype = 1;
         var hasIcon = function () {
@@ -267,11 +294,15 @@ function main(page, items, active, direction = 'y') {
             open: fire,
             cancel,
             popMenu: open,
+            popMenu1: open1
         };
         if (page.$src) {
             var src = page.$src;
             var itemName = src.itemName;
-            var className = `{'has-children':${itemName}.children&&${itemName}.children.length,'warn':${itemName}.type==='danger'||${itemName}.type==='warn'||${itemName}.type==='red'}`;
+            var className = `{'has-children':${itemName}.children&&${itemName}.children.length,
+            'warn':${itemName}.type==='danger'||${itemName}.type==='warn'||${itemName}.type==='red',
+            'selected':${itemName}.selected
+        }`;
             var notHidden = `!${itemName}.hidden`;
             var generator = getGenerator(page, 'menu-item');
             list(page, function (index) {
@@ -285,6 +316,7 @@ function main(page, items, active, direction = 'y') {
                 a.menu = item;
                 on("mouseleave")(a, cancel);
                 on("mouseenter")(a, open);
+                if (istoolbar) on("mousedown")(a, open1);
                 on("click")(a, fire);
                 return a;
             });
@@ -315,6 +347,7 @@ function main(page, items, active, direction = 'y') {
             elem.menu = this.src[index];
             on("mouseleave")(elem, cancel);
             on("mouseenter")(elem, open);
+            if (istoolbar) on("mousedown")(elem, open1);
             on("click")(elem, fire);
             return elem;
         }, direction);

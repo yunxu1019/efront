@@ -11,7 +11,7 @@ function main(elem, scope, hasIcon) {
     var name = scope.name;
     var icon = scope.icon;
     if (hasIcon === undefined) hasIcon = !!icon;
-    render(item.children, { useIcon: hasIcon, hasIcon, name, icon });
+    render(item.children, scope, hasIcon instanceof Array ? hasIcon : [{ useIcon: hasIcon, hasIcon, name, icon }]);
     if (scope.line) item.setAttribute("line", ''), on("click")(item, preventDefault);
     return item;
 }

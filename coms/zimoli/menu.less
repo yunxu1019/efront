@@ -82,13 +82,11 @@ body:active & {
     width: 100%;
 }
 
-&[mode=vertical],
-&[type=vertical] {
+&[vertical] {
     display: block;
 }
 
-&[mode=horizonal],
-&[type=horizonal] {
+&[horizonal] {
     display: block;
     overflow: hidden;
     text-overflow: hidden;
@@ -115,11 +113,35 @@ body:active & {
 
 }
 
-&[mode=tree],
-&[mode=tree],
-&[type=tree],
-&[mode=inline],
-&[type=inline] {
+&[toolbar] {
+    >menu-item{
+        padding-left: 6px;
+        padding-right: 6px;
+        text-align: center;
+    }
+    >menu-item.has-children {
+        &::after {
+            display: block;
+            content: "";
+            width: 0;
+            height: 0;
+            font-size: 0;
+            transform: none;
+            border: 2px solid;
+            border-top-color: transparent;
+            border-left-color: transparent;
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            box-sizing: border-box;
+            line-height: 0;
+            top: auto;
+            margin: 0;
+        }
+    }
+}
+
+&[inline] {
     height: auto;
     box-shadow: none;
     padding: 0;
