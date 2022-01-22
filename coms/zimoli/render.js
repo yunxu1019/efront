@@ -624,7 +624,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             if (parentNode.renderid > 1 || parentNode.isMounted) element.renderid = 2;
         }
         element.renders = element.renders ? [].concat(element.renders) : [];
-        var { ons, copys, attrs, props, binds, context: withContext } = element.$struct;
+        var { ons, copys, attrs, props, binds, context: withContext, ids } = element.$struct;
         delete element.$struct;
         if (binds.src) {
             element.$src = parseRepeat(binds.src);
@@ -698,6 +698,9 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (element.isMounted || element.renderid > 1) addRenderElement.call(element);
     }
     if (elementid) scope[elementid] = element;
+    for (var id of ids) {
+        scope[id] = element;
+    }
     return element;
 }
 function renderStructure(element, scope, parentScopes = []) {
@@ -721,8 +724,14 @@ function renderStructure(element, scope, parentScopes = []) {
     var binds = {};
     var attr1 = {};
     var props = {};
+    var ids = [];
     for (var attr of attrs) {
         var { name, value } = attr;
+        if (/^#/.test(name)) {
+            ids.push(name.slice(1));
+            element.removeAttribute(name);
+            continue;
+        };
         if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) {
             copys.push(attr);
             continue;
@@ -771,7 +780,7 @@ function renderStructure(element, scope, parentScopes = []) {
             props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
         }
     }
-    if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext };
+    if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext, ids };
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
 function render(element, scope, parentScopes) {
