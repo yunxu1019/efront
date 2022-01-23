@@ -24,8 +24,9 @@ function picture_(image = document.createElement("div")) {
     var shape = function () {
         image.shape(x, y, scaled / devicePixelRatio, origin_rotate);
     };
+    image.reshape = shape;
     var park = function () {
-        image.park(x, y, scaled / devicePixelRatio, origin_rotate);
+        if (image.park) image.park(x, y, scaled / devicePixelRatio, origin_rotate);
     };
     var setInitParams = function () {
         if (!image.width) return;
@@ -348,5 +349,8 @@ function picture_(image = document.createElement("div")) {
         this.rotate = r;
         this.update(deg === 90 || deg === -90);
     };
+    on("contextmenu")(image, function (e) {
+        if (onclick.preventClick) e.preventDefault();
+    });
     return image;
 }
