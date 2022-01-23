@@ -304,7 +304,7 @@ function picture_(image = document.createElement("div")) {
             y += (image.clientHeight - origin_height) / 2;
             origin_height = image.clientHeight;
             origin_width = image.clientWidth;
-            fixpos();
+            if (animate !== false) fixpos();
             shape();
             return;
         }
@@ -312,7 +312,7 @@ function picture_(image = document.createElement("div")) {
         if (animate !== false) {
             recover();
         } else {
-            fixpos();
+            if (animate !== false) fixpos();
             shape();
         }
 
