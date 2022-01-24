@@ -86,7 +86,13 @@ var isMaybeVisible = function (node) {
     if (style.overflow === "hidden") {
         if (node.offsetHeight === 0 || node.offsetWidth === 0) return;
     }
-    if (node.offsetParent && !overlap(node, node.offsetParent)) return;
+    if (node.offsetParent) {
+        var parent = node.offsetParent;
+        return !(node.offsetLeft + node.offsetWidth - parent.scrollLeft <= parent.clientLeft ||
+            node.offsetTop + node.offsetHeight - parent.scrollTop <= parent.clientTop ||
+            node.offsetLeft - parent.scrollLeft >= (parent.clientWidth || parent.offsetWidth) ||
+            node.offsetTop - parent.scrollTop >= (parent.clientHeight || parent.offsetHeight));
+    }
     return true;
 }
 var clonePseudo = function (node, pseudo) {
