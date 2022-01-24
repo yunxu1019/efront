@@ -1,5 +1,6 @@
 "use strict";
-var { load, save } = require("../server/userdata");
+var { load, save, saveAsync } = require("../server/userdata");
+var lazy = require("../basic/lazy");
 /**
  * 只在主线程中使用
  */
@@ -13,14 +14,20 @@ process.on('exit', function () {
     if (!countTimes) return;
     save(data_file, counts);
 });
-
+var autoSave = lazy(async function () {
+    var c = countTimes;
+    await saveAsync(data_file, counts);
+    if (c === countTimes) countTimes = 0;
+}, 60);
 module.exports = function count({ path, update }) {
+    if (path === null) return counts;
     if (update) {
         if (!counts[path]) {
             counts[path] = 0;
         }
         counts[path]++;
         countTimes++;
+        autoSave();
     }
     if (!counts[path]) {
         return 0;

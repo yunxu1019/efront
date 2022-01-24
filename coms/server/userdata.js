@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var userpath = path.join(require("os").homedir(), ".efront");
-var userdatafile = path.join(userpath, 'profile');
+var userdatafile = 'profile';
 var JSAM = require("../basic/JSAM");
 var lazy = require("../basic/lazy");
 var encode62 = require('../crypt/encode62');
@@ -9,6 +9,17 @@ var isEmpty = require("../basic/isEmpty");
 var profile = {
     code: encode62.geta(Math.random().toString(36).slice(2)),
 };
+function init() {
+    if (fs.existsSync(userpath)) return;
+    return new Promise((ok, oh) => {
+        fs.mkdir(userpath, { recursive: true }, function (error) {
+            if (error) return oh(error);
+            ok();
+        });
+    });
+};
+init();
+
 function save(pathname, data) {
     var fullpath = path.join(userpath, pathname);
     var folderpath = path.dirname(fullpath)
@@ -21,43 +32,36 @@ function load(pathname) {
     var data = fs.readFileSync(fullpath);
     return JSAM.parse(data);
 }
+function loadAsync(pathname) {
+    var fullpath = path.join(userpath, pathname);
+    return new Promise(function (ok, oh) {
+        if (!fs.existsSync(fullpath)) return ok(null);
+        fs.readFile(fullpath, function (error, buff) {
+            if (error) return oh(error);
+            var data = JSAM.parse(buff);
+            ok(data);
+        });
+    })
+}
+function saveAsync(pathname, data) {
+    var fullpath = path.join(userpath, pathname);
+    return new Promise((ok, oh) => {
+        fs.writeFile(fullpath, data, function (error) {
+            if (error) return oh(error);
+            ok();
+        });
+    });
+}
 var profile_promise = null;
 var loadProfileAsync = function () {
-    if (profile_promise || !fs.existsSync(userdatafile)) return profile_promise;
-    return profile_promise = new Promise(function (ok, oh) {
-        fs.readFile(userdatafile, function (error, buff) {
-            if (error) return oh(error);
-            ok(buff);
-        });
-    }).then(function (data) {
-        data = String(data);
-        data = JSAM.parse(data);
+    if (profile_promise) return profile_promise;
+    return profile_promise = loadAsync(userdatafile).then(function (data) {
         Object.assign(profile, data);
     }, console.error);
 };
 var saveProfileAsync = lazy(async function () {
-    var folderpath = path.dirname(userdatafile);
-    try {
-        if (!fs.existsSync(folderpath)) {
-            await new Promise((ok, oh) => {
-                fs.mkdir(folderpath, { recursive: true }, function (error) {
-                    if (error) return oh(error);
-                    ok();
-                });
-            });
-        }
-        await new Promise((ok, oh) => {
-            var data = JSAM.stringify(profile);
-            fs.writeFile(userdatafile, data, function (error) {
-                if (error) return oh(error);
-                ok();
-            });
-        });
-    } catch (e) {
-        console.error("写入文件失败！");
-        return;
-    }
-    if (!fs.existsSync(userdatafile)) { }
+    var data = JSAM.stringify(profile);
+    await saveAsync(userdatafile, data);
 }, 60);
 async function setItem(k, v) {
     await loadProfileAsync();
@@ -129,6 +133,12 @@ async function hasPassword(p) {
 var listmark = "-options";
 var optionmark = ":";
 module.exports = {
+    getStream(filename) {
+        var fullpath = path.join(userpath, filename);
+        return fs.createReadStream(fullpath);
+    },
+    loadAsync,
+    saveAsync,
     save,
     load,
     setItem,

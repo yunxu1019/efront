@@ -9,3 +9,5 @@ WEB:
   任务建立: /task/list
   定期执行: /tick/list
 # 用户列表: /user/list
+服务器日志:
+  访问计数: /log/count

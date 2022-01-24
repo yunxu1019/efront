@@ -174,6 +174,9 @@ var requestListener = async function (req, res) {
                 needLogin = false;
             }
             if (needLogin) switch (type[1]) {
+                case "count":
+                    require("./userdata").getStream('count.jsam').pipe(res);
+                    return;
                 case "cluster":
                     switch (type[2]) {
                         case "list":
