@@ -61,8 +61,9 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             saved_delta.x += clone_left - target_left;
             saved_delta.y += clone_top - target_top;
             if (clone.style) {
-                clone.style.zIndex = zIndex();
-                extraClones.map(e => e.style.zIndex = clone.style.zIndex);
+                var z = zIndex();
+                clone.style.zIndex = z + (+clone.style.zIndex || 0);
+                extraClones.map(e => e.style.zIndex = z + (+e.style.zIndex || 0));
             }
         }
         drag.target = clone;

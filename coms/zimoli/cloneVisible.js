@@ -173,6 +173,7 @@ var cloneVisible = function (td) {
     };
     clone(td);
     extend(result.style, {
+        zIndex: getComputedStyle(td).zIndex,
         position: "absolute",
         left: _left + "px",
         top: _top + "px",
