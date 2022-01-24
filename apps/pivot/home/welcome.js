@@ -7,6 +7,7 @@ function main() {
         hrtime: data.from("uptime", a => Date.now() - a * 1000),
         filterTime,
         async run(id) {
+            await new Promise(ok => setTimeout(ok, 2000));
             var info = await data.from("run", {
                 run: id
             }).loading_promise;
