@@ -46,6 +46,7 @@ function loadAsync(pathname) {
 function saveAsync(pathname, data) {
     var fullpath = path.join(userpath, pathname);
     return new Promise((ok, oh) => {
+        data = JSAM.stringify(data);
         fs.writeFile(fullpath, data, function (error) {
             if (error) return oh(error);
             ok();
@@ -60,8 +61,7 @@ var loadProfileAsync = function () {
     }, console.error);
 };
 var saveProfileAsync = lazy(async function () {
-    var data = JSAM.stringify(profile);
-    await saveAsync(userdatafile, data);
+    await saveAsync(userdatafile, profile);
 }, 60);
 async function setItem(k, v) {
     await loadProfileAsync();
