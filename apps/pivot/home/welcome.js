@@ -6,15 +6,11 @@ function main() {
         version: data.from("version"),
         hrtime: data.from("uptime", a => Date.now() - a * 1000),
         filterTime,
-        async run(id, target) {
-            target.setAttribute('pending', '')
-            try {
-                var info = await data.from("run", {
-                    run: id
-                }).loading_promise;
-                if (info) alert(info, 'pass');
-            } catch { }
-            target.removeAttribute('pending');
+        async run(id) {
+            var info = await data.from("run", {
+                run: id
+            }).loading_promise;
+            if (info) alert(info, 'pass');
         },
         async logout() {
             data.setSource({});
