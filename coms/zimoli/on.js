@@ -155,14 +155,16 @@ function checkKeyNeed(eventtypes, e) {
     }
     return true;
 }
+var pendingid = 0;
 function wrapHandler(h) {
     if (h instanceof Function) {
         return function () {
             var res = h.apply(this, arguments);
             if (res && isFunction(res.then)) {
-                this.setAttribute('pending', '');
+                var id = ++pendingid & 0x1fffffffffffff;
+                this.setAttribute('pending', id);
                 var removePending = () => {
-                    this.removeAttribute('pending');
+                    if (+this.getAttribute('pending') === id) this.removeAttribute('pending');
                 };
                 res.then(removePending, removePending);
             }
