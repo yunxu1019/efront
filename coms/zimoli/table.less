@@ -75,9 +75,11 @@ table,
     line-height: 32px;
     height: 100%;
     min-height: 30px;
+    border-top: 4px solid #6669;
+
+
+
     user-select: auto;
-    display: table-row-group;
-    overflow: auto;
 
     >tr {
 
@@ -85,9 +87,10 @@ table,
         >th {
             padding: @cell-padding;
             position: relative;
+            overflow: hidden;
         }
 
-        &:nth-of-type(even) {
+        &:nth-of-type(odd) {
 
             >td,
             >th {
@@ -95,7 +98,7 @@ table,
             }
         }
 
-        &:nth-of-type(odd) {
+        &:nth-of-type(even) {
 
             >td,
             >th {
@@ -111,6 +114,23 @@ table,
             }
         }
     }
+
+    >tr[insert] {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+
+        >td {
+            background: #6669;
+            backdrop-filter: blur(20px);
+            z-index: 1;
+            color: #fff;
+        }
+    }
+}
+
+[thead] {
+    user-select: none;
 }
 
 .button {

@@ -1,16 +1,14 @@
-<thead>
-    <tr>
-        <td -repeat="f in fields track by f.id" :style="{width:f.width}"><i -if="f.icon"
+<tbody -src="d in data" :style="{'max-height':((innerHeight-46)/32|0)*32+36}">
+    <tr thead #adapter insert>
+        <td -repeat="f in fields track by f.id" :style="{width:f.width}" @dblclick="sort(f)"><i -if="f.icon"
                 -class="f.icon"></i></span><span -if="f.name" -html="f.name"></span>
         </td>
     </tr>
-</thead>
-<tbody -src="d in data">
     <tr>
         <td -repeat="f in fields">
-            <model -if="f.key" :field=f :data=d readonly ></model>
-            <a on-click="o.do(d)" -if="!f.key&&f.options&&(!o.when||o.when(d))" _type="o.type instanceof Function?o.type(d):o.type"
-                -repeat="o in f.options">
+            <model -if="f.key" :field=f :data=d readonly></model>
+            <a on-click="o.do(d)" -if="!f.key&&f.options&&(!o.when||o.when(d))"
+                _type="o.type instanceof Function?o.type(d):o.type" -repeat="o in f.options">
                 <span -text="o.name instanceof Function?o.name(d):o.name"></span>
             </a>
         </td>

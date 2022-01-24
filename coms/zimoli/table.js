@@ -169,8 +169,12 @@ function table(elem) {
         move: resizeTarget,
     });
     onmousemove(tableElement, function (event) {
-        if (!thead) [thead] = table.getElementsByTagName("thead");
+        if (!thead) {
+            [thead] = table.getElementsByTagName("thead");
+            if (!thead) thead = table.querySelector('[thead]');
+        }
         if (!getTargetIn(thead, event.target)) return;
+
         var tds = getTargetIn(cellMatchManager, event.target);
         if (!isArray(tds)) tds = [];
         tds.map(function (td) {
@@ -193,7 +197,10 @@ function table(elem) {
     var table = tableElement;
     var thead;
     var cellMatchManager = function (element) {
-        if (!thead) [thead] = table.getElementsByTagName("thead");
+        if (!thead) {
+            [thead] = table.getElementsByTagName("thead");
+            if (!thead) thead = table.querySelector('[thead]');
+        }
         if (table.resizing) return false;
         if (!getTargetIn(thead, element)) return false;
         if (!tdElementReg.test(element.tagName)) return false;
@@ -214,8 +221,24 @@ function table(elem) {
         render(this, {
             fields,
             tbody: list,
+            innerHeight: {
+                valueOf() {
+                    return innerHeight - getScreenPosition(table).top;
+                }
+            },
             data,
+            adapter: null,
             model,
+            sort(f) {
+                f.sign = f.sign > 0 ? -1 : 1;
+                data.sort(function (a, b) {
+                    a = seek(a, f.key);
+                    b = seek(b, f.key);
+                    if (a > b) return f.sign;
+                    if (a < b) return -f.sign;
+                    return 0;
+                });
+            },
             setWidth(target, f) {
                 css(target, { width: f.width });
             },
