@@ -1,10 +1,11 @@
-function search(seartext, options) {
+function search(seartext, options, path) {
     if (options instanceof Array) {
         var hasFullmatch = false;
         var a = options.map(o => {
-            if (o.name === seartext) hasFullmatch = true;
-            var [power, m] = mark.power(o.name, seartext);
-            return { power, name: m, value: o.value };
+            var name = seek(o, path);
+            if (name === seartext) hasFullmatch = true;
+            var [power, m] = mark.power(name, seartext);
+            return { power, [path]: m, value: o.value, item: o };
         }).filter(a => a.power > 0);
         a.sort(function (a, b) {
             return b.power - a.power;

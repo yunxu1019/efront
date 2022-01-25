@@ -149,6 +149,11 @@ var readonly_types = {
         var f = data[field.key];
         return size(f);
     },
+    html(a, data) {
+        var t = document.createElement("span");
+        t.innerHTML = seek(data, a.field.key);
+        return t;
+    },
     swap(e, data) {
         var { field } = e;
         var v = data[field.key];
