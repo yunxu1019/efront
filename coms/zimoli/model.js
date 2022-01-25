@@ -158,12 +158,21 @@ var readonly_types = {
         var { field } = e;
         var v = data[field.key];
         if (field.options) {
-            var o = field.options[v];
+            if (!field.optionsMap) field.optionsMap = createOptionsMap(field.options);
+            var o = field.optionsMap[v];
             if (o) return o.name;
         }
+        if (isEmpty(v)) v = '';
         return v;
     },
 };
+var createOptionsMap = function (options) {
+    var map = Object.create(null);
+    for (var o of options) {
+        map[o.key] = o;
+    }
+    return map;
+}
 readonly_types.select = readonly_types.swap;
 function main(elem) {
     var build = function () {
