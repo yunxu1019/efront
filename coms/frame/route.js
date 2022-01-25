@@ -75,6 +75,7 @@
                 if (/,/.test(name)) {
 
                 }
+                item.closed = true;
                 return item;
             });
             return items;
@@ -114,6 +115,7 @@
             actived = mmap[opened.active] || actived;
             if (actived) {
                 if (actived_value === historys.length) {
+                    setActive(actived, true);
                     result.active = actived;
                 };
             }
@@ -123,6 +125,7 @@
     var setActive = function (p, active) {
         while (p) {
             p.active = active;
+            if (active) p.closed = false;
             p = p.parent;
         }
     };
