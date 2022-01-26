@@ -14,7 +14,7 @@ function main(options) {
         },
         del(o) {
             for (var cx = 0, dx = options.length; cx < dx; cx++) {
-                if (options[cx].value === o.value) {
+                if (options[cx] === o || options[cx] === o.item) {
                     var i = cx;
                     break;
                 }

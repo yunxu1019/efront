@@ -24,6 +24,10 @@ var _remove = function () {
 var preventDefault = function (event) {
     event.preventDefault();
 };
+var preventDefault1 = function (event) {
+    if (saved_list) return;
+    event.preventDefault();
+}
 var lastTimeClick = 0;
 var removeByBlur = function () {
     if (!getTargetIn(this, document.activeElement)) _remove();
@@ -71,8 +75,8 @@ function select(target, list, removeOnSelect, direction) {
                     target.innerHTML = `<option selected value="${this.value}">${this.name || this.value}</option>`
                 }
                 target.value = this.value;
-                dispatch(target, "change");
             }
+            dispatch(target, "change");
         }
     };
     var onlistclick = function (event) {
@@ -96,8 +100,8 @@ function select(target, list, removeOnSelect, direction) {
         }
         on("keydown.up")(target, preventDefault);
         on("keydown.down")(target, preventDefault);
-        on("keydown.enter")(target, preventDefault);
-        on("keydown.space")(target, preventDefault);
+        on("keydown.enter")(target, preventDefault1);
+        on("keydown.space")(target, preventDefault1);
         var pop = function () {
             if (saved_list !== list) mousedown.call(this);
         };

@@ -60,7 +60,7 @@ function main() {
     function createItem(option) {
         var key = option.key || option.value;
         if (key in itemMap) return itemMap[key];
-        var item = itemMap[option.value] = document.createElement('div');
+        var item = itemMap[key] = document.createElement('div');
         item.setAttribute("item", '');
         item.innerHTML = option.innerHTML || option.name;
         item.name = option.name || option.innerHTML;
@@ -78,12 +78,12 @@ function main() {
             iconed = icon;
             if (multiple) {
                 item.setAttribute("selected", "");
-                page.value.push(option.value);
+                page.value.push(key);
             }
             else {
                 item.setAttribute("selected", "");
                 page.activeNode = item;
-                page.value = option.value
+                page.value = key
             }
         }
         if (option.disabled) {
@@ -142,10 +142,9 @@ function main() {
                     if (a in itemMap) return false;
                     cast(page.target, "add-option", a);
                     children.push({ name: a, key: a });
-                    page.insertBefore(createItem({
-                        name: a,
-                        value: a,
-                    }), adder);
+                    remove(page.children);
+                    page.go(children.length - 1);
+                    appendChild(page, adder);
                     break;
                 case this.children[1]:
                     var options = [].slice.call(children, 0, children.length);
@@ -216,6 +215,7 @@ function main() {
         moveFocus(0);
     })
     var enter = function (e) {
+        if (e.defaultPrevented) return;
         e.preventDefault();
         var e = page.getIndexedElement(focus);
         if (e) e.click();
