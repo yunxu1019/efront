@@ -25,8 +25,10 @@ function prompt(msg = "请输入", check) {
         });
     })
     on("mousedown")(c, e => e.target !== ipt && e.preventDefault() | ipt.focus());
-    on("keydown.enter")(c, function () {
+    on("keydown.enter")(c, function (event) {
+        if (event.defaultPrevented) return;
         if (check && check(ipt.value) === false) return;
+        event.preventDefault();
         oked = true;
         remove(c);
         fire();
