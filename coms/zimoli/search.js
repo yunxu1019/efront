@@ -1,4 +1,4 @@
-function search(seartext, options, path) {
+function search(seartext, options, path = "name") {
     if (options instanceof Array) {
         var hasFullmatch = false;
         var a = options.map(o => {
