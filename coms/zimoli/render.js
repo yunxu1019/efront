@@ -1,6 +1,15 @@
 var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = Object.create(null);
 var presets = Object.create(null);
+presets.template = function (t) {
+    var node = document.createElement("div");
+    var comment = document.createComment('template');
+    node.innerHTML = t.innerHTML;
+    comment.with = [].slice.call(node.childNodes, 0);
+    renderElement(comment.with, t.$scope, t.$parentScopes);
+    remove(node.childNodes);
+    return comment;
+};
 window.renderElements = renderElements;
 var renderidOffset = 10;
 var renderidClosed = 0;
@@ -672,7 +681,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             }
         }
     }
-    if (element.children.length) renderElement(element.children, scope, parentScopes);
+    if (element.children && element.children.length) renderElement(element.children, scope, parentScopes);
     if (!isFirstRender) return element;
     for (var k in binds) {
         if (directives.hasOwnProperty(k)) {
