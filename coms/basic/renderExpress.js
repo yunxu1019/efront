@@ -3,7 +3,7 @@ function createSeek(express) {
     express.forEach(function (search) {
         if (dist) {
             if (/[\=]/.test(dist)) dist = `(${dist})`;
-            dist = `${dist}!==void 0&&${dist}!==null?${dist}${search}:''`
+            dist = `typeof ${dist}!=='undefined'&&${dist}!==null?${dist}${search}:''`
         } else {
             dist = search;
         }
