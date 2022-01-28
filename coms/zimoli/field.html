@@ -1,11 +1,16 @@
-<div class="head">
-    <span ng-bind=field.name></span>
-    <span class="required" ng-if="field.required">*</span>
-</div>
-<div class="body">
+<template v-if='field?.key'>
+    <div class="head">
+        <span ng-bind=field.name></span>
+        <span class="required" ng-if="field.required">*</span>
+    </div>
+    <div class="body">
+        <model _data=data _field=field></model>
+        <span class="error" ng-bind="error"></span>
+    </div>
+    <div class="foot" ng-if="field.msg">
+        <span ng-bind=field.msg></span>
+    </div>
+</template>
+<template v-else>
     <model _data=data _field=field></model>
-    <span class="error" ng-bind="error"></span>
-</div>
-<div class="foot" ng-if="field.msg">
-    <span ng-bind=field.msg></span>
-</div>
+</template>
