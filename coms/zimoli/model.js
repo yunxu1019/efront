@@ -48,6 +48,12 @@ var constructors = {
         }
         return e;
     },
+    success(e) {
+        success(e);
+        e.innerHTML = `<span ng-html="field.comment"></span>`;
+        render(e.children, e.$scope, e.$parentScopes);
+        return e;
+    },
     switch: swap,
     row: textarea,
     password,

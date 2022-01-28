@@ -34,6 +34,7 @@ extend(renderDefaults, {
     pic: img,
     image,
     back,
+    success,
     switch: swap,
     swap,
     password,
