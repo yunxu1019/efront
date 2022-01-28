@@ -79,7 +79,6 @@ var initialComment = function (renders, type, expression) {
     onremove(comment, removeRenderElement);
     appendChild.after(this, comment);
     if (!/if/i.test(type)) remove(this);
-    this.with = comment;
     rebuild(comment);
     return comment;
 };
@@ -223,17 +222,12 @@ var createIf = function (search, id = 0) {
             var element = elements[cx];
             if (cx === shouldMount) {
                 appendChild.before(this, element);
-                element.with = this;
                 if (element.renderid < 0) {
                     element.renderid = id;
-                    var w = element.with;
-                    delete element.with;
-                    element = render(element);
-                    element.with = w;
+                    elements[cx] = render(element);
                 }
             }
             else {
-                delete element.with;
                 remove(element);
             }
         }
