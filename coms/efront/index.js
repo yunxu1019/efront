@@ -681,6 +681,7 @@ var commands = {
         };
         require("http").get("http://efront.cc/ip.jsp", listener).on('error', warn);
         require("http").get("http://us.efront.cc/ip.jsp", listener).on('error', warn);
+        require("http").get("http://ipv6.efront.cc/ip.jsp", listener).on('error', warn);
     }
 };
 helps.forEach((str, cx) => {
