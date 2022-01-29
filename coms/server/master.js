@@ -1,9 +1,9 @@
 "use strict";
 var cluster = require("cluster");
-var isDevelop = require("../efront/isDevelop");
-var isDebug = require("../efront/isDebug")
 var message = require("../message");
 var clients = require("./clients");
+var similar = require("./similar");
+var JSAM = require("../basic/JSAM");
 var fs = require("fs");
 var path = require("path");
 var memery = require("../efront/memery");
@@ -27,6 +27,7 @@ var afterend = function () {
     watch.close();
     notkilled.forEach(a => a.kill("SIGKILL"));
     clients.destroy();
+    similar.destroy();
     if (process.stdin.unref) process.stdin.unref();
     if (process.stderr.unref) process.stderr.unref();
     if (process.stdout.unref) process.stdout.unref();
@@ -165,5 +166,15 @@ message.rehost = function () {
     });
     child.unref();
 };
+
+var similar = require("./similar");
+message.logsimilar = function (a) {
+    a = JSON.parse(a);
+    similar.log(a);
+};
+message.allsimilar = function () {
+    return JSAM.stringify(similar.all());
+};
+
 require("../efront/quitme")(end);
 run();

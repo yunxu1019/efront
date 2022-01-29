@@ -11,3 +11,4 @@
   version: options ::version
   uptime: options ::uptime
   count: options ::count
+  bootlog: options ::similar

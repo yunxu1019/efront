@@ -63,6 +63,16 @@ var loadProfileAsync = function () {
 var saveProfileAsync = lazy(async function () {
     await saveAsync(userdatafile, profile);
 }, 60);
+var encode = async function (data) {
+    await loadProfileAsync();
+    var a = encode62.geta(profile.code);
+    return encode62.encodestr(data, a);
+};
+var decode = async function (data) {
+    await loadProfileAsync();
+    var a = encode62.geta(profile.code);
+    return encode62.decodestr(data, a);
+};
 async function setItem(k, v) {
     await loadProfileAsync();
     var k0 = encode62.geta(k + profile.code);
@@ -137,6 +147,11 @@ module.exports = {
         var fullpath = path.join(userpath, filename);
         return fs.createReadStream(fullpath);
     },
+    getFullpath(filename) {
+        return path.join(userpath, filename);
+    },
+    encode,
+    decode,
     loadAsync,
     saveAsync,
     save,

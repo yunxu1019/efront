@@ -13,3 +13,5 @@ WEB:
   标签管理: /user/tag/list
 服务器日志:
   访问计数: /log/count
+  启动记录: /log/boot
+  # 并发记忆: /log/lock

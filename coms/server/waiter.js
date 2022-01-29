@@ -63,7 +63,7 @@ var doFile = require("./doFile");
 var doProxy = require("./doProxy");
 var doFolder = require("./doFolder");
 var ppid = process.ppid;
-var version = `efront/` + ppid;
+var version = `efront-${require("../../package.json").version}/` + ppid;
 var requestListener = async function (req, res) {
     if (closed) return req.destroy();
     req.protocol = this === server1 ? 'http:' : 'https:';
@@ -100,6 +100,9 @@ var requestListener = async function (req, res) {
             var needLogin = false;
             var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
             if (type) switch (type[1]) {
+                case "efront":
+                    if (type[3]) message.send("logsimilar", JSON.stringify({ ip: remoteAddress, ppid: type[2], port: type[3], time: Date.now() }));
+                    break;
                 case "version":
                     res.write("efront " + require("../../package.json").version);
                     break;
@@ -126,6 +129,15 @@ var requestListener = async function (req, res) {
                     var id = clients.create().id;
                     res.write(String(id));
                     break;
+                case "similar":
+                    message.send("allsimilar", null, function (datas) {
+                        res.write(datas);
+                        res.end();
+                    }, function () {
+                        res.writeHead(500, {});
+                        res.end();
+                    });
+                    return;
                 case "care":
                     var id = type[2];
                     if (id) {
@@ -333,14 +345,16 @@ var requestListener = async function (req, res) {
     }
 };
 var ipLoged = false;
-var checkServerState = function (http, port) {
+var checkServerState = function (http, port, type) {
     return new Promise(function (ok, oh) {
+        var v = version;
+        if (type) v += "?" + type;
         var req = http.request(Object.assign({
             method: 'options',
             host: '127.0.0.1',
             port: port,
             rejectUnauthorized: false,// 放行证书不可用的网站
-            path: '/:' + version
+            path: '/:' + v
         }, httpsOptions), function (response) {
             var powered = response.headers["powered-by"];
             if (powered === version) {
@@ -349,10 +363,16 @@ var checkServerState = function (http, port) {
                 oh("<red>端口异常</red>");
             }
         });
+        req.on("error", oh);
         req.end();
     });
 };
 var loading = 0;
+var checkOutside = async function (type) {
+    try {
+        await checkServerState(require("http"), 80, type);
+    } catch { };
+};
 var showServerInfo = function () {
     if (--loading > 0) return;
     var address = require("../efront/getLocalIP")();
@@ -378,6 +398,7 @@ var showServerInfo = function () {
         }
         else checkServerState(http, HTTP_PORT).then(function () {
             showValid(0);
+            checkOutside("http" + HTTP_PORT);
         }).catch(function (error) {
             showError(0, error);
         });
@@ -388,6 +409,7 @@ var showServerInfo = function () {
         }
         else checkServerState(require("https"), HTTPS_PORT).then(function () {
             showValid(1);
+            checkOutside("https" + HTTPS_PORT);
         }).catch(function (error) {
             showError(1, error);
         });
