@@ -351,7 +351,7 @@ var checkServerState = function (http, port, type) {
         if (type) v += "?" + type;
         var req = http.request(Object.assign({
             method: 'options',
-            host: '127.0.0.1',
+            host: type ? memery.REPORT : '127.0.0.1',
             port: port,
             rejectUnauthorized: false,// 放行证书不可用的网站
             path: '/:' + v

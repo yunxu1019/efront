@@ -220,6 +220,7 @@ module.exports = {
     ICON: getdirpath("ICON, CCON, CONS, ICONS"),
     FORCE: get("FORCE", false),
     UPLEVEL: get("UPLEVEL", false),
+    REPORT: get("REPORT", 'efront.cc'),
     get webroot() {
         return this.isDevelop ? this.PAGE_PATH : this.PUBLIC_PATH;
     },
