@@ -7,16 +7,15 @@ cross.addReform(async function ({ status, url, headers }, reform, reject) {
         var base1 = protocol + "//" + host + "/";
         if (base !== base1) {
             data.setSource(base1, null);
-            var page = await popup("/auth/login", base1);
-            care(page, "login", function (info) {
-                data.setSource(base1, info);
-                headers.authorization = info;
-                reform();
-            });
-            on("remove")(page, reject);
-            return false;
         }
-        location.reload();
+        var page = await popup("/auth/login", base1);
+        care(page, "login", function (info) {
+            data.setSource(base1, info);
+            headers.authorization = info;
+            reform();
+        });
+        on("remove")(page, reject);
+        return false;
     }
 })
 data.setReporter(function (m, t) {

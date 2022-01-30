@@ -82,8 +82,9 @@ var seekFromSource = function (obj, base) {
             if (/^\:/.test(k)) {
                 k = seek(source, k.slice(1));
             }
-            if (isEmpty(v)) {
-                v = seek(source, k);
+            if (v === '') {
+                if (source !== dataSourceMap) v = source;
+                else v = seek(source, k);
             }
             else if (/^\:/.test(v)) {
                 v = seek(source, v.slice(1));
