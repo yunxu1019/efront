@@ -75,8 +75,23 @@ const formulaters = {
 var seekFromSource = function (obj, base) {
     var source = dataSourceMap;
     if (base && base in dataSourceMap) source = source[base];
-    obj = seek(source, obj);
-    if (isObject(obj)) for (var k in obj) if (obj[k] === dataSourceMap) delete obj[k];
+    if (isObject(obj)) {
+        var dist = {};
+        for (var k in obj) {
+            var v = obj[k];
+            if (/^\:/.test(k)) {
+                k = seek(source, k.slice(1));
+            }
+            if (isEmpty(v)) {
+                v = seek(source, k);
+            }
+            else if (/^\:/.test(v)) {
+                v = seek(source, v.slice(1));
+            }
+            dist[k] = v;
+        }
+        obj = dist;
+    }
     return obj;
 };
 function getErrorMessage(error = this) {

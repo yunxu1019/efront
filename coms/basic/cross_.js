@@ -180,7 +180,14 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         };
         xhr.form = function (data) {
             xhr.data(data);
-            if (FormData) {
+            var hasFile = false;
+            if (FormData) for (var k in jsondata) {
+                if (isFile(jsondata[k])) {
+                    hasFile = true;
+                    break;
+                }
+            }
+            if (hasFile) {
                 datas = new FormData;
                 for (var k in jsondata) {
                     datas.append(k, jsondata[k]);
