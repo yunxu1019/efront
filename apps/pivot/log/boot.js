@@ -12,7 +12,7 @@ var fields = refilm`
         }
         return e;
     }}
-时间/time ${function (e) {
+启动时间/time ${function (e) {
         e.innerHTML = filterTime(e.data[e.field.key]);
     }}
 端口/port input
@@ -22,13 +22,14 @@ var fields = refilm`
 function main() {
     var page = div();
     page.innerHTML = template;
-    var items = data.from("bootlog", item => {
-        item.forEach(a => {
+    var items = data.from("bootlog", datas => {
+        datas.forEach(a => {
             var [v, p] = a.ppid.split("/");
             a.version = v;
             a.pid = p;
-        })
-        return item;
+        });
+        datas.sort((a, b) => b.time - a.time);
+        return datas;
     });
     renderWithDefaults(page, {
         items,
