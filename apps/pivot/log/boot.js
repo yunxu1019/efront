@@ -1,10 +1,24 @@
 var fields = refilm`
 地址/ip
-端口/port
+地理位置/ip ${function (e) {
+        var ip = e.data[e.field.key];
+        var m = /(\d+\.){3}\d+$/.exec(ip);
+        if (m) {
+            data.from("iplocation", { ip: m[0] }, function (a) {
+                var l = document.createElement('label');
+                l.innerText = a.address;
+                appendChild(e, l);
+            });
+        }
+        return e;
+    }}
+时间/time ${function (e) {
+        e.innerHTML = filterTime(e.data[e.field.key]);
+    }}
+端口/port input
 版本/version
 进程/pid
-时间/time date
-`;
+    `;
 function main() {
     var page = div();
     page.innerHTML = template;

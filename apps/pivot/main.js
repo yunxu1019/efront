@@ -27,7 +27,7 @@ data.bindInstance("base", async function (base) {
     cross.addDirect(base.base);
     var apimap = await data.getConfig();
     for (var k in apimap) {
-        apimap[k].base = base.base;
+        if (apimap[k].method === 'options') apimap[k].base = base.base;
     }
 });
 var base = data.getInstance('base').base;
