@@ -62,6 +62,7 @@ var doCross = require("./doCross");
 var doFile = require("./doFile");
 var doProxy = require("./doProxy");
 var doFolder = require("./doFolder");
+var parseURL = require("../basic/parseURL");
 var ppid = process.ppid;
 var version = `efront-${require("../../package.json").version}/` + ppid;
 var requestListener = async function (req, res) {
@@ -101,7 +102,12 @@ var requestListener = async function (req, res) {
             var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
             if (type) switch (type[1]) {
                 case "efront":
-                    if (type[3]) message.send("logsimilar", JSON.stringify({ ip: remoteAddress, ppid: type[2], port: type[3], time: Date.now() }));
+                    if (type[3]) {
+                        message.send("logsimilar", JSON.stringify({ ip: remoteAddress, ppid: type[2], port: type[3], time: Date.now() }));
+                        if (!selfLogged && type[2] === version.slice(7)) {
+                            selfLogged = true;
+                        }
+                    }
                     break;
                 case "version":
                     res.write("efront " + require("../../package.json").version);
@@ -345,14 +351,34 @@ var requestListener = async function (req, res) {
     }
 };
 var ipLoged = false;
-var checkServerState = function (http, port, type) {
+var selfLogged = false;
+var checkServerState = function (http, port0) {
+    if (arguments.length === 1) var type = http;
     return new Promise(function (ok, oh) {
         var v = version;
         if (type) v += "?" + type;
+        var { hostname: host, port, protocol } = parseURL(memery.REPORT);
+        if (!host || !type || selfLogged) {
+            host = '127.0.0.1';
+            if (type) {
+                [, protocol, port] = /^([a-z]+)(\d+)$/.exec(type[0]);
+                http = require(protocol);
+            }
+            port = port0;
+        }
+        else {
+            if (!protocol) {
+                protocol = +port === 443 ? "https" : 'http';
+            }
+            if (!port) {
+                port = protocol === 'https' ? 443 : 80;
+            }
+            http = require(protocol);
+        }
         var req = http.request(Object.assign({
             method: 'options',
-            host: type ? memery.REPORT : '127.0.0.1',
-            port: port,
+            host,
+            port: +port,
             rejectUnauthorized: false,// 放行证书不可用的网站
             path: '/:' + v
         }, httpsOptions), function (response) {
@@ -368,11 +394,15 @@ var checkServerState = function (http, port, type) {
     });
 };
 var loading = 0;
-var checkOutside = async function (type) {
+var checkOutside = lazy(async function (type) {
     try {
-        await checkServerState(require("http"), 80, type);
+        await checkServerState(type);
+        if (!selfLogged) {
+            selfLogged = true;
+            await checkServerState(type);
+        }
     } catch { };
-};
+}, 80);
 var showServerInfo = function () {
     if (--loading > 0) return;
     var address = require("../efront/getLocalIP")();
@@ -392,13 +422,16 @@ var showServerInfo = function () {
     var showValid = function (i) {
         console.info(msg[i + 1] + "\t<green>正常访问</green>\r\n");
     }
+    var types = [];
     if (msg[1]) {
         if (portedServersList[0].error) {
             showError(0);
         }
         else checkServerState(http, HTTP_PORT).then(function () {
             showValid(0);
-            checkOutside("http" + HTTP_PORT);
+            types.push("http" + HTTP_PORT);
+            types.sort();
+            checkOutside(types);
         }).catch(function (error) {
             showError(0, error);
         });
@@ -409,7 +442,9 @@ var showServerInfo = function () {
         }
         else checkServerState(require("https"), HTTPS_PORT).then(function () {
             showValid(1);
-            checkOutside("https" + HTTPS_PORT);
+            types.push("https" + HTTPS_PORT)
+            types.sort();
+            checkOutside(types);
         }).catch(function (error) {
             showError(1, error);
         });

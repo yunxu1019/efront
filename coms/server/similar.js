@@ -5,8 +5,9 @@ var userdata = require("./userdata");
 var logpath = userdata.getFullpath("similar.log");
 var hosts = [];
 
-var getId = function (o) {
-    return o.id;
+var sortbyId = function (a, b) {
+    if (a.id <= b.id) return true;
+    return false;
 };
 var sortbytime = function (a, b) {
     return hosts[a].time - hosts[b].time;
@@ -20,9 +21,9 @@ var clear = function () {
 };
 var save = async function (o, filepath = logpath) {
     if (hosts.length > 0xfff) clear();
-    o.id = `${o.ip}:${o.port}/${o.ppid}`;
-    var index = getIndexFromOrderedArray(hosts, o, getId);
-    if (index >= 0 && getId(o) === getId(hosts[index])) {
+    o.id = `${o.ip}:${o.port}`;
+    var index = getIndexFromOrderedArray(hosts, o, sortbyId);
+    if (index >= 0 && o.id === hosts[index].id) {
         hosts[index] = o;
     }
     else {
