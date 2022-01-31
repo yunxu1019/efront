@@ -277,27 +277,20 @@ function pack2(buff) {
     var result = [];
     for (var cx = 0, dx = buff.length, bx = 32 * 1024 * 1024; cx < dx; cx += bx) {
         var b = buff.slice(cx, cx + bx);
-        var [l, p, b] = scan(b);
-        l = encodeRange(l);
-        p = encodeRange(p);
+        var b = scan(b);
         var e = encodeRange(b);
         var el = int(e.length);
         result.push(concatTypedArray([
             [
                 range_compress,
                 other_compress << 5 | el.length,
-                l.length >> 8,
-                l.length & 0xff,
-                p.length >> 8,
-                p.length & 0xff
             ],
-            el, l, p, e]));
+            el,  e]));
     }
     result = concatTypedArray(result);
     return pack0(buff, result);
 }
 module.exports = function (buff, type) {
-    type = 1;
     switch (type) {
         case 1:
             return pack(buff);
