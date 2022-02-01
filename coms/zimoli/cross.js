@@ -32,7 +32,6 @@ var cross = cross_.bind(function (callback, onerror) {
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            dispatch(window, 'render');
             switch (xhr.status) {
                 case 0:
                     if (!navigator.onLine) {

@@ -569,8 +569,10 @@ var privates = {
                     headers = seekFromSource(headers, api.base);
                 }
                 cross(realmethod, uri, headers).send(params).done(e => {
+                    updateLoadingCount();
                     ok(e.response || e.responseText);
                 }).error(xhr => {
+                    updateLoadingCount();
                     try {
                         var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
                         oh({ status: xhr.status, api, params: params1, error: e, toString: getErrorMessage })
@@ -643,7 +645,6 @@ function responseCrash(e, data) {
         data.error = e;
     }
     error_report(e, e.status < 500 ? 'warn' : 'error');
-    updateLoadingCount();
 }
 var getData = function () { return this.data };
 var updateLoadingCount = function () {
@@ -659,7 +660,6 @@ var data = {
             response.is_loading = false;
             if (response.then === LoadingArray_then) delete response.then;
         }
-        updateLoadingCount();
     },
     responseCrash,
     responseLoading(response) {
@@ -881,10 +881,12 @@ var data = {
                     headers = seekFromSource(headers, api.base);
                 }
                 instance.loading = cross(method, uri, headers).send(params).done(xhr => {
+                    updateLoadingCount();
                     if (instance.loading !== xhr) return oh(aborted);
                     instance.loading = null;
                     ok(xhr.responseText || xhr.response);
                 }).error(xhr => {
+                    updateLoadingCount();
                     if (instance.loading !== xhr) return oh(aborted);
                     instance.loading = null;
                     try {
