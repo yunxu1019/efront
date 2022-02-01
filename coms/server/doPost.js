@@ -44,7 +44,7 @@ if (isDevelop) {
     };
 }
 
-var doPost = module.exports = function (req, res) {
+var doPost = module.exports = async function (req, res) {
     var url = req.url;
     if (handle[url] instanceof Function) {
         return handle[url](req, res);
@@ -56,7 +56,7 @@ var doPost = module.exports = function (req, res) {
             finalpacker.reset();
         }
     }
-    url = proxy(req);
+    url = await proxy(req);
     finalpacker(url, async function (result, type) {
         if (!(result instanceof Buffer || result instanceof Function)) {
             result = String(result);

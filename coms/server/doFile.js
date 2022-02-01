@@ -202,7 +202,7 @@ function doPatchFile(req, res) {
     res.end();
 }
 
-function doFile(req, res) {
+async function doFile(req, res) {
     if (/^\/@/.test(req.url)) {
         var filepath = req.url.slice(2);
         if (!checkAccess(filepath)) {
@@ -211,7 +211,7 @@ function doFile(req, res) {
             return;
         }
     } else {
-        var url = proxy(req);
+        var url = await proxy(req);
         var filepath = path.join(root, url);
     }
     if (/\!(\w+)(\.\w*)?$/.test(filepath)) {

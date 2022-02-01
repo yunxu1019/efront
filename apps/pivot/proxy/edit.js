@@ -1,0 +1,1 @@
+pedit.bind(null, "短链接", "proxy");

@@ -164,6 +164,12 @@ module.exports = {
     checkPasswordA,
     checkPasswordB,
     loadtime: Date.now(),
+    update(func) {
+        if (!func.time || func.time < this.loadtime) {
+            func.time = this.loadtime;
+            func();
+        }
+    },
     reload() {
         profile_promise = null;
         this.loadtime = Date.now();
@@ -184,6 +190,7 @@ module.exports = {
                 } catch { };
                 return { key: keys[i], value: o };
             });
+            if (key === false) return options;
             return encode62.timeencode(JSAM.stringify(options));
         }
         if (typeof value === 'string' || value === undefined) key = encode62.timedecode(key);

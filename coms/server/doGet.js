@@ -157,13 +157,20 @@ var adapter = function (data, url, req, res) {
 /**
  * doGet
  */
-module.exports = function (req, res) {
+module.exports = async function (req, res) {
     try {
         req.url = decodeURI(req.url);
     } catch (e) {
         req.url = unescape(req.url);
     }
-    var url = proxy(req);
+    var url = await proxy(req);
+    if (/^https?:/i.test(url)) {
+        res.writeHead(302, {
+            Location: url
+        });
+        res.end();
+        return;
+    }
     url = url.replace(/[\:\?#][\s\S]*/g, "");
     var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;

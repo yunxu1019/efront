@@ -172,6 +172,7 @@ var readonly_types = {
         return v;
     },
 };
+readonly_types.anchor = readonly_types.url;
 var createOptionsMap = function (options) {
     var map = Object.create(null);
     for (var o of options) {

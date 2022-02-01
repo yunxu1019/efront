@@ -252,6 +252,7 @@ var requestListener = async function (req, res) {
                 case "task":
                 case "user":
                 case "tag":
+                case "proxy":
                 case "private":
                     try {
                         var data = await require("./userdata").option(type[1], type[2], type[3]) || '';
