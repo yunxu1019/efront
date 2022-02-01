@@ -1,6 +1,7 @@
 var detectWithExtension = require("../build/detectWithExtension");
 var commbuilder = require("./commbuilder");
 var userdata = require("../server/userdata");
+var lock = require("./lock");
 var mixin = require("./mixin");
 var { COMM, coms_path } = require("./memery");
 COMM = COMM.split(",");
@@ -36,6 +37,7 @@ var createModule = function (required, prebuilds, pathmap, modname) {
         case "require": return this.require;
         case "undefined": return undefined;
         case "runtask": case "_runtask": return _runtask;
+        case "lock": case "_lock": return lock;
         case "module": return this;
         case "exports": return this.exports;
     }
@@ -46,7 +48,7 @@ var createModule = function (required, prebuilds, pathmap, modname) {
 var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return;
-    if (/^(require|_runtask|undefined|module)$/.test(modname)) return;
+    if (/^(require|_?runtask|undefined|module|_?lock)$/.test(modname)) return;
     if (/^(module|exports)$/.test(modname)) return;
     if (global[modname] !== undefined) return;
     if (/^[\.\/\\]/.test(modname)) var searchpath = [dirname].concat(comspath);
