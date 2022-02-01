@@ -216,10 +216,12 @@ module.exports = {
             await setItem(key0, value);
         }
     },
-    sign(a) {
+    async sign(a) {
+        await loadProfileAsync();
         return encode62.ab2c(profile.code, a);
     },
-    unsign(c) {
+    async unsign(c) {
+        await loadProfileAsync();
         return encode62.ca2b(c, profile.code);
     },
 }
