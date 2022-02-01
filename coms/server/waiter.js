@@ -383,6 +383,7 @@ var checkServerState = function (http, port0) {
             path: '/:' + v
         }, httpsOptions), function (response) {
             var powered = response.headers["powered-by"];
+            if (type) return ok();
             if (powered === version) {
                 ok(`检查到${port}可以正常访问\r\n`);
             } else {
