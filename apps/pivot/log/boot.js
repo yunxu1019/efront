@@ -4,10 +4,15 @@ var fields = refilm`
         var ip = e.data[e.field.key];
         var m = /(\d+\.){3}\d+$/.exec(ip);
         if (m) {
-            data.from("iplocation", { ip: m[0] }, function (a) {
+            var setAddress = function (a) {
                 var l = document.createElement('label');
-                l.innerText = a.address;
+                l.innerText = a;
                 appendChild(e, l);
+            };
+            if (e.data.address) setAddress(e.data.address);
+            else data.from("iplocation", { ip: m[0] }, function (a) {
+                e.data.address = a.address;
+                setAddress(a.address);
             });
         }
         return e;
