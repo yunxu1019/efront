@@ -15,38 +15,11 @@ const {
     number_reg,
     skipAssignment,
     createScoped,
+    createString,
 } = require("./common");
 
 
 
-var needBreak = function (prev, next) {
-    if (!prev || !next) return;
-    if (prev.type === STAMP && /^[,;]$/.test(prev.text)) return;
-    if (next.type === STAMP && /^[,;]$/.test(next.text)) return;
-    if (prev.type === EXPRESS && /\.$/.test(prev.text)) return;
-    if (next.type === EXPRESS && /^\./.test(next.text)) return;
-    if (next.type === PROPERTY) return ";";
-    if (next.type === STAMP && next.text === "*") return ";";
-    if (
-        [EXPRESS, VALUE, QUOTED].indexOf(prev.type) >= 0
-        || prev.type === STAMP && /^(\+\+|\-\-)$/.test(prev.text)
-        || prev.type === SCOPED && (prev.isExpress || prev.isObject)
-    ) {
-        if ([EXPRESS, VALUE, QUOTED, LABEL].indexOf(next.type) >= 0) return ";";
-        if (next.type === STRAP) {
-            if (!/^(in|of|extends|instanceof|as)$/.test(next.text)) return ";";
-            return " ";
-        }
-        if (next.type === SCOPED) {
-            if (!next.isExpress) return ";";
-        }
-        return;
-    }
-    if (prev.type === STRAP) {
-        if ([STRAP, EXPRESS, VALUE, QUOTED].indexOf(next.type) >= 0) return " ";
-        if (next.type === LABEL) return ";";
-    }
-};
 
 
 var compress = function (scoped, maped) {
@@ -266,95 +239,7 @@ class Program extends Array {
     }
 
     toString() {
-        var lasttype;
-        var result = [];
-        var run = (o, i, a) => {
-            if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && lasttype !== SPACE && !this.pressed) {
-                var prev = o.prev;
-                if (~[QUOTED, SCOPED, STRAP].indexOf(lasttype)
-                    || prev && prev.type === STAMP && !/(\+\+|\-\-|~|!)$/.test(prev.text) && prev.prev && prev.prev.type !== STAMP) {
-                    if (o.type !== SCOPED && (o.type !== EXPRESS || !/^\./.test(o.text))) {
-                        result.push(" ");
-                        lasttype = SPACE
-                    }
-                }
-            }
-            switch (o.type) {
-                case COMMENT:
-                    // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
-                    if (!this.pressed) {
-                        result.push(o.text);
-                        if (this.pressed && /^\/\//.test(o.text)) {
-                            result.push("\r\n");
-                        }
-                    }
-                    break;
-                case SPACE:
-                    if (!this.pressed) {
-                        result.push(o.text);
-                        break;
-                    }
-                    var b = needBreak(o.prev, o.next);
-                    if (b) result.push(b);
-                    break;
-                case QUOTED:
-                    if (!o.length) {
-                        result.push(o.text);
-                        break;
-                    }
-                case SCOPED:
-                    if (!this.pressed && (lasttype === STRAP || lasttype === STAMP || lasttype === SCOPED && o.entry === "{") && o.type !== QUOTED) result.push(" ");
-                    result.push(o.entry);
-                    if (o.length > 0) {
-                        if (o.entry === "{" && result[0].type !== SPACE) {
-                            if (!this.pressed) {
-                                result.push(" ");
-                            }
-                        }
-                        lasttype = undefined;
-                        o.forEach(run);
-                        if (/^[,;]$/.test(result[result.length - 1]) && this.pressed) {
-                            if (!o.prev || o.prev.text !== 'for') result.pop();
-                        }
-                        if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
-                            if (!this.pressed) result.push(" ");
-                        }
-                    }
-                    result.push(o.leave);
-                    break;
-                default:
-                    if (o instanceof Object) {
-                        if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
-                            result.push(" ");
-                        }
-                        else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
-                            if (result[result.length - 1] === " " || lasttype === PROPERTY && o.text === ':') { }
-                            else if (lasttype === STAMP) {
-                                result.push(" ");
-                            }
-                            else if (/^(\+\+|\-\-)$/.test(o.prev.text) && o.prev.prev) {
-                                var prev_prev = o.prev.prev;
-                                if (
-                                    prev_prev.type === STRAP && !prev_prev.isExpress
-                                    || prev_prev.type === EXPRESS
-                                    || prev_prev.type === VALUE
-                                ) result.push(";");
-                            }
-                            else if (!/^(\+\+|\-\-)$/.test(o.text)) {
-                                if (!this.pressed && lasttype !== SPACE) result.push(" ");
-                            }
-                        }
-                        result.push(o.text);
-                    }
-                    else {
-                        result.push(o);
-                    }
-            }
-            lasttype = o.type;
-            if (o.isprop) lasttype = PROPERTY;
-        };
-        this.forEach(run);
-        return result.join("");
+        return createString(this);
     }
     get envs() {
         return this.scoped.envs;
