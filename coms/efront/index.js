@@ -230,7 +230,7 @@ var helps = [
     "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
     "对json数据进行签名,sign JSON_PATH SIGNNAME",
     "根据模块的搜索路径查找真实路径,detect MODULE_PATH",
-    "导出与指定的对象路径关联的代码,pick,peek MODULE_PATH TARGET_PATH KEYPATH",
+    "导出与指定的对象路径关联的代码,pick MODULE_PATH TARGET_PATH KEYPATH",
     "清理代码，删除已声明未使用的代码,wash MODULE_PATH TARGET_PATH",
     "-设置远程访问的密码,password",
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
