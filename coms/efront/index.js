@@ -230,6 +230,8 @@ var helps = [
     "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
     "对json数据进行签名,sign JSON_PATH SIGNNAME",
     "根据模块的搜索路径查找真实路径,detect MODULE_PATH",
+    "导出与指定的对象路径关联的代码,pick,peek MODULE_PATH TARGET_PATH KEYPATH",
+    "清理代码，删除已声明未使用的代码,wash MODULE_PATH TARGET_PATH",
     "-设置远程访问的密码,password",
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
@@ -252,6 +254,45 @@ var commands = {
     path() {
         if (arguments.length > 0) return this.detect.apply(this, arguments);
         console.type(path.join(__dirname, '../..'));
+    },
+    pick(readfrom, writeto, keypath) {
+        if (!writeto) {
+            return console.error("请指定输出文件名！");
+        }
+        detect(readfrom, writeto).then(function (fullpath) {
+            fs.readFile(fullpath, function (error, data) {
+                if (error) return console.error(error);
+                var scanner2 = require("../compile/scanner2");
+                var washcode = require("../compile/washcode");
+                var code = scanner2(data.toString());
+                var envs1 = code.envs;
+                var a = washcode(code, keypath);
+                var code = scanner2(a);
+                var envs2 = code.envs;
+                var vars = [];
+                for (var v in envs2) {
+                    if (!envs1[v]) vars.push(v);
+                }
+
+                var readpath = fullpath;
+                while (!/\.[.\/]*$/.test(readfrom)) {
+                    readfrom = path.dirname(readfrom);
+                    readpath = path.dirname(readpath);
+                }
+                var distpath = path.join(readpath, writeto);
+                if (path.extname(fullpath) && !path.extname(distpath)) {
+                    distpath = distpath + path.extname(fullpath)
+                }
+                fs.writeFile(distpath, a, function (error) {
+                    if (error) console.error(error);
+                    else console.info(`处理完成：${fullpath}
+            =>  ${distpath}`);
+                });
+            })
+        }, console.error);
+    },
+    wash(readfrom, writeto) {
+        this.pick(readfrom, writeto, false);
     },
     detect(...appnames) {
         if (!appnames.length) return this.path();
@@ -726,6 +767,8 @@ var topics = {
     SIGNNAME: "签名",
     FILEPATH: "文件或文件夹的路径",
     MODULE_PATH: '源文件的模糊路径',
+    TARGET_PATH: '目标文件的模糊路径',
+    KEYPATH: '对象的属性路径',
 };
 topics.VARIABLES += "," + Object.keys(topics);
 var run = function (type, value1, value2, value3) {

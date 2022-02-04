@@ -110,7 +110,7 @@ var skipAssignment = function (o) {
     }
     return o;
 };
-var createScoped = function (parsed) {
+var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
     var scoped = [], funcbody = scoped;
     scoped.isfunc = true;
@@ -206,7 +206,7 @@ var createScoped = function (parsed) {
                             }
                             o = o0;
                             mergeTo(used, used0);
-                            Object.assign(m, declared);
+                            mapDeclared(m, declared);
                             continue loop;
                         case "function":
                             isFunction = true;
@@ -308,6 +308,7 @@ var createScoped = function (parsed) {
                     o.isExpress = isExpress;
                     if (isFunction || isCatch) {
                         var [declared, used0, o0, skiped] = getDeclared(o.first, 'argument');
+                        scoped.args = declared;
                         mergeTo(used, used0);
                         while (skiped.length) {
                             var o1 = run(skiped[0], 0);
@@ -315,7 +316,7 @@ var createScoped = function (parsed) {
                             if (sindex < 0) break;
                             skiped.splice(0, sindex + 1);
                         }
-                        Object.assign(isCatch ? lets : vars, declared);
+                        mapDeclared(isCatch ? lets : vars, declared);
                     }
                     else {
                         run(o.first);
@@ -334,6 +335,19 @@ var createScoped = function (parsed) {
                 if (o.type === SCOPED && o.entry === "{") {
                     o.isExpress = isExpress;
                     run(o.first);
+                    if (wash && isFunction) {
+                        var e = o.next;
+                        if (e && e.type === EXPRESS && /^[\.\[]/.test(e.text) || e && e.type === SCOPED && e.entry === "[") {
+                            scoped.target = true;
+                            e = e.next;
+                        }
+                        if (e && e.type === SCOPED && e.entry === '(') {
+                            if (e.first) {
+                                scoped.pass = getDeclared(e.first)[0];
+                            }
+                            if (scoped.target) scoped.target = scoped.pass.shift();
+                        }
+                    }
                 }
                 else {
                     do {
@@ -407,7 +421,8 @@ var createScoped = function (parsed) {
     return scoped;
 };
 var getDeclared = function (o, kind) {
-    var declared = Object.create(null), used = Object.create(null); var skiped = [];
+    var declared = [], used = Object.create(null); var skiped = [];
+    var prop = null;
     loop: while (o) {
         while (o && o.type === STAMP && o.text === ',') o = o.next;
         if (!o) break;
@@ -423,12 +438,14 @@ var getDeclared = function (o, kind) {
                 if (o.text === "*" && o.next) {
                     if (o.next.type === STRAP && o.next.text === 'as') {
                         o = o.next.next;
+                        prop = "*";
                         continue;
                     }
                 }
             case PROPERTY:
                 if (o.next) {
                     if (o.next.type === STAMP && o.next.text === ":" || o.next.type === STRAP && o.next.text === "as") {
+                        prop = "." + o.text;
                         o = o.next.next;
                         continue;
                     }
@@ -437,7 +454,9 @@ var getDeclared = function (o, kind) {
             case VALUE:
             case EXPRESS:
                 var n = o.text.replace(/^\.\.\.|\.\.\.$/g, '');
-                declared[n] = true;
+                declared.push(n);
+                if (n !== o.text) declared["..."] = n;
+                else if (prop) declared[prop] = n;
                 o.kind = kind;
                 saveTo(used, n, o);
                 o = o.next;
@@ -446,7 +465,8 @@ var getDeclared = function (o, kind) {
                 var [d, u, _, s] = getDeclared(o.first, kind);
                 while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
                 mergeTo(used, u);
-                Object.assign(declared, d);
+                declared.push(d);
+                if (prop) declared[prop] = d;
                 o = o.next;
                 break;
             default:
@@ -483,8 +503,20 @@ var getDeclared = function (o, kind) {
         if (!o) break;
         if (o.type !== STAMP) break;
         if (o.text !== ',') break;
+        prop = null;
     }
     return [declared, used, o, skiped];
+};
+var mapDeclared = function (map, declared) {
+    var rest = [declared];
+    while (rest.length) {
+        var r = rest.pop();
+        for (var d of r) {
+            if (d instanceof Array) rest.push(d);
+            else map[d] = true;
+        }
+    }
+    return map;
 };
 var saveTo = function (used, k, o) {
     if (!(used[k] instanceof Array)) used[k] = [];
