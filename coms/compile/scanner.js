@@ -293,9 +293,9 @@ function single_comment_scanner2(index) {
 //     single_comment_scanner2.call(string, 0);
 // }, count); //3354+
 // console.log(t1, t2);
-function block_code_scanner(index, blocks = []) {
+function block_code_scanner(index, blocks = [], keepdeep = Infinity) {
     var save = (blocks instanceof Array) ? function (scanner, children) {
-        if (saved_index < index) {
+        if (deep < keepdeep && saved_index < index) {
             blocks.push(new Block(scanner, saved_index, index, children));
             saved_index = index;
         }
@@ -618,7 +618,7 @@ function lookback_scanner(blockIndex, blocks) {
     return tempIndex;
 }
 
-var scanner = module.exports = function (s) {
+var scanner = module.exports = function (s, keepdeep) {
     var blocks = [];
     var s = String(s);
     // var time = Date.now();
@@ -626,9 +626,12 @@ var scanner = module.exports = function (s) {
     //     block_code_scanner.call(s, 0, blocks);
     // }//angular 1.5.3 x1000 7.0s
     // console.log(Date.now() - time);
-    block_code_scanner.call(s, 0, blocks);
+    block_code_scanner.call(s, 0, blocks, keepdeep);
     // console.log(blocks.map(a => s.slice(a.start, a.end)).join())
     return blocks;
+};
+scanner.autoskip = function (code, start) {
+    return block_code_scanner.call(code, start, null);
 };
 function Block(scanner, start, end, children) {
     this.type = scanner;

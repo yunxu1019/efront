@@ -13,22 +13,10 @@ var backskip = function (data, lastIndex) {
     }
     return lastIndex;
 };
-var autoskip = function (data, lastIndex) {
-    var count = 0;
-    while (++lastIndex < data.length) {
-        if (data[lastIndex] === "{") {
-            count++;
-        }
-        else if (data[lastIndex] === "}") {
-            if (count === 0) break;
-            count--;
-        }
-    }
-    return lastIndex;
-}
+var autoskip = scanner.autoskip;
 var readBlocks = function (data, lastIndex) {
     var blocks = [];
-    scanner(data).forEach(a => {
+    scanner(data, 1).forEach(a => {
         if (a.type === a.regexp_quote_scanner) {
             blocks.push(data.slice(a.start, a.end));
             lastIndex = a.end;
@@ -83,7 +71,7 @@ var readBlocks = function (data, lastIndex) {
                 blocks.push(piece.slice(start, index));
                 continue;
             }
-            index = autoskip(piece, index);
+            index = autoskip(piece, index + 1);
             var end = piece.indexOf(']', index) + 1;
             if (end === 0) {
                 lastIndex = lastIndex + start;
@@ -118,7 +106,7 @@ var manybuilder = function (buffer, filename) {
     var isEncrypted = !/[A-Za-z]\s*\=\s*function\s*\(\s*?\)\s*\{\s*return\s+[a-zA-Z]\s*\;?\s*\}/.test(decoder);
     if (isEncrypted) return commbuilder.apply(null, arguments);
 
-    lastIndex = autoskip(data, data.indexOf("{"));
+    lastIndex = autoskip(data, data.indexOf("{") + 1);
     var aStart = data.indexOf("[", lastIndex);
     var aEnd = data.lastIndexOf("]", fStart);
     data = data.slice(aStart, aEnd);
