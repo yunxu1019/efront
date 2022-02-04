@@ -6,7 +6,7 @@ call :typescript %*
 @REM call :esprima --no-optimize --no-compress %*
 @REM call :esmangle --no-optimize --no-compress %*
 @REM call :escodegen --no-optimize --no-compress %*
-@REM call :lessnode --no-optimize --no-compress %*
+call :lessnode --no-optimize --no-compress %*
 del package-lock.json
 rd /s /q node_modules
 exit /b 0
@@ -17,6 +17,7 @@ copy node_modules\typescript\LICENSE.txt %distpath%\typescript\LICENSE.txt
 copy node_modules\typescript\AUTHORS.md %distpath%\typescript\AUTHORS.md
 copy node_modules\typescript\lib\typescript.js %distpath%\typescript\index.js
 call node tools\readHelpersFromTypescript.js
+call efront pick typescript/index typescript/index ts.transpile
 call npm uninstall typescript
 
 goto :eof
