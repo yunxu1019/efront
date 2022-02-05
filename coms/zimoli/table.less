@@ -10,6 +10,9 @@
                 box-shadow: 1px 0 0 0 #00000033, -1px 0 0 0 #00000033;
             }
 
+            &:insert {
+                background: #999;
+            }
         }
     }
 
@@ -25,9 +28,14 @@ table,
     box-sizing: border-box;
 }
 
+* {
+    vertical-align: top;
+}
+
 & {
     outline: 1px solid #0006;
 }
+
 
 .y-ing {
     &:before {
@@ -91,20 +99,13 @@ table,
         }
 
         &:nth-of-type(odd) {
-
-            >td,
-            >th {
-                background-color: #eee;
-            }
+            background-color: #eee;
         }
 
         &:nth-of-type(even) {
-
-            >td,
-            >th {
-                background-color: #fff;
-            }
+            background-color: #fff;
         }
+
 
         &:hover {
 
@@ -121,10 +122,26 @@ table,
         z-index: 1;
 
         >td {
-            background: #6669;
-            backdrop-filter: blur(20px);
             z-index: 1;
+            background: #999;
             color: #fff;
+        }
+    }
+
+}
+
+
+tr {
+
+    >th,
+    >td {
+        background: inherit;
+
+        &[row-index] {
+            user-select: none;
+            // pointer-events: none;
+            background: #fff;
+            text-align: right;
         }
     }
 }
