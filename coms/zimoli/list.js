@@ -118,7 +118,7 @@ function ylist(container, generator, $Y, group) {
         if (isNaN(itemIndex)) return;
         itemIndex = +itemIndex;
         __animated = false;
-        if (!list.offsetHeight && !list.offsetWidth && !list.isMounted) {
+        if (!list.offsetHeight && !list.offsetWidth && !isMounted(list)) {
             saved_itemIndex = itemIndex;
             return;
         }
@@ -403,10 +403,11 @@ function ylist(container, generator, $Y, group) {
     list.scrollBy = scrollBy;
     list.index = function (update) {
         if (update === false) return saved_itemIndex;
-        var firstElement = getFirstVisibleElement();
-        if (!firstElement) return saved_itemIndex;
-        var index = firstElement.index;
-        var scrolled = (list.scrollTop - firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop) + .5 | 0) / firstElement.offsetHeight;
+        var firstVisible = getFirstVisibleElement();
+        if (!firstVisible) return saved_itemIndex;
+        var index = firstVisible.index;
+        var firstElement = getFirstElement();
+        var scrolled = (list.scrollTop - firstVisible.offsetTop + firstElement.offsetTop + parseFloat(getComputedStyle(list).paddingTop) + .5 | 0) / firstVisible.offsetHeight;
         return index + scrolled;
     };
     list.topIndex = function () {

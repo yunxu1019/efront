@@ -624,7 +624,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         element.renderid = 1;
         var parentNode = element.parentNode;
         if (parentNode) {
-            if (parentNode.renderid > 1 || parentNode.isMounted) element.renderid = 2;
+            if (parentNode.renderid > 1 || isMounted(parentNode)) element.renderid = 2;
         }
         element.renders = element.renders ? [].concat(element.renders) : [];
         var { ons, copys, attrs, props, binds, context: withContext, ids } = element.$struct;
@@ -698,7 +698,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         rebuild(element);
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
-        if (element.isMounted || element.renderid > 1) addRenderElement.call(element);
+        if (isMounted(element) || element.renderid > 1) addRenderElement.call(element);
     }
     if (elementid) scope[elementid] = element;
     for (var id of ids) {
