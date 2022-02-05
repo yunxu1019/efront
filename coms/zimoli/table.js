@@ -146,7 +146,6 @@ function enrichField(f) {
     f.width = width + 60;
 }
 
-
 function table(elem) {
     var tableElement = isElement(elem) ? elem : document.createElement("table");
     var activeCols = [];
@@ -214,18 +213,21 @@ function table(elem) {
     table.dragbox = function () {
         return thead;
     };
+    var tbodyHeight = e => ({ 'max-height': ((innerHeight - getScreenPosition(table).top - 46) / 32 | 0) * 32 + 36 });
     care(table, function ([fields, data]) {
         thead = null;
-        this.innerHTML = template;
         fields.forEach(enrichField);
+        remove(this.children);
+        this.innerHTML = template;
+
         render(this, {
             fields,
-            tbody: list,
-            innerHeight: {
-                valueOf() {
-                    return innerHeight - getScreenPosition(table).top;
-                }
+            tbody() {
+                var e = list.apply(null, arguments);
+                css(e, tbodyHeight());
+                return e;
             },
+            tbodyHeight,
             data,
             adapter: null,
             model,
@@ -250,9 +252,10 @@ function table(elem) {
         cellMatchManager,
         function (src, dst, rel, append, parentNode) {
             if (table.src) {
-                var [fields] = table.src;
-                var [f] = fields.splice(src, 1);
-                fields.splice(dst, 0, f);
+                if (src < 1 || dst < 1) return false;
+                var fields = parentNode.$scope.fields;
+                var [f] = fields.splice(src - 1, 1);
+                fields.splice(dst - 1, 0, f);
             }
             var children = parentNode.children;
             var srcElement = children[src];
