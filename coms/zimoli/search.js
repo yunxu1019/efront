@@ -5,7 +5,10 @@ function search(seartext, options, path = "name") {
             var name = seek(o, path);
             if (name === seartext) hasFullmatch = true;
             var [power, m] = mark.power(name, seartext);
-            return { power, [path]: m, value: o.value, item: o };
+            o = Object.create(o);
+            o.power = power;
+            if (path) o[path] = m;
+            return o;
         }).filter(a => a.power > 0);
         a.sort(function (a, b) {
             return b.power - a.power;
