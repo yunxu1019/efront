@@ -2,12 +2,14 @@ var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = Object.create(null);
 var presets = Object.create(null);
 presets.template = function (t) {
-    var node = document.createElement("div");
     var comment = document.createComment('template');
-    node.innerHTML = t.innerHTML;
-    comment.with = [].slice.call(node.childNodes, 0);
-    renderElement(comment.with, t.$scope, t.$parentScopes);
-    remove(node.childNodes);
+    once("append")(comment, function () {
+        var node = document.createElement(comment.parentNode.tagName || "div");
+        node.innerHTML = t.innerHTML;
+        comment.with = [].slice.call(node.childNodes, 0);
+        appendChild.after(comment,comment.with);
+        renderElement(comment.with, comment.$scope, comment.$parentScopes);
+    });
     return comment;
 };
 window.renderElements = renderElements;
