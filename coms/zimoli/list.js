@@ -174,7 +174,7 @@ function ylist(container, generator, $Y, group) {
         }
         var indexed_item = getIndexedElement(index) || bottom_item;
         if (indexed_item) {
-            list.scrollTop = indexed_item.offsetTop + indexed_item.offsetHeight * ratio - parseFloat(getComputedStyle(list).paddingTop);
+            list.scrollTop = -getFirstElement().offsetTop + indexed_item.offsetTop + indexed_item.offsetHeight * ratio - parseFloat(getComputedStyle(list).paddingTop);
         }
     };
     var runbuild = lazy(function () {
