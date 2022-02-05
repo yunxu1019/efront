@@ -66,7 +66,7 @@ function ybox(generator) {
         var abs_speed = abs(__speed << 2) / time_splitter;
         var abs_speed = abs(__speed << 2) / time_splitter;
         if (abs_speed < 1) {
-            cancelFrame();
+            __speed = _speed(0);
             decrease();
             return;
         }
@@ -109,8 +109,7 @@ function ybox(generator) {
     var stop_timer = 0, stop_id = 0, cancel_id = 0;
     var stop = lazy(function stop() {
         if (cancel_id !== stop_id) return;
-        __speed = _speed(0);
-        if (Math.abs(_box.stopY() - _box.Top() > 0.0001)) stop_timer = setTimeout(stop, 16);
+        if (Math.abs(_box.stopY() - _box.Top() )> 0.0001) stop_timer = setTimeout(stop, 16);
     }, 310);
     var cancelFrame = function () {
         __speed = _speed(0);
@@ -122,7 +121,7 @@ function ybox(generator) {
     var decrease = function () {
         if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = requestAnimationFrame(decrease);
         else {
-            stop_id = cancelFrame();
+            stop_id = cancel_id;
             stop();
         }
     };
