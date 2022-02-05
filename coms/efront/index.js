@@ -854,6 +854,7 @@ var run = function (type, value1, value2, value3) {
                     value2 = 443;
                     value1 = '-1';
                 }
+                argv = [type, value1, value2];
             default:
                 type = helps[type].key;
                 if (type instanceof Array) {
