@@ -5,7 +5,6 @@ function ybox(generator) {
     var sign = Math.sign || function (a) {
         return +a > 0 ? 1 : -a > 0 ? -1 : 0;
     };
-    var { min, max } = Math;
     var _box;
     if (isNode(generator)) {
         _box = generator;
@@ -63,11 +62,11 @@ function ybox(generator) {
         return _Top;
     };
     var __speed = 0;
-    var smooth = function (useIncrease = true) {
+    var smooth = function smooth(useIncrease = true) {
         var abs_speed = abs(__speed << 2) / time_splitter;
         var abs_speed = abs(__speed << 2) / time_splitter;
         if (abs_speed < 1) {
-            __speed = _speed(0);
+            cancelFrame();
             decrease();
             return;
         }
@@ -107,9 +106,25 @@ function ybox(generator) {
         remove(increaser);
         return 0;
     };
+    var stop_timer = 0, stop_id = 0, cancel_id = 0;
+    var stop = lazy(function stop() {
+        if (cancel_id !== stop_id) return;
+        __speed = _speed(0);
+        if (Math.abs(_box.stopY() - _box.Top() > 0.0001)) stop_timer = setTimeout(stop, 16);
+    }, 310);
+    var cancelFrame = function () {
+        __speed = _speed(0);
+        clearTimeout(stop_timer);
+        cancelAnimationFrame(smooth_timer);
+        cancelAnimationFrame(decrease_timer);
+        return ++cancel_id;
+    };
     var decrease = function () {
         if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = requestAnimationFrame(decrease);
-        else if (_box.stopY() - _box.Top()) decrease_timer = requestAnimationFrame(decrease);
+        else {
+            stop_id = cancelFrame();
+            stop();
+        }
     };
     var increase = function (deltaY, minusOnly) {
         var t_height = increaser_t.height || 0;
@@ -170,9 +185,7 @@ function ybox(generator) {
         });
         bindtouch(_box, {
             start() {
-                cancelAnimationFrame(smooth_timer);
-                cancelAnimationFrame(decrease_timer);
-                _speed(0);
+                cancelFrame();
             },
             move(scrolled) {
                 var y = -this.Top();
@@ -203,11 +216,7 @@ function ybox(generator) {
     }
     if (isMounted(_box)) initScrollId.call(_box);
     on("append")(_box, initScrollId);
-    _box.cancelFrame = function () {
-        cancelAnimationFrame(smooth_timer);
-        cancelAnimationFrame(decrease_timer);
-        __speed = _speed(0);
-    };
+    _box.cancelFrame = cancelFrame;
     preventOverflowScrolling(_box);
     return _box;
 }
