@@ -11,7 +11,7 @@ if (process.resourceUsage) {
 var finish = function (deltaTime) {
     if (timer > 0) {
         clearInterval(timer);
-        var memery = `，占用内存${size(process.resourceUsage().maxRSS * 1024)}`;
+        var memery = `，占用内存 ${size(process.resourceUsage().maxRSS * 1024)}`;
     }
     console.info(`完成，用时${deltaTime / 1000}秒${memery ? memery : ''}。\r\n`);
     reloadListener.fire();

@@ -11,6 +11,6 @@ module.exports = function main(responseTree) {
     var maxLength2 = Math.max.apply(Math, times.map(([, time]) => getLength(time)));
     console.time();
     times.forEach(function ([destpath, time]) {
-        console.info(`url: <green>${destpath} ${" ".repeat(maxLength1 - getLength(destpath))}</green> time: ${" ".repeat(maxLength2 - getLength(time))}<green>${time}</green> ms\r\n`);
+        console.info(`文件 <green>${destpath} ${" ".repeat(maxLength1 - getLength(destpath))}</green> 用时 ${" ".repeat(maxLength2 - getLength(time))}<green>${time}</green> 毫秒\r\n`);
     });
 };
