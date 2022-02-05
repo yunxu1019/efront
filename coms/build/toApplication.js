@@ -66,8 +66,6 @@ var encrypt = function (text, efrontsign) {
 var encoded = memory.ENCRYPT;
 var compress = memory.COMPRESS;
 var ReleaseTime = new Date();
-if (encoded) encoded = (Math.random() * ReleaseTime | 0).toString(36);
-
 ReleaseTime = String(ReleaseTime);
 var buildHtml = function (html, code) {
     var isZimoliDetected = false;
@@ -247,7 +245,8 @@ var isEfrontCode = function (response) {
     if (response.type === "@") return;
     return true;
 }
-module.exports =async  function (responseTree) {
+module.exports = async function (responseTree) {
+    if (encoded) encoded = setting.version_mark;
     rebuildData(responseTree);
     report(responseTree);
     if (!responseTree["main"] && !responseTree["main.js"]) {
@@ -260,6 +259,7 @@ module.exports =async  function (responseTree) {
     var mainScriptData = commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
     commbuilder.compress = +compress;
     var versionTree = {};
+
     if (setting.is_file_target) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];

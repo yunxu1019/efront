@@ -30,10 +30,10 @@ var getBuiltVersion = function (filepath) {
             });
         });
     }).then(function (data) {
-        var version = /\bcompiledinfo\s*=\s*(['"`])(.*?GMT[+\-]\d{4})\b.*?\1/i.exec(data);
+        var version = /\bcompiledinfo(?:\-(\w+))\s*=\s*(['"`])(.*?GMT[+\-]\d{4})\b.*?\2/i.exec(data);
         if (version) {
-            var timepart = version[2];
-            return new Date(timepart);
+            var timepart = version[3];
+            return [version[1], new Date(timepart)];
         }
     });
 };
@@ -87,7 +87,11 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         setting.is_file_target = /\.html?$/i.test(environment.APP);
         commbuilder.prepare = !setting.is_file_target;
         var toApplication = require("./toApplication");
-        promise = getBuiltVersion(path.join(public_path, "index.html")).then(function (lastBuildTime) {
+        promise = getBuiltVersion(path.join(public_path, "index.html")).then(function (version) {
+            if (version) {
+                var [mark, lastBuildTime] = version;
+                if (!setting.is_file_target) setting.version_mark = mark;
+            }
             if (cleanBeforeBuild) {
                 lastBuildTime = 0;
             }
