@@ -233,7 +233,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
             display: element.style.display
         };
     }
-    var zindex = zIndex();
+    var zindex = zIndex(0) + 1;
     css(element, `position:absolute;z-index:${zindex}`);
     css(_rhomb, { zIndex: zindex });
     var release1 = onremove(target, function () {

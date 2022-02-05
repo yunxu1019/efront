@@ -13,6 +13,21 @@ var getOffset = function (e) {
     if (isFinite(e.screenLeft)) return [e.screenLeft, e.screenTop];
     if (isFinite(e.screenX)) return [e.screenX, e.screenY];
 };
+var z;
+var addZIndex = function (clone) {
+    if (clone.style) clone.style.zIndex = z + (+clone.style.zIndex || 0);
+};
+var setZIndex = function () {
+    var target = this;
+    var computed = getComputedStyle(target);
+    var z0 = zIndex(0);
+    if (!z || computed.zIndex < z0) {
+        z = zIndex();
+        if (/^(absolute|fixed)$/i.test(computed.position)) {
+            css(target, { zIndex: z });
+        }
+    }
+};
 function drag(target, initialEvent, preventOverflow, isMovingSource) {
     if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName)) return;
     if (target.dragable === false) return;
@@ -36,7 +51,6 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
         var saved_height = target.outerHeight;
     }
     var extraClones;
-
     var mousemove = function (event) {
         if (event.moveLocked) return;
         if (/resize/i.test(getComputedStyle(document.body).cursor)) return;
@@ -50,21 +64,20 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             dispatch("dragstart", target);
             if (isElement(target) && !/absolute|fixed/.test(getComputedStyle(target).position)) {
                 clone = toCloneTarget(target, isMovingSource);
+                z = zIndex(0) + 1;
+                addZIndex(clone);
                 appendChild(document.body, clone);
             } else {
                 clone = target;
                 extraTargets = [];
+                if (target.style) css(target, { zIndex: z });
             }
             var [clone_left, clone_top] = getOffset(clone);
             extraClones = extraTargets.map(toCloneTarget);
+            extraClones.forEach(addZIndex);
             extraClones.map(c => document.body.appendChild(c));
             saved_delta.x += clone_left - target_left;
             saved_delta.y += clone_top - target_top;
-            if (clone.style) {
-                var z = zIndex();
-                clone.style.zIndex = z + (+clone.style.zIndex || 0);
-                extraClones.map(e => e.style.zIndex = z + (+e.style.zIndex || 0));
-            }
         }
         drag.target = clone;
         var offsetLeft = saved_delta.x + event.screenX;
@@ -125,6 +138,9 @@ drag.on = function (target, actionTarget = target.dragTarget) {
         var _mousedrag = mousedrag;
         var _touchdrag = touchdrag;
     }
+    onmousedown(actionTarget || target, setZIndex);
+    ontouchstart(actionTarget || target, setZIndex);
+    on("drop")(actionTarget || target, setZIndex);
     onmousedown(target, _mousedrag);
     ontouchstart(target, _touchdrag);
     move.bindPosition(actionTarget || target);

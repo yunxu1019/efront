@@ -123,9 +123,6 @@ function confirm() {
         onclick(btn, clickbtn);
         return btn;
     });
-    onclick(element, function () {
-        css(this, { zIndex: zIndex() });
-    });
     preventOverflowScrolling(element);
     appendChild(option, buttons);
     if (!target) element.initialStyle = "transform:scale(0.96);opacity:0;transition:transform .3s,opacity .2s ease-out";
