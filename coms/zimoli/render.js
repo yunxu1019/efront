@@ -7,7 +7,7 @@ presets.template = function (t) {
         var node = document.createElement(comment.parentNode.tagName || "div");
         node.innerHTML = t.innerHTML;
         comment.with = [].slice.call(node.childNodes, 0);
-        appendChild.after(comment,comment.with);
+        appendChild.after(comment, comment.with);
         renderElement(comment.with, comment.$scope, comment.$parentScopes);
     });
     return comment;
@@ -692,7 +692,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     for (var k in props) {
         try {
-            element[k] = props[k];
+            if (element[k] !== props[k]) element[k] = props[k];
         } catch (e) { }
     }
     ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
@@ -782,6 +782,9 @@ function renderStructure(element, scope, parentScopes = []) {
             element.removeAttribute(name);
         }
         else {
+            if (!/\-/.test(name) || value === '') {
+                copys.push(attr);
+            }
             props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
         }
     }
