@@ -311,13 +311,15 @@ function parseConfig(api) {
         required
     };
 }
-var isWorseIE = /msie\s+[2-9]/i.test(navigator.userAgent);
+var isWorseIE = /msie\s+[2-8]/i.test(navigator.userAgent);
 var parseData = function (sourceText) {
     if (/^\s*<[^\s\'\"\`]/i.test(sourceText)) {
+        if (window.DOMParser) {
+            return new window.DOMParser().parseFromString(sourceText, "text/html");
+        }
         // XML 格式
         var doc = document.implementation.createHTMLDocument('');
         if (isWorseIE) {
-
             sourceText = sourceText
                 .replace(/<!--[\s\S]*?-->|<\[CDATA\[[\s\S]*?\]\]>/ig, '')
                 .replace(/^[\s\S]*?<html>([\s\S]*)<\/html>[\s\S]*?$/i, '$1')
