@@ -34,29 +34,23 @@
 "use strict";
 
 var notMatchLength = new Error("矩阵长度不一致");
-function transform(A, B) {
+function transform(dots, B) {
     var dimention = Math.sqrt(B.length - 1) | 0;
-    if (A.length % dimention !== 0) throw notMatchLength;
-    if (A === B) B = B.slice(0);
+    if (dots.length % dimention !== 0) throw notMatchLength;
+    if (dots === B) B = B.slice(0);
+    var ds = dots.slice(0);
     var dim2 = B.length % dimention !== 0 ? dimention + 1 : dimention;
-    for (var cx = 0, dx = A.length; cx < dx;) {
+    for (var cx = 0, dx = dots.length; cx < dx; cx += dimention) {
         for (var cy = 0, dy = dimention; cy < dy; cy++) {
             var sum = 0;
             for (var ct = 0, dt = dimention; ct < dt; ct++) {
-                sum += A[ct] * B[ct * dim2 + cy];
+                sum += ds[cx + ct] * B[ct * dim2 + cy];
             }
-            A[cx++] = sum;
+            sum += B[dimention * dim2 + cy];
+            dots[cx + cy] = sum;
         }
     }
-    if (dim2 === dimention) {
-        var dim2start = dimention * dim2;
-        for (var cx = 0, dx = A.length; cx < dx;) {
-            for (var cy = dim2start, dy = dim2start + dimention; cy < dy; cy++) {
-                A[cx++] += B[cy];
-            }
-        }
-    }
-    return A;
+    return dots;
 };
 
 function translate(A, delta) {
@@ -75,6 +69,22 @@ function 负(a) {
     return -a;
 }
 
+function multiply(A, B) {
+    if (A.length !== B.length) throw notMatchLength;
+    var dim = Math.sqrt(A.length) | 0;
+    if (dim * dim !== A.length) throw notMatchLength;
+    var X = A.slice(0);
+    for (var cx = 0, dx = A.length; cx < dx; cx += dim) {
+        for (var cy = 0, dy = dim; cy < dy; cy++) {
+            var sum = 0;
+            for (var ct = 0, dt = dim; ct < dt; ct++) {
+                sum += X[cx + ct] * B[ct * dim + cy];
+            }
+            A[cx + cy] = sum;
+        }
+    }
+    return A;
+}
 
 function inner(vec1, vec2) {
     if (vec1.length !== vec2.length) throw notMatchLength;
@@ -142,7 +152,7 @@ function matrix3d(factor) {
     var [x_u, y_u, z_u] = factor ? [0, 0, 1] : vec;
 
     return new Matrix(
-        cosa + x_u ^ 2 * vera, x_u * y_u * vera - z_u * sina, x_u * z_u * vera + y_u * sina, 0,
+        cosa + x_u * x_u * vera, x_u * y_u * vera - z_u * sina, x_u * z_u * vera + y_u * sina, 0,
         x_u * y_u * vera + z_u * sina, cosa + y_u * y_u * vera, y_u * z_u * vera - x_u * sina, 0,
         x_u * z_u * vera - y_u * sina, y_u * z_u * vera + x_u * sina, cosa + z_u * z_u * vera, 0,
         0, 0, 0, 1
@@ -181,10 +191,11 @@ class Matrix extends Array {
         return scale(this, ratio);
     }
     multiply(a) {
-        return transform(this, a);
-
+        return multiply(this, a);
     }
     transform(dots) {
-        return transform(dots, this);
+        if (dots instanceof Array) return transform(dots, this);
+        if (isFinite(dots)) return dots * this[this.length - 1];
+        return dots;
     }
 }
