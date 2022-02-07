@@ -10,5 +10,5 @@ function onmounted(target, handle) {
         handle.call(target);
         return;
     }
-    onappend(target, handle);
+    once("append")(target, handle);
 }
