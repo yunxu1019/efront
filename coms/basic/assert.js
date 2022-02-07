@@ -1,4 +1,8 @@
-var assert = function (result, expect, log = console.error) {
+var dump = function (a) {
+    if (a instanceof Object) console.error('对象的属性不符合'), console.log("  ", a);
+    else console.error(a);
+};
+var assert = function (result, expect, log = dump) {
     var errors = {}, hasCollect;
     var collect = function (k, args) {
         hasCollect = true;
@@ -19,7 +23,12 @@ var assert = function (result, expect, log = console.error) {
     var res = false;
     if (result === expect) {
         res = true;
-    } else if (expect instanceof Date) {
+    }
+    else if (typeof result === "number" && typeof expect === "number") {
+        var e = (result - expect) * (result - expect) / Math.sqrt(result * result + expect * expect);
+        if (e < 1e-14) res = true;
+    }
+    else if (expect instanceof Date) {
         if (result instanceof Date)
             res = assert(+expect, +result, collect());
     } else if (expect instanceof Array) {
