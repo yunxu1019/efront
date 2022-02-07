@@ -54,9 +54,7 @@ function transform(dots, B) {
 };
 
 function translate(A, delta) {
-    var dim = delta.length;
-    var dim2 = dim;
-    if (A.length % dim !== 0) dim2++;
+    var [dim2, dim] = size(A);
     var inc = 0;
     for (var cx = dim * dim2, dx = cx + dim; cx < dx; cx++) {
         A[cx] = (A[cx] || 0) + delta[inc++];
@@ -111,7 +109,7 @@ function cross(vec1, vec2) {
     }
     return c;
 }
-function scale(vector, factor) {
+function times(vector, factor) {
     for (var cx = 0, dx = vector.length; cx < dx; cx++) {
         vector[cx] *= factor;
     }
@@ -123,7 +121,7 @@ function olinde(v, vector) {
     // https://baike.baidu.com/item/%E7%BD%97%E5%BE%B7%E9%87%8C%E6%A0%BC%E6%97%8B%E8%BD%AC%E5%85%AC%E5%BC%8F/18878562
     // https://www.cnblogs.com/flyinggod/p/8144100.html 旋转矩阵、欧拉角、四元数理论及其转换关系
     var theta = norm(vector);
-    var k = scale(vector.slice(0), 1 / theta);
+    var k = times(vector.slice(0), 1 / theta);
     var cosa = Math.cos(theta);
     var sina = Math.sin(theta);
     var inna = inner(k, v);
@@ -145,7 +143,7 @@ function matrix2d(theta) {
 };
 function matrix3d(factor) {
     var theta = norm(factor);
-    var vec = scale(factor, 1 / theta);
+    var vec = times(factor, 1 / theta);
     var cosa = Math.cos(theta);
     var sina = Math.sin(theta);
     var vera = 1 - cosa;
@@ -166,12 +164,81 @@ var norm = function (vector) {
     return Math.sqrt(sum);
 };
 
+var 逆 = function (A) {
+    var dim = Math.sqrt(A.length) | 0;
+    if (dim * dim !== A.length) throw notMatchLength;
+    var E = new Array(A.length).fill(0);
+    for (var cx = 0, dx = dim; cx < dx; cx++)E[cx * dim + cx] = 1;
+    var X = A.splice(0, A.length);
+    A.push.apply(A, E);
+    for (var cx = 0, dx = dim; cx < dx; cx++) {
+        var start = cx * dim + cx;
+        for (var ct = start, dy = X.length; ct < dy; ct += dim) {
+            if (X[ct] !== 0) break;
+        }
+        if (ct !== start) {
+            var delta = ct - start;
+            var ratio = 1 / X[ct];
+            for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
+                X[cy] += X[cy + delta] * ratio;
+                A[cy] += A[cy + delta] * ratio;
+            }
+        }
+        if (X[start] !== 1) {
+            var delta = ct - start;
+            var ratio = 1 / X[start];
+            for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
+                X[cy] *= ratio;
+                A[cy] *= ratio;
+            }
+        }
+        for (var ct = start + dim, dy = X.length; ct < dy; ct += dim) {
+            if (X[ct] === 0) continue;
+            var ratio = -X[ct];
+            var delta = start - ct;
+            for (var cy = ct - cx, dy = cy + dim; cy < dy; cy++) {
+                X[cy] += X[cy + delta] * ratio;
+                A[cy] += A[cy + delta] * ratio;
+            }
+        }
+    }
+    for (var cx = dim - 2; cx > 0; cx--) {
+        var start = cx * dim + cx + 1;
+        for (var ct = start; ct > 0; ct -= dim) {
+            if (X[ct] === 0) continue;
+            var ratio = -X[ct];
+            var delta = ct - start;
+            for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
+                X[cy] += X[cy + delta] * ratio;
+                A[cy] += A[cy + delta] * ratio;
+            }
+        }
+    }
+    return A;
+};
+
+function size(A) {
+    var dim = Math.sqrt(A.length - 1) | 0;
+    var dim2 = dim;
+    if (A.length % dim !== 0) {
+        dim2++;
+    }
+    if ((dim + 1) * dim2 !== A.length) throw notMatchLength;
+    return [dim2, dim];
+}
+
 class Matrix extends Array {
     static create2d(theta = 0) {
         return matrix2d(theta);
     }
     static create3d(factor = [0, 0, 0]) {
         return matrix3d(factor);
+    }
+    size() {
+        return size(this);
+    }
+    inverse() {
+        return 逆(this);
     }
     rotate(factor, center) {
         if (center) this.translate(center.map(负));
@@ -188,7 +255,9 @@ class Matrix extends Array {
         return translate(this, vector);
     }
     scale(ratio) {
-        return scale(this, ratio);
+        times(this, ratio);
+        this[this.length - 1] = 1;
+        return this;
     }
     multiply(a) {
         return multiply(this, a);
