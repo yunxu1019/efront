@@ -1,5 +1,5 @@
 // 中文编码 utf8
-function ylist(container, generator, $Y, group) {
+function ylist(container, generator, $Y) {
     const cache_height = 2000;
     var restHeight = cache_height;
     var list = container || div();
@@ -264,7 +264,16 @@ function ylist(container, generator, $Y, group) {
             }
         }
         if (collection.length) {
-            var { paddingCount, paddingMax } = list;
+            var item = collection[collection.length - 1];
+            var { paddingCount = 0, paddingMax } = list;
+            if (item) item = item.nextSibling;
+            while (item && (item.index + paddingCount) % list.group) {
+                item = collection.pop();
+            }
+            var item = collection[collection.length - 1];
+            if (item) scrollTop -= item.offsetTop + getOffsetHeight(item) - collection[0].offsetTop;
+
+
             if (paddingCount > 0 && paddingMax > 0 && paddingCount < paddingMax) {
                 let item = collection[collection.length - 1];
                 while (paddingCount > 0) {
@@ -274,13 +283,6 @@ function ylist(container, generator, $Y, group) {
                     item = item.nextSibling;
                 }
             }
-            var item = collection[collection.length - 1];
-            if (item) item = item.nextSibling;
-            while (item && item.index % group) {
-                item = collection.pop();
-            }
-            var item = collection[collection.length - 1];
-            if (item) scrollTop -= item.offsetTop + getOffsetHeight(item) - collection[0].offsetTop;
             remove(collection);
         }
         //滚动到相应的位置
@@ -302,7 +304,7 @@ function ylist(container, generator, $Y, group) {
         if (!(paddingCount > 0 && paddingMax > 0 && paddingCount < paddingMax) || !(scrollTop < targetHeight)) {
             paddingCount = 0;
         }
-        while (scrollTop < targetHeight || paddingCount > 0 || offset % group) {
+        while (scrollTop < targetHeight || paddingCount > 0 || offset % list.group) {
             offset--;
             if (!(scrollTop < targetHeight)) {
                 paddingCount--;
@@ -405,7 +407,7 @@ function ylist(container, generator, $Y, group) {
         var firstVisible = getFirstVisibleElement();
         if (!firstVisible) return saved_itemIndex;
         var index = firstVisible.index;
-        var firstElement = getFirstElement();
+        var firstElement = getFirstElement(1);
         var scrolled = (list.scrollTop - firstVisible.offsetTop + firstElement.offsetTop + .5 | 0) / firstVisible.offsetHeight;
         return index + scrolled;
     };
@@ -485,7 +487,8 @@ function list() {
     var groupCount = /\d+/.exec($Y);
     if (groupCount) groupCount = +groupCount[0];
     $Y = /^[xh]|[xh]$/i.test($Y) ? "X" : "Y";
-    var list = ($Y === "X" ? xlist : ylist)(container, generator, $Y, groupCount || 2);
+    var list = ($Y === "X" ? xlist : ylist)(container, generator, $Y);
+    if (!list.group) list.group = groupCount || 2;
     if (bindSrc instanceof Array) {
         list.src = bindSrc;
         container.go(container.index() || 0);

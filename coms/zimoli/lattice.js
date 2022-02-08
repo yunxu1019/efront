@@ -19,6 +19,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         if (boxCount < 1) boxCount = 1, addClass(_box, inadequate_class);
         else removeClass(_box, inadequate_class);
         _box.paddingMax = boxCount;
+        _box.group = boxCount;
     };
     if (layers) {
         var _box = list(element, function (index) {
