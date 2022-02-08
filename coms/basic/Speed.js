@@ -83,7 +83,6 @@ class Speed extends Array {
         var values = this.slice(0);
         var deltat = now - stamp;
         var ratio = Math.pow(0.99999, Math.pow(1.01, deltat));
-        console.log(ratio)
         if (this.stamp) ratio *= now - this.stamp;
         this.stamp = now;
         for (var cx = 0, dx = values.length; cx < dx; cx++) {
