@@ -75,13 +75,10 @@ function picture_(image = document.createElement("div")) {
     });
     image.init = setInitParams;
     image.locked = false;
-    var last_click_time = 0;
 
-    on("click")(image, function (event) {
-        var time = +new Date;
-        var delta_time = time - last_click_time;
-        last_click_time = time;
-        if (delta_time > 300) return;
+    on("dblclick")(image, function (event) {
+        if (event.defaultPrevented) return;
+        event.preventDefault();
         var image = this;
         var __scaled = scaled, _x = x, _y = y;
         setInitParams();
