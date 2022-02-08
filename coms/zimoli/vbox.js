@@ -1,10 +1,5 @@
 function ybox(generator) {
-    var scrollY = vscroll.Y;
-    var abs = Math.abs;
-    var sqrt = Math.sqrt;
-    var sign = Math.sign || function (a) {
-        return +a > 0 ? 1 : -a > 0 ? -1 : 0;
-    };
+    var scrollY = inertia(vscroll.Y);
     var _box;
     if (isNode(generator)) {
         _box = generator;
@@ -41,46 +36,29 @@ function ybox(generator) {
         var top = _Top + deltay;
         var height = _box.height();
         var scrollHeight = _box.Height();
+        var r = true;
         if (top < 0) {
-            // if (speed > 30) speed = 30;
-            __speed = __speed >> 1;
-            useIncrease && _Top <= 0 && increase(top);
-            top = 0;
-            _Top = _box.Top(top);
-        } else if (top + height > scrollHeight) {
-            // if (speed > 30) speed = 30;
+            if (useIncrease && _Top <= 0) {
+                r = increase(top);
+            }
+            _box.Top(0);
+        } else if (top + height >= scrollHeight) {
             if (top + height - scrollHeight > increase_height) {
                 top = increase_height + scrollHeight - height;
             }
-            __speed = __speed >> 1;
-            useIncrease && _Top + height >= scrollHeight && increase(top + height - scrollHeight);
-            _Top = _box.Top(top);
+            if (useIncrease && top + height >= scrollHeight) {
+                r = increase(top + height - scrollHeight);
+            }
+            _box.Top(top);
         } else {
-            _Top = _box.Top(top);
+            r = top === _box.Top(top);
             increase(deltay, true);
         }
-        return _Top;
-    };
-    var __speed = 0;
-    var smooth = function smooth(useIncrease = true) {
-        var abs_speed = abs(__speed << 2) / time_splitter;
-        var abs_speed = abs(__speed << 2) / time_splitter;
-        if (abs_speed < 1) {
-            __speed = _speed(0);
-            decrease();
-            return;
-        }
-        onclick.preventClick = true;
-        smooth_timer = requestAnimationFrame(() => smooth(useIncrease));
-        scrollY.call(_box, -__speed, useIncrease);
-        __speed = __speed - sign(__speed) * (abs_speed - sqrt(abs_speed) * sqrt(abs_speed - 1));
+        return r;
     };
     var increaser_t = document.createElement("insert");
     addClass(increaser_t, 'y-insert');
     var increaser_b = increaser_t.cloneNode();
-    var decrease_timer = 0;
-    var time_splitter = 16;
-    var _speed = speed(time_splitter);
     var increase_height = calcPixel(100);
     var _decrease = function (increaser) {
         var height = parseInt(increaser.height);
@@ -99,31 +77,26 @@ function ybox(generator) {
             }
             increaser.height = height = height > 16 ? (height * 2 + 6) / 3 : height >> 1;
             increaser.style.height = fromOffset(height | 0);
+            return height;
+        }
+        if (increaser.height) {
+            increaser.height = 0;
+            increaser.style.height = 0;
             return 1;
         }
-        increaser.height = 0;
-        increaser.style.height = 0;
         remove(increaser);
         return 0;
     };
-    var stop_timer = 0, stop_id = 0, cancel_id = 0;
-    var stop = lazy(function stop() {
-        if (cancel_id !== stop_id) return;
-        if (Math.abs(_box.stopY() - _box.Top() )> 0.0001) stop_timer = setTimeout(stop, 16);
-    }, 310);
-    var cancelFrame = function () {
-        __speed = _speed(0);
-        clearTimeout(stop_timer);
-        cancelAnimationFrame(smooth_timer);
-        cancelAnimationFrame(decrease_timer);
-        return ++cancel_id;
+    var stop = function stop() {
+        return _box.stopY() !== _box.Top();
     };
+    var stop2 = lazy(function () {
+        scrollY.smooth(stop);
+    }, 310);
     var decrease = function () {
-        if (_decrease(increaser_t) + _decrease(increaser_b)) decrease_timer = requestAnimationFrame(decrease);
-        else {
-            stop_id = cancel_id;
-            stop();
-        }
+        var res = _decrease(increaser_t) + _decrease(increaser_b);
+        if (!res) scrollY.smooth(stop);
+        return res;
     };
     var increase = function (deltaY, minusOnly) {
         var t_height = increaser_t.height || 0;
@@ -141,15 +114,9 @@ function ybox(generator) {
                 increaser_b.height = 0;
                 increaser_b.style.height = 0;
                 appendChild(_box, increaser_b);
-                var deltaMargin = _box.scrollHeight - increaser_b.offsetTop;
+                var deltaMargin = _box.scrollHeight - increaser_b.offsetTop - parseFloat(getComputedStyle(_box).paddingBottom);
                 if (deltaMargin > 0) {
                     increaser_b.style.marginTop = fromOffset(deltaMargin);
-                    var paddingBottom = getComputedStyle(_box).paddingBottom;
-                    if (paddingBottom) {
-                        paddingBottom = "-" + paddingBottom;
-                        paddingBottom = paddingBottom.replace(/^\-{2}/, "");
-                    }
-                    increaser_b.style.marginBottom = paddingBottom;
                 }
             }
         }
@@ -159,14 +126,13 @@ function ybox(generator) {
         if (t_height < 0) t_height = 0;
         if (!minusOnly || b_height < increaser_b.height) increaser_b.height = b_height, increaser_b.style.height = fromOffset(b_height);
         if (!minusOnly || t_height < increaser_t.height) increaser_t.height = t_height, increaser_t.style.height = fromOffset(t_height);
+        return t_height < increase_height && b_height < increase_height;
     };
     if (/Edge|Trident/i.test(navigator.userAgent)) {
         // ie
         addClass(_box, "trident");
     } else {
         onmousewheel(_box, function (event) {
-            cancelAnimationFrame(smooth_timer);
-            cancelAnimationFrame(decrease_timer);
             var deltay = -event.deltaY;
             if (event.moveLocked) return;
             event.moveLocked = true;
@@ -179,26 +145,24 @@ function ybox(generator) {
             if (box === _box) {
                 event.preventDefault();
                 scrollY.call(_box, -deltay, false);
-                smooth(false);
+                stop2();
             }
         });
         bindtouch(_box, {
             start() {
-                cancelFrame();
+                scrollY.reset();
             },
             move(scrolled) {
                 var y = -this.Top();
                 if (scrolled) {
                     var { deltay } = scrolled;
-                    __speed = _speed(deltay);
                     scrollY.call(this, -deltay);
                     y += deltay;
                 }
                 return { y };
             },
             end() {
-                __speed = _speed();
-                smooth();
+                scrollY.smooth(decrease);
             }
         }, 'y');
     }
@@ -215,7 +179,7 @@ function ybox(generator) {
     }
     if (isMounted(_box)) initScrollId.call(_box);
     on("append")(_box, initScrollId);
-    _box.cancelFrame = cancelFrame;
+    _box.cancelFrame = scrollY.reset;
     preventOverflowScrolling(_box);
     return _box;
 }

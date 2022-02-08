@@ -2,8 +2,9 @@ var scroll = function () {
     var scrollY = function (deltay, useIncrease) {
         deltay = scrollOutside.call(this, deltay);
         if (isFunction(this.scrollY)) return this.scrollY(deltay, useIncrease);
-        else this.scrollTop += deltay;
-        return this.scrollTop;
+        var scrollTop = this.scrollTop;
+        this.scrollTop += deltay;
+        if (this.scrollTop === scrollTop) return false;
     };
 
     var Height = function () {
