@@ -237,10 +237,20 @@ class Matrix extends Array {
     size() {
         return size(this);
     }
+    dirty() {
+        this._invert = null;
+    }
+    _invert = null;
+    get invert() {
+        if (this._invert) return this._invert;
+        return this._invert = this.slice().inverse();
+    }
     inverse() {
+        this.dirty();
         return 逆(this);
     }
     rotate(factor, center) {
+        this.dirty();
         if (center) this.translate(center.map(负));
         if (factor.length) {
             this.multiply(matrix3d(factor));
@@ -252,14 +262,17 @@ class Matrix extends Array {
         return this;
     }
     translate(vector) {
+        this.dirty();
         return translate(this, vector);
     }
     scale(ratio) {
+        this.dirty();
         times(this, ratio);
         this[this.length - 1] = 1;
         return this;
     }
     multiply(a) {
+        this.dirty();
         return multiply(this, a);
     }
     transform(dots) {
