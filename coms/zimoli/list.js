@@ -174,7 +174,7 @@ function ylist(container, generator, $Y, group) {
         }
         var indexed_item = getIndexedElement(index) || bottom_item;
         if (indexed_item) {
-            list.scrollTop = -getFirstElement().offsetTop + indexed_item.offsetTop + indexed_item.offsetHeight * ratio;
+            list.scrollTop = -getFirstElement(1).offsetTop + indexed_item.offsetTop + indexed_item.offsetHeight * ratio;
         }
     };
     var runbuild = lazy(function () {
@@ -229,7 +229,7 @@ function ylist(container, generator, $Y, group) {
         var cache_height = list.offsetHeight;
 
         var childrenMap = getChildrenMap();
-        var last_element = getLastElement();
+        var last_element = getLastElement(1);
         if (!last_element || !last_element.offsetHeight) return;
         let { scrollTop } = list;
         scrollTop += deltaY;
@@ -356,9 +356,8 @@ function ylist(container, generator, $Y, group) {
         var firstElement = getFirstVisibleElement();
         var lastElement = getLastVisibleElement();
         if (!firstElement || !lastElement) return;
-        var paddingTop = getFirstElement().offsetTop;
+        var paddingTop = getFirstElement(1).offsetTop;
         var paddingBottom = parseFloat(getComputedStyle(list).paddingBottom);
-
         var scrolled_t = (list.scrollTop + paddingTop - firstElement.offsetTop) / firstElement.offsetHeight;
         var last_y = currentY();
         if (scrolled_t > .5) {
