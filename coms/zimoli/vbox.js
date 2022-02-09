@@ -51,7 +51,7 @@ function ybox(generator) {
             }
             _box.Top(top);
         } else {
-            r = top === _box.Top(top);
+            r = top !== _box.Top(top);
             increase(deltay, true);
         }
         return r;

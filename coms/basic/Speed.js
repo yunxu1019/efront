@@ -17,6 +17,7 @@ function inertia(gun) {
     var smooth = function () {
         var args = spd.read();
         if (decrease && args.filter(a => Math.abs(a) > .5).length === 0) {
+            spd.reset();
             _decrease();
             return;
         }
@@ -27,7 +28,7 @@ function inertia(gun) {
         var res = gun.apply(that, args);
         if (false === res) {
             spd.reset();
-            smooth_timer = requestAnimationFrame(smooth);
+            smooth_timer = requestAnimationFrame(_decrease);
             return;
         }
         smooth_timer = requestAnimationFrame(smooth);
