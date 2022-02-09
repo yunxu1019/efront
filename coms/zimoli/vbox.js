@@ -87,16 +87,16 @@ function ybox(generator) {
         remove(increaser);
         return 0;
     };
-    var stop = function stop() {
-        return _box.stopY() !== _box.Top();
-    };
+    var stop = _box.stopY;
     var stop2 = lazy(function () {
         scrollY.smooth(stop);
     }, 310);
     var decrease = function () {
         var res = _decrease(increaser_t) + _decrease(increaser_b);
-        if (!res) scrollY.smooth(stop);
-        return res;
+        if (!res) {
+            scrollY.smooth(stop);
+            return false;
+        }
     };
     var increase = function (deltaY, minusOnly) {
         var t_height = increaser_t.height || 0;
@@ -167,7 +167,6 @@ function ybox(generator) {
         }, 'y');
     }
 
-    var smooth_timer;
     var initScrollId = function () {
         var temp = this.parentNode;
         var scrollId = 0;

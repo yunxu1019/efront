@@ -1,30 +1,34 @@
 function inertia(gun) {
-    var _decreased = null, spd = new Speed;
+    var _decreased = 0, spd = new Speed;
     var _decrease = function () {
         if (
             decrease instanceof Function
         ) {
-            var res = decrease();
+            var res = decrease(_decreased++, spd);
             if (res === false) return;
-            _decreased = res;
             smooth_timer = requestAnimationFrame(_decrease);
         }
     };
     var _cancel = function () {
         cancelAnimationFrame(smooth_timer);
-        _decreased = null;
+        _decreased = 0;
         decrease = null;
     }
     var smooth = function () {
         var args = spd.read();
+        if (decrease && args.filter(a => Math.abs(a) > .5).length === 0) {
+            _decrease();
+            return;
+        }
         if (args.filter(a => Math.abs(a) > .1).length === 0) {
             spd.reset();
-            smooth_timer = requestAnimationFrame(_decrease);
             return;
         }
         var res = gun.apply(that, args);
         if (false === res) {
             spd.reset();
+            smooth_timer = requestAnimationFrame(smooth);
+            return;
         }
         smooth_timer = requestAnimationFrame(smooth);
     };
@@ -56,12 +60,10 @@ class Speed extends Array {
     }
     static inertia = inertia;
     reset() {
-        this.cache.splice(0, this.cache.length);
-        this.splice(0, this.length);
-        this.stamp = 0;
+        this.cache.splice(0, this.cache.length, 0);
     }
     write(values, stamp = Speed.now()) {
-        if (values.length !== this.length) this.reset();
+        if (values.length !== this.length || this.length && this.cache.length < 2) this.splice(0, this.length), this.cache.splice(0, this.cache.length), this.stamp = 0;
         this.cache.push(values, stamp);
         if (this.cache.length > 20) this.cache.splice(0, 12);
         var start = Math.max(this.cache.length - 6, 0);
@@ -82,11 +84,18 @@ class Speed extends Array {
         var stamp = this.cache[this.cache.length - 1];
         var values = this.slice(0);
         var deltat = now - stamp;
-        var ratio = Math.pow(0.99999, Math.pow(1.01, deltat));
-        if (this.stamp) ratio *= now - this.stamp;
+        var ratio;
+        if (this.stamp) ratio = now - this.stamp;
+        else ratio = deltat;
+        if (ratio > 160) ratio = 1e-3;
         this.stamp = now;
         for (var cx = 0, dx = values.length; cx < dx; cx++) {
             values[cx] *= ratio;
+            var v = Math.abs(values[cx]);
+            var sqrt = Math.sqrt;
+            if (v > 1) values[cx] -= (values[cx] > 0 ? 1 : -1) * (v - sqrt(v * (v - 1)));
+            else values[cx] = values[cx] > 0 ? 1e-7 : -1e-7;
+            this[cx] = values[cx] / ratio;
         }
         return values;
     }

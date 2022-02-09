@@ -54,7 +54,7 @@ function ylist(container, generator, $Y) {
         scrollTop += deltaY;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (isFinite(child.index) && child.offsetTop + child.offsetHeight >= scrollTop) {
+            if (isFinite(child.index) && child.offsetTop + child.offsetHeight > scrollTop) {
                 return child;
             }
         }
@@ -354,21 +354,21 @@ function ylist(container, generator, $Y) {
         }
     };
 
-    list.stopY = function () {
+    list.stopY = function (count, spd) {
         var firstElement = getFirstVisibleElement();
         var lastElement = getLastVisibleElement();
-        if (!firstElement || !lastElement) return;
+        if (!firstElement || !lastElement) return false;
         var paddingTop = getFirstElement(1).offsetTop;
         var paddingBottom = parseFloat(getComputedStyle(list).paddingBottom);
         var scrolled_t = (list.scrollTop + paddingTop - firstElement.offsetTop) / firstElement.offsetHeight;
         var last_y = currentY();
-        if (scrolled_t > .5) {
+        if (spd[0] > 0) {
             var target_ty = last_y + (1 - scrolled_t) * firstElement.offsetHeight;
         } else {
             var target_ty = last_y - scrolled_t * firstElement.offsetHeight;
         }
-        var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop - paddingBottom) / lastElement.offsetHeight;
-        if (scrolled_b > .5) {
+        var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop - paddingTop - paddingBottom) / lastElement.offsetHeight;
+        if (spd[0] > 0) {
             var target_by = last_y + (1 - scrolled_b) * lastElement.offsetHeight;
         } else {
             var target_by = last_y - scrolled_b * lastElement.offsetHeight;
@@ -376,13 +376,20 @@ function ylist(container, generator, $Y) {
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
         var delta = Math.min(calcPixel(60), list.clientHeight >> 2);
         if (lastElement.offsetHeight >= delta && firstElement.offsetHeight >= delta) {
-            return last_y;
+            return false;
         }
-        var resultY = this.Top(Math.abs(target_y - last_y) > 1 ? (target_y + last_y) >> 1 : target_y);
-        if (resultY === last_y) {
-            target_y = resultY;
+        var deltay = Math.abs(target_y - last_y), y;
+        if (deltay < 1) y = target_y;
+        else if (deltay > count || deltay > 3) {
+            y = last_y + (target_y > last_y ? .8 : -.8);
         }
-        return target_y;
+        else {
+            y = (target_y + last_y) / 2;
+        }
+        list.Top(y);
+        if (target_y === y) {
+            return false;
+        }
     };
     //导出方法
     list.go = scrollTo;
