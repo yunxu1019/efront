@@ -19,6 +19,7 @@ var addZIndex = function (clone) {
 };
 var setZIndex = function () {
     var target = this;
+    if (!isElement(target)) return;
     var computed = getComputedStyle(target);
     var z0 = zIndex(0);
     if (!z || computed.zIndex < z0) {
