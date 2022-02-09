@@ -171,7 +171,7 @@ function picture_(image = document.createElement("div")) {
         shape();
         if (saved_x === x && saved_y === y) return false;
     });
-    var saved_event, wheeltime;
+    var saved_event;
     onmousewheel(image, function (event) {
         var { offsetX: layerX, offsetY: layerY, deltaY } = event;
         if (this.locked) event.preventDefault();
@@ -212,7 +212,6 @@ function picture_(image = document.createElement("div")) {
 
                 switch (event.touches.length) {
                     case 1:
-                        if (!this.locked) return;
                         break;
                     case 2:
                         this.locked = true;
@@ -250,13 +249,13 @@ function picture_(image = document.createElement("div")) {
             }
             saved_event = null;
             event.moveLocked = scaled >= locked_scale;
-
-            if (this.locked && onclick.preventClick) move.smooth(recover);
+            if (this.locked && onclick.preventClick) move.smooth();
         }
     });
     var origin_rotate = 0;
     var rotatexy = function (x1, y1, x2, y2) {
-        var centerx = image.clientWidth / 2, centery = image.clientHeight / 2;
+        var { left, top } = getScreenPosition(image);
+        var centerx = left + image.clientLeft + image.clientWidth / 2, centery = top + image.clientTop + image.clientHeight / 2;
         var deltax = x2 - x1, deltay = y2 - y1;
         var rx = x1 - centerx, ry = y1 - centery;
         var sign = -ry * deltax + rx * deltay;
@@ -308,7 +307,7 @@ function picture_(image = document.createElement("div")) {
         }
         setInitParams();
         if (animate !== false) {
-            recover();
+            move.smooth(recover);
         } else {
             if (animate !== false) fixpos();
             shape();
