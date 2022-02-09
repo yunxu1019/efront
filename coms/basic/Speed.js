@@ -68,7 +68,7 @@ class Speed extends Array {
         this.cache.push(values, stamp);
         if (this.cache.length > 20) this.cache.splice(0, 12);
         var start = Math.max(this.cache.length - 6, 0);
-        var s = values.slice(0, values.length), t = this.cache[this.cache.length - 1] - this.cache[start + 1] + 20;
+        var s = values.slice(0, values.length), t = this.cache[this.cache.length - 1] - this.cache[start + 1] + 12;
         for (var cx = start, dx = this.cache.length - 2; cx < dx; cx++) {
             var values = this.cache[cx++];
             for (var cy = 0, dy = values.length; cy < dy; cy++) {
@@ -90,13 +90,19 @@ class Speed extends Array {
         else ratio = deltat;
         if (ratio > 160) ratio = 1e-3;
         this.stamp = now;
+        var sum = 0;
+        for (var v of values) sum += v * v;
+        v = Math.sqrt(sum) * ratio;
+        if (v > 1) {
+            v = Math.sqrt(v * (v - 1)) / v;
+        }
+        else {
+            v = 1e-7;
+        }
+        var r = ratio * v;
         for (var cx = 0, dx = values.length; cx < dx; cx++) {
-            values[cx] *= ratio;
-            var v = Math.abs(values[cx]);
-            var sqrt = Math.sqrt;
-            if (v > 1) values[cx] -= (values[cx] > 0 ? 1 : -1) * (v - sqrt(v * (v - 1)));
-            else values[cx] = values[cx] > 0 ? 1e-7 : -1e-7;
-            this[cx] = values[cx] / ratio;
+            values[cx] *= r;
+            this[cx] *= v;
         }
         return values;
     }
