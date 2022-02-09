@@ -360,14 +360,14 @@ function ylist(container, generator, $Y) {
         if (!firstElement || !lastElement) return false;
         var paddingTop = getFirstElement(1).offsetTop;
         var paddingBottom = parseFloat(getComputedStyle(list).paddingBottom);
-        var scrolled_t = (list.scrollTop + paddingTop - firstElement.offsetTop) / firstElement.offsetHeight;
+        var scrolled_t = (list.scrollTop - firstElement.offsetTop + paddingTop) / firstElement.offsetHeight;
         var last_y = currentY();
         if (spd[0] > 0) {
             var target_ty = last_y + (1 - scrolled_t) * firstElement.offsetHeight;
         } else {
             var target_ty = last_y - scrolled_t * firstElement.offsetHeight;
         }
-        var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop - paddingTop - paddingBottom) / lastElement.offsetHeight;
+        var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop - paddingBottom) / lastElement.offsetHeight;
         if (spd[0] > 0) {
             var target_by = last_y + (1 - scrolled_b) * lastElement.offsetHeight;
         } else {
@@ -375,10 +375,10 @@ function ylist(container, generator, $Y) {
         }
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
         var delta = Math.min(calcPixel(60), list.clientHeight >> 2);
-        if (lastElement.offsetHeight >= delta && firstElement.offsetHeight >= delta) {
+        var deltay = Math.abs(target_y - last_y), y;
+        if (deltay >= delta) {
             return false;
         }
-        var deltay = Math.abs(target_y - last_y), y;
         if (deltay < 1) y = target_y;
         else if (deltay > count || deltay > 3) {
             y = last_y + (target_y > last_y ? .8 : -.8);
