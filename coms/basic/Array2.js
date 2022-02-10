@@ -4,6 +4,6 @@ var setPrototypeOf = Object.setPrototypeOf || function (obj, proto) {
     return obj;
 }
 function Array2() {
-    return setPrototypeOf([], this.constructor.prototype);
+    return setPrototypeOf(Array.apply(this, arguments), this.constructor.prototype);
 }
 Array2.prototype = Array.prototype;
