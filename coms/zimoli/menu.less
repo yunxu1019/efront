@@ -1,5 +1,6 @@
 & {
     white-space: nowrap;
+    outline: none;
 }
 
 &>div.lack+div.more {
@@ -114,11 +115,12 @@ body:active & {
 }
 
 &[toolbar] {
-    >menu-item{
+    >menu-item {
         padding-left: 6px;
         padding-right: 6px;
         text-align: center;
     }
+
     >menu-item.has-children {
         &::after {
             display: block;
