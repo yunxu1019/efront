@@ -172,7 +172,7 @@ function picture_(image = document.createElement("div")) {
             park();
             return;
         }
-        return true;
+        if (image.clientHeight && image.clientWidth) return true;
     };
     var move = inertia(function (deltax, deltay) {
         var saved_x = x, saved_y = y;
@@ -354,6 +354,7 @@ function picture_(image = document.createElement("div")) {
         rotated = r;
         this.update(deg === 90 || deg === -90);
     };
+    on('remove')(image, move.reset);
     on("contextmenu")(image, function (e) {
         if (onclick.preventClick) e.preventDefault();
     });

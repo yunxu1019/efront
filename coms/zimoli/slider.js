@@ -123,17 +123,18 @@ function slider(autoplay, circle = true) {
     var park = function () {
         direction = 0;
         var singleTarget = getSingleTarget();
+        var spd = _speed();
         if (singleTarget) {
             negative_index = round(negative_index);
         }
         else if (delta_negative_index > 0) {
-            if (negative_index - floor(negative_index) > 0.2 / (1 + 6 * abs(_speed())))
+            if (negative_index - floor(negative_index) > 0.2 / (1 + abs(spd)))
                 negative_index = ceil(negative_index);
             else
                 negative_index = floor(negative_index);
         }
         else if (delta_negative_index < 0) {
-            if (ceil(negative_index) - negative_index > 0.2 / (1 + 6 * abs(_speed())))
+            if (ceil(negative_index) - negative_index > 0.2 / (1 + abs(spd)))
                 negative_index = floor(negative_index);
             else
                 negative_index = ceil(negative_index);
@@ -239,6 +240,7 @@ function slider(autoplay, circle = true) {
     });
     moveupon(outter, {
         start(event) {
+            event.preventDefault();
             cancelAnimationFrame(timer_animate);
             clearTimeout(timer_playyer);
             moving = true;

@@ -357,10 +357,11 @@ function ylist(container, generator, $Y) {
     list.stopY = function (count, spd) {
         var firstElement = getFirstVisibleElement();
         var lastElement = getLastVisibleElement();
-        if (!firstElement || !lastElement) return false;
+        if (!firstElement || !lastElement || !list.clientHeight) return false;
         var paddingTop = getFirstElement(1).offsetTop;
         var paddingBottom = parseFloat(getComputedStyle(list).paddingBottom);
         var scrolled_t = (list.scrollTop - firstElement.offsetTop + paddingTop) / firstElement.offsetHeight;
+        if (scrolled_t > 1) scrolled_t -= scrolled_t | 0;
         var last_y = currentY();
         if (spd[0] > 0) {
             var target_ty = last_y + (1 - scrolled_t) * firstElement.offsetHeight;
@@ -368,6 +369,7 @@ function ylist(container, generator, $Y) {
             var target_ty = last_y - scrolled_t * firstElement.offsetHeight;
         }
         var scrolled_b = (list.scrollTop + list.clientHeight - lastElement.offsetTop - paddingBottom) / lastElement.offsetHeight;
+        if (scrolled_b < 0) scrolled_b -= scrolled_b - 1 | 0;
         if (spd[0] > 0) {
             var target_by = last_y + (1 - scrolled_b) * lastElement.offsetHeight;
         } else {

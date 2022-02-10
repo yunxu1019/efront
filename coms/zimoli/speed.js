@@ -4,7 +4,8 @@ function speed() {
     return function (a) {
         var now = performance.now ? performance.now() : Date.now();
         if (isFinite(a)) {
-            speed.write([a], now);
+            if (a === 0) speed.reset();
+            else speed.write([a], now);
             return a;
         }
         return speed.read(now)[0];

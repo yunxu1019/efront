@@ -172,6 +172,7 @@ function ybox(generator) {
     }
     if (isMounted(_box)) initScrollId.call(_box);
     on("append")(_box, initScrollId);
+    on("remove")(_box, scrollY.reset);
     _box.cancelFrame = scrollY.reset;
     preventOverflowScrolling(_box);
     return _box;
