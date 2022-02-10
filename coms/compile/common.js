@@ -122,6 +122,7 @@ var createScoped = function (parsed, wash) {
             var isArrow = false;
             var isDeclare = false;
             var isYield = false;
+            var isClass = false;
             switch (o.type) {
                 case QUOTED:
                     if (o.length) {
@@ -215,8 +216,9 @@ var createScoped = function (parsed, wash) {
                                 o = o.next;
                             }
                         case "catch":
-                            isCatch = true;
+                            if (s === 'catch') isCatch = true;
                         case "class":
+                            if (s === 'class') isClass = true;
                             if (!o.isExpress) {
                                 o = o.next;
 
@@ -225,7 +227,6 @@ var createScoped = function (parsed, wash) {
                                     isDeclare = true;
                                     o.kind = isFunction ? 'function' : 'class';
                                     saveTo(used, o.text, o);
-
                                     o = o.next;
                                 }
                             }
@@ -286,6 +287,9 @@ var createScoped = function (parsed, wash) {
                     vars = _vars;
                     scoped.lets = lets;
                     scoped.used = used;
+                    if (isClass) {
+                        lets.super = true;
+                    }
                 }
                 if (isArrow);
                 else if (o.isExpress && o.type !== SCOPED && !isDeclare) {
