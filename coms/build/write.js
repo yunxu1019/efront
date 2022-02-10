@@ -21,6 +21,7 @@ var deepwr = function (dir, data) {
         var detect = function () {
             if (fs.existsSync(dirname)) {
                 if (!paths.length) {
+                    if (fs.existsSync(dir)) fs.unlinkSync(dir);
                     fs.writeFile(dir, data, function (err) {
                         if (err) return oh(err);
                         else ok();
