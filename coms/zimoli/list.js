@@ -390,6 +390,7 @@ function ylist(container, generator, $Y) {
         if (target_y === y) {
             return false;
         }
+        return true;
     };
     //导出方法
     list.go = scrollTo;

@@ -4,8 +4,10 @@ function inertia(gun) {
         if (
             decrease instanceof Function
         ) {
+            var id = smooth_timer;
             var res = decrease(_decreased++, spd);
-            if (res === false) return;
+            if (smooth_timer !== id) return;
+            if (res === false || isEmpty(res)) return;
             smooth_timer = requestAnimationFrame(_decrease);
         }
     };
@@ -25,7 +27,9 @@ function inertia(gun) {
             spd.reset();
             return;
         }
+        var id = smooth_timer;
         var res = gun.apply(that, args);
+        if (id !== smooth_timer) return;
         if (false === res) {
             spd.reset();
             smooth_timer = requestAnimationFrame(_decrease);

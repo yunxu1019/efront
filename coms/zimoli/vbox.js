@@ -95,8 +95,8 @@ function ybox(generator) {
         var res = _decrease(increaser_t) + _decrease(increaser_b);
         if (!res) {
             scrollY.smooth(stop);
-            return false;
         }
+        return true;
     };
     var increase = function (deltaY, minusOnly) {
         var t_height = increaser_t.height || 0;
