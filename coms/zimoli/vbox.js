@@ -25,12 +25,6 @@ function ybox(generator) {
         }
         return _box.scrollTop;
     };
-    _box.stopY = _box.stopY || function (stopedY) {
-        if (isNumber(stopedY)) {
-            return stopedY;
-        }
-        return _box.Top();
-    };
     _box.scrollY = function (deltay, useIncrease = true) {
         var _Top = _box.Top();
         var top = _Top + deltay;
