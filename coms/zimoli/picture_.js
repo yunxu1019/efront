@@ -19,40 +19,33 @@ var isequal = (a, b) => a === b || Math.abs((a - b) / (a + b)) < 1e-12;
 function picture_(image = document.createElement("div")) {
     var image_width, image_height;
     var scaled, x, y, min_scale, loaded_scale, locked_scale, click_scale, loaded_x, loaded_y;
-    var origin_width, origin_height;
+    var loaded_width, loaded_height;
     var max_scale = 10 * devicePixelRatio;
     var shape = function () {
-        image.shape(x, y, scaled / devicePixelRatio, origin_rotate);
+        image.shape(x, y, scaled / devicePixelRatio, rotated);
+        loaded_rotate = rotated; loaded_scale = scaled;
     };
     image.reshape = shape;
     var park = function () {
-        if (image.park) image.park(x, y, scaled / devicePixelRatio, origin_rotate);
+        if (image.park) image.park(x, y, scaled / devicePixelRatio, loaded_rotate);
     };
-    var setInitParams = function () {
+    var loadParams = function () {
         if (!image.width) return;
         image_width = image.width / devicePixelRatio;
         image_height = image.height / devicePixelRatio;
-        origin_width = image.clientWidth;
-        origin_height = image.clientHeight;
-        origin_rotate = 0;
-        locked_scale = loaded_scale = Math.min(image.clientHeight / image_height, image.clientWidth / image_width);
-        if (loaded_scale >= 0.9) {
-            if (loaded_scale < 1.2) {
-                click_scale = 1;
-                loaded_scale = .8;
-            } else if (loaded_scale < max_scale) {
-                click_scale = loaded_scale;
-                loaded_scale = 1;
-            } else {
-                click_scale = max_scale;
-                loaded_scale = 1;
-            }
+        loaded_width = image.clientWidth;
+        loaded_height = image.clientHeight;
+        loaded_rotate = 0;
+        locked_scale = loaded_scale = Math.min(loaded_height / image_height, loaded_width / image_width);
+        if (loaded_scale >= 1) {
+            click_scale = 4;
+            loaded_scale = 1;
         } else {
             click_scale = 1;
         }
-        loaded_x = (image.clientWidth - image_width * loaded_scale) / 2;
-        loaded_y = (image.clientHeight - image_height * loaded_scale) / 2;
-        min_scale = loaded_scale * .75;
+        loaded_x = (loaded_width - image_width * loaded_scale) / 2;
+        loaded_y = (loaded_height - image_height * loaded_scale) / 2;
+        min_scale = loaded_scale * .25;
         scaled = loaded_scale;
         x = loaded_x;
         y = loaded_y;
@@ -65,7 +58,7 @@ function picture_(image = document.createElement("div")) {
         shape();
     };
 
-    on("append")(image, setInitParams);
+    on("append")(image, loadParams);
 
     on("append")(image, function () {
         mountedPictures.push(image);
@@ -73,16 +66,15 @@ function picture_(image = document.createElement("div")) {
     on("remove")(image, function () {
         removeFromList(mountedPictures, image);
     });
-    image.init = setInitParams;
+    image.init = loadParams;
     image.locked = false;
 
     on("dblclick")(image, function (event) {
         if (event.defaultPrevented) return;
         event.preventDefault();
         var image = this;
-        var __scaled = scaled, _x = x, _y = y;
-        setInitParams();
-        image.locked = isequal(__scaled, loaded_scale) && isequal(loaded_x, x) && isequal(loaded_y, y);
+        loadParams();
+        image.locked = isequal(scaled, loaded_scale) && isequal(loaded_x, x) && isequal(loaded_y, y);
         var layerx = event.offsetX || 0;
         var layery = event.offsetY || 0;
         if (layerx)
@@ -96,23 +88,24 @@ function picture_(image = document.createElement("div")) {
                 }
                 scale(layerx, layery, click_scale / loaded_scale);
             } else {
+                click_scale = scaled;
                 set_unlock();
             }
     });
     image.getScale = function () {
         if (!this.locked && !loaded_scale) {
-            setInitParams();
+            loadParams();
         }
         return +String(+scaled + 0.00005).slice(0, 6);
     };
     var fixpos = function () {
         var width = image_width * scaled;
         var height = image_height * scaled;
-        var r = image.rotate | 0;
+        var r = rotated;
         var [, , w, h] = getrotatedltwh(r);
         var x0 = x + (width - w) / 2;
         var y0 = y + (height - h) / 2;
-        var [x1, y1] = trimCoord([image.clientWidth, image.clientHeight], [x0, y0, w, h], -1);
+        var [x1, y1] = trimCoord([loaded_width, loaded_height], [x0, y0, w, h], -1);
         x += x1 - x0;
         y += y1 - y0;
     };
@@ -136,6 +129,21 @@ function picture_(image = document.createElement("div")) {
         var centern = (n1 + n2) / 2;
         x = (x - centerx) * scale + centerm;
         y = (y - centery) * scale + centern;
+        var theta = Math.atan2(n2 - n1, m2 - m1) - Math.atan2(y2 - y1, x2 - x1);
+        var r = rotated;
+        r += (theta * 180 / Math.PI);
+        image.rotateBy(theta * 180 / Math.PI);
+        // var cosa = Math.cos(theta);
+        // var sina = Math.sin(theta);
+        // var hw = image.clientWidth / 2;
+        // var hh = image.clientHeight / 2;
+        // console.log(x, y);
+        // x -= hw;
+        // y -= hh;
+        // var x0 = x * cosa - y * sina;
+        // var y0 = x * sina + y * cosa;
+        // x = x0 + hw;
+        // y = y0 + hh;
         shape();
     };
     var recover = function (change) {
@@ -162,7 +170,9 @@ function picture_(image = document.createElement("div")) {
         fixpos();
         if (change || saved_x !== x || saved_y !== y) {
             park();
+            return;
         }
+        return true;
     };
     var move = inertia(function (deltax, deltay) {
         var saved_x = x, saved_y = y;
@@ -176,7 +186,7 @@ function picture_(image = document.createElement("div")) {
         var { offsetX: layerX, offsetY: layerY, deltaY } = event;
         if (this.locked) event.preventDefault();
         if (!deltaY) return;
-        if (!this.locked) setInitParams();
+        if (!this.locked) loadParams();
         this.locked = true;
         var ratio = Math.pow(0.99, 20 * Math.atan(deltaY / 20));
         var __scaled = scaled;
@@ -196,7 +206,7 @@ function picture_(image = document.createElement("div")) {
             saved_event = event;
             event.moveLocked = scaled > locked_scale;
             if (!this.locked) {
-                setInitParams();
+                loadParams();
             }
             move.reset();
         },
@@ -252,7 +262,7 @@ function picture_(image = document.createElement("div")) {
             if (this.locked && onclick.preventClick) move.smooth();
         }
     });
-    var origin_rotate = 0;
+    var loaded_rotate = 0, rotated = 0;
     var rotatexy = function (x1, y1, x2, y2) {
         var { left, top } = getScreenPosition(image);
         var centerx = left + image.clientLeft + image.clientWidth / 2, centery = top + image.clientTop + image.clientHeight / 2;
@@ -264,22 +274,22 @@ function picture_(image = document.createElement("div")) {
         if (sign) image.rotateBy(sign > 0 ? delta : -delta);
     }
     var updatexy = function () {
-        var deg = image.rotate - origin_rotate;
+        var deg = rotated - loaded_rotate;
         if (isFinite(deg)) {
-            origin_rotate = image.rotate;
+            loaded_rotate = rotated;
             [x, y] = getrotatedltwh(deg, scaled);
         }
     };
     var getrotatedltwh = function (a, s = scaled) {
         var w = image_width * s;
         var h = image_height * s;
-        var c = [image.clientWidth / 2, image.clientHeight / 2];
+        var c = [loaded_width / 2, loaded_height / 2];
         var m = x + w / 2;
         var n = y + h / 2;
         var [c1, c2] = rotate([m, n], -a, c);
         c1 -= w / 2;
         c2 -= h / 2;
-        var a = origin_rotate;
+        var a = loaded_rotate;
         var l = c[0] - w / 2;
         var r = l + w;
         var t = c[1] - h / 2;
@@ -297,29 +307,28 @@ function picture_(image = document.createElement("div")) {
     image.update = function (animate) {
         if (image.locked) {
             updatexy();
-            x += (image.clientWidth - origin_width) / 2;
-            y += (image.clientHeight - origin_height) / 2;
-            origin_height = image.clientHeight;
-            origin_width = image.clientWidth;
+            x += (image.clientWidth - loaded_width) / 2;
+            y += (image.clientHeight - loaded_height) / 2;
+            loaded_height = image.clientHeight;
+            loaded_width = image.clientWidth;
             if (animate !== false) fixpos();
             shape();
             return;
         }
-        setInitParams();
+        loadParams();
         if (animate !== false) {
             move.smooth(recover);
         } else {
-            if (animate !== false) fixpos();
             shape();
         }
 
     };
     image.rotateTo = function (deg) {
-        this.rotate = deg;
+        rotated = deg;
         this.update();
     };
     image.rotateBy = function (deg) {
-        var r = this.rotate | 0;
+        var r = rotated;
         if (deg === 90 || deg === -90) {
             r += deg;
             if (deg > 0) {
@@ -342,7 +351,7 @@ function picture_(image = document.createElement("div")) {
         } else {
             r += deg;
         }
-        this.rotate = r;
+        rotated = r;
         this.update(deg === 90 || deg === -90);
     };
     on("contextmenu")(image, function (e) {
