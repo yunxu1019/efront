@@ -405,14 +405,23 @@ var checkOutside = lazy(async function (type) {
         }
     } catch { };
 }, 80);
-var showServerInfo = function () {
+var showServerInfo = async function () {
     if (--loading > 0) return;
     var address = require("../efront/getLocalIP")();
     var port = portedServersList.map(a => a && a.address());
     port = port.map((a, i) => a && a.port || portedServersList[i].port);
-    var msg = [`服务器地址：${address}`, port[0] ? `http端口  ：${port[0]}` : '', port[1] ? `https端口 ：${port[1]}` : ''].map(a => a.toUpperCase());
-    var maxLength = Math.max(msg[1].length, msg[2].length);
+    var msg = [
+        `服务器地址：${address}`];
+    var maxLength = 0;
+    for (var cx = 0, dx = port.length; cx < dx; cx++) {
+        var p = port[cx];
+        var m = p ? `${portedServersList[cx] === server2 ? 'https ' : 'http  '}端口：${p}` : '';
+        m = m.toUpperCase();
+        if (maxLength < m.length) maxLength = m.length;
+        msg.push(m);
+    }
     if (process.stdin.isTTY) process.title = msg.map(a => a.trim()).filter(a => !!a).join('，').replace(/\s/g, '');
+    else process.title = 'efront';
     if (!ipLoged) ipLoged = true, console.info(msg[0] + "\r\n");
     msg = msg.map(a => a.length && a.length < maxLength ? a + " ".repeat(maxLength - a.length) : a);
     var showError = function (i, e = portedServersList[i].error) {
@@ -425,31 +434,25 @@ var showServerInfo = function () {
         console.info(msg[i + 1] + "\t<green>正常访问</green>\r\n");
     }
     var types = [];
-    if (msg[1]) {
-        if (portedServersList[0].error) {
-            showError(0);
+    for (var cx = 1, dx = msg.length; cx < dx; cx++) {
+        var m = msg[cx];
+        if (!m) continue;
+        if (m.length < maxLength) m += ' '.repeat(maxLength - m.length);
+        var i = cx - 1;
+        var ishttps = portedServersList[i] === server2;
+        if (portedServersList[i].error) {
+            showError(i);
         }
-        else checkServerState(http, HTTP_PORT).then(function () {
-            showValid(0);
+        else try {
+            await checkServerState(ishttps ? require("https") : http, ishttps ? HTTPS_PORT : HTTP_PORT);
+            showValid(i);
             types.push("http" + HTTP_PORT);
             types.sort();
             checkOutside(types);
-        }).catch(function (error) {
-            showError(0, error);
-        });
-    }
-    if (msg[2]) {
-        if (portedServersList[1].error) {
-            showError(1);
         }
-        else checkServerState(require("https"), HTTPS_PORT).then(function () {
-            showValid(1);
-            types.push("https" + HTTPS_PORT)
-            types.sort();
-            checkOutside(types);
-        }).catch(function (error) {
-            showError(1, error);
-        });
+        catch (error) {
+            showError(i, error);
+        }
     }
 };
 var showServerError = function (error) {
