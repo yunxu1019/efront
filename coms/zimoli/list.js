@@ -267,7 +267,7 @@ function ylist(container, generator, $Y) {
             var item = collection[collection.length - 1];
             var { paddingCount = 0, paddingMax } = list;
             if (item) item = item.nextSibling;
-            while (item && (item.index + paddingCount - 1) % list.group) {
+            if (!paddingMax) while (item && item.index % list.group) {
                 item = collection.pop();
             }
             var item = collection[collection.length - 1];
