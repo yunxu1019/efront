@@ -446,7 +446,7 @@ var showServerInfo = async function () {
         else try {
             await checkServerState(ishttps ? require("https") : http, ishttps ? HTTPS_PORT : HTTP_PORT);
             showValid(i);
-            types.push("http" + HTTP_PORT);
+            types.push(ishttps ? "https" + HTTPS_PORT : "http" + HTTP_PORT);
             types.sort();
             checkOutside(types);
         }
