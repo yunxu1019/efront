@@ -75,7 +75,8 @@ var scan = function (text) {
             }
             data += row.slice(0, index + +!!jsonlikes.length);
             row = row.slice(index + 1)
-            unshift(spacesize, row);
+            if (!row) push();
+            else unshift(spacesize, row);
             rowtype = 0;
             continue;
         }
@@ -187,15 +188,16 @@ var scan = function (text) {
             continue;
         }
         else {
-            var match = /^([\s\S]*?)\:(|\s+[\s\S]*)$/.exec(row);
+            var match = /^([\s\S]+)?\:(|\s+[\s\S]*)$/.exec(row);
             if (match) {
-                if (data || prop && span >= spacesize) push();
+                if (data && !!match[1] || prop && span >= spacesize) push();
                 if (prop) {
                     var obj = {};
                     push(obj);
                     parents[spacesize] = obj;
                 }
                 var [_, prop, value] = match;
+                if (!prop) prop = data, data = '';
                 value = value.trim();
                 if (value) {
                     unshift(spacesize + 1, value);
@@ -215,6 +217,7 @@ var scan = function (text) {
     }
     if (data || prop) push();
     while (parents[0] === undefined && parents.length > 0) parents.shift();
+    console.log(parents[0])
     return parents[0];
 }
 module.exports = scan;
