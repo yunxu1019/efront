@@ -4,10 +4,14 @@ function inertia(gun) {
         if (
             decrease instanceof Function
         ) {
+            if (!spd.length || !spd[0]) return;
             var id = smooth_timer;
             var res = decrease(_decreased++, spd);
             if (smooth_timer !== id) return;
-            if (res === false || isEmpty(res)) return;
+            if (res === false || isEmpty(res)) {
+                spd.unset();
+                return;
+            }
             smooth_timer = requestAnimationFrame(_decrease);
         }
     };
@@ -67,8 +71,11 @@ class Speed extends Array {
     reset() {
         this.cache.splice(0, this.cache.length, 0);
     }
+    unset() {
+        this.splice(0, this.length), this.cache.splice(0, this.cache.length), this.stamp = 0;
+    }
     write(values, stamp = Speed.now()) {
-        if (values.length !== this.length || this.length && this.cache.length < 2) this.splice(0, this.length), this.cache.splice(0, this.cache.length), this.stamp = 0;
+        if (values.length !== this.length || this.length && this.cache.length < 2) this.unset();
         this.cache.push(values, stamp);
         if (this.cache.length > 20) this.cache.splice(0, 12);
         var start = Math.max(this.cache.length - 6, 0);
