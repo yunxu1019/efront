@@ -217,7 +217,6 @@ var scan = function (text) {
     }
     if (data || prop) push();
     while (parents[0] === undefined && parents.length > 0) parents.shift();
-    console.log(parents[0])
     return parents[0];
 }
 module.exports = scan;
