@@ -1,13 +1,16 @@
 var page = div();
+var routes = frame$route.from("data/menus.yml");
 page.innerHTML = left;
 render(page, {
     ylist: menu,
     btn: button,
     go,
     open(event) {
-        go(event.item.href);
+        console.log(event)
+        this.menus.open(event)
+        // go(event.value.href);
     },
-    menus: data.asyncInstance('menus'),
+    menus: routes,
 });
 function main() {
     return page;

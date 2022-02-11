@@ -3,6 +3,9 @@
     小花
     <span class="dashboard_text">专属站</span>
 </div>
-<ylist ng-src="menu in menus" class="sidebar-menu" ng-active="open(event)">
+<ylist inline ng-src="menu in menus" class="sidebar-menu" ng-active="open(menu)">
+    <span>
+        <i class="fa" -class="menu.icon"></i><span -bind="menu.name"></span>
+    </span>
 </ylist>
 <btn class="setting" ng-click="go('/user/setting')"><i class="fa fa-gear"></i>设置</btn>

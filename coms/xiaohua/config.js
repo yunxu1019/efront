@@ -1,8 +1,11 @@
 new Promise(function (ok) {
+    var base = "//efront.cc/@/data/xiaohua/";
     var config = {
         target: 'fc',
         api_domain: "efront.cc:5989",
-        filebase: "//efront.cc/@/data/xiaohua/photos/",
+        base,
+        filebase: base + 'photos/',
+        videobase: base + 'videos/',
         api_base: "http://efront.cc:5989/",
     };
     data.loadConfig("data/source-config.json");

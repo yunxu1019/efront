@@ -6,16 +6,15 @@ var scope = render(page, {
     videos: [
     ],
     encode(src) {
-        return "/@/data/xiaohua/videos" + src.replace(/\.?[^\.]+$/, function (m) {
-            passport = encode62.timeupdate(passport);
-            return "!" + passport + m;
+        return config.videobase + src.replace(/\.?[^\.]+$/, function (m) {
+            return "!" + user.getPassport() + m;
         });
     },
     img(e) {
         e.setAttritute("dragable", false);
         return e;
     },
-    "a-video":video,
+    "a-video": video,
     list
 }).$scope;
 function main() {
