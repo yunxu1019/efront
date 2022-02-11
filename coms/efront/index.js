@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 "use strict";
+process.title = 'efront';
 var cluster = require("cluster");
 var path = require('path');
 var fs = require("fs");
