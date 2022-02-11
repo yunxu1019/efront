@@ -225,7 +225,7 @@ var helps = [
     "关闭efront服务器,kill HTTP_PORT|HTTPS_PORT,close HTTP_PORT|HTTPS_PORT",
     "连接一台efront服务器，取得连接号,link ADDRESS",
     "用一个连接号登录本机的efront服务器，接收并打印消息,care ADDRESS,care ADDRESS LINKID",
-    "向一个连接号发送消息,cast ADDRESST LINKID MESSAGE",
+    "向一个连接号发送消息,cast ADDRESS LINKID MESSAGE",
     "检查文件或文件夹中的外部变量,check FILEPATH",
     "查找含有指定的外部变量的文件,find VARIABLE,find VARIABLE FILEPATH",
     "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
