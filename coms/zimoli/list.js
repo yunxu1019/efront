@@ -267,13 +267,11 @@ function ylist(container, generator, $Y) {
             var item = collection[collection.length - 1];
             var { paddingCount = 0, paddingMax } = list;
             if (item) item = item.nextSibling;
-            while (item && (item.index + paddingCount) % list.group) {
+            while (item && (item.index + paddingCount - 1) % list.group) {
                 item = collection.pop();
             }
             var item = collection[collection.length - 1];
             if (item) scrollTop -= item.offsetTop + getOffsetHeight(item) - collection[0].offsetTop;
-
-
             if (paddingCount > 0 && paddingMax > 0 && paddingCount < paddingMax) {
                 let item = collection[collection.length - 1];
                 while (paddingCount > 0) {
