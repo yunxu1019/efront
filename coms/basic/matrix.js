@@ -193,7 +193,6 @@ var 逆 = function (A) {
             }
         }
         for (var ct = start + dim, dt = X.length; ct < dt; ct += dim) {
-            console.log(cx, ct, X[ct])
             if (X[ct] === 0) continue;
             var ratio = -X[ct];
             var delta = start - ct;
