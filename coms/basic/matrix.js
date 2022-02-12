@@ -173,7 +173,7 @@ var 逆 = function (A) {
     A.push.apply(A, E);
     for (var cx = 0, dx = dim; cx < dx; cx++) {
         var start = cx * dim + cx;
-        for (var ct = start, dy = X.length; ct < dy; ct += dim) {
+        for (var ct = start, dt = X.length; ct < dt; ct += dim) {
             if (X[ct] !== 0) break;
         }
         if (ct !== start) {
@@ -192,7 +192,8 @@ var 逆 = function (A) {
                 A[cy] *= ratio;
             }
         }
-        for (var ct = start + dim, dy = X.length; ct < dy; ct += dim) {
+        for (var ct = start + dim, dt = X.length; ct < dt; ct += dim) {
+            console.log(cx, ct, X[ct])
             if (X[ct] === 0) continue;
             var ratio = -X[ct];
             var delta = start - ct;
@@ -202,12 +203,12 @@ var 逆 = function (A) {
             }
         }
     }
-    for (var cx = dim - 2; cx > 0; cx--) {
+    for (var cx = dim - 2; cx >= 0; cx--) {
         var start = cx * dim + cx + 1;
-        for (var ct = start; ct > 0; ct -= dim) {
+        for (var ct = start; ct >= 0; ct -= dim) {
             if (X[ct] === 0) continue;
             var ratio = -X[ct];
-            var delta = ct - start;
+            var delta = dim + start - ct;
             for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
                 X[cy] += X[cy + delta] * ratio;
                 A[cy] += A[cy + delta] * ratio;
