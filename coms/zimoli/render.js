@@ -3,6 +3,8 @@ var renderElements = Object.create(null);
 var presets = Object.create(null);
 presets.template = function (t) {
     var comment = document.createComment('template');
+    comment.$scope = t.$scope;
+    comment.$parentScopes = t.$parentScopes;
     once("append")(comment, function () {
         var node = document.createElement(comment.parentNode.tagName || "div");
         node.innerHTML = t.innerHTML;
