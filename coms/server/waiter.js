@@ -448,12 +448,12 @@ var showServerInfo = async function () {
             showValid(i);
             types.push(ishttps ? "https" + HTTPS_PORT : "http" + HTTP_PORT);
             types.sort();
-            checkOutside(types);
         }
         catch (error) {
             showError(i, error);
         }
     }
+    if (types.length) checkOutside(types);
 };
 var showServerError = function (error) {
     var s = this;
