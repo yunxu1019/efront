@@ -330,10 +330,49 @@ if (is_addEventListener_enabled) {
         }, true);
     });
 }
+var invoke = function (event, type, pointerType) {
+    var target = event.target;
+    var touch = event.changedTouches ? event.changedTouches[0] : event;
+    var clickEvent = document.createEvent("MouseEvents");
+    clickEvent.touchend = true;
+    clickEvent.pointerType = pointerType
+    clickEvent.initMouseEvent(type, true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
+    dispatch(target, clickEvent);
+};
 
+(function () {
+    var pointeractive = null;
+    if ("onpointerdown" in window) return;
+    var getPointerType = function (event) {
+        return event.type.replace(/(start|move|end|cancel|down|up|leave|out|over|enter)$/i, '');
+    };
+    var pointerdown = function (event) {
+        if (pointeractive) return;
+        pointeractive = getPointerType(event);
+        invoke(event, 'pointerdown', pointeractive);
+    };
+    var pointerup = function (event) {
+        var pointerType = getPointerType(event);
+        if (!pointeractive || pointerType !== pointeractive) return;
+        invoke(event, 'pointerup', pointerType);
+    };
+    var pointermove = function (event) {
+        var pointerType = getPointerType(event);
+        if (pointeractive && pointerType !== pointeractive) return;
+        invoke(event, 'pointermove', pointerType);
+    };
+    on('mousedown')(window, pointerdown, true);
+    on('mouseup')(window, pointerdown, true);
+    on('touchstart')(window, pointerdown, true);
+    on("touchmove")(window, pointermove, true);
+    on("mousemove")(window, pointermove, true);
+    on("touchend")(window, pointerup, true);
+    on("touchcancel")(window, pointerup, true);
+}());
 
 (function () {
     // fastclick
+    if (window.fastclick) return;
     if (document.efronton) return on = document.efronton;
     document.efronton = on;
     var onclick = on("click");
@@ -371,12 +410,7 @@ if (is_addEventListener_enabled) {
             if (onclick.preventClick) return;
             needFireClick = true;
             touchendFired = true;
-            var target = event.target;
-            var touch = event.changedTouches[0];
-            var clickEvent = document.createEvent("MouseEvents");
-            clickEvent.touchend = true;
-            clickEvent.initMouseEvent("click", true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
-            dispatch(target, clickEvent);
+            invoke(event, 'click');
         }, true);
         window.addEventListener("click", function (event) {
             if (!isClickWithPointer) return;

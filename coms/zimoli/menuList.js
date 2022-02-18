@@ -265,7 +265,7 @@ function main(page, items, active, direction = 'y') {
     };
     var open1 = function (event) {
         if (event.which === 3) event.preventDefault();
-        if (istoolbar) open.call(this, event.button ? 20 : 600);
+        if (istoolbar) open.call(this, event.which === 3 ? 20 : 600);
     };
     if (!page.children.length || page.menutype === 1) {
         page.menutype = 1;
@@ -316,7 +316,8 @@ function main(page, items, active, direction = 'y') {
                 a.menu = item;
                 on("mouseleave")(a, cancel);
                 on("mouseenter")(a, open);
-                if (istoolbar) on("mousedown")(a, open1);
+                on("pointermove")(a, open);
+                if (istoolbar) on("pointerdown")(a, open1);
                 on("click")(a, fire);
                 return a;
             });
@@ -347,7 +348,8 @@ function main(page, items, active, direction = 'y') {
             elem.menu = this.src[index];
             on("mouseleave")(elem, cancel);
             on("mouseenter")(elem, open);
-            if (istoolbar) on("mousedown")(elem, open1);
+            on("pointermove")(elem, cancel);
+            if (istoolbar) on("pointerdown")(elem, open1);
             on("click")(elem, fire);
             return elem;
         }, direction);

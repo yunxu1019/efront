@@ -1,5 +1,5 @@
 function extendTouchEvent(e) {
-    var touch = (e.changedTouches || e.touches)[0];
+    var touch = e.changedTouches[0];
     for (var k in touch) {
         if (!(k in e)) e[k] = touch[k];
     }
