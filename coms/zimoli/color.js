@@ -11,9 +11,10 @@ var rgb4v = function (r, g, b, v) {
 };
 
 
+var number_sort = (a, b) => a - b;
 
 var rgb4h = function (r, g, b, h) {
-	var [p, q, s] = [r, g, b].sort();
+	var [p, q, s] = [r, g, b].sort(number_sort);
 	var m = s - p;
 	h = (h % 360 + 360) % 360;
 	if (h < 60) {

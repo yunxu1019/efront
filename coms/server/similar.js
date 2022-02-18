@@ -12,11 +12,14 @@ var sortbyId = function (a, b) {
 var sortbytime = function (a, b) {
     return hosts[a].time - hosts[b].time;
 }
+var sortnumber = function (a, b) {
+    return a - b;
+}
 var clear = function () {
     var a = new Array(hosts.length);
     for (var cx = 0, dx = a.length; cx < dx; cx++)a[cx] = cx;
     a.sort(sortbytime);
-    a = a.slice(0, a.length).sort();
+    a = a.slice(0, a.length >> 1).sort(sortnumber);
     for (var cx = a.length - 1; cx >= 0; cx--)hosts.splice(a[cx], 1);
 };
 var save = async function (o, filepath = logpath) {
