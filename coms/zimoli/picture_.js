@@ -18,7 +18,7 @@ var trimCoord = move.trimCoord;
 var isequal = (a, b) => a === b || Math.abs((a - b) / (a + b)) < 1e-12;
 function picture_(image = document.createElement("div")) {
     var image_width, image_height;
-    var scaled, x, y, min_scale, loaded_scale, locked_scale, click_scale, loaded_x, loaded_y;
+    var scaled = 1, x = 0, y = 0, min_scale, loaded_scale, locked_scale, click_scale, loaded_x, loaded_y;
     var loaded_width, loaded_height;
     var max_scale = 10 * devicePixelRatio;
     var shape = function () {
