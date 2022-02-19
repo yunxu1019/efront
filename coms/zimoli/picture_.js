@@ -1,7 +1,3 @@
-var mountedPictures = [];
-on("resize")(window, function () {
-    mountedPictures.forEach(a => a.update());
-});
 var getstation = function (n, s) {
     var scale = Math.pow(10, Math.round(Math.log(n) / Math.log(10)));
     var step;
@@ -59,13 +55,6 @@ function picture_(image = document.createElement("div")) {
     };
 
     on("append")(image, loadParams);
-
-    on("append")(image, function () {
-        mountedPictures.push(image);
-    });
-    on("remove")(image, function () {
-        removeFromList(mountedPictures, image);
-    });
     image.init = loadParams;
     image.locked = false;
 
@@ -321,8 +310,9 @@ function picture_(image = document.createElement("div")) {
         } else {
             shape();
         }
-
     };
+    bind('resize')(image, image.update);
+
     image.rotateTo = function (deg) {
         rotated = deg;
         this.update();
