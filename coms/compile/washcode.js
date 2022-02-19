@@ -173,7 +173,7 @@ function checkRefered(scope) {
             if (right.length) {
                 var key = createExpressKey(right);
                 var iswrite = false;
-                iswrite = !!o.kind || !!e && e.type === STAMP && /=$/.test(e.text);
+                iswrite = !!o.kind || !!e && e.type === STAMP && /(?<![\!\=])\=$/.test(e.text);
                 if (key) map[key] = map[key] | 1 + iswrite;
             }
         }
