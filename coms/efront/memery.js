@@ -52,7 +52,10 @@ var get = function (name, _default, fix, limits) {
     if (fix) fixme[alias[0]] = fix;
     if (limits) limits[alias[0]] = limits;
     var value = _default;
-    if (!isEmpty(_default)) defaults[alias[0]] = _default;
+    if (!isEmpty(_default)) {
+        if (!isEmpty(defaults[alias[0]])) console.warn("发现重名配置", alias);
+        defaults[alias[0]] = _default;
+    }
     for (var cx = 0, dx = alias.length; cx < dx; cx++) {
         var k = alias[cx];
         if (k in env) {
@@ -172,9 +175,9 @@ module.exports = {
     },
     PASSWORD: get('PASSWORD'),
     MSIE: get("IE,MSIE,Trident,IEXPLORE,DETOUR"),
-    HTTP_PORT: get('HTTP_PORT', 0),
-    HTTPS_PORT: get('HTTPS_PORT', 0),
-    WATCH_PORT: get('HTTPS_PORT', 0),
+    HTTP_PORT: get('HTTP_PORT', 80),
+    HTTPS_PORT: get('HTTPS_PORT', 443),
+    WATCH_PORT: get('WATCH_PORT', 0),
     TRANSFER: get('TRANSFER,TRANSFER_LINK,TRANSFER_HOST,TRANS,TRANS_LINK,TRANS_HOST'),
     WATCH_PROJECT_VERSION: 0,
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),

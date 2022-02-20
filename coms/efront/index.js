@@ -64,7 +64,7 @@ var setAppnameAndPorts = function (args) {
     var appname = memery.APP, http_port, https_port;
     for (var cx = 0, dx = args.length; cx < dx; cx++) {
         var arg = args[cx];
-        if (!arg) continue;
+        if (isEmpty(arg)) continue;
         if (isFinite(arg)) {
             if (!isFinite(http_port)) http_port = arg;
             else if (!isFinite(https_port)) https_port = arg;
@@ -74,8 +74,8 @@ var setAppnameAndPorts = function (args) {
     }
     setenv({
         app: appname,
-        http_port: +http_port >= 0 ? http_port || 80 : memery.HTTP_PORT,
-        https_port: +https_port >= 0 ? https_port || 443 : memery.HTTPS_PORT
+        http_port: http_port,
+        https_port: https_port
     });
 }
 
@@ -591,7 +591,6 @@ var commands = {
         startDevelopEnv(appname, http_port, https_port);
     },
     live(http_port, https_port) {
-
         detectEnvironment().then(function () {
             startDevelopEnv(memery.APP || "", http_port, https_port);
         }).catch(console.error);
@@ -892,21 +891,23 @@ var run = function (type, value1, value2, value3) {
             case "tests":
             case "starts":
                 if (value2) {
-                    [value2 = 443, value1] = [value1, value2];
+                    [value2 = memery.HTTPS_PORT, value1 = 0] = [value1, value2];
                 } else if (value1) {
                     value2 = value1;
-                    value1 = '-1';
+                    value1 = 0;
                 } else {
-                    value2 = 443;
-                    value1 = '-1';
+                    value2 = memery.HTTPS_PORT;
+                    value1 = 0;
                 }
                 argv = [type, value1, value2];
             default:
                 type = helps[type].key;
                 if (type instanceof Array) {
                     help(type[0]);
-                    console.log(type)
                 } else {
+                    if (type === 'live') {
+                        if (!argv[1] && !argv[2]) argv[1] = memery.HTTP_PORT, argv[2] = 0;
+                    }
                     commands[type].apply(commands, argv.slice(1));
                 }
         }
@@ -947,8 +948,8 @@ process.on("exit", function () {
 });
 var argv = [];
 var restArgv = [];
-require("../server/userdata").getItem("memery").then(function (memery) {
-    setenv(require("../basic/parseKV")(memery));
+require("../server/userdata").getItem("memery").then(function (mm) {
+    setenv(require("../basic/parseKV")(mm));
     restArgv = [];
     argv = process.argv.slice(1).filter(a => {
         if (a in helps) return true;
