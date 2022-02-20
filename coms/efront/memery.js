@@ -14,7 +14,9 @@ for (var k in env) {
 }
 var istest = test(env.IN_TEST_MODE) || test(env.IS_TEST_MODE) || test(env.TEST_MODE);
 var namemap = Object.create(null);
-
+var seted = Object.create(null);
+var defaults = Object.create(null);
+var isEmpty = require("../basic/isEmpty");
 var set = function (k, v) {
     var n
     if (k in this) {
@@ -36,7 +38,9 @@ var set = function (k, v) {
             break;
     }
     this[n] = v;
+    if (n !== 'EFRONT') seted[n] = true;
     if (fixme[n]) fixpath(n);
+    if (isEmpty(v) || this[n] === defaults[n]) delete seted[n];
 };
 var get = function (name, _default, fix, limits) {
     var env = this || process.env;
@@ -48,6 +52,7 @@ var get = function (name, _default, fix, limits) {
     if (fix) fixme[alias[0]] = fix;
     if (limits) limits[alias[0]] = limits;
     var value = _default;
+    if (!isEmpty(_default)) defaults[alias[0]] = _default;
     for (var cx = 0, dx = alias.length; cx < dx; cx++) {
         var k = alias[cx];
         if (k in env) {
@@ -114,8 +119,16 @@ var PUBLIC_PATH = getdirpath("PUBLIC_PATH", 'public');
 module.exports = {
     istest,
     loghead: get('LOGHEAD, LOG'),
+    defaults,
     get,
     set,
+    all() {
+        var data = {};
+        for (var n in seted) {
+            if (!(n in data)) data[n] = this[n];
+        }
+        return data;
+    },
     get noproxy() {
         if (noproxy !== undefined) {
             return noproxy;
@@ -221,6 +234,7 @@ module.exports = {
     FORCE: get("FORCE", false),
     UPLEVEL: get("UPLEVEL", false),
     REPORT: get("REPORT", 'efront.cc'),
+    CORS: get("CORS,CORP,Cross-Origin-Resource-Policy", true),
     get webroot() {
         return this.isDevelop ? this.PAGE_PATH : this.PUBLIC_PATH;
     },

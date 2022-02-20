@@ -61,21 +61,21 @@ var startDevelopEnv = function () {
     require("../server/main");
 };
 var setAppnameAndPorts = function (args) {
-    var appname = memery.APP, http_port = '', https_port;
+    var appname = memery.APP, http_port, https_port;
     for (var cx = 0, dx = args.length; cx < dx; cx++) {
         var arg = args[cx];
         if (!arg) continue;
         if (isFinite(arg)) {
-            if (!http_port) http_port = arg;
-            else if (!https_port) https_port = arg;
+            if (!isFinite(http_port)) http_port = arg;
+            else if (!isFinite(https_port)) https_port = arg;
         } else if (typeof arg === 'string') {
             appname = arg;
         }
     }
     setenv({
         app: appname,
-        http_port: +http_port >= 0 ? http_port || 80 : '',
-        https_port: +https_port >= 0 ? https_port || 443 : ''
+        http_port: +http_port >= 0 ? http_port || 80 : memery.HTTP_PORT,
+        https_port: +https_port >= 0 ? https_port || 443 : memery.HTTPS_PORT
     });
 }
 
@@ -182,7 +182,7 @@ var format = s => s
     .replace(/[a-z][_a-z]*/g, "<blue2>$&</blue2>")
     .replace(/(?<![a-z])[\d]+/ig, "<green>$&</green>")
     .replace(/[A-Z][_A-Z]*/g, "<purple>$&</purple>")
-    .replace(/\-+/g, "<gray>$&</gray>")
+    .replace(/\-+|\=+/g, "<gray>$&</gray>")
     .replace(/\|/g, "<gray>|</gray>");
 var showTopicInfo = function (commands, prefix = '') {
     var tips = {};
@@ -233,6 +233,8 @@ var helps = [
     "根据模块的搜索路径查找真实路径,detect MODULE_PATH",
     "导出与指定的对象路径关联的代码,pick MODULE_PATH TARGET_PATH KEYPATH",
     "清理代码，删除已声明未使用的代码,wash MODULE_PATH TARGET_PATH",
+    "设置环境变量,setenv --NAME1=VALUE1 --NAME2=VALUE2,setenv NAME VALUE,set --NAME1=VALUE1,set --NAME=",
+    "列出已配置的环境变量,listenv,env",
     "-设置远程访问的密码,password",
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
@@ -733,7 +735,7 @@ helps.forEach((str, cx) => {
     var help = { info, hide, commands: _commands, cmds: _commands };
     helps[cx] = help;
     _commands.forEach(cmd => {
-        var key = cmd.replace(/[A-Z\_]([A-Z\|\_]*)/g, "").trim();
+        var key = cmd.replace(/(\-+)?[A-Z\_]([\=A-Z\|\_]*)/g, "").trim();
         if (!/\s/.test(key)) {
             key.split(/\|/).forEach(k => {
                 if (k in commands) {
@@ -782,6 +784,49 @@ var run = function (type, value1, value2, value3) {
         type = type.toLowerCase();
         var { help, create, public: build, run, simple } = commands;
         switch (type) {
+            case "setenv":
+            case "set":
+                if (!isEmpty(value1)) commands.set(value1, value2);
+                require("../server/userdata").setItem("memery", require("../basic/serialize")(memery.all()));
+                break;
+            case "env":
+            case "listenv":
+                var mm = memery.all();
+                var km = Object.keys(mm);
+                if (!km.length) {
+                    console.info("没有自定义的环境变量\r\n");
+                }
+                else {
+                    console.info(`已设置如下 ${km.length} 个环境变量：\r\n\r\n`);
+                    for (var k in mm) {
+                        console.type("  ", `<green2>${k}</green2>`, "= ");
+                        console.log(mm[k]);
+                    }
+                    console.log();
+                    console.log();
+                }
+                console.info(`未修改过的默认变量如下：\r\n\r\n`);
+                var md = false;
+                for (var k in memery.defaults) {
+                    if (k in mm) continue;
+                    md = true;
+                    mm[k] = true;
+                    console.type("  ", `<gray2>${k}</gray2>`, "= ");
+                    console.log(memery.defaults[k]);
+                }
+                if (md) console.log(), console.log();
+                md = false;
+                for (var k in memery) {
+                    if (k in mm) continue;
+                    if (k.toUpperCase() !== k || k === 'EFRONT' || isEmpty(memery[k])) continue;
+                    if (!md) {
+                        md = true;
+                        console.info(`其他环境变量如下：\r\n\r\n`)
+                    }
+                    console.type("  ", `<gray>${k}</gray>`, "= ");
+                    console.log(memery[k]);
+                }
+                break;
             case "from":
                 if (value2 && !/^(init)$/i.test(value2)) {
                     if (!value3) {
@@ -900,32 +945,37 @@ process.on("exit", function () {
         console.log();
     }
 });
+var argv = [];
 var restArgv = [];
-var argv = process.argv.slice(1).filter(a => {
-    if (a in helps) return true;
-    if (!/^--/.test(a)) return true;
-    if (/^--(?:inspect|debug)(-brk)?(\=\d*)?$/.test(a)) {
+require("../server/userdata").getItem("memery").then(function (memery) {
+    setenv(require("../basic/parseKV")(memery));
+    restArgv = [];
+    argv = process.argv.slice(1).filter(a => {
+        if (a in helps) return true;
+        if (!/^--/.test(a)) return true;
+        if (/^--(?:inspect|debug)(-brk)?(\=\d*)?$/.test(a)) {
+            restArgv.push(a);
+            return;
+        }
         restArgv.push(a);
-        return;
-    }
-    restArgv.push(a);
-    a = a.replace(/^--/, '');
-    var key, value = '';
-    if (/^(no|off|not|is-not|disable)-/.test(a)) {
-        value = false;
-    }
-    if (/^(on|yes|is(?!-not)|enable)-/.test(a)) {
-        value = true;
-    }
-    a = a.replace(/^(no|on|yes|off|is-not|is|enable|disable)-/, '');
-    if (/=/.test(a)) {
-        [key, value] = a.split("=");
-    } else {
-        key = a;
-        if (value !== false) value = true;
-    }
-    key = key.replace(/\-/g, '_');
-    commands.set(key, value);
-}).slice(1);
-var [type, value1, value2, value3] = argv;
-run(type, value1, value2, value3);
+        a = a.replace(/^--/, '');
+        var key, value = '';
+        if (/^(no|off|not|is-not|disable)-/.test(a)) {
+            value = false;
+        }
+        if (/^(on|yes|is(?!-not)|enable)-/.test(a)) {
+            value = true;
+        }
+        a = a.replace(/^(no|on|yes|off|is-not|is|enable|disable)-/, '');
+        if (/=/.test(a)) {
+            [key, value] = a.split("=");
+        } else {
+            key = a;
+            if (value !== false) value = true;
+        }
+        key = key.replace(/\-/g, '_');
+        commands.set(key, value);
+    }).slice(1);
+    var [type, value1, value2, value3] = argv;
+    run(type, value1, value2, value3);
+});
