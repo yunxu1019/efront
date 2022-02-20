@@ -24,6 +24,12 @@ function build(pages_root, lastBuiltTime, dest_root) {
             for (var k in responseTree) {
                 var dependence = responseTree[k].dependence;
                 if (!dependence) continue;
+                for (var cx = 0, dx = dependence.length; cx < dx; cx++) {
+                    var d = dependence[cx];
+                    if (d === url) {
+                        dependence[cx] = a.url;
+                    }
+                }
                 var reqMap = dependence.requiredMap;
                 for (var r in reqMap) if (reqMap[r] === url) {
                     reqMap[r] = a.url;
