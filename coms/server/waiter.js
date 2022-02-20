@@ -71,10 +71,13 @@ var requestListener = async function (req, res) {
     var req_access_origin = req.headers["origin"];
     var req_access_headers = req.headers["access-control-request-headers"];
     var req_access_method = req.headers["access-control-request-method"];
-    req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
-    /^https:/i.test(req_access_origin) && res.setHeader("Access-Control-Allow-Credentials", true);
-    req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
-    req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
+    if (memery.CORS) {
+        req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
+        /^cross/i.test(req.headers["sec-fetch-site"]) && res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        /^https:/i.test(req_access_origin) && res.setHeader("Access-Control-Allow-Credentials", true);
+        req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
+        req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
+    }
     if (/^option/i.test(req.method)) {
         if (req_access_method || req_access_headers) {
             return res.end();
