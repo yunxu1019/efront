@@ -70,6 +70,10 @@ class Speed extends Array {
     static inertia = inertia;
     reset() {
         this.cache.splice(0, this.cache.length, 0);
+        for (var cx = 0, dx = this.length; cx < dx; cx++) {
+            if (this[cx] > 0) this[cx] = 1e-13;
+            if (this[cx] < 0) this[cx] = -1e-13;
+        }
     }
     unset() {
         this.splice(0, this.length), this.cache.splice(0, this.cache.length), this.stamp = 0;
