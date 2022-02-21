@@ -18,6 +18,7 @@ function picture_(image = document.createElement("div")) {
     var loaded_width, loaded_height;
     var max_scale = 10 * devicePixelRatio;
     var shape = function () {
+        image.rotate = rotated;
         image.shape(x, y, scaled / devicePixelRatio, rotated);
         loaded_rotate = rotated; loaded_scale = scaled;
     };
