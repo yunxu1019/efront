@@ -197,6 +197,7 @@ function toComponent(responseTree) {
                 saveOnly(`[${getEncodedIndex('__dirname', 'builtin')},function(a){return a(${JSON.stringify(a === '__filename' ? filename : dirname)})}]`, realdir);
                 return destMap[realdir];
             }
+            if (!isFinite(index)) console.warn("编译异常", module_key, a);
             return index;
         }).concat(module_string)}]`, module_key);
     };
