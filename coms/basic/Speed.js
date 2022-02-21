@@ -4,7 +4,7 @@ function inertia(gun) {
         if (
             decrease instanceof Function
         ) {
-            if (!spd.length || !spd[0]) return;
+            if (!spd.length || _decreased > 0 && spd.filter(a => a !== 0).length === 0) return;
             var id = smooth_timer;
             var res = decrease(_decreased++, spd);
             if (smooth_timer !== id) return;
