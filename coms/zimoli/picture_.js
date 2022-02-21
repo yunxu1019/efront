@@ -11,20 +11,66 @@ var getstation = function (n, s) {
     return n;
 };
 var trimCoord = move.trimCoord;
-var isequal = (a, b) => a === b || Math.abs((a - b) / (a + b)) < 1e-12;
+var isequal = (a, b) => a === b || Math.abs(a - b) < .1;
+var aimed = (from, to) => (from + from + from + to) / 4;
 function picture_(image = document.createElement("div")) {
     var image_width, image_height;
-    var scaled = 1, x = 0, y = 0, min_scale, loaded_scale, locked_scale, click_scale, loaded_x, loaded_y;
+    var scaled = 1, x = 0, y = 0, min_scale, cover_scale, isxrelex, contain_scale, loaded_scale, click_scale, loaded_x, loaded_y;
     var loaded_width, loaded_height;
     var max_scale = 10 * devicePixelRatio;
-    var shape = function () {
+    var istouching = false;
+    var _shape = function (x, y, scaled, rotated) {
         image.rotate = rotated;
+        image.scaled = scaled;
+        image.x = x;
+        image.y = y;
         image.shape(x, y, scaled / devicePixelRatio, rotated);
-        loaded_rotate = rotated; loaded_scale = scaled;
+        image.locked = (scaled <= contain_scale) && !overflow();
+    }
+    var shape = function () {
+        _shape(x, y, scaled, rotated);
+        shaped_rotate = rotated;
+    };
+    var overflow = function () {
+        var deltax = 0, deltay = 0;
+        if (scaled < contain_scale) {
+            deltax = x + image_width * scaled / 2 - loaded_width / 2;
+            deltay = y + image_height * scaled / 2 - loaded_height / 2;
+        }
+        else if (scaled < cover_scale) {
+            if (isxrelex) {
+                if (x > 0) deltax = x;
+                else if (x + image_width * scaled < loaded_width) deltax = loaded_width - x + image_width * scaled;
+                deltay = y + image_height * scaled / 2 - loaded_height / 2;
+            } else {
+                if (y > 0) deltay = y;
+                else if (y + image_height * scaled < loaded_height) deltay = y + image_height * scaled - loaded_height;
+                deltax = x + image_width * scaled / 2 - loaded_width / 2;
+            }
+        }
+        else {
+            if (x > 0) deltax = x;
+            else if (x + image_width * scaled < loaded_width) deltax = y + image_height * scaled - loaded_height;
+            if (y > 0) deltay = y;
+            else if (y + image_height * scaled < loaded_height) deltay = y + image_height * scaled - loaded_height;
+        }
+        if (Math.abs(deltax) > .1 || Math.abs(deltay) > .1) {
+            deltax /= loaded_width;
+            deltay /= loaded_height;
+
+            return Math.sqrt(deltax * deltax + deltay * deltay);
+        }
     };
     image.reshape = shape;
     var park = function () {
-        if (image.park) image.park(x, y, scaled / devicePixelRatio, loaded_rotate);
+        if (isequal(image.x, x) && isequal(image.y, y) && isequal(image.scaled, scaled) && isequal(image.rotate, rotated)) {
+            _shape(x, y, scaled, rotated);
+            if (image.park) image.park(x, y, scaled / devicePixelRatio, shaped_rotate);
+        }
+        else {
+            _shape(aimed(image.x, x), aimed(image.y, y), aimed(image.scaled, scaled), aimed(image.rotate, rotated));
+            return true;
+        }
     };
     var loadParams = function () {
         if (!image.width) return;
@@ -32,25 +78,26 @@ function picture_(image = document.createElement("div")) {
         image_height = image.height / devicePixelRatio;
         loaded_width = image.clientWidth;
         loaded_height = image.clientHeight;
-        loaded_rotate = 0;
-        locked_scale = loaded_scale = Math.min(loaded_height / image_height, loaded_width / image_width);
+        shaped_rotate = 0;
+        var y_scale = loaded_height / image_height;
+        var x_scale = loaded_width / image_width;
+        isxrelex = x_scale > y_scale;
+        cover_scale = isxrelex ? x_scale : y_scale;
+        loaded_scale = contain_scale = isxrelex ? y_scale : x_scale;
         if (loaded_scale >= 1) {
             click_scale = 4;
             loaded_scale = 1;
-        } else {
+        }
+        else if (loaded_scale > .5) {
+            click_scale = 2;
+        }
+        else {
             click_scale = 1;
         }
         loaded_x = (loaded_width - image_width * loaded_scale) / 2;
         loaded_y = (loaded_height - image_height * loaded_scale) / 2;
         min_scale = loaded_scale * .25;
-        scaled = loaded_scale;
-        x = loaded_x;
-        y = loaded_y;
         updatexy();
-        set_unlock();
-    };
-    var set_unlock = function () {
-        if (!loaded_scale) return;
         fixpos();
         shape();
     };
@@ -62,25 +109,14 @@ function picture_(image = document.createElement("div")) {
     on("dblclick")(image, function (event) {
         if (event.defaultPrevented) return;
         event.preventDefault();
-        var image = this;
-        loadParams();
-        image.locked = isequal(scaled, loaded_scale) && isequal(loaded_x, x) && isequal(loaded_y, y);
         var layerx = event.offsetX || 0;
         var layery = event.offsetY || 0;
-        if (layerx)
-            if (image.locked) {
-                var width = image_width * loaded_scale, height = image_height * loaded_scale;
-                if (layerx > loaded_x + width || layerx < loaded_x || width < image.offsetWidth >> 2) {
-                    layerx = loaded_x + width / 2;
-                }
-                if (layery > loaded_y + height || layery < loaded_y || height < image.offsetHeight >> 2) {
-                    layery = loaded_y + height / 2;
-                }
-                scale(layerx, layery, click_scale / loaded_scale);
-            } else {
-                click_scale = scaled;
-                set_unlock();
-            }
+        if (isequal(scaled, loaded_scale)) {
+            scale(layerx, layery, click_scale / scaled);
+        }
+        else {
+            scale(layerx, layery, loaded_scale / scaled);
+        }
     });
     image.getScale = function () {
         if (!this.locked && !loaded_scale) {
@@ -100,7 +136,6 @@ function picture_(image = document.createElement("div")) {
         y += y1 - y0;
     };
     var scale = function (layerx, layery, ratio) {
-        if (!image.locked) return;
         scaled *= ratio;
         x = (x - layerx) * ratio + layerx;
         y = (y - layery) * ratio + layery;
@@ -137,6 +172,9 @@ function picture_(image = document.createElement("div")) {
         shape();
     };
     var recover = function (change) {
+        if (image.close && scaled < cover_scale && overflow() > .3) {
+            if (image.close() !== false) return;
+        }
         var aimed_scale = getstation(scaled);
         if (aimed_scale !== scaled) {
             change = true;
@@ -159,24 +197,21 @@ function picture_(image = document.createElement("div")) {
         var saved_x = x, saved_y = y;
         fixpos();
         if (change || saved_x !== x || saved_y !== y) {
-            park();
+            move.smooth(park);
             return;
         }
-        if (image.clientHeight && image.clientWidth) return true;
     };
     var move = inertia(function (deltax, deltay) {
         var saved_x = x, saved_y = y;
         x += deltax, y += deltay;
-        fixpos();
+        if (scaled > contain_scale) fixpos();
         shape();
-        if (saved_x === x && saved_y === y) return false;
+        if (saved_x === x && saved_y === y || overflow() > 1) return false;
     });
     var saved_event;
     onmousewheel(image, function (event) {
         var { offsetX: layerX, offsetY: layerY, deltaY } = event;
-        if (this.locked) event.preventDefault();
         if (!deltaY) return;
-        if (!this.locked) loadParams();
         this.locked = true;
         var ratio = Math.pow(0.99, 20 * Math.atan(deltaY / 20));
         var __scaled = scaled;
@@ -194,18 +229,16 @@ function picture_(image = document.createElement("div")) {
         start(event) {
             event.preventDefault();
             saved_event = event;
-            event.moveLocked = scaled > locked_scale;
-            if (!this.locked) {
-                loadParams();
-            }
+            istouching = !this.locked;
             move.reset();
         },
         move(event) {
             if (event.moveLocked) return;
-            event.moveLocked = scaled > locked_scale;
+            if (!onclick.preventClick) return;
             event.preventDefault();
             if (event.touches && saved_event.touches) {
                 if (event.touches.length !== saved_event.touches.length) {
+                    event.moveLocked = true;
                     saved_event = event;
                     return;
                 }
@@ -214,7 +247,6 @@ function picture_(image = document.createElement("div")) {
                     case 1:
                         break;
                     case 2:
-                        this.locked = true;
                         event.moveLocked = true;
                         var [xy1, xy2] = saved_event.touches;
                         var [mn1, mn2] = event.touches;
@@ -234,25 +266,32 @@ function picture_(image = document.createElement("div")) {
                 rotatexy(saved_event.clientX, saved_event.clientY, event.clientX, event.clientY);
             }
             else {
-                if (!this.locked) return;
                 var deltax = event.clientX - saved_event.clientX,
                     deltay = event.clientY - saved_event.clientY;
-                move(deltax, deltay);
+
+                if (!istouching && istouching !== null) {
+                    istouching = Math.abs(deltay) > Math.abs(deltax) ? true : null;
+                }
+                if (istouching) {
+                    event.moveLocked = true;
+                    move(deltax, deltay);
+                }
             }
             saved_event = event;
         },
         end(event) {
+            if (event.touches && event.touches.length > 0) return;
+            istouching = false;
             if (saved_event) {
                 if (event.timeStamp - saved_event.timeStamp > 120) {
                     move.reset();
                 }
             }
             saved_event = null;
-            event.moveLocked = scaled >= locked_scale;
-            if (this.locked && onclick.preventClick) move.smooth();
+            if (onclick.preventClick) move.smooth(recover);
         }
     });
-    var loaded_rotate = 0, rotated = 0;
+    var shaped_rotate = 0, rotated = 0;
     var rotatexy = function (x1, y1, x2, y2) {
         var { left, top } = getScreenPosition(image);
         var centerx = left + image.clientLeft + image.clientWidth / 2, centery = top + image.clientTop + image.clientHeight / 2;
@@ -264,9 +303,9 @@ function picture_(image = document.createElement("div")) {
         if (sign) image.rotateBy(sign > 0 ? delta : -delta);
     }
     var updatexy = function () {
-        var deg = rotated - loaded_rotate;
+        var deg = rotated - shaped_rotate;
         if (isFinite(deg)) {
-            loaded_rotate = rotated;
+            shaped_rotate = rotated;
             [x, y] = getrotatedltwh(deg, scaled);
         }
     };
@@ -279,7 +318,7 @@ function picture_(image = document.createElement("div")) {
         var [c1, c2] = rotate([m, n], -a, c);
         c1 -= w / 2;
         c2 -= h / 2;
-        var a = loaded_rotate;
+        var a = shaped_rotate;
         var l = c[0] - w / 2;
         var r = l + w;
         var t = c[1] - h / 2;

@@ -40,6 +40,10 @@ var create = function (url, key) {
         css(imgpic, style);
         if (imgpic) dispatch(imgpic, 'scaled');
     };
+    image.close = function () {
+        if (!p.touchclose) return false;
+        remove(p);
+    };
     image.park = function (x, y, scaled, rotate) {
         var style = get_style(x, y, scaled, rotate);
         var a = transition(imgpic, style, true);
