@@ -72,6 +72,7 @@ var setAppnameAndPorts = function (args) {
             appname = arg;
         }
     }
+    if (!http_port && !https_port) http_port = memery.HTTP_PORT;
     setenv({
         app: appname,
         http_port: http_port,
