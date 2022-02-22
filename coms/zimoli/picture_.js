@@ -33,11 +33,11 @@ function picture_(image = document.createElement("div")) {
     };
     var overflow = function () {
         var deltax = 0, deltay = 0;
-        if (scaled < contain_scale) {
+        if (scaled <= contain_scale) {
             deltax = x + image_width * scaled / 2 - loaded_width / 2;
             deltay = y + image_height * scaled / 2 - loaded_height / 2;
         }
-        else if (scaled < cover_scale) {
+        else if (scaled <= cover_scale) {
             if (isxrelex) {
                 if (x > 0) deltax = x;
                 else if (x + image_width * scaled < loaded_width) deltax = loaded_width - x + image_width * scaled;
@@ -97,6 +97,9 @@ function picture_(image = document.createElement("div")) {
         loaded_x = (loaded_width - image_width * loaded_scale) / 2;
         loaded_y = (loaded_height - image_height * loaded_scale) / 2;
         min_scale = loaded_scale * .25;
+        scaled = loaded_scale;
+        x = loaded_x;
+        y = loaded_y;
         updatexy();
         fixpos();
         shape();
@@ -148,27 +151,17 @@ function picture_(image = document.createElement("div")) {
         if (scaled >= max_scale * 1.1 && scale > 1) return;
         if (scaled <= min_scale && scale < 1) return;
         scaled *= scale;
-        var centerx = (x1 + x2) / 2;
-        var centery = (y1 + y2) / 2;
-        var centerm = (m1 + m2) / 2;
-        var centern = (n1 + n2) / 2;
-        x = (x - centerx) * scale + centerm;
-        y = (y - centery) * scale + centern;
+        var ox = image.clientWidth / 2;
+        var oy = image.clientHeight / 2;
+        x = (x - x1) * scale + ox;
+        y = (y - y1) * scale + oy;
         var theta = Math.atan2(n2 - n1, m2 - m1) - Math.atan2(y2 - y1, x2 - x1);
         var r = rotated;
         r += (theta * 180 / Math.PI);
-        image.rotateBy(theta * 180 / Math.PI);
-        // var cosa = Math.cos(theta);
-        // var sina = Math.sin(theta);
-        // var hw = image.clientWidth / 2;
-        // var hh = image.clientHeight / 2;
-        // console.log(x, y);
-        // x -= hw;
-        // y -= hh;
-        // var x0 = x * cosa - y * sina;
-        // var y0 = x * sina + y * cosa;
-        // x = x0 + hw;
-        // y = y0 + hh;
+        rotated = r;
+        updatexy();
+        x = x - ox + m1;
+        y = y - oy + n1;
         shape();
     };
     var recover = function (change) {
@@ -235,7 +228,6 @@ function picture_(image = document.createElement("div")) {
         move(event) {
             if (event.moveLocked) return;
             if (!onclick.preventClick) return;
-            event.preventDefault();
             if (event.touches && saved_event.touches) {
                 if (event.touches.length !== saved_event.touches.length) {
                     event.moveLocked = true;
@@ -295,12 +287,15 @@ function picture_(image = document.createElement("div")) {
     var rotatexy = function (x1, y1, x2, y2) {
         var { left, top } = getScreenPosition(image);
         var centerx = left + image.clientLeft + image.clientWidth / 2, centery = top + image.clientTop + image.clientHeight / 2;
-        var deltax = x2 - x1, deltay = y2 - y1;
-        var rx = x1 - centerx, ry = y1 - centery;
-        var sign = -ry * deltax + rx * deltay;
-        var delta = 90 * Math.sqrt(deltax * deltax + deltay * deltay) / Math.sqrt(rx * rx + ry * ry);
-        if (delta > 10) delta = 10;
-        if (sign) image.rotateBy(sign > 0 ? delta : -delta);
+        // var deltax = x2 - x1, deltay = y2 - y1;
+        // var rx = x1 - centerx, ry = y1 - centery;
+        // var sign = -ry * deltax + rx * deltay;
+        // var delta = Math.sqrt(deltax * deltax + deltay * deltay) / Math.sqrt(rx * rx + ry * ry);
+        // if (delta > 10) delta = 10;
+        // delta *= sign > 0 ? 1 : -1;
+        if (isequal(x1, centerx) && isequal(y1, centery) || isequal(x2, centerx) && isequal(y2, centery)) return;
+        var delta = Math.atan2(y2 - centery, x2 - centerx) - Math.atan2(y1 - centery, x1 - centerx);
+        rotated += delta * 180 / Math.PI, updatexy(), shape();
     }
     var updatexy = function () {
         var deg = rotated - shaped_rotate;
