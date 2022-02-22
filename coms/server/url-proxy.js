@@ -34,7 +34,7 @@ async function getProxyURL(req) {
             url = pathname.replace(/\/[^\/]*$/, '') + "/" + url.replace(/^\//, '');
             if (host) protocol + '//' + host + url;
             if (query) querys.push(query);
-            if (querys.length) url += "?" + query.join("&");
+            if (querys.length) url += "?" + querys.join("&");
         }
     }
     if (urlProxyMap[url]) {
