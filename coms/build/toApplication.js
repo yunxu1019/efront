@@ -191,6 +191,7 @@ var rebuildData = function (responseTree) {
         var k1 = renmap[k];
         delete responseTree[k];
         responseTree[k1] = o;
+        o.name = k1;
         k1 = k1.replace(/^[\s\S]*?([^\/\\]*?)(\.[^\/\\\.]+)?$/, '$1');
         var m = /^([\s\S]*?)[^\/\\]*?(\.[^\/\\\.]+)?$/.exec(o.destpath);
         if (m[1]) {
