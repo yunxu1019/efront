@@ -143,13 +143,13 @@ function ylist(container, generator, $Y) {
                     last_index = index;
                     continue;
                 }
-                if (last_index > offset) {
-                    list.insertBefore(item, last_item);
-                } else {
-                    list.insertBefore(item, getNextSibling(last_item));
-                }
             } else {
                 delete childrenMap[offset];
+            }
+            if (last_index > offset) {
+                if (item.nextElementSibling !== last_item) list.insertBefore(item, last_item);
+            } else {
+                if (item.previousElementSibling !== item) list.insertBefore(item, getNextSibling(last_item));
             }
             last_index = offset;
             last_item = item;
