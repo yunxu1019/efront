@@ -89,7 +89,6 @@ var detectEnvironment = function (comm) {
         app: memery.APP || '',
         page: memery.PAGE,
     };
-    if (config.page_path === undefined) config.page_path = currentpath;
     var env_path = [];
     return new Promise(function (ok) {
         fs.readdir(currentpath, function (error, names) {
@@ -107,9 +106,9 @@ var detectEnvironment = function (comm) {
             }).forEach(function (name) {
                 if (/page|^app|界面|页面|应用|系统/i.test(name)) {
                     // 高屋|瓴|楼|台|宫|阁|殿|庙|堂|会|场|司|衙|门|党|帮|派|族|山|庄|寺|教|家|城|店|军|队|团|师|营|苟
-                    if (memery.page_path === undefined) config.page_path = name;
+                    if (memery.PAGE_PATH === undefined) config.page_path = name;
                 } else if (/^src|source|^code|源|代码/i.test(name)) {
-                    if (memery.page_path === undefined) config.page_path = name;
+                    if (memery.PAGE_PATH === undefined) config.page_path = name;
                     coms_path.push(name);
                 } else if (/node_modules|lib|com|fun|depe|组件|模块|依赖|库|函数/i.test(name)) {
                     // 卡木|设施|员|工|匠|子|弟|臣|下|客|器|械|备|库|房|土|基|石|砖
@@ -125,6 +124,19 @@ var detectEnvironment = function (comm) {
                     public_path.push(name);
                 }
             });
+            var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
+            env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
+            if (public_path.length === 1 && !process.env.PUBLIC_PATH) {
+                config.public_path = public_path[0];
+            }
+            if (1 === env_path.length) {
+                memery.ENVS_PATH = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
+                var env = loadenv(path.join(env_path[0], "setup"));
+                setenv(env, false);
+                if (memery.PAGE_PATH !== undefined) config.page_path = memery.PAGE_PATH;
+            }
+            if (config.page_path === undefined) config.page_path = currentpath;
+
             coms_path.push(path.join(__dirname, '../../coms'));
             if (memery.COMS_PATH !== undefined) {
                 if (0 > coms_path.indexOf(memery.COMS_PATH)) coms_path.unshift(memery.COMS_PATH);
@@ -152,20 +164,8 @@ var detectEnvironment = function (comm) {
                     libs_path: libs_path.join(',')
                 });
             }
-            var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
-            env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
-            if (public_path.length === 1 && !process.env.PUBLIC_PATH) {
-                config.public_path = public_path[0];
-            }
-            if (1 !== env_path.length) {
-                setenv(config);
-            } else {
-                memery.ENVS_PATH = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
-                var env = loadenv(path.join(env_path[0], "setup"));
-                setenv(env, false);
-                setenv(config);
-                require("./setupenv");
-            }
+            setenv(config);
+            if (env_path.length === 1) require('./setupenv');
             ok();
         });
     });
