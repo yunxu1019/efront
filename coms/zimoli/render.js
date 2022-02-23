@@ -725,7 +725,7 @@ function renderStructure(element, scope, parentScopes = []) {
     var attrs = [].concat.apply([], element.attributes);
     var withContext = parentScopes ? parentScopes.map((_, cx) => `with(this.$parentScopes[${cx}])`).join("") : '';
     var types = {};
-    var emiter_reg = /^(?:(v|ng|on|once)\-|v\-on\:|@|once|on)/i;
+    var emiter_reg = /^(?:(v|ng|on|once)?\-|v\-on\:|@|once|on)/i;
     var ons = [];
     var copys = [];
     var binds = {};
@@ -768,21 +768,25 @@ function renderStructure(element, scope, parentScopes = []) {
             continue;
         }
         if (element.$struct) continue;
-        var key = name.replace(/^(ng|v|.*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
+        // ng-html,ng-src,ng-text,ng-model,ng-style,ng-class,...
+        var key = name.replace(/^(ng|v|[^\_\:\.]*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
             binds[key] = value;
             element.removeAttribute(name);
         }
+        // ng-click on-click v-click @click @mousedown ...
         else if (emiter_reg.test(name)) {
             var match = emiter_reg.exec(name);
             var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
             element.removeAttribute(name);
             ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
         }
+        // placeholder_ href_ checked_ ...
         else if (/[_@\:\.]$/.test(name)) {
             attr1[name.replace(/[_@\:\.]$/, "")] = value;
             element.removeAttribute(name);
         }
+        // title alt name type placeholder href checked ...
         else {
             if (!/\-/.test(name) || value === '') {
                 copys.push(attr);
