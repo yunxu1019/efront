@@ -132,6 +132,11 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     }
                 case 200:
                 case 201:
+                case 202:
+                case 203:
+                case 204:
+                case 205:
+                case 206:
                 case 304:
                     onload(xhr);
                     break;
