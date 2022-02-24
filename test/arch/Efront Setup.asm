@@ -53,6 +53,7 @@ gpstart GdiplusStartupInput <1,0,0,0>;
 shellOperator db "open"
 assocname db "assoc.bat"
 unassoc db "unassoc.bat"
+unassocParam db "/c "
 uninstall db "cmd.exe"
 uninstallParam db "/c cd ..& rd /s /q ."
 uninstallName db "卸载.scr",0,0
@@ -572,6 +573,9 @@ _Extract proc lParam
     local delta
     local writed
     local hdata,readed,hdst
+    .if isuninstall
+        invoke unregister
+    .endif
     mov writed,0
     invoke opensetup
     mov h,eax
@@ -634,6 +638,7 @@ _Extract proc lParam
         pop edx
         pop ecx
     .endw
+
     .if !isuninstall && uninstallSize
         invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,uninstallSize
         mov hdata,eax
@@ -665,7 +670,9 @@ _Extract proc lParam
         invoke CloseHandle,hdst
     .endif
     invoke CloseHandle,h
-    invoke ShellExecute,NULL,addr shellOperator,addr assocname,NULL,addr folder,SW_HIDE
+    .if !isuninstall
+        invoke ShellExecute,NULL,addr shellOperator,addr assocname,NULL,addr folder,SW_HIDE
+    .endif
     .if hWinMain
         mov flash.cbSize,sizeof flash
         mov eax,hWinMain
@@ -1633,38 +1640,50 @@ _WinMain proc
     mov eax,@stMsg.wParam
     ret
 _WinMain endp
-
-removeall proc
+callbat proc addr1, addr2, type1
     local info:SHELLEXECUTEINFO
     local param[MAX_PATH]:WORD
     local direc[MAX_PATH]:WORD
-    invoke lstrcpy,addr param,addr uninstallParam
+    invoke lstrcpy,addr param,addr1
     invoke foldersize,addr param
     mov ebx,eax
     lea eax,param
     add eax,ebx
     sub eax,2
     mov WORD ptr[eax],'"'
-    invoke lstrcat,addr param,addr folder
+    invoke lstrcat,addr param,addr2
     invoke foldersize,addr param
     mov ebx,eax
     lea eax,param
     add eax,ebx
     mov WORD ptr[eax],'"'
     mov WORD ptr[eax+2],0
-    invoke folderpath,addr folder,sizeof folder,addr direc
-    mov info.cbSize , sizeof info;
-    mov info.fMask , SEE_MASK_NOCLOSEPROCESS;
-    mov info.hwnd , NULL;
-    mov info.lpVerb , NULL;
-    mov info.lpFile , offset uninstall ;
-    lea eax,param
-    mov info.lpParameters ,  eax;
-    lea eax,direc
-    mov info.lpDirectory , eax;
-    mov info.nShow , SW_HIDE;
-    mov info.hInstApp , NULL;
-    invoke ShellExecuteEx,addr info
+    invoke folderpath, addr folder, sizeof folder, addr direc
+    mov info.cbSize, sizeof info;
+    mov eax,type1
+    mov info.fMask, eax;
+    mov info.hwnd, NULL;
+    mov info.lpVerb, NULL;
+    mov info.lpFile, offset uninstall ;
+    lea eax, param
+    mov info.lpParameters,  eax;
+    lea eax, direc
+    mov info.lpDirectory, eax;
+    mov info.nShow, SW_HIDE;
+    mov info.hInstApp, NULL;
+    invoke ShellExecuteEx, addr info
+    mov eax, info.hProcess
+    ret
+callbat endp
+unregister proc
+    invoke callbat, addr unassocParam,addr unassoc,SEE_MASK_NOCLOSEPROCESS
+    invoke WaitForSingleObject, eax, INFINITE
+    ret
+unregister endp
+
+
+removeall proc
+    invoke callbat,addr uninstallParam,addr folder, SEE_MASK_NOASYNC
     ret
 removeall endp
 
