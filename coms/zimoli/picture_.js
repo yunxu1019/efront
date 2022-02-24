@@ -239,6 +239,7 @@ function picture_(image = document.createElement("div")) {
                     case 1:
                         break;
                     case 2:
+                    default:
                         event.moveLocked = true;
                         var [xy1, xy2] = saved_event.touches;
                         var [mn1, mn2] = event.touches;
@@ -251,6 +252,7 @@ function picture_(image = document.createElement("div")) {
                         );
                         saved_event = event;
                         return;
+
                 }
             }
             if (event.which === 3) {
