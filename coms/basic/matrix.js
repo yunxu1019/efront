@@ -32,9 +32,9 @@
 // end
 // end
 "use strict";
-
 var notMatchLength = new Error("矩阵长度不一致");
-function transform(dots, B) {
+
+function transform(B, dots) {
     var dimention = Math.sqrt(B.length - 1) | 0;
     if (dots.length % dimention !== 0) throw notMatchLength;
     if (dots === B) B = B.slice(0);
@@ -43,10 +43,11 @@ function transform(dots, B) {
     for (var cx = 0, dx = dots.length; cx < dx; cx += dimention) {
         for (var cy = 0, dy = dimention; cy < dy; cy++) {
             var sum = 0;
+            var start = dim2 * cy;
             for (var ct = 0, dt = dimention; ct < dt; ct++) {
-                sum += ds[cx + ct] * B[ct * dim2 + cy];
+                sum += ds[cx + ct] * B[start + ct];
             }
-            sum += B[dimention * dim2 + cy];
+            sum += B[start + dimention];
             dots[cx + cy] = sum;
         }
     }
@@ -56,12 +57,11 @@ function transform(dots, B) {
 function translate(A, delta) {
     var [dim2, dim] = size(A);
     var inc = 0;
-    for (var cx = dim * dim2, dx = cx + dim; cx < dx; cx++) {
+    for (var cx = dim, dx = dim * dim2; cx < dx; cx += dim2) {
         A[cx] = (A[cx] || 0) + delta[inc++];
     }
     return A;
 }
-
 
 function 负(a) {
     return -a;
@@ -76,7 +76,7 @@ function multiply(A, B) {
         for (var cy = 0, dy = dim; cy < dy; cy++) {
             var sum = 0;
             for (var ct = 0, dt = dim; ct < dt; ct++) {
-                sum += X[cx + ct] * B[ct * dim + cy];
+                sum += B[cx + ct] * X[ct * dim + cy];
             }
             A[cx + cy] = sum;
         }
@@ -132,15 +132,17 @@ function olinde(v, vector) {
     }
     return v;
 }
+
 function matrix2d(theta) {
     var cosa = Math.cos(theta);
     var sina = Math.sin(theta);
     return new Matrix(
-        cosa, sina, 0,
-        -sina, cosa, 0,
+        cosa, -sina, 0,
+        sina, cosa, 0,
         0, 0, 1
     );
-};
+}
+
 function matrix3d(factor) {
     var theta = norm(factor);
     var vec = times(factor, 1 / theta);
@@ -150,9 +152,9 @@ function matrix3d(factor) {
     var [x_u, y_u, z_u] = factor ? [0, 0, 1] : vec;
 
     return new Matrix(
-        cosa + x_u * x_u * vera, x_u * y_u * vera - z_u * sina, x_u * z_u * vera + y_u * sina, 0,
-        x_u * y_u * vera + z_u * sina, cosa + y_u * y_u * vera, y_u * z_u * vera - x_u * sina, 0,
-        x_u * z_u * vera - y_u * sina, y_u * z_u * vera + x_u * sina, cosa + z_u * z_u * vera, 0,
+        cosa + x_u * x_u * vera, x_u * y_u * vera + z_u * sina, x_u * z_u * vera - y_u * sina, 0,
+        x_u * y_u * vera - z_u * sina, cosa + y_u * y_u * vera, y_u * z_u * vera + x_u * sina, 0,
+        x_u * z_u * vera + y_u * sina, y_u * z_u * vera - x_u * sina, cosa + z_u * z_u * vera, 0,
         0, 0, 0, 1
     );
 }
@@ -173,42 +175,47 @@ var 逆 = function (A) {
     A.push.apply(A, E);
     for (var cx = 0, dx = dim; cx < dx; cx++) {
         var start = cx * dim + cx;
-        for (var ct = start, dt = X.length; ct < dt; ct += dim) {
-            if (X[ct] !== 0) break;
+        var max_ct, v = 0;
+        for (var ct = start, dt = cx * dim + dim; ct < dt; ct++) {
+            var v0 = Math.abs(X[ct]);
+            if (v0 > v) {
+                max_ct = ct;
+                v = v0;
+            }
         }
+        ct = max_ct;
         if (ct !== start) {
             var delta = ct - start;
-            var ratio = 1 / X[ct];
-            for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
+            var ratio = (1 - X[start]) / X[ct];
+            for (var cy = cx, dy = X.length; cy < dy; cy += dim) {
                 X[cy] += X[cy + delta] * ratio;
                 A[cy] += A[cy + delta] * ratio;
             }
         }
         if (X[start] !== 1) {
-            var delta = ct - start;
             var ratio = 1 / X[start];
-            for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
+            for (var cy = cx, dy = X.length; cy < dy; cy += dim) {
                 X[cy] *= ratio;
                 A[cy] *= ratio;
             }
         }
-        for (var ct = start + dim, dt = X.length; ct < dt; ct += dim) {
+        for (var ct = start + 1, dt = start + dim - cx; ct < dt; ct++) {
             if (X[ct] === 0) continue;
             var ratio = -X[ct];
             var delta = start - ct;
-            for (var cy = ct - cx, dy = cy + dim; cy < dy; cy++) {
+            for (var cy = cx + ct - start, dy = X.length; cy < dy; cy += dim) {
                 X[cy] += X[cy + delta] * ratio;
                 A[cy] += A[cy + delta] * ratio;
             }
         }
     }
-    for (var cx = dim - 2; cx >= 0; cx--) {
-        var start = cx * dim + cx + 1;
-        for (var ct = start; ct >= 0; ct -= dim) {
+    for (var cx = dim - 1; cx >= 0; cx--) {
+        var start = cx * dim + cx;
+        for (var ct = start - 1, dt = start - cx; ct >= dt; ct--) {
             if (X[ct] === 0) continue;
             var ratio = -X[ct];
-            var delta = dim + start - ct;
-            for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
+            var delta = start - ct;
+            for (var cy = cx + ct - start, dy = X.length; cy < dy; cy += dim) {
                 X[cy] += X[cy + delta] * ratio;
                 A[cy] += A[cy + delta] * ratio;
             }
@@ -245,6 +252,19 @@ class Matrix extends Array {
         if (this._invert) return this._invert;
         return this._invert = this.slice().inverse();
     }
+    transpose() {
+        var [size] = this.size();
+        for (var cx = 0, dx = size; cx < dx; cx++) {
+            for (var cy = cx + 1, dy = dx; cy < dy; cy++) {
+                var i = cx * size + cy;
+                var j = cy * size + cx;
+                var tmp = this[i];
+                this[i] = this[j];
+                this[j] = tmp;
+            }
+        }
+        return this;
+    }
     inverse() {
         this.dirty();
         return 逆(this);
@@ -276,8 +296,11 @@ class Matrix extends Array {
         return multiply(this, a);
     }
     transform(dots) {
-        if (dots instanceof Array) return transform(dots, this);
-        if (isFinite(dots)) return dots * this[this.length - 1];
+        if (dots instanceof Array) return transform(this, dots);
+        if (arguments.length > 1) {
+            var a = Array.prototype.slice.apply(arguments, 0);
+            return transform(this, a);
+        }
         return dots;
     }
 }
