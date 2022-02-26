@@ -585,7 +585,7 @@ var emiters = {
 emiters.v = emiters.ng = emiters.on;
 
 function getFromScopes(key, scope, parentScopes) {
-    if (key in scope) {
+    if (scope) if (key in scope) {
         return scope[key];
     }
     if (parentScopes) for (var cx = parentScopes.length - 1; cx >= 0; cx--) {
