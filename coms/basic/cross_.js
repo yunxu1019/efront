@@ -114,7 +114,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     else {
         var nocross = notCross(url);
         var callback = function () {
-            var exposeHeaders = xhr.getResponseHeader("access-control-expose-headers");
+            var exposeHeaders = !nocross && xhr.getResponseHeader("access-control-expose-headers");
             var exposeMap = {};
             if (exposeHeaders) exposeHeaders.split(",").forEach(h => exposeMap[h.toLowerCase()] = true);
             if (xhr.getResponseHeader) {
