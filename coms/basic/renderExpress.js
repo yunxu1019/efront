@@ -11,8 +11,8 @@ function createSeek(express) {
     return dist;
 }
 function main(express) {
-    if (!/\?\s*\.(?=[^\d])/.test(express)) return express;
-    var reg = /\\[\s\S]|\?\s*(\.(?!\d))|[\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\[\]\(\)'"`\s]/g;
+    if (!/\?\s*\.(?=[^\d])|\?$/.test(express)) return express;
+    var reg = /\\[\s\S]|\?\s*(\.(?!\d)|\s*$)|[\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\[\]\(\)'"`\s]/g;
     var cache = [], queue = [];
     var exp = [];
     var instr = false;
@@ -81,7 +81,7 @@ function main(express) {
             add_exp(str);
         }
         lastIndex = match.index + m.length;
-        if (match[1]) {
+        if (match[1] !== undefined) {
             exp.push(match[1]);
         }
         else if (/[\[\{\(]/.test(m)) {
