@@ -1,3 +1,4 @@
+var isEmpty = require("./isEmpty");
 var convertReg = /^(?:object|function)$/;
 var check = function (o) {
     return o === null || typeof o === 'bigint' || o instanceof BigInt || typeof o === 'number' || typeof o === "boolean";
@@ -24,16 +25,23 @@ var join = function (o) {
     if (o instanceof RegExp) return regexp(o);
     var arr = o[""];
     delete o[""];
+    var typeid = o._;
+    delete o._;
     var pairs = [].concat(arr);
     for (var k in o) {
         pairs.push(k + ':' + o[k]);
     }
+    var s;
     if (o instanceof Array) {
-        return `[${pairs.join(',')}]`;
+        s = `[${pairs.join(',')}]`;
     }
-    return `{${pairs.join(',')}}`;
-}
-function stringify(memery) {
+    else {
+        s = `{${pairs.join(',')}}`;
+    }
+    if (typeid > 0) s = typeid + s;
+    return s;
+};
+function stringify(memery, preload) {
     if (memery === undefined) return '';
     if (check(memery)) return String(memery);
     if (typeof memery === 'symbol') return symbol(memery);
@@ -48,15 +56,18 @@ function stringify(memery) {
     var rest = [memery];
     var trimed = [memery instanceof Array ? [] : {}];
     var objects = [trimed[0]];
+    if (!isEmpty(preload)) dist = dist.concat(preload);
     while (rest.length) {
         var memery = rest.shift();
         var o = objects.shift();
         var inc = 0, arr = [];
         o[""] = arr;
+        o._ = dist.indexOf(memery.constructor);
         for (var k in memery) {
             var m = memery[k];
             f: if (typeof m === 'function') {
                 for (var k in m) break f;
+                if (dist.indexOf(m) >= 0) break f;
                 continue;
             }
             if (inc === +k && k !== '') {
@@ -101,7 +112,9 @@ function stringify(memery) {
             }
         }
     }
-    return trimed.map(join).join(',');
+    var result = trimed.map(join).join(',');
+    if (trimed.length === 1) result += ',';
+    return result;
 }
 var create = function (a, dst) {
     if (!a) return;
@@ -117,9 +130,10 @@ var create = function (a, dst) {
     }
     dst[""] = rest;
 };
-function parse(string) {
+function parse(string, preload) {
     string = String(string);
     var trimed = [];
+    var reg0 = /\d+/g;
     var reg1 = /\}/g;
     var reg2 = /\]/g;
     var reg3 = /\\[\s\S]|"/g;
@@ -130,6 +144,18 @@ function parse(string) {
     for (var cx = 0, dx = string.length; cx < dx; cx++) {
         var s = string.charAt(cx);
         var reg = null, o = null;
+        reg0.lastIndex = 0;
+        var typeid = 0;
+        var m = reg0.test(string.charAt(cx));
+        if (m) {
+            reg0.lastIndex = cx;
+            var m = reg0.exec(string);
+            if (/^[\[\{]$/.test(string.charAt(reg0.lastIndex))) {
+                typeid = +m[0];
+                cx = reg0.lastIndex;
+                s = string.charAt(reg0.lastIndex);
+            }
+        }
         switch (s) {
             case ",":
                 trimed.push(undefined);
@@ -148,6 +174,15 @@ function parse(string) {
                 marked.push(trimed.length);
                 trimed.push(o);
                 cx = reg.lastIndex;
+                if (typeid) {
+                    o._ = typeid;
+                }
+                if (/\d/.test(string.charAt(cx))) {
+                    reg4.lastIndex = cx;
+                    var m = reg4.exec(string);
+                    o._ = typeid || string.slice(cx, m.index);
+                    cx = reg4.lastIndex;
+                }
                 break;
             case "/":
                 reg = reg5;
@@ -175,8 +210,6 @@ function parse(string) {
                     s = new RegExp(s, flag);
                 }
                 trimed.push(s);
-                break;
-            case "/":
                 break;
             default:
                 reg4.lastIndex = cx + 1;
@@ -213,15 +246,21 @@ function parse(string) {
                 trimed.push(s);
         }
     }
-    var dist = trimed.slice(0, trimed.length);
+    var dist = [trimed[0]];
+    if (!isEmpty(preload)) dist = dist.concat(preload);
+    var preloads_length = dist.length - 1;
+    dist = dist.concat(trimed.slice(1, trimed.length));
     for (var cx = 0, dx = marked.length; cx < dx; cx++) {
         var index = marked[cx];
         var o = trimed[index];
-        dist[index] = o instanceof Array ? [] : {};
+        if (index > 0) index += preloads_length;
+        if (o._ > 0) dist[index] = Object.create(dist[o._].prototype);
+        else dist[index] = o instanceof Array ? [] : {};
     }
     for (var cx = 0, dx = marked.length; cx < dx; cx++) {
         var index = marked[cx];
         var o = trimed[index];
+        if (index > 0) index += preloads_length;
         var t = dist[index];
         var arr = o[""];
         delete o[""];
@@ -237,10 +276,10 @@ function parse(string) {
 }
 module.exports = {
     stringify,
-    parse(data) {
-        if (!/^\s*([\[\{]|\[\s*\]|\{\s*\})/.test(data)) return parse(data);
-        if (/^\s*\{[\d\,\:\s]*\}\s*,/.test(data)) return parse(data);
-        if (/^\s*\[[\d\,\:\s]*\]\s*,/.test(data)) return parse(data);
-        return JSON.parse(data);
+    parse(data, preload) {
+        if (!/^\s*([\[\{]|\[\s*\]|\{\s*\})/.test(data)) return parse(data, preload);
+        if (/^\s*\{[\d\,\:\s]*\}\s*,/.test(data)) return parse(data, preload);
+        if (/^\s*\[[\d\,\:\s]*\]\s*,/.test(data)) return parse(data, preload);
+        return JSON.parse(data, preload);
     }
 };
