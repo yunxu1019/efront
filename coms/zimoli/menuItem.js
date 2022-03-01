@@ -19,5 +19,6 @@ function main(elem, scope, hasIcon) {
     }
     render(item.children, scope, hasIcon instanceof Array ? hasIcon : [{ useIcon: hasIcon, hasIcon, name, icon }]);
     if (scope.line) item.setAttribute("line", ''), on("click")(item, preventDefault);
+    if (scope.hotkey) bindAccesskey(item, scope.hotkey);
     return item;
 }

@@ -91,6 +91,28 @@ var getTreeNodes = function (elem) {
     return nodes;
 };
 
+function bindGlobalkey(elem, keymap, emit) {
+    if (elem.keymap) {
+        for (var off of elem.keyoff) {
+            off();
+        }
+    }
+    if (!keymap) return;
+    var keyoff = [];
+    var emitEvent = function (item, event) {
+        event.preventDefault();
+        var $scope = {};
+        var { itemName } = this.$src;
+        if (itemName) $scope[itemName] = item;
+        else $scope.menu = item, $scope.$item = item;
+        emit(item, { $scope });
+    }
+    for (let k in keymap) {
+        keyoff.push(bind("keydown." + k)(elem, emitEvent.bind(elem, keymap[k])));
+    }
+    elem.keyoff = keyoff;
+}
+
 function main(elem, mode) {
     if (isElement(elem)) {
         // var os = /Samsung|Firefox|Chrome|MSIE|Safari/i.exec(navigator.userAgent);
@@ -184,6 +206,7 @@ function main(elem, mode) {
                     var src0 = [];
                     menuList(elem, src0, emit, direction);
                     care(elem, function (src) {
+                        bindGlobalkey(elem, src.keymap, emit);
                         src0.splice(0, src0.length);
                         var s = getTreeFromData(src);
                         var i = 0;
@@ -208,6 +231,7 @@ function main(elem, mode) {
     }
     if (!elem.hasAttribute('mode')) elem.setAttribute('mode', mode);
     if (!elem.hasAttribute(mode)) elem.setAttribute(mode, '');
+
     return elem;
 
 }

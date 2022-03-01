@@ -3,6 +3,50 @@
     var menuid = 0;
     var savedChildren = Object.create(null);
     var savedMenus = Object.create(null);
+    var keymap = {};
+    var parseName = function (k) {
+        var icon, name, hotkey;
+        if (/(^|\s+)\./.test(k)) {
+            k = k.replace(/(?:^|\s+)\.([^\s,"'`]+)/, (_, m) => {
+                icon = m;
+                return '';
+            });
+        }
+        if (/(^|\s+)[\/\\]/.test(k)) {
+            k = k.replace(/(?:^|\s+)[\/\\]([\s\S]+)$/, (_, m) => {
+                hotkey = m;
+                return '';
+            });
+        }
+        if (/^(["'`])[\s\S]*\1/.test(k)) {
+            k = k.replace(/(['"`])[\s\S]\1/, (m) => {
+                name = strings.decode(m);
+                return '';
+            });
+        }
+        if (/,/.test(k)) {
+            var [k, ...roles] = k.split(',');
+        }
+        if (!icon && /\s+|\./.test(k)) {
+            [icon] = k.split(/\s+/);
+            k = k.slice(icon.length).trim();
+        }
+        if (!name) name = k;
+        var item = {};
+        if (icon) item.icon = icon.replace(/\./g, ' ');
+        if (name) item.name = name;
+        if (hotkey) {
+            hotkey = hotkey.split(',');
+            for (var k of hotkey) {
+                k = k.trim().toLowerCase().replace(/[\+\_\s]+/g, '.');
+                if (keymap[k]) console.warn("检查到两个项菜单使用了相同的快捷键", item, keymap[k]);
+                keymap[k] = item;
+            }
+            item.hotkey = hotkey;
+        }
+        if (roles) item.roles = roles;
+        return item;
+    }
     var getChildren = function (menu) {
         if (!menu.id) {
             menu.id = ++menuid;
@@ -52,29 +96,17 @@
 
             items = keys.map(k => {
                 var c = items[k];
-                var item = {};
+                var item = parseName(k);
                 if (c instanceof Object) {
                     item.children = parseMenuList(c);
                 }
                 else if (typeof c === 'string') {
                     var [path, data] = c.split(/\?/);
+                    if (data) data = data.trim();
                 }
-                var [icon] = k.split(/\s+/);
-                if (icon.length < k.length) {
-                    item.icon = icon;
-                    var name = k.slice(icon.length).trim();
-                } else name = k;
-                if (/,/.test(name)) {
-                    var [name, ...roles] = name.split(',');
-                }
-                if (/^\-+$/.test(name)) item.line = true;
-                else item.name = name;
-                if (roles) item.roles = roles;
+                if (/^\-+$/.test(item.name)) item.line = true;
                 if (path) item.path = path;
                 if (data) item.params = parseKV(data);
-                if (/,/.test(name)) {
-
-                }
                 item.closed = true;
                 return item;
             });
@@ -85,7 +117,7 @@
     result.update = function (items) {
         delete result.loading_promise;
         delete result.then;
-        items = parseMenuList(items);
+        items = result.parse(items);
         items.map(getChildren);
         var opened = data.getInstance("menu-opened");
         var historys = zimoli.getCurrentHistory();
@@ -198,7 +230,12 @@
         result.then = then;
         return result;
     };
-    result.parse = parseMenuList;
+    result.parse = function (items) {
+        keymap = {};
+        items = parseMenuList(items);
+        items.keymap = keymap;
+        return items;
+    };
     var then = function (ok, oh) {
         if (this.loading_promise) {
             return this.loading_promise.then(ok, oh);
