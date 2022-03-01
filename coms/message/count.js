@@ -12,7 +12,6 @@ var counts = load(data_file) || {};
 var countTimes = 0;
 process.on('exit', function () {
     if (!countTimes) return;
-    save(data_file, counts);
 });
 var autoSave = lazy(async function () {
     var c = countTimes;
