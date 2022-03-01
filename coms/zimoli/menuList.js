@@ -41,18 +41,17 @@ var moveFocus = function (delta) {
     else {
         var newIndex = focused.index + delta;
         var total = page.total;
-        if (page !== root_menu) {
-            total++;
-        }
         if (newIndex < 0) newIndex = total + newIndex;
         if (newIndex > total - 1) newIndex = newIndex - total;
     }
     do {
         var e = page.getIndexedElement(newIndex);
+        if (newIndex < 0) newIndex = total + newIndex;
         newIndex += delta;
     } while (e && (e.hasAttribute("disabled") || e.hasAttribute("line")));
     if (!e) page.setFocus(null);
-    else page.open(e);
+    else if (page.ispop !== true) page.setFocus(e), page.open(e);
+    else page.setFocus(e);
 };
 var openFocus = function () {
     var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
@@ -71,15 +70,20 @@ var keyAction = function (deltax, deltay) {
 
     if (menu.direction === 'y') {
         if (deltax === 1) {
-            if (menu.focused) openFocus();
+            // right
+            if (menu.focused) var fmenu = menu.focused.menu;
+            if (fmenu && fmenu.children && fmenu.children.length) {
+                openFocus();
+            }
             else if (parent && parent.direction !== 'y') {
                 parent.moveFocus(deltax);
             }
         }
         else if (deltax === -1) {
+            // left
             if (parent) {
                 if (parent.direction === 'y') remove(mounted_menus.pop());
-                else if (!menu.focused) parent.moveFocus(deltax);
+                else parent.moveFocus(deltax);
             }
         }
         else {
@@ -88,15 +92,18 @@ var keyAction = function (deltax, deltay) {
     }
     else {
         if (deltay === 1) {
-            if (menu.focused) openFocus();
+            // down
+            if (menu.focused) var fmenu = menu.focused.menu;
+            if (fmenu && fmenu.children && fmenu.children.length) openFocus();
             else if (parent && parent.direction === 'y') {
                 parent.moveFocus(deltay);
             }
         }
         else if (deltay === -1) {
+            // up
             if (parent) {
                 if (parent.direction !== 'y') remove(mounted_menus.pop());
-                else if (!menu.focused) parent.moveFocus(deltay);
+                else parent.moveFocus(deltay);
             }
         }
         else {
@@ -181,11 +188,8 @@ function main(page, items, active, direction = 'y') {
         page.actived = menu;
         menu.root = page.root || page;
         popup(menu, target);
+        menu.setFocus(menu.firstMenu);
         if (page.ispop === true) {
-            var offleave0 = on("mouseleave")(target, release);
-            var offleave1 = on("mouseleave")(menu, release);
-            var offenter0 = on("mouseenter")(target, clear);
-            var offenter1 = on("mouseenter")(menu, clear);
         } else {
             page.ispop = 1;
             page.tabIndex = 0;
@@ -194,10 +198,6 @@ function main(page, items, active, direction = 'y') {
         on("mousedown")(menu, e => e.preventDefault());
         once("remove")(menu, function () {
             removeFromList(mounted_menus, this);
-            if (offleave0) offleave0();
-            if (offleave1) offleave1();
-            if (offenter0) offenter0();
-            if (offenter1) offenter1();
         });
     }
     on("blur")(page, unfocus);
@@ -223,6 +223,7 @@ function main(page, items, active, direction = 'y') {
         }, time || 60);
     };
     var cancel = function () {
+        clear();
         clearTimeout(popTimer);
     }
     var fire = function () {
@@ -289,6 +290,7 @@ function main(page, items, active, direction = 'y') {
                 );
                 if (!page.firstMenu) {
                     page.firstMenu = a;
+                    page.total = items.length;
                 }
                 a.menu = s.menu;
                 return a;

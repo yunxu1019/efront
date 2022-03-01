@@ -100,7 +100,7 @@ function bindGlobalkey(elem, keymap, emit) {
     if (!keymap) return;
     var keyoff = [];
     var emitEvent = function (item, event) {
-        event.preventDefault();
+        event.preventDefault(true);
         var $scope = {};
         var { itemName } = this.$src;
         if (itemName) $scope[itemName] = item;
