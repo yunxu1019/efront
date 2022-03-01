@@ -1,5 +1,6 @@
 var readline = require("readline");
 var fs = require("fs");
+var path = require("path");
 var getIndexFromOrderedArray = require("../basic/getIndexFromOrderedArray");
 var userdata = require("./userdata");
 var logpath = userdata.getFullpath("similar.log");
@@ -22,6 +23,35 @@ var clear = function () {
     a = a.slice(0, a.length >> 1).sort(sortnumber);
     for (var cx = a.length - 1; cx >= 0; cx--)hosts.splice(a[cx], 1);
 };
+var init_promise = null
+var init = function (filepath) {
+    if (init_promise) return init_promise;
+    init_promise = new Promise(function (ok, oh) {
+        var folder = path.dirname(filepath);
+        if (fs.existsSync(folder)) return ok();
+        fs.mkdir(folder, { recursive: true }, function (error) {
+            if (error) return oh(error);
+            fs.readdir(userdata.getFullpath(""), { withFileTypes: true }, async function (error, names) {
+                if (error) return ok(error);
+                for (var n of names) {
+                    if (n.isFile()) {
+                        if (/^similar\s*\d/.test(n.name)) {
+                            await new Promise(function (ok) {
+                                fs.rename(
+                                    userdata.getFullpath(n.name),
+                                    path.join(folder, n.name.replace(/^similar\s*/, '')),
+                                    ok
+                                );
+                            });
+                        }
+                    }
+                }
+                ok();
+            })
+        });
+    });
+    return init_promise;
+};
 var save = async function (o, filepath = logpath) {
     if (hosts.length > 0xfff) clear();
     o.id = `${o.ip}:${o.port}`;
@@ -34,7 +64,8 @@ var save = async function (o, filepath = logpath) {
     }
     var data = await userdata.encode(`${o.ip} ${o.port} ${o.ppid} ${o.time}`);
     data = encodeURI(data);
-    var stream = require("fs").createWriteStream(filepath, { flags: "a" });
+    await init(filepath);
+    var stream = fs.createWriteStream(filepath, { flags: "a" });
     stream.write(data + "\r\n");
     stream.end();
 };
@@ -58,7 +89,7 @@ var load = function () {
         }
         else {
             var t = new Date(time);
-            var filename = `similar ${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()}.log`;
+            var filename = `similar/${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()}.log`;
             filename = userdata.getFullpath(filename);
             save({ ip, port, ppid, time }, filename);
         }
