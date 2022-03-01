@@ -14,6 +14,7 @@ var unfocus = function () {
     this.setFocus(null);
 };
 var setFocus = function (focused) {
+    if (focused && focused.hasAttribute("disabled")) return;
     var page = this;
     if (focused) {
         if (page.focused !== focused) {
@@ -46,8 +47,10 @@ var moveFocus = function (delta) {
         if (newIndex < 0) newIndex = total + newIndex;
         if (newIndex > total - 1) newIndex = newIndex - total;
     }
-
-    var e = page.getIndexedElement(newIndex);
+    do {
+        var e = page.getIndexedElement(newIndex);
+        newIndex += delta;
+    } while (e && (e.hasAttribute("disabled") || e.hasAttribute("line")));
     if (!e) page.setFocus(null);
     else page.open(e);
 };
@@ -226,6 +229,7 @@ function main(page, items, active, direction = 'y') {
         cancel();
         if (this.menu.line) return;
         if (byMousedown) return;
+        if (this.hasAttribute("disabled") || this.hasAttribute('line')) return;
         var pop = active(this.menu, this);
         if (pop === false) return;
         var root = page.root || page;

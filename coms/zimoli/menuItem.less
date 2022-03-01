@@ -1,15 +1,28 @@
-i{
+i {
     display: inline-block;
     width: 1em;
 }
+
+&[disabled] {
+    background: #0000;
+    &>.track {
+        opacity: 0;
+    }
+    border-radius: 0;
+    color: #999;
+}
+
 &.line,
 &[line] {
     box-shadow: none;
-    >.track{
+
+    >.track {
         display: none;
     }
+
     line-height: 0;
     font-size: 0;
+
     &:after {
         content: "";
         display: block;
