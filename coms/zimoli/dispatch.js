@@ -8,6 +8,23 @@ var dispatch = "dispatchEvent" in document ? function dispatchEvent(target, even
         return target[fire] && target[fire](event);
     }
 };
+function dispatch2(t, e) {
+    var on = 'on' + e.type;
+    var f = t[on];
+    if (f) {
+        var fired, res, res2;
+        t[on] = function (e) {
+            res = f.call(this, e);
+            fired = true;
+        };
+        res = dispatch(t, e);
+        if (t[on]) {
+            t[on] = f;
+            if (!fired) res = t[on].call(t, e);
+        }
+    }
+    return res !== false && res2 !== false;
+}
 function main() {
     var target, event, value;
     for (var cx = 0, dx = arguments.length; cx < dx; cx++) {
@@ -27,7 +44,7 @@ function main() {
             event.value = arg;
         }
     }
-    if (dispatch(target || window, event)) {
+    if (dispatch2(target || window, event)) {
         return event;
     };
     return false;
