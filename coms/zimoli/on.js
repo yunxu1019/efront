@@ -1,4 +1,5 @@
 "use strict";
+if (document.efronton) return document.efronton;
 var is_addEventListener_enabled = "addEventListener" in window;
 var handlersMap = {};
 var changes_key = 'changes';
@@ -190,180 +191,158 @@ function checkKeyNeed(eventtypes, e) {
     return true;
 }
 var pendingid = 0;
-function wrapHandler(h) {
+function pending(h, event) {
     if (h instanceof Function) {
-        return function () {
-            var res = h.apply(this, arguments);
-            if (res && isFunction(res.then)) {
-                var id = ++pendingid & 0x1fffffffffffff;
-                this.setAttribute('pending', id);
-                var removePending = () => {
-                    if (+this.getAttribute('pending') === id) this.removeAttribute('pending');
-                };
-                res.then(removePending, removePending);
-            }
-            return res;
+        var res = h.call(this, event);
+        if (res && isFunction(res.then) && this.setAttribute) {
+            var id = ++pendingid & 0x1fffffffffffff;
+            this.setAttribute('pending', id);
+            var removePending = () => {
+                if (+this.getAttribute('pending') === id) this.removeAttribute('pending');
+            };
+            res.then(removePending, removePending);
         }
+        return res;
     }
     return h;
 }
-if (is_addEventListener_enabled) {
-    var on = function (k) {
-        var on_event_path = "on" + k;
-        if (handlersMap[on_event_path]) return handlersMap[on_event_path];
-        var eventtypes = parseEventTypes(k);
-        k = k.replace(eventtypereg, '');
-        function addhandler(element, handler, firstmost) {
-            var target = this;
-            handler = wrapHandler(handler);
-            if (eventtypes.capture) firstmost = true;
-            if (target && element !== target) {
-                handler = handler.bind(element);
-                element = target;
-            }
-            if (k === changes_key) {
-                if (!element.needchanges) element.needchanges = 0;
-                element.needchanges++;
-            }
-            var h = function (e) {
-                if (eventtypes.self && e.target !== this) return;
-                if (!checkKeyNeed(eventtypes, e)) return;
-                if (eventtypes.stop) e.stopPropagation();
-                if (eventtypes.passive) e.preventDefault = function () { };
-                if (eventtypes.prevent) e.preventDefault();
-                if (handler instanceof Array) {
-                    handler.forEach(function (h) {
-                        h.call(this, e);
-                    }, this);
-                } else {
-                    handler.call(this, e);
-                }
-                if (eventtypes.once) remove();
-            };
-            var remove = function () {
+var remove = function (k, hk, [eventtypes, handler, context]) {
+    var element = this;
+    var hs = element[hk];
+    if (hs) {
+        for (var cx = hs.length - 1; cx >= 0; cx--) {
+            var [e, h, c] = hs[cx];
+            if (h === handler && e === eventtypes && c === context) {
+                hs.splice(cx, 1);
                 if (k === changes_key) element.needchanges--;
-                element.removeEventListener(k, h, firstmost);
-            };
-            element.addEventListener(k, h, firstmost);
-            return remove;
+            }
         }
-        return handlersMap[on_event_path] = addhandler;
-    };
-} else {
-    var on = function on(k) {
-        var handler_path = k + "handlers";
-        var on_event_path = "on" + k;
-
-        var eventtypes = parseEventTypes(k);
-        k = k.replace(eventtypereg, '');
-
-        if (handlersMap[on_event_path]) return handlersMap[on_event_path];
-        function addhandler(element, handler, firstmost = false) {
-            var target = this;
-            handler = wrapHandler(handler);
-            if (eventtypes.capture) {
-                console.warn("当前运行环境不支持事件capture");
-                firstmost = true;
-            }
-            if (target && element !== target) {
-                handler = handler.bind(element);
-                element = target;
-            }
-            if (k === changes_key) {
-                if (!element.needchanges) element.needchanges = 0;
-                element.needchanges++;
-            }
-            // 仅在hack事件中使用firstmost参数
-            if (!(on_event_path in element)) {
-                if (element === window && on_event_path in document) {
-                    element = document;
-                    if (!addhandler.logged) addhandler.logged = true, console.warn("use", on_event_path, "on document instead of on window");
-                }
-            }
-            if (element[handler_path] instanceof Array) {
-                if (~element[handler_path].indexOf(handler)) return;
-                if (firstmost) element[handler_path].unshift(handler);
-                else element[handler_path].push(handler);
+        if (!hs.length && hs.h) {
+            element[hk] = null;
+            if (is_addEventListener_enabled) {
+                element.removeEventListener(k, hs.h, /1$/.test(hk));
             } else {
-                element[handler_path] = element[on_event_path] && element[on_event_path] !== handler ? [element[on_event_path], handler] : [handler];
-                element[on_event_path] = function (e) {
-                    if (!e) e = window.event || {};
-                    if (!e.target && e.srcElement) {
-                        e.target = e.srcElement;
-                    }
-                    if (eventtypes.self && e.target !== this) return;
-                    if (!checkKeyNeed(eventtypes, e)) return;
-                    if (e.stopedPropagation) return;
-                    if (!e.stopPropagation) {
-                        e.stopPropagation = function () {
-                            this.stopedPropagation = true;
-                        };
-                    }
-                    if (eventtypes.stop) {
-                        e.stopPropagation();
-                    }
-                    if (!e.preventDefault) {
-                        e.preventDefault = function () {
-                            e.returnValue = false;
-                        };
-                    }
-                    if (e.button) {
-                        if (e.buttons === undefined) e.buttons = e.button;
-                        if (e.which === undefined) e.which = e.button + 1;
-                    }
-                    if (e.keyCode) {
-                        if (e.which === undefined) e.which = e.keyCode;
-                    }
-                    if (eventtypes.passive) {
-                        e.preventDefault = function () { };
-                    }
-                    if (eventtypes.prevent) {
-                        e.preventDefault();
-                    }
-
-                    broadcast(element[handler_path], e);
-                    if (eventtypes.once) {
-                        remove();
-                    }
-                };
-                var broadcast = function (handlers, e) {
-                    for (var cx = 0, dx = handlers.length; cx < dx; cx++) {
-                        var _handler = handlers[handlers.length + cx - dx];
-                        if (_handler instanceof Function) {
-                            _handler.call(element, e);
-                        } else if (_handler instanceof Array) {
-                            broadcast(_handler, e);
-                        }
-                    }
-                };
+                if (element["on" + k] === hs.h) element["on" + k] = null;
             }
-            var remove = function () {
-                if (k === changes_key) element.needchanges--;
-                var handlers = element[handler_path];
-                for (var cx = handlers.length - 1; cx >= 0; cx--) {
-                    if (handlers[cx] === handler) {
-                        handlers.splice(cx, 1);
-                    }
-                }
-                if (!handlers.length) {
-                    element[handler_path] = null;
-                    element[on_event_path] = null;
-                }
-            };
-            return remove;
         }
-        return handlersMap[on_event_path] = addhandler;
-    };
-    if (!("onmousedown" in window)) on("mousedown")(document, function () {
-        var cancelup = on("mouseup")(document, function () {
-            cancelmove();
-            cancelup();
-        }, true);
-        var cancelmove = on("mousemove")(document, function (event) {
-            if (!event.which) dispatch("mouseup", document)/* ,console.warn("dispatch mouseup nanually.")*/;
-        }, true);
-    });
+    }
+};
+var broadcast = function (k, hk, event) {
+    var element = this;
+    var handlers = element[hk];
+    if (handlers.length > 1) handlers = handlers.slice();
+    for (var [eventtypes, handler, context] of handlers) {
+        if (eventtypes.self && event.target !== element) continue;
+        if (!checkKeyNeed(eventtypes, event)) continue;
+        if (eventtypes.stop) event.stopPropagation();
+        if (eventtypes.passive) event.preventDefault = function () { };
+        if (eventtypes.prevent) event.preventDefault();
+        if (handler instanceof Array) {
+            for (var h of handler) {
+                h.call(context, event);
+            }
+        } else {
+            pending.call(context, handler, event);
+        }
+        if (eventtypes.once) remove.call(element, k, hk, eventtypes, handler);
+    }
+};
+
+var checkroot = function (element, k) {
+    k = "on" + k;
+    if (!(k in element)) {
+        if (element === window && k in document) {
+            element = document;
+            if (!checkroot[k]) checkroot[k] = true, console.warn("use ", k, "on document instead of on window");
+        }
+    }
+    return element;
 }
+
+var append = function (k, hk, listener2, firstmost) {
+    var [eventtypes, handler, context] = listener2;
+    var element = this;
+    var handlers = element[hk];
+    for (var [h, e, c] of handlers) {
+        if (h === handler && eventtypes === e && c === context) return;
+    }
+    if (k === changes_key) {
+        if (!element.needchanges) element.needchanges = 0;
+        element.needchanges++;
+    }
+    if (firstmost) handlers.unshift(listener2);
+    else handlers.push(listener2);
+};
+
+var on = document.efronton = function (k) {
+    var on_event_path = "on" + k;
+    if (handlersMap[on_event_path]) return handlersMap[on_event_path];
+    var eventtypes = parseEventTypes(k);
+    k = k.replace(eventtypereg, '');
+    var handler_path = k + "handlers";
+    var hk = handler_path + +!!eventtypes.capture;
+    if (is_addEventListener_enabled) var addhandler = function (context, handler, firstmost = false) {
+        var target = this || context;
+        target = checkroot(target, k);
+        if (target[hk] instanceof Array) {
+        } else {
+            var h = broadcast.bind(target, k, hk);
+            target[hk] = [];
+            target[hk].h = h;
+            target.addEventListener(k, h, eventtypes.capture);
+        }
+        var listener = [eventtypes, handler, context];
+        append.call(target, k, hk, listener, firstmost);
+        return remove.bind(target, k, hk, listener);
+    };
+
+    else var addhandler = function (context, handler, firstmost = false) {
+        var target = this || context;
+        if (eventtypes.capture) {
+            console.warn("当前运行环境不支持事件capture");
+            firstmost = true;
+        }
+        target = checkroot(target, k);
+        if (target[handler_path] instanceof Array) {
+        } else {
+            var h = function (e) {
+                if (!e) e = window.event || {};
+                if (!e.target && e.srcElement) {
+                    e.target = e.srcElement;
+                }
+                if (e.stopedPropagation) return;
+                if (!e.stopPropagation) {
+                    e.stopPropagation = function () {
+                        this.stopedPropagation = true;
+                    };
+                }
+                if (!e.preventDefault) {
+                    e.preventDefault = function () {
+                        e.returnValue = false;
+                        e.defaultPrevented = true;
+                    };
+                }
+                if (e.button) {
+                    if (e.buttons === undefined) e.buttons = e.button;
+                    if (e.which === undefined) e.which = e.button + 1;
+                }
+                if (e.keyCode) {
+                    if (e.which === undefined) e.which = e.keyCode;
+                }
+                broadcast.call(target, k, handler_path, e);
+                return e.returnValue;
+            };
+            target[handler_path] = target["on" + k] && target["on" + k] !== handler ? [[{}, target["on" + k]]] : [];
+            target[handler_path].h = h;
+            target["on" + k] = h;
+        }
+        var listener = [eventtypes, handler, context];
+        append.call(target, k, handler_path, listener, firstmost);
+        return remove.bind(target, k, handler_path, listener);
+    };
+    handlersMap[on_event_path] = addhandler;
+    return addhandler;
+};
 var invoke = function (event, type, pointerType) {
     var target = event.target;
     var touch = event.changedTouches ? event.changedTouches[0] : event;
@@ -376,7 +355,7 @@ var invoke = function (event, type, pointerType) {
 
 (function () {
     var pointeractive = null;
-    if ("onpointerdown" in window) return;
+    if ("onpointerdown" in window || document.efronton) return;
     var getPointerType = function (event) {
         return event.type.replace(/(start|move|end|cancel|down|up|leave|out|over|enter)$/i, '');
     };
@@ -407,8 +386,6 @@ var invoke = function (event, type, pointerType) {
 (function () {
     // fastclick
     if (window.fastclick) return;
-    if (document.efronton) return on = document.efronton;
-    document.efronton = on;
     var onclick = on("click");
     var onmousedown = on("mousedown");
     var onmousemove = on("mousemove");
