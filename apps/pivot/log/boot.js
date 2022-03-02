@@ -11,9 +11,9 @@ var fields = refilm`
                 appendChild(e, l);
             };
             if (e.data.address) setAddress(e.data.address);
-            else data.from("iplocation", { ip: m[0] }, function (a) {
-                e.data.address = a.address;
+            else e.data.address = data.from("iplocation", { ip: m[0] }, function (a) {
                 setAddress(a.address);
+                return a.address;
             });
         }
         return e;
@@ -24,8 +24,11 @@ var fields = refilm`
 端口/port ${async function (e) {
         var { data, field } = e;
         var ports = data[field.key].split(/,/);
-        var loaded = [];
-        for (var p of ports) {
+        var loaded = data.loaded || ports;
+        data.loaded = loaded;
+        e.innerHTML = loaded.join(' ');
+        if (data.loaded === ports) for (let cx = 0, dx = ports.length; cx < dx; cx++) {
+            var p = ports[cx];
             var p0 = p;
             var protocol = /^https/.test(p) ? "https://" : "http://";
             p = p.replace(/[^\d]+/g, '');
@@ -40,18 +43,18 @@ var fields = refilm`
                 }
                 var xhr = await cross("options", `${protocol}${ip}${p}/:version`);
                 if (xhr.responseText === 'efront ' + data.version) {
-                    loaded.push(`<span style="color:green">${p0}</span>`);
+                    loaded[cx] = (`<span style="color:green">${p0}</span>`);
                 } else {
-                    loaded.push(`<span style="color:red">${p0}</span>`);
+                    loaded[cx] = (`<span style="color:red">${p0}</span>`);
                 }
             } catch (e) {
-                loaded.push(`<span style="color:gray">${p0}</span>`);
+                loaded[cx] = (`<span style="color:gray">${p0}</span>`);
             }
-            e.innerHTML = loaded.join('');
+            e.innerHTML = loaded.join(' ');
         }
     }}
-版本 / version text
-进程 / pid
+版本/version input
+进程/pid
     `;
 function main() {
     var page = div();
