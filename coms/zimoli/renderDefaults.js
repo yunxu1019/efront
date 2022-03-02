@@ -8,6 +8,7 @@ extend(renderDefaults, {
     go: zimoli.go,
     care,
     cast,
+    container,
     input,
     padding,
     block,
