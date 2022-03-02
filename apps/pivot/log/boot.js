@@ -1,3 +1,4 @@
+cross.addDirect(/^https?\:\/\/([[a-z\.\d\:\/%]+\]|[\d\.]+)(\:\d+)?\//);
 var fields = refilm`
 地址/ip
 地理位置/ip ${function (e) {
@@ -20,9 +21,37 @@ var fields = refilm`
 启动时间/time ${function (e) {
         e.innerHTML = filterTime(e.data[e.field.key]);
     }}
-端口/port input
-版本/version
-进程/pid
+端口/port ${async function (e) {
+        var { data, field } = e;
+        var ports = data[field.key].split(/,/);
+        var loaded = [];
+        for (var p of ports) {
+            var p0 = p;
+            var protocol = /^https/.test(p) ? "https://" : "http://";
+            p = p.replace(/[^\d]+/g, '');
+            if (p) p = ":" + p;
+            try {
+                var ip = data.ip;
+                if (/^::ffff:\d+\.\d+\.\d+\.\d+$/i.test(ip)) {
+                    ip = ip.slice(7);
+                }
+                else {
+                    ip = `[${ip}]`;
+                }
+                var xhr = await cross("options", `${protocol}${ip}${p}/:version`);
+                if (xhr.responseText === 'efront ' + data.version) {
+                    loaded.push(`<span style="color:green">${p0}</span>`);
+                } else {
+                    loaded.push(`<span style="color:red">${p0}</span>`);
+                }
+            } catch (e) {
+                loaded.push(`<span style="color:gray">${p0}</span>`);
+            }
+            e.innerHTML = loaded.join('');
+        }
+    }}
+版本 / version text
+进程 / pid
     `;
 function main() {
     var page = div();
