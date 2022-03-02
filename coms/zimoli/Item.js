@@ -1,32 +1,39 @@
 var id = 0;
 function Item(value) {
-    this.value = isObject(value) ? value : Object.create(value);
-    this.valueOf = function () {
-        return value;
-    };
-    this.toString = function () {
-        return String(value);
-    };
     this.children = this;
-    if (value.children instanceof Array) {
-        var children = value.children.map(item => new Item(item));
-        children.forEach(item => item.parent = item);
-        this.push.apply(this, children);
-    }
-    if (isObject(value)) {
-        this.name = value.name;
-        this.tab = value.tab;
-        this.icon = value.icon;
-        this.color = value.color;
-        this.test = value.test;
-        this.line = value.line;
-    }
     this.count = 0;//子项中的叶子节点数
     this.total = 0;//子项中的节点数
     this.crack = 0;
     this.id = ++id;
+    this.extends(value);
 }
 Item.prototype = extend([], {
+    extends(value) {
+        this.value = value;
+        if (value.children instanceof Array) {
+            var children = value.children.map(item => new Item(item));
+            children.forEach(item => item.parent = item);
+            this.push.apply(this, children);
+        }
+        if (isObject(value)) {
+            this.name = value.name;
+            this.tab = value.tab;
+            this.icon = value.icon;
+            this.color = value.color;
+            this.test = value.test;
+            this.line = value.line;
+        }
+        else {
+            this.name = value;
+        }
+    },
+
+    valueOf() {
+        return this.value;
+    },
+    toString() {
+        return String(this.value);
+    },
     isClosed() {
         return !!this.value.closed;
     },
@@ -34,14 +41,21 @@ Item.prototype = extend([], {
         this.value.closed = value;
     },
     isActive() {
-        return !!(this.value.active || this.value.actived);
+        if (isObject(this.value)) {
+            if ("active" in this.value) return this.value.active;
+            if ('actived' in this.value) return this.value.actived;
+        }
+        return !!this.actived;
     },
     setActive(value) {
-        if ('active' in this.value) {
-            this.value.active = value;
-        } else {
-            this.value.actived = value;
+        if (isObject(this.value)) {
+            if ('active' in this.value) {
+                this.value.active = value;
+            } else {
+                this.value.actived = value;
+            }
         }
+        this.actived = value;
     },
     isSelected() {
         return !!this.value.selected;
@@ -53,3 +67,4 @@ Item.prototype = extend([], {
         return !!this.value.class;
     }
 });
+Item.prototype.isActived = Item.prototype.isActive;

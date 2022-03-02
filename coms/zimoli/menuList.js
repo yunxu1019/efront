@@ -188,7 +188,6 @@ function main(page, items, active, direction = 'y') {
         page.actived = menu;
         menu.root = page.root || page;
         popup(menu, target);
-        menu.setFocus(menu.firstMenu);
         if (page.ispop === true) {
         } else {
             page.ispop = 1;
@@ -231,21 +230,22 @@ function main(page, items, active, direction = 'y') {
         if (this.menu.line) return;
         if (byMousedown) return;
         if (this.hasAttribute("disabled") || this.hasAttribute('line')) return;
-        var pop = active(this.menu, this);
+        var pop = active(this.menu.value, this);
         if (pop === false) return;
         var root = page.root || page;
         if (root.direction === 't') {
             var menu = this.menu;
+            if (root.selected) root.selected.setActive(false);
             if (root !== page) {
-                delete menu.children;
                 var target = root.actived.target;
-                menu = extend(target.menu, menu);
+                if (isObject(menu.value)) delete menu.value.children;
+                target.menu.extends(menu.value);
+                menu = target.menu;
             }
             else {
                 target = this;
             }
-            if (root.selected) root.selected.selected = false;
-            menu.selected = true;
+            menu.setActive(true);
             root.selected = target.menu;
         }
         if (root.ispop === 1) root.ispop = false;
@@ -307,14 +307,13 @@ function main(page, items, active, direction = 'y') {
             var itemName = src.itemName;
             var className = `{'has-children':${itemName}.children&&${itemName}.children.length,
             'warn':${itemName}.type==='danger'||${itemName}.type==='warn'||${itemName}.type==='red',
-            'selected':${itemName}.selected
+            actived:${itemName}.isActived()
         }`;
             var notHidden = `!${itemName}.hidden`;
             var generator = getGenerator(page, 'menu-item');
             list(page, function (index) {
                 var item = items[index];
                 if (!item) return;
-                if (item instanceof Item) item = item.value;
                 var a = $scope["menu-item"](null, item);
                 if (src.itemName) a.setAttribute("e-if", notHidden);
                 a.setAttribute("e-class", className);

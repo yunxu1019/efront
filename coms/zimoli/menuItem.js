@@ -4,7 +4,7 @@ function main(elem, scope, hasIcon) {
     item.innerHTML = menuItem;
     if (isObject(scope) && scope !== item.$scope) {
     }
-    else {
+    else if (item.$scope) {
         var scope = item.$scope;
     }
     if (scope.menu) scope = scope.menu;
