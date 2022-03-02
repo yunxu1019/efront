@@ -42,6 +42,11 @@ var join = function (o) {
     return s;
 };
 function stringify(memery, preload) {
+    if (!isEmpty(preload)) {
+        preload = [].concat(preload);
+        var i = preload.indexOf(memery) + 1;
+        if (i > 0) return i + ',';
+    }
     if (memery === undefined) return '';
     if (check(memery)) return String(memery);
     if (typeof memery === 'symbol') return symbol(memery);
@@ -57,17 +62,22 @@ function stringify(memery, preload) {
     var trimed = [memery instanceof Array ? [] : {}];
     var objects = [trimed[0]];
     if (!isEmpty(preload)) dist = dist.concat(preload);
+    var preload_used = false;
     while (rest.length) {
         var memery = rest.shift();
         var o = objects.shift();
         var inc = 0, arr = [];
         o[""] = arr;
         o._ = dist.indexOf(memery.constructor);
+        if (o._ > 0) preload_used = true;
         for (var k in memery) {
             var m = memery[k];
             f: if (typeof m === 'function') {
                 for (var k in m) break f;
-                if (dist.indexOf(m) >= 0) break f;
+                if (dist.indexOf(m) >= 0) {
+                    preload_used = true;
+                    break f;
+                }
                 continue;
             }
             if (inc === +k && k !== '') {
@@ -113,7 +123,7 @@ function stringify(memery, preload) {
         }
     }
     var result = trimed.map(join).join(',');
-    if (trimed.length === 1) result += ',';
+    if (trimed.length === 1 && preload_used) result += ',';
     return result;
 }
 var create = function (a, dst) {
@@ -181,7 +191,7 @@ function parse(string, preload) {
                     reg4.lastIndex = cx;
                     var m = reg4.exec(string);
                     o._ = typeid || string.slice(cx, m.index);
-                    cx = reg4.lastIndex;
+                    cx = m.index;
                 }
                 break;
             case "/":
@@ -212,12 +222,10 @@ function parse(string, preload) {
                 trimed.push(s);
                 break;
             default:
-                reg4.lastIndex = cx + 1;
+                reg4.lastIndex = cx;
                 var match = reg4.exec(string);
                 var index = match.index;
-
                 var s = string.slice(cx, index);
-                cx = index;
                 switch (s) {
                     case "null":
                         s = null;
@@ -244,8 +252,10 @@ function parse(string, preload) {
 
                 }
                 trimed.push(s);
+                cx = index;
         }
     }
+    if (string.charAt(string.length - 1) === ',') trimed.push(undefined);
     var dist = [trimed[0]];
     if (!isEmpty(preload)) dist = dist.concat(preload);
     var preloads_length = dist.length - 1;
@@ -264,7 +274,8 @@ function parse(string, preload) {
         var t = dist[index];
         var arr = o[""];
         delete o[""];
-        for (var k in arr) {
+        delete o._;
+        if (arr) for (var k in arr) {
             t[k] = dist[arr[k]];
         }
         for (var k in o) {
@@ -272,12 +283,15 @@ function parse(string, preload) {
             t[dist[k]] = dist[v];
         }
     }
+    if (trimed.length > 1 && typeof trimed[0] === 'number') {
+        return dist[trimed[0]];
+    }
     return dist[0];
 }
 module.exports = {
     stringify,
     parse(data, preload) {
-        if (!/^\s*([\[\{]|\[\s*\]|\{\s*\})/.test(data)) return parse(data, preload);
+        if (!/^\s*([\[\{]|\[\s*\]|\{\s*\})$/.test(data)) return parse(data, preload);
         if (/^\s*\{[\d\,\:\s]*\}\s*,/.test(data)) return parse(data, preload);
         if (/^\s*\[[\d\,\:\s]*\]\s*,/.test(data)) return parse(data, preload);
         return JSON.parse(data, preload);
