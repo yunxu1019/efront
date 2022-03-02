@@ -166,18 +166,19 @@ function register() {
 }
 function main(page, items, active, direction = 'y') {
     if (!isNode(page)) {
-        var page = div();
+        var page = document.createElement("menu-list");
     }
     var main = this;
     if (direction == 'y') page.ispop = true;
     var istoolbar = direction === 't';
-    function popMenu(item, target) {
+    function popMenu(item, target, emptyFocus) {
         if (page.actived) {
             clear();
             remove(page.actived);
         }
+        if (emptyFocus !== false) page.setFocus(target);
+        if (!item.length) return;
         page.setFocus(target);
-        if (!item.children || !item.children.length) return;
         var clone = template.cloneNode();
         clone.$parentScopes = page.$parentScopes;
         clone.$scope = page.$scope;
@@ -230,10 +231,10 @@ function main(page, items, active, direction = 'y') {
         if (this.menu.line) return;
         if (byMousedown) return;
         if (this.hasAttribute("disabled") || this.hasAttribute('line')) return;
-        var pop = active(this.menu.value, this);
+        var pop = active(this.menu, this);
         if (pop === false) return;
         var root = page.root || page;
-        if (root.direction === 't') {
+        if (root.direction === 't' || root.selected) {
             var menu = this.menu;
             if (root.selected) root.selected.setActive(false);
             if (root !== page) {
@@ -253,7 +254,7 @@ function main(page, items, active, direction = 'y') {
             while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page.actived) remove(mounted_menus.pop());
             if (!mounted_menus.length) {
                 if (byMousedown === false) return;
-                popMenu(this.menu, this);
+                popMenu(this.menu, this, false);
             }
             else {
                 remove(mounted_menus.pop());
@@ -262,7 +263,7 @@ function main(page, items, active, direction = 'y') {
         else {
             while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page) remove(mounted_menus.pop());
             if (byMousedown === false) return;
-            popMenu(this.menu, this);
+            popMenu(this.menu, this, false);
             if (!page.actived) {
                 (page.root || page).blur();
             }
@@ -286,7 +287,7 @@ function main(page, items, active, direction = 'y') {
         var $scope = {
             "menu-item"(e, s) {
                 var a = button(
-                    menuItem(e, s, this.hasIcon)
+                    menuItem(e, s.value, this.hasIcon)
                 );
                 if (!page.firstMenu) {
                     page.firstMenu = a;

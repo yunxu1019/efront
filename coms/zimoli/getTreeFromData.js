@@ -5,8 +5,10 @@ function getTreeFromData(array) {
     root.count = 0;
     var map = {};
     array = array.filter(a => !!a);
+    var active_item = null;
     array.forEach(function (data) {
         var item = new Item(data);
+        if (!active_item && item.isActived()) active_item = item;
         if (data.id) {
             map[data.id] = item;
         } else {
@@ -46,5 +48,6 @@ function getTreeFromData(array) {
         return item.count = count;
     };
     run(root);
+    root.actived = active_item;
     return root;
 }

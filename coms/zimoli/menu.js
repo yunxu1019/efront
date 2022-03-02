@@ -90,7 +90,18 @@ var getTreeNodes = function (elem) {
     [].forEach.call(elem.children, run);
     return nodes;
 };
-
+function createItemTarget(item) {
+    var $scope = {};
+    var { itemName } = this.$src;
+    if (itemName) $scope[itemName] = item;
+    else $scope.menu = item, $scope.$item = item;
+    return { $scope };
+}
+var emitEvent = function (item, event) {
+    event.preventDefault(true);
+    if (item.disabled) return;
+    active(this, item, item, createItemTarget.call(this, item));
+}
 function bindGlobalkey(elem, keymap, emit) {
     if (elem.keymap) {
         for (var off of elem.keyoff) {
@@ -99,14 +110,6 @@ function bindGlobalkey(elem, keymap, emit) {
     }
     if (!keymap) return;
     var keyoff = [];
-    var emitEvent = function (item, event) {
-        event.preventDefault(true);
-        var $scope = {};
-        var { itemName } = this.$src;
-        if (itemName) $scope[itemName] = item;
-        else $scope.menu = item, $scope.$item = item;
-        emit(item, { $scope });
-    }
     for (let k in keymap) {
         keyoff.push(bind("keydown." + k)(elem, emitEvent.bind(elem, keymap[k])));
     }
@@ -198,8 +201,8 @@ function main(elem, mode) {
             case "y":
             case "vertical":
                 if (!direction) mode = "vertical", direction = 'y';
-                var emit = function (item, target) {
-                    active(elem, item.value, item, target);
+                var emit = function (item) {
+                    active(elem, item.value, item, createItemTarget.call(elem, item.value));
                 };
                 if ("$src" in elem) {
                     getGenerator(elem, 'menu-item');
@@ -209,6 +212,13 @@ function main(elem, mode) {
                         bindGlobalkey(elem, src.keymap, emit);
                         src0.splice(0, src0.length);
                         var s = getTreeFromData(src);
+                        if (s.actived) {
+                            elem.selected = s.actived;
+                        }
+                        else if (direction === 't') {
+                            elem.selected = s[0];
+                            if (elem.selected) elem.selected.setActive(true);
+                        }
                         var i = 0;
                         while (i < s.length) {
                             src0.push.apply(src0, s.slice(i, i += 1000));
