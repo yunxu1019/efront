@@ -571,10 +571,8 @@ var privates = {
                     headers = seekFromSource(headers, api.base);
                 }
                 cross(realmethod, uri, headers).send(params).done(e => {
-                    updateLoadingCount();
                     ok(e.response || e.responseText);
                 }).error(xhr => {
-                    updateLoadingCount();
                     try {
                         var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
                         oh({ status: xhr.status, api, params: params1, error: e, toString: getErrorMessage })
@@ -582,7 +580,6 @@ var privates = {
                         oh(error);
                     }
                 });
-                updateLoadingCount();
             });
             promise.search = search;
             promise.params = temp;
@@ -652,6 +649,7 @@ var getData = function () { return this.data };
 var updateLoadingCount = function () {
     data.loading_count = cross.requests.length;
 };
+on('render')(window, updateLoadingCount, true);
 var data = {
     decodeStructure,
     encodeStructure,
@@ -883,12 +881,10 @@ var data = {
                     headers = seekFromSource(headers, api.base);
                 }
                 instance.loading = cross(method, uri, headers).send(params).done(xhr => {
-                    updateLoadingCount();
                     if (instance.loading !== xhr) return oh(aborted);
                     instance.loading = null;
                     ok(xhr.responseText || xhr.response);
                 }).error(xhr => {
-                    updateLoadingCount();
                     if (instance.loading !== xhr) return oh(aborted);
                     instance.loading = null;
                     try {
@@ -898,7 +894,6 @@ var data = {
                         oh(error);
                     }
                 });
-                updateLoadingCount();
             }).then(function (response) {
                 return transpile(seekResponse(parseData(response), selector), api.transpile, api.root);
             });
