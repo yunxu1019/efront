@@ -145,7 +145,7 @@ function go(pagepath, args, history_name, oldpagepath) {
             history_name.activate = pagepath;
             history_name.activateNode = _page;
         }
-        if (isString(pagepath)) {
+        else if (isString(pagepath)) {
             if (fullfill_is_dispatched > 0) return;
             fullfill_is_dispatched = 1;
             var event = createEvent("zimoli");
