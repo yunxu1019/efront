@@ -253,7 +253,7 @@ var checkroot = function (element, k) {
     if (!(k in element)) {
         if (element === window && k in document) {
             element = document;
-            if (!checkroot[k]) checkroot[k] = true, console.warn("use ", k, "on document instead of on window");
+            if (!checkroot[k]) checkroot[k] = true, console.warn("使用 document 的", k, "替代 window 的");
         }
     }
     return element;
