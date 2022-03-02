@@ -3,12 +3,14 @@ function mousemove(event) {
     moveListeners.forEach(a => a(event));
 }
 function addHookListener(on, hook, isroot) {
-    var index = moveListeners.indexOf(hook);
-    if (~index) {
-        moveListeners.splice(index, 1);
-    }
     if (!moveListeners.length) {
         offhook = on(window, mousemove);
+    }
+    else {
+        var index = moveListeners.indexOf(hook);
+        if (~index) {
+            moveListeners.splice(index, 1);
+        }
     }
     if (isroot) {
         moveListeners.unshift(hook);
