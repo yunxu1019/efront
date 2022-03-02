@@ -230,7 +230,7 @@ var killCircle = function () {
 var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (name, then, prebuilds = {}) {
     if (/^(?:module|exports|define|require|window|global|undefined|__dirname|__filename)$/.test(name)) return then();
-    if ((name in prebuilds) || hasOwnProperty.call(modules, name) || (window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
+    if ((name in prebuilds) || hasOwnProperty.call(modules, name) || (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
     ) return then();
     preLoad(name);
     var key = keyprefix + name;
@@ -545,7 +545,7 @@ var init = function (name, then, prebuilds) {
         if (then) then(modules[name]);
         return modules[name];
     }
-    if (window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name)) {
+    if (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name)) {
         modules[name] = window[name]
         if (then) then(modules[name]);
         return modules[name];
