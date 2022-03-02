@@ -2,7 +2,7 @@ var scrollbary = function () {
     var reshape = function (scrollHeight, offsetHeight) {
         var target = this.target;
         if (target) {
-            this.style.height = target.offsetHeight + "px";
+            css(this, { height: target.offsetHeight });
         }
         var scrollbarHeight = this.offsetHeight;
         var ratio = offsetHeight / scrollHeight;
@@ -10,11 +10,14 @@ var scrollbary = function () {
         if (thumbHeight < 14) thumbHeight = 14;
         if (thumbHeight < 0) thumbHeight = 0;
         this.restHeight = scrollHeight - offsetHeight;
-        this.thumb.style.height = thumbHeight + "px";
+        css(this.thumb, {
+            height: thumbHeight
+        });
         if (thumbHeight >= this.clientHeight) {
             this.style.opacity = 0;
         } else {
             this.style.opacity = 1;
+            this.autoshow();
         }
     };
     var getTop = function () {
@@ -59,7 +62,7 @@ var scrollbary = function () {
         deltaY = targetY - thumbTop;
         moving.y += deltaY;
         if (targetY !== thumbTop) {
-            thumb.style.top = targetY + "px";
+            css(thumb, { top: targetY });
             dispatch(target, "change");
         }
     };
@@ -138,7 +141,7 @@ var scrollbary = function () {
         return { Height, height };
     };
 
-    function bindTarget(_container) {
+    function bindTarget(_container, followResize = _container) {
         var _scrollbar = this;
         _container.with = _scrollbar;
         onappend(_container, _scrollbar.reshape);
@@ -146,24 +149,33 @@ var scrollbary = function () {
         on("scroll")(_container, function () {
             var top = getTargetTop(_container);
             _scrollbar.scrollTo(top);
+            _scrollbar.autoshow();
         });
         on("change")(_scrollbar, function () {
             var top = _scrollbar.Top();
             setTargetTop(_container, top);
         });
-        _scrollbar.reshape();
+        if (followResize) on("resize")(followResize, _scrollbar.reshape);
     }
-    function scrollbar() {
-        var _scrollbar = div();
+    function scrollbar(elem) {
+        var _scrollbar = elem || document.createElement("scrollbar");
         _scrollbar.reshape = function () {
             var _container = _scrollbar.target;
             var { Height, height } = getTargetHeight(_container);
             reshape.call(_scrollbar, Height, height);
         };
         _scrollbar.scrollTo = scrollTo;
-        var _handler = div();
+        var _handler = document.createElement("scrollbar-thumb");
         _handler.className = "thumb";
         _scrollbar.Top = getTop;
+        _scrollbar.autohide = lazy(function () {
+            this.thumb.style.opacity = 0;
+        }, 600);
+        _scrollbar.autoshow = function () {
+            this.autohide();
+            this.thumb.style.opacity = 1;
+        };
+
         moveupon(_handler, {
             start: mousedown,
             move: mousemove,

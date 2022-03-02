@@ -142,6 +142,7 @@ function resize(elem, initialEvent) {
 }
 moveupon(window, handle);
 
+
 resize.on = function (elem, dragHandle) {
     if (elem) {
         elem.dragHandle = dragHandle;
@@ -150,6 +151,23 @@ resize.on = function (elem, dragHandle) {
         var off = onmousemove(window, getResizer);
         onremove(elem, off);
     });
+    var computed = getComputedStyle(elem);
+    var resizeh = function () {
+        var elem = this;
+        if (elem.scrollWidth > elem.clientWidth) {
+            css(elem, { width: elem.offsetWidth });
+            dispatch(elem, 'resize');
+        }
+        if (elem.scrollHeight > elem.clientHeight) {
+            css(elem, { height: elem.offsetHeight });
+            dispatch(elem, 'resize');
+        }
+        if (unbind && parseInt(computed.height) && parseInt(computed.width)) {
+            unbind();
+            unbind = null;
+        };
+    }
+    if (!parseInt(computed.height) || !parseInt(computed.width)) var unbind = bind('render')(elem, resizeh);
     if (!~resizingElements.indexOf(elem)) {
         resizingElements.push(elem);
         once('remove')(elem, function () {

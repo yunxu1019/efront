@@ -1,10 +1,31 @@
 & {
     position: absolute;
-    width: 14px;
+    width: 6px;
     background-color: rgba(0, 0, 0, .1);
     border-radius: 7px;
     height: 100px;
+    border-left: 3px solid transparent;
+
+    &:hover {
+        >.thumb {
+            opacity: 1 !important;
+            overflow: visible;
+        }
+    }
+
     >.thumb {
+        &:after {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: -4px;
+            right: -4px;
+            width: auto;
+            display: block;
+            content: "";
+        }
+
+        transition: opacity .2s;
         position: absolute;
         border-radius: 7px;
         height: 100%;
