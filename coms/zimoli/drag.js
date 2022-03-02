@@ -22,11 +22,14 @@ var setZIndex = function () {
     if (!isElement(target)) return;
     var computed = getComputedStyle(target);
     var z0 = zIndex(0);
-    if (!z || computed.zIndex < z0) {
+    if (!z || +computed.zIndex < z0) {
         z = zIndex();
         if (/^(absolute|fixed)$/i.test(computed.position)) {
             css(target, { zIndex: z });
         }
+    }
+    else if (z < +computed.zIndex) {
+        z = +computed.zIndex;
     }
 };
 function drag(target, initialEvent, preventOverflow, isMovingSource) {
@@ -39,7 +42,6 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
     } else {
         var extraTargets = target.with ? [].concat(target.with) : [];
     }
-
     var target_offset = getOffset(target);
     var saved_delta = { x: target_offset[0] - initialEvent.screenX, y: target_offset[1] - initialEvent.screenY };
     var clone;
