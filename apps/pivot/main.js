@@ -50,6 +50,9 @@ var layer = layer$glance({
     }),
     top: frame$top
 });
+on("append")(layer, function () {
+    frame$route.open();
+});
 function main() {
     return layer;
 }
