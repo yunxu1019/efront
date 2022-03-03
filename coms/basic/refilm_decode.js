@@ -277,7 +277,8 @@ function parse(piece) {
             var reg = /^[\*\+\-\!\-\$&\?\~]|[\*\+\-\!\-\$&\?\~]$/;
             if (!reg.test(a)) return a;
             required = test(/^\*|\*$/, a);
-            inlist = test(/^[\+\!]|[\+\!]$/, a);
+            if (test(/^[\+]|[\+]$/, a)) inlist = true;
+            if (test(/^[\!]|[\!]$/, a)) inlist = false;
             hidden = test(/^\-|\-$/, a);
             readonly = test(/^[\$&]|[\$&]$/, a);
             delete_onempty = test(/^\?|\?$/, a);
