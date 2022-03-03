@@ -3,7 +3,7 @@ plist.bind(null, '任务管理', "task", refilm`
 *任务名/name 100
 *是否启用/status radio [不启用,启用]
 任务代码/code text
-/ - ${[
+/ $ ${[
     {
         when(o) {
             return o.status === 1;
