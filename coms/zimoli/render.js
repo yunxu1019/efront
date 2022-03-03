@@ -228,7 +228,7 @@ var createIf = function (search, id = 0) {
                 appendChild.before(this, element);
                 if (element.renderid < 0) {
                     element.renderid = id;
-                    elements[cx] = render(element);
+                    elements[cx] = render(element, this.$scope, this.$parentScopes);
                 }
             }
             else {
@@ -699,10 +699,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
     if (element.renders.length) {
-        rebuild(element);
         onappend(element, addRenderElement);
         onremove(element, removeRenderElement);
         if (isMounted(element) || element.renderid > 1) addRenderElement.call(element);
+        else rebuild(element);
     }
     if (elementid) scope[elementid] = element;
     for (var id of ids) {
@@ -803,7 +803,6 @@ function render(element, scope, parentScopes) {
     if (if_top_length < if_top.length) if_top.splice(if_top_length, if_top.length - if_top_length);
     return e;
 }
-
 var digest = lazy(refresh, -{});
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;

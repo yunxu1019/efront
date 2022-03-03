@@ -381,7 +381,7 @@ function ylist(container, generator, $Y) {
         }
         if (deltay < 1) y = target_y;
         else if (deltay > count || deltay > 3) {
-            y = last_y + (target_y > last_y ? .8 : -.8);
+            y = last_y + Math.max(2 * (target_y > last_y ? .8 : -.8));
         }
         else {
             y = (target_y + last_y) / 2;
