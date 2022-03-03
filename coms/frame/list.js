@@ -49,7 +49,7 @@ function main(title, { fields, options: options0, load, remove }, edit_ref) {
         load() {
             this.data = load();
         },
-        fields: fields.concat({
+        fields: fields.filter(f => !f.hidden && f.inlist !== false).concat({
             name: "操作",
             options
         }),
