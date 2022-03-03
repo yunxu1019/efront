@@ -88,6 +88,7 @@ var isMaybeVisible = function (node) {
     }
     if (node.offsetParent) {
         var parent = node.offsetParent;
+        if (getComputedStyle(parent).overflow === 'visible') return true;
         return !(node.offsetLeft + node.offsetWidth - parent.scrollLeft <= parent.clientLeft ||
             node.offsetTop + node.offsetHeight - parent.scrollTop <= parent.clientTop ||
             node.offsetLeft - parent.scrollLeft >= (parent.clientWidth || parent.offsetWidth) ||
