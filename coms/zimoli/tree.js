@@ -132,7 +132,7 @@ function tree() {
         }
         var tabs = new Array(com.tab + 1).join("<t></t>");
         if (isFunction(generator)) {
-            var elem = generator(index, com instanceof Item ? com.value : com);
+            var elem = generator(index, com instanceof Item ? com.value : com, com);
             if (!elem) return;
             span = document.createElement('span');
             span.innerHTML = tabs;
@@ -222,9 +222,9 @@ function tree() {
         };
         com.target = _div;
         _div.refresh();
-        onclick(_div, function () {
+        onclick(_div, function (event) {
             var isClosed = com.isClosed();
-            if (!active(banner, com.value, com, _div)) {
+            if (!active(banner, com.value, com, element.$src ? createItemTarget.call(element, com.value) : _div)) {
                 return;
             }
             if (isClosed === com.isClosed() && com.length) {

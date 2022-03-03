@@ -90,13 +90,6 @@ var getTreeNodes = function (elem) {
     [].forEach.call(elem.children, run);
     return nodes;
 };
-function createItemTarget(item) {
-    var $scope = {};
-    var { itemName } = this.$src;
-    if (itemName) $scope[itemName] = item;
-    else $scope.menu = item, $scope.$item = item;
-    return { $scope };
-}
 var emitEvent = function (item, event) {
     event.preventDefault(true);
     if (item.disabled) return;
@@ -156,10 +149,10 @@ function main(elem, mode) {
                 mode = "inline";
                 if (elem) {
                     var generator = getGenerator(elem, 'menu-item');
-                    tree(elem, function (index, item) {
+                    tree(elem, function (index, item, menu) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
-                        var m = menuItem(e, item, elem.useIcon);
+                        var m = menuItem(e, menu, elem.useIcon);
                         return m;
                     });
                     care(elem, function (data) {
