@@ -1,15 +1,14 @@
 function main(elem) {
     elem = elem || document.createElement("song");
-    if (!elem.innerHTML) elem.innerHTML = song;
     var $scope = {
         filterTime,
         png: img,
         playState: kugou$playState,
         song: {},
-        musicList:kugou$musicList,
+        musicList: kugou$musicList,
     };
-    render(elem, $scope);
     care(elem, function (item) {
+        if (!elem.innerHTML) elem.innerHTML = song;
         var songName = String(item.name || item.songName || item.songname_original || '');
         var singerName = String(item.singer || item.singerName || item.singername || '');
         if (~songName.indexOf(singerName)) {
@@ -24,6 +23,7 @@ function main(elem) {
             songMarked: mark(songName, elem.mark),
             singerMarked: mark(singerName, elem.mark)
         };
+        render(elem.children, $scope);
     });
     return block(elem);
 }

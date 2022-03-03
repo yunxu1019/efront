@@ -84,7 +84,7 @@ function ybox(generator) {
     var stop = _box.stopY;
     var stop2 = lazy(function () {
         scrollY.smooth(stop);
-    }, 310);
+    }, 60);
     var decrease = function () {
         var res = _decrease(increaser_t) + _decrease(increaser_b);
         if (!res) {
@@ -126,7 +126,12 @@ function ybox(generator) {
         // ie
         addClass(_box, "trident");
     } else {
+        var wheelTime = 0;
         onmousewheel(_box, function (event) {
+            if (event.timeStamp - wheelTime > 60 && Math.abs(event.deltaY) < 12) {
+                wheelTime = event.timeStamp;
+                return;
+            }
             var deltay = -event.deltaY;
             if (event.moveLocked) return;
             event.moveLocked = true;
@@ -137,7 +142,6 @@ function ybox(generator) {
                 box = getTargetIn(e => e === _box || /^(?:auto|scroll)$/i.test(getComputedStyle(e).overflowY) && e.scrollHeight - e.scrollTop > e.clientHeight, event.target);
             }
             if (box === _box) {
-                event.preventDefault();
                 scrollY.call(_box, -deltay, false);
                 stop2();
             }
@@ -169,7 +173,7 @@ function ybox(generator) {
             temp = temp.parentNode;
         }
         this.YScrollBoxId = +scrollId + 1;
-    }
+    };
     if (isMounted(_box)) initScrollId.call(_box);
     on("append")(_box, initScrollId);
     on("remove")(_box, scrollY.reset);

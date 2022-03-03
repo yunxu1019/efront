@@ -22,12 +22,12 @@ function inertia(gun) {
     }
     var smooth = function () {
         var args = spd.read();
-        if (decrease && args.filter(a => Math.abs(a) > .5).length === 0) {
+        if (decrease && args.filter(a => Math.abs(a) > 1).length === 0) {
             spd.reset();
             _decrease();
             return;
         }
-        if (args.filter(a => Math.abs(a) > .1).length === 0) {
+        if (args.filter(a => Math.abs(a) > .5).length === 0) {
             spd.reset();
             return;
         }

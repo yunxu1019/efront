@@ -8,9 +8,13 @@ function lazy(run, time = false) {
     var fire = function () {
         if (time >= 0) {
             if (ing === true) {
-                ing = wait(fire, +time);
+                ing = wait(fire, +time / 2);
             }
-            else if (isFinite(ing)) {
+            else if (isFinite(ing) && ing !== 0) {
+                wait(fire, +time);
+                ing = 0;
+            }
+            else if (ing === 0) {
                 ing = run.apply(that, args);
             }
             else {
