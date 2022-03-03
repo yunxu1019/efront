@@ -791,8 +791,12 @@ function renderStructure(element, scope, parentScopes = []) {
             if (!/\-/.test(name) || value === '') {
                 copys.push(attr);
             }
-            if (!(name in element)) {
-                props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
+            var k = name.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
+            if (!(k in element)) {
+                props[k] = value === "" ? true : value;
+            }
+            else {
+                props[k] = element[k];
             }
         }
     }
