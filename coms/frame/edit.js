@@ -10,7 +10,7 @@ function main(title, { submit }, { data: origin, fields, }) {
     renderWithDefaults(page, {
         fields,
         title,
-        origin: item,
+        origin,
         data: item,
         remove() {
             remove(page);
