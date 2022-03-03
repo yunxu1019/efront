@@ -11,26 +11,24 @@ function hasEnterStyle(e) {
     return e.initialStyle || e.enterStyle || e.leavingStyle || e.leaveStyle;
 }
 
-function _onappend(node, event) {
+function _onappend(node, append = createEvent("append"), mount = createEvent("mounted")) {
     if (node.isMounted) return;
     if (node.nodeType === 1 || node.nodeType === 8) node.isMounted = true;
-    if (!event) {
-        event = createEvent("append");
-    }
-    dispatch(node, event);
+    dispatch(node, append);
     var onappend = node.onappend;
     if (isArray(onappend)) {
         onappend.map(function (append_handler) {
-            append_handler.call(this, event);
+            append_handler.call(this, append);
         }, node);
     }
     if (isFunction(onappend)) {
-        onappend.call(node, event);
+        onappend.call(node, append);
     }
     var children = [].concat.apply([], node.childNodes);
     if (children) for (var cx = 0, dx = children.length; cx < dx; cx++) {
-        _onappend(children[cx], event);
+        _onappend(children[cx], append, mount);
     }
+    dispatch(node, mount);
 }
 function appendChild(parent, obj, transition) {
     if (transition === false) {

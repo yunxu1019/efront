@@ -699,10 +699,9 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
     if (element.renders.length) {
-        onappend(element, addRenderElement);
+        onmounted(element, addRenderElement);
         onremove(element, removeRenderElement);
         if (isMounted(element) || element.renderid > 1) addRenderElement.call(element);
-        else rebuild(element);
     }
     if (elementid) scope[elementid] = element;
     for (var id of ids) {
