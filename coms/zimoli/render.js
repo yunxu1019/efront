@@ -442,7 +442,7 @@ var directives = {
         } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
             this.renders.push(setter || function () {
                 var value = getter();
-                if (value === undefined) value = "";
+                if (isEmpty(value)) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
                 if (this.value !== value) this.value = value;
@@ -791,7 +791,9 @@ function renderStructure(element, scope, parentScopes = []) {
             if (!/\-/.test(name) || value === '') {
                 copys.push(attr);
             }
-            props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
+            if (!(name in element)) {
+                props[name.replace(/\-(\w)/g, (_, w) => w.toUpperCase())] = value === "" ? true : value;
+            }
         }
     }
     if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext, ids };
