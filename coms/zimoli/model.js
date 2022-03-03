@@ -212,9 +212,9 @@ function main(elem) {
                     if (create) {
                         var e = create(elem, data, field_ref);
                         if (isNode(e)) {
-                            appendChild(elem, e);
+                            if (e !== elem) appendChild(elem, e);
                         }
-                        else {
+                        else if (!isEmpty(e)) {
                             elem.innerHTML = e;
                         }
                         return;
