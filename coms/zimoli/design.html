@@ -5,12 +5,13 @@
     <padding>
         <div class="field-item">
             <span class="index" ng-bind='field.id'></span>
-            <input @focus="focus(this.parentNode)" @blur="blur(this.parentNode)" placeholder="请输入字段名称"
+            <input @focus="focus(this.parentNode)" @blur="blur(this.parentNode)" placeholder="显示名称"
                 ng-model=field.name />
-            <select @focus="focus(this.parentNode)" @blur="blur(this.parentNode)" aria-placeholder=""
-                ng-model=field.type>
+            <input @focus="focus(this.parentNode)" @blur="blur(this.parentNode)" placeholder="键名" ng-model=field.key />
+            <select @focus="focus(this.parentNode)" -model="field.type" @blur="blur(this.parentNode)"
+                ng-model=field.type >
                 <option value="">请选择字段类型</option>
-                <option ng-repeat="type in types"></option>
+                <option _value="type.key" ng-repeat="type in types" -text="type.name"></option>
             </select>
             <btn ng-click=remove(field)>移除</btn>
         </div>
