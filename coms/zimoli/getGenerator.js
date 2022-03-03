@@ -47,8 +47,8 @@ var getGenerator = function (container, tagName = 'item') {
                 [itemName || '$item']: com,
                 [indexName || '$index']: index
             };
-            var newItem = render(element, newScope, scopes);
-            if (element.with) newItem.with = render(element.with, newScope, scopes);
+            var newItem = render(element, newScope, scopes, false);
+            if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         } else {
             var newScope = container.src[index];
             if (!isObject(newScope)) newScope = {
@@ -68,8 +68,8 @@ var getGenerator = function (container, tagName = 'item') {
                     return this.$item;
                 }
             }
-            var newItem = render(element, newScope, scopes);
-            if (element.with) newItem.with = render(newItem.with = element.with, newScope, scopes);
+            var newItem = render(element, newScope, scopes, false);
+            if (element.with) newItem.with = render(newItem.with = element.with, newScope, scopes, false);
         }
         return newItem;
     };

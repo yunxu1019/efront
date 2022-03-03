@@ -804,6 +804,9 @@ function render(element, scope, parentScopes, lazy = true) {
     if (!renderlock) {
         haslock = true;
         renderlock = true;
+        if (isBoolean(scope) && arguments.length === 2) lazy = +scope, scope = undefined;
+        else if (isBoolean(parentScopes) && arguments.length === 3) lazy = +parentScopes, parentScopes = undefined;
+        else lazy = +lazy;
         eagermount = !lazy;
     }
     var e = renderElement(element, scope, parentScopes);
