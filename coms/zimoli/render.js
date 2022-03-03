@@ -599,7 +599,7 @@ function getFromScopes(key, scope, parentScopes) {
     }
 }
 
-function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes) {
+function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, eager) {
     if (!isNode(element) && element.length) {
         return [].concat.apply([], element).map(function (element) {
             return renderElement(element, scope, parentScopes);
@@ -702,6 +702,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         onmounted(element, addRenderElement);
         onremove(element, removeRenderElement);
         if (isMounted(element) || element.renderid > 1) addRenderElement.call(element);
+        else if (eagermount) rebuild(element);
     }
     if (elementid) scope[elementid] = element;
     for (var id of ids) {
@@ -796,9 +797,20 @@ function renderStructure(element, scope, parentScopes = []) {
     if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext, ids };
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
-function render(element, scope, parentScopes) {
+var eagermount = false, renderlock = false;
+function render(element, scope, parentScopes, lazy = true) {
     var if_top_length = if_top.length;
+    var haslock = false;
+    if (!renderlock) {
+        haslock = true;
+        renderlock = true;
+        eagermount = !lazy;
+    }
     var e = renderElement(element, scope, parentScopes);
+    if (haslock) {
+        renderlock = false;
+        eagermount = false;
+    }
     if (if_top_length < if_top.length) if_top.splice(if_top_length, if_top.length - if_top_length);
     return e;
 }
