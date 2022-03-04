@@ -164,7 +164,10 @@ module.exports = async function (req, res) {
         req.url = unescape(req.url);
     }
     var url = await proxy(req);
-    if (/^https?:/i.test(url)) {
+    if (/^~~?|^&/.test(req)) {
+        return doCross(req, res);
+    }
+    if (/^https?:|^\/\/|^[^\/]/i.test(url)) {
         res.writeHead(302, {
             Location: url
         });

@@ -15,8 +15,27 @@ var parseURL = require("../basic/parseURL");
 var updateMap = async function () {
     var datas = await userdata.option("proxy", false);
     datas.forEach(d => {
-        var { url, realpath } = d;
+        var { url, realpath, action } = d;
         if (!/^\//.test(url)) url = "/" + url;
+        var parsed = parseURL(realpath);
+        switch (action) {
+            case "跳转":
+                if (parsed.protocol) break;
+                if (parsed.host) {
+                    realpath = `//${parsed.auth || ''}${parsed.host}${parsed.path}`;
+                    break;
+                }
+                break;
+            case "转发":
+                if (parsed.protocol) {
+                    realpath = /^https/i.test(parsed.protocol) ? "~~" : "~";
+                    realpath += `${parsed.host}${parsed.path}`;
+                }
+                else if (parsed.host) {
+                    realpath = `&${parsed.host}${parsed.path}`;
+                }
+                break;
+        }
         urlProxyMap[url] = realpath;
     });
 };
