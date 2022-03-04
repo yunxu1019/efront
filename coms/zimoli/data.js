@@ -433,6 +433,9 @@ function LoadingArray_then(ok, oh) {
     else if (this.is_errored) oh(this.error_message);
     else ok();
 }
+function LoadingArray_abort(ok, oh) {
+    if (this.loading) this.loading.abort();
+}
 
 var privates = {
     loadAfterConfig(serviceId, params) {
@@ -566,11 +569,12 @@ var privates = {
         var temp = JSON.stringify(params);
         var currentTime = +new Date;
         if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
+            var loading;
             var promise = new Promise(function (ok, oh) {
                 if (headers) {
                     headers = seekFromSource(headers, api.base);
                 }
-                cross(realmethod, uri, headers).send(params).done(e => {
+                loading = cross(realmethod, uri, headers).send(params).done(e => {
                     ok(e.response || e.responseText);
                 }).error(xhr => {
                     try {
@@ -581,6 +585,7 @@ var privates = {
                     }
                 });
             });
+            promise.loading = loading;
             promise.search = search;
             promise.params = temp;
             promise.time = currentTime;
@@ -659,6 +664,7 @@ var data = {
             response.is_loaded = true;
             response.is_loading = false;
             if (response.then === LoadingArray_then) delete response.then;
+            if (response.abort === LoadingArray_abort) delete response.abort;
         }
     },
     responseCrash,
@@ -667,6 +673,7 @@ var data = {
             response.is_loaded = false;
             response.is_loading = true;
             response.then = LoadingArray_then;
+            response.abort = LoadingArray_abort;
         }
     },
     setReporter(report, checker) {
@@ -758,8 +765,11 @@ var data = {
         var response = this.getInstance(id || url);
         if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
-        var p = response.loading_promise = privates.fromApi(api, params).then((data) => {
+        var p = privates.fromApi(api, params);
+        response.loading = p.loading;
+        p = response.loading_promise = p.then((data) => {
             if (id) {
+                response.loading = null;
                 data = parse(data);
                 this.setInstance(id, data, false);
                 this.removeInstance(id);
@@ -781,8 +791,11 @@ var data = {
         var response = this.getInstance(id || url);
         if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
-        var p = response.loading_promise = privates.loadIgnoreConfig('get', url).then((data) => {
+        var p = privates.loadIgnoreConfig('get', url);
+        response.loading = p.loading;
+        p = response.loading_promise = p.then((data) => {
             if (id) {
+                response.loading = null;
                 data = parse(data);
                 this.setInstance(id, data, false);
                 this.removeInstance(id);
