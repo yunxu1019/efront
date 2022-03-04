@@ -1,4 +1,4 @@
-/ authorization=: 
+/ authorization=:
   login: options ::login-:a
   run: options :::run
   share: options ::share-:opt?:path
@@ -13,9 +13,12 @@
   uptime: options ::uptime
   count: options ::count
   bootlog: options ::similar
-https://www.ip.cn/ :
+  link: options ::link
+  care: options ::care-:id
+  cast: options ::cast-:id?:msg
+https://www.ip.cn/:
   iplocation: get https://www.ip.cn/api/index?ip=:ip&type=1
 # https://ipchaxun.com/ :
-#   iplocation: get:[].info%20label:nth-child(n+2)>span:nth-child(2) :ip/ 
+#   iplocation: get:[].info%20label:nth-child(n+2)>span:nth-child(2) :ip/
 # https://www.ip138.com/:
 #   iplocation: get:head>script:nth-last-child(1) iplookup.asp?ip=:ip&action=2

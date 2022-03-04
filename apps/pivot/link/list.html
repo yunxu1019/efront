@@ -1,3 +1,7 @@
+<btn @click="chat()">新建连接</btn>
+<div>
+    自动刷新<swap -model="autoreload"></swap>
+</div>
 <div class="clusters">
     <a -repeat="(c,i) in clusters" ng-class="{current:i===index.index}" @click="active(i,c)">
         <span -text="c"></span>
@@ -5,8 +9,9 @@
 </div>
 <lattice -src="c in clients">
     <padding>
-        <span -text=c.id></span>
-        <span class="time" -text=filterTime(c.optime)></span>
-
+        <item @click="chat(c.id)">
+            <span -text=c.id></span>
+            <span class="time" -text=filterTime(c.optime)></span>
+        </item>
     </padding>
 </lattice>

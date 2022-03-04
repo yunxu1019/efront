@@ -1,0 +1,13 @@
+<div head -html="title">
+</div>
+<grid body>
+    <chat -src="m in msglist">
+        <msg class="msg" -src="m"></msg>
+    </chat>
+    <div textarea>
+        <div contenteditable="true" -model="text"></div>
+    </div>
+</grid>
+<div foot>
+    <btn @click="send()">发送</btn>
+</div>
