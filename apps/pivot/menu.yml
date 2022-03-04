@@ -5,7 +5,7 @@ WEB:
   文件管理: /wow/root
   长连接管理: /link/list
   字典: /dict/list
-  # 接口: /api/list
+  接口: /api/list
 任务:
   密钥管理: /token/list
   任务建立: /task/list
