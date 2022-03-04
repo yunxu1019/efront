@@ -23,7 +23,6 @@ function inertia(gun) {
     var smooth = function () {
         var args = spd.read();
         if (decrease && args.filter(a => Math.abs(a) > 2).length === 0) {
-            spd.reset();
             _decrease();
             return;
         }

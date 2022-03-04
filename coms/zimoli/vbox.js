@@ -84,7 +84,7 @@ function ybox(generator) {
     var stop = _box.stopY;
     var stop2 = lazy(function () {
         scrollY.smooth(stop);
-    }, 60);
+    }, 40);
     var decrease = function () {
         var res = _decrease(increaser_t) + _decrease(increaser_b);
         if (!res) {
@@ -128,7 +128,7 @@ function ybox(generator) {
     } else {
         var wheelTime = 0;
         onmousewheel(_box, function (event) {
-            if (event.timeStamp - wheelTime > 60 && Math.abs(event.deltaY) < 12) {
+            if (event.timeStamp - wheelTime > 40 && Math.abs(event.deltaY) < 12) {
                 wheelTime = event.timeStamp;
                 return;
             }

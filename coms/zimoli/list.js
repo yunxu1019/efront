@@ -379,12 +379,12 @@ function ylist(container, generator, $Y) {
         if (deltay >= delta) {
             return false;
         }
-        if (deltay < 1) y = target_y;
-        else if (deltay > count || deltay > 3) {
-            y = last_y + Math.max(2 * (target_y > last_y ? .8 : -.8));
-        }
+        if (deltay < 2) y = target_y;
         else {
-            y = (target_y + last_y) / 2;
+            var speed = Math.abs(spd.read()[0]);
+            if (speed < 1) speed = 1;
+            if (deltay < 3) speed = .5;
+            y = last_y + (target_y > last_y ? speed : -speed);
         }
         list.Top(y);
         if (target_y === y) {
