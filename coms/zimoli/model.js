@@ -222,6 +222,7 @@ function main(elem) {
                     elem.innerHTML = '<span ng-bind=get()></span>';
                     render(elem, {
                         get() {
+                            if (!field.key) return;
                             var value = seek(data, field.key);
                             if (field.options) {
                                 if (!field.optionsMap) {
@@ -243,7 +244,7 @@ function main(elem) {
                 }
             } else {
                 var create = field_type === "function" ? field_editor : constructors[field_type];
-                var ipt = create ? create(elem, field_ref) : input();
+                var ipt = create ? create(elem, field_ref) : field.key ? input() : null;
 
                 if (ipt) {
                     if (ipt !== elem) appendChild(elem, ipt);

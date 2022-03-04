@@ -285,7 +285,7 @@ function parse(piece) {
             delete_onsubmit = test(/^\~|\~$/, a);
             return a.replace(reg, '');
         };
-        type = is(type);
+        var type1 = is(type);
         if (typeof name === 'string') {
             if (!isContainer) {
                 if (!type) {
@@ -300,6 +300,7 @@ function parse(piece) {
                             type = last_type;
                     }
                 } else {
+                    type = type1;
                     last_type = type;
                 }
             }
