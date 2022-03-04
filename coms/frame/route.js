@@ -162,6 +162,7 @@
         }
     };
     result.load = function (menu) {
+        data.abortAll();
         zimoli.go(menu);
         return result;
     };
