@@ -5,17 +5,28 @@
 function lazy(run, time = false) {
     var wait = +time ? setTimeout : requestAnimationFrame;
     var ing, args, that;
+    var hire = function () {
+        if (time >= 0) {
+            if (ing === true) ing = wait(fire, +time / 2);
+            else wait(fire, +time / 2), ing = -2;
+        }
+        else {
+            wait(fire, -time);
+        }
+    };
     var fire = function () {
         if (time >= 0) {
             if (ing === true) {
                 ing = wait(fire, +time / 2);
             }
-            else if (isFinite(ing) && ing !== 0) {
-                wait(fire, +time);
-                ing = 0;
+            else if (ing > 0) {
+                wait(fire, +time / 2);
+                ing = -1;
             }
-            else if (ing === 0) {
+            else if (ing === -1) {
                 ing = run.apply(that, args);
+                if (ing instanceof Promise) ing.then(hire, hire);
+                else ing = false;
             }
             else {
                 ing = false;
@@ -24,13 +35,12 @@ function lazy(run, time = false) {
         else {
             if (ing === true) {
                 ing = run.apply(that, args);
-                wait(fire, -time);
-                if (!ing) ing = 1;
+                if (ing instanceof Promise) ing.then(hire, hire);
+                else ing = wait(fire, -time);
             } else {
                 ing = false;
             }
         }
-        if (ing instanceof Promise) ing.then(fire, fire);
     };
     return function () {
         args = arguments;
@@ -41,8 +51,8 @@ function lazy(run, time = false) {
         }
         else {
             ing = run.apply(that, args);
-            if (ing instanceof Promise) ing.then(fire, fire);
-            ing = wait(fire, -time);
+            if (ing instanceof Promise) ing.then(hire, hire);
+            else ing = wait(fire, -time);
         }
     };
 }
