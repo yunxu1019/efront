@@ -3,6 +3,6 @@
 <div class="song" ng-model=song.songMarked></div>
 <div class="singer" ng-model=song.singerMarked></div>
 <div class="filterTime(song.timeLength)"></div>
-<div class="play-state" ng-if="song.hash===musicList.active_hash" ng-class={error:playState.error}>
+<div refresh class="play-state" ng-if="song.hash===musicList.active_hash" ng-class={error:playState.error}>
     <div ng-style="{width:playState.width}"></div>
 </div>

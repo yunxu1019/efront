@@ -10,7 +10,7 @@ presets.template = function (t) {
         node.innerHTML = t.innerHTML;
         comment.with = [].slice.call(node.childNodes, 0);
         appendChild.after(comment, comment.with);
-        renderElement(comment.with, comment.$scope, comment.$parentScopes);
+        renderElement(comment.with, comment.$scope, comment.$parentScopes, this.renderid === 9);
     });
     return comment;
 };
@@ -20,8 +20,11 @@ var renderidClosed = 0;
 var addRenderElement = function () {
     var element = this;
     if (!isNode(element)) return;
-    if (element.renderid < 10 && element.renderid > 0) element.renderid = ++renderidOffset;
-    renderElements[element.renderid] = element;
+    if (element.renderid !== 9) {
+        // 只渲染一次
+        if (element.renderid < 10 && element.renderid > 0) element.renderid = ++renderidOffset;
+        renderElements[element.renderid] = element;
+    }
     rebuild(element);
 };
 var removeRenderElement = function () {
@@ -78,12 +81,19 @@ var createGetter = function (search, isprop = true) {
 var initialComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
     comment.renders = renders;
-    comment.renderid = ++renderidOffset;
-    onappend(comment, addRenderElement);
-    onremove(comment, removeRenderElement);
     appendChild.after(this, comment);
     if (!/if/i.test(type)) remove(this);
-    rebuild(comment);
+    if (!this.$struct.once) {
+        comment.renderid = ++renderidOffset;
+        onmounted(comment, addRenderElement);
+        onremove(comment, removeRenderElement);
+        if (isMounted(comment) || eagermount) rebuild(comment);
+    }
+    else {
+        comment.renderid = 9;
+        rebuild(comment);
+        remove(comment);
+    }
     return comment;
 };
 var parseRepeat = function (expression) {
@@ -599,17 +609,17 @@ function getFromScopes(key, scope, parentScopes) {
     }
 }
 
-function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, eager) {
+function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
     if (!isNode(element) && element.length) {
         return [].concat.apply([], element).map(function (element) {
-            return renderElement(element, scope, parentScopes);
+            return renderElement(element, scope, parentScopes, once);
         });
     }
     if (!isElement(element)) {
         return element;
     }
     if (!isNumber(element.renderid)) {
-        renderStructure(element, scope, parentScopes);
+        renderStructure(element, scope, parentScopes, once);
     }
     var elementid = element.getAttribute("renderid") || element.getAttribute("elementid") || element.getAttribute("id");
     if (elementid) {
@@ -631,7 +641,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             if (parentNode.renderid > 1 || isMounted(parentNode)) element.renderid = 2;
         }
         element.renders = element.renders ? [].concat(element.renders) : [];
-        var { ons, copys, attrs, props, binds, context: withContext, ids } = element.$struct;
+        var { ons, copys, attrs, props, binds, context: withContext, ids, once } = element.$struct;
+        if (once) element.renderid = 9;
         delete element.$struct;
         if (binds.src) {
             element.$src = parseRepeat(binds.src);
@@ -679,7 +690,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             }
         }
     }
-    if (element.children && element.children.length) renderElement(element.children, scope, parentScopes);
+    if (element.children && element.children.length) renderElement(element.children, scope, parentScopes, once);
     if (!isFirstRender) return element;
     for (var k in binds) {
         if (directives.hasOwnProperty(k)) {
@@ -699,10 +710,15 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
     if (element.renders.length) {
-        onmounted(element, addRenderElement);
-        onremove(element, removeRenderElement);
-        if (isMounted(element) || element.renderid > 1) addRenderElement.call(element);
-        else if (eagermount) rebuild(element);
+        if (element.renderid !== 9) {
+            onmounted(element, addRenderElement);
+            onremove(element, removeRenderElement);
+            if (isMounted(element) || element.renderid > 1) addRenderElement.call(element);
+            else if (eagermount) rebuild(element);
+        }
+        else {
+            rebuild(element);
+        }
     }
     if (elementid) scope[elementid] = element;
     for (var id of ids) {
@@ -710,7 +726,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     return element;
 }
-function renderStructure(element, scope, parentScopes = []) {
+function renderStructure(element, scope, parentScopes = [], once) {
     // 处理结构流
     if (parentScopes !== null && !isArray(parentScopes)) {
         throw new Error('父级作用域链应以数组的类型传入');
@@ -800,22 +816,24 @@ function renderStructure(element, scope, parentScopes = []) {
             }
         }
     }
-    if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext, ids };
+    if (props["zimoli"] || props["fresh"] || props["once"]) once = true;
+    else if (props["refresh"] || props["digest"] || props["mount"]) once = false;
+    if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext, ids, once };
     if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
 }
 var eagermount = false, renderlock = false;
 function render(element, scope, parentScopes, lazy = true) {
     var if_top_length = if_top.length;
     var haslock = false;
+    if (isFinite(scope) && arguments.length === 2) lazy = scope, scope = undefined;
+    else if (isFinite(parentScopes) && arguments.length === 3) lazy = parentScopes, parentScopes = undefined;
+    var renderonce = lazy === 0;
     if (!renderlock) {
         haslock = true;
         renderlock = true;
-        if (isBoolean(scope) && arguments.length === 2) lazy = +scope, scope = undefined;
-        else if (isBoolean(parentScopes) && arguments.length === 3) lazy = +parentScopes, parentScopes = undefined;
-        else lazy = +lazy;
-        eagermount = !lazy;
+        eagermount = !+lazy;
     }
-    var e = renderElement(element, scope, parentScopes);
+    var e = renderElement(element, scope, parentScopes, renderonce);
     if (haslock) {
         renderlock = false;
         eagermount = false;

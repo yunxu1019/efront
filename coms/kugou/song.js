@@ -1,5 +1,6 @@
 function main(elem) {
     elem = elem || document.createElement("song");
+    elem.renderid = 9;
     var $scope = {
         filterTime,
         png: img,
@@ -23,7 +24,7 @@ function main(elem) {
             songMarked: mark(songName, elem.mark),
             singerMarked: mark(singerName, elem.mark)
         };
-        render(elem.children, $scope);
+        render(elem.children, $scope, 0);
     });
     return block(elem);
 }
