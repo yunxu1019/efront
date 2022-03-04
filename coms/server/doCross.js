@@ -85,7 +85,7 @@ function cross(req, res, referer) {
             req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
         }
         var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
-        if (/^&/.test(jsonlike)) hostpath = hostpath.replace(/^https?:/i, req.protocol);
+        if (/^&/.test(jsonlike)) hostpath = req.protocol + hostpath.replace(/^https?:/i, "");
 
         var $url = hostpath + realpath;
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
