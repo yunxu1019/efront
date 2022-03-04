@@ -4,10 +4,13 @@ WEB:
   短链接: /proxy/list
   文件管理: /wow/root
   长连接管理: /link/list
+  字典: /dict/list
+  # 接口: /api/list
 任务:
   密钥管理: /token/list
   任务建立: /task/list
   定期执行: /tick/list
+  # 服务器: /api/host
 用户:
   账号列表: /user/list
   标签管理: /user/tag/list

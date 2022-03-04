@@ -1,0 +1,1 @@
+pedit.bind(null, "字典", "dict");
