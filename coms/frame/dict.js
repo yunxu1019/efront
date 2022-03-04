@@ -9,8 +9,8 @@ function main(types, elem) {
         edit() {
             var editer = frame$design(data[field.key], types);
             css(editer, { position: 'absolute' });
-            move.bindPosition(editer, [.5, .5]);
             popup(editer);
+            move.bindPosition(editer, [.5, .5]);
             on("changed")(editer, function () {
                 console.log(this.value, field)
                 data[field.key] = this.value;
