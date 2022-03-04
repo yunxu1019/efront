@@ -1,5 +1,6 @@
-var dump = function (a) {
-    if (a instanceof Object) console.error('对象的属性不符合'), console.log("  ", a);
+var dump = function (a, msg) {
+    if (a instanceof Object) console.error('对象的属性不符合'), console.log(msg ? msg + " " : "  ", a);
+    else if (msg) console.error(msg + ":", a);
     else console.error(a);
 };
 var assert = function (result, expect, log = dump) {
@@ -48,7 +49,8 @@ var assert = function (result, expect, log = dump) {
     }
     if (!res) {
         if (!hasCollect) collect()();
-        if (log) log(errors);
+        if (typeof log === 'function') log(errors);
+        else dump(errors, log);
     }
     return res;
 }
