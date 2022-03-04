@@ -193,7 +193,6 @@ module.exports = {
             if (key === false) return options;
             return encode62.timeencode(JSAM.stringify(options));
         }
-        if (typeof value === 'string' || value === undefined) key = encode62.timedecode(key);
         var key0 = key_privateprefix + key;
         if (value === undefined || value === false || value === 0 || value === null) {
             if (value === null) return hasItem(key0);

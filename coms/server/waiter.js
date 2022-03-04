@@ -100,7 +100,7 @@ var requestListener = async function (req, res) {
                     return;
             }
             res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
-            var type = /^(\w+)(?:\-([\/\!\'\(\)\*\-\.\w]+))?(?:[\?\:]([\s\S]*))?$/.exec(option);
+            var type = /^(\w+)(?:\-([\/\!\'\(\)\*\-\.\w]+))?(?:[\?\:\+]([\s\S]*))?$/.exec(option);
             var needLogin = false;
             var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
             if (type) switch (type[1]) {
@@ -253,12 +253,27 @@ var requestListener = async function (req, res) {
                     }
                     return;
                 case "task":
+                case "dict":
+                case "api":
                 case "user":
                 case "tag":
                 case "proxy":
                 case "private":
                     try {
-                        var data = await require("./userdata").option(type[1], type[2], type[3]) || '';
+                        let key = type[2] && encode62.timedecode(type[2]);
+                        if (type[3] !== undefined) {
+                            let act = type[0].charAt(type[0].length - type[3].length - 1);
+                            if (type[3] && act === "+" || !type[3] && act === "?") {
+                                var exists = await require("./userdata").option(type[1], key, null/**检查是否存在*/);
+                                if (!type[3]) return res.end(encode62.timeencode(String(exists)));
+                                if (exists && type[3]) {
+                                    res.writeHead(403, {});
+                                    res.end("已存在相同标识的数据");
+                                    return;
+                                }
+                            }
+                        }
+                        var data = await require("./userdata").option(type[1], key, type[3]) || '';
                         await new Promise(ok => setTimeout(ok, 160));
                         message.broadcast('reloadUserdata');
                         res.end(data);

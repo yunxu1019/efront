@@ -6,6 +6,7 @@
   cluster: options ::cluster-:opt?:id
   list: options :::type
   edit: options :::type-:key?:value
+  add: options :::type-:key+:value
   params: options ::params-:key
   invoke: options ::invoke-:key?:params
   version: options ::version
