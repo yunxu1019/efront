@@ -438,13 +438,6 @@ function LoadingArray_abort(ok, oh) {
 }
 
 var privates = {
-    loadAfterConfig(serviceId, params) {
-        var promise = this.getApi(serviceId).then((api) => {
-            params = this.pack(serviceId, params);
-            return this.fromApi(api, params);
-        });
-        return promise;
-    },
     pack(serviceId, params) {
         if (/\?/.test(serviceId)) {
             params = extend({}, getParamsFromUrl(serviceId), params);
@@ -568,8 +561,8 @@ var privates = {
         var promise = cachedLoadingPromise[id];
         var temp = JSON.stringify(params);
         var currentTime = +new Date;
+        var loading = null;
         if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
-            var loading;
             var promise = new Promise(function (ok, oh) {
                 if (headers) {
                     headers = seekFromSource(headers, api.base);
@@ -591,7 +584,7 @@ var privates = {
             promise.time = currentTime;
             cachedLoadingPromise[id] = promise;
         }
-        return promise.then(function (response) {
+        var p = promise.then(function (response) {
             if (/\*$/.test(coinmethod)) return response;
             var data = parseData(response);
             var checked = error_check(data);
@@ -603,6 +596,8 @@ var privates = {
             }
             return data;
         });
+        p.loading = loading;
+        return p;
     },
 
     getConfigPromise() {
@@ -768,8 +763,8 @@ var data = {
         var p = privates.fromApi(api, params);
         response.loading = p.loading;
         p = response.loading_promise = p.then((data) => {
+            response.loading = null;
             if (id) {
-                response.loading = null;
                 data = parse(data);
                 this.setInstance(id, data, false);
                 this.removeInstance(id);
@@ -794,8 +789,8 @@ var data = {
         var p = privates.loadIgnoreConfig('get', url);
         response.loading = p.loading;
         p = response.loading_promise = p.then((data) => {
+            response.loading = null;
             if (id) {
-                response.loading = null;
                 data = parse(data);
                 this.setInstance(id, data, false);
                 this.removeInstance(id);
@@ -819,7 +814,13 @@ var data = {
         var response = this.getInstance(id || sid);
         if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
-        var p = response.loading_promise = privates.loadAfterConfig(sid, params).then((data) => {
+        var p = response.loading_promise = privates.getApi(sid).then((api) => {
+            params = privates.pack(sid, params);
+            var p = privates.fromApi(api, params);
+            response.loading = p.loading;
+            return p;
+        }).then((data) => {
+            response.loading = null;
             if (id) {
                 data = parse instanceof Function ? parse(data) : data;
                 this.setInstance(id, data, false);
