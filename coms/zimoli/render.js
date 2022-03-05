@@ -1,17 +1,26 @@
 var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = Object.create(null);
 var presets = Object.create(null);
+var createTemplateNodes = function (text) {
+    var node = document.createElement(this.parentNode.tagName || "div");
+    node.innerHTML = text;
+    remove(this.with);
+    this.with = [].slice.call(node.childNodes, 0);
+    appendChild.after(this, this.with);
+    renderElement(this.with, this.$scope, this.$parentScopes, this.renderid === 9);
+};
 presets.template = function (t) {
     var comment = document.createComment('template');
     comment.$scope = t.$scope;
     comment.$parentScopes = t.$parentScopes;
-    once("append")(comment, function () {
-        var node = document.createElement(comment.parentNode.tagName || "div");
-        node.innerHTML = t.innerHTML;
-        comment.with = [].slice.call(node.childNodes, 0);
-        appendChild.after(comment, comment.with);
-        renderElement(comment.with, comment.$scope, comment.$parentScopes, this.renderid === 9);
-    });
+    if (!t.innerHTML) {
+        care(comment, createTemplateNodes)
+    }
+    else {
+        once("append")(comment, function () {
+            createTemplateNodes.call(comment, t.innerHTML);
+        });
+    }
     return comment;
 };
 window.renderElements = renderElements;
