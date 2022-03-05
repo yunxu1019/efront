@@ -41,6 +41,7 @@ var filterKey = function (event) {
         if (c === s) break;
     }
     if (keyCode === 8) {
+        if (!s) return;
         event.preventDefault();
         if (s.nextSibling) {
             if (s.nextSibling.innerText === '_') {
