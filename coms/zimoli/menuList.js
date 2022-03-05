@@ -286,7 +286,7 @@ function main(page, items, active, direction = 'y') {
         };
         var $scope = {
             "menu-item"(e, s) {
-                if (s === e.$scope) s = itemName ? s[itemName] : s.menu;
+                if (e && s === e.$scope) s = itemName ? s[itemName] : s.menu;
                 var a = button(
                     menuItem(e, s.value, this.hasIcon)
                 );
