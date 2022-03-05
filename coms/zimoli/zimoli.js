@@ -127,7 +127,13 @@ function go(pagepath, args, history_name, oldpagepath) {
     } else {
         var { roles, options, id } = getZimoliParams(pagepath);
     }
-    if (!pagepath) return true;
+    if (!pagepath) {
+        if (isNode(history_name)) {
+            remove(history_name.activateNode);
+            history_name.activate = pagepath;
+        }
+        return true;
+    }
     setZimoliParams(pagepath, { data: args, from: oldpagepath, options, roles, id });
     prepare(pagepath, function (res) {
         if (!res.roles || res.roles === true) res.roles = !!roles;
@@ -594,7 +600,11 @@ function addGlobal(element, name = null, isDestroy) {
         }
         global[name] = element;
     } else if (isNode(name)) {
-        if (isDestroy || name.nodeType !== 1) appendChild.insert(name, element);
+        if (name.nodeType !== 1) {
+            appendChild.after(name, element);
+            name.with = [element];
+        }
+        else if (isDestroy) appendChild.insert(name, element);
         else appendChild(name, element);
     } else if (isFunction(name)) {
         name(element);
