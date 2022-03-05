@@ -224,7 +224,7 @@ function tree() {
         _div.refresh();
         onclick(_div, function (event) {
             var isClosed = com.isClosed();
-            if (!active(banner, com.value, com, element.$src ? createItemTarget.call(element, com.value) : _div)) {
+            if (!active(banner, com.value, com, banner.$src ? createItemTarget.call(banner, com.value) : _div)) {
                 return;
             }
             if (isClosed === com.isClosed() && com.length) {
