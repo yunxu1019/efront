@@ -11,6 +11,7 @@ var gosrc = function () {
     }
 };
 function container(element) {
+    element = document.createComment('container');
     care(element, change);
     element.renders = [gosrc];
     return element;

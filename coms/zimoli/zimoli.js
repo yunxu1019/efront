@@ -594,7 +594,7 @@ function addGlobal(element, name = null, isDestroy) {
         }
         global[name] = element;
     } else if (isNode(name)) {
-        if (isDestroy) appendChild.insert(name, element);
+        if (isDestroy || name.nodeType !== 1) appendChild.insert(name, element);
         else appendChild(name, element);
     } else if (isFunction(name)) {
         name(element);
