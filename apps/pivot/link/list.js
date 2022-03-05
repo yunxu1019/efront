@@ -4,7 +4,7 @@ function main() {
     page.innerHTML = template;
     renderWithDefaults(page, {
         load: lazy(async function () {
-            this.clusters = data.asyncInstance("cluster", { opt: "list" });
+            this.clusters = data.lazyInstance("cluster", { opt: "list" });
             await this.clusters;
             this.active();
         }, -1000),
