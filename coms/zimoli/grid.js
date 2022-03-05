@@ -202,6 +202,21 @@ var resizeView = function (event) {
     }
     grid.reshape();
 };
+var clearResizer = function (grid) {
+    var target = grid.editting.target;
+    if (target) target.style.zIndex = null;
+    var { clientX, clientY } = grid.editting;
+    if (clientX) {
+        clientX[1].forEach(e => removeClass(e, 'border-right'));
+        clientX[2].forEach(e => removeClass(e, 'border-left'));
+    }
+    if (clientY) {
+        clientY[1].forEach(e => removeClass(e, "border-bottom"));
+        clientY[2].forEach(e => removeClass(e, "border-top"));
+    }
+    grid.editting = null;
+};
+
 var resizer = function (event) {
     var grid = this;
     if (!grid.direction) return;
@@ -227,24 +242,7 @@ var resizer = function (event) {
         //右边
         generateResizeParameters.call(grid, "x", "left", "right", "width", area.right, event, 1, resize);
     }
-    grid.editting = resize;
-    var cancelup = onmouseup(window, function () {
-        var target = grid.editting.target;
-        if (target) target.style.zIndex = null;
-        var { clientX, clientY } = resize;
-        resize = null;
-        if (clientX) {
-            clientX[1].forEach(e => removeClass(e, 'border-right'));
-            clientX[2].forEach(e => removeClass(e, 'border-left'));
-        }
-        if (clientY) {
-            clientY[1].forEach(e => removeClass(e, "border-bottom"));
-            clientY[2].forEach(e => removeClass(e, "border-top"));
-        }
-        grid.editting = null;
-
-        cancelup();
-    });
+    return grid.editting = resize;
 };
 var gridListener = function () {
     var grid = this;
@@ -261,7 +259,14 @@ var gridListener = function () {
     /**
      * 指针按下
      */
-    var offmousedown = onmousedown(grid, resizer);
+    var offmousedown = onmousedown(grid, function (event) {
+        if (!resizer.call(this, event)) return;
+        var that = this;
+        var cancelup = onmouseup(window, function () {
+            clearResizer(that);
+            cancelup();
+        });
+    });
 
     var offremove = onremove(grid, function () {
         offremove();
@@ -359,6 +364,51 @@ var bindToOrderedSpliters = function (split_points, target, value, side) {
     return split_points;
 };
 var grid_prototype = {
+    resizeCell(cell, side, delta) {
+        side = side.toLowerCase();
+        var { left, top, right, bottom } = getScreenPosition(cell);
+        var clientX, clientY, targetX, targetY;
+        var direction;
+        switch (side.toLowerCase()[0]) {
+            case "l":
+            case "w":
+                direction = 'w';
+                clientX = left;
+                targetX = left + delta;
+                targetY = clientY = top + bottom >> 1;
+                break;
+            case "t":
+            case "n":
+                direction = 'n';
+                clientY = top;
+                targetY = top + delta;
+                targetX = clientX = left + right >> 1;
+                break;
+            case "r":
+            case "e":
+                direction = 'e';
+                clientX = right;
+                targetX = right + delta;
+                targetY = clientY = left + right >> 1;
+
+                break;
+            case "b":
+            case "s":
+                direction = 's';
+                clientX = bottom;
+                targetY = bottom + delta;
+                targetX = clientX = left + right >> 1;
+                break;
+            default:
+                throw new Error("参数不支持", side);
+        }
+        this.direction = direction;
+        var e = resizer.call(this, { clientX, clientY, target: cell });
+        if (!e) return;
+        resizeView.call(this, { clientX: targetX, clientY: targetY, target: cell });
+        clearResizer(this);
+        this.direction = '';
+    },
     setGrid(breakpoints, bounds) {
         var grid = this;
         if (!bounds) {
