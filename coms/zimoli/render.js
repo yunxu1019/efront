@@ -691,7 +691,9 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                     }
                 });
                 replacer.renderid = element.renderid;
-                replacer.renders = element.renders;
+                var renders = element.renders;
+                if (replacer.renders) renders = renders.concat(replacer.renders);
+                replacer.renders = renders;
                 if (binds.src) replacer.$src = element.$src;
                 element = replacer;
                 element.$scope = scope;
@@ -701,6 +703,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     if (element.children && element.children.length) renderElement(element.children, scope, parentScopes, once);
     if (!isFirstRender) return element;
+    var renders = element.renders;
+    element.renders = [];
     for (var k in binds) {
         if (directives.hasOwnProperty(k)) {
             directives[k].call(element, [withContext, binds[k]])
@@ -718,6 +722,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         } catch (e) { }
     }
     ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
+    if (renders.length) element.renders.push.apply(element.renders, renders);
     if (element.renders.length) {
         if (element.renderid !== 9) {
             onmounted(element, addRenderElement);
