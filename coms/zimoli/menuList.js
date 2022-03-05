@@ -286,6 +286,7 @@ function main(page, items, active, direction = 'y') {
         };
         var $scope = {
             "menu-item"(e, s) {
+                if (s === e.$scope) s = itemName ? s[itemName] : s.menu;
                 var a = button(
                     menuItem(e, s.value, this.hasIcon)
                 );
@@ -293,7 +294,7 @@ function main(page, items, active, direction = 'y') {
                     page.firstMenu = a;
                     page.total = items.length;
                 }
-                a.menu = s.menu;
+                a.menu = s;
                 return a;
             },
             menus: items,

@@ -48,19 +48,20 @@ var getArrayNodes = function (elem) {
         var nodeName = node.children.length > 1 ? node.children[0].innerHTML : node.innerHTML;
         deep++;
         if (nodeName) {
-            nodes.push({
+            nodes.push(new Item({
                 name: nodeName,
                 tab: deep,
                 href: node.getAttribute("path") || node.getAttribute("href"),
                 class: node.className,
                 closed: true
-            });
+            }));
         }
         var index = nodes.length - 1;
         if (node.children.length > 1) {
             [].forEach.call(node.children[1].children, run);
         }
-        nodes[index].children = nodes.splice(index + 1, nodes.length - index);
+        nodes[index].push.apply(nodes[index], nodes.splice(index + 1, nodes.length - index));
+        nodes[index].children = nodes[index];
         deep--;
     };
     [].forEach.call(elem.children, run);
@@ -93,7 +94,7 @@ var getTreeNodes = function (elem) {
 var emitEvent = function (item, event) {
     event.preventDefault(true);
     if (item.disabled) return;
-    active(this, item, item, createItemTarget.call(this, item));
+    active(this, item, item, this.$src ? createItemTarget.call(this, item) : this);
 }
 function bindGlobalkey(elem, keymap, emit) {
     if (elem.keymap) {
@@ -194,8 +195,8 @@ function main(elem, mode) {
             case "y":
             case "vertical":
                 if (!direction) mode = "vertical", direction = 'y';
-                var emit = function (item) {
-                    active(elem, item.value, item, createItemTarget.call(elem, item.value));
+                var emit = function (item, target) {
+                    active(elem, item.value, item, elem.$src ? createItemTarget.call(elem, item.value) : target);
                 };
                 if ("$src" in elem) {
                     getGenerator(elem, 'menu-item');

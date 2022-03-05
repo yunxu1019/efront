@@ -17,7 +17,7 @@ function main(elem, scope, hasIcon) {
     else {
         item.removeAttribute("disabled");
     }
-    render(item.children, scope, hasIcon instanceof Array ? hasIcon : [{ useIcon: hasIcon, hasIcon, name, icon }], false);
+    render(item.children, scope, hasIcon instanceof Array ? hasIcon : [{ useIcon: hasIcon, hasIcon, name, icon }], 0);
     if (scope.line) item.setAttribute("line", ''), on("click")(item, preventDefault);
     if (scope.hotkey) bindAccesskey(item, scope.hotkey);
     return item;
