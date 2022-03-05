@@ -22,6 +22,11 @@ Item.prototype = extend([], {
             this.color = value.color;
             this.test = value.test;
             this.line = value.line;
+            if (value.path) this.path = value.path;
+            if (value.id) this.id = value.id;
+            if (value.url) this.url = value.url;
+            if (value.href) this.href = value.href;
+            if (value.src) this.src = value.src;
         }
         else {
             this.name = value;
