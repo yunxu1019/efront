@@ -1,13 +1,19 @@
-<div head -html="title">
+<div head>
+    <template -src="title">
+    </template>
+    <close @click="remove()"></close>
 </div>
-<grid body>
+<grid body #body>
     <chat -src="m in msglist">
-        <msg class="msg" -src="m"></msg>
+        <padding>
+            <msg class="msg"></msg>
+            <div style="clear: both;"></div>
+        </padding>
     </chat>
-    <div textarea>
-        <div contenteditable="true" -model="text"></div>
+    <div textarea @mousedown="this.firstChild.focus()">
+        <div @input="resize(body)" @keydown.alt.enter="send()" contenteditable="true" -model="text"></div>
     </div>
 </grid>
 <div foot>
-    <btn @click="send()">发送</btn>
+    <btn @click="send();">发送</btn>
 </div>

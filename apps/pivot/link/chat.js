@@ -14,6 +14,9 @@ async function link(id, page) {
         if (removed) break;
         xhr = data.from("care", { id }, function (data) {
             page.$scope.msglist.push.apply(page.$scope.msglist, data);
+            var { msglist } = page.$scope;
+            var chat = page.querySelector("chat");
+            chat.go(msglist.length ? msglist.length - 1 : 0);    
         });
         await xhr;
     }
