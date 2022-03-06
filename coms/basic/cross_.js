@@ -286,7 +286,10 @@ function addDirect(a) {
     if (typeof a === 'string' || a instanceof RegExp) cors_hosts.push(a);
 }
 function notCross(domain) {
-    if (!base || location_href && location_href === domain.slice(0, location_href.length) || !/^https?\:\/\/|^s?\/\//.test(domain)) return true;
+    if (!base ||
+        location_href && location_href === domain.slice(0, location_href.length) ||
+        !/^https?\:\/\/|^s?\/\//.test(domain) ||
+        domain.replace(domainReg, '$2') === base.replace(domainReg, '$2')) return true;
     for (var cx = 0, dx = cors_hosts.length; cx < dx; cx++) {
         var host = cors_hosts[cx];
         if (host instanceof RegExp) {
