@@ -11,7 +11,7 @@
         </padding>
     </chat>
     <div textarea @mousedown="this.firstChild.focus()">
-        <div @input="resize(body)" @keydown.alt.enter="send()" contenteditable="true" -model="text"></div>
+        <div @keydown.alt.enter="send()" contenteditable="true" -model="text"></div>
     </div>
 </grid>
 <div foot>

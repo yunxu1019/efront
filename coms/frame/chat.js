@@ -17,8 +17,20 @@ function msg(elem, { m: data }, parentScopes) {
 function chat(title = '会话窗口') {
     var page = view();
     page.innerHTML = template;
-    drag.on(page.firstChild, page);
+    drag.on(page.firstElementChild, page);
     resize.on(page);
+    page.push = function (msgs) {
+        var { msglist } = this.$scope;
+        msglist.push.apply(msglist, msgs);
+        var chat = page.querySelector("chat");
+        var lastmsg = chat.getLastVisibleElement();
+        if (msgs.length && (!lastmsg || lastmsg.offsetTop + lastmsg.offsetHeight === chat.scrollHeight)) {
+            chat.go(msglist.length ? msglist.length - 1 : 0);
+        }
+    };
+    page.renders = [function () {
+        this.$scope.resize(this.$scope.body);
+    }];
     renderWithDefaults(page, {
         chat: list,
         title,

@@ -351,7 +351,7 @@ function ylist(container, generator, $Y) {
             }
         }
     };
-
+    list.getLastVisibleElement = getLastVisibleElement;
     list.stopY = function (count, spd) {
         var firstElement = getFirstVisibleElement();
         var lastElement = getLastVisibleElement();
