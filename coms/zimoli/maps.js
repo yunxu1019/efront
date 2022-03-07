@@ -260,7 +260,6 @@ maps.prototype = {
         context.clearRect(0, y_start, canvas.width + 2, y_empty);
         context.putImageData(imagedata, deltaX, deltaY);
         map.Center(x2lng(x / 256 / scale, zoom), y2lat(y / 256 / scale, zoom));
-        // this.refresh();
     },
     Zoom(level) {
         if (isFinite(level)) {
@@ -449,13 +448,15 @@ maps.prototype = {
         grids.top = marginY;
         return grids;
     },
-    refresh() {
-        this.freeze();
+    refreshid: 0,
+    async refresh() {
+        var id = ++this.refreshid;
         var grid = this.getGrid();
         var { zoom } = grid;
-        grid.map(([x, y]) => {
-            this.drawLayer(x, y, zoom);
-        });
+        for (var [x, y] of grid) {
+            if (id !== this.refreshid) break;
+            await this.drawLayer(x, y, zoom);
+        }
     },
     drawImage(x, y, z, image) {
         var { startx, starty, zoom, left, top } = this.getGrid(false);
@@ -491,16 +492,20 @@ maps.prototype = {
         }
     },
     drawLayer(x, y, z) {
-        var image = this.getImage(x, y, z);
-        if (image.src && image.complete) {
-            this.drawImage(x, y, z, image);
-        } else {
-            image.onload = () => {
-                this.abortLoading(image);
+        return new Promise((ok) => {
+            var image = this.getImage(x, y, z);
+            if (image.src && image.complete) {
                 this.drawImage(x, y, z, image);
-            };
-            this.loadings.push(image);
-        }
+                setTimeout(ok, 1);
+            } else {
+                image.onload = () => {
+                    this.abortLoading(image);
+                    this.drawImage(x, y, z, image);
+                    ok();
+                };
+                this.loadings.push(image);
+            }
+        });
     },
     lng2tile,
     lat2tile,
