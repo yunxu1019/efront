@@ -11,6 +11,7 @@ var addDeltaY = function (event) {
         } else {
             delta = 120 / (1 - delta / 12) - 120;
         }
+        delta /= devicePixelRatio;
         if (event.axis === 1) {
             event.deltaX = delta;
             event.deltaY = 0;
