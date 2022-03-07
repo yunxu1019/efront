@@ -1,5 +1,5 @@
 var osm = {
-    url: `http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png`,
+    url: `https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png`,
     loadImage(image, src) {
         var img = new Image;
         img.crossOrigin = "anonymous";
