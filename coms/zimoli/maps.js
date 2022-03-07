@@ -36,11 +36,9 @@ var defaultImage = function (ratio = 2) {
     var w = width / 14;
     var h = height / 8;
     var ctx = image.getContext("2d");
-    ctx.fillStyle = "#ccc";
-    ctx.lineWidth = 2;
+    ctx.beginPath();
     for (var cx = 0, dx = width; cx < dx; cx += w) {
         for (var cy = 0, dy = height; cy < dy; cy += h) {
-            ctx.beginPath();
             ctx.moveTo(cx, cy);
             ctx.lineTo(cx, cy + h / 6);
             ctx.lineTo(cx + w / 2, cy + h / 3);
@@ -51,18 +49,19 @@ var defaultImage = function (ratio = 2) {
             ctx.lineTo(cx + w, cy + h / 6);
             ctx.moveTo(cx + w / 2, cy + h * 2 / 3);
             ctx.lineTo(cx + w, cy + h * 5 / 6);
-            ctx.stroke();
         }
     }
+    ctx.strokeStyle = "rgba(255,255,255,.2)";
+    ctx.lineWidth = ratio;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(width, 0);
+    ctx.lineTo(width, height);
+    ctx.strokeStyle = "rgba(255,255,255,.8)";
+    ctx.lineWidth = ratio * 2;
+    ctx.stroke();
     image.complete = true;
-    var onload = function () {
-    }
-    if (img.complete) {
-        onload.call(img);
-    }
-    else {
-        img.onload = onload;
-    }
     return image;
 }
 var rotate = function (vector, theta, points) {
@@ -174,6 +173,7 @@ function maps(config = {}) {
         map.Scale(Math.pow(0.99, 20 * Math.atan(event.deltaY / 20)), layerx, layery);
         map.refresh();
     });
+    this.pattern = this.context.createPattern(this.defaultImage(), "repeat");
 
     return canvas;
 };
@@ -197,6 +197,7 @@ maps.prototype = {
         if (this._default) return this._default;
         return this._default = defaultImage();
     },
+    pattern: null,
     cache: [],
     Move: function (deltaX, deltaY) {
         var map = this;
@@ -224,11 +225,11 @@ maps.prototype = {
             deltaY = y0 - y2;
             y = y2;
         }
+        var hw = canvas.width / 2;
         if (maxLng - minLng === 360) {
             var x1 = lng2x(minLng) * 256 * scale;
             var x2 = lng2x(maxLng) * 256 * scale;
             if (x1 > x2) [x1, x2] = [x2, x1];
-            var hw = canvas.width / 2;
             x1 += hw;
             x2 -= hw;
             if (x < x1) {
@@ -311,6 +312,7 @@ maps.prototype = {
             var tempCanvas = map.canvas.cloneNode();
             tempCanvas.getContext("2d").putImageData(context.getImageData(0, 0, width, height), 0, 0);
             context.clearRect(0, 0, width, height);
+
             var dx = (layerX - dw) * deltaS - (layerX - dw);
             var dy = (layerY - dh) * deltaS - (layerY - dh);
             context.drawImage(tempCanvas, 0, 0, width, height, layerX - layerX * deltaS, layerY - layerY * deltaS, dwidth, dheight);
@@ -392,22 +394,16 @@ maps.prototype = {
         var { cache } = this;
         var url = this.getURL(x, y, z);
         if (!url) return this.defaultImage();
-        for (var c of cache) {
-            if (c._src === url) {
-                var index = cache.indexOf(c);
-                if (index >= 0) {
-                    cache.splice(index, 1);
-                    cache.push(c);
-                }
-                return c;
-            }
-        }
+        var id = `${x}-${y}-${z}`;
+        if (this.cache[id]) return this.cache[id];
         var image = new Image;
         image._src = url;
         image.crossOrigin = "anonymous";
         this.loadImage(image, url);
         var cache = this.cache;
         cache.push(image);
+        image._id = id;
+        cache[id] = image;
         if (cache.length > 1000) {
             cache.splice(0, 500).forEach(this.destroyImage);
         }
@@ -416,7 +412,6 @@ maps.prototype = {
     getGrid(gridMash) {
         var [lng, lat] = this.center;
         var z = this.zoom;
-        var s = this.scale;
         var x = this.lng2tile(lng, z);
         var y = this.lat2tile(lat, z);
         var x0 = this.lng2x(lng, z);
@@ -454,9 +449,13 @@ maps.prototype = {
         var grid = this.getGrid();
         var { zoom } = grid;
         for (var [x, y] of grid) {
-            if (id !== this.refreshid) break;
-            await this.drawLayer(x, y, zoom);
+            var c = this.cache[`${x}-${y}-${zoom}`];
+            this.drawImage(x, y, zoom, c && c.complete ? c : this.defaultImage());
         }
+        return queue.call(grid, ([x, y]) => {
+            if (id !== this.refreshid) return false;
+            return this.drawLayer(x, y, zoom);
+        }, 2);
     },
     drawImage(x, y, z, image) {
         var { startx, starty, zoom, left, top } = this.getGrid(false);
@@ -483,6 +482,7 @@ maps.prototype = {
     },
     destroyImage(image) {
         if (!image.complete) image.abort && image.abort();
+        delete this.cache[image._id];
         image.onload = null;
         image.onabort = null;
     },
