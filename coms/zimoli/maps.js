@@ -110,15 +110,6 @@ function maps(config = {}) {
     var canvas = document.createElement("canvas");
     canvas.width = 800;
     canvas.height = 600;
-    var reshape = function () {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        canvas.map.refresh();
-        canvas._default = canvas.map.defaultImage();
-    };
-    if (canvas.isMounted) reshape();
-    else once("append")(canvas, reshape);
-    bind('resize')(canvas, reshape);
     this.canvas = canvas;
     this.context = canvas.getContext("2d");
     this.loadings = [];
@@ -129,7 +120,6 @@ function maps(config = {}) {
             }
         }
     }
-    onappend(canvas, () => this.refresh());
     var map = canvas.map = this;
     var move = map.move;
     moveupon(canvas, {
@@ -171,11 +161,19 @@ function maps(config = {}) {
         map.Scale(Math.pow(0.99, 20 * Math.atan(event.deltaY / 20)), layerx, layery);
         map.refresh();
     });
-    this.pattern = this.context.createPattern(this.defaultImage(), "repeat");
+    var reshape = function () {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        console.log(canvas.map)
+        canvas.map.refresh();
+        canvas._default = canvas.map.defaultImage();
+    };
+    if (canvas.isMounted) reshape();
+    else once("append")(canvas, reshape);
+    bind('resize')(canvas, reshape);
 
     return canvas;
 };
-
 maps.prototype = {
     url: "https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     direction: 1,
@@ -435,7 +433,7 @@ maps.prototype = {
         var y0 = this.lat2y(lat, z);
         var marginX = (256 * (x + 1 - x0)) % 256 - 256;
         var marginY = (halfHeight + 256 * (y + 1 - y0)) % 256 - 256;
-        var countX = Math.ceil((width - marginY) / 256);
+        var countX = Math.ceil((width - marginY) / 256) + 1;
         var countY = Math.ceil((height - marginY) / 256);
         var grids = [];
         var startx = Math.round(x0 - (halfWidth - marginX) / 256);
