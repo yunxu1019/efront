@@ -122,34 +122,52 @@ function maps(config = {}) {
     }
     var map = canvas.map = this;
     var move = map.move;
+    var saved_event;
     moveupon(canvas, {
         start(event) {
             event.preventDefault();
             move.reset();
-            this.saved_point = {
-                x: event.clientX,
-                y: event.clientY
-            };
-            var cancelmove = onmousemove(window, function (event) {
-            });
-            var cancelup = onmouseup(window, function () {
-                cancelup();
-                cancelmove();
-            });
-
+            saved_event = event;
         },
         move(event) {
-            var { saved_point } = this;
-            var { clientX, clientY } = event;
-            var deltaX = clientX - saved_point.x
-            var deltaY = clientY - saved_point.y;
-            saved_point.x = clientX;
-            saved_point.y = clientY;
-            move.call(this.map, deltaX, deltaY);
+            if (event.moveLocked) return;
+            if (!onclick.preventClick) return;
+            if (event.touches && saved_event.touches) {
+                if (event.touches.length !== saved_event.touches.length) {
+                    event.moveLocked = true;
+                    saved_event = event;
+                    return;
+                }
+
+                switch (event.touches.length) {
+                    case 1:
+                        break;
+                    case 2:
+                    default:
+                        event.moveLocked = true;
+                        var [xy1, xy2] = saved_event.touches;
+                        var [mn1, mn2] = event.touches;
+                        var { left, top } = getScreenPosition(canvas);
+                        top += canvas.clientTop;
+                        left += canvas.clientLeft;
+                        map.touch(
+                            [xy1.clientX - left, xy1.clientY - top, xy2.clientX - left, xy2.clientY - top],
+                            [mn1.clientX - left, mn1.clientY - top, mn2.clientX - left, mn2.clientY - top]
+                        );
+                        saved_event = event;
+                        return;
+
+                }
+            }
+            var deltax = event.clientX - saved_event.clientX,
+                deltay = event.clientY - saved_event.clientY;
+            event.moveLocked = true;
+            move.call(this.map, deltax, deltay);
+            saved_event = event;
         },
-        end(event) {
+        end() {
             move.smooth();
-            this.saved_point = null;
+            saved_event = null;
         },
     })
     onmousewheel(canvas, function (event) {
@@ -199,6 +217,13 @@ maps.prototype = {
         this.Move(a, b);
         this.refresh();
     }),
+    touch([x1, y1, x2, y2], [m1, n1, m2, n2]) {
+        var l1 = Math.sqrt(Math.pow(m1 - m2, 2) + Math.pow(n1 - n2, 2));
+        var l2 = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+        var scale = l1 / l2;
+        this.Scale(scale, (m1 + m2) / 2, (n1 + n2) / 2);
+        this.refresh();
+    },
     Move(deltaX, deltaY) {
         var map = this;
         var { canvas, context, minLat, maxLat, minLng, maxLng } = this;
