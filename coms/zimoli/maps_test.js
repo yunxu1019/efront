@@ -13,17 +13,18 @@ function maps_test() {
         alert(`${lng},${lat}`);
     });
     var active;
-    var buttons = ["百度", "谷歌", "OSM", "Default"].map((a, cx) => {
+    var buttons = ["高德", "百度", "谷歌", "OSM", "Default"].map((a, cx) => {
         var btn = button(a);
         onclick(btn, function () {
             if (active) for (var k in active) {
                 delete map.map[k];
             }
             extend(map.map, active = [
+                maps$gaode,
                 maps$baidu,
                 maps$google,
-                maps$osm
-            ][cx]);
+                maps$osm,
+            ][cx], { cache: [] });
             map.map.refresh();
         });
         return btn;

@@ -27,14 +27,19 @@ var baidu = {
     getURL: function (x, y, z) {
         if (x < 0) x = "M" + -x;
         if (y < 0) y = "M" + -y;
-        return `http://online0.map.bdimg.com/tile/?qt=tile&x=${x}&y=${y}&z=${z}&styles=pl&scaler=1&udt=20180721`;
+        return `https://maponline2.bdimg.com/tile/?qt=tile&x=${x}&y=${y}&z=${z}&styles=pl&scaler=1&udt=20180721`;
     },
     lat2y,
     lng2x,
     x2lng,
     y2lat,
+    minLng: -180,
+    maxLng: 180,
     direction: -1,
     lat2tile(lat, zoom) {
         return Math.ceil(this.lat2y(lat, zoom));
+    },
+    lng2tile(lng, zoom) {
+        return Math.floor(this.lng2x(lng, zoom));
     }
 }

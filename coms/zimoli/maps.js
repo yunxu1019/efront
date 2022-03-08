@@ -131,13 +131,11 @@ function maps(config = {}) {
     }
     onappend(canvas, () => this.refresh());
     var map = canvas.map = this;
-    var move = inertia(function (a, b) {
-        map.Move(a, b);
-        map.refresh();
-    });
+    var move = map.move;
     moveupon(canvas, {
         start(event) {
             event.preventDefault();
+            move.reset();
             this.saved_point = {
                 x: event.clientX,
                 y: event.clientY
@@ -157,7 +155,7 @@ function maps(config = {}) {
             var deltaY = clientY - saved_point.y;
             saved_point.x = clientX;
             saved_point.y = clientY;
-            move(deltaX, deltaY);
+            move.call(this.map, deltaX, deltaY);
         },
         end(event) {
             move.smooth();
@@ -184,7 +182,7 @@ maps.prototype = {
     zoom: 10,
     scale: 1,
     maxZoom: 19,
-    minZoom: 2,
+    minZoom: 3,
     center: [0, 0],
     maxLat: 85.05112877980659646937,
     minLat: -85.05112877980659646937,
@@ -199,20 +197,25 @@ maps.prototype = {
     },
     pattern: null,
     cache: [],
-    Move: function (deltaX, deltaY) {
+    move: inertia(function (a, b) {
+        this.Move(a, b);
+        this.refresh();
+    }),
+    Move(deltaX, deltaY) {
         var map = this;
         var { canvas, context, minLat, maxLat, minLng, maxLng } = this;
         var zoom = map.Zoom();
         var scale = map.Scale();
         var [lng, lat] = map.Center();
-        var [x, y] = [lng2x(lng, zoom) * 256 * scale, lat2y(lat, zoom) * 256 * scale];
+        var [x, y] = [this.lng2x(lng, zoom) * 256 * scale, this.lat2y(lat, zoom) * 256 * scale];
         deltaX = Math.round(deltaX);
         deltaY = Math.round(deltaY);
+        if (this.direction < 0) deltaY = -deltaY;
         var x0 = x, y0 = y;
         x -= deltaX;
         y -= deltaY;
-        var y1 = lat2y(minLat, zoom) * 256 * scale;
-        var y2 = lat2y(maxLat, zoom) * 256 * scale;
+        var y1 = this.lat2y(minLat, zoom) * 256 * scale;
+        var y2 = this.lat2y(maxLat, zoom) * 256 * scale;
         if (y1 > y2) [y1, y2] = [y2, y1];
         var hh = canvas.height / 2;
         y1 += hh;
@@ -226,21 +229,22 @@ maps.prototype = {
             y = y2;
         }
         var hw = canvas.width / 2;
-        if (maxLng - minLng === 360) {
-            var x1 = lng2x(minLng) * 256 * scale;
-            var x2 = lng2x(maxLng) * 256 * scale;
+        if (maxLng - minLng !== 360) {
+            var x1 = this.lng2x(minLng, zoom) * 256 * scale;
+            var x2 = this.lng2x(maxLng, zoom) * 256 * scale;
             if (x1 > x2) [x1, x2] = [x2, x1];
             x1 += hw;
             x2 -= hw;
-            if (x < x1) {
+            if (x <= x1) {
                 deltaX = x0 - x1;
                 x = x1;
             }
-            if (x > x1) {
+            if (x >= x2) {
                 deltaX = x0 - x2;
                 x = x2;
             }
         }
+        if (!deltaX && !deltaY) return false;
 
         var imagedata = context.getImageData(0, 0, canvas.width, canvas.height);
         if (deltaX < 0) {
@@ -260,7 +264,7 @@ maps.prototype = {
         context.clearRect(x_start, 0, x_empty, canvas.height + 2);
         context.clearRect(0, y_start, canvas.width + 2, y_empty);
         context.putImageData(imagedata, deltaX, deltaY);
-        map.Center(x2lng(x / 256 / scale, zoom), y2lat(y / 256 / scale, zoom));
+        map.Center(this.x2lng(x / 256 / scale, zoom), this.y2lat(y / 256 / scale, zoom));
     },
     Zoom(level) {
         if (isFinite(level)) {
@@ -273,6 +277,7 @@ maps.prototype = {
     },
     Scale(deltaS, layerX, layerY) {
         if (isFinite(deltaS)) {
+            this.move.reset();
             var map = this;
             var { canvas, context } = map;
             var {
@@ -315,9 +320,10 @@ maps.prototype = {
 
             var dx = (layerX - dw) * deltaS - (layerX - dw);
             var dy = (layerY - dh) * deltaS - (layerY - dh);
+            if (this.direction < 0) dy = -dy;
             context.drawImage(tempCanvas, 0, 0, width, height, layerX - layerX * deltaS, layerY - layerY * deltaS, dwidth, dheight);
             var [lng, lat] = map.center;
-            map.center = [x2lng(lng2x(lng, zoom) + dx / 256 / scale, zoom), y2lat(lat2y(lat, zoom) + dy / 256 / scale, zoom)];
+            map.center = [this.x2lng(this.lng2x(lng, zoom) + dx / 256 / scale, zoom), this.y2lat(this.lat2y(lat, zoom) + dy / 256 / scale, zoom)];
             map.scale = +scale;
             map.Zoom(zoom);
         }
@@ -368,10 +374,9 @@ maps.prototype = {
             }
             else {
                 var dx = maxX - minX;
-                if (x >= maxX) x %= dx;
+                if (x >= maxX) x = minX + (x - minX) % dx;
                 if (x < minX) x = maxX - (minX - x - 1) % dx - 1;
             }
-
             return String(this.url).replace(/\$?\{([\w\-]+)\}/g, function (m, a) {
                 switch (a) {
                     case "x": return x;
@@ -392,9 +397,9 @@ maps.prototype = {
     },
     getImage(x, y, z) {
         var { cache } = this;
+        var id = `${x}-${y}-${z}`;
         var url = this.getURL(x, y, z);
         if (!url) return this.defaultImage();
-        var id = `${x}-${y}-${z}`;
         if (this.cache[id]) return this.cache[id];
         var image = new Image;
         image._src = url;
@@ -410,21 +415,27 @@ maps.prototype = {
         return image;
     },
     getGrid(gridMash) {
-        var [lng, lat] = this.center;
-        var z = this.zoom;
-        var x = this.lng2tile(lng, z);
-        var y = this.lat2tile(lat, z);
-        var x0 = this.lng2x(lng, z);
-        var y0 = this.lat2y(lat, z);
         var {
             width,
             height
         } = this.canvas;
         var halfWidth = width / 2;
         var halfHeight = height / 2;
-        var marginX = (halfWidth + 256 * (x + 1 - x0)) % 256 - 256;
+        var [lng, lat] = this.center;
+        var z = this.zoom;
+        var startlng = this.x2lng(this.lng2x(lng, z) - halfWidth / 256, z);
+        var lng0 = startlng;
+        if (this.maxLng - this.minLng === 360) {
+            if (lng0 > this.maxLng) lng0 = this.minLng + (lng0 - this.minLng) % (this.maxLng - this.minLng);
+            if (lng0 < this.minLng) lng0 = this.maxLng - (this.minLng - lng0) % (this.maxLng - this.minLng);
+        }
+        var x = this.lng2tile(lng0, z);
+        var x0 = this.lng2x(lng0, z);
+        var y = this.lat2tile(lat, z);
+        var y0 = this.lat2y(lat, z);
+        var marginX = (256 * (x + 1 - x0)) % 256 - 256;
         var marginY = (halfHeight + 256 * (y + 1 - y0)) % 256 - 256;
-        var countX = Math.ceil((width - marginX) / 256);
+        var countX = Math.ceil((width - marginY) / 256);
         var countY = Math.ceil((height - marginY) / 256);
         var grids = [];
         var startx = Math.round(x0 - (halfWidth - marginX) / 256);
@@ -432,9 +443,23 @@ maps.prototype = {
         grids.startx = startx;
         grids.starty = starty;
         if (gridMash !== false) {
-            for (var cx = startx, dx = cx + countX; cx < dx; cx++) {
+            var minX = this.lng2tile(this.minLng, z);
+            var maxX = this.lng2tile(this.maxLng, z);
+            var x1 = this.lng2x(this.minLng, z);
+            var x2 = this.lng2x(this.maxLng, z);
+            if (minX > maxX) [minX, maxX, x1, x2] = [maxX, minX, x2, x1];
+            for (var cx = startx, dx = countX + cx; cx < dx;) {
                 for (var cy = starty, dy = cy + countY; cy < dy; cy++) {
-                    grids.push([cx, cy]);
+                    grids.push([x, cy, cx]);
+                }
+                if (x + 1 > maxX) {
+                    cx += x2 - maxX;
+                    x = minX;
+                    cx -= x1 - minX;
+                }
+                else {
+                    x++;
+                    cx++;
                 }
             }
         }
@@ -448,13 +473,13 @@ maps.prototype = {
         var id = ++this.refreshid;
         var grid = this.getGrid();
         var { zoom } = grid;
-        for (var [x, y] of grid) {
+        for (var [x, y, r] of grid) {
             var c = this.cache[`${x}-${y}-${zoom}`];
-            this.drawImage(x, y, zoom, c && c.complete ? c : this.defaultImage());
+            this.drawImage(r, y, zoom, c && c.complete ? c : this.defaultImage());
         }
-        return queue.call(grid, ([x, y]) => {
+        return queue.call(grid, ([x, y, r = x]) => {
             if (id !== this.refreshid) return false;
-            return this.drawLayer(x, y, zoom);
+            return this.drawLayer(x, y, zoom, r);
         }, 2);
     },
     drawImage(x, y, z, image) {
@@ -477,7 +502,7 @@ maps.prototype = {
             width = scale * width;
             height = scale * height;
         }
-        this.context.clearRect(left, top, width, height);
+        if (this.direction > 0) this.context.clearRect(left, top, width, height);
         this.context.drawImage(image, left, top, width, height);
     },
     destroyImage(image) {
@@ -491,16 +516,16 @@ maps.prototype = {
             if (this.loadings[cx] === image) this.loadings.splice(cx, 1);
         }
     },
-    drawLayer(x, y, z) {
+    drawLayer(x, y, z, r) {
         return new Promise((ok) => {
             var image = this.getImage(x, y, z);
             if (image.src && image.complete) {
-                this.drawImage(x, y, z, image);
+                this.drawImage(r, y, z, image);
                 setTimeout(ok, 1);
             } else {
                 image.onload = () => {
                     this.abortLoading(image);
-                    this.drawImage(x, y, z, image);
+                    this.drawImage(r, y, z, image);
                     ok();
                 };
                 this.loadings.push(image);
