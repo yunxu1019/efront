@@ -2,11 +2,20 @@ function main(title, { fields, options: options0, load, remove }, edit_ref) {
     prepare(edit_ref);
     var page = document.createElement("div");
     var edit = function (o) {
+        if (!edit_ref) {
+            return;
+        }
+        var callback = function () {
+            page.$scope.load();
+        };
+        if (isFunction(edit_ref)) {
+            var p = edit_ref(o, callback);
+            if (p) on('submited')(p, callback);
+            return;
+        }
         zimoli.prepare(edit_ref, function () {
-            var p = popup(edit_ref, { fields, data: o })
-            on("submited")(p, function () {
-                page.$scope.load();
-            })
+            var p = popup(edit_ref, { fields, data: o})
+            on("submited")(p, callback);
         })
     };
     page.innerHTML = template;

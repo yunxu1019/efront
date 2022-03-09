@@ -396,3 +396,4 @@ var global = function (element, issingle) {
 var popup_as_yextra = _as_yextra.bind(null, global, innerWidth, innerHeight);
 var popup_as_xextra = _as_xextra.bind(null, global, innerHeight, innerWidth);
 var cleanup = new Cleanup(rootElements);
+popup.style = animationStyle;
