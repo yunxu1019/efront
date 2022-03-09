@@ -9,24 +9,32 @@
 //     for (var o of a) {
 //         o.name = o.title.replace(/身份证|号码/g, "").replace(/市县/, '市');
 //         o.id = o.href.replace(/^([^\d]+)\.asp\?[\s\S]*\1\=(\d+)[\s\S]*?$/g, "$2");
+//         delete o.href;
 //         delete o.title;
 //     }
 //     return a;
 // };
 // var prefix = {};
+// var tree = {};
 // await queue.call(await data.from("sheng", setid), async function (h) {
 //     var shi = await data.from("shi", { sheng: h.id }, setid);
+//     var so = {};
+//     tree[h.short] = so;
 //     while (shi.length) {
 //         var s = shi.pop();
 //         var qu = await data.from("qu", { sheng: h.id, shi: s.id }, setid);
+//         var qo = {};
+//         so[s.short] = qo;
 //         while (qu.length) {
 //             var q = qu.pop();
-//             var id = `${h.id}${s.id}${q.id}`;
-//             prefix[id] = { id, sheng: h, shi, qu: q };
+//             var id = +`${h.id}${s.id}${q.id}`;
+//             qo[q.short] = id;
+//             prefix[id] = { id, sheng: h.short, shi: s.short, qu: q.short };
 //         }
 //     }
 // }, 9);
 // prefix = Object.keys(prefix).sort((a, b) => a - b).map(k => prefix[k]);
+// console.log(tree)
 // var prefix = [...];
 // console.log(prefix)
 // for (var cx = 0, ci = 0, cs = prefix[0]; cx < prefix.length; cx++) {
