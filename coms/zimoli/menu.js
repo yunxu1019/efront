@@ -153,7 +153,7 @@ function main(elem, mode) {
                     tree(elem, function (index, item, menu) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
-                        var m = menuItem(e, menu, elem.useIcon);
+                        var m = menuItem(null, menu, elem.useIcon);
                         return m;
                     });
                     care(elem, function (data) {
