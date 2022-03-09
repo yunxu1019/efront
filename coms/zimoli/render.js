@@ -90,6 +90,8 @@ var createGetter = function (search, isprop = true) {
 var initialComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
     comment.renders = renders;
+    comment.$scope = this.$scope;
+    comment.$parentScopes = this.$parentScopes;
     appendChild.after(this, comment);
     if (!/if/i.test(type)) remove(this);
     if (!this.$struct.once) {
@@ -192,7 +194,6 @@ var createRepeat = function (search, id = 0) {
             clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
             clone.$struct = $struct;
-            clone = render(clone, $scope, clone.$parentScopes);
             clonedElements1[k] = clone;
             return clone;
         }, this);
@@ -201,6 +202,7 @@ var createRepeat = function (search, id = 0) {
             if (a.previousSibling !== last) appendChild.after(last, a);
             last = a;
         }, this);
+        cloned.forEach(a => render(a))
         for (var k in clonedElements) {
             if (clonedElements1[k] !== clonedElements[k]) remove(clonedElements[k]);
         }
