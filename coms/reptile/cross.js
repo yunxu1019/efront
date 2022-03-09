@@ -1,5 +1,5 @@
 return cross_.bind(function (callback, onerror) {
-    var response, responseObject, responseType = "", error;
+    var response, responseObject, responseType = "", decoder, error;
     var xhr = {
         status: 0,
         readyState: 0,
@@ -11,7 +11,7 @@ return cross_.bind(function (callback, onerror) {
         get response() {
             if (responseType === "" || responseType === "text") {
                 if (this.readyState !== 4) return '';
-                return String(response);
+                return decoder ? decoder(response) : String(response);
             }
             else if (error) return null;
             if (responseObject !== null) return responseObject;
@@ -20,7 +20,7 @@ return cross_.bind(function (callback, onerror) {
                     return response.buffer;
                 case "json":
                     if (!response) return null;
-                    responseObject = JSON.parse(String(response));
+                    responseObject = JSON.parse(decoder ? decoder(response) : String(response));
                     return responseObject;
             }
             return responseObject;
@@ -103,7 +103,12 @@ return cross_.bind(function (callback, onerror) {
         setRequestHeader(key, value) {
             this.headers[key] = value;
         },
-
+        overrideMimeType(type) {
+            responseType = type;
+            if (/gb(k|2312|18030)/.test(type)) {
+                decoder = require("../efront/gbk2utf8");
+            }
+        },
     };
     return xhr;
 }, null, undefined);

@@ -230,12 +230,16 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     }
                 }
             }
+            var is_gb2312 = /^[gbk][^e]/i.test(method);
+            if (is_gb2312) method = method.slice(1);
             if (nocross) {
                 extend(realHeaders, _headers);
                 xhr.open(method, url);
             } else {
                 xhr.open(method, getCrossUrl(url, _headers));
             }
+            if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
+
             Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
             if (!isEmpty(datas)) send.call(xhr, datas);
             else send.call(xhr);
