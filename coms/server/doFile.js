@@ -3,6 +3,8 @@ var fs = require("fs");
 var path = require("path");
 var proxy = require("./url-proxy");
 var checkAccess = require("./checkAccess");
+var checkAuth = require("./checkAuth");
+var remoteAddress = require("./remoteAddress");
 var encode62 = require("../crypt/encode62");
 var mimes = require("../efront/mime");
 var root = require("../efront/memery").webroot;
@@ -219,7 +221,7 @@ async function doFile(req, res) {
         filepath = filepath + extend;
     }
     if (!/get/i.test(req.method)) {
-        if (!checkAccess(filepath)) {
+        if (!checkAccess(filepath) && !await checkAuth(req.headers.authorization, remoteAddress(req))) {
             res.writeHead(406, utf8);
             res.end("拒绝访问");
             return;

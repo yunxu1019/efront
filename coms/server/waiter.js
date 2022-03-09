@@ -85,11 +85,9 @@ var requestListener = async function (req, res) {
         efront:
         if (/^\/\:/.test(req.url)) {
             var option = req.url.slice(2);
-            var address = req.connection.remoteAddress ||
-                req.socket.remoteAddress ||
-                req.connection.socket.remoteAddress;
+            var remoteAddress = require("./remoteAddress")(req);
             if (option === version) res.setHeader("Powered-By", version);
-            else if (!/^(?:\:\:1?|(?:\:\:ffff\:)?127\.0\.0\.1)$/i.test(address)) {
+            else if (!/^(?:\:\:1?|(?:\:\:ffff\:)?127\.0\.0\.1)$/i.test(remoteAddress)) {
             }
             else switch (option) {
                 case "quit":
@@ -102,7 +100,6 @@ var requestListener = async function (req, res) {
             res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
             var type = /^(\w+)(?:\-([\/\!\'\(\)\*\-\.\w]+))?(?:[\?\:\+]([\s\S]*))?$/.exec(option);
             var needLogin = false;
-            var remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
             if (type) switch (type[1]) {
                 case "efront":
                     if (type[3]) {
