@@ -231,7 +231,7 @@ function main(page, items, active, direction = 'y') {
         if (this.menu.line) return;
         if (byMousedown) return;
         if (this.hasAttribute("disabled") || this.hasAttribute('line')) return;
-        var pop = active(this.menu, this);
+        var pop = active(this.menu.value, this);
         if (pop === false) return;
         var root = page.root || page;
         if (root.direction === 't' || root.selected) {
@@ -297,7 +297,7 @@ function main(page, items, active, direction = 'y') {
                 a.menu = s;
                 return a;
             },
-            menus: items,
+            menus: items.map(i => i instanceof Item ? i : new Item(i)),
             hasIcon: hasIcon(),
             open: fire,
             cancel,
@@ -316,6 +316,7 @@ function main(page, items, active, direction = 'y') {
             list(page, function (index) {
                 var item = items[index];
                 if (!item) return;
+                if (!(item instanceof Item)) item = new Item(item);
                 var a = $scope["menu-item"](null, item);
                 if (src.itemName) a.setAttribute("e-if", notHidden);
                 a.setAttribute("e-class", className);

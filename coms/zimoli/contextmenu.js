@@ -30,26 +30,8 @@ function contextmenu(target, menuItems) {
         css(menu, {
             position: "absolute",
         });
-        popup(menu);
+        popup(menu, event);
         menu.focus();
-        var { offsetWidth, offsetHeight } = menu;
-        var left = event.clientX, top = event.clientY;
-        if (offsetWidth + left > innerWidth) {
-            left = left - offsetWidth;
-        }
-        if (left < 0) {
-            left = 0;
-        }
-        if (offsetHeight + top > innerHeight) {
-            top = top - offsetHeight;
-        }
-        if (top < 0) {
-            top = 0;
-        }
-        css(menu, {
-            left: left + "px",
-            top: top + "px"
-        });
         onmousedown(menu, e => e.preventDefault());
         onblur(menu, lazy(e => remove(menu)));
     });

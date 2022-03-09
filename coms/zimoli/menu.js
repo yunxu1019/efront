@@ -196,7 +196,7 @@ function main(elem, mode) {
             case "vertical":
                 if (!direction) mode = "vertical", direction = 'y';
                 var emit = function (item, target) {
-                    active(elem, item.value, item, elem.$src ? createItemTarget.call(elem, item.value, target) : target);
+                    active(elem, item, null, elem.$src ? createItemTarget.call(elem, item, target) : target);
                 };
                 if ("$src" in elem) {
                     getGenerator(elem, 'menu-item');
