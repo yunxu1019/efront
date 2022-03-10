@@ -392,6 +392,8 @@ function toComponent(responseTree) {
         }
         string_r = string_r.join(',');
     }();
+    var outsidePromise = destMap.Promise > 0;
+
     var realize = `function (a, c,s) {
         var ${string_r},
         u,p=[x,m,n,q,o,y,B,e,v,z,w,s[${getEncodedIndex(`call`, "string") - 1}]],
@@ -427,15 +429,25 @@ function toComponent(responseTree) {
         }else{
             R=function(Q){
                 if(~[E,M][x](c+1))return s[c][0];
-                var r=s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f);
+                var r=s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f)${outsidePromise ? `,P=c>${getEncodedIndex("Promise", "global")}?T[${getEncodedIndex(`Promise`, 'global')}]():0,C=0` : ''};
                 if(~a[x](E)||~a[x](M))I={},I[B]=Q;
-                for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:a[i]?T[a[i]]():T[0];
+                for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:a[i]?T[a[i]]():T[0]${outsidePromise ? `,C=C||c>${getEncodedIndex("Promise", "global")}&&g[i]instanceof P` : ''};
                 if (l) {
                     l = l[1][q](',');
                     g = g[o]([l]);
                 }
+                ${outsidePromise ? `
+                if(C>0)return P[s[${getEncodedIndex('all', 'string') - 1}]](g)[s[${getEncodedIndex('then', 'string') - 1}]](function(g){
+                    r=f[y](I?I[B]:T[0],g);
+                    return I?I[B]:r;
+                });
+                `: ""}
                 r = f[y](I?I[B]:T[0], g);
-                return I?I[B]:r;
+                return ${
+                    outsidePromise?
+                    `I&&P&&r instanceof P?r[s[${getEncodedIndex("then", "string") - 1}]](function(){return I[B]}):I?I[B]:r`
+                    :"I?I[B]:r"
+                };
             }
         }
         return T[c + 1] = function(S){
