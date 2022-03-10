@@ -190,7 +190,6 @@ var createRepeat = function (search, id = 0) {
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
             clone.renderid = id;
-            clone.$parentScopes = $parentScopes;
             clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
             clone.$struct = $struct;
@@ -202,7 +201,7 @@ var createRepeat = function (search, id = 0) {
             if (a.previousSibling !== last) appendChild.after(last, a);
             last = a;
         }, this);
-        cloned.forEach(a => render(a))
+        cloned.forEach(a => render(a));
         for (var k in clonedElements) {
             if (clonedElements1[k] !== clonedElements[k]) remove(clonedElements[k]);
         }

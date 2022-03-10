@@ -226,7 +226,7 @@ function main(page, items, active, direction = 'y') {
         clear();
         clearTimeout(popTimer);
     }
-    var fire = function () {
+    var fire = async function () {
         cancel();
         if (this.menu.line) return;
         if (byMousedown) return;
@@ -297,7 +297,6 @@ function main(page, items, active, direction = 'y') {
                 a.menu = s;
                 return a;
             },
-            menus: items.map(i => i instanceof Item ? i : new Item(i)),
             hasIcon: hasIcon(),
             open: fire,
             cancel,
@@ -308,7 +307,7 @@ function main(page, items, active, direction = 'y') {
             var src = page.$src;
             var itemName = src.itemName;
             var className = `{'has-children':${itemName}.children&&${itemName}.children.length,
-            'warn':${itemName}.type==='danger'||${itemName}.type==='warn'||${itemName}.type==='red',
+            'warn':${itemName}.warn,
             actived:${itemName}.isActived()
         }`;
             var notHidden = `!${itemName}.hidden`;
@@ -335,6 +334,7 @@ function main(page, items, active, direction = 'y') {
         }
         else {
             page.innerHTML = menuList;
+            $scope.menus = items.map(i => i instanceof Item ? i : new Item(i));
             render(page, $scope);
             vbox(page);
         }

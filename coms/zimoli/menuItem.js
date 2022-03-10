@@ -8,16 +8,14 @@ function main(elem, scope, hasIcon) {
         var scope = item.$scope;
     }
     if (scope.menu) scope = scope.menu;
-    var name = scope.name;
-    var icon = scope.icon;
-    if (hasIcon === undefined) hasIcon = !!icon;
+    if (hasIcon === undefined) hasIcon = !!scope.icon;
     if (scope.disabled || scope.enabled === false) {
         item.setAttribute('disabled', '');
     }
     else {
         item.removeAttribute("disabled");
     }
-    render(item.children, scope, hasIcon instanceof Array ? hasIcon : [{ useIcon: hasIcon, hasIcon, name, icon }], 0);
+    render(item.children, scope, hasIcon instanceof Array ? hasIcon : [{ useIcon: hasIcon, hasIcon }]);
     if (scope.line) item.setAttribute("line", ''), on("click")(item, preventDefault);
     if (scope.hotkey) bindAccesskey(item, scope.hotkey);
     return item;
