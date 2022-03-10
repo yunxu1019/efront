@@ -108,11 +108,21 @@ if (cluster.isMaster) {
     process.on("message", onmessage);
 
     onmessage.send = send = send.bind(onmessage, process);
+    var broadcastid = 0, broadcastmap = Object.create(null);
     onmessage.broadcast = function (key, data) {
-        __send(process, 'broadcast', { key, data });
+        broadcastid = ++broadcastid & 0x7fff;
+        var id = (process.pid * 0x10000) + broadcastid;
+        return new Promise(function (ok) {
+            broadcastmap[id] = ok;
+            __send(process, 'broadcast', { key, id, data });
+        });
     };
-    onmessage.onbroadcast = function ({ key, data }) {
+    onmessage.onbroadcast = function ({ key, id, data }) {
         if (onmessage[key] instanceof Function) onmessage[key](data);
+        if (broadcastmap[id]) {
+            broadcastmap[id](id);
+            delete broadcastmap[id];
+        }
     };
 }
 module.exports = onmessage;

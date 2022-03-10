@@ -132,6 +132,25 @@ var requestListener = async function (req, res) {
                         res.end(String(e));
                     });
                 case "link":
+                    if (type[2]) {
+                        try {
+                            var roomid = encode62.timedecode(type[2]);
+                            var room = await require("./userdata").getOptionObj("room", roomid);
+                            if (!room) { throw "房间不存在！"; }
+                            if (!room.linkid || !clients.checkId(room.linkid)) {
+                                room.linkid = clients.create().id;
+                                await require("./userdata").setOptionObj("room", roomid, room);
+                                await message.broadcast("reloadUserdata");
+                                room = await require("./userdata").getOptionObj("room", roomid);
+                            }
+                            return res.end(String(room.linkid));
+                        }
+                        catch (e) {
+                            res.writeHead(403);
+                            res.end(String(e));
+                            return;
+                        }
+                    }
                     var id = clients.create().id;
                     res.write(String(id));
                     break;
@@ -253,6 +272,7 @@ var requestListener = async function (req, res) {
                 case "dict":
                 case "api":
                 case "user":
+                case "room":
                 case "tag":
                 case "proxy":
                 case "private":
@@ -270,8 +290,7 @@ var requestListener = async function (req, res) {
                                 }
                             }
                         }
-                        var data = await require("./userdata").option(type[1], key, type[3]) || '';
-                        await new Promise(ok => setTimeout(ok, 160));
+                        var data = await require("./userdata").option(type[1], key, type[3] && encode62.timedecode(type[3])) || '';
                         message.broadcast('reloadUserdata');
                         res.end(data);
                     }

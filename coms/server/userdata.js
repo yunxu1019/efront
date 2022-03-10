@@ -1,5 +1,6 @@
 var fs = require("fs");
 var path = require("path");
+var cluster = require("cluster");
 var userpath = path.join(require("os").homedir(), ".efront");
 var userdatafile = 'profile';
 var JSAM = require("../basic/JSAM");
@@ -18,7 +19,6 @@ function init() {
         });
     });
 };
-init();
 
 function save(pathname, data) {
     var fullpath = path.join(userpath, pathname);
@@ -62,7 +62,7 @@ var loadProfileAsync = function () {
 };
 var saveProfileAsync = lazy(async function () {
     await saveAsync(userdatafile, profile);
-}, 60);
+}, -60);
 var encode = async function (data) {
     await loadProfileAsync();
     var a = encode62.geta(profile.code);
@@ -78,6 +78,7 @@ async function setItem(k, v) {
     var k0 = encode62.geta(k + profile.code);
     profile[k0] = encode62.encodestr(v, k0);
     saveProfileAsync();
+    return new Promise(ok => setTimeout(ok), 160);
 }
 async function getItem(k) {
     await loadProfileAsync();
@@ -174,6 +175,25 @@ module.exports = {
         profile_promise = null;
         this.loadtime = Date.now();
     },
+    getOptionStr(type, key) {
+        return this.option(type, key, false);
+    },
+    getOptionObj(type, key) {
+        return this.option(type, key, 0);
+    },
+    hasOption(type, key) {
+        return this.option(type, key, null);
+    },
+    removeOption(type, key) {
+        return this.option(type, key, '');
+    },
+    setOptionObj(type, key, value) {
+        value = JSON.stringify(value);
+        return this.option(type, key, value);
+    },
+    setOptionStr(type, key, value) {
+        return this.option(type, key, value);
+    },
     async option(type, key, value) {
         var key_privatelist = type + listmark;
         var key_privateprefix = type + optionmark;
@@ -201,7 +221,6 @@ module.exports = {
             if (value === false) return data;
             return data ? JSON.parse(data) : null;
         }
-        value = encode62.timedecode(value);
         var options = await getItem(key_privatelist);
         if (options) options = JSON.parse(options);
         else options = [];
