@@ -52,8 +52,9 @@ var preventCached = function (interval = 60000, id) {
         if (!multiCount[id]) {
             multiCount[id] = [];
         }
-        if (multiCount[id].length > 200) {
-
+        if (multiCount[id].length >= 200) {
+            if (multiCount[id][0] < now - interval * 10000) multiCount[id].shift();
+            else throw new Error("禁止访问！");
         }
         multiCount[id].push(now);
     }
