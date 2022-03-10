@@ -10,6 +10,7 @@ function main({ path: root, name }) {
     renderWithDefaults(a, {
         fields,
         pathlist: root,
+        origin,
         isFolder: /\/$/.test(name),
         data: { name: origin, origin },
         remove() {
