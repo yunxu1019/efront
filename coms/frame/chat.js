@@ -19,6 +19,7 @@ function chat(title = '会话窗口') {
     page.innerHTML = template;
     drag.on(page.firstElementChild, page);
     resize.on(page);
+    var localid = Date.now() + Math.sin(Math.random());
     page.push = function (msgs) {
         var { msglist } = this.$scope;
         msglist.push.apply(msglist, msgs);
@@ -37,7 +38,7 @@ function chat(title = '会话窗口') {
         grid,
         msglist: [],
         text: '',
-        localid: Math.random(),
+        localid,
         msg,
         remove() {
             remove(page);

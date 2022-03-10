@@ -2,7 +2,8 @@ async function link(id, page) {
     if (!id) {
         id = await data.from("link");
     }
-    page.$scope.title = `会话窗口(<span nodrag>${id}</span>)`;
+    if (!page.name) page.$scope.title = `会话窗口(<span nodrag>${id}</span>)`;
+    console.log(page.name)
     page.roomid = id;
     var removed = false;
     on("remove")(page, function () {
@@ -16,8 +17,11 @@ async function link(id, page) {
         page.push(await xhr);
     }
 }
-function main(id) {
-    var page = frame$chat();
+function main(params) {
+    if (isObject(params)) var { linkid: id, name } = params;
+    else id = params;
+    var page = frame$chat(name);
+    if (name) page.name = name;
     care(page, 'send', function (msg) {
         data.from("cast", { id: page.roomid, msg });
     });
