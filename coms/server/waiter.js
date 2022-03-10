@@ -370,6 +370,11 @@ var requestListener = async function (req, res) {
     if (/^\/@/i.test(req.url)) {
         return doFile(req, res);
     }
+    try {
+        req.url = decodeURI(req.url);
+    } catch (e) {
+        req.url = unescape(req.url);
+    }
     if (req.headers.range) {
         return doFile(req, res);
     }
@@ -381,8 +386,12 @@ var requestListener = async function (req, res) {
     }
     if (/^get/i.test(req.method)) {
         return doGet(req, res);
-    } else {
+    }
+    else if (/^post/i.test(req.method)) {
         return doPost.call(this, req, res);
+    }
+    else {
+        return doFile(req, res);
     }
 };
 var ipLoged = false;

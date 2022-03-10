@@ -17,6 +17,7 @@
   room: options ::link-:id
   care: options ::care-:id
   cast: options ::cast-:id?:msg
+  upload: put :path
 https://www.ip.cn/:
   iplocation: get https://www.ip.cn/api/index?ip=:ip&type=1
 # https://ipchaxun.com/ :

@@ -158,11 +158,6 @@ var adapter = function (data, url, req, res) {
  * doGet
  */
 module.exports = async function (req, res) {
-    try {
-        req.url = decodeURI(req.url);
-    } catch (e) {
-        req.url = unescape(req.url);
-    }
     var url = await proxy(req);
     if (/^~~?|^&/.test(req)) {
         return doCross(req, res);

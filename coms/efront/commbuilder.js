@@ -514,7 +514,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
 };
 
 function prepare(filename, fullpath) {
-    var commName = fullpath.match(/(?:^|[^\w])([\$_\w][\w]*?)(\.\w*)?$/i);
+    var commName = fullpath.match(/(?:^|[^\w\u3000-\uffff])([\$_\w\u3000-\uffff][\w\u3000-\uffff]*?)(\.[^\.]*)?$/i);
     if (!commName) console.warn("文件名无法生成导出变量！", fullpath);
     commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");

@@ -128,7 +128,7 @@ var parse = function (r) {
 function sex(r = Math.random()) {
     return r < .5 | 0;
 }
-function sfz(r) {
+function 身份证(r) {
     var p17, middle;
     if (typeof r === 'string' || r === 1 || r === 0) {
         var r0 = Math.random();

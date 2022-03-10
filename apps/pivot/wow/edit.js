@@ -20,9 +20,11 @@ function main({ path: root, name }) {
     on('submit')(a, async function (e) {
         e.preventDefault();
         var path = root.concat(a.$scope.data.name).join('/');
+        path = encode62.timeencode(path);
         if (origin) {
             var to = path;
             path = origin;
+            path = encode62.timeencode(path);
         }
         await data.from("folder", { opt: origin ? 'mov' : 'add', path, to }).loading_promise;
         dispatch(this, 'submited');

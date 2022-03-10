@@ -1,8 +1,21 @@
 var fields = refilm`
 文件
 `;
-
+var passport = encode62.timeencode(encode62.decode62(user._passport, user.session));
+async function upload(f, base) {
+    var api = await data.getApi('upload');
+    var authorization = await data.getSource(api.base);
+    var xhr = cross(api.method, api.base + base + f.name, { authorization: authorization });
+    xhr.setRequestHeader('range', 'bytes=1-' + f.size);
+    return xhr.send(f);
+}
 function main() {
+    async function uploadAll(files) {
+        await queue.call(files, function (f) {
+            return upload(f, page.$scope.pathlist.join("/"));
+        });
+        page.$scope.open();
+    }
     var page = div();
     page.innerHTML = root;
     page.onback = function () {
@@ -15,15 +28,24 @@ function main() {
         return false;
     }
     page.setAttribute('ng-mousedown', 'setActive')
+    bind('drop')(page, async function (event) {
+        event.preventDefault();
+        var files = event.dataTransfer.files;
+        uploadAll(files);
+    });
 
     renderWithDefaults(page, {
         lattice,
         pathlist: data.getInstance("pathlist"),
         active: null,
         open(p) {
+            if (p && !/\/$/.test(p.name)) {
+                // window.open("/" + this.pathlist.concat(p.name).join('/'))
+                return;
+            }
             if (p) p = String(p.name || '').replace(/\/$/, '');
             if (p) data.setInstance("pathlist", this.pathlist.concat(p));
-            this.data = data.from("folder", { opt: 'list', path: "/" + this.pathlist.join('/') }, files => {
+            this.data = data.from("folder", { opt: 'list', path: encode62.timeencode("/" + this.pathlist.join('/')) }, files => {
                 if (files) return sortname(files).map(f => {
                     return {
                         name: f,
@@ -66,7 +88,14 @@ function main() {
             }
         },
         {
-            name: '编辑',
+            name: "添加文件",
+            when: e => !getActive(e),
+            do() {
+                return chooseFile().then(uploadAll);
+            }
+        },
+        {
+            name: '重命名',
             when,
             do(e) {
                 popupEdit(e.$scope.d.name);
@@ -91,7 +120,7 @@ function main() {
                     }, 2000);
                     return false;
                 }
-                await data.from("folder", { opt: 'del', path: "/" + page.$scope.pathlist.concat(e.$scope.d.name).join("/") }).loading_promise;
+                await data.from("folder", { opt: 'del', path: encode62.timeencode("/" + page.$scope.pathlist.concat(e.$scope.d.name).join("/")) }).loading_promise;
                 page.$scope.open();
             }
         }

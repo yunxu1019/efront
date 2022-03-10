@@ -26,7 +26,7 @@ data.bindInstance("base", async function (base) {
     cross.addDirect(base.base);
     var apimap = await data.getConfig();
     for (var k in apimap) {
-        if (apimap[k].method === 'options') apimap[k].base = base.base;
+        if (/options|put/.test(apimap[k].method)) apimap[k].base = base.base;
     }
 });
 var base = data.getInstance('base').base;
@@ -52,6 +52,12 @@ var layer = layer$glance({
 });
 on("append")(layer, function () {
     frame$route.open();
+});
+on("dragover")(document, function (event) {
+    event.preventDefault();
+});
+on("drop")(document, function (event) {
+    event.preventDefault();
 });
 function main() {
     return layer;

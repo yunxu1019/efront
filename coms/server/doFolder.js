@@ -57,7 +57,7 @@ function doDelete(p1) {
 
 function wrapPath(pathname) {
     try {
-        pathname = decodeURIComponent(pathname);
+        pathname = encode62.timedecode(pathname);
     } catch (e) {
         throw e400;
     }
@@ -69,6 +69,12 @@ function wrapPath(pathname) {
 
 var e400 = { status: 400, toString: () => "请求无效" };
 function doFolder(type, pathname) {
+    if (type === 'mov') {
+        var p = /^([\s\S]*?)\?([\s\S]*)$/.exec(pathname);
+        if (!p) throw e400;
+        return doMove(wrapPath(p[1]), wrapPath(p[2]));
+
+    }
     pathname = wrapPath(pathname);
     switch (type) {
         case "list":
@@ -77,13 +83,8 @@ function doFolder(type, pathname) {
             return doAdd(pathname);
         case "del":
             return doDelete(pathname);
-        case "mov":
-            var p = /^([\s\S]*?)\?([\s\S]*)$/.exec(pathname);
-            if (!p) throw e400;
-            return doMove(p[1], p[2]);
         default:
             throw e400;
     }
-
 }
 module.exports = doFolder;
