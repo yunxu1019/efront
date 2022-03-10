@@ -3,7 +3,6 @@ async function link(id, page) {
         id = await data.from("link");
     }
     if (!page.name) page.$scope.title = `会话窗口(<span nodrag>${id}</span>)`;
-    console.log(page.name)
     page.roomid = id;
     var removed = false;
     on("remove")(page, function () {
