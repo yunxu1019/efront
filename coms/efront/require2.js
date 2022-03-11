@@ -2,6 +2,8 @@ var detectWithExtension = require("../build/detectWithExtension");
 var commbuilder = require("./commbuilder");
 var userdata = require("../server/userdata");
 var lock = require("./lock");
+var lock30 = lock(30000);
+var lock60 = lock(60000);
 var mixin = require("./mixin");
 var { COMM, coms_path } = require("./memery");
 COMM = COMM.split(",");
@@ -37,7 +39,8 @@ var createModule = function (required, prebuilds, pathmap, modname) {
         case "require": return this.require;
         case "undefined": return undefined;
         case "runtask": case "_runtask": return _runtask;
-        case "lock": case "_lock": return lock;
+        case "lock": case "_lock": return lock60;
+        case "lock30": case "_lock30": return lock30;
         case "module": return this;
         case "exports": return this.exports;
     }

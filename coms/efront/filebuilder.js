@@ -82,6 +82,7 @@ var buildjsp = function (buff, realpath) {
             request: req,
             res: res,
             response: res,
+            remoteAddress: require("../server/remoteAddress")(req),
             context: {}
         });
         return queue.call(splited, function (str) {
