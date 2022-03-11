@@ -43,6 +43,7 @@ var createModule = function (required, prebuilds, pathmap, modname) {
     }
     if (global[modname] !== undefined) return global[modname];
     if (hasOwnProperty.call(pathmap, modname)) return require2(pathmap[modname]);
+    if (/^\.|^\/|^\w\:/.test(modname) && this.pathname) modname = path.join(path.dirname(this.pathname), modname)
     return require(modname);
 };
 var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
@@ -69,6 +70,7 @@ var createFunction = function (data, pathname, prebuilds) {
     func.require.cache = required_cache;
     func.imported = imported;
     func.required = required;
+    func.pathname = pathname;
     func.prepare = async function () {
         var dirname = path.dirname(pathname);
         var prepare = prepareModule.bind(func, dirname, required, prebuilds, pathmap);
