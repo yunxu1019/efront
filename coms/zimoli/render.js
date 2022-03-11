@@ -213,27 +213,40 @@ var createRepeat = function (search, id = 0) {
         once("append")(this, initialComment.bind(this, renders, "repeat", expression));
     }
 };
+var comment = function (elements) {
+    for (var cx = elements.length - 2; cx > 1; cx -= 2) {
+        var e = elements[cx];
+        if (e.previousSibling === this) var c = this;
+        else {
+            var c = document.createComment('else' + (cx < elements.length - 2 ? "if .." : ''));
+            e.parentNode.insertBefore(c, e);
+        }
+        elements.splice(cx, 0, c);
+        remove(e);
+    }
+};
+var initIf = function (ifs) {
+    for (var s of ifs) {
+        comment(s);
+        if (s.parent) {
+            initialComment.call(s[0], s.renders, "if", s.comment);
+        } else {
+            once("append")(s[0], initialComment.bind(s[0], s.renders, "if", s.comment));
+        }
+    }
+};
 var createIf = function (search, id = 0) {
     // 懒渲染
     var getter = createGetter(search).bind(this);
     var element = this;
-    var p = element;
-    if (p.parentNode) {
-        p = p.parentNode;
-        for (var cx = 0, dx = if_top.length; cx < dx; cx++) {
-            if (if_top[cx].parent === p) {
-                break;
-            }
-        }
-    }
-    cx++;
-    if (cx > 0) if_top.splice(cx, if_top.length - cx);
     var elements = [element, getter];
     if_top.push(elements);
     var savedValue;
-    var renders = [function () {
+    elements.parent = this.parentNode;
+    elements.comment = search[1];
+    elements.renders = [function () {
         var shouldMount = -1;
-        for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
+        for (var cx = 0, dx = elements.length; cx < dx; cx += 3) {
             var getter = elements[cx + 1];
             if (!getter || getter()) {
                 shouldMount = cx;
@@ -242,10 +255,10 @@ var createIf = function (search, id = 0) {
         }
         if (savedValue === shouldMount) return;
         savedValue = shouldMount;
-        for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
+        for (var cx = 0, dx = elements.length; cx < dx; cx += 3) {
             var element = elements[cx];
             if (cx === shouldMount) {
-                appendChild.before(this, element);
+                appendChild.after(cx > 0 ? elements[cx - 1] : this, element);
                 if (element.renderid < 0) {
                     element.renderid = id;
                     elements[cx] = render(element, this.$scope, this.$parentScopes);
@@ -257,12 +270,6 @@ var createIf = function (search, id = 0) {
         }
 
     }];
-    if (this.parentNode) {
-        elements.parent = this.parentNode;
-        initialComment.call(this, renders, "if", search[1]);
-    } else {
-        once("append")(this, initialComment.bind(this, renders, "if", search[1]));
-    }
 };
 var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     var repeater = parseRepeat(repeatExpression);
@@ -356,15 +363,18 @@ var structures = {
         createIf.call(this, search);
     },
     "else"(search) {
-        var top = if_top[if_top.length - 1];
-        if (!top || top.parent !== this.parentNode) {
+        for (var cx = if_top.length - 1; cx >= 0; cx--) {
+            if (if_top[cx].parent === this.parentNode) break;
+        }
+        if (cx < 0) {
             throw new Error("else/elseif前缺少同级if！");
         }
+        initIf(if_top.splice(cx + 1, if_top.length - cx - 1));
+        var top = if_top[cx];
         if (search && search[1]) {
             var getter = createGetter(search).bind(this);
         }
         top.push(this, getter);
-        remove(this);
     },
     repeat(search) {
         createRepeat.call(this, search);
@@ -853,7 +863,7 @@ function render(element, scope, parentScopes, lazy = true) {
         renderlock = false;
         eagermount = false;
     }
-    if (if_top_length < if_top.length) if_top.splice(if_top_length, if_top.length - if_top_length);
+    if (if_top_length < if_top.length) initIf(if_top.splice(if_top_length, if_top.length - if_top_length));
     return e;
 }
 var digest = lazy(refresh, -{});
