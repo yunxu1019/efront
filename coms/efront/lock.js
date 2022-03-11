@@ -23,11 +23,11 @@ var preventCached = function (interval = 60000, id) {
     if (c && c.value === id) {
         if (now - c.time < interval) {
             // 单个ip 最多1个
-            var seconds = (interval / 1000 | 0) + 1;
+            var seconds = (interval + c.time - now) / 1000 + 1 | 0;
             if (seconds < 2) {
                 seconds = "重试";
             }
-            if (seconds < 60) {
+            else if (seconds < 60) {
                 seconds = seconds + "秒后再试";
             }
             else if (seconds < 3600) {
@@ -43,6 +43,7 @@ var preventCached = function (interval = 60000, id) {
         }
         if (!c.count) c.count = 2;
         else c.count++;
+        c.time = now;
     }
     else {
         saveToOrderedArray(cached, { time: now, value: id });
