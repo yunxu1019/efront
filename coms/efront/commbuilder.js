@@ -94,9 +94,16 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     return run(data, rootfile, 1);
 };
 
+var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/img;
+var replaceIncludes = function (data) {
+    return data.replace(useInternalReg, function (m, q, p, c) {
+        if (/^\s*(['"`])use\s+strict\1/i.test(m)) return m;
+        var realName = path.basename(p).replace(/\..*$/, "") || "main";
+        realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
+        return `var ${realName}=require(${q}${p}${q})${c || ''}`;
+    });
+};
 var loadUseBody = function (source, fullpath, watchurls, commName) {
-
-    var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/img;
     var replacer = function (data, realPath) {
         watchurls.push(realPath);
         var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
@@ -696,6 +703,9 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     var savedCompress = commbuilder.compress;
     commbuilder.compress = compress;
     var [commName, lessName, className] = prepare(filename, fullpath);
+    if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
+    else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data;
+    else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
     var res = loadJsBody(data, filename, null, commName, lessName, className);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;

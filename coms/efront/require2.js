@@ -49,7 +49,7 @@ var createModule = function (required, prebuilds, pathmap, modname) {
     if (/^\.|^\/|^\w\:/.test(modname) && this.pathname) modname = path.join(path.dirname(this.pathname), modname)
     return require(modname);
 };
-var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
+var prepareModule = async function (dirname, required, prebuilds, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return;
     if (/^(require|_?runtask|undefined|module|_?lock)$/.test(modname)) return;
@@ -74,13 +74,18 @@ var createFunction = function (data, pathname, prebuilds) {
     func.imported = imported;
     func.required = required;
     func.pathname = pathname;
-    func.prepare = async function () {
+    var promise;
+    func.prepare = function () {
+        if (!promise) promise = prepare();
+        return promise;
+    };
+    var prepare = async function () {
         var dirname = path.dirname(pathname);
         var prepare = prepareModule.bind(func, dirname, required, prebuilds, pathmap);
         if (!(imported instanceof Array)) imported = [];
         if (!(required instanceof Array)) required = [];
         imported = imported.map(prepare);
-        required = imported.map(prepare);
+        required = required.map(prepare);
         await Promise.all(imported);
         await Promise.all(required);
         delete func.prepare;
