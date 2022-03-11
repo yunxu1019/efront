@@ -152,30 +152,12 @@ var fixPosition = move.fixPosition = function (target) {
 };
 move.coordIn = coordIn;
 move.trimCoord = trimCoord;
-var resizingTargets = [];
-on('resize')(window, function () {
-    resizingTargets.forEach(fixPosition);
-});
-var off;
-var resizeTarget = function () {
-    var target = this;
-    var index = resizingTargets.indexOf(target);
-    if (index < 0) index = resizingTargets.push(target);
-    return index;
+var fixTarget = function () {
+    fixPosition(this);
 };
-var removeResize = function () {
-    removeFromList(resizingTargets, this);
-};
-
 move.bindPosition = function (target, position) {
-    if (position) {
+    oncemount(target, function () {
         setPosition(target, position);
-    }
-    var index = resizingTargets.indexOf(target);
-    if (index >= 0) return;
-    on("append")(target, resizeTarget);
-    on("remove")(target, removeResize);
-    if (isMounted(target)) {
-        resizeTarget.call(target);
-    }
+    });
+    on("resize")(target, fixTarget);
 }

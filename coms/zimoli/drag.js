@@ -146,5 +146,4 @@ drag.on = function (target, actionTarget = target.dragTarget) {
     on("drop")(actionTarget || target, setZIndex);
     onmousedown(target, _mousedrag);
     ontouchstart(target, _touchdrag);
-    move.bindPosition(actionTarget || target);
 };

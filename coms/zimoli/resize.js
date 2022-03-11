@@ -121,11 +121,8 @@ var handle = {
             }
         });
         var rect = dragging.rect;
-        move.call(rect, isFinite(style.left) ? style.left : rect.offsetLeft, isFinite(style.top) ? style.top : rect.offsetTop);
-        delete style.left;
-        delete style.top;
-        Object.keys(style).forEach(k => style[k] = fromOffset(style[k]));
         css(dragging.rect, style);
+        move.call(rect, isFinite(style.left) ? style.left : rect.offsetLeft, isFinite(style.top) ? style.top : rect.offsetTop);
         dispatch(dragging.rect, 'resize');
         resizingList.forEach(a => {
             if (getTargetIn(dragging.rect, a)) {

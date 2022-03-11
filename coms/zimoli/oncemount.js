@@ -3,5 +3,5 @@ function oncemount(target, handle) {
         handle.call(target);
         return;
     }
-    once("append")(target, handle);
+    once("mounted")(target, handle);
 }
