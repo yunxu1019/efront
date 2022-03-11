@@ -82,6 +82,18 @@ var buildjsp = function (buff, realpath) {
             request: req,
             res: res,
             response: res,
+            textplain(e) {
+                res.writeHead(200, {
+                    "Content-type": "text/plain;charset=utf-8"
+                });
+                res.write(String(e));
+            },
+            forbidden(e) {
+                res.writeHead(403, {
+                    "Content-type": "text/html;charset=utf-8"
+                });
+                res.write(String(e));
+            },
             remoteAddress: require("../server/remoteAddress")(req),
             context: {}
         });

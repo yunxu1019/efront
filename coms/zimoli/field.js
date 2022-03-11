@@ -30,6 +30,8 @@ function main(elem) {
                 case "empty":
                     scope.error = `${f.name}是必填字段！`;
                     break;
+                default:
+                    scope.error = (f.name) + error;
             }
         }
         else {
