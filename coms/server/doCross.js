@@ -215,7 +215,7 @@ async function cross(req, res, referer) {
                 transform(chunk, _, ok) {
                     chunk = String(chunk);
                     try {
-                        chunk = encode62.safedecode(chunk, crypted, writedLength);
+                        ok(null, encode62.safedecode(chunk, crypted, writedLength));
                         writedLength += chunk.length;
                     } catch (e) {
                         if (closed) return;
@@ -225,7 +225,6 @@ async function cross(req, res, referer) {
                         request.destroy();
                         return;
                     }
-                    ok(null, chunk);
                 }
             }));
         }

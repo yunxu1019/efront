@@ -40,10 +40,11 @@ var getCrossUrl = function (domain, headers, encrypt) {
     _headers = serialize(_headers);
     if (_headers) _headers = "," + _headers;
     var b = encrypt ? "!" : `*`;
+    var ishttps = /^(https\:|s\/\/)/i.test(domain);
     domain = domain
         .replace(/^(s?)(\/\/)/i, "http$1:$2")
         .replace(domainReg, `$2${_headers}/$3$4`)
-    if (/^(https\:|s\/\/)/i.test(domain)) domain = b + domain;
+    if (ishttps) domain = b + domain;
     if (encrypt) domain = encode62.timeencode(domain);
     return base + b + domain;
 };
