@@ -22,7 +22,7 @@ var preventCached = function (interval = 60000, id) {
     var now = Date.now();
     if (c && c.value === id) {
         var increase = 0;
-        if (c.count) increase = interval * Math.pow(2, c.count);
+        if (c.count > 2) increase = interval * Math.pow(2, c.count - 2) - interval;
         if (now - c.time < interval + increase) {
             // 单个ip 最多1个
             var seconds = (increase + interval + c.time - now) / 1000 + 1 | 0;
