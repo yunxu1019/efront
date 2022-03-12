@@ -1,12 +1,13 @@
 "use strict";
 var parseURL = require("../basic/parseURL");
-var Http2ServerResponse = require("http2").Http2ServerResponse;
+var userdata = require("./userdata");
+var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 var privateKeys = Object.create(null);
 "Cookie,Connection,Referer,Host,Origin,Authorization".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
 var record = require("./record");
 var options = {};
-var crossmark = /[~,;\.&\*]/;
+var crossmark = /[~,;\.&\*\!]/;
 // ------------ //////////////1--------------- --/ 2 ----------------- ///// 3 ////////// 4 /////
 var matchmark = new RegExp(`^(${crossmark.source}(${crossmark.source}?))${/(.*?)(?:[\,&](.*?))?$/.source}`);
 -function () {
@@ -24,6 +25,8 @@ var matchmark = new RegExp(`^(${crossmark.source}(${crossmark.source}?))${/(.*?)
 }();
 function parseUrl(hostpath, real) {
     var { pathname, search, hostname, protocol, port } = parseURL(hostpath);
+    var crypted = /^\/\!/.test(pathname);
+    if (crypted) pathname = pathname.slice(0, 2) + encode62.timedecode(pathname.slice(2));
     if (real === undefined && /^https?\:\/\//i.test(hostpath)) {
         var headers = {};
         var realpath = pathname.slice(1);
@@ -60,7 +63,7 @@ function parseUrl(hostpath, real) {
             hostpath = escape(hostpath);
         }
     }
-    return { jsonlike, realpath, hostpath, headers };
+    return { jsonlike, realpath, hostpath, headers, crypted };
 }
 // https://github.com/nodejs/node/blob/02a0c74861c3107e6a9a1752e91540f8d4c49a76/lib/_http_common.js :204
 const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/
@@ -72,21 +75,24 @@ const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/
 function checkIsHttpToken(val) {
     return tokenRegExp.test(val);
 }
+var { Transform } = require("stream");
+var utf8error = { "content-type": "text/plain;charset=utf-8" };
 /**
  * 
- * @param {*} req 
- * @param {http.ServerResponse} res 
- * @param {*} referer 
+ * @param {Http2ServerRequest} req 
+ * @param {Http2ServerResponse} res 
+ * @param {string|undefined|boolean} referer 
  */
-function cross(req, res, referer) {
+async function cross(req, res, referer) {
     try {
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
             req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
         }
-        var { jsonlike, realpath, hostpath, headers } = parseUrl(req.url);
+        var { jsonlike, realpath, hostpath, headers, crypted } = parseUrl(req.url);
+        if (crypted) crypted = await userdata.getRequestCode(req);
+        if (crypted && /https?:\/\/\//.test(hostpath)) return res.end(encode62.timeencode(crypted));
         if (/^&/.test(jsonlike)) hostpath = req.protocol + hostpath.replace(/^https?:/i, "");
-
         var $url = hostpath + realpath;
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
@@ -124,7 +130,7 @@ function cross(req, res, referer) {
         } else {
             http = require("http");
         }
-
+        if (crypted) delete headers["content-length"];
         var request = http.request(Object.assign({
             method: method,
             headers: headers,
@@ -151,6 +157,20 @@ function cross(req, res, referer) {
             delete headers["access-control-allow-methods"];
             delete headers["access-control-allow-credentials"];
             delete headers["access-control-allow-headers"];
+            delete headers["cross-origin-resource-policy"];
+            res.writeHead(response.statusCode, headers);
+            if (crypted) {
+                delete headers["content-length"];
+                var size = 0;
+                response = response.pipe(new Transform({
+                    transform(chunk, _, ok) {
+                        chunk = String(chunk);
+                        chunk = encode62.safeencode(chunk, crypted, size);
+                        size += chunk.length;
+                        ok(null, chunk);
+                    }
+                }));
+            }
             if (res instanceof Http2ServerResponse) {
                 delete headers["transfer-encoding"];
                 delete headers["connection"];
@@ -159,7 +179,6 @@ function cross(req, res, referer) {
                 if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                     record($url, request, response, req, res);
                 } else {
-                    res.writeHead(response.statusCode, headers);
                     response.pipe(res);
                 }
             } else {
@@ -173,6 +192,7 @@ function cross(req, res, referer) {
         });
         request.setTimeout(120000/*support for wechat long pull*/);
         request.on("error", function (e) {
+            if (closed) return;
             var code;
             switch (e.code) {
                 case "ECONNRESET":
@@ -189,9 +209,29 @@ function cross(req, res, referer) {
             res.writeHead(code, {});
             res.end(String(e));
         });
+        if (crypted) {
+            var writedLength = 0;
+            req = req.pipe(new Transform({
+                transform(chunk, _, ok) {
+                    chunk = String(chunk);
+                    try {
+                        chunk = encode62.safedecode(chunk, crypted, writedLength);
+                        writedLength += chunk.length;
+                    } catch (e) {
+                        if (closed) return;
+                        closed = true;
+                        res.writeHead(403, utf8error);
+                        res.end("数据异常！");
+                        request.destroy();
+                        return;
+                    }
+                    ok(null, chunk);
+                }
+            }));
+        }
         req.pipe(request);
     } catch (e) {
-        res.writeHead(500, {});
+        res.writeHead(500, utf8error);
         res.end(String(e));
     }
 }

@@ -346,7 +346,7 @@ var requestListener = async function (req, res) {
         }
         return doCross(req, res);
     }
-    if (doCross.prefix.test(req.url)) {
+    if (doCross.prefix.test(req.url) || req.url === '/!') {
         return doCross(req, res, false);
     }
     if (doCross.referer.test(req.headers.referer)) {

@@ -1,6 +1,6 @@
 var fs = require("fs");
 var path = require("path");
-var cluster = require("cluster");
+var remoteAddress = require("./remoteAddress");
 var userpath = path.join(require("os").homedir(), ".efront");
 var userdatafile = 'profile';
 var JSAM = require("../basic/JSAM");
@@ -240,6 +240,10 @@ module.exports = {
             }
             await setItem(key0, value);
         }
+    },
+    async getRequestCode(req) {
+        var a = encode62.geta(profile.code) + encode62.geta(process.ppid);
+        return encode62.safeencode(encode62.geta(remoteAddress(req) + a), a);
     },
     async sign(a) {
         await loadProfileAsync();

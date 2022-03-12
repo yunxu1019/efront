@@ -28,13 +28,20 @@ Object.assign(encode62, {
     src,
     map,
     time_delta: parseInt("zzzzz", 36),
+    safeencode(string, sign, offset) {
+        string = encodeURIComponent(string).replace(/\./g, '..').replace(/[\!'\(\)~]/g, a => escape(a)).replace(/%/g, '.');
+        return this.encode62(string, sign, offset);
+    },
+    safedecode(string, sign, offset) {
+        string = this.decode62(string, sign, offset).replace(/\.\.?/g, a => a === '.' ? "%" : ".");
+        return decodeURIComponent(string);
+    },
     timedecode(string) {
         var { time_delta } = this;
         var time_rest = string.slice(string.length - time_delta.toString(36).length, string.length);
         var time_start = parseInt((new Date() - parseInt(time_rest, 36)) / time_delta) * time_delta;
         var time_stamp = time_start + parseInt(time_rest, 36);
-        string = this.decode62(string.slice(0, string.length - time_delta.toString(36).length), time_stamp.toString(36)).replace(/\.\.?/g, a => a === '.' ? "%" : ".");
-        return decodeURIComponent(string);
+        return this.safedecode(string.slice(0, string.length - time_delta.toString(36).length), time_stamp.toString(36));
     },
     timeencode(string) {
         var { time_delta } = this;
@@ -43,8 +50,7 @@ Object.assign(encode62, {
         var time_rest = time_stamp % time_delta;
         var time_rest_str = time_rest.toString(36);
         var time_delta_str = time_delta.toString(36);
-        string = encodeURIComponent(string).replace(/\./g, '..').replace(/[\!'\(\)~]/g, a => escape(a)).replace(/%/g, '.');
-        return this.encode62(string, time_stamp.toString(36)) + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
+        return this.safeencode(string, time_stamp.toString(36)) + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
     },
     timeupdate(string) {
         var { time_delta } = this;
@@ -57,7 +63,7 @@ Object.assign(encode62, {
             return this.timeencode(this.timedecode(string));
         }
     },
-    encode62(data, sign) {
+    encode62(data, sign, offset = 0) {
         if (!sign) return data;
         var result = String(data);
         sign = String(sign);
@@ -65,7 +71,7 @@ Object.assign(encode62, {
         var result = result.replace(/\w/g, function (w, cx) {
             var code = map[w];
             if (typeof code !== "number") return w;
-            var s = code ^ (sign.charCodeAt(cx % sign.length) % src.length);
+            var s = code ^ (sign.charCodeAt((offset + cx) % sign.length) % src.length);
             if (s >= src.length) return w;
             return src[s];
         });

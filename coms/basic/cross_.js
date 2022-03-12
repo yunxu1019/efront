@@ -6,10 +6,12 @@ function isFile(a) {
     }
 }
 var base = null, location_href = null;
+var encrypt = null;
 //               /////  1   ////////// 2 /////// 3 ////    4  //
 var domainReg = /^(?:(https?)\:)?\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
 var setHost = function (host) {
     base = host;
+    if (encrypt) encrypt = getCode.call(this);
 };
 var HeadersKeys = ["Content-Type"];
 var cors_hosts = [];
@@ -37,9 +39,13 @@ var getCrossUrl = function (domain, headers) {
     extend(_headers, headers);
     _headers = serialize(_headers);
     if (_headers) _headers = "," + _headers;
-    return domain
+    var b = encrypt ? "!" : `*`;
+    domain = domain
         .replace(/^(s?)(\/\/)/i, "http$1:$2")
-        .replace(domainReg, base + `*${/^(https\:|s\/\/)/i.test(domain) ? "*" : ""}$2${_headers}/$3$4`);
+        .replace(domainReg, `$2${_headers}/$3$4`)
+    if (/^(https\:|s\/\/)/i.test(domain)) domain = b + domain;
+    if (encrypt) domain = encode62.timeencode(domain);
+    return base + b + domain;
 };
 function noop() { }
 function toResponse() {
@@ -113,7 +119,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     }
     else {
         var nocross = notCross(url);
-        var callback = function () {
+        var callback = async function () {
             var exposeHeaders = !nocross && xhr.getResponseHeader("access-control-expose-headers");
             var exposeMap = {};
             if (exposeHeaders) exposeHeaders.split(",").forEach(h => exposeMap[h.toLowerCase()] = true);
@@ -124,6 +130,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     addCookie(cookie, originDomain);
                 }
             }
+            if (isencrypt && xhr.response) Object.defineProperty(xhr, 'response', { value: encode62.safedecode(xhr.response || xhr.responseText, xhr.encrypt) });
             switch (xhr.status) {
                 case 0:
                     if (!xhr.response) {
@@ -167,6 +174,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         var xhr = cross(callback, onerror);
         var send = xhr.send;
         xhr.toString = toResponse;
+        xhr.encrypt = encrypt;
         xhr.json = xhr.data = xhr.send = function (data, value) {
             if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = data instanceof Array ? [] : {};
             if (FormData && data instanceof FormData) {
@@ -202,8 +210,13 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 datas = serialize(jsondata, "&", "=");
             }
         };
-
-        var fire = function () {
+        var isencrypt = /^[夏商周秦xszq]/i.test(method);
+        if (isencrypt) method = method.slice(1);
+        if (isencrypt && !encrypt) encrypt = cross.getCode();
+        xhr.encrypt = encrypt;
+        var fire = async function () {
+            var code = await xhr.encrypt;
+            xhr.encrypt = code;
             var isform = /^f/i.test(method);
             if (isform) {
                 if (method === 'form') method = 'post';
@@ -241,7 +254,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
 
             Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
-            if (!isEmpty(datas)) send.call(xhr, datas);
+            if (!isEmpty(datas)) send.call(xhr, nocross || !isencrypt ? datas : encode62.safeencode(datas, code));
             else send.call(xhr);
             digest();
         };
@@ -323,9 +336,17 @@ function reform(r, info, fire, cancel, e) {
 function addReform(r) {
     if (isFunction(r)) reforms.push(r);
 }
+function getCode() {
+    return new Promise((ok, oh) => {
+        this('get', base + "!").then((xhr) => { return ok(encode62.timedecode(xhr.response || xhr.responseText)) }, () => {
+            return oh('未连接到可加密的服务器！');
+        });
+    });
+}
 var bind = cross_.bind;
 cross_.bind = function () {
     var cross_ = bind.apply(this, arguments);
+    arguments[0].getCode = getCode.bind(cross_);
     extend(cross_, {
         requests,
         abortAll() {
