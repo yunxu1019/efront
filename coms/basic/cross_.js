@@ -28,7 +28,7 @@ function isChildPath(relative, path) {
     return relative.replace(/^(.*\/)[^\/]*$/, path);
 }
 
-var getCrossUrl = function (domain, headers) {
+var getCrossUrl = function (domain, headers, encrypt) {
     if (notCross(domain)) return domain;
     var originDomain = getDomainPath(domain);
     var _cookies = getCookies(originDomain);
@@ -130,7 +130,13 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     addCookie(cookie, originDomain);
                 }
             }
-            if (isencrypt && xhr.response) Object.defineProperty(xhr, 'response', { value: encode62.safedecode(xhr.response || xhr.responseText, xhr.encrypt) });
+            if (isencrypt && xhr.response) {
+                xhr = {
+                    status: xhr.status,
+                    response: encode62.safedecode(xhr.response || xhr.responseText, xhr.encrypt),
+                };
+                xhr.responseText = xhr.response;
+            };
             switch (xhr.status) {
                 case 0:
                     if (!xhr.response) {
@@ -174,6 +180,9 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         var xhr = cross(callback, onerror);
         var send = xhr.send;
         xhr.toString = toResponse;
+        var isencrypt = /^[夏商周秦xszq]/i.test(method);
+        if (isencrypt) method = method.slice(1);
+        if (isencrypt && !encrypt) encrypt = cross.getCode();
         xhr.encrypt = encrypt;
         xhr.json = xhr.data = xhr.send = function (data, value) {
             if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = data instanceof Array ? [] : {};
@@ -210,10 +219,6 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 datas = serialize(jsondata, "&", "=");
             }
         };
-        var isencrypt = /^[夏商周秦xszq]/i.test(method);
-        if (isencrypt) method = method.slice(1);
-        if (isencrypt && !encrypt) encrypt = cross.getCode();
-        xhr.encrypt = encrypt;
         var fire = async function () {
             var code = await xhr.encrypt;
             xhr.encrypt = code;
@@ -249,7 +254,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 extend(realHeaders, _headers);
                 xhr.open(method, url);
             } else {
-                xhr.open(method, getCrossUrl(url, _headers));
+                xhr.open(method, getCrossUrl(url, _headers, isencrypt));
             }
             if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
 

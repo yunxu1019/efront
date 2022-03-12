@@ -158,9 +158,13 @@ async function cross(req, res, referer) {
             delete headers["access-control-allow-credentials"];
             delete headers["access-control-allow-headers"];
             delete headers["cross-origin-resource-policy"];
+            if (crypted) delete headers["content-length"];
+            if (res instanceof Http2ServerResponse) {
+                delete headers["transfer-encoding"];
+                delete headers["connection"];
+            }
             res.writeHead(response.statusCode, headers);
             if (crypted) {
-                delete headers["content-length"];
                 var size = 0;
                 response = response.pipe(new Transform({
                     transform(chunk, _, ok) {
@@ -170,10 +174,6 @@ async function cross(req, res, referer) {
                         ok(null, chunk);
                     }
                 }));
-            }
-            if (res instanceof Http2ServerResponse) {
-                delete headers["transfer-encoding"];
-                delete headers["connection"];
             }
             if (!closed) {
                 if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
