@@ -192,9 +192,6 @@ async function cross(req, res, referer) {
             }
         });
         var closed = false;
-        req.on("close", function (e) {
-            closed = true;
-        });
         request.setTimeout(120000/*support for wechat long pull*/);
         request.on("error", function (e) {
             if (closed) return;
@@ -217,6 +214,7 @@ async function cross(req, res, referer) {
         if (crypted) {
             var writedLength = 0;
             req = req.pipe(new Transform({
+                autoDestroy: true,
                 transform(chunk, _, ok) {
                     chunk = String(chunk);
                     try {
