@@ -29,7 +29,7 @@ function isChildPath(relative, path) {
 }
 
 var getCrossUrl = function (domain, headers, encrypt) {
-    if (notCross(domain)) return domain;
+    if (notCross(domain, encrypt)) return domain;
     var originDomain = getDomainPath(domain);
     var _cookies = getCookies(originDomain);
     var _headers = {};
@@ -118,7 +118,10 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         xhr.onerror = onerror;
     }
     else {
-        var nocross = notCross(url);
+        var isencrypt = /^[夏商周秦xszq]/i.test(method);
+        if (isencrypt) method = method.slice(1);
+        var nocross = notCross(url, isencrypt);
+        if (nocross) isencrypt = false;
         var callback = async function () {
             removeFromList(requests, xhr);
             var exposeHeaders = !nocross && xhr.getResponseHeader("access-control-expose-headers");
@@ -185,8 +188,6 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         var xhr = cross(callback, onerror);
         var send = xhr.send;
         xhr.toString = toResponse;
-        var isencrypt = /^[夏商周秦xszq]/i.test(method);
-        if (isencrypt) method = method.slice(1);
         if (isencrypt && !encrypt) encrypt = cross.getCode();
         xhr.encrypt = encrypt;
         xhr.json = xhr.data = xhr.send = function (data, value) {
@@ -264,7 +265,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
             delete realHeaders.Cookie;
             Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
-            if (!isEmpty(datas)) send.call(xhr, nocross || !isencrypt ? datas : encode62.safeencode(datas, code));
+            if (!isEmpty(datas)) send.call(xhr, !isencrypt ? datas : encode62.safeencode(datas, code));
             else send.call(xhr);
             digest();
         };
@@ -312,11 +313,10 @@ function addDirect(a) {
     if (cors_hosts.indexOf(a) >= 0) return;
     if (typeof a === 'string' || a instanceof RegExp) cors_hosts.push(a);
 }
-function notCross(domain) {
-    if (!base ||
-        location_href && location_href === domain.slice(0, location_href.length) ||
-        !/^https?\:\/\/|^s?\/\//.test(domain) ||
-        domain.replace(domainReg, '$2') === base.replace(domainReg, '$2')) return true;
+function notCross(domain, encrypt) {
+    if (!location_href || !base || !/^https?\:\/\/|^s?\/\//.test(domain)) return true;
+    if (location_href === domain.slice(0, location_href.length) ||
+        domain.replace(domainReg, '$2') === base.replace(domainReg, '$2')) return !encrypt;
     for (var cx = 0, dx = cors_hosts.length; cx < dx; cx++) {
         var host = cors_hosts[cx];
         if (host instanceof RegExp) {

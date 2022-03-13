@@ -348,6 +348,16 @@ var parseData = function (sourceText) {
 };
 
 function fixApi(api, href) {
+    if (/^\//.test(href)) {
+        var { protocol, host } = parseURL(location.href);
+        href = protocol + "//" + host + href;
+    }
+    else if (/^\.\//.test(href)) {
+        var { protocol, host, pathname } = parseURL(location.href);
+        href = href.slice(1);
+        if (pathname) href = pathname.replace(/\/[^\/\\]*$/, '') + href;
+        href = protocol + "//" + host + href;
+    };
     api.transpile = getTranspile(api.url);
     api.url = api.url.replace(/#[\s\S]*$/, '');
     if (!reg.test(api.url)) {
