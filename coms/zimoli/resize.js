@@ -124,11 +124,7 @@ var handle = {
         css(dragging.rect, style);
         move.call(rect, isFinite(style.left) ? style.left : rect.offsetLeft, isFinite(style.top) ? style.top : rect.offsetTop);
         dispatch(dragging.rect, 'resize');
-        resizingList.forEach(a => {
-            if (getTargetIn(dragging.rect, a)) {
-                dispatch(a, 'resize');
-            }
-        });
+        resizingList.hit(rect);
     },
     end(e) {
         dragging = null;
@@ -151,14 +147,16 @@ resize.on = function (elem, dragHandle) {
     var computed = getComputedStyle(elem);
     var resizeh = function () {
         var elem = this;
+        var resized = false;
         if (elem.scrollWidth > elem.clientWidth) {
             css(elem, { width: elem.offsetWidth });
-            dispatch(elem, 'resize');
+            resized = true;
         }
         if (elem.scrollHeight > elem.clientHeight) {
             css(elem, { height: elem.offsetHeight });
-            dispatch(elem, 'resize');
+            resized = true;
         }
+        if (resized) dispatch(elem, 'resize'), resizingList.hit(elem);
         if (unbind && parseInt(computed.height) && parseInt(computed.width)) {
             unbind();
             unbind = null;

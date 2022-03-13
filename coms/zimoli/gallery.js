@@ -1,4 +1,3 @@
-var mountedGalleries = resizingList;
 var complete_class = "complete";
 var inadequate_class = "lack";
 function bindScroll(elements) {
@@ -36,6 +35,7 @@ function gallery(element, minWidth, generator) {
 
     var resize = function () {
         var clientWidth = parseFloat(freePixel(element.clientWidth));
+        if (!clientWidth) return;
         boxCount = clientWidth / minWidth | 0;
         if (boxCount < 1) boxCount = 1;
         element.paddingMax = boxCount;
@@ -47,19 +47,7 @@ function gallery(element, minWidth, generator) {
             maxWidth: fromPixel(maxWidth),
         });
     };
-    var _onappend = function () {
-        mountedGalleries.push(element);
-        element.resize();
-    };
-    onappend(element, _onappend);
-
-    onremove(element, function () {
-        for (var cx = mountedGalleries.length - 1; cx >= 0; cx--) {
-            if (mountedGalleries[cx] === element) {
-                mountedGalleries.splice(cx, 1);
-            }
-        }
-    });
+    resizingList.set(element);
     var createColumn = function (id) {
         var _box = list(function (index) {
             var realindex = index * boxCount + id;
@@ -102,8 +90,6 @@ function gallery(element, minWidth, generator) {
         index = realIndex / boxCount || 0;
         element.go(index);
     }, 0);
-    if (!element.renders) element.renders = [];
-    element.renders.unshift(element.resize);
     care(element, function () {
         var index = this.index();
         this.clean();

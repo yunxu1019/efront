@@ -76,7 +76,7 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         });
         go.call(_box, index);
     }, 0);
-    bind('resize')(_box, _box.resize);
+    resizingList.set(_box);
     on('resize')(_box, _box.resize);
     return _box;
 }
