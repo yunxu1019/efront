@@ -23,10 +23,8 @@ var matchmark = new RegExp(`^(${crossmark.source}(${crossmark.source}?))${/(.*?)
     loadCertFile("key", "cross-key.pem");
     loadCertFile("cert", "cross-cert.pem");
 }();
-function parseUrl(hostpath, real) {
+async function parseUrl(hostpath, real) {
     var { pathname, search, hostname, protocol, port } = parseURL(hostpath);
-    var crypted = /^\/\!/.test(pathname);
-    if (crypted) pathname = pathname.slice(0, 2) + encode62.timedecode(pathname.slice(2));
     if (real === undefined && /^https?\:\/\//i.test(hostpath)) {
         var headers = {};
         var realpath = pathname.slice(1);
@@ -63,7 +61,7 @@ function parseUrl(hostpath, real) {
             hostpath = escape(hostpath);
         }
     }
-    return { jsonlike, realpath, hostpath, headers, crypted };
+    return { jsonlike, realpath, hostpath, headers };
 }
 // https://github.com/nodejs/node/blob/02a0c74861c3107e6a9a1752e91540f8d4c49a76/lib/_http_common.js :204
 const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/
@@ -85,13 +83,15 @@ var utf8error = { "content-type": "text/plain;charset=utf-8" };
  */
 async function cross(req, res, referer) {
     try {
+        var crypted = /^\/\!/.test(req.url);
+        if (crypted) crypted = await userdata.getRequestCode(req);
+        if (crypted && req.url.length === 2) return res.end(encode62.timeencode(crypted));
+        if (crypted) req.url = req.url.slice(0, 2) + encode62.safedecode(encode62.timedecode(req.url.slice(2)), crypted);
         if (referer) {
-            var { jsonlike, realpath, hostpath, headers } = parseUrl(referer, req.url);
+            var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
             req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
         }
-        var { jsonlike, realpath, hostpath, headers, crypted } = parseUrl(req.url);
-        if (crypted) crypted = await userdata.getRequestCode(req);
-        if (crypted && /https?:\/\/\//.test(hostpath)) return res.end(encode62.timeencode(crypted));
+        var { jsonlike, realpath, hostpath, headers } = await parseUrl(req.url);
         if (/^&/.test(jsonlike)) hostpath = req.protocol + hostpath.replace(/^https?:/i, "");
         var $url = hostpath + realpath;
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
@@ -131,6 +131,7 @@ async function cross(req, res, referer) {
             http = require("http");
         }
         if (crypted) delete headers["content-length"];
+
         var request = http.request(Object.assign({
             method: method,
             headers: headers,

@@ -85,8 +85,16 @@ function getCookies(domainPath) {
     } while (domain.length);
     return serialize(cookieObject, ";");
 }
+
+function delCookies(domainPath) {
+    var splited = domainPath.split("/");
+    var domain = splited[0];
+    delete cookiesMap[domain];
+}
+
 return {
     cookiesMap,
     addCookie,
     getCookies,
+    delCookies,
 }

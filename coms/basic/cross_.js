@@ -1,4 +1,4 @@
-var { getCookies, addCookie } = cookie;
+var { getCookies, addCookie, delCookies } = cookie;
 var { File } = this;
 function isFile(a) {
     if (File) {
@@ -29,7 +29,7 @@ function isChildPath(relative, path) {
 }
 
 var getCrossUrl = function (domain, headers, encrypt) {
-    if (notCross(domain, encrypt)) return domain;
+    if (notCross(domain, !!encrypt)) return domain;
     var originDomain = getDomainPath(domain);
     var _cookies = getCookies(originDomain);
     var _headers = {};
@@ -45,7 +45,7 @@ var getCrossUrl = function (domain, headers, encrypt) {
         .replace(/^(s?)(\/\/)/i, "http$1:$2")
         .replace(domainReg, `$2${_headers}/$3$4`)
     if (ishttps) domain = b + domain;
-    if (encrypt) domain = encode62.timeencode(domain);
+    if (encrypt) domain = encode62.timeencode(encode62.safedecode(domain, encrypt));
     return base + b + domain;
 };
 function noop() { }
@@ -133,7 +133,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     var cookie = xhr.getResponseHeader(exposekey);
                     if (cookie) {
                         cookie = encode62.safedecode(cookie, xhr.encrypt);
-                        addCookie(cookie, originDomain);
+                        if (!xhr.nocookie) addCookie(cookie, originDomain);
                     }
 
                 }
@@ -260,7 +260,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 extend(realHeaders, _headers);
                 xhr.open(method, url);
             } else {
-                xhr.open(method, getCrossUrl(url, _headers, isencrypt));
+                xhr.open(method, getCrossUrl(url, _headers, code));
             }
             if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
             delete realHeaders.Cookie;
@@ -305,6 +305,11 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     xhr.abort = function () {
         removeFromList(requests, this);
         if (isFunction(abort)) abort.call(this);
+    };
+    xhr.delCookies = function () {
+        delCookies(originDomain);
+        xhr.nocookie = true;
+        return xhr;
     };
     requests.push(xhr);
     return xhr;
