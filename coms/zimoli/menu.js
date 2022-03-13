@@ -153,22 +153,20 @@ function main(elem, mode) {
                     tree(elem, function (index, item, menu) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
+                        console.log(elem.useIcon, item.icon)
                         var m = menuItem(null, menu, elem.useIcon);
                         return m;
                     });
-                    care(elem, function (data) {
-                        elem.setData(data);
-                    });
-                    elem.renders.push(function () {
-                        var src = this.src;
+                    care(elem, function (src) {
                         var hasIcon = false;
-                        for (var cx = 0, dx = src; cx < dx; cx++) {
+                        for (var cx = 0, dx = src.length; cx < dx; cx++) {
                             if (src[cx].icon) {
                                 hasIcon = true;
                                 break;
                             }
                         }
                         elem.useIcon = hasIcon;
+                        elem.setData(src);
                     });
                 } else {
                     var nodes = getTreeNodes(elem);
