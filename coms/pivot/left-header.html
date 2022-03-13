@@ -1,1 +1,1 @@
-<select -model="host" @change="setHost(this.value)" direction=y addable><option -repeat="h in hosts" :value=h.key -text="h.name"></option></select>
+<select -model="host" @change="setHost(this.value)" direction=y editable  -src="h in hosts"><option :value=h.key -text="h.name"></option></select>

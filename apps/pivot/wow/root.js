@@ -27,7 +27,7 @@ function main() {
         $scope.open();
         return false;
     }
-    page.setAttribute('ng-mousedown', 'setActive')
+    page.setAttribute('on-contextmenu', 'setActive')
     bind('drop')(page, async function (event) {
         event.preventDefault();
         var files = event.dataTransfer.files;

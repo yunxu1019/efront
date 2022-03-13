@@ -12,9 +12,8 @@ var dragview = function (dragview) {
             if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag') || a.dragable === false, event.target)) {
                 moving = false;
             } else {
-                event.preventDefault();
                 var { childNodes } = target;
-                for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
+                if (getComputedStyle(target).cursor === 'auto') for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
                     var child = childNodes[cx];
                     if (child.nodeType === 3) {
                         moving = false;
@@ -28,7 +27,7 @@ var dragview = function (dragview) {
                         break;
                     }
                     target = target.parentNode;
-                } while (target.nodeType == 1);
+                } while (target && target.nodeType == 1);
             }
         },
         move(event) {
@@ -39,6 +38,7 @@ var dragview = function (dragview) {
             ) return;
             var deltaX = savedX - event.clientX;
             var deltaY = savedY - event.clientY;
+            event.preventDefault();
             if (!moving) {
                 if (Math.abs(deltaX) < MOVELOCK_DELTA && Math.abs(deltaY) < MOVELOCK_DELTA) return;
                 if (Math.abs(deltaY) >= Math.abs(deltaX)) {

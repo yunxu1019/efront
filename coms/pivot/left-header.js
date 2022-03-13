@@ -3,6 +3,7 @@ function main() {
     a.innerHTML = template;
     render(a, {
         setHost(a) {
+            data.setInstance("hosts", this.hosts, true);
             data.setInstance("base", { base: location.protocol + "//" + a + "/", host: a });
             data.abortAll();
             zimoli();
