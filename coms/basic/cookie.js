@@ -23,6 +23,7 @@ var parseCookieFromText = function (cookie) {
 };
 
 function addCookie(cookie_text, originDomain = "") {
+    originDomain = getDomainPath(originDomain);
     if (!cookie_text) return;
     if (cookie_text instanceof Array) cookie_text = cookie_text.join(",");
     var cookies = cookie_text.replace(/(^|;|,)\s*(expires)=(\w*),([^=]*)(;|$)/ig, "$1$2=$3.$4$5")
@@ -57,6 +58,7 @@ function addCookie(cookie_text, originDomain = "") {
 }
 
 function getCookies(domainPath) {
+    domainPath = getDomainPath(domainPath);
     var cookieObject = {};
     var splited = domainPath.split("/");
     var domain = splited[0];
@@ -87,9 +89,15 @@ function getCookies(domainPath) {
 }
 
 function delCookies(domainPath) {
+    domainPath = getDomainPath(domainPath);
     var splited = domainPath.split("/");
     var domain = splited[0];
     delete cookiesMap[domain];
+}
+function getDomainPath(url) {
+    var { host, pathname } = parseURL(url);
+    if (pathname) return host + pathname;
+    return host;
 }
 
 return {

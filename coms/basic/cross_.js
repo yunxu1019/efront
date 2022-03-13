@@ -322,6 +322,9 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         xhr.nocookie = true;
         return xhr;
     };
+    xhr.getCookies = function () {
+        return getCookies(originDomain);
+    };
     requests.push(xhr);
     return xhr;
 }
