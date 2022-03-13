@@ -4,7 +4,7 @@
         <span class="required" ng-if="field.required">*</span>
     </div>
     <div class="body">
-        <model _data=data _field=field></model>
+        <model _data=data _field=field _readonly="readonly"></model>
         <span class="error" ng-bind="error"></span>
     </div>
     <div class="foot" ng-if="field.msg">
@@ -12,5 +12,5 @@
     </div>
 </template>
 <template v-else>
-    <model _data=data _field=field></model>
+    <model _data=data _field=field _readonly="readonly"></model>
 </template>

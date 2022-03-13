@@ -9,7 +9,8 @@ function main(elem) {
             model,
             data,
             error: null,
-            field: f
+            field: f,
+            readonly: !!this.readonly
         });
         elem.oldValue = data[f.key];
         elem.setAttribute("field", f.key);
