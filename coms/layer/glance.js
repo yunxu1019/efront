@@ -9,9 +9,10 @@ var dragview = function (dragview) {
             offsetWidth = menu.offsetWidth;
             var { target } = event;
             moving = null;
-            if (/(input|textarea)/i.test(target.tagName)) {
+            if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag') || a.dragable === false, event.target)) {
                 moving = false;
             } else {
+                event.preventDefault();
                 var { childNodes } = target;
                 for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
                     var child = childNodes[cx];
@@ -140,7 +141,7 @@ function main(mainPath, historyName = "") {
     };
     on("transitionend")(layer, function (event) {
         if (event.target !== this) return;
-        dispatch(window, 'render');
+        dispatch(window, 'resize');
     });
     layer.closeLeft = function () {
         closed = true;
