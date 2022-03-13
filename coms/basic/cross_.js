@@ -11,7 +11,7 @@ var encrypt = null;
 var domainReg = /^(?:(https?)\:)?\/\/(.*?)(?:\/(.*?))?([\?#].*)?$/i;
 var setHost = function (host) {
     base = host;
-    if (encrypt) encrypt = getCode.call(this);
+    encrypt = null;
 };
 var HeadersKeys = ["Content-Type"];
 var cors_hosts = [];
