@@ -153,18 +153,13 @@ function main(elem, mode) {
                     tree(elem, function (index, item, menu) {
                         var e = generator(index, item);
                         if (!e || e.children.length) return e;
-                        console.log(elem.useIcon, item.icon)
-                        var m = menuItem(null, menu, elem.useIcon);
+                        var m = menuItem(null, menu, elem.useIcon[0]);
                         return m;
                     });
                     care(elem, function (src) {
-                        var hasIcon = false;
-                        for (var cx = 0, dx = src.length; cx < dx; cx++) {
-                            if (src[cx].icon) {
-                                hasIcon = true;
-                                break;
-                            }
-                        }
+                        if (src) src = getTreeFromData(src);
+                        var hasIcon = src.hasIcon;
+                        JSON.stringify(src);
                         elem.useIcon = hasIcon;
                         elem.setData(src);
                     });

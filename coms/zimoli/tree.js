@@ -1,31 +1,4 @@
-function getTreeFromArray(array) {
-    var root = [];
-    root.tab = -Infinity;
-    root.count = 0;
-    root.total = 0;
-    var path = [root];
-    for (var cx = 0, dx = array.length; cx < dx; cx++) {
-        var arg = array[cx];
-        var item = new Item(arg);
-        item.root = root;
-        for (var cy = path.length - 1; cy >= 0; cy--) {
-            var parentElement = path[cy];
-            if (parentElement.tab < arg.tab) {
-                item.parent = parentElement;
-                parentElement.push(item);
-                path.splice(cy + 1, path.length - cy - 1, item);
-                break;
-            }
-            parentElement.parent.count += parentElement.count || parentElement.length || 1;
-            parentElement.parent.total += (parentElement.total || parentElement.length) + 1;
-        }
-    }
-    while (path.length > 1) {
-        var item = path.pop();
-        path[path.length - 1].count += item.count || item.length || 1;
-    }
-    return root;
-}
+var getTreeFromArray = Tree.fromArray;
 function buildCrack(com, set) {
     var count = com.length;
     for (var cx = 0, dx = com.length; cx < dx; cx++) {
@@ -54,55 +27,8 @@ function getCrackTarget(com) {
     return com.target;
 }
 
-function getArrayFromTree(root, skipClosed = true) {
-    var path = [root], pathcx = [0];
-    var result = [];
-    var max_deep = 1;
-    loop: while (pathcx.length) {
-        var pathindex = pathcx.length - 1;
-        var cx = pathcx[pathindex];
-        var item = path[pathindex];
-        if (cx >= item.length) {
-            path.pop();
-            pathcx.pop();
-            continue loop;
-        }
-        var elem = item[cx];
-        elem.parent = item;
-        result.push(elem);
-        pathcx[pathindex] = ++cx;
-        if (!skipClosed || !elem.isClosed()) {
-            if (elem.length) {
-                path.push(elem);
-                pathcx.push(0);
-                if (pathcx.length > max_deep) {
-                    max_deep = pathcx.length;
-                }
-            }
-        }
-    }
-    result.deep = max_deep;
-    return result;
-}
-function appendTo(parent, datas) {
-    var tab = parent && parent.tab + 1 || 1;
-    var length = parent.length;
-    datas.map(function (data) {
-        if (isObject(data)) {
-            data.tab = tab;
-            var item = new Item(data);
-            item.parent = parent;
-            item.root = parent.root;
-            parent.push(item);
-        }
-    });
-
-    var delta = parent.length - length;
-    while (parent) {
-        parent.count += delta;
-        parent = parent.parent;
-    }
-}
+var getArrayFromTree = Tree.toArray;
+var appendTo = Tree.appendTo;
 
 function tree() {
     var element, generator;
@@ -294,14 +220,8 @@ function tree() {
 
 
     banner.setData = function (src) {
-        if (isArray(src)) {
-            if (src[0] && 'tab' in src[0]) {
-                root = getTreeFromArray(src);
-            } else {
-                root = getTreeFromData(src);
-            }
-            refresh();
-        }
+        root = new Tree(src);
+        refresh();
     };
     banner.addData = function (data, parent = root) {
         appendTo(parent, data);
