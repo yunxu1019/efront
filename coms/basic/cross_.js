@@ -70,7 +70,6 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     }
     var loaded, errored;
     var onload = function (data) {
-        removeFromList(requests, xhr);
         if (xhr.decoder) {
             data = xhr.decoder(data);
         }
@@ -79,13 +78,13 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         digest();
     };
     var onerror1 = function (e) {
-        removeFromList(requests, xhr);
         errored = e || "未知错误！";
         flush();
         digest();
     };
     var onerror = async function (e) {
         if (e.type === 'error') {
+            removeFromList(requests, e.target);
             e = { response: "无法访问服务器", toString: toResponse };
         }
         for (var r of reforms) {
@@ -121,6 +120,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     else {
         var nocross = notCross(url);
         var callback = async function () {
+            removeFromList(requests, xhr);
             var exposeHeaders = !nocross && xhr.getResponseHeader("access-control-expose-headers");
             var exposeMap = {};
             if (exposeHeaders) exposeHeaders.split(",").forEach(h => exposeMap[h.toLowerCase()] = true);
