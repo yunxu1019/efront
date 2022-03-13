@@ -7,7 +7,7 @@ var clearCache = lazy(function () {
     var pass = Date.now() - 600 * 1000;
     cached = cached.filter(c => c.time > pass);
 }, 80);
-var preventCached = function (interval = 60000, id) {
+var preventCached = function (interval = 60000, id, count = 0) {
     clearCache();
     if (cached.length > 0x7ffff) {
         // 10分钟最多50万并发
@@ -17,12 +17,13 @@ var preventCached = function (interval = 60000, id) {
 
         throw new Error("服务器忙，请稍后再试！");
     }
+    if (!(interval > 2000)) interval = 2000;
     var index = getIndexFromOrderedArray(cached, id);
     var c = cached[index];
     var now = Date.now();
     if (c && c.value === id) {
-        var increase = 0;
-        if (c.count > 2) increase = interval * Math.pow(2, c.count - 2) - interval;
+        var increase = 2000 - interval;
+        if (c.count >= count) increase = interval * Math.pow(2, c.count - count) - interval;
         if (now - c.time < interval + increase) {
             // 单个ip 最多1个
             var seconds = (increase + interval + c.time - now) / 1000 + 1 | 0;
@@ -45,10 +46,11 @@ var preventCached = function (interval = 60000, id) {
         }
         if (!c.count) c.count = 2;
         else c.count++;
-        c.time = now + increase;
+        c.time = now;
+        if (increase > 0) c.time += increase;
     }
     else {
-        saveToOrderedArray(cached, { time: now, value: id });
+        saveToOrderedArray(cached, { time: now, value: id, count: 1 });
     }
     var savedLength = cached.length;
     if (savedLength === cached.length) {
