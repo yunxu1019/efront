@@ -45,7 +45,7 @@ var getCrossUrl = function (domain, headers, encrypt) {
         .replace(/^(s?)(\/\/)/i, "http$1:$2")
         .replace(domainReg, `$2${_headers}/$3$4`)
     if (ishttps) domain = b + domain;
-    if (encrypt) domain = encode62.timeencode(encode62.safedecode(domain, encrypt));
+    if (encrypt) domain = encode62.timeencode(encode62.safeencode(domain, encrypt));
     return base + b + domain;
 };
 function noop() { }
@@ -131,19 +131,30 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 var exposekey = nocross ? "set-cookie" : "efront-cookie";
                 if (exposeMap[exposekey]) {
                     var cookie = xhr.getResponseHeader(exposekey);
-                    if (cookie) {
-                        cookie = encode62.safedecode(cookie, xhr.encrypt);
-                        if (!xhr.nocookie) addCookie(cookie, originDomain);
+                    if (cookie && !xhr.nocookie) {
+                        try {
+                            if (isencrypt) cookie = encode62.safedecode(cookie, xhr.encrypt);
+                        }
+                        catch (e) {
+                            onerror({ status: xhr.status, response: "Cookie解析异常!", toString: toResponse });
+                            return;
+                        }
+                        addCookie(cookie, originDomain);
                     }
 
                 }
             }
             if (isencrypt && xhr.response) {
-                xhr = {
-                    status: xhr.status,
-                    response: encode62.safedecode(xhr.response || xhr.responseText, xhr.encrypt),
-                };
-                xhr.responseText = xhr.response;
+                try {
+                    xhr = {
+                        status: xhr.status,
+                        response: encode62.safedecode(xhr.response || xhr.responseText, xhr.encrypt),
+                    };
+                    xhr.responseText = xhr.response;
+                }
+                catch (e) {
+                    return onerror({ status: xhr.status, response: "数据无法解析！", toString: toResponse })
+                }
             };
             switch (xhr.status) {
                 case 0:
@@ -189,7 +200,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         var send = xhr.send;
         xhr.toString = toResponse;
         if (isencrypt && !encrypt) encrypt = cross.getCode();
-        xhr.encrypt = encrypt;
+        if (isencrypt) xhr.encrypt = encrypt;
         xhr.json = xhr.data = xhr.send = function (data, value) {
             if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = data instanceof Array ? [] : {};
             if (FormData && data instanceof FormData) {
@@ -260,7 +271,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 extend(realHeaders, _headers);
                 xhr.open(method, url);
             } else {
-                xhr.open(method, getCrossUrl(url, _headers, code));
+                xhr.open(method, getCrossUrl(url, _headers, isencrypt && code));
             }
             if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
             delete realHeaders.Cookie;
