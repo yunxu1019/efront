@@ -451,37 +451,25 @@ var directives = {
             oldValue = value;
             this.setValue(value);
         } : null;
+        var setter2 = function (key) {
+            var value = getter();
+            if (value === undefined) value = "";
+            if (deepEqual(oldValue, value)) return;
+            oldValue = value;
+            this[key] = value;
+        };
         if (/^input$/i.test(this.tagName) && /^checkbox$/i.test(this.type) || /^checkbox$/i.test(this.tagName)) {
-            this.renders.push(setter || function () {
-                var value = getter();
-                if (value === undefined) value = "";
-                if (deepEqual(oldValue, value)) return;
-                oldValue = value;
-                this.checked = value;
-            });
+            this.renders.push(setter || setter2.bind(this, 'checked'));
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=${getstr || "this.checked"}`).bind(this);
         } else if (("value" in this || this.getValue instanceof Function) && this.setValue instanceof Function) {
-            this.renders.push(setter || function () {
-                var value = getter();
-                if (value === undefined) value = "";
-                if (deepEqual(oldValue, value)) return;
-                oldValue = value;
-                if ((this.getValue instanceof Function ? this.getValue() : this.value) !== value) this.setValue(value);
-            });
+            this.renders.push(setter);
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=${getstr || "this.value"}`).bind(this);
         } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
-            this.renders.push(setter || function () {
-                var value = getter();
-                if (isEmpty(value)) value = "";
-                if (deepEqual(oldValue, value)) return;
-                oldValue = value;
-                if (this.value !== value) this.value = value;
-            });
+            this.renders.push(setter || setter2.bind(this, 'value'));
             var change = new Function(`${search[0]}with(this.$scope)${search[1]}=${getstr || "this.value"}`).bind(this);
         } else {
             this.renders.push(setter || function () {
                 var value = getter();
-
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
                 oldValue = value;
@@ -489,8 +477,18 @@ var directives = {
             });
             var change = new Function("html", `${search[0]}with(this.$scope)${search[1]}=${getstr || "'value' in this?this.value:html(this)"}`).bind(this, html);
         }
-        var onchange = change;
-        eventsHandlers.map(on => on(this, onchange));
+        setter2 = null;
+        var onchange = function () {
+            change.call(this);
+            var value = getter();
+            if (value === oldValue) {
+                return;
+            }
+            oldValue = value;
+            change.call(this, value);
+            userChanged = true;
+        };
+        eventsBinders.forEach(on => on(this, onchange, true));
     },
 
     "class"(search) {
@@ -869,8 +867,16 @@ function render(element, scope, parentScopes, lazy = true) {
 var digest = lazy(refresh, -{});
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
-var eventsHandlers = "fullscreenchange,change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
-eventsHandlers.map(on => on(window, digest));
+var eventsBinders = "fullscreenchange,load,change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
+var userChanged = false;
+eventsBinders.splice(0, 2).forEach(on => on(window, digest));
+var changeListener = function () {
+    if (userChanged) {
+        userChanged = false;
+        digest();
+    }
+};
+eventsBinders.forEach(on => on(window, changeListener));
 on("render")(window, digest);
 var register = function (key, creater) {
     key = key.replace(/\-(\w)/, (_, a) => a.toUpperCase()).replace(/^\w/, a => a.toLowerCase());
