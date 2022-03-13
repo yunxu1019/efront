@@ -119,12 +119,24 @@ function select(target, list, removeOnSelect, direction) {
     }
     else if (target.$src) {
         var generator = getGenerator(target);
+        var optionsMap = {};
         var initList2 = function (src) {
+            src.forEach(s => {
+                optionsMap[s.key] = s;
+            });
             list = selectList(generator, src, !!target.multiple, !!target.editable);
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }
+            if (target.value) {
+                target.setValue(target.value);
+            }
             bindEvent();
+        };
+        target.setValue = function (v) {
+            var s = optionsMap[v];
+            this.innerHTML = `<option selected value="${v}">${s ? s.name : ''}</option>`;
+            this.value = v;
         };
         care(target, initList2);
         var initList = function () {
