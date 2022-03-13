@@ -128,7 +128,11 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 var exposekey = nocross ? "set-cookie" : "efront-cookie";
                 if (exposeMap[exposekey]) {
                     var cookie = xhr.getResponseHeader(exposekey);
-                    addCookie(cookie, originDomain);
+                    if (cookie) {
+                        cookie = encode62.safedecode(cookie, xhr.encrypt);
+                        addCookie(cookie, originDomain);
+                    }
+
                 }
             }
             if (isencrypt && xhr.response) {
@@ -258,7 +262,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 xhr.open(method, getCrossUrl(url, _headers, isencrypt));
             }
             if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
-
+            delete realHeaders.Cookie;
             Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
             if (!isEmpty(datas)) send.call(xhr, nocross || !isencrypt ? datas : encode62.safeencode(datas, code));
             else send.call(xhr);

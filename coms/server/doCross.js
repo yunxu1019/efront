@@ -139,7 +139,12 @@ async function cross(req, res, referer) {
             var headers = response.headers;
             var exposeHeaders = [];
             var setCookie = headers["set-cookie"];
-            if (setCookie && req.referer && referer === false) headers["efront-cookie"] = setCookie, delete headers["set-cookie"], exposeHeaders.push("efront-cookie");
+            if (setCookie && (req.referer || crypted) && referer === false) {
+                if (crypted) setCookie = setCookie.map(e => encode62.safeencode(e, crypted));
+                headers["efront-cookie"] = setCookie;
+                delete headers["set-cookie"];
+                exposeHeaders.push("efront-cookie");
+            }
             a: if (headers.location && referer === false) {
                 var parsed = parseURL(headers.location);
                 if (parsed.host) {
