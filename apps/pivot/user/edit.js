@@ -1,1 +1,0 @@
-pedit.bind(null, "用户信息", "user");

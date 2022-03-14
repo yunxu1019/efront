@@ -270,10 +270,7 @@ var requestListener = async function (req, res) {
                     return;
                 case "task":
                 case "dict":
-                case "api":
-                case "user":
                 case "room":
-                case "tag":
                 case "proxy":
                 case "private":
                     try {
