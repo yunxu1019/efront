@@ -42,7 +42,8 @@ function queue(list, count = 1, context = null) {
         if (!(count >= 1)) {
             count = 1;
         }
-        while (cx < count) {
+        if (list.length === 0) run();
+        else while (cx < count) {
             run();
         }
     });
