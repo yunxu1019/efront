@@ -312,6 +312,10 @@ function main(page, items, active, direction = 'y') {
         }`;
             var notHidden = `!${itemName}.hidden`;
             var generator = getGenerator(page, 'menu-item');
+            var fire0 = function () {
+                fire.apply(this, arguments);
+                dispatch(window, 'render');
+            };
             list(page, function (index) {
                 var item = items[index];
                 if (!item) return;
@@ -325,7 +329,7 @@ function main(page, items, active, direction = 'y') {
                 on("mouseenter")(a, open);
                 on("pointermove")(a, open);
                 if (istoolbar) on("pointerdown")(a, open1);
-                on("click")(a, fire);
+                on("click")(a, fire0);
                 return a;
             });
             on("append")(page, function () {
@@ -358,7 +362,7 @@ function main(page, items, active, direction = 'y') {
             on("mouseenter")(elem, open);
             on("pointermove")(elem, cancel);
             if (istoolbar) on("pointerdown")(elem, open1);
-            on("click")(elem, fire);
+            on("click")(elem, fire0);
             return elem;
         }, direction);
     }
