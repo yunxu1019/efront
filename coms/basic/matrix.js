@@ -92,22 +92,20 @@ function inner(vec1, vec2) {
     }
     return sum;
 }
+function cross2(vec1, vec2) {
+    var [x1, y1] = vec1;
+    var [x2, y2] = vec2;
+    return x1 * y2 - x2 * y1;
+}
+function cross3(vec1, vec2) {
+    var [x1, y1, z1] = vec1;
+    var [x2, y2, z2] = vec2;
+    return [y1 * z2 - y2 * z1, z1 * x2 - z2 * x1, x1 * y2 - x2 * y1];
+}
 function cross(vec1, vec2) {
     if (vec1.length !== vec2.length) throw notMatchLength;
-    var c = new Array(vec1.length);
-    for (var cx = 0, dx = vec1.length; cx < dx; cx++) {
-        var s = 0, f = 1;
-        for (var cy = 1, dy = dx; cy < dy; cy++) {
-            var c1 = cx + cy;
-            var c2 = c1 + f;
-            if (c1 >= dx) c1 -= dx;
-            if (c2 >= dx) c2 -= dx;
-            f = 0 - f;
-            s += vec1[c1] * vec2[c2];
-        }
-        c[cx] = s;
-    }
-    return c;
+    if (vec1.length === 2) return cross2(vec1, vec2);
+    if (vec1.length === 3) return cross3(vec1, vec2);
 }
 function times(vector, factor) {
     for (var cx = 0, dx = vector.length; cx < dx; cx++) {
@@ -144,13 +142,14 @@ function matrix2d(theta) {
 }
 
 function matrix3d(factor) {
-    var theta = norm(factor);
-    var vec = times(factor, 1 / theta);
+    var n = norm(factor.slice(0, 3));
+    var vec = times(factor, 1 / n);
+    var theta = factor.length === 4 ? factor[3] : n;
+    theta = theta;
     var cosa = Math.cos(theta);
     var sina = Math.sin(theta);
     var vera = 1 - cosa;
-    var [x_u, y_u, z_u] = factor ? [0, 0, 1] : vec;
-
+    var [x_u, y_u, z_u] = !n ? [0, 0, 1] : vec;
     return new Matrix(
         cosa + x_u * x_u * vera, x_u * y_u * vera + z_u * sina, x_u * z_u * vera - y_u * sina, 0,
         x_u * y_u * vera - z_u * sina, cosa + y_u * y_u * vera, y_u * z_u * vera + x_u * sina, 0,
@@ -285,9 +284,11 @@ class Matrix extends Array {
         this.dirty();
         return translate(this, vector);
     }
-    scale(ratio) {
+    scale(ratio, center) {
         this.dirty();
+        if (center) this.translate(center.map(负));
         times(this, ratio);
+        if (center) this.translate(center);
         this[this.length - 1] = 1;
         return this;
     }
