@@ -143,9 +143,8 @@ class MathMatrix extends Matrix {
 
     static matrix3d(factor) {
         var n = norm(factor.slice(0, 3));
-        var vec = times(factor, 1 / n);
         var theta = factor.length === 4 ? factor[3] : n;
-        theta = theta;
+        var vec = times(factor, 1 / n);
         var cosa = Math.cos(theta);
         var sina = Math.sin(theta);
         var vera = 1 - cosa;
@@ -178,14 +177,13 @@ class MathMatrix extends Matrix {
             ct = max_ct;
             if (ct !== start) {
                 var delta = ct - start;
-                var ratio = 1 / X[ct];
+                var ratio = (1 - X[start]) / X[ct];
                 for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
                     X[cy] += X[cy + delta] * ratio;
                     A[cy] += A[cy + delta] * ratio;
                 }
             }
             if (X[start] !== 1) {
-                var delta = ct - start;
                 var ratio = 1 / X[start];
                 for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
                     X[cy] *= ratio;
@@ -202,13 +200,13 @@ class MathMatrix extends Matrix {
                 }
             }
         }
-        for (var cx = dim - 2; cx >= 0; cx--) {
-            var start = cx * dim + cx + 1;
-            for (var ct = start; ct >= 0; ct -= dim) {
+        for (var cx = dim - 1; cx > 0; cx--) {
+            var start = cx * dim + cx;
+            for (var ct = start - dim; ct >= 0; ct -= dim) {
                 if (X[ct] === 0) continue;
                 var ratio = -X[ct];
-                var delta = dim + start - ct;
-                for (var cy = cx * dim, dy = cy + dim; cy < dy; cy++) {
+                var delta = start - ct;
+                for (var cy = ct - cx, dy = cy + dim; cy < dy; cy++) {
                     X[cy] += X[cy + delta] * ratio;
                     A[cy] += A[cy + delta] * ratio;
                 }
@@ -277,9 +275,8 @@ class MatrixTransposed extends Matrix {
 
     static matrix3d(factor) {
         var n = norm(factor.slice(0, 3));
-        var vec = times(factor, 1 / n);
         var theta = factor.length === 4 ? factor[3] : n;
-        theta = theta;
+        var vec = times(factor, 1 / n);
         var cosa = Math.cos(theta);
         var sina = Math.sin(theta);
         var vera = 1 - cosa;
@@ -377,6 +374,7 @@ function cross(vec1, vec2) {
     if (vec1.length !== vec2.length) throw notMatchLength;
     if (vec1.length === 2) return cross2(vec1, vec2);
     if (vec1.length === 3) return cross3(vec1, vec2);
+    throw new Error("向量维度不支持！");
 }
 function 负(a) {
     return -a;
@@ -424,4 +422,3 @@ function olinde(v, vector) {
     }
     return v;
 }
-
