@@ -171,7 +171,7 @@ async function cross(req, res, referer) {
             }
             if (crypted) {
                 var size = 0;
-                response = response.pipe(new Transform({
+                var response1 = response.pipe(new Transform({
                     transform(chunk, _, ok) {
                         chunk = String(chunk);
                         chunk = encode62.safeencode(chunk, crypted, size);
@@ -179,6 +179,9 @@ async function cross(req, res, referer) {
                         ok(null, chunk);
                     }
                 }));
+                response1.statusCode = response.statusCode;
+                response1.headers = headers;
+                response = response1;
             }
             if (!closed) {
                 if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
@@ -214,7 +217,8 @@ async function cross(req, res, referer) {
         });
         if (crypted) {
             var writedLength = 0;
-            req = req.pipe(new Transform({
+
+            var req1 = req.pipe(new Transform({
                 autoDestroy: true,
                 transform(chunk, _, ok) {
                     chunk = String(chunk);
@@ -231,6 +235,9 @@ async function cross(req, res, referer) {
                     }
                 }
             }));
+            req1.headers = req.headers;
+            req1.url = req.url;
+            req = req1;
         }
         req.pipe(request);
     } catch (e) {
