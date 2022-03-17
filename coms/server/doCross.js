@@ -169,7 +169,6 @@ async function cross(req, res, referer) {
                 delete headers["transfer-encoding"];
                 delete headers["connection"];
             }
-            res.writeHead(response.statusCode, headers);
             if (crypted) {
                 var size = 0;
                 response = response.pipe(new Transform({
@@ -185,6 +184,7 @@ async function cross(req, res, referer) {
                 if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                     record($url, request, response, req, res);
                 } else {
+                    res.writeHead(response.statusCode, headers);
                     response.pipe(res);
                 }
             } else {
