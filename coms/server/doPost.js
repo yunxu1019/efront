@@ -67,9 +67,7 @@ var doPost = module.exports = async function (req, res) {
             case "api":
             case "aapi":
                 if (result instanceof Function) res = res.end(await result(req, res));
-                else res.writeHead(404, {
-                    "Connection": "close"
-                }) | res.end();
+                else res.writeHead(404, {}) | res.end();
                 break;
             case "comm":
                 res.end(result);
@@ -81,9 +79,7 @@ var doPost = module.exports = async function (req, res) {
                 res.end(result);
                 break;
             case 404:
-                res.writeHead(404, {
-                    "Connection": "close"
-                });
+                res.writeHead(404, {});
                 res.end(`未没找到匹配的资源：${url}`);
                 break;
             default:
