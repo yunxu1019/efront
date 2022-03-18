@@ -353,7 +353,7 @@ function fixApi(api, href) {
         href = protocol + "//" + host + href;
     }
     else if (/^\.\//.test(href)) {
-        var { protocol, host, pathname } = parseURL(location.href);
+        var { protocol, host, pathname } = parseURL(document.baseURI || location.href);
         href = href.slice(1);
         if (pathname) href = pathname.replace(/\/[^\/\\]*$/, '') + href;
         href = protocol + "//" + host + href;
