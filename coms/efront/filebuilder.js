@@ -99,8 +99,11 @@ var buildjsp = function (buff, realpath) {
         });
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
-                if (!str.imported) str.imported = [prebuilds.context];
-                return require2.invokeFunction(str, prebuilds.context);
+                var noimport = !str.imported;
+                if (noimport) str.imported = [prebuilds.context];
+                var res = require2.invokeFunction(str, prebuilds.context);
+                if (noimport) delete str.imported;
+                return res;
             }
             return str;
         }).then(function (array) {
