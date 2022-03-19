@@ -615,8 +615,9 @@ var privates = {
             if (!_configfileurl) {
                 throw new Error("没有指定配置文件的路径，请使用data.loadConfig加载配置");
             }
-            configPormise = this.loadIgnoreConfig('get', _configfileurl)
-                .then(createApiMap);
+            var p = this.loadIgnoreConfig('get', _configfileurl);
+            p.loading.abort = function () { };
+            configPormise = p.then(createApiMap);
         }
         return configPormise;
     },
