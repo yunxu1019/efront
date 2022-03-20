@@ -67,6 +67,18 @@ var ppid = process.ppid;
 var version = `efront-${require("../../package.json").version}/` + ppid;
 var requestListener = async function (req, res) {
     if (closed) return req.destroy();
+    try {
+        var remoteAddress = require("./remoteAddress")(req);
+    } catch {
+    }
+    if (!remoteAddress) {
+        res.writeHead(403, {
+            "Content-Type": "text/plain;charset=UTF-8"
+        });
+        res.end("禁止访问");
+        return;
+    }
+
     req.protocol = this === server1 ? 'http:' : 'https:';
     var req_access_origin = req.headers["origin"];
     var req_access_headers = req.headers["access-control-request-headers"];
@@ -85,7 +97,6 @@ var requestListener = async function (req, res) {
         efront:
         if (/^\/\:/.test(req.url)) {
             var option = req.url.slice(2);
-            var remoteAddress = require("./remoteAddress")(req);
             if (option === version) res.setHeader("Powered-By", version);
             else if (!/^(?:\:\:1?|(?:\:\:ffff\:)?127\.0\.0\.1)$/i.test(remoteAddress)) {
             }
