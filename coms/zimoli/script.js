@@ -67,7 +67,7 @@ function script(url, judger) {
         return promise.catch(f);
     };
     script.src = url;
-    setTimeout(function () {
+    Promise.resolve().then(function () {
         if (!script.parentNode) {
             if (judger) {
                 var res = seek(window, judger);

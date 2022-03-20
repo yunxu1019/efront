@@ -102,7 +102,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     };
     if (/^jsonp/i.test(method)) {
         var cb = method.split('\-')[1] || 'callback';
-        setTimeout(function () {
+        Promise.resolve().then(function () {
             if (!isEmpty(jsondata) && isEmpty(datas)) {
                 datas = serialize(jsondata);
             }
@@ -112,6 +112,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         });
         var xhr = jsonp(url, {
             [cb](a) {
+                removeFromList(requests, this);
                 onload({ status: 200, response: JSON.stringify(a), toString: toResponse });
             }
         });
@@ -280,7 +281,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             else send.call(xhr);
             digest();
         };
-        fire();
+        Promise.resolve().then(fire);
     }
     var setRequestHeader = xhr.setRequestHeader;
     var realHeaders = Object.create(null);
