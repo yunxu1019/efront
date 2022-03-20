@@ -9,5 +9,5 @@ function onmounted(target, handle) {
     if (isMounted(target)) {
         handle.call(target);
     }
-    on("mounted")(target, handle);
+    return on("mounted")(target, handle);
 }
