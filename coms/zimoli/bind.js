@@ -5,8 +5,7 @@ function bind(eventName, bindTo = window) {
             if (off) off();
             off = on(eventName).call(bindTo, target, eventListener);
         };
-        if (isMounted(target)) mount();
-        var off1 = on("append")(target, mount);
+        var off1 = onmounted(target, mount);
         var off2 = on("remove")(target, function () {
             if (off) off();
             off = null;

@@ -144,8 +144,8 @@ var scrollbary = function () {
     function bindTarget(_container, followResize = _container) {
         var _scrollbar = this;
         _container.with = _scrollbar;
-        onappend(_container, _scrollbar.reshape);
         _scrollbar.target = _container;
+        onmounted(_container, _scrollbar.reshape);
         on("scroll")(_container, function () {
             var top = getTargetTop(_container);
             _scrollbar.scrollTo(top);

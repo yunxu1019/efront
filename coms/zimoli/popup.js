@@ -99,8 +99,7 @@ var popup_path = function (path = "", parameters, target) {
         element.$reload = fullfill;
         if (!target && target !== false && parameters !== false) {
             element.style.opacity = 0;
-            if (element.parentNode) move.bindPosition(element, [.5, .5]), element.style.opacity = 1;
-            else once('append')(element, function () {
+            oncemount(element, function () {
                 move.bindPosition(element, [.5, .5]);
                 element.style.opacity = 1;
             });
