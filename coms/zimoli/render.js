@@ -573,6 +573,7 @@ var createEmiter = function (on) {
             getter1 = createGetter(search, false);
         }
         on(key)(this, function (e) {
+            digest();
             if (parsedSrc) {
                 var target = e.currentTarget || e.target;
                 var scopes = target && target.$parentScopes;
@@ -601,7 +602,6 @@ var createEmiter = function (on) {
                 res = getter0.call(this, e);
             }
             if (res && isFunction(res.then)) res.then(digest, digest);
-            digest();
             return res;
         });
     };
