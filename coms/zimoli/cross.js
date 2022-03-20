@@ -17,9 +17,9 @@ if (cookiesData) {
     }
 }
 
-var digest = lazy(function () {
+var digest = function () {
     dispatch('render', window);
-}, 0);
+};
 
 var cross = cross_.bind(function (callback, onerror) {
     var xhr = new XMLHttpRequest;
