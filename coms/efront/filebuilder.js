@@ -61,7 +61,10 @@ var buildjsp = function (buff, realpath) {
     var splited = [];
     var lastIndex = 0;
     var input = String(buff);
-    var prebuilds = { req: null, res: null, request: null, response: null, context: null };
+    var prebuilds = {
+        req: null, res: null, request: null, response: null, context: null,
+        remoteAddress: null, textplain: null, forbidden: null
+    };
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
     // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//
     input.replace(/\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi, function (match, split, content, index, input) {
@@ -93,10 +96,13 @@ var buildjsp = function (buff, realpath) {
                     "Content-type": "text/html;charset=utf-8"
                 });
                 res.write(String(e));
-            },
-            remoteAddress: require("../server/remoteAddress")(req),
-            context: {}
+            }
         });
+        try {
+            prebuilds.remoteAddress = require("../server/remoteAddress")(req);
+        } catch (e) {
+            return prebuilds.forbidden(e);
+        }
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
                 var noimport = !str.imported;
