@@ -11,6 +11,6 @@ function bind(eventName, bindTo = window) {
             if (off) off();
             off = null;
         });
-        return function () { off1(); off2(); };
+        return function () { off1(); off2(); if (off) off(); };
     }
 }
