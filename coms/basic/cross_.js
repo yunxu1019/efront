@@ -280,9 +280,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             else send.call(xhr);
             digest();
         };
-
-        setTimeout(fire, 0);
-
+        fire();
     }
     var setRequestHeader = xhr.setRequestHeader;
     var realHeaders = Object.create(null);
