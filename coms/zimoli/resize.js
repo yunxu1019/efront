@@ -135,39 +135,36 @@ function resize(elem, initialEvent) {
 }
 moveupon(window, handle);
 
+var offmousemove;
+var resizeh = lazy(function () {
+    // 用于刷新自定义的scrollbar/lattice/gallery组件
+    var elem = this;
+    var resized = false;
+    if (elem.scrollWidth > elem.clientWidth) {
+        css(elem, { width: elem.offsetWidth });
+        resized = true;
+    }
+    if (elem.scrollHeight > elem.clientHeight) {
+        css(elem, { height: elem.offsetHeight });
+        resized = true;
+    }
+    if (resized) dispatch(elem, 'resize'), resizingList.hit(elem);
+});
 
 resize.on = function (elem, dragHandle) {
     if (elem) {
         elem.dragHandle = dragHandle;
     }
     onmounted(elem, function () {
-        var off = onmousemove(window, getResizer);
-        onremove(elem, off);
+        if (!offmousemove) offmousemove = onmousemove(window, getResizer);
+        if (!~resizingElements.indexOf(elem)) {
+            resizingElements.push(elem);
+        }
+        bind('render')(elem, resizeh);
     });
-    var computed = getComputedStyle(elem);
-    var resizeh = function () {
-        var elem = this;
-        var resized = false;
-        if (elem.scrollWidth > elem.clientWidth) {
-            css(elem, { width: elem.offsetWidth });
-            resized = true;
-        }
-        if (elem.scrollHeight > elem.clientHeight) {
-            css(elem, { height: elem.offsetHeight });
-            resized = true;
-        }
-        if (resized) dispatch(elem, 'resize'), resizingList.hit(elem);
-        if (unbind && parseInt(computed.height) && parseInt(computed.width)) {
-            unbind();
-            unbind = null;
-        };
-    }
-    if (!parseInt(computed.height) || !parseInt(computed.width)) var unbind = bind('render')(elem, resizeh);
-    if (!~resizingElements.indexOf(elem)) {
-        resizingElements.push(elem);
-        once('remove')(elem, function () {
-            var index = resizingElements.indexOf(this);
-            if (~index) resizingElements.splice(index, 1);
-        });
-    }
+    on('remove')(elem, function () {
+        var index = resizingElements.indexOf(this);
+        if (~index) resizingElements.splice(index, 1);
+        if (!resizingElements.length && offmousemove) offmousemove(), offmousemove = null;
+    });
 };
