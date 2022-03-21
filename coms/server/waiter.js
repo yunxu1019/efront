@@ -1,5 +1,7 @@
 "use strict";
 require("../efront/setupenv");
+var userdata = require("./userdata");
+var { Transform } = require("stream");
 var memery = require("../efront/memery");
 var clients = require("./clients");
 var message = require("../message");
@@ -65,6 +67,9 @@ var doFolder = require("./doFolder");
 var parseURL = require("../basic/parseURL");
 var ppid = process.ppid;
 var version = `efront-${require("../../package.json").version}/` + ppid;
+var utf8error = {
+    "Content-Type": "text/plain;charset=UTF-8"
+};
 var requestListener = async function (req, res) {
     if (closed) return req.destroy();
     try {
@@ -72,11 +77,91 @@ var requestListener = async function (req, res) {
     } catch {
     }
     if (!remoteAddress) {
-        res.writeHead(403, {
-            "Content-Type": "text/plain;charset=UTF-8"
-        });
+        res.writeHead(403, utf8error);
         res.end("禁止访问");
         return;
+    }
+    var crypted = /^\/\!/.test(req.url);
+    if (crypted) {
+        crypted = await userdata.getRequestCode(req);
+        if (req.url.length === 2) return res.end(encode62.timeencode(crypted));
+        try {
+            req.url = req.url.slice(0, 2) + encode62.safedecode(encode62.timedecode(req.url.slice(2)), crypted);
+        } catch (e) {
+            res.writeHead(403, utf8error);
+            res.end("禁止访问");
+            return;
+        }
+        delete req.headers["content-length"];
+        var size = 0;
+        var res1 = new Transform({
+            transform(chunk, _, ok) {
+                chunk = String(chunk);
+                chunk = encode62.safeencode(chunk, crypted, size);
+                size += chunk.length;
+                ok(null, chunk);
+            }
+        });
+        res1.pipe(res);
+        Object.defineProperty(res1, 'headersSent', {
+            get: function () {
+                return this.headersSent;
+            }.bind(res)
+        });
+        Object.assign(res1, {
+            setHeader: function (k, v) {
+                k = k.toLowerCase();
+                if (k === 'content-length') return;
+                if (k === 'set-cookie' || k === 'efront-cookie') {
+                    v = [].concat(v).map(e => encode62.safeencode(e, crypted));
+                }
+                this.setHeader(k, v);
+            }.bind(res),
+            writeHead: function (code, map) {
+                if (map) {
+                    for (var k in map) {
+                        var v = map[k];
+                        var k1 = k.toLowerCase();
+                        if (k1 !== k) {
+                            delete map[k];
+                            map[k1] = v;
+                        }
+                    }
+                    var cookie = map["set-cookie"] || map["efront-cookie"];
+                    if (cookie) {
+                        delete map["set-cookie"];
+                        map["efront-cookie"] = [].concat(cookie).map(e => encode62.safeencode(e, crypted));
+                    }
+                    delete map["content-length"];
+                }
+                this.writeHead(code, map);
+            }.bind(res)
+        });
+        res = res1;
+        var writedLength = 0;
+        var req1 = req.pipe(new Transform({
+            autoDestroy: true,
+            transform(chunk, _, ok) {
+                chunk = String(chunk);
+                try {
+                    ok(null, encode62.safedecode(chunk, crypted, writedLength));
+                    writedLength += chunk.length;
+                } catch (e) {
+                    if (closed) return;
+                    closed = true;
+                    res.writeHead(403, utf8error);
+                    res.end("数据异常！");
+                    req.destroy();
+                    return;
+                }
+            }
+        }));
+        req1.headers = req.headers;
+        req1.url = req.url;
+        req1.method = req.method;
+        req1.socket = req.socket;
+        req = req1;
+        if (/^\/\!\//.test(req.url)) req.url = req.url.slice(2);
     }
 
     req.protocol = this === server1 ? 'http:' : 'https:';
@@ -354,7 +439,7 @@ var requestListener = async function (req, res) {
         }
         return doCross(req, res);
     }
-    if (doCross.prefix.test(req.url) || req.url === '/!') {
+    if (doCross.prefix.test(req.url)) {
         return doCross(req, res, false);
     }
     if (doCross.referer.test(req.headers.referer)) {
@@ -392,7 +477,7 @@ var requestListener = async function (req, res) {
         var color = parseInt(match[2], 16);
         return res.end(doPost.ccon(name, color));
     }
-    if (/^get/i.test(req.method)) {
+    if (/^get/i.test(req.method) || crypted) {
         return doGet(req, res);
     }
     else if (/^post/i.test(req.method)) {

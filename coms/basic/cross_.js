@@ -29,7 +29,12 @@ function isChildPath(relative, path) {
 }
 
 var getCrossUrl = function (domain, headers, encrypt) {
-    if (notCross(domain, !!encrypt)) return domain;
+    if (notCross(domain, encrypt)) return domain;
+    var basehost = parseURL(base).host || parseURL(location_href).host;
+    if (parseURL(domain).host === basehost) {
+        if (!encrypt) return domain;
+        domain = domain.replace(domainReg, "/$3$4");
+    }
     var originDomain = getDomainPath(domain);
     var _cookies = getCookies(originDomain);
     var _headers = {};
@@ -334,7 +339,7 @@ function addDirect(a) {
 function notCross(domain, encrypt) {
     if (!location_href || !base || !/^https?\:\/\/|^s?\/\//.test(domain)) return true;
     if (location_href === domain.slice(0, location_href.length) ||
-        domain.replace(domainReg, '$2') === base.replace(domainReg, '$2')) return !encrypt;
+        domain.replace(domainReg, '$2') === base.replace(domainReg, '$2') || /^\/[^\/]/.test(domain)) return !encrypt;
     for (var cx = 0, dx = cors_hosts.length; cx < dx; cx++) {
         var host = cors_hosts[cx];
         if (host instanceof RegExp) {

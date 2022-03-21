@@ -73,7 +73,6 @@ const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/
 function checkIsHttpToken(val) {
     return tokenRegExp.test(val);
 }
-var { Transform } = require("stream");
 var utf8error = { "content-type": "text/plain;charset=utf-8" };
 /**
  * 
@@ -83,10 +82,6 @@ var utf8error = { "content-type": "text/plain;charset=utf-8" };
  */
 async function cross(req, res, referer) {
     try {
-        var crypted = /^\/\!/.test(req.url);
-        if (crypted) crypted = await userdata.getRequestCode(req);
-        if (crypted && req.url.length === 2) return res.end(encode62.timeencode(crypted));
-        if (crypted) req.url = req.url.slice(0, 2) + encode62.safedecode(encode62.timedecode(req.url.slice(2)), crypted);
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
             req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
@@ -130,7 +125,6 @@ async function cross(req, res, referer) {
         } else {
             http = require("http");
         }
-        if (crypted) delete headers["content-length"];
 
         var request = http.request(Object.assign({
             method: method,
@@ -140,8 +134,7 @@ async function cross(req, res, referer) {
             var headers = response.headers;
             var exposeHeaders = [];
             var setCookie = headers["set-cookie"];
-            if (setCookie && (req.referer || crypted) && referer === false) {
-                if (crypted) setCookie = setCookie.map(e => encode62.safeencode(e, crypted));
+            if (setCookie && req.referer && referer === false) {
                 headers["efront-cookie"] = setCookie;
                 delete headers["set-cookie"];
                 exposeHeaders.push("efront-cookie");
@@ -164,24 +157,9 @@ async function cross(req, res, referer) {
             delete headers["access-control-allow-credentials"];
             delete headers["access-control-allow-headers"];
             delete headers["cross-origin-resource-policy"];
-            if (crypted) delete headers["content-length"];
             if (res instanceof Http2ServerResponse) {
                 delete headers["transfer-encoding"];
                 delete headers["connection"];
-            }
-            if (crypted) {
-                var size = 0;
-                var response1 = response.pipe(new Transform({
-                    transform(chunk, _, ok) {
-                        chunk = String(chunk);
-                        chunk = encode62.safeencode(chunk, crypted, size);
-                        size += chunk.length;
-                        ok(null, chunk);
-                    }
-                }));
-                response1.statusCode = response.statusCode;
-                response1.headers = headers;
-                response = response1;
             }
             if (!closed) {
                 if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
@@ -215,30 +193,6 @@ async function cross(req, res, referer) {
             res.writeHead(code, {});
             res.end(String(e));
         });
-        if (crypted) {
-            var writedLength = 0;
-
-            var req1 = req.pipe(new Transform({
-                autoDestroy: true,
-                transform(chunk, _, ok) {
-                    chunk = String(chunk);
-                    try {
-                        ok(null, encode62.safedecode(chunk, crypted, writedLength));
-                        writedLength += chunk.length;
-                    } catch (e) {
-                        if (closed) return;
-                        closed = true;
-                        res.writeHead(403, utf8error);
-                        res.end("数据异常！");
-                        request.destroy();
-                        return;
-                    }
-                }
-            }));
-            req1.headers = req.headers;
-            req1.url = req.url;
-            req = req1;
-        }
         req.pipe(request);
     } catch (e) {
         res.writeHead(500, utf8error);
