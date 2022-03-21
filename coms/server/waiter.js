@@ -1,5 +1,6 @@
 "use strict";
 require("../efront/setupenv");
+var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var userdata = require("./userdata");
 var { Transform } = require("stream");
 var memery = require("../efront/memery");
@@ -111,6 +112,7 @@ var requestListener = async function (req, res) {
         Object.assign(res1, {
             setHeader: function (k, v) {
                 k = k.toLowerCase();
+                if (this instanceof Http2ServerResponse && /^(transfer-encoding|connection)$/.test(k)) return;
                 if (k === 'content-length') return;
                 if (k === 'set-cookie' || k === 'efront-cookie') {
                     v = [].concat(v).map(e => encode62.safeencode(e, crypted));
@@ -126,6 +128,10 @@ var requestListener = async function (req, res) {
                             delete map[k];
                             map[k1] = v;
                         }
+                    }
+                    if (this instanceof Http2ServerResponse) {
+                        delete map["transfer-encoding"];
+                        delete map["connection"];
                     }
                     var cookie = map["set-cookie"] || map["efront-cookie"];
                     if (cookie) {
