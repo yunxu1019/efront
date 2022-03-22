@@ -56,7 +56,7 @@ function main() {
             return o.toFixed(5 - i);
         }
     });
-    on("append")(page, function () {
+    on("mounted")(page, function () {
         this.querySelector('[hz="440"]').scrollIntoViewIfNeeded();
     });
     on('contextmenu')(page, function (e) {
