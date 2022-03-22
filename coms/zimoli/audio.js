@@ -25,10 +25,8 @@ var reportError = function (error) {
 
 function init() {
     if (!this.audioPromise) {
-        this.audioPromise = new Promise((ok, oh) => {
-            navigator.mediaDevices.getUserMedia({
-                audio: { deviceId: this.deviceId }
-            }).then(ok).catch(oh);
+        this.audioPromise = navigator.mediaDevices.getUserMedia({
+            audio: { deviceId: this.deviceId }
         }).then((stream) => {
             var context = new Context;
             this.gain = context.createGain();
@@ -56,7 +54,6 @@ async function stop() {
     }
     audioInput.disconnect(context.recorder);
     if (this.audio) this.audio.pause();
-
 }
 
 async function start() {
@@ -135,9 +132,9 @@ class Source {
 
         return this.audioPromise = Promise.resolve([recorder, source, context]);
     }
-    start = start;
-    stop = stop;
 }
+Source.prototype.start = start;
+Source.prototype.stop = stop;
 
 class Recorder {
     running = false;
@@ -159,10 +156,10 @@ class Recorder {
 
         extend(this, config);
     }
-    init = init;
-    start = start;
-    stop = stop;
 }
+Recorder.prototype.init = init;
+Recorder.prototype.start = start;
+Recorder.prototype.stop = stop;
 
 class Monitor {
     running = false;
@@ -177,10 +174,10 @@ class Monitor {
         extend(this, config);
 
     }
-    init = init;
-    start = start;
-    stop = stop;
 }
+Monitor.prototype.init = init;
+Monitor.prototype.start = start;
+Monitor.prototype.stop = stop;
 
 var audio = {
     Recorder,
