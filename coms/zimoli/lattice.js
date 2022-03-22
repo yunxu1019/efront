@@ -53,18 +53,9 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         if (element.with instanceof Array) element.with.forEach(build);
         else if (isElement(element.with)) build(element.with);
     };
-    var go = _box.go;
-    _box.go = function (value) {
-        resize();
-        if (!boxCount) return;
-        go.call(_box, value);
-    };
-    var _onappend = function () {
-        _box.resize();
-    };
-    onappend(_box, _onappend);
     _box.resize = lazy(function () {
         var savedCount = boxCount;
+        console.log(savedCount)
         var index = _box.index();
         resize();
         if (savedCount === boxCount) return;
@@ -74,8 +65,8 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
         [].forEach.call(_box.children, function (c) {
             build(c);
         });
-        go.call(_box, index);
-    }, 0);
+        _box.go(index);
+    });
     resizingList.set(_box);
     on('resize')(_box, _box.resize);
     return _box;

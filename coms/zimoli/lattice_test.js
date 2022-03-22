@@ -8,6 +8,6 @@ function main() {
     renderWithDefaults(layer, {
         data: items
     });
-    layer.querySelector("lattice").go(0);
+    layer.querySelector("lattice");
     return layer;
 }
