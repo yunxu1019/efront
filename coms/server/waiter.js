@@ -111,6 +111,7 @@ var requestListener = async function (req, res) {
         });
         Object.assign(res1, {
             setHeader: function (k, v) {
+                if (res.closed) return;
                 k = k.toLowerCase();
                 if (this instanceof Http2ServerResponse && /^(transfer-encoding|connection)$/.test(k)) return;
                 if (k === 'content-length') return;
@@ -120,6 +121,7 @@ var requestListener = async function (req, res) {
                 this.setHeader(k, v);
             }.bind(res),
             writeHead: function (code, map) {
+                if (res.closed) return;
                 if (map) {
                     for (var k in map) {
                         var v = map[k];
@@ -141,7 +143,15 @@ var requestListener = async function (req, res) {
                     delete map["content-length"];
                 }
                 this.writeHead(code, map);
-            }.bind(res)
+            }.bind(res),
+            write() {
+                if (this.closed) return;
+                Transform.prototype.write.apply(this, arguments);
+            },
+            end() {
+                if (this.closed) return;
+                Transform.prototype.end.apply(this, arguments);
+            },
         });
         res = res1;
         var writedLength = 0;
