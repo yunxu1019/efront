@@ -34,7 +34,6 @@ function init() {
             this.gain = context.createGain();
             context.resume();
             var audioInput = context.createMediaStreamSource(stream);
-            console.log(stream);
             var createScript = context.createScriptProcessor || context.createJavaScriptNode;
             var recorder = createScript.apply(context, [0, 1, 1]);
             return [recorder, audioInput, context];
@@ -42,41 +41,45 @@ function init() {
     }
     return this.audioPromise;
 }
-function stop() {
+
+async function stop() {
     var commandCount = ++this.commandCount;
     if (!this.running) return;
-    this.init().then(([recorder, audioInput, context]) => {
-
-        if (this.commandCount !== commandCount) return;
-        this.running = false;
-        if (this.gain) {
-            recorder.disconnect(this.gain);
-            this.gain.disconnect(context.destination);
-        } else {
-            recorder.disconnect(context.destination);
-        }
-        audioInput.disconnect(context.recorder);
-        if (this.audio) this.audio.pause();
-    });
+    var [recorder, audioInput, context] = await this.init();
+    if (this.commandCount !== commandCount) return;
+    this.running = false;
+    if (this.gain) {
+        recorder.disconnect(this.gain);
+        this.gain.disconnect(context.destination);
+    } else {
+        recorder.disconnect(context.destination);
+    }
+    audioInput.disconnect(context.recorder);
+    if (this.audio) this.audio.pause();
 
 }
-function start() {
+
+async function start() {
     if (this.running) return;
     var commandCount = ++this.commandCount;
-    this.init().then(([recorder, audioInput, context]) => {
-        if (commandCount !== this.commandCount) return;
-        this.context = context;
-        recorder.onaudioprocess = (e) => {
-            var buffer = copyData(e);
-            cast(this, buffer);
-            this.onprocess instanceof Function && this.onprocess(buffer);
-        };
-        this.running = true;
-        audioInput.connect(recorder);
-        recorder.connect(this.gain).connect(context.destination);
-        if (this.audio) this.audio.play();
-    }).catch(reportError);
+    try {
+        var [recorder, audioInput, context] = await this.init();
+    } catch (e) {
+        reportError(e);
+    }
+    if (commandCount !== this.commandCount) return;
+    this.context = context;
+    recorder.onaudioprocess = (e) => {
+        var buffer = copyData(e);
+        cast(this, buffer);
+        this.onprocess instanceof Function && this.onprocess(buffer);
+    };
+    this.running = true;
+    audioInput.connect(recorder);
+    recorder.connect(this.gain).connect(context.destination);
+    if (this.audio) this.audio.play();
 }
+
 function copyData(audioProcessingEvent) {
     // The input buffer is the song we loaded earlier
     var inputBuffer = audioProcessingEvent.inputBuffer;
@@ -104,6 +107,7 @@ function copyData(audioProcessingEvent) {
     }
     return distBuffer.map(a => a / numberOfChannels);
 }
+
 class Source {
     running = false;
     audioPromise;
@@ -134,6 +138,7 @@ class Source {
     start = start;
     stop = stop;
 }
+
 class Recorder {
     running = false;
     hasMicrophone = navigator.getUserMedia instanceof Function;
@@ -158,6 +163,7 @@ class Recorder {
     start = start;
     stop = stop;
 }
+
 class Monitor {
     running = false;
     context;
@@ -175,6 +181,7 @@ class Monitor {
     start = start;
     stop = stop;
 }
+
 var audio = {
     Recorder,
     Monitor,
