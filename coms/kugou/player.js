@@ -118,7 +118,6 @@ var $scope = {
         $scope.currentTheta = ((currentTime * 6 + 90) % 180 - 90) / 180 * Math.PI;
         playState.width = (currentTime * 100 / duration).toFixed(2) + `%`;
         $scope.currentProcess = `width:` + playState.width;
-        render.refresh();
     },
     effectPage(effect = !$scope.effect) {
         $scope.effect = effect;
@@ -302,6 +301,7 @@ var createControls = function () {
             touching = true;
             var { x } = value;
             let _audio = $scope.audio;
+            css(progress, { width: x });
             $scope.process(x / player.offsetWidth * _audio.duration, _audio.duration);
         }
         return { x: progress.offsetWidth };
