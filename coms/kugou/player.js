@@ -101,6 +101,7 @@ var $scope = {
         }
     },
     process(currentTime, duration) {
+        render.refresh();
         if (currentTime === duration) {
             $scope.pause();
             return false;
@@ -179,6 +180,7 @@ var $scope = {
         }
     },
     play(hash = musicList.active_hash) {
+        render.refresh();
         var isPlayback = typeof hash === "number";
         if (isPlayback) {
             if (hash < 0) {
@@ -232,7 +234,6 @@ var $scope = {
             return alert("暂不支持在您的浏览器中播放！");
         }
         musicList.active_hash = hash;
-        render.refresh();
         $scope.playing = true;
         playState.width = 0;
         getMusicInfo(hash).loading_promise.then((response) => {
@@ -295,16 +296,13 @@ var createControls = function () {
     var player = document.createElement("music-player");
     player.setAttribute("ng-class", "{play:playing===true,pause:playing===false,page:page,effect:effect}");
     player.innerHTML = Player;
-    var [background, progress] = player.children;
-    bindtouch(player, function (value) {
-        if (value) {
-            touching = true;
-            var { x } = value;
-            let _audio = $scope.audio;
-            css(progress, { width: x });
-            $scope.process(x / player.offsetWidth * _audio.duration, _audio.duration);
-        }
-        return { x: progress.offsetWidth };
+    var [, progress] = player.children;
+    bindtouch(player, function (_, event) {
+        touching = true;
+        var x = event.clientX - getScreenPosition(player).left;
+        let _audio = $scope.audio
+        css(progress, { width: x });
+        $scope.process(x / player.offsetWidth * _audio.duration, _audio.duration);
     }, "x");
     bindtouch(player, function (value) {
         var top = getScreenPosition(player).top;
