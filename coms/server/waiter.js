@@ -153,8 +153,8 @@ var requestListener = async function (req, res) {
                     ok(null, encode62.safedecode(chunk, crypted, writedLength));
                     writedLength += chunk.length;
                 } catch (e) {
-                    if (closed) return;
-                    closed = true;
+                    if (res.closed) return;
+                    res.closed = true;
                     res.writeHead(403, utf8error);
                     res.end("数据异常！");
                     req.destroy();

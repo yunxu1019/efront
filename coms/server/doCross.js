@@ -161,7 +161,7 @@ async function cross(req, res, referer) {
                 delete headers["transfer-encoding"];
                 delete headers["connection"];
             }
-            if (!closed) {
+            if (!res.closed) {
                 if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                     record($url, request, response, req, res);
                 } else {
@@ -170,13 +170,11 @@ async function cross(req, res, referer) {
                 }
             } else {
                 response.destroy();
-                res.end();
             }
         });
-        var closed = false;
         request.setTimeout(120000/*support for wechat long pull*/);
         request.on("error", function (e) {
-            if (closed) return;
+            if (res.closed) return;
             var code;
             switch (e.code) {
                 case "ECONNRESET":
@@ -189,7 +187,7 @@ async function cross(req, res, referer) {
                 default:
                     code = 500;
             }
-            closed = true;
+            res.closed = true;
             res.writeHead(code, {});
             res.end(String(e));
         });
