@@ -13,7 +13,7 @@ var dragview = function (dragview) {
                 moving = false;
             } else {
                 var { childNodes } = target;
-                if (getComputedStyle(target).cursor === 'auto') for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
+                if (getComputedStyle(target).cursor === 'auto' && getComputedStyle(target).userSelect !== 'none') for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
                     var child = childNodes[cx];
                     if (child.nodeType === 3) {
                         moving = false;
