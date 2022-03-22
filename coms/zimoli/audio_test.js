@@ -13,10 +13,8 @@ function main() {
         context.beginPath();
         context.moveTo(0, canvas.offsetHeight / 2);
         var max = 2;
-        // [].forEach.call(buffer, function (db, cx) {
-        //     if (db > max) max = db;
-        // });
         [].forEach.call(buffer, function (db, cx) {
+            db = (db - 128) / 128;
             context.lineTo(cx * canvas.width / buffer.length, canvas.height / 2 - db / max * canvas.height);
         });
         context.stroke();

@@ -1,6 +1,4 @@
 var alertError = alert.bind(null, 'error');
-var Context = window.webkitAudioContext || window.AudioContext;
-var globalContext = Context && new Context;
 
 var reportError = function (error) {
     switch (error.code || error.name) {
@@ -27,14 +25,14 @@ function init() {
     if (!this.audioPromise) {
         this.audioPromise = navigator.mediaDevices.getUserMedia({
             audio: { deviceId: this.deviceId }
-        }).then((stream) => {
-            var context = new Context;
+        }).then(async (stream) => {
+            var context = new AudioContext;
             this.gain = context.createGain();
+            var analyser = context.createAnalyser();
+            analyser.fftSize = 2048;
             context.resume();
-            var audioInput = context.createMediaStreamSource(stream);
-            var createScript = context.createScriptProcessor || context.createJavaScriptNode;
-            var recorder = createScript.apply(context, [0, 1, 1]);
-            return [recorder, audioInput, context];
+            var source = context.createMediaStreamSource(stream);
+            return [source, context, analyser];
         });
     }
     return this.audioPromise;
@@ -43,16 +41,22 @@ function init() {
 async function stop() {
     var commandCount = ++this.commandCount;
     if (!this.running) return;
-    var [recorder, audioInput, context] = await this.init();
+    var [source, context, analyser] = await this.init();
+    cancelAnimationFrame(analyser.frame);
     if (this.commandCount !== commandCount) return;
     this.running = false;
+    source.disconnect(analyser);
     if (this.gain) {
-        recorder.disconnect(this.gain);
+        source.disconnect(this.gain);
         this.gain.disconnect(context.destination);
     } else {
-        recorder.disconnect(context.destination);
+        source.disconnect(context.destination);
     }
-    audioInput.disconnect(context.recorder);
+    this.context = null;
+    this.audioPromise = null;
+    this.gain = null;
+    context.suspend();
+    await context.close();
     if (this.audio) this.audio.pause();
 }
 
@@ -60,49 +64,25 @@ async function start() {
     if (this.running) return;
     var commandCount = ++this.commandCount;
     try {
-        var [recorder, audioInput, context] = await this.init();
+        var [source, context, analyser] = await this.init();
     } catch (e) {
         reportError(e);
     }
     if (commandCount !== this.commandCount) return;
     this.context = context;
-    recorder.onaudioprocess = (e) => {
-        var buffer = copyData(e);
-        cast(this, buffer);
-        this.onprocess instanceof Function && this.onprocess(buffer);
+    var dancingArray = new Uint8Array(analyser.fftSize);
+    var animate = () => {
+        analyser.getByteTimeDomainData(dancingArray);
+        cast(this, dancingArray);
+        analyser.frame = requestAnimationFrame(animate);
+        this.onprocess instanceof Function && this.onprocess(dancingArray);
     };
+    animate();
     this.running = true;
-    audioInput.connect(recorder);
-    recorder.connect(this.gain).connect(context.destination);
+
+    source.connect(analyser);
+    source.connect(this.gain).connect(context.destination);
     if (this.audio) this.audio.play();
-}
-
-function copyData(audioProcessingEvent) {
-    // The input buffer is the song we loaded earlier
-    var inputBuffer = audioProcessingEvent.inputBuffer;
-
-    // The output buffer contains the samples that will be modified and played
-    var outputBuffer = audioProcessingEvent.outputBuffer;
-    var distBuffer = [];
-    // Loop through the output channels (in this case there is only one)
-    var { numberOfChannels } = inputBuffer;
-    for (var channel = 0; channel < numberOfChannels; channel++) {
-        var inputData = inputBuffer.getChannelData(channel);
-        var outputData = outputBuffer.getChannelData(channel);
-
-        // Loop through the 4096 samples
-        for (var cx = 0, dx = inputData.length; cx < dx; cx++) {
-            // make output equal to the same as the input
-            outputData[cx] = inputData[cx];
-            if (!distBuffer[cx]) distBuffer[cx] = inputData[cx];
-            else distBuffer[cx] += inputData[cx];
-
-            // add noise to each output sample
-            // outputData[cx] += ((Math.random() * 2) - 1) * 0.2;
-
-        }
-    }
-    return distBuffer.map(a => a / numberOfChannels);
 }
 
 class Source {
@@ -120,7 +100,7 @@ class Source {
     }
     init() {
         if (this.audioPromise) return this.audioPromise;
-        var context = new Context;
+        var context = new AudioContext;
         var audio = document.createElement("audio");
         this.gain = context.createGain();
         console.log(this.gain);
@@ -143,6 +123,8 @@ class Recorder {
     commandCount = 0;
     onprocess;
     context;
+    workletUrl;
+    workletName;
     constructor(device) {
         if (!device) device = {};
         var config = {
@@ -183,11 +165,7 @@ var audio = {
     Recorder,
     Monitor,
     Source,
-    Context,
-    copyData,
-    getGlobalContext() {
-        return globalContext;
-    },
+    Context: AudioContext,
     getRecorder() {
         return new Recorder
     },
