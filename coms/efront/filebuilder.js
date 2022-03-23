@@ -85,6 +85,7 @@ var buildjsp = function (buff, realpath) {
             request: req,
             res: res,
             response: res,
+            context: {},
             textplain(e) {
                 res.writeHead(200, {
                     "Content-type": "text/plain;charset=utf-8"
