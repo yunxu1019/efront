@@ -151,6 +151,11 @@ async function cross(req, res, referer) {
                 exposeHeaders.push("efront-location");
                 delete headers.location;
             }
+            if (headers["strict-transport-security"]) {
+                headers["efront-transport-security"] = headers["strict-transport-security"];
+                exposeHeaders.push("efront-transport-security");
+                delete headers["strict-transport-security"];
+            }
             headers["access-control-expose-headers"] = exposeHeaders.join();
             delete headers["access-control-allow-origin"];
             delete headers["access-control-allow-methods"];

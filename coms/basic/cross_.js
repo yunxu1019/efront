@@ -149,6 +149,9 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     }
 
                 }
+                if (exposeMap["strict-transport-security"] || exposeMap["efront-transport-security"]) {
+                    if (!/^https\:\/\/|^s\/\//.test(url)) console.warn("请使用https访问如下路径:" + url);
+                }
             }
             if (isencrypt && xhr.response) {
                 try {
