@@ -161,6 +161,10 @@ async function cross(req, res, referer) {
             delete headers["access-control-allow-methods"];
             delete headers["access-control-allow-credentials"];
             delete headers["access-control-allow-headers"];
+            delete headers["content-security-policy-report-only"];
+            delete headers["content-security-policy"];
+            delete headers["cross-origin-embedder-policy"];
+            delete headers["cross-origin-opener-policy"];
             delete headers["cross-origin-resource-policy"];
             if (res instanceof Http2ServerResponse) {
                 delete headers["transfer-encoding"];
