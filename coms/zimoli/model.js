@@ -36,8 +36,6 @@ var renderModel = function (field, data) {
     });
 };
 var constructors = {
-    input,
-    raw: input,
     swap(e) {
         var { field } = e;
         e = swap(e);
@@ -58,6 +56,11 @@ var constructors = {
     row: textarea,
     password,
     text: textarea,
+    number(e) {
+        e.innerHTML = `<input type="${e.field.type}" ng-model="data[field.key]" />`;
+        render(e.children, e.$scope, e.$parentScopes);
+        return e;
+    },
     date() {
         var elem = document.createElement("input");
         elem.type = "date";
@@ -140,6 +143,7 @@ var constructors = {
 
     }
 };
+constructors.price = constructors.money = constructors.number;
 var readonly_types = {
     "date"({ field }, data) {
         var string = data[field.key];
@@ -204,6 +208,7 @@ function main(elem) {
                 elem.setAttribute("type", field_type);
             }
             remove(elem.children);
+            field_type = field_type.replace(/\:[\d+\.]+$/, '');
             if (readonly || field.readonly) {
                 if (field_type === "function") {
                     field_editor(elem);
@@ -244,8 +249,11 @@ function main(elem) {
                 }
             } else {
                 var create = field_type === "function" ? field_editor : constructors[field_type];
-                var ipt = create ? create(elem, field_ref) : field.key ? input() : null;
-
+                var ipt = create ? create(elem, field_ref) : field.key ? input(function () {
+                    var input = document.createElement('input');
+                    input.setAttribute('type', field.type);
+                    return input;
+                }()) : null;
                 if (ipt) {
                     if (ipt !== elem) appendChild(elem, ipt);
                     if (!ipt.$scope) {
