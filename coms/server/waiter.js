@@ -71,6 +71,51 @@ var version = `efront-${require("../../package.json").version}/` + ppid;
 var utf8error = {
     "Content-Type": "text/plain;charset=UTF-8"
 };
+/**
+ * @this {Http2ServerResponse}
+ */
+var writeHead = function (crypted, code, map) {
+    if (this.closed) return;
+    if (isObject(map)) {
+        for (var k in map) {
+            var v = map[k];
+            var k1 = k.toLowerCase();
+            if (k1 !== k) {
+                delete map[k];
+                map[k1] = v;
+            }
+        }
+        if (this instanceof Http2ServerResponse) {
+            delete map["transfer-encoding"];
+            delete map["connection"];
+        }
+        var cookie = map["set-cookie"] || map["efront-cookie"];
+        if (cookie) {
+            delete map["set-cookie"];
+            var expose = this.getHeader("access-control-expose-headers") || map["access-control-expose-headers"] || '';
+            if (typeof expose === 'string') expose = expose.split(/\s*,\s*/).filter(a => !!a);
+            map["efront-cookie"] = [].concat(cookie).map(e => encode62.safeencode(e, crypted));
+            if (!~expose.indexOf('efront-cookie')) expose.push('efront-cookie');
+            map["access-control-expose-headers"] = expose.join(',');
+        }
+        delete map["content-length"];
+    }
+    this.writeHead(code, map);
+}
+/**
+ * @this {Http2ServerResponse}
+ */
+var setHeader = function (crypted, k, v) {
+    if (this.closed) return;
+    k = k.toLowerCase();
+    if (this instanceof Http2ServerResponse && /^(transfer-encoding|connection)$/.test(k)) return;
+    if (k === 'content-length') return;
+    if (k === 'set-cookie' || k === 'efront-cookie') {
+        v = [].concat(v).map(e => encode62.safeencode(e, crypted));
+
+    }
+    this.setHeader(k, v);
+};
 var requestListener = async function (req, res) {
     if (closed) return req.destroy();
     try {
@@ -104,46 +149,24 @@ var requestListener = async function (req, res) {
             }
         });
         res1.pipe(res);
-        Object.defineProperty(res1, 'headersSent', {
-            get: function () {
-                return this.headersSent;
-            }.bind(res)
+        Object.defineProperties(res1, {
+            'headersSent': {
+                get: function () {
+                    return this.headersSent;
+                }.bind(res)
+            },
+            'closed': {
+                get: function () {
+                    return this.closed
+                }.bind(res),
+                set: function (v) {
+                    this.closed = v;
+                }.bind(res)
+            }
         });
         Object.assign(res1, {
-            setHeader: function (k, v) {
-                if (res.closed) return;
-                k = k.toLowerCase();
-                if (this instanceof Http2ServerResponse && /^(transfer-encoding|connection)$/.test(k)) return;
-                if (k === 'content-length') return;
-                if (k === 'set-cookie' || k === 'efront-cookie') {
-                    v = [].concat(v).map(e => encode62.safeencode(e, crypted));
-                }
-                this.setHeader(k, v);
-            }.bind(res),
-            writeHead: function (code, map) {
-                if (res.closed) return;
-                if (map) {
-                    for (var k in map) {
-                        var v = map[k];
-                        var k1 = k.toLowerCase();
-                        if (k1 !== k) {
-                            delete map[k];
-                            map[k1] = v;
-                        }
-                    }
-                    if (this instanceof Http2ServerResponse) {
-                        delete map["transfer-encoding"];
-                        delete map["connection"];
-                    }
-                    var cookie = map["set-cookie"] || map["efront-cookie"];
-                    if (cookie) {
-                        delete map["set-cookie"];
-                        map["efront-cookie"] = [].concat(cookie).map(e => encode62.safeencode(e, crypted));
-                    }
-                    delete map["content-length"];
-                }
-                this.writeHead(code, map);
-            }.bind(res),
+            setHeader: setHeader.bind(res, crypted),
+            writeHead: writeHead.bind(res, crypted),
             write() {
                 if (this.closed) return;
                 Transform.prototype.write.apply(this, arguments);
@@ -283,7 +306,11 @@ var requestListener = async function (req, res) {
                             res.writeHead(403, {});
                             break;
                         }
-                        client.listen(res);
+                        var user = null;
+                        if (type[3]) {
+                            user = encode62.timedecode(type[3]);
+                        }
+                        client.listen(res, user);
                         client.refresh();
                         message.send('receive', id, function (msgids) {
                             if (msgids && msgids.length) {

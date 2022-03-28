@@ -158,6 +158,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     xhr = {
                         status: xhr.status,
                         response: encode62.safedecode(xhr.response || xhr.responseText, xhr.encrypt),
+                        getResponseHeader: xhr.getResponseHeader && xhr.getResponseHeader.bind(xhr)
                     };
                     xhr.responseText = xhr.response;
                 }
