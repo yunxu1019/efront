@@ -1,6 +1,6 @@
 var { cookiesMap, saveCookie } = cookie;
 var saveCookie = lazy(function () {
-    sessionStorage.setItem(cookieItemsInSessionStorageKey, JSON.stringify(cookiesMap));
+    sessionStorage.setItem(cookieItemsInSessionStorageKey, JSAM.stringify(cookiesMap));
 }, 20);
 var { efrontURI, cross_host = efrontURI } = this;
 var location_href = parseURL(location.href);
@@ -11,7 +11,7 @@ var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
 var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
 if (cookiesData) {
     try {
-        extend(cookiesMap, JSON.parse(cookiesData));
+        extend(cookiesMap, JSAM.parse(cookiesData));
     } catch (e) {
         console.warn("加载cookie出错！");
     }

@@ -100,9 +100,31 @@ function getDomainPath(url) {
     return host;
 }
 
+function linkCookie(from, to) {
+    from = getDomainPath(from).replace(/\/$/, '');
+    to = getDomainPath(to).replace(/\/$/, '');
+    if (cookiesMap[from]) {
+        cookiesMap[to] = cookiesMap[from];
+    }
+    cookiesMap[to] = cookiesMap[from] = extend({}, cookiesMap[to], cookiesMap[from]);
+    return to;
+}
+function copyCookie(from, to) {
+    from = getDomainPath(from).replace(/\/$,'/, '');
+    to = getDomainPath(to).replace(/\/$/, '');
+    if (from in cookiesMap) {
+        cookiesMap[to] = JSON.parse(JSON.stringify(cookiesMap[from]));
+    }
+    else {
+        delete cookiesMap[to];
+    }
+}
+
 return {
     cookiesMap,
     addCookie,
     getCookies,
     delCookies,
+    linkCookie,
+    copyCookie
 }
