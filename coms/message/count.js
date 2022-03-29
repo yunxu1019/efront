@@ -1,5 +1,5 @@
 "use strict";
-var { load, save, saveAsync } = require("../server/userdata");
+var { loadAsync, saveAsync } = require("../server/userdata");
 var lazy = require("../basic/lazy");
 /**
  * 只在主线程中使用
@@ -8,7 +8,13 @@ var data_file = "count.jsam";
 if (!require("cluster").isMaster) {
     throw "只在主线程中使用";
 }
-var counts = load(data_file) || {};
+var counts = {};
+loadAsync(data_file).then(c => {
+    for (var k in c) {
+        if (k in counts) counts[k] += c[k];
+        else counts[k] = c[k];
+    }
+});
 var countTimes = 0;
 process.on('exit', function () {
     if (!countTimes) return;

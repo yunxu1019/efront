@@ -10,28 +10,7 @@ var isEmpty = require("../basic/isEmpty");
 var profile = {
     code: encode62.geta(Math.random().toString(36).slice(2)),
 };
-function init() {
-    if (fs.existsSync(userpath)) return;
-    return new Promise((ok, oh) => {
-        fs.mkdir(userpath, { recursive: true }, function (error) {
-            if (error) return oh(error);
-            ok();
-        });
-    });
-};
 
-function save(pathname, data) {
-    var fullpath = path.join(userpath, pathname);
-    var folderpath = path.dirname(fullpath)
-    if (!fs.existsSync(folderpath)) fs.mkdirSync(folderpath, { recursive: true });
-    fs.writeFileSync(fullpath, JSAM.stringify(data));
-}
-function load(pathname) {
-    var fullpath = path.join(userpath, pathname);
-    if (!fs.existsSync(fullpath)) return;
-    var data = fs.readFileSync(fullpath);
-    return JSAM.parse(data);
-}
 function loadAsync(pathname) {
     var fullpath = path.join(userpath, pathname);
     return new Promise(function (ok, oh) {
@@ -155,8 +134,6 @@ module.exports = {
     decode,
     loadAsync,
     saveAsync,
-    save,
-    load,
     setItem,
     getItem,
     hasPassword,
