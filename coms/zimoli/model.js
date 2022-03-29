@@ -57,9 +57,10 @@ var constructors = {
     password,
     text: textarea,
     number(e) {
-        e.innerHTML = `<input type="${e.field.type}" ng-model="data[field.key]" />`;
-        render(e.children, e.$scope, e.$parentScopes);
-        return e;
+        var ipt = document.createElement('input');
+        ipt.setAttribute('type',e.field.type);
+        input(ipt);
+        return ipt;
     },
     date() {
         var elem = document.createElement("input");
