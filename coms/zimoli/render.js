@@ -867,9 +867,9 @@ function render(element, scope, parentScopes, lazy = true) {
 var digest = lazy(refresh, -{});
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
-var eventsBinders = "fullscreenchange,load,change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
+var eventsBinders = "fullscreenchange,resize,load,change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
 var userChanged = false;
-eventsBinders.splice(0, 2).forEach(on => on(window, digest));
+eventsBinders.splice(0, 3).forEach(on => on(window, digest));
 var changeListener = function () {
     if (userChanged) {
         userChanged = false;
