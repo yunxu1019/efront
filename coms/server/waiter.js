@@ -52,7 +52,7 @@ message.send('getmark', null, function (markList) {
 }, null);
 message.send('addmark', clients.getMark()[0]);
 message.reloadUserdata = function () {
-    require("./userdata").reload();
+    userdata.reload();
 };
 // 子线程们
 // 仅做开发使用的简易服务器
@@ -270,13 +270,13 @@ var requestListener = async function (req, res) {
                     if (type[2]) {
                         try {
                             var roomid = encode62.timedecode(type[2]);
-                            var room = await require("./userdata").getOptionObj("room", roomid);
+                            var room = await userdata.getOptionObj("room", roomid);
                             if (!room) { throw "房间不存在！"; }
                             if (!room.linkid || !clients.checkId(room.linkid)) {
                                 room.linkid = clients.create().id;
-                                await require("./userdata").setOptionObj("room", roomid, room);
+                                await userdata.setOptionObj("room", roomid, room);
                                 await message.broadcast("reloadUserdata");
-                                room = await require("./userdata").getOptionObj("room", roomid);
+                                room = await userdata.getOptionObj("room", roomid);
                             }
                             return res.end(String(room.linkid));
                         }
@@ -351,7 +351,7 @@ var requestListener = async function (req, res) {
             }
             if (needLogin) switch (type[1]) {
                 case "count":
-                    require("./userdata").getStream('count.jsam').pipe(res);
+                    userdata.getStream('count.jsam').pipe(res);
                     return;
                 case "cluster":
                     switch (type[2]) {
@@ -417,7 +417,7 @@ var requestListener = async function (req, res) {
                         if (type[3] !== undefined) {
                             let act = type[0].charAt(type[0].length - type[3].length - 1);
                             if (type[3] && act === "+" || !type[3] && act === "?") {
-                                var exists = await require("./userdata").option(type[1], key, null/**检查是否存在*/);
+                                var exists = await userdata.option(type[1], key, null/**检查是否存在*/);
                                 if (!type[3]) return res.end(encode62.timeencode(String(exists)));
                                 if (exists && type[3]) {
                                     res.writeHead(403, {});
@@ -426,8 +426,8 @@ var requestListener = async function (req, res) {
                                 }
                             }
                         }
-                        var data = await require("./userdata").option(type[1], key, type[3] && encode62.timedecode(type[3])) || '';
-                        message.broadcast('reloadUserdata');
+                        var data = await userdata.option(type[1], key, type[3] && encode62.timedecode(type[3])) || '';
+                        await message.broadcast('reloadUserdata');
                         res.end(data);
                     }
                     catch (e) {

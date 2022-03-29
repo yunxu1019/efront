@@ -78,7 +78,7 @@ async function setItem(k, v) {
     var k0 = encode62.geta(k + profile.code);
     profile[k0] = encode62.encodestr(v, k0);
     saveProfileAsync();
-    return new Promise(ok => setTimeout(ok), 160);
+    await new Promise(ok => setTimeout(ok, 160));
 }
 async function getItem(k) {
     await loadProfileAsync();
@@ -229,7 +229,8 @@ module.exports = {
             var index = options.indexOf(key);
             if (index >= 0) {
                 options.splice(index, 1);
-                await setItem(key_privatelist, JSON.stringify(options));
+                if (options.length) await setItem(key_privatelist, JSON.stringify(options));
+                else await removeItem(key_privatelist);
             }
         }
         else {
