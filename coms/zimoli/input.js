@@ -5,10 +5,13 @@ var number = function (event) {
     var { value, type } = ipt;
     if (keyCode === 13 || keyCode === 18 || keyCode === 37 || keyCode === 38 || keyCode === 39 || keyCode === 40 || keyCode === 8 || keyCode === 46 || keyCode === 9) {
     }
-    else if (keyCode >= 49 && keyCode <= 57 || keyCode >= 96 && keyCode <= 105) {
+    else if (keyCode >= 48 && keyCode <= 57 || keyCode >= 96 && keyCode <= 105) {
         if (this.value) {
             if (this.fixed && this.value.replace(/^[^\.]+/, '').length > this.fixed ||
                 this.limit && this.value.length >= this.limit && !/\./.test(this.value)) {
+                event.preventDefault();
+            }
+            if(/^[+-]?0$/.test(this.value)){
                 event.preventDefault();
             }
         }
