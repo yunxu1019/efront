@@ -112,6 +112,7 @@ function select(target, list, removeOnSelect, direction) {
     if (isNode(list)) {
         var initList = function () {
             bindEvent();
+            list.value = target.value;
             initList = function () { };
         };
         var setIcon = function () {
@@ -123,8 +124,10 @@ function select(target, list, removeOnSelect, direction) {
         var initList2 = function (src) {
             src.forEach(s => {
                 optionsMap[s.key] = s;
+                s.selected = s.key === target.value;
             });
             list = selectList(generator, src, !!target.multiple, !!target.editable);
+            list.value = target.value;
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }
@@ -137,6 +140,8 @@ function select(target, list, removeOnSelect, direction) {
             var s = optionsMap[v];
             this.innerHTML = `<option selected value="${v}">${s ? s.name : ''}</option>`;
             this.value = v;
+            if (s) s.selected = true;
+            if (list) list.value = v;
         };
         care(target, initList2);
         var initList = function () {

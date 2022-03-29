@@ -74,17 +74,15 @@ function main() {
             css(item, { backgroundImage: `url('${icon}')` });
         }
         item.value = key;
-        if (option.selected) {
+        if (item.value === page.value) {
             iconed = icon;
-            if (multiple) {
-                item.setAttribute("selected", "");
-                page.value.push(key);
-            }
-            else {
-                item.setAttribute("selected", "");
-                page.activeNode = item;
-                page.value = key
-            }
+            item.setAttribute("selected", "");
+            page.activeNode = item;
+            page.value = key
+        }
+        else if (multiple && option.selected) {
+            item.setAttribute("selected", "");
+            page.value.push(key);
         }
         if (option.disabled) {
             item.setAttribute('disabled', '');
@@ -107,7 +105,7 @@ function main() {
         if (i < 0 || i >= children.length) return;
         return createItem(generator ? generator(i) : children[i]);
     });
-    once("append")(page, function () {
+    once("mounted")(page, function () {
         var index = 0;
         for (var cx = 0, dx = children.length; cx < dx; cx++)if (children[cx].selected) index = cx;
         page.clean();
