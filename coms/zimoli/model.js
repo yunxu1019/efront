@@ -58,7 +58,7 @@ var constructors = {
     text: textarea,
     number(e) {
         var ipt = document.createElement('input');
-        ipt.setAttribute('type',e.field.type);
+        ipt.setAttribute('type', e.field.type);
         input(ipt);
         return ipt;
     },
@@ -209,7 +209,7 @@ function main(elem) {
                 elem.setAttribute("type", field_type);
             }
             remove(elem.children);
-            field_type = field_type.replace(/\:[\d+\.]+$/, '');
+            if (isString(field_type)) field_type = field_type.replace(/\:[\d+\.]+$/, '');
             if (readonly || field.readonly) {
                 if (field_type === "function") {
                     field_editor(elem);
