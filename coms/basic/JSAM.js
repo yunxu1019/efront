@@ -291,7 +291,7 @@ function parse(string, preload) {
 module.exports = {
     stringify,
     parse(data, preload) {
-        if (/^\s*(?:[^\{\[\s]|\[\s*\]|\{\s*\})\s*$/.test(data)) return parse(data, preload);
+        if (/^\s*[^\{\[\s]|^\s*(?:\[\s*\]|\{\s*\}|)\s*$/.test(data)) return parse(data, preload);
         if (/^\s*\{[\d\,\:\s]*\}\s*,/.test(data)) return parse(data, preload);
         if (/^\s*\[[\d\,\:\s]*\]\s*,/.test(data)) return parse(data, preload);
         return JSON.parse(data);
