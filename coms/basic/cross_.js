@@ -75,6 +75,8 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     }
     var loaded, errored;
     var onload = function (data) {
+        if (!~requests.indexOf(_xhr)) return;
+        removeFromList(requests, _xhr);
         if (xhr.decoder) {
             data = xhr.decoder(data);
         }
@@ -83,18 +85,21 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         digest();
     };
     var onerror1 = function (e) {
+        if (!~requests.indexOf(_xhr)) return;
+        removeFromList(requests, _xhr);
         errored = e || "未知错误！";
         flush();
         digest();
     };
     var onerror = async function (e) {
         if (e.type === 'error') {
-            removeFromList(requests, e.target);
             e = { response: "无法访问服务器", toString: toResponse };
         }
         for (var r of reforms) {
-            var r = await reform(r, { method, url, status: xhr.status, headers: _headers }, fire, onerror1, e);
-            if (r === false) return;
+            var r = await reform.call(xhr, r, { method, url, status: xhr.status, headers: _headers }, fire, onerror1, e);
+            if (r === false) {
+                return;
+            }
         }
         onerror1(e);
     };
@@ -129,7 +134,6 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         var nocross = notCross(url, isencrypt);
         if (nocross) isencrypt = false;
         var callback = async function () {
-            removeFromList(requests, xhr);
             if (xhr.getResponseHeader) {
                 var exposeHeaders = (!nocross || !location_href) && xhr.getResponseHeader("access-control-expose-headers");
                 var exposeMap = {};
@@ -247,7 +251,9 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             }
         };
         var fire = async function () {
+            if (!~requests.indexOf(xhr)) return;
             var code = await xhr.encrypt;
+            if (!~requests.indexOf(xhr)) return;
             xhr.encrypt = code;
             var isform = /^f/i.test(method);
             if (isform) {
@@ -334,6 +340,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         return getCookies(originDomain);
     };
     requests.push(xhr);
+    var _xhr = xhr;
     return xhr;
 }
 function addDirect(a) {
@@ -360,7 +367,7 @@ var requests = [];
 var reforms = [];
 function reform(r, info, fire, cancel, e) {
     var fired = false;
-    return r(info, function () {
+    return r.call(this, info, function () {
         if (fired) return;
         fired = true;
         fire();
