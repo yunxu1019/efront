@@ -1,6 +1,7 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
+var { Http2ServerRequest, Http2ServerResponse } = require("http2");
 var proxy = require("./url-proxy");
 var checkAccess = require("./checkAccess");
 var checkAuth = require("./checkAuth");
@@ -60,7 +61,10 @@ function piperead(h, start, end, res, sign) {
     run();
 }
 
-
+/**
+ * @param {Http2ServerRequest} req
+ * @param {Http2ServerResponse} res
+ */
 function doGetFile(req, res, filepath, code) {
     var [, start, end] = String(req.headers.range).match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)/) || [];
     if (!fs.existsSync(filepath)) {
@@ -78,6 +82,14 @@ function doGetFile(req, res, filepath, code) {
             res.writeHead(400, utf8);
             res.end("请求无效");
             return;
+        }
+        if (stats.mtime) {
+            var modified = req.headers["if-modified-since"];
+            if (new Date(modified) - new Date(stats.mtime.toUTCString()) >= 0) {
+                res.writeHead(304);
+                res.end();
+                return;
+            }
         }
         start = +start | 0;
         if (!start || start < 0 || req.headers["if-range"] && req.headers["if-range"] !== stats.mtime.toUTCString()) {
