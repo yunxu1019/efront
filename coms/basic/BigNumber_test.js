@@ -29,4 +29,19 @@ for (var cx = 0, dx = 1000; cx < dx; cx++) {
 }
 assert(BigNumber.fix(2, 2), '2.00');
 assert(BigNumber.fix(2.234, 6), '2.234000');
+assert(BigNumber.fix(2.235, 6), '2.235000');
+assert(BigNumber.fix(2.235, 2), '2.24');
+assert(BigNumber.fix(2.234, 2), '2.23');
+assert(BigNumber.fix(2.2351, 2), '2.24');
+assert(BigNumber.fix(2.2349, 2), '2.23');
+assert(BigNumber.round(2.2349), '2');
+assert(BigNumber.round(2.4999), '2');
+assert(BigNumber.round(2.5000), '3');
+assert(BigNumber.round(2.5100), '3');
+assert(BigNumber.ceil(2.5100), '3');
+assert(BigNumber.ceil(2.000), '2');
+assert(BigNumber.floor(2.000), '2');
+assert(BigNumber.floor(2.999), '2');
+assert(BigNumber.ceil(2.001), '3');
+assert(BigNumber.ceil(2.999), '3');
 assert(BigNumber.fix("9007199254740992.234", 6), '9007199254740992.234000');

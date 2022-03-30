@@ -6,6 +6,7 @@ var prepare = function (a) {
     var neg = /^\-/.test(a);
     if (neg) a = a.slice(1);
     var [s1, s2 = ''] = a.split('.');
+    s2 = s2.replace(/0+$/, '');
     return [neg, s1, s2];
 };
 var repeat = String.prototype.repeat || function (n) {
@@ -31,6 +32,26 @@ var fixme = function (neg, res, nl) {
     if (neg) res = '-' + res;
     return res.replace(/\.$/, '');
 };
+var fixde = function (numstr, fractionDigits, compare) {
+    var [neg, s1, s2] = prepare(numstr);
+    var frag = +s2.charAt(fractionDigits) > compare;
+    if (!frag && compare === 0) {
+        frag = s2.length > fractionDigits;
+    }
+    if (s2.length < fractionDigits) {
+        s2 += repeat0(fractionDigits - s2.length);
+    }
+    else {
+        s2 = s2.slice(0, fractionDigits);
+    }
+    var res = s1 + s2;
+    if (frag) {
+        res = BigNumber.add(res, 1);
+    }
+    if (fractionDigits > 0) res = res.slice(0, res.length - fractionDigits) + '.' + res.slice(res.length - fractionDigits);
+    if (neg) res = '-' + res;
+    return res;
+};
 class BigNumber {
     constructor(value) {
         if (!this || this.constructor !== BigNumber) {
@@ -44,22 +65,21 @@ class BigNumber {
     add(bignumber) {
         return new BigNumber(BigNumber.add(this.value, bignumber));
     };
+    static round(numstr) {
+        return fixde(numstr, 0, 4);
+    }
+    static ceil(numstr) {
+        return fixde(numstr, 0, 0);
+    }
+    static floor(numstr) {
+        return fixde(numstr, 0, 9);
+    }
     static fix(numstr, fractionDigits) {
         fractionDigits = +fractionDigits || 0;
         if (fractionDigits < 0 || fractionDigits > 100) {
             throw new Error("小数位数只能是0和100之间的数字");
         }
-        var [neg, s1, s2] = prepare(numstr);
-        if (s2.length < fractionDigits) {
-            s2 += repeat0(fractionDigits - s2.length);
-        }
-        else {
-            s2 = s2.slice(0, fractionDigits);
-        }
-        if (fractionDigits > 0) numstr = s1 + '.' + s2;
-        else numstr = s1;
-        if (neg) numstr = '-' + numstr;
-        return numstr;
+        return fixde(numstr, fractionDigits, 4);
     }
     static add(numstr1, numstr2) {
         var [neg1, s11, s12] = prepare(numstr1)
