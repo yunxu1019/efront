@@ -168,7 +168,7 @@ function go(pagepath, args, history_name, oldpagepath) {
             fullfill_is_dispatched = 0;
         }
         addGlobal(_page, history_name, isDestroy);
-        page_object.prepares.forEach(function (url) {
+        page_object.prepares.splice(0, page_object.prepares.length).forEach(function (url) {
             if (isNumber(url)) {
                 url = _history[url < 1 ? _history.length + url - 1 : url];
             }
