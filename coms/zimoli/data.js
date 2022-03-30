@@ -606,7 +606,7 @@ var privates = {
             }
             return data;
         });
-        p.loading = loading;
+        p.loading = promise.loading;
         return p;
     },
 

@@ -58,6 +58,18 @@ function toResponse() {
     if (this.responseType === 'json') return JSON.stringify(this.response);
     return this.response;
 }
+/**
+ * @this {XMLHttpRequest}
+ */
+var XMLHttpRequest_abort = function () {
+    removeFromList(requests, this);
+    delete this.abort;
+    if (isFunction(this.abort)) this.abort(this);
+};
+/**
+ * @param { () => XMLHttpRequest } jsonp
+ * @this { () => XMLHttpRequest }
+ */
 function cross_(jsonp, digest = noop, method, url, headers) {
     var originDomain = getDomainPath(url);
     if (!originDomain) throw new Error("路径格式错误！");
@@ -326,11 +338,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         onerrors.push(oh);
         flush();
     };
-    var abort = xhr.abort;
-    xhr.abort = function () {
-        removeFromList(requests, this);
-        if (isFunction(abort)) abort.call(this);
-    };
+    xhr.abort = XMLHttpRequest_abort;
     xhr.delCookies = function () {
         delCookies(originDomain);
         xhr.nocookie = true;
@@ -394,8 +402,7 @@ cross_.bind = function () {
     extend(cross_, {
         requests,
         abortAll() {
-            var rs = requests.splice(0, requests.length);
-            for (var r of rs) r.abort();
+            for (var r of requests) r.abort();
         },
         setHost,
         addReform,
