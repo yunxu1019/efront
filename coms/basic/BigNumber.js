@@ -49,6 +49,7 @@ var fixde = function (numstr, fractionDigits, compare) {
         res = BigNumber.add(res, 1);
     }
     if (fractionDigits > 0) res = res.slice(0, res.length - fractionDigits) + '.' + res.slice(res.length - fractionDigits);
+    if (/^\./.test(res)) res = "0" + res;
     if (neg) res = '-' + res;
     return res;
 };
@@ -150,7 +151,7 @@ class BigNumber {
     static prd(numstr1, numstr2) {
         var [neg1, s11, s12] = prepare(numstr1);
         var [neg2, s21, s22] = prepare(numstr2);
-        var d = s12.length * s22.length;
+        var d = s12.length + s22.length;
         numstr1 = s11 + s12;
         numstr2 = s21 + s22;
         if (numstr1.length < numstr2.length) [numstr1, numstr2] = [numstr2, numstr1];

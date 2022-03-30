@@ -20,6 +20,10 @@ var getrandomint = function () {
     var n = BigInt(Math.random() * new Date | 0) * BigInt(Math.random() * new Date | 0) * BigInt(Math.random() * new Date | 0);
     return n;
 }
+testPrd(1, 2, '2');
+testPrd(1, 0.2, '0.2');
+testPrd("9007199254740992.1", 0.1, '900719925474099.21');
+testPrd("9007199254740992.1", 0.01, '90071992547409.921');
 for (var cx = 0, dx = 1000; cx < dx; cx++) {
     var n1 = getrandomint();
     var n2 = getrandomint();
