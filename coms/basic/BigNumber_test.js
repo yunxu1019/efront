@@ -27,3 +27,6 @@ for (var cx = 0, dx = 1000; cx < dx; cx++) {
     testAdd(n1, n2, s);
     testPrd(n1, n2, String(n1 * n2));
 }
+assert(BigNumber.fix(2, 2), '2.00');
+assert(BigNumber.fix(2.234, 6), '2.234000');
+assert(BigNumber.fix("9007199254740992.234", 6), '9007199254740992.234000');

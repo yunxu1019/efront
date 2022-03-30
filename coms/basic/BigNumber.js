@@ -24,7 +24,7 @@ var split = function (s, n) {
     r.push(s.slice(0, end));
     return r;
 };
-var fix = function (neg, res, nl) {
+var fixme = function (neg, res, nl) {
     if (nl > 0) res = res.slice(0, res.length - nl) + "." + res.slice(res.length - nl).replace(/0+$/, '');
     res = res.replace(/^0+(?!\.)/, '');
     if (/^\./.test(res)) res = '0' + res;
@@ -44,6 +44,23 @@ class BigNumber {
     add(bignumber) {
         return new BigNumber(BigNumber.add(this.value, bignumber));
     };
+    static fix(numstr, fractionDigits) {
+        fractionDigits = +fractionDigits || 0;
+        if (fractionDigits < 0 || fractionDigits > 100) {
+            throw new Error("小数位数只能是0和100之间的数字");
+        }
+        var [neg, s1, s2] = prepare(numstr);
+        if (s2.length < fractionDigits) {
+            s2 += repeat0(fractionDigits - s2.length);
+        }
+        else {
+            s2 = s2.slice(0, fractionDigits);
+        }
+        if (fractionDigits > 0) numstr = s1 + '.' + s2;
+        else numstr = s1;
+        if (neg) numstr = '-' + numstr;
+        return numstr;
+    }
     static add(numstr1, numstr2) {
         var [neg1, s11, s12] = prepare(numstr1)
         var [neg2, s21, s22] = prepare(numstr2)
@@ -108,7 +125,7 @@ class BigNumber {
         }
         if (rest) res.push(rest);
         res = res.reverse().join('');
-        return fix(neg, res, nl);
+        return fixme(neg, res, nl);
     }
     static prd(numstr1, numstr2) {
         var [neg1, s11, s12] = prepare(numstr1);
@@ -141,6 +158,6 @@ class BigNumber {
             }
         }
         res = res.reverse().join('');
-        return fix(neg1 ^ neg2, res, d);
+        return fixme(neg1 ^ neg2, res, d);
     }
 }
