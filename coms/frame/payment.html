@@ -1,0 +1,34 @@
+<div class="head">
+    扫码支付
+    <close @click="closeView()"></close>
+</div>
+<div class="body">
+    <item>
+        <label>原始价格：</label>
+        <span v-model="(+price).toFixed(2)"></span>元
+    </item>
+    <item>
+        <label>支付渠道：</label>
+        <select ng-model="paytype">
+            <option disabled value="0">请选择</option>
+            <option v-repeat="(o,i) in paytypes" icon_=o.icon value_="i+1" -html="o.name"></option>
+            <!-- <option icon="/page/weixin.ico" value="2">微信</option> -->
+        </select>
+    </item>
+    <item>
+        <label>渠道费：</label>
+        <span b-bind="waycost"></span>元
+    </item>
+    <item ng-if="+paytype">
+        <label>应支付：</label>
+        <span style="color: red;">
+            <span v-model=finalpay></span>元
+        </span>
+    </item>
+    <item ng-if="+paytype">
+        <iframe _src="paysite" allowtransparency="true" scrolling="no">
+        </iframe>
+    </item>
+    <item>
+    </item>
+</div>
