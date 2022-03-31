@@ -1,5 +1,5 @@
 var paytype = data.getInstance("paytype");
-function main(paytypes, price) {
+function main(paytypes, price, subject = '网站扫码支付') {
     var page = view();
     page.innerHTML = payment;
     renderWithDefaults(page, {
@@ -21,8 +21,8 @@ function main(paytypes, price) {
             var pay = this.paytypes[this.paytype - 1];
             if (!pay) return 'about:blank';
             var url = pay.url;
-            if (isFunction(url)) url = url.call(pay, this.finalpay);
-            else if (url) url += this.finalpay;
+            if (isFunction(url)) url = url.call(pay, this.finalpay, subject);
+            else if (url) url += encode62.timeencode(this.finalpay + "," + subject);
             return url;
         },
         get finalpay() {
@@ -40,11 +40,9 @@ function main(paytypes, price) {
         console.log(type)
     });
     var frame = page.querySelector("iframe");
-    on("mounted")(frame, function () {
-        frame.contentWindow.onmessage = function (e) {
-            var id = e.data;
-            cast(page, 'payment', id);
-        };
+    bind("message")(frame, function (e) {
+        var id = e.data;
+        cast(page, 'payment', id);
     });
     return page;
 }
