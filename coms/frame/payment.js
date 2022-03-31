@@ -36,9 +36,6 @@ function main(paytypes, price, subject = '网站扫码支付') {
     });
     drag.on(page.firstChild, page);
     resize.on(page);
-    data.bindInstance("paytype", function (type) {
-        console.log(type)
-    });
     var frame = page.querySelector("iframe");
     bind("message")(frame, function (e) {
         var id = e.data;
