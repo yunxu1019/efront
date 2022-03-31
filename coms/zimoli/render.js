@@ -7,7 +7,7 @@ var createTemplateNodes = function (text) {
     remove(this.with);
     this.with = [].slice.call(node.childNodes, 0);
     appendChild.after(this, this.with);
-    renderElement(this.with, this.$scope, this.$parentScopes, this.renderid === 9);
+    this.with = renderElement(this.with, this.$scope, this.$parentScopes, this.renderid === 9);
 };
 presets.template = function (t) {
     var comment = document.createComment('template');
@@ -23,7 +23,7 @@ presets.template = function (t) {
     }
     return comment;
 };
-window.renderElements = renderElements;
+if (!isProduction) window.renderElements = renderElements;
 var renderidOffset = 10;
 var renderidClosed = 0;
 var addRenderElement = function () {
@@ -87,14 +87,22 @@ var createGetter = function (search, isprop = true) {
     }
     return new Function("event", `${withContext}with(this.$scope){${/([\=\(\+\-])/.test(searchContext) ? ret + searchContext : `${ret}${searchContext}.call(this.$scope,event)`}}`);
 };
-var initialComment = function (renders, type, expression) {
+var createComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
     comment.renders = renders;
     comment.$scope = this.$scope;
+    comment.$struct = this.$struct;
     comment.$parentScopes = this.$parentScopes;
-    appendChild.after(this, comment);
-    if (!/if/i.test(type)) remove(this);
-    if (!this.$struct.once) {
+    if (this.parentNode) {
+        appendChild.after(this, comment);
+        if (!/^if|^else/i.test(type)) remove(this);
+    }
+    comment.template = this;
+    return comment;
+};
+
+var initialComment = function (comment) {
+    if (!comment.$struct.once) {
         comment.renderid = ++renderidOffset;
         onmounted(comment, addRenderElement);
         onremove(comment, removeRenderElement);
@@ -105,8 +113,8 @@ var initialComment = function (renders, type, expression) {
         rebuild(comment);
         remove(comment);
     }
-    return comment;
 };
+
 var parseRepeat = function (expression) {
     var reg =
         // /////////////////////////////////////////// i //       r       /////////////////////////  o  ///// a ///////////////////// t /////
@@ -141,7 +149,6 @@ var parseRepeat = function (expression) {
 var createRepeat = function (search, id = 0) {
     // 懒渲染
     // throw new Error("repeat is not supported! use list component instead");
-
     var [context, expression] = search;
     var res = parseRepeat(expression);
     if (!res) throw new Error(`不能识别循环表达式: ${expression} `);
@@ -206,33 +213,15 @@ var createRepeat = function (search, id = 0) {
             if (clonedElements1[k] !== clonedElements[k]) remove(clonedElements[k]);
         }
         clonedElements = clonedElements1;
+        this.with = cloned;
     }];
-    if (this.parentNode) {
-        initialComment.call(this, renders, 'repeat', expression);
-    } else {
-        once("append")(this, initialComment.bind(this, renders, "repeat", expression));
-    }
-};
-var comment = function (elements) {
-    for (var cx = elements.length - 2; cx > 1; cx -= 2) {
-        var e = elements[cx];
-        if (e.previousSibling === this) var c = this;
-        else {
-            var c = document.createComment('else' + (cx < elements.length - 2 ? "if .." : ''));
-            e.parentNode.insertBefore(c, e);
-        }
-        elements.splice(cx, 0, c);
-        remove(e);
-    }
+    var comment = createComment.call(this, renders, 'repeat', expression);
+    initialComment(comment);
+    return comment;
 };
 var initIf = function (ifs) {
     for (var s of ifs) {
-        comment(s);
-        if (s.parent) {
-            initialComment.call(s[0], s.renders, "if", s.comment);
-        } else {
-            once("append")(s[0], initialComment.bind(s[0], s.renders, "if", s.comment));
-        }
+        initialComment(s[0]);
     }
 };
 var createIf = function (search, id = 0) {
@@ -246,7 +235,7 @@ var createIf = function (search, id = 0) {
     elements.comment = search[1];
     elements.renders = [function () {
         var shouldMount = -1;
-        for (var cx = 0, dx = elements.length; cx < dx; cx += 3) {
+        for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
             var getter = elements[cx + 1];
             if (!getter || getter()) {
                 shouldMount = cx;
@@ -255,21 +244,23 @@ var createIf = function (search, id = 0) {
         }
         if (savedValue === shouldMount) return;
         savedValue = shouldMount;
-        for (var cx = 0, dx = elements.length; cx < dx; cx += 3) {
-            var element = elements[cx];
+        for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
+            var c = elements[cx];
             if (cx === shouldMount) {
-                appendChild.after(cx > 0 ? elements[cx - 1] : this, element);
-                if (element.renderid < 0) {
-                    element.renderid = id;
-                    elements[cx] = render(element, this.$scope, this.$parentScopes);
+                var e = c.template;
+                appendChild.after(c, e);
+                if (e.renderid < 0) {
+                    e.renderid = id;
+                    c.template = render(e, this.$scope, this.$parentScopes);
                 }
             }
             else {
-                remove(element);
+                remove(c.template);
             }
         }
 
     }];
+    return elements[0] = createComment.call(element, elements.renders, 'if', elements.comment);
 };
 var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     var repeater = parseRepeat(repeatExpression);
@@ -350,17 +341,17 @@ var createStructure = function ({ name: ifkey, key, value: ifexp } = {}, { name:
     }
     if (before.length > 0) {
         // 懒渲染
-        createIf.call(element, [context, before.join("&&")], null);
+        return createIf.call(element, [context, before.join("&&")], null);
     } else {
         element.removeAttribute(forkey);
-        createRepeat.call(element, [context, repeat], null);
+        return createRepeat.call(element, [context, repeat], null);
     }
 };
 
 var if_top = [];
 var structures = {
     "if"(search) {
-        createIf.call(this, search);
+        return createIf.call(this, search);
     },
     "else"(search) {
         for (var cx = if_top.length - 1; cx >= 0; cx--) {
@@ -374,10 +365,11 @@ var structures = {
         if (search && search[1]) {
             var getter = createGetter(search).bind(this);
         }
-        top.push(this, getter);
+        var comment = createComment.call(this, undefined, search[1] ? 'elseif' : 'else', search[1]);
+        top.push(comment, getter);
     },
     repeat(search) {
-        createRepeat.call(this, search);
+        return createRepeat.call(this, search);
     },
 };
 structures["else-if"] = structures.elseif = structures.else;
@@ -629,7 +621,7 @@ function getFromScopes(key, scope, parentScopes) {
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
     if (!isNode(element) && element.length) {
-        return [].concat.apply([], element).map(function (element) {
+        return Array.prototype.slice.call(element, 0, element.length).map(function (element) {
             return renderElement(element, scope, parentScopes, once);
         });
     }
@@ -637,18 +629,19 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         return element;
     }
     if (!isNumber(element.renderid)) {
-        renderStructure(element, scope, parentScopes, once);
+        let element1 = renderStructure(element, scope, parentScopes, once);
+        if (element1 !== element) {
+            element = element1;
+        }
+        if (!element) return;
+    }
+    if (element.renderid < 0 || element.nodeType !== 1) {
+        return element;
     }
     var elementid = element.getAttribute("renderid") || element.getAttribute("elementid") || element.getAttribute("id");
     if (elementid) {
-        if (scope[elementid]) {
-            if (scope[elementid] !== element) throw new Error("同一个id不能使用两次:" + elementid);
-        } else {
-            scope[elementid] = element;
-        }
-    }
-    if (element.renderid < 0) {
-        return element;
+        if (scope[elementid] && scope[elementid] !== element) throw new Error("同一个id不能使用两次:" + elementid);
+        scope[elementid] = element;
     }
     var isFirstRender = !element.renderid;
 
@@ -842,7 +835,8 @@ function renderStructure(element, scope, parentScopes = [], once) {
     if (props["zimoli"] || props["fresh"] || props["once"]) once = true;
     else if (props["refresh"] || props["digest"] || props["mount"]) once = false;
     if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext, ids, once };
-    if (element.renderid <= -1) createStructure.call(element, types.if, types.repeat, withContext);
+    if (element.renderid <= -1) return createStructure.call(element, types.if, types.repeat, withContext);
+    return element;
 }
 var eagermount = false, renderlock = false;
 function render(element, scope, parentScopes, lazy = true) {
