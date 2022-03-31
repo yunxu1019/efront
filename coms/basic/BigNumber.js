@@ -46,7 +46,9 @@ var fixde = function (numstr, fractionDigits, compare) {
     }
     var res = s1 + s2;
     if (frag) {
+        var res_length = res.length;
         res = BigNumber.add(res, 1);
+        if (res.length < res_length) res = repeat0(res_length - res.length) + res;
     }
     if (fractionDigits > 0) res = res.slice(0, res.length - fractionDigits) + '.' + res.slice(res.length - fractionDigits);
     if (/^\./.test(res)) res = "0" + res;
@@ -180,5 +182,25 @@ class BigNumber {
         }
         res = res.reverse().join('');
         return fixme(neg1 ^ neg2, res, d);
+    }
+    static sub(numstr1, numstr2) {
+        numstr2 = trim(numstr2);
+        if (/^\-/.test(numstr2)) numstr2 = numstr2.slice(1);
+        else numstr2 = '-' + numstr2;
+        return BigNumber.add(numstr1, numstr2);
+    }
+    // 按整数除法，超出输入的数字的位数之和
+    static div(numstr1, numstr2, decimal) {
+        if (isEmpty(decimal)) throw new Error("请输入保留小数的位数！");
+        var [neg1, s11, s12] = prepare(numstr1);
+        var [neg2, s21, s22] = prepare(numstr2);
+        var d = s12.length - s22.length;
+        numstr1 = s11 + s12;
+        numstr2 = s21 + s22;
+
+        if (d < 0) {
+            numstr2 += repeat0(0, -d);
+        }
+        numstr1 += repeat0(0);
     }
 }

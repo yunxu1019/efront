@@ -38,6 +38,7 @@ assert(BigNumber.fix(2.235, 2), '2.24');
 assert(BigNumber.fix(2.234, 2), '2.23');
 assert(BigNumber.fix(2.2351, 2), '2.24');
 assert(BigNumber.fix(2.2349, 2), '2.23');
+assert(BigNumber.fix(0.00807703432, 2), '0.01');
 assert(BigNumber.round(2.2349), '2');
 assert(BigNumber.round(2.4999), '2');
 assert(BigNumber.round(2.5000), '3');
