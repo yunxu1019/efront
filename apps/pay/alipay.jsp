@@ -76,7 +76,7 @@ ACQ.MERCHANT_PERM_RECEIPT_DAY_LIMIT	超过单日累计收款额度	联系支付�
         sign_type: "RSA2",
         version: "1.0",
         charset: "utf-8",
-        return_url: `${req.protocol}//${req.headers.host}${req.url.replace(/[\.\:][\s\S]*$/, '')}-callback`,
+        return_url: `${req.protocol}//${req.host = req.headers[":authority"] || req.headers.host}${req.url.replace(/[\.\:][\s\S]*$/, '')}-callback`,
         biz_content: JSON.stringify(biz_content)
     };
     await _runtask("alipay-sign", params);
