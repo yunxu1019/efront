@@ -4,7 +4,7 @@ function main(paytypes, price, subject = '网站扫码支付') {
     page.innerHTML = payment;
     renderWithDefaults(page, {
         get paytype() {
-            return paytype.value;
+            return paytype.value || '0';
         },
         set paytype(value) {
             data.patchInstance("paytype", { value }, true);
