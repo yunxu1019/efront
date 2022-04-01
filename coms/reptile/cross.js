@@ -44,14 +44,15 @@ return cross_.bind(function (callback, onerror) {
                 data = Buffer.from(data);
                 this.headers["Content-Length"] = data.length;
             }
-            var req = http.request({
+            var options = {
                 method: this.method,
                 hostname,
                 port,
                 path,
                 auth,
                 headers: this.headers,
-            }, function (res) {
+            };
+            var req = this.http.request(options, function (res) {
                 var data = [];
                 xhr.status = res.statusCode;
                 xhr.responseHeaders = res.headers;
@@ -72,6 +73,7 @@ return cross_.bind(function (callback, onerror) {
                 this.readyState = 2;
             });
             this.readyState = 1;
+            req.setTimeout(3000);
             if (data) req.end(data);
             else req.end();
         },
@@ -84,7 +86,7 @@ return cross_.bind(function (callback, onerror) {
             responseObject = null;
             error = null;
             var http;
-            if (/^https?\:/i.test(url)) {
+            if (/^http\:/i.test(url)) {
                 http = require("http");
             }
             else {
