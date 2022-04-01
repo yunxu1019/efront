@@ -287,6 +287,17 @@ class Program extends Array {
     }
 }
 
+var isShortMethodEnd = function (o) {
+    if (!o) return false;
+    if (o.type !== SCOPED || o.entry !== "{") return false;
+    o = o.prev;
+    if (!o) return false;
+    if (o.type !== SCOPED || o.entry !== "(") return false;
+    o = o.prev;
+    if (!o) return false;
+    return o.type === PROPERTY;
+};
+
 class Javascript {
     quotes = [
         [/'/, /'/, /\\[\s\S]/],
@@ -354,7 +365,7 @@ class Javascript {
                     if (queue.isClass) scope.isprop = !last || last.isprop || last.type === STAMP && last.text === ';';
                 }
                 else if (scope.type === STAMP) {
-                    scope.isprop = scope.text === "*" && isProperty();
+                    scope.isprop = scope.text === "*" && (!queue.lastUncomment || /^[,;]$/.test(queue.lastUncomment.text) || queue.isClass && isShortMethodEnd(queue.lastUncomment));
                 }
                 else if (scope.type === PROPERTY) {
                     scope.isprop = true;
