@@ -1,5 +1,6 @@
 var memery = require('../efront/memery');
 var fs = require("fs");
+var path = require("path");
 var readFileAsync = function (fullpath) {
     return new Promise(function (ok, oh) {
         fs.readFile(fullpath, function (err, chunk) {
