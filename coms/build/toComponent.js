@@ -454,14 +454,14 @@ function toComponent(responseTree) {
                 `: ""}
                 r = f[y](I?I[B]:T[0], g);
                 return ${outsidePromise ?
-            `I&&P&&r instanceof P?r[T[${getEncodedIndex("then")}]()](function(){return I[B]}):I?I[B]:r`
+            `I&&P&&r instanceof P?r[N](function(){return I[B]}):I?I[B]:r`
             : "I?I[B]:r"
         };
             }
         }
         return T[c + 1] = function(S){
             T[c+1]=function(){return S};
-            return S={},S=R(S)${outsidePromise ? `,P&&S instanceof P&&S[N](function(s){S=s}),S;` : ''};
+            return S={},S=R(S)${outsidePromise ? `,P&&S instanceof P&&S[N](function(s){S=s}),S` : ''};
         }
     }`;
     var polyfill_map = `function (f, t) {
@@ -483,7 +483,7 @@ function toComponent(responseTree) {
             .replace(/\s+(\W)/g, "$1");
         if (encoded) str = str.replace(/\b[a-z]\b/ig, a => {
             var c = a.charCodeAt(0);
-            if (c > 97) {
+            if (c >= 97) {
                 c = ((crypt_code - c) % 26) + 65;
             } else {
                 c = ((crypt_code - c) % 26) + 97;
