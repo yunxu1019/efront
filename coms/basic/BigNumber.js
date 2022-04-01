@@ -72,10 +72,10 @@ class BigNumber {
         return fixde(numstr, 0, 4);
     }
     static ceil(numstr) {
-        return fixde(numstr, 0, 0);
+        return fixde(numstr, 0, /^\-/.test(numstr) ? 9 : 0);
     }
     static floor(numstr) {
-        return fixde(numstr, 0, 9);
+        return fixde(numstr, 0, /^\-/.test(numstr) ? 0 : 9);
     }
     static fix(numstr, fractionDigits) {
         fractionDigits = +fractionDigits || 0;
