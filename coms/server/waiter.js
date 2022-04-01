@@ -7,6 +7,7 @@ var memery = require("../efront/memery");
 var clients = require("./clients");
 var message = require("../message");
 var JSAM = require("../basic/JSAM");
+var cert = server$cert;
 require("../efront/quitme");
 var { HTTPS_PORT, HTTP_PORT } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
@@ -116,6 +117,10 @@ var setHeader = function (crypted, k, v) {
     }
     this.setHeader(k, v);
 };
+/**
+ * @param {Http2ServerRequest}req
+ * @param {Http2ServerResponse}res
+ */
 var requestListener = async function (req, res) {
     if (closed) return req.destroy();
     try {
@@ -695,8 +700,7 @@ var server0, server1, server2;
 var httpsOptions = {
     allowHTTP1: true,
 };
-var fs = require("fs");
-var path = require("path");
+
 var createHttpsServer = function () {
     if (httpsOptions.pfx || httpsOptions.cert && httpsOptions.key) {
         HTTPS_PORT = +HTTPS_PORT || 443;
@@ -722,28 +726,15 @@ process.on('exit', function () {
 });
 
 message.count("boot");
+if (HTTP_PORT) loading++, createHttpServer();
 if (memery.PFX_PATH) {
     loading++;
-    httpsOptions.passphrase = memery.PFX_PASSWORD;
-    fs.readFile(memery.PFX_PATH, function (error, buff) {
-        if (error) return console.error(error);
-        httpsOptions.pfx = buff;
-        createHttpsServer();
-    });
+    Object.assign(httpsOptions, cert);
+    createHttpsServer();
 }
 else if (HTTPS_PORT) {
     loading++;
     console.warn("<yellow>HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！</yellow>");
-    fs.readFile(path.join(__dirname, '../../data/keystore/cross-key.pem'), function (error, buff) {
-        if (error) return console.error(error);
-        httpsOptions.key = buff;
-        createHttpsServer();
-    });
-    fs.readFile(path.join(__dirname, '../../data/keystore/cross-cert.pem'), function (error, buff) {
-        if (error) return console.error(error);
-        httpsOptions.cert = buff;
-        createHttpsServer();
-    });
+    Object.assign(httpsOptions, cert);
+    createHttpsServer();
 }
-
-if (HTTP_PORT) loading++, createHttpServer();

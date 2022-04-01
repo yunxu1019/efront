@@ -1,28 +1,15 @@
 "use strict";
 var parseURL = require("../basic/parseURL");
-var userdata = require("./userdata");
+var cert = server$cert;
 var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
 var privateKeys = Object.create(null);
 "Cookie,Connection,Referer,Host,Origin,Authorization".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
 var record = require("./record");
-var options = {};
 var crossmark = /[~,;\.&\*\!]/;
 // ------------ //////////////1--------------- --/ 2 ----------------- ///// 3 ////////// 4 /////
 var matchmark = new RegExp(`^(${crossmark.source}(${crossmark.source}?))${/(.*?)(?:[\,&](.*?))?$/.source}`);
--function () {
-    var fs = require("fs");
-    var path = require("path");
-    var loadCertFile = function (keyname, reletivepath) {
-        var fullpath = path.join(__dirname, "../../data/keystore", reletivepath);
-        fs.readFile(fullpath, function (err, chunk) {
-            if (err) console.error(err);
-            else options[keyname] = chunk;
-        });
-    }
-    loadCertFile("key", "cross-key.pem");
-    loadCertFile("cert", "cross-cert.pem");
-}();
+
 async function parseUrl(hostpath, real) {
     var { pathname, search, hostname, protocol, port } = parseURL(hostpath);
     if (real === undefined && /^https?\:\/\//i.test(hostpath)) {
@@ -119,11 +106,13 @@ async function cross(req, res, referer) {
                 headers[k] = _headers[k];
             }
         }
-        var http;
+        var http, options;
         if (/^https\:/i.test(hostpath)) {
             http = require("https");
+            options = cert;
         } else {
             http = require("http");
+            options = null;
         }
 
         var request = http.request(Object.assign({
