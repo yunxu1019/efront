@@ -5,12 +5,15 @@
     var id = params.out_trade_no;
 
     var data = await _runtask("couchdb", "get", `alipay-log/${id}`);
-    await _runtask("couchdb", "put", `alipay-log/${id}?_rev=${data._rev}`, extend(data, {
+    extend(data, {
         alipay_trade_no: params.trade_no,
         seller_id: params.seller_id,
         return_amount: params.total_amount,
-        return_time: new Date().toISOString(),
-    }));
+        trade_status: params.trade_status
+    });
+    if (req.headers["user-agent"]) data.return_time = new Date().toISOString();
+    else data.notify_time = new Date().toISOString();
+    await _runtask("couchdb", "put", `alipay-log/${id}?_rev=${data._rev}`, data);
     context.id = params.out_trade_no;
 </script>
 <script>
@@ -18,6 +21,6 @@
     if (id) parent.postMessage(id);
 </script>
 <script serverside>
-    if(context.id)return `<body style="color:green">支付完成</body>`;
+    if (context.id) return `<body style="color:green">支付完成</body>`;
     else return `<body style="color:red">支付失败</body>`
 </script>

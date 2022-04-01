@@ -50,18 +50,13 @@ ACQ.MERCHANT_PERM_RECEIPT_DAY_LIMIT	超过单日累计收款额度	联系支付�
         if (a < 10) return "0" + a;
         return a;
     }
-    var now = new Date();
-    function createStamp(now) {
-        var d = now;
-        return [d.getFullYear(), d.getMonth() + 1, d.getDate()].map(pad).join("-") +
-            " " + [d.getHours(), d.getMinutes(), d.getSeconds()].map(pad).join(":");
-    }
     var amount = request.id;
     if (!/^(\d+)(\.\d+)?$/.test(amount)) amount = encode62.timedecode(request.id);
     var [amount, subject = '网页扫码支付'] = amount.split(',');
+    var trade_no = createId();
     if (!+amount) return forbidden("参数异常");
     var biz_content = {
-        out_trade_no: "alipay-" + createId(),
+        out_trade_no: "alipay-" + trade_no,
         product_code: 'FAST_INSTANT_TRADE_PAY',
         total_amount: amount,
         qr_pay_mode: 4,
@@ -70,7 +65,6 @@ ACQ.MERCHANT_PERM_RECEIPT_DAY_LIMIT	超过单日累计收款额度	联系支付�
         body: subject,
     };
     var params = {
-        timestamp: createStamp(now),
         method: "alipay.trade.page.pay",
         app_id: "2021002143612677",
         sign_type: "RSA2",
@@ -79,6 +73,7 @@ ACQ.MERCHANT_PERM_RECEIPT_DAY_LIMIT	超过单日累计收款额度	联系支付�
         return_url: `${req.protocol}//${req.headers[":authority"] || req.headers.host}${req.url.replace(/[\.\:][\s\S]*$/, '')}-callback`,
         biz_content: JSON.stringify(biz_content)
     };
+    params.notify_url = params.return_url;
     await _runtask("alipay-sign", params);
 
     var log = await _runtask("couchdb", "put", "alipay-log/" + biz_content.out_trade_no, {
@@ -89,11 +84,13 @@ ACQ.MERCHANT_PERM_RECEIPT_DAY_LIMIT	超过单日累计收款额度	联系支付�
         subject: biz_content.subject,
         body: biz_content.body,
         timestamp: params.timestamp,
-        create_time: now.toISOString(),
+        create_time: new Date().toISOString(),
         return_url: biz_content.return_url
     });
-    res.writeHead(302, {
-        Location: "https://openapi.alipay.com/gateway.do?" + serialize(params)
-    });
-    res.end();
+    context.id = biz_content.out_trade_no;
+    context.location = "https://openapi.alipay.com/gateway.do?" + serialize(params);
+</script>
+<script>
+    parent.postMessage(<%JSON.stringify(context.id)%>);
+    location.href = <%JSON.stringify(context.location)%>;
 </script>

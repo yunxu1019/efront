@@ -37,9 +37,24 @@ function main(paytypes, price, subject = '网站扫码支付') {
     drag.on(page.firstChild, page);
     resize.on(page);
     var frame = page.querySelector("iframe");
+    var tradeid;
     bind("message")(frame, function (e) {
-        var id = e.data;
-        cast(page, 'payment', id);
+        if (tradeid === e.data && !queryres) cast(page, 'payment', tradeid), queryres = tradeid;
+        else tradeid = e.data, queryres = null;
     });
+    var queryurl, queryres;
+    data.bindInstance("paytype", function ({ value }) {
+        var type = paytypes[value - 1];
+        queryurl = type && type.query;
+    });
+    var query = lazy(async function () {
+        if (!tradeid || queryres) return;
+        if (isFunction(queryurl)) var res = await queryurl(tradeid);
+        else if (isString(queryurl)) var res = await cross('get', queryurl + encode62.timeencode(tradeid)), res = JSAM.parse(res.response || res.responseText);
+        if (queryres) return;
+        if (res) queryres = res, cast(page, 'payment', res._id);
+    }, -200);
+    on('load')(frame, query);
+    on('remove')(frame, query);
     return page;
 }
