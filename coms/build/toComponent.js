@@ -437,17 +437,16 @@ function toComponent(responseTree) {
                     g = g[o]([l]);
                 }
                 ${outsidePromise ? `
-                if(C>0)return P[s[${getEncodedIndex('all', 'string') - 1}]](g)[s[${getEncodedIndex('then', 'string') - 1}]](function(g){
+                if(C>0)return P[T[${getEncodedIndex('all')}]()](g)[T[${getEncodedIndex('then')}]()](function(g){
                     r=f[y](I?I[B]:T[0],g);
                     return I?I[B]:r;
                 });
                 `: ""}
                 r = f[y](I?I[B]:T[0], g);
-                return ${
-                    outsidePromise?
-                    `I&&P&&r instanceof P?r[s[${getEncodedIndex("then", "string") - 1}]](function(){return I[B]}):I?I[B]:r`
-                    :"I?I[B]:r"
-                };
+                return ${outsidePromise ?
+            `I&&P&&r instanceof P?r[T[${getEncodedIndex("then")}]()](function(){return I[B]}):I?I[B]:r`
+            : "I?I[B]:r"
+        };
             }
         }
         return T[c + 1] = function(S){
