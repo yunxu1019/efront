@@ -108,8 +108,10 @@ function toComponent(responseTree) {
         if (type === 'string') key = _strings.encode(key);
         return destMap[getEfrontKey(key, type)];
     };
+    var asyncMap = {};
     var saveCode = function (module_body, module_key, reqMap) {
         var this_module_params = {};
+        var needAwaits = false;
         var setMatchedConstString = function (k, isReq, isProp) {
             if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
             if (k.length < 3) return k;
@@ -118,7 +120,10 @@ function toComponent(responseTree) {
                 if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                     var reqer = reqMap[refer];
                     var reqed = getFromTree(destMap, reqer);
-                    if (reqed) return reqed;
+                    if (reqed) {
+                        needAwaits = true;
+                        return reqed;
+                    }
                     if (reqer in libsTree) {
                         var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
                         k = _strings.encode(libdir);
@@ -186,6 +191,7 @@ function toComponent(responseTree) {
         if (compress) {
             module_string = scanner2(module_string).press().toString();
         }
+        if (needAwaits) getEncodedIndex('Promise', 'global');
         saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
             var index = destMap[a];
             if (a === "__dirname" || a === "__filename") {
@@ -200,6 +206,7 @@ function toComponent(responseTree) {
             if (!isFinite(index)) console.warn("编译异常", module_key, a);
             return index;
         }).concat(module_string)}]`, module_key);
+        if (isAsync) asyncMap[destMap[module_key]] = true;
     };
     var initDirname = function () {
         initDirname = function () { };
@@ -397,11 +404,11 @@ function toComponent(responseTree) {
     var realize = `function (a, c,s) {
         var ${string_r},
         u,p=[x,m,n,q,o,y,B,e,v,z,w,s[${getEncodedIndex(`call`, "string") - 1}]],
-        h=s[M-1][0],
+        h=s[M-1][0],A=s[${getEncodedIndex('Array', 'global') - 1}],P,N,
         j=s[${getEncodedIndex('String', 'global') - 1}],
         $=[${$fromCharCode.map(a => getEncodedIndex(a, 'global') - 1).map(a => `s[${a}]`)}],
         _=[${$charCodeAt.map(a => getEncodedIndex(a, 'global') - 1).map(a => `s[${a}]`)}][v]()[w](''),T = this,R;
-        if (!(a instanceof s[${getEncodedIndex('Array', 'global') - 1}])){
+        if (!(a instanceof A)){
             R = function(){${encoded ? `
                 if(typeof a===z&&!~p[x](a)&&c!==${getEncodedIndex(`__dirname`, "global") - 1}){
                     u=a[q]('')[v]();
@@ -428,16 +435,19 @@ function toComponent(responseTree) {
             };
         }else{
             R=function(Q){
+                ${outsidePromise ? `if(c!==${getEncodedIndex(`Promise`, 'global') - 1})P=T[${getEncodedIndex(`Promise`, 'global')}](),N=T[${getEncodedIndex("then")}]();
+                var C=[],U=T[${getEncodedIndex("push")}](),D=T[${getEncodedIndex("all")}]();` : ''}
                 if(~[E,M][x](c+1))return s[c][0];
-                var r=s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}],I,g=[],i=0,k=a[m]-1,f=a[k],l=r[e](f)${outsidePromise ? `,P=c>${getEncodedIndex("Promise", "global")}?T[${getEncodedIndex(`Promise`, 'global')}]():0,C=0` : ''};
+                var r=s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}],I,g=[],i,k=a[m]-1,f=a[k],l=r[e](f);
                 if(~a[x](E)||~a[x](M))I={},I[B]=Q;
-                for(;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:a[i]?T[a[i]]():T[0]${outsidePromise ? `,C=C||c>${getEncodedIndex("Promise", "global")}&&g[i]instanceof P` : ''};
+                for(i=0;i<k;i++)g[i]=a[i]===M?I:a[i]===E?I[B]:a[i]?T[a[i]]():T[0]${outsidePromise ? `,P&&g[i]instanceof P&&C[U](g[i])` : ''};
                 if (l) {
                     l = l[1][q](',');
                     g = g[o]([l]);
                 }
                 ${outsidePromise ? `
-                if(C>0)return P[T[${getEncodedIndex('all')}]()](g)[T[${getEncodedIndex('then')}]()](function(g){
+                if(C[m])return P[D](C)[N](function(G){
+                    for(i=0;i<k;i++)if(g[i]instanceof P)g[i]=T[a[i]]();
                     r=f[y](I?I[B]:T[0],g);
                     return I?I[B]:r;
                 });
@@ -451,7 +461,7 @@ function toComponent(responseTree) {
         }
         return T[c + 1] = function(S){
             T[c+1]=function(){return S};
-            return S={},S=R(S);
+            return S={},S=R(S)${outsidePromise ? `,P&&S instanceof P&&S[N](function(s){S=s}),S;` : ''};
         }
     }`;
     var polyfill_map = `function (f, t) {
