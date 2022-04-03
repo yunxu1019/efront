@@ -231,6 +231,18 @@ var broadcast = function (k, hk, event) {
     var element = this;
     var handlers = element[hk];
     if (handlers.length > 1) handlers = handlers.slice();
+    if (event.which === 1 && event.buttons === 0) {
+        // firefox 无按键
+        Object.defineProperty(event, 'which', { value: 0 });
+    }
+    if (event.which === 1 && event.buttons === 2) {
+        // firefox 右键
+        Object.defineProperty(event, 'which', { value: 3 });
+    }
+    if (event.which === 1 && event.buttons === 4) {
+        // firefox 中键
+        Object.defineProperty(event, 'which', { value: 2 });
+    }
     for (var [eventtypes, handler, context] of handlers) {
         if (eventtypes.self && event.target !== element) continue;
         if (!checkKeyNeed(eventtypes, event)) continue;
