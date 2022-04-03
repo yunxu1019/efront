@@ -1,22 +1,22 @@
 var scroll = function () {
     var scrollY = function (deltay, useIncrease) {
         deltay = scrollOutside.call(this, deltay);
-        if (isFunction(this.scrollY)) return this.scrollY(deltay, useIncrease);
+        if (isFunction(this.$scrollY)) return this.$scrollY(deltay, useIncrease);
         var scrollTop = this.scrollTop;
         this.scrollTop += deltay;
         if (this.scrollTop === scrollTop) return false;
     };
 
     var Height = function () {
-        if (isFunction(this.Height)) return this.Height();
+        if (isFunction(this.$Height)) return this.$Height();
         return this.scrollHeight;
     };
     var Top = function () {
-        if (isFunction(this.Top)) return this.Top();
+        if (isFunction(this.$Top)) return this.$Top();
         return this.scrollTop;
     };
     var height = function () {
-        if (isFunction(this.height)) return this.height();
+        if (isFunction(this.height)) return this.$height();
         return this.clientHeight;
     };
     var { max, min } = Math;

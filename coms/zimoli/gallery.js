@@ -55,7 +55,7 @@ function gallery(element, minWidth, generator) {
             var e = generator(realindex);
             return e;
         });
-        _box.stopY = noop;
+        _box.$stopY = noop;
         _box.delta = id;
         setWidth(_box);
         return _box;

@@ -352,7 +352,7 @@ function ylist(container, generator, $Y) {
         }
     };
     list.getLastVisibleElement = getLastVisibleElement;
-    list.stopY = function (count, spd) {
+    list.$stopY = function (count, spd) {
         var firstElement = getFirstVisibleElement();
         var lastElement = getLastVisibleElement();
         if (!firstElement || !lastElement || !list.clientHeight) return false;
@@ -386,7 +386,7 @@ function ylist(container, generator, $Y) {
             if (deltay < 3) speed = .5;
             y = last_y + (target_y > last_y ? speed : -speed);
         }
-        list.Top(y);
+        list.$Top(y);
         if (target_y === y) {
             return false;
         }
@@ -394,12 +394,12 @@ function ylist(container, generator, $Y) {
     };
     //导出方法
     list.go = scrollTo;
-    list.Height = function () {
+    list.$Height = function () {
         var elem = getLastElement(2);
         var listRestHeight = elem ? elem.offsetHeight + elem.offsetTop - list.scrollTop : list.clientHeight;
         return currentY() + listRestHeight + restHeight;
     };
-    list.Top = function (y) {
+    list.$Top = function (y) {
         if (isFinite(y)) {
             var last_y = currentY();
             if (y !== last_y) {

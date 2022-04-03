@@ -6,17 +6,24 @@ function ybox(generator) {
     } else {
         _box = createElement(div);
     }
-    _box.height = function () {
+    var _tmp = isFunction(generator) && generator(_box);
+    if (isNode(_tmp)) _box = _tmp;
+    var _box_height = _box.$height || _box.height;
+    var _box_Height = _box.$Height || _box.Height;
+    var _box_Top = _box.$Top || _box.Top;
+    if (_box.$Height !== _box_Height) _box.$Height = _box_Height;
+    if (_box.$height !== _box_height) _box.$height = _box_height;
+    if (_box.$Top !== _box_Top) _box.$Top = _box_Top;
+    if (!isFunction(_box_height)) _box_height = function () {
         return _box.clientHeight;
     };
-    isFunction(generator) && generator(_box);
     // totalHeight
-    _box.Height = _box.Height || function () {
+    if (!isFunction(_box_Height)) _box_Height = function () {
         return _box.scrollHeight;
     };
     // currentTop
     var _scrolledTop = _box.scrollTop;
-    _box.Top = _box.Top || function (top) {
+    if (!isFunction(_box_Top)) _box_Top = function (top) {
         if (isNumber(top)) {
             if (_box.scrollTop !== top) {
                 _box.scrollTop = top;
@@ -25,17 +32,17 @@ function ybox(generator) {
         }
         return _box.scrollTop;
     };
-    _box.scrollY = function (deltay, useIncrease = true) {
-        var _Top = _box.Top();
+    _box.$scrollY = function (deltay, useIncrease = true) {
+        var _Top = _box_Top();
         var top = _Top + deltay;
-        var height = _box.height();
-        var scrollHeight = _box.Height();
+        var height = _box_height();
+        var scrollHeight = _box_Height();
         var r = true;
         if (top < 0) {
             if (useIncrease && _Top <= 0) {
                 r = increase(top);
             }
-            _box.Top(0);
+            _box_Top(0);
         } else if (top + height >= scrollHeight) {
             if (top + height - scrollHeight > increase_height) {
                 top = increase_height + scrollHeight - height;
@@ -43,9 +50,9 @@ function ybox(generator) {
             if (useIncrease && top + height >= scrollHeight) {
                 r = increase(top + height - scrollHeight);
             }
-            _box.Top(top);
+            _box_Top(top);
         } else {
-            r = top !== _box.Top(top);
+            r = top !== _box_Top(top);
             increase(deltay, true);
         }
         return r;
@@ -57,14 +64,14 @@ function ybox(generator) {
     var _decrease = function (increaser) {
         var height = parseInt(increaser.height);
         if (height > 1) {
-            var scrollTop = _box.Top();
+            var scrollTop = _box_Top();
             if (scrollTop > 0 && increaser_t === increaser) {
                 var deltaY = scrollTop > height ? height : scrollTop;
                 height -= deltaY;
-                _box.Top(scrollTop - deltaY);
+                _box_Top(scrollTop - deltaY);
             }
-            var tH = _box.Height();
-            var bH = _box.height();
+            var tH = _box_Height();
+            var bH = _box_height();
             if (scrollTop + bH < tH && increaser_b === increaser) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
@@ -81,7 +88,7 @@ function ybox(generator) {
         remove(increaser);
         return 0;
     };
-    var stop = _box.stopY;
+    var stop = _box.$stopY || _box.stopY;
     var stop2 = lazy(function () {
         scrollY.smooth(stop);
     }, 40);
@@ -128,6 +135,7 @@ function ybox(generator) {
     } else {
         var wheelTime = 0;
         onmousewheel(_box, function (event) {
+            event.preventDefault();
             if (event.timeStamp - wheelTime > 40 && Math.abs(event.deltaY) < 12) {
                 wheelTime = event.timeStamp;
                 return;
@@ -151,7 +159,7 @@ function ybox(generator) {
                 scrollY.reset();
             },
             move(scrolled) {
-                var y = -this.Top();
+                var y = -_box_Top();
                 if (scrolled) {
                     var { deltay } = scrolled;
                     scrollY.call(this, -deltay);

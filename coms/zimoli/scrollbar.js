@@ -86,7 +86,7 @@ var scrollbary = function () {
         var run = function () {
             var thumbPosition = getScreenPosition(scroller.thumb);
             if (delta > 0 && thumbPosition.bottom - delta / 6 < scrollTimerTarget || delta < 0 && thumbPosition.top - delta / 6 > scrollTimerTarget) {
-                var targetTop = scroller.Top() + delta;
+                var targetTop = scroller.$Top() + delta;
                 var target = scroller.target;
                 scroller.scrollTo(targetTop);
                 if (target) setTargetTop(target, targetTop);
@@ -126,11 +126,11 @@ var scrollbary = function () {
 
 
     var setTargetTop = function (target, top) {
-        if (target.Top instanceof Function) target.Top(top);
+        if (target.$Top instanceof Function) target.$Top(top);
         else target.scrollTop = top;
     };
     var getTargetTop = function (target) {
-        if (target.Top instanceof Function) return target.Top();
+        if (target.$Top instanceof Function) return target.$Top();
         return target.scrollTop;
     };
 
@@ -152,7 +152,7 @@ var scrollbary = function () {
             _scrollbar.autoshow();
         });
         on("change")(_scrollbar, function () {
-            var top = _scrollbar.Top();
+            var top = _scrollbar.$Top();
             setTargetTop(_container, top);
         });
         if (followResize) on("resize")(followResize, _scrollbar.reshape);
@@ -167,7 +167,7 @@ var scrollbary = function () {
         _scrollbar.scrollTo = scrollTo;
         var _handler = document.createElement("scrollbar-thumb");
         _handler.className = "thumb";
-        _scrollbar.Top = getTop;
+        _scrollbar.$Top = getTop;
         _scrollbar.autohide = lazy(function () {
             this.thumb.style.opacity = 0;
         }, 600);
