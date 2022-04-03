@@ -16,7 +16,7 @@ var moveMargin = function (element, movePixels) {
 var markRowTds = function (tr, deltas, colstart, colend) {
     var inc = 0;
     var collections = [];
-    [].map.call(tr.children, function (td) {
+    Array.prototype.forEach.call(tr.children, function (td) {
         while (deltas[inc] > 0) {
             deltas[inc++]--;
         }
@@ -40,31 +40,89 @@ var markRowTds = function (tr, deltas, colstart, colend) {
     });
     return collections;
 };
+var forEachTableRow = function (table, call) {
+    for (var tr of table.children) {
+        if (isTableRow(tr)) {
+            call(tr);
+        }
+        else {
+            for (var c of tr.children) if (isTableRow(c)) call(c);
+        }
+    }
+}
 var getRowsOfTdsByCol = function (table, start, end) {
     var savedRowDeltas = [];
     var savedCollections = [];
-    [].map.call(table.children, function (tr) {
-        if (trElementReg.test(tr.tagName)) {
-            var collections = markRowTds(tr, savedRowDeltas, start, end);
-            savedCollections.push(collections);
-        }
-        else {
-            var collections = getRowsOfTdsByCol(tr, start, end);
-            savedCollections.push.apply(savedCollections, collections);
-        }
-    });
+    forEachTableRow(table, function (tr) {
+        var collections = markRowTds(tr, savedRowDeltas, start, end);
+        savedCollections.push(collections);
+    })
     return savedCollections;
 }
 var getTdsByCol = function (table, start, end) {
     return [].concat.apply([], getRowsOfTdsByCol(table, start, end));
+};
+var resizeT = function (t, w) {
+    if (!w) {
+        var w = 0;
+        for (var cx = 0, dx = t.children.length; cx < dx; cx++) {
+            w += t.children[cx].offsetWidth;
+        }
+    }
+    css(t, { width: w });
+}
+var getThead = function (table) {
+    for (var c of table.children) {
+        if (/^thead$/i.test(c.tagName) || c.hasAttribute('thead')) return c;
+    }
+};
+var getTbody = function (table) {
+    for (var c of table.children) {
+        if (/^tbody$/i.test(c.tagName) || c.hasAttribute("tbody")) return c;
+    }
+};
+var isTableRow = function (e) {
+    return trElementReg.test(e.tagName);
 };
 var resizeTarget = function (event) {
     var { resizing } = this;
     if (!resizing) return;
     event.moveLocked = true;
     var { restX, target } = resizing;
-    var targetX = event.clientX - restX;
-    target.style.width = targetX + "px";
+    var targetW = event.clientX - restX;
+    if (targetW < 20) targetW = 20;
+    var deltaW = targetW - target.offsetWidth;
+    forEachTableRow(this, function (tr) {
+        resizeT(tr, tr.offsetWidth + deltaW);
+    });
+    for (var c of this.children) {
+        if (!isTableRow(c)) {
+            var tr = c.querySelector('tr');
+            c.style.width = tr.style.width;
+        }
+    }
+    var { colstart, colend } = target;
+    var ts = getRowsOfTdsByCol(this, colstart, colend);
+    for (var cs of ts) {
+        var c = cs[cs.length - 1];
+        var w = 0;
+        for (var c of cs) {
+            w += c.offsetWidth;
+        }
+        w = targetW - w;
+        while (w !== 0) {
+            var c = cs.pop();
+            var w0 = c.offsetWidth + w;
+            if (w0 < 0) {
+                w = -w0;
+                w0 = w;
+            }
+            else {
+                w = 0;
+            }
+            if (targetW !== w) css(c, { width: w0 });
+        }
+    }
     resizing.clientX = event.clientX;
 };
 var getFirstSingleColCell = function (table, col) {
@@ -145,6 +203,59 @@ function enrichField(f) {
     if (width > 600) width = 600;
     f.width = width + 60;
 }
+var tbodyHeight = function (tbody) {
+    return { 'max-height': ((innerHeight - getScreenPosition(tbody).top - 16) / 32 | 0) * 32 }
+};
+
+var setFixed = function (children, scrolled, left, borderRight) {
+    var setBorderRight = function (fixedLeft) {
+        var end = fixedLeft[fixedLeft.length - 1];
+        if (end && end.style[left]) css(end, {
+            [borderRight]: '1px solid #0006'
+        });
+    };
+    var fixedElements = [];
+    var offset = 0;
+    var fixedWidth = 0;
+    for (var c of children) {
+        var pc = getScreenPosition(c);
+        var isfixed = c.hasAttribute('fixed');
+        if (fixedWidth + scrolled > offset && fixedWidth + pc.width < this.clientWidth / 3) {
+            if (isfixed) {
+                css(c, { [left]: scrolled - offset + fixedWidth, [borderRight]: '' });
+                fixedElements.push(c);
+                fixedWidth += pc.width;
+            }
+        }
+        else {
+            setBorderRight(fixedElements);
+            if (isfixed && c.style[left]) {
+                css(c, { [left]: '', [borderRight]: '' })
+                fixedElements.push(c);
+            }
+        }
+        offset += pc.width;
+    }
+    setBorderRight(fixedElements);
+    for (var f of fixedElements) {
+        var cols = getRowsOfTdsByCol(this, f.colstart, f.colend);
+        for (var c of cols) css(c[0], {
+            [left]: f.style[left],
+            [borderRight]: f.style[borderRight]
+        });
+    }
+
+};
+
+
+var setFixedColumn = function () {
+    var thead = getThead(this);
+    if (!thead) return;
+    if (!isTableRow(thead)) thead = thead.querySelector('tr');
+    var children = Array.prototype.slice.call(thead.children);
+    setFixed.call(this, children, this.scrollLeft, 'left', 'borderRight');
+    setFixed.call(this, children.reverse(), this.scrollWidth - this.clientWidth - this.scrollLeft, 'right', 'borderLeft');
+};
 
 function table(elem) {
     var tableElement = isElement(elem) ? elem : document.createElement("table");
@@ -169,11 +280,10 @@ function table(elem) {
     });
     onmousemove(tableElement, function (event) {
         if (!thead) {
-            [thead] = table.getElementsByTagName("thead");
-            if (!thead) thead = table.querySelector('[thead]');
+            thead = getThead(table);
         }
         if (!getTargetIn(thead, event.target)) return;
-
+        if (table.resizing) return;
         var tds = getTargetIn(cellMatchManager, event.target);
         if (!isArray(tds)) tds = [];
         tds.map(function (td) {
@@ -195,41 +305,66 @@ function table(elem) {
     });
     var table = tableElement;
     var thead;
+    var markedRows = false;
     var cellMatchManager = function (element) {
         if (!thead) {
             [thead] = table.getElementsByTagName("thead");
             if (!thead) thead = table.querySelector('[thead]');
         }
-        if (table.resizing) return false;
         if (!getTargetIn(thead, element)) return false;
         if (!tdElementReg.test(element.tagName)) return false;
-        var savedRowDeltas = [];
-        [].map.call(thead.children, function (tr) {
-            markRowTds(tr, savedRowDeltas);
-        });
+        if (!markedRows) {
+            var savedRowDeltas = [];
+            [].map.call(thead.children, function (tr) {
+                markRowTds(tr, savedRowDeltas);
+            });
+            markedRows = true;
+        }
         var { colstart, colend } = element;
         return getTdsByCol(table, colstart, colend);
     };
+
     table.dragbox = function () {
         return thead;
     };
-    var tbodyHeight = e => ({ 'max-height': ((innerHeight - getScreenPosition(table).top - 46) / 32 | 0) * 32 + 36 });
+    table.useIncrease = false;
+    var _vbox = function () {
+        table.$Left = function (x) {
+            if (isFinite(x)) this.scrollLeft = x;
+            setFixedColumn.call(this);
+            return this.scrollLeft;
+        };
+        vbox(table, 'x');
+    };
     care(table, function ([fields, data]) {
+        if (_vbox) _vbox(), _vbox = null;
         thead = null;
         fields.forEach(enrichField);
         remove(this.children);
         this.innerHTML = template;
-
+        markedRows = false;
+        this.style.display = 'block';
         render(this, {
             fields,
-            tbody() {
+            tbody(e) {
                 var e = list.apply(null, arguments);
-                css(e, tbodyHeight());
+                css(e, tbodyHeight(e));
+                css(e, { width: this.adapter.offsetWidth, display: 'block' });
                 return e;
+            },
+            thead(t) {
+                var tr = document.createElement('thead');
+                tr.renders = [function () {
+                    resizeT(this.firstChild)
+                }];
+                css(tr, { display: 'block' });
+                appendChild(tr, Array.prototype.slice.call(t.children));
+                return tr;
             },
             tbodyHeight,
             data,
             adapter: null,
+            resizeT,
             model,
             sort(f) {
                 f.sign = f.sign > 0 ? -1 : 1;
@@ -245,6 +380,7 @@ function table(elem) {
                 css(target, { width: f.width });
             },
             a: button,
+            setFixedColumn,
         }, this.$parentScopes.concat(this.$scope));
     })
     autodragchildren(
@@ -257,6 +393,7 @@ function table(elem) {
                 var [f] = fields.splice(src - 1, 1);
                 fields.splice(dst - 1, 0, f);
             }
+            markedRows = false;
             var children = parentNode.children;
             var srcElement = children[src];
             var dstElement = children[rel];
@@ -290,5 +427,8 @@ function table(elem) {
             }
         }
     );
+    resizingList.set(table);
+    on("resize")(table, setFixedColumn);
+    on("scroll")(table, setFixedColumn);
     return table;
 }

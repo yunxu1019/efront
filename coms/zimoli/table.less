@@ -32,10 +32,18 @@ table,
     vertical-align: top;
 }
 
-& {
-    outline: 1px solid #0006;
+
+tr {
+    position: relative;
+    white-space: nowrap;
+    width: 100%;
 }
 
+th,
+td {
+    white-space: normal;
+    height: 100%;
+}
 
 .y-ing {
     &:before {
@@ -57,15 +65,34 @@ table,
 
 & {
     // text-align: center;
+    outline: 1px solid #0006;
+    max-width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
     white-space: nowrap;
+    height: auto;
+}
 
+[row-index] {
+    user-select: none;
+    width: 60px;
+}
+
+>tbody {
+    [row-index] {
+        background: #fff;
+        text-align: right;
+    }
+}
+
+[fixed] {
+    z-index: 2;
 }
 
 >thead {
     user-select: none;
     line-height: 36px;
+    min-width: 100%;
 
     >tr {
 
@@ -83,10 +110,6 @@ table,
     line-height: 32px;
     height: 100%;
     min-height: 30px;
-    border-top: 4px solid #6669;
-
-
-
     user-select: auto;
 
     >tr {
@@ -99,11 +122,19 @@ table,
         }
 
         &:nth-of-type(odd) {
-            background-color: #eee;
+
+            >td,
+            th {
+                background-color: #eee;
+            }
         }
 
         &:nth-of-type(even) {
-            background-color: #fff;
+
+            >td,
+            th {
+                background-color: #fff;
+            }
         }
 
 
@@ -131,18 +162,13 @@ table,
 }
 
 
-tr {
+[inline-block] {
 
     >th,
     >td {
-        background: inherit;
-
-        &[row-index] {
-            user-select: none;
-            // pointer-events: none;
-            background: #fff;
-            text-align: right;
-        }
+        white-space: nowrap;
+        overflow: hidden;
+        display: inline-block;
     }
 }
 
