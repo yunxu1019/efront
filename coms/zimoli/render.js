@@ -564,7 +564,17 @@ var createEmiter = function (on) {
             search[0] += `with(this.$parentScopes[${scopes.length}])`;
             getter1 = createGetter(search, false);
         }
-        on(key)(this, function (e) {
+        var onkey;
+        if (key === 'mounted' || key === 'mount') {
+            onkey = on === once ? oncemount : onmounted;
+        }
+        else if (key === 'wheel' || key === 'mousewheel') {
+            onkey = on === once ? once.emit.bind(null, onmousewheel) : onmousewheel;
+        }
+        else {
+            onkey = on(key);
+        }
+        onkey(this, function (e) {
             digest();
             if (parsedSrc) {
                 var target = e.currentTarget || e.target;
