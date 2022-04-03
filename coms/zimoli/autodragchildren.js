@@ -1,7 +1,6 @@
 var moveMarginX = function moveMarginX(element, movePixels) {
     if (element.moved === movePixels) return;
     element.moved = movePixels;
-    element.moving = new Date;
     css(element, {
         transition: movePixels !== false ? "margin .1s" : '',
         userSelect: "none",
@@ -21,25 +20,24 @@ var moveChildrenX = function (targetBox, previousElements, followedElements, mov
         if (area > 0) {
             var dragPosition = getScreenPosition(dragTarget);
             var dragPositionLeft = dragPosition.left;
-            var currentTime = new Date;
+            var dragPositionRight = dragPosition.left + dragPosition.width;
             previousElements.map(function (element) {
-                if (currentTime - element.moving < 100) return;
                 var elementPosition = getScreenPosition(element);
                 var elementCenter = elementPosition.left + elementPosition.width / 2;
-                if (elementCenter - (element.moved || 0) <= dragPositionLeft) {
+                var delta = elementCenter - (element.moved || 0);
+                if (delta + 7 <= dragPositionLeft) {
                     recover(element);
-                } else {
+                } else if (delta - 7 >= dragPositionLeft) {
                     moveMargin(element, dragPosition.width);
                 }
             });
-            var dragPositionRight = dragPosition.left + dragPosition.width;
             followedElements.map(function (element) {
-                if (currentTime - element.moving < 100) return;
                 var elementPosition = getScreenPosition(element);
                 var elementCenter = elementPosition.left + elementPosition.width / 2;
-                if (elementCenter - (element.moved || 0) <= dragPositionRight) {
+                var delta = elementCenter - (element.moved || 0);
+                if (delta + 6 <= dragPositionRight) {
                     moveMargin(element, -dragPosition.width);
-                } else {
+                } else if (delta - 6 >= dragPositionRight) {
                     recover(element);
                 }
             });
@@ -128,6 +126,18 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             });
         } else {
             targets = cloneVisible(targets);
+        }
+        return targets;
+    };
+    var getBoundingClientRect = function () { return getScreenPosition(this.target) }
+    var bindExtra = function (element) {
+        var targets = getTargetIn(matcher, element, false);
+        if (isArray(targets)) {
+            var [target] = targets;
+            return {
+                style: target.style, target, getBoundingClientRect,
+                with: targets
+            };
         }
         return targets;
     };
@@ -241,10 +251,10 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         clearInterval(autoScroll.ing);
         autoScroll.ing = 0;
     };
-    var dragmove = function (event) {
+    var dragmove = lazy(function (event) {
         rebuildTargets();
         moveChildren.call(this, event);
-    };
+    }, -100);
 
     // 修改margin无效的情况
     function dragclone() {
@@ -278,6 +288,12 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     function draglist() {
         draginit();
         rebuildTargets();
+        var _previousElements = previousElements.map(bindExtra);
+        var _followedElements = followedElements.map(bindExtra);
+        previousElements.splice(0, previousElements.length);
+        followedElements.splice(0, followedElements.length);
+        previousElements.push.apply(previousElements, _previousElements);
+        followedElements.push.apply(followedElements, _followedElements);
         autoScroll();
         var offall = function () {
             cancelScroll();
@@ -287,8 +303,8 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         var offdragend = on("dragend")(targetChild, function () {
             offall();
             dragfire();
-            previousElements.map(e => moveMargin(e, false));
-            followedElements.map(e => moveMargin(e, false));
+            previousElements.forEach(e => moveMargin(e, false));
+            followedElements.forEach(e => moveMargin(e, false));
         });
         var offdragmove = on("dragmove")(targetChild, dragmove);
     }
