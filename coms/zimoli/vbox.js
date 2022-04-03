@@ -11,9 +11,6 @@ function ybox(generator) {
     var _box_height = _box.$height || _box.height;
     var _box_Height = _box.$Height || _box.Height;
     var _box_Top = _box.$Top || _box.Top;
-    if (_box.$Height !== _box_Height) _box.$Height = _box_Height;
-    if (_box.$height !== _box_height) _box.$height = _box_height;
-    if (_box.$Top !== _box_Top) _box.$Top = _box_Top;
     if (!isFunction(_box_height)) _box_height = function () {
         return _box.clientHeight;
     };
@@ -32,17 +29,20 @@ function ybox(generator) {
         }
         return _box.scrollTop;
     };
-    _box.$scrollY = function (deltay, useIncrease = true) {
-        var _Top = _box_Top();
+    if (_box.$Height !== _box_Height) _box.$Height = _box_Height;
+    if (_box.$height !== _box_height) _box.$height = _box_height;
+    if (_box.$Top !== _box_Top) _box.$Top = _box_Top;
+    _box.$scrollY = function (deltay, useIncrease = _box.useIncrease !== false) {
+        var _Top = _box.$Top();
         var top = _Top + deltay;
-        var height = _box_height();
-        var scrollHeight = _box_Height();
+        var height = _box.$height();
+        var scrollHeight = _box.$Height();
         var r = true;
         if (top < 0) {
             if (useIncrease && _Top <= 0) {
                 r = increase(top);
             }
-            _box_Top(0);
+            _box.$Top(0);
         } else if (top + height >= scrollHeight) {
             if (top + height - scrollHeight > increase_height) {
                 top = increase_height + scrollHeight - height;
@@ -50,9 +50,9 @@ function ybox(generator) {
             if (useIncrease && top + height >= scrollHeight) {
                 r = increase(top + height - scrollHeight);
             }
-            _box_Top(top);
+            _box.$Top(top);
         } else {
-            r = top !== _box_Top(top);
+            r = top !== _box.$Top(top);
             increase(deltay, true);
         }
         return r;
@@ -64,14 +64,14 @@ function ybox(generator) {
     var _decrease = function (increaser) {
         var height = parseInt(increaser.height);
         if (height > 1) {
-            var scrollTop = _box_Top();
+            var scrollTop = _box.$Top();
             if (scrollTop > 0 && increaser_t === increaser) {
                 var deltaY = scrollTop > height ? height : scrollTop;
                 height -= deltaY;
-                _box_Top(scrollTop - deltaY);
+                _box.$Top(scrollTop - deltaY);
             }
-            var tH = _box_Height();
-            var bH = _box_height();
+            var tH = _box.$Height();
+            var bH = _box.$height();
             if (scrollTop + bH < tH && increaser_b === increaser) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
@@ -159,7 +159,7 @@ function ybox(generator) {
                 scrollY.reset();
             },
             move(scrolled) {
-                var y = -_box_Top();
+                var y = -_box.$Top();
                 if (scrolled) {
                     var { deltay } = scrolled;
                     scrollY.call(this, -deltay);
