@@ -108,6 +108,7 @@ var resizeColumn = function (target, targetW) {
     for (var c of this.children) {
         if (!isTableRow(c)) {
             var tr = c.querySelector('tr');
+            if (!tr) continue;
             c.style.width = tr.style.width;
         }
     }
