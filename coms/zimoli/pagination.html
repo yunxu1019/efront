@@ -4,7 +4,7 @@
 <btn class="prev" ng-click="prev()">
     ◀
 </btn>
-<xlist elementid='pglist' ng-src="page in pages" ng-style="{width:fromPixel(40*pages.length)}">
+<xlist #pglist ng-src="page in pages">
     <btn class="item">
         <span ng-bind=page></span>
     </btn>

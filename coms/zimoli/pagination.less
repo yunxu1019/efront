@@ -1,26 +1,41 @@
+*{
+    box-sizing: border-box;
+}
 & {
     white-space: nowrap;
+    display: block;
+    min-width: 240px;
+    width: 100%;
+    position: relative;
+}
+
+>xlist {
     display: inline-block;
+    text-overflow: clip;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    vertical-align: top;
+    border-left: 72px solid transparent;
+    border-right: 72px solid transparent;
+    margin: 0 -72px 0 -72px;
 
-    >xlist {
-        width: auto;
-        display: inline-block;
-        text-overflow: clip;
-        min-width: 40px;
-        text-align: center;
-        max-width: 400px;
-        position: relative;
-        overflow: hidden;
-        vertical-align: top;
+    .button {
+        border-radius: 0;
     }
+}
 
-    btn {
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        vertical-align: top;
-        display: inline-block;
-        background-color: inherit;
-        color: inherit;
-    }
+btn.button {
+    box-shadow: none;
+    padding: 0 10px;
+    min-width: 36px;
+    height: 28px;
+    line-height: 28px;
+    color: #999;
+    margin: 0;
+    vertical-align: top;
+    display: inline-block;
+    background-color: inherit;
+    color: inherit;
+    z-index: 1;
 }

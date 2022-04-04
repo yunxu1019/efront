@@ -1,5 +1,5 @@
 function main(element) {
-    var page = element || div();
+    var page = element || document.createElement('pagination');
     page.innerHTML = pagination;
     render(page, {
         xlist: list,
@@ -7,26 +7,10 @@ function main(element) {
         fromPixel,
         pages: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
         next() {
-            var index = this.pglist.index();
-            index += 10;
-            if (this.pages.length < index + 10) {
-                index = this.pages.length - 10;
-            }
-            if (index < 0) {
-                index = 0;
-            }
-            this.pglist.go(index);
+            this.pglist.scrollBy(this.pglist.clientWidth);
         },
         prev() {
-            var index = this.pglist.index();
-            index -= 10;
-            if (this.pages.length < index + 10) {
-                index = this.pages.length - 10;
-            }
-            if (index < 0) {
-                index = 0;
-            }
-            this.pglist.go(index);
+            this.pglist.scrollBy(-this.pglist.clientWidth);
         },
         start() {
             this.pglist.go(0);
@@ -39,10 +23,11 @@ function main(element) {
             this.pglist.go(index);
         }
     });
-
-    page.querySelector("xlist").go(0);
-    once("append")(page, function () {
-        console.log(page);
-    })
+    var pglist = page.querySelector('xlist');
+    onmounted(page, function () {
+        console.log(pglist)
+        pglist.XScrollBoxId = 1;
+        pglist.go(0);
+    });
     return page;
 }
