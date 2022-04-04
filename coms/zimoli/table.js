@@ -346,6 +346,7 @@ function table(elem) {
         this.style.display = 'block';
         render(this, {
             fields,
+            isEmpty,
             tbody(e) {
                 var e = list.apply(null, arguments);
                 css(e, tbodyHeight(e));
