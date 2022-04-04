@@ -43,6 +43,8 @@ th,
 td {
     white-space: normal;
     height: 100%;
+    border: 1px solid transparent;
+    padding: 1px 10px;
 }
 
 .y-ing {
@@ -53,7 +55,7 @@ td {
         top: 0;
         bottom: 0;
         right: 0;
-        background-color: rgba(0, 0, 0, .06);
+        background-color: rgba(0, 30, 69, .06);
     }
 
     >* {
@@ -61,7 +63,6 @@ td {
     }
 }
 
-@cell-padding: 0 10px;
 
 & {
     // text-align: center;
@@ -71,17 +72,19 @@ td {
     table-layout: fixed;
     white-space: nowrap;
     height: auto;
+    border-radius: 3px;
 }
 
 [row-index] {
     user-select: none;
-    width: 60px;
+    width: 56px;
+    padding-right: 10px;
+    text-align: right;
 }
 
 >tbody {
     [row-index] {
         background: #fff;
-        text-align: right;
     }
 }
 
@@ -98,10 +101,9 @@ td {
 
         >td,
         >th {
-            padding: @cell-padding;
             position: relative;
             color: #fff;
-            background-color: #999;
+            background-color: #395268;
         }
     }
 }
@@ -116,7 +118,6 @@ td {
 
         >td,
         >th {
-            padding: @cell-padding;
             position: relative;
             overflow: hidden;
         }
@@ -124,8 +125,8 @@ td {
         &:nth-of-type(odd) {
 
             >td,
-            th {
-                background-color: #eee;
+            >th {
+                background-color: #fff;
             }
         }
 
@@ -133,7 +134,7 @@ td {
 
             >td,
             th {
-                background-color: #fff;
+                background-color: #f2f4f6;
             }
         }
 
@@ -142,7 +143,7 @@ td {
 
             >td,
             >th {
-                background: #dddddd;
+                background: #e9edf2;
             }
         }
     }
@@ -163,6 +164,7 @@ td {
 
 
 [inline-block] {
+
     >th,
     >td {
         white-space: nowrap;

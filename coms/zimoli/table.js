@@ -84,13 +84,7 @@ var getTbody = function (table) {
 var isTableRow = function (e) {
     return trElementReg.test(e.tagName);
 };
-var resizeTarget = function (event) {
-    var { resizing } = this;
-    if (!resizing) return;
-    event.moveLocked = true;
-    var { restX, target } = resizing;
-    var targetW = event.clientX - restX;
-    if (targetW < 20) targetW = 20;
+var resizeColumn = function (target, targetW) {
     var deltaW = targetW - target.offsetWidth;
     forEachTableRow(this, function (tr) {
         resizeT(tr, tr.offsetWidth + deltaW);
@@ -102,6 +96,7 @@ var resizeTarget = function (event) {
         }
     }
     var { colstart, colend } = target;
+    if (isEmpty(colstart) || isEmpty(colend)) return;
     var ts = getRowsOfTdsByCol(this, colstart, colend);
     for (var cs of ts) {
         var c = cs[cs.length - 1];
@@ -123,7 +118,17 @@ var resizeTarget = function (event) {
             if (targetW !== w) css(c, { width: w0 });
         }
     }
+};
+var resizeTarget = function (event) {
+    var { resizing } = this;
+    if (!resizing) return;
+    event.moveLocked = true;
+    var { restX, target } = resizing;
+    var targetW = event.clientX - restX;
+    if (targetW < 20) targetW = 20;
+    resizeColumn.call(this, target, targetW);
     resizing.clientX = event.clientX;
+    setFixedColumn.call(this);
 };
 var getFirstSingleColCell = function (table, col) {
     var tds = getTdsByCol(table, col, col);
@@ -180,7 +185,7 @@ function enrichField(f) {
     }
     else switch (f.type) {
         case "text":
-            width = 30;
+            width = 200;
             break;
         case "input":
             width = 200;
@@ -202,6 +207,9 @@ function enrichField(f) {
     }
     if (width > 600) width = 600;
     f.width = width + 60;
+    if (!f.key && f.options && isEmpty(f.fixed)) {
+        f.fixed = true;
+    }
 }
 var tbodyHeight = function (tbody) {
     return { 'max-height': ((innerHeight - getScreenPosition(tbody).top - 16) / 32 | 0) * 32 }
@@ -253,6 +261,14 @@ var setFixedColumn = function () {
     if (!thead) return;
     if (!isTableRow(thead)) thead = thead.querySelector('tr');
     var children = Array.prototype.slice.call(thead.children);
+    var lastChild = children[children.length - 1];
+    if (!lastChild) return;
+    var deltaW = thead.scrollWidth - lastChild.offsetWidth;
+    if (this.clientWidth > deltaW + 200) {
+        css(lastChild, { width: this.clientWidth - deltaW });
+        css(thead, { width: this.clientWidth });
+        resizeColumn.call(this, lastChild, this.clientWidth - deltaW);
+    }
     setFixed.call(this, children, this.scrollLeft, 'left', 'borderRight');
     setFixed.call(this, children.reverse(), this.scrollWidth - this.clientWidth - this.scrollLeft, 'right', 'borderLeft');
 };
