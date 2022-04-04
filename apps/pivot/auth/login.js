@@ -9,7 +9,7 @@ function main(host) {
     page.innerHTML = login;
     drag.on(page);
     fields[0].readonly = !!host;
-    on("append")(page, function () {
+    on("mounted")(page, function () {
         move.bindPosition(page, [.5, .5]);
     });
     renderWithDefaults(page, {
