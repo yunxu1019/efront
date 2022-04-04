@@ -33,7 +33,7 @@ var setZIndex = function () {
     }
 };
 function drag(target, initialEvent, preventOverflow, isMovingSource) {
-    if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag') || a.dragable === false, initialEvent.target)) return;
+    if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag'), initialEvent.target)) return;
     if (target.dragable === false) return;
     initialEvent.preventDefault();
     if (isArray(target)) {

@@ -394,9 +394,6 @@ function table(elem) {
         return getTdsByCol(table, colstart, colend);
     };
 
-    table.dragbox = function () {
-        return thead;
-    };
     table.useIncrease = false;
     var _vbox = function () {
         table.$Left = function (x) {
