@@ -78,6 +78,6 @@ if (!function () { }.bind) Function.prototype.bind = function (context) {
     return function () {
         var _args = args.slice.call(arguments, 0, arguments.length);
         args.unshift.apply(_args, args);
-        return this.apply(context === undefined || context === null ? this : context, _args);
+        return this.apply(context === void 0 || context === null ? this : context, _args);
     };
 };
