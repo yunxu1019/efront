@@ -34,6 +34,7 @@ var afterend = function () {
 };
 var exit = function () {
     quitting.splice(0).forEach(function (worker) {
+        message.send(worker, 'disconnect');
         worker.disconnect();
     });
 };

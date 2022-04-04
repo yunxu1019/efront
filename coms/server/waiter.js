@@ -19,9 +19,7 @@ var closeListener = function () {
         safeQuitProcess();
     }
 };
-var closed = false;
 var safeQuitProcess = function () {
-    closed = true;
     portedServersList.forEach((server) => {
         server.removeAllListeners();
         var timeout = setTimeout(function () {
@@ -39,6 +37,7 @@ var safeQuitProcess = function () {
 };
 
 process.on("disconnect", safeQuitProcess);
+message.disconnect = safeQuitProcess;
 message.deliver = function (a) {
     return clients.deliver(a[0], a[1]);
 };
@@ -122,7 +121,6 @@ var setHeader = function (crypted, k, v) {
  * @param {Http2ServerResponse}res
  */
 var requestListener = async function (req, res) {
-    if (closed) return req.destroy();
     try {
         var remoteAddress = require("./remoteAddress")(req);
     } catch {
