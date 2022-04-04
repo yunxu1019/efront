@@ -14,14 +14,18 @@ function ylist(container, generator, $Y) {
         saved_itemIndex = void 0;
         if (a !== void 0) scrollTo(a);
     });
+    var getNodeTarget = function (node) {
+        if (node.nodeType === 8 && node.template) return node.template;
+        return node;
+    };
     //取底部元素
     var getLastElement = function (nodeType) {
-        var children = nodeType === 1 ? list.children : list.childNodes;
+        var children = list.childNodes;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
-            if (isFinite(child.index) || nodeType === 2 && child.offsetHeight) {
-                return child;
-            }
+            if (!(isFinite(child.index) || nodeType === 2 && child.offsetHeight)) continue;
+            child = getNodeTarget(child);
+            return child;
         }
         return null;
     };
@@ -30,33 +34,33 @@ function ylist(container, generator, $Y) {
         var children = list.childNodes;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
-            if (isFinite(child.index) && child.index === index) {
-                return child;
-            }
+            if (child.index !== index) continue;
+            child = getNodeTarget(child);
+            return child;
         }
         return null;
     };
 
     //取顶部元素
     var getFirstElement = function (nodeType) {
-        var children = nodeType === 1 ? list.children : list.childNodes;
+        var children = list.childNodes;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (isFinite(child.index) || nodeType === 2 && child.offsetHeight) {
-                return child;
-            }
+            if (!(isFinite(child.index) || nodeType === 2 && child.offsetHeight)) continue;
+            child = getNodeTarget(child);
+            return child;
         }
         return null;
     };
     var getFirstVisibleElement = function (deltaY = 0) {
-        var children = list.children;
+        var children = list.childNodes;
         var { scrollTop } = list;
         scrollTop += deltaY;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (isFinite(child.index) && child.offsetTop + child.offsetHeight > scrollTop) {
-                return child;
-            }
+            if (!isFinite(child.index)) continue;
+            child = getNodeTarget(child);
+            if (child.offsetTop + child.offsetHeight > scrollTop) return child;
         }
         return null;
     };
@@ -88,7 +92,9 @@ function ylist(container, generator, $Y) {
         var children = list.children;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
-            if (isFinite(child.index) && child.offsetTop < scrollTop + list.clientHeight) {
+            if (!isFinite(child.index)) continue;
+            child = getNodeTarget(child);
+            if (child.offsetTop < scrollTop + list.clientHeight) {
                 return child;
             }
         }
@@ -96,7 +102,7 @@ function ylist(container, generator, $Y) {
     };
     //元素表
     var getChildrenMap = function () {
-        var children = list.children;
+        var children = list.childNodes;
         var map = {};
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
@@ -152,6 +158,7 @@ function ylist(container, generator, $Y) {
                 if (item.previousElementSibling !== item) list.insertBefore(item, getNextSibling(last_item));
             }
             last_index = offset;
+            item = getNodeTarget(item);
             last_item = item;
             if (offset === index || !indexed_item) indexed_item = item;
             if (delta > 0) {
@@ -249,6 +256,7 @@ function ylist(container, generator, $Y) {
                 }
                 list.insertBefore(item, getNextSibling(last_element));
             }
+            item = getNodeTarget(item);
             if (!item.offsetHeight) {
                 console.warn(item, '!item.offsetHeight');
                 break;
@@ -312,6 +320,7 @@ function ylist(container, generator, $Y) {
                 item = createItem(offset);
                 if (!item) break;
                 list.insertBefore(item, first_element);
+                item = getNodeTarget(item);
                 scrollTop += flag_element.offsetTop - offsetTop;
                 offsetTop = flag_element.offsetTop;
                 first_element = item;
@@ -431,7 +440,7 @@ function ylist(container, generator, $Y) {
     on("remove")(list, function () {
         saved_itemIndex = list.index();
     });
-    on("append")(list, function () {
+    onmounted(list, function () {
         if (isFinite(saved_itemIndex)) list.go(saved_itemIndex);
     })
     return list;

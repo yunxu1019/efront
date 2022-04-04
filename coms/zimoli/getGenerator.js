@@ -2,6 +2,9 @@
 var _slider = createElement(div);
 var getGenerator = function (container, tagName = 'item') {
     if (!container) return;
+    var scopes = container.$parentScopes || [];
+    if (container.$scope) scopes = scopes.concat(container.$scope);
+    container.$generatorScopes = scopes;
     if (container.$generator) return container.$generator;
     var template = document.createElement(tagName);
     var templates = [].concat.apply([], container.childNodes).filter(a => {
@@ -21,8 +24,6 @@ var getGenerator = function (container, tagName = 'item') {
     appendChild(template, templates);
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
-    var scopes = container.$parentScopes || [];
-    if (container.$scope) scopes = scopes.concat(container.$scope);
     return container.$generator = function (index, com, element) {
         if (com === undefined) {
             if (!container.src || index >= container.src.length) return;
@@ -39,6 +40,7 @@ var getGenerator = function (container, tagName = 'item') {
                 if (template1.childNodes.length > 1) element.with = [].concat.apply([], template1.childNodes).slice(1);
             }
         }
+        var scopes = container.$generatorScopes;
         var parsedSrc = container.$src;
         if (parsedSrc) {
             var { keyName, itemName, indexName } = parsedSrc;

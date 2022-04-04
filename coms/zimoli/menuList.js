@@ -14,6 +14,7 @@ var unfocus = function () {
     this.setFocus(null);
 };
 var setFocus = function (focused) {
+    console.log(focused)
     if (focused && focused.hasAttribute("disabled")) return;
     var page = this;
     if (focused) {
@@ -178,6 +179,7 @@ function main(page, items, active, direction = 'y') {
         }
         if (emptyFocus !== false) page.setFocus(target);
         if (!item.length) return;
+        console.log('popupmenu')
         page.setFocus(target);
         var clone = template.cloneNode();
         clone.$parentScopes = page.$parentScopes;
@@ -199,6 +201,7 @@ function main(page, items, active, direction = 'y') {
         once("remove")(menu, function () {
             removeFromList(mounted_menus, this);
         });
+        menu.go(0);
     }
     on("blur")(page, unfocus);
     var template = page.tempalte || document.createElement("ylist");
@@ -215,7 +218,7 @@ function main(page, items, active, direction = 'y') {
         time = +time;
         if (byMousedown && !time) return;
         if (time) byMousedown = false;
-
+        
         if (page.ispop || time) popTimer = setTimeout(function () {
             if (time) byMousedown = elem;
             page.setFocus(elem);
@@ -312,10 +315,7 @@ function main(page, items, active, direction = 'y') {
         }`;
             var notHidden = `!${itemName}.hidden`;
             var generator = getGenerator(page, 'menu-item');
-            var fire0 = function () {
-                fire.apply(this, arguments);
-                dispatch(window, 'render');
-            };
+            page.$generatorScopes.push($scope);
             list(page, function (index) {
                 var item = items[index];
                 if (!item) return;
@@ -323,18 +323,15 @@ function main(page, items, active, direction = 'y') {
                 var a = $scope["menu-item"](null, item);
                 if (src.itemName) a.setAttribute("e-if", notHidden);
                 a.setAttribute("e-class", className);
+                a.setAttribute("on-mouseleave", "cancel.call(this)");
+                a.setAttribute("on-mouseenter", "popMenu.call(this)");
+                a.setAttribute("on-pointermove", "popMenu.call(this)");
+                a.setAttribute("on-click", "open.call(this)");
+                a.setAttribute("_menu", src.itemName);
+                if (istoolbar) a.setAttribute("on-pointerdown", "popMenu1");
                 a = generator(index, item, a);
-                a.menu = item;
-                on("mouseleave")(a, cancel);
-                on("mouseenter")(a, open);
-                on("pointermove")(a, open);
-                if (istoolbar) on("pointerdown")(a, open1);
-                on("click")(a, fire0);
                 return a;
             });
-            on("append")(page, function () {
-                this.go(0);
-            })
         }
         else {
             page.innerHTML = menuList;
@@ -349,7 +346,6 @@ function main(page, items, active, direction = 'y') {
     }
     else {
         var generator = getGenerator(page, 'menu-item');
-
         list(page, function (index) {
             var elem = generator(index);
             if (!elem) return;
@@ -362,7 +358,7 @@ function main(page, items, active, direction = 'y') {
             on("mouseenter")(elem, open);
             on("pointermove")(elem, cancel);
             if (istoolbar) on("pointerdown")(elem, open1);
-            on("click")(elem, fire0);
+            on("click")(elem, fire);
             return elem;
         }, direction);
     }

@@ -25,9 +25,7 @@ function menu(buttons, map = buttons.map((a, cx) => cx)) {
     });
     css(extra_list, "min-width:180px;width:auto;height:auto;border:1px solid #000;background:#fff;padding:4px 0;");
     select(menu_extra, extra_list);
-    onappend(extra_list, function () {
-        extra_list.go(0);
-    });
+    extra_list.go(0);
     appendChild(menu_box, menu_items, menu_extra);
     return menu_box;
 }
