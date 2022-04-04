@@ -12,7 +12,6 @@ var moveMargin = function (element, movePixels) {
         marginRight: movePixels ? -movePixels + "px" : ""
     });
 };
-
 var markRowTds = function (tr, deltas, colstart, colend) {
     var inc = 0;
     var collections = [];
@@ -20,8 +19,8 @@ var markRowTds = function (tr, deltas, colstart, colend) {
         while (deltas[inc] > 0) {
             deltas[inc++]--;
         }
-        var colspan = +td.getAttribute("colspan") || 1;
-        var rowspan = +td.getAttribute("rowspan") || 1;
+        var colspan = getColspan(td);
+        var rowspan = getRowspan(td);
         rowspan = rowspan > 1 ? rowspan - 1 : 0;
         colspan = colspan > 1 ? colspan - 1 : 0;
         for (var cx = inc, dx = colspan + inc; cx <= dx; cx++) {
@@ -40,8 +39,8 @@ var markRowTds = function (tr, deltas, colstart, colend) {
     });
     return collections;
 };
-var forEachTableRow = function (table, call) {
-    for (var tr of table.children) {
+var forEachRow = function (tbody, call) {
+    for (var tr of tbody.children) {
         if (isTableRow(tr)) {
             call(tr);
         }
@@ -51,12 +50,18 @@ var forEachTableRow = function (table, call) {
     }
 }
 var getRowsOfTdsByCol = function (table, start, end) {
-    var savedRowDeltas = [];
     var savedCollections = [];
-    forEachTableRow(table, function (tr) {
+    var thead = getThead(table);
+    var tbody = getTbody(table);
+    var savedRowDeltas;
+    if (thead) savedRowDeltas = [], forEachRow(thead, function (tr) {
         var collections = markRowTds(tr, savedRowDeltas, start, end);
         savedCollections.push(collections);
-    })
+    });
+    if (tbody) savedRowDeltas = [], forEachRow(tbody, function (tr) {
+        var collections = markRowTds(tr, savedRowDeltas, start, end);
+        savedCollections.push(collections);
+    });
     return savedCollections;
 }
 var getTdsByCol = function (table, start, end) {
@@ -81,12 +86,23 @@ var getTbody = function (table) {
         if (/^tbody$/i.test(c.tagName) || c.hasAttribute("tbody")) return c;
     }
 };
+var getTfoot = function (table) {
+    for (var c of table.children) {
+        if (/^tfoot$/i.test(c.tagName) || c.hasAttribute("tfoot")) return c;
+    }
+};
 var isTableRow = function (e) {
     return trElementReg.test(e.tagName);
 };
+var getRowspan = function (e) {
+    return +e.getAttribute('rowspan') || 1;
+};
+var getColspan = function (e) {
+    return +e.getAttribute('colspan') || 1;
+}
 var resizeColumn = function (target, targetW) {
     var deltaW = targetW - target.offsetWidth;
-    forEachTableRow(this, function (tr) {
+    forEachRow(this, function (tr) {
         resizeT(tr, tr.offsetWidth + deltaW);
     });
     for (var c of this.children) {
@@ -104,6 +120,7 @@ var resizeColumn = function (target, targetW) {
         for (var c of cs) {
             w += c.offsetWidth;
         }
+        if (!cs.length) continue;
         w = targetW - w;
         while (w !== 0) {
             var c = cs.pop();
@@ -134,8 +151,8 @@ var getFirstSingleColCell = function (table, col) {
     var tds = getTdsByCol(table, col, col);
     while (tds.length) {
         var td = tds.shift();
-        var colspan = td.getAttribute("colspan") || 1;
-        if (1 === +colspan) return td;
+        var colspan = getColspan(td);
+        if (1 === colspan) return td;
     }
 }
 var adaptTarget = function (event) {
@@ -212,7 +229,7 @@ function enrichField(f) {
     }
 }
 var tbodyHeight = function (tbody) {
-    return { 'max-height': ((innerHeight - getScreenPosition(tbody).top - 16) / 32 | 0) * 32 }
+    return { 'max-height': ((innerHeight - getScreenPosition(tbody).top - 8) / 36 | 0) * 36 }
 };
 
 var setFixed = function (children, scrolled, left, borderRight) {
@@ -271,67 +288,103 @@ var setFixedColumn = function () {
     }
     setFixed.call(this, children, this.scrollLeft, 'left', 'borderRight');
     setFixed.call(this, children.reverse(), this.scrollWidth - this.clientWidth - this.scrollLeft, 'right', 'borderLeft');
+    var tfoot = getTfoot(this);
+    if (tfoot) {
+        css(tfoot, { left: this.scrollLeft });
+    }
 };
-
+var setClass = function (tds, cls, old) {
+    tds.forEach(td => td[cls] = true);
+    old.forEach(td => { if (!td[cls]) removeClass(td, cls) });
+    tds.forEach(td => { addClass(td, cls); delete td[cls] });
+};
+var getTdsOfSameRow = function (td) {
+    var tds = [td];
+    var tmp = td;
+    var rowspan = getRowspan(td);
+    var { colstart, colend } = td;
+    while (tmp) {
+        tmp = tmp.previousElementSibling;
+        if (!tmp) break;
+        if (colstart - tmp.colend > 1) break;
+        if (getRowspan(tmp) > rowspan) break;
+        tds.push(tmp);
+        colstart = tmp.colstart;
+    };
+    tmp = td;
+    while (tmp) {
+        tmp = tmp.nextElementSibling;
+        if (!tmp) break;
+        if (tmp.colstart - colend > 1) break;
+        if (getRowspan(tmp) > rowspan) break;
+        tds.push(tmp);
+        colend = tmp.colend;
+    }
+    var tr = td.parentNode;
+    while (rowspan > 1) {
+        tr = tr.nextElementSibling;
+        if (!tr) break;
+        for (var c of tr.children) {
+            if (c.colstart >= colstart && c.colend <= colend) {
+                if (getRowspan(c) <= rowspan) {
+                    tds.push(c);
+                }
+            }
+        }
+        rowspan--;
+    }
+    return tds;
+};
 function table(elem) {
     var tableElement = isElement(elem) ? elem : document.createElement("table");
     var activeCols = [];
-    var adaptCursor = adaptTarget.bind(tableElement);
-    var off;
-    tableElement.init = function () {
-        off = on("mousemove")(window, adaptCursor);
-    };
-    tableElement.dispose = tableElement.destroy = function () {
-        off();
-    };
-    on("append")(tableElement, tableElement.init);
-    on("remove")(tableElement, tableElement.destroy);
-    if (isMounted(tableElement)) tableElement.init();
-
+    bind('mousemove')(tableElement, adaptTarget);
     moveupon(tableElement, {
         start(event) {
             if (this.resizing) event.preventDefault();
         },
         move: resizeTarget,
     });
+    var activeRows = [];
     onmousemove(tableElement, function (event) {
+        if (table.resizing) return;
+        var tbody = getTbody(table);
+        a: if (tbody) {
+            var tr = getTargetIn(tbody, event.target, false);
+            if (!tr) break a;
+            var td = getTargetIn(tr, event.target, false);
+            if (!td) break a;
+            var tds = getTdsOfSameRow(td);
+            setClass(tds, 'x-ing', activeRows);
+            activeRows = tds;
+            return;
+        }
         if (!thead) {
             thead = getThead(table);
         }
         if (!getTargetIn(thead, event.target)) return;
-        if (table.resizing) return;
         var tds = getTargetIn(cellMatchManager, event.target);
-        if (!isArray(tds)) tds = [];
-        tds.map(function (td) {
-            td.ying = true;
-        });
-        activeCols.map(function (td) {
-            if (!td.ying) removeClass(td, "y-ing");
-        });
-        activeCols = tds.map(function (td) {
-            addClass(td, "y-ing");
-            delete td.ying;
-            return td;
-        });
+        setClass(tds, 'y-ing', activeCols);
+        activeCols = tds;
     });
     onmouseleave(tableElement, function () {
-        activeCols.map(function (td) {
+        activeCols.forEach(function (td) {
             removeClass(td, "y-ing");
+        });
+        activeRows.forEach(function (td) {
+            removeClass(td, 'x-ing');
         });
     });
     var table = tableElement;
     var thead;
     var markedRows = false;
     var cellMatchManager = function (element) {
-        if (!thead) {
-            [thead] = table.getElementsByTagName("thead");
-            if (!thead) thead = table.querySelector('[thead]');
-        }
+        if (!thead) thead = getThead(table);
         if (!getTargetIn(thead, element)) return false;
         if (!tdElementReg.test(element.tagName)) return false;
         if (!markedRows) {
             var savedRowDeltas = [];
-            [].map.call(thead.children, function (tr) {
+            Array.prototype.forEach.call(thead.children, function (tr) {
                 markRowTds(tr, savedRowDeltas);
             });
             markedRows = true;
@@ -398,6 +451,7 @@ function table(elem) {
             },
             a: button,
             setFixedColumn,
+            pagination
         }, this.$parentScopes.concat(this.$scope));
     })
     autodragchildren(
