@@ -4,22 +4,24 @@ btn {
 
 & {
     height: 100%;
-    overflow: auto;
 }
 
 table {
 
     td {
 
-        >span,
-        >model {
-            white-space: normal;
+        >[type=text] {
+            white-space: pre-wrap;
             word-break: break-all;
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            line-height: 16px;
+            font-size: 10px;
             text-overflow: ellipsis;
+            color: #666;
+            height: 32px;
         }
     }
 }
