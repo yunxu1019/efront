@@ -139,10 +139,12 @@ function main(mainPath, historyName = "") {
             }, 20);
         }
     };
-    on("transitionend")(layer, function (event) {
+    var update = function (event) {
         if (event.target !== this) return;
         dispatch(window, 'resize');
-    });
+    };
+    on("transitionrun")(layer, update);
+    on("transitionend")(layer, update);
     layer.closeLeft = function () {
         closed = true;
         bindClass();
