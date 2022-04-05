@@ -160,8 +160,10 @@ resize.on = function (elem, dragHandle) {
         if (!~resizingElements.indexOf(elem)) {
             resizingElements.push(elem);
         }
-        bind('render')(elem, resizeh);
+        resizeh.call(elem);
     });
+    bind('render')(elem, resizeh);
+    bind('resize')(elem, resizeh);
     on('remove')(elem, function () {
         var index = resizingElements.indexOf(this);
         if (~index) resizingElements.splice(index, 1);
