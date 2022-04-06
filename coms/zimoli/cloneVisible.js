@@ -61,7 +61,7 @@ var cloneChildren = function (td, copy, clone) {
             });
             break;
         default:
-            var children = [].slice.call(td.childNodes, 0).filter(isMaybeVisible);
+            var children = Array.prototype.slice.call(td.childNodes, 0).filter(isMaybeVisible);
             children.sort((a, b) => {
                 return getZIndex(a) - getZIndex(b);
             }).forEach(clone);
@@ -130,21 +130,20 @@ var cloneVisible = function (td) {
     var _left, _top, _right, _bottom;
     var span = document.createElement("x");
     var hasSvg = false;
-
     var clone = function (td) {
         if (!isMaybeVisible(td)) return;
         if (td.nodeType === 3) {
             var copy = span.cloneNode();
             copy.appendChild(td.cloneNode());
             var parentNode = td.parentNode;
+            parentNode.insertBefore(copy, td);
             parentNode.removeChild(td);
-            parentNode.appendChild(copy);
             var { left, top, width, height } = getScreenPosition(copy);
             var style = getComputedStyle(copy);
             copyStyle(style, copy.style, cloneProperties);
             copy.style.lineHeight = height + "px";
+            parentNode.insertBefore(td, copy);
             parentNode.removeChild(copy);
-            parentNode.appendChild(td);
             result.appendChild(copy);
         } else if (td.nodeType !== 1) return;
 
@@ -187,7 +186,7 @@ var cloneVisible = function (td) {
         width: _right - _left + "px",
         height: _bottom - _top + "px"
     });
-    [].map.call(result.children, function (element) {
+    Array.prototype.map.call(result.children, function (element) {
         var { left, top, width, height } = element.tempstyle;
         extend(element.style, {
             position: "absolute",
