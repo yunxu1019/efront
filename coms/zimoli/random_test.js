@@ -20,7 +20,7 @@ function random_test() {
     var id = 0;
     var run = function () {
         if (id >= args.length) return;
-        alert(toString(random.apply(null, args[id])));
+        console.log(toString(random.apply(null, args[id])));
         id++;
         setTimeout(run, 200);
     }

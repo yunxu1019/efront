@@ -7,22 +7,24 @@
     <textarea _value="refilm_encode(steps[index])">
 
     </textarea>
-    <table class="form">
-        <thead>
-            <tr>
-                <td ng-repeat="(f,i) in refilms">
-                    <span ng-bind="f.name"></span>
-                </td>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="s in steps[index]">
-                <td ng-repeat="r in refilms">
-                    <span bg-bind="String(s[r.key]||'')"></span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="form">
+        <table>
+            <thead>
+                <tr>
+                    <td ng-repeat="(f,i) in refilms">
+                        <span ng-bind="f.name"></span>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="s in steps[index]">
+                    <td ng-repeat="r in refilms">
+                        <span bg-bind="String(s[r.key]||'')"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <form class="form">
         <field ng-src="[f,data]" ng-repeat="(f,i) in steps[index]"></field>
     </form>

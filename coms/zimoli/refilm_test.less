@@ -28,17 +28,24 @@
     }
 
     >textarea,
-    >table {
+    >.form {
         width: 400px;
     }
 
     >textarea,
     >form,
-    >table {
+    >.form {
         overflow: auto;
         height: calc(~"100% - 220px");
         vertical-align: top;
         display: inline-block;
+        table{
+            width: auto;
+        }
+        td{
+            white-space: nowrap;
+            overflow: hidden;
+        }
         font-size: 16px;
         font-family: 仿宋;
     }
