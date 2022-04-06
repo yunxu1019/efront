@@ -46,21 +46,22 @@ function ylist(container, generator, $Y) {
         var children = list.childNodes;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (!(isFinite(child.index) || nodeType === 2 && child.offsetHeight)) continue;
-            child = getNodeTarget(child);
+            if (!(isFinite(child.index) && (nodeType === 0 || child.index !== null) || nodeType === 2 && child.offsetHeight)) continue;
+            if (nodeType === 1) child = getNodeTarget(child);
             return child;
         }
         return null;
     };
-    var getFirstVisibleElement = function (deltaY = 0) {
+    var getFirstVisibleElement = function (deltaY) {
         var children = list.childNodes;
         var { scrollTop } = list;
-        scrollTop += deltaY;
+        deltaY = +deltaY;
+        if (deltaY) scrollTop += deltaY;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (!isFinite(child.index)) continue;
-            child = getNodeTarget(child);
-            if (child.offsetTop + child.offsetHeight > scrollTop) return child;
+            if (!isFinite(child.index) || child.index === null) continue;
+            var c = getNodeTarget(child);
+            if (c.offsetTop + c.offsetHeight > scrollTop) return deltaY === 0 ? child : c;
         }
         return null;
     };
@@ -86,16 +87,17 @@ function ylist(container, generator, $Y) {
             return scrollBy(deltab < deltat ? deltat : deltab);
         }
     };
-    var getLastVisibleElement = function (deltaY = 0) {
+    var getLastVisibleElement = function (deltaY) {
         var { scrollTop } = list;
-        scrollTop += deltaY;
+        deltaY = +deltaY;
+        if (deltaY) scrollTop += deltaY;
         var children = list.children;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
             if (!isFinite(child.index)) continue;
-            child = getNodeTarget(child);
-            if (child.offsetTop < scrollTop + list.clientHeight) {
-                return child;
+            var c = getNodeTarget(child);
+            if (c.offsetTop < scrollTop + list.clientHeight) {
+                return deltaY === 0 ? child : c;
             }
         }
         return null;
@@ -106,7 +108,7 @@ function ylist(container, generator, $Y) {
         var map = {};
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (isFinite(child.index)) {
+            if (isFinite(child.index) && child.index !== null) {
                 map[child.index] = child;
             }
         }
@@ -133,7 +135,8 @@ function ylist(container, generator, $Y) {
         if (itemIndex < 0) index--;
         var ratio = itemIndex - index || 0;
         var childrenMap = getChildrenMap();
-        var offsetBottom = 0, ratioTop = 0, offset = index, last_item = getFirstElement() || null, last_index = last_item && last_item.index || offset;
+        var offsetBottom = 0, ratioTop = 0, offset = index, last_item = getFirstElement(0) || null, last_index = last_item && last_item.index || offset;
+        if (last_item) last_item = getNodeTarget(last_item);
         var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
         var indexed_item;
         while (offsetBottom - ratioTop <= list.clientHeight + cache_height || indexed_item && top_item && indexed_item.offsetTop - top_item.offsetTop < cache_height) {
@@ -187,9 +190,9 @@ function ylist(container, generator, $Y) {
     var runbuild = lazy(function () {
         patchBottom();
         patchTop();
-        var firstElement = getFirstElement(1), y;
+        var firstElement = getFirstElement(), y;
         if (firstElement) {
-            y = firstElement.index * firstElement.offsetHeight;
+            y = firstElement.index * getNodeTarget(firstElement).offsetHeight;
         } else {
             y = 0;
         }
@@ -208,9 +211,10 @@ function ylist(container, generator, $Y) {
     list.insertBefore(topinsert, list.firstChild);
     //计算当前高度
     var currentY = function () {
-        var firstElement = getFirstElement(1);
+        var firstElement = getFirstElement();
         if (!firstElement) return;
         var index = firstElement.index;
+        firstElement = getNodeTarget(firstElement);
         if (index < 0) index = index - index | 0;
         return index * firstElement.offsetHeight + list.scrollTop;
     };
@@ -298,7 +302,7 @@ function ylist(container, generator, $Y) {
         var cache_height = list.offsetHeight;
 
         var childrenMap = getChildrenMap();
-        var first_element, flag_element = first_element = getFirstElement(1);
+        var first_element, flag_element = first_element = getFirstElement();
         if (!flag_element || !isFinite(flag_element.offsetTop)) return;
         var offset = flag_element.index || 0;
         var offsetTop = flag_element.offsetTop;
@@ -421,15 +425,17 @@ function ylist(container, generator, $Y) {
     list.scrollBy = scrollBy;
     list.index = function (update) {
         if (update === false) return saved_itemIndex;
-        var firstVisible = getFirstVisibleElement();
+        var firstVisible = getFirstVisibleElement(0);
         if (!firstVisible) return saved_itemIndex;
         var index = firstVisible.index;
+        firstVisible = getNodeTarget(firstVisible);
+        if (!firstVisible) return saved_itemIndex;
         var firstElement = getFirstElement(1);
         var scrolled = (list.scrollTop - firstVisible.offsetTop + firstElement.offsetTop + .5 | 0) / firstVisible.offsetHeight;
         return index + scrolled;
     };
     list.topIndex = function () {
-        var element = getFirstElement(1);
+        var element = getFirstElement();
         return element ? element.index : 0;
     };
     list.getIndexedElement = getIndexedElement;
