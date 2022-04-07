@@ -194,6 +194,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         var k0 = -1;
         for (var k0 in previousElements) break;
         if (previousElements.length) var src = previousElements.length - k0;
+        else var src = 0;
         if (k0 >= 0 && previousElements[k0].moved) for (var k in previousElements) {
             var cx = +k + 1;
             if (!previousElements[cx]) {
@@ -226,6 +227,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             var children = targetBox.children;
             var srcElement = children[src];
             var dstElement = children[dst + delta];
+            console.log(targetChild, src)
             src = bindTarget(src, isMovingSource ? targetChild : srcElement);
             dst = bindTarget(dst, dstElement);
             var needFire = !isFunction(move) || move(src, dst, dst + delta, appendSibling, targetBox) !== false;
