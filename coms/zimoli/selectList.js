@@ -2,7 +2,7 @@ var singleClick = function () {
     var node = this.parentNode;
     if (node.activeNode === this) return;
     if (node.activeNode) {
-        if (node.activeNode.origin) node.activeNode.origin.selected = false;
+        if (isObject(node.activeNode.origin)) node.activeNode.origin.selected = false;
         node.activeNode.removeAttribute("selected");
     }
     this.setAttribute("selected", "");
@@ -11,8 +11,9 @@ var singleClick = function () {
     if (node.value === this.value) return;
     node.value = this.value;
     node.name = this.name;
-    if (this.origin) this.origin.selected = true;
+    if (isObject(this.origin)) this.origin.selected = true;
     dispatch(node, "change");
+    if (getTargetIn(node, document.activeElement)) document.activeElement.blur();
 };
 var multipleClick = function () {
     var node = this.parentNode;
@@ -25,10 +26,15 @@ var multipleClick = function () {
         values.splice(index, 1);
         this.removeAttribute("selected");
     }
-    if (this.origin) this.origin.selected = true;
+    if (isObject(this.origin)) this.origin.selected = true;
     dispatch(node, "change");
 };
 
+var searchinput = function () {
+    var ipt = document.createElement("input");
+    ipt.placeholder = '搜索';
+    return ipt;
+};
 
 function main() {
     var children, multiple, addable, generator, page;
@@ -101,9 +107,46 @@ function main() {
 
 
     var hasIcon = false, iconed = '';
+
+    if (children.length > 6) {
+        var ipt = searchinput()
+        page.insertBefore(ipt, page.firstChild);
+        var searchtext = function () {
+            if (this.value) children = searchResult;
+            else children = searchResult.source;
+            if (isMounted(this)) searchResult.search(this.value);
+        };
+        var searchResult = search(ipt.value, children, a => {
+            return isObject(a) ? getName(a) : String(a);
+        });
+        searchResult.callback = function () {
+            if (!searchResult.complete) {
+                page.setAttribute('searching', '');
+            }
+            else {
+                if (searchResult.searchText && !searchResult.length) {
+                    page.setAttribute('empty', '');
+                }
+                else {
+                    page.removeAttribute('empty');
+                }
+                page.removeAttribute('searching');
+            }
+            itemMap = Object.create(null);
+            page.clean();
+            page.go(0);
+        }
+        on('remove')(ipt, function () {
+            searchResult.abort();
+        });
+        on('input')(ipt, searchtext);
+        on('keyup')(ipt, searchtext);
+        on('change')(ipt, searchtext);
+
+    }
     var page = list(page, function (i) {
         if (i < 0 || i >= children.length) return;
-        return createItem(generator ? generator(i) : children[i]);
+        return createItem(generator ? generator(i, children[i]) : children[i]);
     });
     once("mounted")(page, function () {
         var index = 0;
@@ -220,6 +263,6 @@ function main() {
     };
     bind('keydown.enter')(page, enter);
     bind('keydown.space')(page, enter);
-    on('mousedown')(page, e => e.preventDefault());
+    on('mousedown')(page, e => !/^input$/i.test(e.target.tagName) && e.preventDefault());
     return page;
 }

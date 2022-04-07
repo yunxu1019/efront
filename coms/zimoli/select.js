@@ -124,7 +124,7 @@ function select(target, list, removeOnSelect, direction) {
         var initList2 = function (src) {
             src.forEach(s => {
                 optionsMap[s.key] = s;
-                s.selected = s.key === target.value;
+                if (isObject(s)) s.selected = s.key === target.value;
             });
             list = selectList(generator, src, !!target.multiple, !!target.editable);
             list.value = target.value;
@@ -183,6 +183,7 @@ function select(target, list, removeOnSelect, direction) {
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }
+            removeOnSelect = undefined;
             bindEvent();
         };
     }

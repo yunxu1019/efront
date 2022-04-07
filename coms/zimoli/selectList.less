@@ -79,3 +79,49 @@
         margin-left: 10px;
     }
 }
+
+&>input {
+    height: 28px;
+    line-height: 28px;
+    padding: 0 16px;
+    border: none;
+    appearance: none;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    display: block;
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid #0006;
+
+    &:focus {
+        outline-offset: -1px;
+        outline: 1px solid #2ca2f9;
+    }
+}
+
+&[searching] {
+    &::before {
+        content: "正在搜索..";
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        display: block;
+        font-size: 12px;
+        text-align: right;
+        pointer-events: none;
+        padding: 0 16px;
+    }
+}
+
+&[empty] {
+    background-color: #fff;
+}
+
+b {
+    border: 1px solid #29e;
+    background-color: #29e2;
+    font-weight: 400;
+    border-radius: 2px;
+}
