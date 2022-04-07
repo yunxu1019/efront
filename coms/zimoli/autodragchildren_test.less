@@ -1,7 +1,12 @@
-list {
+list[cell-list] {
+    display: table-row;
     >div {
-        display: inline-block;
+        display: table-cell;
     }
+}
+xlist>div{
+    display: inline-block;
+    padding: 0 6px;
 }
 
 .row(@x) {

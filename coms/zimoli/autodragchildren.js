@@ -65,6 +65,7 @@ var scrollX = function (targetBox, moveChildren) {
         vscroll.X.call(targetBox, scrollDelta / 16, false);
         moveChildren();
     }
+    return scrollDelta;
 };
 var scrollY = arriswise(scrollX, arguments);
 var moveMarginY = arriswise(moveMarginX, arguments);
@@ -85,6 +86,7 @@ var bindTarget = function (index, element) {
 
 var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     var boxfinder;
+    var isMovingSource = isMovingSource !== false;
     if (isMovingSource === false) boxfinder = matcher, matcher = null;
     var that = this;
 
@@ -189,8 +191,11 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         that.removeAttribute('dragchildren');
         removeClass(targetBox, "dropping");
         var dst, appendSibling, delta;
-        var src = previousElements.length;
-        if (previousElements.length && previousElements[0].moved) for (var cx = 1, dx = previousElements.length + 1; cx < dx; cx++) {
+        var k0 = -1;
+        for (var k0 in previousElements) break;
+        if (previousElements.length) var src = previousElements.length - k0;
+        if (k0 >= 0 && previousElements[k0].moved) for (var k in previousElements) {
+            var cx = +k + 1;
             if (!previousElements[cx]) {
                 dst = 0;
                 delta = 0;
@@ -202,14 +207,16 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
                 break;
             }
         }
-
-        if (followedElements.length && followedElements[0].moved) for (var cx = 1, dx = followedElements.length + 1; cx < dx; cx++) {
+        var k0 = -1;
+        for (var k0 in followedElements) break;
+        if (k0 >= 0 && followedElements[k0].moved) for (var k in followedElements) {
+            var cx = +k + 1;
             if (!followedElements[cx]) {
-                dst = followedElements.length + previousElements.length;
+                dst = targetBox.children.length - 1;
                 delta = 0;
                 appendSibling = appendChild.after;
             } else if (!followedElements[cx].moved) {
-                dst = previousElements.length + cx;
+                dst = targetBox.children.length - followedElements.length + cx - 1;
                 delta = 1;
                 appendSibling = appendChild.before;
                 break;
@@ -219,7 +226,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             var children = targetBox.children;
             var srcElement = children[src];
             var dstElement = children[dst + delta];
-            src = bindTarget(src, srcElement);
+            src = bindTarget(src, isMovingSource ? targetChild : srcElement);
             dst = bindTarget(dst, dstElement);
             var needFire = !isFunction(move) || move(src, dst, dst + delta, appendSibling, targetBox) !== false;
             if (needFire && srcElement === children[src] && dstElement === children[dst + delta] && srcElement && dstElement) appendSibling(dstElement, srcElement);
@@ -239,8 +246,60 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     var offmousup = on("mouseup")(window, offall);
     var autoScroll = function () {
         if (autoScroll.ing) return;
-        if (scroll);
-        autoScroll.ing = setInterval(scroll, 16);
+        if (scroll) autoScroll.ing = setInterval(function () {
+            var delta = scroll(targetBox, moveChildren);
+            if (isMovingSource === false) { }
+            else if (delta < 0) {
+                var p = null;
+                for (var k in previousElements) {
+                    if (!previousElements[k].parentNode) {
+                        delete previousElements[k];
+                        continue;
+                    }
+                    if (previousElements[+k + 1] && previousElements[k].previousElementSibling !== previousElements[+k + 1]) {
+                        previousElements.splice(+k + 1, previousElements.length - k - 1);
+                        break;
+                    }
+                }
+                var k = 0;
+                for (var k in followedElements) {
+                    if (followedElements[k].parentNode) break;
+                    delete followedElements[k];
+                }
+                var p = previousElements[previousElements.length - 1] || followedElements[k];
+                if (p && p.previousElementSibling) {
+                    k -= 1;
+                    if (k >= 0) followedElements[k] = p.previousElementSibling;
+                    else if (p === followedElements[0]) setOpacity(p.previousElementSibling, draggingSourceOpacity);
+                    else previousElements.push(p.previousElementSibling);
+                }
+            }
+            else if (delta > 0) {
+                for (var k in followedElements) {
+                    if (!followedElements[k].parentNode) {
+                        delete followedElements[k];
+                        continue;
+                    }
+                    if (followedElements[+k + 1] && followedElements[k].nextElementSibling !== followedElements[+k + 1]) {
+                        followedElements.splice(+k + 1, followedElements.length - k - 1);
+                        break;
+                    }
+                }
+
+                var k = 0;
+                for (var k in previousElements) {
+                    if (previousElements[k].parentNode) break;
+                    delete previousElements[k];
+                }
+                var f = followedElements[followedElements.length - 1] || previousElements[k];
+                if (f && f.nextElementSibling) {
+                    k -= 1;
+                    if (k >= 0) previousElements[k] = f.nextElementSibling;
+                    else if (f === previousElements[0]) setOpacity(f.nextElementSibling, draggingSourceOpacity);
+                    else followedElements.push(f.nextElementSibling);
+                }
+            }
+        }, 16);
     };
     var cancelScroll = function () {
         clearInterval(autoScroll.ing);
