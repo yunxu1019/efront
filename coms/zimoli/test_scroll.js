@@ -7,50 +7,36 @@ function createTouchEvent(eventtype, extra = {}) {
 }
 
 
-function _test_scroll(banner) {
-    var clientY = 10;
-    var touchstartEvent = createTouchEvent("touchstart", { clientY });
+function _test_scroll() {
+    var banner = this;
+    var clientY = 2;
+    var touchstartEvent = createTouchEvent("touchstart", { clientY, clientX: 0 });
     var deltaY = 100;
+    onclick.preventClick = true;
     dispatch(banner, touchstartEvent);
     var interval_handle = setInterval(function () {
-        clientY -= deltaY;
-        var touchmoveEvent = createTouchEvent("touchmove", { clientY });
-        dispatch(banner, touchmoveEvent);
+        clientY += deltaY;
+        var touchmoveEvent = createTouchEvent("touchmove", { clientY, clientX: 0 });
+        dispatch(window, touchmoveEvent);
     }, 10);
 
     setTimeout(function () {
-        deltaY = -10
-    }, 300);
+        deltaY = -2
+    }, 200);
     setTimeout(function () {
-        deltaY = 100
+        deltaY = 5
     }, 400);
     setTimeout(function () {
-        deltaY = -10
-    }, 420);
-    setTimeout(function () {
-        deltaY = -50
-    }, 450);
-    setTimeout(function () {
-        deltaY = 50
-    }, 470);
-    setTimeout(function () {
-        deltaY = -100050
-    }, 480);
-    setTimeout(function () {
-        deltaY = +100050
-    }, 490);
-    setTimeout(function () {
         clearInterval(interval_handle);
-        var touchendEvent = createTouchEvent("touchend");
-        dispatch(banner, touchendEvent);
     }, 510);
+    setTimeout(function () {
+        var touchendEvent = createTouchEvent("touchend");
+        touchendEvent.touches.pop();
+        dispatch(banner, touchendEvent);
+    }, 560);
 }
 
-function main(banner){
-    if(banner.isMounted){
-        _test_scroll(banner);
-    }else{
-        on("append")(banner,_test_scroll);
-    }
+function main(banner) {
+    oncemount(banner, _test_scroll);
 
 }
