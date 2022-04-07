@@ -40,7 +40,7 @@ var dragview = function (dragview) {
             var deltaY = savedY - event.clientY;
             event.preventDefault();
             if (!moving) {
-                if (Math.abs(deltaX) < MOVELOCK_DELTA && Math.abs(deltaY) < MOVELOCK_DELTA) return;
+                if (!onclick.preventClick) return;
                 if (Math.abs(deltaY) >= Math.abs(deltaX)) {
                     moving = -1;
                 } else {

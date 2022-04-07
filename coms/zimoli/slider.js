@@ -210,7 +210,7 @@ function slider(autoplay, circle = true) {
         var deltax = event.clientX - saved_x;
         var deltay = event.clientY - saved_y;
         if (!direction) {
-            if (abs(deltax) < MOVELOCK_DELTA && abs(deltay) < MOVELOCK_DELTA) return;
+            if (!onclick.preventClick) return;
             if (abs(deltay) - abs(deltax) > 0) { //垂直方向
                 direction = -1;
             } else { //水平方向

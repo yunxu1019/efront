@@ -57,11 +57,9 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
     var mousemove = function (event) {
         if (event.moveLocked) return;
         if (/resize/i.test(getComputedStyle(document.body).cursor)) return;
-        event.moveLocked = true;
         if (!saved_delta.ing) {
-            var abs = Math.abs;
             var [target_left, target_top] = getOffset(target);
-            if (abs(target_left - event.screenX - saved_delta.x) < MOVELOCK_DELTA && abs(target_top - event.screenY - saved_delta.y) < MOVELOCK_DELTA) return;
+            if (!onclick.preventClick) return;
             saved_delta.ing = true;
             drag.target = target;
             dispatch("dragstart", target);
@@ -82,6 +80,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             saved_delta.x += clone_left - target_left;
             saved_delta.y += clone_top - target_top;
         }
+        event.moveLocked = true;
         drag.target = clone;
         var offsetLeft = saved_delta.x + event.screenX;
         var offsetTop = saved_delta.y + event.screenY;

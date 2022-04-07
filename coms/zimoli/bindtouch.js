@@ -22,7 +22,7 @@ function bindtouch(target, bindder, lockDirection = false) {
             var deltay = clientY - saved_y;
             if (lockDirection) {
                 if (!direction) {
-                    if (abs(deltax) < MOVELOCK_DELTA && abs(deltay) < MOVELOCK_DELTA) return;
+                    if (!onclick.preventClick) return;
                     if (target.onmovestart) {
                         target.onmovestart();
                     }
@@ -31,7 +31,7 @@ function bindtouch(target, bindder, lockDirection = false) {
                     } else if (abs(deltax) <= .618 * abs(deltay)) {
                         direction = "y";
                     } else {
-                        return;
+                        direction = 'o';
                     }
                 }
                 if (direction !== lockDirection)
