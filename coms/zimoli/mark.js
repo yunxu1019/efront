@@ -52,15 +52,17 @@ var power = function (source, search) {
         var match_text_pre = source.slice(0, match_start2);
         var match_text_aft = source.slice(match_start2 + match_text.length);
         var pp = 0, ap = 0;
+        var p = match_text.length;
+        if (match_text_pre.length) p += .1 / match_text_pre.length - .2;
+        if (match_text_aft.length) p += .1 / match_text_aft.length - .1;
         if (match_text_pre.length > 1) {
             [pp, match_text_pre] = power(match_text_pre, search);
         }
         if (match_text_aft.length > 1) {
             [ap, match_text_aft] = power(match_text_aft, search);
         }
-        var p = match_text.length;
-        p *= p;
-        return [p + pp + ap, match_text_pre + MARK_PRE + match_text + MARK_AFT + match_text_aft];
+        p += (pp + ap) * .01;
+        return [p, match_text_pre + MARK_PRE + match_text + MARK_AFT + match_text_aft];
     }
     return [0, source];
 };
