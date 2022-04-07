@@ -282,12 +282,12 @@ function single(c, u) {
 	return [r * u, g * u, b * u];
 }
 function angle(c1, c2) {
+	c1 = parse(c1);
+	c2 = parse(c2);
+	c1 = normal(c1);
+	c2 = normal(c2);
 	var theta = rgb2h(c2[0], c2[1], c2[2]) - rgb2h(c1[0], c1[1], c1[2]);
 	if (theta < 0) theta += 360;
-	// c1 = parse(c1);
-	// c2 = parse(c2);
-	// c1 = normal(c1);
-	// c2 = normal(c2);
 	// var [r1, g1, b1] = single(c1);
 	// var [r2, g2, b2] = single(c2);
 	// var c = [g1 * b2 - g2 * b1, b1 * r2 - b2 * r1, r1 * g2 - r2 * g1];
