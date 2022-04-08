@@ -9,7 +9,7 @@ var dragview = function (dragview) {
             offsetWidth = menu.offsetWidth;
             var { target } = event;
             moving = null;
-            if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag') || a.dragable === false, event.target)) {
+            if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => a.contentEditbale || a.draggable, event.target)) {
                 moving = false;
             } else {
                 var { childNodes } = target;

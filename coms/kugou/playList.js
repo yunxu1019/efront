@@ -28,7 +28,7 @@ var $scope = {
 function main() {
     var page = view();
     page.initialStyle = 'margin-top:10px;opacity:0';
-    page.setAttribute("_dragable", "false");
+    page.setAttribute("_draggable", "false");
     page.innerHTML = playList;
     $scope.play = function (i) {
         if (page.play instanceof Function) {

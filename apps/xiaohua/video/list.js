@@ -11,7 +11,7 @@ var scope = render(page, {
         });
     },
     img(e) {
-        e.setAttritute("dragable", false);
+        e.setAttritute("draggable", false);
         return e;
     },
     "a-video": video,

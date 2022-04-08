@@ -1,6 +1,6 @@
 
 var prototype = {
-    dragable: undefined,
+    draggable: undefined,
     resizable: false,
     closeable: true,
     showTitle: true,
@@ -98,10 +98,10 @@ function view(element) {
     if (window !== element) {
         extend(window, element);
         once("append")(window, function () {
-            if (window.dragable !== true && window.dragable !== false) {
-                window.dragable = /^(fixed|absolute)$/i.test(getComputedStyle(window).position);
+            if (window.draggable !== true && window.draggable !== false) {
+                window.draggable = /^(fixed|absolute)$/i.test(getComputedStyle(window).position);
             }
-            if (window.dragable) window.setAttribute('dragable', 'dragable');
+            if (window.draggable) window.setAttribute('draggable', 'draggable');
         })
         if (window.resizable) resize.on(window);
     }
