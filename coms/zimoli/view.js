@@ -1,6 +1,5 @@
 
 var prototype = {
-    draggable: undefined,
     resizable: false,
     closeable: true,
     showTitle: true,

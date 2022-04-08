@@ -7,21 +7,7 @@ var dragview = function (dragview) {
             savedX = event.clientX;
             savedY = event.clientY;
             offsetWidth = menu.offsetWidth;
-            var { target } = event;
             moving = null;
-            if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => a.contentEditbale || a.draggable, target)) {
-                moving = false;
-            } else {
-                var { childNodes } = target;
-                var computed = getComputedStyle(target);
-                if (computed.cursor === 'auto' && (computed.userSelect || computed.webkitUserSelect) !== 'none') for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
-                    var child = childNodes[cx];
-                    if (child.nodeType === 3) {
-                        moving = false;
-                        break;
-                    }
-                }
-            }
         },
         move(event) {
             if (moving === false) return;
