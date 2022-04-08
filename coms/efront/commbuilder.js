@@ -515,7 +515,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
                 lessData = data_2.css.replace(/\{([^\}]+)\}/g, function (_, c) {
                     var o = parseKV(c, ';', ":");
                     if (o["user-select"]) o["-webkit-user-select"] = o["user-select"];
-                    return serialize(o, ';', ':');
+                    return `{${serialize(o, ';', ':')}}`;
                 });
             });
             promise.time = new Date - timeStart;

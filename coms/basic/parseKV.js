@@ -1,7 +1,8 @@
 "use strict";
-function parseKV(string, spliter = "&", equals = "=") {
+var trim = a => a.trim();
+function parseKV(string, spliter = "&", equals = "=", decode) {
     var object = {};
-    var decode = spliter === "&" && equals === "=" ? decodeURIComponent : a => a;
+    if (!decode) decode = spliter === "&" && equals === "=" ? decodeURIComponent : trim;
     if (typeof string === "string") {
         var kvs = string.split(spliter);
         for (var cx = 0, dx = kvs.length; cx < dx; cx++) {
