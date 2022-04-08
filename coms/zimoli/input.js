@@ -1,17 +1,28 @@
 var _input = createElement("input");
+/**
+ * @this HTMLInputElement
+ */
 var number = function (event) {
     var ipt = event.target;
     var { keyCode } = event;
     var { value, type } = ipt;
+    var s = this.selectionStart;
     if (keyCode === 13 || keyCode === 18 || keyCode === 37 || keyCode === 38 || keyCode === 39 || keyCode === 40 || keyCode === 8 || keyCode === 46 || keyCode === 9) {
     }
     else if (keyCode >= 48 && keyCode <= 57 || keyCode >= 96 && keyCode <= 105) {
         if (this.value) {
-            if (this.fixed && this.value.replace(/^[^\.]+/, '').length > this.fixed ||
+            if (s < this.value.length) {
+                var index = this.value.indexOf('.');
+                if (index >= 0 && s > index) {
+                    this.value = this.value.slice(0, this.value.length - 1);
+                }
+                this.setSelectionRange(s, s);
+            }
+            else if (this.fixed && this.value.replace(/^[^\.]+/, '').length > this.fixed ||
                 this.limit && this.value.length >= this.limit && !/\./.test(this.value)) {
                 event.preventDefault();
             }
-            if(/^[+-]?0$/.test(this.value)){
+            else if (/^[+-]?0$/.test(this.value)) {
                 event.preventDefault();
             }
         }
@@ -19,14 +30,27 @@ var number = function (event) {
     else if (keyCode === 110 || keyCode === 190) {
         if (/^int/i.test(type)) {
             event.preventDefault();
-        } else if (/\./i.test(value) || !value || /^[\-\+]$/.test(value)) {
+        }
+        else if (/\./i.test(value)) {
+            var index = this.value.indexOf(".");
+            if (s < index) {
+                this.value = this.value.slice(0, s) + this.value.slice(index + 1);
+                this.setSelectionRange(s, s);
+            }
+            else {
+                event.preventDefault();
+            }
+        }
+        else if (!value || /^[\-\+]$/.test(value)) {
             event.preventDefault();
         }
-    } else if (keyCode === 189 || keyCode === 187) {// 负号 正号
+    }
+    else if (keyCode === 189 || keyCode === 187) {// 负号 正号
         if (value || this.positive) {
             event.preventDefault();
         }
-    } else {
+    }
+    else {
         event.preventDefault();
     }
     if (value && !/^[\d]+$/i.test(value)) {
@@ -36,9 +60,17 @@ var number = function (event) {
             if (value !== v) {
                 ipt.value = v;
             }
-        } else if (!/^[\-\+]$/.test(value)) {
+        }
+        else if (!/^[\-\+]$/.test(value)) {
             ipt.value = '';
         }
+    }
+};
+var toFixed = function () {
+    if (this.value && this.fixed) var fixed = BigNumber.fix(this.value, this.fixed);
+    if (this.value !== fixed) {
+        this.value = fixed;
+        dispatch(this, 'change');
     }
 };
 var positiveReg = /^\+|^positive\-?|\-?positive$|\+$/i;
@@ -92,6 +124,7 @@ function input(element) {
                 case "money":
                     if (!element.fixed) element.fixed = 2;
                     on("keydown")(element, number);
+                    on("blur")(element, toFixed);
                     break;
                 case "natural":
                     if (!+element.positive) element.positive = true;
