@@ -365,6 +365,7 @@ function table(elem) {
         }
         if (!getTargetIn(thead, event.target)) return;
         var tds = getTargetIn(cellMatchManager, event.target);
+        if (!tds) return;
         setClass(tds, 'y-ing', activeCols);
         activeCols = tds;
     });
@@ -379,15 +380,18 @@ function table(elem) {
     var table = tableElement;
     var thead;
     var markedRows = false;
+    var markThead = function () {
+        var savedRowDeltas = [];
+        Array.prototype.forEach.call(thead.children, function (tr) {
+            markRowTds(tr, savedRowDeltas);
+        });
+    };
     var cellMatchManager = function (element) {
         if (!thead) thead = getThead(table);
         if (!getTargetIn(thead, element)) return false;
         if (!tdElementReg.test(element.tagName)) return false;
         if (!markedRows) {
-            var savedRowDeltas = [];
-            Array.prototype.forEach.call(thead.children, function (tr) {
-                markRowTds(tr, savedRowDeltas);
-            });
+            markThead();
             markedRows = true;
         }
         var { colstart, colend } = element;
@@ -468,14 +472,17 @@ function table(elem) {
             var dstElement = children[rel];
             var dstTds = getRowsOfTdsByCol(table, dstElement.colstart, dstElement.colend);
             var srcTds = getRowsOfTdsByCol(table, srcElement.colstart, srcElement.colend);
+            var clearCss = { left: '', right: '', borderLeft: '', borderRight: '' };
             if (append === appendChild.before) {
                 srcTds.map(function (src, cx) {
                     var dst = dstTds[cx];
                     var d = dst[0] || dst.next;
                     if (d) src.map(function (s) {
+                        css(s, clearCss);
                         append(d, s);
                     });
                     else if (d = dst.prev) src.map(function (s) {
+                        css(s, clearCss);
                         appendChild.after(d, s);
                         d = s;
                     });
@@ -485,15 +492,22 @@ function table(elem) {
                     var dst = dstTds[cx];
                     var d = dst[dst.length - 1] || dst.prev;
                     if (d) src.map(function (s) {
+                        css(s, clearCss);
                         append(d, s);
                         d = s;
                     });
                     else if (d = dst.next) src.map(function (s) {
+                        css(s, clearCss);
                         appendChild.before(d, s);
                     });
                 });
 
             }
+            markThead();
+            markedRows = true;
+            requestAnimationFrame(function(){
+                setFixedColumn.call(table)
+            })
         }
     );
     resizingList.set(table);
