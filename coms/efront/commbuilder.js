@@ -512,7 +512,11 @@ var renderLessData = function (data, lesspath, watchurls, className) {
             }, function (err, data_2) {
                 if (err)
                     return console.warn(err);
-                lessData = data_2.css;
+                lessData = data_2.css.replace(/\{([^\}]+)\}/g, function (_, c) {
+                    var o = parseKV(c, ';', ":");
+                    if (o["user-select"]) o["-webkit-user-select"] = o["user-select"];
+                    return serialize(o, ';', ':');
+                });
             });
             promise.time = new Date - timeStart;
             return lessData;

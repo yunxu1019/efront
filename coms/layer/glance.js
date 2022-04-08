@@ -9,25 +9,18 @@ var dragview = function (dragview) {
             offsetWidth = menu.offsetWidth;
             var { target } = event;
             moving = null;
-            if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => a.contentEditbale || a.draggable, event.target)) {
+            if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => a.contentEditbale || a.draggable, target)) {
                 moving = false;
             } else {
                 var { childNodes } = target;
-                if (getComputedStyle(target).cursor === 'auto' && getComputedStyle(target).userSelect !== 'none') for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
+                var computed = getComputedStyle(target);
+                if (computed.cursor === 'auto' && (computed.userSelect || computed.webkitUserSelect) !== 'none') for (var cx = 0, dx = childNodes.length; cx < dx; cx++) {
                     var child = childNodes[cx];
                     if (child.nodeType === 3) {
                         moving = false;
                         break;
                     }
                 }
-                if (moving !== false) do {
-                    var contentEditbale = target.getAttribute("contenteditable") !== null;
-                    if (contentEditbale) {
-                        moving = false;
-                        break;
-                    }
-                    target = target.parentNode;
-                } while (target && target.nodeType == 1);
             }
         },
         move(event) {
