@@ -25,9 +25,11 @@ var moveChildrenX = function (targetBox, previousElements, followedElements, mov
                 var elementPosition = getScreenPosition(element);
                 var elementCenter = elementPosition.left + elementPosition.width / 2;
                 var delta = elementCenter - (element.moved || 0);
-                if (delta + 2 <= dragPositionLeft) {
+                if ((!element.hasAttribute || element.hasAttribute('draggable')) && element.draggable === false);
+                else if (delta + 2 <= dragPositionLeft) {
                     recover(element);
-                } else if (delta - 2 >= dragPositionLeft) {
+                }
+                else if (delta - 2 >= dragPositionLeft) {
                     moveMargin(element, dragPosition.width);
                 }
             });
@@ -35,9 +37,11 @@ var moveChildrenX = function (targetBox, previousElements, followedElements, mov
                 var elementPosition = getScreenPosition(element);
                 var elementCenter = elementPosition.left + elementPosition.width / 2;
                 var delta = elementCenter - (element.moved || 0);
-                if (delta + 2 <= dragPositionRight) {
+                if ((!element.hasAttribute || element.hasAttribute('draggable')) && element.draggable === false);
+                else if (delta + 2 <= dragPositionRight) {
                     moveMargin(element, -dragPosition.width);
-                } else if (delta - 2 >= dragPositionRight) {
+                }
+                else if (delta - 2 >= dragPositionRight) {
                     recover(element);
                 }
             });
@@ -53,6 +57,10 @@ var moveChildrenX = function (targetBox, previousElements, followedElements, mov
 var scrollX = function (targetBox, moveChildren) {
     var dragTarget = drag.target;
     if (!dragTarget || !targetBox) return;
+    targetBox = getTargetIn(function (a) {
+        var computed = getComputedStyle(a);
+        return (computed.overflowX || computed.overflow) !== 'visible' && a.scrollWidth > a.clientWidth;
+    }, targetBox);
     var areaPosition = getScreenPosition(targetBox);
     var dragPosition = getScreenPosition(dragTarget);
     var scrollDelta = 0;
@@ -133,7 +141,8 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             var [target] = targets;
             return {
                 style: target.style, target, getBoundingClientRect,
-                with: targets
+                with: targets,
+                draggable: !target.hasAttribute('draggable') || target.draggable,
             };
         }
         return targets;
@@ -227,7 +236,6 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             var children = targetBox.children;
             var srcElement = children[src];
             var dstElement = children[dst + delta];
-            console.log(targetChild, src)
             src = bindTarget(src, isMovingSource ? targetChild : srcElement);
             dst = bindTarget(dst, dstElement);
             var needFire = !isFunction(move) || move(src, dst, dst + delta, appendSibling, targetBox) !== false;
@@ -249,7 +257,8 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     var autoScroll = function () {
         if (autoScroll.ing) return;
         if (scroll) autoScroll.ing = setInterval(function () {
-            var delta = scroll(targetBox, moveChildren);
+            var delta = scroll(targetBox, dragmove);
+            if (isFunction(matcher)) return;
             if (isMovingSource === false) { }
             else if (delta < 0) {
                 var p = null;

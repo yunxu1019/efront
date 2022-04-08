@@ -34,14 +34,14 @@ var setZIndex = function () {
 };
 function drag(target, initialEvent, preventOverflow, isMovingSource) {
     if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag'), initialEvent.target)) return;
-    if (target.dragable === false) return;
-    initialEvent.preventDefault();
     if (isArray(target)) {
         var extraTargets = target.slice(1);
         target = target[0];
     } else {
         var extraTargets = target.with ? [].concat(target.with) : [];
     }
+    if ((!target.hasAttribute || target.hasAttribute('draggable')) && target.draggable === false) return;
+    initialEvent.preventDefault();
     var target_offset = getOffset(target);
     var saved_delta = { x: target_offset[0] - initialEvent.screenX, y: target_offset[1] - initialEvent.screenY };
     var clone;
