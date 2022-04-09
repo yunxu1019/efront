@@ -62,8 +62,9 @@ function record($url, request, response, req, res) {
         var mark = record.enabled ? "*" : "~";
         if (/^\s*<!/.test(data)) {
             data = String(data)
-                .replace(/<meta[^>]*?\sname=(['"`])referrer\1.*?>/ig, '')
-                .replace(/(\<base[^>]*?\shref=)(['"`]|)(.*?)\2/ig, (_, a, b, c) => `${a}${b}${/^\//.test(c) ?
+                .replace(/<meta[^>]*?\sname=(['"`]?)referrer\1.*?>/ig, '')
+                .replace(/\sintegrity\s*=\s*(['"`]?)(.*?)\1/ig, '')
+                .replace(/(\<base[^>]*?\shref=\s*)(['"`]|)(.*?)\2/ig, (_, a, b, c) => `${a}${b}${/^\//.test(c) ?
                     parseURL($url).pathname.slice(1).split("/").map(() => "..").join("/").slice(1) + c
                     : c
                     }${b} `)
@@ -114,7 +115,7 @@ function record($url, request, response, req, res) {
                 require("zlib").brotliDecompress(data, _write);
                 break;
             case "deflate":
-                require("zlib").deflateSync(data, _write);
+                require("zlib").inflate(data, _write);
                 break;
             case null:
             case "":
