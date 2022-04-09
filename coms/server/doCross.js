@@ -151,6 +151,8 @@ async function cross(req, res, referer) {
             delete headers["access-control-allow-credentials"];
             delete headers["access-control-allow-headers"];
             delete headers["content-security-policy-report-only"];
+            delete headers["report-to"];
+            delete headers["expect-ct"];
             delete headers["content-security-policy"];
             delete headers["cross-origin-embedder-policy"];
             delete headers["cross-origin-opener-policy"];
