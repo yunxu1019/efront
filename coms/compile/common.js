@@ -648,6 +648,11 @@ var createString = function (parsed) {
                             if (!pressed && lasttype !== SPACE) result.push(" ");
                         }
                     }
+                    if (o.type === VALUE) {
+                        if (/^0[0-7]+$/.test(o.text)) {
+                            o.text = '0o' + o.text.slice(1);
+                        }
+                    }
                     result.push(o.text);
                 }
                 else {
