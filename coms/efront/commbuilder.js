@@ -334,9 +334,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     if (!isDevelop || commbuilder.compress === false) {
         code.break();
         data = code.toString();
-        if (!memery.UPLEVEL) {
-            data = require("./downLevel")(data, isAsync, isYield);
-        }
+        data = require("./downLevel")(data);
         var code = scanner2(data);
         code.break();
         var {
@@ -411,6 +409,7 @@ var buildResponse = function ({ imported, params, data, required, occurs, isAsyn
     if (!isDevelop && compress !== false) {
         var [data, args, strs] = breakcode(data, occurs);
         strs = `[${strs}]`;
+        if (!memery.UPLEVEL) data = require("./downLevel")(data);
         // var [imported1, params1, data1] = buildPress1(imported, params, data, args, strs);
         var [imported2, params2, data2] = buildPress2(imported, params, data, args, strs);
         data = data2;
