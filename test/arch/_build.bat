@@ -15,7 +15,13 @@ set include=%masm32%\include;%masm32%\macros
 set lib=%masm32%\lib;
 set bin=%masm32%\bin
 set efrontasm=..\..\coms\arch
+if not defined ml64 goto :x86
+echo "%bin%\%ml64%"
+call "%bin%\%ml64%" /c "%filename%tmp"
+goto :mlend
+:x86
 call %bin%\ml /c /coff "%filename%tmp"
+:mlend
 if not %errorlevel% equ 0 exit /b
 if exist "%filename%rc" (
     node %efrontasm%\rc2unicode_test.js "%filename%rc" "%filename%tmp"
