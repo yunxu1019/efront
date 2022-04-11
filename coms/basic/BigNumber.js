@@ -194,13 +194,36 @@ class BigNumber {
         if (isEmpty(decimal)) throw new Error("请输入保留小数的位数！");
         var [neg1, s11, s12] = prepare(numstr1);
         var [neg2, s21, s22] = prepare(numstr2);
-        var d = s12.length - s22.length;
+        var d = s12.length + decimal - s22.length;
+        decimal = (decimal | 0) + 1;
         numstr1 = s11 + s12;
         numstr2 = s21 + s22;
-
-        if (d < 0) {
-            numstr2 += repeat0(0, -d);
+        numstr1 = numstr1.replace(/^0+/, '');
+        numstr2 = numstr2.replace(/^0+/, '');
+        if (d < 0) numstr2 += repeat0(-d);
+        else if (d > 0) numstr1 += repeat0(d);
+        var result = [];
+        var ns1 = split(numstr1, 9);
+        var s1 = "";
+        while (ns1.length) {
+            s1 = s1 + ns1.pop();
+            if (s1.length >= numstr2.length) {
+                for (var cx = 0, dx = 1000000000, ci = cx + dx >> 1; cx < dx; ci = cx + dx + 1 >> 1) {
+                    var s2 = BigNumber.sub(s1, BigNumber.prd(numstr2, ci));
+                    if (/^\-/.test(s2)) dx = ci - 1;
+                    else cx = ci;
+                }
+            }
+            else {
+                ci = 0;
+            }
+            ci = String(ci);
+            s1 = BigNumber.sub(s1, BigNumber.prd(numstr2, ci));
+            if (result.length) ci = repeat0(9 - ci.length) + ci;
+            result.push(ci);
         }
-        numstr1 += repeat0(0);
+        result = result.join('');
+        result = fixme(neg1 ^ neg2, result, +d + s12.length - s22.length);
+        return BigNumber.fix(result, decimal - 1);
     }
 }
