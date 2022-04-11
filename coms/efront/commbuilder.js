@@ -335,9 +335,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         code.relink();
         code.break();
         data = code.toString();
-        data = require("./downLevel")(data);
-        var code = scanner2(data);
-        // code.break();
+        if (!memery.UPLEVEL) data = require("./downLevel")(data);
+        code = scanner2(data);
         var {
             vars: declares,
             used: allVariables,
