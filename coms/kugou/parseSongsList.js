@@ -5,7 +5,7 @@ a => {
         if (m) a = m[1];
         a = JSON.parse(a);
     }
-    return a.map(b => {
+    if (a) return a.map(b => {
         var data = {};
         if (b.data) extend(data, {
             name: b.data.filename.replace(/^[\s\S]*?\s*\-\s*/, ''),

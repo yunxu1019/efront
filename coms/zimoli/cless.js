@@ -1,25 +1,31 @@
 
-function create(commFactory, className) {
+var _create = function (commFactory, className, _invoke) {
     if (!className) return commFactory;
     if (commFactory instanceof Promise) {
         return commFactory.then(function (result) {
-            return create(result, className);
+            return _invoke(result, className, _invoke);
         });
     }
     if (isFunction(commFactory)) {
         var result = function () {
             var commRelease = commFactory.apply(this || result, arguments);
             if (commRelease) {
-                commRelease = create(commRelease, className);
+                commRelease = _invoke(commRelease, className, _invoke);
             }
             return commRelease;
+        };
+        result.call = function (context,...args) {
+            if (!isEmpty(context)) var release = commFactory.apply(context, args);
+            else release = commFactory.apply(result, args);
+            if (release) release = _invoke(release, className, _invoke);
+            return release;
         };
         result.prototype = commFactory.prototype;
         commFactory.className = className;
         keys(commFactory).map(k => result[k] = commFactory[k]);
         if ({}.hasOwnProperty.call(commFactory, 'toString')) {
             result.toString = function () {
-                return create(commFactory.toString(), className);
+                return _invoke(commFactory.toString(), className, _invoke);
             };
         }
         return result;
@@ -54,5 +60,5 @@ function cless(commFactory, innerCss, className) {
         }
         appendChild(head, stylesheet);
     }
-    return create(commFactory, className);
+    return _create(commFactory, className, _create);
 }

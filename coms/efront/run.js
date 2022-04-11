@@ -186,9 +186,6 @@ function efront() {
             return clearInterval(handle);
         },
         document: {
-            documentElement: {
-                style: {}
-            },
             body: {
                 style: {},
                 setAttribute() {

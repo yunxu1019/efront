@@ -20,7 +20,7 @@ if (cookiesData) {
 var digest = function () {
     dispatch('render', window);
 };
-
+if (/Trident/i.test(navigator.userAgent)) digest = lazy(digest, 60);
 var cross = cross_.bind(function (callback, onerror) {
     var xhr = new XMLHttpRequest;
     var abort = xhr.abort;

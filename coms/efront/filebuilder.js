@@ -63,7 +63,8 @@ var buildjsp = function (buff, realpath) {
     var input = String(buff);
     var prebuilds = {
         req: null, res: null, request: null, response: null, context: null,
-        remoteAddress: null, textplain: null, forbidden: null
+        remoteAddress: null, textplain: null, forbidden: null,
+        clients: require("../server/clients")
     };
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
     // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//

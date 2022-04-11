@@ -43,19 +43,10 @@ function _onremove(node, event) {
     if (!node || node.isMounted === false) return;
     var children = node.childNodes;
     if (node.isMounted) {
-        var onremove = node.onremove;
         if (!event) {
             event = createEvent("remove");
         }
         dispatch(node, event);
-        if (isArray(onremove)) {
-            onremove.map(function (remove_hindler) {
-                remove_hindler.call(this, event);
-            }, node);
-        }
-        if (isFunction(onremove)) {
-            onremove.call(node, event);
-        }
         node.isMounted = false;
     }
     if (children) for (var cx = 0, dx = children.length; cx < dx; cx++) {

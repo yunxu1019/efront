@@ -323,9 +323,13 @@ var parseData = function (sourceText) {
             sourceText = sourceText
                 .replace(/<!--[\s\S]*?-->|<\[CDATA\[[\s\S]*?\]\]>/ig, '')
                 .replace(/^[\s\S]*?<html>([\s\S]*)<\/html>[\s\S]*?$/i, '$1')
-                .replace(/^[\s\S]*?<body>([\s\S]*?)$/i, '$1')
+                .replace(/^([\s\S]*?)<body>([\s\S]*?)$/i, '$1<body>$2')
                 .replace(/<\/body>[\s\S]*?$/, '');
-            doc.body.innerHTML = sourceText;
+            var div = document.createElement('div');
+            div.innerHTML = sourceText.replace(/^([\s\S]*?)<body>[\s\S]*?$/, "$1")
+                .replace(/<head>/i, '').replace(/<\/head>/i, '');
+            for (var c of [...div.childNodes]) doc.head.appendChild(c);
+            doc.body.innerHTML = sourceText.replace(/^[\s\S]*?<body>/, '');
         } else {
             doc.documentElement.innerHTML = sourceText;
         }

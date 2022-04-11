@@ -173,7 +173,7 @@ var createRepeat = function (search, id = 0) {
         var $parentScopes = element.$parentScopes || [];
         var $struct = element.$struct;
         if (element.$scope) {
-            $struct = Object.assign({}, $struct, { context: $struct.context + `with(this.$parentScopes[${$parentScopes.length}])` }), $parentScopes = $parentScopes.concat(element.$scope);
+            $struct = extend({}, $struct, { context: $struct.context + `with(this.$parentScopes[${$parentScopes.length}])` }), $parentScopes = $parentScopes.concat(element.$scope);
         }
         var clonedElements1 = Object.create(null);
         var cloned = keys.map(function (key, cx) {
@@ -631,7 +631,7 @@ function getFromScopes(key, scope, parentScopes) {
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
     if (!isNode(element) && element.length) {
-        return Array.prototype.slice.call(element, 0, element.length).map(function (element) {
+        return Array.prototype.map.call(element, function (element) {
             return renderElement(element, scope, parentScopes, once);
         });
     }

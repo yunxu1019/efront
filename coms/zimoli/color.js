@@ -381,7 +381,6 @@ extend(color, {
 	},
 	rgb2h,
 	rgb4h,
-	rgb4s,
 	rgb2v,
 	rgb4v,
 	rgb2s,

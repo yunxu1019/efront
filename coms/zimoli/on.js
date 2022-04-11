@@ -1,6 +1,19 @@
-"use strict";
+// "use strict";
 if (document.efronton) return document.efronton;
 var is_addEventListener_enabled = "addEventListener" in window;
+if ('attachEvent' in document) {
+    is_addEventListener_enabled = false;
+}
+if (!is_addEventListener_enabled) var __call = function (target, context, handler, firstmost) {
+    // use strict 无效的情况
+    if (isEmpty(target)) {
+        this(context, context, handler, firstmost);
+    }
+    else {
+        this(target, context, handler, firstmost);
+    }
+};
+
 var handlersMap = {};
 var changes_key = 'changes';
 var eventtypereg = /(?:\.once|\.prevent|\.stop|\.capture|\.self|\.passive|\.[a-z0-9]+)+\.?$/i;
@@ -70,7 +83,6 @@ var keyCodeMap = {
     numdot: 110,
     divide: 111,
     div: 111,
-    "/": 111,
     f1: 112,
     f2: 113,
     f3: 114,
@@ -104,7 +116,7 @@ var keyCodeMap = {
     ">": 110,
     slash: 191,
     "/": 191,
-    ">": 191,
+    "?": 191,
     backquote: 192,
     "`": 192,
     "~": 192,
@@ -308,50 +320,56 @@ var on = document.efronton = function (k) {
         return remove.bind(target, k, hk, listener);
     };
 
-    else var addhandler = function (context, handler, firstmost = false) {
-        var target = this || context;
-        if (eventtypes.capture) {
-            console.warn("当前运行环境不支持事件capture");
-            firstmost = true;
-        }
-        target = checkroot(target, k);
-        if (target[handler_path] instanceof Array) {
-        } else {
-            var h = function (e) {
-                if (!e) e = window.event || {};
-                if (!e.target && e.srcElement) {
-                    e.target = e.srcElement;
-                }
-                if (e.stopedPropagation) return;
-                if (!e.stopPropagation) {
-                    e.stopPropagation = function () {
-                        this.stopedPropagation = true;
-                    };
-                }
-                if (!e.preventDefault) {
-                    e.preventDefault = function () {
-                        e.returnValue = false;
-                        e.defaultPrevented = true;
-                    };
-                }
-                if (e.button) {
-                    if (e.buttons === undefined) e.buttons = e.button;
-                    if (e.which === undefined) e.which = e.button + 1;
-                }
-                if (e.keyCode) {
-                    if (e.which === undefined) e.which = e.keyCode;
-                }
-                broadcast.call(target, k, handler_path, e);
-                return e.returnValue;
-            };
-            target[handler_path] = target["on" + k] && target["on" + k] !== handler ? [[{}, target["on" + k]]] : [];
-            target[handler_path].h = h;
-            target["on" + k] = h;
-        }
-        var listener = [eventtypes, handler, context];
-        append.call(target, k, handler_path, listener, firstmost);
-        return remove.bind(target, k, handler_path, listener);
-    };
+    else {
+        var _addhandler = function (target, context, handler, firstmost = false) {
+            "use strict"
+            if (eventtypes.capture) {
+                console.warn("当前运行环境不支持事件capture");
+                firstmost = true;
+            }
+            target = checkroot(target, k);
+            if (target[handler_path] instanceof Array) {
+            } else {
+                var h = function (e) {
+                    if (!e) e = window.event || {};
+                    if (!e.target && e.srcElement) {
+                        e.target = e.srcElement;
+                    }
+                    if (e.stopedPropagation) return;
+                    if (!e.stopPropagation) {
+                        e.stopPropagation = function () {
+                            this.stopedPropagation = true;
+                        };
+                    }
+                    if (!e.preventDefault) {
+                        e.preventDefault = function () {
+                            e.returnValue = false;
+                            e.defaultPrevented = true;
+                        };
+                    }
+                    if (e.button) {
+                        if (e.buttons === undefined) e.buttons = e.button;
+                        if (e.which === undefined) e.which = e.button + 1;
+                    }
+                    if (e.keyCode) {
+                        if (e.which === undefined) e.which = e.keyCode;
+                    }
+                    broadcast.call(target, k, handler_path, e);
+                    return e.returnValue;
+                };
+                target[handler_path] = target["on" + k] && target["on" + k] !== handler ? [[{}, target["on" + k]]] : [];
+                target[handler_path].h = h;
+                target["on" + k] = h;
+
+            }
+            var listener = [eventtypes, handler, context];
+            append.call(target, k, handler_path, listener, firstmost);
+            return remove.bind(target, k, handler_path, listener);
+        }, addhandler = function (context, handler, firstmost) {
+            return _addhandler(context, context, handler, firstmost);
+        };
+        addhandler.call = __call.bind(_addhandler);
+    }
     handlersMap[on_event_path] = addhandler;
     return addhandler;
 };

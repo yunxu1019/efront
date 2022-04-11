@@ -4,177 +4,128 @@ var setTimeout = window.setTimeout;
 var Function = window.Function;
 var console = window.console;
 var Error = window.Error;
+var requestAnimationFrame = window.setImmediate || window.setTimeout;
 var isFunction = function (f) {
     return typeof f === "function";
 };
 if (window.Promise) {
     var Promise = window.Promise;
 } else {
-    var isPromise = function (pendding) {
-        return pendding instanceof Promise || pendding && isFunction(pendding.then) && isFunction(pendding.catch);
+    var isThenable = function (pendding) {
+        return pendding instanceof Promise || pendding && isFunction(pendding.then);
     };
-
-    var concat = function (okfun, ohfun, oks, ohs) {
-        var _oked, _ohed, _ok, _oh, removeed;
-        var runable = function (ok, oh) {
-            if (_oked) {
-                ok.apply(null, _oked);
-            } else if (_ohed) {
-                oh.apply(null, _ohed);
-            } else {
-                _ok = ok;
-                _oh = oh;
-            }
-        };
-        var _promise = new Promise(runable);
-        var onpermit = function (f, args) {
-            if (!removeed) {
-                try {
-                    var pendding = f.apply(null, args);
-                    if (_ok) _ok(pendding);
-                    else _oked = [pendding];
-                } catch (e) {
-                    if (_oh) _oh(e);
-                    else _ohed = [e];
+    var queue = [];
+    var run = function (q) {
+        var threads = queue.splice(0, queue.length);
+        for (var t of threads) {
+            if (t.oked) {
+                for (var r of t.PromiseFulfillReactions) {
+                    r.apply(null, t.oked);
                 }
-                removeed = true;
             }
-        };
-        var onresolve = function () {
-            if (okfun instanceof Function) onpermit(okfun, arguments);
-            if (!removeed) {
-                if (_ok) _ok.apply(null, arguments);
-                else _oked = arguments;
-                removeed = true;
+            if (t.ohed) {
+                if (!t.PromiseRejectReactions.length) throw `未处理的异常:${t.ohed}`;
+                for (var r of t.PromiseRejectReactions) {
+                    r.apply(null, t.ohed);
+                }
             }
-        };
-        var onreject = function () {
-            if (ohfun instanceof Function) onpermit(ohfun, arguments);
-            if (!removeed) {
-                if (_oh) _oh.apply(null, arguments);
-                else _ohed = arguments;
-                removeed = true;
-            }
-        };
-        oks.push(onresolve);
-        ohs.push(onreject);
-        return _promise;
-    }
-
+            t.PromiseRejectReactions.splice(0, t.PromiseRejectReactions.length);
+            t.PromiseFulfillReactions.splice(0, t.PromiseFulfillReactions.length);
+        }
+    };
+    var fire = function (p) {
+        if (queue.length) return queue.push(p);
+        queue.push(p);
+        requestAnimationFrame(run);
+    };
     var Promise = function (executor) {
-        var PromiseFulfillReactions = this.PromiseFulfillReactions = [], //thens
-            PromiseRejectReactions = this.PromiseRejectReactions = [], //catches
-            oked = this.oked, ohed = this.ohed;
+        this.PromiseFulfillReactions = []; //thens
+        this.PromiseRejectReactions = []; //catches
+        this.oked = this.ohed = null;
 
         var ResolvingFunctions_resolve = (result) => { //ok
-            if (isPromise(result)) {
-                result.then(ResolvingFunctions_resolve).catch(ResolvingFunctions_reject);
+            if (this.oked || this.ohed) return;
+            if (isThenable(result)) {
+                result.then(ResolvingFunctions_resolve, ResolvingFunctions_reject);
             } else {
-                oked = this.oked = arguments;
-                this.run(PromiseFulfillReactions, oked);
+                this.oked = arguments;
+                fire(this);
             }
         };
 
         var ResolvingFunctions_reject = (e) => { //oh
-            ohed = this.ohed = arguments;
-            this.run(PromiseRejectReactions, ohed);
+            if (this.oked || this.ohed) return;
+            this.ohed = arguments;
+            fire(this);
         };
-
-        try {
-            executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
-        } catch (e) {
-            ResolvingFunctions_reject(e);
-        }
+        executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
     };
     Promise.prototype = {
         then(onok, onoh) {
-            var _promise = concat(onok, onoh, this.PromiseFulfillReactions, this.PromiseRejectReactions);
-            this.oked && this.run(this.PromiseFulfillReactions, this.oked);
-            this.ohed && this.run(this.PromiseRejectReactions, this.ohed);
-            return _promise;
+            var resolve, reject;
+            var promise = new Promise(function (ok, oh) {
+                if (onok) resolve = function (a) {
+                    try {
+                        a = onok(a);
+                        ok(a);
+                    } catch (e) {
+                        oh(e);
+                    }
+                };
+                if (onoh) reject = function (a) {
+                    try {
+                        a = onoh(a);
+                        ok(a);
+                    } catch (e) {
+                        oh(e);
+                    }
+                };
+            })
+            if (resolve) this.PromiseFulfillReactions.push(resolve);
+            if (reject) this.PromiseRejectReactions.push(reject);
+            if (this.oked || this.ohed) fire(this);
+            return promise;
         },
         catch(f) {
             return this.then(null, f);
         },
-        run(threads, args) {
-            if (threads.pendding) return;
-            threads.pendding = true;
-            setTimeout(_ => {
-                do {
-                    var next = threads.shift();
-                    if (next instanceof Function) {
-                        next.apply(null, args);
-                    }
-                } while (threads.length);
-                this.PromiseRejectReactions.splice(0, this.PromiseRejectReactions.length);
-                this.PromiseFulfillReactions.splice(0, this.PromiseFulfillReactions.length);
-                threads.pendding = false;
-            }, 0);
-        }
     }
     Promise.all = function (penddings) {
         return new Promise(function (ok, oh) {
             if (!(penddings && penddings.length)) {
                 return ok();
             }
-            try {
-                var resolved_count = 0,
-                    rejected_count = 0,
-                    results = Array(penddings.length);
-                for (var cx = 0, dx = penddings.length; cx < dx; cx++) {
-                    var pendding = penddings[cx];
-                    if (isPromise(pendding)) {
-                        pendding.then(function (cx) {
-                            return function (arg) {
-                                results[cx] = arg;
-                                if (++resolved_count === dx) {
-                                    ok(results);
-                                }
-                            };
-                        }(cx));
-                        pendding.catch(function (e) {
-                            if (rejected_count++ === 0) {
-                                oh(e);
+            var resolved_count = 0,
+                results = Array(penddings.length);
+            for (var cx = 0, dx = penddings.length; cx < dx; cx++) {
+                var pendding = penddings[cx];
+                if (isThenable(pendding)) {
+                    pendding.then(function (cx) {
+                        return function (arg) {
+                            results[cx] = arg;
+                            if (++resolved_count === dx) {
+                                ok(results);
                             }
-                        });
-                    } else {
-                        results[cx] = pendding;
-                        if (++resolved_count === dx) {
-                            ok(results);
-                        }
-                    };
-                }
-            } catch (e) {
-                oh(e);
+                        };
+                    }(cx), oh);
+                } else {
+                    results[cx] = pendding;
+                    if (++resolved_count === dx) {
+                        ok(results);
+                    }
+                };
             }
         });
     };
     Promise.race = function (penddings) {
         return new Promise(function (ok, oh) {
-            try {
-                var resolved_count = 0,
-                    rejected_count = 0,
-                    results = Array(penddings.length);
-                for (var cx = 0, dx = penddings.length; cx < dx; cx++) {
-                    var pendding = penddings[cx];
-                    if (isPromise(pendding)) {
-                        pendding.then(function (cx) {
-                            return function (arg) {
-                                if (++resolved_count === 0) {
-                                    ok(arg);
-                                }
-                            };
-                        }(cx)).catch(function (e) {
-                            if (rejected_count++ === dx) {
-                                oh(e);
-                            }
-                        });
-                    } else {
-                        results[cx] = pendding;
-                    };
-                }
-            } catch (e) {
-                oh(e);
+            for (var cx = 0, dx = penddings.length; cx < dx; cx++) {
+                var pendding = penddings[cx];
+                if (isThenable(pendding)) {
+                    pendding.then(ok, oh);
+                } else {
+                    ok(pendding);
+                };
             }
         });
     };

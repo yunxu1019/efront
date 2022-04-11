@@ -109,7 +109,6 @@ var detour = function (o, ie) {
                 break;
             case EXPRESS:
                 if (!/^\.\.\.|\.\.\.$/.test(o.text)) {
-                    var ot = o.text;
                     o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => ie === undefined || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
                 }
                 break;
@@ -284,6 +283,19 @@ class Program extends Array {
         this.pressed = true;
         compress(this.scoped);
         return this;
+    }
+    relink(list = this) {
+        var p = null;
+        for (var o of list) {
+            if (o.type === COMMENT || o.type === SPACE) continue;
+            o.prev = p;
+            if (!p) list.first = o;
+            else p.next = o;
+            p = o;
+        }
+        if (p) p.next = null;
+        list.lastUncomment = p;
+        return list;
     }
 }
 

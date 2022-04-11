@@ -161,9 +161,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
-    if (memery.MSIE || /x$|ts$|ue$|\.mjs$/i.test(filename) || /^\s*(ex|im)port\s/m.test(data)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: memery.MSIE ? "es5" : 'esnext', module: "commonjs" });
+    if (/x$|ts$|ue$|\.mjs$/i.test(filename) || /^\s*(ex|im)port\s/m.test(data)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext', module: "commonjs" });
     var code = scanner2(data);
-    if (memery.MSIE) code.detour();
     var {
         vars: declares,
         used: allVariables,
@@ -239,6 +238,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
             console.warn(`将不处理此文件的页面自动预载<gray>${filename}</gray>`);
         }
     }
+    scanner2.debug = /back/.test(filename);
     var code_body = code;
     if (code.isExpress()) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
@@ -247,7 +247,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
         if (hasless) code_body.unshift(
             { type: code_body.EXPRESS, text: 'cless' },
-            Object.assign(
+            code.relink(Object.assign(
                 code_body.splice(0, code_body.length).concat(
                     { type: code_body.STAMP, text: ',' },
                     {
@@ -259,7 +259,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                         type: code_body.QUOTED,
                         text: JSON.stringify(className)
                     }
-                ), { type: code_body.SCOPED, entry: "(", leave: ")" })
+                ), { type: code_body.SCOPED, entry: "(", leave: ")" }))
         ), code_body.first = code_body[0];
         code_body.splice(
             code_body.indexOf(code_body.first), 0,
@@ -282,7 +282,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
             if (hasless) {
                 code_body.push(
                     { type: code_body.EXPRESS, text: "cless" },
-                    Object.assign([
+                    code.relink(Object.assign([
                         { type: code_body.EXPRESS, text: commName },
                         { type: code_body.STAMP, text: ',' },
                         { type: code_body.QUOTED, text: JSON.stringify(lessdata) },
@@ -292,7 +292,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                         entry: "(",
                         type: code_body.SCOPED,
                         leave: ")"
-                    }),
+                    })),
                 )
             } else {
                 code_body.push({ type: code_body.EXPRESS, text: commName });
@@ -332,11 +332,12 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     }
     code_body.unshift.apply(code_body, prepareCodeBody);
     if (!isDevelop || commbuilder.compress === false) {
+        code.relink();
         code.break();
         data = code.toString();
         data = require("./downLevel")(data);
         var code = scanner2(data);
-        code.break();
+        // code.break();
         var {
             vars: declares,
             used: allVariables,
@@ -346,6 +347,21 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         } = code;
         code_body = code;
     }
+    else if (memery.MSIE) {
+        data = code.toString();
+        data = require("./downLevel")(data);
+        code = scanner2(data);
+        code.detour();
+        var {
+            vars: declares,
+            used: allVariables,
+            async: isAsync,
+            yield: isYield,
+            envs: undeclares
+        } = code;
+        code_body = code;
+    }
+
     if (undeclares.require) var required = allVariables.require;
     var globals = Object.keys(undeclares);
     globals.forEach(g => globalsmap[g] = g);

@@ -314,9 +314,17 @@ var loadModule = function (name, then, prebuilds = {}) {
     }
 };
 var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".78pt" : 0.78 / devicePixelRatio + "pt") + (quote || "")) : text;
-if (document.head) var efrontsign = document.head.lastElementChild.attributes[0];
-if (efrontsign && /^compiledinfo\-/.test(efrontsign.name)) efrontsign = efrontsign.name.slice(efrontsign.name.indexOf('-') + 1);
-else efrontsign = '';
+if (document.head) {
+    var efrontsign = document.head.lastChild.attributes[0];
+    if (efrontsign && /^compiledinfo\-/.test(efrontsign.name)) efrontsign = efrontsign.name.slice(efrontsign.name.indexOf('-') + 1);
+    else efrontsign = '';
+}
+else if (document.getElementsByTagName) {
+    document.head = document.getElementsByTagName("head")[0];
+    efrontsign = /\<script\s+compiledinfo\-(\S*?)\s*\=/i.exec(document.head.lastChild.outerHTML);
+    if (efrontsign) efrontsign = efrontsign[1];
+    else efrontsign = '';
+}
 var uncode = function (text) {
     var ratio = 1;
     var sum = 0;
@@ -556,8 +564,10 @@ var init = function (name, then, prebuilds) {
     var res = {
         oks,
         ohs,
-        resolved: null,
-        errored: null,
+        resolved: false,
+        errored: false,
+        result: null,
+        error: null,
         then(ok, oh) {
             if (ok) this.oks.push(ok);
             if (oh) this.ohs.push(oh);
@@ -567,18 +577,22 @@ var init = function (name, then, prebuilds) {
             if (this.resolved || this.errored) {
                 var oks = this.oks.splice(0, this.oks.length);
                 var ohs = this.ohs.splice(0, this.ohs.length);
-                if (this.resolved) for (var o of oks) o(this.resolved);
-                if (this.errored) for (var o of ohs) o(this.errored);
+                if (this.errored) for (var o of ohs) o(this.error);
+                if (this.resolved) for (var o of oks) o(this.result);
             }
         },
     };
     then = function (created) {
+        if (res.resolved || res.errored) return;
         if (Promise && created instanceof Promise) return created.then(then, crack);
-        res.resolved = created;
+        res.resolved = true;
+        res.result = created;
         res.fire();
     };
     var crack = function (error) {
-        res.errored = error;
+        if (res.resolved || res.errored) return;
+        res.errored = true;
+        res.error = error;
         res.fire();
     };
     loadModule(name, function (error) {
@@ -589,6 +603,7 @@ var init = function (name, then, prebuilds) {
         if (error) return crack(error);
 
         var module = loadedModules[key];
+        if (!module) console.log(key, name, module);
         var args = module.args || [];
 
         if (!args || !args.length) {
@@ -624,7 +639,6 @@ var init = function (name, then, prebuilds) {
         } else {
             if (saveAsModule) module.created = modules[name] = created;
         }
-
         then(created);
     }, prebuilds);
     return res;
@@ -693,7 +707,7 @@ var initPixelDecoder = function () {
          * 从pixel到offset
          */
         var calcPixel = modules.calcPixel = _calcPixel;
-        document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
+        if (document.documentElement) document.documentElement.style.fontSize = `${16 * renderPixelRatio}pt`;
     } else {
         if (maxRenderWidth < minRenderWidth) {
             [minRenderWidth, maxRenderWidth] = [maxRenderWidth, minRenderWidth];
@@ -819,6 +833,7 @@ var start_time = +new Date / 1000 | 0;
 
 var modules = {
     isProduction,
+    undefined: void 0,
     start_time,
     MOVELOCK_DELTA: 3 * renderPixelRatio,
     SAFE_CIRCLE_DEPTH: 300,

@@ -301,7 +301,7 @@ function prepare(pgpath, ok) {
             if (isString(menu)) {
                 res = state.go(menu, item);
             } else if (menu && menu.path) {
-                menu = Object.assign({}, menu, { path: state.path(menu.path) });
+                menu = extend({}, menu, { path: state.path(menu.path) });
                 res = go(menu, undefined, undefined, pgpath);
             } else {
                 res = action(menu, item, params);
@@ -476,7 +476,7 @@ var pushstate = function (path_name, history_name, oldpagepath) {
         history[history_name] = [path_name];
     } else {
         var _history = history[history_name];
-        if (_history.indexOf(oldpagepath) < 0) {
+        if ([].indexOf.call(_history, oldpagepath, 0) < 0) {
             _history.splice(root_path === _history[0], _history.length);
             isDestroy = true;
         }

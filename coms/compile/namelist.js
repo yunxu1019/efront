@@ -75,7 +75,7 @@ var source = `abcdefghijklmnopqrstuvwxyz`;
 source += source.toUpperCase() + "_$";
 var number = source + '0123456789';
 // source += "ªµºΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρςστυφχψω";
-if (require("../efront/memery").UPLEVEL) source += function () {
+source += function () {
     var reg = /\xAA\xB5\xBA\xC0-\xD5\xD8-\xF2\xF8-\u02af\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA/;
     var dist = [];
     reg.source.replace(/\\[xu]([0-9a-f]+)(?:\-\\[xu]([0-9a-f]+))?/ig, function (_, a, b) {

@@ -15,18 +15,9 @@ function _onappend(node, append = createEvent("append"), mount = createEvent("mo
     if (node.isMounted) return;
     if (node.nodeType === 1 || node.nodeType === 8) node.isMounted = true;
     dispatch(node, append);
-    var onappend = node.onappend;
-    if (isArray(onappend)) {
-        onappend.map(function (append_handler) {
-            append_handler.call(this, append);
-        }, node);
-    }
-    if (isFunction(onappend)) {
-        onappend.call(node, append);
-    }
-    var children = [].concat.apply([], node.childNodes);
-    if (children) for (var cx = 0, dx = children.length; cx < dx; cx++) {
-        _onappend(children[cx], append, mount);
+    var children = [...node.childNodes];
+    for (var c of children) {
+        _onappend(c, append, mount);
     }
     dispatch(node, mount);
 }
@@ -93,8 +84,7 @@ function insertAfter(alreadyMounted, obj, transition) {
         if (o.removeTimer) clearTimeout(o.removeTimer);
         _insertBefore.call(parent, o, alreadyMounted.nextSibling);
         o.with && insertBefore(alreadyMounted.nextSibling, o.with, transition);
-        if (isMounted(parent))
-            _onappend(o);
+        if (isMounted(parent)) _onappend(o);
         if (hasEnterStyle(o) && transition !== false) {
             isFunction(appendChild.transition) && appendChild.transition(o);
         }

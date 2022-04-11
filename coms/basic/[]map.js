@@ -3,18 +3,20 @@ var {
     Array,
     Function,
     String,
-    Object
+    Object,
+    isFinite,
+    console
 } = this;
 
 function map(f, o) {
-    var res = new this.constructor(this.length);
+    var res = new (this.constructor === Array ? this.constructor : Array)(this.length);
     if (!(f instanceof Function)) return res;
     if (this instanceof String) {
         res = this.split("").map(f, o);
     } else {
-        for (var cx = 0, dx = this.length; cx < dx; cx++) {
-            if (cx in this)
-                res[cx] = f.call(o, this[cx], cx, this);
+        for (var cx in this) {
+            if (!isFinite(cx)) break;
+            res[cx] = f.call(o, this[cx], cx, this);
         }
     }
     return res;
@@ -24,9 +26,9 @@ function forEach(f, o) {
     if (this instanceof String) {
         this.split("").forEach(f, o);
     }
-    for (var cx = 0, dx = this.length; cx < dx; cx++) {
-        if (cx in this[cx])
-            f.call(o, this[cx], cx, this);
+    for (var cx in this) {
+        if (!isFinite(cx)) break;
+        f.call(o, this[cx], cx, this);
     }
 }
 function filter(f, o) {
@@ -35,14 +37,16 @@ function filter(f, o) {
     if (this instanceof String) {
         result = this.split("").filter(f, o);
     }
-    for (var cx = 0, dx = this.length; cx < dx; cx++) {
-        if (cx in this[cx])
-            if (f.call(o, this[cx], cx, this))
-                result.push(this[cx]);
+    for (var cx in this) {
+        if (!isFinite(cx)) break;
+        if (f.call(o, this[cx], cx, this))
+            result.push(this[cx]);
     }
     return result;
 }
 function indexOf(searchElement, fromIndex = 0) {
+    if (fromIndex < 0) fromIndex += this.length;
+    if (fromIndex < 0) fromIndex = 0;
     for (var cx = fromIndex, dx = this.length; cx < dx; cx++) {
         if (cx in this && this[cx] === searchElement) return cx;
     }
@@ -75,9 +79,10 @@ if (!Object.create) Object.create = function (object) {
 };
 if (!function () { }.bind) Function.prototype.bind = function (context) {
     var args = [].slice.call(arguments, 1);
+    var f = this;
     return function () {
         var _args = args.slice.call(arguments, 0, arguments.length);
         args.unshift.apply(_args, args);
-        return this.apply(context === void 0 || context === null ? this : context, _args);
+        return f.apply(context === void 0 || context === null ? this : context, _args);
     };
 };
