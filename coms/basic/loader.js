@@ -603,7 +603,6 @@ var init = function (name, then, prebuilds) {
         if (error) return crack(error);
 
         var module = loadedModules[key];
-        if (!module) console.log(key, name, module);
         var args = module.args || [];
 
         if (!args || !args.length) {
