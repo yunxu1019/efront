@@ -14,15 +14,15 @@ var _create = function (commFactory, className, _invoke) {
             }
             return commRelease;
         };
-        result.call = function (context,...args) {
+        result.prototype = commFactory.prototype;
+        commFactory.className = className;
+        keys(commFactory).map(k => result[k] = commFactory[k]);
+        result.call = function (context, ...args) {
             if (!isEmpty(context)) var release = commFactory.apply(context, args);
             else release = commFactory.apply(result, args);
             if (release) release = _invoke(release, className, _invoke);
             return release;
         };
-        result.prototype = commFactory.prototype;
-        commFactory.className = className;
-        keys(commFactory).map(k => result[k] = commFactory[k]);
         if ({}.hasOwnProperty.call(commFactory, 'toString')) {
             result.toString = function () {
                 return _invoke(commFactory.toString(), className, _invoke);
