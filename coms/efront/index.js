@@ -625,7 +625,6 @@ var commands = {
 
         var args = [].concat.apply(["efront"], arguments);
         args.push("--efront");
-        if (memery.MSIE) memery.MSIE = false, args.push('--msie');
         if (restArgv.length) args.push.apply(args, restArgv);
         if (!appname) {
             console.info("请输入要启动的程序!");
