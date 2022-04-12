@@ -315,7 +315,7 @@ var loadModule = function (name, then, prebuilds = {}) {
 };
 var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".78pt" : 0.78 / devicePixelRatio + "pt") + (quote || "")) : text;
 if (document.head) {
-    var efrontsign = document.head.lastChild.attributes[0];
+    var efrontsign = document.head.lastElementChild.attributes[0];
     if (efrontsign && /^compiledinfo\-/.test(efrontsign.name)) efrontsign = efrontsign.name.slice(efrontsign.name.indexOf('-') + 1);
     else efrontsign = '';
 }

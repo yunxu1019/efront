@@ -322,7 +322,6 @@ var on = document.efronton = function (k) {
 
     else {
         var _addhandler = function (target, context, handler, firstmost = false) {
-            "use strict"
             if (eventtypes.capture) {
                 console.warn("当前运行环境不支持事件capture");
                 firstmost = true;
