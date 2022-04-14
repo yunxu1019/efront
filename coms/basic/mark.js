@@ -28,8 +28,8 @@ var couple = function (marker, source) {
     }
     return [match, begin1, begin2];
 };
-var MARK_PRE = "<b>";
-var MARK_AFT = "</b>";
+mark.MARK_PRE = "<b>";
+mark.MARK_AFT = "</b>";
 var mark = function (source, search) {
     return power(source, search)[1];
 };
@@ -62,9 +62,10 @@ var power = function (source, search) {
             [ap, match_text_aft] = power(match_text_aft, search);
         }
         p += (pp + ap) * .01;
-        return [p, match_text_pre + MARK_PRE + match_text + MARK_AFT + match_text_aft];
+        return [p, match_text_pre + mark.MARK_PRE + match_text + mark.MARK_AFT + match_text_aft];
     }
     return [0, source];
 };
 mark.power = power;
 mark.couple = couple;
+module.exprts = mark;
