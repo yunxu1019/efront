@@ -9,7 +9,7 @@ var assert = function (result, expect, log = dump) {
     var collect = function (k, args) {
         hasCollect = true;
         if (args) return function () {
-            errors = `Except (${args}) to be ${JSON.stringify(k)}`;
+            errors = `结果 (${args}) 应为 ${JSON.stringify(k)}`;
         }
         if (k === undefined) return function () {
             var color1 = "bgred";
@@ -17,7 +17,9 @@ var assert = function (result, expect, log = dump) {
             mark.setTag1(` </${color1}>`, `<${color1}>`);
             mark.setTag2(` </${color2}>`, `<${color2}>`);
             var [r, e] = mark.pair(result, expect);
-            errors = `<cyan>Except</cyan> <${color1}>${r.trim()}</${color1}>\r\n      <cyan>to be</cyan>  <${color2}>${e.trim()}</${color2}>\r\n`;
+            r = r.trim();
+            e = e.trim();
+            errors = `<cyan>结果  </cyan><${color1}>${r}</${color1}>\r\n      <cyan>应为  </cyan><${color2}>${e}</${color2}>\r\n`;
         };
         return function (error) {
             if (error instanceof Object) {
