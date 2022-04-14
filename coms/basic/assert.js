@@ -1,3 +1,4 @@
+var mark = require("./mark");
 var dump = function (a, msg) {
     if (a instanceof Object) console.error('对象的属性不符合'), console.log(msg ? msg + " " : "  ", a);
     else if (msg) console.error(msg + ":", a);
@@ -11,7 +12,12 @@ var assert = function (result, expect, log = dump) {
             errors = `Except (${args}) to be ${JSON.stringify(k)}`;
         }
         if (k === undefined) return function () {
-            errors = `Except ${result} to be ${expect}`;
+            var color1 = "bgred";
+            var color2 = "bgblue";
+            mark.setTag1(` </${color1}>`, `<${color1}>`);
+            mark.setTag2(` </${color2}>`, `<${color2}>`);
+            var [r, e] = mark.pair(result, expect);
+            errors = `<cyan>Except</cyan> <${color1}>${r.trim()}</${color1}>\r\n      <cyan>to be</cyan>  <${color2}>${e.trim()}</${color2}>\r\n`;
         };
         return function (error) {
             if (error instanceof Object) {
