@@ -121,9 +121,9 @@ var createScoped = function (parsed, wash) {
             var isFunction = false;
             var isScope = false;
             var isArrow = false;
-            var isDeclare = false;
-            var isYield = false;
             var isClass = false;
+            var isAsync = false;
+            var isAster = false;
             switch (o.type) {
                 case QUOTED:
                     if (o.length) {
@@ -149,7 +149,15 @@ var createScoped = function (parsed, wash) {
                     if (/^\.\.\./.test(u)) u = u.slice(3);
                     var u = u.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
                     if (!u) break;
-                    if (u === 'yield') funcbody.yield = false;
+                    if (u === 'await' && funcbody.async !== false) {
+                        o.type = STRAP;
+                        funcbody.async = true;
+                        continue;
+                    }
+                    if (u === 'yield' && funcbody.aster !== false) {
+                        funcbody.yield = true;
+                        continue;
+                    }
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
                         isArrow = true;
@@ -173,9 +181,17 @@ var createScoped = function (parsed, wash) {
                             funcbody.return = true;
                             break;
                         case "await":
+                            if (funcbody.async === false) {
+                                o.type = EXPRESS;
+                                continue;
+                            }
                             funcbody.async = funcbody.await = true;
                             break;
                         case "yield":
+                            if (funcbody.aster === false) {
+                                o.type = EXPRESS;
+                                continue;
+                            }
                             if (!funcbody.yield) {
                                 var next = o.next;
                                 if (next) {
@@ -212,8 +228,12 @@ var createScoped = function (parsed, wash) {
                             continue loop;
                         case "function":
                             isFunction = true;
+
+                            if (o.prev && o.prev.text === 'async') {
+                                isAsync = true;
+                            }
                             if (o.next.type === STAMP) {
-                                isYield = true;
+                                isAster = true;
                                 o = o.next;
                             }
                         case "catch":
@@ -246,13 +266,19 @@ var createScoped = function (parsed, wash) {
                         if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                             isArrow = true;
                             isScope = true;
+                            if (o.prev && o.prev.text === 'async') {
+                                isAsync = true;
+                            }
                         }
                         else if (o.prev && (o.prev.type === PROPERTY || o.prev.isprop)) {
                             isFunction = true;
                             isScope = true;
                             var pp = o.prev.prev;
                             if (pp && pp.type === STAMP && pp.isprop) {
-                                isYield = true;
+                                isAster = true;
+                            }
+                            if (pp && pp.text === 'async') {
+                                isAsync = true;
                             }
                         }
                         else {
@@ -284,8 +310,9 @@ var createScoped = function (parsed, wash) {
                     lets = vars;
                     if (isFunction) {
                         vars.this = true, vars.arguments = true;
-                        scoped.yield = isYield;
+                        scoped.aster = isAster;
                     }
+                    scoped.async = isAsync;
                     scoped.isfunc = true;
                     isFunction = true;
                     funcbody = scoped;
@@ -404,7 +431,7 @@ var createScoped = function (parsed, wash) {
                     delete vars.this;
                     delete vars.arguments;
                 }
-                if (_scoped.isfunc && !funcbody.yield) {
+                if (scoped.isfunc) {
                     if (used.yield) _scoped.yield = false;
                     funcbody = _scoped;
                 }

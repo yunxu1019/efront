@@ -309,7 +309,46 @@ var isShortMethodEnd = function (o) {
     if (!o) return false;
     return o.type === PROPERTY;
 };
+var setObject = function (o) {
+    o.isObject = true;
+    var needproperty = true;
+    for (var cx = 0; cx < o.length; cx++) {
+        var m = o[cx];
+        if (!needproperty) {
+            if (m.type === SCOPED && m.entry === '{') {
+                if (!m.isObject) setObject(m);
+                continue;
+            }
+            if (m.type !== STAMP || m.text !== ',') continue;
+        }
+        if (m.type === STAMP && m.text === ':') {
+            needproperty = false;
+            continue;
+        }
+        if (m.type === LABEL) {
+            o.splice(cx, 0, o[++cx].prev = m.next = m.next.prev = {
+                prev: m,
+                text: ':',
+                type: STAMP,
+                next: m.next,
+            });
+            m.type = PROPERTY;
+            m.text = m.text.replace(/\:$/, '');
+            m.isprop = true;
+            m.end--;
+            needproperty = false;
+            continue;
+        }
+        m.isprop = true;
+        if (m.type === EXPRESS || m.type === QUOTED) {
+            if (!/\./.test(m.text)) m.type = PROPERTY;
+        }
+        if (m.prev && m.prev.type === PROPERTY) {
 
+            m.prev.type = STRAP;
+        }
+    }
+};
 class Javascript {
     quotes = [
         [/'/, /'/, /\\[\s\S]/],
@@ -369,7 +408,7 @@ class Javascript {
         var queue_push = function (scope) {
             var last = queue.lastUncomment;
             if (queue.isObject || queue.isClass) {
-                if (~[VALUE, QUOTED].indexOf(scope.type)) {
+                if (~[VALUE, QUOTED, STRAP].indexOf(scope.type)) {
                     scope.isprop = isProperty();
                 }
                 else if (scope.type === SCOPED && scope.entry === '[') {
@@ -502,8 +541,13 @@ class Javascript {
                             if (!queue.question) queue.question = 1;
                             else queue.question++;
                             break;
-                        case ",":
                         case "=":
+                            if (last.type === SCOPED && last.entry === "{") {
+                                if (!last.isObject) {
+                                    setObject(last);
+                                }
+                            }
+                        case ",":
                             if (queue.isObject) {
                                 if (last.type === PROPERTY) {
                                     last.short = true;
