@@ -138,7 +138,7 @@ var readFile = function (names, then) {
         }
     };
     var oh = function (e) {
-        if (!isProduction) {
+        if (isProduction) {
             if (errorcount < 2) {
                 errorcount++;
                 setTimeout(tryload, 200 + 1000 * errorcount);
@@ -239,6 +239,7 @@ var loadModule = function (name, then, prebuilds = {}) {
         return;
     }
     if (loadedModules[key] instanceof Array) {
+        if (loadedModules[key].error) return then(key);
         loadedModules[key].push(then);
         return;
     }
@@ -286,16 +287,19 @@ var loadModule = function (name, then, prebuilds = {}) {
             mod.required = required;
             mod.file = name;
             args = args.concat(required);
-            var errored = 0;
-            // console.log(args);
+            var _errored = 0;
             var response = function (error) {
                 loadingCount++;
                 if (error) {
-                    errored += error;
+                    if (!errored[error]) {
+                        errored[error] = [];
+                    }
+                    errored[error].push(key);
+                    _errored++;
                 }
                 if (loadingCount === args.length) {
-                    if (errored) {
-                        loadedModules[key].error = errored;
+                    if (_errored.length) {
+                        loadedModules[key].error = true;
                     }
                     flushTree(loadedModules, key, mod);
                 }
@@ -507,10 +511,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
             }
             return exec.apply(_this, requires.map(a => init(a)));
         };
-        var _ok, result, created;
-        var promise = new Promise(function (ok) {
-            _ok = ok;
-        });
+        var result, created;
         if (prebuilds.init) {
             var prebuilds2 = Object.create(null);
             for (var k in prebuilds) prebuilds2[k] = prebuilds[k];
@@ -519,10 +520,9 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
             delete prebuilds.action;
             delete prebuilds.init;
         }
-        init(argName, function (res) {
+        var promise = init(argName, function (res) {
             result = res;
             created = true;
-            _ok(res);
         }, prebuilds);
         if (created) return result;
         return promise;
@@ -591,6 +591,8 @@ var init = function (name, then, prebuilds) {
     };
     var crack = function (error) {
         if (res.resolved || res.errored) return;
+        var ed = errored[name];
+        console.error(`加载${name}失败，${ed && ed.length ? `${ed.join(', ')} 等${ed.length}个模块` : "没有其他模块"}受到影响`);
         res.errored = true;
         res.error = error;
         res.fire();
@@ -829,7 +831,7 @@ var loadResponseTreeFromStorage = function () {
 var preLoad = function () { };
 
 var start_time = +new Date / 1000 | 0;
-
+var errored = {};
 var modules = {
     isProduction,
     undefined: void 0,

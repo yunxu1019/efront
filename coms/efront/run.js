@@ -53,8 +53,8 @@ function fromComponent(base) {
             }
             if (!result) {
                 if (!/^comm\//i.test(url)) {
-
                     console.fail(url);
+                    onerror(url);
                 } else {
                     url1 = url.replace(/^comm\//i, '');
                     if (global[url1]) {
@@ -81,7 +81,8 @@ function fromComponent(base) {
                                 result.args = [];
                             }
                         } catch (e) {
-                            console.fail(url1);
+                            console.fail(e);
+                            onerror(url1);
                         }
                     }
                 }
