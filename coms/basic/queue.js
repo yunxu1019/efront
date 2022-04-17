@@ -1,11 +1,11 @@
 "use strict";
 function queue(list, count = 1, context = null) {
     var f = this;
-    if (list instanceof Function) {
+    if (isFunction(list)) {
         f = list;
         list = this;
     }
-    if (count instanceof Object) {
+    if (isObject(count)) {
         let temp = count;
         count = context || temp;
         context = temp;
