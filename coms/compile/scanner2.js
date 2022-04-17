@@ -382,6 +382,11 @@ class Javascript {
                 else if (scope.type === PROPERTY) {
                     scope.isprop = true;
                 }
+                if (scope.isprop) {
+                    if (last && last.type === PROPERTY && /^(static|get|set|async)$/.test(last.text)) {
+                        last.type = STRAP;
+                    }
+                }
             }
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 Object.defineProperty(scope, 'queue', { value: queue });
@@ -443,8 +448,8 @@ class Javascript {
                     }
                     break;
                 case EXPRESS:
-                    if (!/^\./.test(m) && isProperty()) type = PROPERTY;
-                    else if (this.number_reg.test(m)) type = VALUE;
+                    if ((!/^\./.test(m) || number_reg.test(m)) && isProperty()) type = PROPERTY;
+                    else if (number_reg.test(m)) type = VALUE;
                     break;
                 case STRAP:
                 case VALUE:
