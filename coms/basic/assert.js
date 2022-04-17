@@ -17,8 +17,8 @@ var assert = function (result, expect, log = dump) {
             mark.setTag1(` </${color1}>`, `<${color1}>`);
             mark.setTag2(` </${color2}>`, `<${color2}>`);
             var [r, e] = mark.pair(result, expect);
-            r = r.trim();
-            e = e.trim();
+            r = String(r).trim();
+            e = String(e).trim();
             errors = `<cyan>结果  </cyan><${color1}>${r}</${color1}>\r\n      <cyan>应为  </cyan><${color2}>${e}</${color2}>\r\n`;
         };
         return function (error) {
