@@ -436,16 +436,19 @@ var createScoped = function (parsed, wash) {
     scoped.envs = envs;
     return scoped;
 };
-var getDeclared = function (o, kind) {
+var getDeclared = function (o, kind, queue) {
     var declared = [], used = Object.create(null); var skiped = [];
     var prop = null;
     var attributes = [];
     var index = 0;
     loop: while (o) {
         while (o && o.type === STAMP && o.text === ',') o = o.next, index++;
-        if (!o) break;
+        if (!o) {
+            index--;
+            break;
+        }
         if (o.isprop) {
-            prop = createString([o]);
+            prop = createString([o]).trim();
             if (/^(['"`])[\s\S]*\1$/.test(prop)) {
                 prop = `[${prop}]`;
             }
@@ -479,18 +482,21 @@ var getDeclared = function (o, kind) {
             case EXPRESS:
                 var n = o.text.replace(/^\.\.\.|\.\.\.$/g, '');
                 declared.push(n);
-                if (n !== o.text) declared["..."] = n;
-                else attributes.push([prop || `[${index}]`, n]);
+                if (!prop) prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
+                if (n !== o.text) declared["..."] = [n, index];
+                else attributes.push([prop, n]);
                 o.kind = kind;
                 saveTo(used, n, o);
                 o = o.next;
                 break;
             case SCOPED:
-                var [d, u, _, s] = getDeclared(o.first, kind);
+                var [d, u, _, s] = getDeclared(o.first, kind, o);
                 while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
                 mergeTo(used, u);
                 declared.push(d);
-                attributes.push([prop || `[${index}]`, d]);
+                if (!prop) prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
+                d.entry = o.entry;
+                attributes.push([prop, d]);
                 o = o.next;
                 break;
             default:
@@ -515,6 +521,7 @@ var getDeclared = function (o, kind) {
                 if (o.text === "=") {
                     o = o.next;
                     var o0 = skipAssignment(o);
+                    attributes[attributes.length - 1].push(queue, o, o0);
                     do {
                         skiped.push(o);
                         o = o.next;
@@ -530,6 +537,7 @@ var getDeclared = function (o, kind) {
         prop = null;
     }
     declared.attributes = attributes;
+    if (declared["..."]) declared["..."].push(index);
     return [declared, used, o, skiped];
 };
 var mapDeclared = function (map, declared) {
