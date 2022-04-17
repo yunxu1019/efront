@@ -687,7 +687,21 @@ var createString = function (parsed) {
     parsed.forEach(run);
     return result.join("");
 }
-
+var rename = function (used, from, to) {
+    if (from === to) return;
+    var list = used[from];
+    if (list) for (var u of list) {
+        if (!u) continue;
+        var text = u.text;
+        var doted = /^\.\.\./.test(text);
+        if (doted) text = text.slice(3);
+        text = to + text.replace(/^[^\.\:]+/i, "");
+        if (doted) text = "..." + text;
+        u.text = text;
+    }
+    delete used[from];
+    used[to] = list;
+};
 module.exports = {
     /*-1 */COMMENT,
     /* 0 */SPACE,
@@ -706,5 +720,6 @@ module.exports = {
     createString,
     createScoped,
     saveTo,
+    rename,
     mergeTo
 };
