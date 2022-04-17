@@ -27,28 +27,123 @@ var insert1 = function (q, r, ...a) {
     splice1(q, r, r, ...a);
 };
 // 解构赋值
-var killdec = function (queue, o, getobjname, _var = 'var') {
-    // console.log(createString([queue]))
+var killdec = function (queue, o, getobjname, _var = 'var', killobj) {
     var tmpname = '';
     var index = 0;
-    var dec = function ([k, v]) {
-        k = tmpname + k;
+    var deep = 0;
+    var dec = function (d, i) {
+        var previx = tmpname;
+        var [k, v] = d;
+        var dp = 0;
+        if (typeof k === 'number' && k < 0) {
+            dp = 1;
+            k = `${tmpname}.length>${doged - k - 1}?${tmpname}[${tmpname}.length - ${-k}]:undefined`;
+        } else {
+            k = tmpname + k;
+        }
         if (v.attributes) {
-            var previx = tmpname;
             tmpname = k;
-            v.attributes.forEach(dec);
-            tmpname = previx;
+            if (d.length === 2) {
+                if (dp) {
+                    deep += dp;
+                    var n = getobjname(deep);
+                    insert1(queue, o, ...scanner2(`${index > 0 ? ',' : ''}${n}=${k}`));
+                    index++;
+                    k = tmpname = n;
+                }
+                dog(v);
+                deep -= dp;
+            }
+            else {
+                deep++;
+                var n = getobjname(deep)
+                insert1(queue, o, ...scanner2(`${index > 0 ? "," : ''}${n}=${tmpname}!==undefined?${tmpname}:`));
+                var skiped = splice1(d[2], d[3], d[4]);
+                killobj(skiped);
+                insert1(queue, o, ...skiped);
+                k = tmpname = n;
+                index++;
+                dog(v);
+                deep--;
+            }
+            if (tmpname === k) tmpname = previx;
             return;
         }
-        insert1(queue, o, ...scanner2(`${index > 0 ? "," : ''}${v}${tmpname ? "=" + k : ''}`))
+
+        if (!tmpname) {
+            write(v, null, i < total - 1);
+        }
+        else if (d.length === 2) {
+            write(v, k, i < total - 1);
+        }
+        else {
+            write(v, `{k}!==undefined?${k}:`, i < total - 1);
+            var skiped = splice1(d[2], d[3], d[4]);
+            killobj(skiped);
+            insert1(queue, o, ...skiped);
+        }
+        index++;
+    };
+    var doged, total;
+    var write = function (name, value, hasnext) {
+        if (name === tmpname && hasnext) {
+            tmpname = getobjname(deep++);
+            insert1(queue, o, ...scanner2(`${index > 0 ? "," : ""}${tmpname}=${name}`));
+            index++;
+        }
+
+        var text = `${index > 0 ? "," : ''}${name}${value ? '=' + value : ''}`;
+        insert1(queue, o, ...scanner2(text));
         index++;
     };
     var dog = function (d) {
-        d.attributes.forEach(dec);
-        console.log(d,queue.entry)
+        var _d = doged, _t = total;
+        total = d.attributes.length;
+        var at = total;
+        if (d["..."]) at = d["..."][1], total += 1;
+        else {
+            d.attributes.slice(0, at).forEach(dec);
+            return;
+        }
+        var rest = d.attributes.slice(at);
+        var head = d.attributes.slice(0, at);
+        for (var r of rest) if (r[1] === name) return d.attributes.forEach(dec);
+        var [name, at, a] = d["..."];
+        var dp = 0;
+        if (d.entry === '{') {
+            var map = Object.create(null);
+            d.attributes.forEach((b, i) => {
+                var a = b[0];
+                if (/^\./.test(a)) a = JSON.stringify(a.slice(1));
+                else if (/^\[[\s\S]*\]$/.test(a)) {
+                    var t = scanner2(a)[0].first;
+                    if (!t.next && (t.type === EXPRESS || t.type === QUOTED || t.type === VALUE)) {
+                        a = t.text;
+                    } else {
+                        var n = getobjname(deep + dp++);
+                        a = `${n}=(${a.slice(1, a.length - 1)})`;
+                        b[0] = `[${n}]`;
+                        a = n;
+                    }
+                }
+                map[a] = a;
+            });
+            d.attributes.forEach(dec);
+            write(name, `rest_(${tmpname},[${Object.keys(map)}])`, false);
+        }
+        else {
+            doged = at + 1;
+            head.forEach(dec);
+            write(name, `Array.prototype.slice.call(${tmpname},${at}${a > at ? `,${at - a}` : ''})`, rest.length > 0);
+            doged = at + 1;
+            total = rest.length;
+            rest.forEach(dec);
+        }
+        doged = _d;
+        total = _t;
     };
     var single = function (d, p) {
-        if (d.attributes.length !== 1) return;
+        if (d.attributes.length !== 1 || d["..."]) return;
         var [k, v] = d.attributes[0];
         p += k;
         if (!v.attributes) return [p, v];
@@ -488,17 +583,28 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
     var _getobjname = function () {
         return getobjname(_getdeep());
     };
+    var _getdeepname = function (i) {
+        return getobjname(deep + i);
+    };
     var deepkill = function (o) {
         killobj(o, getobjname, getname_, setsolid, deep);
     };
     while (o) {
         if (o.type === STRAP) {
             switch (o.text) {
+                case "await":
+                    if (!body.awaits) body.awaits = [];
+                    body.awaits.push(o);
+                    break;
+                case "yield":
+                    if (!body.yields) body.yields = [];
+                    body.yields.push(o);
+                    break;
                 case "var":
                 case "let":
                 case "const":
                     splice1(body, o, o = o.next);
-                    o = killdec(body, o, getobjname);
+                    o = killdec(body, o, _getdeepname, 'var', deepkill);
                     break;
                 case "class":
                     o = killcls(body, o, getname_);
@@ -518,7 +624,7 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
         else if (o.type === SCOPED) {
             if (o.isObject) {
                 if (o.next && o.next.type === STAMP && o.next.text === '=') {
-                    o = killdec(body, o, getobjname, '');
+                    o = killdec(body, o, _getdeepname, '', deepkill);
                     continue;
                 }
                 else {
@@ -528,7 +634,7 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
             }
             else if (o.entry === '[') {
                 if (o.next && o.next.type === STAMP && o.next.text === '=') {
-                    o = killdec(body, o, getobjname, '');
+                    o = killdec(body, o, _getdeepname, '', deepkill);
                 }
                 else {
                     o = killspr(body, o, _getobjname, setsolid, deepkill);
@@ -555,6 +661,7 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
         }
         o = o.next;
     }
+    if (body.awaits) unawait(body, body.awaits, getname_);
 };
 var import_ = function () { };
 var export_ = function () { };
@@ -562,8 +669,7 @@ var export_ = function () { };
 // 字面量 false|true|null|Infinity|NaN|undefined|arguments|this|eval|super
 var unfalse = function () { };
 var unyield = function () { };
-var unawait = function () {
-    
+var unawait = function (body, awaits, getname_) {
 };
 var unforof = function (o, gettempname_, getnextname_) {
     var m = o.first;
@@ -682,7 +788,7 @@ var killarg = function (head, body, _getname) {
             return `${a}=arguments.length>${collect + n - 1}?arguments[arguments.length - ${n}]:undefined`;
         }));
 
-        if (cname) argcodes.unshift(`var ${cname}=Array.prototype.slice.call(arguments,${collect}${index > collect ? `,arguments.length - ${index - collect}` : ""})`);
+        if (cname) argcodes.unshift(`var ${cname}=Array.prototype.slice.call(arguments,${collect}${index > collect ? `,${collect - index}` : ""})`);
     }
     if (argcodes.length) insert1(body, null, ...scanner2(argcodes.join(";") + ";"));
 };

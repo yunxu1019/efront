@@ -25,6 +25,8 @@ assert(downLevel(`var {[c]:a}=b`), 'var a = b[c]');
 assert(downLevel(`var {1:a}=b`), 'var a = b[1]');
 assert(downLevel(`var {.1:a}=b`), 'var a = b[.1]');
 assert(downLevel(`var {a,[a]:c}=b`), 'var a = b.a, c = b[a]');
+assert(downLevel(`var {a}=a`), 'var a = a.a');
+assert(downLevel(`var {a,b}=a`), 'var _ = a, a = a.a, b = _.b');
 assert(downLevel(`var {a:{a:{a}}}=b`), 'var a = b.a.a.a');
 assert(downLevel(`var {a,[a]:c}={}`), 'var _ = {}, a = _.a, c = _[a]');
 assert(downLevel(`={a,[a]:c}={}`), '= _ = {}, a = _.a, c = _[a]');
@@ -87,7 +89,7 @@ assert(downLevel(`a(...b).c(...d)`), `(_ = a.apply(null, b)).c.apply(_, d)`)
 assert(downLevel(`a(...b).c(...d).e(...f)`), `(_ = (_ = a.apply(null, b)).c.apply(_, d)).e.apply(_, f)`)
 // 对象收集
 assert(downLevel(`function (a,...b){}`), "function (a) { var b = Array.prototype.slice.call(arguments, 1); }")
-assert(downLevel(`function (a,...b,c){}`), "function (a, c) { var b = Array.prototype.slice.call(arguments, 1, arguments.length - 1); c = arguments.length > 1 ? arguments[arguments.length - 1] : undefined; }")
+assert(downLevel(`function (a,...b,c){}`), "function (a, c) { var b = Array.prototype.slice.call(arguments, 1, -1); c = arguments.length > 1 ? arguments[arguments.length - 1] : undefined; }")
 assert(downLevel(`function (a,...,c){}`), "function (a, c) { c = arguments.length > 1 ? arguments[arguments.length - 1] : undefined; }")
 assert(downLevel(`function (a,...b,b){}`), "function (a, b) { b = arguments.length > 1 ? arguments[arguments.length - 1] : undefined; }")
 assert(downLevel(`(a)=>k`), "function (a) { return k }")
@@ -95,4 +97,15 @@ assert(downLevel(`(...a) => k`), "function () { var a = Array.prototype.slice.ca
 assert(downLevel(`for(var o of os)`), "for (var _ = 0; _ < os.length && (o = os[_], true); _++)")
 assert(downLevel(`for(var [a] of os)`), "for (var _ = 0; _ < os.length && (a = os[_][0], true); _++)")
 assert(downLevel(`for(var [a,b] of os)`), "for (var _ = 0; _ < os.length && (_0 = os[_], a = _0[0], b = _0[1], true); _++)")
-assert(downLevel(`[c,...a]=a`), "c=a[0],a=Array.prototype.slice.call(a,1)")
+assert(downLevel(`[...a]=a`), "a = Array.prototype.slice.call(a, 0)")
+assert(downLevel(`[c,...a]=a`), "c = a[0], a = Array.prototype.slice.call(a, 1)")
+assert(downLevel(`[...a]=a`), "a = Array.prototype.slice.call(a, 0)")
+assert(downLevel(`[...a,c]=a`), "_ = a, a = Array.prototype.slice.call(a, 0, -1), c = _.length > 1 ? _[_.length - 1] : undefined")
+assert(downLevel(`{...a,c}=a`), `c = a.c, a = rest_(a, ["c"])`)
+assert(downLevel(`{c,...a}=a`), `c = a.c, a = rest_(a, ["c"])`)
+assert(downLevel(`{c,[c]:b,...a}=a`), `c = a.c, b = a[c], a = rest_(a, ["c", c])`)
+assert(downLevel(`async function(){}`), `function(){return Promise.resolve()}`)
+assert(downLevel(`async function(a){await a}`), `function(a){return Promise.resolve(a)}`)
+assert(downLevel(`async function(a){await a,await b}`), `function(a){return async_(function(){return a},function(){return b}})`)
+assert(downLevel(`async function(){await a,await b}`), `function(){return async_(function(){return a},function(){return b}})`)
+assert(downLevel(`async function(a){ if(c)await a}`), `function(){return Promise.resolve(a).then(b)}`)
