@@ -77,7 +77,7 @@ var power = function (source, search) {
             [ap, match_text_aft] = power(match_text_aft, search);
         }
         p += (pp + ap) * .01;
-        return [p, match_text_pre + MARK_PRE1 + match_text + MARK_AFT1 + match_text_aft];
+        return [p, match_text_pre.concat(MARK_PRE1, match_text, MARK_AFT1, match_text_aft)];
     }
     return [0, source];
 };
@@ -107,8 +107,8 @@ var power2 = function (src1, src2) {
         }
         p += (pp + ap) * .01;
         return [
-            src1_pre + MARK_PRE1 + match_text + MARK_AFT1 + src1_aft,
-            src2_pre + MARK_PRE2 + match_text + MARK_AFT2 + src2_aft,
+            src1_pre.concat(MARK_PRE1, match_text, MARK_AFT1, src1_aft),
+            src2_pre.concat(MARK_PRE2, match_text, MARK_AFT2, src2_aft),
             p
         ];
     }
@@ -124,7 +124,7 @@ var setTag1 = function (pre, aft) {
         }
         else {
             pre.replace(/^<|>$/g, '');
-            pre = `<${pre}>;`
+            pre = `<${pre}>`;
             aft = `</${pre}>`;
         }
     }
