@@ -113,6 +113,7 @@ var skipAssignment = function (o) {
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
     var scoped = [], funcbody = scoped;
+    scoped.body = parsed;
     scoped.isfunc = true;
     var run = function (o, id) {
         loop: while (o) {
@@ -230,6 +231,11 @@ var createScoped = function (parsed, wash) {
                                     o = o.next;
                                 }
                             }
+
+                            isScope = true;
+                            break;
+                        case "for":
+                            o = o.next;
                             isScope = true;
                             break;
 
@@ -292,14 +298,15 @@ var createScoped = function (parsed, wash) {
                     }
                 }
                 if (isArrow);
-                else if (o.isExpress && o.type !== SCOPED && !isDeclare) {
+                else while (o && o.isExpress && o.type !== SCOPED) {
                     o = o.next;
-                    if (o.type === EXPRESS) {
-                        vars[o.text] = true;
+                    if (o && o.type === EXPRESS) {
+                        lets[o.text] = true;
                         o.kind = isFunction ? 'function' : 'class';
                         saveTo(used, o.text, o);
                         o = o.next;
                     }
+                    if (isFunction) break;
                 }
                 if (!isFunction) while (o.type !== SCOPED) {
                     // if (o.next && o.next.type === STAMP && o.next.text === "=>") break;
@@ -309,6 +316,7 @@ var createScoped = function (parsed, wash) {
                 }
 
                 if (o.entry === "(") {
+                    scoped.head = o;
                     o.isExpress = isExpress;
                     if (isFunction || isCatch) {
                         var [declared, used0, o0, skiped] = getDeclared(o.first, 'argument');
@@ -337,6 +345,7 @@ var createScoped = function (parsed, wash) {
                 }
                 if (!o) break;
                 if (o.type === SCOPED && o.entry === "{") {
+                    scoped.body = o;
                     o.isExpress = isExpress;
                     run(o.first);
                     if (wash && isFunction) {
@@ -369,19 +378,22 @@ var createScoped = function (parsed, wash) {
                     } while (o);
                 }
                 var map = isFunction ? vars : lets;
-                var keepscope = false;
-                for (var k in map) {
+                var keepscope = !!scoped.body;
+                if (!keepscope) for (var k in map) {
                     keepscope = true;
                     break;
                 }
                 if (keepscope) {
+                    var envs = Object.create(null);
                     for (var k in used) {
                         if (!(k in map)) {
+                            envs[u] = true;
                             for (var u of used[k]) {
                                 saveTo(_used, k, u);
                             }
                         }
                     }
+                    scoped.envs = envs;
                     _scoped.push(scoped);
                 }
                 else {
@@ -427,10 +439,18 @@ var createScoped = function (parsed, wash) {
 var getDeclared = function (o, kind) {
     var declared = [], used = Object.create(null); var skiped = [];
     var prop = null;
+    var attributes = [];
+    var index = 0;
     loop: while (o) {
-        while (o && o.type === STAMP && o.text === ',') o = o.next;
+        while (o && o.type === STAMP && o.text === ',') o = o.next, index++;
         if (!o) break;
         if (o.isprop) {
+            prop = createString([o]);
+            if (/^(['"`])[\s\S]*\1$/.test(prop)) {
+                prop = `[${prop}]`;
+            }
+            else if (number_reg.test(prop)) prop = `[${prop}]`;
+            else if (!/^\[[\s\S]*\]$/.test(prop)) prop = "." + prop;
             skiped.push(o);
             if (o.next && o.next.type === STAMP && o.next.text === ":") {
                 o = o.next;
@@ -460,7 +480,7 @@ var getDeclared = function (o, kind) {
                 var n = o.text.replace(/^\.\.\.|\.\.\.$/g, '');
                 declared.push(n);
                 if (n !== o.text) declared["..."] = n;
-                else if (prop) declared[prop] = n;
+                else attributes.push([prop || `[${index}]`, n]);
                 o.kind = kind;
                 saveTo(used, n, o);
                 o = o.next;
@@ -470,7 +490,7 @@ var getDeclared = function (o, kind) {
                 while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
                 mergeTo(used, u);
                 declared.push(d);
-                if (prop) declared[prop] = d;
+                attributes.push([prop || `[${index}]`, d]);
                 o = o.next;
                 break;
             default:
@@ -509,6 +529,7 @@ var getDeclared = function (o, kind) {
         if (o.text !== ',') break;
         prop = null;
     }
+    declared.attributes = attributes;
     return [declared, used, o, skiped];
 };
 var mapDeclared = function (map, declared) {
@@ -628,7 +649,8 @@ var createString = function (parsed) {
                 break;
             default:
                 if (o instanceof Object) {
-                    if ([STRAP, EXPRESS, PROPERTY, VALUE, COMMENT].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
+                    if (lasttype === EXPRESS && o.type === EXPRESS && (/^\./.test(o.text) || /\.$/.test(result[result.length - 1])));
+                    else if ([STRAP, EXPRESS, PROPERTY, VALUE, COMMENT].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
                         result.push(" ");
                     }
                     else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
