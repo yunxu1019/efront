@@ -922,5 +922,5 @@ function scan(text) {
     return res;
 }
 
-
+scan.Program = Program;
 module.exports = scan;
