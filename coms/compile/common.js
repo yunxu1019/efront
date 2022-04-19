@@ -339,10 +339,10 @@ var createScoped = function (parsed, wash) {
                     // if (o.next && o.next.type === STAMP && o.next.text === "=>") break;
                     o = run(o, 0);
                     o = o.next;
-                    if (!o) break loop;
+                    if (!o) break;
                 }
-
-                if (o.entry === "(") {
+                if (!o);
+                else if (o.entry === "(") {
                     scoped.head = o;
                     o.isExpress = isExpress;
                     if (isFunction || isCatch) {
@@ -361,8 +361,8 @@ var createScoped = function (parsed, wash) {
                         run(o.first);
                     }
                     o = o.next;
-                    if (!o) break;
-                    if (o.type === STAMP && o.text === "=>") o = o.next;
+                    if (!o);
+                    else if (o.type === STAMP && o.text === "=>") o = o.next;
                 }
                 else if (isArrow) {
                     vars[o.text] = true;
@@ -370,8 +370,8 @@ var createScoped = function (parsed, wash) {
                     saveTo(used, o.text, o);
                     o = o.next.next;
                 }
-                if (!o) break;
-                if (o.type === SCOPED && o.entry === "{") {
+                if (!o);
+                else if (o.type === SCOPED && o.entry === "{") {
                     scoped.body = o;
                     o.isExpress = isExpress;
                     run(o.first);
@@ -405,7 +405,7 @@ var createScoped = function (parsed, wash) {
                     } while (o);
                 }
                 var map = isFunction ? vars : lets;
-                var keepscope = !!scoped.body;
+                var keepscope = !!scoped.body || !!scoped.head;
                 if (!keepscope) for (var k in map) {
                     keepscope = true;
                     break;
