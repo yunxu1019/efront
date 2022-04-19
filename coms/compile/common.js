@@ -115,7 +115,7 @@ var createScoped = function (parsed, wash) {
     var scoped = [], funcbody = scoped;
     scoped.body = parsed;
     scoped.isfunc = true;
-    var run = function (o, id) {
+    var run = function (o, id, body) {
         loop: while (o) {
             var isCatch = false;
             var isFunction = false;
@@ -154,8 +154,8 @@ var createScoped = function (parsed, wash) {
                         funcbody.async = true;
                         continue;
                     }
-                    if (u === 'yield' && funcbody.aster !== false) {
-                        funcbody.yield = true;
+                    if (u === 'yield' && funcbody.aster === true) {
+                        o.type = STRAP;
                         continue;
                     }
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
@@ -188,23 +188,31 @@ var createScoped = function (parsed, wash) {
                             funcbody.async = funcbody.await = true;
                             break;
                         case "yield":
-                            if (funcbody.aster === false) {
-                                o.type = EXPRESS;
-                                continue;
-                            }
-                            if (!funcbody.yield) {
-                                var next = o.next;
-                                if (next) {
-
-                                    if (next.type === STAMP && !/[~!,;:]+$/.test(next.text)
-                                        || next.type === STRAP && /in|of|as|from|instanceof/.test(next.text)
-                                        || next.type === EXPRESS && /^\./.test(next.text)
+                            if (!funcbody.aster) {
+                                var mustyield = undefined;
+                                var tmp = id;
+                                if (body) while (body[++tmp] !== o.next) {
+                                    if (body[tmp].type === SPACE) {
+                                        mustyield = false;
+                                        break;
+                                    };
+                                }
+                                if (mustyield !== false && o.next) {
+                                    if (o.next.type === STRAP && !/^(?:instanceof|in|of|from|as)$/.test(o.next.text)
+                                        || o.next.type === STAMP && /[!~]/.test(o.next.text)
+                                        || o.next.type === EXPRESS && /^\./.test(o.next.text)
+                                        || o.next.type === VALUE
+                                        || o.next.type === QUOTED
+                                        || o.next.type === SCOPED
                                     ) {
-                                        funcbody.yield = false;
+                                        mustyield = true;
                                     }
                                 }
-                                saveTo(used, 'yield', o);
+                                if (mustyield) funcbody.aster = true;
+                                else o.type = EXPRESS;
+                                continue;
                             }
+                            funcbody.yield = true;
                             break;
                         case "as":
                         case "from":
