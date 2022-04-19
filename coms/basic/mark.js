@@ -145,8 +145,8 @@ var setTag2 = function (pre = _PRE2, aft = _AFT2) {
     MARK_PRE2 = pre;
     MARK_AFT2 = aft;
 };
-setTag1();
-setTag2();
+setTag1(_PRE1, _AFT1);
+setTag2(_PRE2, _AFT2);
 mark.setTag1 = setTag1;
 mark.setTag2 = setTag2;
 mark.power = power;
