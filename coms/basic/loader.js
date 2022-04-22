@@ -59,7 +59,9 @@ var request = window.request || function (url, onload, onerror, version) {
 var loadingTree = {};
 var responseTree = {};
 var versionTree = {};
-
+var isThenable = function (a) {
+    return a && a.then instanceof Function;
+};
 var keyprefix = "";
 var flushTree = function (tree, key, res) {
     var response = tree[key];
@@ -530,7 +532,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     });
 
     var _this = isModuleInit ? exports : window;
-    var argsPromises = argsList.filter(a => a instanceof Promise);
+    var argsPromises = argsList.filter(isThenable);
     argsList = argsList.concat(exec.strs);
     argsList.push(compiledNames || []);
     if (!argsPromises.length) {
@@ -585,7 +587,7 @@ var init = function (name, then, prebuilds) {
     };
     then = function (created) {
         if (res.resolved || res.errored) return;
-        if (Promise && created instanceof Promise) return created.then(then, crack);
+        if (isThenable(created)) return created.then(then, crack);
         res.resolved = true;
         res.result = created;
         res.fire();
@@ -629,8 +631,9 @@ var init = function (name, then, prebuilds) {
                 return;
             }
         }
+        if (name === 'frame$route') console.log(name, error, created)
         var created = createModule(module, args, module.argNames, prebuilds);
-        if (created instanceof Promise) {
+        if (isThenable(created)) {
             if (saveAsModule) {
                 penddings[key] = created;
                 created.then(function (res) {
