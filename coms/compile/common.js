@@ -12,9 +12,15 @@ const [
     /* 9 */PROPERTY,
 ] = new Array(20).fill(0).map((_, a) => a - 1);
 var number_reg = /^[\+\-]?(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
-var skipAssignment = function (o) {
+var skipAssignment = function (o, cx) {
+    var next = arguments.length === 1 ? function () {
+        o = o.next;
+    } : function () {
+        o = body[++cx];
+        while (o && (o.type === SPACE || o.type === COMMENT)) o = body[++cx];
+    };
+    if (arguments.length !== 1) var body = o, o = body[cx];
     var needpunc = false;
-    var o0 = o;
     var qcount = 0;
     loop: while (o) switch (o.type) {
         case STAMP:
@@ -24,82 +30,82 @@ var skipAssignment = function (o) {
                     break loop;
                 case "++":
                 case "--":
-                    o = o.next;
+                    next();
                     break;
                 case "!":
                 case "~":
                 case "+":
                 case "-":
-                    o = o.next;
+                    next();
                     needpunc = false;
                     break;
                 case "?":
                     qcount++;
                     needpunc = false;
-                    o = o.next;
+                    next();
                     break;
                 case ":":
                     qcount--;
                     if (qcount < 0) break loop;
                     needpunc = false;
-                    o = o.next;
+                    next();
                     break;
                 default:
                     if (/^[!~\+\-]+$/.test(o.text)) {
                         needpunc = false;
-                        o = o.next;
+                        next();
                         break;
                     }
                     if (!needpunc) break loop;
                     needpunc = false;
-                    o = o.next;
+                    next();
             }
             break;
         case SCOPED:
             if (needpunc && o.entry === "{") break loop;
-            o = o.next;
+            next();
             needpunc = true;
             break;
         case EXPRESS:
             if (/^\.|\.$/.test(o.text)) {
-                o = o.next;
+                next();
                 break;
             }
             else if (/^\[/.test(o.text)) {
                 needpunc = true;
-                o = o.next;
+                next();
                 break;
             }
         case VALUE:
         case QUOTED:
             if (needpunc) break loop;
             needpunc = true;
-            o = o.next;
+            next();
             break;
         case STRAP:
             if (needpunc) {
                 if (!/^(in|instanceof)$/.test(o.text)) break loop;
-                o = o.next;
+                next();
                 needpunc = false;
             }
             else if (o.text === "class") {
-                o = o.next;
-                while (o && !o.isClass) o = o.next;
-                while (o && o.isClass) o = o.next;
+                next();
+                while (o && !o.isClass) next();
+                while (o && o.isClass) next();
                 needpunc = true;
                 break;
             }
             else if (o.text === "function") {
-                o = o.next;
-                if (o && o.type === STAMP) o = o.next;
-                if (o && o.type === EXPRESS) o = o.next;
-                if (o) o = o.next;
-                if (o) o = o.next;
+                next();
+                if (o && o.type === STAMP) next();
+                if (o && o.type === EXPRESS) next();
+                if (o) next();
+                if (o) next();
                 needpunc = true;
                 break;
             }
             else {
-                o = o.next;
+                next();
                 needpunc = false;
             }
             break;
@@ -108,7 +114,7 @@ var skipAssignment = function (o) {
             throw new Error('代码结构异常！');
             o = o.next;
     }
-    return o;
+    return body ? cx : o;
 };
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
