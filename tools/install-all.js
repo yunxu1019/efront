@@ -4,6 +4,8 @@ var queue = require("../coms/basic/queue");
 var versions = child_process.execSync("npm view . versions");
 var localIP = require("../coms/efront/getLocalIP")();
 var parsed = JSON.parse(String(versions).replace(/\'/g, '"'));
+global.isFunction = require("../coms/basic/isFunction");
+global.isObject = require("../coms/basic/isObject");
 var scripts = `
 npm install -g efront
 efront version

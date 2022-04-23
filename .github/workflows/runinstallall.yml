@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: tools\run-efront tools/install-all.js
+      - run: node tools/install-all.js
         shell: cmd
 
   install-on-linux:
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: tools\run-efront tools/install-all.js
+      - run: node tools/install-all.js
 
   install-on-darwin:
     runs-on: macos-latest
@@ -41,4 +41,4 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: tools\run-efront tools/install-all.js
+      - run: node tools/install-all.js
