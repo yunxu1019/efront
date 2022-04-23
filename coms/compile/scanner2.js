@@ -190,7 +190,7 @@ var detour = function (o, ie) {
                         var text = strings.encode(strings.decode(o.text));
                         if (o.prev) {
                             var prev = o.prev;
-                            if (prev && prev.type === PROPERTY && /^(get|set|static|async)$/.test(prev.text)) {
+                            if (prev && prev.isprop && /^(get|set|static|async)$/.test(prev.text)) {
                                 prev = prev.prev;
                             }
                             if (prev && prev.type === STAMP && prev.isprop) prev = prev.prev;

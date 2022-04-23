@@ -312,6 +312,7 @@ var createScoped = function (parsed, wash) {
                 var _lets = lets;
                 var _vars = vars;
                 var _scoped = scoped;
+                var _funcbody = funcbody;
                 used = Object.create(null);
                 lets = Object.create(null);
                 vars = Object.create(null);
@@ -342,6 +343,7 @@ var createScoped = function (parsed, wash) {
                 else while (o && o.isExpress && o.type !== SCOPED) {
                     o = o.next;
                     if (o && o.type === EXPRESS) {
+                        if (o.prev && o.prev.type === STRAP && o.prev.text === 'extends') continue;
                         lets[o.text] = true;
                         o.kind = isFunction ? 'function' : 'class';
                         saveTo(used, o.text, o);
@@ -420,9 +422,6 @@ var createScoped = function (parsed, wash) {
                 }
                 var map = isFunction ? vars : lets;
                 var keepscope = !!scoped.body || !!scoped.head;
-                for (var k in map) {
-                    if (!used[k] || !used[k].length) delete map[k];
-                }
                 if (!keepscope) for (var k in map) {
                     keepscope = true;
                     break;
@@ -448,9 +447,10 @@ var createScoped = function (parsed, wash) {
                     delete vars.this;
                     delete vars.arguments;
                 }
+                if (isClass) delete lets.super;
                 if (scoped.isfunc) {
                     if (used.yield) _scoped.yield = false;
-                    funcbody = _scoped;
+                    funcbody = _funcbody;
                 }
                 used = _used;
                 lets = _lets;
@@ -612,7 +612,8 @@ var needBreak = function (prev, next) {
     if (prev.type === STAMP && /^[,;]$/.test(prev.text)) return;
     if (next.type === STAMP && /^[,;]$/.test(next.text)) return;
     if (prev.type === EXPRESS && /\.$/.test(prev.text)) return;
-    if (next.type === EXPRESS && /^\./.test(next.text)) return;
+    if (prev.type === STRAP && /^(return|yeild|break|continue)$/.test(prev.text)) return ';';
+    if (next.type === EXPRESS && /^\.[^\.]/.test(next.text)) return;
     if (next.type === PROPERTY) return ";";
     if (next.type === STAMP && next.text === "*") return ";";
     if (
