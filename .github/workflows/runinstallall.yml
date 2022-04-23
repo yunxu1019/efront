@@ -31,6 +31,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
+      - run: chmod +x tools/run-efront.bat
       - run: tools/run-efront.bat tools/install-all.js
 
   install-on-darwin:
@@ -41,4 +42,5 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
+      - run: chmod +x tools/run-efront.bat
       - run: tools/run-efront.bat tools/install-all.js
