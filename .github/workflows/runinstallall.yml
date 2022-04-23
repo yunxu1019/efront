@@ -8,7 +8,7 @@ on:
     branches:
       - develop
   schedule:
-    - cron:  26 7,8,16,18,20,22 * * *
+    - cron:  26 7,8,16,18 * * *
 
 jobs:
 
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: node tools/install-all.js
+      - run: tools/run-efront.bat tools/install-all.js
 
   install-on-darwin:
     runs-on: macos-latest
@@ -41,4 +41,4 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: node tools/install-all.js
+      - run: tools/run-efront.bat tools/install-all.js
