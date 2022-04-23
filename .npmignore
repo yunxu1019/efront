@@ -31,7 +31,6 @@ data/shared.json
 data/count.json
 data/images/logo.pptx
 data/icons
-coms/efront/*_test.js
 coms/database/*_test.js
 test
 nbproject/
@@ -39,7 +38,6 @@ coms/database/
 coms/qiniu/
 coms/efront/
 coms/server/
-coms/efront/
 coms/build/
 tools/
 coms/arch/
@@ -50,6 +48,7 @@ coms/escodegen/
 coms/less-node/
 coms/message/
 coms/pngjs/
+coms/compile/
 .github/
 data/nasm-*
 data/qq_emoji
