@@ -47,6 +47,7 @@ module.exports = function (root) {
     };
     var map = {
     }, needs = {};
+    var undeclares;
     var founded = {};
     var findx = comms_root.map(a => {
         return new Promise(function (ok) {
@@ -93,7 +94,8 @@ module.exports = function (root) {
             console.log();
             console.type(args.map(a => {
                 var c = color(a);
-                return `<${c}>${a}</${c}>`;
+                var u=undeclares[a];
+                return `<${c}>${a} (${u[0].row}:${u[0].col})</${c}>`;
             }).join("<gray>,</gray> "));
         }
     }
@@ -126,7 +128,7 @@ module.exports = function (root) {
                     if (error) return console.error(error);
                     try {
                         data = String(data).replace(/^\s*#!/, '//');
-                        var undeclares = find(data);
+                        undeclares = find(data);
                         delete undeclares[path.basename(fullpath).replace(/\.[cm]?[jt]sx?$/i, '')];
                         Object.keys(undeclares).map(k => k).forEach(k => {
                             if (!needs[k]) needs[k] = [];

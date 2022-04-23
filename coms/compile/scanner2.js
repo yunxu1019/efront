@@ -266,7 +266,11 @@ class Program extends Array {
         return this._scoped = createScoped(this);
     }
     getUndecleared() {
-        return this.envs;
+        var res = Object.create(null);
+        for (var k in this.envs) {
+            res[k] = this.used[k];
+        }
+        return res;
     }
     // 提前处理属性
     break() {
