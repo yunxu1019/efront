@@ -31,7 +31,7 @@ var couple = function (source, marker) {
 var MARK_PRE1, MARK_PRE2, _PRE1, _PRE2 = _PRE1 = "<b>";
 var MARK_AFT1, MARK_AFT2, _AFT1, _AFT2 = _AFT1 = "</b>";
 var mark = function (source, search) {
-    return power(source, search);
+    return power(source, search)[1];
 };
 var pair = function (source, search, t1, t2, t3, t4) {
     switch (arguments.length) {
