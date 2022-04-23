@@ -420,6 +420,9 @@ var createScoped = function (parsed, wash) {
                 }
                 var map = isFunction ? vars : lets;
                 var keepscope = !!scoped.body || !!scoped.head;
+                for (var k in map) {
+                    if (!used[k] || !used[k].length) delete map[k];
+                }
                 if (!keepscope) for (var k in map) {
                     keepscope = true;
                     break;
