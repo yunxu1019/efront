@@ -631,7 +631,6 @@ var init = function (name, then, prebuilds) {
                 return;
             }
         }
-        if (name === 'frame$route') console.log(name, error, created)
         var created = createModule(module, args, module.argNames, prebuilds);
         if (isThenable(created)) {
             if (saveAsModule) {
