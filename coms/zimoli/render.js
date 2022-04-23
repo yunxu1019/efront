@@ -631,7 +631,7 @@ function getFromScopes(key, scope, parentScopes) {
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
     if (!isNode(element) && element.length) {
-        return Array.prototype.map.call(element, function (element) {
+        return Array.prototype.concat.apply([], element).map(function (element) {
             return renderElement(element, scope, parentScopes, once);
         });
     }
