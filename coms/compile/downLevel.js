@@ -27,7 +27,7 @@ var insert1 = function (q, r, ...a) {
     splice1(q, r, r, ...a);
 };
 // 解构赋值
-var killdec = function (queue, o, getobjname, _var = 'var', killobj) {
+var killdec = function (queue, o, getobjname, _var = 'var', killobj, islet) {
     var tmpname = '';
     var index = 0;
     var deep = 0;
@@ -91,7 +91,7 @@ var killdec = function (queue, o, getobjname, _var = 'var', killobj) {
             insert1(queue, o, ...scanner2(`${index > 0 ? "," : ""}${tmpname}=${name}`));
             index++;
         }
-
+        if (!value && islet) value = 'undefined';
         var text = `${index > 0 ? "," : ''}${name}${value ? '=' + value : ''}`;
         insert1(queue, o, ...scanner2(text));
         index++;
@@ -162,10 +162,11 @@ var killdec = function (queue, o, getobjname, _var = 'var', killobj) {
                 if (hasnext) continue loop;
             }
             else if (hasnext) {
+                if (islet) insert1(queue, next, ...scanner2('=undefined'));
                 o = next.next;
                 index++;
                 continue;
-            }
+            } else if (islet) insert1(queue, next, ...scanner2('=undefined'));
             o = next;
             break;
         }
@@ -590,21 +591,19 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
         killobj(o, getobjname, getname_, setsolid, deep);
     };
     while (o) {
+        var islet = false;
         if (o.type === STRAP) {
             switch (o.text) {
                 case "await":
-                    if (!body.awaits) body.awaits = [];
-                    body.awaits.push(o);
+                    body.await = true;
+                    o = o.next;
                     break;
-                case "yield":
-                    if (!body.yields) body.yields = [];
-                    body.yields.push(o);
-                    break;
-                case "var":
                 case "let":
                 case "const":
+                    islet = body.keeplet !== false;
+                case "var":
                     splice1(body, o, o = o.next);
-                    o = killdec(body, o, _getdeepname, 'var', deepkill);
+                    o = killdec(body, o, _getdeepname, 'var', deepkill, islet);
                     break;
                 case "class":
                     o = killcls(body, o, getname_);
@@ -633,7 +632,7 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
                 }
             }
             else if (o.entry === '[') {
-                if (o.next && o.next.type === STAMP && o.next.text === '=') {
+                if (o.next && o.next.type === STAMP && o.next.text === '=' || o.next && o.next.type === STRAP && /^(in|of)$/.test(o.next.type) && body.entry === '(' && body.prev && body.prev.type === STRAP && body.prev.text === 'for') {
                     o = killdec(body, o, _getdeepname, '', deepkill);
                 }
                 else {
@@ -661,7 +660,6 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
         }
         o = o.next;
     }
-    if (body.awaits) unawait(body, body.awaits, getname_);
 };
 var import_ = function () { };
 var export_ = function () { };
@@ -884,7 +882,7 @@ var down = function (scoped) {
         killlet(scoped);
         if (scoped.head) killarg(scoped.head, scoped.body, _getname);
         if (argcodes.length) precode(argcodes.join(";") + ";");
-        if (scoped.body) killobj(scoped.body, gettmpname, _getname, setsolid);
+        if (scoped.body) scoped.body.keeplet = false, killobj(scoped.body, gettmpname, _getname, setsolid);
         scoped.forEach(kill);
     }
     else {

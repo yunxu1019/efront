@@ -5,7 +5,7 @@ assert(downLevel(`let`), 'var');
 assert(downLevel(`var`), 'var');
 assert(downLevel(`const a,b,c`), 'var a, b, c');
 assert(downLevel(`let a,b,c`), 'var a, b, c');
-assert(downLevel(`var a;{let a,b,c}`), 'var a; { var a0, b, c }');
+assert(downLevel(`var a;{let a,b,c}`), 'var a; { var a0 = undefined, b = undefined, c = undefined }');
 assert(downLevel(`var {a,b,c}`), 'var a, b, c');
 assert(downLevel(`let {a,b,c}`), 'var a, b, c');
 assert(downLevel(`const {a,b,c}`), 'var a, b, c');
