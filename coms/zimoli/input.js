@@ -67,10 +67,12 @@ var number = function (event) {
     }
 };
 var toFixed = function () {
-    if (this.value && this.fixed) var fixed = BigNumber.fix(this.value, this.fixed);
-    if (this.value !== fixed) {
-        this.value = fixed;
-        dispatch(this, 'change');
+    if (this.value && this.fixed) {
+        var fixed = BigNumber.fix(this.value, this.fixed);
+        if (this.value !== fixed) {
+            this.value = fixed;
+            dispatch(this, 'change');
+        }
     }
 };
 var positiveReg = /^\+|^positive\-?|\-?positive$|\+$/i;
