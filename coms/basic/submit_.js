@@ -24,6 +24,7 @@ function submit(fields, data) {
             var tmp = /\:(\d+)?(?:\.(\d+))?$/.exec(f.type);
             if (tmp) var [, , fixed] = tmp;
             else if (/^(money|price)$/i.test(f.type)) fixed = 2;
+            else fixed = undefined;
             fixed = +fixed;
             if (fixed) {
                 var v = params[f.key];
