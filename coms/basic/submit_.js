@@ -27,7 +27,8 @@ function submit(fields, data) {
             fixed = +fixed;
             if (fixed) {
                 var v = params[f.key];
-                if (v) {
+                if (!isEmpty(v)) {
+                    v = String(v);
                     var d = v.replace(/^[^\.]*\.?/, '').length;
                     if (d === v.length - 1) v = "0" + v;
                     if (d > 0 && d < fixed) {
