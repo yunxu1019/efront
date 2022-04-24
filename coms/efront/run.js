@@ -230,7 +230,7 @@ module.exports = function (mainpath, args) {
             }
             window.request = getLoader();
             window.location = location;
-            window.startPath = mainpath.replace(/^\.[\/\\]/, '');
+            window.startPath = _mainpath.replace(/^\.[\/\\]/, '');
             window.process = Object.create(process);
             Object.assign(window.process, {
                 argv: args
