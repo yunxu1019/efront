@@ -464,7 +464,7 @@ class Javascript {
         var save = (type) => {
             if (lasttype === STAMP && type === STAMP && !/[,;\:\?]/.test(m)) {
                 var scope = queue[queue.length - 1];
-                if (/=>$/i.test(scope.text) || /=$/.test(scope.text) && /[^>=]/.test(m) || scope.end !== start) {
+                if (/[,;\:\?]/.test(scope.text) || /=>$/i.test(scope.text) || /=$/.test(scope.text) && /[^>=]/.test(m) || scope.end !== start) {
                 } else {
                     scope.end = end;
                     scope.text = text.slice(scope.start, scope.end);
