@@ -268,8 +268,7 @@ function parseConfig(api) {
     var required = [];
     var prepared = [];
     var autotrim = false;
-
-    id = id.replace(/[\?\|\:;](.+?)$/, function (m, s) {
+    id = id.replace(/[\?\|\:;](.*?)$/, function (m, s) {
         autotrim = /^[\|;]/.test(m);
         if (/^[\|\/]/.test(s)) autotrim = true, s = s.slice(1);
         s = s.split('&');
