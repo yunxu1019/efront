@@ -185,13 +185,17 @@ var format = s => s
     .replace(/[A-Z][_A-Z]*/g, "<purple>$&</purple>")
     .replace(/\-+|\=+/g, "<gray>$&</gray>")
     .replace(/\|/g, "<gray>|</gray>");
+var gettopic = function (w) {
+    var t = topics[w].split(',');
+    if (/\|/.test(t[0])) t.default = t[0].replace(/^[\s\S]*?\|([\s\S]*)$/, "$1");
+    t[0] = t[0].replace(/\|[\s\S]*$/, '');
+    return t;
+};
 var showTopicInfo = function (commands, prefix = '') {
     var tips = {};
     commands = [].concat(commands || '').forEach(a => a.replace(/[A-Z][_A-Z]*/g, function (w) {
         if (w in topics && !tips[w]) {
-            var t = tips[w] = topics[w].split(',');
-            if (/\|/.test(t[0])) t.default = t[0].replace(/^[\s\S]*?\|([\s\S]*)$/, "$1");
-            t[0] = t[0].replace(/\|[\s\S]*$/, '');
+            tips[w] = gettopic(w);
         }
         return w;
     }));
@@ -212,7 +216,7 @@ var helps = [
     "查看efront自身占用的内存,memery,memory,-m,--memery,--memory",
     "显示帮助信息,help,-h,--help,help COMMAND,-h COMMAND,--help COMMAND",
     "启动文档服务器,docs",
-    "启动示例项目服务器,demo,demo APPNAME",
+    "启动示例项目服务器,demo,demo SRCNAME",
     "创建应用，项目目录允许创建第二个应用,init,from SRCNAME,init APPNAME,init APPNAME from SRCNAME,from SRCNAME init APPNAME",
     "创建简单应用，独占项目目录的单应用,create,simple,create|simple from SRCNAME,create|simple APPNAME,create|simple APPNAME from APPNAME",
     "创建空应用,blank,simple,from blank,simple from blank",
@@ -518,7 +522,7 @@ var commands = {
             page_path: path.join(__dirname, "../../apps"),
             coms_path: path.join(__dirname, "../../coms"),
         });
-        if (!memery.APP) memery.APP = 'kugou';
+        if (!memery.APP) memery.APP = gettopic("SRCNAME").default;
         setAppnameAndPorts(arguments);
         require("./setupenv");
         require("../server/main");
@@ -757,7 +761,7 @@ helps.forEach((str, cx) => {
 var topics = {
     COMMAND: "命令名," + Object.keys(helps).filter(k => /^[a-z]+$/.test(k)),
     APPNAME: "您的应用名",
-    SRCNAME: "源项目|blank,blank,kugou,zimoli",
+    SRCNAME: "源项目|blank,blank,kugou,pivot",
     HTTP_PORT: " http 端口|80",
     HTTPS_PORT: " https 端口|443",
     VARIABLES: "变量名",
