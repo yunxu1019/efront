@@ -24,19 +24,23 @@
     width: 40px;
     margin: -6px -4px;
 
+    &+.singer+.song,
     &+.song {
         margin-left: -38px;
         padding-left: 46px;
-        line-height: 30px;
         display: inline-block;
         vertical-align: top;
+
     }
+
+    &+.singer {
+        padding-left: 46px;
+    }
+
 }
 
 >.song {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 30px;
 }
 
 b {
@@ -56,6 +60,10 @@ b {
     line-height: 12px;
     font-size: 12px;
     color: #888;
+
+    &+.song {
+        padding-top: 6px;
+    }
 }
 
 >.play-state {

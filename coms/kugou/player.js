@@ -179,6 +179,7 @@ var $scope = {
             cast($scope.dance, buf);
         }
     },
+    playid: 0,
     play(hash = musicList.active_hash) {
         render.refresh();
         var isPlayback = typeof hash === "number";

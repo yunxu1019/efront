@@ -21,6 +21,7 @@ function main(elem) {
         $scope.song = {
             hash: item.hash,
             imgurl: item.imgurl,
+            singer: singerName,
             songMarked: mark(songName, elem.mark),
             singerMarked: mark(singerName, elem.mark)
         };
