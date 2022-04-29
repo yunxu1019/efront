@@ -708,6 +708,13 @@ var data = {
         data = this.parseConfig(data);
         configPormise = Promise.resolve(data);
     },
+    async addConfig(data) {
+        var p = configPormise;
+        var c = await p;
+        if (p !== configPormise) return;
+        data = this.parseConfig(data);
+        extend(c, data);
+    },
     getConfig() {
         return privates.getConfigPromise();
     },
