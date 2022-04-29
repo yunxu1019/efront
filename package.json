@@ -1,6 +1,6 @@
 {
   "name": "efront",
-  "version": "3.24.4",
+  "version": "3.24.5",
   "description": "一个开发工具，开放源代码，自带组件库和编译环境，可以用来开发web组件，web应用或nodejs模块，或做为已有代码的加密工具，也可以做为静态页面服务器或跨域中转服务器使用",
   "main": "./coms/efront",
   "directories": {
