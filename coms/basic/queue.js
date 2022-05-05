@@ -33,7 +33,7 @@ function queue(list, count = 1, context = null) {
                 oh(e);
                 return promised = null;
             }
-            if (!promised && (!result[saved_cx] || !isFunction(result[saved_cx].then)));
+            if (promised === false && (!result[saved_cx] || !isFunction(result[saved_cx].then))) count++;
             else Promise.resolve(result[saved_cx]).then(next, reject), promised = true;
         };
         if (count > list.length) {
@@ -42,7 +42,7 @@ function queue(list, count = 1, context = null) {
         if (!(count >= 1)) {
             count = 1;
         }
-        while (promised === false || count-- > 0) run();
+        while (count-- > 0) run();
     });
 }
 module.exports = queue;
