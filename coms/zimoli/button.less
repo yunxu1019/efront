@@ -41,6 +41,20 @@
     }
 }
 
+@keyframes busy-pending {
+    0% {
+        transform: rotate(0);
+    }
+
+    70% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 &>input {
     position: absolute;
     opacity: 0;
@@ -149,6 +163,29 @@
         animation: ltr 2s linear 0s infinite;
     }
 
+    a&,
+    &[type=anchor] {
+        &:before {
+            display: none;
+        }
+
+        overflow: visible;
+
+        &.track {
+            display: none;
+        }
+
+        &:after {
+            content: "↻";
+            font-family: 'Times New Roman', Times, serif;
+            display: inline-block;
+            vertical-align: middle;
+            position: absolute;
+            animation: busy-pending 2s linear 0s infinite;
+        }
+    }
+
+
 }
 
 &:focus {
@@ -174,6 +211,13 @@
         background: #fff;
         animation: busy-loading 3s linear 0s infinite;
     }
+
+    a&,
+    &[type=anchor] {
+        &:before {
+            animation: busy-pending 3s linear 0s infinite;
+        }
+    }
 }
 
 a&,
@@ -198,6 +242,10 @@ a&,
         }
     }
 
+    &[loading],
+    &[pending] {
+        .clear();
+    }
 
     &.hover {
         color: lighten(@default-color, 10%);
@@ -265,5 +313,6 @@ a&,
     &:before {
         content: "确认";
     }
+
     background: #333;
 }
