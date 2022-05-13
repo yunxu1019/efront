@@ -198,9 +198,11 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 case 304:
                     onload(xhr);
                     break;
-                case 307:
                 case 302:
                 case 301:
+                    method = 'get';
+                    datas = null;
+                case 307:
                     if (xhr.isRedirected > 2) break;
                     var exposekey = nocross ? "location" : "efront-location";
                     var location = exposeMap[exposekey] && xhr.getResponseHeader(exposekey);
@@ -212,10 +214,11 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                         }
                         location = getRequestProtocol(url) + "//" + location;
                     }
-                    var crs = cross_("get", location, _headers);
+                    var crs = cross_.call(cross, jsonp, digest, method, location, _headers);
                     crs.isRedirected = (xhr.isRedirected || 0) + 1;
                     crs.done(onload, false);
                     crs.error(onerror, false);
+                    if (!isEmpty(datas)) crs.send(datas);
                     break;
                 default:
                     onerror(xhr);
