@@ -1,6 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var environment = require("./environment");
+var detectWithExtension = require("./detectWithExtension");
 var {
     PUBLIC_PATH,
     APP,
@@ -19,7 +20,12 @@ var clean = require("./clean");
 var _finish = require("./finish");
 var setting = require("./setting");
 var memery = require("../efront/memery");
-var getBuiltVersion = function (filepath) {
+var getBuiltVersion = async function (filepath) {
+    try {
+        filepath = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, [filepath]);
+    } catch {
+        return;
+    }
     return new Promise(function (ok) {
         fs.stat(filepath, function (error, stats) {
             if (error) return ok();
@@ -87,7 +93,8 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         setting.is_file_target = /\.html?$/i.test(environment.APP);
         commbuilder.prepare = !setting.is_file_target;
         var toApplication = require("./toApplication");
-        promise = getBuiltVersion(path.join(public_path, "index.html")).then(function (version) {
+
+        promise = getBuiltVersion(public_path).then(async function (version) {
             if (version) {
                 var [mark, lastBuildTime] = version;
                 if (!setting.is_file_target) setting.version_mark = mark;
@@ -95,23 +102,26 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             if (cleanBeforeBuild) {
                 lastBuildTime = 0;
             }
-            var indexHTML = pages_root.map(a => path.join(a, "index.html")).filter(fs.existsSync);
-            if (!indexHTML.length) {
-                let temp = path.join(PAGE_PATH, "index.html");
-                if (fs.existsSync(temp)) indexHTML = temp;
-                if (!indexHTML.length) {
-                    indexHTML = path.join(__dirname, "..", "..", "apps/index.html");
+            try {
+                var indexHTML = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, pages_root);
+            } catch {
+                try {
+                    indexHTML = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, [PAGE_PATH]);
+                } catch {
                 }
+            }
+            if (!indexHTML) {
+                console.warn('项目内未发面主页面');
             }
             polyfills = POLYFILL ? [
                 path.join(__dirname, "../", "zimoli/Promise.js"),
                 path.join(__dirname, "../", "basic/[]map.js")
             ] : [];
             return loadData(pages_root.concat(
-                indexHTML,
-                polyfills,
-                path.join(__dirname, "../", "zimoli/main.js"),
-                path.join(__dirname, "../", "zimoli/zimoli.js"),
+                indexHTML ? [indexHTML,
+                    path.join(__dirname, "../", "zimoli/main.js"),
+                    path.join(__dirname, "../", "zimoli/zimoli.js"),
+                ].concat(polyfills) : [],
             ).concat(environment.ccons_root || []), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {

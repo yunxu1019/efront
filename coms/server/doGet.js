@@ -56,6 +56,11 @@ var setHeader2 = function (k, v) {
     if (this.headersSent !== false) return;
     this.setHeader(k, v);
 };
+var indexexts = require("../efront/str2array")(memery.INDEX_EXTENSIONS);
+var indexlist = memery.webindex;
+var indexlist2 = [""].concat(indexlist);
+var indexexts2 = [""].concat(indexexts);
+var indexreg = memery.indexreg;
 /**
  * 返回数据
  * @param {Buffer} data 
@@ -112,7 +117,7 @@ var adapter = function (data, url, req, res) {
     }
     if (data instanceof Promise) {
         return data.then(function (data) {
-            adapter(data, url, req, res);
+            return adapter(data, url, req, res);
         }).catch(function (error) {
             res.writeHead(500, utf8);
             res.end(String(error));
@@ -123,7 +128,7 @@ var adapter = function (data, url, req, res) {
     }
     if (typeof data === "string") {
         var new_url = data[0] === "/" ? data : "/" + data;
-        new_url = new_url.replace(/(default|index)\.(\w+)$/i, '');
+        new_url = new_url.replace(indexreg, '');
         if (new_url !== req.url) {
             res.writeHead(302, {
                 'Location': new_url
@@ -132,17 +137,13 @@ var adapter = function (data, url, req, res) {
         }
     }
     if (url) {
-        data = getfile(url, [
-            'default.html',
-            'index.html', 'index.htm',
-            'index.jsp', 'index.asp', 'index.php',
-        ]);
+        data = getfile(url, indexlist);
         return adapter(data, "", req, res);
     }
     if (!req.direct && memery.DIRECT) {
         var direct = req.direct = memery.DIRECT;
         if (typeof direct === 'function') direct = direct(req.url);
-        data = getfile(direct, ['', 'default.html', "index.html", 'index.htm', 'index.jsp', 'index.asp', 'index.php']);
+        data = getfile(direct, indexlist2);
         return adapter(data, direct, req, res);
     }
     if (typeof memery.TRANSFER === "string") {
@@ -173,16 +174,11 @@ module.exports = async function (req, res) {
     var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;
     var exts = [''];
-    if (url[url.length - 1] !== '/') exts.push(
-        '.html',
-        '.jsp',
-        '.asp',
-        '.php'
-    );
+    if (url[url.length - 1] !== '/') exts = indexexts2;
     var data = getfile(url, exts);
     if (data instanceof Promise) {
         return data.then(function (data) {
-            adapter(data, url, req, res);
+            return adapter(data, url, req, res);
         }).catch(function (error) {
             res.writeHead(500, {});
             res.end(String(error));

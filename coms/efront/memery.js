@@ -119,6 +119,8 @@ var geturlpath = name => get(name, null, 1);
 var getdirpath = (name, _default) => get(name, _default, 2);
 var COMS_PATH = getdirpath("COMS_PATH, COMM_PATH");
 var PUBLIC_PATH = getdirpath("PUBLIC_PATH", 'public');
+var webindex, indexreg;
+var str2array = require("./str2array");
 module.exports = {
     istest,
     loghead: get('LOGHEAD, LOG'),
@@ -237,7 +239,18 @@ module.exports = {
     FORCE: get("FORCE", false),
     UPLEVEL: get("UPLEVEL", false),
     REPORT: get("REPORT", 'efront.cc'),
+    INDEX_NAME: get("INDEX_NAME", "default|index"),
+    INDEX_EXTENSIONS: get("INDEX_EXTENSIONS", '.html,.htm,.jsp,.asp,.php'),
+    NODEID: get("NODEID,DHTID,DHT", Buffer.from([101, 102, 114, 111, 110, 116, 46, 99, 99].concat(Array(11).fill(0).map(() => Math.random() * 256 | 0))).toString("hex")),
     CORS: get("CORS,CORP,Cross-Origin-Resource-Policy", true),
+    get webindex() {
+        if (!webindex) webindex = require("./mixin")(this.INDEX_NAME, '.', str2array(this.INDEX_EXTENSIONS).map(a => a.replace(/^\./, ''))).map(a => a.join(''));
+        return webindex;
+    },
+    get indexreg() {
+        if (!indexreg) indexreg = new RegExp(`(${/(?:[\/\\]|^)/.source + str2array(this.INDEX_NAME).join("|")})(${/\./.source + str2array(this.INDEX_EXTENSIONS).map(a => a.replace(/^\./, '')).join("|")})$`, 'i')
+        return indexreg;
+    },
     get webroot() {
         return this.isDevelop ? this.PAGE_PATH : this.PUBLIC_PATH;
     },

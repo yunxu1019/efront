@@ -249,7 +249,7 @@ async function compile(buildInfo, lastBuildTime, destroot) {
                         resolve();
                     });
                 };
-                if (lastBuildTime - stat.mtime > 10000 && !/[\/\\]index.html?$/i.test(destpath)) {
+                if (lastBuildTime - stat.mtime > 10000 && !require('../efront/memery').indexreg.test(destpath)) {
                     var statless = function () {
                         var less_file = _filepath.replace(/\.([cm]?[jt]sx?|html?)$/i, ".less");
                         if (!fs.existsSync(less_file)) return reader(false);

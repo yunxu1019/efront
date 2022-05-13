@@ -1,21 +1,30 @@
 var path = require("path");
 var fs = require("fs");
-function detectWithExtension(filename, extensions = [""], folders = [""]) {
+var str2array = require("../efront/str2array");
+function detectWithExtension(filenames, extensions = [""], folders = [""]) {
+    if (typeof filenames === 'string') filenames = str2array(filenames);
+    if (typeof extensions === 'string') extensions = str2array(extensions);
+    if (typeof folders === 'string') folders = str2array(folders);
     if (extensions === null) {
         extensions = [""];
     }
     if (folders === null) folders = [""];
     extensions = [].concat(extensions);
     return new Promise(function (ok, oh) {
-        filename = filename.replace(/\$/g, '/');
         var prefix = 0;
         var aftfix = 0;
         var findedFolder;
-
+        var findex = 0;
+        var filename = filenames[findex].replace(/\$/g, '/');
         var run = function () {
             if (aftfix >= extensions.length) {
                 if (prefix + 1 < folders.length) {
                     prefix++;
+                    aftfix = 0;
+                    return run();
+                } else if (++findex < filenames.length) {
+                    filename = filenames[findex];
+                    prefix = 0;
                     aftfix = 0;
                     return run();
                 } else {

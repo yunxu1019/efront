@@ -62,6 +62,8 @@ var buildjsp = function (buff, realpath) {
     var lastIndex = 0;
     var input = String(buff);
     var prebuilds = {
+        __dirname: path.dirname(realpath),
+        __filename: realpath,
         req: null, res: null, request: null, response: null, context: null,
         remoteAddress: null, textplain: null, forbidden: null,
         clients: require("../server/clients")
@@ -125,12 +127,14 @@ var buildreload = function (buff) {
     return String(buff).replace(/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i, `<script>\r\n-${efronthook.toString()};\r\n`)
         .replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`);
 };
+var str2array = require("./str2array");
+var indexreg = new RegExp(str2array(memery.INDEX_NAME).join('|') + "$")
 if (isDevelop) builder = function (buff, name, fullpath) {
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
         buff = fixpixel(buff);
         buff = buildreload(buff);
         buff = buildjsp(buff, fullpath);
-    } else if (/\b(index|default)\.html$/i.test(fullpath) || /\.html?$/.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
+    } else if (indexreg.test(fullpath) || /\.html?$/.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
         buff = fixpixel(buff);
         buff = buildreload(buff);
         buff = Buffer.from(buff);

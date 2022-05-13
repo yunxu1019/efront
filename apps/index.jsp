@@ -1,3 +1,18 @@
+<script serverside>
+    var fs = require("fs");
+    var path = require("path");
+    return new Promise(function (ok, oh) {
+        fs.readdir(__dirname, { withFileTypes: true }, function (error, names) {
+            if (error) oh(error);
+            names = names.filter(a => a.isDirectory()).map(a => a.name);
+            context.names = [];
+            for (var n of names) {
+                if (fs.existsSync(path.join(__dirname, n, 'index.html'))) context.names.push(n);
+            }
+            ok();
+        });
+    });
+</script>
 <!DOCTYPE html>
 <!--
     http://efront.cc
@@ -10,10 +25,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="Shortcut Icon" href="/favicon.ico" type="image/x-icon" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,width=device-width" />
-    <title>Efront 项目</title>
-    <script deleteoncompile efrontloader>
-        // 若要在开发环境使用内置组件，请保留此script标签中的代码，在编译发布时，这里的代码会自动删除
-    </script>
+    <title>efront 项目</title>
     <style>
         html {
             height: 100%;
@@ -36,6 +48,11 @@
     </style>
 </head>
 
-<body scroll=no max-render=1440></body>
+<body scroll=no max-render=1440>
+    欢迎使用efront开发套件
+    <script serverside>
+        return context.names.map(n => `<a href="${n}">${n}</a>`)
+    </script>
+</body>
 
 </html>

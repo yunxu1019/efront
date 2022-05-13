@@ -60,10 +60,10 @@ function from(srcname = 'kugou', destname = appname) {
     }
     var hasindex = false;
     fs.readdirSync(path.join(__dirname, `../../apps/${srcname}`)).map(function (name) {
-        hasindex = hasindex || /^index.html$/i.test(name);
+        hasindex = hasindex || /^index\.(html?|asp|jsp|php)$/i.test(name);
         copy(path.join(__dirname, `../../apps/${srcname}/`, name), path.join(PAGE_PATH, `${destname}`, name));
     });
-    if (!hasindex) copy(path.join(__dirname, "../../apps/index.html"), path.join(PAGE_PATH, `${destname}/index.html`));
+    if (!hasindex) copy(path.join(__dirname, "../../apps/_index.html"), path.join(PAGE_PATH, `${destname}/index.html`));
 }
 module.exports = from;
 function copy(path1, path2) {

@@ -50,7 +50,7 @@ var getcomm = function (name, env, ext) {
     var _comms_root = env.COMM || memery.COMM;
     name = name.replace(/(\w)\$/g, "$1/");
     var exts = [".js", ".ts", ".json", ".html", '.vue', ''];
-    if (ext && !~exts.indexOf(env)) {
+    if (ext && !~exts.indexOf(ext)) {
         exts.unshift(ext);
     }
     return getfrompath(name, _comms_root, getcommfile, exts);
@@ -60,7 +60,7 @@ var getpage = function (name, env, ext) {
     var _pages_root = env.PAGE || memery.PAGE;
 
     var exts = [".js", ".ts", ".html", '.vue', ''];
-    if (ext && !~exts.indexOf(env)) {
+    if (ext && !~exts.indexOf(ext)) {
         exts.unshift(ext);
     }
     return getfrompath(name, _pages_root, getpagefile, exts);

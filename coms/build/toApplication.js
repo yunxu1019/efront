@@ -132,11 +132,19 @@ var buildHtml = function (html, code) {
     }
     return html;
 };
+var mixin = require("../efront/mixin")
+var indexnames = memory.webindex;
+var getTreeIndex = function (tree) {
+    var names = mixin(["/", "@"], indexnames).map(a => a.join(''));
+    for (var n of names) {
+        if (tree[n]) return tree[n];
+    }
+};
 function toApplication(responseTree) {
     var mainScript = responseTree.main || responseTree["main.js"] || null;
-    var indexHtml = responseTree["/index.html"] || responseTree["@index.html"];
+    var indexHtml = getTreeIndex(responseTree);
     if (!indexHtml) {
-        var htmlPath = path.join(__dirname, "../../apps", "index.html");
+        var htmlPath = path.join(__dirname, "../../apps", "_index.html");
         indexHtml = {
             time: 0,
             needed: true,
@@ -144,9 +152,9 @@ function toApplication(responseTree) {
             data: fs.readFileSync(htmlPath),
             realpath: htmlPath,
             version: fs.statSync(htmlPath).mtime,
-            destpath: path.join("index.html"),
+            destpath: path.join(indexnames[0]),
         };
-        responseTree["/index.html"] = indexHtml;
+        responseTree["/" + indexnames[0]] = indexHtml;
     }
     if (mainScript) {
         Object.keys(responseTree).forEach(function (key) {
@@ -252,7 +260,7 @@ module.exports = async function (responseTree) {
     report(responseTree);
     if (!responseTree["main"] && !responseTree["main.js"]) {
         console.warn("在您所编译的项目中没有发现主程序");
-        return toApplication(responseTree);
+        return responseTree;
     }
     var commbuilder = require("../efront/commbuilder");
     commbuilder.compress = false;

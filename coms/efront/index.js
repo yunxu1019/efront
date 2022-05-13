@@ -142,12 +142,15 @@ var detectEnvironment = function (comm) {
                 if (0 > coms_path.indexOf(memery.COMS_PATH)) coms_path.unshift(memery.COMS_PATH);
             }
             if (!memery.COMM) {
-                var hasindex = function (index) {
-                    var appindex = path.join(config.page_path, config.page || String(config.app || '').replace(/\.\w+$/, ''), index);
-                    var pageindex = path.join(config.page_path, index);
-                    return fs.existsSync(pageindex) || fs.existsSync(appindex);
+                var hasindex = function () {
+                    for (var index of memery.webindex) {
+                        var appindex = path.join(config.page_path, config.page || String(config.app || '').replace(/\.\w+$/, ''), index);
+                        var pageindex = path.join(config.page_path, index);
+                        if (fs.existsSync(pageindex) || fs.existsSync(appindex)) return true;
+                    }
+                    return false;
                 }
-                if (hasindex('index.html')) {
+                if (hasindex()) {
                     config.comm += ",zimoli";
                 }
                 else {
