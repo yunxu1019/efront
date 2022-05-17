@@ -177,6 +177,8 @@ module.exports = {
     },
     PASSWORD: get('PASSWORD'),
     MSIE: get("IE,MSIE,Trident,IEXPLORE,DETOUR"),
+    DHT_PORT: get('DHT_PORT', 0),
+    RECROSS_LIMIT: get("RECROSS_LIMIT,RETRY_LIMIT,RECROSSLIMIT,RETRYLIMIT", 2),
     HTTP_PORT: get('HTTP_PORT', 80),
     HTTPS_PORT: get('HTTPS_PORT', 443),
     WATCH_PORT: get('WATCH_PORT', 0),

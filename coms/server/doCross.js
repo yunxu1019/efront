@@ -68,134 +68,140 @@ var utf8error = { "content-type": "text/plain;charset=utf-8" };
  * @param {string|undefined|boolean} referer 
  */
 async function cross(req, res, referer) {
-    try {
-        if (referer) {
-            var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
-            req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
+    if (referer) {
+        var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
+        req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
+    }
+    var { jsonlike, realpath, hostpath, headers } = await parseUrl(req.url);
+    if (/^&/.test(jsonlike)) hostpath = req.protocol + hostpath.replace(/^https?:/i, "");
+    var $url = hostpath + realpath;
+    // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
+    var method = req.method;//$_SERVER['REQUEST_METHOD'];
+    var _headers = req.headers;
+    req.referer = _headers.referer;
+    if (cross.referer.test(_headers.referer) && !headers.referer) {
+        headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
+    } else if (_headers.referer || _headers.origin === 'null') {
+        headers.referer = hostpath;
+    }
+    for (let key in headers) {
+        let k = key.toLowerCase();
+        if (k !== key) {
+            headers[k] = headers[key];
+            delete headers[key];
         }
-        var { jsonlike, realpath, hostpath, headers } = await parseUrl(req.url);
-        if (/^&/.test(jsonlike)) hostpath = req.protocol + hostpath.replace(/^https?:/i, "");
-        var $url = hostpath + realpath;
-        // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
-        var method = req.method;//$_SERVER['REQUEST_METHOD'];
-        var _headers = req.headers;
-        req.referer = _headers.referer;
-        if (cross.referer.test(_headers.referer) && !headers.referer) {
-            headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
-        } else if (_headers.referer || _headers.origin === 'null') {
-            headers.referer = hostpath;
+    }
+    headersKeys.forEach(function (key) {
+        key = key.toLowerCase();
+        if (!headers[key] && _headers[key]) {
+            headers[key] = _headers[key];
         }
-        for (let key in headers) {
-            let k = key.toLowerCase();
-            if (k !== key) {
-                headers[k] = headers[key];
-                delete headers[key];
-            }
+    });
+    for (var k in _headers) {
+        if ({}.hasOwnProperty.call(privateKeys, k)) {
+            continue;
         }
-        headersKeys.forEach(function (key) {
-            key = key.toLowerCase();
-            if (!headers[key] && _headers[key]) {
-                headers[key] = _headers[key];
-            }
-        });
-        for (var k in _headers) {
-            if ({}.hasOwnProperty.call(privateKeys, k)) {
-                continue;
-            }
-            if (!headers[k] && _headers[k] && checkIsHttpToken(k)) {
-                headers[k] = _headers[k];
-            }
+        if (!headers[k] && _headers[k] && checkIsHttpToken(k)) {
+            headers[k] = _headers[k];
         }
-        var http, options;
-        if (/^https\:/i.test(hostpath)) {
-            http = require("https");
-            options = cert;
+    }
+    var http, options;
+    if (/^https\:/i.test(hostpath)) {
+        http = require("https");
+        options = cert;
+    } else {
+        http = require("http");
+        options = null;
+    }
+    var onresponse = function (response) {
+        var headers = response.headers;
+        var exposeHeaders = [];
+        var setCookie = headers["set-cookie"];
+        if (setCookie && req.referer && referer === false) {
+            headers["efront-cookie"] = setCookie;
+            delete headers["set-cookie"];
+            exposeHeaders.push("efront-cookie");
+        }
+        a: if (headers.location && referer === false) {
+            var parsed = parseURL(headers.location);
+            if (parsed.host) {
+                var mark = crossmark.test(jsonlike[0]) ? jsonlike[0] : '~';
+                if (parsed.protocol) mark = "~";
+                headers["location"] = "/" + mark + (/^https:/i.test(parsed.protocol || req.protocol) ? mark : "") + parsed.host + parsed.path;
+                break a;
+            }
+            headers["efront-location"] = headers.location;
+            exposeHeaders.push("efront-location");
+            delete headers.location;
+        }
+        if (headers["strict-transport-security"]) {
+            headers["efront-transport-security"] = headers["strict-transport-security"];
+            exposeHeaders.push("efront-transport-security");
+            delete headers["strict-transport-security"];
+        }
+        headers["access-control-expose-headers"] = exposeHeaders.join();
+        delete headers["access-control-allow-origin"];
+        delete headers["access-control-allow-methods"];
+        delete headers["access-control-allow-credentials"];
+        delete headers["access-control-allow-headers"];
+        delete headers["content-security-policy-report-only"];
+        delete headers["report-to"];
+        delete headers["expect-ct"];
+        delete headers["content-security-policy"];
+        delete headers["cross-origin-embedder-policy"];
+        delete headers["cross-origin-opener-policy"];
+        delete headers["cross-origin-resource-policy"];
+        if (res instanceof Http2ServerResponse) {
+            delete headers["transfer-encoding"];
+            delete headers["connection"];
+        }
+        if (!res.closed) {
+            if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
+                record($url, request, response, req, res);
+            } else {
+                res.writeHead(response.statusCode, headers);
+                response.pipe(res);
+            }
         } else {
-            http = require("http");
-            options = null;
+            response.destroy();
         }
-
+    };
+    req.cross_count = require('../efront/memery').RECROSS_LIMIT;
+    var onerror = function (e) {
+        if (res.closed) return;
+        var code;
+        switch (e.code) {
+            case "ECONNRESET":
+                if (req.cross_count > 0) {
+                    req.cross_count--;
+                    request = fetch();
+                    return;
+                }
+            case "ECONNREFUSED":
+                code = 502;
+                break;
+            case "ETIMEDOUT":
+                code = 504;
+                break;
+            default:
+                code = 500;
+        }
+        res.closed = true;
+        res.writeHead(code, {});
+        res.end(String(e));
+    };
+    var fetch = function () {
         var request = http.request(Object.assign({
             method: method,
             headers: headers,
             rejectUnauthorized: false// 放行证书不可用的网站
-        }, parseURL($url), options), function (response) {
-            var headers = response.headers;
-            var exposeHeaders = [];
-            var setCookie = headers["set-cookie"];
-            if (setCookie && req.referer && referer === false) {
-                headers["efront-cookie"] = setCookie;
-                delete headers["set-cookie"];
-                exposeHeaders.push("efront-cookie");
-            }
-            a: if (headers.location && referer === false) {
-                var parsed = parseURL(headers.location);
-                if (parsed.host) {
-                    var mark = crossmark.test(jsonlike[0]) ? jsonlike[0] : '~';
-                    if (parsed.protocol) mark = "~";
-                    headers["location"] = "/" + mark + (/^https:/i.test(parsed.protocol || req.protocol) ? mark : "") + parsed.host + parsed.path;
-                    break a;
-                }
-                headers["efront-location"] = headers.location;
-                exposeHeaders.push("efront-location");
-                delete headers.location;
-            }
-            if (headers["strict-transport-security"]) {
-                headers["efront-transport-security"] = headers["strict-transport-security"];
-                exposeHeaders.push("efront-transport-security");
-                delete headers["strict-transport-security"];
-            }
-            headers["access-control-expose-headers"] = exposeHeaders.join();
-            delete headers["access-control-allow-origin"];
-            delete headers["access-control-allow-methods"];
-            delete headers["access-control-allow-credentials"];
-            delete headers["access-control-allow-headers"];
-            delete headers["content-security-policy-report-only"];
-            delete headers["report-to"];
-            delete headers["expect-ct"];
-            delete headers["content-security-policy"];
-            delete headers["cross-origin-embedder-policy"];
-            delete headers["cross-origin-opener-policy"];
-            delete headers["cross-origin-resource-policy"];
-            if (res instanceof Http2ServerResponse) {
-                delete headers["transfer-encoding"];
-                delete headers["connection"];
-            }
-            if (!res.closed) {
-                if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
-                    record($url, request, response, req, res);
-                } else {
-                    res.writeHead(response.statusCode, headers);
-                    response.pipe(res);
-                }
-            } else {
-                response.destroy();
-            }
-        });
+        }, parseURL($url), options), onresponse);
         request.setTimeout(120000/*support for wechat long pull*/);
-        request.on("error", function (e) {
-            if (res.closed) return;
-            var code;
-            switch (e.code) {
-                case "ECONNRESET":
-                case "ECONNREFUSED":
-                    code = 502;
-                    break;
-                case "ETIMEDOUT":
-                    code = 504;
-                    break;
-                default:
-                    code = 500;
-            }
-            res.closed = true;
-            res.writeHead(code, {});
-            res.end(String(e));
-        });
+        request.on("error", onerror);
         req.pipe(request);
-    } catch (e) {
-        res.writeHead(500, utf8error);
-        res.end(String(e));
-    }
+        return request;
+    };
+    var request = fetch();
 }
 cross.prefix = new RegExp(`${/^\//.source}(?:${/\{/.source}|%7b|${crossmark.source}+[^${crossmark.source.replace(/^\[|\]/g, '')}])`, 'i');
 cross.referer = new RegExp(`${/^https?\:\/\/[^\/]*/.source}${cross.prefix.source.slice(1)}`, 'i');
