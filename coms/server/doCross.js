@@ -130,7 +130,7 @@ async function cross(req, res, referer) {
             var parsed = parseURL(headers.location);
             if (parsed.host) {
                 var mark = crossmark.test(jsonlike[0]) ? jsonlike[0] : '~';
-                if (parsed.protocol) mark = "~";
+                if (!parsed.protocol && mark === '&') mark = "~";
                 headers["location"] = "/" + mark + (/^https:/i.test(parsed.protocol || req.protocol) ? mark : "") + parsed.host + parsed.path;
                 break a;
             }
