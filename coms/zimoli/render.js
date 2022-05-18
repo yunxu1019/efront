@@ -554,6 +554,7 @@ var binders = {
         });
     }
 };
+var reject = function (e) { digest(); throw e };
 var createEmiter = function (on) {
     return function (key, search) {
         var parsedSrc = this.$src;
@@ -603,7 +604,7 @@ var createEmiter = function (on) {
             else {
                 res = getter0.call(this, e);
             }
-            if (res && isFunction(res.then)) res.then(digest, digest);
+            if (res && isFunction(res.then)) res.then(digest, reject);
             return res;
         });
     };
