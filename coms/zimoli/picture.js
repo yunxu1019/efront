@@ -1,6 +1,6 @@
 
 var coordIn = move.coordIn;
-var _createImage = function (url, callback) {
+var _createImage = function (url, callback, iscurrent) {
     var imgpic;
     if (url instanceof Image) {
         imgpic = new Image;
@@ -18,10 +18,11 @@ var _createImage = function (url, callback) {
         onload.call(imgpic);
     } else {
         imgpic.onload = onload;
+        if (iscurrent) imgpic.onerror = () => alert("打开失败！");
     }
     return imgpic;
 };
-var create = function (url, key) {
+var create = function (url, key, report_error) {
     if (!url) return;
 
     var image = picture_();
@@ -90,7 +91,7 @@ var create = function (url, key) {
         }
     };
 
-    createImage(url, image.setImage);
+    createImage(url, image.setImage, report_error);
 
 
     var get_style = function (x, y, scaled, rotate) {
@@ -127,10 +128,10 @@ function picture(url, to = 0, key) {
             delete images[index];
         }
         if (!images[index]) {
-            images[index] = create.call(p, urls[index], key);
+            images[index] = create.call(p, urls[index], key, p.index === index);
         }
         if (!images[index + 1] && index + 1 < urls.length) {
-            images[index + 1] = create.call(p, urls[index + 1], key);
+            images[index + 1] = create.call(p, urls[index + 1], key, p.index === index);
         }
         if (index >= 5) delete images[index - 5];
         if (index + 5 < urls.length) {
