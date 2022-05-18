@@ -105,13 +105,17 @@ async function cross(req, res, referer) {
             headers[k] = _headers[k];
         }
     }
-    var http, options;
+    var http, options, agent;
     if (/^https\:/i.test(hostpath)) {
         http = require("https");
+        if (!req.socket.agent2) req.socket.agent2 = new http.Agent({ keepAlive: true, keepAliveMsecs: 120000 });
         options = cert;
+        agent = req.socket.agent2;
     } else {
         http = require("http");
+        if (!req.socket.agent1) req.socket.agent1 = new http.Agent({ keepAlive: true, keepAliveMsecs: 120000 });
         options = null;
+        agent = req.socket.agent1;
     }
     var onresponse = function (response) {
         var headers = response.headers;
@@ -194,6 +198,7 @@ async function cross(req, res, referer) {
         var request = http.request(Object.assign({
             method: method,
             headers: headers,
+            agent: agent,
             rejectUnauthorized: false// 放行证书不可用的网站
         }, parseURL($url), options), onresponse);
         request.setTimeout(120000/*support for wechat long pull*/);
