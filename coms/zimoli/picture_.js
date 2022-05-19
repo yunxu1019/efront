@@ -85,8 +85,10 @@ function picture_(image = document.createElement("div")) {
         cover_scale = isxrelex ? x_scale : y_scale;
         loaded_scale = contain_scale = isxrelex ? y_scale : x_scale;
         if (loaded_scale >= 1) {
-            click_scale = 4;
-            loaded_scale = 1;
+            if (loaded_scale > devicePixelRatio) {
+                loaded_scale = devicePixelRatio;
+            }
+            click_scale = loaded_scale * 2;
         }
         else if (loaded_scale > .5) {
             click_scale = 2;
