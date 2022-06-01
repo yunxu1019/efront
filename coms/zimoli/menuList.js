@@ -14,7 +14,6 @@ var unfocus = function () {
     this.setFocus(null);
 };
 var setFocus = function (focused) {
-    console.log(focused)
     if (focused && focused.hasAttribute("disabled")) return;
     var page = this;
     if (focused) {
@@ -179,7 +178,6 @@ function main(page, items, active, direction = 'y') {
         }
         if (emptyFocus !== false) page.setFocus(target);
         if (!item.length) return;
-        console.log('popupmenu')
         page.setFocus(target);
         var clone = template.cloneNode();
         clone.$parentScopes = page.$parentScopes;
