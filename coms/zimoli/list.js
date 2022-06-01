@@ -190,7 +190,7 @@ function ylist(container, generator, $Y) {
     var runbuild = lazy(function () {
         patchBottom();
         patchTop();
-        var firstElement = getFirstElement(), y;
+        var firstElement = getFirstElement(1), y;
         if (firstElement) {
             y = firstElement.index * getNodeTarget(firstElement).offsetHeight;
         } else {
@@ -302,7 +302,7 @@ function ylist(container, generator, $Y) {
         var cache_height = list.offsetHeight;
 
         var childrenMap = getChildrenMap();
-        var first_element, flag_element = first_element = getFirstElement();
+        var first_element, flag_element = first_element = getFirstElement(1);
         if (!flag_element || !isFinite(flag_element.offsetTop)) return;
         var offset = flag_element.index || 0;
         var offsetTop = flag_element.offsetTop;
@@ -435,7 +435,7 @@ function ylist(container, generator, $Y) {
         return index + scrolled;
     };
     list.topIndex = function () {
-        var element = getFirstElement();
+        var element = getFirstElement(1);
         return element ? element.index : 0;
     };
     list.getIndexedElement = getIndexedElement;
