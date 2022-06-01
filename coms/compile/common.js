@@ -343,10 +343,10 @@ var createScoped = function (parsed, wash) {
                 else while (o && o.isExpress && o.type !== SCOPED) {
                     o = o.next;
                     if (o && o.type === EXPRESS) {
+                        saveTo(used, o.text, o);
                         if (o.prev && o.prev.type === STRAP && o.prev.text === 'extends') continue;
                         lets[o.text] = true;
                         o.kind = isFunction ? 'function' : 'class';
-                        saveTo(used, o.text, o);
                         o = o.next;
                     }
                     if (isFunction) break;

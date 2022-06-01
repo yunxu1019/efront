@@ -238,7 +238,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
             console.warn(`将不处理此文件的页面自动预载<gray>${filename}</gray>`);
         }
     }
-    scanner2.debug = /back/.test(filename);
     var code_body = code;
     if (code.isExpress()) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
