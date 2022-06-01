@@ -303,28 +303,18 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
             css(_rhomb, temp);
             _rhomb.setSide(side);
         }
-        if (_rhomb) {
-            var targetX = position.left + (position.width - element.offsetWidth) / 2;
-            if (targetX < 0) {
-                css(element, `left:0;right:auto`);
-                css(_rhomb, `left:${fromOffset(position.left + position.width / 2)};right:auto`);
-            }
-            else if (targetX + element.offsetWidth > innerWidth) {
-                css(element, `right:0;left:auto`);
-                css(_rhomb, `right:${fromOffset(innerWidth - position.left - position.width / 2)};left:auto`);
-            }
-            else {
-                css(element, `left:${fromOffset(targetX)};right:auto`);
-                css(_rhomb, `left:${fromOffset(position.left + position.width / 2)};right:auto`);
-
-            }
-        } else {
-            if (position.left + element.offsetWidth > innerWidth) {
-                css(element, `right:${fromOffset(viewrect.width + viewrect.left - position.left - position.width)};left:auto;`);
-            }
-            else {
-                css(element, `left:${fromOffset(position.left - viewrect.left)};right:auto;`);
-            }
+        var targetX = position.left + (position.width - element.offsetWidth) / 2;
+        if (targetX < 0) {
+            css(element, `left:0;right:auto`);
+            if (_rhomb) css(_rhomb, `left:${fromOffset(position.left + position.width / 2)};right:auto`);
+        }
+        else if (targetX + element.offsetWidth > innerWidth) {
+            css(element, `right:0;left:auto`);
+            if (_rhomb) css(_rhomb, `right:${fromOffset(innerWidth - position.left - position.width / 2)};left:auto`);
+        }
+        else {
+            css(element, `left:${fromOffset(targetX)};right:auto`);
+            if (_rhomb) css(_rhomb, `left:${fromOffset(position.left + position.width / 2)};right:auto`);
         }
 
         var offsetParent = target.offsetParent;
