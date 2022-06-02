@@ -5,6 +5,10 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
     var resize = function () {
         var _layers = layers || _box.src || [];
         if (!_layers.length) return;
+        var _minWidth = +(element.getAttribute("min-width") || element.getAttribute("item-width"));
+        if (_minWidth) {
+            minWidth = _minWidth;
+        }
         var clientWidth = parseFloat(freePixel(_box.clientWidth));
         if (!clientWidth) return;
         var savedCount = boxCount;
@@ -80,30 +84,29 @@ function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
 }
 function main() {
     var element, minWidth, maxWidth, layers;
+    var initMinWidth = function (arg) {
+        if (minWidth) {
+            if (arg >= minWidth) {
+                maxWidth = arg;
+            } else {
+                maxWidth = minWidth;
+                minWidth = arg;
+            }
+        } else {
+            minWidth = arg;
+        }
+    };
     [].forEach.call(arguments, function (arg) {
         if (isNode(arg)) {
             element = arg;
         } else if (isArray(arg)) {
             layers = arg;
         } else if (isFinite(arg)) {
-            if (minWidth) {
-                if (arg >= minWidth) {
-                    maxWidth = arg;
-                } else {
-                    maxWidth = minWidth;
-                    minWidth = arg;
-                }
-            } else {
-                minWidth = arg;
-            }
+            initMinWidth(arg);
         }
     });
     if (element && element.$scope) {
         layers = null;
-    }
-
-    if (isNode(element) && !minWidth) {
-        minWidth = +(element.getAttribute("min-width") || element.getAttribute("item-width"));
     }
     return lattice(element, minWidth || 240, maxWidth, layers);
 }
