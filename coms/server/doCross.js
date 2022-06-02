@@ -131,8 +131,10 @@ async function cross(req, res, referer) {
             if (parsed.host) {
                 var mark = crossmark.test(jsonlike[0]) ? jsonlike[0] : '~';
                 if (!parsed.protocol && mark === '&') mark = "~";
-                headers["location"] = "/" + mark + (/^https:/i.test(parsed.protocol || req.protocol) ? mark : "") + parsed.host + parsed.path;
-                break a;
+                if (mark !== "*") {
+                    headers["location"] = "/" + mark + (/^https:/i.test(parsed.protocol || req.protocol) ? mark : "") + parsed.host + parsed.path;
+                    break a;
+                }
             }
             headers["efront-location"] = headers.location;
             exposeHeaders.push("efront-location");
