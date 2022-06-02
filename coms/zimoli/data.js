@@ -178,6 +178,7 @@ function getUrlParamsForApi(api, url) {
             return r;
         });
     if (api.base) base = api.base + base;
+    if (/\/$/.test(base)) base += "?";
     var params = {};
     url = url.replace(/[\?#]*$/g, function (match) {
         match.split(/[&#\?]+/).forEach(function (s) {
