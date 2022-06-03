@@ -719,6 +719,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     var renders = element.renders;
     element.renders = [];
     for (var k in binds) {
+        if (k === 'src') continue;
         if (directives.hasOwnProperty(k)) {
             directives[k].call(element, [withContext, binds[k]])
         }
@@ -734,6 +735,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             if (element[k] !== props[k]) element[k] = props[k];
         } catch (e) { }
     }
+    if (binds.src) directives.src.call(element, [withContext, binds.src]);
     ons.forEach(([on, key, value]) => on.call(element, key, [withContext, value]));
     if (renders.length) element.renders.push.apply(element.renders, renders);
     if (element.renders.length) {
