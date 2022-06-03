@@ -1,4 +1,4 @@
-function Main(dataid, datapath) {
+function Main(dataid, datapath, titleid) {
     var _titlebar = titlebar(" ");
     var page = createVboxWithState(state);
     page.initialStyle = 'margin-left:100%';
@@ -24,7 +24,7 @@ function Main(dataid, datapath) {
     bindScroll(_titlebar, page);
     var loadedId;
     function main(params) {
-        var { _text, title, name = _text || title, id } = params;
+        var { _text, title = "", name = _text || title, id } = params;
         if (loadedId !== id) {
             loadedId = id;
             var ranklist = data.from(dataid, {
@@ -32,6 +32,15 @@ function Main(dataid, datapath) {
             }, parseSongsList);
             page.$scope.config = params;
             page.$scope.datas = ranklist;
+            if (titleid) {
+                data.from(titleid, {
+                    id
+                }).then(function ({ title }) {
+                    console.log(arguments)
+                    _titlebar.setTitle(title);
+                    document.title = title;
+                })
+            }
         }
         _titlebar.setTitle(name);
         document.title = name;

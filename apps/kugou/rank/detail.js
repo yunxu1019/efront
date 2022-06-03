@@ -1,1 +1,1 @@
-buildScroll("rank-info");
+buildScroll("rank-info", undefined, 'rank-title');

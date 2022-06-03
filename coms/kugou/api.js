@@ -7,6 +7,7 @@
         "song-mix;": "mget:script:nth-last-child(2)           mixsong/:hashid.html",
         "rank-list": "get:[].panel-img-list%20li            rank/list#href=a!href&=a!href\\rank-info&imgurl=img!_src&name=p|innerText",
         "rank-info": "get:[].panel-songslist%20li           rank/info/:id#src=!id&name=.panel-songs-item-name|innerText&data=.panel-songs-item-download/innerText",
+        "rank-title": "get:.page-title                      rank/info/:id#title=!innerText",
         "plist-index": "get:[].panel-img-list%20li          plist/index#href=a!href&=a!href\\plist-info&imgurl=img!_src&name=.panel-img-content-first|innerText&count=.panel-img-content-sub|innerText",
         "plist-info": "mget:[].panel-songslist%20li          plist/list/:id/#name=.panel-songs-item-name|innerText&data=.panel-songs-item-download/innerText",
         "search-hot": "get                                api/v3/search/hot?format=json&plat=0&count=30",
