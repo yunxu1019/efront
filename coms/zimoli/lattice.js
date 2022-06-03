@@ -1,13 +1,14 @@
 var complete_class = "complete";
 var inadequate_class = "lack";
-function lattice(element, minWidth, maxWidth = minWidth << 1, layers) {
-    var boxCount;
+function lattice(element, minWidth, _maxWidth, layers) {
+    var boxCount, maxWidth = _maxWidth || minWidth << 1;
     var resize = function () {
         var _layers = layers || _box.src || [];
         if (!_layers.length) return;
         var _minWidth = +(element.getAttribute("min-width") || element.getAttribute("item-width"));
         if (_minWidth) {
             minWidth = _minWidth;
+            maxWidth = _maxWidth || minWidth << 1;
         }
         var clientWidth = parseFloat(freePixel(_box.clientWidth));
         if (!clientWidth) return;
