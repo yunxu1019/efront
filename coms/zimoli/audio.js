@@ -21,7 +21,7 @@ var reportError = function (error) {
     }
 };
 
-function init() {
+function init(type) {
     if (!this.audioPromise) {
         this.audioPromise = navigator.mediaDevices.getUserMedia({
             audio: { deviceId: this.deviceId }
@@ -32,6 +32,17 @@ function init() {
             analyser.fftSize = 2048;
             context.resume();
             var source = context.createMediaStreamSource(stream);
+            if (/^f/i.test(type)) {
+                this.dancingArray = new Float32Array(analyser.fftSize);
+                this.getTimeDomainData = analyser.getFloatTimeDomainData;
+                this.getFrequencyData = analyser.getFloatFrequencyData;
+            } else {
+                this.dancingArray = new Uint8Array(analyser.fftSize);
+                this.getTimeDomainData = analyser.getByteTimeDomainData;
+                this.getFrequencyData = analyser.getByteFrequencyData;
+            }
+            this.maxDecibels = analyser.maxDecibels;
+            this.minDecibels = analyser.minDecibels;
             return [source, context, analyser];
         });
     }
@@ -70,9 +81,9 @@ async function start() {
     }
     if (commandCount !== this.commandCount) return;
     this.context = context;
-    var dancingArray = new Uint8Array(analyser.fftSize);
+    var dancingArray = this.dancingArray;
     var animate = () => {
-        analyser.getByteTimeDomainData(dancingArray);
+        this.getTimeDomainData.call(analyser, dancingArray);
         cast(this, dancingArray);
         analyser.frame = requestAnimationFrame(animate);
         this.onprocess instanceof Function && this.onprocess(dancingArray);
