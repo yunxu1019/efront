@@ -43,6 +43,9 @@ function init(type) {
             }
             this.maxDecibels = analyser.maxDecibels;
             this.minDecibels = analyser.minDecibels;
+            this.source = source;
+            this.context = context;
+            this.analyser = analyser;
             return [source, context, analyser];
         });
     }
@@ -92,7 +95,7 @@ async function start() {
     this.running = true;
 
     source.connect(analyser);
-    source.connect(this.gain).connect(context.destination);
+    // source.connect(this.gain).connect(context.destination);
     if (this.audio) this.audio.play();
 }
 
