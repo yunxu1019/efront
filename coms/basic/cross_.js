@@ -1,9 +1,17 @@
 var { getCookies, addCookie, delCookies } = cookie;
 var { File } = this;
-function isFile(a) {
-    if (File) {
-        return a instanceof File;
+function hasFile(o) {
+    if (!File) return false;
+    for (var k in o) {
+        var v = o[k];
+        if (v instanceof Array) {
+            for (var v0 of v) {
+                if (v0 instanceof File) return true;
+            }
+        }
+        else if (v instanceof File) return true;
     }
+    return false;
 }
 var base = null, location_href = null;
 var encrypt = null;
@@ -66,6 +74,47 @@ var XMLHttpRequest_abort = function () {
     delete this.abort;
     if (isFunction(this.abort)) this.abort(this);
 };
+
+var form2kv = function (f) {
+    var objs = {};
+    if (isForm(f)) {
+        for (var k of f.keys()) {
+            var vs = f.getAll(k);
+            if (vs.length === 1) vs = vs[0];
+            objs[k] = vs;
+        }
+    }
+    return objs;
+};
+
+var kv2form = function (obj, r = new FormData) {
+    for (var k in obj) {
+        var vs = obj[k];
+        if (vs instanceof Array) {
+            for (var o of vs) r.append(k, o);
+        }
+        else r.append(k, vs);
+    }
+    return r;
+};
+
+var isForm = function (f) {
+    return FormData && f instanceof FormData;
+};
+var pkv1 = function (f) {
+    return parseKV(f, null);
+};
+var mergedata = function (cachedata, pkv) {
+    var res = null;
+    for (var c of cachedata) {
+        if (isString(c)) c = /^\s*\{/.test(c) ? JSON.parse(c) : pkv(c);
+        else if (isForm(c)) c = form2kv(c);
+        if (!res) res = c instanceof Array ? [] : {};
+        extend(res, c);
+    }
+    return res;
+};
+
 /**
  * @param { () => XMLHttpRequest } jsonp
  * @this { () => XMLHttpRequest }
@@ -81,7 +130,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     extend(_headers, headers);
     if (/^[mc]/i.test(method)) {
         _headers["User-Agent"] = /^m/i.test(method)
-        ? "efront/3.25 (iPhone) Safari/602.1"
+            ? "efront/3.25 (iPhone) Safari/602.1"
             : "efront/3.25 (Windows) Chrome/77.0.3865.90";
         method = method.slice(1);
     }
@@ -129,8 +178,8 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     if (/^jsonp/i.test(method)) {
         var cb = method.split('\-')[1] || 'callback';
         Promise.resolve().then(function () {
-            if (!isEmpty(jsondata) && isEmpty(datas)) {
-                datas = serialize(jsondata);
+            if (cachedata.length && isEmpty(datas)) {
+                datas = mergedata(cachedata);
             }
             if (datas) {
                 xhr.src += (/\?/.test(xhr.src) ? "&" : "?") + datas;
@@ -206,6 +255,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 case 301:
                     method = 'get';
                     datas = null;
+                    cachedata = [];
                 case 307:
                     if (xhr.isRedirected > 2) break;
                     var exposekey = nocross ? "location" : "efront-location";
@@ -234,40 +284,20 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         xhr.toString = toResponse;
         if (isencrypt && !encrypt) encrypt = cross.getCode();
         if (isencrypt) xhr.encrypt = encrypt;
+        var cachedata = [];
         xhr.json = xhr.data = xhr.send = function (data, value) {
-            if (!jsondata && !(isEmpty(data) && isEmpty(value))) jsondata = data instanceof Array ? [] : {};
-            if (FormData && data instanceof FormData) {
-                datas = data;
-            } else if (isObject(data) && !isFile(data)) {
-                extend(jsondata, data);
-            } else if (!isEmpty(value)) {
-                extend(jsondata, { [data]: value });
-            } else if (isString(data) && value !== false && /^\s*\{|\=/.test(data)) {
-                var data = /^\s*\{/.test(data) ? JSON.parse(data) : parseKV(data, "&", "=");
-                extend(jsondata, data);
-            } else {
-                datas = data;
+            if (!isEmpty(value)) {
+                cachedata.push({ [data]: value });
+            }
+            else if (!isEmpty(data)) {
+                cachedata.push(data);
             }
             return xhr;
         };
+        var forceForm = false;
         xhr.form = function (data) {
+            forceForm = true;
             xhr.data(data);
-            var hasFile = false;
-            if (FormData) for (var k in jsondata) {
-                if (isFile(jsondata[k])) {
-                    hasFile = true;
-                    break;
-                }
-            }
-            if (hasFile) {
-                datas = new FormData;
-                for (var k in jsondata) {
-                    datas.append(k, jsondata[k]);
-                }
-            } else {
-                realHeaders["Content-Type"] = "application/x-www-form-urlencoded";
-                datas = serialize(jsondata, "&", "=");
-            }
         };
         var fire = async function () {
             if (!~requests.indexOf(xhr)) return;
@@ -279,18 +309,26 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 if (method === 'form') method = 'post';
                 else method = method.slice(1);
             }
+            if (forceForm) isform = true;
             if (/^jsonp/i.test(method)) method = "get";
-            if (!isEmpty(jsondata) && isEmpty(datas)) {
-                if (/^(get|head|trace)$/i.test(method)) {
-                    url = url.replace(/#[\s\S]*/, '');
-                    datas = serialize(jsondata);
-                    if (datas) {
-                        url += (/\?/.test(url) ? "&" : "?") + datas;
-                        datas = "";
+            if (/^(get|head|trace)$/i.test(method)) {
+                url = url.replace(/#[\s\S]*/, '');
+                if (cachedata.length && isEmpty(datas)) datas = serialize(mergedata(cachedata, pkv1), null);
+                if (datas) {
+                    url += (/\?/.test(url) ? "&" : "?") + datas;
+                    datas = "";
+                }
+            }
+            else if (cachedata.length && isEmpty(datas)) {
+                var jsondata = mergedata(cachedata, parseKV);
+                if (isform) {
+                    var hasfile = hasFile(jsondata);
+                    if (hasfile) {
+                        datas = kv2form(jsondata);
+                    } else {
+                        realHeaders["Content-Type"] = "application/x-www-form-urlencoded";
+                        datas = serialize(jsondata, "&", "=");
                     }
-
-                } else if (isform) {
-                    xhr.form(jsondata);
                 } else {
                     datas = JSON.stringify(jsondata);
                     if (datas === "{}" || datas === "[]") {
@@ -331,7 +369,6 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         return xhr;
     };
     var datas = "";
-    var jsondata = null;
     xhr.fail = xhr.error = function (on, asqueue = true) {
         if (!asqueue) {
             onerrors.splice(0, onerrors.length);
