@@ -28,9 +28,17 @@ function chooseFile(accept, multiple, extra) {
                     alert(e + "打开文件失败！");
                 }
             } else {
-                setTimeout(() => {
-                    ok(this.files);
-                }, 100);
+                var count = 0;
+                var getFiles = function () {
+                    count++;
+                    if (input.files && input.files.length) {
+                        ok(input.files);
+                        return;
+                    }
+                    if (count > 20) return;
+                    setTimeout(getFiles, 100);
+                };
+                getFiles();
             }
         });
     });
