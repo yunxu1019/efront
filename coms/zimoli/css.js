@@ -18,6 +18,11 @@ var transfromSimpleValue = function (value) {
     return value;
 };
 var transformValue = function (value, k) {
+    if (value instanceof Array) {
+        var res = [];
+        for (var v of value) res.push(transformValue(v, k));
+        return res;
+    }
     if (ratioPropReg.test(k) || !value) return value;
     if (/^[\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : String(value).split(/\s+/).map(transfromSimpleValue).join(' ');
     return value;
@@ -28,6 +33,12 @@ var partifyValue = function (v) {
 var isSameValue = function (v1, v2) {
     return partifyValue(v1) === partifyValue(v2);
 };
+var setValue = function (o, k, v) {
+    if (v instanceof Array) for (var v0 of v) setValue(o, k, v0);
+    else {
+        if (!isSameValue(o[k], v)) o[k] = v;
+    }
+}
 /**
  * 将中划线转成驼峰式
  * @param {string} key 
@@ -80,9 +91,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
             styleobject[transformNodeKey(oStyle)] = transformValue(oValue, oStyle);
             return;
         } else {
-            try {
-                oStyle = parseKV(oStyle, ';', ':');
-            } catch (e) { }
+            oStyle = parseKV(oStyle, ';', ':');
         }
     }
     if (isObject(oStyle)) {
@@ -93,7 +102,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
                 if (key in styleobject) {
                     try {
                         var value = transformValue(oStyle[k], key);
-                        if (!isSameValue(value, styleobject[value])) styleobject[key] = transformValue(oStyle[k], key);
+                        setValue(styleobject, key, value);
                     } catch (e) {
                         console.warn(key, oStyle[k], "无效");
                     }
@@ -103,7 +112,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
             for (var k in oStyle) {
                 var key = transformNodeKey(k);
                 var value = transformValue(oStyle[k], key);
-                if (key in styleobject && !isSameValue(value, styleobject[key])) styleobject[key] = value;
+                if (key in styleobject) setValue(styleobject, key, value);
             }
         }
     }
