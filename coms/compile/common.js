@@ -640,7 +640,7 @@ var needBreak = function (prev, next) {
 var createString = function (parsed) {
     var pressed = parsed.pressed;
     var lasttype;
-    var result = [];
+    var result = [], cacheresult, finalresult = result;
     var run = (o, i, a) => {
         var prev = o.prev;
         if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && prev && lasttype !== SPACE && !pressed) {
@@ -658,9 +658,29 @@ var createString = function (parsed) {
         switch (o.type) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
-                if (!pressed) {
+                var tmp = o.text, opentmp = false;
+                if (/^\/\/\s*\<\!--/.test(tmp)) {
+                    opentmp = true;
+                    tmp = tmp.replace(/^\/\/\s*\<\!--\s*/, '');
+                    cacheresult = [];
+                    result = cacheresult;
+                    result.push("// <!-- /* 开发环境辅助代码块开始");
+                }
+                if (/--\>\s*$/.test(tmp)) {
+                    if (!opentmp) tmp = tmp.replace(/^\/\/\s*/, '');
+                    tmp = tmp.replace(/\s*--\>\s*$/, "");
+                    if (tmp) result.push(tmp);
+                    result.push("// 开发环境辅助代码块结束 */ -->");
+                    opentmp = true;
+                    if (cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
+                    result = finalresult;
+                }
+                else if (opentmp) {
+                    if (tmp) result.push("\r\n", tmp);
+                }
+                if (!pressed && !opentmp) {
                     if (lasttype !== SPACE && o.prev) result.push(' ');
-                    result.push(o.text);
+                    result.push(tmp);
                 }
                 break;
             case SPACE:
@@ -738,7 +758,7 @@ var createString = function (parsed) {
         if (o.isprop) lasttype = PROPERTY;
     };
     parsed.forEach(run);
-    return result.join("");
+    return finalresult.join("");
 }
 var rename = function (used, from, to) {
     if (from === to) return;
