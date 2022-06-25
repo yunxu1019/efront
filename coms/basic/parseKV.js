@@ -1,26 +1,41 @@
 "use strict";
 var trim = a => a.trim();
-function parseKV(string, spliter = "&", equals = "=", decode = spliter === "&" && equals === "=" ? decodeURIComponent : trim) {
+function parseKV(string) {
+    var spliter, equals, decode;
+    for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
+        var a = arguments[cx];
+        if (typeof a === 'string') {
+            if (!spliter) spliter = a;
+            else if (!equals) equals = a;
+        }
+        else {
+            decode = a;
+        }
+    }
+    if (!spliter) spliter = '&';
+    if (!equals) equals = '=';
+    if (decode === void 0) decode = spliter === "&" && equals === "=" ? decodeURIComponent : trim;
     var object = {};
     if (typeof string === "string") {
-        if (isFunction(decode)) {
-            var kvs = string.split(spliter);
-            for (var cx = 0, dx = kvs.length; cx < dx; cx++) {
-                var kv = kvs[cx];
-                if (!kv) continue;
-                var index = kv.indexOf(equals);
-                if (index < 0) index = kv.length;
-                object[decode(kv.slice(0, index))] = index === kv.length ? undefined : decode(kv.slice(index + 1));
+        var kvs = string.split(spliter);
+        for (var cx = 0, dx = kvs.length; cx < dx; cx++) {
+            var kv = kvs[cx];
+            if (!kv) continue;
+            var index = kv.indexOf(equals);
+            if (index < 0) index = kv.length;
+            var k = kv.slice(0, index);
+            var v = kv.slice(index + 1);
+            if (isFunction(decode)) {
+                k = decode(k);
+                v = decode(v);
             }
-        }
-        else{
-            var kvs = string.split(spliter);
-            for (var cx = 0, dx = kvs.length; cx < dx; cx++) {
-                var kv = kvs[cx];
-                if (!kv) continue;
-                var index = kv.indexOf(equals);
-                if (index < 0) index = kv.length;
-                object[kv.slice(0, index)] = index === kv.length ? undefined : kv.slice(index + 1);
+            if (index === kv.length) v = undefined;
+            if (k in object) {
+                if (object[k] instanceof Array) object[k].push(v);
+                else object[k] = [object[k], v];
+            }
+            else {
+                object[k] = v;
             }
         }
     }
