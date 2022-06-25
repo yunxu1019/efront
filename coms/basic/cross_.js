@@ -107,8 +107,21 @@ var pkv1 = function (f) {
 var mergedata = function (cachedata, pkv) {
     var res = null;
     for (var c of cachedata) {
-        if (isString(c)) c = /^\s*\{/.test(c) ? JSON.parse(c) : pkv(c);
+        var isobj = false;
+        if (isString(c)) {
+            if (/^\s*\{/.test(c)) {
+                c = JSON.parse(c);
+                isobj = true;
+            }
+            else {
+                c = pkv(c);
+            }
+        }
         else if (isForm(c)) c = form2kv(c);
+        else if (isObject(c)) {
+            isobj = true;
+        }
+        if (isobj && pkv !== parseKV) c = parseKV(serialize(c), null);
         if (!res) res = c instanceof Array ? [] : {};
         extend(res, c);
     }
