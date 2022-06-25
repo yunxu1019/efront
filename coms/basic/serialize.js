@@ -1,4 +1,3 @@
-var encodeURIComponent = a => a.replace(/[^\w\.\-_~]/g, a => "%" + encodeUTF8(a).map(a => (a < 16 ? '%0' : '%') + a.toString(16).toUpperCase()));
 var trim = a => a.trim();
 function serialize(map) {
     var spliter, equals, encode;
@@ -22,7 +21,7 @@ function serialize(map) {
             if (v instanceof Array) {
                 v = v.map(String).map(encode);
             }
-            else v = String(v), v = encode(v);
+            else if (v !== undefined) v = String(v), v = encode(v);
             k = encode(k);
         }
         if (v instanceof Array) for (var v0 of v) result.push(k + equals + v0);
