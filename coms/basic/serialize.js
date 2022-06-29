@@ -21,10 +21,12 @@ function serialize(map) {
             if (v instanceof Array) {
                 v = v.map(String).map(encode);
             }
-            else if (v !== undefined) v = String(v), v = encode(v);
+            else if (v === undefined);
+            else v = String(v), v = encode(v);
             k = encode(k);
         }
         if (v instanceof Array) for (var v0 of v) result.push(k + equals + v0);
+        else if (v === undefined) result.push(k);
         else result.push(k + equals + v);
     }
     return result.join(spliter);

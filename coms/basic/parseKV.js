@@ -30,9 +30,11 @@ function parseKV(string) {
                 v = decode(v);
             }
             if (index === kv.length) v = undefined;
-            if (k in object) {
-                if (object[k] instanceof Array) object[k].push(v);
-                else object[k] = [object[k], v];
+            if (k in object && v !== undefined) {
+                if (object[k] instanceof Array);
+                else if (object[k] !== undefined) object[k] = [object[k]];
+                else object[k] = [];
+                if (v !== undefined) object[k].push(v);
             }
             else {
                 object[k] = v;
