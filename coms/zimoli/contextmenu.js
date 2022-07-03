@@ -18,8 +18,7 @@ var createMenu = function (event, items) {
     return elem;
 }
 function contextmenu(target, menuItems) {
-    on("contextmenu")(target, function (event) {
-        event.preventDefault();
+    var showContext = function (event) {
         var menu;
         if (menuItems instanceof Function) {
             menu = menuItems.call(this, event);
@@ -32,9 +31,43 @@ function contextmenu(target, menuItems) {
             position: "absolute",
         });
         popup(menu, event);
-        menu.focus();
         onmousedown(menu, e => e.preventDefault());
-        onblur(menu, lazy(e => remove(menu)));
+        return menu;
+    };
+    var menuHandle = 0;
+    var tm;
+    bindtouch(target, {
+        start(event) {
+            if (event.defaultPrevented) return;
+            event.preventDefault();
+            clearTimeout(menuHandle);
+            if (tm) remove(tm), tm = null;
+            menuHandle = setTimeout(function () {
+                tm = showContext(event);
+            }, 600);
+        },
+        move() {
+            if (onclick.preventClick) return clearTimeout(menuHandle);
+        },
+        end(event) {
+            clearTimeout(menuHandle);
+            if (tm) {
+                event.preventDefault();
+                setTimeout(function () {
+                    if (!tm) return;
+                    tm.focus();
+                    onblur(tm, lazy(e => remove(tm)));
+                }, 60);
+            }
+        }
+    })
+    on("contextmenu")(target, function (event) {
+        if (event.defaultPrevented) return;
+        event.preventDefault();
+        if (tm) remove(tm), tm = null;
+        tm = showContext(event);
+        tm.focus();
+        onblur(tm, lazy(e => remove(tm)));
     });
     return sampleElement;
 }
