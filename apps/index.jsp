@@ -51,7 +51,7 @@
 <body scroll=no max-render=1440>
     欢迎使用efront开发套件
     <script serverside>
-        return context.names.map(n => `<a href="${n}">${n}</a>`).join(' ')
+        return context.names.map(n => `<a href="${n}" target=_blank >${n}</a>`).join(' ')
     </script>
 </body>
 
