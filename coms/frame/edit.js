@@ -18,13 +18,13 @@ function main(title, { submit }, { data: origin, fields, }) {
     });
     on('submit')(page, async function (e) {
         e.preventDefault();
-        await submit(item, fields);
+        await submit(item, fields, origin);
         dispatch(this, 'submited');
         remove(this);
     });
     bind('keydown.ctrl.s')(page, async function (e) {
         e.preventDefault();
-        await submit(item, fields);
+        await submit(item, fields, origin);
         dispatch(this, 'submited');
     });
     on("append")(page, lazy(function () {

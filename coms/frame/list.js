@@ -1,7 +1,7 @@
-function main(title, { fields, options: options0, load, remove }, edit_ref) {
-    prepare(edit_ref);
+function main(title, { fields, options: options0, load, remove, buttons }, edit_ref) {
+    if (isString(edit_ref)) prepare(edit_ref);
     var page = document.createElement("div");
-    var edit = function (o) {
+    var edit = async function (o) {
         if (!edit_ref) {
             return;
         }
@@ -9,12 +9,18 @@ function main(title, { fields, options: options0, load, remove }, edit_ref) {
             page.$scope.load();
         };
         if (isFunction(edit_ref)) {
-            var p = edit_ref(o, callback);
+            var p = await edit_ref({ fields, data: o, callback });
             if (p) on('submited')(p, callback);
+            if (isElement(p) && !p.parentNode) {
+                css(p, { position: "absolute" });
+                p.initialStyle = 'opacity:0;transform:scale(.98);';
+                popup(p, true);
+                move.setPosition(p, [.5, .5]);
+            }
             return;
         }
-        zimoli.prepare(edit_ref, function () {
-            var p = popup(edit_ref, { fields, data: o})
+        if (isString(edit_ref)) await zimoli.prepare(edit_ref, function () {
+            var p = popup(edit_ref, { fields, data: o })
             on("submited")(p, callback);
         })
     };
@@ -22,8 +28,8 @@ function main(title, { fields, options: options0, load, remove }, edit_ref) {
     var options = [
         {
             name: "修改",
-            do(o) {
-                edit(o);
+            async do(o) {
+                await edit(o);
             },
         },
         {
@@ -62,9 +68,11 @@ function main(title, { fields, options: options0, load, remove }, edit_ref) {
             name: "操作",
             options
         }),
+        buttons,
+        hasedit: !!edit_ref,
         data: [],
-        add() {
-            edit();
+        async add() {
+            await edit();
         },
     });
     on("append")(page, function () {
