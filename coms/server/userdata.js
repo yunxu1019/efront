@@ -77,6 +77,7 @@ async function removeItem(k) {
     if (k0 in profile) {
         delete profile[k0];
         saveProfileAsync();
+        await new Promise(ok => setTimeout(ok, 160));
     }
 }
 
@@ -157,6 +158,9 @@ module.exports = {
     },
     getOptionObj(type, key) {
         return this.option(type, key, 0);
+    },
+    getOptionsList(type) {
+        return this.option(type, false);
     },
     hasOption(type, key) {
         return this.option(type, key, null);
