@@ -5,7 +5,7 @@ function main(title, { submit }, { data: origin, fields, }) {
     drag.on(page.firstChild, page);
     resize.on(page);
     page.onback = function () {
-        return false;
+        if (page.querySelector('[dirty]')) return false;
     };
     renderWithDefaults(page, {
         fields,
