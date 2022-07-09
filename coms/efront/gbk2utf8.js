@@ -30,16 +30,28 @@ var points = [
 ];
 var gbk = fs.readFileSync(require("path").join(__dirname, "../../data/gbk.txt"));
 var index = 0;
-var map = {};
+var map = [];
 while (points.length) {
     for (var cx = points.shift(), dx = points.shift() + 1; cx < dx; cx++) {
         var code = gbk[index++] << 8 | gbk[index++];
         map[code] = String.fromCharCode(cx);
     }
 }
-var temp = 0;
+// var map2 = [], saved = -1;
+// for (var cx = 0, dx = map.length; cx < dx; cx++) {
+//     if (map[cx]) {
+//         var start = cx;
+//         while (map[++cx]);
+//         var end = cx - 1;
+//         map2.push(start - saved - 1, end - start);
+//         saved = end;
+//     }
+// }
+// console.log(map2.join());
+// fs.writeFileSync("bb.txt",map.join(""));
 
 module.exports = function gbk2utf8(buff) {
+    var temp = 0;
     var res = [];
     for (var cx = 0, dx = buff.length; cx < dx; cx++) {
         var buf = buff[cx];
