@@ -40,7 +40,7 @@ function decodeArrayBuffer(a, i) {
         case 105://i
             e = _indexOf.call(a, 101/*e*/, i);
             if (e < 0) e = a.length;
-            return [+decodeUTF8(a.slice(i + 1, e)), e + 1];
+            return [+String.fromCharCode.apply(String, a.slice(i + 1, e)), e + 1];
         case 100://d
             var res = {};
             i++;
