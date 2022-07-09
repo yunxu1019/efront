@@ -739,6 +739,7 @@ class Javascript {
                 queue.inExpress = true;
                 queue.end = index;
                 queue.text = text.slice(queue.start, index);
+                row += queue.text.replace(/[^\r\n]+/g, '').length >> 1;
                 queue = parents.pop();
                 lasttype = queue.type;
                 continue;
@@ -756,7 +757,7 @@ class Javascript {
                 if (/[\r\n\u2028\u2029]/.test(m)) {
                     colstart = match.index + 1;
                     m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
-                    row += m.replace(/[^\r\n]+/, '').length >> 1;
+                    row += m.replace(/[^\r\n]+/g, '').length >> 1;
                     save(SPACE);
                 }
                 lasttype = SPACE;
