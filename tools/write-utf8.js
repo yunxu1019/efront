@@ -1,5 +1,7 @@
-"use strict";
 var fs = require("fs");
+// ⏩⏪⏫⏬⏭⏮⏯⏰⏱⏲⏳⏴⏵⏶⏷⏸⏹⏺⏏
+// ⌚⌛
+// ❤ ❣ ✳✴✅❎❌➕➖➗➡
 var points = [
     0x3000, 0x3003,
     0x3005, 0x3017,
@@ -28,29 +30,10 @@ var points = [
     0xe815, 0xe864,
     0xff01, 0xff5e
 ];
-var gbk = fs.readFileSync(require("path").join(__dirname, "../../data/gbk.txt"));
-var index = 0;
-var map = {};
+var texts = [];
 while (points.length) {
     for (var cx = points.shift(), dx = points.shift() + 1; cx < dx; cx++) {
-        var code = gbk[index++] << 8 | gbk[index++];
-        map[code] = String.fromCharCode(cx);
+        texts.push(String.fromCharCode(cx));
     }
 }
-var temp = 0;
-
-module.exports = function gbk2utf8(buff) {
-    var res = [];
-    for (var cx = 0, dx = buff.length; cx < dx; cx++) {
-        var buf = buff[cx];
-        if (temp) {
-            res.push(map[temp << 8 | buf]);
-            temp = 0;
-        } else if (buf > 0x7f) {
-            temp = buf;
-        } else {
-            res.push(String.fromCharCode(buf));
-        }
-    }
-    return res.join("");
-}
+fs.writeFileSync('aa.txt', texts.join(''));
