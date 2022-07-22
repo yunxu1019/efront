@@ -65,11 +65,13 @@ return cross_.bind(function (callback, onerror) {
                     xhr.readyState = 4;
                     callback();
                 });
-                res.on("error", function (e) {
+                var onerror1 = function (e) {
                     xhr.readyState = 4;
                     error = e;
                     onerror(e);
-                });
+                };
+                res.on("error", onerror1);
+                res.on('timeout', onerror1);
                 this.readyState = 2;
             });
             this.readyState = 1;

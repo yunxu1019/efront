@@ -29,7 +29,7 @@ var cross = cross_.bind(function (callback, onerror) {
         abort.call(this);
     };
     xhr.onerror = onerror;
-
+    xhr.ontimeout = onerror;
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             switch (xhr.status) {
