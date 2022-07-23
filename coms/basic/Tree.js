@@ -133,9 +133,16 @@ class Tree extends Array {
         result.deep = max_deep;
         return result;
     }
-    static appendTo(parent, datas) {
+    static appendTo(parent) {
         var tab = parent && parent.tab + 1 || 1;
         var length = parent.length;
+        var datas = [];
+        for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
+            var arg = arguments[cx];
+            if (arg instanceof Item) datas.push(arg);
+            else if (arg instanceof Array) datas.push.apply(datas, arg);
+            else datas.push(arg);
+        }
         for (var data of datas) {
             if (isObject(data)) {
                 data.tab = tab;
