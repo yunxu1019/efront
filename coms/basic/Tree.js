@@ -1,4 +1,6 @@
 class Tree extends Array {
+    count = 0;
+    total = 0;
     constructor(src) {
         if (src instanceof Tree) return src;
         if (src instanceof Array && src[0] && ('tab' in src[0] || 'deep' in src[0])) {
@@ -155,6 +157,7 @@ class Tree extends Array {
         var delta = parent.length - length;
         while (parent) {
             parent.count += delta;
+            parent.total += delta;
             parent = parent.parent;
         }
     }

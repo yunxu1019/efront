@@ -67,6 +67,7 @@ function tree() {
         } else {
             span = document.createElement("node");
             html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}<a class=count>${com.count}</a>`);
+            span.count = span.lastElementChild;
         }
         var _div = button(span);
         _div.setAttribute("node", '');
@@ -116,6 +117,7 @@ function tree() {
                 saved_offset = _div;
             }
             com.closed = com.isClosed();
+            if (_div.count && +_div.count.innerHTML !== com.count) html(_div.count, com.count);
         };
         addClass(_div, "tab" + com.tab);
         var setState = function (closed = com.isClosed()) {
