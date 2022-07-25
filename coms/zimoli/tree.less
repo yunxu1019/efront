@@ -48,3 +48,29 @@ t {
     display: inline-block;
     width: 16px;
 }
+
+&[arrow] {
+
+    .closed,
+    .open {
+        c:before {
+            content: "";
+            display: inline-block;
+            border: .3em solid transparent;
+        }
+    }
+
+    .closed c:before {
+        border-left: .4em solid;
+        border-right: .2em solid transparent;
+    }
+
+    .open c:before {
+        margin-left: -.2em;
+        margin-right: .2em;
+        margin-top: .2em;
+        
+        border-top: .4em solid;
+        border-bottom: .2em solid transparent;
+    }
+}
