@@ -135,6 +135,22 @@ class Tree extends Array {
         result.deep = max_deep;
         return result;
     }
+    static remove(item) {
+        var parent = item.parent;
+        if (parent) {
+            delete item.parent;
+            var index = parent.indexOf(item);
+            if (index >= 0) {
+                parent.splice(index, 1);
+                var count = item.count;
+                var total = item.total;
+                while (parent) {
+                    parent.count -= count;
+                    parent.total -= total;
+                }
+            }
+        }
+    }
     static appendTo(parent) {
         var tab = parent && parent.tab + 1 || 1;
         var length = parent.length;
@@ -146,9 +162,17 @@ class Tree extends Array {
             else datas.push(arg);
         }
         for (var data of datas) {
-            if (isObject(data)) {
-                data.tab = tab;
-                var item = new Item(data);
+            if (isObject(data) || isString(data)) {
+                var item;
+                if (data instanceof Item) {
+                    item = data;
+                    Tree.remove(item);
+                }
+                else {
+                    item = new Item(data);
+                }
+                item.tab = tab;
+                if (item.closed === undefined) item.closed = true;
                 item.parent = parent;
                 item.root = parent.root;
                 parent.push(item);

@@ -10,7 +10,8 @@ class Item extends Array {
         this.extends(value);
     }
     extends(value) {
-        this.value = value;
+        if (value instanceof Item) this.value = value.value;
+        else this.value = value;
         if (value.children instanceof Array) {
             var children = value.children.map(item => new Item(item));
             children.forEach(item => item.parent = item);
@@ -27,6 +28,9 @@ class Item extends Array {
             if (value.url) this.url = value.url;
             if (value.href) this.href = value.href;
             if (value.src) this.src = value.src;
+        }
+        else {
+            this.tab = 1;
         }
     }
 
@@ -48,10 +52,12 @@ class Item extends Array {
     }
 
     isClosed() {
-        return !!this.value.closed;
+        if (isObject(this.value)) return !!this.value.closed;
+        return this.closed;
     }
     setClosed(value) {
-        this.value.closed = value;
+        if (isObject(this.value)) this.value.closed = value;
+        else this.closed = value;
     }
     isActive() {
         if (isObject(this.value)) {
@@ -71,13 +77,16 @@ class Item extends Array {
         this.actived = value;
     }
     isSelected() {
-        return !!this.value.selected;
+        if (isObject(this.value)) return !!this.value.selected;
+        return this.selected;
     }
     isChecked() {
+        if (isObject(this.value)) return !!this.value.checked;
         return !!this.value.checked;
     }
     getClass() {
-        return !!this.value.class;
+        if (isObject(this.value)) return !!this.value.class;
+        return this.class;
     }
 
 }
