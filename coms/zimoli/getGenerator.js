@@ -30,7 +30,7 @@ var getGenerator = function (container, tagName = 'item') {
             com = container.src[index];
         }
         if (com === undefined) return;
-        if (!element) {
+        if (!isNode(element)) {
             var template1 = template.cloneNode(true);
             if (!template1.childNodes.length) {
                 element = template1;
@@ -71,7 +71,7 @@ var getGenerator = function (container, tagName = 'item') {
                 }
             }
             var newItem = render(element, newScope, scopes, false);
-            if (element.with) newItem.with = render(newItem.with = element.with, newScope, scopes, false);
+            if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         }
         return newItem;
     };
