@@ -148,18 +148,18 @@ function main(elem, mode) {
                 mode = "inline";
                 if (elem) {
                     var generator = getGenerator(elem, 'menu-item');
-                    tree(elem, function (index, item, menu) {
-                        var e = generator(index, item);
-                        if (!e || e.children.length) return e;
-                        var m = menuItem(null, menu, elem.useIcon[0]);
-                        return m;
-                    });
                     care(elem, function (src) {
                         if (src) src = getTreeFromData(src);
                         var hasIcon = src.hasIcon;
                         JSON.stringify(src);
                         elem.useIcon = hasIcon;
-                        elem.setData(src);
+                        elem.src = src;
+                    });
+                    tree(elem, function (index, item, menu) {
+                        var e = generator(index, item);
+                        if (!e || e.children.length) return e;
+                        var m = menuItem(null, menu, elem.useIcon[0]);
+                        return m;
                     });
                 } else {
                     var nodes = getTreeNodes(elem);

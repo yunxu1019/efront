@@ -39,6 +39,9 @@ function tree() {
             generator = arg;
         }
     });
+    if (!generator && "$src" in element && element.childNodes.length) {
+        generator = getGenerator(element, 'node');
+    }
     var dom = [], root = null;
     var changed_index, changed_offset;
     var saved_top, saved_offset, timer = 0, timeout = function () {
@@ -225,6 +228,9 @@ function tree() {
         root = new Tree(src);
         refresh();
     };
+    care(banner, function () {
+        this.setData(this.src);
+    });
     banner.addData = function (data, parent = root) {
         appendTo(parent, data);
         refresh();
