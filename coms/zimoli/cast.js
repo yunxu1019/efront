@@ -24,11 +24,16 @@ function cast(target, type, data) {
     var datakey = `cast(${type})`;
     type = `care(${type})`;
     if (target[type] instanceof Array) {
-        target[type].forEach(function (listener) {
-            if (listener instanceof Function) {
-                listener.call(target, data, target[datakey]);
-            }
-        });
-        target[datakey] = data;
+        var listeners = target[type];
+        if (!listeners.datas) listeners.datas = [];
+        var datas = listeners.datas;
+        datas.push(data);
+        if (datas.length === 1) {
+            while (datas.length) target[type].forEach(function (listener) {
+                if (listener instanceof Function) {
+                    listener.call(target, datas[0], target[datakey]);
+                }
+            }), target[datakey] = datas.shift();
+        }
     }
 }
