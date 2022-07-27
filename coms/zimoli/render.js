@@ -85,7 +85,7 @@ var createGetter = function (search, isprop = true) {
     if (isprop) {
         return new Function('event', `${withContext}with(this.$scope){${ret}${searchContext}}`);
     }
-    return new Function("event", `${withContext}with(this.$scope){${/([\=\(\+\-])/.test(searchContext) ? ret + searchContext : `${ret}${searchContext}.call(this.$scope,event)`}}`);
+    return new Function("event", `${withContext}with(this.$scope){${/([\=\(\+\-])/.test(searchContext) ? ret + searchContext : `${ret}${searchContext}(event)`}}`);
 };
 var createComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
