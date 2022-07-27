@@ -1,3 +1,7 @@
+var setRoot = function (item, root) {
+    item.root = root;
+    for (var o of item) setRoot(o, root);
+};
 class Tree extends Array {
     count = 0;
     total = 0;
@@ -13,6 +17,7 @@ class Tree extends Array {
             return Tree.fromData(src.children);
         }
         super();
+        this.root = this;
     }
     static fromData(array) {
         if (array instanceof Tree) return array;
@@ -174,7 +179,7 @@ class Tree extends Array {
                 item.tab = tab;
                 if (item.closed === undefined) item.closed = true;
                 item.parent = parent;
-                item.root = parent.root;
+                if (parent.root && item.root !== parent.root) setRoot(item, parent.root);
                 parent.push(item);
             }
         }
