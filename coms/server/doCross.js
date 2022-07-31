@@ -3,7 +3,7 @@ var parseURL = require("../basic/parseURL");
 var cert = server$cert;
 var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
-var privateKeys = Object.create(null);
+var privateKeys = {};
 "Cookie,Connection,Referer,Host,Origin,Authorization".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
 var record = require("./record");
 var crossmark = /[~,;\.&\*\!]/;
@@ -98,7 +98,7 @@ async function cross(req, res, referer) {
         }
     });
     for (var k in _headers) {
-        if ({}.hasOwnProperty.call(privateKeys, k)) {
+        if (privateKeys.hasOwnProperty(k)) {
             continue;
         }
         if (!headers[k] && _headers[k] && checkIsHttpToken(k)) {
@@ -165,7 +165,7 @@ async function cross(req, res, referer) {
             if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                 record($url, request, response, req, res);
             } else {
-                res.writeHead(response.statusCode, headers);
+                res.writeHead(response.statusCode === 301 && req.headers.authorization ? 302 : response.statusCode, headers);
                 response.pipe(res);
             }
         } else {
