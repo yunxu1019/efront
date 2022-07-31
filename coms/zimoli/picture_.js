@@ -15,7 +15,7 @@ var isequal = (a, b) => a === b || Math.abs(a - b) < .1;
 var aimed = (from, to) => (from + from + from + to) / 4;
 function picture_(image = document.createElement("div")) {
     var image_width, image_height;
-    var scaled = 1, x = 0, y = 0, min_scale, cover_scale, isxrelex, contain_scale, loaded_scale, click_scale, loaded_x, loaded_y;
+    var scaled = 1, x = 0, y = 0, min_scale, cover_scale, isxthin, contain_scale, loaded_scale, click_scale, loaded_x, loaded_y;
     var loaded_width, loaded_height;
     var max_scale = 10 * devicePixelRatio;
     var istouching = false;
@@ -38,14 +38,14 @@ function picture_(image = document.createElement("div")) {
             deltay = y + image_height * scaled / 2 - loaded_height / 2;
         }
         else if (scaled <= cover_scale) {
-            if (isxrelex) {
-                if (x > 0) deltax = x;
-                else if (x + image_width * scaled < loaded_width) deltax = loaded_width - x + image_width * scaled;
-                deltay = y + image_height * scaled / 2 - loaded_height / 2;
-            } else {
-                if (y > 0) deltay = y;
+            if (isxthin) {
+                if (y >= 0) deltay = y;
                 else if (y + image_height * scaled < loaded_height) deltay = y + image_height * scaled - loaded_height;
                 deltax = x + image_width * scaled / 2 - loaded_width / 2;
+            } else {
+                if (x >= 0) deltax = x;
+                else if (x + image_width * scaled < loaded_width) deltax = loaded_width - x + image_width * scaled;
+                deltay = y + image_height * scaled / 2 - loaded_height / 2;
             }
         }
         else {
@@ -81,9 +81,9 @@ function picture_(image = document.createElement("div")) {
         shaped_rotate = 0;
         var y_scale = loaded_height / image_height;
         var x_scale = loaded_width / image_width;
-        isxrelex = x_scale > y_scale;
-        cover_scale = isxrelex ? x_scale : y_scale;
-        loaded_scale = contain_scale = isxrelex ? y_scale : x_scale;
+        isxthin = x_scale > y_scale;
+        cover_scale = isxthin ? x_scale : y_scale;
+        loaded_scale = contain_scale = isxthin ? y_scale : x_scale;
         if (loaded_scale >= 1) {
             if (loaded_scale > devicePixelRatio) {
                 loaded_scale = devicePixelRatio;
