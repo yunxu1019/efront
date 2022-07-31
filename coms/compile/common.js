@@ -659,18 +659,20 @@ var createString = function (parsed) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
                 var tmp = o.text, opentmp = false;
-                if (/^\/\/\s*\<\!--/.test(tmp)) {
+                if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
                     opentmp = true;
-                    tmp = tmp.replace(/^\/\/\s*\<\!--\s*/, '');
+                    tmp = tmp.replace(/^\/[\/\*]\s*\<\!--\s*/, '');
                     cacheresult = [];
                     result = cacheresult;
-                    result.push("// <!-- /* 开发环境辅助代码块开始");
+                    result.push("/* 开发辅助代码 <!-- */");
                 }
-                if (/--\>\s*$/.test(tmp)) {
-                    if (!opentmp) tmp = tmp.replace(/^\/\/\s*/, '');
-                    tmp = tmp.replace(/\s*--\>\s*$/, "");
-                    if (tmp) result.push(tmp);
-                    result.push("// 开发环境辅助代码块结束 */ -->");
+                if (/--\!?\>\s*(?:\*\/)?$/.test(tmp)) {
+                    if (!opentmp) tmp = tmp.replace(/^\/[\/\*]\s*/, '');
+                    tmp = tmp.replace(/\s*--\!?\>\s*(?:\*\/)?$/, "");
+                    if (tmp) {
+                        result.push(tmp);
+                    }
+                    result.push("/* --> */");
                     opentmp = true;
                     if (cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
                     result = finalresult;
