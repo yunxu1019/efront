@@ -25,7 +25,7 @@ function parseKV(string) {
             if (index < 0) index = kv.length;
             var k = kv.slice(0, index);
             var v = kv.slice(index + 1);
-            if (isFunction(decode)) {
+            if (typeof decode === 'function') {
                 k = decode(k);
                 v = decode(v);
             }
