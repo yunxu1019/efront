@@ -38,7 +38,7 @@ class Item extends Array {
         return this.value;
     }
     toString() {
-        return String(this.value);
+        return String(this.name);
     }
     get warn() {
         if (isObject(this.value)) {
@@ -47,8 +47,8 @@ class Item extends Array {
         return false;
     }
     get name() {
-        if (isObject(this.value)) return this.value.name;
-        return this.value;
+        if (isObject(this.value)) return getName(this.value);
+        return String(this.value);
     }
 
     isClosed() {
