@@ -65,11 +65,12 @@ function tree() {
             if (!elem) return;
             span = document.createElement('span');
             span.innerHTML = tabs;
+            span.setAttribute("tabs", '');
             elem.insertBefore(span, elem.firstChild);
             span = elem;
         } else {
             span = document.createElement("node");
-            html(span, `${tabs}<c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}<a class=count>${com.count}</a>`);
+            html(span, `<span tabs>${tabs}</span><c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}<a class=count>${com.count}</a>`);
             span.count = span.lastElementChild;
         }
         var _div = button(span);

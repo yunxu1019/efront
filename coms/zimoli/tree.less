@@ -53,19 +53,19 @@ t {
 
     .closed,
     .open {
-        c:before {
+        [tabs]+*:before {
             content: "";
-            display: inline-block;
+            display: inline-block !important;
             border: .3em solid transparent;
         }
     }
 
-    .closed c:before {
+    .closed [tabs]+*:before {
         border-left: .4em solid;
         border-right: .2em solid transparent;
     }
 
-    .open c:before {
+    .open [tabs]+*:before {
         margin-left: -.2em;
         margin-right: .2em;
         margin-top: .2em;
