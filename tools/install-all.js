@@ -13,13 +13,13 @@ efront -v
 efront --version
 `.trim().split(/[\r\n]+/);
 var run = function (script, timelimit) {
-    if (!timelimit) timelimit = 20000;
+    if (!timelimit) timelimit = 200000;
     if (timelimit < 2000) timelimit = 2000;
     var timeStart = +new Date;
     var gram = child_process.exec(script, {
-        timeout: timelimit
+        timeout: timelimit,
     });
-    gram.stdout.pipe(process.stderr);
+    gram.stderr.pipe(process.stderr);
     gram.stdout.pipe(process.stdout);
     var timer = 0;
     return Promise.race([
@@ -30,15 +30,16 @@ var run = function (script, timelimit) {
     )).then(function () {
         gram.kill();
         clearTimeout(timer);
-        console.info(`执行: <gray>${script}</gray>，用时: <gray>", ${((new Date - timeStart) / 1000).toFixed(2)}</gray>秒`);
+        console.info(`执行: <gray>${script}</gray>，用时: <gray>${((new Date - timeStart) / 1000).toFixed(2)}</gray>秒\r\n`);
     });
 };
 queue.call(parsed, function (version, index) {
     var commands = scripts.slice(0);
     commands[0] += "@" + version;
+    console.time(version);
     return queue.call(commands, run).then(function () {
         if (!localIP) return;
         if (index < 7) return run('efront live 80 443', 20000);
-        return new Promise(a => setTimeout(a, 16000));
+        return new Promise(a => setTimeout(a, 1600));
     });
 });
