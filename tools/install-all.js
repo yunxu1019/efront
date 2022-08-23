@@ -33,14 +33,14 @@ var run = function (script, timelimit) {
         console.info(`执行: <gray>${script}</gray>，用时: <gray>", ${((new Date - timeStart) / 1000).toFixed(2)}</gray>秒`);
     });
 };
-queue.call(parsed, function (version) {
+queue.call(parsed, function (version, index) {
     var version = parsed.pop();
     var commands = scripts.slice(0);
     commands[0] += "@" + version;
     var v = version.split('.').map(a => parseInt(a));
     return queue.call(commands, run).then(function () {
         if (!localIP) return;
-        if (v[0] > 1 || v[1] >= 19) return run('efront live 80 443', 20000);
+        if (index < 7) return run('efront live 80 443', 20000);
         return new Promise(a => setTimeout(a, 16000));
     });
 });
