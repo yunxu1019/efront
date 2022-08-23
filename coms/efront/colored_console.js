@@ -73,9 +73,9 @@ var formatDate = function () {
     return `${[year, month, date].map(toLength).join('-') + colors.FgGray}T${[hours, minutes, seconds].map(toLength).join(':')}.${milli}${offset}`;
 };
 var lastLogLength = 0, lastLogTime = 0;
-var logTime = function () {
+var logTime = function (str = '') {
     lastLogTime = new Date;
-    var time = formatDate.call(lastLogTime) + ` ${colors.FgGreen2 + version + colors.Reset} `;
+    var time = formatDate.call(lastLogTime) + ` ${colors.FgGreen2 + version + colors.Reset} ` + str;
     write1(false, '');
     write1(true, time);
 };
