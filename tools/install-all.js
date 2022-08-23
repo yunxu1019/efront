@@ -3,7 +3,7 @@ var child_process = require("child_process");
 var queue = require("../coms/basic/queue");
 var versions = child_process.execSync("npm view . versions");
 var localIP = require("../coms/efront/getLocalIP")();
-var parsed = JSON.parse(String(versions).replace(/\'/g, '"'));
+var parsed = JSON.parse(String(versions).replace(/\'/g, '"')).reverse();
 var scripts = `
 npm install -g efront
 efront version
@@ -34,10 +34,8 @@ var run = function (script, timelimit) {
     });
 };
 queue.call(parsed, function (version, index) {
-    var version = parsed.pop();
     var commands = scripts.slice(0);
     commands[0] += "@" + version;
-    var v = version.split('.').map(a => parseInt(a));
     return queue.call(commands, run).then(function () {
         if (!localIP) return;
         if (index < 7) return run('efront live 80 443', 20000);
