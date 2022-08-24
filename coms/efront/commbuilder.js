@@ -333,6 +333,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     if (!isDevelop || commbuilder.compress === false) {
         code.relink();
         code.break();
+        code.helpcode = false;
         data = code.toString();
         if (!memery.UPLEVEL) data = require("./downLevel")(data);
         code = scanner2(data);
@@ -346,6 +347,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         code_body = code;
     }
     else if (memery.MSIE) {
+        code.helpcode = false;
         data = code.toString();
         data = require("./downLevel")(data);
         code = scanner2(data);

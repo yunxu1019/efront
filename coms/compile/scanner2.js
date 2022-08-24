@@ -223,6 +223,7 @@ class Program extends Array {
     PROPERTY = PROPERTY
     pressed = false
     _scoped = null;
+    helpcode = true;
     isExpress() {
         if (!this.first) return false;
         var first = this.first;

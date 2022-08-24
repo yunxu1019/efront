@@ -639,6 +639,7 @@ var needBreak = function (prev, next) {
 
 var createString = function (parsed) {
     var pressed = parsed.pressed;
+    var helpcode = parsed.helpcode;
     var lasttype;
     var result = [], cacheresult, finalresult = result;
     var run = (o, i, a) => {
@@ -661,10 +662,11 @@ var createString = function (parsed) {
                 var tmp = o.text, opentmp = false;
                 if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
                     opentmp = true;
+                    if (/^\/\*/.test(tmp)) opentmp = 2;
                     tmp = tmp.replace(/^\/[\/\*]\s*\<\!--\s*/, '');
                     cacheresult = [];
                     result = cacheresult;
-                    result.push("/* 开发辅助代码 <!-- */");
+                    result.push("/* <!-- 开发辅助代码: */");
                 }
                 if (/--\!?\>\s*(?:\*\/)?$/.test(tmp)) {
                     if (!opentmp) tmp = tmp.replace(/^\/[\/\*]\s*/, '');
@@ -674,10 +676,11 @@ var createString = function (parsed) {
                     }
                     result.push("/* --> */");
                     opentmp = true;
-                    if (cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
+                    if (helpcode && cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
                     result = finalresult;
                 }
                 else if (opentmp) {
+                    if (opentmp === 2) tmp = tmp.replace(/\s*\*\/$/, '');
                     if (tmp) result.push("\r\n", tmp);
                 }
                 if (!pressed && !opentmp) {
