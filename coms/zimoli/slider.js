@@ -256,7 +256,7 @@ function slider(autoplay, circle = true) {
         }
     })
 
-    outter.go = function (index, cache) {
+    outter.go = lazy(function (index, cache) {
         if (outter.index === index && cache !== false) return;
         negative_index = -index;
         var _removingMain = _imageMain;
@@ -275,7 +275,7 @@ function slider(autoplay, circle = true) {
         setTimeout(() => css(_imageMain, "transform:scale(1);opacity:1;transition:.2s transform ease-out,.4s opacity"), 0);
         if (player.ing) play();
         return outter;
-    };
+    }, 20);
     outter.play = function (schedule = player.schedule, _isMiss) {
         if (isDefined(_isMiss)) {
             isMiss = _isMiss;
