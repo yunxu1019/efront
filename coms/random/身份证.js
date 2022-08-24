@@ -96,7 +96,8 @@ var parse = function (r) {
         case 18:
             s = r.slice(17, 18);
         case 17:
-            o = r.slice(14, 17);
+            o = r.slice(14, 17) >> 1;
+            x = r.slice(16, 17) & 1;
         case 14:
             d = r.slice(12, 14);
         case 12:
@@ -117,7 +118,7 @@ var parse = function (r) {
         case 3:
             o = r >> 1;
         case 1:
-            x = o & 1;
+            x = r & 1;
             break;
         case 2:
             m = r;
@@ -135,7 +136,7 @@ function 身份证(r) {
         var q = r0 * 20220309 | 0;
         var d = birth(q);
         var [p = code(q), y = d.getFullYear(), m = d.getMonth() + 1, d = d.getDate(), o = order(r0), x = sex(r0)] = parse(r);
-        middle = (y * 10000 + m * 100 + d) * 1000 + (o << 1 | x);
+        middle = (y * 10000 + m * 100 + +d) * 1000 + (o << 1 | x);
         p17 = p + middle;
     }
     if (!p17) {
