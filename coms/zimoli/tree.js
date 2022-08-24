@@ -39,7 +39,7 @@ function tree() {
             generator = arg;
         }
     });
-    if (!generator && "$src" in element && element.childNodes.length) {
+    if (!generator && element && "$src" in element && element.childNodes.length) {
         generator = getGenerator(element, 'node');
     }
     var dom = [], root = null;
