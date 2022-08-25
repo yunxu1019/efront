@@ -396,8 +396,8 @@ var cache = function (filesroot, rebuild, buffer_size_limit) {
         }
         var findPackage = extts.indexOf(".js") >= 0;
         return new Promise(function (ok, oh) {
-            var cy = 0;
-            var cx = 0;
+            var cy = -1;
+            var cx = extts.length;
             var result, matchParent;
             var run = function () {
                 if (cx >= extts.length) {
