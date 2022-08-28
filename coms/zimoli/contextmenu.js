@@ -66,6 +66,7 @@ function contextmenu(target, menuItems) {
         event.preventDefault();
         if (tm) remove(tm), tm = null;
         tm = showContext(event);
+        if (!tm) return;
         tm.focus();
         onblur(tm, lazy(e => remove(tm)));
     });

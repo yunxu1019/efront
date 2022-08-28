@@ -1,3 +1,4 @@
+var _active = action;
 var mounted_menus = [], releaseTimer = 0, root_menu;
 var release = function () {
     clear();
@@ -165,7 +166,7 @@ function register() {
     on("contextmenu")(menu, e => e.preventDefault());
 }
 function main() {
-    var page, items, active, direction = 'y';
+    var page, items, active = _active, direction = 'y';
     for (var a of arguments) {
         if (isNode(a)) page = a;
         else if (a instanceof Function) active = a;
