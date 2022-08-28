@@ -164,9 +164,16 @@ function register() {
     on('keydown.space')(menu, keyspace);
     on("contextmenu")(menu, e => e.preventDefault());
 }
-function main(page, items, active, direction = 'y') {
+function main() {
+    var page, items, active, direction = 'y';
+    for (var a of arguments) {
+        if (isNode(a)) page = a;
+        else if (a instanceof Function) active = a;
+        else if (a instanceof Array) items = a;
+        else if (typeof a === 'string') direction = a;
+    }
     if (!isNode(page)) {
-        var page = document.createElement("menu-list");
+        page = document.createElement("menu-list");
     }
     var main = this;
     if (direction == 'y') page.ispop = true;
@@ -216,7 +223,7 @@ function main(page, items, active, direction = 'y') {
         time = +time;
         if (byMousedown && !time) return;
         if (time) byMousedown = false;
-        
+
         if (page.ispop || time) popTimer = setTimeout(function () {
             if (time) byMousedown = elem;
             page.setFocus(elem);
