@@ -36,6 +36,7 @@ var run = function (script, timelimit) {
 queue.call(parsed, function (version, index) {
     var commands = scripts.slice(0);
     commands[0] += "@" + version;
+    if (Math.random() * (index + 120) / 120 > .5) return;
     console.time(version);
     return queue.call(commands, run).then(function () {
         if (!localIP) return;
