@@ -10,7 +10,7 @@
 | -------------------- | ---------------------------------------------------------------------- | ---------------------------------- | -------------------------------- | ------------------------------ |
 | Hello World 目标代码 | ≈1kb;                                                                  | &gt;30kb                           | &gt;30kb                         | ≈30kb;                         |
 | 开发环境启动时间     | ≈0s;                                                                   | &gt;2s                             | &gt;2s                           | >2s                            |
-| 开发语言             | js/html/less/ts                                                        | ts/html/less/sass/scss             | jsx/css/js/ts/html               | html/css/js                    |
+| 开发语言             | js/html/less                                                          | ts/html/less/sass/scss             | jsx/css/js/ts/html               | html/css/js                    |
 | 导出组件依赖项       | 无                                                                     | angular                            | react                            | vue                            |
 | 官方路由             | zimoli，使用前无需注册路径                                             | angular-router, 使用前需要注册路径 | react-router, 使用前需要注册路径 | vue-router, 使用前需要注册路径 |
 | 跨域实现             | 开发环境内置                                                           | 配置浏览器或服务器                 | 配置浏览器或服务器               | 配置浏览器或服务器             |
