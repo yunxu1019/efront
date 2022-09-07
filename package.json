@@ -18,14 +18,10 @@
     "url": "https://github.com/yunxu1019/efront.git"
   },
   "keywords": [
-    "angular",
-    "angularjs",
-    "react",
-    "vue",
-    "jquery",
-    "commonjs",
-    "cross",
-    "server"
+    "efront",
+    "前端",
+    "server",
+    "webpack"
   ],
   "author": "yunxu1019",
   "license": "MIT"
