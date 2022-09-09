@@ -6,17 +6,17 @@
 
 ## 表面参数对比
 
-| 对比项\框架          | efront/(zimoli)                                                        | angular                            | react                            | vue                            |
-| -------------------- | ---------------------------------------------------------------------- | ---------------------------------- | -------------------------------- | ------------------------------ |
-| Hello World 目标代码 | ≈1kb;                                                                  | &gt;30kb                           | &gt;30kb                         | ≈30kb;                         |
-| 开发环境启动时间     | ≈0s;                                                                   | &gt;2s                             | &gt;2s                           | >2s                            |
-| 开发语言             | js/html/less                                                          | ts/html/less/sass/scss             | jsx/css/js/ts/html               | html/css/js                    |
-| 导出组件依赖项       | 无                                                                     | angular                            | react                            | vue                            |
-| 官方路由             | zimoli，使用前无需注册路径                                             | angular-router, 使用前需要注册路径 | react-router, 使用前需要注册路径 | vue-router, 使用前需要注册路径 |
-| 跨域实现             | 开发环境内置                                                           | 配置浏览器或服务器                 | 配置浏览器或服务器               | 配置浏览器或服务器             |
+| 对比项\框架          | efront/(zimoli)                                                             | angular                            | react                            | vue                            |
+| -------------------- | --------------------------------------------------------------------------- | ---------------------------------- | -------------------------------- | ------------------------------ |
+| Hello World 目标代码 | ≈1kb;                                                                       | &gt;30kb                           | &gt;30kb                         | ≈30kb;                         |
+| 开发环境启动时间     | ≈0s;                                                                        | &gt;2s                             | &gt;2s                           | >2s                            |
+| 开发语言             | js/html/less                                                                | ts/html/less/sass/scss             | jsx/css/js/ts/html               | html/css/js                    |
+| 导出组件依赖项       | 无                                                                          | angular                            | react                            | vue                            |
+| 官方路由             | zimoli，使用前无需注册路径                                                  | angular-router, 使用前需要注册路径 | react-router, 使用前需要注册路径 | vue-router, 使用前需要注册路径 |
+| 跨域实现             | 开发环境内置                                                                | 配置浏览器或服务器                 | 配置浏览器或服务器               | 配置浏览器或服务器             |
 | 代码加载方案         | 依赖加载/自动预加载/手动预加载`preapre('/page/path');` / 动态路径访问时加载 | 一次加载/或访问时加载              | 一次加载/或访问时加载            | 一次加载/或访问时加载          |
-| 跳转传参             | `go`(pagepath,&nbsp;params)                                            | 略                                 | 略                               | 略                             |
-| 异步对象传参         | `cast`(target,&nbsp;data) &#013;&#010; `care`(target,&nbsp;handle)     | 略                                 | 略                               | 略                             |
+| 跳转传参             | `go`(pagepath,&nbsp;params)                                                 | 略                                 | 略                               | 略                             |
+| 异步对象传参         | `cast`(target,&nbsp;data) &#013;&#010; `care`(target,&nbsp;handle)          | 略                                 | 略                               | 略                             |
 
 ## 架构对比
 
@@ -204,6 +204,12 @@ function main(elem){
     });
     onremove(elem,function(event){
         // 移除之前触发，必要时可以绑定
+    });
+    watch(elem, {
+        // propname 指用法<element :propname=propvalue ></element>中的propname
+        propname(current_value, previous_value){
+            // 参数变化后的任务
+        }
     });
     var scope = {
         // html内使用的内容要在这里出现
