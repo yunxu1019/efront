@@ -84,7 +84,6 @@ var isMaybeVisible = function (node) {
     style = getComputedStyle(node);
     if (style.display === "none") return;
     if (style.visibility === "hidden" || style.visibility === "collapse") return;
-    console.log(style.opacity);
     if (+style.opacity === 0) return;
     if (style.position === "fixed") return;
     if (style.overflow === "hidden") {
@@ -140,7 +139,6 @@ var cloneVisible = function (td) {
      */
     var clone = function (td) {
         if (!isMaybeVisible(td)) return;
-        if (/th1/.test(td.innerText)) console.log(td);
         if (td.nodeType === 3) {
             var copy = span.cloneNode();
             copy.appendChild(td.cloneNode());
