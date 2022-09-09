@@ -346,7 +346,7 @@ var v2rgb = function (v, r, g, b) {
 	return [r, g, b];
 };
 
-var gray4 = function (RGBA, S) {
+var gray4 = function (RGBA, A) {
 	var [r, g, b, a] = RGBA;
 	var v = rgb2v(r, g, b);
 	var s = rgb2s(r, g, b);
@@ -358,13 +358,18 @@ var gray4 = function (RGBA, S) {
 	else if (v > .6 * 255) {
 		v = v - p * s - p;
 		s = 1;
+		if (v < 0) v = - v;
 	}
 	else {
 		v = 255;
 	}
+	if (s > .8) {
+		r = 255 + r >> 1, g = 255 + g >> 1, b = 255 + b >> 1;
+		s = .3;
+	}
 	[r, g, b] = rgb4s(r, g, b, s);
 	[r, g, b] = rgb4v(r, g, b, v);
-	return [r, g, b, a];
+	return [r, g, b, A || a];
 };
 
 
@@ -391,8 +396,8 @@ extend(color, {
 	parse,
 	equal,
 	stringify,
-	pair(c, s) {
-		return doWith(gray4, c, s);
+	pair(c, alpha) {
+		return doWith(gray4, c, alpha);
 	},
 	isColor,
 	transform(text) {
