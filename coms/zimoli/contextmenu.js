@@ -39,7 +39,6 @@ function contextmenu(target, menuItems) {
     bindtouch(target, {
         start(event) {
             if (event.defaultPrevented) return;
-            event.preventDefault();
             clearTimeout(menuHandle);
             if (tm) remove(tm), tm = null;
             menuHandle = setTimeout(function () {
