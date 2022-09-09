@@ -409,13 +409,22 @@ function table(elem) {
     };
     care(table, function ([fields, data]) {
         if (_vbox) _vbox(), _vbox = null;
+        watch(table, {
+            find(text) {
+                if ($scope.data.update !== Table.prototype.update) {
+                    $scope.data = Table.from(fields, data);
+                }
+                $scope.data.searchText = text;
+                $scope.data.update();
+            }
+        })
         thead = null;
         fields.forEach(enrichField);
         remove(this.children);
         this.innerHTML = template;
         markedRows = false;
         this.style.display = 'block';
-        render(this, {
+        var $scope = {
             fields,
             isEmpty,
             tbody(e) {
@@ -439,14 +448,7 @@ function table(elem) {
             resizeT,
             model,
             sort(f) {
-                f.sign = f.sign > 0 ? -1 : 1;
-                data.sort(function (a, b) {
-                    a = seek(a, f.key);
-                    b = seek(b, f.key);
-                    if (a > b) return f.sign;
-                    if (a < b) return -f.sign;
-                    return 0;
-                });
+                this.data.sort(f);
             },
             setWidth(target, f) {
                 css(target, { width: f.width });
@@ -454,7 +456,8 @@ function table(elem) {
             a: button,
             setFixedColumn,
             pagination
-        }, this.$parentScopes.concat(this.$scope));
+        };
+        render(this, $scope, this.$parentScopes.concat(this.$scope));
     })
     autodragchildren(
         table,
@@ -505,7 +508,7 @@ function table(elem) {
             }
             markThead();
             markedRows = true;
-            requestAnimationFrame(function(){
+            requestAnimationFrame(function () {
                 setFixedColumn.call(table)
             })
         }

@@ -1,5 +1,5 @@
 <div class="searchbox">
-    <input @input="filter" -model="searchText" />
+    <input -model="searchText" />
 </div>
-<table -src="[fields,items]">
+<table -src="[fields,items]" _find="searchText">
 </talbe>

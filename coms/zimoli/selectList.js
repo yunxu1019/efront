@@ -243,7 +243,8 @@ function main() {
         moveFocus(-focus);
     });
     bind("keydown.end")(page, function (e) {
-        moveFocus(children.length - 1 - focus);
+        var coverIndex = children.coverCount > focus + 1 ? children.coverCount - 1 : children.length - 1;
+        moveFocus(coverIndex - focus);
     });
     bind("keydown.pagedown")(page, function (e) {
         page.scrollBy(page.clientHeight);
