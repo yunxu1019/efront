@@ -71,9 +71,12 @@ var cloneChildren = function (td, copy, clone) {
     if (after) copy.appendChild(after);
 
 };
+/**
+ * @param {Node}
+ */
 var isMaybeVisible = function (node) {
     if (!node || !node.parentNode || node.nodeType > 3 || node.nodeType === 2) return;
-    if (/^(style|link|script|meta)$/i.test(node)) return;
+    if (/^(style|link|script|meta)$/i.test(node.tagName)) return;
     var style = node.style;
     if (!style) {
         node = node.parentNode;
@@ -81,6 +84,7 @@ var isMaybeVisible = function (node) {
     style = getComputedStyle(node);
     if (style.display === "none") return;
     if (style.visibility === "hidden" || style.visibility === "collapse") return;
+    console.log(style.opacity);
     if (+style.opacity === 0) return;
     if (style.position === "fixed") return;
     if (style.overflow === "hidden") {
@@ -88,7 +92,6 @@ var isMaybeVisible = function (node) {
     }
     if (node.offsetParent) {
         var parent = node.offsetParent;
-        if (!isMaybeVisible(parent)) return false;
         if (getComputedStyle(parent).overflow === 'visible') return true;
         return !(node.offsetLeft + node.offsetWidth - parent.scrollLeft <= parent.clientLeft ||
             node.offsetTop + node.offsetHeight - parent.scrollTop <= parent.clientTop ||
@@ -128,11 +131,16 @@ var cloneCanvas = function (canvas) {
 };
 var cloneVisible = function (td) {
     var result = document.createElement("clone");
+    if (!isMaybeVisible(td.offsetParent)) return result;
     var _left, _top, _right, _bottom;
     var span = document.createElement("x");
     var hasSvg = false;
+    /**
+     * @param {Node} td
+     */
     var clone = function (td) {
         if (!isMaybeVisible(td)) return;
+        if (/th1/.test(td.innerText)) console.log(td);
         if (td.nodeType === 3) {
             var copy = span.cloneNode();
             copy.appendChild(td.cloneNode());
