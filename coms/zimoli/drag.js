@@ -62,7 +62,6 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             if (!onclick.preventClick) return;
             saved_delta.ing = true;
             drag.target = target;
-            dispatch("dragstart", target);
             if (isElement(target) && !/absolute|fixed/.test(getComputedStyle(target).position)) {
                 clone = toCloneTarget(target, isMovingSource);
                 z = zIndex(0) + 1;
@@ -79,6 +78,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             extraClones.map(c => document.body.appendChild(c));
             saved_delta.x += clone_left - target_left;
             saved_delta.y += clone_top - target_top;
+            dispatch("dragstart", target);
         }
         event.moveLocked = true;
         drag.target = clone;

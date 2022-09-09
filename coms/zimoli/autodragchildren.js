@@ -331,13 +331,16 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         followedElements.splice(0, followedElements.length);
         previousElements.push.apply(previousElements, _previousElements);
         followedElements.push.apply(followedElements, _followedElements);
-        setOpacity(targetBox, draggingSourceOpacity);
         appendChild(document.body, previousElements);
         appendChild(document.body, followedElements);
         var offall = function () {
+            offdragstart();
             offdragmove();
             offdragend();
         };
+        var offdragstart = on('dragstart')(targetChild, function () {
+            setOpacity(targetBox, draggingSourceOpacity);
+        });
         var offdragend = on("dragend")(targetChild, function () {
             offall();
             dragfire();
