@@ -57,8 +57,8 @@ var power = function (source, search) {
     var match_start2 = matchers[1];
     if (search.length === 1) {
         var p = 0;
-        var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, "\\$&"), "g"), () => {
-            if (!p) p = 1;
+        var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, "\\$&"), "g"), (m, i) => {
+            if (!p) p = .1 / (1 + i);
             return MARK_PRE1 + search + MARK_AFT1;
         });
         return [p, res];
@@ -68,15 +68,22 @@ var power = function (source, search) {
         var match_text_aft = source.slice(match_start2 + match_text.length);
         var pp = 0, ap = 0;
         var p = match_text.length;
-        if (match_text_pre.length) p += .1 / match_text_pre.length - .2;
-        if (match_text_aft.length) p += .1 / match_text_aft.length - .1;
+        if (match_text_pre.length) p += .1 / match_text_pre.length - .3;
+        if (match_text_aft.length) p += .1 / match_text_aft.length - .2;
         if (match_text_pre.length > 1) {
             [pp, match_text_pre] = power(match_text_pre, search);
         }
         if (match_text_aft.length > 1) {
             [ap, match_text_aft] = power(match_text_aft, search);
         }
-        p += (pp + ap) * .01;
+        if (match_text.length === search.length) {
+            p = match_text.length;
+            if (match_start2) p += .1 / match_start2 - .1;
+            if (pp > p) p = pp;
+        }
+        else {
+            p += (pp + ap) / match_text.length * .01;
+        }
         return [p, match_text_pre.concat(MARK_PRE1, match_text, MARK_AFT1, match_text_aft)];
     }
     return [0, source];
