@@ -278,6 +278,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
 
         css(element, `min-width:auto;`);
         var aimedWidth = getScreenPosition(element).width;
+        var originWidth = aimedWidth;
         //如果宽度不足其附着元素的宽度
         if (aimedWidth < position.width) {
             aimedWidth = position.width;
@@ -288,7 +289,8 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
             aimedWidth = maxWidth;
         }
         var side;
-        if (aimedWidth !== element.offsetWidth) {
+        if (aimedWidth !== originWidth) {
+            console.log(originWidth,aimedWidth)
             css(element, { width: fromOffset(aimedWidth) });
         }
         if (position.top + element.offsetHeight + position.height > innerHeight) {
@@ -303,7 +305,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
             css(_rhomb, temp);
             _rhomb.setSide(side);
         }
-        var targetX = position.left + (position.width - element.offsetWidth) / 2;
+        var targetX = position.left - parseFloat(getComputedStyle(element).paddingLeft);
         if (targetX < 0) {
             css(element, `left:0;right:auto`);
             if (_rhomb) css(_rhomb, `left:${fromOffset(position.left + position.width / 2)};right:auto`);

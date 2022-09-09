@@ -196,6 +196,7 @@ function main() {
         mounted_menus.push(menu);
         page.actived = menu;
         menu.root = page.root || page;
+        menu.go(0);
         popup(menu, target);
         if (page.ispop === true) {
         } else {
@@ -207,7 +208,6 @@ function main() {
         once("remove")(menu, function () {
             removeFromList(mounted_menus, this);
         });
-        menu.go(0);
     }
     on("blur")(page, unfocus);
     var template = page.tempalte || document.createElement("ylist");
@@ -229,7 +229,7 @@ function main() {
             if (time) byMousedown = elem;
             page.setFocus(elem);
             popMenu(elem.menu, elem);
-        }, time || 60);
+        }, time || 10);
     };
     var cancel = function () {
         clear();
