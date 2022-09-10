@@ -68,21 +68,16 @@ var power = function (source, search) {
         var match_text_aft = source.slice(match_start2 + match_text.length);
         var pp = 0, ap = 0;
         var p = match_text.length;
-        if (match_text_pre.length) p += .1 / match_text_pre.length - .3;
-        if (match_text_aft.length) p += .1 / match_text_aft.length - .2;
+        p = match_text.length;
+        if (match_start2) p += .1 / match_start2;
         if (match_text_pre.length > 1) {
             [pp, match_text_pre] = power(match_text_pre, search);
         }
         if (match_text_aft.length > 1) {
             [ap, match_text_aft] = power(match_text_aft, search);
         }
-        if (match_text.length === search.length) {
-            p = match_text.length;
-            if (match_start2) p += .1 / match_start2 - .1;
-            if (pp > p) p = pp;
-        }
-        else {
-            p += (pp + ap) / match_text.length * .01;
+        if (match_text.length !== search.length) {
+            p += (pp + ap) / source.length / search.length * .01 - .2;
         }
         return [p, match_text_pre.concat(MARK_PRE1, match_text, MARK_AFT1, match_text_aft)];
     }

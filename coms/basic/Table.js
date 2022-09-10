@@ -26,6 +26,7 @@ class Table extends Array {
         t.fields = fields;
         t.source = data;
         t.searchFields = fields.filter(searchThis);
+        t.update();
         return t;
     }
     /**

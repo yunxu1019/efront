@@ -407,13 +407,10 @@ function table(elem) {
         };
         vbox(table, 'x');
     };
-    care(table, function ([fields, data]) {
+    care(table, async function ([fields, data]) {
         if (_vbox) _vbox(), _vbox = null;
         watch(table, {
             find(text) {
-                if ($scope.data.update !== Table.prototype.update) {
-                    $scope.data = Table.from(fields, data);
-                }
                 $scope.data.searchText = text;
                 $scope.data.update();
             }
@@ -443,7 +440,7 @@ function table(elem) {
                 return tr;
             },
             tbodyHeight,
-            data,
+            data: Table.from(fields, await data),
             adapter: null,
             resizeT,
             model,
