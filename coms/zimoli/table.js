@@ -424,10 +424,12 @@ function table(elem) {
         var $scope = {
             fields,
             isEmpty,
+            tbody0: null,
             tbody(e) {
                 var e = list.apply(null, arguments);
                 css(e, tbodyHeight(e));
                 css(e, { width: this.adapter.offsetWidth, display: 'block' });
+                this.tbody0 = e;
                 return e;
             },
             thead(t) {
@@ -456,6 +458,9 @@ function table(elem) {
         };
         render(this, $scope, this.$parentScopes.concat(this.$scope));
         $scope.data = Table.from(fields, await data);
+        $scope.data.callback = function () {
+            if ($scope.tbody0) $scope.tbody0.go($scope.tbody0.index());
+        };
     })
     autodragchildren(
         table,
