@@ -440,7 +440,7 @@ function table(elem) {
                 return tr;
             },
             tbodyHeight,
-            data: Table.from(fields, await data),
+            data,
             adapter: null,
             resizeT,
             model,
@@ -455,6 +455,7 @@ function table(elem) {
             pagination
         };
         render(this, $scope, this.$parentScopes.concat(this.$scope));
+        $scope.data = Table.from(fields, await data);
     })
     autodragchildren(
         table,
