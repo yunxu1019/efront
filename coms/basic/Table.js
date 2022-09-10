@@ -25,7 +25,7 @@ class Table extends Array {
         var t = new Table;
         t.fields = fields;
         t.source = data;
-        this.searchFields = this.fields.filter(searchThis);
+        t.searchFields = fields.filter(searchThis);
         return t;
     }
     /**
