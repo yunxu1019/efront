@@ -155,6 +155,7 @@ resize.on = function (elem, dragHandle) {
     if (elem) {
         elem.dragHandle = dragHandle;
     }
+    elem.resizable = true;
     onmounted(elem, function () {
         if (!offmousemove) offmousemove = onmousemove(window, getResizer);
         if (!~resizingElements.indexOf(elem)) {

@@ -30,6 +30,7 @@ if (/Firefox/.test(navigator.userAgent)) on('dragstart')(document, function (e) 
     }
 });
 var locktouch = function (target) {
+    if (target.resizable) return false;
     if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => String(a.contentEditable) === 'true' || a.draggable, target)) {
         return true;
     } else {
