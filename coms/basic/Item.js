@@ -35,6 +35,14 @@ class Item extends Array {
             this.tab = 1;
         }
     }
+    get disabled() {
+        if (isObject(this.value)) return this.value.disabled || this.value.enabled === false;
+
+        return false;
+    }
+    get hotkey() {
+        if (isObject(this.value)) return this.value.hotkey;
+    }
 
     valueOf() {
         return this.value;

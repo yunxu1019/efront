@@ -3,7 +3,7 @@
     &nbsp;&nbsp;
 </template>
 <span ng-html="name?"></span>
-<template -if="hotkey?">
+<template -if="hotkey?.length">
     &nbsp;&nbsp; <span ng-repeat="k of hotkey" class="hotkey" ng-html="k"></span>
 </template>
 <s></s>
