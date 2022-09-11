@@ -108,6 +108,8 @@
                 if (path) item.path = path;
                 if (data) item.params = parseKV(data);
                 item.closed = true;
+                if (filter) var item0 = filter(item);
+                if (item0) item = item0;
                 return item;
             });
             return items;
@@ -231,10 +233,14 @@
         result.then = then;
         return result;
     };
-    result.parse = function (items) {
+    var filter = null;
+    result.parse = function (items, f) {
+        filter = f;
         keymap = {};
         items = parseMenuList(items);
         items.keymap = keymap;
+        filter = null;
+        keymap = null;
         return items;
     };
     var then = function (ok, oh) {
