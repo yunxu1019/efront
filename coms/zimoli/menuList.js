@@ -224,7 +224,6 @@ function main() {
         time = +time;
         if (byMousedown && !time) return;
         if (time) byMousedown = false;
-
         if (page.ispop || time) popTimer = setTimeout(function () {
             if (time) byMousedown = elem;
             page.setFocus(elem);
@@ -331,7 +330,6 @@ function main() {
                 a.setAttribute("e-class", className);
                 a.setAttribute("on-mouseleave", "cancel.call(this)");
                 a.setAttribute("on-mouseenter", "popMenu.call(this)");
-                a.setAttribute("on-pointermove", "popMenu.call(this)");
                 a.setAttribute("on-click", "open.call(this)");
                 a.setAttribute("_menu", src.itemName);
                 if (istoolbar) {
@@ -367,7 +365,6 @@ function main() {
             var menu = elem.menu = this.src[index];
             on("mouseleave")(elem, cancel);
             on("mouseenter")(elem, open);
-            on("pointermove")(elem, cancel);
             if (istoolbar) {
                 on("pointerdown")(elem, open1);
                 if (menu.constructor === Item && menu.length && !menu.extended) {
