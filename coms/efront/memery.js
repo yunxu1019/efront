@@ -217,7 +217,7 @@ module.exports = {
     },
     EXPORT_TO: get("EXPORT_TO, TARGET"),
     EXPORT_AS: get("EXPORT_AS, EXPORT"),
-    RELEASE: get("RELEASE", 0),
+    RELEASE: get("RELEASE,INCLUDE_REQUIRED", 0),
     PREFIX: get("PREFIX", ''),
     POLYFILL: get("POLYFILL", true),
     SOURCEDIR: get("SOURCEDIR", false),

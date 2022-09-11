@@ -8,7 +8,8 @@ var detectWithExtension = require("./detectWithExtension");
 var {
     comms_root,
     pages_root,
-    PAGE_PATH
+    PAGE_PATH,
+    include_required
 } = require("./environment");
 var erroredFiles = Object.create(null);
 var getScriptsUrlInHtmlFile = function (fileinfo) {
@@ -136,7 +137,7 @@ var getBuildRoot = function (files, matchFileOnly) {
             indexMap[f] = indexMap[file1];
         };
         var saveComm = function (rel, file) {
-            if (isLib(file)) {
+            if (!include_required && isLib(file)) {
                 saveLlib(rel);
                 return;
             }
