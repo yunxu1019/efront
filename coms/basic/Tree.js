@@ -6,7 +6,7 @@ class Tree extends Array {
     count = 0;
     total = 0;
     constructor(src) {
-        if (src instanceof Tree) return src;
+        if (src && src.coustructor === Tree) return src;
         if (src instanceof Array && src[0] && ('tab' in src[0] || 'deep' in src[0])) {
             return Tree.fromArray(src);
         }
@@ -20,7 +20,7 @@ class Tree extends Array {
         this.root = this;
     }
     static fromData(array) {
-        if (array instanceof Tree) return array;
+        if (array && array.coustructor === Tree) return array;
         var root = new Tree;
         root.tab = -Infinity;
         root.count = 0;
@@ -82,7 +82,7 @@ class Tree extends Array {
         return root;
     }
     static fromArray(array) {
-        if (array instanceof Tree) return array;
+        if (array && array.constructor === Tree) return array;
         var root = new Tree;
         root.tab = -Infinity;
         root.count = 0;
@@ -162,7 +162,7 @@ class Tree extends Array {
         var datas = [];
         for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
             var arg = arguments[cx];
-            if (arg instanceof Item) datas.push(arg);
+            if (arg && arg.constructor === Item) datas.push(arg);
             else if (arg instanceof Array) datas.push.apply(datas, arg);
             else datas.push(arg);
         }

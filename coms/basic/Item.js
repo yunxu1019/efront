@@ -1,5 +1,6 @@
 var id = 0;
 class Item extends Array {
+    extended = false;
     constructor(value) {
         super();
         this.children = this;
@@ -7,10 +8,11 @@ class Item extends Array {
         this.total = 0;//子项中的节点数
         this.crack = 0;
         this.id = ++id;
-        this.extends(value);
+        this.extends(value, false);
     }
-    extends(value) {
-        if (value instanceof Item) this.value = value.value;
+    extends(value, mark) {
+        this.extended = mark !== false;
+        if (value && value.constructor === Item) this.value = value.value;
         else this.value = value;
         if (value.children instanceof Array) {
             var children = value.children.map(item => new Item(item));
