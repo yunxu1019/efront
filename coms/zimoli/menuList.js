@@ -229,7 +229,7 @@ function main() {
             if (time) byMousedown = elem;
             page.setFocus(elem);
             popMenu(elem.menu, elem);
-        }, time || 10);
+        }, time || 60);
     };
     var cancel = function () {
         clear();
@@ -280,7 +280,7 @@ function main() {
     };
     var open1 = function (event) {
         if (event.which === 3) event.preventDefault();
-        if (istoolbar) open.call(this, event.which === 3 ? 20 : 600);
+        if (istoolbar) open.call(this, event.which === 3 ? 20 : 300);
     };
     if (!page.children.length || page.menutype === 1) {
         page.menutype = 1;
@@ -297,7 +297,7 @@ function main() {
             "menu-item"(e, s) {
                 if (e && s === e.$scope) s = itemName ? s[itemName] : s.menu;
                 var a = button(
-                    menuItem(e, s.value, this.hasIcon)
+                    menuItem(e, s, this.hasIcon)
                 );
                 if (!page.firstMenu) {
                     page.firstMenu = a;
@@ -325,7 +325,7 @@ function main() {
             list(page, function (index) {
                 var item = items[index];
                 if (!item) return;
-                if (!(item instanceof Item)) item = new Item(item);
+                if (item.constructor !== Item) item = new Item(item);
                 var a = $scope["menu-item"](null, item);
                 if (src.itemName) a.setAttribute("e-if", notHidden);
                 a.setAttribute("e-class", className);
@@ -334,14 +334,19 @@ function main() {
                 a.setAttribute("on-pointermove", "popMenu.call(this)");
                 a.setAttribute("on-click", "open.call(this)");
                 a.setAttribute("_menu", src.itemName);
-                if (istoolbar) a.setAttribute("on-pointerdown", "popMenu1");
+                if (istoolbar) {
+                    a.setAttribute("on-pointerdown", "popMenu1.call(this,event)");
+                    if (item.constructor === Item && item.length && !item.extended) {
+                        item.extends(item[0]);
+                    }
+                }
                 a = generator(index, item, a);
                 return a;
             });
         }
         else {
             page.innerHTML = menuList;
-            $scope.menus = items.map(i => i instanceof Item ? i : new Item(i));
+            $scope.menus = items.map(i => i.constructor === Item ? i : new Item(i));
             render(page, $scope);
             vbox(page);
         }
@@ -359,11 +364,16 @@ function main() {
                 page.firstMenu = elem;
                 page.total = this.src.length;
             }
-            elem.menu = this.src[index];
+            var menu = elem.menu = this.src[index];
             on("mouseleave")(elem, cancel);
             on("mouseenter")(elem, open);
             on("pointermove")(elem, cancel);
-            if (istoolbar) on("pointerdown")(elem, open1);
+            if (istoolbar) {
+                on("pointerdown")(elem, open1);
+                if (menu.constructor === Item && menu.length && !menu.extended) {
+                    menu.extends(menu[0]);
+                }
+            }
             on("click")(elem, fire);
             return elem;
         }, direction);

@@ -1,4 +1,7 @@
-<i ng-class="icon?" ng-if='useIcon||hasIcon'></i>
+<template -if='useIcon||hasIcon||icon'>
+    <i ng-class="icon?"></i>
+    &nbsp;
+</template>
 <span ng-html="name?"></span>
 <template -if="hotkey?">
     &nbsp;&nbsp; <span ng-repeat="k of hotkey" class="hotkey" ng-html="k"></span>
