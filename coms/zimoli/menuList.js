@@ -210,7 +210,7 @@ function main() {
         });
     }
     on("blur")(page, unfocus);
-    var template = page.tempalte || document.createElement("ylist");
+    var template = page.tempalte || document.createElement(page.tagName);
     if (!page.tempalte) {
         template.className = '';
         template.removeAttribute('mode');
@@ -342,7 +342,7 @@ function main() {
                 }
                 a = generator(index, item, a);
                 return a;
-            });
+            }, direction);
         }
         else {
             page.innerHTML = menuList;
