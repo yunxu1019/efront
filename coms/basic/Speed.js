@@ -1,18 +1,25 @@
 function inertia(gun) {
     var _decreased = 0, spd = new Speed;
+    var lastTime = 0;
     var _decrease = function () {
+        lastTime = Speed.now() - 1;
+        _decrease0();
+    }
+    var _decrease0 = function () {
         if (
             decrease instanceof Function
         ) {
             if (!spd.length || _decreased > 0 && spd.filter(a => a !== 0).length === 0) return;
             var id = smooth_timer;
-            var res = decrease(_decreased++, spd);
+            var now = Speed.now();
+            var res = decrease(now - lastTime, spd);
+            lastTime = now;
             if (smooth_timer !== id) return;
             if (res === false || isEmpty(res)) {
                 spd.unset();
                 return;
             }
-            smooth_timer = requestAnimationFrame(_decrease);
+            smooth_timer = requestAnimationFrame(_decrease0);
         }
     };
     var _cancel = function () {
@@ -26,7 +33,7 @@ function inertia(gun) {
             _decrease();
             return;
         }
-        if (args.filter(a => Math.abs(a) > .5).length === 0) {
+        if (!decrease && args.filter(a => Math.abs(a) > .5).length === 0) {
             spd.reset();
             return;
         }
@@ -63,6 +70,7 @@ function inertia(gun) {
 class Speed extends Array {
     cache = [];
     stamp = 0;
+    deltat = 0;
     static now() {
         return performance.now ? performance.now() : Date.now();
     }
@@ -103,20 +111,26 @@ class Speed extends Array {
         if (this.stamp) ratio = now - this.stamp;
         else ratio = deltat;
         if (ratio > 160) ratio = 1e-3;
+        if (this.deltat) {
+            if (deltat > this.deltat * 10) {
+                ratio = 1e-3;
+            }
+        }
+        this.deltat = deltat;
         this.stamp = now;
         var sum = 0;
         for (var v of values) sum += v * v;
         v = Math.sqrt(sum) * ratio;
         if (v > 1) {
-            v = Math.sqrt(v * (v - 1)) / v;
+            v = Math.sqrt(v * (v - .996)) / v;
         }
         else {
-            v = 1e-7;
+            v = .9;
         }
         var r = ratio * v;
         for (var cx = 0, dx = values.length; cx < dx; cx++) {
             values[cx] *= r;
-            this[cx] *= v;
+            if (Math.abs(this[cx]) > .1) this[cx] *= v;
         }
         return values;
     }

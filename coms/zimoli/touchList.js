@@ -24,7 +24,7 @@ var touchstart = function (event) {
     }
     if (!target) return;
     cancelAnimationFrame(target.scrollTimer);
-    saved_x = null;
+    saved_x = event.clientX, saved_y = event.clientY, moving = false, 0;
     currentTarget = target;
     if (!target.querySelector(".ylife-touch-delete")) {
         css(target, {
@@ -37,11 +37,10 @@ var touchstart = function (event) {
 };
 var moving = false;
 var touchmove = function (event) {
-    if (!saved_x) return saved_x = event.clientX, saved_y = event.clientY, moving = false, 0;
     var delta_x = event.clientX - saved_x;
     var delta_y = event.clientY - saved_y;
     if (!moving) {
-        if (Math.abs(delta_x) < 2 && Math.abs(delta_y) < 2) return;
+        if (Math.abs(delta_x) < MOVELOCK_DELTA && Math.abs(delta_y) < MOVELOCK_DELTA) return;
         if (Math.abs(delta_y) < Math.abs(delta_x)) {
             moving = 1;
         } else {
@@ -49,28 +48,35 @@ var touchmove = function (event) {
         }
     }
     if (moving !== 1) return;
-    event.preventDefault();
-    var marginLeft = -parseInt(currentTarget.scrollLeft) || 0;
-    if (delta_x + marginLeft > 0) {
-        delta_x = -marginLeft;
+    event.moveLocked = true;
+    var buttonWidth = currentTarget.scrollWidth - currentTarget.clientWidth;
+    var scrollLeft = -currentTarget.scrollLeft;
+    if (delta_x + scrollLeft > 0) {
+        delta_x = -scrollLeft;
     }
-    else if (delta_x + marginLeft < - calcPixel(85)) {
-        delta_x = -calcPixel(85) - marginLeft;
+    else if (delta_x + scrollLeft < - buttonWidth) {
+        delta_x = -buttonWidth - scrollLeft;
     }
-    marginLeft += delta_x;
+    scrollLeft += delta_x;
     saved_x += delta_x;
     direction = delta_x;
-    currentTarget.scrollLeft = -marginLeft;
+    currentTarget.scrollLeft = -scrollLeft;
 };
 var scrollTo = function (targetLeft) {
     if (!this) return;
     cancelAnimationFrame(this.scrollTimer);
     var that = this;
+    var scrollTime = +Speed.now();
     var reshape = function () {
-        var currentLeft = parseInt(that.scrollLeft) || 0;
+        var currentLeft = that.scrollLeft;
         if (0 === (0 | currentLeft - targetLeft)) return;
-        var thisTimeLeft = (targetLeft + currentLeft * 3) / 4 | 0;
-        if (Math.abs(thisTimeLeft - currentLeft) < 3) {
+        var now = +Speed.now();
+        var thisTimeLeft = currentLeft;
+        while (scrollTime < now) {
+            scrollTime += 6;
+            thisTimeLeft = (thisTimeLeft * 11 + targetLeft) / 12;
+        }
+        if (Math.abs(thisTimeLeft - currentLeft) < .5) {
             thisTimeLeft = targetLeft;
         } else {
             that.scrollTimer = requestAnimationFrame(reshape);
@@ -94,10 +100,10 @@ var scrollToRight = function () {
 var touchend = function () {
     var marginLeft = -parseInt(currentTarget.scrollLeft) || 0;
     moving = false;
-    if (direction < 0 && marginLeft < -calcPixel(20)) {
+    if (direction < 0 && marginLeft < -7) {
         scrollToLeft.call(currentTarget);
     }
-    else if (direction > 0 && marginLeft > -currentTarget.clientWidth + calcPixel(20)) {
+    else if (direction > 0 && marginLeft > -currentTarget.clientWidth + 7) {
         scrollToRight.call(currentTarget);
     }
     else if (marginLeft < currentTarget.clientWidth - currentTarget.scrollWidth >> 1) {
@@ -130,9 +136,5 @@ function touchList(listElement) {
         move: touchmove,
         end: touchend
     });
-    // ontouchstart(listElement, touchstart);
-    // ontouchmove(listElement, touchmove);
-    // ontouchend(listElement, touchend);
-    // ontouchcancel(listElement, touchend);
     return listElement;
 }

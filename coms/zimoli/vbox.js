@@ -61,7 +61,7 @@ function ybox(generator) {
     addClass(increaser_t, 'y-insert');
     var increaser_b = increaser_t.cloneNode();
     var increase_height = calcPixel(100);
-    var _decrease = function (increaser) {
+    var _decrease = function (increaser, t) {
         var height = parseInt(increaser.height);
         if (height > 1) {
             var scrollTop = _box.$Top();
@@ -76,8 +76,9 @@ function ybox(generator) {
                 var deltaY = tH - bH - scrollTop > height ? height : tH - bH - scrollTop;
                 height -= deltaY;
             }
-            increaser.height = height = height > 16 ? (height * 2 + 6) / 3 : height >> 1;
-            increaser.style.height = fromOffset(height | 0);
+            height = height * Math.pow(.92, t / 6);
+            increaser.height = height
+            increaser.style.height = fromOffset(height);
             return height;
         }
         if (increaser.height) {
@@ -92,8 +93,8 @@ function ybox(generator) {
     var stop2 = lazy(function () {
         scrollY.smooth(stop);
     }, 40);
-    var decrease = function () {
-        var res = _decrease(increaser_t) + _decrease(increaser_b);
+    var decrease = function (t) {
+        var res = _decrease(increaser_t, t) + _decrease(increaser_b, t);
         if (!res) {
             scrollY.smooth(stop);
         }

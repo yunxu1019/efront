@@ -365,7 +365,7 @@ function ylist(container, generator, $Y) {
         }
     };
     list.getLastVisibleElement = getLastVisibleElement;
-    list.$stopY = function (count, spd) {
+    list.$stopY = function (t, spd) {
         var firstElement = getFirstVisibleElement();
         var lastElement = getLastVisibleElement();
         if (!firstElement || !lastElement || !list.clientHeight) return false;
@@ -388,15 +388,15 @@ function ylist(container, generator, $Y) {
         }
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
         var delta = Math.min(calcPixel(60), list.clientHeight >> 2);
-        var deltay = Math.abs(target_y - last_y), y;
-        if (deltay >= delta) {
+        var absy = Math.abs(target_y - last_y), y;
+        if (absy >= delta) {
             return false;
         }
-        if (deltay < 2) y = target_y;
+        if (absy <= 1) y = target_y;
         else {
             var speed = Math.abs(spd.read()[0]);
             if (speed < 1) speed = 1;
-            if (deltay < 3) speed = .5;
+            if (absy < 3) speed = .5;
             y = last_y + (target_y > last_y ? speed : -speed);
         }
         list.$Top(y);

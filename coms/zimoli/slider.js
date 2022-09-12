@@ -112,29 +112,40 @@ function slider(autoplay, circle = true) {
             left: round((indexRight - index) * width) + "px"
         });
     };
+    var savedtime = 0;
+    var animate0 = function () {
+        savedtime = Speed.now() - 1;
+        animate();
+    };
     var animate = function () {
         cancelAnimationFrame(timer_animate);
         var width = outter.clientWidth;
+        var now = +Speed.now();
         if (abs(current_index + negative_index) < 1.25 / width)
             return reshape(-negative_index, false);
         timer_animate = requestAnimationFrame(animate);
-        reshape((current_index * 3 - negative_index) / 4);
+        var temp_index = current_index;
+        while (savedtime < now) {
+            temp_index = (temp_index * 11 - negative_index) / 12;
+            savedtime += 6;
+        }
+        reshape(temp_index);
     };
     var park = function () {
         direction = 0;
         var singleTarget = getSingleTarget();
-        var spd = _speed();
+        var spd = _speed() * 40;
         if (singleTarget) {
             negative_index = round(negative_index);
         }
         else if (delta_negative_index > 0) {
-            if (negative_index - floor(negative_index) > 0.2 / (1 + abs(spd)))
+            if (negative_index - floor(negative_index) > .007 / (.07 + abs(spd)))
                 negative_index = ceil(negative_index);
             else
                 negative_index = floor(negative_index);
         }
         else if (delta_negative_index < 0) {
-            if (ceil(negative_index) - negative_index > 0.2 / (1 + abs(spd)))
+            if (ceil(negative_index) - negative_index > .007 / (.07 + abs(spd)))
                 negative_index = floor(negative_index);
             else
                 negative_index = ceil(negative_index);
@@ -142,7 +153,8 @@ function slider(autoplay, circle = true) {
         else {
             negative_index = round(negative_index);
         }
-        animate();
+        savedtime = 0;
+        animate0();
         var event = createEvent("park");
         event.index = -negative_index;
         dispatch(outter, event);
@@ -176,7 +188,7 @@ function slider(autoplay, circle = true) {
             if (enabled) outter.go(outter.index + count);
         } else {
             if (enabled) negative_index -= count;
-            animate();
+            animate0();
         }
         return enabled;
     };
@@ -186,7 +198,7 @@ function slider(autoplay, circle = true) {
         var singleTarget = getSingleTarget();
         if (singleTarget) {
             var current_Left = singleTarget.offsetLeft;
-            var avail_deltaWidth = round(width >> 2);
+            var avail_deltaWidth = Math.min(round(width >> 2), 120);
             if (current_Left + deltax > avail_deltaWidth) {
                 deltax = avail_deltaWidth - current_Left;
                 saved_x += deltax;
