@@ -2,7 +2,14 @@
 // 2.如果time小于0，传入的函数会立即执行，并忽略-time内的连续调用，time时间后触发最后一次调用
 // 如果time传false或0 使用requestAnimationFrame代替setTimeout按第1步执行
 // 如果time传null或undefined或NaN使用requestAnimationFrame代替setTimeout按第2步执行
-function lazy(run, time) {
+
+/**
+ * @param {Function} run 主程序
+ * @param {number|undefined} time 间隔
+ * @param {any} ret 指定调用结束后返回的结果
+ */
+
+function lazy(run, time, ret) {
     var wait = +time ? setTimeout : requestAnimationFrame;
     var ing, args, that;
     var hire = function () {
@@ -57,6 +64,7 @@ function lazy(run, time) {
         else {
             ing = true; wait(fire);
         }
+        return ret;
     };
 }
 module.exports = lazy;
