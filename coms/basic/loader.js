@@ -40,6 +40,7 @@ if (PREVENT_FRAMEWORK_MODE !== false) {
         return;
     }
 }
+var efront_time = +new Date;
 var _devicePixelRatio = devicePixelRatio;
 var request = window.request || function (url, onload, onerror, version) {
     var xhr = new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
@@ -653,12 +654,7 @@ var removeGlobalProperty = function (property) {
 };
 
 var renderPixelRatio = !/win/i.test(navigator.platform) && devicePixelRatio > 1 && window.innerWidth > 360 && window.innerHeight > 360 ? .86 : .75;
-if (document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform) && navigator.maxTouchPoints > 0) {
-    let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
-    document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=1,maximum-scale=${ratio}`);
-    renderPixelRatio *= devicePixelRatio;
-    devicePixelRatio = 1;
-}
+
 var initPixelDecoder = function () {
     if (pixelDecoder instanceof Function) {
         modules.fromPixel = pixelDecoder;
@@ -832,8 +828,7 @@ var loadResponseTreeFromStorage = function () {
     };
 };
 var preLoad = function () { };
-
-var start_time = +new Date / 1000 | 0;
+var start_time = efront_time / 1000 | 0;
 var errored = {};
 var modules = {
     isProduction,
@@ -868,6 +863,14 @@ var hook = function (requires_count) {
     modules.Promise = Promise;
     modules.hook_time = +new Date;
     if (!efrontPath) efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
+    if (modules.hook_time - efront_time < (isProduction ? 30 : 5) && document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform) && navigator.maxTouchPoints > 0) {
+        let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
+        document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=1,maximum-scale=${ratio}`);
+        renderPixelRatio *= devicePixelRatio;
+        modules.renderPixelRatio = renderPixelRatio;
+        devicePixelRatio = modules.devicePixelRatio = 1;
+    }
+
     init(efrontPath, function (zimoli) {
         if (zimoli instanceof Function) zimoli();
     });
