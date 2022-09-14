@@ -12,3 +12,6 @@ contextmenu(document, function (event) {
         }
     ]);
 })
+on("beforeunload")(window, function () {
+    zimoli.clearHistory();
+})
