@@ -1,8 +1,10 @@
 <template -if='useIcon||hasIcon||icon'>
-    <i ng-class="icon?"></i>
-    &nbsp;&nbsp;
+    <i -class="icon?" -style="{color:color?}"></i>
+    <template -if="name?">
+        &nbsp;&nbsp;
+    </template>
 </template>
-<span ng-html="name?"></span>
+<span -html="name?" -style="{color:color?}"></span>
 <template -if="hotkey?.length">
     &nbsp;&nbsp; <span ng-repeat="k of hotkey" class="hotkey" ng-html="k"></span>
 </template>

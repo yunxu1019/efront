@@ -20,3 +20,4 @@ function main(elem, scope, hasIcon) {
     if (scope.hotkey) bindAccesskey(item, scope.hotkey);
     return item;
 }
+main.template = menuItem;

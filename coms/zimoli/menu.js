@@ -190,7 +190,6 @@ function main(elem, mode) {
                     active(elem, item, null, elem.$src ? createItemTarget.call(elem, item, target) : target);
                 };
                 if ("$src" in elem) {
-                    getGenerator(elem, 'menu-item');
                     var src0 = [];
                     menuList(elem, src0, emit, direction);
                     care(elem, function (src) {

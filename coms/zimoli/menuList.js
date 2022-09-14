@@ -196,7 +196,7 @@ function main() {
         mounted_menus.push(menu);
         page.actived = menu;
         menu.root = page.root || page;
-        menu.go(0);
+        if (menu.go) menu.go(0);
         popup(menu, target);
         if (page.ispop === true) {
         } else {
@@ -210,12 +210,12 @@ function main() {
         });
     }
     on("blur")(page, unfocus);
-    var template = page.tempalte || document.createElement(page.tagName);
-    if (!page.tempalte) {
+    var template = page.$template || document.createElement(page.tagName);
+    if (!page.$template) {
         template.className = '';
         template.removeAttribute('mode');
         template.innerHTML = page.innerHTML;
-        page.tempalte = template;
+        page.$template = template;
     }
     var popTimer = 0, byMousedown;
     var open = function (time) {
@@ -281,100 +281,75 @@ function main() {
         if (event.which === 3) event.preventDefault();
         if (istoolbar) open.call(this, event.which === 3 ? 20 : 300);
     };
-    if (!page.children.length || page.menutype === 1) {
-        page.menutype = 1;
-        var hasIcon = function () {
-            var menus = items;
-            for (var menu of menus) {
-                if (menu.icon) {
-                    return true;
-                }
+    var hasIcon = function () {
+        var menus = items;
+        for (var menu of menus) {
+            if (menu.icon) {
+                return true;
             }
-            return false;
-        };
-        var $scope = {
-            "menu-item"(e, s) {
-                if (e && s === e.$scope) s = itemName ? s[itemName] : s.menu;
-                var a = button(
-                    menuItem(e, s, this.hasIcon)
-                );
-                if (!page.firstMenu) {
-                    page.firstMenu = a;
-                    page.total = items.length;
-                }
-                a.menu = s;
-                return a;
-            },
-            hasIcon: hasIcon(),
-            open: fire,
-            cancel,
-            popMenu: open,
-            popMenu1: open1
-        };
-        if (page.$src) {
-            var src = page.$src;
-            var itemName = src.itemName;
-            var className = `{'has-children':${itemName}.children&&${itemName}.children.length,
+        }
+        return false;
+    };
+    var $scope = {
+        "menu-item"(e, s) {
+            if (e && s === e.$scope) s = itemName ? s[itemName] : s.menu;
+            var a = button(
+                menuItem(e, s, this.hasIcon)
+            );
+            if (!page.firstMenu) {
+                page.firstMenu = a;
+                page.total = items.length;
+            }
+            a.menu = s;
+            return a;
+        },
+        hasIcon: hasIcon(),
+        open: fire,
+        cancel,
+        popMenu: open,
+        popMenu1: open1
+    };
+    if (page.$src) {
+        var src = page.$src;
+        var itemName = src.itemName;
+        var className = `{'has-children':${itemName}.children&&${itemName}.children.length,
             'warn':${itemName}.warn,
             actived:${itemName}.isActived()
         }`;
-            var notHidden = `!${itemName}.hidden`;
-            var generator = getGenerator(page, 'menu-item');
-            page.$generatorScopes.push($scope);
-            list(page, function (index) {
-                var item = items[index];
-                if (!item) return;
-                if (item.constructor !== Item) item = new Item(item);
-                var a = $scope["menu-item"](null, item);
-                if (src.itemName) a.setAttribute("e-if", notHidden);
-                a.setAttribute("e-class", className);
-                a.setAttribute("on-mouseleave", "cancel.call(this)");
-                a.setAttribute("on-mouseenter", "popMenu.call(this)");
-                a.setAttribute("on-click", "open.call(this)");
-                a.setAttribute("_menu", src.itemName);
-                if (istoolbar) {
-                    a.setAttribute("on-pointerdown", "popMenu1.call(this,event)");
-                    if (item.constructor === Item && item.length && !item.extended) {
-                        item.extends(item[0]);
-                    }
-                }
-                a = generator(index, item, a);
-                return a;
-            }, direction);
-        }
-        else {
-            page.innerHTML = menuList;
-            $scope.menus = items.map(i => i.constructor === Item ? i : new Item(i));
-            render(page, $scope);
-            vbox(page);
-        }
-        page.total = items.length;
-        page.renders.unshift(function () {
-            this.$scope.hasIcon = hasIcon();
-        });
-    }
-    else {
-        var generator = getGenerator(page, 'menu-item');
+        var notHidden = `!${itemName}.hidden`;
+        var ItemTemplate = document.createElement('menu-item');
+        ItemTemplate.setAttribute("e-class", className);
+        ItemTemplate.setAttribute("on-mouseleave", "cancel.call(this)");
+        ItemTemplate.setAttribute("on-mouseenter", "popMenu.call(this)");
+        ItemTemplate.setAttribute("on-click", "open.call(this)");
+        ItemTemplate.setAttribute("_menu", src.itemName);
+        ItemTemplate.innerHTML = menuItem.template;
+        if (src.itemName) ItemTemplate.setAttribute("e-if", notHidden);
+        if (istoolbar) ItemTemplate.setAttribute("on-pointerdown", "popMenu1.call(this,event)");
+        var generator = getGenerator(page, ItemTemplate);
+        page.$generatorScopes.push($scope);
         list(page, function (index) {
-            var elem = generator(index);
-            if (!elem) return;
-            if (!page.firstMenu) {
-                page.firstMenu = elem;
-                page.total = this.src.length;
-            }
-            var menu = elem.menu = this.src[index];
-            on("mouseleave")(elem, cancel);
-            on("mouseenter")(elem, open);
+            var item = items[index];
+            if (!item) return;
+            if (item.constructor !== Item) item = new Item(item);
             if (istoolbar) {
-                on("pointerdown")(elem, open1);
-                if (menu.constructor === Item && menu.length && !menu.extended) {
-                    menu.extends(menu[0]);
+                if (item.constructor === Item && item.length && !item.extended) {
+                    item.extends(item[0]);
                 }
             }
-            on("click")(elem, fire);
-            return elem;
+            return generator(index, item);
         }, direction);
     }
+    else {
+        page.innerHTML = menuList;
+        $scope.menus = items.map(i => i.constructor === Item ? i : new Item(i));
+        render(page, $scope);
+        vbox(page);
+    }
+    page.total = items.length;
+    page.renders.unshift(function () {
+        this.$scope.hasIcon = hasIcon();
+    });
     page.open = function (a) {
         open.call(a);
     };
