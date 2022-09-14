@@ -34,7 +34,7 @@
         if (!name) name = k;
         var item = {};
         if (icon) item.icon = icon.replace(/\./g, ' ');
-        if (name) item.name = name;
+        item.name = name;
         if (hotkey) {
             hotkey = hotkey.split(',');
             for (var k of hotkey) {

@@ -1,4 +1,8 @@
 var hasOwnProperty = {}.hasOwnProperty;
+var isName = function (a) {
+    return !isEmpty(a) || isString(a);
+};
+var keys = ["name", 'title', 'label', 'value'];
 function getName(o) {
     var name;
     if (isEmpty(o)) return '';
@@ -7,11 +11,10 @@ function getName(o) {
         name = o.toString();
         if (!isEmpty(name)) return String(name);
     }
-    if (!isEmpty(o.name)) return String(o.name);
-    if (!isEmpty(o.title)) return String(o.title);
-    if (!isEmpty(o.label)) return String(o.label);
-    if (!isEmpty(o.value)) return String(o.value);
+    for (var k of keys) {
+        if (!hasOwnProperty.call(o, k)) continue;
+        if (isName(o[k])) return o[k];
+    }
     if (hasOwnProperty.call(o, 'valueOf')) name = o.valueOf();
-    if (!isEmpty(name)) return String(name);
     return String(o);
 }
