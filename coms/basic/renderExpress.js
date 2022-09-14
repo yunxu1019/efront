@@ -11,8 +11,8 @@ function createSeek(express) {
     return dist;
 }
 function main(express) {
-    if (!/\?\s*\.(?=[^\d])|\?$/.test(express)) return express;
-    var reg = /\\[\s\S]|\?\s*(\.(?!\d)|\s*$)|[\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\[\]\(\)'"`\s]/g;
+    if (!/\?\s*\.(?=[^\d])|\?\s*[\?\]\}\)\:\,=|%&;\>\<]|\?\s*$/.test(express)) return express;
+    var reg = /\\[\s\S]|\?\s*(\.(?!\d)|$|(?=[\?\]\}\)\:\,=|%&;\>\<\*\/]))|[\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\[\]\(\)'"`\s]/g;
     var cache = [], queue = [];
     var exp = [];
     var instr = false;
@@ -71,7 +71,7 @@ function main(express) {
         if (instr) {
             continue;
         }
-        if (/['"`\/\s]/.test(m)) {
+        if (/['"`\/]/.test(m)) {
             isstr = true;
             index++;
         }
