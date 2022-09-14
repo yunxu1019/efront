@@ -117,7 +117,7 @@ function keyalt() {
     else if (root_menu === this && root_menu !== document.activeElement) {
         root_menu.tabIndex = 0;
         root_menu.focus();
-        root_menu.setFocus(root_menu.firstMenu);
+        root_menu.setFocus(root_menu.getIndexedElement(0));
     }
 }
 function keytab(event) {
@@ -296,10 +296,6 @@ function main() {
             var a = button(
                 menuItem(e, s, this.hasIcon)
             );
-            if (!page.firstMenu) {
-                page.firstMenu = a;
-                page.total = items.length;
-            }
             a.menu = s;
             return a;
         },
