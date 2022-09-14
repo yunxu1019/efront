@@ -56,7 +56,6 @@ var getGenerator = function (container, tagName = 'item') {
                 element.setAttribute(a.name, a.value);
             }
         }
-        console.log(element)
         var scopes = container.$generatorScopes;
         var parsedSrc = container.$src;
         if (parsedSrc) {

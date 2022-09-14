@@ -290,7 +290,6 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
         }
         var side;
         if (aimedWidth !== originWidth) {
-            console.log(originWidth,aimedWidth)
             css(element, { width: fromOffset(aimedWidth) });
         }
         if (position.top + element.offsetHeight + position.height > innerHeight) {
