@@ -16,7 +16,7 @@ if (!is_addEventListener_enabled) var __call = function (target, context, handle
 
 var handlersMap = {};
 var changes_key = 'changes';
-var eventtypereg = /(?:\.once|\.prevent|\.stop|\.capture|\.self|\.passive|\.[a-z0-9]+)+\.?$/i;
+var eventtypereg = /(?:\.once|\.prevent|\.stop|\.capture|\.self|\.passive|\.only|\.[!-~←↑→↓⇄↵⨉]+)+\.?$/i;
 var keyCodeMap = {
     backspace: 8,
     tab: 9,
@@ -134,24 +134,25 @@ var keyCodeMap = {
     "\"": 222,
     bright: 255,
 };
+class EventNeedType {
+    once = false;
+    stop = false;
+    capture = false;
+    self = false;
+    prevent = false;
+    passive = false;
+    keyNeed = [];
+    keyCode = 0
+};
 var parseEventTypes = function (eventtypes) {
-    var types = {
-        once: false,
-        stop: false,
-        capture: false,
-        self: false,
-        prevent: false,
-        passive: false,
-        keyNeed: [],
-        keyCode: 0,
-    };
+    var types = new EventNeedType;
     var keyneed = types.keyNeed;
     eventtypes = eventtypereg.exec(eventtypes);
     if (eventtypes) eventtypes = eventtypes[0].slice(1);
     if (eventtypes) {
         var etypes = eventtypes.split(".");
         etypes.forEach(t => {
-            if (t.length === 1) {
+            if (t.length === 1 && /^[0-9a-zA-Z]$/.test(t)) {
                 types.keyCode = t.toUpperCase().charCodeAt(0);
                 return;
             }
@@ -166,7 +167,9 @@ var parseEventTypes = function (eventtypes) {
                     keyneed.push(t);
                     break;
                 case "":
+                case "only":
                     if (!types.keyCode) types.keyCode = true;
+                    types.only = true;
                     break;
                 default:
                     if (isFinite(t)) {
@@ -175,19 +178,34 @@ var parseEventTypes = function (eventtypes) {
                     else if (keyCodeMap[t]) {
                         types.keyCode = keyCodeMap[t];
                     }
+                    else {
+                        throw new Error(`绑定事件参数无效${t}`);
+                    }
 
             }
 
         });
+        if (/alt\./.test(arguments[0])) console.log(eventtypes, etypes, types)
     }
     return types;
 }
+/**
+ * @param {EventNeedType} eventtypes
+ * @param {Event} e;
+ */
 function checkKeyNeed(eventtypes, e) {
     var keyneed = eventtypes.keyNeed;
+    var keykeep = {}
     if (eventtypes.keyNeed) {
         for (var cx = 0, dx = keyneed.length; cx < dx; cx++) {
             var key = keyneed[cx];
+            keykeep[key] = true;
             if (!e[key + "Key"]) return false;
+        }
+    }
+    if (eventtypes.only) {
+        for (var key of ["meta", 'shift', 'ctrl', 'alt']) {
+            if (!keykeep[key] && e[key + "Key"]) return false;
         }
     }
     if (eventtypes.keyCode === true) {
