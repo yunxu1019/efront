@@ -169,7 +169,7 @@ var killCircle = function () {
         if (k.slice(0, keyprefix.length) === keyprefix && loadedModules[k] instanceof Array) {
             var key = k.slice(keyprefix.length);
             var args = loadedModules[k].args;
-            if (loadedModules[k] instanceof Array) continue;
+            if (!(loadedModules[k] instanceof Array)) continue;
             args.forEach(arg => {
                 if (!penddings[arg]) {
                     penddings[arg] = [];
