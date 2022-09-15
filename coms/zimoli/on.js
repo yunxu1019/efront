@@ -185,7 +185,6 @@ var parseEventTypes = function (eventtypes) {
             }
 
         });
-        if (/alt\./.test(arguments[0])) console.log(eventtypes, etypes, types)
     }
     return types;
 }
