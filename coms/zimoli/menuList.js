@@ -154,15 +154,15 @@ function keyspace() {
 function register() {
     var menu = this;
     // if (!root_menu) root_menu = this;
-    bind('keydown.alt.')(menu, keyalt);
-    bind('keydown.esc')(menu, keyesc);
-    on('keydown.tab')(menu, keytab);
-    on('keydown.left')(menu, keyleft);
-    on('keydown.right')(menu, keyright);
-    on('keydown.up')(menu, keyup);
-    on('keydown.down')(menu, keydown);
-    on('keydown.enter')(menu, keyspace);
-    on('keydown.space')(menu, keyspace);
+    bind('keydown.only.alt.')(menu, keyalt);
+    bind('keydown.esc.only')(menu, keyesc);
+    on('keydown.tab.only')(menu, keytab);
+    on('keydown.left.only')(menu, keyleft);
+    on('keydown.right.only')(menu, keyright);
+    on('keydown.up.only')(menu, keyup);
+    on('keydown.down.only')(menu, keydown);
+    on('keydown.enter.only')(menu, keyspace);
+    on('keydown.space.only')(menu, keyspace);
     on("contextmenu")(menu, e => e.preventDefault());
 }
 function main() {

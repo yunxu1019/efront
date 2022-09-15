@@ -89,13 +89,18 @@ var getTreeNodes = function (elem) {
     [].forEach.call(elem.children, run);
     return nodes;
 };
+/**
+ * @param {any} item
+ * @param {Event} event
+ */
 var emitEvent = function (item, event) {
+    if (event.defaultPrevented) return;
     event.preventDefault(true);
     if (item.disabled) return;
     active(this, item, item, this.$src ? createItemTarget.call(this, item) : this);
 }
 function bindGlobalkey(elem, keymap, emit) {
-    if (elem.keymap) {
+    if (elem.keyoff) {
         for (var off of elem.keyoff) {
             off();
         }
@@ -103,6 +108,7 @@ function bindGlobalkey(elem, keymap, emit) {
     if (!keymap) return;
     var keyoff = [];
     for (let k in keymap) {
+        console.log(k)
         keyoff.push(bind("keydown." + k)(elem, emitEvent.bind(elem, keymap[k])));
     }
     elem.keyoff = keyoff;

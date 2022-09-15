@@ -1,8 +1,12 @@
 var keyMap = {};
-on("keydown")(window, function (event) {
+/**
+ * @param {KeyboardEvent} event
+ */
+var keydownhandler = function (event) {
+    if (event.defaultPrevented) return;
     var { which } = event;
     switch (event.which) {
-        case 18:
+        case 18: // alt
             event.preventDefault();
             break;
         default:
@@ -16,12 +20,15 @@ on("keydown")(window, function (event) {
             if (elem) {
                 var parent = elem.parentNode;
                 if (event.altKey || parent === document.activeElement || parent.ispop) {
-                    event.preventDefault();
-                    elem.click();
+                    if (!(event.metaKey || event.shiftKey || event.ctrlKey)) {
+                        event.preventDefault();
+                        elem.click();
+                    }
                 }
             }
     }
-});
+}
+on("keydown")(window, keydownhandler);
 var bindAccesskey = function (btn, k) {
     if (!keyMap[k]) keyMap[k] = [];
     removeFromList(keyMap[k], btn);
@@ -42,6 +49,7 @@ var getKeyFromText = function (btn) {
     return accesskey.toUpperCase();
 }
 function main(elem, key = getKeyFromText(elem)) {
+    if (!key) return;
     bindAccesskey(elem, key);
     return elem;
 }
