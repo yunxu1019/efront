@@ -195,12 +195,15 @@ function main() {
         if (emptyFocus !== false) page.setFocus(target);
         if (!item.length) return;
         page.setFocus(target);
-        var clone = template.cloneNode();
-        clone.$parentScopes = page.$parentScopes;
-        clone.$scope = page.$scope;
-        clone.$src = src;
-        clone.innerHTML = template.innerHTML;
-        var menu = main(clone, item.children, active);
+        var menu = item.menu;
+        if (!menu) {
+            var clone = template.cloneNode();
+            clone.$parentScopes = page.$parentScopes;
+            clone.$scope = page.$scope;
+            clone.$src = src;
+            clone.innerHTML = template.innerHTML;
+            menu = item.menu = main(clone, item.children, active);
+        }
         mounted_menus.push(menu);
         page.actived = menu;
         menu.root = page.root || page;
@@ -212,6 +215,7 @@ function main() {
         }
         once("remove")(menu, function () {
             removeFromList(mounted_menus, this);
+            menu.setFocus(null);
         });
     }
     on("blur")(page, unfocus);
