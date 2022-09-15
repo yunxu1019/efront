@@ -9,11 +9,19 @@ var release = function () {
 var clear = function () {
     clearTimeout(releaseTimer);
 };
-var unfocus = function () {
+var unfocus = lazy(function () {
+    if (mounted_menus.indexOf(document.activeElement) >= 0) return;
     remove(mounted_menus);
     this.ispop = false;
     this.setFocus(null);
+});
+var unblur = function () {
+    if (document.activeElement !== this) {
+        this.tabIndex = 0;
+        this.focus();
+    }
 };
+
 var setFocus = function (focused) {
     if (focused && (focused.hasAttribute("disabled") || focused.hasAttribute("line"))) return;
     var page = this;
@@ -201,10 +209,7 @@ function main() {
         if (page.ispop === true) {
         } else {
             page.ispop = 1;
-            page.tabIndex = 0;
-            page.focus();
         }
-        on("mousedown")(menu, e => e.preventDefault());
         once("remove")(menu, function () {
             removeFromList(mounted_menus, this);
         });
@@ -233,8 +238,15 @@ function main() {
     var cancel = function () {
         clear();
         clearTimeout(popTimer);
-    }
-    var fire = async function () {
+    };
+    on('pointerdown')(page, unblur);
+    var fireTime = Speed.now();
+    var fire = lazy(function () {
+        var now = Speed.now();
+        if (fireTime + 300 > now) {
+            return;
+        }
+        fireTime = now;
         cancel();
         if (this.menu.line) return;
         if (byMousedown) return;
@@ -259,24 +271,26 @@ function main() {
         }
         if (root.ispop === 1) root.ispop = false;
         if (page.actived && page.actived.target === this) {
-            while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page.actived) remove(mounted_menus.pop());
-            if (!mounted_menus.length) {
+            if (mounted_menus.indexOf(page.actived) >= 0) while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page.actived) remove(mounted_menus.pop());
+            if (!mounted_menus.length || page === mounted_menus[mounted_menus.length - 1]) {
                 if (byMousedown === false) return;
                 popMenu(this.menu, this, false);
             }
             else {
                 remove(mounted_menus.pop());
+                page.actived = null;
             }
         }
         else {
             while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page) remove(mounted_menus.pop());
             if (byMousedown === false) return;
+            page.actived = null;
             popMenu(this.menu, this, false);
             if (!page.actived) {
-                (page.root || page).blur();
+                page.blur();
             }
         }
-    };
+    });
     var open1 = function (event) {
         if (event.which === 3) event.preventDefault();
         if (istoolbar) open.call(this, event.which === 3 ? 20 : 300);

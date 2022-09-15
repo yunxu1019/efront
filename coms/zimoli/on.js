@@ -476,7 +476,7 @@ var invoke = function (event, type, pointerType) {
             isClickWithPointer = false;
             var saved_time = lasttime_click;
             lasttime_click = event.timeStamp;
-            if (!need || lasttime_click - saved_time < 60 || onclick.preventClick || touchendFired && !event.touchend) {
+            if (!need || lasttime_click - saved_time < 120 || onclick.preventClick || touchendFired && !event.touchend) {
                 // 阻止非人为点击，防止误操作
                 event.preventDefault();
                 event.stopPropagation();
