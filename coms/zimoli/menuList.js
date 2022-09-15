@@ -15,7 +15,7 @@ var unfocus = function () {
     this.setFocus(null);
 };
 var setFocus = function (focused) {
-    if (focused && focused.hasAttribute("disabled")) return;
+    if (focused && (focused.hasAttribute("disabled") || focused.hasAttribute("line"))) return;
     var page = this;
     if (focused) {
         if (page.focused !== focused) {
