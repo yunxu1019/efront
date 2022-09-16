@@ -12,6 +12,7 @@ var clear = function () {
 var unfocus = lazy(function () {
     if (mounted_menus.indexOf(document.activeElement) >= 0) return;
     remove(mounted_menus);
+    if (root_menu) root_menu.setFocus(null);
     this.ispop = false;
     this.setFocus(null);
 });
