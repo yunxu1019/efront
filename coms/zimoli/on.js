@@ -134,7 +134,7 @@ var keyCodeMap = {
     "\"": 222,
     bright: 255,
 };
-class EventNeedType {
+class EventKeyNeed {
     once = false;
     stop = false;
     capture = false;
@@ -145,7 +145,7 @@ class EventNeedType {
     keyCode = 0
 };
 var parseEventTypes = function (eventtypes) {
-    var types = new EventNeedType;
+    var types = new EventKeyNeed;
     var keyneed = types.keyNeed;
     eventtypes = eventtypereg.exec(eventtypes);
     if (eventtypes) eventtypes = eventtypes[0].slice(1);
@@ -189,7 +189,7 @@ var parseEventTypes = function (eventtypes) {
     return types;
 }
 /**
- * @param {EventNeedType} eventtypes
+ * @param {EventKeyNeed} eventtypes
  * @param {Event} e;
  */
 function checkKeyNeed(eventtypes, e) {

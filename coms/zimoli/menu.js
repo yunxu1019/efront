@@ -108,7 +108,7 @@ function bindGlobalkey(elem, keymap, emit) {
     if (!keymap) return;
     var keyoff = [];
     for (let k in keymap) {
-        keyoff.push(bind("keydown." + k)(elem, emitEvent.bind(elem, keymap[k])));
+        keyoff.push(bind("keydown.only." + k)(elem, emitEvent.bind(elem, keymap[k])));
     }
     elem.keyoff = keyoff;
 }
