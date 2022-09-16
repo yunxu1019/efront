@@ -27,7 +27,10 @@
         if (/,/.test(k)) {
             var [k, ...roles] = k.split(',');
         }
-        if (!icon && /\s+|\./.test(k)) {
+        if (!icon && /(?!\.)\.(?=[\w\-])/.test(k)) {
+            icon = k.slice(k.indexOf(/(?!\.)\.(?=[\w\-])/));
+        }
+        if (!icon && /\s+/.test(k)) {
             [icon] = k.split(/\s+/);
             k = k.slice(icon.length).trim();
         }
