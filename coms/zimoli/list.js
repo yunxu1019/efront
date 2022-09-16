@@ -15,7 +15,11 @@ function ylist(container, generator, $Y) {
         if (a !== void 0) scrollTo(a);
     });
     var getNodeTarget = function (node) {
-        if (node.nodeType === 8 && node.template) return node.template;
+        if (node.nodeType === 8 && node.template) {
+            var t = node.template;
+            if (!isFinite(t.index)) t.index = node.index;
+            return node.template;
+        }
         return node;
     };
     //取底部元素

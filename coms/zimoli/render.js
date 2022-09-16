@@ -253,7 +253,6 @@ var createIf = function (search, id = 0) {
                     e.renderid = id;
                     c.template = render(e, this.$scope, this.$parentScopes);
                 }
-                if (isFinite(c.index)) e.index = c.index;
             }
             else {
                 remove(c.template);
