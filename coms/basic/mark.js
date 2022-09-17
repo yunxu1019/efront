@@ -69,7 +69,7 @@ var power = function (source, search) {
         var pp = 0, ap = 0;
         var p = match_text.length;
         p = match_text.length;
-        if (match_start2) p += .1 / match_start2;
+        if (match_start2) p += .1 / match_start2 - .2;
         if (match_text_pre.length > 1) {
             [pp, match_text_pre] = power(match_text_pre, search);
         }
