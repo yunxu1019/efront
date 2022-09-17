@@ -1,7 +1,8 @@
 var document = this.document;
 
 function innerHeight() {
-    return document.documentElement.clientHeight || document.body && document.body.clientHeight;
+    if (isFinite(window.innerHeight)) return window.innerHeight;
+    return document.documentElement.offsetHeight || document.body && document.body.offsetHeight;
 }
 innerHeight.toString = function () {
     return this().toString();

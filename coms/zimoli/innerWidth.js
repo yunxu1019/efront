@@ -1,6 +1,7 @@
 var document = this.document;
 function innerWidth() {
-    return document.documentElement.clientWidth || document.body && document.body.clientWidth;
+    if (isFinite(window.innerWidth)) return window.innerWidth;
+    return document.documentElement.offsetWidth || document.body && document.body.offsetWidth;
 }
 innerWidth.toString = function () {
     return this().toString();
