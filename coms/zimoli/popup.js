@@ -1,8 +1,9 @@
 /**
  * 弹出层
  */
-onkeydown(document, function (e) {
-    if (e.which === 27 && rootElements.length) {
+on("keydown.esc.only")(document, function (e) {
+    if (e.defaultPrevented) return;
+    if (rootElements.length) {
         var r = rootElements.pop();
         if (r) {
             r.blur();
