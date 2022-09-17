@@ -446,13 +446,124 @@ function ylist(container, generator, $Y) {
     list.patchBottom = patchBottom;
     list.patchTop = patchTop;
     list.scrollIfNotCover = scrollIfNotCover;
+    list.getLastElement = getLastElement;
     vbox(list, $Y);
     on("remove")(list, function () {
         saved_itemIndex = list.index();
     });
     onmounted(list, function () {
         if (isFinite(saved_itemIndex)) list.go(saved_itemIndex);
-    })
+    });
+    /**
+     * @param {Element|null} focused 
+     * @param {boolean} animate
+     */
+    list.setFocus = function (focused, animate) {
+        if (focused && (focused.hasAttribute("disabled") || focused.hasAttribute("line"))) return;
+        if (!focused) {
+            if (list.focused) {
+                removeClass(list.focused, 'focus');
+                list.focused = null;
+            }
+            return;
+        }
+        if (list.focused === focused) return;
+        if (list.focused) removeClass(list.focused, 'focus');
+        addClass(focused, "focus");
+        var scrollTop = list.scrollTop;
+        var firstElement = getFirstElement(1);
+        var sideheight = 0;
+        if (firstElement) {
+            sideheight += parseFloat(getComputedStyle(firstElement).paddingTop + firstElement.clientTop);
+            sideheight += (firstElement.offsetHeight - sideheight - sideheight) * .3;
+            sideheight += parseFloat(getComputedStyle(list).paddingTop);
+        }
+        if (focused.offsetTop + focused.offsetHeight + sideheight > list.scrollTop + list.clientHeight) {
+            scrollTop = focused.offsetTop + focused.offsetHeight + sideheight - list.clientHeight;
+        }
+        if (focused.offsetTop < list.scrollTop + sideheight) {
+            scrollTop = focused.offsetTop - sideheight;
+        }
+        if (scrollTop !== list.scrollTop) scrollBy(scrollTop - list.scrollTop, animate);
+        list.focused = focused;
+    };
+
+    /**
+     * @param {number|"up"|"down"|"home"|"end"|"pageup"|"pagedown"}delta
+     * @param {boolean} emit
+     */
+    list.moveFocus = function (delta, emit = true) {
+        var focused = list.focused;
+        var newIndex = 0, total = 0;
+        if (delta === 'up') delta = -1;
+        if (delta === 'down') delta = 1;
+        if (typeof delta === 'string') {
+            switch (delta.toLowerCase()) {
+                case "home":
+                    newIndex = 0;
+                    delta = 1;
+                    break;
+                case "end":
+                    var lastElement = getLastElement(1);
+                    newIndex = lastElement.index;
+                    delta = -1;
+                    break;
+                case "pageup":
+                    var firstElement = getFirstVisibleElement();
+                    if (!firstElement) return;
+                    newIndex = firstElement.index;
+                    list.scrollBy(-list.clientHeight + firstElement.offsetHeight);
+                    var lastElement = getLastVisibleElement();
+                    if (lastElement.index < newIndex) newIndex = lastElement.index;
+                    delta = -1;
+                    break;
+                case "pagedown":
+                    var lastElement = getLastVisibleElement();
+                    if (!lastElement) return;
+                    newIndex = lastElement.index;
+                    list.scrollBy(list.clientHeight - lastElement.offsetHeight);
+                    var firstElement = getFirstVisibleElement();
+                    if (firstElement.index > newIndex) newIndex = firstElement.index;
+                    delta = 1;
+                    break;
+            }
+        }
+        else if (!focused) {
+            var lastElement = getLastElement(1);
+            total = lastElement.index + 1;
+            if (delta > 0) newIndex = 0;
+            else newIndex = total - 1;
+        }
+        else {
+            var newIndex = focused.index + delta;
+            var lastElement = getLastElement(1);
+            var total = lastElement.index + 1;
+            if (newIndex < 0) newIndex = total + newIndex;
+            if (newIndex > total - 1) newIndex = newIndex - total;
+        }
+        var savedIndex = newIndex;
+        var e = list.getIndexedElement(newIndex);
+        while (e && (e.hasAttribute("disabled") || e.hasAttribute("line"))) {
+            if (delta > 0) {
+                newIndex++;
+                if (newIndex >= total) {
+                    if (!total) return;
+                    newIndex = 0;
+                }
+            } else {
+                newIndex--;
+                if (newIndex < 0) {
+                    if (!total) return;
+                    newIndex = total - 1;
+                }
+            }
+            if (savedIndex === newIndex) return;
+            e = list.getIndexedElement(newIndex);
+        }
+        if (!e) list.setFocus(null);
+        else if (emit) list.setFocus(e, true), dispatch(list, 'focused');
+        else list.setFocus(e);
+    };
     return list;
 }
 var allArgumentsNames = arguments[arguments.length - 1];

@@ -1,6 +1,0 @@
-<menu-item ng-repeat="menu in menus" ng-if="!menu.hidden" ng-click="open.call(this)" ng-mouseleave="cancel()"
-    ng-mouseenter="popMenu.call(this)" ng-mousedown="popMenu1.call(this,event)" ng-class="{'has-children':menu.children&&menu.children.length,
-    'warn':menu.warn,
-    'actived':menu.isActived()
-}">
-</menu-item>
