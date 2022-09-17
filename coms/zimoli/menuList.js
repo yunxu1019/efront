@@ -317,7 +317,8 @@ function main() {
         clickMenu,
         pressMenu,
     };
-    var src = page.$src || render.parseRepeat("m in menus");
+    if (!page.$src) page.$src = render.parseRepeat("m in menus");
+    var src = page.$src;
     var itemName = src.itemName;
     var className = `{'has-children':${itemName}.children&&${itemName}.children.length,
             'warn':${itemName}.warn,

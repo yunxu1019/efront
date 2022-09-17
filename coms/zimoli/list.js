@@ -4,7 +4,7 @@ function ylist(container, generator, $Y) {
     var restHeight = cache_height;
     var list = container || div();
     list.autoFix = true;
-    var saved_itemIndex;
+    var saved_itemIndex = 0;
     addClass(list, 'list-' + $Y.toLowerCase());
     if (!list.renders) {
         list.renders = [];
