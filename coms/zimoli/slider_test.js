@@ -10,7 +10,7 @@ render(page, {
             return ele;
         });
         var _slider = slider(images, 0 !== +element.getAttribute("circle"));
-        _slider.go(0).play();
+        _slider.play();
         window.Slider = _slider;
         return _slider;
     }

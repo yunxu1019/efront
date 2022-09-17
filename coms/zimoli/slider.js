@@ -287,6 +287,9 @@ function slider(autoplay, circle = true) {
         setTimeout(() => css(_imageMain, "transform:scale(1);opacity:1;transition:.2s transform ease-out,.4s opacity"), 0);
         if (player.ing) play();
     }, 20, outter);
+    onmounted(outter, function () {
+        reshape(current_index);
+    });
     outter.play = function (schedule = player.schedule, _isMiss) {
         if (isDefined(_isMiss)) {
             isMiss = _isMiss;
