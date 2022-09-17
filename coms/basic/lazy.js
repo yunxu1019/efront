@@ -11,28 +11,31 @@
 
 function lazy(run, time, ret) {
     var wait = +time ? setTimeout : requestAnimationFrame;
-    var ing, args, that;
+    var quit = wait === setTimeout ? clearTimeout : cancelAnimationFrame;
+    var ing, args, that, id, p;
     var hire = function () {
+        if (!ing) return;
         if (time >= 0) {
-            if (ing === true) ing = wait(fire, +time / 2);
-            else wait(fire, +time / 2), ing = -2;
+            if (ing === true) id = ing = wait(fire, +time / 2);
+            else id = wait(fire, +time / 2), ing = -2;
         }
         else {
-            wait(fire, -time);
+            id = wait(fire, -time);
         }
     };
     var fire = function () {
+        if (!ing) return;
         if (time >= 0) {
             if (ing === true) {
-                ing = wait(fire, +time / 2);
+                id = ing = wait(fire, +time / 2);
             }
             else if (ing > 0) {
-                wait(fire, +time / 2);
+                id = wait(fire, +time / 2);
                 ing = -1;
             }
             else if (ing === -1) {
                 ing = run.apply(that, args);
-                if (ing instanceof Promise) ing.then(hire, hire);
+                if (ing instanceof Promise) p = ing.then(hire, hire);
                 else ing = false;
             }
             else {
@@ -42,29 +45,35 @@ function lazy(run, time, ret) {
         else {
             if (ing === true) {
                 ing = run.apply(that, args);
-                if (ing instanceof Promise) ing.then(hire, hire);
-                else ing = wait(fire, -time);
+                if (ing instanceof Promise) p = ing.then(hire, hire);
+                else id = ing = wait(fire, -time);
             } else {
                 ing = false;
             }
         }
     };
-    return function () {
+    var exec = function () {
         args = arguments;
         that = this;
-        if (ing) return ing = true;
+        if (ing || p) return ing = true;
         if (time >= 0) {
-            ing = wait(fire, +time);
+            id = ing = wait(fire, +time);
         }
         else if (time < 0) {
             ing = run.apply(that, args);
             if (ing instanceof Promise) ing.then(hire, hire);
-            else ing = wait(fire, -time);
+            else id = ing = wait(fire, -time);
         }
         else {
-            ing = true; wait(fire);
+            ing = true; id = wait(fire);
         }
         return ret;
     };
+    exec.cancel = function () {
+        quit(id);
+        ing = false;
+        id = 0;
+    };
+    return exec;
 }
 module.exports = lazy;
