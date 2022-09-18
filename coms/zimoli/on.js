@@ -12,8 +12,8 @@ var listenerOptions = [];
 /**
  * @param {EventNeed} eventtype
  */
-var getListenerOption = function (eventtype) {
-    if (!supportPassive || preventPassive) return eventtype.capture;
+var getListenerOption = function (eventtype, k) {
+    if (!supportPassive || preventPassive && /wheel$/.test(k)) return eventtype.capture;
     var index = +eventtype.capture | +eventtype.passive << 1;
     if (!listenerOptions[index]) listenerOptions[index] = { capture: eventtype.capture, passive: eventtype.passive };
     return listenerOptions[index];

@@ -332,7 +332,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
         }
     };
     bind("resize")(element, reshape);
-    bind("scroll.capture", document)(element, reshape);
+    bind("scroll.capture.passive", document)(element, reshape);
     onmounted(element, reshape);
     global(element, false);
 };

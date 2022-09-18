@@ -1,4 +1,4 @@
-var _onmousewheel = "onmousewheel" in window || "onmousewheel" in document ? on("mousewheel.passive") : on("DOMMouseScroll");
+var _onmousewheel = "onmousewheel" in window || "onmousewheel" in document ? on("mousewheel.passive") : on("DOMMouseScroll.passive");
 var addDeltaY = function (event) {
     if (isNumber(event.deltaY)) return;
     if (isNumber(event.wheelDeltaY)) {
