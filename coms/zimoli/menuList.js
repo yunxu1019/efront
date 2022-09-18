@@ -367,6 +367,9 @@ function main() {
     page.closeFocus = closeFocus;
     page.direction = direction;
     on("contextmenu")(page, e => e.preventDefault());
+    on("mouseleave")(page, function () {
+        enterMenu.cancel();
+    });
     page.registerAsRoot = function () {
         register.call(this);
         root_menu = this;
