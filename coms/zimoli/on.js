@@ -7,9 +7,22 @@ var supportPassive = false, preventPassive = /Edg|Chrome/.test(navigator.userAge
 if (is_addEventListener_enabled) try {
     window.addEventListener('test', null, { get passive() { return supportPassive = true } });
 } catch { }
+
+var listenerOptions = [];
+/**
+ * @param {EventNeed} eventtype
+ */
+var getListenerOption = function (eventtype) {
+    if (!supportPassive || preventPassive) return eventtype.capture;
+    var index = +eventtype.capture | +eventtype.passive << 1;
+    if (!listenerOptions[index]) listenerOptions[index] = { capture: eventtype.capture, passive: eventtype.passive };
+    return listenerOptions[index];
+};
+
 if ('attachEvent' in document) {
     is_addEventListener_enabled = false;
 }
+
 if (!is_addEventListener_enabled) var __call = function (target, context, handler, firstmost) {
     // use strict 无效的情况
     if (isEmpty(target)) {
@@ -140,7 +153,7 @@ var keyCodeMap = {
     "\"": 222,
     bright: 255,
 };
-class EventKeyNeed {
+class EventNeed {
     once = false;
     stop = false;
     capture = false;
@@ -151,7 +164,7 @@ class EventKeyNeed {
     keyCode = 0
 };
 var parseEventTypes = function (eventtypes) {
-    var types = new EventKeyNeed;
+    var types = new EventNeed;
     var keyneed = types.keyNeed;
     eventtypes = eventtypereg.exec(eventtypes);
     if (eventtypes) eventtypes = eventtypes[0].slice(1);
@@ -195,7 +208,7 @@ var parseEventTypes = function (eventtypes) {
     return types;
 }
 /**
- * @param {EventKeyNeed} eventtypes
+ * @param {EventNeed} eventtypes
  * @param {Event} e;
  */
 function checkKeyNeed(eventtypes, e) {
@@ -255,7 +268,7 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
         if (!hs.length && hs.h) {
             element[hk] = null;
             if (is_addEventListener_enabled) {
-                element.removeEventListener(k, hs.h, /1$/.test(hk));
+                element.removeEventListener(k, hs.h, getListenerOption(eventtypes, k));
             } else {
                 if (element["on" + k] === hs.h) element["on" + k] = null;
             }
@@ -265,6 +278,7 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
 var broadcast = function (k, hk, event) {
     var element = this;
     var handlers = element[hk];
+    if (!handlers) console.log(handlers, hk, event, element)
     if (handlers.length > 1) handlers = handlers.slice();
     if (event.which === 1 && event.buttons === 0) {
         // firefox 无按键
@@ -337,7 +351,7 @@ var on = document.efronton = function (k) {
             var h = broadcast.bind(target, k, hk);
             target[hk] = [];
             target[hk].h = h;
-            target.addEventListener(k, h, supportPassive && !preventPassive ? { capture: eventtypes.capture, passive: eventtypes.passive } : eventtypes.capture);
+            target.addEventListener(k, h, getListenerOption(eventtypes, k));
         }
         var listener = [eventtypes, handler, context];
         append.call(target, k, hk, listener, firstmost);
