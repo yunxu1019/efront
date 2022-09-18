@@ -40,7 +40,7 @@ if (isDevelop) {
     };
 
     message.reload = function () {
-        connections.splice(0).forEach(res => res.end());
+        connections.splice(0).forEach(res => res.writeHead(200, { "content-type": "text/plain;charset=utf-8" }) | res.end("我不是你的唯一"));
     };
 }
 

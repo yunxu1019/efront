@@ -14,9 +14,14 @@ var autoloader = `function () {
         xhr.open("post", "/reload");
         xhr.timeout = 0;
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) location.reload() | console.warn("reload..", new Date);
+            if (xhr.readyState === 4){
+                if(xhr.responseText.indexOf("你的唯一")>=0) location.reload() | console.warn("我就是你的唯一..", new Date);
+                else reload();
+            }
         };
-        xhr.onerror = reload;
+        xhr.onerror = function(){
+            if(xhr.readyState!==4) reload();
+        };
         xhr.send("haha");
     };
     reload();
