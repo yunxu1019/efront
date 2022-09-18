@@ -1,5 +1,6 @@
 function inertia(gun) {
-    var _decreased = 0, spd = new Speed;
+    var spd = new Speed;
+    var animateIndex = 0;
     var lastTime = 0;
     var _decrease = function () {
         lastTime = Speed.now() - 1;
@@ -9,7 +10,7 @@ function inertia(gun) {
         if (
             decrease instanceof Function
         ) {
-            if (!spd.length || _decreased > 0 && spd.filter(a => a !== 0).length === 0) return;
+            if (!spd.length) return;
             var id = smooth_timer;
             var now = Speed.now();
             var res = decrease(now - lastTime, spd);
@@ -17,6 +18,7 @@ function inertia(gun) {
             if (smooth_timer !== id) return;
             if (res === false || isEmpty(res)) {
                 spd.unset();
+                animateIndex = 0;
                 return;
             }
             smooth_timer = requestAnimationFrame(_decrease0);
@@ -24,24 +26,21 @@ function inertia(gun) {
     };
     var _cancel = function () {
         cancelAnimationFrame(smooth_timer);
-        _decreased = 0;
         decrease = null;
     }
     var smooth = function () {
         var args = spd.read();
-        if (decrease && args.filter(a => Math.abs(a) > 2).length === 0) {
-            _decrease();
-            return;
-        }
-        if (!decrease && args.filter(a => Math.abs(a) > .5).length === 0) {
-            spd.reset();
-            return;
-        }
         var id = smooth_timer;
         var res = gun.apply(that, args);
         if (id !== smooth_timer) return;
         if (false === res) {
             spd.reset();
+            animateIndex = 2;
+            smooth_timer = requestAnimationFrame(_decrease);
+            return;
+        }
+        if (decrease && args.filter(a => Math.abs(a) > 1).length === 0) {
+            animateIndex = 2;
             smooth_timer = requestAnimationFrame(_decrease);
             return;
         }
@@ -49,6 +48,7 @@ function inertia(gun) {
     };
     var spd, smooth_timer, that, decrease;
     var train = function () {
+        animateIndex = 1;
         _cancel();
         var args = [].slice.call(arguments, 0, arguments.length);
         spd.write(args);
@@ -58,7 +58,12 @@ function inertia(gun) {
     train.smooth = function (d) {
         _cancel();
         decrease = d;
-        smooth_timer = requestAnimationFrame(smooth);
+        if (animateIndex === 1) {
+            smooth_timer = requestAnimationFrame(smooth);
+        }
+        else if (animateIndex === 2) {
+            smooth_timer = requestAnimationFrame(_decrease);
+        }
     };
     train.reset = function () {
         _cancel();

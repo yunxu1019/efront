@@ -60,9 +60,11 @@ function ybox(generator) {
     var increaser_t = document.createElement("insert");
     addClass(increaser_t, 'y-insert');
     var increaser_b = increaser_t.cloneNode();
+    increaser_b.height = 0;
+    increaser_t.height = 0;
     var increase_height = calcPixel(100);
     var _decrease = function (increaser, t) {
-        var height = parseInt(increaser.height);
+        var height = increaser.height;
         if (height > 1) {
             var scrollTop = _box.$Top();
             if (scrollTop > 0 && increaser_t === increaser) {
@@ -101,8 +103,8 @@ function ybox(generator) {
         return true;
     };
     var increase = function (deltaY, minusOnly) {
-        var t_height = increaser_t.height || 0;
-        var b_height = increaser_b.height || 0;
+        var t_height = increaser_t.height;
+        var b_height = increaser_b.height;
         t_height -= deltaY;
         b_height += deltaY;
         if (!minusOnly && deltaY < 0 && t_height > 0) {
