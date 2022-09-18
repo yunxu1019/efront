@@ -1,7 +1,7 @@
 // "use strict";
 if (document.efronton) return document.efronton;
 var is_addEventListener_enabled = "addEventListener" in window;
-var supportPassive = false;
+var supportPassive = false, preventPassive = /Edg/.test(navigator.userAgent);
 if (is_addEventListener_enabled) try {
     window.addEventListener('test', null, { get passive() { return supportPassive = true } });
 } catch { }
@@ -280,7 +280,7 @@ var broadcast = function (k, hk, event) {
         if (eventtypes.self && event.target !== element) continue;
         if (!checkKeyNeed(eventtypes, event)) continue;
         if (eventtypes.stop) event.stopPropagation();
-        if (eventtypes.passive) event.preventDefault = function () { };
+        if (eventtypes.passive && !preventPassive) event.preventDefault = function () { };
         if (eventtypes.prevent) event.preventDefault();
         if (handler instanceof Array) {
             for (var h of handler) {
@@ -335,7 +335,7 @@ var on = document.efronton = function (k) {
             var h = broadcast.bind(target, k, hk);
             target[hk] = [];
             target[hk].h = h;
-            target.addEventListener(k, h, supportPassive ? { capture: eventtypes.capture, passive: eventtypes.passive } : eventtypes.capture);
+            target.addEventListener(k, h, supportPassive && !preventPassive ? { capture: eventtypes.capture, passive: eventtypes.passive } : eventtypes.capture);
         }
         var listener = [eventtypes, handler, context];
         append.call(target, k, hk, listener, firstmost);
