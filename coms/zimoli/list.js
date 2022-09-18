@@ -2,6 +2,9 @@
 function ylist(container, generator, $Y) {
     const cache_height = 2000;
     var restHeight = cache_height;
+    /**
+     * @type {HTMLElement}
+     */
     var list = container || div();
     list.autoFix = true;
     var saved_itemIndex = 0;
@@ -391,7 +394,7 @@ function ylist(container, generator, $Y) {
             var target_by = last_y - scrolled_b * lastElement.offsetHeight;
         }
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
-        var delta = Math.min(calcPixel(60), list.clientHeight >> 2);
+        var delta = Math.min(calcPixel(30), list.clientHeight >> 2);
         var absy = Math.abs(target_y - last_y), y;
         if (absy >= delta) {
             return false;
@@ -414,7 +417,8 @@ function ylist(container, generator, $Y) {
     list.$Height = function () {
         var elem = getLastElement(2);
         var listRestHeight = elem ? elem.offsetHeight + elem.offsetTop - list.scrollTop : list.clientHeight;
-        return currentY() + listRestHeight + restHeight;
+        var paddingHeight = elem ? 0 : restHeight;
+        return currentY() + listRestHeight + paddingHeight;
     };
     list.$Top = function (y) {
         if (isFinite(y)) {
@@ -505,6 +509,7 @@ function ylist(container, generator, $Y) {
                     break;
                 case "end":
                     var lastElement = getLastElement(1);
+                    if (!lastElement) return;
                     newIndex = lastElement.index;
                     delta = -1;
                     break;
@@ -530,6 +535,7 @@ function ylist(container, generator, $Y) {
         }
         else if (!focused) {
             var lastElement = getLastElement(1);
+            if (!lastElement) return;
             total = lastElement.index + 1;
             if (delta > 0) newIndex = 0;
             else newIndex = total - 1;
