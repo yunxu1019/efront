@@ -209,6 +209,7 @@ function main() {
         on("remove")(menu, function () {
             removeFromList(mounted_menus, this);
             menu.setFocus(null);
+            css(menu, "width:;height:;max-height:;max-width:;");
         });
         return menu;
     }
