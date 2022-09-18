@@ -97,7 +97,8 @@ var createComment = function (renders, type, expression) {
         appendChild.after(this, comment);
         if (!/^if|^else/i.test(type)) remove(this);
     }
-    comment.template = this;
+    comment.$template = this;
+    this.$comment = comment;
     return comment;
 };
 
@@ -247,7 +248,7 @@ var createIf = function (search, id = 0) {
         for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
             var c = elements[cx];
             if (cx === shouldMount) {
-                var e = c.template;
+                var e = c.$template;
                 appendChild.after(c, e);
                 if (e.renderid < 0) {
                     e.renderid = id;
