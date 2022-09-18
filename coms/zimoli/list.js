@@ -374,6 +374,9 @@ function ylist(container, generator, $Y) {
             }
         }
     };
+    bind('resize')(list, function () {
+        patchBottom(0);
+    });
     list.getLastVisibleElement = getLastVisibleElement;
     list.$stopY = function (t, spd) {
         var firstElement = getFirstVisibleElement();
