@@ -256,7 +256,7 @@ var createIf = function (search, id = 0) {
                 }
             }
             else {
-                remove(c.template);
+                remove(c.$template);
             }
         }
 
