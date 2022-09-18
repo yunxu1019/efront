@@ -18,10 +18,10 @@ function ylist(container, generator, $Y) {
         if (a !== void 0) scrollTo(a);
     });
     var getNodeTarget = function (node) {
-        if (node.nodeType === 8 && node.template) {
-            var t = node.template;
+        if (node.nodeType === 8 && node.$template) {
+            var t = node.$template;
             if (!isFinite(t.index)) t.index = node.index;
-            return node.template;
+            return node.$template;
         }
         return node;
     };
@@ -116,7 +116,9 @@ function ylist(container, generator, $Y) {
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
             if (isFinite(child.index) && child.index !== null) {
-                map[child.index] = child;
+                if (!map[child.index] || child.$template === map[child.index]) {
+                    map[child.index] = child;
+                }
             }
         }
         return map;
@@ -235,17 +237,17 @@ function ylist(container, generator, $Y) {
         return bottom_element ? bottom_element.nextSibling : null;
     };
     var getOffsetHeight = function (element) {
+        element = getNodeTarget(element);
         var temp = element;
         do {
             var next = getNextSibling(temp);
             if (!next) return element.offsetHeight;
-            temp = next;
+            temp = getNodeTarget(next);
         } while (next.offsetTop === element.offsetTop);
         return next.offsetTop - element.offsetTop;
     };
     var patchBottom = function (deltaY = 0) {
         var cache_height = list.offsetHeight;
-
         var childrenMap = getChildrenMap();
         var last_element = getLastElement(1);
         if (!last_element || !last_element.offsetHeight) return;
@@ -278,7 +280,7 @@ function ylist(container, generator, $Y) {
         var collection = [];
         for (var k in childrenMap) {
             let item = childrenMap[k];
-            if (item.offsetTop + getOffsetHeight(item) + cache_height < scrollTop) {
+            if (getNodeTarget(item).offsetTop + getOffsetHeight(item) + cache_height < scrollTop) {
                 collection.push(item);
             }
         }
@@ -290,7 +292,7 @@ function ylist(container, generator, $Y) {
                 item = collection.pop();
             }
             var item = collection[collection.length - 1];
-            if (item) scrollTop -= item.offsetTop + getOffsetHeight(item) - collection[0].offsetTop;
+            if (item) scrollTop -= getNodeTarget(item).offsetTop + getOffsetHeight(item) - getNodeTarget(collection[0]).offsetTop;
             if (paddingCount > 0 && paddingMax > 0 && paddingCount < paddingMax) {
                 let item = collection[collection.length - 1];
                 while (paddingCount > 0) {
@@ -344,6 +346,7 @@ function ylist(container, generator, $Y) {
         var { clientHeight } = list;
         while (last_element && last_element.offsetTop > clientHeight + scrollTop + cache_height) {
             remove(last_element);
+            remove(last_element.$comment);
             last_element = getLastElement(1);
         }
         return scrollTop - list.scrollTop;

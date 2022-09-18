@@ -251,7 +251,8 @@ var createIf = function (search, id = 0) {
                 appendChild.after(c, e);
                 if (e.renderid < 0) {
                     e.renderid = id;
-                    c.template = render(e, this.$scope, this.$parentScopes);
+                    e = c.$template = render(e, this.$scope, this.$parentScopes);
+                    e.$comment = c;
                 }
             }
             else {
