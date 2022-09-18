@@ -1,7 +1,9 @@
 // "use strict";
 if (document.efronton) return document.efronton;
 var is_addEventListener_enabled = "addEventListener" in window;
-var supportPassive = false, preventPassive = /Edg/.test(navigator.userAgent);
+// Edg 禁用passive原因：无滚动条的元素上纵向滚动时触发整个页面回弹
+// Chrome 禁用passive原因：无滚动条的元素上横向滚动触发浏览器导航
+var supportPassive = false, preventPassive = /Edg|Chrome/.test(navigator.userAgent);
 if (is_addEventListener_enabled) try {
     window.addEventListener('test', null, { get passive() { return supportPassive = true } });
 } catch { }
