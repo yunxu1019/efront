@@ -1,5 +1,6 @@
 var _label = createElement("span");
 var track = createElement(div);
+var onmouseenter = on("mouseenter");
 track.className = "track";
 _label.className = "label";
 
@@ -107,7 +108,7 @@ function button(texter, type) {
     button = button || createElement(btn, tracker, _texter);
     bindAccesskey(button);
     onremove(button, resetall);
-    onmouseover(button, hover);
+    onmouseenter(button, hover);
     onmouseleave(button, mouseleave);
     onmousemove(button, mousemove);
     onmousedown(button, mousedown);
