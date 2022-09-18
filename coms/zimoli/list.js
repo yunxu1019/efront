@@ -212,10 +212,12 @@ function ylist(container, generator, $Y) {
         return y;
     }, false);
     var rebuild = function () {
-        if (!/^(?:auto|scroll)$/i.test(getComputedStyle(list).overflowY)) return;
         runbuild();
     };
-    on("scroll")(list, rebuild);
+    oncemount(list, function () {
+        if (!/^(?:auto|scroll)$/i.test(getComputedStyle(list).overflowY)) return;
+        on("scroll")(list, rebuild);
+    });
     var topinsert = document.createElement('ylist-insert');
     list.insertBefore(topinsert, list.firstChild);
     //计算当前高度
