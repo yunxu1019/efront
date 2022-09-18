@@ -236,19 +236,16 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
     var zindex = zIndex(0) + 1;
     css(element, `position:absolute;z-index:${zindex}`);
     css(_rhomb, { zIndex: zindex });
-    var release1 = onremove(target, function () {
-        remove(element);
+    onmounted(element, function () {
+        var release1 = onremove(target, function () {
+            remove(element);
+        });
+        var release2 = onremove(element, function () {
+            release1();
+            release2();
+            remove(_rhomb);
+        });
     });
-    var release2 = onremove(element, function () {
-        release1();
-        release2();
-        remove(_rhomb);
-        if (document.removeEventListener) {
-            document.removeEventListener("scroll", reshape, true);
-            window.removeEventListener("resize", reshape);
-        }
-    });
-    global(element, false);
     var reshape = function () {
         extend(element.style, element.origin);
         var position = getScreenPosition(target);
@@ -333,13 +330,11 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
         } else if (_rhomb && !_rhomb.parentNode) {
             appendChild.before(element, _rhomb)
         }
-    }
-    if (document.addEventListener) {
-        document.addEventListener("scroll", reshape, true);
-        window.addEventListener("resize", reshape);
-    }
-    reshape();
-    lazy(reshape)();
+    };
+    bind("resize")(element, reshape);
+    bind("scroll.capture", document)(element, reshape);
+    onmounted(element, reshape);
+    global(element, false);
 };
 var _as_xextra = arriswise(_as_yextra, arguments);
 var popup_as_single = function (element) {
