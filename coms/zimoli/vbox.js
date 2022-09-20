@@ -19,13 +19,11 @@ function ybox(generator) {
         return _box.scrollHeight;
     };
     // currentTop
-    var _scrolledTop = _box.scrollTop;
     if (!isFunction(_box_Top)) _box_Top = function (top) {
         if (isNumber(top)) {
             if (_box.scrollTop !== top) {
                 _box.scrollTop = top;
             }
-            _scrolledTop = top;
         }
         return _box.scrollTop;
     };
@@ -40,7 +38,7 @@ function ybox(generator) {
         var r = true;
         if (top < 0) {
             if (useIncrease && _Top <= 0) {
-                r = increase(top);
+                r = increase_half(top, increaser_t.height);
             }
             _box.$Top(0);
         } else if (top + height >= scrollHeight) {
@@ -48,7 +46,7 @@ function ybox(generator) {
                 top = increase_height + scrollHeight - height;
             }
             if (useIncrease && top + height >= scrollHeight) {
-                r = increase(top + height - scrollHeight);
+                r = increase_half(top + height - scrollHeight, increaser_b.height);
             }
             _box.$Top(top);
         } else {
@@ -102,6 +100,13 @@ function ybox(generator) {
         }
         return true;
     };
+    var increase_half = function (deltaY, targetHeight) {
+        if (scrollY.state !== inertia.MOVING) {
+            deltaY *= (increase_height - targetHeight) / increase_height;
+            if (Math.abs(deltaY) < 1) return false;
+        }
+        return increase(deltaY);
+    }
     var increase = function (deltaY, minusOnly) {
         var t_height = increaser_t.height;
         var b_height = increaser_b.height;

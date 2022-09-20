@@ -1,6 +1,14 @@
+var [
+    /* 静止 */静止,
+    /* 停止 */停止,
+    /* 移动 */移动,
+    /* 减速 */减速,
+    /* 回弹 */回弹,
+    /* 停靠 */停靠,
+] = new Array(6).fill(0).map((_, i) => i);
+
 function inertia(gun) {
     var spd = new Speed;
-    var animateIndex = 0;
     var lastTime = 0;
     var _decrease = function () {
         lastTime = Speed.now() - 1;
@@ -13,12 +21,12 @@ function inertia(gun) {
             if (!spd.length) return;
             var id = smooth_timer;
             var now = Speed.now();
-            var res = decrease(now - lastTime, spd);
+            var res = decrease.call(that, now - lastTime, spd);
             lastTime = now;
             if (smooth_timer !== id) return;
             if (res === false || isEmpty(res)) {
                 spd.unset();
-                animateIndex = 0;
+                train.state = 停止;
                 return;
             }
             smooth_timer = requestAnimationFrame(_decrease0);
@@ -35,12 +43,12 @@ function inertia(gun) {
         if (id !== smooth_timer) return;
         if (false === res) {
             spd.reset();
-            animateIndex = 2;
+            train.state = 回弹;
             smooth_timer = requestAnimationFrame(_decrease);
             return;
         }
         if (decrease && args.filter(a => Math.abs(a) > 1).length === 0) {
-            animateIndex = 2;
+            train.state = 回弹;
             smooth_timer = requestAnimationFrame(_decrease);
             return;
         }
@@ -48,30 +56,48 @@ function inertia(gun) {
     };
     var spd, smooth_timer, that, decrease;
     var train = function () {
-        animateIndex = 1;
         _cancel();
         var args = [].slice.call(arguments, 0, arguments.length);
         spd.write(args);
+        if (train.state !== 移动) train.state = 移动;
         gun.apply(this, args);
         that = this;
     };
     train.smooth = function (d) {
         _cancel();
         decrease = d;
-        if (animateIndex === 1) {
+        if (train.state === 移动) {
+            train.state = 减速;
             smooth_timer = requestAnimationFrame(smooth);
         }
-        else if (animateIndex === 2) {
+        else if (train.state === 回弹 || train.state === 停靠) {
+            train.state = 停靠;
             smooth_timer = requestAnimationFrame(_decrease);
         }
     };
-    train.reset = function () {
+    train.state = 静止;
+    train.reset = train.start = function () {
         _cancel();
-        spd.reset();
+        spd.unset();
+        train.state = 静止;
     };
     return train;
 
 }
+
+inertia.静止 = 静止;
+inertia.停止 = 停止;
+inertia.移动 = 移动;
+inertia.减速 = 减速;
+inertia.回弹 = 回弹;
+inertia.停靠 = 停靠;
+inertia.STAND = 静止;
+inertia.STOPPING = 停止;
+inertia.MOVING = 移动;
+inertia.SLOWING_DWON = 减速;
+inertia.REBOUNDING = 回弹;
+inertia.DOCKING = 停靠;
+
 class Speed extends Array {
     cache = [];
     stamp = 0;
