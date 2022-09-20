@@ -203,6 +203,7 @@ function enrichField(f) {
     }
     else switch (f.type) {
         case "text":
+        case "html":
             width = 200;
             break;
         case "input":
