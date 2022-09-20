@@ -245,8 +245,9 @@ function slider(autoplay, circle = true) {
         if (!event.deltaX) return;
         if (event._target && event._target !== this) return;
         event._target = outter;
+        cancelAnimationFrame(timer_animate);
         clearTimeout(stop_wheel_timer);
-        stop_wheel_timer = setTimeout(park, 60);
+        stop_wheel_timer = setTimeout(park, 160);
         var deltax = -event.deltaX;
         moveDeltaX(deltax, event);
     });
