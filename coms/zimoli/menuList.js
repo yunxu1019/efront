@@ -286,7 +286,7 @@ function main() {
     };
     var clickMenu = function (event) {
         switchMenu.cancel();
-        if (!switchMenu.done) activeMenu.call(this);
+        if (!switchMenu.done) page.setFocus(this), activeMenu.call(this);
     };
 
 
