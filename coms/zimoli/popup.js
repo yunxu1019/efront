@@ -8,6 +8,7 @@ on("keydown.esc.only")(document, function (e) {
         if (r) {
             r.blur();
             remove(r);
+            e.preventDefault();
         }
     }
 });
