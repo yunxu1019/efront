@@ -1,3 +1,15 @@
+/**
+ * @param {Item} item
+ */
+function pathTo(find, item, path) {
+    path.push(item);
+    if (item === find || find === item.value) {
+        return path;
+    }
+    for (var m of item) {
+        if (pathTo(find, m, path)) return path;
+    }
+}
 var id = 0;
 class Item extends Array {
     extended = false;
@@ -60,7 +72,9 @@ class Item extends Array {
         if (isObject(this.value)) return getName(this.value);
         return String(this.value);
     }
-
+    pathTo(menu) {
+        return pathTo(menu, this, []);
+    }
     isClosed() {
         if (isObject(this.value)) return !!this.value.closed;
         return this.closed;

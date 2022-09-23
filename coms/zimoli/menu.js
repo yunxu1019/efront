@@ -97,7 +97,7 @@ var emitEvent = function (item, event) {
     if (event.defaultPrevented) return;
     event.preventDefault(true);
     if (item.disabled) return;
-    active(this, item, item, this.$src ? createItemTarget.call(this, item) : this);
+    active(this, item, "global", this.$src ? createItemTarget.call(this, item) : this);
 }
 function bindGlobalkey(elem, keymap, emit) {
     if (elem.keyoff) {

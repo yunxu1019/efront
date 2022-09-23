@@ -360,6 +360,21 @@ function main() {
     page.active = function (a) {
         activeMenu.call(a);
     };
+    if (istoolbar) on("active")(page, function (event) {
+        if (event.item !== 'global') return;
+        if (page.selected) page.selected.setActive(false);
+        var selected = null;
+        for (var e of this.children) {
+            if (!e.menu) continue;
+            selected = e.menu.pathTo(event.value);
+            if (selected) break;
+        }
+        if (!selected) return;
+        var menu = selected.pop();
+        page.selected = menu;
+        if (selected[0]) selected[0].extends(menu.value);
+        menu.setActive(true);
+    });
     on("focused")(page, function () {
         var focused = page.focused;
         if (page.ispop && page === root_menu) popMenu(focused.menu, focused, false);
