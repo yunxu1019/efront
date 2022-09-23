@@ -482,7 +482,13 @@ var invoke = function (event, type, pointerType) {
     });
     if (window.addEventListener) {
         window.addEventListener("touchmove", clickcancel, true);
-        window.addEventListener("touchstart", clickstart, true);
+        window.addEventListener("touchstart", function (event) {
+            if (event.touches.length > 1) {
+                clickcancel();
+                return;
+            }
+            clickstart.call(this, event);
+        }, true);
         window.addEventListener("touchend", function (event) {
             if (event.touches.length > 1) return;
             if (onclick.preventClick) return;
