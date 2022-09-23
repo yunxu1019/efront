@@ -1,7 +1,7 @@
 var notMatchLength = new Error("矩阵长度不一致");
 class Matrix extends Array {
     static create2d(theta = 0) {
-        return MatrixTransposed.matrix2d(theta);
+        return MathMatrix.matrix2d(theta);
     }
     static create3d(factor = [0, 0, 0]) {
         return MathMatrix.matrix3d(factor);
@@ -83,6 +83,10 @@ class Matrix extends Array {
     }
 }
 class MathMatrix extends Matrix {
+    toDOMString() {
+        if (this.size()[1] === 2) return `matrix(${[this[0], this[1], this[3], this[4], this[6], this[7]]})`;
+        return `matrix(${this})`;
+    }
 
     static transform(B, dots) {
         var dimention = Math.sqrt(B.length - 1) | 0;
@@ -217,6 +221,10 @@ class MathMatrix extends Matrix {
 
 }
 class MatrixTransposed extends Matrix {
+    toDOMString() {
+        if (this.size()[1] === 2) return `matrix(${[this[0], this[3], this[1], this[4], this[2], this[5]]})`;
+        return `matrix(${this.transpose()})`;
+    }
     static transform(B, dots) {
         var dimention = Math.sqrt(B.length - 1) | 0;
         if (dots.length % dimention !== 0) throw notMatchLength;
