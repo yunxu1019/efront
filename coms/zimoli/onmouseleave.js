@@ -1,1 +1,1 @@
-var onmouseleave=on("mouseout");
+var onmouseleave=on("mouseleave");

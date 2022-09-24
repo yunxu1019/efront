@@ -52,7 +52,7 @@ var mousedown = function () {
     });
     active.call(this);
 };
-var mouseleave = function () {
+var mouseleave = function (event) {
     removeClass(this, "hover");
 };
 var mousemove = function (event) {
