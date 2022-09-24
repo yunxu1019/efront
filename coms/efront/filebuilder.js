@@ -5,24 +5,24 @@ var require2 = require("./require2");
 var builder;
 var path = require("path");
 var memery = require("./memery");
-var autoloader = `function () {
+var autoloader = () => `function () {
     var reloadCount = 0;
     var reload = function () {
-        if (reloadCount > 10) return;
+        if (reloadCount > 72) return;
         reloadCount++;
         var xhr = new XMLHttpRequest;
         xhr.open("post", "/reload");
         xhr.timeout = 0;
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4){
-                if(xhr.responseText.indexOf("你的唯一")>=0) location.reload() | console.warn("我就是你的唯一..", new Date);
-                else reload();
+            if (xhr.readyState === 4) {
+                if (xhr.responseText.indexOf("你的唯一") >= 0) location.reload(true) | console.warn("我就是你的唯一..", new Date);
+                else setTimeout(reload, reloadCount * 200);
             }
         };
-        xhr.onerror = function(){
-            if(xhr.readyState!==4) reload();
+        xhr.onerror = function () {
+            if (xhr.readyState !== 4) setTimeout(reload, 200 * reloadCount);
         };
-        xhr.send("haha");
+        xhr.send("${require("../server/liveload").version}");
     };
     reload();
 }`;
@@ -129,22 +129,30 @@ var buildjsp = function (buff, realpath) {
     };
 };
 var buildreload = function (buff) {
-    return String(buff).replace(/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i, `<script>\r\n-${efronthook.toString()};\r\n`)
-        .replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader.toString()}();\r\n</script>\r\n$1`);
+    var data = String(buff).replace(/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i, `<script>\r\n-${efronthook.toString()};\r\n`)
+        .replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader()}();\r\n</script>\r\n$1`);
+    buff = Buffer.from(data);
+    return buff;
 };
 var str2array = require("./str2array");
 var indexreg = new RegExp(str2array(memery.INDEX_NAME).join('|') + "$")
 if (isDevelop) builder = function (buff, name, fullpath) {
-    if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
-        buff = fixpixel(buff);
-        buff = buildreload(buff);
-        buff = buildjsp(buff, fullpath);
-    } else if (indexreg.test(fullpath) || /\.html?$/.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
-        buff = fixpixel(buff);
-        buff = buildreload(buff);
-        buff = Buffer.from(buff);
-    }
-    return buff;
+    var dev = function (req, res) {
+        var mime = dev.mime;
+        var data = buff;
+        if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
+            var data = fixpixel(data);
+            data = buildjsp(data, fullpath)(req, res);
+            data = 'text/html;charset=utf-8';
+        } else if (indexreg.test(fullpath) || /\.html?$/i.test(fullpath) && /^\s*<!Doctype/i.test(data.slice(0, 100).toString())) {
+            data = fixpixel(data);
+            data = buildreload(data);
+            mime = 'text/html;charset=utf-8';
+        }
+        if (!data.mime) data.mime = mime;
+        return data;
+    };
+    return dev;
 };
 
 else builder = function (buff, name, fullpath) {

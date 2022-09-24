@@ -1,45 +1,56 @@
 "use strict";
+var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var finalpacker = require("../efront/finalpacker");
 var message = require("../message");
 var proxy = require("./url-proxy");
 var isDevelop = require("../efront/isDevelop");
-var readdata = function (req, res, then, max_length) {
-    var buff = [],
-        length = 0;
-    req.on("data", function (buf) {
-        length += buf.length;
-        if (length > max_length) return res.writeHead(403, {}), res.end();
-        buff.push(buf);
-    });
-    req.on("end", function () {
-        length <= max_length && then(Buffer.concat(buff));
-    });
+/**
+ * @param {Http2ServerRequest} req;
+ */
+var readdata = function (req, max_length) {
+    return new Promise(function (ok, oh) {
+        var buff = [], length = 0;
+        req.on("data", function (buf) {
+            length += buf.length;
+            if (length > max_length) return oh("数据过载...");
+            buff.push(buf);
+        });
+        req.on("end", function () {
+            ok(Buffer.concat(buff));
+        });
+        req.on("close", oh);
+        req.on("aborted", oh);
+        req.on("error", oh);
+    })
 };
 var handle = {
     "/count"(req, res) {
         message.count(req.headers.referer);
         res.end();
     },
-    // "/webhook"(req, res) {
-    //     readdata(req, res, function (buff) {
-    //         try {
-    //             var token = JSON.parse(String(buff)).token;
-    //             require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("../message").webhook();
-    //             res.end();
-    //         } catch (e) {
-    //             res.end(String(e));
-    //         }
-    //     }, 200000);
+    // async "/webhook"(req, res) {
+    //     var buff = await readdata(req, 200);
+    //     var token = JSON.parse(String(buff)).token;
+    //     require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("../message").webhook();
+    //     res.end();
     // }
 };
 
 if (isDevelop) {
     let connections = require("./liveload");
-    handle["/reload"] = function (req, res) {
+    /**
+     * @param {Http2ServerRequest} req
+     * @param {Http2ServerResponse} res
+     */
+    handle["/reload"] = async function (req, res) {
+        var a = await readdata(req, 30);
+        a = +String(a);
+        if (a !== connections.version) return res.end("你的唯一已再生");
         connections.push(res);
     };
 
     message.reload = function () {
+        connections.version++;
         connections.splice(0).forEach(res => res.writeHead(200, { "content-type": "text/plain;charset=utf-8" }) | res.end("我不是你的唯一"));
     };
 }
@@ -47,7 +58,13 @@ if (isDevelop) {
 var doPost = module.exports = async function (req, res) {
     var url = req.url;
     if (handle[url] instanceof Function) {
-        return handle[url](req, res);
+        try {
+            return handle[url](req, res);
+        } catch (e) {
+            res.writeHead(403, {});
+            res.end(String(e));
+            return;
+        }
     }
     if (/MSIE|Trident/.test(req.headers["user-agent"])) {
         var memery = require("../efront/memery");

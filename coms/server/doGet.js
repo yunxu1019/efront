@@ -13,7 +13,6 @@ var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var SERVER_ROOT_PATH = memery.webroot;
 var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filename, fullpath) {
     var origin_size = data.length;
-    var data = filebuilder.apply(this, arguments);
     if (/\.css$/i.test(fullpath)) {
         if (memery.APP) {
             var real = path.dirname(path.relative(SERVER_ROOT_PATH, fullpath).replace(/\\/g, '/'));
@@ -28,6 +27,7 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
     if (memery.TRANSFER && /\.(m?[tj]sx?|html?|json|css|less)$/i.test(fullpath)) {
         data = Buffer.from(transfer(data));
     }
+    var data = filebuilder.apply(this, arguments);
     return new Promise(function (ok, oh) {
         if (data instanceof Function) {
             if (checkAccess(fullpath)) {
@@ -105,15 +105,15 @@ var utf8 = { "Content-Type": "text/plain;charset=utf-8" };
  */
 var adapter = function (data, url, req, res) {
     if (res.writableEnded || res.finished) return;
+    if (data instanceof Function) {
+        data = data(req, res);
+    }
     if (data instanceof Buffer) {
         return response(data, url, req, res);
     }
     if (data instanceof Error) {
         res.writeHead(404, utf8);
         return res.end(String(data));
-    }
-    if (data instanceof Function) {
-        data = data(req, res);
     }
     if (data instanceof Promise) {
         return data.then(function (data) {
@@ -160,7 +160,7 @@ var adapter = function (data, url, req, res) {
  */
 module.exports = async function (req, res) {
     var url = await proxy(req);
-    if (/^~~?|^&/.test(req)) {
+    if (/^~~?|^&/.test(url)) {
         return doCross(req, res);
     }
     if (/^https?:|^\/\/|^[^\/]/i.test(url)) {
