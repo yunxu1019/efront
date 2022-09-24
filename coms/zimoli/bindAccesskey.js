@@ -31,11 +31,13 @@ var keydownhandler = function (event) {
 on("keydown")(window, keydownhandler);
 var bindAccesskey = function (btn, k) {
     if (!keyMap[k]) keyMap[k] = [];
-    removeFromList(keyMap[k], btn);
-    keyMap[k].push(btn);
-    once("remove")(btn, function () {
+    on("remove")(btn, function () {
         removeFromList(keyMap[k], btn);
     });
+    onmounted(btn, function () {
+        removeFromList(keyMap[k], btn);
+        keyMap[k].push(btn);
+    })
 };
 var getKeyFromText = function (btn) {
     var { innerText } = btn;
