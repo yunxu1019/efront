@@ -354,7 +354,8 @@ function picture_(image = document.createElement("div")) {
 
     image.rotateTo = function (deg) {
         rotated = deg;
-        this.update();
+        updatexy();
+        shape();
     };
     image.rotateBy = function (deg) {
         var r = rotated;
@@ -381,7 +382,8 @@ function picture_(image = document.createElement("div")) {
             r += deg;
         }
         rotated = r;
-        this.update(deg === 90 || deg === -90);
+        updatexy();
+        shape();
     };
     on('remove')(image, move.reset);
     on("contextmenu")(image, function (e) {
