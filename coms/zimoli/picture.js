@@ -122,6 +122,7 @@ appendChild(广告, alink);
 function picture(url, to = 0, key) {
 
     var images = {};
+    var cacheLength = 8;
     var gen = function (index, ratio) {
         if (index >= urls.length || index < 0) return null;
         if (images[index] && images[index].url !== urls[index]) {
@@ -133,9 +134,9 @@ function picture(url, to = 0, key) {
         if (!images[index + 1] && index + 1 < urls.length) {
             images[index + 1] = create.call(p, urls[index + 1], key, p.index === index);
         }
-        if (index >= 5) delete images[index - 5];
-        if (index + 5 < urls.length) {
-            delete images[index + 5];
+        if (index >= cacheLength) delete images[index - cacheLength];
+        if (index + cacheLength < urls.length) {
+            delete images[index + cacheLength];
         }
         var img = images[index]
         if (ratio > .75 && img) {
