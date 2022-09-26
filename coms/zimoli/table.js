@@ -359,12 +359,16 @@ function table(elem) {
             var tds = getTdsOfSameRow(td);
             setClass(tds, 'x-ing', activeRows);
             activeRows = tds;
-            return;
         }
         if (!thead) {
             thead = getThead(table);
         }
-        if (!getTargetIn(thead, event.target)) return;
+        if (!getTargetIn(thead, event.target)) {
+            activeCols.forEach(function (td) {
+                removeClass(td, 'y-ing');
+            });
+            return;
+        }
         var tds = getTargetIn(cellMatchManager, event.target);
         if (!tds) return;
         setClass(tds, 'y-ing', activeCols);
