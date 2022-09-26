@@ -667,7 +667,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         element.renders = element.renders ? [].concat(element.renders) : [];
         var { ons, copys, attrs, props, binds, context: withContext, ids, once } = element.$struct;
         if (once) element.renderid = 9;
-        delete element.$struct;
         if (binds.src) {
             element.$src = parseRepeat(binds.src);
         }
@@ -710,12 +709,14 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 if (replacer.renders) renders = renders.concat(replacer.renders);
                 replacer.renders = renders;
                 if (binds.src) replacer.$src = element.$src;
+                delete element.$struct;
                 element = replacer;
                 element.$scope = scope;
                 element.$parentScopes = parentScopes;
             }
         }
     }
+    delete element.$struct;
     if (element.children && element.children.length) renderElement(element.children, scope, parentScopes, once);
     if (!isFirstRender) return element;
     var renders = element.renders;
@@ -900,3 +901,6 @@ render.register = function (key, name) {
         register(key, name);
     }
 };
+render.style = function (element, search) {
+    return directives.style.call(element, search);
+}
