@@ -74,16 +74,29 @@ function alert() {
         if (close_timer) clearTimeout(close_timer);
     }
     onremove(elem, _onclose);
-    if (autoclose) {
-        if (autoclose === true) {
-            autoclose = text.length * 200 + 400;
-        } else if (autoclose < 100) {
-            autoclose = autoclose * 1000;
+    var close_timer;
+    var waitclose = function (autoclose, deltaTime) {
+        if (autoclose) {
+            if (autoclose === true) {
+                autoclose = text.length * 160 + deltaTime;
+            } else if (autoclose < 100) {
+                autoclose = autoclose * 1000;
+            }
+            close_timer = setTimeout(function () {
+                remove(elem);
+            }, autoclose);
         }
-        var close_timer = setTimeout(function () {
-            remove(elem);
-        }, autoclose);
-    }
+    };
+    waitclose(autoclose, 400)
+    elem.setText = function (content, timeout = true) {
+        var c = elem.children[0];
+        c.innerHTML = content;
+        text = content;
+        if (timeout) {
+            clearTimeout(close_timer);
+            waitclose(timeout, -100);
+        }
+    };
     alerts.push(elem);
     popup(elem);
     return elem;
