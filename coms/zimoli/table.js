@@ -300,6 +300,17 @@ var setClass = function (tds, cls, old) {
     old.forEach(td => { if (!td[cls]) removeClass(td, cls) });
     tds.forEach(td => { addClass(td, cls); delete td[cls] });
 };
+var removeYIng = function (activeCols) {
+    activeCols.forEach(function (td) {
+        removeClass(td, 'y-ing');
+    });
+};
+var removeXIng = function (activeRows) {
+    activeRows.forEach(function (td) {
+        removeClass(td, 'x-ing');
+    });
+};
+
 var getTdsOfSameRow = function (td) {
     var tds = [td];
     var tmp = td;
@@ -337,6 +348,7 @@ var getTdsOfSameRow = function (td) {
     }
     return tds;
 };
+
 function table(elem) {
     var tableElement = isElement(elem) ? elem : document.createElement("table");
     var activeCols = [];
@@ -357,30 +369,24 @@ function table(elem) {
             var td = getTargetIn(tr, event.target, false);
             if (!td) break a;
             var tds = getTdsOfSameRow(td);
+            removeYIng(activeCols);
             setClass(tds, 'x-ing', activeRows);
             activeRows = tds;
+            return;
         }
         if (!thead) {
             thead = getThead(table);
         }
-        if (!getTargetIn(thead, event.target)) {
-            activeCols.forEach(function (td) {
-                removeClass(td, 'y-ing');
-            });
-            return;
-        }
+        if (!getTargetIn(thead, event.target)) return;
         var tds = getTargetIn(cellMatchManager, event.target);
         if (!tds) return;
         setClass(tds, 'y-ing', activeCols);
+        removeXIng(activeRows);
         activeCols = tds;
     });
     onmouseleave(tableElement, function () {
-        activeCols.forEach(function (td) {
-            removeClass(td, "y-ing");
-        });
-        activeRows.forEach(function (td) {
-            removeClass(td, 'x-ing');
-        });
+        removeYIng(activeCols);
+        removeXIng(activeRows);
     });
     var table = tableElement;
     var thead;
