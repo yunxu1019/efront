@@ -143,7 +143,7 @@ if (isDevelop) builder = function (buff, name, fullpath) {
         if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
             var data = fixpixel(data);
             data = buildjsp(data, fullpath)(req, res);
-            data = 'text/html;charset=utf-8';
+            mime = 'text/html;charset=utf-8';
         } else if (indexreg.test(fullpath) || /\.html?$/i.test(fullpath) && /^\s*<!Doctype/i.test(data.slice(0, 100).toString())) {
             data = fixpixel(data);
             data = buildreload(data);
