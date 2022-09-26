@@ -14,8 +14,6 @@
 // }
 function LoadingArray() {
     var this0 = [];
-    this0.totalCount = 0;
-    this0.data = [];
     this0.is_errored = null;
     this0.error_message = null;
     this0.is_loading = true;
