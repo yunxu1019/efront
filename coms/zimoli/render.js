@@ -901,6 +901,4 @@ render.register = function (key, name) {
         register(key, name);
     }
 };
-render.style = function (element, search) {
-    return directives.style.call(element, search);
-}
+render.getFromScopes = getFromScopes;
