@@ -153,7 +153,5 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 
 [播放器 demo 在线实例](http://efront.cc/kugou/)
 
-[手机商城组件](http://github.com/yunxu1019/qfy)
-
 [更新日志](https://github.com/yunxu1019/efront/commits/develop)
 
