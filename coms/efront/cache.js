@@ -343,17 +343,17 @@ File.prototype[$updateme] = async function () {
             var linked = that[$linked] = [];
             buffer = await that[$rebuild](buffer, url, that[$pathname], that[$linked]);
             if (linked.length) await that[$checklink]();
+            if (typeof buffer === "string") buffer = Buffer.from(buffer);
+            if (buffer instanceof Buffer) buffer.stat = stats;
+            if (buffer && !buffer.mime) {
+                var extend = String(that[$pathname]).match(/\.([^\.]*)$/);
+                if (extend) buffer.mime = mimes[extend[1]];
+            }
         } catch (e) {
             buffer = e;
             console.log(e);
             console.error("编译错误:", that[$pathname]);
         }
-    }
-    if (typeof buffer === "string") buffer = Buffer.from(buffer);
-    if (buffer instanceof Buffer) buffer.stat = stats;
-    if (!buffer.mime) {
-        var extend = String(that[$pathname]).match(/\.([^\.]*)$/);
-        if (extend) buffer.mime = mimes[extend[1]];
     }
 
     return that[$buffered] = buffer;
