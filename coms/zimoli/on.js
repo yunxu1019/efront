@@ -80,6 +80,7 @@ var keyCodeMap = {
     key8: 55,
     key9: 56,
     meta: 57,
+    "⌘": 57,
     help: 91,
     context: 93,
     menu: 93,
