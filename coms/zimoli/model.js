@@ -35,6 +35,11 @@ var renderModel = function (field, data) {
         data
     });
 };
+var unmark = function (select) {
+    select.isediter = false;
+    select.isreader = false;
+};
+unmark(select);
 var constructors = {
     input,
     swap(e) {
@@ -189,11 +194,11 @@ var createOptionsMap = function (options) {
 readonly_types.select = readonly_types.swap;
 var findReaderForElement = function (type, e) {
     var editor = render.getFromScopes(type, e.$scope, e.$parentScopes);
-    if (isFunction(editor) && (editor.isreader || !editor.isediter)) return editor;
+    if (isFunction(editor) && (editor.isreader || !editor.isediter) && editor.isreader !== false) return editor;
 };
 var findEditerForElement = function (type, e) {
     var editor = render.getFromScopes(type, e.$scope, e.$parentScopes);
-    if (isFunction(editor) && (editor.isediter || !editor.isreader)) return editor;
+    if (isFunction(editor) && (editor.isediter || !editor.isreader) && editor.isediter !== false) return editor;
 };
 var markReader = function (readers) {
     for (var k in readers) {
@@ -269,6 +274,7 @@ function main(elem) {
                 }
             } else {
                 var create = field_type === "function" ? field_editor : findEditerForElement(field_type, elem) || constructors[field_type];
+                console.log(create === constructors.select)
                 var ipt = create ? create(elem, field_ref) : field.key ? input(function () {
                     var input = document.createElement('input');
                     input.setAttribute('type', field.type);
@@ -326,7 +332,7 @@ extend(main, {
     },
     setReadors(map) {
         extend(readonly_types, map);
-        markReader(main);
+        markReader(map);
     },
     setModels(map) {
         this.setEditors(map);
