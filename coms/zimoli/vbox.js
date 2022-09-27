@@ -207,7 +207,7 @@ var xbox = arriswise(ybox, [].concat(allArgumentsNames, [].slice.call(arguments,
  */
 function vbox(generator, $Y) {
     if ($Y !== false && $Y !== true) {
-        if (!$Y) {
+        if (!isString($Y)) {
             if (isElement(generator)) {
                 if (generator.hasAttribute('x-box') || generator.hasAttribute('xbox') || /^[xh]/i.test(generator.getAttribute('type') || /^[hx]/i.test(generator.getAttribute('mode')))) {
                     $Y = false;
