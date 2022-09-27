@@ -88,12 +88,14 @@ var buildjsp = function (buff, realpath) {
     });
     if (lastIndex < input.length - 1) splited.push(input.slice(lastIndex, input.length));
     return function (req, res) {
+        var context = {};
+        context.context = context;
         Object.assign(prebuilds, {
             req: req,
             request: req,
             res: res,
             response: res,
-            context: {},
+            context,
             textplain(e) {
                 res.writeHead(200, {
                     "Content-type": "text/plain;charset=utf-8"
