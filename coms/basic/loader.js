@@ -22,7 +22,8 @@ var {
     console,
     efrontURI,
     parseFloat,
-    PREVENT_FRAMEWORK_MODE,
+    preventFrame,
+    PREVENT_FRAMEWORK_MODE = preventFrame,
     devicePixelRatio = 1,
     startPath: efrontPath,
     pixelDecoder // = d => d / 16 + "rem"
