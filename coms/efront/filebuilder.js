@@ -135,23 +135,26 @@ var buildreload = function (buff) {
     return buff;
 };
 var str2array = require("./str2array");
-var indexreg = new RegExp(str2array(memery.INDEX_NAME).join('|') + "$")
+var indexreg = new RegExp(`(${str2array(memery.INDEX_NAME).join('|')})\\.[^\/\\\.]+$`);
 if (isDevelop) builder = function (buff, name, fullpath) {
-    var dev = function (req, res) {
-        var mime = dev.mime;
-        var data = buff;
-        if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
-            var data = fixpixel(data);
-            data = buildjsp(data, fullpath)(req, res);
-            mime = 'text/html;charset=utf-8';
-        } else if (indexreg.test(fullpath) || /\.html?$/i.test(fullpath) && /^\s*<!Doctype/i.test(data.slice(0, 100).toString())) {
-            data = fixpixel(data);
+    var dev = buff;
+    if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
+        dev = function (req, res) {
+            var data = fixpixel(buff);
             data = buildreload(data);
-            mime = 'text/html;charset=utf-8';
-        }
-        if (!data.mime) data.mime = mime;
-        return data;
-    };
+            data = buildjsp(data, fullpath)(req, res);
+            return data;
+        };
+    }
+
+    else if (indexreg.test(fullpath) || /\.html?$/i.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
+        dev = function () {
+            var data = fixpixel(buff);
+            data = buildreload(data);
+            data.mime = dev.mime || 'text/html;charset=utf-8';
+            return data;
+        };
+    }
     return dev;
 };
 
