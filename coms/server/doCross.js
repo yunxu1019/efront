@@ -205,6 +205,7 @@ async function cross(req, res, referer) {
         }, parseURL($url), options), onresponse);
         request.setTimeout(120000/*support for wechat long pull*/);
         request.on("error", onerror);
+        request.on("timeout", onerror);
         req.pipe(request);
         return request;
     };
