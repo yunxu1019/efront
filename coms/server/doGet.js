@@ -27,15 +27,14 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
     if (memery.TRANSFER && /\.(m?[tj]sx?|html?|json|css|less)$/i.test(fullpath)) {
         data = Buffer.from(transfer(data));
     }
-    var data = filebuilder.apply(this, arguments);
-    return new Promise(function (ok, oh) {
-        if (data instanceof Function) {
-            if (checkAccess(fullpath)) {
-                oh(new Error('请不要在共享路径中创建服务器脚本！'));
-                return;
-            }
-            return ok(data);
+    var data = filebuilder.call(this, data, filename, fullpath);
+    if (data instanceof Function) {
+        if (checkAccess(fullpath)) {
+            throw '请不要在共享路径中创建服务器脚本！';
         }
+        return data;
+    }
+    return new Promise(function (ok, oh) {
         data.origin_size = origin_size;
         zlib.gzip(data, function (error, result) {
             if (error) {
