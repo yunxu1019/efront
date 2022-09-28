@@ -40,6 +40,11 @@ var unmark = function (select) {
     select.isreader = false;
 };
 unmark(select);
+unmark(radio);
+unmark(checkbox);
+unmark(swap);
+unmark(image);
+unmark(success);
 var constructors = {
     input,
     swap(e) {
