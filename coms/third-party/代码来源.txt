@@ -1,0 +1,4 @@
+第三方代码来源及日期，后续版本请自行更新
+
+2022-09-29 https://github.com/richtr/NoSleep.js
+2021-06-15 https://www.npmjs.com/package/html2canvas
