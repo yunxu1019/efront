@@ -58,6 +58,7 @@ class Matrix extends Array {
         return this;
     }
     translate(vector) {
+        if (!isFinite(vector.length)) vector = arguments;
         this.dirty();
         return this.constructor.translate(this, vector);
     }
