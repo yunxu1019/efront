@@ -527,9 +527,19 @@ var renderLessData = function (data, lesspath, watchurls, className) {
             }, function (err, data_2) {
                 if (err)
                     return console.warn(err);
-                lessData = data_2.css.replace(/\{([^\}]+)\}/g, function (_, c) {
+                var keyframeMap = {};
+                var hasOwnProperty = keyframeMap.hasOwnProperty;
+
+                var kprefix = className.replace(/\-$/, '') + "-";
+                lessData = data_2.css.replace(/@keyframes\s+([^\(\)\{\}\s]+)/, function (_, a) {
+                    a = keyframeMap[a] = kprefix + a;
+                    return "@keyframes " + a;
+                }).replace(/\{([^\{\}]+)\}/g, function (_, c) {
                     var o = parseKV(c, ';', ":");
                     if (o["user-select"]) o["-webkit-user-select"] = o["user-select"];
+                    if (o.animation) {
+                        o.animation = o.animation.split(/\s+/).map(a => hasOwnProperty.call(keyframeMap, a) ? keyframeMap[a] : a).join(' ');
+                    }
                     return `{${serialize(o, ';', ':')}}`;
                 });
             });
