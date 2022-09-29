@@ -72,6 +72,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             //导出组件
             var public_path = path.join(PUBLIC_PATH, public_app);
             setting.is_commponent_package = true;
+            require("../compile/scanner2").avoid = Object.create(null);
             var toComponent = require("./toComponent");
             commbuilder.compress = false;
             commbuilder.prepare = false;

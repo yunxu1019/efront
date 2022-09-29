@@ -40,8 +40,8 @@ function toComponent(responseTree) {
 
     var destMap = Object.create(null), dest = [];
 
-    var $$_efront_map_string_key = "$efront";
     var paramsMap = Object.create(null);
+    var avoidMap = scanner2.avoid;
     var getEfrontKey = function (k, type) {
         k = String(k);
         if (type === 'global') {
@@ -49,27 +49,24 @@ function toComponent(responseTree) {
         } else {
             if (type === 'string') k = _strings.decode(k);
             var key = k.replace(/[^\w\$]+/g, "_");
-            if (key.length > 6) {
-                key = key.slice(0, 6);
+            if (key.length > 8) {
+                key = key.slice(0, 8);
             }
+            if (!/^\_/.test(key)) key = "_" + key;
             var hasOwnProperty = {}.hasOwnProperty;
             var id = 0;
-            while (hasOwnProperty.call(paramsMap, key) && paramsMap[key] !== k) {
-                key = key.replace(/\d+$/, '') + ++id;
+            while (hasOwnProperty.call(paramsMap, key) && paramsMap[key] !== k || key in avoidMap && avoidMap[key] !== type) {
+                key = key.replace(/\d+?\_$/, '') + ++id;
             }
             paramsMap[key] = k;
             if (type === 'string') k = _strings.encode(k);
         }
-        if (type === 'global') {
-            var $key = key;
-        } else {
-            var $key = $$_efront_map_string_key + "_" + type + "_" + key;
-        }
-        if (!destMap[$key]) {
+        if (!destMap[key]) {
             if (type === 'string') k = encode(k);
-            saveOnly(k, $key);
+            avoidMap[key] = type;
+            saveOnly(k, key);
         }
-        return $key;
+        return key;
     };
     var strings = "slice,length,split,concat,apply,reverse,exec,indexOf,string,join,call,exports".split(",");
     var encoded = memery.ENCRYPT;
@@ -78,10 +75,10 @@ function toComponent(responseTree) {
     var encode = function (source) {
         var _source = _strings.decode(source);
         if (isText(_source)) {
-            if (!encoded) return `/** text */ ` + source;
+            if (!encoded) return `/* text */ ` + source;
         } else if (isSymbol(_source)) {
             source = ++symbolid;
-            if (!encoded) source = source + ` /** symbol ${_source} */`;
+            if (!encoded) source = source + ` /* symbol ${_source} */`;
             return source;
         } else {
             if (!encoded) return source;
@@ -187,7 +184,7 @@ function toComponent(responseTree) {
         if (!memery.UPLEVEL) {
             module_string = downLevel(module_string, isAsync, isYield);
         }
-        module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${module_string}}`;
+        module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${compress ? "" : "\r\n"}${module_string}${compress ? "" : "\r\n"}}`;
         if (compress) {
             module_string = scanner2(module_string).press().toString();
         }
@@ -222,22 +219,34 @@ function toComponent(responseTree) {
     };
     function saveOnly(data, k, ...ks) {
         var warning = null;
+        var type = avoidMap[k];
+        if (typeof type === 'string') type += " ";
+        else type = '';
         if (!destMap[k]) {
             var isGlobal = /^[\$_a-z]\w*$/i.test(data) && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|TypeError|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data);
             if (isGlobal) {
-                if (!/^(os|fs|vm|url|readline|net|http[2s]?|zlib|util|buffer|path|cluster|console|Reflect|PerformanceObserver|BigInt|WeakMap|Boolean|Promise|JSON|module|exports|require|__dirname|__filename|Buffer|Symbol|process|Map|Set|(Ui|I)nt(8|16|32)Array|RangeError|setImmediate|Proxy|Intl|Map|TypeError|RangeError|global|parent|opener|top|length|frames|closed|location|self|window|document|name|customElements|history|locationbar|menubar|personalbar|scrollbars|statusbar|toolbar|status|frameElement|navigator|origin|external|screen|innerWidth|innerHeight|scrollX|pageXOffset|scrollY|pageYOffset|visualViewport|screenX|screenY|outerWidth|outerHeight|devicePixelRatio|clientInformation|screenLeft|screenTop|defaultStatus|defaultstatus|styleMedia|isSecureContext|performance|stop|open|alert|confirm|prompt|print|queueMicrotask|requestAnimationFrame|cancelAnimationFrame|captureEvents|releaseEvents|requestIdleCallback|cancelIdleCallback|getComputedStyle|matchMedia|moveTo|moveBy|resizeTo|resizeBy|scroll|scrollTo|scrollBy|getSelection|find|webkitRequestAnimationFrame|webkitCancelAnimationFrame|fetch|btoa|atob|createImageBitmap|close|focus|blur|postMessage|crypto|indexedDB|webkitStorageInfo|sessionStorage|localStorage|chrome|orientation|speechSynthesis|webkitRequestFileSystem|webkitResolveLocalFileSystemURL|openDatabase)/.test(data)) {
+                if (!/^(os|fs|vm|url|readline|net|http[2s]?|zlib|util|buffer|path|cluster|console|Reflect|PerformanceObserver|BigInt|WeakMap|WakeLock|Boolean|Promise|JSON|module|exports|require|__dirname|__filename|Buffer|Symbol|process|Map|Set|(Ui|I)nt(8|16|32)Array|ArrayBuffer|RangeError|setImmediate|Proxy|Intl|Map|TypeError|RangeError|global|parent|opener|top|length|frames|closed|location|self|window|document|name|customElements|history|locationbar|menubar|personalbar|scrollbars|statusbar|toolbar|status|frameElement|navigator|origin|external|screen|innerWidth|innerHeight|scrollX|pageXOffset|scrollY|pageYOffset|visualViewport|screenX|screenY|outerWidth|outerHeight|devicePixelRatio|clientInformation|screenLeft|screenTop|defaultStatus|defaultstatus|styleMedia|isSecureContext|performance|stop|open|alert|confirm|prompt|print|queueMicrotask|requestAnimationFrame|cancelAnimationFrame|captureEvents|releaseEvents|requestIdleCallback|cancelIdleCallback|getComputedStyle|matchMedia|moveTo|moveBy|resizeTo|resizeBy|scroll|scrollTo|scrollBy|getSelection|find|webkitRequestAnimationFrame|webkitCancelAnimationFrame|fetch|btoa|atob|createImageBitmap|close|focus|blur|postMessage|crypto|indexedDB|webkitStorageInfo|sessionStorage|localStorage|chrome|orientation|speechSynthesis|webkitRequestFileSystem|webkitResolveLocalFileSystemURL|openDatabase)/.test(data)) {
                     warning = true;
                 }
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
             }
             if (!compress) {
-                data = `\r\n/** ${dest.length + 1} ${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
+                if (memery.COMMENT && !/^"/.test(k)) {
+                    data = `\r\n/* ${dest.length + 1} ${type}${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
+                } else {
+                    data = `\r\n` + data;
+                }
             }
             dest.push(data);
             destMap[k] = dest.length;
         } else {
             if (!compress) {
-                data = `\r\n/** ${destMap[k]} ${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
+                if (memery.COMMENT) {
+                    data = `\r\n/* ${destMap[k]} ${type}${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
+                }
+                else {
+                    data = `\r\n` + data;
+                }
             }
             dest[destMap[k] - 1] = data;
         }

@@ -219,6 +219,7 @@ module.exports = {
     EXPORT_AS: get("EXPORT_AS, EXPORT"),
     RELEASE: get("RELEASE,INCLUDE_REQUIRED", 0),
     PREFIX: get("PREFIX", ''),
+    COMMENT: get("COMMENT", false),
     POLYFILL: get("POLYFILL", true),
     SOURCEDIR: get("SOURCEDIR", false),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),

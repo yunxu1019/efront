@@ -100,7 +100,7 @@ var detourTemplate = function (raw, params) {
     for (var p of params) template.push(spliter, p);
     return template;
 };
-
+var avoidMap = null;
 var detour = function (o, ie) {
     while (o) {
         switch (o.type) {
@@ -108,6 +108,10 @@ var detour = function (o, ie) {
                 detour(o.first, ie);
                 break;
             case EXPRESS:
+                if (avoidMap) {
+                    var m = /^[^\.\[\]]+/.exec(o.text.replace(/^\.\.\./, ''));
+                    if (m) { avoidMap[m[0]] = true; }
+                }
                 if (!/^\.\.\.|\.\.\.$/.test(o.text)) {
                     o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => ie === undefined || program.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
                 }
@@ -971,6 +975,15 @@ function scan(text) {
     var res = javascript(text, 0);
     return res;
 }
+
+Object.defineProperty(scan, "avoid", {
+    get() {
+        return avoidMap;
+    },
+    set(map) {
+        avoidMap = map;
+    }
+});
 
 scan.Program = Program;
 module.exports = scan;
