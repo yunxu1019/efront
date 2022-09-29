@@ -134,8 +134,8 @@ var $scope = {
     pause() {
         $scope.playing = false;
         let _audio = $scope.audio;
+        ns.disable();
         if (_audio && _audio.pause instanceof Function) _audio.pause();
-        if (ns) ns.disable();
         render.refresh();
     },
     sbtn(elem) {
@@ -200,8 +200,10 @@ var $scope = {
             if ($scope.playing) return $scope.pause();
             $scope.playing = true;
             let _audio = $scope.audio;
-            if (_audio.play instanceof Function) _audio.play();
-            if (ns) ns.enable();
+            if (_audio.play instanceof Function) {
+                if (ns.wake) ns.enable();
+                _audio.play();
+            }
             return;
         }
         if (!isPlayback) for (var cx = musicList.length - 1; cx >= 0; cx--) {
@@ -214,7 +216,13 @@ var $scope = {
          * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
          */
         $scope.playing = false;
+        /**
+         * @type {HTMLAudioElement}
+         */
         var _audio = document.createElement("audio");
+        _audio.onended = function () {
+            ns.disable();
+        };
         if (hasContext) {
             // ios设备目前未找到可视化方案
             var context = new AudioContext;
@@ -228,6 +236,7 @@ var $scope = {
         }
         if (_audio.play) {
             _audio.ontimeupdate = $scope.update;
+            if (ns.wake) ns.enable();
             _audio.play();//安卓4以上的播放功能要在用户事件中调用;
         } else {
             // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
@@ -272,9 +281,9 @@ var $scope = {
                 if (ns) ns.disable();
             };
             delete playState.error;
+            if (ns.wake) ns.enable();
             _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
             _audio.play();
-            if (ns) ns.enable();
             data.setInstance('musicList', distlist, true);
             render.refresh();
         }).catch(e => playState.error = true);
@@ -377,17 +386,18 @@ var createControls = function () {
     });
     return player;
 };
-var ns;
+var ns = new NoSleep;
 data.bindInstance("play-mode", function (e) {
     if (e.wake) {
-        if (!ns) ns = new NoSleep;
+        ns.wake = true;
         if ($scope.playing) {
-            ns.enable();
+            $scope.pause();
+            $scope.play();
         }
     }
     else if (ns) {
+        ns.wake = false;
         ns.disable();
-        ns = null;
     }
 });
 

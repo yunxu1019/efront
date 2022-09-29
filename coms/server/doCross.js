@@ -176,7 +176,7 @@ async function cross(req, res, referer) {
     var onerror = function (e) {
         if (res.closed) return;
         var code;
-        switch (e.code) {
+        switch (e && e.code) {
             case "ECONNRESET":
                 if (req.cross_count > 0) {
                     req.cross_count--;
