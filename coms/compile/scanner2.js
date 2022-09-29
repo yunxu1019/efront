@@ -385,7 +385,7 @@ class Javascript {
     return,typeof,delete,switch,export,import,static
     default,finally,extends
     function,continue,debugger
-    instanceof`.trim().split(/[\r\n,\s]+/)
+    instanceof`.trim().split(/[,\s]+/)
     spaces = ["\\u00a0", " ", "\\t", "\\v", "\\b", "\\r", "\\n", "\\u2028", "\\u2029", "\\u3000"]
     nocase = false
     lastIndex = 0
@@ -744,7 +744,7 @@ class Javascript {
                 queue.inExpress = true;
                 queue.end = index;
                 queue.text = text.slice(queue.start, index);
-                row += queue.text.replace(/[^\r\n]+/g, '').length >> 1;
+                row += queue.text.replace(/[^\r\n\u2028\u2029]+/g, ':').replace(/\r\n/g, ',').replace(/:/g, '').length;
                 queue = parents.pop();
                 lasttype = queue.type;
                 continue;
@@ -760,9 +760,9 @@ class Javascript {
             }
             if (this.space_reg.test(m)) {
                 if (/[\r\n\u2028\u2029]/.test(m)) {
-                    colstart = match.index + 1;
                     m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
                     row += m.replace(/[^\r\n]+/g, '').length >> 1;
+                    colstart = match.index + m.replace(/[^\r\n]+$/, '').length - 1;
                     save(SPACE);
                 }
                 lasttype = SPACE;
