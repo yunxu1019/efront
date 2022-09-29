@@ -9,3 +9,5 @@ function extendIfNeeded(o1) {
     }
     return o1;
 }
+
+module.exports = extendIfNeeded;

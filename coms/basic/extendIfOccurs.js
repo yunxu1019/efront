@@ -1,3 +1,4 @@
+var isObject = require("./isObject");
 function extendIfOccurs(o1) {
     o1 = Object(o1);
     var ks = Object.keys(o1);
@@ -9,3 +10,4 @@ function extendIfOccurs(o1) {
     }
     return o1;
 }
+module.exports = extendIfOccurs;
