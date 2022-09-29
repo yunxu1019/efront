@@ -80,6 +80,12 @@ module.exports = function (root) {
         var args = Object.keys(needs).filter(a => !map[a]);
         args.sort((a, b) => {
             return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
+        }).sort((a, b) => {
+            a = undeclares[a][0];
+            b = undeclares[b][0];
+            if (a.row !== b.row) return a.row - b.row;
+            if (a.col !== b.col) return a.col - b.col;
+            return 0;
         });
         var isFolder = fs.statSync(root).isDirectory();
         var name = isFolder ? "路径" : "文件";
@@ -94,7 +100,7 @@ module.exports = function (root) {
             console.log();
             console.type(args.map(a => {
                 var c = color(a);
-                var u=undeclares[a];
+                var u = undeclares[a];
                 return `<${c}>${a} (${u[0].row}:${u[0].col})</${c}>`;
             }).join("<gray>,</gray> "));
         }
