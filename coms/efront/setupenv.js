@@ -14,13 +14,13 @@ var setup = module.exports = function (app) {
     if (cache[appname]) return cache[appname];
     else env = {};
     envpath.forEach(function (p) {
-        Object.assign(env, loadenv(path.join(p, "./app=" + appname + ".bat")))
+        Object.assign(env, loadenv(path.join(p, "./app=" + appname)))
     });
     cache[appname] = env;
     extend(env, env, appname);
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
         var default_value = env[key];
-        if (default_value !== undefined) default_value = memery[key];
+        if (default_value === undefined) default_value = memery[key];
         var value_map = Object.create(null);
         if (appname !== undefined) {
             if (!/\/|\.[cm]?[jt]sx?$/i.test(app)) value_map[appname] = true;
@@ -31,6 +31,8 @@ var setup = module.exports = function (app) {
             });
         }
         if (!default_value) value_map["zimoli"] = true;
+        if (!value_map.basic) value_map.basic = true;
+        if (!value_map[""]) value_map[""] = true;
         env[key] = Object.keys(value_map).join(',');
     });
     if (!env.PAGE && appname && !/\.([cm]?[jt]sx?|json)$/i.test(app)) env.PAGE = appname;
