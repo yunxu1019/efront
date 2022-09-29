@@ -1023,6 +1023,14 @@ var data = {
         extend(instance, data);
         return this.setInstance(instanceId, instance, rememberWithStorage);
     },
+    /**
+     * 仅初始化，不覆盖
+     */
+    initInstance(instanceId, data, rememberWithStorage = 0) {
+        var item = getItem(instanceId);
+        if (!isEmpty(item)) return;
+        return this.setInstance(instanceId, data, rememberWithStorage);
+    },
     switchInstance(instanceId, key, rememberWithStorage = 0) {
         var instance = this.getInstance(instanceId);
         if (key === true || key === false || isEmpty(key)) {
