@@ -22,29 +22,9 @@ if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 var find = function (data) {
     return require("../compile/scanner2")(data).getUndecleared();
 };
+var globals = require("./globals");
 module.exports = function (root) {
     var rest = [].concat.apply([], arguments);
-    var globals = {
-        devicePixelRatio: 1,
-        "screen": true,
-        "process": true,
-        "global": true,
-        "window": true,
-        "document": true,
-        "location": true,
-        "navigator": true,
-        "XMLHttpRequest": true,
-        "history": true,
-        "Image": true,
-        "Event": true,
-        "self": true,
-        "modules": true,
-        "module": true,
-        "exports": true,
-        "require": true,
-        "__dirname": true,
-        "__filename": true,
-    };
     var map = {
     }, needs = {};
     var undeclares;
@@ -71,12 +51,12 @@ module.exports = function (root) {
             return 'white'
         }
         if (a in globals) {
-            return 'gray'
+            return globals[a].name;
         }
         return 'red2'
     }
     var list = function () {
-        for (var k in needs) if (k in global) globals[k] = true;
+        for (var k in needs && !(k in globals)) if (k in global) globals[k] = true;
         var args = Object.keys(needs).filter(a => !map[a]);
         args.sort((a, b) => {
             return a.toLowerCase() > b.toLowerCase() ? 1 : -1;

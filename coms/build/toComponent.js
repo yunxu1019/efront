@@ -4,6 +4,8 @@ var downLevel = require("../efront/downLevel");
 var path = require("path");
 var _strings = require("../basic/strings");
 var memery = require("../efront/memery");
+var globals = require("../efront/globals");
+var colors = require("../efront/colors");
 var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXPORT_AS, PUBLIC_PATH } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
@@ -223,11 +225,9 @@ function toComponent(responseTree) {
         if (typeof type === 'string') type += " ";
         else type = '';
         if (!destMap[k]) {
-            var isGlobal = /^[\$_a-z]\w*$/i.test(data) && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|TypeError|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data);
+            var isGlobal = data in globals;
             if (isGlobal) {
-                if (!/^(os|fs|vm|url|readline|net|http[2s]?|zlib|util|buffer|path|cluster|console|Reflect|PerformanceObserver|BigInt|WeakMap|WakeLock|Boolean|Promise|JSON|module|exports|require|__dirname|__filename|Buffer|Symbol|process|Map|Set|(Ui|I)nt(8|16|32)Array|ArrayBuffer|RangeError|setImmediate|Proxy|Intl|Map|TypeError|RangeError|global|parent|opener|top|length|frames|closed|location|self|window|document|name|customElements|history|locationbar|menubar|personalbar|scrollbars|statusbar|toolbar|status|frameElement|navigator|origin|external|screen|innerWidth|innerHeight|scrollX|pageXOffset|scrollY|pageYOffset|visualViewport|screenX|screenY|outerWidth|outerHeight|devicePixelRatio|clientInformation|screenLeft|screenTop|defaultStatus|defaultstatus|styleMedia|isSecureContext|performance|stop|open|alert|confirm|prompt|print|queueMicrotask|requestAnimationFrame|cancelAnimationFrame|captureEvents|releaseEvents|requestIdleCallback|cancelIdleCallback|getComputedStyle|matchMedia|moveTo|moveBy|resizeTo|resizeBy|scroll|scrollTo|scrollBy|getSelection|find|webkitRequestAnimationFrame|webkitCancelAnimationFrame|fetch|btoa|atob|createImageBitmap|close|focus|blur|postMessage|crypto|indexedDB|webkitStorageInfo|sessionStorage|localStorage|chrome|orientation|speechSynthesis|webkitRequestFileSystem|webkitResolveLocalFileSystemURL|openDatabase)/.test(data)) {
-                    warning = true;
-                }
+                warning = globals[data] !== colors.FgGray;
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
             }
             if (!compress) {
