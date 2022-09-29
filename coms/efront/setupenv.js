@@ -3,6 +3,9 @@ var loadenv = require("./loadenv");
 var path = require("path");
 var fs = require("fs");
 var memery = require("./memery");
+var extendIfNeed = require("../basic/extendIfNeeded");
+var extendIfOccurs = require("../basic/extendIfOccurs");
+var isEmpty = require("../basic/isEmpty");
 var env = process.env;
 var envpath = memery.ENVS_PATH;
 if (typeof envpath !== "string") envpath = "./_envs," + path.join(require("os").homedir(), '.efront/_envs');
@@ -17,7 +20,9 @@ var setup = module.exports = function (app) {
         Object.assign(env, loadenv(path.join(p, "./app=" + appname)))
     });
     cache[appname] = env;
-    extend(env, env, appname);
+    extendIfNeed(env, defautEnvs);
+    pollyfill(env);
+    normalize(env);
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
         var default_value = env[key];
         if (default_value === undefined) default_value = memery[key];
@@ -36,11 +41,18 @@ var setup = module.exports = function (app) {
         env[key] = Object.keys(value_map).join(',');
     });
     if (!env.PAGE && appname && !/\.([cm]?[jt]sx?|json)$/i.test(app)) env.PAGE = appname;
-    pollyfill(env, appname);
     return env;
 };
-var pollyfill = function (dst, appname) {
-    if (dst.PAGE === undefined || dst.PAGE === null) dst.PAGE = appname;
+var formatPath = function (a, b) {
+    if (/^[\:\&]/.test(a) && b) {
+        return path.join(__dirname, "../../", b);
+    }
+    if (/^[@\:\&]/.test(a)) {
+        return path.join(process.cwd(), a.slice(1));
+    }
+    return a;
+}
+var pollyfill = function (dst) {
     for (var k in dst) {
         var d = Object.getOwnPropertyDescriptor(dst, k);
         if (!d.writable && !d.set) continue;
@@ -48,7 +60,6 @@ var pollyfill = function (dst, appname) {
             if (!(k in bootConfig)) {
                 continue;
             }
-            memery[k] = bootConfig[k];
         }
         var bootfull = '';
         if (k in bootConfig) {
@@ -60,7 +71,7 @@ var pollyfill = function (dst, appname) {
         }
         bootpath = bootfull || '';
         var envma = Object.create(null);
-        dst[k] = String(dst[k] ? dst[k] : bootpath).split(",").map(a => a === ":" ? bootpath : a).map(
+        dst[k] = String(isEmpty(dst[k]) ? bootpath : dst[k]).split(",").map(a => formatPath(a, bootfull)).map(
             k => k.replace(/\\/g, '/').replace(/^\.\//, '')
         ).filter(
             k => envma[k] ? false : envma[k] = true
@@ -87,30 +98,11 @@ var bootConfig = {
     COMS_PATH: "./coms",
     APIS_PATH: "./apis",
 };
-
-var extend = function (dst, env) {
-    var obj = {
-        PAGE: env.PAGE || "",
-        COMM: env.COMM || "",
-        AAPI: env.AAPI || "",
-        IMAG: env.IMAG || "",
-        LIBS: env.LIBS || "",
-        ICON: env.ICON || "",
-        PUBLIC_PATH: env.PUBLIC_PATH || "",
-    };
-    for (var k in obj) {
-        obj[k] = dst[k] || env[k] || memery[k] || '';
-        if (/\_PATH$/i.test(k)) {
-            dst[k] = path.normalize(obj[k]);
-        } else {
-            dst[k] = obj[k];
-        }
-    }
-
-    Object.assign(dst, obj);
-    normalize(dst);
+var defautEnvs = {
+    COMS_PATH: null,
+    APIS_PATH: null,
 };
-Object.assign(memery, setup());
+
 envpath.forEach(function (p) {
     var env = loadenv(path.join(p, 'setup'));
     Object.keys(env).forEach(function (key) {
@@ -120,14 +112,13 @@ envpath.forEach(function (p) {
         }
     });
 });
+extendIfOccurs(memery, env);
+pollyfill(memery);
 if ("APP" in env) {
     let _tmp = setup(env.APP || "./");
-    pollyfill(_tmp, env.APP);
     for (var k in _tmp) {
         if (/\_PATH$/i.test(k)) {
             memery[k] = _tmp[k];
         }
     }
-    normalize(memery);
 }
-pollyfill(memery);
