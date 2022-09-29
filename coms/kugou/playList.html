@@ -7,3 +7,7 @@
         <song ng-click="play(i)" ng-class="{activate:p.hash===musicList.active_hash}" ng-src=p></song>
     </padding>
 </list>
+<div foot>
+    <span>播放时屏幕常亮</span>&nbsp;&nbsp;
+    <swap -model="playMode.wake" @change="keepWake"></swap>
+</div>

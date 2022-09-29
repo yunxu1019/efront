@@ -9,13 +9,18 @@ var $scope = {
     a: button,
     song: kugou$song,
     padding,
+    swap,
     mode: playModes[playModeIndex],
     switchMode() {
         playModeIndex++;
         playModeIndex = playModeIndex % playModes.length;
         var mode = playModes[playModeIndex];
-        data.setInstance("play-mode", { index: playModeIndex }, true);
+        data.patchInstance("play-mode", { index: playModeIndex }, true);
         $scope.mode = mode;
+    },
+    playMode: data.getInstance("play-mode"),
+    keepWake() {
+        data.patchInstance('play-mode', { "wake": this.playMode.wake });
     },
     remove(i) {
         var list = kugou$musicList.slice(0);

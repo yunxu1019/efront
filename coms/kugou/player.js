@@ -135,6 +135,7 @@ var $scope = {
         $scope.playing = false;
         let _audio = $scope.audio;
         if (_audio && _audio.pause instanceof Function) _audio.pause();
+        if (ns) ns.disable();
         render.refresh();
     },
     sbtn(elem) {
@@ -200,6 +201,7 @@ var $scope = {
             $scope.playing = true;
             let _audio = $scope.audio;
             if (_audio.play instanceof Function) _audio.play();
+            if (ns) ns.enable();
             return;
         }
         if (!isPlayback) for (var cx = musicList.length - 1; cx >= 0; cx--) {
@@ -267,10 +269,12 @@ var $scope = {
                 if ($scope.audio === _audio) {
                     playState.error = true;
                 }
+                if (ns) ns.disable();
             };
             delete playState.error;
             _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
             _audio.play();
+            if (ns) ns.enable();
             data.setInstance('musicList', distlist, true);
             render.refresh();
         }).catch(e => playState.error = true);
@@ -373,6 +377,20 @@ var createControls = function () {
     });
     return player;
 };
+var ns;
+data.bindInstance("play-mode", function (e) {
+    if (e.wake) {
+        if (!ns) ns = new NoSleep;
+        if ($scope.playing) {
+            ns.enable();
+        }
+    }
+    else if (ns) {
+        ns.disable();
+        ns = null;
+    }
+});
+
 var player = function (player) {
     render(player, $scope);
     player.play = function (hash) {
