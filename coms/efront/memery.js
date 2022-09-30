@@ -46,6 +46,7 @@ var get = function (name, _default, fix, limits) {
     var env = this || process.env;
     if (name in namemap) {
         var alias = [namemap[name]];
+        if (isEmpty(_default)) _default = defaults[[alias[0]]];
     }
     else {
         var alias = String(name).split(/\s*[\|\,;:]\s*/);
@@ -53,14 +54,14 @@ var get = function (name, _default, fix, limits) {
             var k = alias[cx];
             namemap[k] = alias[0];
         }
+        if (!isEmpty(_default)) {
+            if (!isEmpty(defaults[alias[0]])) console.warn("发现重名配置", alias);
+            defaults[alias[0]] = _default;
+        }
     }
     if (fix) fixme[alias[0]] = fix;
     if (limits) limits[alias[0]] = limits;
     var value = _default;
-    if (!isEmpty(_default)) {
-        if (!isEmpty(defaults[alias[0]])) console.warn("发现重名配置", alias);
-        defaults[alias[0]] = _default;
-    }
     for (var cx = 0, dx = alias.length; cx < dx; cx++) {
         var k = alias[cx];
         if (k in env) {
