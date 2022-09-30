@@ -127,7 +127,9 @@ class Speed extends Array {
             for (var cy = 0, dy = values.length; cy < dy; cy++) {
                 var v = values[cy];
                 if (!s[cy]) s[cy] = 0;
-                s[cy] += v;
+                if (!(v >= 0 ^ s[cy] >= 0)) {
+                    s[cy] += v;
+                }
             }
         }
         for (var cx = 0, dx = s.length; cx < dx; cx++) {
