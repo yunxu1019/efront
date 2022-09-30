@@ -26,25 +26,27 @@ var constructors = [
 ];
 setGlobal(constructors, colors.FgGray);
 var objects = {
-    BigInt,
     Math,
-    performance,
-    console,
-    Intl,
     JSON,
-    Symbol,
-    globalThis,
-    URL,
-    TypeError,
-    RangeError,
-    ArrayBuffer,
-    Uint8Array, Uint16Array, Uint32Array,
-    Int8Array, Int16Array, Int32Array,
-    Map,
-    Set,
-    Proxy,
-    Reflect,
-    WeakMap,
+    console,
+    BigInt: null,
+    performance: null,
+    Intl: null,
+    Symbol: null,
+    globalThis: null,
+    URL: null,
+    TypeError: null,
+    RangeError: null,
+    ArrayBuffer: null,
+    Uint8Array: null, Uint16Array: null, Uint32Array: null,
+    Int8Array: null, Int16Array: null, Int32Array: null,
+    Map: null,
+    Set: null,
+    Proxy: null,
+    Reflect: null,
+    WeakMap: null,
+    queueMicrotask: null,
+    atob: null, btoa: null,
 };
 setGlobal(objects, colors.FgGray);
 var functions = [
@@ -54,16 +56,14 @@ var functions = [
     setTimeout, setInterval, clearTimeout, clearInterval,
     encodeURI, encodeURIComponent, decodeURI, decodeURIComponent,
     escape, unescape,
-    queueMicrotask,
-    atob, btoa,
 ];
 setGlobal(functions, colors.FgGray);
 var nodeOnlys = {
-    __dirname,
-    __filename,
-    require,
-    module,
-    exports,
+    __dirname: null,
+    __filename: null,
+    require: null,
+    module: null,
+    exports: null,
 };
 setGlobal(nodeOnlys, colors.FgGreen);
 var nodeRequires = `os,fs,vm,url,readline,net,http,https,http2,zlib,util,buffer,path,cluster,crypto,process,Buffer,setImmediate,clearImmediate`;
