@@ -225,10 +225,6 @@ function toComponent(responseTree) {
         if (typeof type === 'string') type += " ";
         else type = '';
         if (!destMap[k]) {
-            var isGlobal = data in globals;
-            if (isGlobal) {
-                data = `typeof ${data}!=="undefined"?${data}:void 0`;
-            }
             if (!compress) {
                 if (memery.COMMENT && !/^"/.test(k)) {
                     data = `\r\n/* ${dest.length + 1} ${type}${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
@@ -269,8 +265,13 @@ function toComponent(responseTree) {
     // });
     var saveGlobal = function (globalName) {
         if (responseTree[globalName] && !responseTree[globalName].data && !destMap[globalName]) {
-            saveOnly(globalName, globalName);
-            var warn = !(globalName in globals);
+            var data = globalName;
+            var isGlobal = data in globals;
+            if (isGlobal && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data)) {
+                data = `typeof ${data}!=="undefined"?${data}:void 0`;
+            }
+            saveOnly(globalName, data);
+            var warn = !isGlobal;
         }
         if (!destMap[globalName] && responseTree[globalName]) ok = false;
         return warn;
