@@ -67,7 +67,7 @@ var getColor = function (c) {
     return '';
 };
 var write = function (hasNewLine, str) {
-    str = str.replace(/<([a-z][\w]*)[^\>]*\>([\s\S]*?)<\/\1\>/ig, function (_, c, s) {
+    str = String(str).replace(/<([a-z][\w]*)[^\>]*\>([\s\S]*?)<\/\1\>/ig, function (_, c, s) {
         var color = getColor(c);
         if (color) return color + s + colors.Reset;
         return s;
