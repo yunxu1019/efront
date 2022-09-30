@@ -44,10 +44,15 @@ var set = function (k, v) {
 };
 var get = function (name, _default, fix, limits) {
     var env = this || process.env;
-    var alias = String(name).split(/\s*[\|\,;:]\s*/);
-    for (var cx = 0, dx = alias.length; cx < dx; cx++) {
-        var k = alias[cx];
-        namemap[k] = alias[0];
+    if (name in namemap) {
+        var alias = [namemap[name]];
+    }
+    else {
+        var alias = String(name).split(/\s*[\|\,;:]\s*/);
+        for (var cx = 0, dx = alias.length; cx < dx; cx++) {
+            var k = alias[cx];
+            namemap[k] = alias[0];
+        }
     }
     if (fix) fixme[alias[0]] = fix;
     if (limits) limits[alias[0]] = limits;
@@ -227,7 +232,7 @@ module.exports = {
     RELEASE: get("RELEASE,INCLUDE_REQUIRED", 0),
     PREFIX: get("PREFIX", ''),
     COMMENT: get("COMMENT", false),
-    POLYFILL: get("POLYFILL", !get("UPLEVEL", false)),
+    POLYFILL: get("POLYFILL", !get("UPLEVEL")),
     SOURCEDIR: get("SOURCEDIR", false),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),
     DESTPATH: getdirpath("DESTPATH, DEST_PATH"),
