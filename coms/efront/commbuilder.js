@@ -337,7 +337,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         code.break();
         code.helpcode = false;
         data = code.toString();
-        if (!memery.UPLEVEL) data = require("./downLevel")(data);
+        if (!memery.UPLEVEL) data = require("./downLevel")(data, code.async, code.yield);
         code = scanner2(data);
         var {
             vars: declares,
@@ -351,7 +351,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     else if (memery.MSIE) {
         code.helpcode = false;
         data = code.toString();
-        data = require("./downLevel")(data);
+        data = require("./downLevel")(data, code.async, code.yield);
         code = scanner2(data);
         code.detour();
         var {
