@@ -28,5 +28,12 @@ module.exports = function (orderArray, searchItem, isLE = typeof searchItem === 
             dx = ci;
         }
     }
+    var index = dx - 1;
+    if (index < orderArray.length) {
+        while (index >= 0 && isLE(searchItem, orderArray[index])) {
+            if (orderArray[index] === searchItem) return index;
+            index--;
+        }
+    }
     return dx - 1;
 };
