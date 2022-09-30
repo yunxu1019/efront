@@ -1,100 +1,82 @@
-function WaterRipple(element, settings) {
-    // 默认设置
-    var defaults = {
-        image: "",
-        dropRadius: 3,  // 波源半径大小
-        width: 400,
-        height: 400,
-        delay: 1,
-        attenuation: 5,
-        maxAmplitude: 1024,
-        sourceAmplitude: 512, // 震源振幅
-        auto: !0
-    };
-    // 合并设置
-    for (var item in defaults) {
-        if (!settings.hasOwnProperty(item)) {
-            settings[item] = defaults[item]
-        }
+class WaterRipple {
+    /**
+     * @type {HTMLCanvasElement}
+     */
+    canvas = null;
+    src = ""
+    dropRadius = 3  // 波源半径大小
+    delay = 1
+    attenuation = 5
+    maxAmplitude = 1024  // 最大振幅
+    sourceAmplitude = 512 // 震源振幅
+    autoDisturb = true;
+    animateId = 0;
+    intervalId = 0;
+    loadId = 0;
+    ripple_map = [];
+    last_map = [];
+    destroy() {
+        this.stop();
     }
-
-    // 检测背景图
-    if (!settings.image.length) {
-        return false;
+    stop() {
+        cancelAnimationFrame(this.animateId);
+        clearInterval(this.intervalId);
+        this.loadId = 0;
     }
-
-    var width = settings.width,
-        height = settings.height,
-        dropRadius = settings.dropRadius,
-        delay = settings.delay * 1000,
-        attenuation = settings.attenuation,  // 衰减级别
-        maxAmplitude = settings.maxAmplitude,  // 最大振幅
-        sourceAmplitude = settings.sourceAmplitude,
-        half_width = width >> 1,
-        half_height = height >> 1,
-        amplitude_size = width * (height + 2) * 2,
-        old_index = width,
-        new_index = width * (height + 3),
-        map_index,  // 振幅数组索引
-        texture,   // 原始图像像素信息
-        ripple,    // 参数波纹的图像像素信息
-        image,  // Image对象
-        autoRepeat, // 自动产生波源的重复事件
-        ripple_map = [],
-        last_map = [];
-
-    var canvas = element;
-    canvas.width = width;
-    canvas.height = height;
-
-    var ctx = canvas.getContext('2d');
-    ctx.fillStyle = settings.bgColor;
-    ctx.fillRect(0, 0, width, height);
-    // 加载图片
-    function loadImage() {
-        image = new Image();
-        image.src = settings.image;
-        if (image.complete) {
-            init.call(this);
-        } else {
-            image.onload = init;
-        }
-    }
-
-
-    function init() {
-        // 在canvas中绘制图形
+    async init() {
+        var canvas = this.canvas;
+        var width = canvas.width,
+            height = canvas.height,
+            amplitude_size = width * (height + 2) * 2;
+        this.old_index = width;
+        this.new_index = width * (height + 3);
+        var ripple_map = this.ripple_map = new Array(amplitude_size);
+        var last_map = this.last_map = this.ripple_map.slice();
+        var ctx = canvas.getContext('2d');
+        ctx.fillRect(0,0,width,height);
+        var image = new Image();
+        image.src = this.src;
+        var loadId = ++this.loadId;
+        await awaitable(image);
+        if (loadId !== this.loadId) return false;
         ctx.drawImage(image, 0, 0);
-        // 图像的ImageData对象
-        texture = ctx.getImageData(0, 0, width, height);
-        ripple = ctx.getImageData(0, 0, width, height);
-        // 波幅数组初始化为0
+        this.texture = ctx.getImageData(0, 0, width, height);
+        this.ripple = ctx.getImageData(0, 0, width, height);
         for (var i = 0; i < amplitude_size; i++) {
             ripple_map[i] = last_map[i] = 0;
         }
-
-        animate();
-        // 如果设置了自动产生波源，则随机参数波源
-        if (settings.auto) {
-            autoRepeat = setInterval(function () {
-                disturb(Math.random() * width, Math.random() * height);
-            }, delay);
-            disturb(Math.random() * width, Math.random() * height);
+    }
+    start() {
+        var that = this;
+        if (that.autoDisturb) {
+            that.intervalId = setInterval(function () {
+                if (!that.canvas || !that.canvas.parentNode) return that.stop();
+                var { width, height } = that.canvas;
+                that.disturb(Math.random() * width, Math.random() * height);
+            }, that.delay * 1000);
         }
-
+        // 动画主循环
+        var animate = async function () {
+            var { ripple, canvas } = that;
+            if (!canvas) return;
+            if (!ripple || ripple.width !== canvas.width || ripple.height !== canvas.height) {
+                if (await that.init() === false) return;
+            }
+            that.renderRipple();
+            that.animateId = requestAnimationFrame(animate);
+        };
+        animate();
     }
-
-    // 动画主循环
-    function animate() {
-        requestAnimationFrame(animate);
-        renderRipple();
-    }
-
     // 在指定地点产生波源
-    function disturb(circleX, circleY) {
+    disturb(circleX, circleY) {
         // 将值向下取整
-        circleX <<= 0;
-        circleY <<= 0;
+        circleX |= 0;
+        circleY |= 0;
+        var dropRadius = this.dropRadius,
+            sourceAmplitude = this.sourceAmplitude,
+            width = this.canvas.width,
+            old_index = width,
+            ripple_map = this.ripple_map;
         var maxDistanceX = circleX + dropRadius,
             maxDistanceY = circleY + dropRadius;
         for (var y = circleY - dropRadius; y < maxDistanceY; y++) {
@@ -103,40 +85,38 @@ function WaterRipple(element, settings) {
             }
         }
     }
-
     // 渲染下一帧
-    function renderRipple() {
-        var i = old_index,
+    renderRipple() {
+        var temp = this.old_index,
             deviation_x,  // x水平方向偏移
             deviation_y,  // y竖直方向偏移
             pixel_deviation, // 偏移后的ImageData对象像素索引
             pixel_source;  // 原始ImageData对象像素索引
 
         // 交互索引 old_index, new_index
-        old_index = new_index;
-        new_index = i;
-
+        this.old_index = this.new_index;
+        this.new_index = temp;
+        // console.log(this.old_index,this.new_index)
+        var i = 0;
         // 设置像素索引和振幅索引
-        i = 0;
-        map_index = old_index;
+        this.map_index = this.old_index;
 
-        // 使用局部变量优化全局作用域查询
-        var _map_index = map_index,
-            _width = width,
-            _height = height,
-            _half_width = half_width,
-            _half_height = half_height,
-            _ripple_map = ripple_map,
-            _last_map = last_map,
-            _ripple_data = ripple.data,  // 引用修改
-            _texture_data = texture.data, // 引用修改
-            _new_index = new_index,
-            _attenuation = attenuation,
-            _maxAmplitude = maxAmplitude;
+        var _map_index = this.map_index,
+            _width = this.canvas.width,
+            _height = this.canvas.height,
+            _half_width = _width >> 1,
+            _half_height = _height >> 1,
+            _ripple_map = this.ripple_map,
+            _last_map = this.last_map,
+            _ripple_data = this.ripple.data,  // 引用修改
+            _texture_data = this.texture.data, // 引用修改
+            _new_index = this.new_index,
+            _attenuation = this.attenuation,
+            _maxAmplitude = this.maxAmplitude;
 
 
         // 渲染所有像素点
-        for (var y = 0; y < height; y++) {
+        for (var y = 0; y < _height; y++) {
             for (var x = 0; x < _width; x++) {
                 var x_boundary = 0, judge = _map_index % _width;
                 if (judge == 0) {
@@ -179,7 +159,7 @@ function WaterRipple(element, settings) {
                     }
 
                     pixel_source = i * 4;
-                    pixel_deviation = (deviation_x + (deviation_y * width)) * 4;
+                    pixel_deviation = (deviation_x + (deviation_y * _width)) * 4;
 
                     // 移动像素的RGBA信息
                     _ripple_data[pixel_source] = _texture_data[pixel_deviation];
@@ -192,11 +172,15 @@ function WaterRipple(element, settings) {
             }
         }
 
-        map_index = _map_index;
-        ctx.putImageData(ripple, 0, 0);
+        this.map_index = _map_index;
+        this.canvas.getContext('2d').putImageData(this.ripple, 0, 0);
     }
+    calculAmplitude(index, old_amplitude) {
+        var attenuation = this.attenuation,  // 衰减级别
+            map_index = this.map_index,
+            ripple_map = this.ripple_map,
+            width = this.canvas.width;
 
-    function calculAmplitude(index, old_amplitude) {
         var x_boundary = 0, judge = map_index % width;
         if (judge == 0) {
             x_boundary = 1; // 左边边界
@@ -215,45 +199,9 @@ function WaterRipple(element, settings) {
         return amplitude;
     }
 
-    this.disturb = disturb;
-    loadImage();
-    return this;
-}
-
-
-function main() {
-
-    //Settings - params for WaterRippleEffect
-    var settings = {
-
-        image: 'favicon.ico',
-        // image: '/{//asset.uusama.com/}@example/girl.png',//image path
-        dropRadius: 3,//radius of the ripple
-        width: 256,//width
-        height: 256,//height
-        delay: 1,//if auto param === true. 1 === 1 second delay for animation
-        auto: 1//if auto param === true, animation starts on it´s own
-
-    };
-
-    var canvas = document.createElement("canvas");
-    canvas.style.cursor = 'pointer';
-    var waterRippleEffect = new WaterRipple(canvas, settings);
-
-    //on click
-    onclick(canvas, function (e) {
-        var mouseX = e.layerX;
-        var mouseY = e.layerY;
-        waterRippleEffect.disturb(mouseX, mouseY);
-
-    });
-
-
-    //on mousemove
-    onmousemove(canvas, function (e) {
-        var mouseX = e.layerX;
-        var mouseY = e.layerY;
-        waterRippleEffect.disturb(mouseX, mouseY);
-    });
-    return canvas;
+    constructor(element, settings) {
+        // 合并设置
+        if (isElement(element) && /^canvas$/i.test(element.tagName)) this.canvas = element;
+        extendIfOccurs(this, settings);
+    }
 }
