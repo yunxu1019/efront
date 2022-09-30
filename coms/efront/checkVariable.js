@@ -29,6 +29,7 @@ module.exports = function (root) {
     }, needs = {};
     var undeclares;
     var founded = {};
+    var filesCount = 0;
     var findx = comms_root.map(a => {
         return new Promise(function (ok) {
             fs.readdir(a, function (e, names) {
@@ -60,7 +61,8 @@ module.exports = function (root) {
         var args = Object.keys(needs).filter(a => !map[a]);
         args.sort((a, b) => {
             return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
-        }).sort((a, b) => {
+        });
+        if (filesCount === 1) args.sort((a, b) => {
             a = undeclares[a][0];
             b = undeclares[b][0];
             if (a.row !== b.row) return a.row - b.row;
@@ -120,6 +122,7 @@ module.exports = function (root) {
                             if (!needs[k]) needs[k] = [];
                             needs[k].push(basename);
                         });
+                        filesCount++;
                     } catch (e) {
                         console.error(basename, String(e));
                     }
