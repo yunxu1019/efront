@@ -259,7 +259,6 @@ var createScoped = function (parsed, wash) {
 
                                 if (o.type === EXPRESS) {
                                     vars[o.text] = true;
-                                    isDeclare = true;
                                     o.kind = isFunction ? 'function' : 'class';
                                     saveTo(used, o.text, o);
                                     o = o.next;

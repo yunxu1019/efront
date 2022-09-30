@@ -227,7 +227,6 @@ function toComponent(responseTree) {
         if (!destMap[k]) {
             var isGlobal = data in globals;
             if (isGlobal) {
-                warning = globals[data] !== colors.FgGray;
                 data = `typeof ${data}!=="undefined"?${data}:void 0`;
             }
             if (!compress) {
@@ -270,7 +269,8 @@ function toComponent(responseTree) {
     // });
     var saveGlobal = function (globalName) {
         if (responseTree[globalName] && !responseTree[globalName].data && !destMap[globalName]) {
-            var warn = saveOnly(globalName, globalName);
+            saveOnly(globalName, globalName);
+            var warn = !(globalName in globals);
         }
         if (!destMap[globalName] && responseTree[globalName]) ok = false;
         return warn;

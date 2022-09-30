@@ -30,9 +30,10 @@ var objects = {
     Math,
     performance,
     console,
-    crypto,
     Intl,
     JSON,
+    Symbol,
+    globalThis,
     URL,
     TypeError,
     RangeError,
@@ -65,10 +66,10 @@ var nodeOnlys = {
     exports,
 };
 setGlobal(nodeOnlys, colors.FgGreen);
-var nodeRequires = `os,fs,vm,url,readline,net,http,https,http2,zlib,util,buffer,path,cluster`;
+var nodeRequires = `os,fs,vm,url,readline,net,http,https,http2,zlib,util,buffer,path,cluster,crypto,process,Buffer,setImmediate,clearImmediate`;
 setGlobal(nodeRequires, colors.FgGreen);
-var chromeOnlys = `WakeLock,XMLHttpRequest,Image,
-window,globalThis,self,
+var chromeOnlys = `WakeLock,XMLHttpRequest,Image,PerformanceObserver,
+window,self,
 document,name,location,customElements,history,
 locationbar,menubar,personalbar,scrollbars,statusbar,toolbar,
 status,closed,frames,length,top,opener,parent,frameElement,
@@ -92,6 +93,7 @@ releaseEvents,reportError,
 requestAnimationFrame,requestIdleCallback,
 resizeBy,resizeTo,scroll,scrollBy,scrollTo,
 stop,structuredClone,
+crypto,
 chrome,launchQueue,originAgentCluster,
 navigation,speechSynthesis,openDatabase`;
 setGlobal(chromeOnlys, colors.FgYellow);
