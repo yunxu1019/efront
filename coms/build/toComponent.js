@@ -270,7 +270,7 @@ function toComponent(responseTree) {
     var saveOnlyGlobal = function (globalName) {
         var data = globalName;
         var isGlobal = data in globals;
-        if (!/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data)) {
+        if (!/^['"]|^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data)) {
             data = `typeof ${data}!=="undefined"?${data}:void 0`;
         }
         saveOnly(data, globalName);
