@@ -2,6 +2,7 @@ var fs = require("fs");
 var path = require("path");
 var environment = require("./environment");
 var detectWithExtension = require("./detectWithExtension");
+var globals = require("../efront/globals");
 var {
     PUBLIC_PATH,
     APP,
@@ -146,7 +147,8 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                         if (dependence) dependence.forEach(saveDeleted);
                     }
                     for (var k in deletedMap) {
-                        if (deletedMap[k].length) {
+                        if (k in globals);
+                        else if (deletedMap[k].length) {
                             console.warn(`已跳过 <red2>${k}</red2>, `, "该模块用在 <gray>" + deletedMap[k].join("</gray>, <gray>") + "</gray> 中");
                         } else {
                             if (deletedMap[k].warn) {
