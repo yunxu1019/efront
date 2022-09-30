@@ -28,6 +28,7 @@ var setup = module.exports = function (app) {
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
         var default_value = memery.get.call(env, key);
         if (default_value === undefined) default_value = memery.get.call(rootEnvs, key);
+        if (default_value === undefined) default_value = memery.get(key);
         var value_map = Object.create(null);
         if (appname !== undefined) {
             if (!/\/|\.[cm]?[jt]sx?$/i.test(app)) value_map[appname] = true;
