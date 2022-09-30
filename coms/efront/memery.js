@@ -227,7 +227,7 @@ module.exports = {
     RELEASE: get("RELEASE,INCLUDE_REQUIRED", 0),
     PREFIX: get("PREFIX", ''),
     COMMENT: get("COMMENT", false),
-    POLYFILL: get("POLYFILL", true),
+    POLYFILL: get("POLYFILL", !get("UPLEVEL", false)),
     SOURCEDIR: get("SOURCEDIR", false),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),
     DESTPATH: getdirpath("DESTPATH, DEST_PATH"),
