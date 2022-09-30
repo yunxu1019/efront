@@ -130,8 +130,8 @@ function toComponent(responseTree) {
                     if (reqer in libsTree) {
                         var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
                         k = _strings.encode(libdir);
-                    } else if (/^[\.\/]/.test(reqer)) {
-                        k = path.relative(PUBLIC_PATH, path.join(path.dirname(responseTree[module_key].realpath), reqer)).replace(/\\/g, '/');
+                    } else if (/^[\.\/]/.test(refer)) {
+                        k = path.relative(PUBLIC_PATH, path.join(path.dirname(responseTree[module_key].realpath), refer)).replace(/\\/g, '/');
                         k = _strings.encode(k);
                     } else {
                         k = _strings.encode(reqMap[refer]);
