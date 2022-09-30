@@ -234,7 +234,7 @@ module.exports = {
     PUBLIC_NAME: get("PUBLIC_NAME", ''),
     IN_WATCH_MODE: get("IN_WATCH_MODE", false),
     ENCRYPT: get("ENCRYPT, CRYPT, ENCODE", true),
-    COMPRESS: get("COMPRESS, PRESS, ENCRYPT, ENCODE", true),
+    COMPRESS: get("COMPRESS, PRESS, ENCODE", get("CRYPT")),
     OPTIMIZE: get("OPTIMIZE", false),
     RECORD: getdirpath("RECORD_PATH,RECORD"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),
