@@ -88,8 +88,8 @@ async function start() {
     var animate = () => {
         this.getTimeDomainData.call(analyser, dancingArray);
         cast(this, dancingArray);
-        analyser.frame = requestAnimationFrame(animate);
         this.onprocess instanceof Function && this.onprocess(dancingArray);
+        analyser.frame = requestAnimationFrame(animate);
     };
     animate();
     this.running = true;

@@ -123,13 +123,13 @@ function slider(autoplay, circle = true) {
         var now = +Speed.now();
         if (abs(current_index + negative_index) < 1.25 / width)
             return reshape(-negative_index, false);
-        timer_animate = requestAnimationFrame(animate);
         var temp_index = current_index;
         while (savedtime < now) {
             temp_index = (temp_index * 11 - negative_index) / 12;
             savedtime += 6;
         }
         reshape(temp_index);
+        timer_animate = requestAnimationFrame(animate);
     };
     var park = function () {
         direction = 0;
