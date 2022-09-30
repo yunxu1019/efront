@@ -2,3 +2,5 @@
 
 2022-09-29 https://github.com/richtr/NoSleep.js
 2021-06-15 https://www.npmjs.com/package/html2canvas
+2019-08-03 https://github.com/gorhill/Javascript-Voronoi
+2017-05-17 https://github.com/dankogai/js-deflate
