@@ -27,7 +27,11 @@ var PAGE_PATH = memery.PAGE_PATH;
 var COMS_PATH = memery.coms_path;
 var ICON_PATH = memery.ICON_PATH;
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
-var comms_root = mixin(memery.coms_path, env.COMM).map(joinpath).filter(fs.existsSync);
+var comsroot_map = Object.create(null);
+var comms_root = mixin(memery.coms_path, env.COMM)
+    .map(joinpath)
+    .filter(a => a in comsroot_map ? false : comsroot_map[a] = true)
+    .filter(fs.existsSync);
 var comms_root_length = comms_root.length;
 var buildinpath = path.join(__dirname, '..');
 comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);

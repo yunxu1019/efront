@@ -48,6 +48,10 @@ function toComponent(responseTree) {
         k = String(k);
         if (type === 'global') {
             var key = k;
+            if (!destMap[key]) {
+                saveOnlyGlobal(key);
+                asyncMap[key] = type;
+            }
         } else {
             if (type === 'string') k = _strings.decode(k);
             var key = k.replace(/[^\w\$]+/g, "_");
@@ -58,15 +62,15 @@ function toComponent(responseTree) {
             var hasOwnProperty = {}.hasOwnProperty;
             var id = 0;
             while (hasOwnProperty.call(paramsMap, key) && paramsMap[key] !== k || key in avoidMap && avoidMap[key] !== type) {
-                key = key.replace(/\d+?\_$/, '') + ++id;
+                key = key.replace(/\d+?$/, '') + ++id;
             }
-            paramsMap[key] = k;
-            if (type === 'string') k = _strings.encode(k);
-        }
-        if (!destMap[key]) {
-            if (type === 'string') k = encode(k);
-            avoidMap[key] = type;
-            saveOnly(k, key);
+            if (!destMap[key]) {
+                paramsMap[key] = k;
+                if (type === 'string') k = _strings.encode(k);
+                if (type === 'string') k = encode(k);
+                avoidMap[key] = type;
+                saveOnly(k, key);
+            }
         }
         return key;
     };
@@ -263,15 +267,18 @@ function toComponent(responseTree) {
     // ['Array', 'String'].concat($charCodeAt, $fromCharCode).forEach(function (str) {
     //     getEfrontKey(str, 'global');
     // });
+    var saveOnlyGlobal = function (globalName) {
+        var data = globalName;
+        var isGlobal = data in globals;
+        if (!/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data)) {
+            data = `typeof ${data}!=="undefined"?${data}:void 0`;
+        }
+        saveOnly(data, globalName);
+        return isGlobal;
+    }
     var saveGlobal = function (globalName) {
         if (responseTree[globalName] && !responseTree[globalName].data && !destMap[globalName]) {
-            var data = globalName;
-            var isGlobal = data in globals;
-            if (isGlobal && !/^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data)) {
-                data = `typeof ${data}!=="undefined"?${data}:void 0`;
-            }
-            saveOnly(globalName, data);
-            var warn = !isGlobal;
+            var warn = !saveOnlyGlobal(globalName);
         }
         if (!destMap[globalName] && responseTree[globalName]) ok = false;
         return warn;

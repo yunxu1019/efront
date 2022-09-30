@@ -127,6 +127,13 @@ module.exports = {
     defaults,
     get,
     set,
+    setTo(dst, key, value) {
+        set.call(dst, key, value);
+    },
+    mergeTo(dst, src) {
+        for (var k in src) set.call(dst, k, src[k]);
+        return dst;
+    },
     all() {
         var data = {};
         for (var n in seted) {
@@ -234,7 +241,7 @@ module.exports = {
     PFX_PATH: getdirpath("PFX_PATH, PATH.SSL_PFX"),
     PFX_PASSWORD: get("PFX_PASSWORD, SSL_PASSWORD, PASSWORD.SSL_PFX"),
     PAGE: getdirpath("PAGE, APPS"),
-    COMM: getdirpath("COMM, COMS"),
+    COMM: getdirpath("COMM, COMS", ''),
     AAPI: getdirpath("AAPI, APIS"),
     IMAG: getdirpath("IMAG, IMGS"),
     LIBS: getdirpath("LIBS, LIB"),

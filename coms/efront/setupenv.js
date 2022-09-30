@@ -4,7 +4,6 @@ var path = require("path");
 var fs = require("fs");
 var memery = require("./memery");
 var extendIfNeed = require("../basic/extendIfNeeded");
-var extendIfOccurs = require("../basic/extendIfOccurs");
 var isEmpty = require("../basic/isEmpty");
 var env = process.env;
 var envpath = memery.ENVS_PATH;
@@ -16,16 +15,19 @@ var setup = module.exports = function (app) {
     appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
     else env = {};
+    if (appname) {
+        memery.setTo(env, 'APP', appname);
+    }
     envpath.forEach(function (p) {
-        Object.assign(env, loadenv(path.join(p, "./app=" + appname)))
+        memery.mergeTo(env, loadenv(path.join(p, "./app=" + appname)))
     });
     cache[appname] = env;
-    extendIfNeed(env, defautEnvs);
     pollyfill(env);
     normalize(env);
+    extendIfNeed(env, rootEnvs);
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
-        var default_value = env[key];
-        if (default_value === undefined) default_value = memery[key];
+        var default_value = memery.get.call(env, key);
+        if (default_value === undefined) default_value = memery.get.call(rootEnvs, key);
         var value_map = Object.create(null);
         if (appname !== undefined) {
             if (!/\/|\.[cm]?[jt]sx?$/i.test(app)) value_map[appname] = true;
@@ -35,12 +37,12 @@ var setup = module.exports = function (app) {
                 value_map[k] = true;
             });
         }
-        if (!default_value) value_map["zimoli"] = true;
-        if (!value_map.basic) value_map.basic = true;
         if (!value_map[""]) value_map[""] = true;
-        env[key] = Object.keys(value_map).join(',');
+        if (default_value === undefined) value_map["zimoli"] = true;
+        var value = Object.keys(value_map).join(',');
+        memery.setTo(env, key, value);
     });
-    if (!env.PAGE && appname && !/\.([cm]?[jt]sx?|json)$/i.test(app)) env.PAGE = appname;
+    if (!memery.get.call(env, 'PAGE') && appname && !/\.([cm]?[jt]sx?|json)$/i.test(app)) memery.setTo(env, 'page', appname);
     return env;
 };
 var formatPath = function (a, b) {
@@ -85,40 +87,39 @@ var normalize = function (o) {
             if (typeof v === 'string' && v) {
                 o[k] = v.split(",").map(o => {
                     o = path.normalize(o);
-                    if (path.isAbsolute(o)) {
-                        if (fs.existsSync(o)) o = fs.realpathSync(o);
-                    }
+                    if (fs.existsSync(o)) o = fs.realpathSync(o);
                     return o
                 }).join(",");
             }
         }
     }
 };
-var bootConfig = {
+var bootConfig = memery.mergeTo({}, {
     COMS_PATH: "./coms",
     APIS_PATH: "./apis",
-};
-var defautEnvs = {
+});
+var rootEnvs = memery.mergeTo({}, {
     COMS_PATH: null,
     APIS_PATH: null,
-};
-
+});
 envpath.forEach(function (p) {
     var env = loadenv(path.join(p, 'setup'));
     Object.keys(env).forEach(function (key) {
         var value = process.env[key];
+        memery.setTo(rootEnvs, key, env[key]);
         if (value === null || value === undefined) {
             process.env[key] = env[key];
         }
     });
 });
-extendIfOccurs(memery, env);
-pollyfill(memery);
+pollyfill(rootEnvs);
+normalize(rootEnvs);
+memery.mergeTo(memery, rootEnvs);
 if ("APP" in env) {
-    let _tmp = setup(env.APP || "./");
-    for (var k in _tmp) {
+    let _tmp = setup(env.APP || "");
+    for (let k in _tmp) {
         if (/\_PATH$/i.test(k)) {
-            memery[k] = _tmp[k];
+            memery.set(k, _tmp[k]);
         }
     }
 }

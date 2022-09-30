@@ -48,9 +48,10 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
             return regindex++, run(data, fullpath, increase);
         }
         return new Promise(function (ok, oh) {
-            var pathmap = {};
+            var pathmap = Object.create(null);
             var accessready = function () {
-                var loaded = loadurls.filter(a => pathmap[a]).map(function (key) {
+                var urls = loadurls.filter(a => pathmap[a])
+                var loaded = urls.map(function (key) {
                     var realpath = pathmap[key];
                     if (deep !== false) {
                         return getFileData(realpath).then(a => run(a, realpath));
@@ -61,7 +62,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
                 Promise.all(loaded).then(function (datas) {
                     var dataMap = Object.create(null);
                     datas.forEach((data, cx) => {
-                        dataMap[loadurls[cx]] = data;
+                        dataMap[urls[cx]] = data;
                     });
                     data = data.replace(reg, function (match, quote, relative) {
                         if (skipreg.test(match)) return match;
@@ -70,7 +71,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
                             var result = replacer(data, pathmap[relative], match);
                             if (result !== false && result !== null && result !== undefined) return result;
                         }
-                        if (deep !== false) console.warn(`没有处理${match} ${fullpath}`);
+                        if (deep !== false) console.warn(`没有处理${match} ${fullpath}${/\.[^\/\/\.]+$/.test(match) ? "" : "，可在引用路径中添加扩展名后重试！"}`);
                         return match;
                     });
                     if (regindex + 1 >= regs.length || increase === 0) ok(data);
@@ -80,6 +81,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
             var loadingcount = loadurls.length;
             loadurls.forEach(relative => {
                 var realPath = path.join(path.dirname(fullpath), relative);
+
                 fs.access(realPath, function (error) {
                     loadingcount--;
                     if (!error) {
