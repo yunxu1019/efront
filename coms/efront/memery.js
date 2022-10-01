@@ -46,7 +46,7 @@ var get = function (name, _default, fix, limits) {
     var env = this || process.env;
     if (name in namemap) {
         var alias = [namemap[name]];
-        if (isEmpty(_default)) _default = defaults[[alias[0]]];
+        if (isEmpty(_default)) _default = defaults[alias[0]];
     }
     else {
         var alias = String(name).split(/\s*[\|\,;:]\s*/);
@@ -127,7 +127,17 @@ var COMS_PATH = getdirpath("COMS_PATH, COMM_PATH");
 var PUBLIC_PATH = getdirpath("PUBLIC_PATH", 'public');
 var webindex, indexreg;
 var str2array = require("./str2array");
-module.exports = {
+var _memery = {
+};
+var _ifempty = {
+    get POLYFILL() {
+        return !memery.UPLEVEL;
+    },
+    get COMPRESS() {
+        return memery.ENCRYPT;
+    }
+};
+var memery = module.exports = {
     istest,
     loghead: get('LOGHEAD, LOG'),
     defaults,
@@ -233,14 +243,14 @@ module.exports = {
     RELEASE: get("RELEASE,INCLUDE_REQUIRED", 0),
     PREFIX: get("PREFIX", ''),
     COMMENT: get("COMMENT", false),
-    POLYFILL: get("POLYFILL", !get("UPLEVEL")),
+    POLYFILL: get("POLYFILL"),
     SOURCEDIR: get("SOURCEDIR", false),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),
     DESTPATH: getdirpath("DESTPATH, DEST_PATH"),
     PUBLIC_NAME: get("PUBLIC_NAME", ''),
     IN_WATCH_MODE: get("IN_WATCH_MODE", false),
     ENCRYPT: get("ENCRYPT, CRYPT, ENCODE", true),
-    COMPRESS: get("COMPRESS, PRESS, ENCODE", get("CRYPT")),
+    COMPRESS: get("COMPRESS, PRESS, ENCODE"),
     OPTIMIZE: get("OPTIMIZE", false),
     RECORD: getdirpath("RECORD_PATH,RECORD"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),
@@ -275,3 +285,16 @@ module.exports = {
     },
 };
 Object.keys(fixme).forEach(fixpath);
+Object.keys(_ifempty).forEach(function (key) {
+    _memery[key] = memery[key];
+    Object.defineProperty(memery, key, {
+        get() {
+            var value = _memery[key];
+            if (isEmpty(value)) return _ifempty[key];
+            return value;
+        },
+        set(value) {
+            _memery[key] = value;
+        }
+    })
+});
