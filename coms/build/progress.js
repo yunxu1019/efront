@@ -116,8 +116,8 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 console.warn('项目内未发面主页面');
             }
             polyfills = POLYFILL ? [
-                path.join(__dirname, "../", "zimoli/Promise.js"),
-                path.join(__dirname, "../", "basic/[]map.js")
+                path.join(__dirname, "../", "basic_/Promise.js"),
+                path.join(__dirname, "../", "basic_/[]map.js")
             ] : [];
             return loadData(pages_root.concat(
                 indexHTML ? [indexHTML,
