@@ -287,7 +287,8 @@ var memery = module.exports = {
         return this.istest;
     },
 };
-Object.keys(_ifempty).forEach(function (key) {
+Object.keys(memery).forEach(function (key) {
+    if (!(key in _ifempty)) return;
     _memery[key] = memery[key];
     Object.defineProperty(memery, key, {
         get() {
