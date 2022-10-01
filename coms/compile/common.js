@@ -565,10 +565,10 @@ var getDeclared = function (o, kind, queue) {
                     o = o.next;
                     var o0 = skipAssignment(o);
                     attributes[attributes.length - 1].push(queue, o, o0);
-                    do {
+                    while (o !== o0) {
                         skiped.push(o);
                         o = o.next;
-                    } while (o !== o0);
+                    }
                     o = o0;
                     break;
                 }
