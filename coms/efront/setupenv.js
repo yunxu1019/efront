@@ -115,7 +115,11 @@ envpath.forEach(function (p) {
 });
 pollyfill(rootEnvs);
 normalize(rootEnvs);
-memery.mergeTo(memery, rootEnvs);
+for (let k in rootEnvs) {
+    if (memery.get(k) === undefined) {
+        memery.set(k, rootEnvs[k]);
+    }
+}
 if ("APP" in env) {
     let _tmp = setup(env.APP || "");
     for (let k in _tmp) {
