@@ -47,6 +47,7 @@ var downLevel = module.exports = function (data, isAsync, isYield) {
     if (isYield || isAsync) {
         data = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(){${data}}`;
     }
+    if (isAsync) downLevel.isAsync = true;
     data = data.replace(/(\sextends\s+)Array(\s||\{)/g, `$1Array2$2`);
     data = typescript.transpile(data, { noEmitHelpers: true });
     if (isYield || isAsync) {

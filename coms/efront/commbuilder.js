@@ -276,7 +276,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
         if (commName) {
             code_body.push(
-                { type: code_body.STAMP, text: ";\r\n" },
+                { type: code_body.SPACE, text: "\r\n" },
                 { type: code_body.STRAP, text: "return" },
                 { type: code_body.SPACE, text: " " }
             )

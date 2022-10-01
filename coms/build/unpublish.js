@@ -103,10 +103,10 @@ var manybuilder = function (buffer, filename) {
     lastIndex = backskip(data, lastIndex);
     var fStart = data.lastIndexOf("function", lastIndex);
     var decoder = data.slice(fStart, fEnd);
-    var isEncrypted = !/[A-Za-z]\s*\=\s*function\s*\(\s*?\)\s*\{\s*return\s+[a-zA-Z]\s*\;?\s*\}/.test(decoder);
+    var isEncrypted = !/\=\s*function\s*\(\s*?\)\s*\{\s*return\s+[a-zA-Z]\s*\;?\s*\}/.test(decoder);
     if (isEncrypted) return commbuilder.apply(null, arguments);
 
-    lastIndex = autoskip(data, data.indexOf("{") + 1);
+    lastIndex = data.indexOf(".call");
     var aStart = data.indexOf("[", lastIndex) + 1;
     var aEnd = data.lastIndexOf("]", fStart);
     data = data.slice(aStart, aEnd);
@@ -133,7 +133,7 @@ var manybuilder = function (buffer, filename) {
             var params = /^\s*function[^\(]*\(([^\)]*)\)/.exec(b.module)[1].split(',');
             if (hasRequired) {
                 var requiredName = params[requiredIndex].trim();
-                b.module = b.module.replace(new RegExp(/(^|[\=\-\+\/&\*\?\;~!><,\]\[\}\{\|'";\(\)])\s*/.source + requiredName + /\s*\(\s*(\d+)\s*([,\)])/.source, 'g'), function (m, eq, required, qt) {
+                b.module = b.module.replace(new RegExp(/(^|\w\s|[\=\-\+\/&\*\?\;~!><,\]\[\}\{\|'";\(\)])\s*/.source + requiredName + /\s*\(\s*(\d+)\s*([,\)])/.source, 'g'), function (m, eq, required, qt) {
                     required -= 1;
                     blocks[required].marked = true;
                     return eq + requiredName + "(\"" + blocks[required].importedid + "\"" + qt;
