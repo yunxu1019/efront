@@ -64,6 +64,7 @@ var nodeOnlys = {
     require: null,
     module: null,
     exports: null,
+    global: null,
 };
 setGlobal(nodeOnlys, colors.FgGreen);
 var nodeRequires = `os,fs,vm,url,readline,net,http,https,http2,zlib,util,buffer,path,cluster,crypto,process,Buffer,setImmediate,clearImmediate`;
