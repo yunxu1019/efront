@@ -317,7 +317,7 @@ function toComponent(responseTree) {
         var data = globalName;
         var isGlobal = data in globals;
         if (!/^['"]|^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data)) {
-            data = `typeof ${data}!=="undefined"?${data}:void 0`;
+            if (memery.POLYFILL) data = `typeof ${data}!=="undefined"?${data}:void 0`;
         }
         saveOnly(data, globalName);
         return isGlobal;
