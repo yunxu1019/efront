@@ -72,6 +72,7 @@ var simple_compress = function (str) {
     return str;
 };
 var breaksort = function (a) {
+    if (!encoded) return a;
     for (var cx = 0, dx = a.length; cx < dx; cx++) {
         var r = Math.random() * dx | 0;
         var m = a[cx];
@@ -131,7 +132,7 @@ function toComponent(responseTree) {
     var addConst = function (w) {
         w = w.replace(/^\$/, '');
         if (strings.indexOf(w) >= 0) return;
-        strings.splice(strings.length * Math.random() | 0, 0, w)
+        encoded ? strings.splice(strings.length * Math.random() | 0, 0, w) : strings.push(w);
     };
     "length,indexOf,string,exec,split,exports,concat,apply".split(",").forEach(addConst);
     if (encoded) decoderSource.replace(/\$\w+/g, addConst);
