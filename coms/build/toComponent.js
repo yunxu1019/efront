@@ -33,7 +33,8 @@ var decoderSource = `function(a, c, s, h){
         s = a[c][$charCodeAt](0);
         if(s>39&&s<127){
             s=((h-s)%87)+40;
-        }else if(t>=4096){
+        }
+        else if(s>=4096){
             s=(h&255)^s;
         }
         a[c]=String[$fromCharCode](s);
@@ -134,20 +135,25 @@ function toComponent(responseTree) {
         if (strings.indexOf(w) >= 0) return;
         encoded ? strings.splice(strings.length * Math.random() | 0, 0, w) : strings.push(w);
     };
-    "length,indexOf,string,exec,split,exports,concat,apply".split(",").forEach(addConst);
+    "length,indexOf,string,exec,then,split,exports,concat,apply".split(",").forEach(addConst);
     if (encoded) decoderSource.replace(/\$\w+/g, addConst);
     if (array_map) polyfill_map.replace(/\$\w+/g, addConst);
     var encode = function (source) {
         var _source = _strings.decode(source);
+        var prefix = '';
         if (isText(_source)) {
-            if (!compress) return `/* text */ ` + source;
-        } else if (isSymbol(_source)) {
+            if (!compress) prefix = `/* text */ `;
+            if (!encoded) return prefix + source;
+        }
+        else if (isSymbol(_source)) {
             source = ++symbolid;
-            if (!compress) source = source + ` /* symbol ${_source} */`;
+            if (!compress) source += ` /* symbol ${_source} */`;
             return source;
-        } else {
+        }
+        else {
             if (!encoded) return source;
         }
+
         source = _source;
         if (!~strings.indexOf(source)) {
             var temp = source.split('').reverse();
@@ -441,13 +447,14 @@ function toComponent(responseTree) {
     if (encoded) {
         var args = [];
         var argcount = 0;
-        var decoder = decoderSource.replace(/\$\w+/g, function (w) {
-            w = w.slice(1);
+        var decoder = decoderSource.replace(/\$\w+|String/g, function (w) {
+            var isString = /^\$/.test(w);
+            if (isString) w = w.slice(1);
             do {
                 var a = String.fromCharCode("a".charCodeAt(0) + argcount++);
             } while (~"acsh".indexOf(a));
             args.push(a);
-            args[a] = getEncodedIndex(w, 'string');
+            args[a] = getEncodedIndex(w, isString ? "string" : 'global');
             return a;
         });
         saveOnly(simple_compress(`[${args.map(a => args[a])},function(${args}){return ${decoder}}]`), '- decoder');
@@ -471,15 +478,14 @@ function toComponent(responseTree) {
         v: 'reverse',
         z: 'string',
         B: 'exports',
+        N: "then",
         T: 'this',
+        P: `s[${getEncodedIndex(`Function`, 'global') - 1}]`,
         R: undefined,
         E: destMap.exports,
         m: `length`,
         M: destMap.module,
         A: `s[${getEncodedIndex('Array', 'global') - 1}]`,
-        F: "function",
-        P: undefined,
-        N: undefined,
     };
 
     var decoder = `
@@ -494,28 +500,26 @@ function toComponent(responseTree) {
         return r;
     }`: `function (){ return function (i) { return T[i]() } }`};
     else R = function (Q) {${outsideAsync ? `
-        if (c !== ${getEncodedIndex(`Promise`, 'global') - 1})
-            P = T[${getEncodedIndex(`Promise`, 'global')}](), N = T[${getEncodedIndex("then")}]();
-        var C = [], U = T[${getEncodedIndex("push")}](), D = T[${getEncodedIndex("all")}]();` : ''}
+        var C = [];` : ''}
         if (~[E,M][x](c + 1)) return s[c][0];
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
         if (~a[x](E) || ~a[x](M)) I = {}, I[B] = Q;
-        for (i = 0; i < k; i++) g[i] = a[i] === M ? I : a[i] === E ? I[B] : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, P && g[i] instanceof P && C[U](g[i])` : ''};
+        for (i = 0; i < k; i++) g[i] = a[i] === M ? I : a[i] === E ? I[B] : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](g[i])` : ''};
         if (l) l = l[1][q](','), g = g[o]([l]);${outsideAsync ? `
-        if (C[m]) return P[D](C)[N](function (G) {
-            for (i = 0; i < k; i++) if (g[i] instanceof P) g[i] = T[a[i]]();
+        if (C[m]) return T[${getEncodedIndex(`Promise`, 'global')}]()[T[${getEncodedIndex("all")}]()](C)[N](function (G) {
+            for (i = 0; i < k; i++) g[i] = T[a[i]]();
             r = f[y](I ? I[B] : T[0], g);
             return I ? I[B] : r;
         });`: ""}
         r = f[y](I ? I[B] : T[0], g);
         return ${outsideAsync ?
-            `I && P && r instanceof P ? r[N](function () { return I[B] }) : I ? I[B] : r`
+            `I && r && r[N] instanceof P ? r[N](function () { return I[B] }) : I ? I[B] : r`
             : "I ? I[B] : r"
         }
     };
     return T[c + 1] = function (S) {
         T[c + 1] = function () { return S };
-        return S = {}, S = R(S)${outsideAsync ? `, P && S instanceof P && S[N](function (s) { S = s }), S` : ''};
+        return S = {}, S = R(S)${outsideAsync ? `, S && S[N] instanceof P && S[N](function (s) { S = s }), S` : ''};
     }`;
     var declears = scanner2(realize).envs;
     declears = Object.keys(declears).filter(k => !/^[acs]$/.test(k)).map(k => {
