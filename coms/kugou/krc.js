@@ -14,7 +14,7 @@ function krc(list = div()) {
                 var krc = JSON.parse(response.responseText || response.response);
                 var content = fromBase64(krc.content);
                 content = content.slice(4).map((a, i) => a ^ secret[i % 16]);
-                var bufff = inflate(content.slice(2));
+                var bufff = thirdParty$inflate(content.slice(2));
                 var krc = decodeUTF8(bufff);
                 remove(list.children);
                 var children = createKRC(krc);

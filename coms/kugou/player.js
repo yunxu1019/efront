@@ -386,7 +386,7 @@ var createControls = function () {
     });
     return player;
 };
-var ns = new NoSleep;
+var ns = new thirdParty$NoSleep;
 data.bindInstance("play-mode", function (e) {
     if (e.wake) {
         ns.wake = true;
