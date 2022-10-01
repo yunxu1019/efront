@@ -44,7 +44,8 @@ function getBuildInfo(url) {
                 if (/\.asm$/i.test(extt)) {
                     builder = asmbuilder
                 } else {
-                    builder = manybuilder;
+                    if (setting.is_commponent_package) builder = manybuilder;
+                    else builder = commbuilder;
                 }
                 searchname = name.replace(/(\w)\$/g, "$1/");
                 extt = extt || [".js", ".ts", ".json", ".html", '.vue', ''];
