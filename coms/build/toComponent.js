@@ -262,7 +262,9 @@ function toComponent(responseTree) {
         }).concat(module_string)}]`, module_key);
         if (isAsync) asyncMap[destMap[module_key]] = true;
     };
+    var hasDirname = false;
     var initDirname = function () {
+        hasDirname = true;
         initDirname = function () { };
 
         var data = `[${[
@@ -456,7 +458,7 @@ function toComponent(responseTree) {
     });
 
     var constIndex = strings.map(s => getEncodedIndex(s, 'string') - 1)
-        .concat(getEncodedIndex(`__dirname`, "global") - 1);
+    if (hasDirname) constIndex.push(getEncodedIndex(`__dirname`, "global") - 1);
 
     if (!PUBLIC_APP) return console.error("没有可导出的文件！"), {};
     var stringr = {
