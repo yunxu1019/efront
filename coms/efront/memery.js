@@ -287,7 +287,6 @@ var memery = module.exports = {
         return this.istest;
     },
 };
-Object.keys(fixme).forEach(fixpath);
 Object.keys(_ifempty).forEach(function (key) {
     _memery[key] = memery[key];
     Object.defineProperty(memery, key, {
@@ -301,3 +300,4 @@ Object.keys(_ifempty).forEach(function (key) {
         }
     })
 });
+Object.keys(fixme).forEach(fixpath);
