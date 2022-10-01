@@ -173,7 +173,7 @@ function toComponent(responseTree) {
     var saveCode = function (module_body, module_key, reqMap) {
         var this_module_params = {};
         var needAwaits = false;
-        var setMatchedConstString = function (k, isReq, isProp) {
+        var setMatchedConstString = function (k, isReq) {
             if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
             if (k.length < 3) return k;
             if (isReq) {
@@ -203,7 +203,7 @@ function toComponent(responseTree) {
                 module_body.splice(module_body.length >> 1, 0, $key);
                 module_body.splice(module_body.length - 1, 0, $key);
             }
-            return isProp ? `[${$key}]` : " " + $key + " ";
+            return $key;
         };
         var setMatchedConstRegExp = function (k) {
             var $key = getEfrontKey(k, 'regexp');
@@ -212,31 +212,23 @@ function toComponent(responseTree) {
                 module_body.splice(module_body.length >> 1, 0, $key);
                 module_body.splice(module_body.length - 1, 0, $key);
             }
-            return " " + $key + " ";
+            return $key;
         };
         var module_string = module_body[module_body.length - 1];
         var code_blocks = scanner(module_string);
-        var extentReg = /\s*[\:\(]/gy, prefixReg = /(?<=[,\{]\s*)\s|[\,\{\}]/gy;
         var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
         var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
         module_string = code_blocks.map(function (block) {
 
             var block_string = module_string.slice(block.start, block.end);
             if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
-                var isPropEnd = (
-                    extentReg.lastIndex = block.end,
-                    extentReg.exec(module_string)
-                );
-                var isPropStart = (
-                    prefixReg.lastIndex = block.start - 1,
-                    prefixReg.exec(module_string)
-                );
-                var isProp = !!(isPropStart && isPropEnd);
                 if (hasRequire) {
                     requireReg.lastIndex = block.start;
                     var isRequire = !!requireReg.exec(module_string);
                 }
-                return setMatchedConstString(block_string, isRequire, isProp);
+                var padStart = /^[\(\[\s]$/.test(module_string.charAt(block.start - 1)) ? "" : " ";
+                var padEnd = /^[\[\(\.\s\,\;\]\)]$/.test(module_string.charAt(block.end)) ? "" : ' ';
+                return padStart + setMatchedConstString(block_string, isRequire) + padEnd;
             }
             if (block.type === block.regexp_quote_scanner) {
                 return setMatchedConstRegExp(block_string);
