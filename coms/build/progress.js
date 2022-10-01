@@ -77,7 +77,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             var toComponent = require("./toComponent");
             commbuilder.compress = false;
             commbuilder.prepare = false;
-            var polyfills = POLYFILL ? [path.join(__dirname, "../", "basic/[]map.js")] : [];
+            var polyfills = POLYFILL ? [path.join(__dirname, "../", "basic_/[]map.js")] : [];
         }
         promise = loadData(polyfills.concat(public_app), 0, public_path)
             .then(toComponent)
