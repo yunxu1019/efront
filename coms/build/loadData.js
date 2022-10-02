@@ -67,10 +67,10 @@ function build(pages_root, lastBuiltTime, dest_root) {
             ok(responseTree);
         };
         var roots = [].concat(pages_root || [])
-
+        roots = await getBuildRoot(roots);
         while (roots.length) {
+            roots = await builder(roots);
             roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);
-            roots = await getBuildRoot(roots).then(builder);
             if (!memery.EMIT) break;
         }
         return resolve();
