@@ -82,9 +82,11 @@ var breaksort = function (a) {
     }
     return a;
 };
-
+function setDistpath(response, altername) {
+    var DESTNAME = String(memery.PUBLIC_NAME || altername).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + memery.EXTT;
+    if (DESTNAME) response.destpath = DESTNAME;
+}
 function toComponent(responseTree) {
-    console.info("正在合成");
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];
     delete responseTree["[]map"];
     delete responseTree["[]map.js"];
@@ -320,12 +322,6 @@ function toComponent(responseTree) {
         });
         return warning;
     }
-    if (array_map) saveCode([String(array_map.data)], "map");
-    saveOnly("[]", 'init', 'require');
-    var freg = /^function[^\(]*?\(([^\)]+?)\)/;
-    strings.map(function (str) {
-        return getEfrontKey(`"${str}"`, "string");
-    });
     var saveOnlyGlobal = function (globalName) {
         var data = globalName;
         var isGlobal = data in globals;
@@ -400,6 +396,15 @@ function toComponent(responseTree) {
             else result.push([k, null, null, [response.data]]);
         }
     }
+    if (result.length === 1) {
+        var [k, required, reqMap, module_body] = result[0];
+        if (module_body.length === 1 && required.length === 0 || !memery.EMIT && !memery.ENCRYPT && !memery.BREAK && !memery.COMPRESS) {
+            responseTree[k].data = module_body[module_body.length - 1].replace(/^(@?)(\*?)/, '');
+            setDistpath(responseTree[k], k);
+            return responseTree;
+        }
+    }
+    console.info("正在合成");
     var circle_result, PUBLIC_APP, public_index, last_result_length = result.length, origin_result_length = last_result_length
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
@@ -449,6 +454,12 @@ function toComponent(responseTree) {
         PUBLIC_APP = circle_result ? circle_result[0] : k;
         public_index = dest.length - 1;
     }
+    if (array_map) saveCode([String(array_map.data)], "map");
+    saveOnly("[]", 'init', 'require');
+    var freg = /^function[^\(]*?\(([^\)]+?)\)/;
+    strings.map(function (str) {
+        return getEfrontKey(`"${str}"`, "string");
+    });
     report(responseTree);
     if (encoded) {
         var args = [];
@@ -576,8 +587,7 @@ function toComponent(responseTree) {
     }
 
     responseTree[PUBLIC_APP].data = template;
-    var DESTNAME = String(memery.PUBLIC_NAME || PUBLIC_APP).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + memery.EXTT;
-    responseTree[PUBLIC_APP].destpath = DESTNAME || PUBLIC_APP;
+    setDistpath(responseTree[PUBLIC_APP], PUBLIC_APP);
 
     return Object.assign({
         [PUBLIC_APP]: responseTree[PUBLIC_APP]
