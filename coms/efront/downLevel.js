@@ -9,7 +9,7 @@ var renameArguments = function (scoped, id) {
             newname = "_arguments" + id++;
         } while (newname in scoped.used);
         rename(scoped.used, 'arguments', newname);
-        arglist.push(...scanner2(`${arglist.first ? ',' : ''}${newname}=arguments`));
+        arglist.unshift(...scanner2(`${newname}=arguments,`));
     }
     for (var s of scoped) renameArguments(s, id);
 };
@@ -25,7 +25,7 @@ var recoverArguments = function (scoped) {
         }
         var arglist = scoped.body.prev;
         if (index >= 0 && arglist.length) {
-            var newname = arglist.pop();
+            var newname = arglist.shift();
             arglist.pop();
             if (scoped.used.arguments.length === 2) scoped.used.arguments[1].text = newname.text;
             scoped.body.splice(0, index, ...scanner2(`var ${newname.text} = arguments;`));

@@ -70,13 +70,13 @@ var compress = function (scoped, maped) {
 var strings = require("../basic/strings");
 
 var insertAfter = function (o) {
-    var queue = o.queue || this;
+    var queue = this || o.queue;
     var index = queue.indexOf(o) + 1;
     var os = [].slice.call(arguments, 1);
     queue.splice.apply(queue, [index, 0].concat(os));
-    var prev = o, next = o.next;
+    var prev = o, next = o && o.next;
     for (var o of os) {
-        prev.next = o;
+        if (prev) prev.next = o;
         o.prev = prev;
         Object.defineProperty(o, 'queue', { value: queue });
         prev = o;
@@ -181,15 +181,19 @@ var detour = function (o, ie) {
                 if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
                 if (ie === undefined || program.strap_reg.test(o.text)) {
-                    if (!/^\[/.test(o.text) && o.queue.isObject) {
-                        if (o.short) {
-                            insertAfter(o, { text: ':', type: STAMP }, { text: o.text, type: EXPRESS, isExpress: true });
-                            o.short = false;
-                        }
+                    if (/^\[/.test(o.text)) continue;
+                    if (o.queue.isObject) {
                         var text = strings.encode(strings.decode(o.text));
-                        o.text = ie !== undefined ? text : `[${text}]`;
+                        text = ie !== undefined ? text : `[${text}]`;
+                        if (o.short) {
+                            insertAfter.call(o.queue, o.prev, { text: text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
+                            o.type = EXPRESS;
+                            delete o.short;
+                        } else {
+                            o.text = text;
+                        }
                     }
-                    if (!/^\[/.test(o.text) && o.queue.isClass) {
+                    else if (o.queue.isClass) {
                         if (o.text === 'constructor') break;
                         var text = strings.encode(strings.decode(o.text));
                         if (o.prev) {

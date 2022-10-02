@@ -298,7 +298,7 @@ var createScoped = function (parsed, wash) {
                             run(o.first);
                         }
                     }
-                    else if (o.entry === "{") {
+                    else if (o.entry === "{" && !o.isObject) {
                         isScope = true;
                     }
                     else {
@@ -429,7 +429,7 @@ var createScoped = function (parsed, wash) {
                     var envs = Object.create(null);
                     for (var k in used) {
                         if (!(k in map)) {
-                            envs[u] = true;
+                            envs[k] = true;
                             for (var u of used[k]) {
                                 saveTo(_used, k, u);
                             }
@@ -774,6 +774,10 @@ var rename = function (used, from, to) {
         if (doted) text = text.slice(3);
         text = to + text.replace(/^[^\.\:]+/i, "");
         if (doted) text = "..." + text;
+        if (u.type === PROPERTY) {
+            if (u.short) u.text += ':' + text;
+            continue;
+        }
         u.text = text;
     }
     delete used[from];
