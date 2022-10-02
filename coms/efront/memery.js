@@ -131,7 +131,7 @@ var _memery = {
 };
 var _ifempty = {
     get POLYFILL() {
-        return !memery.UPLEVEL;
+        return !memery.UPLEVEL && memery.EMIT;
     },
     get COMPRESS() {
         return memery.ENCRYPT;
@@ -265,6 +265,7 @@ var memery = module.exports = {
     IMAG: getdirpath("IMAG, IMGS"),
     LIBS: getdirpath("LIBS, LIB"),
     ICON: getdirpath("ICON, CCON, CONS, ICONS"),
+    EMIT: get("EMIT,DEEP,LINK", true),
     FORCE: get("FORCE", false),
     UPLEVEL: get("UPLEVEL", false),
     REPORT: get("REPORT", 'efront.cc'),

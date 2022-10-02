@@ -264,7 +264,11 @@ function toComponent(responseTree) {
                 saveOnly(`[${getEncodedIndex('__dirname', 'builtin')},function(a){return a(${JSON.stringify(a === '__filename' ? filename : dirname)})}]`, realdir);
                 return destMap[realdir];
             }
-            if (!isFinite(index)) console.warn("编译异常", module_key, a);
+            if (!isFinite(index)) {
+                if (memery.EMIT) console.warn("编译异常", module_key, a);
+                else saveOnlyGlobal(a);
+                index = destMap[a];
+            }
             return index;
         }).concat(module_string)}]`, module_key);
         if (isAsync) asyncMap[destMap[module_key]] = true;
