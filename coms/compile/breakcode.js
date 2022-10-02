@@ -19,7 +19,7 @@ var getReadableKey = function ($key, value) {
     return $key;
 };
 var setMatchedConstString = function (k, p, f) {
-    if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
+    if (/^(['"`])user?\s+(strict|asm|strip)\1$/i.test(k)) return k;
     if (k.length < 3) return k;
     k = strings.decode(k);
     k = strings.encode(k);

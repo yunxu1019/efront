@@ -181,7 +181,7 @@ function toComponent(responseTree) {
         var this_module_params = {};
         var needAwaits = false;
         var setMatchedConstString = function (k, isReq) {
-            if (/^(['"])user?\s+strict\1$/i.test(k)) return `"use strict"`;
+            if (/^(['"`])user?\s+(strict|asm|strip)\1$/i.test(k)) return k;
             if (k.length < 3) return k;
             if (isReq) {
                 var refer = _strings.decode(k);
