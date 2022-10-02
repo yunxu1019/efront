@@ -182,7 +182,7 @@ var detour = function (o, ie) {
                 if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
                 if (ie === undefined || program.strap_reg.test(o.text)) {
-                    if (/^\[/.test(o.text)) continue;
+                    if (/^\[/.test(o.text)) break;
                     if (o.queue.isObject) {
                         var text = strings.encode(strings.decode(o.text));
                         text = ie !== undefined ? text : `[${text}]`;

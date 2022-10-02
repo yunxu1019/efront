@@ -327,7 +327,24 @@ function toComponent(responseTree) {
         if (!/^['"]|^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data)) {
             data = `typeof ${data}!=="undefined"?${data}:void 0`;
         }
-        saveOnly(data, globalName);
+        switch (globalName) {
+            case "require":
+            case "init":
+                data = '[]';
+                saveOnly(data, "require", "init");
+                break;
+            case "module":
+                data = `[${crypt_code}]`;
+                saveOnly(data, globalName);
+                break;
+            case "exports":
+                data = `[${crypt_code % 2019 + 1}]`;
+                saveOnly(data, globalName);
+                break;
+            default:
+                saveOnly(data, globalName);
+        }
+
         return isGlobal;
     }
     var saveGlobal = function (globalName) {
@@ -405,7 +422,6 @@ function toComponent(responseTree) {
     }
     console.info("正在合成");
     if (array_map) saveCode([String(array_map.data)], "map");
-    saveOnly("[]", 'init', 'require');
     var circle_result, PUBLIC_APP, public_index, last_result_length = result.length, origin_result_length = last_result_length
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
@@ -475,8 +491,9 @@ function toComponent(responseTree) {
         });
         saveOnly(simple_compress(`[${args.map(a => args[a])},function(${args}){return ${decoder}}]`), '- decoder');
     }
-    saveOnly(`[${crypt_code}]`, 'module');
-    saveOnly(`[${crypt_code % 2019 + 1}]`, 'exports');
+    var hasRequire = destMap.require || destMap.init;
+    saveOnlyGlobal('module');
+    saveOnlyGlobal('exports');
     if (array_map) polyfill_map = polyfill_map.replace(/\$\w+/g, function (w) {
         return getEncodedIndex(w, 'string') - 1;
     });
@@ -508,13 +525,13 @@ function toComponent(responseTree) {
         if (typeof a !== z || ~[${constIndex}][x](c)) return a;
         return T[${destMap["- decoder"]}]()(a, c, s, s[M-1])`;
     var realize = `
-    if (!(a instanceof A)) ${encoded ? `R = function () {${decoder}}` : `return T[c + 1] = function () { return a }`};
+    if (!(a instanceof A)) ${encoded ? `R = function () {${decoder}}` : `return T[c + 1] = function () { return a }`};${hasRequire ? `
     else if(!a[m]) R = ${has_outside_require ? `function(){
         var r = function (i) { return i[m] ? s[${getEncodedIndex("require", "builtin") - 1}](i) : T[i]() };
         r[T[${getEncodedIndex(`cache`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('cache')}]()];
         r[T[${getEncodedIndex(`resolve`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('resolve')}]()];
         return r;
-    }`: `function (){ return function (i) { return T[i]() } }`};
+    }`: `function (){ return function (i) { return T[i]() } }`};` : ""}
     else R = function (Q) {${outsideAsync ? `
         var C = [];` : ''}
         if (~[E,M][x](c + 1)) return s[c][0];

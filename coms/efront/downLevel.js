@@ -26,7 +26,7 @@ var recoverArguments = function (scoped) {
         var arglist = scoped.body.prev;
         if (index >= 0 && arglist.length) {
             var newname = arglist.shift();
-            arglist.pop();
+            arglist.shift();
             if (scoped.used.arguments.length === 2) scoped.used.arguments[1].text = newname.text;
             scoped.body.splice(0, index, ...scanner2(`var ${newname.text} = arguments;`));
         }
