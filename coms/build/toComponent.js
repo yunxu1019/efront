@@ -206,6 +206,7 @@ function toComponent(responseTree) {
                     has_outside_require = true;
                 }
             }
+            if (!memery.BREAK) return k;
             var $key = getEfrontKey(k, 'string');
             if (!this_module_params[$key]) {
                 this_module_params[$key] = true;
@@ -224,28 +225,26 @@ function toComponent(responseTree) {
             return $key;
         };
         var module_string = module_body[module_body.length - 1];
-        if (memery.BREAK) {
-            var code_blocks = scanner(module_string);
-            var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
-            var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
-            module_string = code_blocks.map(function (block) {
+        var code_blocks = scanner(module_string);
+        var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
+        var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
+        module_string = code_blocks.map(function (block) {
 
-                var block_string = module_string.slice(block.start, block.end);
-                if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
-                    if (hasRequire) {
-                        requireReg.lastIndex = block.start;
-                        var isRequire = !!requireReg.exec(module_string);
-                    }
-                    var padStart = /^[\(\[\s]$/.test(module_string.charAt(block.start - 1)) ? "" : " ";
-                    var padEnd = /^[\[\(\.\s\,\;\]\)]$/.test(module_string.charAt(block.end)) ? "" : ' ';
-                    return padStart + setMatchedConstString(block_string, isRequire) + padEnd;
+            var block_string = module_string.slice(block.start, block.end);
+            if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
+                if (hasRequire) {
+                    requireReg.lastIndex = block.start;
+                    var isRequire = !!requireReg.exec(module_string);
                 }
-                if (block.type === block.regexp_quote_scanner) {
-                    return setMatchedConstRegExp(block_string);
-                }
-                return block_string;
-            }).join("");
-        }
+                var padStart = /^[\(\[\s]$/.test(module_string.charAt(block.start - 1)) ? "" : " ";
+                var padEnd = /^[\[\(\.\s\,\;\]\)]$/.test(module_string.charAt(block.end)) ? "" : ' ';
+                return padStart + setMatchedConstString(block_string, isRequire) + padEnd;
+            }
+            if (block.type === block.regexp_quote_scanner) {
+                return setMatchedConstRegExp(block_string);
+            }
+            return block_string;
+        }).join("");
         var [, isAsync, isYield] = /^(@?)(\*?)/.exec(module_string);
         if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
         if (isAsync) outsideAsync = true;
@@ -270,7 +269,7 @@ function toComponent(responseTree) {
             }
             if (!isFinite(index)) {
                 if (memery.EMIT) console.warn("编译异常", module_key, a);
-                else saveOnlyGlobal(a);
+                saveOnly(a, a);
                 index = destMap[a];
             }
             return index;
@@ -405,6 +404,8 @@ function toComponent(responseTree) {
         }
     }
     console.info("正在合成");
+    if (array_map) saveCode([String(array_map.data)], "map");
+    saveOnly("[]", 'init', 'require');
     var circle_result, PUBLIC_APP, public_index, last_result_length = result.length, origin_result_length = last_result_length
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
@@ -454,8 +455,6 @@ function toComponent(responseTree) {
         PUBLIC_APP = circle_result ? circle_result[0] : k;
         public_index = dest.length - 1;
     }
-    if (array_map) saveCode([String(array_map.data)], "map");
-    saveOnly("[]", 'init', 'require');
     var freg = /^function[^\(]*?\(([^\)]+?)\)/;
     strings.map(function (str) {
         return getEfrontKey(`"${str}"`, "string");
