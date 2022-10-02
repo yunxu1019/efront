@@ -222,26 +222,28 @@ function toComponent(responseTree) {
             return $key;
         };
         var module_string = module_body[module_body.length - 1];
-        var code_blocks = scanner(module_string);
-        var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
-        var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
-        module_string = code_blocks.map(function (block) {
+        if (memery.BREAK) {
+            var code_blocks = scanner(module_string);
+            var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
+            var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
+            module_string = code_blocks.map(function (block) {
 
-            var block_string = module_string.slice(block.start, block.end);
-            if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
-                if (hasRequire) {
-                    requireReg.lastIndex = block.start;
-                    var isRequire = !!requireReg.exec(module_string);
+                var block_string = module_string.slice(block.start, block.end);
+                if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
+                    if (hasRequire) {
+                        requireReg.lastIndex = block.start;
+                        var isRequire = !!requireReg.exec(module_string);
+                    }
+                    var padStart = /^[\(\[\s]$/.test(module_string.charAt(block.start - 1)) ? "" : " ";
+                    var padEnd = /^[\[\(\.\s\,\;\]\)]$/.test(module_string.charAt(block.end)) ? "" : ' ';
+                    return padStart + setMatchedConstString(block_string, isRequire) + padEnd;
                 }
-                var padStart = /^[\(\[\s]$/.test(module_string.charAt(block.start - 1)) ? "" : " ";
-                var padEnd = /^[\[\(\.\s\,\;\]\)]$/.test(module_string.charAt(block.end)) ? "" : ' ';
-                return padStart + setMatchedConstString(block_string, isRequire) + padEnd;
-            }
-            if (block.type === block.regexp_quote_scanner) {
-                return setMatchedConstRegExp(block_string);
-            }
-            return block_string;
-        }).join("");
+                if (block.type === block.regexp_quote_scanner) {
+                    return setMatchedConstRegExp(block_string);
+                }
+                return block_string;
+            }).join("");
+        }
         var [, isAsync, isYield] = /^(@?)(\*?)/.exec(module_string);
         if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
         if (isAsync) outsideAsync = true;

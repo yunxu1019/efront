@@ -135,6 +135,9 @@ var _ifempty = {
     },
     get COMPRESS() {
         return memery.ENCRYPT;
+    },
+    get BREAK() {
+        return memery.ENCRYPT;
     }
 };
 var memery = module.exports = {
@@ -267,6 +270,7 @@ var memery = module.exports = {
     ICON: getdirpath("ICON, CCON, CONS, ICONS"),
     EMIT: get("EMIT,DEEP,LINK", true),
     FORCE: get("FORCE", false),
+    BREAK: get("BREAK,DETOUR"),
     UPLEVEL: get("UPLEVEL", false),
     REPORT: get("REPORT", 'efront.cc'),
     INDEX_NAME: get("INDEX_NAME", "default|index"),
