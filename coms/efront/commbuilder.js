@@ -422,7 +422,7 @@ var buildPress2 = function (imported, params, data, args, strs) {
 var buildResponse = function ({ imported, params, data, required, occurs, isAsync, isYield }, compress) {
     if (!isDevelop && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
-        else args = Object.keys(occurs), strs = "[]";
+        else args = [], strs = "[]";
         if (!memery.UPLEVEL) data = require("./downLevel")(data, isAsync, isYield);
         // var [imported1, params1, data1] = buildPress1(imported, params, data, args, strs);
         var [imported2, params2, data2] = buildPress2(imported, params, data, args, strs);
