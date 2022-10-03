@@ -669,7 +669,6 @@ var bubApply = function (f, args) {
     if (args.length === 1) {
         var [instanceMap] = args;
         for (var k in instanceMap) {
-            console.log(k, f, instanceMap[k])
             f(k, instanceMap[k]);
         }
     }
