@@ -1,5 +1,8 @@
 var change = function (data) {
-    zimoli.go(data, this.params, this);
+    if (isNode(data)) {
+        zimoli.global(data, this);
+    }
+    else zimoli.go(data, this.params, this);
 };
 var gosrc = function () {
     var { src } = this;
