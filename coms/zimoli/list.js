@@ -612,24 +612,24 @@ function list() {
             }
         }
     }
-    var bindSrc = null;
+    var bindSrc = "$src" in container;
     if (container instanceof Array) {
         generator = getGeneratorFromArray(container);
         bindSrc = container;
         container = div();
     } else if (container && !generator) {
-        if ("$src" in container) {
+        if (bindSrc) {
             generator = getGenerator(container);
-            care(container, function () {
-                var index = container.index();
-                container.clean();
-                container.go(index || 0);
-            });
             bindSrc = true;
         } else {
             generator = function () { }
         }
     }
+    if (bindSrc === true) care(container, function () {
+        var index = container.index();
+        container.clean();
+        container.go(index || 0);
+    });
 
     if (!$Y) {
         if (container) {
@@ -648,8 +648,12 @@ function list() {
         container.go(container.index() || 0);
     }
     list.clean = function () {
-        var children = (container || list).children;
-        children = [].concat.apply([], children).filter(c => c.nodeType === 1 && isFinite(c.index));
+        var children = (container || list).childNodes;
+        children = Array.prototype.filter.call(children, c => {
+            if (isFinite(c.index)) return true;
+            if (c.nodeType === 1 && c.$comment && isFinite(c.$comment.index)) return true;
+            return false;
+        });
         remove(children);
     };
 

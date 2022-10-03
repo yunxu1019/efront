@@ -196,7 +196,6 @@ function main(elem, mode) {
                 };
                 if ("$src" in elem) {
                     var src0 = [];
-                    menuList(elem, src0, emit, direction);
                     care(elem, function (src) {
                         bindGlobalkey(elem, src.keymap, emit);
                         src0.splice(0, src0.length);
@@ -212,8 +211,8 @@ function main(elem, mode) {
                         while (i < s.length) {
                             src0.push.apply(src0, s.slice(i, i += 1000));
                         }
-                        elem.go(0);
                     });
+                    menuList(elem, src0, emit, direction);
                 }
                 else {
                     var nodes = getArrayNodes(elem);
