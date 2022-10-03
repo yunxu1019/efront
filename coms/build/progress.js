@@ -127,7 +127,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             ).concat(environment.ccons_root || []), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {
-                    var deletedMap = {};
+                    var deletedMap = Object.create(null);
                     for (var k in response) {
                         if (!response[k].realpath) {
                             if (response[k].warn) {

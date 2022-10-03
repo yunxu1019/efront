@@ -5,7 +5,7 @@ function readdir(fullpath) {
     return new Promise(function (ok, oh) {
         fs.readdir(fullpath, { withFileTypes: true }, function (err, names) {
             if (err) return oh(err);
-            var map = {};
+            var map = Object.create(null);
             var rest = [];
             for (var n of names) {
                 map[n.name] = n;
