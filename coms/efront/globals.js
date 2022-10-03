@@ -38,8 +38,10 @@ var objects = {
     TypeError: null,
     RangeError: null,
     ArrayBuffer: null,
-    Uint8Array: null, Uint16Array: null, Uint32Array: null,
-    Int8Array: null, Int16Array: null, Int32Array: null,
+    DataView: null,
+    Uint8Array: null, Uint16Array: null, Uint32Array: null, BigUint64Array: null,
+    Int8Array: null, Int16Array: null, Int32Array: null, BigInt64Array: null,
+    Float8Array: null, Float16Array: null, Float32Array: null, Float64Array: null,
     Map: null,
     Set: null,
     Proxy: null,
@@ -65,10 +67,14 @@ var nodeOnlys = {
     module: null,
     exports: null,
     global: null,
+    Buffer: null,
+    setImmediate: null,
+    clearImmediate: null
 };
 setGlobal(nodeOnlys, colors.FgGreen);
-var nodeRequires = `os,fs,vm,url,readline,net,http,https,http2,zlib,util,buffer,path,cluster,crypto,process,Buffer,setImmediate,clearImmediate`;
+var nodeRequires = `os,fs,vm,url,readline,net,http,https,http2,zlib,util,buffer,path,cluster,crypto,process`;
 setGlobal(nodeRequires, colors.FgGreen);
+setGlobal("electron", colors.FgGreen);
 var chromeOnlys = `WakeLock,XMLHttpRequest,Image,PerformanceObserver,
 window,self,
 document,name,location,customElements,history,
@@ -96,7 +102,16 @@ resizeBy,resizeTo,scroll,scrollBy,scrollTo,
 stop,structuredClone,
 crypto,
 chrome,launchQueue,originAgentCluster,
-navigation,speechSynthesis,openDatabase`;
+navigation,speechSynthesis,openDatabase,
+DOMParser,
+showOpenFilePicker,showSaveFilePicker,
+ClipboardItem,
+showDirectoryPicker`;
 setGlobal(chromeOnlys, colors.FgYellow);
-var efrontBuiltins = `modules,isProduction,start_time,MOVELOCK_DELTA,SAFE_CIRCLE_DEPTH,init,versionTree,responseTree,loadingTree,loadedModules,load,devicePixelRatio,renderPixelRatio,efrontsign,put`;
+var efrontBuiltins = `modules,isProduction,start_time,
+MOVELOCK_DELTA,SAFE_CIRCLE_DEPTH,
+init,versionTree,responseTree,loadingTree,
+loadedModules,load,devicePixelRatio,
+renderPixelRatio,efrontsign,put
+px2offset,offset2px,pt2offset,offset2pt`;
 setGlobal(efrontBuiltins, colors.FgCyan2);
