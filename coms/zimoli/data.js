@@ -665,6 +665,41 @@ var updateLoadingCount = function () {
     data.loading_count = cross.requests.length;
 };
 on('render')(window, updateLoadingCount, true);
+var bubApply = function (f, args) {
+    if (args.length === 1) {
+        var [instanceMap] = args;
+        for (var k in instanceMap) {
+            console.log(k, f, instanceMap[k])
+            f(k, instanceMap[k]);
+        }
+    }
+    else if (args.length === 2) {
+        var [instanceId, callback] = args;
+        f(instanceId, callback);
+    }
+};
+
+var bindInstance = function (instanceId, callback) {
+    if (!instanceListenerMap[instanceId]) {
+        instanceListenerMap[instanceId] = [];
+    }
+    var listeners = instanceListenerMap[instanceId];
+    if (!~listeners.indexOf(callback)) {
+        listeners.push(callback);
+    }
+    if (hasItem(instanceId)) callback(getItem(instanceId));
+};
+var unbindInstance = function (instanceId, callback) {
+    if (!instanceListenerMap[instanceId]) return;
+    if (!callback) {
+        delete instanceListenerMap[instanceId];
+        return;
+    }
+    removeFromList(instanceListenerMap[instanceId], callback);
+    if (!instanceListenerMap[instanceId].length) {
+        delete instanceListenerMap[instanceId];
+    }
+};
 var data = {
     decodeStructure,
     encodeStructure,
@@ -1052,26 +1087,32 @@ var data = {
         }
         return this.setInstance(instanceId, instance, rememberWithStorage);
     },
-    bindInstance(instanceId, callback) {
-        if (!instanceListenerMap[instanceId]) {
-            instanceListenerMap[instanceId] = [];
+    /**
+     * bindInstance(instanceId, callback);
+     * bindInstance(instanceMap);
+     * bindInstance(page, instanceId, callback);
+     * bindInstance(page, instanceMap);
+     */
+    bindInstance() {
+        var [page] = arguments;
+        if (isNode(page)) {
+            var restargs = Array.prototype.slice.call(arguments, 1);
+            onmounted(page, function () {
+                bubApply(bindInstance, restargs);
+            });
+            on("remove")(page, function () {
+                bubApply(unbindInstance, restargs);
+            });
         }
-        var listeners = instanceListenerMap[instanceId];
-        if (!~listeners.indexOf(callback)) {
-            listeners.push(callback);
+        else {
+            bubApply(bindInstance, arguments);
         }
-        if (hasItem(instanceId)) callback(getItem(instanceId));
     },
-    unbindInstance(instanceId, callback) {
-        if (!instanceListenerMap[instanceId]) return;
-        if (!callback) {
-            delete instanceListenerMap[instanceId];
-            return;
-        }
-        removeFromList(instanceListenerMap[instanceId], callback);
-        if (!instanceListenerMap[instanceId].length) {
-            delete instanceListenerMap[instanceId];
-        }
+    /**
+     * 仅用于解除没有与DOM节点绑定的事件
+     */
+    unbindInstance() {
+        bubApply(unbindInstance, arguments);
     },
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) return;
