@@ -211,7 +211,11 @@ var createRepeat = function (search, id = 0) {
         }, this);
         cloned.forEach(a => render(a));
         for (var k in clonedElements) {
-            if (clonedElements1[k] !== clonedElements[k]) remove(clonedElements[k]);
+            if (clonedElements1[k] !== clonedElements[k]) {
+                var selected = clonedElements[k].selected;
+                remove(clonedElements[k]);
+                if (selected) { clonedElements1[k].selected = true; }
+            }
         }
         clonedElements = clonedElements1;
         this.with = cloned;
