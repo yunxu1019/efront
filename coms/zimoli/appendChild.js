@@ -25,7 +25,7 @@ function appendChild(parent, obj, transition) {
     if (transition === false) {
         var children = [].concat(obj);
     } else {
-        var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
+        var children = isArrayLike(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
     }
     if (parent.appendChild) {
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
