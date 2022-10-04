@@ -612,7 +612,7 @@ function list() {
             }
         }
     }
-    var bindSrc = "$src" in container;
+    var bindSrc = isNode(container) && "$src" in container;
     if (container instanceof Array) {
         generator = getGeneratorFromArray(container);
         bindSrc = container;
