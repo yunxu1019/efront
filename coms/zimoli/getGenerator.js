@@ -1,6 +1,20 @@
 
 var _slider = createElement(div);
 /**
+ * @param {Element} template
+ */
+var cloneChildNodes = function (template) {
+    var cloned = template.cloneNode(true);
+    var cNodes = cloned.childNodes;
+    var tNodes = template.childNodes;
+    for (var cx = 0, dx = cNodes.length; cx < dx; cx++) {
+        cNodes[cx].$struct = tNodes[cx].$struct;
+        cNodes[cx].renderid = tNodes[cx].renderid;
+    }
+    return cNodes;
+}
+
+/**
  * @param {Element} container
  * @param {Element|string} tagName;
  */
@@ -26,6 +40,7 @@ var getGenerator = function (container, tagName = 'item') {
         container.paddingCount = paddingCount;
     }
     appendChild(template, templates);
+    templates.forEach(render.struct);
     if (templates.length) container.$template = template;
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
@@ -47,9 +62,9 @@ var getGenerator = function (container, tagName = 'item') {
             needSetAttr = false;
         }
         else {
-            var template1 = template.cloneNode(true);
-            element = template1.childNodes[0];
-            if (template1.childNodes.length > 1) element.with = [].concat.apply([], template1.childNodes).slice(1);
+            var childNodes = cloneChildNodes(template);
+            element = childNodes[0];
+            if (childNodes.length > 1) element.with = Array.prototype.slice.call(childNodes, 1);
         }
         if (needSetAttr) {
             for (var a of tagName.attributes) {

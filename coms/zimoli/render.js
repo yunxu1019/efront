@@ -332,8 +332,11 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     };
 };
 
-var createStructure = function ({ name: ifkey, key, value: ifexp } = {}, { name: forkey, value: repeat } = {}, context) {
-    var element = this;
+var renderStructure = function (element) {
+    var $struct = element.$struct;
+    if ($struct.if) var { name: ifkey, key, value: ifexp } = $struct.if;
+    if ($struct.repeat) var { name: forkey, value: repeat } = $struct.repeat;
+    var { context } = $struct;
     if (!ifkey) return element.removeAttribute(forkey), structures.repeat.call(element, [context, repeat]);
     if (!repeat) return element.removeAttribute(ifkey), structures[key].call(element, [context, ifexp]);
     if (!ifexp) {
@@ -646,13 +649,12 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         return element;
     }
     if (!isNumber(element.renderid)) {
-        let element1 = renderStructure(element, scope, parentScopes, once);
-        if (element1 !== element) {
-            element = element1;
-        }
-        if (!element) return;
+        element.renderid = 0;
+        createStructure(element, scope, parentScopes, once);
     }
-    if (element.renderid < 0 || element.nodeType !== 1) {
+    if (element.renderid <= -1) element = renderStructure(element);
+    if (!element) return;
+    if (!element || element.renderid < 0 || element.nodeType !== 1) {
         return element;
     }
     var elementid = element.getAttribute("renderid") || element.getAttribute("elementid") || element.getAttribute("id");
@@ -762,7 +764,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     return element;
 }
-function renderStructure(element, scope, parentScopes = [], once) {
+function createStructure(element, scope, parentScopes = [], once) {
     // 处理结构流
     if (parentScopes !== null && !isArray(parentScopes)) {
         throw new Error('父级作用域链应以数组的类型传入');
@@ -854,8 +856,7 @@ function renderStructure(element, scope, parentScopes = [], once) {
     }
     if (props["zimoli"] || props["fresh"] || props["once"]) once = true;
     else if (props["refresh"] || props["digest"] || props["mount"]) once = false;
-    if (!element.$struct) element.$struct = { ons, copys, binds, attrs: attr1, props, context: withContext, ids, once };
-    if (element.renderid <= -1) return createStructure.call(element, types.if, types.repeat, withContext);
+    if (!element.$struct) element.$struct = { ons, if: types.if, repeat: types.repeat, copys, binds, attrs: attr1, props, context: withContext, ids, once };
     return element;
 }
 var eagermount = false, renderlock = false;
@@ -906,3 +907,4 @@ render.register = function (key, name) {
     }
 };
 render.getFromScopes = getFromScopes;
+render.struct = createStructure;
