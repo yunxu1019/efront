@@ -109,10 +109,18 @@ function select(target, list, removeOnSelect, direction) {
         on("keydown.enter")(target, pop);
         onremove(list, onlistremove);
     };
+    var setListValue = function () {
+        if (list.setVaLue instanceof Function) {
+            list.setVaLue(target.value);
+        }
+        else {
+            list.value = target.value;
+        }
+    };
     if (isNode(list)) {
         var initList = function () {
             bindEvent();
-            list.value = target.value;
+            setListValue();
             initList = function () { };
         };
         var setIcon = function () {
@@ -127,7 +135,7 @@ function select(target, list, removeOnSelect, direction) {
                 if (isObject(s)) s.selected = s.key === target.value;
             });
             list = selectList(generator, src, !!target.multiple, !!target.editable);
-            list.value = target.value;
+            setListValue();
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }
@@ -180,6 +188,7 @@ function select(target, list, removeOnSelect, direction) {
             if (deepEqual.shallow(allOptions, savedOptions)) return;
             savedOptions = allOptions;
             list = selectList(allOptions, !!target.multiple, !!target.editable);
+            setListValue();
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }
