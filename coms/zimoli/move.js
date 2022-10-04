@@ -9,7 +9,7 @@ function getMarginLeft(offsetLeft, offsetWidth, innerWidth) {
     // marginLeft*offsetWidth-marginLeft*innerWidth=offsetLeft*offsetWidth
     // marginLeft(offsetWidth-innerWidth)=offsetLeft*offsetWidth
     // marginLeft=offsetLeft*offsetWidth/(offsetWidth-innerWidth)
-    if (offsetWidth === +innerWidth) return -offsetWidth / 2;
+    if (offsetWidth === +innerWidth || Math.abs(offsetLeft) > Math.abs(offsetWidth - innerWidth)) return -offsetWidth / 2;
     return offsetLeft * offsetWidth / (offsetWidth - innerWidth);
 }
 
