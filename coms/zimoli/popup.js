@@ -175,12 +175,12 @@ var isypop = function (target) {
     if (!target) return false;
     var { offsetParent, nextSibling, previousSibling } = target;
     if (
-        nextSibling && nextSibling.tagName === target.tagName
+        nextSibling
         && (
             nextSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
             || target.offsetLeft - nextSibling.offsetLeft >= nextSibling.offsetWidth / 2
         )
-        || previousSibling && previousSibling.tagName === target.tagName
+        || previousSibling
         && (
             previousSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
             || target.offsetLeft - previousSibling.offsetLeft >= previousSibling.offsetWidth / 2
