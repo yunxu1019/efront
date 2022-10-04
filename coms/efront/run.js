@@ -154,7 +154,6 @@ function efront() {
     Window.prototype = global;
     var window = new Window;
     Object.assign(window, {
-        performance: {},
         require,
         setTimeout(f, timerout) {
             var args = [].slice.call(arguments, 2);
@@ -185,22 +184,7 @@ function efront() {
         clearInterval(handle) {
             delete intervalHandles[handle];
             return clearInterval(handle);
-        },
-        document: {
-            body: {
-                style: {},
-                setAttribute() {
-                },
-                getAttribute() {
-                }
-            },
-            write() {
-                console.log.apply(console, arguments);
-            }
-        },
-        localStorage: new Storage,
-        sessionStorage: new Storage
-
+        }
     });
     window.top = window.window = window;
     return window;
@@ -208,9 +192,9 @@ function efront() {
 module.exports = function (mainpath, args) {
     mainpath = mainpath.replace(/\.[cm]?[jt]sx?$/i, '');
     var unload = function () {
-        Object.keys(intervalHandles).map(clearInterval);
-        Object.keys(timeoutHandles).map(clearTimeout);
-        requestHandles.slice(0).map(r => r());
+        Object.keys(intervalHandles).forEach(clearInterval);
+        Object.keys(timeoutHandles).forEach(clearTimeout);
+        requestHandles.splice(0, requestHandles.length).forEach(r => r());
     };
     var _mainpath = "./" + mainpath.replace(/\\/g, '/').replace(/^\.\//, '');
     var fullpath = require.resolve(_mainpath, { paths: [].concat(memery.coms_path.split(","), '.') });

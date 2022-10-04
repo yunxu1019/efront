@@ -323,16 +323,18 @@ var loadModule = function (name, then, prebuilds = {}) {
     }
 };
 var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".78pt" : 0.78 / devicePixelRatio + "pt") + (quote || "")) : text;
-if (document.head) {
-    var efrontsign = document.head.lastElementChild.attributes[0];
-    if (efrontsign && /^compiledinfo\-/.test(efrontsign.name)) efrontsign = efrontsign.name.slice(efrontsign.name.indexOf('-') + 1);
-    else efrontsign = '';
-}
-else if (document.getElementsByTagName) {
-    document.head = document.getElementsByTagName("head")[0];
-    efrontsign = /\<script\s+compiledinfo\-(\S*?)\s*\=/i.exec(document.head.lastChild.outerHTML);
-    if (efrontsign) efrontsign = efrontsign[1];
-    else efrontsign = '';
+if (document) {
+    if (document.head) {
+        var efrontsign = document.head.lastElementChild.attributes[0];
+        if (efrontsign && /^compiledinfo\-/.test(efrontsign.name)) efrontsign = efrontsign.name.slice(efrontsign.name.indexOf('-') + 1);
+        else efrontsign = '';
+    }
+    else if (document.getElementsByTagName) {
+        document.head = document.getElementsByTagName("head")[0];
+        efrontsign = /\<script\s+compiledinfo\-(\S*?)\s*\=/i.exec(document.head.lastChild.outerHTML);
+        if (efrontsign) efrontsign = efrontsign[1];
+        else efrontsign = '';
+    }
 }
 var uncode = function (text) {
     var ratio = 1;
@@ -597,10 +599,11 @@ var init = function (name, then, prebuilds) {
     var crack = function (error) {
         if (res.resolved || res.errored) return;
         var ed = errored[name];
-        console.error(`加载${name}失败，${ed && ed.length ? `${ed.join(', ')} 等${ed.length}个模块` : "没有其他模块"}受到影响`);
         res.errored = true;
         res.error = error;
         res.fire();
+        console.error(`加载${name}失败，${ed && ed.length ? `${ed.join(', ')} 等${ed.length}个模块` : "没有其他模块"}受到影响`);
+        if (window.document) throw error;
     };
     loadModule(name, function (error) {
         if (hasOwnProperty.call(modules, name)) {
@@ -860,18 +863,19 @@ var requires_count = 3;
 var hook = function (requires_count) {
     if (requires_count !== 0) return;
     "alert confirm innerWidth innerHeight close prompt".split(/\s+/).map(removeGlobalProperty);
-    initPixelDecoder();
     modules.Promise = Promise;
     modules.hook_time = +new Date;
-    if (!efrontPath) efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
-    if (modules.hook_time - efront_time < (isProduction ? 30 : 5) && document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform) && navigator.maxTouchPoints > 0) {
-        let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
-        document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=1,maximum-scale=${ratio}`);
-        renderPixelRatio *= devicePixelRatio;
-        modules.renderPixelRatio = renderPixelRatio;
-        devicePixelRatio = modules.devicePixelRatio = 1;
+    if (document) {
+        initPixelDecoder();
+        if (modules.hook_time - efront_time < (isProduction ? 30 : 5) && document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform) && navigator.maxTouchPoints > 0) {
+            let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
+            document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=1,maximum-scale=${ratio}`);
+            renderPixelRatio *= devicePixelRatio;
+            modules.renderPixelRatio = renderPixelRatio;
+            devicePixelRatio = modules.devicePixelRatio = 1;
+        }
+        if (!efrontPath) efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
     }
-
     init(efrontPath, function (zimoli) {
         if (zimoli instanceof Function) zimoli();
     });
@@ -881,7 +885,7 @@ var initIfNotDefined = function (defined, path, onload) {
     else hook(--requires_count);
 };
 
-loadResponseTreeFromStorage();
+if(document) loadResponseTreeFromStorage();
 initIfNotDefined([].map, "[]map", map => map);
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);
 if (!isProduction) window.modules = modules;
@@ -889,5 +893,5 @@ var onload = function () {
     window.onload = null;
     hook(--requires_count);
 };
-if (document.body) onload();
+if (!document || document.body) onload();
 else window.onload = onload;
