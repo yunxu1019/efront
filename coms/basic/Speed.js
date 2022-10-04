@@ -102,6 +102,7 @@ class Speed extends Array {
     cache = [];
     stamp = 0;
     deltat = 0;
+    accelerate = .1;
     static now() {
         return performance.now ? performance.now() : Date.now();
     }
@@ -143,22 +144,23 @@ class Speed extends Array {
         var ratio;
         if (this.stamp) ratio = now - this.stamp;
         else ratio = deltat;
-        if (ratio > 160) ratio = 1e-3;
+        if (ratio > 160) ratio = 1e-7;
         if (this.deltat) {
             if (deltat > this.deltat * 10) {
-                ratio = 1e-3;
+                ratio = 1e-7;
             }
         }
         this.deltat = deltat;
         this.stamp = now;
         var sum = 0;
         for (var v of values) sum += v * v;
-        v = Math.sqrt(sum) * ratio;
-        if (v > 1) {
-            v = Math.sqrt(v * (v - .996)) / v;
+        v = Math.sqrt(sum);
+        var a = this.accelerate * Math.atan(v + 1);
+        if (v > a + 1e-14) {
+            v = Math.sqrt(v * (v - a)) / v;
         }
         else {
-            v = .9;
+            v = 1e-9;
         }
         var r = ratio * v;
         for (var cx = 0, dx = values.length; cx < dx; cx++) {
