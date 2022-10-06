@@ -129,9 +129,20 @@ function select(target, list, removeOnSelect, direction) {
     else if (target.$src) {
         var generator = getGenerator(target);
         var optionsMap = {};
+        var $key = 'key';
+        var $name = 'name';
+        var template = target.$template;
+        var isIndexedKey = false;
+        if (template) {
+            var { attrs, binds } = template.childNodes[0].$struct;
+            if (attrs.value) $key = attrs.value;
+            if ($key === target.$src.indexName || $key === target.$src.keyName) isIndexedKey = true;
+            $name = binds.bind || binds.html || binds.text || $name;
+        }
         var initList2 = function (src) {
-            src.forEach(s => {
-                optionsMap[s.key] = s;
+            if (isIndexedKey) optionsMap = src;
+            else src.forEach(s => {
+                optionsMap[seek(s, $key)] = s;
                 if (isObject(s)) s.selected = s.key === target.value;
             });
             list = selectList(generator, src, !!target.multiple, !!target.editable);
@@ -139,14 +150,16 @@ function select(target, list, removeOnSelect, direction) {
             if (!target.multiple) {
                 onclick(list, onlistclick);
             }
-            if (target.value) {
-                target.setValue(target.value);
-            }
+            if (optionsMap[target.value]) target.setValue(target.value);
             bindEvent();
         };
         target.setValue = function (v) {
             var s = optionsMap[v];
-            this.innerHTML = `<option selected value="${v}">${s ? s.name : ''}</option>`;
+            var name = s ? s.name : '';
+            if (s && template) {
+                name = this.$eval($name, this.$src.createScope(s, v, v));
+            }
+            this.innerHTML = `<option selected value="${v}">${name || ''}</option>`;
             this.value = v;
             if (s) s.selected = true;
             if (list) list.value = v;

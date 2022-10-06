@@ -660,7 +660,7 @@ function responseCrash(e, data) {
     }
     error_report(e, e.status < 500 ? 'warn' : 'error');
 }
-var getData = function () { return this.data };
+var toDataString = function () { return isEmpty(this.data) ? '' : this.data };
 var updateLoadingCount = function () {
     data.loading_count = cross.requests.length;
 };
@@ -1116,7 +1116,7 @@ var data = {
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) return;
         if (!isObject(instance)) throw new Error("只支持object类型的数据！");
-        if (!isObject(data)) data = { data }, data.toString = data.valueOf = getData;
+        if (!isObject(data)) data = { data }, data.toString = data.valueOf = toDataString;
         if (instance instanceof Array) instance.splice(0, instance.length);
         var sample = new LoadingArray;
         Object.keys(old).forEach(function (k) {

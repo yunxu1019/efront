@@ -40,7 +40,7 @@ var getGenerator = function (container, tagName = 'item') {
         container.paddingCount = paddingCount;
     }
     appendChild(template, templates);
-    templates.forEach(render.struct);
+    render.struct(templates);
     if (templates.length) container.$template = template;
     container.insertBefore = _slider.insertBefore;
     container.appendChild = _slider.appendChild;
@@ -74,12 +74,7 @@ var getGenerator = function (container, tagName = 'item') {
         var scopes = container.$generatorScopes;
         var parsedSrc = container.$src;
         if (parsedSrc) {
-            var { keyName, itemName, indexName } = parsedSrc;
-            var newScope = {
-                [keyName || '$key']: index,
-                [itemName || '$item']: com,
-                [indexName || '$index']: index
-            };
+            var newScope = parsedSrc.createScope(com, index, index);
             var newItem = render(element, newScope, scopes, false);
             if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         } else {
