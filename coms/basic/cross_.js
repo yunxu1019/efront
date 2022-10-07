@@ -127,7 +127,9 @@ var mergedata = function (cachedata, pkv) {
     }
     return res;
 };
-
+function createResponse(response, status = 0) {
+    return { status, response: response, toString: toResponse }
+}
 /**
  * @param { () => XMLHttpRequest } jsonp
  * @this { () => XMLHttpRequest }
@@ -162,12 +164,15 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         if (!~requests.indexOf(_xhr)) return;
         removeFromList(requests, _xhr);
         errored = e || "未知错误！";
+        if (typeof errored === 'string') {
+            errored = createResponse(e, xhr.status);
+        }
         flush();
         digest();
     };
     var onerror = async function (e) {
         if (e.type === 'error') {
-            e = { response: "无法访问服务器", toString: toResponse };
+            e = createResponse("无法访问服务器！");
         }
         for (var r of reforms) {
             var r = await reform.call(xhr, r, { method, url, status: xhr.status, headers: _headers }, fire, onerror1, e);
@@ -245,13 +250,13 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     xhr.responseText = xhr.response;
                 }
                 catch (e) {
-                    return onerror({ status: xhr.status, response: "数据无法解析！", toString: toResponse })
+                    return onerror("数据无法解析！")
                 }
             };
             switch (xhr.status) {
                 case 0:
                     if (!xhr.response) {
-                        onerror({ status: 0, response: "无法访问服务器", toString: toResponse });
+                        onerror("无法访问服务器");
                         break;
                     }
                 case 200:
@@ -312,9 +317,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             forceForm = true;
             xhr.data(data);
         };
-        var fire = async function () {
-            if (!~requests.indexOf(xhr)) return;
-            var code = await xhr.encrypt;
+        var fire = async function (code) {
             if (!~requests.indexOf(xhr)) return;
             xhr.encrypt = code;
             var isform = /^f/i.test(method);
@@ -366,7 +369,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             else send.call(xhr);
             digest();
         };
-        Promise.resolve().then(fire);
+        Promise.resolve(xhr.encrypt).then(fire, onerror1);
     }
     var setRequestHeader = xhr.setRequestHeader;
     var realHeaders = Object.create(null);
@@ -448,7 +451,7 @@ function addReform(r) {
 function getCode() {
     return new Promise((ok, oh) => {
         this('get', base + "!").then((xhr) => { return ok(encode62.timedecode(xhr.response || xhr.responseText)) }, () => {
-            return oh('未连接到可加密的服务器！');
+            return oh('无法连接可加密的服务器！');
         });
     });
 }
