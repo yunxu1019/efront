@@ -279,7 +279,6 @@ function main(elem) {
                 }
             } else {
                 var create = field_type === "function" ? field_editor : findEditerForElement(field_type, elem) || constructors[field_type];
-                console.log(create === constructors.select)
                 var ipt = create ? create(elem, field_ref) : field.key ? input(function () {
                     var input = document.createElement('input');
                     input.setAttribute('type', field.type);
