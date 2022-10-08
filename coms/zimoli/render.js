@@ -189,6 +189,7 @@ var createRepeat = function (search, id = 0) {
     // 懒渲染
     var getter = createGetter(srcName).bind(this);
     var element = this, clonedElements = [], savedValue, savedOrigin;
+    if (this.$struct.if) id = -7;
     var renders = [function () {
         var result = getter();
         var origin = result;
@@ -266,6 +267,7 @@ var createIf = function (search, id = 0) {
     var savedValue;
     elements.parent = this.parentNode;
     elements.comment = search;
+    if (this.$struct.repeat) id = -3;
     elements.renders = [function () {
         var shouldMount = -1;
         for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
@@ -363,23 +365,18 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
 var renderStructure = function (element) {
     var $struct = element.$struct;
     if ($struct.if) var { name: ifkey, key, value: ifexp } = $struct.if;
-    if ($struct.repeat) var { name: forkey, value: repeat } = $struct.repeat;
-    if (!ifkey) return element.removeAttribute(forkey), structures.repeat.call(element, repeat);
-    if (!repeat) return element.removeAttribute(ifkey), structures[key].call(element, ifexp);
-    if (!ifexp) {
-        element.removeAttribute(ifkey);
-        return structures[key].call(element, ifexp);
-    }
+    if ($struct.repeat) var { value: repeat } = $struct.repeat;
+    delete $struct.if;
+    if (!ifkey) return createRepeat.call(element, repeat);
+    if (!ifexp || !repeat) return structures[key].call(element, ifexp);
     var { before, after } = parseIfWithRepeat(ifexp, repeat);
-    element.removeAttribute(ifkey);
     if (after.length) {
-        element.setAttribute("a-if", after.join("&&"));
+        $struct.if = { key, name: ifkey, value: after.join("&&") };
     }
     if (before.length > 0) {
-        // 懒渲染
         return createIf.call(element, before.join("&&"), null);
     } else {
-        element.removeAttribute(forkey);
+        delete $struct.repeat;
         return createRepeat.call(element, repeat, null);
     }
 };
@@ -684,7 +681,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
 
         if (isEmpty(s.once)) s.once = once;
         element.$eval = $eval;
-        if (!element.$struct) console.log(element, element.$struct, element.renderid, s)
     }
     if (element.renderid <= -1) element = renderStructure(element);
     if (!element) return;
@@ -881,6 +877,7 @@ function createStructure(element) {
             }
             if (!element.renderid) element.renderid = -1;
             else element.renderid = -2;
+            element.removeAttribute(name);
             continue;
         }
         // ng-html,ng-src,ng-text,ng-model,ng-style,ng-class,...
