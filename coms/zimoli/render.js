@@ -268,6 +268,7 @@ var createIf = function (search, id = 0) {
     elements.parent = this.parentNode;
     elements.comment = search;
     if (this.$struct.repeat) id = -3;
+
     elements.renders = [function () {
         var shouldMount = -1;
         for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
@@ -366,17 +367,20 @@ var renderStructure = function (element) {
     var $struct = element.$struct;
     if ($struct.if) var { name: ifkey, key, value: ifexp } = $struct.if;
     if ($struct.repeat) var { value: repeat } = $struct.repeat;
-    delete $struct.if;
     if (!ifkey) return createRepeat.call(element, repeat);
     if (!ifexp || !repeat) return structures[key].call(element, ifexp);
     var { before, after } = parseIfWithRepeat(ifexp, repeat);
     if (after.length) {
         $struct.if = { key, name: ifkey, value: after.join("&&") };
     }
+    else{
+        delete $struct.if;
+    }
     if (before.length > 0) {
         return createIf.call(element, before.join("&&"), null);
     } else {
         delete $struct.repeat;
+        if (!repeat) debugger;
         return createRepeat.call(element, repeat, null);
     }
 };
