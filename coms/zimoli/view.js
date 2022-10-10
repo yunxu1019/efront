@@ -90,6 +90,29 @@ var init = function () {
         marginRight: -getScrollbarWidth() + "px"
     });
 };
+var resize2 = function () {
+    var head = this.querySelector("[head],.head");
+    var body = this.querySelector("[body],.body");
+    var foot = this.querySelector("[foot],.foot");
+    if (head && body) {
+        var height = head.offsetHeight;
+        css(head, {
+            marginBottom: fromOffset(-height),
+        })
+        css(body, {
+            paddingTop: fromOffset(height)
+        });
+    }
+    if (foot && body) {
+        var height = foot.offsetHeight;
+        css(body, {
+            paddingBottom: fromOffset(height)
+        });
+        css(foot, {
+            marginTop: fromOffset(-height)
+        })
+    }
+};
 function view(element) {
     var window = isNode(element) ? element : document.createElement("form");
     init();
@@ -104,5 +127,7 @@ function view(element) {
         })
         if (window.resizable) resize.on(window);
     }
+    on('resize')(window, resize2);
+    onmounted(window, resize2);
     return window;
 }
