@@ -115,11 +115,11 @@
                     })
                 });
 
-                rows.push(`<a href="${n}?${stats.mtime.toLocaleDateString()}" target=_blank ><b name>${n}</b><span time>${stats.mtime.toLocaleDateString()}</span></a>`);
+                rows.push(`<a href="${n}?${stats.mtime.toLocaleDateString()}" ><b name>${n}</b><span time>${stats.mtime.toLocaleDateString()}</span></a>`);
             }
             return rows.join('')
         </script>
-        <a href="https://www.npmjs.com/package/efront">
+        <a href="https://www.npmjs.com/package/efront" target="_blank">
             <b name>efront</b>
             <span time>&nbsp;</span>
         </a>
