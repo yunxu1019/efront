@@ -77,20 +77,13 @@ function rebuild(element) {
     }
 }
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s\[\]\(\)]|\?\s*\.(?=[^\d])|\s*\.\s*)+/g;
-var createGetter = function (search, isprop = true) {
+var variableOnlyReg = new RegExp(`^${variableReg.source}$`);
+var createGetter = function (target, search, isprop = true) {
     if (!search) return function () { };
     search = renderExpress(search);
-    if (isprop) {
-        return function (event) {
-            return $eval.call(this, search, this.$scope, event);
-        };
-    }
-    if (/([\=\(\+\-])/.test(search)) return function (event) {
-        return $eval.call(this, search, this.$scope, event);
-    }
-    else return function (event) {
-        $eval.call(this, search)(event);
-    }
+    if (isprop) return $eval.bind(target, search, null);
+    if (variableOnlyReg.test(search)) return $eval.bind(target, search + "(event)", null);
+    else return $eval.bind(target, search, null);
 };
 var createComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
@@ -187,7 +180,7 @@ var createRepeat = function (search, id = 0) {
     if (!repeater) throw new Error(`不能识别循环表达式: ${expression} `);
     var { srcName, trackBy } = repeater;
     // 懒渲染
-    var getter = createGetter(srcName).bind(this);
+    var getter = createGetter(this, srcName);
     var element = this, clonedElements = [], savedValue, savedOrigin;
     if (this.$struct.if) id = -7;
     var renders = [function () {
@@ -260,7 +253,7 @@ var initIf = function (ifs) {
 };
 var createIf = function (search, id = 0) {
     // 懒渲染
-    var getter = createGetter(search).bind(this);
+    var getter = createGetter(this, search);
     var element = this;
     var elements = [element, getter];
     if_top.push(elements);
@@ -400,7 +393,7 @@ var structures = {
         initIf(if_top.splice(cx + 1, if_top.length - cx - 1));
         var top = if_top[cx];
         if (search && search) {
-            var getter = createGetter(search).bind(this);
+            var getter = createGetter(this, search);
         }
         var comment = createComment.call(this, undefined, search ? 'elseif' : 'else', search);
         top.push(comment, getter);
@@ -413,7 +406,7 @@ structures["else-if"] = structures.elseif = structures.else;
 structures["for-each"] = structures.foreach = structures.for = structures.each = structures.repeat;
 var createBinder = function (binder) {
     return function (search) {
-        var getter = createGetter(`(${search})`).bind(this);
+        var getter = createGetter(this, `(${search})`);
         var oldValue;
         this.renders.push(function () {
             var value = getter();
@@ -434,7 +427,7 @@ var createBinder = function (binder) {
 }
 
 var src2 = function (search) {
-    var getter = createGetter(search).bind(this);
+    var getter = createGetter(this, search);
     var savedValue;
     this.renders.push(function () {
         var origin = getter();
@@ -470,7 +463,7 @@ var directives = {
         return src2.call(this, parsedSrc ? parsedSrc.srcName : src);
     },
     model(search) {
-        var getter = createGetter(search).bind(this);
+        var getter = createGetter(this, search);
         var oldValue;
         var getstr = this.getValue instanceof Function ? "this.getValue()" : "";
         var setter = this.setValue instanceof Function ? function () {
@@ -520,7 +513,7 @@ var directives = {
     },
 
     "class"(search) {
-        var getter = createGetter(`(${search})`).bind(this);
+        var getter = createGetter(this, `(${search})`);
         var generatedClassNames = {};
         var oldValue;
         this.renders.push(function () {
@@ -560,7 +553,7 @@ directives.text = directives.bind;
 var binders = {
     _(attr, search) {
         attr = attr.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
-        var getter = createGetter(search).bind(this);
+        var getter = createGetter(this, search);
         var oldValue;
         this.renders.push(function () {
             var value = getter();
@@ -572,7 +565,7 @@ var binders = {
         });
     },
     ""(attr, search) {
-        var getter = createGetter(search).bind(this);
+        var getter = createGetter(this, search);
         var oldValue;
         this.renders.push(function () {
             var value = getter();
@@ -594,7 +587,7 @@ var reject = function (e) { digest(); throw e };
 var createEmiter = function (on) {
     return function (key, search) {
         var parsedSrc = this.$src;
-        var getter = createGetter(search, false);
+        var getter = createGetter(this, search, false);
         var onkey;
         if (key === 'mounted' || key === 'mount') {
             onkey = on === once ? oncemount : onmounted;
