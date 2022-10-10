@@ -30,9 +30,9 @@ var openFocus = function () {
 var closeFocus = function () {
     remove(this.actived);
 };
-var keyright = function () {
+var keydown = function () {
     var menu = this;
-    if (menu.moveFocus("right") !== false) return;
+    if (menu.moveFocus("down") !== false) return;
     if (menu.focused) var fmenu = menu.focused.menu;
     if (fmenu && fmenu.children && fmenu.children.length) {
         if (!menu.ispop) menu.ispop = 1;
@@ -42,20 +42,20 @@ var keyright = function () {
     do {
         menu = menu.parent;
     }
-    while (menu && (menu.focus(), menu.moveFocus("right") === false));
+    while (menu && (menu.focus(), menu.moveFocus("down") === false));
     if (menu && !menu.actived) menu.focus();
 };
-var keyleft = function () {
+var keyup = function () {
     var menu = this;
-    if (menu && menu.moveFocus("left") !== false) return;
+    if (menu && menu.moveFocus("up") !== false) return;
     var parent = menu.parent;
-    if (parent && (parent.focus(), parent.moveFocus("left") === false)) {
+    if (parent && (parent.focus(), parent.moveFocus("up") === false)) {
         parent.focus();
         remove(menu);
     }
 };
-var keydown = arriswise(keyright, arguments);
-var keyup = arriswise(keyleft, arguments);
+var keyleft = arriswise(keyup, arguments);
+var keyright = arriswise(keydown, arguments);
 function keyalt() {
     if (this === document.activeElement) this.blur();
     else {
@@ -126,6 +126,7 @@ function main() {
     function popMenu(item, target) {
         if (page.actived) {
             clear();
+            page.focus();
             remove(page.actived);
         }
         if (!item.length) return;
@@ -163,7 +164,13 @@ function main() {
         template.innerHTML = page.innerHTML;
         page.$template = template;
     }
+    var enterMenuEnabled = 0;
+    onmousemove(page, function () {
+        enterMenuEnabled = Date.now();
+    });
     var enterMenu = lazy(function (menu) {
+        if (enterMenuEnabled + 200 < Date.now()) return;
+        enterMenuEnabled = false;
         if (page.ispop) {
             page.setFocus(menu);
             popMenu(menu.menu, menu);
