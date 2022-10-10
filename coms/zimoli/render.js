@@ -373,7 +373,7 @@ var renderStructure = function (element) {
     if (after.length) {
         $struct.if = { key, name: ifkey, value: after.join("&&") };
     }
-    else{
+    else {
         delete $struct.if;
     }
     if (before.length > 0) {
@@ -944,9 +944,9 @@ function render(element, scope, parentScopes, lazy = true) {
 var digest = lazy(refresh, -{});
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
-var eventsBinders = "fullscreenchange,resize,load,change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
+"fullscreenchange,resize,load,hashchange".split(",").forEach(e => on(e)(window, digest));
+var eventsBinders = "change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
 var userChanged = false;
-eventsBinders.splice(0, 3).forEach(on => on(window, digest));
 var changeListener = function () {
     if (userChanged) {
         userChanged = false;
