@@ -509,37 +509,37 @@ function ylist(container, generator, $Y) {
         var newIndex = 0, total = 0;
         if (delta === 'up') delta = -1;
         if (delta === 'down') delta = 1;
-        if (typeof delta === 'string') {
-            switch (delta.toLowerCase()) {
-                case "home":
-                    newIndex = 0;
-                    delta = 1;
-                    break;
-                case "end":
-                    var lastElement = getLastElement(1);
-                    if (!lastElement) return;
-                    newIndex = lastElement.index;
-                    delta = -1;
-                    break;
-                case "pageup":
-                    var firstElement = getFirstVisibleElement();
-                    if (!firstElement) return;
-                    newIndex = firstElement.index;
-                    list.scrollBy(-list.clientHeight + firstElement.offsetHeight);
-                    var lastElement = getLastVisibleElement();
-                    if (lastElement.index < newIndex) newIndex = lastElement.index;
-                    delta = -1;
-                    break;
-                case "pagedown":
-                    var lastElement = getLastVisibleElement();
-                    if (!lastElement) return;
-                    newIndex = lastElement.index;
-                    list.scrollBy(list.clientHeight - lastElement.offsetHeight);
-                    var firstElement = getFirstVisibleElement();
-                    if (firstElement.index > newIndex) newIndex = firstElement.index;
-                    delta = 1;
-                    break;
-            }
+        if (typeof delta === 'string') switch (delta.toLowerCase()) {
+            case "home":
+                newIndex = 0;
+                delta = 1;
+                break;
+            case "end":
+                var lastElement = getLastElement(1);
+                if (!lastElement) return;
+                newIndex = lastElement.index;
+                delta = -1;
+                break;
+            case "pageup":
+                var firstElement = getFirstVisibleElement();
+                if (!firstElement) return;
+                newIndex = firstElement.index;
+                list.scrollBy(-list.clientHeight + firstElement.offsetHeight);
+                var lastElement = getLastVisibleElement();
+                if (lastElement.index < newIndex) newIndex = lastElement.index;
+                delta = -1;
+                break;
+            case "pagedown":
+                var lastElement = getLastVisibleElement();
+                if (!lastElement) return;
+                newIndex = lastElement.index;
+                list.scrollBy(list.clientHeight - lastElement.offsetHeight);
+                var firstElement = getFirstVisibleElement();
+                if (firstElement.index > newIndex) newIndex = firstElement.index;
+                delta = 1;
+                break;
+            default:
+                return false;
         }
         else if (!focused) {
             var lastElement = getLastElement(1);

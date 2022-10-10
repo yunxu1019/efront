@@ -1,5 +1,5 @@
 var _active = action;
-var mounted_menus = [], releaseTimer = 0, root_menu;
+var mounted_menus = [], releaseTimer = 0;
 var release = function () {
     clear();
     releaseTimer = setTimeout(function () {
@@ -10,98 +10,61 @@ var clear = function () {
     clearTimeout(releaseTimer);
 };
 var unfocus = lazy(function () {
-    if (mounted_menus.indexOf(document.activeElement) >= 0) return;
-    remove(mounted_menus);
-    if (root_menu) root_menu.setFocus(null);
     var root = this.root || this;
+    if (mounted_menus.indexOf(document.activeElement) >= 0 || document.activeElement === root) return;
+    remove(mounted_menus);
     if (root.ispop === 1) root.ispop = false;
     root.actived = null;
     root.setFocus(null);
 });
 var unblur = function () {
     if (document.activeElement !== this) {
-        this.tabIndex = 0;
         this.focus();
     }
 };
 var openFocus = function () {
-    var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
+    var menu = this;
     if (!menu.ispop) menu.ispop = 1;
     menu.open(menu.focused);
 };
 var closeFocus = function () {
-    var menu = mounted_menus[mounted_menus.length - 1];
-    remove(menu);
+    remove(this.actived);
 };
-var keyAction = function (deltax, deltay) {
-    if (root_menu !== document.activeElement) return;
-    var menu = mounted_menus[mounted_menus.length - 1];
-    if (menu) var parent = mounted_menus[mounted_menus.length - 2] || root_menu;
-    else menu = root_menu;
-
-    if (menu.direction === 'y') {
-        if (deltax === 1) {
-            // right
-            if (menu.focused) var fmenu = menu.focused.menu;
-            if (fmenu && fmenu.children && fmenu.children.length) {
-                openFocus();
-            }
-            else if (parent) {
-                var index = mounted_menus.lastIndexOf(parent);
-                while (parent && parent.direction === 'y') {
-                    parent = mounted_menus[--index];
-                }
-                if (!parent && root_menu.direction !== 'y') parent = root_menu;
-                if (parent) parent.moveFocus(deltax, parent.ispop);
-            }
-        }
-        else if (deltax === -1) {
-            // left
-            if (parent) {
-                if (parent.direction === 'y') remove(mounted_menus.pop());
-                else parent.moveFocus(deltax, parent.ispop);
-            }
-        }
-        else {
-            menu.moveFocus(deltay, menu.ispop);
-        }
+var keyright = function () {
+    var menu = this;
+    if (menu.moveFocus("right") !== false) return;
+    if (menu.focused) var fmenu = menu.focused.menu;
+    if (fmenu && fmenu.children && fmenu.children.length) {
+        if (!menu.ispop) menu.ispop = 1;
+        menu.open(menu.focused);
+        return;
     }
-    else {
-        if (deltay === 1) {
-            // down
-            if (menu.focused) var fmenu = menu.focused.menu;
-            if (fmenu && fmenu.children && fmenu.children.length) openFocus();
-            else if (parent) {
-                var index = mounted_menus.lastIndexOf(parent);
-                while (parent && parent.direction !== 'y') {
-                    parent = mounted_menus[--index];
-                }
-                if (!parent && root_menu.direction === 'y') parent = root_menu;
-                if (parent) parent.moveFocus(deltay, parent.ispop);
-            }
-        }
-        else if (deltay === -1) {
-            // up
-            if (parent) {
-                if (parent.direction !== 'y') remove(mounted_menus.pop());
-                else parent.moveFocus(deltay, parent.ispop);
-            }
-        }
-        else {
-            menu.moveFocus(deltax, menu.ispop);
-        }
+    do {
+        menu = menu.parent;
+    }
+    while (menu && (menu.focus(), menu.moveFocus("right") === false));
+    if (menu && !menu.actived) menu.focus();
+};
+var keyleft = function () {
+    var menu = this;
+    if (menu && menu.moveFocus("left") !== false) return;
+    var parent = menu.parent;
+    if (parent && (parent.focus(), parent.moveFocus("left") === false)) {
+        parent.focus();
+        remove(menu);
     }
 };
+var keydown = arriswise(keyright, arguments);
+var keyup = arriswise(keyleft, arguments);
 function keyalt() {
     if (this === document.activeElement) this.blur();
-    else if (root_menu === this && root_menu !== document.activeElement) {
-        root_menu.tabIndex = 0;
-        root_menu.focus();
-        root_menu.setFocus(root_menu.getIndexedElement(0));
+    else {
+        this.focus();
+        this.setFocus(this.getIndexedElement(0));
     }
 }
 function keytab(event) {
-    var menu = mounted_menus[mounted_menus.length - 1] || root_menu;
+    var menu = this;
     event.preventDefault();
     menu.moveFocus(event.shiftKey ? -1 : 1);
 }
@@ -112,50 +75,28 @@ function keyesc() {
         else this.ispop = false;
     }
 }
-function keyup() {
-    keyAction(0, -1);
-}
-function keydown() {
-    keyAction(0, 1);
-}
-function keyleft() {
-    keyAction(-1, 0)
-}
-function keyright() {
-    keyAction(1, 0);
-}
-function getFocusedMenu() {
-    var menu = mounted_menus[mounted_menus.length - 1];
-    if (!menu || !menu.focused) menu = mounted_menus[mounted_menus.length - 2] || root_menu;
-    if (mounted_menus.indexOf(document.activeElement) >= 0 || document.activeElement === root_menu) return menu;
-}
 function keyspace() {
-    var menu = getFocusedMenu();
-    if (menu && menu.focused) {
-        menu.focused.click();
+    if (this.focused) {
+        this.focused.click();
     }
 }
 function keyhome() {
-    var menu = getFocusedMenu();
-    if (menu) menu.moveFocus("home", true);
+    this.moveFocus("home", true);
 }
 function keyend() {
-    var menu = getFocusedMenu();
-    if (menu) menu.moveFocus("end", true);
+    this.moveFocus("end", true);
 }
 function keypagedown() {
-    var menu = getFocusedMenu();
-    if (menu) menu.moveFocus("pagedown", true);
+    this.moveFocus("pagedown", true);
 }
 function keypageup() {
-    var menu = getFocusedMenu();
-    if (menu) menu.moveFocus("pageup", true);
+    this.moveFocus("pageup", true);
 }
-function register() {
-    var menu = this;
-    // if (!root_menu) root_menu = this;
+function registerAlt(menu) {
     bind('keydown.only.alt.')(menu, keyalt);
     bind('keydown.esc.only')(menu, keyesc);
+}
+function registerMenuKeys(menu) {
     on('keydown.pageup.only')(menu, keypageup);
     on('keydown.pagedown.only')(menu, keypagedown);
     on('keydown.home.only')(menu, keyhome);
@@ -200,15 +141,16 @@ function main() {
         mounted_menus.push(menu);
         page.actived = menu;
         menu.root = page.root || page;
+        menu.parent = page;
         if (menu.go) menu.go(0);
         popup(menu, target);
+        unblur.call(menu);
         if (page.ispop === true) {
         } else {
             page.ispop = 1;
         }
         on("remove")(menu, function () {
             removeFromList(mounted_menus, this);
-            menu.setFocus(null);
             css(menu, "width:;height:;max-height:;max-width:;");
         });
         return menu;
@@ -377,7 +319,7 @@ function main() {
     });
     on("focused")(page, function () {
         var focused = page.focused;
-        if (page.ispop && page === root_menu) popMenu(focused.menu, focused, false);
+        if (page.ispop && !page.parent) popMenu(focused.menu, focused, false);
     });
     page.openFocus = openFocus;
     page.closeFocus = closeFocus;
@@ -387,8 +329,9 @@ function main() {
         enterMenu.cancel();
     });
     page.registerAsRoot = function () {
-        register.call(this);
-        root_menu = this;
+        registerAlt(this);
     };
+    page.tabIndex = 0;
+    registerMenuKeys(page);
     return page;
 }
