@@ -36,7 +36,7 @@ function contextmenu(target, menuItems) {
     };
     var menuHandle = 0;
     var tm;
-    bindtouch(target, {
+    moveupon(target, {
         start(event) {
             if (event.defaultPrevented) return;
             clearTimeout(menuHandle);
@@ -59,7 +59,7 @@ function contextmenu(target, menuItems) {
                 }, 60);
             }
         }
-    })
+    });
     on("contextmenu")(target, function (event) {
         if (event.defaultPrevented) return;
         event.preventDefault();
