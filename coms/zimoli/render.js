@@ -586,7 +586,9 @@ var binders = {
 var reject = function (e) { digest(); throw e };
 var createEmiter = function (on) {
     return function (key, search) {
-        var parsedSrc = this.$src;
+        /**
+         * @type {Repeater}
+         */
         var getter = createGetter(this, search, false);
         var onkey;
         if (key === 'mounted' || key === 'mount') {
@@ -600,16 +602,22 @@ var createEmiter = function (on) {
         }
         onkey(this, function (e) {
             digest();
-            if (parsedSrc) {
-                var target = e.currentTarget || e.target;
-                var scopes = target && target.$parentScopes;
-                if (scopes) {
-                    var scope = null;
-                    for (var cx = scopes.length - 1; cx >= 0; cx--) {
-                        var s = scopes[cx];
-                        if (s === this.$scope) {
-                            scope = scopes[cx + 1];
-                            break;
+            var parsedSrc = this.$src;
+            if (parsedSrc instanceof Repeater) {
+                var target = e.currentTarget === this ? e.target : e.currentTarget || e.target;
+                if (target === this) {
+                    scope = parsedSrc.createScope();
+                }
+                else {
+                    var scopes = target && target.$parentScopes;
+                    if (scopes) {
+                        var scope = null;
+                        for (var cx = scopes.length - 1; cx >= 0; cx--) {
+                            var s = scopes[cx];
+                            if (s === this.$scope) {
+                                scope = scopes[cx + 1];
+                                break;
+                            }
                         }
                     }
                 }
