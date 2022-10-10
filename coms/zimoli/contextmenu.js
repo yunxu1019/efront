@@ -40,26 +40,36 @@ function contextmenu(target, menuItems) {
         start(event) {
             if (event.defaultPrevented) return;
             clearTimeout(menuHandle);
-            if (tm) remove(tm), tm = null;
             menuHandle = setTimeout(function () {
-                tm = showContext(event);
+                var e = createEvent("contextmenu", true);
+                e.clientX = event.clientX;
+                e.clientY = event.clientY;
+                Object.defineProperty(e, "target", { value: event.target });
+                Object.defineProperty(e, "srcElement", { value: event.srcElement });
+                dispatch(event.target, e);
             }, 600);
         },
         move() {
-            if (onclick.preventClick) return clearTimeout(menuHandle);
+            if (onclick.preventClick) {
+                if (tm) remove(tm);
+                return clearTimeout(menuHandle);
+            }
         },
         end(event) {
             clearTimeout(menuHandle);
-            if (tm) {
-                event.preventDefault();
-                setTimeout(function () {
-                    if (!tm) return;
-                    tm.focus();
-                    onblur(tm, lazy(e => remove(tm)));
-                }, 60);
-            }
+            event.preventDefault();
+            _remove = function () { };
+            setTimeout(function () {
+                _remove = remove;
+                if (tm) tm.focus();
+            });
         }
     });
+    var _remove = remove;
+    var blur = lazy(function () {
+        if (document.activeElement === this) return;
+        _remove(this);
+    }, 60);
     on("contextmenu")(target, function (event) {
         if (event.defaultPrevented) return;
         event.preventDefault();
@@ -67,7 +77,7 @@ function contextmenu(target, menuItems) {
         tm = showContext(event);
         if (!tm) return;
         tm.focus();
-        onblur(tm, lazy(e => remove(tm)));
+        onblur(tm, blur);
     });
     return sampleElement;
 }
