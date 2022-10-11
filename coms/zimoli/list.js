@@ -481,7 +481,9 @@ function ylist(container, generator, $Y) {
         }
         if (list.focused === focused) return;
         if (list.focused) removeClass(list.focused, 'focus');
-        addClass(focused, "focus");
+        list.focused = focused;
+        while (focused && focused.parentNode !== list) focused = focused.parentNode;
+        if (!focused) return;
         var scrollTop = list.scrollTop;
         var firstElement = getFirstElement(1);
         var sideheight = 0;
@@ -497,7 +499,6 @@ function ylist(container, generator, $Y) {
             scrollTop = focused.offsetTop - sideheight;
         }
         if (scrollTop !== list.scrollTop) scrollBy(scrollTop - list.scrollTop, animate);
-        list.focused = focused;
     };
 
     /**
