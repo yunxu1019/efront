@@ -5,6 +5,8 @@ function unset(target, k) {
     if (target.hasAttribute(k)) target.removeAttribute(k);
 }
 function attr(target, key, value) {
+    if (value === false) value = null;
+    if (value === true) value = '';
     if (arguments.length === 3) {
         if (value === null) unset(target, key);
         else set(target, key, value);
