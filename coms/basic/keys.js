@@ -1,6 +1,5 @@
 function keysFrom() {
-    var args = [].slice.call(arguments, 0, arguments.length);
+    var args = Array.prototype.slice.call(arguments, 0, arguments.length);
     args.unshift(Object.create(null));
-    return Object.keys(extend.apply(null, args));
+    return Object.keys(extendIfNeeded.apply(null, args));
 }
-var main = keysFrom;
