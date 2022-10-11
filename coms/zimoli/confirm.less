@@ -1,90 +1,16 @@
 & {
     position: absolute;
-    margin: 0 auto;
-    top: 50%;
-    max-width: 100%;
-    max-height: 100%;
-    overflow: auto;
-    cursor: default;
-    box-sizing: border-box;
-    background-color: #fff;
-    border: 1px solid #999;
-    box-shadow: 0 0 16px -6px rgba(0, 0, 0, .2);
-}
-
-&:focus {
     outline: none;
+    background: #fff;
 }
 
-div {
-    box-sizing: border-box;
-}
-
-&>.head {
-    line-height: 50px;
-    min-height: 30px;
-    position: relative;
-    padding-left: 16px;
-    position: sticky;
-    top: 0;
-    background: inherit;
-    z-index: 2;
-    font-size: 18px;
-
-    .close {
-        display: block;
-        position: absolute;
-        height: 32px;
-        line-height: 32px;
-        right: 0;
-        top: 0;
-        width: 44px;
-        text-align: center;
-        font-family: 'Times New Roman', Times, serif;
-        font-size: 28px;
-
-
-        &:hover {
-            background: #f00;
-            color: #fff;
-        }
-
-        &:active {
-            background: #f008;
-        }
-
-        &:after {
-            content: "×";
-        }
-    }
+>.head,
+>.foot {
+    border: none;
 }
 
 &>.body {
-    padding: 10px 32px 20px;
-    font-size: 16px;
-
-    >* {
-        max-width: 100%;
-    }
-}
-
-&>.option {
-    position: sticky;
-    bottom: 0;
+    border-bottom: 30px solid transparent;
+    padding-left: 20px;
     background: inherit;
-    text-align: center;
-    padding: 10px 32px;
-    white-space: nowrap;
-
-    >div {
-        display: inline-block;
-        width: auto;
-        min-width: 80px;
-        position: relative;
-    }
-
-    .button {
-        margin: 0 7px;
-        padding: 0 8px;
-    }
 }

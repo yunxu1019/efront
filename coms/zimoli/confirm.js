@@ -36,13 +36,11 @@ function confirm() {
             target = arg.currentTarget || arg.target;
         }
     });
-    var element = div();
-    element.innerHTML = `<div class=head></div><div class=body></div><div class=option></div>`;
+    var element = view();
+    element.innerHTML = `<div class=head></div><div class=body></div><div class=foot></div>`;
     var [head, body, option] = element.children;
     if (closable) {
-        var closebtn = document.createElement("i");
-        closebtn.title = "关闭";
-        closebtn.className = "close";
+        var closebtn = drop();
         onclick(closebtn, function () {
             remove(element);
         });
