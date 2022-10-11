@@ -1,14 +1,15 @@
+var clean = removeFromList;
 function Cleanup(list) {
-    function cleanup(target) {
+    if (isArray(list)) return function (target) {// 兼容老用法
         if (isNode(this) && !isNode(target)) {
             target = this;
         }
-        for (var cx = list.length - 1; cx >= 0; cx--) {
-            var element = list[cx];
-            if (element === target) {
-                list.splice(cx, 1);
-            }
-        }
+        clean(list, target);
+        return list.length;
     }
-    return cleanup;
+    if (isNode(list && list.target) && isNode(this)) {
+        var target = list.target, list = this.with;
+        clean(list, target);
+        if (!list.length) remove(this);
+    }
 }

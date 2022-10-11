@@ -38,3 +38,17 @@ rootElements.unmount = function (elem) {
     rootElements.pop(elem);
     remove(elem);
 };
+/**
+ * 弹出层
+ */
+on("keydown.esc.only")(document, function (e) {
+    if (e.defaultPrevented) return;
+    if (rootElements.length) {
+        var r = rootElements.pop();
+        if (r) {
+            r.blur();
+            remove(r);
+            e.preventDefault();
+        }
+    }
+});

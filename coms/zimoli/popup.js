@@ -1,17 +1,3 @@
-/**
- * 弹出层
- */
-on("keydown.esc.only")(document, function (e) {
-    if (e.defaultPrevented) return;
-    if (rootElements.length) {
-        var r = rootElements.pop();
-        if (r) {
-            r.blur();
-            remove(r);
-            e.preventDefault();
-        }
-    }
-});
 var animationStyle = "opacity:0;transform:scale(1.2);transition:.1s opacity ease-out,.2s transform ease-out;";
 var setInitialStyle = function (element) {
     if (!element.initialStyle) element.initialStyle = animationStyle;
@@ -38,7 +24,7 @@ var popup = function (path) {
     if (isNode(path)) {
         return popup_view.apply(null, arguments);
     }
-    throw new Error(`path isn't valid:${path}`);
+    throw new Error(`参数异常:${path}`);
 };
 var popup_path = function (path = "", parameters, target) {
     if (!popup.go || !popup.prepare) throw new Error("当前环境无法使用");
@@ -129,6 +115,8 @@ var popup_view = function (element, target, style) {
     if (target instanceof Event) {
         popup_to_event(element, target);
     } else if (target instanceof Array) {
+        if (isNode(style) && style.isMask) addMask(element, style);
+        else if (typeof style === 'boolean') addMask(element);
         popup_to_point(element, target);
     } else if (target) {
         popup_with_mask(element);
@@ -152,22 +140,28 @@ var createMask = function (element) {
     mask.isMask = true;
     return mask;
 };
-var popup_with_mask = function (element, mask = createMask(element)) {
+var mount = function (event) {
+    if (!this.parentNode) {
+        appendChild.before(event.target, this);
+        this.with.push(event.target);
+    }
+};
+var addMask = function (element, mask = createMask(element)) {
+    if (!mask.with) {
+        mask.with = [];
+        mask.clean = Cleanup.bind(mask);
+        mask.mount = mount.bind(mask);
+    }
+    onmounted(element, mask.mount);
+    onremove(element, mask.clean);
+    return mask;
+};
+var popup_with_mask = function (element, mask) {
+    mask = addMask(element, mask);
     css(element, `z-index:${zIndex()};`);
     if (mask.parentNode) {
         global(element, false);
     }
-    if (!element.with) {
-        element.with = [mask];
-    } else if (element.with instanceof Array) {
-        if (!~element.with.indexOf(element)) element.with.push(mask);
-    } else {
-        if (element.with !== element) element.with = [element.with, mask];
-    }
-    if (!mask.clean) {
-        mask.clean = new Cleanup(element.with);
-    }
-    onremove(element, mask.clean);
     if (!element.parentNode) global(element, false);
     return element;
 };

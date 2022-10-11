@@ -127,9 +127,10 @@ function confirm() {
     else element.initialStyle = "opacity:0;transition:margin .3s,opacity .2s ease-out;";
     element.tabIndex = -1;
 
-    setTimeout(function () {
+    Promise.resolve().then(function () {
         if (element.parentNode) return;
-        popup(element, target || [.5, .5], target && 'rhomb');
+        element.mask = true;
+        popup(element, target || [.5, .5], target ? 'rhomb' : true);
         element.focus();
         if (!target) drag.on(head, element);
         else {
