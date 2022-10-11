@@ -946,7 +946,7 @@ var digest = lazy(refresh, -{});
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
 "fullscreenchange,resize,load,hashchange".split(",").forEach(e => on(e)(window, digest));
-var eventsBinders = "change,click,paste,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
+var eventsBinders = "change,click,paste,cut,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));
 var userChanged = false;
 var changeListener = function () {
     if (userChanged) {
