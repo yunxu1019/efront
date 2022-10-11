@@ -1,4 +1,4 @@
-function prompt(msg = "请输入", check) {
+function prompt(msg = "请输入", validate) {
     var ipt = input();
     var oked, ohed;
     var oks = [], ohs = [];
@@ -9,17 +9,29 @@ function prompt(msg = "请输入", check) {
         oks.splice(0, oks.length);
         ohs.splice(0, ohs.length);
     };
-    var c = confirm(msg, ipt, ["确认", "取消"], function (_) {
+    var buttons = [button("确认"), button("取消", 'white')];
+    if (isFunction(validate)) {
+        var setDistable = function () {
+            attr(buttons[0], 'disabled', validate(ipt.value) === false);
+        };
+        on('keyup')(ipt, setDistable);
+        on('keypress')(ipt, setDistable);
+        on('cut')(ipt, setDistable);
+        on('paste')(ipt, setDistable);
+        on('input')(ipt, setDistable);
+    }
+    var c = confirm(msg, ipt, buttons, function (_) {
         if (oked || ohed) return;
-        if (_ === "确认") {
-            if (check && check(ipt.value) === false) return false;
+        if (_ === buttons[0]) {
+            if (validate && validate(ipt.value) === false) return false;
             oked = true;
         } else {
             ohed = true;
         }
         fire();
     });
-    on('append')(ipt, function () {
+    on('mounted')(ipt, function () {
+        setDistable();
         setTimeout(function () {
             ipt.focus();
         });
@@ -27,7 +39,7 @@ function prompt(msg = "请输入", check) {
     on("mousedown")(c, e => e.target !== ipt && e.preventDefault() | ipt.focus());
     on("keydown.enter")(c, function (event) {
         if (event.defaultPrevented) return;
-        if (check && check(ipt.value) === false) return;
+        if (validate && validate(ipt.value) === false) return;
         event.preventDefault();
         oked = true;
         remove(c);
