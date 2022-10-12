@@ -1,5 +1,27 @@
-function prompt(msg = "请输入", validate) {
+var validate = function (text, checker, tip) {
+    var valid;
+    if (checker instanceof RegExp) {
+        valid = checker.test(text);
+    }
+    if (isFunction(checker)) {
+        var res = checker(text);
+        if (isEmpty(res)) valid = true;
+        else if (typeof res === 'boolean') valid = res;
+        else if (isNode(res)) remove(tip.children), appendChild(tip, res);
+        else html(tip, res), valid = false;
+    }
+    if (valid) html(tip, '');
+    return valid;
+};
+function prompt() {
+    var msg = "请输入", check, ipt;
+    for (var arg of arguments) {
+        if (isNode(arg)) ipt = arg;
+        else if (typeof arg === 'string') msg = arg;
+        else if (isFunction(arg) || arg instanceof RegExp) check = arg;
+    }
     var ipt = input();
+    var tip = document.createElement("tip");
     var oked, ohed;
     var oks = [], ohs = [];
     var fire = function () {
@@ -10,9 +32,11 @@ function prompt(msg = "请输入", validate) {
         ohs.splice(0, ohs.length);
     };
     var buttons = [button("确认"), button("取消", 'white')];
-    if (isFunction(validate)) {
+    if (isFunction(check)) {
         var setDistable = function () {
-            attr(buttons[0], 'disabled', validate(ipt.value) === false);
+            var valid = validate(ipt.value, check, tip);
+            attr(body, "error", !valid);
+            attr(buttons[0], 'disabled', !valid);
         };
         on('keyup')(ipt, setDistable);
         on('keypress')(ipt, setDistable);
@@ -20,10 +44,12 @@ function prompt(msg = "请输入", validate) {
         on('paste')(ipt, setDistable);
         on('input')(ipt, setDistable);
     }
-    var c = confirm(msg, ipt, buttons, function (_) {
+    var body = div();
+    appendChild(body, [ipt, tip]);
+    var c = confirm(msg, body, buttons, function (_) {
         if (oked || ohed) return;
         if (_ === buttons[0]) {
-            if (validate && validate(ipt.value) === false) return false;
+            if (check && validate(ipt.value, check, tip)) return false;
             oked = true;
         } else {
             ohed = true;
@@ -39,7 +65,7 @@ function prompt(msg = "请输入", validate) {
     on("mousedown")(c, e => e.target !== ipt && e.preventDefault() | ipt.focus());
     on("keydown.enter")(c, function (event) {
         if (event.defaultPrevented) return;
-        if (validate && validate(ipt.value) === false) return;
+        if (check && check(ipt.value) === false) return;
         event.preventDefault();
         oked = true;
         remove(c);
