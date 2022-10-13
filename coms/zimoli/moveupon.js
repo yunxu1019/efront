@@ -81,8 +81,7 @@ function moveupon(target, { start, move, end }, initialEvent) {
         offtouchcancel = ontouchcancel(target, cancel);
     };
 
-    if (!start) {
-        if (!initialEvent) throw new Error("请传入touchstartEvent或者mousedownEvent");
+    if (initialEvent) {
         if (locktouch(initialEvent.target)) return;
         if (initialEvent.type === "touchstart") {
             extendTouchEvent(initialEvent);
@@ -91,6 +90,7 @@ function moveupon(target, { start, move, end }, initialEvent) {
         } else {
             hookmouse();
         }
+        if (isFunction(start)) start.call(target, initialEvent);
         return;
     }
     onmousedown(target, function (event) {

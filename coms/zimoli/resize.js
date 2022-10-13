@@ -52,7 +52,6 @@ var handle = {
         if (dragging) return;
         dragging = getResizer(event);
         if (!dragging) return;
-        event.moveLocked = true;
         var elem = dragging.rect;
         if (elem.offsetParent && /^(absolute|fixed|relative)$/i.test(getComputedStyle(elem.offsetParent).position)) {
             var pos = getScreenPosition(elem.offsetParent);
@@ -88,8 +87,6 @@ var handle = {
     },
     move(event) {
         if (!dragging) return;
-        if (event.moveLocked) return;
-        event.moveLocked = true;
         var limit = dragging.limit;
         var { clientX, clientY } = event;
         var [minx, miny, maxx, maxy] = limit;
@@ -131,7 +128,9 @@ var handle = {
     }
 };
 function resize(elem, initialEvent) {
+    resizingElements.push(elem);
     moveupon(elem, handle, initialEvent);
+    resizingElements.pop();
 }
 moveupon(window, handle);
 
