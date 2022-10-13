@@ -127,9 +127,10 @@ var handle = {
         dragging = null;
     }
 };
-function resize(elem, initialEvent) {
+function resize(elem, initialEvent, limit = elem.limit) {
     resizingElements.push(elem);
     moveupon(elem, handle, initialEvent);
+    if (limit && dragging) extendIfOccurs(dragging.limit, limit);
     resizingElements.pop();
 }
 moveupon(window, handle);
