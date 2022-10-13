@@ -38,7 +38,7 @@ function contextmenu(target, menuItems) {
     var tm;
     moveupon(target, {
         start(event) {
-            if (event.defaultPrevented) return;
+            if (event.defaultPrevented || event.type === 'mousedown') return;
             clearTimeout(menuHandle);
             menuHandle = setTimeout(function () {
                 var e = createEvent("contextmenu", true);
