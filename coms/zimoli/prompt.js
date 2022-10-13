@@ -7,7 +7,7 @@ var validate = function (text, checker, tip) {
         var res = checker(text);
         if (isEmpty(res)) valid = true;
         else if (typeof res === 'boolean') valid = res;
-        else if (isNode(res)) remove(tip.children), appendChild(tip, res);
+        else if (isNode(res)) remove(tip.childNodes), appendChild(tip, res);
         else html(tip, res), valid = false;
     }
     if (valid) html(tip, '');
