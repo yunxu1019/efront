@@ -169,8 +169,9 @@ var killCircle = function () {
     for (var k in loadedModules) {
         if (k.slice(0, keyprefix.length) === keyprefix && loadedModules[k] instanceof Array) {
             var key = k.slice(keyprefix.length);
-            var args = loadedModules[k].args;
             if (!(loadedModules[k] instanceof Array)) continue;
+            var args = loadedModules[k].args;
+            if (!(args instanceof Array)) continue;
             args.forEach(arg => {
                 if (!penddings[arg]) {
                     penddings[arg] = [];
@@ -885,7 +886,7 @@ var initIfNotDefined = function (defined, path, onload) {
     else hook(--requires_count);
 };
 
-if(document) loadResponseTreeFromStorage();
+if (document) loadResponseTreeFromStorage();
 initIfNotDefined([].map, "[]map", map => map);
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);
 if (!isProduction) window.modules = modules;
