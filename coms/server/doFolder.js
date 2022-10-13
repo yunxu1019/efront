@@ -69,22 +69,17 @@ function wrapPath(pathname) {
 
 var e400 = { status: 400, toString: () => "请求无效" };
 function doFolder(type, pathname) {
-    if (type === 'mov') {
-        var p = /^([\s\S]*?)\?([\s\S]*)$/.exec(pathname);
-        if (!p) throw e400;
-        return doMove(wrapPath(p[1]), wrapPath(p[2]));
-
+    if (doFolder.hasOwnProperty(type) && isFunction(doFolder[type])) {
+        return doFolder[type](pathname);
     }
-    pathname = wrapPath(pathname);
-    switch (type) {
-        case "list":
-            return doList(pathname);
-        case "add":
-            return doAdd(pathname);
-        case "del":
-            return doDelete(pathname);
-        default:
-            throw e400;
-    }
+    throw e400;
 }
+doFolder.list = doList;
+doFolder.add = doAdd;
+doFolder.del = doDelete;
+doFolder.mv = doFolder.move = doFolder.mov = function (pathname) {
+    var p = /^([\s\S]*?)\?([\s\S]*)$/.exec(pathname);
+    if (!p) throw e400;
+    return doMove(wrapPath(p[1]), wrapPath(p[2]));
+};
 module.exports = doFolder;
