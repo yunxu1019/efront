@@ -308,6 +308,14 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 cachedata.push({ [data]: value });
             }
             else if (!isEmpty(data)) {
+                if (!cachedata.length) {
+                    if (File && data instanceof File || typeof data === 'string') {
+                        datas = data;
+                    }
+                }
+                else {
+                    datas = '';
+                }
                 cachedata.push(data);
             }
             return xhr;
