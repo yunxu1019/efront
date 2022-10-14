@@ -37,8 +37,10 @@ var setZIndex = function () {
 function drag(target, initialEvent, preventOverflow, isMovingSource) {
     if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag'), initialEvent.target)) return;
     if (isArrayLike(target)) {
-        var extraTargets = Array.prototype.slice.call(target, 1);
-        target = target[0];
+        var extraTargets = Array.prototype.slice.call(target, 0);
+        var index = extraTargets.length - 1;
+        while (index > 0 && !getTargetIn(extraTargets[index], initialEvent.target)) index--;
+        [target] = extraTargets.splice(index, 1);
     } else {
         var extraTargets = target.with ? [].concat(target.with) : [];
     }
