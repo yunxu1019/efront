@@ -1,5 +1,7 @@
 var toCloneTarget = function (target, isMovingSource) {
+    target.setAttribute("dragclone", '');
     var clone = cloneVisible(target);
+    target.removeAttribute("dragclone");
     var position = getScreenPosition(target);
     css(clone, `position:absolute;left:${fromOffset(position.left)};top:${fromOffset(position.top)};user-select:none;`);
     setOpacity(target, isMovingSource !== false ? 0 : 1);
