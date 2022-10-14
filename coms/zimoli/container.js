@@ -1,6 +1,17 @@
 var change = async function (data) {
     if (!data) remove(this.with);
     else if (isNode(data)) {
+        if (isElement(data) && this.$struct.copys) {
+            for (var c of this.$struct.copys) {
+                if (c.name === 'class') {
+                    addClass(data, c.value);
+                }
+                else if (c.name === 'style') {
+                    css(data, c.value);
+                }
+                else data.setAttribute(c.name, c.value);
+            }
+        }
         zimoli.global(data, this);
     }
     else zimoli.go(data, this.params, this);
