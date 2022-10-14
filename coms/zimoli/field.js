@@ -29,10 +29,16 @@ function main(elem) {
             this.setAttribute("error", error);
             switch (error) {
                 case "empty":
-                    scope.error = `${f.name}是必填字段！`;
+                    scope.error = true;
                     break;
                 default:
-                    scope.error = (f.name) + error;
+                    if (isNode(error)) {
+                        scope.error = error;
+                    }
+                    else {
+                        scope.error = document.createElement('error');
+                        scope.error.innerHTML = error;
+                    }
             }
         }
         else {

@@ -4,6 +4,9 @@ function submit(fields, data) {
     var select = [];
     var checks = [];
     var id = 0;
+    var trimname = function (a) {
+        return a.name.replace(/^请?(输入|选择|填写)/, '')
+    };
     for (var f of fields) {
         var error = valid(f, data);
         if (error === "empty") {
@@ -46,13 +49,13 @@ function submit(fields, data) {
     }
     if (checks.length + select.length + inputs.length) {
         var errors = [];
-        if (inputs.length) errors.push("请输入" + inputs.map(f => f.name).join("、"));
-        if (select.length) errors.push("请选择" + select.map(f => f.name).join("、"));
+        if (inputs.length) errors.push("请输入" + inputs.map(trimname).join("、"));
+        if (select.length) errors.push("请选择" + select.map(trimname).join("、"));
         if (select.id < inputs.id) {
             errors = errors.reverse();
         }
         if (checks.length) {
-            errors.push(checks.map(f => f.name).join("、") + "格式错误");
+            errors.push("您输入的" + checks.map(trimname).join("、") + "有误");
         }
         errors = errors.join("，") + "！";
         throw errors;

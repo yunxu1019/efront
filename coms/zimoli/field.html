@@ -5,7 +5,7 @@
     </div>
     <div class="body">
         <model _data=data _field=field _readonly="readonly"></model>
-        <span class="error" ng-bind="error"></span>
+        <container class="error" -src="error"></container>
     </div>
     <div class="foot" ng-if="field.msg">
         <span ng-bind=field.msg></span>
