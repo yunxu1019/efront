@@ -601,6 +601,7 @@ function addGlobal(element, name = null, isDestroy) {
         global[name] = element;
     } else if (isNode(name)) {
         if (name.nodeType !== 1) {
+            remove(name.with);
             appendChild.after(name, element);
             name.with = [element];
         }

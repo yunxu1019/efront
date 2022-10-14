@@ -1,5 +1,6 @@
-var change = function (data) {
-    if (isNode(data)) {
+var change = async function (data) {
+    if (!data) remove(this.with);
+    else if (isNode(data)) {
         zimoli.global(data, this);
     }
     else zimoli.go(data, this.params, this);
@@ -19,8 +20,9 @@ function container(element) {
     if (element && element.hasAttribute('src')) {
         src = element.getAttribute('src');
     }
-    element = document.createComment('container');
-    element.src = src;
-    element.renders = [gosrc];
-    return element;
+    var comment = document.createComment('container');
+    comment.src = src;
+    comment.$struct = element.$struct;
+    comment.renders = [gosrc];
+    return comment;
 }
