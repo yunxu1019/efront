@@ -75,7 +75,7 @@ var flushTree = function (tree, key, res) {
         for (var cx = 0, dx = response.length; cx < dx; cx++) {
             var call = response[cx];
             if (call instanceof Function) {
-                call(response.error);
+                call(response.error ? key : null);
             }
         }
     }
@@ -84,13 +84,13 @@ var readingCount = 0;
 var readFile = function (names, then) {
     if (names instanceof Array) {
         names = names.slice(0);
-        var loaded = 0, errored = 0;
+        var loaded = 0, errored = [];
         var callback = function (e) {
             if (e) {
-                errored++;
+                errored.push(name);
             }
             if (++loaded === names.length) {
-                then(errored);
+                then(errored.length ? errored : null);
             }
         };
         if (!names.length) return then();
@@ -150,7 +150,7 @@ var readFile = function (names, then) {
             }
         }
         loadingTree[key].error = e;
-        loadingTree[key].forEach(a => a(1));
+        loadingTree[key].forEach(a => a(e));
     };
     var tryload = function () {
         request(url, ok, oh, version);
@@ -293,20 +293,16 @@ var loadModule = function (name, then, prebuilds = {}) {
             mod.required = required;
             mod.file = name;
             args = args.concat(required);
-            var _errored = 0;
+            var _errored = [];
             var response = function (error) {
                 loadingCount++;
                 if (error) {
-                    if (!errored[error]) {
-                        errored[error] = [];
-                    }
+                    if (!errored[error]) errored[error] = [];
                     errored[error].push(key);
-                    _errored++;
+                    _errored.push(error);
                 }
                 if (loadingCount === args.length) {
-                    if (_errored.length) {
-                        loadedModules[key].error = true;
-                    }
+                    if (_errored.length) loadedModules[key].error = _errored;
                     flushTree(loadedModules, key, mod);
                 }
             };
@@ -603,8 +599,34 @@ var init = function (name, then, prebuilds) {
         res.errored = true;
         res.error = error;
         res.fire();
-        console.error(`加载${name}失败，${ed && ed.length ? `${ed.join(', ')} 等${ed.length}个模块` : "没有其他模块"}受到影响`);
-        if (window.document) throw error;
+        var rest = [name];
+        var track = [];
+        var length = 0;
+        var deep = 0;
+        // <!--
+        var map = Object.create(null);
+        map[name] = true;
+        do {
+            deep++;
+            var rest2 = Object.create(null);
+            while (rest.length) {
+                var n = rest.pop();
+                var e = loadedModules[n] && loadedModules[n].error;
+                if (e instanceof Array) {
+                    track.push([deep, n, e]);
+                    if (n.length + deep > length) length = n.length + deep;
+                    for (var e of e) if (!map[e]) rest2[e] = true, map[e] = true;
+                }
+                else {
+                    track.push([deep, n, [e]]);
+                }
+
+            }
+            rest = Object.keys(rest2);
+        } while (rest.length);
+        track = track.map(([d, a, e]) => ` ${new Array(d + 1).join("•")} ${new Array(1 + length - a.length - d).join("-")} ${a} 溃于: ${e.reverse().join(", ")}`)
+        // -->
+        console.error(`加载 ${name} 失败，${ed && ed.length ? `${ed.join(', ')} 等 ${ed.length} 个模块` : "没有其他模块"}受到影响。\r\n${track.join("\r\n")}`);
     };
     loadModule(name, function (error) {
         if (hasOwnProperty.call(modules, name)) {
