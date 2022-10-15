@@ -62,7 +62,7 @@ function fromComponent(base) {
                     } else {
                         try {
                             url1 = url1.replace(/\$/g, '/');
-                            if (/\//.test(url1)) {
+                            if (/^\.*\//.test(url1)) {
                                 var parth = path.relative(url1, '.');
                                 if (/^\./.test(parth)) {
                                     url1 = "./" + path.relative('.', url1).replace('\\', '/');
