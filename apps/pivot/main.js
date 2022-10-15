@@ -82,6 +82,7 @@ on("dragover")(document, function (event) {
 on("drop")(document, function (event) {
     event.preventDefault();
 });
+remove(document.body.childNodes);
 function main() {
     return layer;
 }
