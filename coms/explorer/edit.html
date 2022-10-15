@@ -6,5 +6,5 @@
 </div>
 <div foot>
     <btn @click="remove()" class="white">取消</btn>
-    <button type="submit">保存</button>
+    <button type="submit" disabled_="!data.name||fields[1].valid(data.name)!==undefined">保存</button>
 </div>

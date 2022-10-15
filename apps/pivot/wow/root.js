@@ -9,121 +9,63 @@ async function upload(f, base) {
     xhr.setRequestHeader('range', 'bytes=1-' + f.size);
     return xhr.send(f);
 }
+var copyed = null;
 function main() {
-    async function uploadAll(files) {
-        await queue.call(files, function (f) {
-            return upload(f, page.$scope.pathlist.join("/"));
-        });
-        page.$scope.open();
-    }
-    var page = div();
-    page.innerHTML = root;
+    var page = explorer$main();
+    var backtime = 0;
     page.onback = function () {
         var $scope = this.$scope;
         if (!$scope.pathlist.length) {
-            return;
+            if (Date.now() - backtime < 2022) alert("已是根目录！");
+            backtime = Date.now();
+            return false;
         }
         data.setInstance("pathlist", $scope.pathlist.slice(0, -1));
         $scope.open();
         return false;
     }
-    page.setAttribute('on-contextmenu', 'setActive')
-    bind('drop')(page, async function (event) {
-        event.preventDefault();
-        var files = event.dataTransfer.files;
-        uploadAll(files);
-    });
 
-    renderWithDefaults(page, {
-        lattice,
+    extend(page.$scope, {
         pathlist: data.getInstance("pathlist"),
-        active: null,
-        open(p) {
-            if (p && !/\/$/.test(p.name)) {
-                // window.open("/" + this.pathlist.concat(p.name).join('/'))
-                return;
-            }
-            if (p) p = String(p.name || '').replace(/\/$/, '');
-            if (p) data.setInstance("pathlist", this.pathlist.concat(p));
-            this.data = data.from("folder", { opt: 'list', path: encode62.timeencode("/" + this.pathlist.join('/')) }, files => {
-                if (files) return sortname(files).map(f => {
+        load(p) {
+            data.setInstance("pathlist", this.pathlist);
+            var base = data.getInstance("base").base;
+            return data.from("folder", { opt: 'list', path: encode62.timeencode(p) }, files => {
+                if (files) return files.map(f => {
+                    var isfolder = /\/$/.test(f);
                     return {
-                        name: f,
-                        type: /\/$/.test(f) ? 'folder' : 'file'
+                        name: f.replace(/\/$/, ''),
+                        isfolder,
+                        host: base,
+                        where: p,
+                        url: base + f,
+                        fullpath: p + "/" + f,
+                        type: isfolder ? 'folder' : 'file',
                     }
                 });
             });
         },
-        setActive(e) {
-            this.active = getActive(e);
+        upload,
+        async delete(path) {
+            return data.from("folder", { opt: 'del', path: encode62.timeencode(path) })
         },
-        data: [],
+        async rename(from, to) {
+            from = encode62.timeencode(from);
+            to = encode62.timeencode(to);
+            await data.from("folder", { opt: 'mov', path: from, to }).loading_promise;
+        },
+        async add(name) {
+            name = encode62.timeencode(name);
+            await data.from("folder", { opt: 'add', path: name }).loading_promise;
+        },
+        async mov(from, distpath) {
+            var currentHost = data.getInstance("base").base;
+            if (from.host !== currentHost) return alert("暂不支持跨服务器操作！");
+            from = encode62.timeencode(from.fullpath);
+            distpath = encode62.timeencode(distpath);
+            await data.from("folder", { opt: 'mov', path: from, to: distpath }).loading_promise;
+        }
     });
     page.$scope.open();
-    var getActive = e => {
-        var p = page.querySelector('lattice');
-        var t = getTargetIn(e => e.parentNode && e.parentNode.parentNode === p, e.target);
-        return t;
-    };
-    var when = e => !!getActive(e);
-    var popupEdit = function (e) {
-        zimoli.prepare('/wow/edit', function () {
-            var p = popup("#/wow/edit", {
-                path: page.$scope.pathlist,
-                name: e || ''
-            });
-            on('submited')(p, function () {
-                page.$scope.open();
-                remove(p);
-            });
-        })
-
-    };
-    contextmenu(page, [
-        {
-            name: "新建文件夹",
-            when: e => !getActive(e),
-            do() {
-                popupEdit();
-            }
-        },
-        {
-            name: "添加文件",
-            when: e => !getActive(e),
-            do() {
-                return chooseFile().then(uploadAll);
-            }
-        },
-        {
-            name: '重命名',
-            when,
-            do(e) {
-                popupEdit(e.$scope.d.name);
-            }
-        },
-        {
-            get name() {
-                return this.confirm ? "确认删除" : "删除";
-            },
-            confirm: false,
-            when(e) {
-                this.confirm = false;
-                return when(e);
-            },
-            type: "danger",
-            async do(e) {
-                if (!this.confirm) {
-                    this.confirm = true;
-                    setTimeout(_ => {
-                        this.confirm = false;
-                        render.refresh();
-                    }, 2000);
-                    return false;
-                }
-                await data.from("folder", { opt: 'del', path: encode62.timeencode("/" + page.$scope.pathlist.concat(e.$scope.d.name).join("/")) }).loading_promise;
-                page.$scope.open();
-            }
-        }
-    ]);
     return page;
 }

@@ -1,8 +1,16 @@
-var fields = refilm`
-&原始名称/origin read
-输入新名称/name input
-`;
-function main({ path: root, name }) {
+
+
+function main({ path: root, rename, add, name, hasName }) {
+    var fields = refilm`
+    &原始名称/origin read
+    输入新名称/name input
+    `;
+    fields[1].valid = function (name) {
+        if (!name) return '';
+        if (name === origin) return "";
+        if (hasName(name)) return "命名冲突";
+        return explorer$filetip(name);
+    };
     var a = view();
     a.innerHTML = edit;
     drag.on(a.firstChild, a);
@@ -11,6 +19,7 @@ function main({ path: root, name }) {
         fields,
         pathlist: root,
         origin,
+        page: a,
         isFolder: /\/$/.test(name),
         data: { name: origin, origin },
         remove() {
@@ -19,14 +28,13 @@ function main({ path: root, name }) {
     });
     on('submit')(a, async function (e) {
         e.preventDefault();
-        var path = root.concat(a.$scope.data.name).join('/');
-        path = encode62.timeencode(path);
+        var path = root + "/" + a.$scope.data.name;
         if (origin) {
             var to = path;
             path = origin;
-            path = encode62.timeencode(path);
         }
-        await data.from("folder", { opt: origin ? 'mov' : 'add', path, to }).loading_promise;
+        if (origin) await rename(path, to);
+        else await add(path)
         dispatch(this, 'submited');
     });
     on("append")(a, lazy(function () {

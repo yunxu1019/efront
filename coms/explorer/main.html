@@ -1,0 +1,13 @@
+<div class="address">
+    <input _value="pathlist.join('/')" />
+</div>
+<lattice #listview ng-src="d in data" @click="unsetActive(event,d)" @pointerdown="setActive(event,d)">
+    <padding>
+        <item type_="d.type" @dblclick="open(d)" -class="{focused:d.selected}" cut_="d.cut"
+            @mouseenter="startMarquee(sp)" @mouseleave="stopMarquee(sp)" @touchstart="startMarquee(sp)"
+            @touchend="stopMarquee(sp)">
+            <template -src="d.isfolder?icons.folder:icons.file"></template>
+            <span #sp ng-text=d.name></span>
+        </item>
+    </padding>
+</lattice>
