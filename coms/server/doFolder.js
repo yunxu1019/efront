@@ -2,18 +2,77 @@
 var path = require("path");
 var fs = require("fs");
 var root = require("../efront/memery").webroot;
-function doList(filepath) {
+var Task = require("./Task");
+var { Transform } = require("stream");
+var stat = function (fullpath) {
+    return new Promise(function (ok, oh) {
+        fs.stat(fullpath, function (error, stats) {
+            if (error) return oh(error);
+            ok(stats);
+        })
+    });
+};
+var readdir = function (filepath) {
     return new Promise(function (ok, oh) {
         fs.readdir(filepath, { withFileTypes: true }, function (error, names) {
-            if (error) return oh(e400);
-            names = names.map(file => {
-                if (file.isFile()) return file.name;
-                return file.name + '/';
-            });
-            var data = JSON.stringify(names);
-            ok(data);
-        });
+            if (error) return oh(error);
+            ok(names);
+        })
     });
+};
+async function doCopy(from, to) {
+    if (fs.existsSync(to)) throw "目标文件已存在";
+    var stats = await stat(from);
+    var task = new Task;
+    /**
+     * @this {Task}
+     */
+    var transform = new Transform({
+        /**
+         * @this {Task}
+         */
+        transform: function (chunk, encoding, callback) {
+            callback(null, chunk);
+            this.loaded += chunk.length;
+            this.percent = this.loaded / this.total;
+        }.bind(task)
+    })
+    var load = async function ([from, to]) {
+        var stats = stat(from);
+        task.total = stats.size;
+        task.loaded = 0;
+        if ((await stat(from)).isDirectory()) {
+            if (this.aboted) return;
+            await doAdd(to);
+            if (this.aboted) return;
+            var files = await doList(from);
+            if (this.aboted) return;
+            for (var f of files) this.rest.push([path.join(from, f), path.join(to, f)])
+        } else {
+            this.total = stats.size;
+            this.loaded = 0;
+            var r = fs.createReadStream(from);
+            var w = fs.createWriteStream(to);
+            r.pipe(transform).pipe(w);
+        }
+    };
+    if (stats.isDirectory()) {
+        task.open("复制文件夹", load);
+    }
+    else {
+        task.open("复制文件", load);
+    }
+    task.send([from, to]);
+    return task;
+}
+
+async function doList(fullpath) {
+    var names = await readdir(fullpath);
+    names = names.map(file => {
+        if (file.isFile()) return file.name;
+        return file.name + '/';
+    });
+    return JSON.stringify(names);
 }
 
 function doAdd(filepath) {
@@ -70,16 +129,19 @@ function wrapPath(pathname) {
 var e400 = { status: 400, toString: () => "请求无效" };
 function doFolder(type, pathname) {
     if (doFolder.hasOwnProperty(type) && isFunction(doFolder[type])) {
-        return doFolder[type](pathname);
+        var [, from, to] = /^([\s\S]*?)(?:\?([\s\S]*))?$/.exec(pathname);
+        from = wrapPath(from);
+        if (to) to = wrapPath(to);
+        return doFolder[type](from, to);
     }
     throw e400;
 }
 doFolder.list = doList;
 doFolder.add = doAdd;
 doFolder.del = doDelete;
-doFolder.mv = doFolder.move = doFolder.mov = function (pathname) {
-    var p = /^([\s\S]*?)\?([\s\S]*)$/.exec(pathname);
-    if (!p) throw e400;
-    return doMove(wrapPath(p[1]), wrapPath(p[2]));
+doFolder.mv = doFolder.move = doFolder.mov = function (from, to) {
+    if (!to) throw e400;
+    return doMove(from, to);
 };
+doFolder.copy = doFolder.cp = doCopy;
 module.exports = doFolder;
