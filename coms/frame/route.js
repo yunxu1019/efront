@@ -42,7 +42,7 @@
             hotkey = hotkey.split(',');
             for (var k of hotkey) {
                 k = k.trim().toLowerCase().replace(/[\+\_\s]+/g, '.');
-                if (keymap[k]) console.warn("检查到两个项菜单使用了相同的快捷键", item, keymap[k]);
+                if (keymap[k]) console.warn("检查到两个菜单项使用了相同的快捷键", item, keymap[k]);
                 keymap[k] = item;
             }
             item.hotkey = hotkey;
