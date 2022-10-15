@@ -145,7 +145,7 @@ Directory.prototype[$updateme] = async function (updateonly) {
         }
     }
     for (var f of rest) {
-        var newName = f.name.replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
+        var newName = f.name.replace(/\-([a-z])/g, (_, a) => a.toUpperCase());
         if (!map[newName]) {
             map[newName] = true;
             that[newName] = that[f.name];

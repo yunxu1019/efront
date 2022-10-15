@@ -511,7 +511,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
         return data;
     };
     var lessresult = bindLoadings(importLessReg, data, lesspath, replacer, 0);
-    watchurls.push(lesspath);
+    if (watchurls.indexOf(lesspath) < 0) watchurls.push(lesspath);
     var promise = Promise.resolve(lessresult)
         .then(function (data) {
             return renderImageUrl(data, lesspath);
