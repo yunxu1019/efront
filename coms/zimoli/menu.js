@@ -89,29 +89,6 @@ var getTreeNodes = function (elem) {
     [].forEach.call(elem.children, run);
     return nodes;
 };
-/**
- * @param {any} item
- * @param {Event} event
- */
-var emitEvent = function (item, event) {
-    if (event.defaultPrevented) return;
-    event.preventDefault(true);
-    if (item.disabled) return;
-    active(this, item, "global", this.$src ? createItemTarget.call(this, item) : this);
-}
-function bindGlobalkey(elem, keymap, emit) {
-    if (elem.keyoff) {
-        for (var off of elem.keyoff) {
-            off();
-        }
-    }
-    if (!keymap) return;
-    var keyoff = [];
-    for (let k in keymap) {
-        keyoff.push(bind("keydown.only." + k)(elem, emitEvent.bind(elem, keymap[k])));
-    }
-    elem.keyoff = keyoff;
-}
 
 function main(elem, mode) {
     if (isElement(elem)) {
@@ -197,7 +174,7 @@ function main(elem, mode) {
                 if ("$src" in elem) {
                     var src0 = [];
                     care(elem, function (src) {
-                        bindGlobalkey(elem, src.keymap, emit);
+                        bindGlobalkey(elem, src.keymap);
                         src0.splice(0, src0.length);
                         var s = getTreeFromData(src);
                         if (s.actived) {

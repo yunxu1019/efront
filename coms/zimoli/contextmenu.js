@@ -17,6 +17,12 @@ var createMenu = function (event, items) {
 
     return elem;
 }
+async function emit(target, event) {
+    if (event.defaultPrevented) return;
+    event.preventDefault();
+    if (isFunction(this.do)) await this.do(target);
+    dispatch(window, 'render');
+}
 function contextmenu(target, menuItems) {
     var showContext = function (event) {
         var menu;
@@ -79,5 +85,8 @@ function contextmenu(target, menuItems) {
         tm.focus();
         onblur(tm, blur);
     });
+    if (isArray(menuItems)) for (var m of menuItems) {
+        if (m.hotkey) bindGlobalkey(target, m.hotkey, emit.bind(m, target));
+    }
     return sampleElement;
 }
