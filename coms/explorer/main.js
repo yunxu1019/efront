@@ -122,6 +122,45 @@ var touch = {
         remove(rect);
     },
 };
+var moveFocus = function (delta) {
+    var { selected, data } = this.$scope;
+    var index, targetIndex;
+    var boxCount = this.group;
+    if (typeof delta === 'string') switch (delta) {
+        case "left":
+            index = data.indexOf(selected[selected.length > 1 ? 1 : 0]);
+            targetIndex = index - 1;
+            if (targetIndex < 0) targetIndex = 0;
+            break;
+        case "right":
+            index = data.indexOf(selected[selected.length > 1 ? selected.length - 2 : selected.length - 1]);
+            targetIndex = index + 1;
+            break;
+        case "up":
+            index = data.indexOf(selected[selected.length > 1 ? 1 : 0]);
+            if (index >= boxCount) targetIndex = index - boxCount;
+            else targetIndex = index;
+            break;
+        case "down":
+            index = data.indexOf(selected[selected.length > 1 ? selected.length - 2 : selected.length - 1]);
+            targetIndex = index + boxCount;
+            if (targetIndex >= data.length) targetIndex = data.length - 1;
+            break;
+
+    }
+    for (var s of selected) {
+        s.selected = false;
+    }
+    var d = data[targetIndex];
+    if (d) d.selected = true, this.$scope.selected = [d];
+    render.refresh();
+};
+
+var bindkey = function (lattice) {
+    for (var key of "up,down,right,left".split(",")) {
+        bind("keydown.only." + key)(lattice, moveFocus.bind(lattice, key));
+    }
+};
 async function uploadAll(files) {
     var $scope = this;
     var dist = $scope.pathlist.join("/");
@@ -201,11 +240,11 @@ function main() {
                 file.selected = 1;
                 if (this.selected.indexOf(file) < 0) this.selected.push(file);
             }
-            this.listview.setFocus(e && e.parentNode);
         },
     }, methods);
     renderWithDefaults(page, scope);
     bind('drop')(scope.listview, ondrop);
+    bindkey(scope.listview);
     contextmenu(scope.listview, explorer$context);
 
     return page;
