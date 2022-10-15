@@ -5,7 +5,10 @@
     </template>
 </template>
 <span -html="name?" -style="{color:color?}"></span>
-<template -if="hotkey?.length">
+<template -if="typeof hotkey==='string'">
+    &nbsp;&nbsp; <span class="hotkey" -html="hotkey"></span>
+</template>
+<template -elseif="hotkey?.length">
     &nbsp;&nbsp; <span ng-repeat="k of hotkey" class="hotkey" ng-html="k"></span>
 </template>
 <s></s>
