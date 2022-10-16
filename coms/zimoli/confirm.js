@@ -76,7 +76,8 @@ function confirm() {
             options = ["确认 ", "取消"];
         }
     }
-    var clickbtn = function () {
+    var clickbtn = function (event) {
+        event.preventDefault();
         if (element.hasAttribute("locked")) {
             return;
         }
