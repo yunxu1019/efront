@@ -624,7 +624,7 @@ var init = function (name, then, prebuilds) {
             }
             rest = Object.keys(rest2);
         } while (rest.length);
-        track = track.map(([d, a, e]) => ` ${new Array(d + 1).join("•")} ${new Array(1 + length - a.length - d).join("-")} ${a} 溃于: ${e.reverse().join(", ")}`)
+        track = track.map(([d, a, e]) => ` ${new Array(d + 1).join("•")} ${new Array(2 + length - a.length - d).join("-")} ${a} 溃于: ${e.reverse().join(", ")}`)
         // -->
         console.error(`加载 ${name} 失败，${ed && ed.length ? `${ed.join(', ')} 等 ${ed.length} 个模块` : "没有其他模块"}受到影响。\r\n${track.join("\r\n")}`);
     };
