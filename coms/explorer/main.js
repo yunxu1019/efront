@@ -1,27 +1,3 @@
-var methods = {
-    startMarquee(sp) {
-        if (sp.scrollWidth <= sp.clientWidth) return;
-        sp.mq = setInterval(function () {
-            clearInterval(sp.mq);
-            sp.mq = setInterval(function () {
-                var scrollLeft = sp.scrollLeft;
-                sp.scrollLeft += 1;
-                if (sp.scrollLeft === scrollLeft) sp.scrollLeft = 0;
-            }, 16);
-        }, 400);
-        sp.setAttribute("marquee", '');
-        sp.scrollLeft = sp.clientWidth;
-    },
-    stopMarquee(sp) {
-        clearInterval(sp.mq);
-        sp.removeAttribute("marquee");
-        sp.scrollLeft = 0;
-    },
-    hasName(name) {
-        for (var d of this.data) if (d.name === name && !d.cut) return true;
-        return false;
-    }
-};
 var rect = document.createElement('rect');
 rect.setAttribute('insert', '');
 var touchitems = null;
@@ -158,90 +134,19 @@ var moveFocus = function (delta) {
 
 var bindkey = function (lattice) {
     for (var key of "up,down,right,left".split(",")) {
-        bind("keydown.only." + key)(lattice, moveFocus.bind(lattice, key));
+        on("keydown.only." + key)(lattice, moveFocus.bind(lattice, key));
     }
 };
-async function uploadAll(files) {
-    var $scope = this;
-    var dist = $scope.pathlist.join("/");
-    await queue.call(files, function (f) {
-        return $scope.upload(f, dist);
-    });
-    $scope.open();
-}
 async function ondrop(event) {
     event.preventDefault();
     var files = event.dataTransfer.files;
-    uploadAll.call(this, files);
+    this.$scope.uploadAll(files);
 }
 function main() {
     var page = document.createElement('explorer');
     page.innerHTML = template;
     moveupon(page.querySelector('lattice'), touch);
-    var scope = extendIfNeeded({
-        pathlist: [],
-        selected: [],
-        data: [],
-        icons: {
-            file: shapes$file,
-            folder: shapes$folder,
-        },
-        load(p) { return [] },
-        async open(p) {
-            if (p) {
-                if (!p.isfolder) {
-                    return;
-                }
-                this.pathlist.push(p.name);
-            }
-            p = "/" + this.pathlist.join("/").replace(/^\/|\/$/g, '');
-            var files = await this.load(p);
-            if (files) this.data = files.sort(function (a, b) {
-                return sortname(a.name, b.name);
-            }).sort(function (a, b) {
-                return b.isfolder - a.isfolder;
-            });
-            this.selected = [];
-        },
-        delete() { alert("无法删除！") },
-        mov() { alert("无法移动！") },
-        copy() { alert("无法复制！") },
-        rename() { alert("无法重命名！") },
-        upload() { alert("添加失败！") },
-        uploadAll,
-        toActive(e) {
-            var plattice = this.listview;
-            return getTargetIn(e => e.parentNode && e.parentNode.parentNode === plattice, e.target);
-        },
-        unsetActive(event, file) {
-            if (onclick.preventClick) return;
-            var e = this.toActive(event);
-            if (!e) return;
-            if (file.selected === 1) {
-                file.selected = true;
-                return;
-            }
-            for (var s of this.selected) {
-                s.selected = s === file;
-            }
-            this.selected = [file];
-        },
-        setActive(event, file) {
-            var e = this.toActive(event);
-            if (!e || !file.selected) {
-                if (!event.ctrlKey) {
-                    for (var s of this.selected) {
-                        s.selected = false;
-                    }
-                    this.selected = [];
-                }
-            }
-            if (e && !file.selected) {
-                file.selected = 1;
-                if (this.selected.indexOf(file) < 0) this.selected.push(file);
-            }
-        },
-    }, methods);
+    var scope = new explorer$Explorer;
     renderWithDefaults(page, scope);
     bind('drop')(scope.listview, ondrop);
     bindkey(scope.listview);
