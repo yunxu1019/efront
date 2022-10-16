@@ -83,6 +83,7 @@ var response = function (data, url, req, res) {
         if (data.stat) {
             setHeader("Last-Modified", data.stat.mtime.toUTCString());
             if ((data.origin_size || data.length) < data.stat.size) {
+                req.url = url;
                 return doFile(req, res);
             }
         }

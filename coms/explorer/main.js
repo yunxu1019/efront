@@ -19,7 +19,7 @@ var touch = {
          */
         var t = this;
         var a = this.$scope.toActive(e);
-        touchitems = this.querySelectorAll("item");
+        touchitems = this.querySelectorAll("fileitem");
         if (a && this.$scope.selected.indexOf(a.$scope.d) >= 0) {
             dragger = e;
             if (!drag.target) drag(this.$scope.selected.length === 1 ? a : this.querySelectorAll(".focused"), e);
@@ -102,25 +102,76 @@ var moveFocus = function (delta) {
     var { selected, data } = this.$scope;
     var index, targetIndex;
     var boxCount = this.group;
-    if (typeof delta === 'string') switch (delta) {
+    console.log(selected.length)
+    if (delta === 'home') targetIndex = 0;
+    else if (delta === 'end') targetIndex = data.length - 1;
+    else if (delta === 'pagedown') {
+        if (data.length <= boxCount) {
+            targetIndex = data.length - 1;
+        }
+        else {
+            index = data.indexOf(selected[selected.length - 1]);
+            var e = this.getLastVisibleElement(0);
+            if (e) targetIndex = data.indexOf(e.$scope.d);
+            else targetIndex = data.length - 1;
+            targetIndex = (targetIndex / boxCount | 0) * boxCount + index % boxCount;
+            if (targetIndex >= data.length) targetIndex = data.length - 1;
+        }
+    }
+    else if (delta === 'pageup') {
+        if (data.length <= boxCount) {
+            targetIndex = 0;
+        }
+        else {
+            var f = this.getFirstVisibleElement();
+            var index = data.indexOf(selected[0]);
+            if (!f) targetIndex = 0;
+            else if (f.$scope.d !== selected[0]) {
+                targetIndex = index + ((data.indexOf(f.$scope.d) - index) / boxCount | 0) * boxCount;
+            }
+            else {
+                var e = this.getLastVisibleElement(0);
+                var fi = data.indexOf(f.$scope.d);
+                var ei = data.indexOf(e.$scope.d)
+                targetIndex = fi - ((ei - fi) / boxCount | 0) * boxCount;
+
+            }
+            if (targetIndex < 0) targetIndex = index % boxCount;
+        }
+
+    }
+    else if (!selected.length) {
+        targetIndex = /left|^up/.test(delta) ? data.length - 1 : 0;
+    }
+    else if (typeof delta === 'string') switch (delta) {
         case "left":
-            index = data.indexOf(selected[selected.length > 1 ? 1 : 0]);
+            index = data.indexOf(selected[0]);
+            if (selected.length > 1) { targetIndex = index; break }
             targetIndex = index - 1;
             if (targetIndex < 0) targetIndex = 0;
             break;
         case "right":
-            index = data.indexOf(selected[selected.length > 1 ? selected.length - 2 : selected.length - 1]);
+            index = data.indexOf(selected[selected.length - 1]);
+            if (selected.length > 1) { targetIndex = index; break }
             targetIndex = index + 1;
+            if (targetIndex >= data.length) targetIndex = data.length - 1;
             break;
         case "up":
-            index = data.indexOf(selected[selected.length > 1 ? 1 : 0]);
-            if (index >= boxCount) targetIndex = index - boxCount;
+            index = data.indexOf(selected[0]);
+            if (selected.length > 1) { targetIndex = index; break }
+            if (data.length <= boxCount) targetIndex = 0;
+            else if (index >= boxCount) targetIndex = index - boxCount;
             else targetIndex = index;
             break;
         case "down":
-            index = data.indexOf(selected[selected.length > 1 ? selected.length - 2 : selected.length - 1]);
+            index = data.indexOf(selected[selected.length - 1]);
+            if (selected.length > 1) { targetIndex = index; break }
             targetIndex = index + boxCount;
-            if (targetIndex >= data.length) targetIndex = data.length - 1;
+            if (data.length <= boxCount) targetIndex = data.length - 1;
+            else {
+                if (targetIndex >= data.length) targetIndex = data.length - 1;
+                if ((targetIndex / boxCount | 0) === (index / boxCount | 0)) targetIndex = index;
+            }
             break;
 
     }
@@ -129,11 +180,12 @@ var moveFocus = function (delta) {
     }
     var d = data[targetIndex];
     if (d) d.selected = true, this.$scope.selected = [d];
+    this.setFocus(targetIndex);
     render.refresh();
 };
 
 var bindkey = function (lattice) {
-    for (var key of "up,down,right,left".split(",")) {
+    for (var key of "up,down,right,left,pagedown,pageup,home,end".split(",")) {
         on("keydown.only." + key)(lattice, moveFocus.bind(lattice, key));
     }
 };
@@ -151,6 +203,12 @@ function main() {
     bind('drop')(scope.listview, ondrop);
     bindkey(scope.listview);
     contextmenu(scope.listview, explorer$context);
+    on("pointerdown")(scope.listview, function () {
+        if (document.activeElement !== scope.listview) scope.listview.focus();
+    })
+    onmounted(scope.listview, function () {
+        scope.listview.focus();
+    });
 
     return page;
 }

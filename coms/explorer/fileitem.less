@@ -1,0 +1,51 @@
+& {
+    position: relative;
+    display: block;
+    padding: 10px 20px 10px 44px;
+    white-space: nowrap;
+    line-height: 28px;
+    background: #fff9;
+}
+&[cut] {
+    opacity: .4;
+}
+
+
+>svg {
+    width: 28px;
+    height: 28px;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 6px 0 -34px;
+}
+
+>span {
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: top;
+
+}
+
+&:not([dragclone]) [marquee] {
+    text-overflow: clip;
+
+    &:after,
+    &:before {
+        width: 100%;
+        content: "";
+        display: inline-block;
+    }
+}
+
+>a {
+    vertical-align: top;
+}
+
+>[op] {
+    left: 6px;
+    margin-left: 6px;
+}

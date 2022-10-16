@@ -2,7 +2,6 @@
 var fs = require("fs");
 var path = require("path");
 var { Http2ServerRequest, Http2ServerResponse } = require("http2");
-var proxy = require("./url-proxy");
 var checkAccess = require("./checkAccess");
 var checkAuth = require("./checkAuth");
 var remoteAddress = require("./remoteAddress");
@@ -158,23 +157,29 @@ function doDeleteFile(req, res, filepath) {
         res.end('');
     });
 }
-
+/**
+ * @param {Http2ServerRequest} req
+ * @param {Http2ServerResponse} res;
+ */
 function doPutFile(req, res, filepath, code) {
     if (!fs.existsSync(path.dirname(filepath))) {
-
         res.writeHead(403, utf8);
         res.end(`路径不存在`);
         return;
     }
-    if (fs.existsSync(filepath)) {
-
+    var range = req.headers.range;
+    if (range) {
+        var [start] = range.replace(/^\s*bytes\s*\=\s*/i, '').split(/\s*\-\s*/);
+        start = +start || 0;
+    }
+    else if (fs.existsSync(filepath)) {
         res.writeHead(409, utf8);
         res.end(`文件已存在`);
         return;
     }
     if (cacheCountLimit <= 1) {
         res.writeHead(403, {});
-        res.end("");
+        res.end("服务繁忙");
         return;
     }
     if (code) {
@@ -186,7 +191,7 @@ function doPutFile(req, res, filepath, code) {
         }
     }
     cacheCountLimit--;
-    var w = fs.createWriteStream(filepath);
+    var w = fs.createWriteStream(filepath, { start });
     var fired = false;
     var safeend = function () {
         if (fired) return;
@@ -195,7 +200,7 @@ function doPutFile(req, res, filepath, code) {
         w.close();
         res.end(filepath);
     };
-    var inc = 0;
+    var inc = start || 0;
     req.on("data", function (chunk) {
         if (sign) {
             var signoffset = inc % sign.length;
@@ -226,7 +231,7 @@ async function doFile(req, res) {
             return;
         }
     } else {
-        var url = await proxy(req);
+        var url = req.url;
         var filepath = path.join(root, url);
     }
     if (/\!(\w+)(\.\w*)?$/.test(filepath)) {

@@ -32,23 +32,42 @@ var popupEdit = function (d) {
     })
 
 };
-var copyed = null;
-return [
+var copyed = [];
+return extend([
+    {
+        name: "打开(O)",
+        hotkey: "backspace",
+        when: never,
+        do() {
+            history.back();
+        }
+    },
+    {
+        name: "打开(O)",
+        hotkey: "Enter",
+        when: never,
+        do(d) {
+            var scope = getPageScope(d);
+            if (scope.selected.length !== 1) return d;
+            scope.open(scope.selected[0]);
+        }
+    },
     {
         name: "剪切(C)",
         hotkey: "Ctrl+X",
         when: getActive,
         do(d) {
-            if (copyed) for (var c of copyed) c.cut = false;
-            copyed = getSelected(d).slice(0);
-            for (var c of copyed) c.cut = true;
+            if (copyed) for (var c of copyed.splice(0, copyed.length)) c.cut = false;
+            for (var c of getSelected(d)) c.cut = true, copyed.push(c);
         }
     },
     {
         name: "复制(R)",
         hotkey: "Ctrl+C",
-        when: never,
+        when: getActive,
         do(d) {
+            if (copyed) for (var c of copyed.splice(0, copyed.length)) c.cut = false;
+            for (var c of getSelected(d)) c.cut = false, copyed.push(c);
         }
     },
     {
@@ -69,36 +88,39 @@ return [
         name: "粘贴(V)",
         hotkey: "Ctrl+V",
         when(e) {
-            if (!copyed || !copyed.length) return false;
+            if (!copyed.length) return false;
             return !getActive(e);
         },
         async do(d) {
-            if (!copyed) return;
-            if (copyed) copyed.cut = false;
-            var cp = copyed;
+            if (!copyed.length) return;
+            var cp = copyed.splice(0, copyed.length);
             var $scope = getPageScope(d);
-            var pathbase = $scope.pathlist.join("/").replace(/^\/+|\/+$/g, '');
+            var pathbase = "/" + $scope.pathlist.join("/").replace(/^\/+|\/+$/g, '');
             for (var c of cp) {
                 if (pathbase.indexOf(c.fullpath.replace(/^\/+|\/+$/g, '')) >= 0) {
                     return alert.warn("不能移入子文件夹");
                 }
             }
+            var token = await $scope.getToken();
             for (var c of cp) {
                 var newname = c.name;
                 if ($scope.hasName(c.name)) {
                     newname = prompt(`请输入新的${cp.isfolder ? '文件夹' : "文件"}名:`, function (a) {
                         if (isEmpty(a)) return false;
-                        if ($scope.hasName(a)) return "命名冲突";
+                        if ($scope.hasName(a)) return "命名冲突"
                         return explorer$filetip(a);
                     });
                     newname.querySelector("input,textarea").value = c.name.replace(/\/$/, '');
                     newname = await newname;
                 }
                 if (c.cut) await $scope.mov(c, pathbase + "/" + newname);
-                else await $scope.copy(c, pathbase + "/" + newname);
+                else {
+                    var task = explorer$deepcp($scope, c, pathbase + "/" + newname);
+                    task.token = token;
+                    await task;
+                }
+                c.cut = false;
             }
-            for (var c of copyed) c.cut = false;
-            copyed = null;
             $scope.open();
         }
     },
@@ -133,7 +155,14 @@ return [
         },
         type: "danger",
         async do(e, global) {
-            if (!global && this.confirm === null) {
+            var selected = getSelected(e);
+            if (global) {
+                var elem = div();
+                elem.innerHTML = `<fileitem -repeat="d in selected"></fileitem>`;
+                render(elem, { fileitem: explorer$fileitem, selected });
+                await yousure(`确认要删除如下 ${selected.length} 项吗？`, elem);
+            }
+            else if (this.confirm === null) {
                 this.confirm = e;
                 setTimeout(_ => {
                     this.confirm = false;
@@ -147,4 +176,4 @@ return [
             $scope.open();
         }
     }
-]
+], { copyed })

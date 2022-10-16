@@ -2,7 +2,7 @@
 var path = require("path");
 var fs = require("fs");
 var root = require("../efront/memery").webroot;
-var Task = require("./Task");
+var Task = require("../basic/Task");
 var { Transform } = require("stream");
 var stat = function (fullpath) {
     return new Promise(function (ok, oh) {
@@ -97,19 +97,14 @@ function doDelete(p1) {
     return new Promise(function (ok, oh) {
         fs.stat(p1, function (error, stats) {
             if (error) return oh(error);
-            if (stats.isFile()) fs.unlink(p1, function (error) {
+            var cb = function (error) {
                 if (error) return oh(error);
-                ok();
-            });
-            else if (stats.isSymbolicLink()) fs.unlink(p1, function (error) {
-                if (error) return oh(error);
-                ok();
-            });
-            else fs.rmdir(p1, function (error) {
-                if (error) return oh(error);
-                ok();
-            })
-
+                ok();;
+            }
+            if (stats.isFile()) fs.unlink(p1, cb);
+            else if (stats.isSymbolicLink()) fs.unlink(p1, cb);
+            else if (fs.rm) fs.rm(p1, { recursive: true }, cb);
+            else fs.rmdir(p1, { recursive: true }, cb)
         })
     });
 }

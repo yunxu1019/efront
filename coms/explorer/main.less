@@ -1,75 +1,3 @@
-item {
-    position: relative;
-    display: block;
-    padding: 10px 20px 10px 44px;
-    white-space: nowrap;
-    line-height: 28px;
-    background: #fff9;
-
-    &[cut] {
-        opacity: .4;
-    }
-
-
-    >svg {
-        width: 28px;
-        height: 28px;
-        display: inline-block;
-        vertical-align: top;
-        margin: 0 6px 0 -34px;
-    }
-
-    >span {
-        box-sizing: border-box;
-        width: 100%;
-        overflow: hidden;
-        position: relative;
-        text-overflow: ellipsis;
-        display: inline-block;
-        vertical-align: top;
-
-    }
-
-    &:not([dragclone]) [marquee] {
-        text-overflow: clip;
-
-        &:after,
-        &:before {
-            width: 100%;
-            content: "";
-            display: inline-block;
-        }
-    }
-
-    &:hover {
-        outline: 1.2px solid #28c9;
-    }
-
-    &:active {
-        color: #28c;
-        outline: 2px solid;
-    }
-
-    &.focused {
-        background: #28c2;
-        outline: 1.2px solid #28c;
-    }
-
-    &[dropping] {
-        background-color: #28c4;
-        outline: 2px solid #28c;
-    }
-
-    >a {
-        vertical-align: top;
-    }
-
-    >[op] {
-        left: 6px;
-        margin-left: 6px;
-    }
-}
-
 >lattice {
     box-sizing: content-box;
     outline: none;
@@ -124,6 +52,27 @@ padding {
 
 & {
     height: 100%;
+}
+
+fileitem {
+    &:hover {
+        outline: 1.2px solid #28c;
+    }
+
+    &:active {
+        color: #28c;
+        outline: 2px solid;
+    }
+
+    &.focused {
+        background: #28c2;
+        outline: 1.2px solid #28c;
+    }
+
+    &[dropping] {
+        background-color: #28c4;
+        outline: 2px solid #28c;
+    }
 }
 
 @height: 44px;

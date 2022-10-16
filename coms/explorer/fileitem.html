@@ -1,0 +1,5 @@
+<fileitem type_="d.type" @mouseenter="startMarquee(sp)" @mouseleave="stopMarquee(sp)" @touchstart="startMarquee(sp)"
+    @touchend="stopMarquee(sp)">
+    <template -src="d.isfolder?icons.folder:icons.file"></template>
+    <span #sp ng-text=d.name></span>
+</fileitem>

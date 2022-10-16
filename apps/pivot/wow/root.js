@@ -2,12 +2,13 @@ var fields = refilm`
 文件
 `;
 var passport = encode62.timeencode(encode62.decode62(user._passport, user.session));
-async function upload(f, base) {
-    var api = await data.getApi('upload');
-    var authorization = await data.getSource(api.base);
-    var xhr = cross(api.method, api.base + base + f.name, { authorization: authorization });
-    xhr.setRequestHeader('range', 'bytes=1-' + f.size);
-    return xhr.send(f);
+async function upload(f, dist, token) {
+    var api = await data.getApi("upload");
+    var xhr = cross(api.method, dist, token);
+    var start = f.start || 1;
+    var end = start + f.size - 1;
+    xhr.setRequestHeader('range', `bytes=${start}-${end}`);
+    return xhr.send(f.data || f);
 }
 var copyed = null;
 function main() {
@@ -20,30 +21,63 @@ function main() {
             backtime = Date.now();
             return false;
         }
-        data.setInstance("pathlist", $scope.pathlist.slice(0, -1));
+        if ($scope.pathlist) {
+            var name = $scope.pathlist.pop();
+            var base = data.getInstance("base").base;
+            var p = $scope.pathlist.join("/").replace(/^\/+|\/+$/g, '');
+            var bp = p ? base + p + '/' : base;
+            p = p + '/';
+            data.setInstance("pathlist", $scope.pathlist);
+            name = name.replace(/^\/+|\/+$/g, '');
+            $scope.selected = [{
+                name,
+                isfolder: true,
+                where: p,
+                host: base,
+                url: bp + name + "/",
+                fullpath: p + name + "/",
+                type: 'folder'
+            }];
+        }
         $scope.open();
         return false;
     }
 
     extend(page.$scope, {
         pathlist: data.getInstance("pathlist"),
+        read(from, start, size) {
+            var authorization = data.getSource(data.getInstance("base").base);
+            var xhr = cross("get", from.url, { authorization: authorization });
+            var end = start + size - 1;
+            xhr.setRequestHeader('range', `bytes=${start}-${end}`);
+            xhr.send();
+            return xhr;
+        },
         load(p) {
             data.setInstance("pathlist", this.pathlist);
             var base = data.getInstance("base").base;
+            var p = p.replace(/^\/+|\/+$/g, '');
+            var bp = p ? base + p + "/" : base;
+            p = p + '/'
             return data.from("folder", { opt: 'list', path: encode62.timeencode(p) }, files => {
                 if (files) return files.map(f => {
                     var isfolder = /\/$/.test(f);
                     return {
-                        name: f.replace(/\/$/, ''),
+                        name: f.replace(/\/+$/, ''),
                         isfolder,
                         host: base,
                         where: p,
-                        url: base + f,
-                        fullpath: p + "/" + f,
+                        url: bp + f,
+                        fullpath: p + f,
                         type: isfolder ? 'folder' : 'file',
                     }
                 });
             });
+        },
+        async getToken() {
+            var api = await data.getApi('upload');
+            var authorization = await data.getSource(api.base);
+            return { authorization };
         },
         upload,
         async delete(path) {

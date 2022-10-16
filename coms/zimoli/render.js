@@ -789,10 +789,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 if (!replacer.$scope) {
                     if (isElement(replacer) && replacer.tagName !== element.tagName) return renderElement(replacer, scope, parentScopes, once);
                     replacer.$scope = scope;
-                    replacer.$parentScopes = parentScopes;
+                    if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
                 }
                 replacer.renderid = element.renderid;
-                if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
+                if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes || parentScopes, once);
             }
         }
     }

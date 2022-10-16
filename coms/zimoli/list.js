@@ -380,6 +380,7 @@ function ylist(container, generator, $Y) {
         patchBottom(0);
     });
     list.getLastVisibleElement = getLastVisibleElement;
+    list.getFirstVisibleElement = getFirstVisibleElement;
     list.$stopY = function (t, spd) {
         var firstElement = getFirstVisibleElement();
         var lastElement = getLastVisibleElement();
@@ -471,7 +472,15 @@ function ylist(container, generator, $Y) {
      * @param {boolean} animate
      */
     list.setFocus = function (focused, animate) {
-        if (focused && (focused.hasAttribute("disabled") || focused.hasAttribute("line"))) return;
+        if (isElement(focused) && (focused.hasAttribute("disabled") || focused.hasAttribute("line"))) return;
+        if (isFinite(focused)) {
+            var index = focused;
+            focused = list.getIndexedElement(index);
+            if (!focused) {
+                list.go(index);
+                focused = list.getIndexedElement(index);
+            }
+        }
         if (!focused) {
             if (list.focused) {
                 removeClass(list.focused, 'focus');
