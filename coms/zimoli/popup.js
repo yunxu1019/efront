@@ -152,6 +152,7 @@ var addMask = function (element, mask = createMask(element)) {
         mask.clean = Cleanup.bind(mask);
         mask.mount = mount.bind(mask);
     }
+    element.$mask = mask;
     onmounted(element, mask.mount);
     onremove(element, mask.clean);
     return mask;
