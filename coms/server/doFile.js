@@ -110,6 +110,7 @@ function doGetFile(req, res, filepath, code) {
         }
         if (end) {
             end = +end + 1;
+            if (end > stats.size) end = stats.size;
         } else {
             end = stats.size;
         }
@@ -135,7 +136,7 @@ function doGetFile(req, res, filepath, code) {
                     headers['Content-Type'] = mime;
                 }
             }
-            res.writeHead(start === 0 && (!end || end === stats.size) ? 200 : 206, headers);
+            res.writeHead(start === 0 && req.headers.range ? 206 : 200, headers);
             piperead(h, start, end ? end : stats.size, res, sign);
         });
     });
