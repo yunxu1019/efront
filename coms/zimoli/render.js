@@ -2,10 +2,28 @@ var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = Object.create(null);
 var presets = Object.create(null);
 var createTemplateNodes = function (text) {
-    var node = document.createElement(this.parentNode.tagName || "div");
-    node.innerHTML = text;
     remove(this.with);
-    this.with = [].slice.call(node.childNodes, 0);
+    if (isEmpty(text)) return;
+    if (isNode(text)) {
+        var node = text;
+        if (isElement(node) && this.$struct.copys) {
+            for (var c of this.$struct.copys) {
+                if (c.name === 'class') {
+                    addClass(node, c.value);
+                }
+                else if (c.name === 'style') {
+                    css(node, c.value);
+                }
+                else node.setAttribute(c.name, c.value);
+            }
+        }
+        this.with = [node];
+        return;
+    } else {
+        var node = document.createElement(this.parentNode.tagName || "div");
+        node.innerHTML = text;
+        this.with = [].slice.call(node.childNodes, 0);
+    }
     appendChild.after(this, this.with);
     this.with = renderElement(this.with, this.$scope, this.$parentScopes, this.renderid === 9);
 };
@@ -13,7 +31,7 @@ presets.template = function (t) {
     var comment = document.createComment('template');
     comment.$scope = t.$scope;
     comment.$parentScopes = t.$parentScopes;
-    if (!t.innerHTML) {
+    if (t.$struct.binds.src) {
         care(comment, createTemplateNodes)
     }
     else {
