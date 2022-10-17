@@ -27,7 +27,8 @@ var touch = {
         }
         var pos = getScreenPosition(t.parentNode);
         var pos2 = getScreenPosition(t.previousElementSibling);
-        rect.limit = [pos.left + pos.clientLeft, Math.max(pos.top, pos2.bottom + 1)];
+
+        rect.limit = [pos.left + t.parentNode.clientLeft, Math.max(pos.top, pos2.bottom + 1)];
         rect.event = e;
         rect.setAttribute('style', '');
         css(rect, { left: e.clientX - pos.left - t.clientLeft, top: e.clientY - t.clientTop, width: 0, height: 0 })
@@ -102,7 +103,6 @@ var moveFocus = function (delta) {
     var { selected, data } = this.$scope;
     var index, targetIndex;
     var boxCount = this.group;
-    console.log(selected.length)
     if (delta === 'home') targetIndex = 0;
     else if (delta === 'end') targetIndex = data.length - 1;
     else if (delta === 'pagedown') {

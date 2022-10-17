@@ -54,7 +54,14 @@ var handle = {
         if (!dragging) return;
         var elem = dragging.rect;
         if (elem.offsetParent && /^(absolute|fixed|relative)$/i.test(getComputedStyle(elem.offsetParent).position)) {
-            var pos = getScreenPosition(elem.offsetParent);
+            var parent = elem.offsetParent;
+            var pos = getScreenPosition(parent);
+            pos.left += parent.clientLeft;
+            pos.top += parent.clientTop;
+            pos.right = parent.clientWidth + pos.left;
+            pos.bottom = parent.clientHeight + pos.top;
+            pos.width = parent.clientWidth;
+            pos.height = parent.clientHeight;
         } else {
             var pos = {
                 left: 0,
