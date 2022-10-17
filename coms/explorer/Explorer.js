@@ -20,7 +20,6 @@ e.open = async function (p) {
     var selected = Object.create(null);
     for (var s of this.selected) selected[s.url] = true;
     for (var s of explorer$context.copyed) cutedMap[s.url] = s.cut;
-    console.log(selected)
     var files = await this.load(p);
     for (var f of files) {
         if (cutedMap[f.url]) f.cut = true;

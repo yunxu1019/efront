@@ -1,7 +1,9 @@
 var rect = document.createElement('rect');
 rect.setAttribute('insert', '');
 var touchitems = null;
-var selectRected = lazy(function (lattice) {
+var selectRected = on("resize")(rect, function () {
+    var lattice = this.nextElementSibling;
+    if (!lattice) return;
     var selected = [];
     if (touchitems) for (var m of touchitems) {
         var file = m.$scope.d;
@@ -78,7 +80,6 @@ var touch = {
             resize(rect, rect.event);
         }
         e.moveLocked = true;
-        selectRected(rect.nextElementSibling);
     },
     async end(e) {
         touchitems = null;
