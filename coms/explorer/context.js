@@ -32,7 +32,6 @@ var popupEdit = function (d) {
     })
 
 };
-var copyed = [];
 return extend([
     {
         name: "打开(O)",
@@ -57,7 +56,8 @@ return extend([
         hotkey: "Ctrl+X",
         when: getActive,
         do(d) {
-            if (copyed) for (var c of copyed.splice(0, copyed.length)) c.cut = false;
+            var copyed = getPageScope(d).copyed;
+            for (var c of copyed.splice(0, copyed.length)) c.cut = false;
             for (var c of getSelected(d)) c.cut = true, copyed.push(c);
         }
     },
@@ -66,6 +66,7 @@ return extend([
         hotkey: "Ctrl+C",
         when: getActive,
         do(d) {
+            var copyed = getPageScope(d).copyed;
             if (copyed) for (var c of copyed.splice(0, copyed.length)) c.cut = false;
             for (var c of getSelected(d)) c.cut = false, copyed.push(c);
         }
@@ -88,10 +89,12 @@ return extend([
         name: "粘贴(V)",
         hotkey: "Ctrl+V",
         when(e) {
+            var copyed = getPageScope(e.target).copyed;
             if (!copyed.length) return false;
             return !getActive(e);
         },
         async do(d) {
+            var copyed = getPageScope(d).copyed;
             if (!copyed.length) return;
             var cp = copyed.splice(0, copyed.length);
             var $scope = getPageScope(d);
@@ -176,4 +179,4 @@ return extend([
             $scope.open();
         }
     }
-], { copyed })
+])

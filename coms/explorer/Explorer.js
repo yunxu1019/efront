@@ -2,6 +2,7 @@ class Explorer {
     pathlist = [];
     selected = [];
     data = [];
+    copyed = [];
 }
 var e = Explorer.prototype;
 e.fileitem = explorer$fileitem;
@@ -19,11 +20,11 @@ e.open = async function (p) {
     var cutedMap = Object.create(null);
     var selected = Object.create(null);
     for (var s of this.selected) selected[s.url] = true;
-    for (var s of explorer$context.copyed) cutedMap[s.url] = s.cut;
+    for (var s of this.copyed) cutedMap[s.url] = s.cut;
     var files = await this.load(p);
     for (var f of files) {
         if (cutedMap[f.url]) f.cut = true;
-        else if (selected[f.url]) f.selected = true;
+        if (selected[f.url]) f.selected = true;
     }
     if (files) this.data = files.sort(function (a, b) {
         return sortname(a.name, b.name);
