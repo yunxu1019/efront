@@ -54,14 +54,14 @@ async function requestPassword() {
         var p = await getPassword("输入原密码：");
         clearRow();
         if (!await userdata.checkPassword(p)) {
-            throw new Error("密码不正确！");
+            throw "密码不正确！";
         }
     }
     var a = await getPassword("输入新密码：");
     clearRow();
     var b = await getPassword("确认密码：");
     clearRow();
-    if (a !== b) throw new Error('两次输入密码不一致');
+    if (a !== b) throw '两次输入密码不一致';
     return a;
 }
 module.exports = {
@@ -71,6 +71,6 @@ module.exports = {
     requestPassword() {
         requestPassword().then(function (a) {
             userdata.setPassword(a);
-        }, function () { });
+        }, console.error);
     },
 };
