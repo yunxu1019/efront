@@ -90,10 +90,18 @@ var init = function () {
         marginRight: -getScrollbarWidth() + "px"
     });
 };
+var isType = function (target, type) {
+    // 记得小时候，不论是苍蝇还是蚊子，飞起来都是有声音的。最近看到的一种像蚊子一样小的飞虫，喜欢像苍蝇一样趴在食物上，飞起来却听不到声音。
+    // 是我的听力下降了？还是外界太过嘈杂？还是飞虫拍打翅膀的频率超出了我的听觉范围？还是飞行可以不产生声音？
+    return target.hasAttribute(type) || hasClass(type);
+}
 var resize2 = function () {
-    var head = this.querySelector("[head],.head");
-    var body = this.querySelector("[body],.body");
-    var foot = this.querySelector("[foot],.foot");
+    var head, body, foot;
+    for (var c of this.children) {
+        if (isType(c, "head")) head = c;
+        else if (isType(c, "body")) body = c;
+        else if (isType(c, "foot")) foot = c;
+    }
     if (head && body) {
         var height = head.offsetHeight;
         css(head, {
