@@ -889,7 +889,7 @@ function createStructure(element) {
     for (var attr of attrs) {
         var { name, value } = attr;
         if (name === 'elementid' || name === 'renderid' || name === 'id') {
-            ids.push(name);
+            ids.push(value);
             continue;
         }
         if (/^#/.test(name)) {
