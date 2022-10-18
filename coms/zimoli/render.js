@@ -484,8 +484,8 @@ var directives = {
     model(search, target) {
         var getter = createGetter(this, search);
         var oldValue;
-        var getstr = this.getValue instanceof Function ? "this.getValue()" : "";
-        var setter = this.setValue instanceof Function ? function () {
+        var getstr = target.getValue instanceof Function ? "this.getValue()" : "";
+        var setter = target.setValue instanceof Function ? function () {
             var value = getter(this);
             if (value === undefined) value = "";
             if (deepEqual(oldValue, value)) return;
@@ -499,14 +499,14 @@ var directives = {
             oldValue = value;
             this[key] = value;
         };
-        if (/^input$/i.test(this.tagName) && /^checkbox$/i.test(this.type) || /^checkbox$/i.test(this.tagName)) {
-            this.renders.push(setter || setter2.bind(this, 'checked'));
+        if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
+            this.renders.push(setter || setter2.bind(target, 'checked'));
             var change = getstr || "this.checked";
-        } else if (("value" in this || this.getValue instanceof Function) && this.setValue instanceof Function) {
+        } else if (("value" in target || target.getValue instanceof Function) && target.setValue instanceof Function) {
             this.renders.push(setter);
             var change = getstr || "this.value";
-        } else if (/^(select|input|textarea)$/i.test(this.tagName) || "value" in this) {
-            this.renders.push(setter || setter2.bind(this, 'value'));
+        } else if (/^(select|input|textarea)$/i.test(target.tagName) || "value" in target) {
+            this.renders.push(setter || setter2.bind(target, 'value'));
             var change = getstr || "this.value";
         } else {
             this.renders.push(setter || function () {
