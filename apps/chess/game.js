@@ -195,7 +195,6 @@ function update(game) {
             var chessman = grid[cx];
             chessmen_cells[cx].chessman = chessman;
             if (chessman instanceof Object) {
-                console.log(chessman);
                 text(chessmen_cells[cx].children[1], chessman.name);
                 css(chessmen_cells[cx], `background-color:${chessman.color === "红" ? "red" : "black"};color:white;`)
             } else if (chessman === "") {

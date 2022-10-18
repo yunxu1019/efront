@@ -189,7 +189,9 @@ var page_generators = {};
  */
 var loading_tree = {};
 var getpgpath = function (pagepath) {
-    return /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
+    pagepath = /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
+    if (pagepath === 'main') pagepath = efrontPath || "/main";
+    return pagepath;
 };
 function createState(pgpath) {
     var pgpath = getpgpath(pgpath);
@@ -347,20 +349,20 @@ function prepare(pgpath, ok) {
         }
         var res = page_generators[pgpath];
         var emiters = loading_tree[pgpath];
+        delete loading_tree[pgpath];
         if (emiters) {
             var noRoles = !res.roles;
+            if (noRoles && res.roles) {
+                prepare(user.loginPath, () => emit());
+                return;
+            }
             while (emiters.length) {
                 var ok = emiters.shift();
                 if (isFunction(ok)) {
                     ok(res);
                 }
-                if (noRoles && res.roles) {
-                    prepare(user.loginPath, () => emit());
-                    return;
-                }
             }
         }
-        delete loading_tree[pgpath];
     };
     return init(pgpath, function (pg) {
         if (!pg) return;
@@ -430,6 +432,7 @@ function create(pagepath, args, from, needroles) {
 
 var zimoliid = 0;
 function zimoli(pagepath, args, history_name, oldpagepath) {
+
     if (isNode(history_name))
         var zid = history_name.zimoliid = (history_name.zimoliid | 0) + 1;
     else var zid = ++zimoliid;

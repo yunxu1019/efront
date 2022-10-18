@@ -6,7 +6,7 @@ appendChild(page, gameNum, visitBtn, createBtn);
 onclick(createBtn, function () {
     api("/game/game", { type: "create", user_id }).success(function (response) {
         // 创建成功
-        go("game", {
+        go("./game", {
             game_id: response.result,
             user_id: user_id
         });
@@ -16,9 +16,9 @@ onclick(createBtn, function () {
     });
 });
 onclick(visitBtn, function () {
-    var game_id=gameNum.value;
+    var game_id = gameNum.value;
     api("/game/game", { type: "join", user_id, game_id }).success(function (response) {
-        go("game",{
+        go("./game", {
             game_id,
             user_id
         });

@@ -865,6 +865,7 @@ var modules = {
     MOVELOCK_DELTA: 3 * renderPixelRatio,
     SAFE_CIRCLE_DEPTH: 300,
     init,
+    efrontPath,
     versionTree,
     responseTree,
     loadingTree,
