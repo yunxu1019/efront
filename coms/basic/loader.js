@@ -618,6 +618,7 @@ var init = function (name, then, prebuilds) {
                     for (var e of e) if (!map[e]) rest2[e] = true, map[e] = true;
                 }
                 else {
+                    if (n.length + deep > length) length = n.length + deep;
                     track.push([deep, n, [e]]);
                 }
 
