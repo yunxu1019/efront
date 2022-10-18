@@ -128,6 +128,7 @@ function doGetFile(req, res, filepath, code) {
             if (req.headers.range) {
                 headers["Accept-Ranges"] = "bytes";
                 headers["Content-Range"] = `bytes ${start}-${end ? end - 1 : ''}/${stats.size}`;
+                headers["access-control-expose-headers"] = "Content-Range,Accept-Ranges";
             }
             if (extend) {
                 var mime = mimes[extend[1]];
@@ -231,7 +232,7 @@ async function doFile(req, res) {
             return;
         }
     } else {
-        var url = req.url;
+        var url = req.url.replace(/^[\.\\\/]+/, '');
         var filepath = path.join(root, url);
     }
     if (/\!(\w+)(\.\w*)?$/.test(filepath)) {

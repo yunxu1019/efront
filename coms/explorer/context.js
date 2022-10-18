@@ -3,6 +3,11 @@ var getActive = e => {
     return s.toActive(e);
 };
 var notGetActive = e => !getActive(e);
+var getStable = e => {
+    var a = getActive(e);
+    if (!a) return;
+    return !a.$scope.d.pending;
+};
 var getSelected = function (d) {
     var p = getPageScope(d);
     return p.selected;
@@ -14,13 +19,23 @@ var getPageScope = function (d) {
 var never = function () { return false };
 var popupEdit = function (d) {
     var $scope = getPageScope(d);
-    var active = $scope.toActive(d);
+    var selected = $scope.selected;
+    var active;
+    if (d.$scope === $scope) {
+        if (selected.length !== 1) return;
+        active = selected[0];
+    }
+    else {
+        active = d.$scope.d;
+    }
+    if (d === $scope)
+        if (d.$scope.pending) return;
     var params = {
         path: $scope.pathlist.join('/'),
         hasName: $scope.hasName.bind($scope),
         rename: $scope.rename,
         add: $scope.add,
-        name: active ? active.$scope.d.name : '',
+        name: active ? active.name : '',
     };
 
     zimoli.prepare('explorer$edit', function () {
@@ -34,7 +49,7 @@ var popupEdit = function (d) {
 };
 return extend([
     {
-        name: "打开(O)",
+        name: "返回(O)",
         hotkey: "backspace",
         when: never,
         do() {
@@ -54,7 +69,7 @@ return extend([
     {
         name: "剪切(C)",
         hotkey: "Ctrl+X",
-        when: getActive,
+        when: getStable,
         do(d) {
             var copyed = getPageScope(d).copyed;
             for (var c of copyed.splice(0, copyed.length)) c.cut = false;
@@ -64,7 +79,7 @@ return extend([
     {
         name: "复制(R)",
         hotkey: "Ctrl+C",
-        when: getActive,
+        when: getStable,
         do(d) {
             var copyed = getPageScope(d).copyed;
             if (copyed) for (var c of copyed.splice(0, copyed.length)) c.cut = false;
@@ -77,7 +92,7 @@ return extend([
         when: never,
         do(d) {
             var scope = getPageScope(d);
-            scope.selected = scope.data.slice(0);
+            scope.selected = scope.data.filter(a => !a.pending);
             for (var s of scope.selected) s.selected = true;
         }
     },
@@ -118,9 +133,17 @@ return extend([
                 }
                 if (c.cut) await $scope.mov(c, pathbase + "/" + newname);
                 else {
+                    var offunload = on("beforeunload")(window, function (event) {
+                        event.preventDefault();
+                        alert("有文件正在复制！");
+                        return false;
+                    });
                     var task = explorer$deepcp($scope, c, pathbase + "/" + newname);
                     task.token = token;
-                    await task;
+                    try {
+                        await task;
+                    } catch { };
+                    offunload();
                 }
                 c.cut = false;
             }
@@ -143,7 +166,7 @@ return extend([
     {
         hotkey: "F2",
         name: '重命名(R)',
-        when: getActive,
+        when: getStable,
         do: popupEdit
     },
     {
@@ -175,7 +198,7 @@ return extend([
             }
             this.confirm = false;
             var $scope = getPageScope(e);
-            for (var s of $scope.selected) await $scope.delete("/" + $scope.pathlist.concat(s.name).join("/"));
+            for (var s of $scope.selected) s.abort(), await $scope.delete("/" + $scope.pathlist.concat(s.name).join("/"));
             $scope.open();
         }
     }

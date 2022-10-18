@@ -2,15 +2,77 @@ var fields = refilm`
 文件
 `;
 var passport = encode62.timeencode(encode62.decode62(user._passport, user.session));
+var pending = [];
 async function upload(f, dist, token) {
     var api = await data.getApi("upload");
-    var xhr = cross(api.method, dist, token);
-    var start = f.start || 1;
-    var end = start + f.size - 1;
-    xhr.setRequestHeader('range', `bytes=${start}-${end}`);
-    return xhr.send(f.data || f);
+    var p = {};
+    if (token) {
+        var { base, authorization } = token;
+        var start = f.start || 0;
+        var end = start + f.size - 1;
+        var xhr = cross(api.method, base + dist, { authorization });
+        xhr.setRequestHeader('range', `bytes=${start}-${end}`);
+        xhr.send(f.data);
+        var p = { url: base + dist, percent: f.start / f.total, abort: xhr.abort.bind(xhr) };
+        pending.push(p);
+        xhr.error(function (e) {
+            alert.error(e);
+        });
+        render.refresh();
+        await xhr;
+        removeFromList(pending, p);
+    }
+    else {
+        var authorization = data.getSource(api.base);
+        /**
+         * @type {XMLHttpRequest}
+         */
+        var xhr = cross(api.method, dist + f.name, { authorization });
+        var p = { percent: 0, pending: true, name: f.name, folder: dist, abort: xhr.abort.bind(xhr) };
+        dist = dist.replace(/^\/+|\/+$/g, '');
+        if (dist) p.url = api.base + dist + "/" + f.name;
+        else p.url = api.base + f.name;
+        this.data.push(p);
+        pending.push(p);
+        xhr.upload.onprogress = function ({ loaded, total }) {
+            p.percent = loaded / total;
+            render.refresh();
+        };
+        xhr.send(f);
+        xhr.error((e) => {
+            alert.error(e);
+            removeFromList(this.data, p);
+            removeFromList(pending, p);
+        });
+        await xhr;
+        removeFromList(this.data, p);
+        removeFromList(pending, p);
+    }
+    return xhr;
 }
 var copyed = null;
+class File {
+    constructor(f) {
+        var isfolder = /\/$/.test(f);
+        this.name = f.replace(/\/+$/, '');
+        this.isfolder = isfolder;
+        this.type = isfolder ? 'folder' : 'file';
+    }
+    get pending() {
+        for (var p of pending) {
+            if (p.url.indexOf(this.url) === 0) {
+                this.percent = p.percent;
+                return p;
+            }
+        }
+        return false;
+    }
+    abort() {
+        var p = this.pending;
+        if (!p) return;
+        p.abort();
+    }
+}
 function main() {
     var page = explorer$main();
     var backtime = 0;
@@ -58,26 +120,22 @@ function main() {
             var base = data.getInstance("base").base;
             var p = p.replace(/^\/+|\/+$/g, '');
             var bp = p ? base + p + "/" : base;
-            p = p + '/'
+            p = p + '/';
             return data.from("folder", { opt: 'list', path: encode62.timeencode(p) }, files => {
                 if (files) return files.map(f => {
-                    var isfolder = /\/$/.test(f);
-                    return {
-                        name: f.replace(/\/+$/, ''),
-                        isfolder,
-                        host: base,
-                        where: p,
-                        url: bp + f,
-                        fullpath: p + f,
-                        type: isfolder ? 'folder' : 'file',
-                    }
+                    var file = new File(f);
+                    file.host = base;
+                    file.where = p;
+                    file.url = bp + f;
+                    file.fullpath = p + f;
+                    return file;
                 });
             });
         },
         async getToken() {
             var api = await data.getApi('upload');
             var authorization = await data.getSource(api.base);
-            return { authorization };
+            return { authorization, base: api.base };
         },
         upload,
         async delete(path) {

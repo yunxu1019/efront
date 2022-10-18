@@ -2,8 +2,9 @@ class Explorer {
     pathlist = [];
     selected = [];
     data = [];
-    copyed = [];
+    get copyed() { return copyed; };
 }
+var copyed = [];
 var e = Explorer.prototype;
 e.fileitem = explorer$fileitem;
 e.hasName = function (name) {

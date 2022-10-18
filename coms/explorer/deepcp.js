@@ -12,9 +12,9 @@ async function cp([from, dist]) {
         for (var f of files) rest.push([f, dist + '/' + f.name]);
     }
     else {
-        var inc = 0, step = 64 * 1024, end = 1;
+        var inc = 0, step = 64 * 1024, total = 1;
         this.percent = 0;
-        while (inc < end) {
+        while (inc < total) {
             /**
              * @type {XMLHttpRequest}
              */
@@ -22,24 +22,27 @@ async function cp([from, dist]) {
             xhr = await xhr;
             var contentrange = xhr.getResponseHeader("Content-Range");
             var size = +xhr.getResponseHeader("Content-Length") || xhr.response.length;
-            if (contentrange) end = +contentrange.split("/")[1];
-            else end = size;
+            if (contentrange) total = +contentrange.split("/")[1];
+            else total = size;
             await scope.upload({
                 data: xhr.response,
                 start: inc,
+                total,
                 name: from.name,
                 size
             }, dist, this.token);
-            this.percent = inc / end;
+            this.percent = inc / total;
             inc += step;
         }
     }
 };
 function deepcp(scope, from, dist) {
     var task = new Task();
+    if (from.isfolder) task.title = "复制文件夹";
+    else task.title = "复制文件";
+    task.open('copy', cp);
     task.scope = scope;
-    if (from.isfolder) task.open("复制文件夹", cp);
-    else task.open("复制文件", cp);
+    dist = dist.replace(/^\/+|\/+$/g, '');
     task.send([from, dist]);
     return awaitable(task);
 }

@@ -2,4 +2,7 @@
     @touchend="stopMarquee(sp)">
     <template -src="d.isfolder?icons.folder:icons.file"></template>
     <span #sp ng-text=d.name></span>
+    <p -if="d.pending" keep >
+        <r -style="{width:(d.percent*100).toFixed(4)+'%'}"></r>
+    </p>
 </fileitem>
