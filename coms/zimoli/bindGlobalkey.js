@@ -4,6 +4,7 @@
  */
 var emitEvent = function (item, event) {
     if (event.defaultPrevented) return;
+    if (!getTargetIn(this, event.target) && !getTargetIn(event.target, this)) return;
     event.preventDefault(true);
     if (item.disabled) return;
     active(this, item, "global", this.$src ? createItemTarget.call(this, item) : this);

@@ -19,6 +19,7 @@ var createMenu = function (event, items) {
 }
 async function emit(target, event) {
     if (event.defaultPrevented) return;
+    if (!getTargetIn(target, event.target) && !getTargetIn(event.target, target)) return;
     event.preventDefault();
     if (isFunction(this.do)) await this.do(target, 'global');
     dispatch(window, 'render');
