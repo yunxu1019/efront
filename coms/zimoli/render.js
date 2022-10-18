@@ -771,9 +771,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 if (!replacer.$scope) {
                     replacer.$scope = scope;
                 }
-                else {
-                    if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes || parentScopes, once);
-                }
+                if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes || parentScopes, once);
                 if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
