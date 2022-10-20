@@ -145,13 +145,16 @@ moveupon(window, handle);
 var offmousemove;
 var resizeh = lazy(function () {
     // 用于刷新自定义的scrollbar/lattice/gallery组件
+    /**
+     * @type {HTMLElement}
+     */
     var elem = this;
     var resized = false;
-    if (elem.scrollWidth > elem.clientWidth) {
+    if (elem.scrollWidth > elem.offsetWidth + elem.clientLeft + 1) {
         css(elem, { width: elem.offsetWidth });
         resized = true;
     }
-    if (elem.scrollHeight > elem.clientHeight) {
+    if (elem.scrollHeight > elem.offsetHeight + elem.clientTop + 1) {
         css(elem, { height: elem.offsetHeight });
         resized = true;
     }
