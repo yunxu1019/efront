@@ -811,12 +811,12 @@ var data = {
     },
     fromApi(api, params, parse) {
         var id = parse instanceof Function ? getInstanceId() : 0;
+        var p = privates.fromApi(api, params);
         if (id) this.removeInstance(id);
         var url = api.url;
         var response = this.getInstance(id || url);
         if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
-        var p = privates.fromApi(api, params);
         response.loading = p.loading;
         p = response.loading_promise = p.then((data) => {
             response.loading = null;
@@ -838,11 +838,11 @@ var data = {
     },
     fromURL(url, parse) {
         var id = parse instanceof Function ? getInstanceId() : 0;
+        var p = privates.loadIgnoreConfig('get', url);
         if (id) this.removeInstance(id);
         var response = this.getInstance(id || url);
         if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
-        var p = privates.loadIgnoreConfig('get', url);
         response.loading = p.loading;
         p = response.loading_promise = p.then((data) => {
             response.loading = null;
@@ -925,6 +925,7 @@ var data = {
         }
         var outdate = new Error("request outdate.");
         var aborted = new Error("request aborted.");
+        this.responseLoading(instance);
         promise1 = instance.loading_promise = new Promise(function (ok) {
             if (!instance.loading) {
                 instance.loading = false;
@@ -938,7 +939,6 @@ var data = {
             if (instance.loading) {
                 instance.loading.abort();
             }
-            this.responseLoading(instance);
             var params2 = privates.pack(sid, params1);
             if (!privates.validApi(api, params2)) throw aborted;
             let url = api.url;
@@ -979,6 +979,7 @@ var data = {
             this.responseLoaded(instance);
             return data;
         });
+        promise1.params = params;
         promise1.catch((e) => {
             if (e === outdate || e === aborted) return;
             this.responseCrash(e, instance);
