@@ -3,7 +3,8 @@
   run: options :::run
   share: options ::share-:opt?:path
   folder: options ::file-:opt:::path?:to
-  cluster: options ::cluster-:opt?:id
+  cluster: options ::cluster-list
+  clients: options ::cluster-list?:id
   list: options :::type
   edit: options :::type-:key?:value
   add: options :::type-:key+:value

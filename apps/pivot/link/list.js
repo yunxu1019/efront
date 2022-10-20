@@ -4,7 +4,7 @@ function main() {
     page.innerHTML = template;
     renderWithDefaults(page, {
         load: lazy(async function () {
-            this.clusters = data.lazyInstance("cluster", { opt: "list" });
+            this.clusters = data.lazyInstance("cluster");
             await this.clusters;
             this.active();
         }, -1000),
@@ -25,11 +25,12 @@ function main() {
             return ((new Date - d) / 1000 | 0) + "秒";
         },
         clients: [],
-        active(index = this.index.index | 0) {
+        async active(index = this.index.index | 0, c) {
             data.setInstance('index', { index });
             var clusters = this.clusters;
             if (index >= clusters.length) index = clusters.length - 1;
-            this.clients = data.from("cluster", { opt: "list", id: clusters[index] });
+            if (c) this.clients = [];
+            this.clients = await data.asyncInstance("clients", { id: clusters[index] });
         },
     });
     var loadid = 0;

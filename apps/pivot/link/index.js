@@ -6,8 +6,11 @@ function index() {
             var [name, path] = a.split(/\s+/);
             return { name, path };
         }),
+        saveIndex(index) {
+            data.setInstance('link-index', index);
+        },
         menu,
     });
-    page.$scope.menus[0].actived = true;
+    page.$scope.menus[+data.getInstance("link-index")].actived = true;
     return page;
 }
