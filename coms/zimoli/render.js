@@ -380,7 +380,10 @@ var renderStructure = function (element) {
     if ($struct.if) var { name: ifkey, key, value: ifexp } = $struct.if;
     if ($struct.repeat) var { value: repeat } = $struct.repeat;
     if (!ifkey) return createRepeat.call(element, repeat);
-    if (!ifexp || !repeat) return structures[key].call(element, ifexp);
+    if (!ifexp || !repeat) {
+        delete $struct.if;
+        return structures[key].call(element, ifexp);
+    }
     var { before, after } = parseIfWithRepeat(ifexp, repeat);
     if (after.length) {
         $struct.if = { key, name: ifkey, value: after.join("&&") };
@@ -875,7 +878,6 @@ function createStructure(element) {
     if (isArrayLike(element)) return Array.prototype.map.call(element, createStructure);
     if (element.$struct) return element.$struct;
     // 处理结构流
-    if (!element.attributes) console.log(element)
     var attrs = Array.prototype.slice.call(element.attributes);
     var types = {};
     var emiter_reg = /^(?:(v|ng|on|once)?\-|v\-on\:|@|once|on)/i;
@@ -902,7 +904,7 @@ function createStructure(element) {
             continue;
         }
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
-        if (structures.hasOwnProperty(key) && isFunction(structures[key])) {
+        if (structures.hasOwnProperty(key)) {
             if (element.renderid <= -2) {
                 if (/^if$|^else/i.test(key)) {
                     if (types.if) {
