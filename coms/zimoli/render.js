@@ -381,7 +381,7 @@ var renderStructure = function (element) {
     if ($struct.repeat) var { value: repeat } = $struct.repeat;
     if (!ifkey) return createRepeat.call(element, repeat);
     if (!ifexp || !repeat) {
-        delete $struct.if;
+        if (repeat) delete $struct.if;
         return structures[key].call(element, ifexp);
     }
     var { before, after } = parseIfWithRepeat(ifexp, repeat);
