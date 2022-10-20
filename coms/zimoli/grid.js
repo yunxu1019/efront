@@ -203,6 +203,7 @@ var resizeView = function (event) {
     grid.reshape();
 };
 var clearResizer = function (grid) {
+    if (!grid.editting) return;
     var target = grid.editting.target;
     if (target) target.style.zIndex = null;
     var { clientX, clientY } = grid.editting;
@@ -758,7 +759,6 @@ var createPointsWithChildren = function () {
         points = [0, points];
     }
     grid.setData(points);
-    console.log(grid.clientHeight, elements)
     grid.reshape();
 };
 function main(elem) {

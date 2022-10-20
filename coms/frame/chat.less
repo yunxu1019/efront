@@ -76,19 +76,26 @@ msg {
     line-height: 24px;
 }
 
->grid[body] {
+>grid {
     padding-top: 0;
     margin-bottom: 0;
+    height: 100%;
+    background-color: #f2f4f6;
+    width: 100%;
 
     >div {
         height: 100%;
         position: relative;
     }
+
+    >chat {
+        padding-top: 50px;
+    }
 }
 
 
 .editor-height(@height) {
-    >grid[body]:not(:last-child) {
+    >grid:not(:last-child) {
         padding-bottom: @height;
     }
 
