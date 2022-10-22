@@ -145,6 +145,10 @@ function ylist(container, generator, $Y) {
         var ratio = itemIndex - index || 0;
         var childrenMap = getChildrenMap();
         var offsetBottom = 0, ratioTop = 0, offset = index, last_item = getFirstElement(0) || null, last_index = last_item && last_item.index || offset;
+        if (!last_item) {
+            last_item = list.lastChild;
+            while (last_item && last_item.$isafter) last_item = last_item.previousSibling;
+        }
         if (last_item) last_item = getNodeTarget(last_item);
         var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
         var indexed_item;

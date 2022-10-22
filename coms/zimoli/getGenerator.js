@@ -25,12 +25,16 @@ var getGenerator = function (container, tagName = 'item') {
     container.$generatorScopes = scopes;
     if (container.$generator) return container.$generator;
     var template = document.createElement(container.tagName);
-    var templates = [].concat.apply([], container.childNodes).filter(a => {
+    var templates = [];
+    for (let a of container.childNodes) {
         if (a.hasAttribute('insert')) {
-            return false;
+            if (!templates.length) a.$isbefore = true;
+            else a.$isafter = true;
         }
-        return true;
-    });
+        else {
+            templates.push(a);
+        }
+    }
     if (templates.length < container.childNodes.length && templates.length >= 1) {
         var c = document.createComment('lattice');
         c.index = null;
