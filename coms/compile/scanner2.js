@@ -379,7 +379,7 @@ class Javascript {
         ["[", "]"],
         ["{", "}"],
     ]
-    stamps = "/=+;|:?<>-!~@#%^&*,".split("")
+    stamps = "/=+;|:?<>-!~%^&*,".split("")
     value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this|eval|super)$/
     number_reg = number_reg;
     transive = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
