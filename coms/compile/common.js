@@ -683,7 +683,6 @@ var createString = function (parsed) {
                     if (tmp) result.push("\r\n", tmp);
                 }
                 if (!pressed && !opentmp) {
-                    if (lasttype !== SPACE && o.prev) result.push(' ');
                     result.push(tmp);
                 }
                 break;
@@ -727,7 +726,7 @@ var createString = function (parsed) {
             default:
                 if (o instanceof Object) {
                     if (lasttype === EXPRESS && o.type === EXPRESS && (/^\./.test(o.text) || /\.$/.test(result[result.length - 1])));
-                    else if ([STRAP, EXPRESS, PROPERTY, VALUE, COMMENT].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
+                    else if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
                         result.push(" ");
                     }
                     else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
