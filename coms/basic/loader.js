@@ -299,7 +299,7 @@ var loadModule = function (name, then, prebuilds = {}) {
                 if (error) {
                     if (!errored[error]) errored[error] = [];
                     errored[error].push(key);
-                    _errored.push(error);
+                    if (_errored.indexOf(error) < 0) _errored.push(error);
                 }
                 if (loadingCount === args.length) {
                     if (_errored.length) loadedModules[key].error = _errored;
