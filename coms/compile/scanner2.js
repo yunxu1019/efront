@@ -367,7 +367,7 @@ class Javascript {
     quotes = [
         [/'/, /'/, /\\[\s\S]/],
         [/"/, /"/, /\\[\s\S]/],
-        ["/", /\/[imgyu]*/, /\\[\s\S]|\[(\\[\s\S]|[^\]])+\]/],
+        ["/", /\/[a-z]*/, /\\[\s\S]|\[(\\[\s\S]|[^\]])+\]/],
         ["`", "`", /\\[\s\S]/, ["${", "}"]],
     ]
     comments = [
@@ -391,11 +391,29 @@ class Javascript {
     default,finally,extends
     function,continue,debugger
     instanceof`.trim().split(/[,\s]+/)
-    spaces = ["\\u00a0", " ", "\\t", "\\v", "\\b", "\\r", "\\n", "\\u2028", "\\u2029", "\\u3000"]
+    spaces = [
+        "\\u0002",
+        "\\b-\\r",// "\\b"/*8*/, "\\t"/*9*/, "\\n"/*10*/, "\\v"/*11*/, "\\f"/*12*/, "\\r"/*13*/,
+        " "/*32*/,
+        "\\u007f", "\\u00a0", "\\u00ad", "\\u034f", "\\u061c",
+        "\\u115f", "\\u1160",
+        "\\u17b4", "\\u17b5",
+        "\\u180b-\\u180e",
+        "\\u1cbb", "\\u1cbc",
+        "\\u2000-\\u200f",
+        "\\u2028-\\u202f",
+        "\\u205f-\\u206f",
+        "\\u2800", "\\u3000", "\\u3164",
+        "\\ufe00-\\ufe0f",
+        "\\ufeff", "\\uffa0",
+        "\\ufff0-\\ufff8",
+        "\\u{133fc}",
+        "\\u{1d173}-\\u{1d17a}"
+    ]
     nocase = false
     lastIndex = 0
     compile(s) {
-        return s.replace(/\\[\s\S]|[\[\]\(\)\{\}\+\-\*\?\:\$\^\!\|\>\<\\\/]/g, function (m) {
+        return s.replace(/\\[\s\S]|[\[\]\(\)\{\}\+\.\-\*\?\$\^\|\\\/]/g, function (m) {
             if (m.length > 1) {
                 return m;
             }
@@ -951,20 +969,16 @@ class Javascript {
         this.stamps.forEach(s => {
             tokens[s] = true;
         });
-        this.spaces.forEach(s => {
-            tokens[s] = true;
-        });
-        var keys = Object.keys(tokens).join("");
-        keys = this.compile(keys);
-        var express = `[^${keys}]+`;
-        this.express_reg = new RegExp(`^${express}$`);
         var scopes = this.scopes.map(a => a.join("")).join("");
         scopes = this.compile(scopes);
         var spaces = this.spaces.join("");
-        spaces = this.compile(spaces);
-        this.space_reg = new RegExp(`^[${spaces}]+$`);
+        tokens = Object.keys(tokens).join("");
+        tokens = this.compile(tokens) + spaces;
+        var express = `[^${tokens}]+`;
+        this.express_reg = new RegExp(`^${express}$`, 'u');
+        this.space_reg = new RegExp(`^[${spaces}]+$`, 'u');
         var quotes = this.createRegExp(quoteslike.map(q => q[0]), true).source;
-        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${this.number_reg.source.replace(/^\^|\$$/g, "")}|${express}|[${stamps}]`], "gi");
+        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${this.number_reg.source.replace(/^\^|\$$/g, "")}|${express}|[${stamps}]`], "giu");
     }
 
 
