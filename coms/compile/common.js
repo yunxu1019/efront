@@ -12,6 +12,7 @@ const [
     /* 9 */PROPERTY,
 ] = new Array(20).fill(0).map((_, a) => a - 1);
 var number_reg = /^(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
+var equal_reg = /^([+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=|\+\+|\-\-$/;
 var skipAssignment = function (o, cx) {
     var next = arguments.length === 1 ? function () {
         o = o.next;
@@ -122,6 +123,7 @@ var createScoped = function (parsed, wash) {
     scoped.body = parsed;
     scoped.isfunc = true;
     var run = function (o, id, body) {
+        var exp = null;
         loop: while (o) {
             var isCatch = false;
             var isFunction = false;
@@ -130,6 +132,17 @@ var createScoped = function (parsed, wash) {
             var isClass = false;
             var isAsync = false;
             var isAster = false;
+            if (o.type === SCOPED) {
+                if (o.entry !== '[') exp = null;
+            }
+            else if (o.type !== EXPRESS) {
+                if (o.type === STAMP && equal_reg.test(o.text)) {
+                    if (exp) {
+                        exp.equal = o;
+                    }
+                }
+                exp = null;
+            }
             switch (o.type) {
                 case QUOTED:
                     if (o.length) {
@@ -155,6 +168,7 @@ var createScoped = function (parsed, wash) {
                     if (/^\.\.\./.test(u)) u = u.slice(3);
                     var u = u.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
                     if (!u) break;
+                    exp = null;
                     if (u === 'await' && funcbody.async !== false) {
                         o.type = STRAP;
                         funcbody.async = true;
@@ -169,6 +183,7 @@ var createScoped = function (parsed, wash) {
                         isArrow = true;
                     }
                     else {
+                        exp = o;
                         saveTo(used, u, o);
                     }
                     break;
@@ -484,6 +499,7 @@ var getDeclared = function (o, kind, queue) {
     var prop = null;
     var attributes = [];
     var index = 0;
+    var exp = null;
     loop: while (o) {
         while (o && o.type === STAMP && o.text === ',') o = o.next, index++;
         if (!o) {
@@ -530,6 +546,7 @@ var getDeclared = function (o, kind, queue) {
                 else attributes.push([prop, n]);
                 o.kind = kind;
                 saveTo(used, n, o);
+                exp = o;
                 o = o.next;
                 break;
             case SCOPED:
@@ -539,6 +556,7 @@ var getDeclared = function (o, kind, queue) {
                 declared.push(d);
                 if (!prop) prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
                 d.entry = o.entry;
+                o.kind = kind;
                 attributes.push([prop, d]);
                 o = o.next;
                 break;
@@ -562,6 +580,7 @@ var getDeclared = function (o, kind, queue) {
                 break loop;
             case STAMP:
                 if (o.text === "=") {
+                    if (exp) exp.equal = o;
                     o = o.next;
                     var o0 = skipAssignment(o);
                     attributes[attributes.length - 1].push(queue, o, o0);
@@ -795,6 +814,7 @@ module.exports = {
     /* 8 */LABEL,
     /* 9 */PROPERTY,
     number_reg,
+    equal_reg,
     skipAssignment,
     getDeclared,
     createString,
