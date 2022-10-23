@@ -12,7 +12,7 @@ const [
     /* 9 */PROPERTY,
 ] = new Array(20).fill(0).map((_, a) => a - 1);
 var number_reg = /^(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
-var equal_reg = /^([+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=|\+\+|\-\-$/;
+var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var skipAssignment = function (o, cx) {
     var next = arguments.length === 1 ? function () {
         o = o.next;
@@ -117,13 +117,25 @@ var skipAssignment = function (o, cx) {
     }
     return body ? cx : o;
 };
+var snapExpressHead = function (o) {
+    while (o && o.prev) {
+        var p = o.prev;
+        if (p.type === EXPRESS || p.type === VALUE) {
+            if (o.type === SCOPED && o.entry === '[' || /^\./.test(o.text) || /\.$/.test(p.text) && !number_reg.test(p.text)) {
+                o = p;
+                continue;
+            }
+        }
+        break;
+    }
+    return o;
+};
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
     var scoped = [], funcbody = scoped;
     scoped.body = parsed;
     scoped.isfunc = true;
     var run = function (o, id, body) {
-        var exp = null;
         loop: while (o) {
             var isCatch = false;
             var isFunction = false;
@@ -132,16 +144,15 @@ var createScoped = function (parsed, wash) {
             var isClass = false;
             var isAsync = false;
             var isAster = false;
-            if (o.type === SCOPED) {
-                if (o.entry !== '[') exp = null;
-            }
-            else if (o.type !== EXPRESS) {
-                if (o.type === STAMP && equal_reg.test(o.text)) {
-                    if (exp) {
-                        exp.equal = o;
-                    }
+            if (o.type === STAMP && equal_reg.test(o.text)) {
+                var p = snapExpressHead(o.prev);
+                if (!p);
+                else if (p.type === EXPRESS || p.type === VALUE) {
+                    p.equal = o;
                 }
-                exp = null;
+                else if (o.text === '=' && p.type === SCOPED) {
+                    if (!p.kind) getDeclared(p, 'assign');
+                }
             }
             switch (o.type) {
                 case QUOTED:
@@ -168,7 +179,6 @@ var createScoped = function (parsed, wash) {
                     if (/^\.\.\./.test(u)) u = u.slice(3);
                     var u = u.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
                     if (!u) break;
-                    exp = null;
                     if (u === 'await' && funcbody.async !== false) {
                         o.type = STRAP;
                         funcbody.async = true;
@@ -183,7 +193,13 @@ var createScoped = function (parsed, wash) {
                         isArrow = true;
                     }
                     else {
-                        exp = o;
+                        var prev = o.prev;
+                        if (prev && prev.type === STAMP && /^(?:\+\+|\-\-)$/.test(prev.text)) {
+                            var pp = prev.prev;
+                            if (!pp || pp.type === STAMP) {
+                                o.equal = o.prev;
+                            }
+                        }
                         saveTo(used, u, o);
                     }
                     break;
@@ -499,7 +515,6 @@ var getDeclared = function (o, kind, queue) {
     var prop = null;
     var attributes = [];
     var index = 0;
-    var exp = null;
     loop: while (o) {
         while (o && o.type === STAMP && o.text === ',') o = o.next, index++;
         if (!o) {
@@ -546,7 +561,6 @@ var getDeclared = function (o, kind, queue) {
                 else attributes.push([prop, n]);
                 o.kind = kind;
                 saveTo(used, n, o);
-                exp = o;
                 o = o.next;
                 break;
             case SCOPED:
@@ -580,7 +594,7 @@ var getDeclared = function (o, kind, queue) {
                 break loop;
             case STAMP:
                 if (o.text === "=") {
-                    if (exp) exp.equal = o;
+                    o.prev.equal = o;
                     o = o.next;
                     var o0 = skipAssignment(o);
                     attributes[attributes.length - 1].push(queue, o, o0);
