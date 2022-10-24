@@ -1,6 +1,4 @@
-var singleEqual = function (o1, o2) {
-    return o1 === o2 || isNumber(o1) && isNumber(o2) && isNaN(o1) && isNaN(o2);
-};
+var singleEqual = isSame;
 var deepEqualMarkLabel = "__zimo1i_deep_equal_mark_label";
 var restcompare = [];
 var ALLOW_CACHE_LENGTH = Math.min(SAFE_CIRCLE_DEPTH, 1024) * Math.min(SAFE_CIRCLE_DEPTH, 1024);
