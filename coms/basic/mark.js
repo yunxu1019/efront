@@ -84,40 +84,63 @@ var power = function (source, search) {
     return [0, source];
 };
 
-
 var power2 = function (src1, src2) {
+    var c = compare(src1, src2);
+    var p = c.pop();
+    if (!p) return [src1, src2, 0];
+    src1 = src1.slice(0, 0);
+    src2 = src2.slice(0, 0);
+    for (var a of c) {
+        if (a.different) src1 = src1.concat(a[0]), src2 = src2.concat(a[1]);
+        else src1 = src1.concat(MARK_PRE1, a, MARK_AFT1), src2 = src2.concat(MARK_PRE2, a, MARK_AFT2);
+    }
+    return [src1, src2, p];
+};
 
-    if (!src2 || !src1) {
-        return [src1, src2, 0];
+var different = function (src1, src2) {
+    var res = [src1, src2];
+    res.different = true;
+    return res;
+};
+
+var compare = function (src1, src2, min = 0) {
+    if (!src2 || !src1 || !src1.slice || !src2.slice) {
+        if (isSame(src1, src2)) return [src1, 1];
+        return [different(src1, src2), 0];
     }
     var matchers = couple(src1, src2);
     var [match_text, match_start1, match_start2] = matchers;
-    if (match_text.length > 0) {
+    if (match_text.length > min) {
         var src1_pre = src1.slice(0, match_start1);
         var src1_aft = src1.slice(match_start1 + match_text.length);
         var src2_pre = src2.slice(0, match_start2);
         var src2_aft = src2.slice(match_start2 + match_text.length);
         var pp = 0, ap = 0;
         var p = match_text.length;
+        var pre, aft;
         if (src1_pre.length) p += .1 / src1_pre.length - .2;
         if (src1_aft.length) p += .1 / src1_aft.length - .1;
-        if (src1_pre.length > 0 && src2_pre.length > 0) {
-            [src1_pre, src2_pre, pp] = power2(src1_pre, src2_pre);
+        if (src1_pre.length > 0 || src2_pre.length > 0) {
+            pre = compare(src1_pre, src2_pre);
+            pp = pre.pop();
         }
-        if (src1_aft.length > 0 && src2_aft.length > 0) {
-            [src1_aft, src2_aft, ap] = power2(src1_aft, src2_aft);
+        else {
+            pre = [];
         }
-        p += (pp + ap) * .01;
-        return [
-            src1_pre.concat(MARK_PRE1, match_text, MARK_AFT1, src1_aft),
-            src2_pre.concat(MARK_PRE2, match_text, MARK_AFT2, src2_aft),
-            p
-        ];
+        if (src1_aft.length > 0 || src2_aft.length > 0) {
+            aft = compare(src1_aft, src2_aft);
+            ap = aft.pop();
+        }
+        else {
+            aft = [];
+        }
+        p += (pp + ap) / src1.length / src2.length * .01;
+        pre.push(match_text);
+        return pre.concat(aft, p);
     }
-    return [src1, src2, 0];
+    return [different(src1, src2), 0];
 
 };
-
 
 var setTag1 = function (pre, aft) {
     if (arguments.length === 1) {
@@ -153,5 +176,10 @@ mark.setTag1 = setTag1;
 mark.setTag2 = setTag2;
 mark.power = power;
 mark.power2 = power2;
+mark.compare = function (a, b) {
+    var c = compare(a, b);
+    c.power = c.pop();
+    return c;
+};
 mark.pair = pair;
 mark.couple = couple;
