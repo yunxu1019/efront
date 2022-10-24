@@ -17,10 +17,17 @@ var skipAssignment = function (o, cx) {
     var next = arguments.length === 1 ? function () {
         o = o.next;
     } : function () {
-        o = body[++cx];
-        while (o && (o.type === SPACE || o.type === COMMENT)) o = body[++cx];
+        o = body[++ox];
+        cx = ox;
+        while (o && (o.type === SPACE || o.type === COMMENT)) o = body[++ox];
     };
-    if (arguments.length !== 1) var body = o, o = body[cx];
+    if (arguments.length !== 1) {
+        var body = o;
+        var ox = cx;
+        o = body[ox];
+        while (o && (o.type === SPACE || o.type === COMMENT)) o = body[++ox];
+        cx = ox + 1;
+    }
     var needpunc = false;
     var qcount = 0;
     loop: while (o) switch (o.type) {
@@ -118,6 +125,73 @@ var skipAssignment = function (o, cx) {
     }
     return body ? cx : o;
 };
+function snapSentenceHead(o) {
+    // 只检查一级
+    while (o && o.prev) {
+        var p = o.prev;
+        if (o.entry === '(' && p.type !== STAMP && p.type !== STRAP) {
+            o = p;
+            p = o.prev;
+            if (!p) break;
+        }
+        var maybeprop = o.type === SCOPED && o.entry !== "{" || o.type === EXPRESS && /^\./.test(o.text);
+        if (p.type === EXPRESS) {
+            if (maybeprop || /\.$/.test(p.text)) {
+                o = p;
+                continue;
+            }
+            break;
+        }
+        if (p.type === VALUE || p.type === QUOTED) {
+            if (maybeprop) {
+                o = p;
+                if (p.entry === '`' && p.prev && (p.prev.type !== STAMP && p.prev.type !== STRAP)) o = p.prev;
+                continue;
+            }
+            break;
+        }
+        if (p.type === SCOPED) {
+            if (maybeprop) {
+                o = p;
+                continue;
+            }
+            if (p.entry === "(" && o.type === SCOPED) {
+                var pp = p.prev;
+                if (pp && pp.type === EXPRESS) pp = pp.prev;
+                if (pp && pp.type === STRAP && pp.text === 'function') {
+                    o = pp;
+                    continue;
+                }
+            }
+            break;
+        }
+        if (p.type === STRAP) {
+            if (/^(?:new|void|typeof|delete|await|var|let|const|class|function)$/.test(p.text)) {
+                o = p;
+                continue;
+            }
+            if (/^(in|instanceof)/.test(p.text)) {
+                o = p.prev;
+                continue;
+            }
+            break;
+        }
+        if (p.type === STAMP) {
+            if (/=>|[,;]/.test(p.text) || equal_reg.test(p.text)) {
+                break;
+            }
+            if (/^(?:[!~]|\+\+|\-\-)$/.test(p.text)) {
+                o = p;
+                continue;
+            }
+            o = p.prev;
+            continue;
+        }
+        break;
+    }
+    return o;
+}
+
 var snapExpressHead = function (o) {
     while (o && o.prev) {
         var p = o.prev;
@@ -834,6 +908,7 @@ module.exports = {
     getDeclared,
     createString,
     createScoped,
+    snapSentenceHead,
     saveTo,
     rename,
     mergeTo

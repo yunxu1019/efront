@@ -1,4 +1,4 @@
-var { skipAssignment, EXPRESS, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, equal_reg, createString } = require("./common");
+var { skipAssignment, snapSentenceHead, EXPRESS, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, createString } = require("./common");
 var strings = require("../basic/strings");
 
 var createRefId = function (o) {
@@ -81,77 +81,43 @@ function removeRefs(o) {
 
 function inCondition(o) {
     // 只检查一级
+    var incondition = false;
     while (o && o.prev) {
+        o = snapSentenceHead(o);
         var p = o.prev;
-        var maybeprop = o.type === SCOPED && o.entry === "[" || o.type === EXPRESS && /^\./.test(o.text);
-        if (p.type === EXPRESS) {
-            if (maybeprop || /\.$/.test(p.text)) {
-                o = p;
-                continue;
-            }
-            return false;
-        }
-        if (p.type === VALUE || p.type === QUOTED) {
-            if (maybeprop) {
-                o = p;
-                if (p.entry === '`' && p.prev && (p.prev.type !== STAMP && p.prev.type !== STRAP)) o = p.prev;
-                continue;
-            }
-            return false;
-        }
+        if (!p) break;
         if (p.type === SCOPED) {
-            if (p.entry === "[" && maybeprop) {
-                o = p;
-                continue;
-            }
-            if (p.entry === "(" && !maybeprop) {
-                if (!p.prev) return false;
-                var pp = p.prev;
-                if (pp.type === STRAP) {
-                    if (/^(?:if|for|with)$/.test(pp.text)) return true;
-                    if (/^(?:while)$/.test(pp.text)) {
-                        var ppp = pp.prev;
-                        if (!ppp || !ppp.prev) return true;
-                        var pppp = ppp.prev;
-                        if (pppp.type === STRAP && pppp.text === "do") return false;
-                        return true;
+            if (p.entry !== "(") break;
+            if (!p.prev) break;
+            var pp = p.prev;
+            if (pp.type === STRAP) {
+                if (/^(?:if|for|with)$/.test(pp.text)) {
+                    incondition = true;
+                    break;
+                }
+                if (/^(?:while)$/.test(pp.text)) {
+                    var ppp = pp.prev;
+                    if (!ppp || !ppp.prev) {
+                        incondition = true;
+                        break;
                     }
+                    var pppp = ppp.prev;
+                    if (pppp.type === STRAP && pppp.text === "do") break;
+                    incondition = true;
+                    break;
                 }
-                else if (pp.type !== STAMP) {
-                    o = pp;
-                    continue;
-                }
             }
-            o = p;
-            continue;
-        }
-        if (p.type === STRAP) {
-            if (/^(?:new|void|typeof|delete|await|var|let|const|class|function)$/.test(p.text)) {
-                o = p;
-                continue;
-            }
-            if (/^(in|instanceof)/.test(p.text)) {
-                o = p.prev;
-                continue;
-            }
-            return false;
+            break;
         }
         if (p.type === STAMP) {
-            if (p.text === ";") return false;
-            if (p.text === ',') {
-                o = p.prev;
-                continue;
-            }
-            if (/^(?:[!~]|\+\+|\-\-)$/.test(p.text)) {
-                o = p;
-                continue;
-            }
+            if (p.text === ";") break;
             o = p.prev;
             continue;
         }
-        return true;
+        break;
     }
-    return false;
+    return incondition;
+
 }
 
 function enumref(scoped) {
