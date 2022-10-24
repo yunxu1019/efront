@@ -701,7 +701,7 @@ var createString = function (parsed) {
                     result = cacheresult;
                     result.push("/* <!-- 开发辅助代码: */");
                 }
-                if (/--\!?\>\s*(?:\*\/)?$/.test(tmp)) {
+                if (/--\!?\>\s*(?:\*\/)?$/.test(tmp) && result !== finalresult) {
                     if (!opentmp) tmp = tmp.replace(/^\/[\/\*]\s*/, '');
                     tmp = tmp.replace(/\s*--\!?\>\s*(?:\*\/)?$/, "");
                     if (tmp) {
