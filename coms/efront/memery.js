@@ -138,6 +138,9 @@ var _ifempty = {
     },
     get BREAK() {
         return memery.ENCRYPT;
+    },
+    get AUTOEVAL() {
+        return memery.BREAK;
     }
 };
 var memery = module.exports = {
@@ -257,7 +260,7 @@ var memery = module.exports = {
     IN_WATCH_MODE: get("IN_WATCH_MODE", false),
     ENCRYPT: get("ENCRYPT, CRYPT, ENCODE", true),
     COMPRESS: get("COMPRESS, PRESS, ENCODE"),
-    OPTIMIZE: get("OPTIMIZE", false),
+    AUTOEVAL: get("AUTOEVAL, AUTOENUM, EVAL, ENUM"),
     RECORD: getdirpath("RECORD_PATH,RECORD"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),
     PFX_PATH: getdirpath("PFX_PATH, PATH.SSL_PFX"),

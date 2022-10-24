@@ -9,6 +9,8 @@ var inPage = require("./inPage");
 var fs = require("fs");
 var path = require("path");
 var memery = require("./memery");
+var autoeval = require("../compile/autoeval");
+var autoenum = require("../compile/autoenum");
 
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     if (!data) return data;
@@ -165,6 +167,10 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     if (/x$|ts$|ue$|\.mjs$/i.test(filename) || /^\s*(ex|im)port\s/m.test(data)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext', module: "commonjs" });
     var code = scanner2(data);
+    if (memery.AUTOEVAL) {
+        code = autoenum(code);
+        code = autoeval(code);
+    }
     var {
         vars: declares,
         used: allVariables,
