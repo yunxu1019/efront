@@ -741,7 +741,7 @@ var createString = function (parsed) {
                 )) result.push(" ");
                 result.push(o.entry);
                 if (o.length > 0) {
-                    if (o.entry === "{" && result[0].type !== SPACE) {
+                    if (o.entry === "{" && o[0].type !== SPACE) {
                         if (!pressed) {
                             result.push(" ");
                         }
