@@ -52,7 +52,7 @@ function createRefMap(scoped) {
     var refs = Object.create(null);
     for (var k in used) {
         var u = used[k];
-        var map = {};
+        var map = Object.create(null);
         for (var o of u) {
             var r = createRefId(o);
             if (!map[r]) {

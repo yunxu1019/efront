@@ -226,7 +226,12 @@ var createScoped = function (parsed, wash) {
                     p.equal = o;
                 }
                 else if (o.text === '=' && p.type === SCOPED) {
-                    if (!p.kind) getDeclared(p, 'assign');
+                    if (!p.kind) {
+                        var pp = p.prev;
+                        if (!pp || pp.type === STAMP || pp.type === STRAP) {
+                            getDeclared(p, 'assign');
+                        }
+                    }
                 }
             }
             switch (o.type) {
