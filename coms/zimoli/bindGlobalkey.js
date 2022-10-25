@@ -3,7 +3,6 @@
  * @param {Event} event
  */
 var emitEvent = function (item, event) {
-    console.log(target)
     if (event.defaultPrevented) return;
     var target = this.target || this;
     if (!getTargetIn(target, event.target) && !getTargetIn(event.target, target)) return;
@@ -18,7 +17,6 @@ var bindonly = function (elem, hotkey, item) {
 }
 
 function bindGlobalkey(elem, keymap, item) {
-    console.log(elem,keymap)
     if (isString(keymap)) {
         keymap = keymap.split(",");
     }
