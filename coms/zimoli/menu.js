@@ -206,7 +206,7 @@ function main(elem, mode) {
     }
     if (!elem.hasAttribute('mode')) elem.setAttribute('mode', mode);
     if (!elem.hasAttribute(mode)) elem.setAttribute(mode, '');
-
+    elem.target = document.body;
     return elem;
 
 }
