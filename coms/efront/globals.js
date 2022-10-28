@@ -1,4 +1,4 @@
-var colors = require("./colors");
+var colors = require("../reptile/colors");
 var globals = module.exports = Object.create(null);
 var setGlobal = function (e, v) {
     if (typeof e === 'string') e = e.split(/[\s,]+/);

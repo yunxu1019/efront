@@ -1,4 +1,4 @@
-var console = require("../coms/efront/colored_console");
+var console = require("../coms/reptile/colored_console");
 var child_process = require("child_process");
 var queue = require("../coms/basic/queue");
 var versions = child_process.execSync("npm view . versions");

@@ -1,46 +1,8 @@
 "use strict";
 var colored = Object.create(null);
-var path = require("path");
-var version = `efront/(${String(require(path.join(__dirname, "../../package.json")).version).replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
 var lazy = require("../basic/lazy");
 var colors = require("./colors");
-var toLength = function (n, a = -1) {
-    n = String(n);
-    if (n.length < 2) {
-        n = '0' + n;
-    }
-    if (a === -1 && n.length < 3) {
-        n = '0' + n;
-    }
-    return colors.BgGray + colors.FgWhite2 + n + colors.BgGray + colors.FgWhite;
-};
-var formatDate = function () {
-    var year = this.getFullYear();
-    var month = this.getMonth() + 1;
-    var date = this.getDate();
-    var hours = this.getHours();
-    var minutes = this.getMinutes();
-    var seconds = this.getSeconds();
-    var milli = this.getMilliseconds();
-    milli = toLength(milli);
-    var offset = -this.getTimezoneOffset();
-    if (offset >= 0) {
-        offset = '+' + toLength(offset / 60 | 0, 0) + toLength(offset % 60, 0);
-    } else {
-        offset = '-' + toLength(-offset / 60 | 0, 0) + toLength(-offset % 60, 0);
-    }
-    return `${[year, month, date].map(toLength).join('-') + colors.FgGray}T${[hours, minutes, seconds].map(toLength).join(':')}.${milli}${offset}`;
-};
-var lastLogLength = 0, lastLogTime = 0;
-var logTime = function (str = '') {
-    lastLogTime = new Date;
-    var time = formatDate.call(lastLogTime) + ` ${colors.FgGreen2 + version + colors.Reset} ` + str;
-    write1(false, '');
-    write1(true, time);
-};
-var logStamp = function () {
-    if (new Date - lastLogTime > 600) logTime();
-};
+var lastLogLength = 0;
 var getColor = function (c) {
     switch (c) {
         case "red":
@@ -108,11 +70,10 @@ var write = function (hasNewLine, str) {
     var fgColor = colors[fg] || "",
         bgColor = colors[bg] || "",
         reset = colors.Reset;
-    var hasNewLine = /^(warn|error|pass|fail)$/.test(log), logTime = log === 'error';
+    var hasNewLine = /^(warn|error|pass|fail)$/.test(log);
     var logger = function (...args) {
         var label = fgColor + bgColor + info + reset;
         var time_stamp = '';
-        if (logTime) logStamp();
         var str = [time_stamp, label, ...args].join(" ");
         if (queue.length > 1 && !queue[queue.length - 2] && !/[\r\n\u2028\u2029]/.test(queue[queue.length - 1])) {
             queue.pop();
@@ -126,14 +87,13 @@ var queue = [];
 var flush = function () {
     while (queue.length) write(queue.shift(), queue.shift());
 };
-var write0 = lazy(flush, -60);
+// var write0 = lazy(flush, -60);
 var write1 = function (hasNewLine, str) {
     writeid++;
     // queue.push(hasNewLine, str);
     write(hasNewLine, str);
 };
 colored.flush = flush;
-colored.time = logTime;
 colored.type = function (...args) {
     write1(false, args.join(' '));
 };
@@ -155,7 +115,8 @@ colored.drop = function () {
 colored.end = function () {
     return write1(false, colors.Reset);
 };
-colored.clear = function () {
-    return write1(false, '');
+colored.clear = function (tag) {
+    write1(false, '');
+    if (tag) write1(true, tag);
 };
 module.exports = colored;
