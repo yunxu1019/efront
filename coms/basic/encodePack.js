@@ -77,7 +77,7 @@ function tohuff(buff, result = [], type_limit) {
     b.sort(function (m, n) {
         return a[n] - a[m];
     });
-    var size = getIndexFromOrderedArray(b, 1, (m, n) => a[m] >= n);
+    var size = getIndexFromOrderedArray(b, 1, (m, n) => a[m] >= n, false);
     if (a[b[size]] > 0) size++;
     if (size + 1 > b.length) console.log(a.slice(420), buff.filter(a => a > 512), b.slice(420))
 
@@ -285,7 +285,7 @@ function pack2(buff) {
                 range_compress,
                 other_compress << 5 | el.length,
             ],
-            el,  e]));
+            el, e]));
     }
     result = concatTypedArray(result);
     return pack0(buff, result);

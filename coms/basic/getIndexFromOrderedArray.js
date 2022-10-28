@@ -19,7 +19,7 @@ var defaultIsLE = (sample, search) => isArray(sample) && isArray(search) ? array
  * @param {Array} orderArray 
  * @param {string|number} searchItem 
  */
-module.exports = function (orderArray, searchItem, isLE = typeof searchItem === "function" ? searchItem : defaultIsLE) {
+module.exports = function (orderArray, searchItem, isLE = typeof searchItem === "function" ? searchItem : defaultIsLE, findEqual = true) {
     for (var cx = 0, dx = orderArray.length, ci = cx + dx >>> 1; cx < dx; ci = cx + dx >>> 1) {
         var orderItem = orderArray[ci];
         if (isLE(orderItem, searchItem)) {
@@ -28,8 +28,8 @@ module.exports = function (orderArray, searchItem, isLE = typeof searchItem === 
             dx = ci;
         }
     }
-    var index = dx - 1;
-    if (index < orderArray.length) {
+    if (findEqual && dx <= orderArray.length) {
+        var index = dx - 1;
         while (index >= 0 && isLE(searchItem, orderArray[index])) {
             if (orderArray[index] === searchItem) return index;
             index--;
