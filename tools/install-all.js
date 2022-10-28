@@ -37,7 +37,7 @@ queue.call(parsed, function (version, index) {
     var commands = scripts.slice(0);
     commands[0] += "@" + version;
     if (Math.random() * (index + 120) / 240 > .5) return;
-    console.time(version);
+    console.clear(version);
     return queue.call(commands, run).then(function () {
         if (!localIP) return;
         if (index < 7) return run('efront live 80 443', 20000);
