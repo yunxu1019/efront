@@ -36,6 +36,7 @@ class Table extends Array {
         removeFromList(this.sortFields, field);
         this.sortFields.push(field);
         var sorted = this.sorted || this.source.slice(0);
+        if (isEmpty(field.sort)) field.sort = 0;
         field.sort = field.sort > 0 ? -1 : 1;
         this.sorted = sorted.sort(function (a, b) {
             a = seek(a, field.key);
