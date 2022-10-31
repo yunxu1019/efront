@@ -15,15 +15,16 @@ const {
     /* 9 */PROPERTY,
     number_reg,
 } = require("./common");
+var straps = `if,in,do,as,of
+var,for,new,try,let,get,set
+else,case,void,with,enum,from,eval
+async,while,break,catch,throw,const,yield,class,await,super
+return,typeof,delete,switch,export,import,static
+default,finally,extends
+function,continue,debugger
+instanceof`.trim().split(/[,\s]+/);
 class Javascript extends Program {
-    straps = `if,in,do,as,of
-    var,for,new,try,let,get,set
-    else,case,void,with,enum,from,eval
-    async,while,break,catch,throw,const,yield,class,await,super
-    return,typeof,delete,switch,export,import,static
-    default,finally,extends
-    function,continue,debugger
-    instanceof`.trim().split(/[,\s]+/);
+    straps = straps;
     value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this|eval|super)$/
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
