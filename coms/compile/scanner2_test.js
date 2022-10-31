@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
-var esprima = require("../esprima/index");
-var typescript = require("../typescript/index");
+var esprima// = require("../esprima/index");
+// var typescript = require("../typescript/index");
 var console = require("../reptile/colored_console");
 var scanner = require("./scanner2");
 var data = fs.readFileSync(path.join(__dirname, "../typescript/index.js")).toString();
@@ -29,7 +29,7 @@ function testSpeed() {
 
 function testVariables() {
     var rootpath = path.join(__dirname, "../zimoli/");
-    var getVariables = require("./variables");
+    var getVariables //= require("./variables");
     var names = fs.readdirSync(rootpath);
     names.forEach(n => {
         if (!/\.js$/i.test(n)) return;
@@ -76,10 +76,15 @@ function testAssign() {
     a()`);
     console.log(m.press().toString());
 }
+function testFormat() {
+    var t = fs.readFileSync(path.join(__dirname, "../efront/memery.js")).toString();
+    assert(scanner(t).toString(), t);
+}
 // testSpeed();
 // testVariables();
 // testRegexp();
 // testStatic();
-testAssign();
+// testAssign();
+testFormat();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });

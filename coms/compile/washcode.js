@@ -71,14 +71,14 @@ var patchExpress = function (exp) {
     if (!exp.first) {
         exp.first = exp[0];
     }
-    if (!exp.lastUncomment) {
-        exp.lastUncomment = exp[exp.length - 1];
+    if (!exp.last) {
+        exp.last = exp[exp.length - 1];
     }
     if (exp.first) {
         delete exp.first.prev;
     }
-    if (exp.lastUncomment) {
-        delete exp.lastUncomment.next;
+    if (exp.last) {
+        delete exp.last.next;
     }
     var first = exp.first;
     if (first && first.type === QUOTED && /^(['"`])use strict\1/i.test(first.text)) {

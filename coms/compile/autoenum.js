@@ -7,7 +7,7 @@ var createRefId = function (o) {
     while (o) {
         if (o.type === SCOPED) {
             if (o.entry !== '[') break;
-            var t = o.lastUncomment;
+            var t = o.last;
             if (!t) throw new Error("格式错误");
             if (t.type === QUOTED) {
                 if (!t.length) {
