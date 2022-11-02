@@ -323,7 +323,7 @@ function prepare(pgpath, ok) {
     };
     state.titlebar = function () {
         var realTitleBar = titlebar.apply(null, arguments);
-        state.with(realTitleBar);
+        if (!realTitleBar.parentNode) state.with(realTitleBar);
         return realTitleBar;
     };
     var roles = res || null;
