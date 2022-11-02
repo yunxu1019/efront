@@ -8,7 +8,7 @@ function rest_(o, keys) {
     var propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
     var map = Object.create(null);
     for (var k of keys) map[k] = true;
-    var res = Object.create(null);
+    var res = {};
     for (var k in o) {
         if (hasOwnProperty.call(o, k)) {
             if (k in map) continue;
