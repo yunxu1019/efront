@@ -1,21 +1,29 @@
 var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = Object.create(null);
 var presets = Object.create(null);
+var copyAttribute = function (node, copys) {
+    for (var { name, value } of copys) switch (name.toLowerCase()) {
+        case "class":
+            addClass(node, value);
+            break;
+        case "style":
+            css(node, value);
+            break;
+        case "src":
+        case "placeholder":
+            node[name] = value;
+            break;
+        default:
+            node.setAttribute(name, value);
+    }
+}
 var createTemplateNodes = function (text) {
     remove(this.with);
     if (isEmpty(text)) return;
     if (isNode(text)) {
         var node = text;
         if (isElement(node) && this.$struct.copys) {
-            for (var c of this.$struct.copys) {
-                if (c.name === 'class') {
-                    addClass(node, c.value);
-                }
-                else if (c.name === 'style') {
-                    css(node, c.value);
-                }
-                else node.setAttribute(c.name, c.value);
-            }
+            copyAttribute(node, this.$struct.copys);
         }
         this.with = [node];
         return;
@@ -779,23 +787,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
-                copys.forEach(function (attr) {
-                    var { name, value } = attr;
-                    switch (name.toLowerCase()) {
-                        case "class":
-                            addClass(replacer, value);
-                            break;
-                        case "style":
-                            css(replacer, value);
-                            break;
-                        case "src":
-                        case "placeholder":
-                            replacer[name] = value;
-                            break;
-                        default:
-                            replacer.setAttribute(name, value);
-                    }
-                });
+                copyAttribute(replacer, copys);
                 if (!replacer.renderid) replacer.renderid = element.renderid;
             }
         }
@@ -899,6 +891,15 @@ function createStructure(element) {
             element.removeAttribute(name);
             continue;
         };
+        if (/^\./.test(name) && !value) {
+            // 识别为class
+            element.removeAttribute(name);
+            value = name.slice(1).replace(/\./g, ' ')
+            name = 'class';
+            copys.push({ name, value });
+            element.setAttribute(name, value);
+            continue;
+        }
         if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) {
             copys.push(attr);
             continue;
