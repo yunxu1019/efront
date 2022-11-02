@@ -13,7 +13,9 @@ var datas = data.from("singer-class", function (response) {
 });
 var $scope = {
     datas,
+    group: padding,
     padding,
+    bg,
     song,
     go,
 };

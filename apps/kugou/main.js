@@ -1,4 +1,4 @@
 data.setConfig(api);
 zimoli.switch("", null, "/home");
-css("body", "background-color:#f2f4f6;");
+css("body", "background-color:#323336;");
 zimoli();

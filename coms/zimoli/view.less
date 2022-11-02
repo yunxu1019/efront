@@ -15,6 +15,7 @@ body>& {
     -webkit-user-select: none;
     border: 1px solid #0006;
     min-width: 160px;
+    background: #fff;
 }
 
 &[draggable] {
@@ -25,7 +26,7 @@ body>& {
 >[body] {
     padding: 6px 20px 6px 6px;
     margin-right: -20px;
-    background: #f2f4f6;
+    background: #f2f4f622;
     display: block;
     width: auto;
     height: 100%;
@@ -35,8 +36,8 @@ body>& {
     box-sizing: border-box;
     background-clip: padding-box;
 
-    border-top: 6px solid #fff;
-    border-bottom: 6px solid #fff;
+    border-top: 6px solid #fff2;
+    border-bottom: 6px solid #fff2;
 
     &:not(:nth-last-child(1)) {
         padding-bottom: 42px;
@@ -48,13 +49,12 @@ body>& {
 >[head] {
     top: 0;
     z-index: 2;
-    background: #fffc;
+    background: inherit;
     position: relative;
     position: sticky;
     line-height: 20px;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #333;
     padding: 12px 16px 10px 16px;
 
     &:before {
@@ -108,7 +108,7 @@ body>& {
     padding: 6px 16px 0 16px;
     border-top: 1px solid rgba(0, 0, 0, .16);
     backdrop-filter: blur(20px);
-    background: #fffc;
+    background: inherit;
     position: sticky;
     width: 100%;
     bottom: 0;

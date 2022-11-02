@@ -7,11 +7,12 @@
     bottom: 0;
     background: inherit;
 }
-.button{
+
+.button {
     padding: 0 10px;
 }
 
-.empty{
+.empty {
     color: #666;
     display: block;
     padding: 50px 10px;
@@ -28,6 +29,7 @@
         text-align: right;
         vertical-align: middle;
         width: auto;
+
         &:after {
             content: "⇵";
         }
@@ -65,43 +67,23 @@
     }
 }
 
-.input-box {
-    height: 50px;
-    position: relative;
-    padding: 10px 12px;
-
+.titlebar {
+    padding: 0 60px;
     >input {
         height: 30px;
         border: none;
         width: 100%;
         border-radius: 3px;
+        background: #000c;
         font-size: 14px;
         padding: 0 10px;
+        color: #fff;
     }
 }
 
-.keyword-pad {
-    >div {
-        padding: 10px 12px;
-        background-color: #fff;
-    }
-
-    >div+div {
-        border-top: 1px solid #ccc;
-    }
-}
-
-.result-pad {
-    b {
-        color: rgb(44, 162, 149);
-    }
-
-    >div {
-        padding: 10px 12px;
-        background-color: #fff;
-    }
-
-    >div+div {
-        border-top: 1px solid #ccc;
+.history{
+    btn{
+        background: #5769;
+        padding: 0 16px;
     }
 }

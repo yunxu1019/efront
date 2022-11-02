@@ -4,6 +4,7 @@ function main(elem) {
     var $scope = {
         filterTime,
         png: img,
+        bg,
         playState: kugou$playState,
         song: {},
         musicList: kugou$musicList,
@@ -19,7 +20,7 @@ function main(elem) {
             }
         }
         $scope.song = {
-            hash: item.hash,
+            hash: item.hash || item.hashid,
             imgurl: item.imgurl,
             singer: singerName,
             songMarked: mark(songName, elem.mark),

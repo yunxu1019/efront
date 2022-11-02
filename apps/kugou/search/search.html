@@ -5,12 +5,12 @@
     <icon class="loading" ng-if="result?.loading"></icon>
     <btn ng-click="keyword='';search()">清空</btn>
 </titlebar>
-<div ng-if="!keyword">
+<div ng-if="!keyword" .history>
     <padding class="empty" ng-if="!searchHistory.length">
         搜索历史为空
     </padding>
     <padding ng-repeat="s in searchHistory">
-        <btn ng-click="search(s,0)" type=white><span ng-bind="s"></span></btn>
+        <btn ng-click="search(s,0)"><span ng-bind="s"></span></btn>
     </padding>
 </div>
 <list ng-if="keyword" ng-src="s in result">

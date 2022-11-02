@@ -249,7 +249,6 @@ var $scope = {
         $scope.playing = true;
         playState.width = 0;
         getMusicInfo(hash).loading_promise.then((response) => {
-            console.log(response)
             if (!this.playing) return;
             if (hash !== musicList.active_hash) return;
             if (response.imgUrl) {

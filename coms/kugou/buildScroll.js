@@ -36,7 +36,6 @@ function Main(dataid, datapath, titleid) {
                 data.from(titleid, {
                     id
                 }).then(function ({ title }) {
-                    console.log(arguments)
                     _titlebar.setTitle(title);
                     document.title = title;
                 })

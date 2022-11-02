@@ -128,16 +128,17 @@
     >.track:after,
     >.avatar {
         border-color: @main-color;
-        opacity: 1;
         box-shadow: 0 0 6px -3px @main-color;
     }
-
+    
     >.track {
-        transition: height .3s;
+        opacity: .7;
+        transition: height .3s, opacity .3s;
         top: 12px;
     }
-
+    
     >.avatar {
+        opacity: 1;
         top: 0;
     }
 
@@ -219,6 +220,7 @@
 
     >div.progress>.track {
         height: 3px;
+        opacity: 1;
     }
 
     >.track {

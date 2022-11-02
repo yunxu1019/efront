@@ -1,5 +1,5 @@
 function main(dataid, datapath) {
-    var page = div();
+    var page = document.createElement("list-page");
     page.innerHTML = buildList;
     render(page, {
         list: lattice,

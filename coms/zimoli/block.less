@@ -4,38 +4,3 @@
     background: #fffc;
     border-radius: 4px 0 4px 0;
 }
-
->.bg {
-    border: 1px solid rgba(0, 0, 0, .1);
-    border-radius: inherit;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    overflow: hidden;
-
-    &:after {
-        margin: -100px -180px;
-        width: 300px;
-        height: 200px;
-        right: 0;
-        bottom: 0;
-    }
-
-    &:before {
-        width: 60px;
-        height: 100px;
-        margin: -55px -35px;
-        left: 0;
-        top: 0;
-    }
-
-    &:after,
-    &:before {
-        content: "";
-        background-color: rgba(90, 200, 250, 0.1);
-        position: absolute;
-        border-radius: 50%;
-    }
-}

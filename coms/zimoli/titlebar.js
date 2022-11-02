@@ -1,4 +1,4 @@
-var nav = createElement(div);
+var nav = createElement("titlebar");
 
 function btn(element) {
     var opt = button(element);

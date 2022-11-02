@@ -1,5 +1,5 @@
 var cloneProperties = "fontWeight,fontSize,fontFamily,color,textShadow,opacity,writingMode,blockSize,wordSpacing,letterSpacing,whiteSpace".split(",");
-var cloneProperties2 = "position,backdropFilter,float,clear,margin,color,verticalAlign,textAlign,textShadow,opacity,boxShadow,overflow,textOverflow,wordBreak,webkitLineClamp,webkitBoxOrient,writingMode,blockSize,wordSpacing,letterSpacing,textIndent,lineHeight,display,appearance,webkitAppearance,MozAppearance".split(",");
+var cloneProperties2 = "position,backdropFilter,filter,float,clear,margin,color,verticalAlign,textAlign,textShadow,opacity,boxShadow,overflow,textOverflow,wordBreak,webkitLineClamp,webkitBoxOrient,writingMode,blockSize,wordSpacing,letterSpacing,textIndent,lineHeight,display,appearance,webkitAppearance,MozAppearance".split(",");
 var pushProperty = function (key, props) {
     props.split(",").forEach(k => {
         cloneProperties2.push(key + k);

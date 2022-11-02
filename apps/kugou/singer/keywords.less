@@ -4,26 +4,61 @@
 
 >group {
     position: relative;
-    border-radius: 4px;
     overflow: hidden;
     display: block;
     border: solid transparent;
     border-width: 6px 0;
-    
+
+    >bg {
+        display: none;
+    }
+
     >padding {
         height: auto;
         display: block;
         border: solid transparent;
         border-width: 0 6px;
-        >song{
+
+        >song {
             line-height: 30px;
         }
     }
 }
 
+@media (max-width:720px) {
+
+    song .bg {
+        display: none;
+    }
+
+    song {
+        border-radius: 0;
+        background: transparent;
+    }
+
+    >group {
+        overflow: hidden;
+        border-width: 6px;
+
+        padding+padding {
+            border-top: 1px solid #9992;
+        }
+    }
+
+    >group>padding {
+        border: none;
+    }
+
+    >group>bg {
+        background: #101216;
+        border-radius: 4px 0 4px 0;
+        display: block;
+    }
+}
+
 @media(min-width:721px) {
     >group {
-        
+
         >padding {
             width: 33.3333%;
             line-height: 40px;

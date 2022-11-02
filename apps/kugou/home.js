@@ -35,6 +35,7 @@ render(page, {
     tag: button,
     btn: button,
     input,
+    titlebar,
     slider(elem) {
         var pages = slider(elem, function (index, ratio) {
             if (ratio === 1) {
