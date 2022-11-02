@@ -16,7 +16,7 @@
         "singer-info0": "mget:[].singer-songs-list>li       singer/info/:id#hash=!id&singer=.singer-name|innerText&name=.song-name|innerText&data=em/innerText"
     },
     "https://www.kugou.com/": {
-        "singer-info": "cget:link[rel]+script       yy/singer/home/:id.html",
+        "singer-info": "cget:link[rel]+script       singer/info/:id",
     },
     "http://mobilecdn.kugou.com/": {
         "search?keyword": "get:data.info                            api/v3/search/song?format=json&page=1&pagesize=30&showtype=1"
