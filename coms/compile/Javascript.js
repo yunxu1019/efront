@@ -252,7 +252,7 @@ Javascript.prototype.detour = function detour(o, ie) {
     while (o) {
         switch (o.type) {
             case SCOPED:
-                detour(o.first, ie);
+                this.detour(o.first, ie);
                 break;
             case EXPRESS:
                 if (avoidMap) {
@@ -280,7 +280,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                                 c.entry = "(";
                                 c.leave = ")";
                                 insertAfter.call(o, c, { type: STAMP, text: ',' });
-                                detour(c.first, ie);
+                                this.detour(c.first, ie);
                             }
                         }
                     }
@@ -294,7 +294,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                             } else {
                                 c.entry = '(';
                                 c.leave = ")";
-                                detour(c, ie);
+                                this.detour(c, ie);
                                 params.push(c.length === 1 ? c[0] : c);
                             }
                         }
