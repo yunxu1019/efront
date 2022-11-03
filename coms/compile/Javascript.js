@@ -1,3 +1,4 @@
+"use strict";
 var strings = require("../basic/strings");
 var Program = require("./Program");
 
