@@ -1,3 +1,4 @@
+"use strict";
 const [
     /*-1 */COMMENT,
     /* 0 */SPACE,
@@ -719,12 +720,14 @@ var mergeTo = function (used, used0) {
     }
 };
 
-var needBreak = function (prev, next) {
+var needBreak = function (o) {
+    var { prev, next } = o;
     if (!prev || !next) return;
+    if (prev.text === 'return' && next.text === 'function') console.log(prev, next)
     if (prev.type === STAMP && /^[,;]$/.test(prev.text)) return;
     if (next.type === STAMP && /^[,;]$/.test(next.text)) return;
     if (prev.type === EXPRESS && /\.$/.test(prev.text)) return;
-    if (prev.type === STRAP && /^(return|yeild|break|continue)$/.test(prev.text)) return ';';
+    if (prev.type === STRAP && /^(return|yeild|break|continue)$/.test(prev.text)) return /[\r\n\u2028\u2029]/.test(o.text) ? ';' : ' ';
     if (next.type === EXPRESS && /^\.[^\.]/.test(next.text)) return;
     if (next.type === PROPERTY) return ";";
     if (next.type === STAMP && next.text === "*") return ";";
@@ -748,15 +751,29 @@ var needBreak = function (prev, next) {
         if (next.type === LABEL) return ";";
     }
 };
+var relink = function (list) {
+    var pi = 0, p = null;
+    for (var cx = 0, dx = list.length; cx < dx; cx++) {
+        var o = list[cx];
+        o.prev = p;
+        if (o.type === COMMENT || o.type === SPACE) continue;
+        if (!p) list.first = o;
+        while (pi < cx) list[pi++].next = o;
+        p = o;
+    }
+    while (pi < cx) list[pi++].next = null;
+    list.last = p;
+    return list;
+}
 
 var createString = function (parsed) {
-    var pressed = parsed.pressed;
+    var keepspace = parsed.keepspace;
     var helpcode = parsed.helpcode;
     var lasttype;
     var result = [], cacheresult, finalresult = result;
     var run = (o, i, a) => {
         var prev = o.prev;
-        if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && prev && lasttype !== SPACE && !pressed) {
+        if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && prev && lasttype !== SPACE && keepspace) {
             if (~[QUOTED, SCOPED, STRAP, LABEL, COMMENT].indexOf(lasttype)
                 || prev.type === STAMP
                 && (!/[\+\-\~\!]$/.test(prev.text) || /[\+\-]$/.test(prev.text) && prev.prev
@@ -795,17 +812,17 @@ var createString = function (parsed) {
                     if (opentmp === 2) tmp = tmp.replace(/\s*\*\/$/, '');
                     if (tmp) result.push("\r\n", tmp);
                 }
-                if (!pressed && !opentmp) {
+                if (keepspace && !opentmp) {
                     result.push(tmp);
                 }
                 break;
             case SPACE:
-                if (!pressed) {
+                if (keepspace) {
                     result.push(o.text);
                     lasttype = SPACE;
                     break;
                 }
-                var b = needBreak(o.prev, o.next);
+                var b = needBreak(o);
                 if (b) result.push(b);
                 break;
             case QUOTED:
@@ -814,24 +831,24 @@ var createString = function (parsed) {
                     break;
                 }
             case SCOPED:
-                if (!pressed && o.type !== QUOTED && (lasttype === STRAP || lasttype === COMMENT || lasttype === STAMP
+                if (keepspace && o.type !== QUOTED && (lasttype === STRAP || lasttype === COMMENT || lasttype === STAMP
                     && (!o.prev || !/[\+\-\~\!]$/.test(o.prev.text) || /[\+\-]$/.test(o.prev.text) && (!o.prev.prev || !~[STAMP, STRAP].indexOf(o.prev.prev.type)))
                     || lasttype === SCOPED && o.entry === "{"
                 )) result.push(" ");
                 result.push(o.entry);
                 if (o.length > 0) {
                     if (o.entry === "{" && o[0].type !== SPACE) {
-                        if (!pressed) {
+                        if (keepspace) {
                             result.push(" ");
                         }
                     }
                     lasttype = undefined;
                     o.forEach(run);
-                    if (/^[,;]$/.test(result[result.length - 1]) && pressed) {
+                    if (/^[,;]$/.test(result[result.length - 1]) && !keepspace) {
                         if (!o.prev || o.prev.text !== 'for') result.pop();
                     }
                     if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
-                        if (!pressed) result.push(" ");
+                        if (keepspace) result.push(" ");
                     }
                 }
                 result.push(o.leave);
@@ -856,7 +873,7 @@ var createString = function (parsed) {
                             ) result.push(";");
                         }
                         else if (!/^(\+\+|\-\-)$/.test(o.text)) {
-                            if (!pressed && lasttype !== SPACE) result.push(" ");
+                            if (keepspace && lasttype !== SPACE) result.push(" ");
                         }
                     }
                     if (o.type === VALUE) {
@@ -884,16 +901,21 @@ var rename = function (used, from, to) {
         var text = u.text;
         var doted = /^\.\.\./.test(text);
         if (doted) text = text.slice(3);
-        text = to + text.replace(/^[^\.\:]+/i, "");
+        text = to + text.replace(/^[^\.\:\[]+/i, "");
         if (doted) text = "..." + text;
         if (u.type === PROPERTY) {
-            if (u.short) u.text += ':' + text;
+            if (u.short) {
+                var q = u.queue;
+                q.splice(q.indexOf(u), 0, { type: PROPERTY, text: u.text }, { type: STAMP, text: ":" });
+                u.short = false;
+                u.type = EXPRESS;
+                u.text = text;
+                relink(q);
+            }
             continue;
         }
         u.text = text;
     }
-    delete used[from];
-    used[to] = list;
 };
 module.exports = {
     /*-1 */COMMENT,
@@ -916,5 +938,6 @@ module.exports = {
     snapSentenceHead,
     saveTo,
     rename,
+    relink,
     mergeTo
 };

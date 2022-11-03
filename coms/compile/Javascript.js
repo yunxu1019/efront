@@ -30,7 +30,7 @@ class Javascript extends Program {
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue)$/;
-    classstrap_reg = /^(class|function)$/;
+    classstrap_reg = /^(class|function|async)$/;
 }
 var propresolve_reg = /^(static|get|set|async)$/;
 

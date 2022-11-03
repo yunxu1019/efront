@@ -16,6 +16,8 @@ const {
     skipAssignment,
     createScoped,
     createString,
+    rename,
+    relink,
 } = require("./common");
 
 
@@ -43,16 +45,7 @@ var compress = function (scoped, maped) {
             var k = keys[cx];
             var name = names[cx];
             map[k] = name;
-            var list = used[k];
-            if (list) for (var u of list) {
-                if (!u) continue;
-                var text = u.text;
-                var doted = /^\.\.\./.test(text);
-                if (doted) text = text.slice(3);
-                text = name + text.replace(/^[^\.\:]+/i, "");
-                if (doted) text = "..." + text;
-                u.text = text;
-            }
+            rename(used, k, name);
         }
     }
     if (scoped.length) {
@@ -79,6 +72,7 @@ class Code extends Array {
     pressed = false
     _scoped = null;
     helpcode = true;
+    keepspace = true;
     /**
      * @type {Program}
      */
@@ -145,23 +139,14 @@ class Code extends Array {
         return this;
     }
     // 压缩
-    press() {
+    press(keepspace) {
+        this.keepspace = keepspace;
         this.pressed = true;
         compress(this.scoped);
         return this;
     }
     relink(list = this) {
-        var p = null;
-        for (var o of list) {
-            if (o.type === COMMENT || o.type === SPACE) continue;
-            o.prev = p;
-            if (!p) list.first = o;
-            else p.next = o;
-            p = o;
-        }
-        if (p) p.next = null;
-        list.last = p;
-        return list;
+        return relink(list);
     }
 }
 
@@ -180,6 +165,7 @@ function scan(text, type = "js", lastIndex = 0) {
             program = getscanner('javascript', Javascript);
             break;
         case "java":
+            program = getscanner("java", Java);
             break;
     }
     program.Code = Code;

@@ -268,11 +268,12 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                     }
                 ), { type: code_body.SCOPED, entry: "(", leave: ")" }))
         ), code_body.first = code_body[0];
+
         code_body.splice(
             code_body.indexOf(code_body.first), 0,
-            { type: code_body.STRAP, text: "return" },
-            { type: code_body.SPACE, text: " " }
+            { type: code_body.STRAP, text: "return" }
         );
+        code.relink();
 
     } else {
         if (undeclares.module) {
@@ -283,8 +284,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         if (commName) {
             code_body.push(
                 { type: code_body.SPACE, text: "\r\n" },
-                { type: code_body.STRAP, text: "return" },
-                { type: code_body.SPACE, text: " " }
+                { type: code_body.STRAP, text: "return" }
             )
             if (hasless) {
                 code_body.push(
@@ -403,7 +403,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
 var buildPress2 = function (imported, params, data, args, strs) {
     if (imported.length > 0) {
         var code = scanner2(`var [${params.concat(args || [])}];${data}`);
-        if (memery.COMPRESS) code.press();
+        if (memery.COMPRESS) code.press(memery.KEEPSPACE);
         params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
         code.splice(0, 2);
     }
@@ -415,11 +415,11 @@ var buildPress2 = function (imported, params, data, args, strs) {
             else if (s instanceof RegExp) s = `/${s.source}/${s.flags}`;
             return `${a}=${s}`;
         }).join(',')};${data}`);
-        if (memery.COMPRESS) code.press();
+        if (memery.COMPRESS) code.press(memery.KEEPSPACE);
     }
     else {
         var code = scanner2(data);
-        if (memery.COMPRESS) code.press();
+        if (memery.COMPRESS) code.press(memery.KEEPSPACE);
     }
     data = code.toString();
     return [imported, params, data];

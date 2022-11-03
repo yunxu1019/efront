@@ -136,6 +136,9 @@ var _ifempty = {
     get COMPRESS() {
         return memery.ENCRYPT;
     },
+    get KEEPSPACE(){
+        return !memery.COMPRESS;
+    },
     get BREAK() {
         return memery.ENCRYPT;
     },
@@ -260,6 +263,7 @@ var memery = module.exports = {
     IN_WATCH_MODE: get("IN_WATCH_MODE", false),
     ENCRYPT: get("ENCRYPT, CRYPT, ENCODE", true),
     COMPRESS: get("COMPRESS, PRESS, ENCODE"),
+    KEEPSPACE: get("KEEPSPACE, SPACE"),
     AUTOEVAL: get("AUTOEVAL, AUTOENUM, EVAL, ENUM"),
     RECORD: getdirpath("RECORD_PATH,RECORD"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),

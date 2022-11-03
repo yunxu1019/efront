@@ -55,8 +55,9 @@ var polyfill_map = `function (f, t) {
 var crypt_code = new Date / 1000 ^ Math.random() * 3600;
 var encoded = memery.ENCRYPT;
 var compress = memery.COMPRESS;
+var keepspace = memery.KEEPSPACE;
 var simple_compress = function (str) {
-    if (!compress) return str;
+    if (keepspace) return str;
     str = str.toString()
         .replace(/\s+/g, ' ')
         .replace(/(\W)\s+/g, "$1")
@@ -253,7 +254,7 @@ function toComponent(responseTree) {
         }
         module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${compress ? "" : "\r\n"}${module_string}${compress ? "" : "\r\n"}}`;
         if (compress) {
-            module_string = scanner2(module_string).press().toString();
+            module_string = scanner2(module_string).press(keepspace).toString();
         }
         if (needAwaits) getEncodedIndex('Promise', 'global');
         saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
@@ -296,7 +297,7 @@ function toComponent(responseTree) {
         if (typeof type === 'string') type += " ";
         else type = '';
         if (!destMap[k]) {
-            if (!compress) {
+            if (keepspace) {
                 if (memery.COMMENT && !/^"/.test(k)) {
                     data = `\r\n/* ${dest.length + 1} ${type}${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
                 } else {
@@ -306,7 +307,7 @@ function toComponent(responseTree) {
             dest.push(data);
             destMap[k] = dest.length;
         } else {
-            if (!compress) {
+            if (keepspace) {
                 if (memery.COMMENT) {
                     data = `\r\n/* ${destMap[k]} ${type}${k.length < 100 ? k : k.slice(11, 43)} */ ` + data;
                 }
@@ -378,7 +379,7 @@ function toComponent(responseTree) {
         d.imported = d.imported.map(saveImported);
         var module = d.module.replace(/"(imported\s*-\s*\d+)"/g, imported);
         if (compress) {
-            module = scanner2(module).press().toString();
+            module = scanner2(module).press(keepspace).toString();
         }
         saveOnly(`[${d.imported.join(',')},${module}]`, d.importedid);
     };
