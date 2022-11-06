@@ -329,6 +329,8 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         };
         var fire = async function (code) {
             if (!~requests.indexOf(xhr)) return;
+            xhr.method = method;
+            xhr.url = url;
             xhr.encrypt = code;
             var isform = /^f/i.test(method);
             if (isform) {
