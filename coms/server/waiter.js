@@ -62,6 +62,9 @@ message.send('addmark', clients.getMark()[0]);
 message.reloadUserdata = function () {
     userdata.reload();
 };
+message.reload = function () {
+    liveload.reload();
+};
 // 子线程们
 // 仅做开发使用的简易服务器
 var http = require("http");
