@@ -286,16 +286,18 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                         }
                         location = getRequestProtocol(url) + "//" + location;
                     }
-                    var crs = cross_.call(cross, jsonp, digest, method, location, _headers);
-                    crs.isRedirected = (xhr.isRedirected || 0) + 1;
-                    crs.done(onload, false);
-                    crs.error(onerror, false);
-                    if (!isEmpty(datas)) crs.send(datas);
+                    if (!redirected) redirected = [];
+                    headers = _headers;
+                    url = location;
+                    var r = method + " " + url;
+                    if (redirected.indexOf(r) >= 0) onerror(xhr);
+                    else redirected.push(r), fire();
                     break;
                 default:
                     onerror(xhr);
             }
         };
+        var redirected = null;
         var cross = this;
         var xhr = cross(callback, onerror);
         var send = xhr.send;
