@@ -13,6 +13,9 @@ var { HTTPS_PORT, HTTP_PORT } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
 HTTPS_PORT = +HTTPS_PORT || 0;
 var liveload = require("./liveload");
+var dns = require("dns");
+if (memery.DNS) dns.setServers(memery.DNS.trim().split(/[,\s]+/));
+if (memery.IPV4FIRST && dns.setDefaultResultOrder) dns.setDefaultResultOrder("ipv4first");
 var closeListener = function () {
     if (!portedServersList.filter(s => s && s.listening).length) {
         require("../efront/watch").close();

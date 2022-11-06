@@ -212,6 +212,8 @@ var memery = module.exports = {
     TITLE: get("TITLE", ''),
     WAITER_NUMBER: get("WAITER_NUMBER, CLUSTERS_NUMBER, CLUSTERS, CPUS, SPREADS"),
     PASSWORD: get('PASSWORD'),
+    DNS: get("DNS", ''),
+    IPV4FIRST: get("IPV4FIRST, IPV4", true),
     MSIE: get("IE,MSIE,Trident,IEXPLORE,DETOUR"),
     DHT_PORT: get('DHT_PORT', 0),
     RECROSS_LIMIT: get("RECROSS_LIMIT,RETRY_LIMIT,RECROSSLIMIT,RETRYLIMIT", 2),

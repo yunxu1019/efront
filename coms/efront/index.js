@@ -731,7 +731,7 @@ var commands = {
         var warn = function () {
             console.warn("确认公网 IP 时存在异常！");
         };
-        require("http").get("http://efront.cc/ip.jsp", listener).on('error', warn);
+        require("http").get("http://ipv4.efront.cc/ip.jsp", listener).on('error', warn);
         require("http").get("http://us.efront.cc/ip.jsp", listener).on('error', warn);
         require("http").get("http://ipv6.efront.cc/ip.jsp", listener).on('error', warn);
     }
