@@ -290,7 +290,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     headers = _headers;
                     url = location;
                     var r = method + " " + url;
-                    if (redirected.indexOf(r) >= 0) onerror(xhr);
+                    if (redirected.indexOf(r) >= 0 || redirected.length > 10) onerror(xhr);
                     else redirected.push(r), fire();
                     break;
                 default:
