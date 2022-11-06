@@ -12,7 +12,7 @@ require("../efront/quitme");
 var { HTTPS_PORT, HTTP_PORT } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
 HTTPS_PORT = +HTTPS_PORT || 0;
-var reload = require("./liveload");
+var liveload = require("./liveload");
 var closeListener = function () {
     if (!portedServersList.filter(s => s && s.listening).length) {
         require("../efront/watch").close();
@@ -31,7 +31,7 @@ var safeQuitProcess = function () {
         server.unref();
         server.close(remove);
     });
-    reload.splice(0, reload.length).forEach(res => res.end(''));
+    liveload.splice(0, liveload.length).forEach(res => res.end(''));
     process.removeAllListeners();
     clients.destroy();
 };
@@ -250,6 +250,9 @@ var requestListener = async function (req, res) {
                 case "version":
                     res.write("efront " + require("../../package.json").version);
                     break;
+                case "live":
+                    liveload.mount(type[2], res);
+                    return;
                 case "uptime":
                     return message.send("uptime", null, function (error, time) {
                         if (error) {

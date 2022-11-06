@@ -3,12 +3,12 @@ var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
 var strings = require("../basic/strings");
 var less;
-var isDevelop = require("./isDevelop");
 var inCom = require("./inCom");
 var inPage = require("./inPage");
 var fs = require("fs");
 var path = require("path");
 var memery = require("./memery");
+var islive = memery.islive;
 var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
 
@@ -338,7 +338,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         code_body.unshift.apply(code_body, template);
     }
     code_body.unshift.apply(code_body, prepareCodeBody);
-    if (!isDevelop || commbuilder.compress === false) {
+    if (!islive || commbuilder.compress === false) {
         code.relink();
         if (memery.BREAK) code.break();
         code.helpcode = false;
@@ -426,7 +426,7 @@ var buildPress2 = function (imported, params, data, args, strs) {
 }
 
 var buildResponse = function ({ imported, params, data, required, occurs, isAsync, isYield }, compress) {
-    if (!isDevelop && compress !== false) {
+    if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
         else args = [], strs = "[]";
         if (!memery.UPLEVEL) data = require("./downLevel")(data, isAsync, isYield);
@@ -491,7 +491,7 @@ var renderImageUrl = function (data, filepath) {
         } else {
             data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
             if (data.length > 8 * 1024) {
-                if (isDevelop || commbuilder.compress === false) {
+                if (islive || commbuilder.compress === false) {
                     data = ":comm/" + compath.replace(/\\/g, '/');
                 } else {
                     data = "data" + path.extname(realpath) + data.slice(4);
@@ -526,7 +526,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
             var timeStart = new Date;
             var lessData;
             less.render(`.${className}{\r\n${convertColor(String(lessdata))}\r\n}`, {
-                compress: !isDevelop,
+                compress: !islive,
                 filename: lesspath
             }, function (err, data_2) {
                 if (err)
@@ -731,8 +731,8 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     return promise1 || data;
 }
 commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = false) {
-    var savedIsDevelop = isDevelop;
-    isDevelop = !breakcode;
+    var savedIsDevelop = islive;
+    islive = !breakcode;
     var savedCompress = commbuilder.compress;
     commbuilder.compress = compress;
     var [commName, lessName, className] = prepare(filename, fullpath);
@@ -742,7 +742,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     var res = loadJsBody(data, filename, null, commName, lessName, className);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;
-    isDevelop = savedIsDevelop;
+    islive = savedIsDevelop;
     return res;
 };
 commbuilder.break = function (data, filename, fullpath, compress) {

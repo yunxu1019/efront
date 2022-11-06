@@ -136,7 +136,7 @@ var _ifempty = {
     get COMPRESS() {
         return memery.ENCRYPT;
     },
-    get KEEPSPACE(){
+    get KEEPSPACE() {
         return !memery.COMPRESS;
     },
     get BREAK() {
@@ -144,10 +144,13 @@ var _ifempty = {
     },
     get AUTOEVAL() {
         return memery.BREAK;
+    },
+    get islive() {
+        return memery.TESTMODE;
     }
 };
 var memery = module.exports = {
-    istest,
+    islive: undefined,
     loghead: get('LOGHEAD, LOG'),
     defaults,
     get,
@@ -198,6 +201,7 @@ var memery = module.exports = {
         coms_path = Object.keys(namemap).join(',');
         return coms_path;
     },
+    LIVEMODE: get("LIVEMODE,LIVE", true),
     DIRECT: geturlpath("DIRECT,DIRECT_PAGE,DIRECT_PATH,SINGLE,SINGLE_PAGE,SINGLE_PATH"),
     EFRONT: false,
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),
@@ -293,10 +297,7 @@ var memery = module.exports = {
         return indexreg;
     },
     get webroot() {
-        return this.isDevelop ? this.PAGE_PATH : this.PUBLIC_PATH;
-    },
-    get isDevelop() {
-        return this.istest;
+        return this.islive ? this.PAGE_PATH : this.PUBLIC_PATH;
     },
 };
 Object.keys(memery).forEach(function (key) {

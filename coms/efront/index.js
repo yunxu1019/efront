@@ -57,7 +57,7 @@ var startDevelopEnv = function () {
     setAppnameAndPorts(arguments);
     require("./setupenv");
     require("./console");
-    memery.istest = true;
+    memery.islive = true;
     require("../server/main");
 };
 var setAppnameAndPorts = function (args) {
@@ -506,7 +506,7 @@ var commands = {
     docs() {
         setAppnameAndPorts(arguments);
         // 文档
-        memery.istest = true;
+        memery.islive = true;
         setenv({
             coms_path: path.join(__dirname, "../../coms"),
             page_path: path.join(__dirname, '../../docs'),
@@ -520,7 +520,7 @@ var commands = {
         showHelpLine('可以通过浏览器访问打开的端口以查看文档');
     },
     demo() {
-        memery.istest = true;
+        memery.islive = true;
         setenv({
             public_path: path.join(__dirname, "../../apps"),
             page_path: path.join(__dirname, "../../apps"),
@@ -642,13 +642,13 @@ var commands = {
         var detectPromise = detectWithExtension(appname, [".js", ".ts", "", "/index.js", "/index.ts"], [fullpath]);
         detectPromise.catch(function () {
             detectEnvironment("reptile").then(function () {
-                memery.istest = true;
+                memery.islive = true;
                 require("./setupenv");
                 require("./run")(appname, args);
             });
         });
         detectPromise.then(function (f) {
-            memery.istest = true;
+            memery.islive = true;
             setenv({
                 app: path.relative(fullpath, f),
                 comm: './,basic,typescript-helpers',
@@ -705,7 +705,7 @@ var commands = {
     watch() {
         setAppnameAndPorts(arguments);
         memery.ENCRYPT = false;
-        memery.istest = true;
+        memery.islive = true;
         detectEnvironment().then(function () {
             require("../build/watch-index");
         });
@@ -935,8 +935,7 @@ var run = function (type, value1, value2, value3) {
 };
 var __exit = process.exit;
 var quit = function (e) {
-    var isDevelop = require("./isDevelop");
-    if (isDevelop) {
+    if (quit.name === 'quit') {
         console.begin("red2");
         console.type(" 错误 ");
         console.log(e);

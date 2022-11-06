@@ -1,33 +1,7 @@
 "use strict";
-var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var finalpacker = require("../efront/finalpacker");
-var message = require("../message");
 var proxy = require("./url-proxy");
-var isDevelop = require("../efront/isDevelop");
-/**
- * @param {Http2ServerRequest} req;
- */
-var readdata = function (req, max_length) {
-    return new Promise(function (ok, oh) {
-        var buff = [], length = 0;
-        req.on("data", function (buf) {
-            length += buf.length;
-            if (length > max_length) return oh("数据过载...");
-            buff.push(buf);
-        });
-        req.on("end", function () {
-            ok(Buffer.concat(buff));
-        });
-        req.on("close", oh);
-        req.on("aborted", oh);
-        req.on("error", oh);
-    })
-};
 var handle = {
-    "/count"(req, res) {
-        message.count(req.headers.referer);
-        res.end();
-    },
     // async "/webhook"(req, res) {
     //     var buff = await readdata(req, 200);
     //     var token = JSON.parse(String(buff)).token;
@@ -36,24 +10,6 @@ var handle = {
     // }
 };
 
-if (isDevelop) {
-    let connections = require("./liveload");
-    /**
-     * @param {Http2ServerRequest} req
-     * @param {Http2ServerResponse} res
-     */
-    handle["/reload"] = async function (req, res) {
-        var a = await readdata(req, 30);
-        a = +String(a);
-        if (a !== connections.version) return res.end("你的唯一已再生");
-        connections.push(res);
-    };
-
-    message.reload = function () {
-        connections.version++;
-        connections.splice(0).forEach(res => res.writeHead(200, { "content-type": "text/plain;charset=utf-8" }) | res.end("我不是你的唯一"));
-    };
-}
 
 var doPost = module.exports = async function (req, res) {
     var url = req.url;

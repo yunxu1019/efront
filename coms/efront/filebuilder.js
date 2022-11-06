@@ -1,17 +1,16 @@
 "use strict";
-var isDevelop = require("./isDevelop");
 var queue = require("../basic/queue");
 var require2 = require("./require2");
 var builder;
 var path = require("path");
 var memery = require("./memery");
-var autoloader = () => `function () {
+var liveload = () => `function () {
     var reloadCount = 0;
     var reload = function () {
         if (reloadCount > 72) return;
         reloadCount++;
         var xhr = new XMLHttpRequest;
-        xhr.open("post", "/reload");
+        xhr.open("options", "/:live-${require("../server/liveload").version}");
         xhr.timeout = 0;
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
@@ -22,7 +21,7 @@ var autoloader = () => `function () {
         xhr.onerror = function () {
             if (xhr.readyState !== 4) setTimeout(reload, 200 * reloadCount);
         };
-        xhr.send("${require("../server/liveload").version}");
+        xhr.send();
     };
     reload();
 }`;
@@ -132,13 +131,13 @@ var buildjsp = function (buff, realpath) {
 };
 var buildreload = function (buff) {
     var data = String(buff).replace(/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i, `<script>\r\n-${efronthook.toString()};\r\n`)
-        .replace(/(<\/head)/i, `\r\n<script async>\r\n-${autoloader()}();\r\n</script>\r\n$1`);
+        .replace(/(<\/head)/i, `\r\n<script async>\r\n-${liveload()}();\r\n</script>\r\n$1`);
     buff = Buffer.from(data);
     return buff;
 };
 var str2array = require("./str2array");
 var indexreg = new RegExp(`(${str2array(memery.INDEX_NAME).join('|')})\\.[^\/\\\.]+$`);
-if (isDevelop) builder = function (buff, name, fullpath) {
+if (memery.islive) builder = function (buff, name, fullpath) {
     var dev = buff;
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
         dev = function (req, res) {
