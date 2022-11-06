@@ -165,7 +165,6 @@ function scan(text, type = "js", lastIndex = 0) {
             program = getscanner('javascript', Javascript);
             break;
         case "java":
-            program = getscanner("java", Java);
             break;
     }
     program.Code = Code;
