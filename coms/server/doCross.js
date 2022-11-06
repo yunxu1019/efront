@@ -192,11 +192,11 @@ async function cross(req, res, referer) {
             default:
                 code = 500;
         }
-        res.closed = true;
         if (!res.destroyed) {
             if (!res.headersSent) res.writeHead(code, {});
             res.end(String(e));
         }
+        res.closed = true;
     };
     var fetch = function () {
         var request = http.request(Object.assign({

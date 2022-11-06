@@ -195,10 +195,10 @@ var requestListener = async function (req, res) {
                     writedLength += chunk.length;
                 } catch (e) {
                     if (res.closed) return;
-                    res.closed = true;
                     res.writeHead(403, utf8error);
                     res.end("数据异常！");
                     req.destroy();
+                    res.closed = true;
                     return;
                 }
             }
