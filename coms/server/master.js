@@ -8,86 +8,82 @@ var fs = require("fs");
 var path = require("path");
 var memery = require("../efront/memery");
 
-var working = 0;
-
-var quitting = [], notkilled = [];
-var workers = [];
-var cpus = new Array(memery.CPUS).fill(0);
+var quitting = [];
+var waiters = [];
 var end = function () {
-    quitting = quitting.concat(workers);
+    quitting = quitting.concat(waiters);
     if (!quitting.length) {
         console.info("正在退出..");
         afterend();
     }
-    workers.splice(0, workers.length);
+    waiters.splice(0, waiters.length);
     exit();
 };
 var afterend = function () {
     process.removeAllListeners();
     watch.close();
-    notkilled.forEach(a => a.kill("SIGKILL"));
     clients.destroy();
     similar.destroy();
     if (process.stdin.unref) process.stdin.unref();
     if (process.stderr.unref) process.stderr.unref();
     if (process.stdout.unref) process.stdout.unref();
 };
+var kill = function (worker) {
+    message.send(worker, 'disconnect');
+    worker.disconnect();
+};
 var exit = function () {
-    quitting.splice(0).forEach(function (worker) {
-        message.send(worker, 'disconnect');
-        worker.disconnect();
-    });
+    quitting.splice(0).forEach(kill);
 };
 var broadcast = function (data) {
-    quitting.concat(workers).forEach(function (worker) {
+    quitting.concat(waiters).forEach(function (worker) {
         message.send(worker, 'onbroadcast', data);
     });
 };
-var workerLisening = function () {
-    working++;
-    if (working === cpus.length) {
-        run.ing = false;
-        exit();
-    }
-};
 var workerExit = function (code) {
     if (code !== 0 && this.exitedAfterDisconnect !== true) {
-        var index = workers.indexOf(this);
+        var index = waiters.indexOf(this);
         if (index >= 0) {
-            workers[index] = createWorker();
+            waiters[index] = createWaiter();
         }
         return;
     }
-    for (var cx = workers.length - 1; cx >= 0; cx--) {
-        if (workers[cx] === this) workers.splice(cx, 1);
-    }
-    if (!workers.length) {
+    removeFromList(waiters, this);
+    if (!waiters.length) {
         afterend();
     }
 }
-var createWorker = function () {
-    var mem = require("os").freemem() / 1024 - 256 | 0;
+var createWaiter = function () {
+    var M = 1024 * 1024;
+    var mem = require("os").freemem() / M - 256 | 0;
     if (mem < 1024) mem = 1024;
+    /**
+     * @type {cluster.Worker}
+     */
     var worker = cluster.fork({
-        "NODE_OPTIONS": "--max-old-space-size=" + mem,
+        "NODE_OPTIONS": "--max-old-space-size=" + mem * M,
     });
-    worker.on("listening", workerLisening);
     worker.on("exit", workerExit);
     worker.on("message", message);
     return worker;
-
 }
-var run = function () {
+var run = async function () {
     if (quitting.length) return;
     if (run.ing) {
         run.ing = 2;
         return;
     }
     run.ing = true;
-    quitting = quitting.concat(workers);
+    quitting = quitting.concat(waiters);
+    var count = memery.WAITER_NUMBER;
+    while (count-- > 0) {
+        var waiter = createWaiter();
+        await new Promise(ok => waiter.once("listening", ok));
+        waiters.push(waiter);
+    }
     if (quitting.length) console.info(`${quitting.length}个子进程准备退出:${quitting.map(a => a.id)}`);
-    var _workers = cpus.map(createWorker);
-    workers.push.apply(workers, _workers);
+    exit();
+    run.ing = false;
 };
 var isProduction = function develop() { return develop.name === 'develop' }();
 var watch = {
@@ -111,9 +107,9 @@ message.deliver = function (a) {
         return;
     }
     var count = 0;
-    var rest = workers.length;
+    var rest = waiters.length;
     client.refresh();
-    workers.forEach(function (worker) {
+    waiters.forEach(function (worker) {
         message.send(worker, 'deliver', [clientid, msgid], function (a) {
             count += +a || 0;
             rest--;
@@ -129,7 +125,7 @@ message.getmark = function () {
 };
 message.addmark = function (m) {
     clients.addMark(m);
-    workers.forEach(function (worker) {
+    waiters.forEach(function (worker) {
         message.send(worker, 'addmark', m);
     });
 };
@@ -142,7 +138,7 @@ message.receive = function (clientid) {
     }
 };
 message.cluster = function ([id, methord, params]) {
-    for (var w of workers) {
+    for (var w of waiters) {
         if (w.id === id) return new Promise(function (ok, oh) {
             message.send(w, methord, params, function (error, res) {
                 if (error) return oh(error);
@@ -153,12 +149,13 @@ message.cluster = function ([id, methord, params]) {
     throw "进程已退出";
 };
 message.clusterList = function (id) {
-    return workers.map(w => w.id);
+    return waiters.map(w => w.id);
 };
 message.uptime = function () {
     return process.uptime();
 };
 message.rehost = function () {
+    console.info("服务器重启");
     var argv = process.__proto__ && process.__proto__.argv || process.argv;
     end();
     var child = require("child_process").spawn(argv[0], argv.slice(1), {

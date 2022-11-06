@@ -20,6 +20,8 @@ var closeListener = function () {
     }
 };
 var safeQuitProcess = function () {
+    memery.islive = false;
+    liveload.splice(0, liveload.length).forEach(res => res.end('') | res.socket.destroy());
     portedServersList.forEach((server) => {
         server.removeAllListeners();
         var timeout = setTimeout(function () {
@@ -31,13 +33,16 @@ var safeQuitProcess = function () {
         server.unref();
         server.close(remove);
     });
-    liveload.splice(0, liveload.length).forEach(res => res.end(''));
     process.removeAllListeners();
     clients.destroy();
 };
 
-process.on("disconnect", safeQuitProcess);
-message.disconnect = safeQuitProcess;
+process.on("disconnect", function () {
+    safeQuitProcess();
+});
+message.disconnect = function () {
+    safeQuitProcess();
+};
 message.deliver = function (a) {
     return clients.deliver(a[0], a[1]);
 };
@@ -251,8 +256,8 @@ var requestListener = async function (req, res) {
                     res.write("efront " + require("../../package.json").version);
                     break;
                 case "live":
-                    liveload.mount(type[2], res);
-                    return;
+                    if (memery.islive) return liveload.mount(type[2], res);
+                    break;
                 case "uptime":
                     return message.send("uptime", null, function (error, time) {
                         if (error) {
@@ -389,6 +394,8 @@ var requestListener = async function (req, res) {
                     res.write("清理完成");
                     break;
                 case "rehost":
+                    res.on("finish", safeQuitProcess);
+                    safeQuitProcess = function () { };
                     message.send('rehost', null, function () {
                         res.end("正在重启");
                     });

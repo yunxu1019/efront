@@ -145,6 +145,9 @@ var _ifempty = {
     get AUTOEVAL() {
         return memery.BREAK;
     },
+    get WAITER_NUMBER() {
+        return memery.islive ? 1 : require("os").cpus().length;
+    },
     get islive() {
         return memery.TESTMODE;
     }
@@ -207,13 +210,7 @@ var memery = module.exports = {
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),
     APP: get("APP, APPNAME"),
     TITLE: get("TITLE", ''),
-    get cpus() {
-        if (cpus > 0) return cpus;
-        return cpus = get("CPUS, CLUSTERS, SPREADS", this.istest ? 1 : require("os").cpus().length);
-    },
-    set cpus(v) {
-        cpus = v;
-    },
+    WAITER_NUMBER: get("WAITER_NUMBER, CLUSTERS_NUMBER, CLUSTERS, CPUS, SPREADS"),
     PASSWORD: get('PASSWORD'),
     MSIE: get("IE,MSIE,Trident,IEXPLORE,DETOUR"),
     DHT_PORT: get('DHT_PORT', 0),
