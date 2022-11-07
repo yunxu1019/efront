@@ -400,6 +400,9 @@ var requestListener = async function (req, res) {
                     res.write("清理完成");
                     break;
                 case "rehost":
+                    res.on("finish", function(){
+                        this.socket.destroy();
+                    });
                     res.on("finish", safeQuitProcess);
                     safeQuitProcess = function () { };
                     message.send('rehost', null, function () {
