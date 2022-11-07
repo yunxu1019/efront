@@ -17,7 +17,7 @@ var getPageScope = function (d) {
     return $scope;
 };
 var never = function () { return false };
-var popupEdit = function (d) {
+var popupRen = function (d) {
     var $scope = getPageScope(d);
     var selected = $scope.selected;
     var active;
@@ -28,8 +28,14 @@ var popupEdit = function (d) {
     else {
         active = d.$scope.d;
     }
-    if (d === $scope)
-        if (d.$scope.pending) return;
+    if (d.$scope.pending) return;
+    popupEdit($scope, active);
+};
+var popupAdd = function (d) {
+    var $scope = getPageScope(d);
+    popupEdit($scope, null);
+};
+var popupEdit = function ($scope, active) {
     var params = {
         path: $scope.pathlist.join('/'),
         hasName: $scope.hasName.bind($scope),
@@ -153,7 +159,7 @@ return extend([
     {
         name: "新建文件夹(D)",
         when: notGetActive,
-        do: popupEdit
+        do: popupAdd
     },
     {
         name: "添加文件(F)",
@@ -167,7 +173,7 @@ return extend([
         hotkey: "F2",
         name: '重命名(R)',
         when: getStable,
-        do: popupEdit
+        do: popupRen
     },
     {
         get name() {
