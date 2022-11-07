@@ -2,7 +2,7 @@
 var compile = require("./compile");
 var javascript = function () {
     "use strict";
-    var Enum = require("../basic/Enum");
+    var Enum = require("./Enum");
     var Tokens = new Enum;
     var {
         SingleLineComment,
@@ -62,9 +62,9 @@ var javascript = function () {
         entry: ProgramCodeBlock
     };
 }();
-var fs = require("fs");
-var path = require("path");
-var assert = require("../basic/assert");
+// var fs = require("fs");
+// var path = require("path");
+var assert = require("./assert");
 
 
 
