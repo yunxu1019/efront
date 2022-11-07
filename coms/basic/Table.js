@@ -93,6 +93,7 @@ class Table extends Array {
         this.searched = 0;
         this.splice(0, this.length);
         var source = this.sorted ? this.sorted : this.source;
+        if (!source) return;
         var searchid = ++this.searchid;
         this.complete = false;
         this.coverCount = 0;
