@@ -1,5 +1,6 @@
 "use strict";
 var createNamelist = require("./namelist");
+var Html = require("./Html");
 var Javascript = require("./Javascript");
 const {
     /*-1 */COMMENT,
@@ -14,8 +15,6 @@ const {
     /* 8 */LABEL,
     /* 9 */PROPERTY,
     skipAssignment,
-    createScoped,
-    createString,
     rename,
     relink,
 } = require("./common");
@@ -92,7 +91,7 @@ class Code extends Array {
     }
 
     toString() {
-        return createString(this);
+        return this.program.createString(this);
     }
     get envs() {
         return this.scoped.envs;
@@ -117,7 +116,7 @@ class Code extends Array {
     }
     get scoped() {
         if (this._scoped) return this._scoped;
-        return this._scoped = createScoped(this);
+        return this._scoped = this.program.createScoped(this);
     }
     getUndecleared() {
         var res = Object.create(null);
@@ -150,19 +149,17 @@ class Code extends Array {
     }
 }
 
-var scannners = Object.create(null);
-var getscanner = function (key, P) {
-    if (!scannners[key]) scannners[key] = new P;
-    return scannners[key];
-};
 var avoidMap = null;
 function scan(text, type = "js", lastIndex = 0) {
     if (isFinite(type)) lastIndex = +type, type = arguments[1];
     var program;
     switch (type) {
+        case "html":
+            program = new Html;
+            break;
         case "js":
         case "javascript":
-            program = getscanner('javascript', Javascript);
+            program = new Javascript;
             break;
         case "java":
             break;

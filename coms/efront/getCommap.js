@@ -19,7 +19,7 @@ async function getCommap(appname, deep = 1) {
             for (var f of files) {
                 if (f.isFile()) {
                     if (!/\.(html?|[cm]?[tj]sx?|xht)$/i.test(f.name)) continue;
-                    var tmp = f.name.replace(/\.[\s\S]*$/, '').replace(/\-([a-z])/g, a => a.toUpperCase());
+                    var tmp = f.name.replace(/\.[\s\S]*$/, '').replace(/\-([\s\S])/g, a => a.toUpperCase());
                     n.push(tmp);
                     map[n.join('$')] = path.join(p, f.name);
                     n.pop();

@@ -15,6 +15,8 @@ const {
     /* 8 */LABEL,
     /* 9 */PROPERTY,
     number_reg,
+    createString,
+    createScoped
 } = require("./common");
 var straps = `if,in,do,as,of
 var,for,new,try,let,get,set
@@ -364,5 +366,6 @@ Javascript.prototype.detour = function detour(o, ie) {
         if (o) o = o.next;
     }
 };
-
+Javascript.prototype.createString = createString;
+Javascript.prototype.createScoped = createScoped;
 module.exports = Javascript;
