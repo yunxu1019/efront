@@ -349,7 +349,7 @@ var commands = {
         files = files.map(f => detect(f, false));
         files = await Promise.all(files);
         argName = argName.split(",");
-        if (!files.length) files.push.apply(files, memery.coms_path.split(","));
+        if (!files.length) files.push.apply(files, memery.COMS_PATH.split(","));
         var findVariable = require("./findVariable");
         await findVariable(argName, files);
     },
