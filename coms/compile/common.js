@@ -901,7 +901,8 @@ var rename = function (used, from, to) {
         var text = u.text;
         var doted = /^\.\.\./.test(text);
         if (doted) text = text.slice(3);
-        if(text.slice(0, from.length) !== from || /^[\.\[]/.test(text.charAt(from.length))) continue;
+        if (u.renamed === from) return;
+        u.renamed = from;
         text = to + text.replace(/^[^\.\:\[]+/i, "");
         if (doted) text = "..." + text;
         if (u.type === PROPERTY) {
