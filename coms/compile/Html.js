@@ -195,13 +195,10 @@ Html.prototype.createScoped = function (code) {
     code = code.slice();
     for (var c of scriptNodes) scripts.push(code.slice(c.innerStart, c.innerEnd));
     for (var c of styleNodes) styles.push(code.slice(c.innerStart, c.innerEnd));
-    while (scriptNodes.length) {
-        var c = scriptNodes.pop();
-        code.splice(c.outerStart, c.outerEnd);
-    }
-    while (styleNodes.length) {
-        var c = styleNodes.pop();
-        code.splice(c.outerStart, c.outerEnd);
+    var tempNodes = scriptNodes.concat(styleNodes).sort((a, b) => a.outerStart - b.outerStart);
+    while (tempNodes.length) {
+        var c = tempNodes.pop();
+        code.splice(c.outerStart, c.outerEnd - c.outerStart);
     }
     scoped.scripts = scripts.map(s => this.createString(s)).map(replaceISO8859);
     scoped.styles = styles.map(s => this.createString(s)).map(replaceISO8859);
