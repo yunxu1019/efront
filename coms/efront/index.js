@@ -639,7 +639,7 @@ var commands = {
             return;
         }
         var fullpath = process.cwd();
-        var detectPromise = detectWithExtension(appname, [".js", ".ts", "", "/index.js", "/index.ts"], [fullpath]);
+        var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], [fullpath]);
         detectPromise.catch(function () {
             detectEnvironment("reptile").then(function () {
                 memery.islive = true;
@@ -650,12 +650,11 @@ var commands = {
         detectPromise.then(function (f) {
             memery.islive = true;
             setenv({
-                app: path.relative(fullpath, f),
                 comm: './,basic,typescript-helpers',
                 coms_path: './,' + path.join(__dirname, '..'),
             }, false);
             require("./setupenv");
-            require('./run')(appname, args);
+            require('./run')(path.relative(fullpath, f), args);
         }, function () { });
     },
     async public(app_Name, module_Name, publicOnly) {

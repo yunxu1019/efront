@@ -53,7 +53,7 @@ var formatPath = function (a, b) {
     if (/^[@\:\&]/.test(a)) {
         return path.join(process.cwd(), a.slice(1));
     }
-    return a;
+    return a || '.';
 }
 var pollyfill = function (dst, src = dst) {
     for (var k in src) {
@@ -64,7 +64,7 @@ var pollyfill = function (dst, src = dst) {
                 continue;
             }
         }
-        var bootfull = dst[k];
+        var bootfull = dst[k] || memery.get(k);
         if (k in bootConfig) {
             var patch = isEmpty(bootfull);
             if (patch) {
@@ -88,10 +88,12 @@ var pollyfill = function (dst, src = dst) {
                 if (dst.LIBS_PATH !== undefined) String(dst.LIBS_PATH).split(",").forEach(p => {
                     namemap[p] = true;
                 });
-                var exists = Object.create(null);
-                bootfull = Object.keys(namemap).filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => exists[a] ? false : exists[a] = true).join(',');
-
+                bootfull = Object.keys(namemap).join(',');
             }
+        }
+        if (/_PATH$/i.test(k)) {
+            var exists = Object.create(null);
+            bootfull = bootfull.split(',').map(a => a || '.').filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => exists[a] ? false : exists[a] = true).join(',');
         }
         var envma = Object.create(null);
         dst[k] = String(bootfull).split(",").map(a => formatPath(a, bootConfig[k])).map(
@@ -122,7 +124,6 @@ var bootConfig = memery.mergeTo({}, {
 var rootEnvs = memery.mergeTo({}, {
     COMS_PATH: null,
     APIS_PATH: null,
-    PAGE_PATH: memery.PAGE_PATH,
 });
 envpath.forEach(function (p) {
     var env = loadenv(path.join(p, 'setup'));
