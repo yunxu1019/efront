@@ -113,6 +113,7 @@ function Directory(pathname, rebuild, limit) {
 Directory.prototype = Object.create(null);
 Directory.prototype.update = async function (updateonly) {
     var that = this;
+    if (updateonly && !that.isloaded) return that.promise;
     var hasOrigin = that.isloaded;
     var loaded = that.loaded;
     that.isloaded = false;
@@ -161,11 +162,7 @@ Directory.prototype.update = async function (updateonly) {
         var key = k.replace(/\.\w+$/, '');
         var o = loaded[k];
         if (changed[key]) {
-            if (o instanceof File && o.data) {
-                delete o.data;
-                delete o.promise;
-                delete o.mtime;
-            }
+            if (o instanceof File) o.unload();
         } else if (updateonly) {
             var file = loaded[k];
             if (file instanceof File && file.data) {
@@ -185,12 +182,15 @@ Directory.prototype.update = async function (updateonly) {
 Directory.prototype.get = function (url) {
     var that = this;
     if (!that.promise) that.promise = that.update();
-    var reload = function () {
+    var reloadAfter = async function (promise) {
+        await promise;
+        do {
+            var promise = that.promise;
+            await that.promise;
+        } while (promise !== that.promise);
         return that.get(url);
     };
-    if (!that.isloaded) {
-        return that.promise.then(reload, reload);
-    }
+    if (!that.isloaded) return reloadAfter(that.promise);
     var keeys = url.split(/[\\\/]+/);
     var temps = [that];
     var keypath = [''];
@@ -201,7 +201,7 @@ Directory.prototype.get = function (url) {
             break;
         }
         if (!temp.promise) temp.promise = temp.update();
-        if (!temp.isloaded) return temp.promise.then(reload, reload);
+        if (!temp.isloaded) return reloadAfter(temp.promise);
         var loaded = temp.loaded;
         var key = keeys[cx];
         if (key === '' || key === '.') continue;
@@ -216,11 +216,11 @@ Directory.prototype.get = function (url) {
                 temp = undefined;
                 break;
             }
-            for (var cy = temps.length - 1; cy >= 0; cy--) {
+            for (var cy = temps.length - 1; cy > 0; cy--) {
                 if (key in temps[cy].loaded) {
                     let searched = temps[cy].get(keeys.slice(cx).join("/"));
                     if (searched instanceof Promise) {
-                        return searched.then(reload, reload);
+                        return reloadAfter(searched);
                     }
                     if (searched !== undefined) {
                         temp = searched;
@@ -230,7 +230,7 @@ Directory.prototype.get = function (url) {
                         } else {
                             keypath.push.apply(keypath, keeys.slice(cx));
                         }
-                        temps.splice(cy, keypath.length - cy);
+                        temps.splice(cy, keypath.length - cy, temp);
                         break search;
                     }
                 }
@@ -281,6 +281,7 @@ function File(pathname, rebuild, limit) {
     this.pathname = pathname;
     this.limit = limit;
     this.rebuild = rebuild;
+    this.dataid = 0;
 }
 File.prototype = Object.create(null);
 File.prototype.checkLinked = async function () {
@@ -307,9 +308,13 @@ File.prototype.checkLinked = async function () {
 };
 File.prototype.getBuffer = function () {
     var that = this;
-    if (that.data) return that.data;
-    if (that.promise) return that.promise;
-    return that.promise = that.update();
+    if (!that.promise) {
+        delete that.data;
+        delete that.mtime;
+        that.promise = that.update();
+    }
+    if (that.data !== undefined) return that.data;
+    return that.promise;
 };
 File.prototype.unload = function () {
     delete this.promise;
@@ -318,12 +323,15 @@ File.prototype.unload = function () {
 };
 File.prototype.update = async function () {
     var that = this;
+    var id = ++that.dataid;
     var stats = await statFile(that.pathname);
+    if (id !== that.dataid) return that.promise;
     if (!(stats instanceof fs.Stats)) {
         return that.data = stats;
     }
     if (+stats.mtime === that.mtime) {
         if (await that.checkLinked()) {
+            if (id !== that.dataid) return that.promise;
             return that.data;
         }
     }
@@ -334,13 +342,16 @@ File.prototype.update = async function () {
     }
 
     var buffer = await getfileAsync(that.pathname, that.limit, stats);
+    if (id !== that.dataid) return that.promise;
     if (that.rebuild instanceof Function && buffer instanceof Buffer) {
         var url = path.relative(that.root, that.pathname);
         url = url.replace(/\.(\w+)$/, '');
         try {
             var linked = that.linked = [];
             buffer = await that.rebuild(buffer, url, that.pathname, that.linked);
+            if (id !== that.dataid) return that.promise;
             if (linked.length) await that.checkLinked();
+            if (id !== that.dataid) return that.promise;
             if (typeof buffer === "string") buffer = Buffer.from(buffer);
             if (buffer instanceof Buffer) buffer.stat = stats;
             if (buffer && !buffer.mime) {
