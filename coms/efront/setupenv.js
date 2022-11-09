@@ -88,7 +88,8 @@ var pollyfill = function (dst, src = dst) {
                 if (dst.LIBS_PATH !== undefined) String(dst.LIBS_PATH).split(",").forEach(p => {
                     namemap[p] = true;
                 });
-                bootfull = Object.keys(namemap).filter(fs.existsSync).join(',');
+                var exists = Object.create(null);
+                bootfull = Object.keys(namemap).filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => exists[a] ? false : exists[a] = true).join(',');
 
             }
         }

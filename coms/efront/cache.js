@@ -358,7 +358,7 @@ File.prototype.update = async function () {
 };
 var formatpathlist = function (filesroot) {
     var loaded = Object.create(null);
-    filesroot = String(filesroot || '').split(",").map(a => path.normalize(a)).filter(fs.existsSync).map(a => fs.realpathSync(a))
+    filesroot = String(filesroot || '').split(",").filter(fs.existsSync).map(a => fs.realpathSync(a))
         .filter(a => loaded[a] ? false : loaded[a] = true);
     return filesroot;
 }
