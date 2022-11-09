@@ -124,6 +124,7 @@ var bootConfig = memery.mergeTo({}, {
 var rootEnvs = memery.mergeTo({}, {
     COMS_PATH: null,
     APIS_PATH: null,
+    PAGE_PATH: memery.PAGE_PATH,
 });
 envpath.forEach(function (p) {
     var env = loadenv(path.join(p, 'setup'));
