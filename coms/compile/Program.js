@@ -385,8 +385,10 @@ class Program {
                 continue;
             }
             if (this.express_reg.test(m)) {
+                var last = queue.last;
+                if (last && last.type === STRAP && this.classstrap_reg.test(last.text));
+                else queue.inExpress = true;
                 save(EXPRESS);
-                queue.inExpress = true;
                 continue;
             }
 
