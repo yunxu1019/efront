@@ -20,18 +20,14 @@ const {
 } = require("./common");
 
 
-var compress = function (scoped, maped) {
+var compress = function (scoped, maped = Object.create(null)) {
     var { lets, vars, used } = scoped;
     var map = lets || vars;
     var __prevent = Object.create(null);
-    maped = Object.create(maped || null);
     for (var k in used) {
         if (!(k in map)) {
             if (k in maped) {
                 k = maped[k];
-            }
-            else {
-                maped[k] = true;
             }
             __prevent[k] = true;
         }
@@ -43,11 +39,11 @@ var compress = function (scoped, maped) {
         for (var cx = 0, dx = keys.length; cx < dx; cx++) {
             var k = keys[cx];
             var name = names[cx];
-            map[k] = name;
             rename(used, k, name);
         }
     }
     if (scoped.length) {
+        maped = Object.create(maped);
         for (var cx = 0, dx = keys.length; cx < dx; cx++) {
             var k = keys[cx];
             maped[k] = names[cx];

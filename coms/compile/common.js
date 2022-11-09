@@ -516,17 +516,30 @@ var createScoped = function (parsed, wash) {
                         }
                     }
                 }
+                else if (isArrow) {
+                    var next = skipAssignment(o);
+                    var u = o;
+                    while (o !== next) {
+                        var n = run(o, 0);
+                        if (o === n) o = n.next;
+                        else o = n;
+                    }
+                }
                 else {
                     do {
                         if (o.type === STAMP && o.text === ";") break;
                         o = run(o, 0);
+                        if (!o) break;
                         var next = o.next;
                         if (!next) break;
                         var e = o;
-                        if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) || ~[VALUE, QUOTED, SCOPED].indexOf(o.type) || EXPRESS === o.type && !/\.$/.test(o.text)) {
+                        if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) && o.prev && o.prev.type === EXPRESS
+                            || ~[VALUE, QUOTED, SCOPED].indexOf(o.type)
+                            || EXPRESS === o.type && !/\.$/.test(o.text)) {
                             if (~[VALUE, QUOTED, PROPERTY, LABEL].indexOf(next.type)) break;
                             if (EXPRESS === next.type && !/^\./.test(next.text)) break;
                             if (next.type === SCOPED && next.entry === "{") break;
+                            if(next.type===STRAP && !next.isExpress)break;
                         }
                         o = next;
                     } while (o);
@@ -901,8 +914,6 @@ var rename = function (used, from, to) {
         var text = u.text;
         var doted = /^\.\.\./.test(text);
         if (doted) text = text.slice(3);
-        if (u.renamed === from) return;
-        u.renamed = from;
         text = to + text.replace(/^[^\.\:\[]+/i, "");
         if (doted) text = "..." + text;
         if (u.type === PROPERTY) {
