@@ -576,7 +576,7 @@ var getValidName = function (prefix, used) {
     return prefix;
 }
 async function getXhtPromise(data, filename, fullpath, watchurls) {
-    var [commName, lessName] = prepare(filename, fullpath);
+    var [commName, lessName, className] = prepare(filename, fullpath);
     var xht = scanner2(data.toString(), 'html');
     var scoped = xht.scoped;
     var { scripts, innerHTML: htmltext, attributes = '', tagName, styles } = scoped;
@@ -588,6 +588,12 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     var xhtmain = getValidName(`xht`, used);
     htmltext = await renderImageUrl(htmltext, fullpath);
     styles = await renderLessData(styles.join("\r\n"), fullpath, watchurls, lessName);
+    var jsvars = jscope.vars;
+    if (jsvars.main || jsvars.Main || jsvars.MAIN || jsvars[commName]) {
+        console.log()
+        htmltext = `{toString:()=>${wrapHtml(scoped.outerHTML)}}`;
+        return loadJsBody(jsData, filename, styles, commName, className, htmltext);
+    }
     if (scope) scope = `{\r\n${scope}\r\n}`;
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
     var createElement = tagName
@@ -616,7 +622,7 @@ function ${commName}(elem){
     elem.innerHTML=${xhtmain}();
     return elem;
 }`;
-    return loadJsBody(xht, filename, styles, commName, lessName)
+    return loadJsBody(xht, filename, styles, commName, className)
 }
 
 function getMouePromise(data, filename, fullpath, watchurls) {
