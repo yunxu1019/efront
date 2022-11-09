@@ -101,7 +101,6 @@ var getManagersWithEnv = function (env) {
             env.managers = m
             if (allManagers.indexOf(m) < 0) allManagers.push(m);
         });
-
     }
     return env.managers;
 };

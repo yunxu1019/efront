@@ -12,7 +12,6 @@ for (var k in env) {
     env[upperKey] = env[k];
     env[lowerKey] = env[k];
 }
-var istest = test(env.IN_TEST_MODE) || test(env.IS_TEST_MODE) || test(env.TEST_MODE);
 var namemap = Object.create(null);
 var seted = Object.create(null);
 var defaults = Object.create(null);
