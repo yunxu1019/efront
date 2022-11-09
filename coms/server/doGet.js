@@ -11,7 +11,11 @@ var parseURL = require("../basic/parseURL");
 var isObject = require("../basic/isObject");
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var SERVER_ROOT_PATH = memery.webroot;
-var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filename, fullpath) {
+var Cache = require("../efront/cache");
+var getfile = function (url, exts) {
+    return filecache.seek(url, exts);
+};
+var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) {
     var origin_size = data.length;
     if (/\.css$/i.test(fullpath)) {
         if (memery.APP) {
@@ -48,7 +52,7 @@ var getfile = require("../efront/cache")(SERVER_ROOT_PATH, function (data, filen
             }
         });
     });
-}, FILE_BUFFER_SIZE).async;
+}, FILE_BUFFER_SIZE);
 var message = require("../message");
 var proxy = require("./url-proxy");
 var setHeader2 = function (k, v) {
@@ -187,4 +191,6 @@ module.exports = async function (req, res) {
         adapter(data, url, req, res);
     }
 };
-module.exports.reset = getfile.reset;
+module.exports.reset = function () {
+    filecache.reset();
+};

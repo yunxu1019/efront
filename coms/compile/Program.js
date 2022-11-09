@@ -156,7 +156,7 @@ class Program {
         var save = (type) => {
             if (lasttype === STAMP && type === STAMP && !/[,;\:\?]/.test(m)) {
                 var scope = queue[queue.length - 1];
-                if (/[,;\:\?]/.test(scope.text) || /=>$/i.test(scope.text) || /=$/.test(scope.text) && /[^>=]/.test(m) || scope.end !== start) {
+                if (/=>$/i.test(scope.text) || /[=>]$/.test(scope.text) && /[^>=]/.test(m) || scope.end !== start) {
                 } else {
                     scope.end = end;
                     scope.text = text.slice(scope.start, scope.end);
@@ -515,7 +515,7 @@ class Program {
         this.express_reg = new RegExp(`^${express}$`, 'u');
         this.space_reg = new RegExp(`^[${spaces}]+$`, 'u');
         var quotes = this.createRegExp(quoteslike.map(q => q[0]), true).source;
-        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${this.number_reg.source.replace(/^\^|\$$/g, "")}|${express}|[${stamps}]`], "giu");
+        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${this.number_reg.source.replace(/^\^|\$$/g, "")}[^${tokens}]*|${express}|[${stamps}]`], "giu");
     }
 }
 module.exports = Program;

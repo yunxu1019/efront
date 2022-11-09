@@ -78,9 +78,8 @@ var get = function (name, _default, fix, limits) {
     }
     return value;
 };
-var noproxy, coms_path;
+var noproxy;
 var fixme = {};
-var cpus = 0;
 var fixpath = function (key) {
     var exports = module.exports;
     var url = exports[key];
@@ -123,7 +122,6 @@ var fixpath = function (key) {
 };
 var geturlpath = name => get(name, null, 1);
 var getdirpath = (name, _default) => get(name, _default, 2);
-var COMS_PATH = getdirpath("COMS_PATH, COMM_PATH");
 var PUBLIC_PATH = getdirpath("PUBLIC_PATH", 'public');
 var webindex, indexreg;
 var str2array = require("./str2array");
@@ -185,25 +183,6 @@ var memery = module.exports = {
         }
         return noproxy;
     },
-    get coms_path() {
-        if (coms_path !== undefined) return coms_path;
-        var namemap = Object.create(null);
-        var pathname = String(COMS_PATH || "");
-        pathname.split(',').forEach(p => {
-            namemap[p] = true;
-        });
-        namemap[path.join(__dirname, '..')] = true;
-        namemap[path.join(__dirname, '../basic')] = true;
-        if (this.POLYFILL) {
-            namemap[path.join(__dirname, '../basic_')] = true;
-            namemap[path.join(__dirname, '../typescript-helpers')] = true;
-        }
-        if (this.LIBS_PATH !== undefined) String(this.LIBS_PATH).split(",").forEach(p => {
-            namemap[p] = true;
-        });
-        coms_path = Object.keys(namemap).join(',');
-        return coms_path;
-    },
     LIVEMODE: get("LIVEMODE,LIVE", true),
     DIRECT: geturlpath("DIRECT,DIRECT_PAGE,DIRECT_PATH,SINGLE,SINGLE_PAGE,SINGLE_PATH"),
     EFRONT: false,
@@ -224,13 +203,7 @@ var memery = module.exports = {
     WATCH_PROJECT_VERSION: 0,
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),
     ENVS_PATH: getdirpath("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
-    get COMS_PATH() {
-        if (typeof COMS_PATH === 'string') return this.coms_path;
-        return COMS_PATH;
-    },
-    set COMS_PATH(v) {
-        COMS_PATH = v;
-    },
+    COMS_PATH: getdirpath("COMS_PATH,COMM_PATH"),
     get PROXY() {
         return !noproxy;
     },

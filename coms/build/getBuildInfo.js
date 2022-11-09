@@ -9,6 +9,9 @@ var path = require("path");
 var memery = require("../efront/memery");
 var env = require("./environment");
 var noopbuilder = a => a;
+var getCommmap = require("../efront/getCommap");
+var commap = getCommmap(memery.APP);
+var xhtbuilder = commbuilder.bind(commap);
 var pagebuilder = function (buffer, filename) {
     if (/^index\.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 2000).toString().replace(/<!--[\s\S]*?--!?>/g, ""))) {
         return htmlbuilder.apply(null, arguments);
@@ -45,10 +48,10 @@ function getBuildInfo(url) {
                     builder = asmbuilder
                 } else {
                     if (setting.is_commponent_package) builder = manybuilder;
-                    else builder = commbuilder;
+                    else builder = xhtbuilder;
                 }
                 searchname = name.replace(/(\w)\$/g, "$1/");
-                extt = extt || [".js", ".ts", ".json", ".html", '.vue', ''];
+                extt = extt || [".js", '.xht', ".ts", ".json", ".html", '.vue', ''];
                 if (comms_root instanceof Array) {
                     searchpath = comms_root;
                 } else {
@@ -66,7 +69,7 @@ function getBuildInfo(url) {
                         name = "/" + name;
                         builder = pagebuilder;
                     }
-                } else if (!/\.([cm]?[jt]sx?|vuex?)$/i.test(extt)) {
+                } else if (!/\.([cm]?[jt]sx?|xht|vuex?)$/i.test(extt)) {
                     if (/\.asm$/i.test(extt)) {
                         builder = asmbuilder
                     } else {
@@ -77,7 +80,7 @@ function getBuildInfo(url) {
                     name = "/" + name;
                 } else {
                     extt = extt || "";
-                    builder = commbuilder;
+                    builder = xhtbuilder;
                     destpath = path.join("page", name + memery.EXTT);
                     name = "/" + name;
                 }

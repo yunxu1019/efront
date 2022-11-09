@@ -9,8 +9,8 @@ var env = process.env;
 var envpath = memery.ENVS_PATH;
 if (typeof envpath !== "string") envpath = "./_envs," + path.join(require("os").homedir(), '.efront/_envs');
 envpath = envpath.split(",").filter(fs.existsSync);
-var cache = {};
-var setup = module.exports = function (app) {
+var cache = Object.create(null);
+module.exports = function (app) {
     var appname = String(app || '').replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
     appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
@@ -55,8 +55,8 @@ var formatPath = function (a, b) {
     }
     return a;
 }
-var pollyfill = function (dst) {
-    for (var k in dst) {
+var pollyfill = function (dst, src = dst) {
+    for (var k in src) {
         var d = Object.getOwnPropertyDescriptor(dst, k);
         if (!d.writable && !d.set) continue;
         if (typeof dst[k] !== 'string') {
@@ -64,17 +64,36 @@ var pollyfill = function (dst) {
                 continue;
             }
         }
-        var bootfull = '';
+        var bootfull = dst[k];
         if (k in bootConfig) {
-            bootfull = path.join(__dirname, "../../", bootConfig[k]);
-            var bootpath = path.relative(bootConfig[k], bootfull);
-            if (bootpath) {
-                bootfull = bootConfig[k] + "," + bootfull;
+            var patch = isEmpty(bootfull);
+            if (patch) {
+                bootfull = path.join(__dirname, "../../", bootConfig[k]);
+                patch = !!path.relative(bootConfig[k], bootfull);
+            }
+            if (k === "COMS_PATH") {
+                let namemap = Object.create(null);
+                if (patch) {
+                    namemap[bootConfig[k]] = true;
+                }
+                bootfull.split(',').forEach(p => {
+                    namemap[p] = true;
+                });
+                namemap[path.join(__dirname, '..')] = true;
+                namemap[path.join(__dirname, '../basic')] = true;
+                if (memery.POLYFILL) {
+                    namemap[path.join(__dirname, '../basic_')] = true;
+                    namemap[path.join(__dirname, '../typescript-helpers')] = true;
+                }
+                if (dst.LIBS_PATH !== undefined) String(dst.LIBS_PATH).split(",").forEach(p => {
+                    namemap[p] = true;
+                });
+                bootfull = Object.keys(namemap).filter(fs.existsSync).join(',');
+
             }
         }
-        bootpath = bootfull || '';
         var envma = Object.create(null);
-        dst[k] = String(isEmpty(dst[k]) ? bootpath : dst[k]).split(",").map(a => formatPath(a, bootfull)).map(
+        dst[k] = String(bootfull).split(",").map(a => formatPath(a, bootConfig[k])).map(
             k => k.replace(/\\/g, '/').replace(/^\.\//, '')
         ).filter(
             k => envma[k] ? false : envma[k] = true
@@ -102,6 +121,7 @@ var bootConfig = memery.mergeTo({}, {
 var rootEnvs = memery.mergeTo({}, {
     COMS_PATH: null,
     APIS_PATH: null,
+    PAGE_PATH: memery.PAGE_PATH,
 });
 envpath.forEach(function (p) {
     var env = loadenv(path.join(p, 'setup'));
@@ -115,16 +135,4 @@ envpath.forEach(function (p) {
 });
 pollyfill(rootEnvs);
 normalize(rootEnvs);
-for (let k in rootEnvs) {
-    if (memery.get(k) === undefined) {
-        memery.set(k, rootEnvs[k]);
-    }
-}
-if ("APP" in env) {
-    let _tmp = setup(env.APP || "");
-    for (let k in _tmp) {
-        if (/\_PATH$/i.test(k)) {
-            memery.set(k, _tmp[k]);
-        }
-    }
-}
+pollyfill(memery, rootEnvs);

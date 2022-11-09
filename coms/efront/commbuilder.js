@@ -564,9 +564,59 @@ function prepare(filename, fullpath) {
     if (shortName !== className) className = className + " " + shortName;
     return [commName, lessName, className];
 }
+var wrapHtml = function (htmldata) {
+    return "`" + String(htmldata).replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&") + "`";
+};
+var getValidName = function (prefix, used) {
+    var id = 1;
+    while (prefix in used) {
+        prefix = prefix.replace(/\d+$/, '') + id;
+        id++;
+    }
+    return prefix;
+}
+async function getXhtPromise(data, filename, fullpath, watchurls) {
+    var [commName, lessName, className] = prepare(filename, fullpath);
+    var xht = scanner2(data.toString(), 'html');
+    var scoped = xht.scoped;
+    var { scripts, innerHTML: htmltext, attributes = '', tagName = className, styles } = scoped;
+    var jsData = scripts.join("\r\n");
+    var used = Object.create(null);
+    var jscope = scanner2(jsData).scoped
+    extend(used, scoped.used, jscope.envs);
+    var scope = Object.keys(scoped.envs).filter(e => e !== commName && (e in this || e in jscope.used)).join(",\r\n");
+    var xhtmain = getValidName(`xht`, used);
+    htmltext = await renderImageUrl(htmltext, fullpath);
+    styles = await renderLessData(styles.join("\r\n"), fullpath, watchurls, lessName);
+    if (scope) scope = `{\r\n${scope}\r\n}`;
+    if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
+    var xht = scope ? `
+var ${xhtmain}=function(){
+    ${jsData}
+    return [${wrapHtml(htmltext)},${scope}];
+};
+function ${commName}(elem){
+    var [template,scope]=${xhtmain}();
+    var elem = document.createElement("${tagName}");
+    ${attributes}
+    elem.innerHTML = template;
+    render(elem,scope)
+    return cless(elem);
+}`: `
+var ${xhtmain}=function(){
+    ${jsData}
+    return ${wrapHtml(htmltext)};
+}
+function ${commName}(elem){
+    elem = document.createElement("${tagName}");
+    ${attributes}
+    elem.innerHTML=${xhtmain}();
+    return elem;
+}`;
+    return loadJsBody(xht, filename, styles, commName, lessName)
+}
 
 function getMouePromise(data, filename, fullpath, watchurls) {
-    filename = filename.replace(/\.vuex?$/i, '');
     var [commName, lessName, className] = prepare(filename, fullpath);
     var time = 0;
 
@@ -600,7 +650,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         function fire() {
             var timeStart = new Date;
             if (htmlData) {
-                jsData = `var template=\`${htmlData.replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&")}\`;\r\n` + jsData;
+                jsData = `var template=${wrapHtml(htmlData)};\r\n` + jsData;
                 if (lessData) {
                     jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
                 }
@@ -668,7 +718,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(function ([lessdata, htmldata, data]) {
         var timeStart = new Date;
         if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)*(<!doctype\b|<script\b)/i.test(htmldata)) {
-            htmldata = "{toString:()=>`" + String(htmldata).replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&") + "`}";
+            htmldata = "{toString:()=>" + wrapHtml(htmldata) + "}";
             htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+</g, "<").replace(/<\!\-\-.*?\-\-\>/g, "");
             htmlData = htmldata;
             watchurls.push(htmlpath);
@@ -699,11 +749,14 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     fullpath = String(fullpath || "");
     var compress = commbuilder.compress;
     var data = String(buffer), promise;
-    if (/\.json$/i.test(fullpath)) {
+    if (/\.xht$/i.test(fullpath)) {
+        promise = getXhtPromise.call(this, buffer, filename, fullpath, watchurls);
+    }
+    else if (/\.json$/i.test(fullpath)) {
         var timeStart = new Date;
         var data = loadJsBody("(" + String(buffer) + ")", fullpath);
+        data.time = new Date - timeStart;
         promise = Promise.resolve(data);
-        promise.time = new Date - timeStart;
     } else if (/\.html?$/i.test(fullpath)) {
         if (/^(\s*<!--[\s\S]*?--!?>)*\s*<!Doctype\b/i.test(data)) {
             return data;

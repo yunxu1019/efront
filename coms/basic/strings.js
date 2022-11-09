@@ -35,4 +35,9 @@ function decode(s) {
         return b;
     });
 }
-module.exports = { encode, decode };
+function recode(s) {
+    s = decode(s);
+    s = encode(s);
+    return s;
+}
+module.exports = { encode, decode, recode };

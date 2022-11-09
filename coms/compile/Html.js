@@ -25,6 +25,7 @@ class Html extends Program {
     strapexp_reg = ignore;
     forceend_reg = ignore;
     classstrap_reg = ignore;
+    scopes = [];
     intag = false;
     stamps = "/<>=".split("");
     quotes = [["'", "'", /\\[\s\S]/], ["\"", "\"", /\\[\s\S]/]]
@@ -78,7 +79,7 @@ var toCamelCase = function (a) {
     return a.replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
 }
 
-class Node {}
+class Node { }
 Html.prototype.createScoped = function (code) {
     var used = Object.create(null);
     var vars = Object.create(null);
@@ -90,8 +91,11 @@ Html.prototype.createScoped = function (code) {
     var scriptNodes = [], styleNodes = [];
     for (var cx = 0, dx = code.length, c = code[0]; cx < dx; c = code[++cx])switch (c.type) {
         case LABEL:
-            if (!used[c.text]) used[c.text] = [];
-            used[toCamelCase(c.text)].push(c);
+            if (!/^(script|style|template)$/i.test(c.text)) {
+                var v = toCamelCase(c.text)
+                if (!used[v]) used[v] = [];
+                used[v].push(c);
+            }
             if (!c.isclose) {
                 var node = new Node;
                 node.tagName = c.text.toUpperCase();
@@ -199,10 +203,36 @@ Html.prototype.createScoped = function (code) {
         var c = styleNodes.pop();
         code.splice(c.outerStart, c.outerEnd);
     }
-    scoped.scripts = scriptNodes.map(s => this.createString(s)).map(replaceISO8859);
-    scoped.styles = styleNodes.map(s => this.createString(s)).map(replaceISO8859);
-    scoped.htmltext = this.createString(code);
-    scoped.htmlcount = dom.childNodes.filter(a => !/^(script|style)$/i.test(a.tagName)).length;
+    scoped.scripts = scripts.map(s => this.createString(s)).map(replaceISO8859);
+    scoped.styles = styles.map(s => this.createString(s)).map(replaceISO8859);
+    var rootNodes = dom.childNodes.filter(a => !/^(script|style)$/i.test(a.tagName));
+    if (rootNodes.length === 1) {
+        scoped.outerHTML = this.createString(code);
+        var root = rootNodes[0];
+        scoped.tagName = root.tagName;
+        while (code[code.length - 1].type === COMMENT || code[code.length - 1].type === SPACE) code.pop();
+        while (code[0].type === COMMENT || code[0].type === SPACE) code.shift();
+        var attrarea = code.splice(0, root.innerStart - root.outerStart);
+        var attrs = [];
+        for (var a of attrarea) {
+            if (a.type === PROPERTY) {
+                var at = { name: a.text };
+                attrs.push(at);
+                var n = a.next;
+                if (!n) continue;
+                if (n.type !== STAMP || n.text !== '=') continue;
+                var nn = n.next;
+                if (!nn) return;
+                at.value = nn.text;
+            }
+        }
+        code.splice(root.innerEnd - root.outerEnd, code.length);
+        scoped.innerHTML = this.createString(code);
+        scoped.attributes = attrs;
+    }
+    else {
+        scoped.innerHTML = this.createString(code);
+    }
     scoped.envs = envs;
     scoped.vars = vars;
     scoped.used = used;

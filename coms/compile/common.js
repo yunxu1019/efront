@@ -936,6 +936,7 @@ module.exports = {
     createString,
     createScoped,
     snapSentenceHead,
+    snapExpressHead,
     saveTo,
     rename,
     relink,

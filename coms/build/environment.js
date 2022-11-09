@@ -23,12 +23,12 @@ var PAGE = env.PAGE || "";
 var COMM = env.COMM;
 var ICON = env.ICON;
 var AAPI = env.APIS || "";
-var PAGE_PATH = memery.PAGE_PATH;
-var COMS_PATH = memery.coms_path;
-var ICON_PATH = memery.ICON_PATH;
+var PAGE_PATH = env.PAGE_PATH;
+var COMS_PATH = env.COMS_PATH;
+var ICON_PATH = env.ICON_PATH;
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
 var comsroot_map = Object.create(null);
-var comms_root = mixin(memery.coms_path, env.COMM)
+var comms_root = mixin(env.COMS_PATH, env.COMM)
     .map(joinpath)
     .filter(a => a in comsroot_map ? false : comsroot_map[a] = true)
     .filter(fs.existsSync);

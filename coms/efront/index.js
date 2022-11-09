@@ -12,7 +12,7 @@ var detect = function (module_path, matchIndex = true) {
     var search_path = [];
     var joinpath = a => path.join.apply(path, a);
     var apppath = require("./mixin")(memery.PAGE_PATH, memery.PAGE).map(joinpath);
-    var compath = require("./mixin")(memery.coms_path, memery.COMM).map(joinpath);
+    var compath = require("./mixin")(memery.COMS_PATH, memery.COMM).map(joinpath);
     apppath.push(path.join(__dirname, '../../apps'));
     compath.push(
         path.join(__dirname, '../../'),

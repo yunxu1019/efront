@@ -23,7 +23,7 @@ function fromComponent(base) {
         if (/^\/?comm\b/i.test(url)) {
             try {
 
-                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: [].concat(memery.coms_path.split(','), ".") })
+                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), { paths: [].concat(memery.COMS_PATH.split(','), ".") })
                 if (isLib(temppath)) {
                     var mode = function () {
                         return require(temppath);
@@ -68,7 +68,7 @@ function fromComponent(base) {
                                     url1 = "./" + path.relative('.', url1).replace('\\', '/');
                                 }
 
-                                var resolved = require.resolve(url1, { paths: [].concat(memery.coms_path.split(','), '.') });
+                                var resolved = require.resolve(url1, { paths: [].concat(memery.COMS_PATH.split(','), '.') });
                             } else {
                                 var resolved = require.resolve(url1);
                             }
@@ -197,7 +197,7 @@ module.exports = function (mainpath, args) {
         requestHandles.splice(0, requestHandles.length).forEach(r => r());
     };
     var _mainpath = "./" + mainpath.replace(/\\/g, '/').replace(/^\.\//, '');
-    var fullpath = require.resolve(_mainpath, { paths: [].concat(memery.coms_path.split(","), '.') });
+    var fullpath = require.resolve(_mainpath, { paths: [].concat(memery.COMS_PATH.split(","), '.') });
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');

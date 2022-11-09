@@ -56,7 +56,7 @@ var doPost = module.exports = async function (req, res) {
                 res.end(`未没找到匹配的资源：${url}`);
                 break;
             default:
-                res.end();
+                res.end(result);
         }
     });
 };

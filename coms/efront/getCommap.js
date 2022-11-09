@@ -1,5 +1,6 @@
 var setupenv = require("./setupenv");
 var mixin = require("./mixin");
+var extendIfNeeded = require("../basic/extendIfNeeded");
 var fs = require("fs");
 var path = require("path");
 var readdir = p => new Promise((ok, oh) => fs.readdir(p, { withFileTypes: true }, (err, names) => {
@@ -10,11 +11,12 @@ async function getCommap(appname, deep = 1) {
     var env = setupenv(appname);
     var coms = mixin(env.COMS_PATH, env.COMM).map(a => path.join.apply(path, a));
     var res = Object.create(null);
-    for (var p of coms) {
-        var t = new Task()
+    for (var c of coms) {
+        var rest = [[c, []]];
         var map = Object.create(null);
-        t.open("加载组件库", async function ([p, n]) {
-            if (n.length >= deep) return;
+        if (!fs.existsSync(c)) continue;
+        while (rest.length) {
+            var [p, n] = rest.pop();
             var files = await readdir(p);
             for (var f of files) {
                 if (f.isFile()) {
@@ -25,12 +27,10 @@ async function getCommap(appname, deep = 1) {
                     n.pop();
                 }
                 else if (f.isDirectory()) {
-                    t.rest.push([path.join(p, f.name), n.concat(f.name)]);
+                    if (n.length + 1 < deep) rest.push([path.join(p, f.name), n.concat(f.name)]);
                 }
             }
-        });
-        t.send([p, []])
-        await awaitable(t);
+        }
         extendIfNeeded(res, map);
     }
     return res;

@@ -46,7 +46,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
 };
 var filterHtmlImportedJs = function (roots) {
     var promises = roots.filter(function (url) {
-        return /\.(html?|jsp|asp|php)$/i.test(url);
+        return /\.(xht|html?|jsp|asp|php)$/i.test(url);
     }).map(getBuildInfo).filter(a => !!a).map(getScriptsUrlInHtmlFile);
     return Promise.all(promises).then(function (datas) {
         var urls = [].concat.apply([], datas);
@@ -116,7 +116,7 @@ var filterHtmlImportedJs = function (roots) {
 };
 function paddExtension(file) {
     var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
-    return detectWithExtension(file, ['', '.js', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parents);
+    return detectWithExtension(file, ['', '.js', '.xht', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parents);
 }
 var toString = function () { return this.url };
 var getBuildRoot = function (files, matchFileOnly) {
@@ -187,6 +187,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                         }
                         var rel = getPathIn(PAGE_PATH.split(","), file);
                         if (rel) {
+                            console.log(rel, file)
                             return saveCopy(rel), ok();
                         }
                         if (/\.png$/i.test(file)) {
@@ -223,10 +224,12 @@ var getBuildRoot = function (files, matchFileOnly) {
                         }
 
                     } else {
-                        fs.readdir(file, function (error, names) {
+                        fs.readdir(file, { withFileTypes: true }, function (error, names) {
                             if (error) return oh(error);
                             // var indexfile, packagefile;
                             names.forEach(function (name) {
+                                if (name.isDirectory()) name = name.name + path.sep;
+                                else name = name.name;
                                 files.push(path.join(file, name));
                             });
                             // if (indexfile || packagefile) {

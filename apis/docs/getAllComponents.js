@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
-var test_file_reg = /_test\.[tj]sx?$/i;
-var comm_file_reg = /\.[tj]sx?$/i;
+var test_file_reg = /_test\.([tj]sx?|xht)$/i;
+var comm_file_reg = /\.([tj]sx?|xht)$/i;
 var readdir = function (a) {
     return new Promise(function (ok, oh) {
         a = path.join(__dirname, "../../coms", a);
