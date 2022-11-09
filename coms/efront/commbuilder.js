@@ -576,10 +576,10 @@ var getValidName = function (prefix, used) {
     return prefix;
 }
 async function getXhtPromise(data, filename, fullpath, watchurls) {
-    var [commName, lessName, className] = prepare(filename, fullpath);
+    var [commName, lessName] = prepare(filename, fullpath);
     var xht = scanner2(data.toString(), 'html');
     var scoped = xht.scoped;
-    var { scripts, innerHTML: htmltext, attributes = '', tagName = className, styles } = scoped;
+    var { scripts, innerHTML: htmltext, attributes = '', tagName, styles } = scoped;
     var jsData = scripts.join("\r\n");
     var used = Object.create(null);
     var jscope = scanner2(jsData).scoped
@@ -590,6 +590,9 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     styles = await renderLessData(styles.join("\r\n"), fullpath, watchurls, lessName);
     if (scope) scope = `{\r\n${scope}\r\n}`;
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
+    var createElement = tagName
+        ? `elem = document.createElement("${tagName}");`
+        : `if (!isElement(elem)) elem = document.createElement("${commName}");`;
     var xht = scope ? `
 var ${xhtmain}=function(){
     ${jsData}
@@ -597,7 +600,7 @@ var ${xhtmain}=function(){
 };
 function ${commName}(elem){
     var [template,scope]=${xhtmain}();
-    var elem = document.createElement("${tagName}");
+    ${createElement}
     ${attributes}
     elem.innerHTML = template;
     render(elem,scope)
@@ -608,7 +611,7 @@ var ${xhtmain}=function(){
     return ${wrapHtml(htmltext)};
 }
 function ${commName}(elem){
-    elem = document.createElement("${tagName}");
+    ${createElement}
     ${attributes}
     elem.innerHTML=${xhtmain}();
     return elem;
