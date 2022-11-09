@@ -387,7 +387,7 @@ var createDirect = function (froot, rebuild, limit, emit) {
     }
     direct.emitUpdate = emit;
     watch(direct.pathname, lazy(async function () {
-        if (fs.existsSync(direct.pathname) && fs.statSync(direct.pathname).isDirectory()) direct.update(true);
+        if (fs.existsSync(direct.pathname) && fs.statSync(direct.pathname).isDirectory()) direct.promise = direct.update(true);
         await direct.promise;
     }, 20), true);
     return direct;
