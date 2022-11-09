@@ -1,0 +1,110 @@
+<style>
+    /* less */
+    strong{
+        color: #666;
+    }
+    div span:before{
+        content: '<a>pseudo</a>';
+        display: 'inline-block';
+        padding: 0 16px;
+        color: blue;
+    }
+    caption,td,th {
+        position: relative;
+        padding: 10px 16px;
+        background: #fff;
+    }
+
+    clone,
+    canvas {
+        position: absolute !important;
+        left: 16px !important;
+        top: 10px !important;
+    }
+    border-collapse: collapse;
+
+    td,
+    th {
+        border: 2px solid #ccc;
+    }
+
+    td {
+        background: #fff;
+        @mask-color1 : rgba(255, 255, 255, .6);
+        @mask-color2 : rgba(0, 0, 0, 0);
+        @mask-color3 : rgba(0, 0, 0, .1);
+        background:
+            linear-gradient(45deg, @mask-color1, 25%, @mask-color1, 25%, @mask-color2, 75%, @mask-color1, 75%, @mask-color1),
+            linear-gradient(45deg, @mask-color1, 25%, @mask-color1, 25%, @mask-color2, 75%, @mask-color1, 75%, @mask-color1),
+            linear-gradient(45deg, @mask-color3, 25%, @mask-color3, 25%, @mask-color2, 75%, @mask-color3, 75%, @mask-color3),
+            linear-gradient(45deg, @mask-color3, 25%, @mask-color3, 25%, @mask-color2, 75%, @mask-color3, 75%, @mask-color3);
+        background-size: 20px 20px;
+        background-position: 0 0, 10px 10px, 10px 0, 0 10px;
+        background-repeat: repeat;
+        background-clip: border-box;
+
+    }
+</style>
+<table onmounted="update()">
+
+    <caption><strong>cloneVisible</strong>&nbsp;&nbsp;<i>vs.</i>&nbsp;&nbsp;<strong>html2canvas</strong></caption>
+    <thead>
+        <tr>
+            <th>原图</th>
+            <th>cloneVisible</th>
+            <th>html2canvas</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr #row>
+            <td>
+                <div
+                    style="width:100px;height:100px;position:relative;background-color:#223223;overflow:hidden;border-radius:100px;">
+                    <div
+                        style="border:5px dashed;line-height:40px;text-align:center;text-shadow:1px 3px 0 red;color:#ff3;text-indent:20px">
+                        abc
+                        <span class='cl-c'>cl-c</span>
+                        <input style="width:10px;height:10px;-webkit-appearance:none" />
+                        <span style="writing-mode:vertical-rl;letter-spacing:12px">
+                            书生<br />意气
+                        </span>
+                    </div>
+                    <style>
+                        .cl-c {
+                            display: block;
+                            float: right;
+                        }
+                    </style>
+
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<script>
+    function update() {
+        var [td1, td2, td3] = this.row.children;
+        var ele = td1.children[0]
+        setTimeout(function () {
+            var clone = cloneVisible(ele);
+            appendChild(td2, clone);
+            console.log(ele)
+            ele.with ? ele.with.push(clone) : ele.with = [clone];
+            var e1 = window.e1 = ele.querySelector("input");
+            var e2 = window.e2 = clone.querySelector("input");
+            var s1 = window.s1 = getComputedStyle(e1);
+            var s2 = window.s2 = getComputedStyle(e2);
+            for (var k in s1) {
+                if (s1[k] !== s2[k] && !/cssText/.test(k)) {
+                    console.warn(k, 'src:', s1[k], 'dst:', s2[k]);
+                }
+            }
+
+            html2canvas(ele, { backgroundColor: "rgba(0,0,0,0)" }).then(function (e) {
+                appendChild(td3, e);
+            });
+        });
+    }
+</script>
