@@ -573,7 +573,7 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     var jsvars = jscope.vars;
     var entryName = getEntryName(jsvars, commName);
     if (entryName && !(entryName in scoped.used)) {
-        htmltext = `{toString:()=>${wrapHtml(scoped.outerHTML)}}`;
+        htmltext = `{toString:()=>${wrapHtml(scoped.outerHTML || scoped.innerHTML)}}`;
         return loadJsBody(jsData, filename, styles, commName, className, htmltext);
     }
     if (scope) scope = `{\r\n${scope}\r\n}`;
