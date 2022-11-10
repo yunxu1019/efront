@@ -185,39 +185,11 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         if (undeclares.template) {
             templateName = 'template';
         }
-        else if (undeclares[commName]) {
-            templateName = commName;
-        }
-        else if (undeclares.main) {
-            templateName = "main";
-        }
-        else if (undeclares.Main) {
-            templateName = "Main";
-        }
-        else if (undeclares.MAIN) {
-            templateName = "MAIN";
-        }
         else {
-            var commHtmlName = commName[0].toUpperCase() + commName.slice(1);
-            if (undeclares[commHtmlName]) templateName = commHtmlName;
+            templateName = getEntryName(undeclares, commName);
         }
     }
-
-    if (commName) {
-        //如果声明了main方法或main对象，默认用main作为返回值
-        if (declares.main) {
-            commName = "main";
-        } else if (declares.Main) {
-            commName = "Main";
-        } else if (declares.MAIN) {
-            commName = "MAIN";
-        } else if (!declares[commName]) {
-            commName = commName[0].toUpperCase() + commName.slice(1);
-            if (!declares[commName]) {
-                commName = null;
-            }
-        }
-    }
+    commName = getEntryName(declares, commName);
     var hasless = typeof lessdata === "string";
     if (hasless) {
         if (!declares.cless) {
@@ -575,6 +547,16 @@ var getValidName = function (prefix, used) {
     }
     return prefix;
 }
+var getEntryName = function (vars, commName) {
+    for (var entry of memery.ENTRY_NAME.split(",")) {
+        entry = entry.replace(/<(auto|filename)>/ig, commName);
+        if (entry in vars) return entry;
+    }
+    if (commName in vars) return commName;
+    commName = commName[0].toUpperCase() + commName.slice(1);
+    if (commName in vars) return commName;
+    return null;
+}
 async function getXhtPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     var xht = scanner2(data.toString(), 'html');
@@ -589,8 +571,8 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     htmltext = await renderImageUrl(htmltext, fullpath);
     styles = await renderLessData(styles.join("\r\n"), fullpath, watchurls, lessName);
     var jsvars = jscope.vars;
-    if (jsvars.main || jsvars.Main || jsvars.MAIN || jsvars[commName]) {
-        console.log()
+    var entryName = getEntryName(jsvars, commName);
+    if (entryName) {
         htmltext = `{toString:()=>${wrapHtml(scoped.outerHTML)}}`;
         return loadJsBody(jsData, filename, styles, commName, className, htmltext);
     }
