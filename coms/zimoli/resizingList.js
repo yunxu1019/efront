@@ -12,7 +12,7 @@ var unmount = function () {
 };
 var resizingList = [];
 resizingList.set = function (e) {
-    on('append')(e, mount);
+    onmounted(e, mount);
     on("remove")(e, unmount);
 };
 resizingList.hit = function (e) {
