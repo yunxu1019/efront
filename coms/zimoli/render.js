@@ -797,6 +797,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     if (!isFirstRender) return element;
     renderRest(element, element.$struct, replacer);
+    var restons = element.$struct.ons;
     if (replacer) {
         if (!replacer.renders) replacer.renders = [];
         if (isElement(replacer)) createStructure(replacer);
@@ -810,7 +811,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         }
         element = replacer;
     }
-    if (element.$struct) element.$struct.ons.forEach(([on, key, value]) => on.call(element, element, key, value));
+    restons.forEach(([on, key, value]) => on.call(element, element, key, value));
     if (element.renders.length) {
         if (element.renderid !== 9) {
             onmounted(element, addRenderElement);
