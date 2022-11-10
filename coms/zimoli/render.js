@@ -898,7 +898,7 @@ function createStructure(element) {
             value = name.slice(1).replace(/\./g, ' ')
             name = 'class';
             copys.push({ name, value });
-            element.setAttribute(name, value);
+            addClass(element, value);
             continue;
         }
         if (/^(?:class|style|src|\:|placeholder)$/i.test(name)) {
