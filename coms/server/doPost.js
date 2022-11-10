@@ -1,14 +1,7 @@
 "use strict";
 var finalpacker = require("../efront/finalpacker");
-var proxy = require("./url-proxy");
-var handle = {
-    // async "/webhook"(req, res) {
-    //     var buff = await readdata(req, 200);
-    //     var token = JSON.parse(String(buff)).token;
-    //     require("crypto").createHash("md5").update(token).digest("base64") === "tObhntR/qdhj3QfJGrVKww==" && require("../message").webhook();
-    //     res.end();
-    // }
-};
+var getRequestEnv = require("./getRequestEnv");
+var handle = Object.create(null);
 
 
 var doPost = module.exports = async function (req, res) {
@@ -29,8 +22,8 @@ var doPost = module.exports = async function (req, res) {
             finalpacker.reset();
         }
     }
-    url = await proxy(req);
-    finalpacker(url, async function (result, type) {
+    var env = getRequestEnv(req);
+    finalpacker.call(env, url, async function (result, type) {
         if (!(result instanceof Buffer || result instanceof Function)) {
             result = String(result);
         } else {

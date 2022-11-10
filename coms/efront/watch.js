@@ -1,5 +1,6 @@
 "use strict";
 var fs = require("fs");
+var lazy = require("../basic/lazy");
 var watch_tree = {};
 function watch(file, then, deep) {
     if (!(then instanceof Function)) {
@@ -15,26 +16,16 @@ function watch(file, then, deep) {
     if (watch_tree[file]) {
         return watch_tree[file].push(then);
     }
-    var timmer = 0;
-    var watchers = [fs.watch(file, {
+    var watchers = watch_tree[file] = [];
+    watchers[0] = fs.watch(file, {
         persistent: false,
         recursive: /^(darwin|win32)$/i.test(process.platform) && !!deep
-    }, function (changeType) {
+    }, lazy(function (file, changeType) {
+        if (watch_tree[file] !== this) return;
         if (changeType !== "change") return;
-        clearTimeout(timmer);
-        var args = arguments;
-        timmer = setTimeout(function () {
-            if (watch_tree[file] !== watchers) return;
-            try {
-                watchers.slice(1, watchers.length).forEach(function (watch) {
-                    watch.apply(null, args);
-                });
-            } catch (e) {
-                console.error("执行失败！", e.message);
-            }
-        }, 160);
-    }), then];
-    watch_tree[file] = watchers;
+        watchers.slice(1, watchers.length).forEach(w => w(file));
+    }.bind(watchers, file), 160));
+    watchers[1] = then;
 }
 watch.close = function () {
     watch.closeing = true;

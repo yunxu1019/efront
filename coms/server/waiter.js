@@ -1,5 +1,6 @@
 "use strict";
 require("../efront/setupenv");
+var getRequestEnv = require("./getRequestEnv");
 var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var userdata = require("./userdata");
 var { Transform } = require("stream");
@@ -61,9 +62,6 @@ message.send('getmark', null, function (markList) {
 message.send('addmark', clients.getMark()[0]);
 message.reloadUserdata = function () {
     userdata.reload();
-};
-message.reload = function () {
-    liveload.reload();
 };
 // 子线程们
 // 仅做开发使用的简易服务器
@@ -263,7 +261,12 @@ var requestListener = async function (req, res) {
                     res.write("efront " + require("../../package.json").version);
                     break;
                 case "live":
-                    if (memery.islive) return liveload.mount(type[2], res);
+                    if (memery.islive) {
+                        let env = getRequestEnv(req);
+                        if (!env) break;
+                        res.env = env;
+                        return liveload.mount(type[2], res);
+                    }
                     break;
                 case "uptime":
                     return message.send("uptime", null, function (error, time) {
@@ -401,7 +404,7 @@ var requestListener = async function (req, res) {
                     res.write("清理完成");
                     break;
                 case "rehost":
-                    res.on("finish", function(){
+                    res.on("finish", function () {
                         this.socket.destroy();
                     });
                     res.on("finish", safeQuitProcess);

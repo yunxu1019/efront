@@ -19,9 +19,19 @@ var createManagersWithEnv = async function (env) {
     var page_path = mixpath(env.PAGE_PATH, env.PAGE);
     var comscache = new Cache(coms_path, cbuilder);
     var pagecache = new Cache(page_path, cbuilder);
+    var fireload = function () {
+        if (env.reload instanceof Function) env.reload();
+    };
     var update = async function () {
         if (update.ing) return;
         update.ing = true;
+        try {
+            await update1();
+        } catch { }
+        update.ing = false;
+        fireload();
+    }
+    var update1 = async function () {
         var cm = await getCommap(env.APP);
         a: {
             for (var k in cm) if (!(k in commap)) break a;
@@ -46,13 +56,15 @@ var createManagersWithEnv = async function (env) {
                 f.unload();
             }
         })
-        update.ing = false;
     };
     comscache.onreload = update;
     pagecache.onreload = update;
     var apicache = new Cache(mixpath(env.APIS_PATH, env.AAPI), aapibuilder);
+    apicache.onreload = fireload;
     var iconcache = new Cache(mixpath(env.ICON_PATH || require("path").join(__dirname, "../data/cons"), env.ICON), iconbuilder);
+    iconcache.onreload = fireload;
     var filecache = new Cache(mixpath(env.FILE_PATH || env.PAGE_PATH, env.FILE || env.PAGE), filebuilder, FILE_BUFFER_SIZE);
+    filecache.onreload = fireload;
     var managers = {
         comm(name, ext) {
             var exts = fixExtentions([".js", '.xht', ".ts", ".json", ".html", '.vue', ''], ext);
@@ -122,7 +134,7 @@ var exports = module.exports = async function (url, callback) {
             type = match[2],
             name = match[3],
             extt = match[4];
-        var env = setupenv(appc);
+        var env = this || setupenv(appc);
         var managers = await getManagersWithEnv(env);
         var manager = managers[type];
         if (!manager) {
@@ -132,7 +144,7 @@ var exports = module.exports = async function (url, callback) {
         var result = await manager(name, extt);
     } else {
         url = url.replace(/[\?\#].*?$/, '');
-        var env = setupenv(memery.APP || '');
+        var env = this || setupenv(memery.APP || '');
         var managers = await getManagersWithEnv(env);
         var result = await managers.file(url, "");
     }

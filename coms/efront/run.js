@@ -3,6 +3,7 @@ var fs = require("fs");
 var os = require("os");
 var path = require("path");
 var isLib = require("./isLib");
+var setupenv = require("./setupenv");
 var parseURL = require("../basic/parseURL");
 var userAgent = "Efront/1.0";
 var memery = require("./memery");
@@ -14,7 +15,7 @@ var mainLoaderPromise = new Promise(function (ok, oh) {
     });
 });
 function fromComponent(base) {
-    var packer = require("./finalpacker");
+    var packer = require("./finalpacker").bind(this);
     var requestInternet = fromInternet("");
     var request = function (url, onsuccess, onerror) {
         var isdestroied = false;
@@ -202,6 +203,7 @@ module.exports = function (mainpath, args) {
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
+    var env = setupenv(pathname);
     var location = Object.freeze({
         pathname,
         reload() {
@@ -209,9 +211,9 @@ module.exports = function (mainpath, args) {
             var window = efront();
             var getLoader;
             if (/^https?\:\/\//i.test(mainpath)) {
-                getLoader = fromInternet.bind(window, mainpath);
+                getLoader = fromInternet.bind(env, mainpath);
             } else {
-                getLoader = fromComponent.bind(window, '/');
+                getLoader = fromComponent.bind(env, '/');
             }
             window.request = getLoader();
             window.location = location;

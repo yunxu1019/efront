@@ -5,9 +5,21 @@ var { Http2ServerResponse } = require("http2");
  */
 var liveload = module.exports = [];
 liveload.version = +new Date;
-liveload.reload = function () {
+liveload.reload = function (env) {
     this.version++;
-    this.splice(0).forEach(res => res.writeHead(200, { "content-type": "text/plain;charset=utf-8" }) | res.end("我不是你的唯一"));
+    if (env) {
+        var unloads = [];
+        for (var cx = this.length - 1; cx >= 0; cx--) {
+            var res = this[cx];
+            if (res.env === env) {
+                this.splice(cx, 1);
+                unloads.push(res);
+            }
+        }
+    } else {
+        unloads = this.splice(0, this.length);
+    }
+    unloads.forEach(res => res.writeHead(200, { "content-type": "text/plain;charset=utf-8" }) | res.end("我不是你的唯一"));
 };
 /**
  * @param {Http2ServerRequest} req
