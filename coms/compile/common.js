@@ -126,6 +126,12 @@ var skipAssignment = function (o, cx) {
     }
     return body ? cx : o;
 };
+function skipSentenceQueue(o) {
+    do {
+        o = skipAssignment(o)
+    } while (o && o.type === STAMP && o.text === ',' ? o = o.next : false);
+    return o;
+}
 function snapSentenceHead(o) {
     // 只检查一级
     while (o && o.prev) {
@@ -539,7 +545,7 @@ var createScoped = function (parsed, wash) {
                             if (~[VALUE, QUOTED, PROPERTY, LABEL].indexOf(next.type)) break;
                             if (EXPRESS === next.type && !/^\./.test(next.text)) break;
                             if (next.type === SCOPED && next.entry === "{") break;
-                            if(next.type===STRAP && !next.isExpress)break;
+                            if (next.type === STRAP && !next.isExpress) break;
                         }
                         o = next;
                     } while (o);
@@ -950,6 +956,7 @@ module.exports = {
     createScoped,
     snapSentenceHead,
     snapExpressHead,
+    skipSentenceQueue,
     saveTo,
     rename,
     relink,

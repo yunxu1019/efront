@@ -14,7 +14,7 @@ const {
     /* 7 */SCOPED,
     /* 8 */LABEL,
     /* 9 */PROPERTY,
-    skipAssignment,
+    skipSentenceQueue,
     rename,
     relink,
 } = require("./common");
@@ -72,7 +72,7 @@ class Code extends Array {
      * @type {Program}
      */
     program = null;
-    isExpress() {
+    isExpressQueue() {
         if (!this.first) return false;
         var first = this.first;
         if (first.type === SCOPED) {
@@ -82,7 +82,7 @@ class Code extends Array {
             if (!this.program.strapexp_reg.test(first.text)) return false;
         }
         else if (!~[EXPRESS, STAMP, QUOTED, SCOPED, VALUE].indexOf(first.type)) return false;
-        var last = skipAssignment(this.first);
+        var last = skipSentenceQueue(this.first);
         return this.last === last || !last;
     }
 
