@@ -527,8 +527,7 @@ function table(elem) {
             })
         }
     );
-    resizingList.set(table);
-    on("resize")(table, setFixedColumn);
+    resizingList.set(table, setFixedColumn);
     on("scroll")(table, setFixedColumn);
     return table;
 }

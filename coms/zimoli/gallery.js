@@ -47,7 +47,6 @@ function gallery(element, minWidth, generator) {
             maxWidth: fromPixel(maxWidth),
         });
     };
-    resizingList.set(element);
     var createColumn = function (id) {
         var _box = list(function (index) {
             var realindex = index * boxCount + id;
@@ -95,7 +94,7 @@ function gallery(element, minWidth, generator) {
         this.clean();
         this.go(index || 0);
     });
-    on('resize')(element, element.resize);
+    resizingList.set(element, element.resize);
     return element;
 }
 function main() {

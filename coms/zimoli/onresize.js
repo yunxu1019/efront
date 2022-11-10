@@ -1,1 +1,2 @@
-var onresize=on("resize");
+console.warn(`%c onresize(...) %c方法将在未来的版本中移除！使用%c on("resize")(window, handler) %c 或 %c resizingList.set(element, handler) %c 代替`,
+"color:red","color:#333","color:blue","color:#333","color:blue","color:#333"), on("resize");

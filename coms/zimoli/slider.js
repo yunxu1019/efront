@@ -323,7 +323,7 @@ function slider(autoplay, circle = true) {
     var cancel_resize;
     onappend(outter, function () {
         cancel_resize && cancel_resize();
-        cancel_resize = onresize(window, function () {
+        cancel_resize = on("resize")(window, function () {
             switchBy(0);
         });
         if (isFinite(outter.index)) switchBy(0);

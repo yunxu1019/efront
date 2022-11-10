@@ -13,7 +13,7 @@ appendChild(layer, leftLayer, centerLayer);
 onappend(centerLayer, function () {
     zimoli.switch("layer-left-center", layer);
     zimoli();
-    var cancel_resize = onresize(window, reshape);
+    var cancel_resize = on("resize")(window, reshape);
     once("remove")(centerLayer, cancel_resize);
 });
 function reshape() {
