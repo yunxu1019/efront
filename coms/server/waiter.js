@@ -132,6 +132,7 @@ var setHeader = function (crypted, k, v) {
  * @param {Http2ServerResponse}res
  */
 var requestListener = async function (req, res) {
+    req.socket.unref();
     try {
         var remoteAddress = require("./remoteAddress")(req);
     } catch {
