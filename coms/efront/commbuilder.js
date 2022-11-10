@@ -566,13 +566,13 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     var used = Object.create(null);
     var jscope = scanner2(jsData).scoped
     extend(used, scoped.used, jscope.envs);
-    var scope = Object.keys(scoped.envs).filter(e => e !== commName && (e in this || e in jscope.used)).join(",\r\n");
+    var scope = Object.keys(scoped.envs).filter(e => e in this || e in jscope.used).join(",\r\n");
     var xhtmain = getValidName(`xht`, used);
     htmltext = await renderImageUrl(htmltext, fullpath);
     styles = await renderLessData(styles.join("\r\n"), fullpath, watchurls, lessName);
     var jsvars = jscope.vars;
     var entryName = getEntryName(jsvars, commName);
-    if (entryName) {
+    if (entryName && !(entryName in scoped.used)) {
         htmltext = `{toString:()=>${wrapHtml(scoped.outerHTML)}}`;
         return loadJsBody(jsData, filename, styles, commName, className, htmltext);
     }
