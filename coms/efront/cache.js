@@ -113,7 +113,6 @@ function Directory(pathname, rebuild, limit) {
 Directory.prototype = Object.create(null);
 Directory.prototype.update = async function (updateonly) {
     var that = this;
-    if (updateonly && !that.isloaded) return that.promise;
     var hasOrigin = that.isloaded;
     var loaded = that.loaded;
     that.isloaded = false;
@@ -181,16 +180,12 @@ Directory.prototype.update = async function (updateonly) {
 };
 Directory.prototype.get = function (url) {
     var that = this;
-    if (!that.promise) that.promise = that.update();
     var reloadAfter = async function (promise) {
         await promise;
-        do {
-            var promise = that.promise;
-            await that.promise;
-        } while (promise !== that.promise);
+        await that.promise;
+        if (!that.isloaded) throw `加载${url}失败！`;
         return that.get(url);
     };
-    if (!that.isloaded) return reloadAfter(that.promise);
     var keeys = url.split(/[\\\/]+/);
     var temps = [that];
     var keypath = [''];
@@ -386,10 +381,12 @@ var createDirect = function (froot, rebuild, limit, emit) {
         direct = rebuild.cached_roots[froot] = new Directory(froot, rebuild, limit);
     }
     direct.emitUpdate = emit;
-    watch(direct.pathname, lazy(async function () {
-        if (fs.existsSync(direct.pathname) && fs.statSync(direct.pathname).isDirectory()) direct.promise = direct.update(true);
-        await direct.promise;
-    }, 20), true);
+    if (fs.existsSync(direct.pathname) && fs.statSync(direct.pathname).isDirectory()) {
+        watch(direct.pathname, lazy(async function () {
+            if (direct.isloaded) direct.promise = direct.update(true);
+            await direct.promise;
+        }, 20), true);
+    }
     return direct;
 };
 var seekAsync = async function (directs, url, extts) {
