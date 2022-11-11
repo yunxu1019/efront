@@ -218,12 +218,15 @@ function ylist(container, generator, $Y) {
     var rebuild = function () {
         runbuild();
     };
+    var topinsert = null;
     oncemount(list, function () {
         if (!/^(?:auto|scroll)$/i.test(getComputedStyle(list).overflowY)) return;
         on("scroll")(list, rebuild);
+        if (!topinsert) {
+            topinsert = document.createElement('insertY');
+            list.insertBefore(topinsert, list.firstChild);
+        }
     });
-    var topinsert = document.createElement('ylist-insert');
-    list.insertBefore(topinsert, list.firstChild);
     //计算当前高度
     var currentY = function () {
         var firstElement = getFirstElement();
