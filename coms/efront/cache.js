@@ -434,23 +434,22 @@ var getPackageMain = function (url, data, map) {
 }
 class Cache {
     updateid = 0;
-    emitUpdate = lazy(async function (updateid, rootpath) {
-        if (updateid !== this.updateid) return;
+    emitUpdate() {
+        if (this.onreload instanceof Function) this.onreload();
+    }
+    _emitUpdate = lazy(this.emitUpdate, 20);
+    checkUpdate = async function (rootpath) {
         var updated = false;
         for (var direct of this.directs) {
             if (direct.pathname !== rootpath) continue;
             if (direct.isloaded) {
                 direct.promise = direct.update(true);
                 if (await direct.promise) updated = true;
-                if (updateid !== this.updateid) return;
             }
         }
-        if (updated && this.onreload instanceof Function) await this.onreload();
-    }.bind(this), 20);
-    onreload = null;
-    _emitUpdate = function (rootpath) {
-        this.emitUpdate(++this.updateid, rootpath);
+        if (updated) this._emitUpdate();
     }.bind(this);
+    onreload = null;
     constructor(filesroot, rebuild, buffer_size_limit) {
         buffer_size_limit = isFinite(buffer_size_limit) && buffer_size_limit >= 0 ? buffer_size_limit | 0 : buffer_size_limit
         var filesroot = formatpathlist(filesroot);
@@ -459,8 +458,7 @@ class Cache {
     }
     bindWatch(direct) {
         if (fs.existsSync(direct.pathname) && fs.statSync(direct.pathname).isDirectory()) {
-            direct.updateid = 0;
-            watch(direct.pathname, this._emitUpdate, true);
+            watch(direct.pathname, this.checkUpdate, true);
         }
     }
     forEachLoaded(call) {
