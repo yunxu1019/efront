@@ -96,9 +96,9 @@ class Word {
         return this.rate * Math.pow(this.mask, powertime - this.time);
     }
     update() {
-        var p = this.power();
+        var p = this;
         if (this.rate) {
-            var i = getIndexFromOrderedArray(wordslike, a => a.power() <= p);
+            var i = getIndexFromOrderedArray(wordslike, p, comparepower);
             var w = wordslike[i];
             if (w && w.power() === p) {
                 if (p < 1e-306) {
@@ -106,7 +106,7 @@ class Word {
                 } else {
                     p = p - p / 0x1fffffffffffff;
                 }
-                for (var dx = i + 1, cx = getIndexFromOrderedArray(wordslike, a => a.power() <= p); cx < dx; cx++) {
+                for (var dx = i + 1, cx = getIndexFromOrderedArray(wordslike, p, comparepower); cx < dx; cx++) {
                     if (wordslike[cx] == this) {
                         wordslike.splice(cx, 1);
                         break;
@@ -149,7 +149,7 @@ function format() {
     for (var cx = like.length - 1; cx >= 0; cx--) {
         var m = like[cx];
         var p = Math.sqrt(m.power() / 10) * 10;
-        for (var cy = 0, dy = getIndexFromOrderedArray(wordslike, a => a.power() <= p); cy < dy; cy++) {
+        for (var cy = 0, dy = getIndexFromOrderedArray(wordslike, { power() { return p } }, comparepower); cy < dy; cy++) {
             var n = wordslike[cy];
             if (n.name.indexOf(m.name) >= 0) {
                 wordslike.splice(cy, 1);
@@ -307,7 +307,6 @@ function main(text) {
         getWord(result[cx]).update();
     }
     format();
-    console.log(result)
     return result;
 }
 window.wordslike = wordslike;
