@@ -320,68 +320,9 @@ var loadModule = function (name, then, prebuilds = {}) {
     }
 };
 var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".78pt" : 0.78 / devicePixelRatio + "pt") + (quote || "")) : text;
-if (document) {
-    if (document.head) {
-        var efrontsign = document.head.lastElementChild.attributes[0];
-        if (efrontsign && /^compiledinfo\-/.test(efrontsign.name)) efrontsign = efrontsign.name.slice(efrontsign.name.indexOf('-') + 1);
-        else efrontsign = '';
-    }
-    else if (document.getElementsByTagName) {
-        document.head = document.getElementsByTagName("head")[0];
-        efrontsign = /\<script\s+compiledinfo\-(\S*?)\s*\=/i.exec(document.head.lastChild.outerHTML);
-        if (efrontsign) efrontsign = efrontsign[1];
-        else efrontsign = '';
-    }
-}
-var uncode = function (text) {
-    var ratio = 1;
-    var sum = 0;
-    for (var cx = 0, dx = text.length; cx < dx; cx++) {
-        var code = text.charCodeAt(cx);
-        sum += (code < 63 ? code - 39 : code < 93 ? code - 42 : code - 43) * ratio;
-        ratio *= 84;
-    }
-    return sum;
-}
-var decrypt = function (text) {
-    var start = parseInt(efrontsign, 36) % 128;
-    var rest = [];
-    for (var cx = 0, dx = text.length; cx < dx; cx++) {
-        var delta = text.charCodeAt(cx);
-        if (delta < 44) {
-            // 39-44 = -(delta -39)
-            delta = 39 - delta;
-        } else if (delta < 50) {
-            // 44-50
-            delta = delta - 44;
-        } else if (delta < 55) {
-            // 50-55 = -(34+delta)
-            cx++;
-            var next = cx + delta - 50;
-            delta = -uncode(text.slice(cx, next + 1)) - 33;
-            cx = next;
-        } else if (delta < 60) {
-            // 55-60 = -(34+delta)
-            cx++;
-            var next = cx + delta - 55;
-            delta = 39 + uncode(text.slice(cx, next + 1));
-            cx = next;
-        } else if (delta < 92) {
-            // 63-92 =- (5+delta-63)
-            delta = 58 - delta;
-        } else {
-            // 93- = 6+ delta-93
-            delta = delta - 87;
-        }
-        start = start + delta;
-        rest.push(String.fromCharCode(start));
-    }
-    return rest.join('');
-};
+"use ./#decrypt.js";
 var getArgs = function (text) {
-    if (efrontsign) {
-        text = decrypt(text);
-    }
+    "use ./#decrypt_.js";
     var args, functionBody;
     //依赖项名称部分的长度限制为36*36*18=23328
     var doublecount = parseInt(text.slice(0, 3), 36);
@@ -819,11 +760,6 @@ var saveResponseTreeToStorage = function () {
 };
 var loadResponseTreeFromStorage = function () {
     "use ./crc.js";
-    if (efrontsign) {
-        var codes = [];
-        for (var i in efrontsign) codes[i] = efrontsign.charCodeAt(i);
-        modules.efrontsign = "?" + crc(codes).toString(36);
-    }
     var load = function (name) {
         var data = localStorage.getItem(responseTree_storageKey);
         if (!data) return;
@@ -873,7 +809,6 @@ var modules = {
     load: loadModule,
     devicePixelRatio,
     renderPixelRatio,
-    efrontsign: "",
     debug() {
         document.addEventListener("blur", e => e.stopPropagation(), true);
     },
@@ -913,7 +848,9 @@ var initIfNotDefined = function (defined, path, onload) {
 if (document) loadResponseTreeFromStorage();
 initIfNotDefined([].map, "[]map", map => map);
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);
-if (!isProduction) window.modules = modules;
+// <!--
+window.modules = modules;
+// -->
 var onload = function () {
     window.onload = null;
     hook(--requires_count);

@@ -10,6 +10,7 @@ var r21 = "'()*+,-./0123456789:;"
 var r29 = "?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
 var r34 = "]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 var memory = require("../efront/memery");
+var toComponent = require("./toComponent");
 var codetemp = function (delta) {
     var temp = [];
     while (delta > 0) {
@@ -64,10 +65,9 @@ var encrypt = function (text, efrontsign) {
     return rest.join("");
 }
 var encoded = memory.ENCRYPT;
-var compress = memory.COMPRESS;
 var ReleaseTime = new Date();
 ReleaseTime = String(ReleaseTime);
-var buildHtml = function (html, code) {
+var buildHtml = function (html, code, outsideMain) {
     var isZimoliDetected = false;
     var poweredByComment;
     var html = html.toString()
@@ -93,7 +93,7 @@ var buildHtml = function (html, code) {
         });
 
     if (isZimoliDetected)
-        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo${encoded ? '-' + encoded : ''}="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}">\r\n<!--\r\n-function(){${code}}.call(this)\r\n-->\r\n</script>\r\n${head}`);
+        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo${encoded ? '-' + encoded : ''}="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}"${outsideMain ? ` src="${outsideMain}"` : ''}>${outsideMain ? "" : `\r\n<!--\r\n${code}\r\n-->\r\n`}</script>\r\n${head}`);
     if (memory.IN_WATCH_MODE) {
         let WATCH_PORT = memory.WATCH_PORT;
         let reloadVersion = memory.WATCH_PROJECT_VERSION;
@@ -157,14 +157,19 @@ function toApplication(responseTree) {
         responseTree["/" + indexnames[0]] = indexHtml;
     }
     if (mainScript) {
+        var outsideMain = setting.is_file_target ? "" : "main-" + crc(Buffer.from(mainScript.data)).toString(36) + ".js";
         Object.keys(responseTree).forEach(function (key) {
             if (/\.(jsp|php|html|asp)$/i.test(key)) {
                 var response = responseTree[key];
                 if (response && response.data) {
-                    response.data = buildHtml(response.data, mainScript.data);
+                    response.data = buildHtml(response.data, mainScript.data, outsideMain);
                 }
             }
         });
+        if (outsideMain) {
+            mainScript.destpath = outsideMain;
+            responseTree[outsideMain] = mainScript;
+        }
     }
     delete responseTree["main"];
     delete responseTree["main.js"];
@@ -265,16 +270,15 @@ module.exports = async function (responseTree) {
     var commbuilder = require("../efront/commbuilder");
     commbuilder.compress = false;
     var mainScript = responseTree.main || responseTree["main.js"];
-    var mainScriptData = commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
-    commbuilder.compress = +compress;
+    var mainScriptData = mainScript.data;
     var versionTree = {};
-
     if (setting.is_file_target) {
+        commbuilder.ignoreUse_reg = /#decrypt_?\.js/;
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (!isEfrontCode(v)) return;
             if (v.name !== "main") {
-                versionTree[v.name] = encrypt(v.data, encoded);
+                versionTree[v.name] = String(v.data);
                 delete responseTree[k];
             }
         });
@@ -289,6 +293,7 @@ module.exports = async function (responseTree) {
             }
         });
     }
+    var mainScriptData = commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
 
     return Promise.resolve(mainScriptData).then(function (mainScriptData) {
         if (setting.is_file_target) {
@@ -301,7 +306,7 @@ module.exports = async function (responseTree) {
             if (xTreeName) xTreeName = xTreeName[2];
             else xTreeName = "versionTree";
         }
-        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:"${versionTree[k]}"`).join(",\r\n\t") + "\r\n}";
+        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
         var versionVariableName;
         code = mainScriptData.toString()
             .replace(/var\s+killCircle[\s\S]*?\}\);?\s*\}\s*\};/, 'var killCircle=function(){};')
@@ -315,7 +320,12 @@ module.exports = async function (responseTree) {
             );
         return commbuilder(code, "main.js", mainScript.realpath, []);
     }).then(function (mainScriptData) {
-        mainScript.data = mainScriptData;
+        memory.EXPORT_AS = '';
+        memory.EXPORT_TO = "none";
+        mainScript.data = toComponent({
+            main: { url: "main", destpath: "main", data: mainScriptData },
+            "[]map": responseTree["[]map"] && {}
+        }, true).main.data;
         return toApplication(responseTree);
     });
 };

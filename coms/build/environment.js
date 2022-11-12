@@ -5,7 +5,6 @@ var fs = require("fs");
 var memery = require('../efront/memery');
 var {
     APP = ".",
-    EXPORT_AS,
     EXPORT_TO,
     RELEASE,
     PREFIX,
@@ -88,7 +87,6 @@ module.exports = {
     POLYFILL,
     public_app,
     EXPORT_TO,
-    EXPORT_AS,
     DESTPATH,
     include_required: !!RELEASE || !public_app,
     APP

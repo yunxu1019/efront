@@ -13,6 +13,7 @@ var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
 
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
+    var ignoreUse_reg = commbuilder.ignoreUse_reg;
     if (!data) return data;
     var regs = [].concat(reg);
     var regindex = 0;
@@ -23,6 +24,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
         var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1\s*;?\s*$/;
         data.replace(reg, function (match, quote, relative) {
             if (skipreg.test(match)) return match;
+            if (ignoreUse_reg && ignoreUse_reg.test(relative)) return '';
             loadurls.push(relative);
         });
         var trimurl = url => {
@@ -68,6 +70,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
                     });
                     data = data.replace(reg, function (match, quote, relative) {
                         if (skipreg.test(match)) return match;
+                        if (ignoreUse_reg && ignoreUse_reg.test(relative)) return '';
                         var data = dataMap[relative];
                         if (data && relative in pathmap) {
                             var result = replacer(data, pathmap[relative], match);
@@ -132,7 +135,7 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
                 return data;
             }
         }
-        return data + `;var ${realName},${commName}=${realName};`;
+        return data;
     };
     return bindLoadings(useInternalReg, source, fullpath, replacer);
 };

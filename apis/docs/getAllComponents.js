@@ -19,7 +19,7 @@ function getAllcomponents() {
         var current_name_prefix;
         names.filter(name => {
             if (
-
+                /#/.test(name) ||
                 !comm_file_reg.test(name)
             ) return false;
             if (test_file_reg.test(name)) {

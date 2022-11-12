@@ -9,7 +9,7 @@ var userAgent = "Efront/1.0";
 var memery = require("./memery");
 var resolve_config = { paths: memery.COMS_PATH.split(',') };
 var mainLoaderPromise = new Promise(function (ok, oh) {
-    fs.readFile(path.join(__dirname, "../basic/loader.js"), function (error, data) {
+    fs.readFile(path.join(__dirname, "../basic/#loader.js"), function (error, data) {
         if (error) oh(error);
         ok(data.toString());
     });

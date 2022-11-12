@@ -5,7 +5,7 @@ var path = require("path");
 var _strings = require("../basic/strings");
 var memery = require("../efront/memery");
 var globals = require("../efront/globals");
-var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, EXPORT_AS, PUBLIC_PATH } = require("./environment");
+var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, PUBLIC_PATH } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
 var report = require("./report");
@@ -87,7 +87,7 @@ function setDistpath(response, altername) {
     var DESTNAME = String(memery.PUBLIC_NAME || altername).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + memery.EXTT;
     if (DESTNAME) response.destpath = DESTNAME;
 }
-function toComponent(responseTree) {
+function toComponent(responseTree, noVersionInfo) {
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];
     delete responseTree["[]map"];
     delete responseTree["[]map.js"];
@@ -100,7 +100,7 @@ function toComponent(responseTree) {
     var destMap = Object.create(null), dest = [];
 
     var paramsMap = Object.create(null);
-    var avoidMap = scanner2.avoid;
+    var avoidMap = scanner2.avoid || Object.create(null);
     var getEfrontKey = function (k, type) {
         k = String(k);
         if (type === 'global') {
@@ -384,7 +384,7 @@ function toComponent(responseTree) {
         saveOnly(`[${d.imported.join(',')},${module}]`, d.importedid);
     };
     for (var k in responseTree) {
-        if (!{}.hasOwnProperty.call(responseTree, k)) continue;
+        if (!Object.prototype.hasOwnProperty.call(responseTree, k)) continue;
         var response = responseTree[k];
         if (!response.data && /^(number|function|string)$/.test(typeof response.builtin)) {
             response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
@@ -415,14 +415,15 @@ function toComponent(responseTree) {
     }
     if (result.length === 1) {
         var [k, required, reqMap, module_body] = result[0];
-        if (module_body.length === 1 && required.length === 0 || !memery.EMIT && !memery.ENCRYPT && !memery.BREAK && !memery.COMPRESS) {
+        var isSingleFile = module_body.length === 1 && (!required || required.length === 0);
+        if (isSingleFile && !memery.EMIT && !memery.ENCRYPT && !memery.BREAK && !memery.COMPRESS) {
             responseTree[k].data = module_body[module_body.length - 1].replace(/^(@?)(\*?)/, '');
             setDistpath(responseTree[k], k);
             return responseTree;
         }
     }
     console.info("正在合成");
-    if (array_map) saveCode([String(array_map.data)], "map");
+    if (array_map && array_map.data) saveCode([String(array_map.data)], "map");
     var circle_result, PUBLIC_APP, public_index, last_result_length = result.length, origin_result_length = last_result_length
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
@@ -573,15 +574,17 @@ function toComponent(responseTree) {
     var ${declears};${realize}\r\n}`;
 
     var thisContext = "";
-    if (/^(this|globalThis|window)$/.test(EXPORT_TO)) thisContext = EXPORT_TO;
-    var template = `([/*${new Date().toString()} by efront ${require(path.join(__dirname, "../../package.json")).version}*/].map${array_map ? simple_compress(" || " + polyfill_map) : ''}).call([${dest}],${simple_compress(realize)},[${thisContext || 'this.window||this.globalThis||global'}])[${public_index}]()`;
-    if (EXPORT_TO) {
-        if (!thisContext) switch (EXPORT_TO) {
+    var exportName = memery.EXPORT_TO || EXPORT_TO;
+    if (/^(this|globalThis|window)$/.test(exportName)) thisContext = exportName;
+    var versionInfo = noVersionInfo ? '' : `/*${new Date().toString()} by efront ${require(path.join(__dirname, "../../package.json")).version}*/`;
+    var template = `([${versionInfo}].map${array_map ? simple_compress(" || " + polyfill_map) : ''}).call([${dest}],${simple_compress(realize)},[${thisContext || 'this.window||this.globalThis||global'}])[${public_index}]()`;
+    if (exportName) {
+        if (!thisContext) switch (exportName) {
             case 'node':
                 template = `#!/usr/bin/env node\r\n` + template;
-                break;
+            case "void":
             case 'return':
-                template = "return " + template;
+                template = exportName + " " + template;
                 break;
             case "none":
             case "null":
@@ -594,13 +597,13 @@ function toComponent(responseTree) {
                 template = "module.exports=" + template;
                 break;
             default:
-                template = `this["${EXPORT_TO}"]=` + template;
-                responseTree[PUBLIC_APP].destpath = EXPORT_TO;
+                template = `this["${exportName}"]=` + template;
+                responseTree[PUBLIC_APP].destpath = exportName;
 
         }
     }
-    if (EXPORT_AS) {
-        template += `["${EXPORT_AS}"]`;
+    if (memery.EXPORT_AS) {
+        template += `["${memery.EXPORT_AS}"]`;
     }
 
     responseTree[PUBLIC_APP].data = template;
