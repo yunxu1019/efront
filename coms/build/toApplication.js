@@ -272,6 +272,7 @@ module.exports = async function (responseTree) {
     var mainScript = responseTree.main || responseTree["main.js"];
     var mainScriptData = mainScript.data;
     var versionTree = {};
+    var array_map = responseTree["[]map"] || responseTree["[]map.js"];
     if (setting.is_file_target) {
         commbuilder.ignoreUse_reg = /#decrypt_?\.js/;
         Object.keys(responseTree).sort().forEach(function (k) {
@@ -324,7 +325,7 @@ module.exports = async function (responseTree) {
         memory.EXPORT_TO = "none";
         mainScript.data = toComponent({
             main: { url: "main", destpath: "main", data: mainScriptData },
-            "[]map": responseTree["[]map"] && {}
+            "[]map": array_map && {}
         }, true).main.data;
         return toApplication(responseTree);
     });
