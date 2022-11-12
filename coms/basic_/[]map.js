@@ -72,10 +72,7 @@ if (![].filter) Array.prototype.filter = filter;
 if (!"".trim) String.prototype.trim = trim;
 if (!Object.keys) Object.keys = keys;
 if (!Object.create) Object.create = function (object) {
-    function ExtendedClass() {
-    }
-    ExtendedClass.prototype = object;
-    return new ExtendedClass;
+    return { __proto__: object };
 };
 if (!function () { }.bind) Function.prototype.bind = function (context) {
     var args = [].slice.call(arguments, 1);
