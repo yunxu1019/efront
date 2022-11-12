@@ -4,9 +4,6 @@
 name: 刷安装量
 
 on:
-  push:
-    branches:
-      - develop
   schedule:
     - cron:  26 7,8,11,12,15,16,18,20,22 * * *
 
