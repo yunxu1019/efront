@@ -1,15 +1,13 @@
 首页: /home/welcome
 WEB:
-  共享目录: /share/list
   短链接: /proxy/list
   文件管理: /wow/root
   长连接管理: /link/index
   字典: /dict/list
-任务:
+  共享目录: /share/list
+服务:
   密钥管理: /token/list
-  任务建立: /task/list
-  定期执行: /tick/list
-  # 服务器: /api/host
+  任务管理: /task/list
 服务器日志:
   访问计数: /log/count
   启动记录: /log/boot
