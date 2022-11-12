@@ -1,0 +1,26 @@
+<canvas width="240" height="240" style="width:240px;height:240px;image-rendering: pixelated;" />
+<script>
+    async function loadQRCode() {
+        this.innerHTML = template;
+        var o = this.target.data;
+        var canvas = this.firstElementChild;
+        var url = o.url;
+        var host = data.getInstance("base");
+        var href = host.base + url.replace(/^[\/\\]/, '');
+        var qrcode = await init("thirdParty$qrcode");
+        var qr = qrcode(0, 'L');
+        qr.addData(href);
+        qr.make();
+        var size = qr.getModuleCount();
+        canvas.width = canvas.height = size;
+        qr.renderTo2dContext(canvas.getContext("2d"), 1);
+    }
+    function main(element) {
+        element.innerHTML = shapes$qrcode;
+        var v = document.createElement("qrcode");
+        select(element, v);
+        oncemount(v, loadQRCode);
+        v.tabIndex = 0;
+        v.onclick = e => e.preventDefault();
+    }
+</script>

@@ -146,7 +146,7 @@ module.exports = {
     update(func) {
         if (!func.time || func.time < this.loadtime) {
             func.time = this.loadtime;
-            func();
+            return func();
         }
     },
     reload() {

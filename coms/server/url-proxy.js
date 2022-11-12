@@ -15,7 +15,8 @@ var parseURL = require("../basic/parseURL");
 var updateMap = async function () {
     var datas = await userdata.option("proxy", false);
     datas.forEach(d => {
-        var { url, realpath, action } = d;
+        var { url, realpath, action, status } = d;
+        if (status === '禁用') return;
         if (!/^\//.test(url)) url = "/" + url;
         var parsed = parseURL(realpath);
         switch (action) {
