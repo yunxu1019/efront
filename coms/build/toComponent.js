@@ -582,6 +582,7 @@ function toComponent(responseTree, noVersionInfo) {
         if (!thisContext) switch (exportName) {
             case 'node':
                 template = `#!/usr/bin/env node\r\n` + template;
+                break;
             case "void":
             case 'return':
                 template = exportName + " " + template;
