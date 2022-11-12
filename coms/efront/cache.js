@@ -123,6 +123,7 @@ Directory.prototype.update = async function (updateonly) {
     var updated = false;
     var rest = [];
     for (var f of files) {
+        if (/#/.test(f.name)) continue;
         map[f.name] = true;
         if (!loaded[f.name]) {
             updated = true;

@@ -44,7 +44,8 @@ var deepwr = function (dir, data) {
     });
 }
 function write(responseTree, public_path) {
-    var promises = Object.values(responseTree).map(({ destpath, data }) => deepwr(path.join(public_path, destpath), data))
+    var values = Object.values(responseTree);
+    var promises = values.map(({ destpath, data }) => deepwr(path.join(public_path, destpath), data))
     return Promise.all(promises);
 }
 module.exports = write;

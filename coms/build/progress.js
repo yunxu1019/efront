@@ -158,11 +158,29 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                             }
                         }
                     }
+                    var temppath1 = public_path + "#1";
+                    var temppath2 = public_path + "#2";
                     var writeApplication = function () {
                         return write(response, public_path);
                     };
+                    var rename = (a, b) => new Promise(function (ok, oh) {
+                        fs.rename(a, b, function (err) {
+                            if (err) return oh(err);
+                            else return ok();
+                        });
+                    });
                     if (cleanAfterBuild) {
-                        return clean(public_path).then(writeApplication);
+                        return clean(temppath2).then(function () {
+                            return write(response, temppath2);
+                        }).then(function () {
+                            return clean(temppath1);
+                        }).then(function () {
+                            return rename(public_path, temppath1);
+                        }).then(function () {
+                            return rename(temppath2, public_path);
+                        }).then(function () {
+                            return clean(temppath1);
+                        });
                     }
 
                     for (var k in response) {
