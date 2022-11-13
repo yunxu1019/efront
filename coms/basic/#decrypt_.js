@@ -1,3 +1,2 @@
-if (efrontsign) {
-    text = decrypt(text);
-}
+// <!--if(false)-->
+text = decrypt(text, decrypt.sign);

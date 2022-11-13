@@ -1,16 +1,3 @@
-if (document) {
-    if (document.head) {
-        var efrontsign = document.head.lastElementChild.attributes[0];
-        if (efrontsign && /^compiledinfo\-/.test(efrontsign.name)) efrontsign = efrontsign.name.slice(efrontsign.name.indexOf('-') + 1);
-        else efrontsign = '';
-    }
-    else if (document.getElementsByTagName) {
-        document.head = document.getElementsByTagName("head")[0];
-        efrontsign = /\<script\s+compiledinfo\-(\S*?)\s*\=/i.exec(document.head.lastChild.outerHTML);
-        if (efrontsign) efrontsign = efrontsign[1];
-        else efrontsign = '';
-    }
-}
 var uncode = function (text) {
     var ratio = 1;
     var sum = 0;
@@ -21,8 +8,7 @@ var uncode = function (text) {
     }
     return sum;
 }
-var decrypt = function (text) {
-    var start = parseInt(efrontsign, 36) % 128;
+var decrypt = function (text, start) {
     var rest = [];
     for (var cx = 0, dx = text.length; cx < dx; cx++) {
         var delta = text.charCodeAt(cx);

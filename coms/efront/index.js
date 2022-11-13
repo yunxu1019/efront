@@ -605,6 +605,7 @@ var commands = {
         }).catch(console.error);
     },
     start() {
+        memery.WAITER_NUMBER = 1;
         setAppnameAndPorts(arguments);
         require("./setupenv");
         require("../server/main");

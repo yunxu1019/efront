@@ -93,7 +93,7 @@ var buildHtml = function (html, code, outsideMain) {
         });
 
     if (isZimoliDetected)
-        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo${encoded ? '-' + encoded : ''}="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}"${outsideMain ? ` src="${outsideMain}"` : ''}>${outsideMain ? "" : `\r\n<!--\r\n${code}\r\n-->\r\n`}</script>\r\n${head}`);
+        html = html.replace(/(<\/body>)/i, (_, head) => `\r\n<script compiledinfo="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}"${outsideMain ? ` src="${outsideMain}"` : ''}>${outsideMain ? "" : `\r\n<!--\r\n${code}\r\n-->\r\n`}</script>\r\n${head}`);
     if (memory.IN_WATCH_MODE) {
         let WATCH_PORT = memory.WATCH_PORT;
         let reloadVersion = memory.WATCH_PROJECT_VERSION;
@@ -157,7 +157,7 @@ function toApplication(responseTree) {
         responseTree["/" + indexnames[0]] = indexHtml;
     }
     if (mainScript) {
-        var outsideMain = setting.is_file_target ? "" : "main-" + crc(Buffer.from(mainScript.data)).toString(36) + ".js";
+        var outsideMain = mainScript.version ? "main-" + mainScript.version + ".js" : "";
         Object.keys(responseTree).forEach(function (key) {
             if (/\.(jsp|php|html|asp)$/i.test(key)) {
                 var response = responseTree[key];
@@ -268,7 +268,6 @@ module.exports = async function (responseTree) {
         return responseTree;
     }
     var commbuilder = require("../efront/commbuilder");
-    commbuilder.compress = false;
     var mainScript = responseTree.main || responseTree["main.js"];
     var mainScriptData = mainScript.data;
     var versionTree = {};
@@ -294,39 +293,43 @@ module.exports = async function (responseTree) {
             }
         });
     }
-    var mainScriptData = commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
-
-    return Promise.resolve(mainScriptData).then(function (mainScriptData) {
-        if (setting.is_file_target) {
-            var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
-            if (xTreeName) xTreeName = xTreeName[2];
-            else xTreeName = "responseTree";
-            commbuilder.prepare = false;
-        } else {
-            var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
-            if (xTreeName) xTreeName = xTreeName[2];
-            else xTreeName = "versionTree";
-        }
-        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
-        var versionVariableName;
-        code = mainScriptData.toString()
-            .replace(/var\s+killCircle[\s\S]*?\}\);?\s*\}\s*\};/, 'var killCircle=function(){};')
-            .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
-            .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
-            .replace(
-                new RegExp(/\b/.source + xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
-                function (m, s1, s2) {
-                    return xTreeName + `${s1}=${s2}${code}`;
-                }
-            );
-        return commbuilder(code, "main.js", mainScript.realpath, []);
-    }).then(function (mainScriptData) {
-        memory.EXPORT_AS = '';
-        memory.EXPORT_TO = "none";
-        mainScript.data = toComponent({
-            main: { url: "main", destpath: "main", data: mainScriptData },
-            "[]map": array_map && {}
-        }, true).main.data;
-        return toApplication(responseTree);
-    });
+    commbuilder.loadonly = true;
+    var mainScriptData = await commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
+    commbuilder.loadonly = false;
+    var mainVersion = '';
+    if (setting.is_file_target) {
+        var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
+        if (xTreeName) xTreeName = xTreeName[2];
+        else xTreeName = "responseTree";
+        commbuilder.prepare = false;
+    } else {
+        var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
+        if (xTreeName) xTreeName = xTreeName[2];
+        else xTreeName = "versionTree";
+        mainVersion = true;
+    }
+    var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
+    var versionVariableName;
+    mainScriptData = mainScriptData.toString()
+        .replace(/var\s+killCircle[\s\S]*?\}\);?\s*\}\s*\};/, 'var killCircle=function(){};')
+        .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
+        .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
+        .replace(
+            new RegExp(/\b/.source + xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
+            function (m, s1, s2) {
+                return xTreeName + `${s1}=${s2}${code}`;
+            }
+        );
+    if (mainVersion) mainScript.version = crc(Buffer.from(mainScriptData)).toString(36).replace(/^\-/, ""), mainScriptData = mainScriptData
+        .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.version}$2`)
+        .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, `parseInt("${encoded}",36)%128`);
+    commbuilder.compress = false;
+    mainScriptData = await commbuilder(mainScriptData, "main.js", mainScript.realpath, []);
+    memory.EXPORT_AS = '';
+    memory.EXPORT_TO = "this";
+    mainScript.data = toComponent({
+        main: { url: "main", destpath: "main", data: mainScriptData },
+        "[]map": array_map && {}
+    }, true).main.data;
+    return toApplication(responseTree);
 };

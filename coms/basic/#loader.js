@@ -809,6 +809,7 @@ var modules = {
     load: loadModule,
     devicePixelRatio,
     renderPixelRatio,
+    efrontsign: "",
     debug() {
         document.addEventListener("blur", e => e.stopPropagation(), true);
     },
@@ -848,9 +849,7 @@ var initIfNotDefined = function (defined, path, onload) {
 if (document) loadResponseTreeFromStorage();
 initIfNotDefined([].map, "[]map", map => map);
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);
-// <!--
-window.modules = modules;
-// -->
+// <!-- window.modules = modules; -->
 var onload = function () {
     window.onload = null;
     hook(--requires_count);

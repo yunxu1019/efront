@@ -110,7 +110,7 @@ var replaceIncludes = function (data) {
         return `var ${realName}=require(${q}${p}${q})${c || ''}`;
     });
 };
-var loadUseBody = function (source, fullpath, watchurls, commName) {
+var loadUseBody = function (source, fullpath, watchurls) {
     var replacer = function (data, realPath) {
         watchurls.push(realPath);
         var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
@@ -125,7 +125,7 @@ var loadUseBody = function (source, fullpath, watchurls, commName) {
         data = trimNodeEnvHead(data);
         data = data.replace(/^\s*(["`'])use strict\1\s*;?/, '');
         if (!new RegExp(useInternalReg.source, 'ig').test(source)) {
-            commName = realName;
+            var commName = realName;
         }
         if (!commName) commName = realName;
         if (~loadJsBody(data, 'main.js', '', 'main', '').imported.indexOf('module')) {
@@ -701,7 +701,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     let htmlpath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".html");
     let lesspath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".less");
-    let replace = loadUseBody(data, fullpath, watchurls, commName);
+    let replace = loadUseBody(data, fullpath, watchurls);
     var htmlpromise = getFileData(htmlpath)
         .then(function (htmldata) {
             if (htmldata && !htmldata.length) htmldata = "<!-- efront template -->";
@@ -759,6 +759,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     } else if (/\.vuex?$/i.test(fullpath)) {
         promise = getMouePromise(data, filename, fullpath, watchurls);
     } else if (/\.(?:[cm]?[jt]sx?)$/i.test(fullpath) || !/[\\\/]/i.test(fullpath)) {
+        if (commbuilder.loadonly) return loadUseBody(data, fullpath, watchurls);
         promise = getScriptPromise(data, filename, fullpath, watchurls);
     } else {
         data = buffer;
