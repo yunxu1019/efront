@@ -71,7 +71,7 @@ function getDependence(response) {
         return invokes;
     }
     var ext = /\.([^\.]+)$/.exec(response.realpath);
-    if (ext && !/^([cm]?[jt]sx?|vuex?|html)$/i.test(ext[1])) return [];
+    if (ext && !/^([cm]?[jt]sx?|vuex?|html|xht)$/i.test(ext[1])) return [];
 
     var startTime = new Date;
     data = String(data);
