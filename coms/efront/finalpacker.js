@@ -1,5 +1,6 @@
 "use strict";
 var setupenv = require("./setupenv");
+var parseURL = require("../basic/parseURL");
 var memery = require("./memery");
 var getCommap = require("./getCommap");
 var commbuilder = require("./commbuilder");
@@ -125,16 +126,16 @@ var fixExtentions = function (exts, ext) {
 };
 
 var exports = module.exports = async function (url, callback) {
+    url = parseURL(url).pathname;
     var match = url.match(
         //////// 1 /////////        2           //// 3 //   4   /////////////////////
-        /^\/(?:(.*?)\/)?\:?(comm|page|ccon|aa?pi)\/(.*?)(\.[\w]*)?(?:(?:\?|\#).*?)?$/i
+        /[\/\:](comm|page|ccon|aa?pi)\/(.*?)(\.[\w]*)?(?:(?:\?|\#).*?)?$/i
     );
     if (match) {
-        var appc = match[1],
-            type = match[2],
-            name = match[3],
-            extt = match[4];
-        var env = this || setupenv(appc);
+        var type = match[1],
+            name = match[2],
+            extt = match[3];
+        var env = this || setupenv(url.slice(0, url.length - match[0].length));
         var managers = await getManagersWithEnv(env);
         var manager = managers[type];
         if (!manager) {
