@@ -170,6 +170,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                         });
                     });
                     if (cleanAfterBuild) {
+                        if (!fs.existsSync(public_path)) return writeApplication();
                         return clean(temppath2).then(function () {
                             return write(response, temppath2);
                         }).then(function () {
