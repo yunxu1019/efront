@@ -615,7 +615,7 @@ var binders = {
     }
 };
 var reject = function (e) { digest(); throw e };
-var createEmiter = function (on, target) {
+var createEmiter = function (on) {
     return function (target, key, search) {
         /**
          * @type {Repeater}
@@ -807,7 +807,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         }
         if (replacer.$struct && replacer.$struct !== element.$struct) {
             renderRest(replacer, replacer.$struct);
-            element.$struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
+            replacer.$struct.ons.forEach(([on, key, value]) => on.call(replacer, replacer, key, value));
         }
         element = replacer;
     }
