@@ -1,1 +1,0 @@
-{"controller":"function(){\n    \n}","template":"<box ng-box='option in data' template='template'>\n</box>","style":""}

@@ -1,1 +1,0 @@
-{"controller":"function(){\n    \n}","template":"<set-authority authority-name='{{selectedAuthority}}'></set-authority>\n<authority-list lists='aLists' selected-authority='selectedAuthority'></authority-list>\n"}
