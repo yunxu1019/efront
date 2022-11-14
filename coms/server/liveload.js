@@ -7,7 +7,18 @@ var liveload = module.exports = [];
 liveload.version = +new Date;
 liveload.reload = function (env) {
     this.version++;
-    if (env) {
+    if (typeof env === 'string') {
+        var unloads = [];
+        for (var cx = this.length - 1; cx >= 0; cx--) {
+            var res = this[cx];
+            if (env.indexOf(parseURL(res.referer).pathname.replace(/[^\/]*$/, '')) >= 0) {
+                console.log(res.referer)
+                unloads.push(res);
+                this.splice(cx, 1);
+            }
+        }
+    }
+    else if (env) {
         var unloads = [];
         for (var cx = this.length - 1; cx >= 0; cx--) {
             var res = this[cx];

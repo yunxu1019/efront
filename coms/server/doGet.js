@@ -53,6 +53,11 @@ var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) 
         });
     });
 }, FILE_BUFFER_SIZE);
+var liveload = require("./liveload");
+filecache.onreload = function (urls) {
+    urls = urls.map(a => path.relative(SERVER_ROOT_PATH, a).replace(/\\/g, '/'));
+    for (var u of urls) liveload.reload("/" + u);
+}
 var message = require("../message");
 var proxy = require("./url-proxy");
 var setHeader2 = function (k, v) {

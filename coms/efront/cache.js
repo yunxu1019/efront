@@ -120,18 +120,20 @@ Directory.prototype.update = async function (updateonly) {
     var limit = that.limit;
     var rebuild = that.rebuild;
     var pathname = that.pathname;
-    var updated = false;
+    var updated = [];
     var rest = [];
     for (var f of files) {
         if (/#/.test(f.name)) continue;
         map[f.name] = true;
         if (!loaded[f.name]) {
-            updated = true;
             var p = path.join(pathname, f.name);
             var o = loaded[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
             var key = f.name.replace(/\.\w+$/, '');
             changed[key] = true;
             o.root = that.root || pathname;
+            if (f instanceof File) {
+                updated.push(f.pathname);
+            }
         }
         if (/\-/.test(f.name)) {
             rest.push(f);
@@ -149,10 +151,10 @@ Directory.prototype.update = async function (updateonly) {
         var o = loaded[k];
         if (o instanceof Directory || o instanceof File) {
             if (!map[k]) {
+                updated.push(loaded[k].pathname);
                 delete loaded[k];
                 var key = k.replace(/\.\w+$/, '');
                 changed[key] = true;
-                updated = true;
             }
         }
     }
@@ -166,13 +168,13 @@ Directory.prototype.update = async function (updateonly) {
                 var data = o.data;
                 o.promise = o.update();
                 if (data !== await o.promise) {
-                    updated = true;
+                    updated.push(o.pathname);
                 }
             }
             else {
                 if (o.isloaded) {
                     o.promise = o.update(updateonly);
-                    if (await o.promise) updated = true;
+                    if (await o.promise) updated.push.apply(updated, await o.promise);
                 }
             }
         }
@@ -435,20 +437,20 @@ var getPackageMain = function (url, data, map) {
 }
 class Cache {
     updateid = 0;
-    emitUpdate() {
-        if (this.onreload instanceof Function) this.onreload();
+    emitUpdate(updated) {
+        if (this.onreload instanceof Function) this.onreload(updated);
     }
     _emitUpdate = lazy(this.emitUpdate, 20);
     checkUpdate = async function (rootpath) {
-        var updated = false;
+        var updated = [];;
         for (var direct of this.directs) {
             if (direct.pathname !== rootpath) continue;
             if (direct.isloaded) {
                 direct.promise = direct.update(true);
-                if (await direct.promise) updated = true;
+                updated.push.apply(updated, await direct.promise);
             }
         }
-        if (updated) this._emitUpdate();
+        if (updated.length) this._emitUpdate(updated);
     }.bind(this);
     onreload = null;
     constructor(filesroot, rebuild, buffer_size_limit) {

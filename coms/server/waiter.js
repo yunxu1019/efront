@@ -265,6 +265,7 @@ var requestListener = async function (req, res) {
                         let env = getRequestEnv(req);
                         if (!env) break;
                         res.env = env;
+                        res.referer = req.headers.referer;
                         return liveload.mount(type[2], res);
                     }
                     break;
