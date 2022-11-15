@@ -784,10 +784,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 if (isElement(replacer) && !replacer.renderid) {
                     createStructure(replacer);
                     if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
-                    copyAttribute(replacer, copys);
                     renderRest(replacer, replacer.$struct);
                     replacer.$struct.ons.forEach(([on, key, value]) => on.call(replacer, replacer, key, value));
                 }
+                copyAttribute(replacer, copys);
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
