@@ -33,16 +33,16 @@ function prompt() {
     };
     var buttons = [button("确认"), button("取消", 'white')];
     if (isFunction(check)) {
-        var setDistable = function () {
+        var setDisable = function () {
             var valid = validate(ipt.value, check, tip);
             attr(body, "error", !valid);
             attr(buttons[0], 'disabled', !valid);
         };
-        on('keyup')(ipt, setDistable);
-        on('keypress')(ipt, setDistable);
-        on('cut')(ipt, setDistable);
-        on('paste')(ipt, setDistable);
-        on('input')(ipt, setDistable);
+        on('keyup')(ipt, setDisable);
+        on('keypress')(ipt, setDisable);
+        on('cut')(ipt, setDisable);
+        on('paste')(ipt, setDisable);
+        on('input')(ipt, setDisable);
     }
     var body = div();
     appendChild(body, [ipt, tip]);
@@ -57,7 +57,7 @@ function prompt() {
         fire();
     });
     on('mounted')(ipt, function () {
-        setDistable();
+        if (setDisable) setDisable();
         setTimeout(function () {
             ipt.focus();
         });
