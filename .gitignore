@@ -28,3 +28,4 @@ test/arch/*.res
 test/arch/RC*
 test/arch/'**
 *_temp.js
+*_temp/
