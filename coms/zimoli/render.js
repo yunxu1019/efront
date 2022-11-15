@@ -714,7 +714,7 @@ function renderRest(element, struct, replacer = element) {
         } catch (e) { }
     }
     if (binds.src) directives.src.call(element, binds.src);
-    if (renders.length) element.renders.push.apply(element.renders, renders);
+    if (renders && renders.length) element.renders.push.apply(element.renders, renders);
 }
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
@@ -779,16 +779,22 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (isFunction(constructor)) {
             var replacer = constructor.call(scope, element, scope, parentScopes);
             if (isNode(replacer) && element !== replacer) {
-                if (!replacer.$scope) {
-                    replacer.$scope = scope;
-                }
-                if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes || parentScopes, once);
+                if (!replacer.$scope) replacer.$scope = scope;
                 if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
+                if (isElement(replacer) && !replacer.renderid) {
+                    createStructure(replacer);
+                    if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
+                    copyAttribute(replacer, copys);
+                    renderRest(replacer, replacer.$struct);
+                    replacer.$struct.ons.forEach(([on, key, value]) => on.call(replacer, replacer, key, value));
+                }
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
-                copyAttribute(replacer, copys);
                 if (!replacer.renderid) replacer.renderid = element.renderid;
+                for (var id of element.$struct.ids) {
+                    scope[id] = replacer;
+                }
             }
         }
     }
@@ -797,21 +803,17 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     if (!isFirstRender) return element;
     renderRest(element, element.$struct, replacer);
-    var restons = element.$struct.ons;
-    if (replacer) {
+    if (isNode(replacer) && replacer !== element) {
         if (!replacer.renders) replacer.renders = [];
-        if (isElement(replacer)) createStructure(replacer);
-        replacer.renders = [].concat(element.renders, replacer.renders);
-        for (var id of element.$struct.ids) {
-            scope[id] = replacer;
-        }
+        replacer.renders.push.apply(replacer.renders, element.renders);
         if (replacer.$struct && replacer.$struct !== element.$struct) {
-            renderRest(replacer, replacer.$struct);
-            replacer.$struct.ons.forEach(([on, key, value]) => on.call(replacer, replacer, key, value));
+            element.$struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
         }
         element = replacer;
     }
-    restons.forEach(([on, key, value]) => on.call(element, element, key, value));
+    else {
+        element.$struct.ons.forEach(([on, key, value]) => on.call(element, element, key, value));
+    }
     if (element.renders.length) {
         if (element.renderid !== 9) {
             onmounted(element, addRenderElement);
