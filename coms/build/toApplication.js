@@ -142,7 +142,12 @@ var getTreeIndex = function (tree) {
 };
 function toApplication(responseTree) {
     var mainScript = responseTree.main || responseTree["main.js"] || null;
-    var indexHtml = getTreeIndex(responseTree);
+    var htmls = Object.keys(responseTree).filter(key => {
+        if (!/\.(jsp|php|html|asp)$/i.test(key) || !responseTree[key].data) return false;
+        return /<!doctype\s/i.test(String(responseTree[key].data).replace(/^(<!--[\s\S]*?-->)*/, ''));
+    }).map(key => responseTree[key]);
+    if (htmls.length) indexHtml = true;
+    else var indexHtml = getTreeIndex(responseTree);
     if (!indexHtml) {
         var htmlPath = path.join(__dirname, "../../apps", "_index.html");
         indexHtml = {
@@ -154,17 +159,14 @@ function toApplication(responseTree) {
             version: fs.statSync(htmlPath).mtime,
             destpath: path.join(indexnames[0]),
         };
+        htmls.push(indexHtml);
         responseTree["/" + indexnames[0]] = indexHtml;
     }
     if (mainScript) {
-        var outsideMain = mainScript.version ? "main-" + mainScript.version + ".js" : "";
-        Object.keys(responseTree).forEach(function (key) {
-            if (/\.(jsp|php|html|asp)$/i.test(key)) {
-                var response = responseTree[key];
-                if (response && response.data) {
-                    response.data = buildHtml(response.data, mainScript.data, outsideMain);
-                }
-            }
+        var { EXTRACT = htmls.length > 1 } = memory;
+        var outsideMain = EXTRACT ? "main-" + mainScript.queryfix + ".js" : "";
+        htmls.forEach(function (response) {
+            response.data = buildHtml(response.data, mainScript.data, outsideMain);
         });
         if (outsideMain) {
             mainScript.destpath = outsideMain;
@@ -320,8 +322,9 @@ module.exports = async function (responseTree) {
                 return xTreeName + `${s1}=${s2}${code}`;
             }
         );
-    if (mainVersion) mainScript.version = crc(Buffer.from(mainScriptData)).toString(36).replace(/^\-/, ""), mainScriptData = mainScriptData
-        .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.version}$2`)
+    if (memory.EXTRACT_MAIN_SCRIPT || !setting.is_file_target) mainScript.queryfix = crc(Buffer.from(mainScriptData)).toString(36).replace(/^\-/, "");
+    if (!setting.is_file_target) mainScriptData = mainScriptData
+        .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.queryfix}$2`)
         .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, `parseInt("${encoded}",36)%128`);
     commbuilder.compress = false;
     mainScriptData = await commbuilder(mainScriptData, "main.js", mainScript.realpath, []);

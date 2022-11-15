@@ -158,6 +158,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                             }
                         }
                     }
+                    public_path = public_path.replace(/[\/\\]+$/, '');
                     var temppath1 = public_path + "#1";
                     var temppath2 = public_path + "#2";
                     var writeApplication = function () {
