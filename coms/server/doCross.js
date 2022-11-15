@@ -68,21 +68,27 @@ var utf8error = { "content-type": "text/plain;charset=utf-8" };
  * @param {string|undefined|boolean} referer 
  */
 async function cross(req, res, referer) {
-    if (referer) {
-        var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
-        req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
+    try {
+        if (referer) {
+            var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
+            req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
+        }
+        var { jsonlike, realpath, hostpath, headers } = await parseUrl(req.url);
+        if (/^&/.test(jsonlike)) hostpath = req.protocol + hostpath.replace(/^https?:/i, "");
+        var $url = hostpath + realpath;
+        // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
+        var method = req.method;//$_SERVER['REQUEST_METHOD'];
+        var _headers = req.headers;
+        req.referer = _headers.referer;
+        if (cross.referer.test(_headers.referer) && !headers.referer) {
+            headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
+        } else if (_headers.referer || _headers.origin === 'null') {
+            headers.referer = hostpath;
+        }
     }
-    var { jsonlike, realpath, hostpath, headers } = await parseUrl(req.url);
-    if (/^&/.test(jsonlike)) hostpath = req.protocol + hostpath.replace(/^https?:/i, "");
-    var $url = hostpath + realpath;
-    // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
-    var method = req.method;//$_SERVER['REQUEST_METHOD'];
-    var _headers = req.headers;
-    req.referer = _headers.referer;
-    if (cross.referer.test(_headers.referer) && !headers.referer) {
-        headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
-    } else if (_headers.referer || _headers.origin === 'null') {
-        headers.referer = hostpath;
+    catch (e) {
+        res.writeHead(403, utf8error);
+        return res.end("请求无效!");
     }
     for (let key in headers) {
         let k = key.toLowerCase();

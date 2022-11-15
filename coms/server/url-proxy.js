@@ -13,7 +13,7 @@ Object.keys(urlProxyMap).forEach(function (key) {
 urlProxyMap[""] = urlProxyMap["/"];
 var parseURL = require("../basic/parseURL");
 var updateMap = async function () {
-    var datas = await userdata.option("proxy", false);
+    var datas = await userdata.getOptionsList("proxy");
     datas.forEach(d => {
         var { url, realpath, action, status } = d;
         if (status === '禁用') return;
