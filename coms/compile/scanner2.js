@@ -157,7 +157,10 @@ function scan(text, type = "js", lastIndex = 0) {
         case "javascript":
             program = new Javascript;
             break;
-        case "java":
+        default:
+            if (type instanceof Function) {
+                program = new type;
+            }
             break;
     }
     program.Code = Code;
