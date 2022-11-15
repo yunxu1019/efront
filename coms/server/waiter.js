@@ -1,13 +1,11 @@
 "use strict";
 require("../efront/setupenv");
-var getRequestEnv = require("./getRequestEnv");
 var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var userdata = require("./userdata");
 var { Transform } = require("stream");
 var memery = require("../efront/memery");
 var clients = require("./clients");
 var message = require("../message");
-var JSAM = require("../basic/JSAM");
 var cert = server$cert;
 require("../efront/quitme");
 var { HTTPS_PORT, HTTP_PORT } = memery;
@@ -74,6 +72,262 @@ var doCross = require("./doCross");
 var doFile = require("./doFile");
 var doProxy = require("./doProxy");
 var doFolder = require("./doFolder");
+var getRequestEnv = require('./getRequestEnv');
+var remoteAddress = require("./remoteAddress");
+var doOptions = async function (req, res, type) {
+    res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
+    var needLogin = false;
+    switch (type[1]) {
+        case "efront":
+            if (type[3]) {
+                message.send("logsimilar", JSON.stringify({ ip: remoteAddress, ppid: type[2], port: type[3], time: Date.now() }));
+                if (!selfLogged && type[2] === version.slice(7)) {
+                    selfLogged = true;
+                }
+            }
+            break;
+        case "version":
+            res.write("efront " + require("../../package.json").version);
+            break;
+        case "live":
+            if (memery.islive) {
+                let env = getRequestEnv(req);
+                if (!env) break;
+                res.env = env;
+                res.referer = req.headers.referer;
+                return liveload.mount(type[2], res);
+            }
+            break;
+        case "uptime":
+            return message.send("uptime", null, function (error, time) {
+                if (error) {
+                    res.writeHead(403, {});
+                    res.end(String(error));
+                    return;
+                }
+                res.end(String(time));
+            })
+            break;
+        case "login":
+            var a = type[2] || '';
+            return require("./login")(a, remoteAddress).then(b => {
+                if (!b) throw "密码不正确！";
+                res.end(b);
+            }).catch(e => {
+                res.writeHead(403);
+                res.end(String(e));
+            });
+        case "link":
+            if (type[2]) {
+                try {
+                    var roomid = encode62.timedecode(type[2]);
+                    var room = await userdata.getOptionObj("room", roomid);
+                    if (!room) { throw "房间不存在！"; }
+                    if (!room.linkid || !clients.checkId(room.linkid)) {
+                        room.linkid = clients.create().id;
+                        await userdata.setOptionObj("room", roomid, room);
+                        await message.broadcast("reloadUserdata");
+                        room = await userdata.getOptionObj("room", roomid);
+                    }
+                    return res.end(String(room.linkid));
+                }
+                catch (e) {
+                    res.writeHead(403);
+                    res.end(String(e));
+                    return;
+                }
+            }
+            var id = clients.create().id;
+            res.write(String(id));
+            break;
+        case "similar":
+            message.send("allsimilar", null, function (datas) {
+                res.write(datas);
+                res.end();
+            }, function () {
+                res.writeHead(500, {});
+                res.end();
+            });
+            return;
+        case "care":
+            var id = type[2];
+            if (id) {
+                var client = clients.attach(id);
+                if (!client) {
+                    res.writeHead(403, {});
+                    break;
+                }
+                var user = null;
+                if (type[3]) {
+                    user = encode62.timedecode(type[3]);
+                }
+                client.listen(res, user);
+                client.refresh();
+                message.send('receive', id, function (msgids) {
+                    if (msgids && msgids.length) {
+                        client.deliver(msgids);
+                    }
+                }, null);
+                if (clients.length > 40000) {
+                    res.writeHead(503);
+                    res.end();
+                }
+            } else {
+                res.writeHead(403);
+                res.end();
+            }
+            return;
+        case "cast":
+            var id = type[2], msgid = type[3];
+            if (id && msgid) {
+                if (msgid.length > 8096) {
+                    res.writeHead(400);
+                    break;
+                }
+                try {
+                    msgid = decodeURIComponent(msgid);
+                } catch (e) {
+                    msgid = unescape(msgid);
+                }
+                message.send("deliver", [id, msgid]);
+            }
+            break;
+        default:
+            needLogin = true;
+    }
+    if (needLogin && !await require("./checkAuth")(req.headers.authorization, remoteAddress)) {
+        res.writeHead(401);
+        res.write("无权访问");
+        needLogin = false;
+    }
+    if (needLogin) switch (type[1]) {
+        case "count":
+            userdata.getStream('count.jsam').pipe(res);
+            return;
+        case "cluster":
+            switch (type[2]) {
+                case "list":
+                    if (type[3]) {
+                        message.send("cluster", [+type[3], "getClients"], function (error, clients) {
+                            if (error) {
+                                res.write(400);
+                                res.end(String(error));
+                                return;
+                            }
+                            res.end(JSAM.stringify(clients));
+                        });
+                        return;
+                    }
+                    message.send("clusterList", type[3], function (error, list) {
+                        if (error) {
+                            res.writeHead(500);
+                            res.end(String(error));
+                            return;
+                        }
+                        res.end(JSAM.stringify(list));
+                    });
+                    return;
+            }
+            break;
+        case "clear":
+            doGet.reset();
+            res.write("清理完成");
+            break;
+        case "rehost":
+            res.on("finish", function () {
+                this.socket.destroy();
+            });
+            res.on("finish", safeQuitProcess);
+            safeQuitProcess = function () { };
+            message.send('rehost', null, function () {
+                res.end("正在重启");
+            });
+            return;
+        case "params":
+            try {
+                var data = await require("../efront/require2").getTaskParams(type[2]);
+                res.end(data);
+            }
+            catch (e) {
+                res.writeHead(500);
+                res.end(String(e));
+            }
+            return;
+        case "invoke":
+            try {
+                var data = await require("../efront/require2").invokeTask(type[2], type[3]);
+                res.end(data);
+            }
+            catch (e) {
+                res.writeHead(500);
+                res.end(String(e));
+            }
+            return;
+        case "task":
+        case "dict":
+        case "room":
+        case "proxy":
+        case "private":
+            try {
+                let key = type[2] && encode62.timedecode(type[2]);
+                if (type[3] !== undefined) {
+                    let act = type[0].charAt(type[0].length - type[3].length - 1);
+                    if (type[3] && act === "+" || !type[3] && act === "?") {
+                        var exists = await userdata.option(type[1], key, null/**检查是否存在*/);
+                        if (!type[3]) return res.end(encode62.timeencode(String(exists)));
+                        if (exists && type[3]) {
+                            res.writeHead(403, {});
+                            res.end("已存在相同标识的数据");
+                            return;
+                        }
+                    }
+                }
+                var data = await userdata.option(type[1], key, type[3] && encode62.timedecode(type[3])) || '';
+                await message.broadcast('reloadUserdata');
+                res.end(data);
+            }
+            catch (e) {
+                res.writeHead(e.status || 500, {});
+                res.end(String(e));
+            }
+            return;
+        case "file":
+            try {
+                var data = await doFolder(type[2], type[3]);
+                res.end(data);
+            } catch (e) {
+                res.writeHead(e.status || 500, {});
+                res.end(String(e));
+            }
+            return;
+        case "share":
+            var opt = type[2];
+            try {
+                if (type[3]) var p = decodeURIComponent(type[3])
+                var shared = require("./checkAccess");
+                switch (opt) {
+                    case 'list':
+                        res.write(JSAM.stringify(shared.roots));
+                        break;
+                    case 'create':
+                        await shared.append(p);
+                        break;
+                    case 'delete':
+                        await shared.remove(p);
+                        break;
+                    default:
+                        res.writeHead(400);
+                        res.write("非法操作！");
+                }
+            }
+            catch (e) {
+                res.writeHead(e.status || 500, {});
+                res.end(String(e.error || e));
+            }
+            break;
+    }
+    res.end();
+};
 var parseURL = require("../basic/parseURL");
 var ppid = process.ppid;
 var version = `efront-${require("../../package.json").version}/` + ppid;
@@ -231,7 +485,6 @@ var requestListener = async function (req, res) {
         if (req_access_method || req_access_headers) {
             return res.end();
         }
-        efront:
         if (/^\/\:/.test(req.url)) {
             var option = req.url.slice(2);
             if (option === version) res.setHeader("Powered-By", version);
@@ -245,259 +498,8 @@ var requestListener = async function (req, res) {
                     res.end(`已关闭${ports.join("、")}端口`);
                     return;
             }
-            res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
             var type = /^(\w+)(?:\-([\/\!\'\(\)\*\-\.\w]+))?(?:[\?\:\+]([\s\S]*))?$/.exec(option);
-            var needLogin = false;
-            if (type) switch (type[1]) {
-                case "efront":
-                    if (type[3]) {
-                        message.send("logsimilar", JSON.stringify({ ip: remoteAddress, ppid: type[2], port: type[3], time: Date.now() }));
-                        if (!selfLogged && type[2] === version.slice(7)) {
-                            selfLogged = true;
-                        }
-                    }
-                    break;
-                case "version":
-                    res.write("efront " + require("../../package.json").version);
-                    break;
-                case "live":
-                    if (memery.islive) {
-                        let env = getRequestEnv(req);
-                        if (!env) break;
-                        res.env = env;
-                        res.referer = req.headers.referer;
-                        return liveload.mount(type[2], res);
-                    }
-                    break;
-                case "uptime":
-                    return message.send("uptime", null, function (error, time) {
-                        if (error) {
-                            res.writeHead(403, {});
-                            res.end(String(error));
-                            return;
-                        }
-                        res.end(String(time));
-                    })
-                    break;
-                case "login":
-                    var a = type[2] || '';
-                    return require("./login")(a, remoteAddress).then(b => {
-                        if (!b) throw "密码不正确！";
-                        res.end(b);
-                    }).catch(e => {
-                        res.writeHead(403);
-                        res.end(String(e));
-                    });
-                case "link":
-                    if (type[2]) {
-                        try {
-                            var roomid = encode62.timedecode(type[2]);
-                            var room = await userdata.getOptionObj("room", roomid);
-                            if (!room) { throw "房间不存在！"; }
-                            if (!room.linkid || !clients.checkId(room.linkid)) {
-                                room.linkid = clients.create().id;
-                                await userdata.setOptionObj("room", roomid, room);
-                                await message.broadcast("reloadUserdata");
-                                room = await userdata.getOptionObj("room", roomid);
-                            }
-                            return res.end(String(room.linkid));
-                        }
-                        catch (e) {
-                            res.writeHead(403);
-                            res.end(String(e));
-                            return;
-                        }
-                    }
-                    var id = clients.create().id;
-                    res.write(String(id));
-                    break;
-                case "similar":
-                    message.send("allsimilar", null, function (datas) {
-                        res.write(datas);
-                        res.end();
-                    }, function () {
-                        res.writeHead(500, {});
-                        res.end();
-                    });
-                    return;
-                case "care":
-                    var id = type[2];
-                    if (id) {
-                        var client = clients.attach(id);
-                        if (!client) {
-                            res.writeHead(403, {});
-                            break;
-                        }
-                        var user = null;
-                        if (type[3]) {
-                            user = encode62.timedecode(type[3]);
-                        }
-                        client.listen(res, user);
-                        client.refresh();
-                        message.send('receive', id, function (msgids) {
-                            if (msgids && msgids.length) {
-                                client.deliver(msgids);
-                            }
-                        }, null);
-                        if (clients.length > 40000) {
-                            res.writeHead(503);
-                            res.end();
-                        }
-                    } else {
-                        res.writeHead(403);
-                        res.end();
-                    }
-                    return;
-                case "cast":
-                    var id = type[2], msgid = type[3];
-                    if (id && msgid) {
-                        if (msgid.length > 8096) {
-                            res.writeHead(400);
-                            break;
-                        }
-                        try {
-                            msgid = decodeURIComponent(msgid);
-                        } catch (e) {
-                            msgid = unescape(msgid);
-                        }
-                        message.send("deliver", [id, msgid]);
-                    }
-                    break;
-                default:
-                    needLogin = true;
-            }
-            if (needLogin && !await require("./checkAuth")(req.headers.authorization, remoteAddress)) {
-                res.writeHead(401);
-                res.write("无权访问");
-                needLogin = false;
-            }
-            if (needLogin) switch (type[1]) {
-                case "count":
-                    userdata.getStream('count.jsam').pipe(res);
-                    return;
-                case "cluster":
-                    switch (type[2]) {
-                        case "list":
-                            if (type[3]) {
-                                message.send("cluster", [+type[3], "getClients"], function (error, clients) {
-                                    if (error) {
-                                        res.write(400);
-                                        res.end(String(error));
-                                        return;
-                                    }
-                                    res.end(JSAM.stringify(clients));
-                                });
-                                return;
-                            }
-                            message.send("clusterList", type[3], function (error, list) {
-                                if (error) {
-                                    res.writeHead(500);
-                                    res.end(String(error));
-                                    return;
-                                }
-                                res.end(JSAM.stringify(list));
-                            });
-                            return;
-                    }
-                    break;
-                case "clear":
-                    doGet.reset();
-                    res.write("清理完成");
-                    break;
-                case "rehost":
-                    res.on("finish", function () {
-                        this.socket.destroy();
-                    });
-                    res.on("finish", safeQuitProcess);
-                    safeQuitProcess = function () { };
-                    message.send('rehost', null, function () {
-                        res.end("正在重启");
-                    });
-                    return;
-                case "params":
-                    try {
-                        var data = await require("../efront/require2").getTaskParams(type[2]);
-                        res.end(data);
-                    }
-                    catch (e) {
-                        res.writeHead(500);
-                        res.end(String(e));
-                    }
-                    return;
-                case "invoke":
-                    try {
-                        var data = await require("../efront/require2").invokeTask(type[2], type[3]);
-                        res.end(data);
-                    }
-                    catch (e) {
-                        res.writeHead(500);
-                        res.end(String(e));
-                    }
-                    return;
-                case "task":
-                case "dict":
-                case "room":
-                case "proxy":
-                case "private":
-                    try {
-                        let key = type[2] && encode62.timedecode(type[2]);
-                        if (type[3] !== undefined) {
-                            let act = type[0].charAt(type[0].length - type[3].length - 1);
-                            if (type[3] && act === "+" || !type[3] && act === "?") {
-                                var exists = await userdata.option(type[1], key, null/**检查是否存在*/);
-                                if (!type[3]) return res.end(encode62.timeencode(String(exists)));
-                                if (exists && type[3]) {
-                                    res.writeHead(403, {});
-                                    res.end("已存在相同标识的数据");
-                                    return;
-                                }
-                            }
-                        }
-                        var data = await userdata.option(type[1], key, type[3] && encode62.timedecode(type[3])) || '';
-                        await message.broadcast('reloadUserdata');
-                        res.end(data);
-                    }
-                    catch (e) {
-                        res.writeHead(e.status || 500, {});
-                        res.end(String(e));
-                    }
-                    return;
-                case "file":
-                    try {
-                        var data = await doFolder(type[2], type[3]);
-                        res.end(data);
-                    } catch (e) {
-                        res.writeHead(e.status || 500, {});
-                        res.end(String(e));
-                    }
-                    return;
-                case "share":
-                    var opt = type[2];
-                    try {
-                        if (type[3]) var p = decodeURIComponent(type[3])
-                        var shared = require("./checkAccess");
-                        switch (opt) {
-                            case 'list':
-                                res.write(JSAM.stringify(shared.roots));
-                                break;
-                            case 'create':
-                                await shared.append(p);
-                                break;
-                            case 'delete':
-                                await shared.remove(p);
-                                break;
-                            default:
-                                res.writeHead(400);
-                                res.write("非法操作！");
-                        }
-                    }
-                    catch (e) {
-                        res.writeHead(e.status || 500, {});
-                        res.end(String(e.error || e));
-                    }
-                    break;
-            }
-
+            if (type) return doOptions(req, res, type);
         }
         return res.end();
     }
@@ -681,6 +683,11 @@ var showServerError = function (error) {
     showServerInfo.call(s);
 };
 var portedServersList = [];
+/**
+ * @param {number}port;
+ * @this {http.Server}
+ * @return {http.Server}
+ */
 function initServer(port) {
     var server = this.once("error", showServerError)
         .once("listening", showServerInfo)
