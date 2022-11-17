@@ -742,17 +742,17 @@ var mergeTo = function (used, used0) {
 var breakSpace = function (o) {
     var { prev, next } = o;
     if (hasBreakBetween(prev, next)) return;
-    if (prev.type === STRAP && /^(return|yeild|break|continue)$/.test(prev.text)) return /[\r\n\u2028\u2029]/.test(o.text) ? ';' : ' ';
+    if (prev.type === STRAP && prev.isend) return ';';
     return getSemicolonBetween(prev, next);
 };
-var hasBreakBetween = function (next, prev) {
+var hasBreakBetween = function (prev, next) {
     if (!prev || !next) return true;
     if (prev.type === STAMP && /^[,;]$/.test(prev.text)) return true;
     if (next.type === STAMP && /^[,;]$/.test(next.text)) return true;
+    if (prev.type === EXPRESS && /\.$/.test(prev.text)) return true;
+    if (next.type === EXPRESS && /^[\.\[]/.test(next.text)) return true;
 };
-var getSemicolonBetween = function (next, prev) {
-    if (prev.type === EXPRESS && /\.$/.test(prev.text)) return;
-    if (next.type === EXPRESS && /^\.[^\.]/.test(next.text)) return;
+var getSemicolonBetween = function (prev, next) {
     if (next.type === PROPERTY) return ";";
     if (next.type === STAMP && next.text === "*") return ";";
     if (
@@ -765,7 +765,7 @@ var getSemicolonBetween = function (next, prev) {
             if (!/^(in|of|extends|instanceof|as)$/.test(next.text)) return ";";
             return " ";
         }
-        if (next.type === SCOPED) {
+        if (next.type === SCOPED && next.entry==='{') {
             if (!next.isExpress) return ";";
         }
         return;
