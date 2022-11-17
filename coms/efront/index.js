@@ -240,6 +240,7 @@ var helps = [
     "-从指定路径创建压缩文件,pack PUBLIC_PATH PACKAGE_PATH",
     "对json数据进行签名,sign JSON_PATH SIGNNAME",
     "根据模块的搜索路径查找真实路径,detect MODULE_PATH",
+    "格式化代码,format MODULE_PATH TARGET_PATH TABSIZE",
     "导出与指定的对象路径关联的代码,pick MODULE_PATH TARGET_PATH KEYPATH",
     "清理代码，删除已声明未使用的代码,wash MODULE_PATH TARGET_PATH",
     "设置环境变量,setenv --NAME1=VALUE1 --NAME2=VALUE2,setenv NAME VALUE,set --NAME1=VALUE1,set --NAME=",
@@ -248,6 +249,36 @@ var helps = [
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
 ];
+var transform = function (readfrom, writeto, run) {
+    if (!writeto) {
+        return console.error("请指定输出文件名！");
+    }
+    detect(readfrom, writeto).then(function (fullpath) {
+        fs.readFile(fullpath, function (error, data) {
+            if (error) return console.error(error);
+            data = data.toString();
+            var invoker = /^\s*#\!.*?[\r\n]+/.exec(data);
+            if (invoker) data = data.slice(invoker[0].length);
+            data = run(data);
+            if (invoker) data = invoker[0] + data;
+            var readpath = fullpath;
+            while (!/\.[.\/]*$/.test(readfrom)) {
+                readfrom = path.dirname(readfrom);
+                readpath = path.dirname(readpath);
+            }
+            var distpath = path.join(readpath, writeto);
+            if (path.extname(fullpath) && !path.extname(distpath)) {
+                distpath = distpath + path.extname(fullpath)
+            }
+            fs.writeFile(distpath, data, function (error) {
+                if (error) console.error(error);
+                else console.info(`处理完成：${fullpath}
+            =>  ${distpath}`);
+            });
+        })
+    }, console.error);
+
+}
 var commands = {
     pack(readfrom, writeto) {
         if (!writeto) {
@@ -268,43 +299,32 @@ var commands = {
         console.type(path.join(__dirname, '../..'));
     },
     pick(readfrom, writeto, keypath) {
-        if (!writeto) {
-            return console.error("请指定输出文件名！");
-        }
-        detect(readfrom, writeto).then(function (fullpath) {
-            fs.readFile(fullpath, function (error, data) {
-                if (error) return console.error(error);
-                var scanner2 = require("../compile/scanner2");
-                var washcode = require("../compile/washcode");
-                var code = scanner2(data.toString());
-                var envs1 = code.envs;
-                var code = washcode(code, keypath);
-                var envs2 = code.envs;
-                var vars = [];
-                for (var v in envs2) {
-                    if (!envs1[v]) vars.push(v);
-                }
-                code.push.apply(code, scanner2(`\r\nvar ${vars.join(',')};`));
-
-                var readpath = fullpath;
-                while (!/\.[.\/]*$/.test(readfrom)) {
-                    readfrom = path.dirname(readfrom);
-                    readpath = path.dirname(readpath);
-                }
-                var distpath = path.join(readpath, writeto);
-                if (path.extname(fullpath) && !path.extname(distpath)) {
-                    distpath = distpath + path.extname(fullpath)
-                }
-                fs.writeFile(distpath, code.toString(), function (error) {
-                    if (error) console.error(error);
-                    else console.info(`处理完成：${fullpath}
-            =>  ${distpath}`);
-                });
-            })
-        }, console.error);
+        transform(readfrom, writeto, function (data) {
+            var scanner2 = require("../compile/scanner2");
+            var washcode = require("../compile/washcode");
+            var code = scanner2(data);
+            var envs1 = code.envs;
+            var code = washcode(code, keypath);
+            var envs2 = code.envs;
+            var vars = [];
+            for (var v in envs2) {
+                if (!envs1[v]) vars.push(v);
+            }
+            code.push.apply(code, scanner2(`\r\nvar ${vars.join(',')};`));
+            return data.toString();
+        });
     },
     wash(readfrom, writeto) {
         this.pick(readfrom, writeto, false);
+    },
+    format(readfrom, writeto, tabSize) {
+        transform(readfrom, writeto, function (data) {
+            var scanner2 = require("../compile/scanner2");
+            var format = require("../compile/formatcode");
+            var code = scanner2(data);
+            format(code, +tabSize || 4);
+            return code.toString();
+        });
     },
     detect(...appnames) {
         if (!appnames.length) return this.path();
@@ -781,6 +801,7 @@ var topics = {
     MODULE_PATH: '源文件的模糊路径',
     TARGET_PATH: '目标文件的模糊路径',
     KEYPATH: '对象的属性路径',
+    TABSIZE: '缩进空格数',
 };
 topics.VARIABLES += "," + Object.keys(topics);
 var run = function (type, value1, value2, value3) {

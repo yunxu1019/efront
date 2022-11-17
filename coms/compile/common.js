@@ -55,9 +55,9 @@ var skipAssignment = function (o, cx) {
                     break;
                 case ":":
                     qcount--;
+                    next();
                     if (qcount < 0) break loop;
                     needpunc = false;
-                    next();
                     break;
                 default:
                     if (/^[!~\+\-]+$/.test(o.text)) {
@@ -93,9 +93,20 @@ var skipAssignment = function (o, cx) {
             break;
         case STRAP:
             if (needpunc) {
-                if (!/^(in|instanceof)$/.test(o.text)) break loop;
+                if (/^catch$/.test(o.text)) {
+                    next();
+                    next();
+                    needpunc = false;
+                    break;
+                }
+                if (!/^(in|instanceof|of|else|as|finally)$/.test(o.text)) break loop;
                 next();
                 needpunc = false;
+            }
+            else if (/^(do|if|while|for|switch|with)/.test(o.text)) {
+                next();
+                next();
+                break;
             }
             else if (o.text === "class") {
                 next();
@@ -765,7 +776,7 @@ var getSemicolonBetween = function (prev, next) {
             if (!/^(in|of|extends|instanceof|as)$/.test(next.text)) return ";";
             return " ";
         }
-        if (next.type === SCOPED && next.entry==='{') {
+        if (next.type === SCOPED && next.entry === '{') {
             if (!next.isExpress) return ";";
         }
         return;

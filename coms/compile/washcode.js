@@ -279,4 +279,5 @@ var washcode = function (code, pick) {
     return code;
 }
 
+washcode.createExpressList = createExpressList;
 module.exports = washcode;
