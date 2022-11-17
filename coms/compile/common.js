@@ -884,8 +884,16 @@ var createString = function (parsed) {
                     }
                     lasttype = SPACE;
                     o.forEach(run);
-                    if (/^[,;]$/.test(result[result.length - 1]) && !keepspace) {
-                        if (!o.prev || o.prev.text !== 'for') result.pop();
+                    if (o.prev && o.prev.type === STRAP && /^for$/.test(o.prev.text));
+                    else if (/^[,;]$/.test(result[result.length - 1]) && !keepspace) {
+                        var last = o.last;
+                        var lp = last && last.prev;
+                        if (!lp) result.pop();
+                        else {
+                            var lpp = lp.prev;
+                            if (lp.type === STRAP && lp.text === 'else' || lp.type === SCOPED && lpp && lpp.type === STRAP && /^(while|if|with|for)/.test(lpp.text));
+                            else result.pop();
+                        }
                     }
                     if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
                         if (keepspace) result.push(" ");
