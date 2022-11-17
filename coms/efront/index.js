@@ -278,13 +278,13 @@ var commands = {
                 var washcode = require("../compile/washcode");
                 var code = scanner2(data.toString());
                 var envs1 = code.envs;
-                var a = washcode(code, keypath);
-                var code = scanner2(a);
+                var code = washcode(code, keypath);
                 var envs2 = code.envs;
                 var vars = [];
                 for (var v in envs2) {
                     if (!envs1[v]) vars.push(v);
                 }
+                code.push.apply(code, scanner2(`\r\nvar ${vars.join(',')};`));
 
                 var readpath = fullpath;
                 while (!/\.[.\/]*$/.test(readfrom)) {
@@ -295,7 +295,7 @@ var commands = {
                 if (path.extname(fullpath) && !path.extname(distpath)) {
                     distpath = distpath + path.extname(fullpath)
                 }
-                fs.writeFile(distpath, a, function (error) {
+                fs.writeFile(distpath, code.toString(), function (error) {
                     if (error) console.error(error);
                     else console.info(`处理完成：${fullpath}
             =>  ${distpath}`);

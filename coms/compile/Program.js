@@ -167,6 +167,7 @@ class Program {
             var last = queue.last;
             if (type === SPACE) {
                 if (last && last.type === STRAP && forceend_reg.test(last.text)) {
+                    last.isend = true;
                     queue.inExpress = false;
                 }
             }

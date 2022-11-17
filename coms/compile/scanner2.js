@@ -114,6 +114,9 @@ class Code extends Array {
         if (this._scoped) return this._scoped;
         return this._scoped = this.program.createScoped(this);
     }
+    set scoped(w) {
+        this._scoped = w;
+    }
     getUndecleared() {
         var res = Object.create(null);
         for (var k in this.envs) {

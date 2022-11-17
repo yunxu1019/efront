@@ -3,6 +3,7 @@ var strings = require("../basic/strings");
 
 var createRefId = function (o) {
     var ids = [], refs = [];
+    var g = o;
     o.refs = refs;
     while (o) {
         if (o.type === SCOPED) {
@@ -44,26 +45,30 @@ var createRefId = function (o) {
         if (n.type === EXPRESS && !/\.$/.test(o.text) && !/^[\.\[]/.test(n.text)) break;
         o = n;
     }
-    o.refs = refs;
+    if (o && o.type === SCOPED && o.entry === '(') {
+        g.called = true;
+    }
     return ids.join('');
+}
+var maplist = function (u) {
+    var map = Object.create(null);
+    for (var o of u) {
+        var r = createRefId(o);
+        if (!map[r]) {
+            map[r] = [];
+            map[r].wcount = 0;
+            map[r].ccount = 0;
+        }
+        map[r].push(o);
+        if (o.equal || o.kind) map[r].wcount++;
+        if (o.called) map[r].ccount++;
+    }
+    return map;
 }
 function createRefMap(scoped) {
     var { used } = scoped;
     var refs = Object.create(null);
-    for (var k in used) {
-        var u = used[k];
-        var map = Object.create(null);
-        for (var o of u) {
-            var r = createRefId(o);
-            if (!map[r]) {
-                map[r] = [];
-                map[r].wcount = 0;
-            }
-            map[r].push(o);
-            if (o.equal || o.kind) map[r].wcount++;
-        }
-        refs[k] = map;
-    }
+    for (var k in used) refs[k] = maplist(used[k]);
     scoped.forEach(createRefMap);
     return scoped.refs = refs;
 }
@@ -164,7 +169,9 @@ function atuoenum(scoped) {
     createRefMap(scoped);
     enumref(scoped);
 }
-module.exports = function main(code) {
+var exports = module.exports = function main(code) {
     atuoenum(code.scoped)
     return code;
 }
+exports.createRefId = createRefId;
+exports.createRefMap = createRefMap;

@@ -302,7 +302,8 @@ var createScoped = function (parsed, wash) {
                     var s = o.text;
                     switch (s) {
                         case "return":
-                            funcbody.return = true;
+                            if (!funcbody.return) funcbody.return = [];
+                            funcbody.return.push(o);
                             break;
                         case "await":
                             if (funcbody.async === false) {
@@ -738,15 +739,19 @@ var mergeTo = function (used, used0) {
         for (var s of v) saveTo(used, k, s);
     }
 };
-
-var needBreak = function (o) {
+var breakSpace = function (o) {
     var { prev, next } = o;
-    if (!prev || !next) return;
-    if (prev.text === 'return' && next.text === 'function') console.log(prev, next)
-    if (prev.type === STAMP && /^[,;]$/.test(prev.text)) return;
-    if (next.type === STAMP && /^[,;]$/.test(next.text)) return;
-    if (prev.type === EXPRESS && /\.$/.test(prev.text)) return;
+    if (hasBreakBetween(prev, next)) return;
     if (prev.type === STRAP && /^(return|yeild|break|continue)$/.test(prev.text)) return /[\r\n\u2028\u2029]/.test(o.text) ? ';' : ' ';
+    return getSemicolonBetween(prev, next);
+};
+var hasBreakBetween = function (next, prev) {
+    if (!prev || !next) return true;
+    if (prev.type === STAMP && /^[,;]$/.test(prev.text)) return true;
+    if (next.type === STAMP && /^[,;]$/.test(next.text)) return true;
+};
+var getSemicolonBetween = function (next, prev) {
+    if (prev.type === EXPRESS && /\.$/.test(prev.text)) return;
     if (next.type === EXPRESS && /^\.[^\.]/.test(next.text)) return;
     if (next.type === PROPERTY) return ";";
     if (next.type === STAMP && next.text === "*") return ";";
@@ -769,6 +774,10 @@ var needBreak = function (o) {
         if ([STRAP, EXPRESS, VALUE, QUOTED].indexOf(next.type) >= 0) return " ";
         if (next.type === LABEL) return ";";
     }
+}
+var needBreakBetween = function (prev, next) {
+    if (hasBreakBetween(prev, next)) return;
+    return getSemicolonBetween(prev, next);
 };
 var relink = function (list) {
     var pi = 0, p = null;
@@ -786,9 +795,9 @@ var relink = function (list) {
 }
 
 var createString = function (parsed) {
-    var keepspace = parsed.keepspace;
-    var helpcode = parsed.helpcode;
-    var lasttype;
+    var keepspace = parsed.keepspace !== false;
+    var helpcode = parsed.helpcode !== false;
+    var lasttype = SPACE;
     var result = [], cacheresult, finalresult = result;
     var run = (o, i, a) => {
         var prev = o.prev;
@@ -832,6 +841,7 @@ var createString = function (parsed) {
                     if (tmp) result.push("\r\n", tmp);
                 }
                 if (keepspace && !opentmp) {
+                    if (lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
                     result.push(tmp);
                 }
                 break;
@@ -841,7 +851,7 @@ var createString = function (parsed) {
                     lasttype = SPACE;
                     break;
                 }
-                var b = needBreak(o);
+                var b = breakSpace(o);
                 if (b) result.push(b);
                 break;
             case QUOTED:
@@ -861,7 +871,7 @@ var createString = function (parsed) {
                             result.push(" ");
                         }
                     }
-                    lasttype = undefined;
+                    lasttype = SPACE;
                     o.forEach(run);
                     if (/^[,;]$/.test(result[result.length - 1]) && !keepspace) {
                         if (!o.prev || o.prev.text !== 'for') result.pop();
@@ -874,8 +884,8 @@ var createString = function (parsed) {
                 break;
             default:
                 if (o instanceof Object) {
-                    if (lasttype === EXPRESS && o.type === EXPRESS && (/^\./.test(o.text) || /\.$/.test(result[result.length - 1])));
-                    else if ([STRAP, EXPRESS, PROPERTY, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
+                    if (o.prev && o.prev.type === EXPRESS && o.type === EXPRESS && (/^\./.test(o.text) || /\.$/.test(o.prev.text)));
+                    else if ([STRAP, EXPRESS, PROPERTY, COMMENT, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
                         result.push(" ");
                     }
                     else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
@@ -957,6 +967,7 @@ module.exports = {
     snapSentenceHead,
     snapExpressHead,
     skipSentenceQueue,
+    needBreakBetween,
     saveTo,
     rename,
     relink,
