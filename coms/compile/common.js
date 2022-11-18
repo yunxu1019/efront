@@ -818,7 +818,7 @@ var createString = function (parsed) {
                 && (!/[\+\-\~\!]$/.test(prev.text) || /[\+\-]$/.test(prev.text) && prev.prev
                     && (!~[STAMP, STRAP, SCOPED].indexOf(prev.prev.type) || prev.prev.type === SCOPED && prev.prev.isExpress)
                 )) {
-                if (o.type !== SCOPED && (o.type !== EXPRESS || !/^\./.test(o.text))) {
+                if (o.type !== SCOPED && (o.type !== EXPRESS || !/^\.[^\.]/.test(o.text))) {
                     result.push(" ");
                     lasttype = SPACE
                 }
