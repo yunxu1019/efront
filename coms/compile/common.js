@@ -55,8 +55,11 @@ var skipAssignment = function (o, cx) {
                     break;
                 case ":":
                     qcount--;
+                    if (qcount < 0) {
+                        if (!o.isExpress) next();
+                        break loop;
+                    }
                     next();
-                    if (qcount < 0) break loop;
                     needpunc = false;
                     break;
                 default:
