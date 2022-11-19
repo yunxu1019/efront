@@ -75,43 +75,30 @@ var write = function (hasNewLine, str) {
         var label = fgColor + bgColor + info + reset;
         var time_stamp = '';
         var str = [time_stamp, label, ...args].join(" ");
-        if (queue.length > 1 && !queue[queue.length - 2] && !/[\r\n\u2028\u2029]/.test(queue[queue.length - 1])) {
-            queue.pop();
-            queue.pop();
-        }
         write1(hasNewLine, str);
     };
     colored[log] = logger;
 });
-var queue = [];
-var flush = function () {
-    while (queue.length) write(queue.shift(), queue.shift());
-};
-// var write0 = lazy(flush, -60);
 var write1 = function (hasNewLine, str) {
-    writeid++;
-    // queue.push(hasNewLine, str);
+    drop.cancel();
     write(hasNewLine, str);
 };
-colored.flush = flush;
+
 colored.type = function (...args) {
     write1(false, args.join(' '));
 };
 var _log = console.log;
 colored.log = function () {
-    flush();
+    write1(false, '');
     _log.apply(console, arguments);
 };
 colored.begin = function (c) {
     return write1(false, getColor(c));
 };
-var writeid = 0;
-var drop = lazy(function (dropid) {
-    if (dropid === writeid) write1(false, "");
+var drop = lazy(function () {
+    write(false, "");
 }, 160);
-colored.drop = function () {
-    drop(++writeid);
-};
+colored.drop = drop;
 colored.end = function () {
     return write1(false, colors.Reset);
 };
