@@ -829,7 +829,7 @@ var run = function (type, value1, value2, value3) {
                 else {
                     console.info(`已设置如下 ${km.length} 个环境变量：\r\n\r\n`);
                     for (var k in mm) {
-                        console.type("  ", `<green2>${k}</green2>`, "= ");
+                        console.line("  ", `<green2>${k}</green2>`, "= ");
                         console.log(mm[k]);
                     }
                     console.log();
@@ -841,7 +841,7 @@ var run = function (type, value1, value2, value3) {
                     if (k in mm) continue;
                     md = true;
                     mm[k] = true;
-                    console.type("  ", `<gray2>${k}</gray2>`, "= ");
+                    console.line("  ", `<gray2>${k}</gray2>`, "= ");
                     console.log(memery.defaults[k]);
                 }
                 if (md) console.log(), console.log();
@@ -853,7 +853,7 @@ var run = function (type, value1, value2, value3) {
                         md = true;
                         console.info(`其他环境变量如下：\r\n\r\n`)
                     }
-                    console.type("  ", `<gray>${k}</gray>`, "= ");
+                    console.line("  ", `<gray>${k}</gray>`, "= ");
                     console.log(memery[k]);
                 }
                 break;
@@ -950,7 +950,32 @@ var run = function (type, value1, value2, value3) {
         if (isRun) {
             commands.run.apply(commands, argv);
         } else {
-            console.info(`不支持该命令<red2> ${type} </red2>`);
+            console.warn(`不支持该命令<red2> ${type} </red2>`);
+            var cmds = search(type, Object.keys(helps).filter(k => !/^\d/.test(k)).map(k => ({ key: k })), "key");
+            if (cmds.length) {
+                console.type(" 如下命令与您输入的命令相似：\r\n");
+                var tagLength = 0;
+                var matched = [];
+                for (var c of cmds) {
+                    var h = helps[c.__proto__.key];
+                    if (matched.indexOf(h) < 0) {
+                        matched.push(h);
+                        h.matches = [];
+                        h.matched = [];
+                    }
+                    h.matches.push(c.__proto__.key);
+                    h.matched.push(c.key);
+                }
+                for (var c of matched) {
+                    c.matches = c.matches.join(", ");
+                    c.matched = c.matched.join("<gray>,</gray> ");
+                    tagLength = Math.max(c.matches.length, tagLength);
+                }
+                tagLength += 2;
+                for (var c of matched) {
+                    console.line("   <cyan2>" + c.matched.replace(/\<(\/?)b\>/g, `<$1yellow2>`) + "</cyan2>", "<gray>" + new Array(tagLength - c.matches.length).join("-") + "</gray> " + c.info);
+                }
+            }
         }
     }
 };
