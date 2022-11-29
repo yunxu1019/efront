@@ -21,13 +21,13 @@ var log = function (p, vs, vmap) {
     }
 
     vs = vs.map(v => vmap[v] ? `<red2>${v}</red2>` : `<gray>${v}</gray>`).join(",");
-    console.type(p + `\r\n`);
-    console.type(vs + "\r\n");
+    console.line(p + `\r\n`);
+    console.line(vs + "\r\n");
 
 }
 var logcount = function (count) {
     if (!count) {
-        console.info("没有找到指定的全局变量");
+        console.info("没有找到指定的全局变量\r\n");
         return;
     }
     console.type(`在以上 <cyan>${count}</cyan> 个文件中找到了指定的全局变量\r\n`);

@@ -174,7 +174,7 @@ var detectEnvironment = function (comm) {
     });
 };
 var showHelpLine = function (line) {
-    if (cluster.isMaster) console.type('<cyan>帮助</cyan>', `${format(line)}\r\n`);
+    if (cluster.isMaster) console.line('<cyan>帮助</cyan>', `${format(line)}\r\n`);
 }
 var showHelpInfo = function (help) {
     var { info, commands } = help;
@@ -296,7 +296,7 @@ var commands = {
     },
     path() {
         if (arguments.length > 0) return this.detect.apply(this, arguments);
-        console.type(path.join(__dirname, '../..'));
+        console.line(path.join(__dirname, '../..'));
     },
     pick(readfrom, writeto, keypath) {
         transform(readfrom, writeto, function (data) {
@@ -375,12 +375,12 @@ var commands = {
     },
     version() {
         // 版本号
-        console.type(
+        console.line(
             `<blink>efront</blink> <white2>${require("../../package.json").version}</white2>`
         );
     },
     memery() {
-        console.type(`${require("../basic/size")(process.resourceUsage ? process.resourceUsage().maxRSS * 1024 : process.memoryUsage().rss)}`);
+        console.line(`${require("../basic/size")(process.resourceUsage ? process.resourceUsage().maxRSS * 1024 : process.memoryUsage().rss)}`);
     },
     kill(port) {
         this.request(port ? port + "/:quit" : "/:quit").then(console.info, console.error);
@@ -480,7 +480,7 @@ var commands = {
         };
         var commands = this;
         var run = function (res, type) {
-            console.type(`<cyan>${type || '消息'}</cyan>`, res, '\r\n');
+            console.line(`<cyan>${type || '消息'}</cyan>`, res, '\r\n');
             commands.request(opt, true).then(run, error);
         };
 
@@ -656,7 +656,7 @@ var commands = {
         args.push("--efront");
         if (restArgv.length) args.push.apply(args, restArgv);
         if (!appname) {
-            console.info("请输入要启动的程序!");
+            console.line("请输入要启动的程序!");
             return;
         }
         var fullpath = process.cwd();
@@ -953,7 +953,7 @@ var run = function (type, value1, value2, value3) {
             console.warn(`不支持该命令<red2> ${type} </red2>`);
             var cmds = search(type, Object.keys(helps).filter(k => !/^\d/.test(k)).map(k => ({ key: k })), "key");
             if (cmds.length) {
-                console.type(" 如下命令与您输入的命令相似：\r\n");
+                console.line(" 如下命令与您输入的命令相似：\r\n");
                 var tagLength = 0;
                 var matched = [];
                 for (var c of cmds) {
@@ -983,7 +983,7 @@ var __exit = process.exit;
 var quit = function (e) {
     if (quit.name === 'quit') {
         console.begin("red2");
-        console.type(" 错误 ");
+        console.line(" 错误 ");
         console.log(e);
         console.end();
     } else {

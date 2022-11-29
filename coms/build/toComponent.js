@@ -442,7 +442,7 @@ function toComponent(responseTree, noVersionInfo) {
             }
             var errored = module_body.slice(0, module_body.length >> 1).filter(saveGlobal);
             if (errored.length) {
-                console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`, errored.map(a => `<gray>${a}</gray>`));
+                console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`,`<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
             }
             if (!responseTree[k].data) {
                 result.splice(cx, 1);

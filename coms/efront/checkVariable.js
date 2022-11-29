@@ -44,8 +44,8 @@ module.exports = function (root) {
     var log = function (k) {
         var key = k;
         console.log();
-        if (!globals[key]) console.type(`<red2>${key}</red2><gray>:</gray> ${needs[k].map(a => `<gray>${path.dirname(a)}/</gray><gray>${path.basename(a)}</gray>`).join("<gray>|</gray>")}`);
-        else console.type(`<white>${key}</white><gray>: ${needs[k].join('|')}</gray>`);
+        if (!globals[key]) console.line(`<red2>${key}</red2><gray>:</gray> ${needs[k].map(a => `<gray>${path.dirname(a)}/</gray><gray>${path.basename(a)}</gray>`).join("<gray>|</gray>")}`);
+        else console.line(`<white>${key}</white><gray>: ${needs[k].join('|')}</gray>`);
     };
     var color = function (a) {
         if (a in founded) {
@@ -72,15 +72,15 @@ module.exports = function (root) {
         var isFolder = fs.statSync(root).isDirectory();
         var name = isFolder ? "路径" : "文件";
         if (!args.length) {
-            console.type(`${name} <cyan>${root}</cyan> 中没有找到外部变量`);
+            console.line(`${name} <cyan>${root}</cyan> 中没有找到外部变量`);
         } else {
-            console.type(`${name} <cyan>${root}</cyan> 中共有 <white>${args.length}</white> 个外部变量`);
+            console.line(`${name} <cyan>${root}</cyan> 中共有 <white>${args.length}</white> 个外部变量`);
         }
         if (isFolder) {
             args.forEach(log);
         } else {
             console.log();
-            console.type(args.map(a => {
+            console.line(args.map(a => {
                 var c = color(a);
                 var u = undeclares[a];
                 return `<${c}>${a} (${u[0].row}:${u[0].col})</${c}>`;

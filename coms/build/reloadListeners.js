@@ -13,12 +13,12 @@ var listener = function (req, res) {
 var http = require("http");
 var server = http.createServer(listener);
 server.once("error", function () {
-    console.info("启动自动刷新服务失败！");
+    console.error("启动自动刷新服务失败！");
 });
 var memery = require("../efront/memery");
 server.once("listening", function (event) {
     var port = memery.WATCH_PORT = server.address().port;
-    console.info(`watchport:${port}`);
+    console.info(`watchport:${port}\r\n`);
 });
 module.exports = {
     run() {
