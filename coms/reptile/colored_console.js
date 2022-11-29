@@ -30,10 +30,10 @@ var getColor = function (c) {
     }
     return '';
 };
-
+var colorReg = /<(\/?)([a-z][\w]*)[^\/\\\>]*\>/ig;
 var write = function (hasNewLine, str) {
     var colorpath = [];
-    str = String(str).replace(/<(\/?)([a-z][\w]*)[^\>]*\>/ig, function (_, e, c) {
+    str = String(str).replace(colorReg, function (_, e, c) {
         if (e) {
             colorpath.pop();
             c = colorpath[colorpath.length - 1];
@@ -104,8 +104,66 @@ var write1 = function (hasNewLine, str) {
     drop.cancel();
     write(hasNewLine, str);
 };
+var formatRows = function (arg, rows, deep, entry, leave) {
+    if (rows.length === 0) return entry + leave;
+    var ci = circleobjs.indexOf(arg);
+    if (ci >= 0) {
+        entry = `<cyan><引用点 *${ci + 1}></cyan> ` + entry;
+    }
+    if (deepobjs.length === 0) circleobjs.splice(0, circleobjs.length);
+    var space = new Array(deep).join("    ");
+    var deepspace = new Array(deep + 1).join("    ");
+    var lens = rows.map(r => r.replace(colorReg, '').replace(/[\u00ff-\uffff]/g, '00').length);
+    var maxLength = Math.max(...lens) + 2;
+    var itemcount = (process.stdout.columns - deepspace.length - 10) / maxLength | 0;
+    if (itemcount * itemcount > rows.length) itemcount = Math.ceil(Math.sqrt(rows.length));
+    if (itemcount < 1) itemcount = 1;
+    var hasNextLine = false;
+    var isArray = arg instanceof Array;
+    for (var r of rows) {
+        if (/[\r\n\u2028\u2029]/.test(r)) {
+            itemcount = 1;
+            hasNextLine = true;
+            break;
+        }
+    }
+    if (!hasNextLine && deepspace.length + maxLength * rows.length < process.stdout.columns)
+        return `${entry} ${rows.join(", ")} ${leave}`;
+    var res;
+    if (itemcount <= 1) {
+        res = rows;
+    }
+    else {
+        var maxLength = Array(itemcount).fill(0);
+        for (var cy = 0, dy = itemcount; cy < dy; cy++) {
+            for (var cx = cy, dx = rows.length - 1; cx < dx; cx += itemcount) {
+                if (maxLength[cy] < lens[cx]) maxLength[cy] = lens[cx];
+            }
+        }
+        maxLength = maxLength.map(i => i + 2);
+        res = [];
+        if (isArray) {
+            for (var cx = 0, dx = rows.length; cx < dx; cx += itemcount) {
+                res.push(rows.slice(cx, cx + itemcount).map((r, i) => {
+                    return Array(maxLength[i] - lens[cx + i]).join(" ") + r;
+                }).join(', '));
+            }
+        }
+        else {
+            for (var cx = 0, dx = rows.length; cx < dx; cx += itemcount) {
+                res.push([rows[cx], ...rows.slice(cx + 1, cx + itemcount).map((r, i) => {
+                    return Array(maxLength[i] - lens[cx + i]).join(" ") + r;
+                })].join(', '));
+            }
+        }
+    }
+    return `${entry}\r\n${deepspace + res.join(",\r\n" + deepspace)}\r\n${space}${leave}`
+};
+var deepobjs = [];
+var circleobjs = [];
 var format = function (arg, deep = 0) {
     deep++;
+    if (arg === null) return arg;
     if (typeof arg === 'string') {
         if (deep > 1) return "<green>" + strings.encode(arg) + "</green>";
         return arg;
@@ -113,21 +171,42 @@ var format = function (arg, deep = 0) {
     if (typeof arg === 'function') return `<cyan>[${arg.__proto__.constructor.name}${arg.name ? ": " + arg.name : " (匿名)"}]</cyan>`;
     if (/^(number|boolean)$/.test(typeof arg)) return '<yellow>' + arg + "</yellow>";
     if (arg === undefined) return "<gray>undefined</gray>";
-    if (arg instanceof Array) {
-        if (deep > 1) return `[... ${arg.length} 项]`;
-        var res = arg.slice(0, 100).map(a => format(a, deep));
-        if (arg.length > res.length) res.push(`... 其他 ${arg.length - res.length} 项`);
-        return `[${res.join(", ")}]`;
-    }
-    if (arg instanceof Object) {
+    if (typeof arg === "object") {
+        if (deepobjs.indexOf(arg) >= 0) {
+            var ci = circleobjs.indexOf(arg);
+            if (ci < 0) ci = circleobjs.length, circleobjs.push(arg);
+            return `<cyan>[循环点 *${ci + 1}]</cyan>`;
+        }
+        if (arg instanceof Array) {
+            if (arg.length === 0) return '[]';
+            if (deep > 3) return `${arg.__proto__.constructor.name}(${arg.length})[ ... ]`;
+            deepobjs.push(arg);
+            var res = arg.slice(0, 100).map(a => format(a, deep));
+            deepobjs.pop();
+            if (arg.length > res.length) res.push(`<gray>.. 其他 ${arg.length - res.length} 项</gray>`);
+            return formatRows(arg, res, deep, '[', ']');
+        }
         if (arg.constructor === Date) {
-            return '<magenta>' + formatDate.call(arg) + "</magenta>";
+            return '<purple>' + formatDate.call(arg) + "</purple>";
+        }
+        if (arg.constructor === RegExp) {
+            return `<red2>/${arg.source}/</red2><cyan>${arg.flags}</cyan>`;
         }
         var keys = Object.keys(arg);
         var ks = keys.slice(0, 100);
-        var kvs = ks.map(k => `${/[\:'"`\[\{\(]/.test(k) ? strings.encode(k) : k}: ${format(arg[k])}`);
-        if (keys.length > ks.length) kvs.push(`... 其他 ${keys.length - ks.length} 项`);
-        return `${arg.constructor && arg.constructor !== Object ? arg.constructor.name : ''}{ ${kvs.join(', ')} }`;
+        if (deep > 3) {
+            var kvs = [];
+            if (keys.length > 0) kvs.push(`<gray>.. 共 ${keys.length} 个属性</gray>`);
+        }
+        else {
+            deepobjs.push(arg);
+            var kvs = ks.map(k => `${/[\:'"`\[\{\(\r\n\u2028\u2029]|^\s|\s$/.test(k) ? format(k, deep) : k}: ${format(arg[k], deep)}`);
+            deepobjs.pop();
+            if (keys.length > ks.length) kvs.push(`<gray>.. 其他 ${keys.length - ks.length} 个属性</gray>`);
+        }
+        var entry = '{';
+        if (arg.constructor && arg.constructor !== Object) entry = arg.constructor.name + entry;
+        return formatRows(arg, kvs, deep, entry, '}');
     }
     return String(arg);
 };

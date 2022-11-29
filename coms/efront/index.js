@@ -376,7 +376,7 @@ var commands = {
     version() {
         // 版本号
         console.type(
-            `efront <white2>${require("../../package.json").version}</white2>`
+            `<blink>efront</blink> <white2>${require("../../package.json").version}</white2>`
         );
     },
     memery() {
