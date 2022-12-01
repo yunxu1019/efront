@@ -47,9 +47,11 @@ var data = [
         }()
     },
     /Abcdefg/gimuy,
+    new Error("错误信息"),
     new Date,
     { "循环对象": null },
 ];
 data[data.length - 1].循环对象 = data[data.length - 1];
 console.log(data);
 console.line(data);
+throw new Error(2);

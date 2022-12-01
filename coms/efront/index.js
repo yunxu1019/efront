@@ -987,9 +987,8 @@ var quit = function (e) {
         console.log(e);
         console.end();
     } else {
-        console.log(e);
         console.error(e);
-        console.log("异常退出");
+        console.line("异常退出");
     }
 
     __exit.call(process, 1);

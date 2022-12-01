@@ -177,6 +177,10 @@ var format = function (arg, deep = 0) {
             if (ci < 0) ci = circleobjs.length, circleobjs.push(arg);
             return `<cyan>[循环点 *${ci + 1}]</cyan>`;
         }
+        if (arg instanceof Error) {
+            if (deep === 1) return arg.message;
+            return arg.stack || arg.message;
+        }
         if (arg instanceof Array) {
             if (arg.length === 0) return '[]';
             if (deep > 3) return `${arg.__proto__.constructor.name}(${arg.length})[ ... ]`;
