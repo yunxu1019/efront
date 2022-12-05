@@ -3,10 +3,10 @@ function autofocus(e) {
     var savedElement;
     e.renders.push(function () {
         var parent = rootElements[rootElements.length - 1] || document.body;
-        if (savedElement === parent) {
+        if (savedElement === this) {
             if (this !== parent || getTargetIn(parent, document.activeElement)) return;
         }
-        savedElement = parent;
+        savedElement = this;
         if (/^(input|textarea)$/i.test(this.tagName) || /^true$/.test(this.contentEditable)) {
             if (getTargetIn(parent, this)) {
                 this.focus();
