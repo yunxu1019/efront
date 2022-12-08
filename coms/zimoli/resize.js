@@ -53,6 +53,7 @@ var handle = {
         dragging = getResizer(event);
         if (!dragging) return;
         var elem = dragging.rect;
+        if (elem.setAttribute) elem.setAttribute("resizing", '');
         if (elem.offsetParent && /^(absolute|fixed|relative)$/i.test(getComputedStyle(elem.offsetParent).position)) {
             var parent = elem.offsetParent;
             var pos = getScreenPosition(parent);
@@ -131,6 +132,9 @@ var handle = {
         resizingList.hit(rect);
     },
     end(e) {
+        if (dragging && dragging.rect.removeAttribute) {
+            dragging.rect.removeAttribute("resizing");
+        }
         dragging = null;
     }
 };

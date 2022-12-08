@@ -46,13 +46,16 @@ message.disconnect = function () {
     safeQuitProcess();
 };
 message.deliver = function (a) {
-    return clients.deliver(a[0], a[1]);
+    return clients.deliver(a[0], a[1], a[2]);
 };
 message.addmark = function (a) {
     return clients.addMark(a);
 };
 message.getClients = function () {
     return clients.map(c => ({ id: c.id, optime: c.optime }));
+};
+message.putuser = function ([clientid, usr]) {
+    clients.putUser(clientid, usr);
 };
 message.send('getmark', null, function (markList) {
     markList.forEach(clients.addMark, clients);
@@ -74,6 +77,73 @@ var doProxy = require("./doProxy");
 var doFolder = require("./doFolder");
 var getRequestEnv = require('./getRequestEnv');
 var remoteAddress = require("./remoteAddress");
+
+var cast = function (req, res, type) {
+    var id = type[2], msgid = type[3];
+    if (id && msgid) {
+        if (msgid.length > 8096) {
+            res.writeHead(400);
+            return;
+        }
+        var [cid, uid] = id.split("/");
+        if (clients.getType(cid) === 1) {// 自动转换到 localIp
+            if (!clients.checkId(cid)) return;
+            cid = remoteAddress(req);
+        }
+        try {
+            msgid = decodeURIComponent(msgid);
+        } catch (e) {
+            msgid = unescape(msgid);
+        }
+        message.send("deliver", [cid, uid, msgid]);
+    }
+};
+
+var care = function (req, res, type) {
+    var id = type[2];
+    if (id) {
+        if (clients.length > 40000) {
+            res.writeHead(503, utf8error);
+            res.end("服务器忙！");
+            return;
+        }
+        var ct = clients.getType(id);
+        var client = null;
+        if (ct === 1) {// 自动转换到 localIp
+            if (clients.checkId(id)) {
+                id = remoteAddress(req);
+                client = clients.attach(id, false);
+            }
+        }
+        else {
+            client = clients.attach(id);
+        }
+        if (!client) {
+            res.writeHead(403, {});
+            res.end();
+            return;
+        }
+        var userinfo = null;
+        if (type[3]) {
+            userinfo = encode62.timedecode(type[3]);
+        }
+        var usr = client.listen(res, userinfo);
+        client.refresh();
+        var uid = userinfo.split("/")[0];
+        message.send('receive', [id, uid], function (msgids) {
+            if (msgids && msgids.length) {
+                client.deliver(uid, msgids);
+            }
+        }, null);
+        if (usr) {
+            message.broadcast("putuser", [id, userinfo]);
+        }
+    } else {
+        res.writeHead(403);
+        res.end();
+    }
+};
+
 var doOptions = async function (req, res, type) {
     res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
     var needLogin = false;
@@ -137,7 +207,7 @@ var doOptions = async function (req, res, type) {
                     return;
                 }
             }
-            var id = clients.create().id;
+            var id = clients.create(type[2] === '' ? 1 : 0).id;
             res.write(String(id));
             break;
         case "similar":
@@ -150,47 +220,10 @@ var doOptions = async function (req, res, type) {
             });
             return;
         case "care":
-            var id = type[2];
-            if (id) {
-                var client = clients.attach(id);
-                if (!client) {
-                    res.writeHead(403, {});
-                    break;
-                }
-                var user = null;
-                if (type[3]) {
-                    user = encode62.timedecode(type[3]);
-                }
-                client.listen(res, user);
-                client.refresh();
-                message.send('receive', id, function (msgids) {
-                    if (msgids && msgids.length) {
-                        client.deliver(msgids);
-                    }
-                }, null);
-                if (clients.length > 40000) {
-                    res.writeHead(503);
-                    res.end();
-                }
-            } else {
-                res.writeHead(403);
-                res.end();
-            }
+            care(req, res, type);
             return;
         case "cast":
-            var id = type[2], msgid = type[3];
-            if (id && msgid) {
-                if (msgid.length > 8096) {
-                    res.writeHead(400);
-                    break;
-                }
-                try {
-                    msgid = decodeURIComponent(msgid);
-                } catch (e) {
-                    msgid = unescape(msgid);
-                }
-                message.send("deliver", [id, msgid]);
-            }
+            cast(req, res, type);
             break;
         default:
             needLogin = true;
@@ -498,7 +531,7 @@ var requestListener = async function (req, res) {
                     res.end(`已关闭${ports.join("、")}端口`);
                     return;
             }
-            var type = /^(\w+)(?:\-([\/\!\'\(\)\*\-\.\w]+))?(?:[\?\:\+]([\s\S]*))?$/.exec(option);
+            var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\*\-\.\w]*))?(?:[\?\:\+]([\s\S]*))?$/.exec(option);
             if (type) return doOptions(req, res, type);
         }
         return res.end();

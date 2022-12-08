@@ -9,7 +9,7 @@
     <link rel="Shortcut Icon" href="/favicon.ico" type="image/x-icon" />
     <meta name="viewport"
         content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width" />
-    <title>微信</title>
+    <title>仅相同IP地址的客户端可收发消息</title>
     <style>
         html {
             height: 100%;
@@ -30,18 +30,7 @@
             overflow: hidden;
         }
     </style>
-    <script deleteoncompile>
-        - function (body, window) {
-            body.removeChild(body.getElementsByTagName("script")[0]);
-            var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    new Function(xhr.responseText).call(window);
-                }
-            };
-            xhr.open('POST', 'comm/main');
-            xhr.send("step into my sight..");
-        }.call(this, document.documentElement.children[0], this);
+    <script efrontloader >
     </script>
 </head>
 

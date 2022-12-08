@@ -14,7 +14,9 @@ var copyAttribute = function (node, copys) {
             node[name] = value;
             break;
         default:
-            node.setAttribute(name, value);
+            if (isFunction(node.setAttribute)) {
+                node.setAttribute(name, value);
+            }
     }
 }
 var createTemplateNodes = function (text) {

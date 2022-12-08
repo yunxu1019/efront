@@ -1,8 +1,31 @@
-<div head>
-    <template -src="title">
+<div head mount>
+    <btn -if="users.length>0" class="menu" @click="showList=!showList" type_="showList?'default':'white'">
+        <i></i>
+        <i></i>
+        <i></i>
+    </btn>
+    <template -if="user">
+        <span -bind="user.name"></span>
+        &nbsp;<span class="id">(<span -bind="user.id"></span>)</span>
     </template>
+    <template -elseif="title" -src="title"> </template>
     <close @click="remove()"></close>
 </div>
+<list -if="users.length>0" -src="u in users">
+    <btn class="user" @click="user=u" type_="u===user?'default':'white'">
+        <avatar -if="user.icon" -style="{'background-image':'url(\'icons/'+u.icon+'.ico\')'}"></avatar>
+        <avatar -else>
+        </avatar>
+        <span -text="u.name"></span>&nbsp;
+        <div class="unread" -if="u.msgread<u.msglist?.length">
+            <span -bind="u.msglist.length-u.msgread"></span>
+        </div>
+        <div>
+            <span class="id" -text="u.id"></span>
+        </div>
+        <span class="local" -if="u.id===localid">本机</span>
+    </btn>
+</list>
 <grid #body disabled>
     <chat -src="m in msglist">
         <padding>
@@ -15,5 +38,5 @@
     </div>
 </grid>
 <div foot>
-    <btn @click="send();">发送</btn>
+    <a @click="send();">发送</a>
 </div>

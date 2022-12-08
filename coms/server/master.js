@@ -52,7 +52,7 @@ var workerExit = function (code) {
     if (!waiters.length) {
         afterend();
     }
-}
+};
 var createWaiter = function () {
     var M = 1024 * 1024;
     var mem = require("os").freemem() / M - 256 | 0;
@@ -66,7 +66,7 @@ var createWaiter = function () {
     worker.on("exit", workerExit);
     worker.on("message", message);
     return worker;
-}
+};
 var run = async function () {
     if (quitting.length) return;
     if (run.ing) {
@@ -85,11 +85,11 @@ var run = async function () {
     exit();
     run.ing = false;
 };
-var isProduction = function develop() { return develop.name === 'develop' }();
+var isDevelop = function develop() { return develop.name === 'develop' }();
 var watch = {
     close: function (watchs) {
         watchs.forEach(a => a.close());
-    }.bind(null, isProduction ? [
+    }.bind(null, isDevelop ? [
         "",
         "../efront",
         "../compile",
@@ -99,22 +99,23 @@ var watch = {
 message.quit = end;
 message.broadcast = broadcast;
 message.deliver = function (a) {
-    var [clientid, msgid] = a;
-    var client = clients.attach(clientid);
+    var [cid, uid, msgid] = a;
+    var client = clients.attach(cid);
     if (!client) return;
-    if (client.messages.length) {
-        client.deliver(msgid);
+    var msgs = client.getMessages(uid);
+    if (msgs && msgs.length) {
+        client.deliver(uid, msgid);
         return;
     }
     var count = 0;
     var rest = waiters.length;
     client.refresh();
     waiters.forEach(function (worker) {
-        message.send(worker, 'deliver', [clientid, msgid], function (a) {
+        message.send(worker, 'deliver', [cid, uid, msgid], function (a) {
             count += +a || 0;
             rest--;
             if (!rest && !count) {
-                client.deliver(msgid);
+                client.deliver(uid, msgid);
                 client.keep();
             }
         }, null);
@@ -129,12 +130,11 @@ message.addmark = function (m) {
         message.send(worker, 'addmark', m);
     });
 };
-message.receive = function (clientid) {
-    var client = clients.get(clientid);
+message.receive = function ([cid, uid]) {
+    var client = clients.get(cid);
     if (client) {
-        var messages = client.messages.slice(0);
-        client.clean();
-        return messages;
+        var msgs = client.getMessages(uid);
+        return msgs;
     }
 };
 message.cluster = function ([id, methord, params]) {

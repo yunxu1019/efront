@@ -1,0 +1,15 @@
+/:
+  care: options ::care-:id?:userid
+  cast: options ::cast-:id?:msg
+  link: options ::link/
+./:
+  add-room: xget room.jsp
+  del-room: xget room.jsp
+  list-room: xpost room-list.jsp
+
+./api/:
+  query: get room-list
+https://efront.cc/:
+  ip: get ip.jsp
+https://www.ip.cn/:
+  iplocation: get https://www.ip.cn/api/index?ip=:ip&type=1
