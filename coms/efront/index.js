@@ -470,7 +470,7 @@ var commands = {
 
     },
     link(address) {
-        this.request(address).then(console.info);
+        this.request(address).then(console.line.bind(console, '<cyan>连接号</cyan>'));
     },
     care(address, linkid) {
         var opt = this.parse(address);
