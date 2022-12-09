@@ -82,6 +82,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             extraClones.map(c => document.body.appendChild(c));
             saved_delta.x += clone_left - target_left;
             saved_delta.y += clone_top - target_top;
+            target.setAttribute("dragging", '');
             dispatch("dragstart", target);
         }
         event.moveLocked = true;
@@ -106,7 +107,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
         if (clone !== target) remove(clone), css(target, { opacity: saved_opacity, filter: saved_filter });
         remove(extraClones);
         extraTargets.map((target, cx) => css(target, extraStyles[cx]));
-        if (saved_delta.ing) dispatch("dragend", target);
+        if (saved_delta.ing) target.removeAttribute("dragging"), dispatch("dragend", target);
         drag.target = null;
         saved_delta = null;
     };

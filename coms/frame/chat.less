@@ -8,7 +8,7 @@
     box-sizing: content-box;
     margin: @margintop @marginleft;
 
-    &:not([resizing], :active) {
+    &:not([resizing], [dragging]) {
         transition: padding .2s, margin .2s;
     }
 
