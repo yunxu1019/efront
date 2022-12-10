@@ -41,6 +41,9 @@ var getResizer = function (event) {
     if (fringe.cursor || getTargetIn(rect.dragHandle, event.target)) {
         var { resize } = fringe;
         extend(resize, getScreenPosition(rect));
+        var computedStyle = getComputedStyle(rect);
+        resize.width = parseFloat(computedStyle.width);
+        resize.height = parseFloat(computedStyle.height);
         resize.rect = rect;
         resize.cursor = fringe.cursor;
         return resize;
