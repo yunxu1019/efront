@@ -182,7 +182,6 @@ function maps(config = {}) {
     var reshape = function () {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
-        console.log(canvas.map)
         canvas.map.refresh();
         canvas._default = canvas.map.defaultImage();
     };
