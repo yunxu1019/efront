@@ -1,5 +1,4 @@
 "use strict";
-var cluster = require("cluster");
 var message = require("../message");
 var colored = require("../reptile/colored_console");
 var colors = require("../reptile/colors");
@@ -31,7 +30,7 @@ var logStamp = function () {
     "drop",
     "flush"
 ].forEach(function (log) {
-    if (cluster.isMaster) {
+    if (message.isPrimary) {
         var logger = colored[log];
         if (log === 'error') {
             logger = function () {
@@ -49,5 +48,4 @@ var logStamp = function () {
     }
     console[log] = logger;
 });
-console.log = colored.log;
 module.exports = console;

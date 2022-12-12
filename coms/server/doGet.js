@@ -1,6 +1,7 @@
 "use strict";
 var zlib = require("zlib");
 var path = require("path");
+var { Http2ServerRequest, Http2ServerResponse } = require("http2");
 var filebuilder = require("../efront/filebuilder");
 var checkAccess = require("./checkAccess");
 var doFile = require("./doFile");
@@ -11,7 +12,7 @@ var parseURL = require("../basic/parseURL");
 var isObject = require("../basic/isObject");
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var SERVER_ROOT_PATH = memery.webroot;
-var Cache = require("../efront/cache");
+var Cache = require("./cache");
 var getfile = function (url, exts) {
     return filecache.seek(url, exts);
 };
@@ -73,8 +74,8 @@ var indexreg = memery.indexreg;
  * 返回数据
  * @param {Buffer} data 
  * @param {string} url 
- * @param {httpRequest} req 
- * @param {httpResponse} res 
+ * @param {Http2ServerRequest} req 
+ * @param {Http2ServerResponse} res 
  */
 var response = function (data, url, req, res) {
     message.count({ path: url, update: true });
@@ -109,8 +110,8 @@ var utf8 = { "Content-Type": "text/plain;charset=utf-8" };
  * 根据数据类型进行不同的响应处理
  * @param {Buffer|Object|string} data 
  * @param {string} url 
- * @param {httpRequest} req 
- * @param {httpResponse} res 
+ * @param {Http2ServerRequest} req 
+ * @param {Http2ServerResponse} res 
  */
 var adapter = function (data, url, req, res) {
     if (res.writableEnded || res.finished) return;
@@ -167,7 +168,7 @@ var adapter = function (data, url, req, res) {
 /**
  * doGet
  */
-module.exports = async function (req, res) {
+var doGet = module.exports = async function (req, res) {
     var url = await proxy(req);
     if (/^~~?|^&/.test(url)) {
         return doCross(req, res);
@@ -196,6 +197,6 @@ module.exports = async function (req, res) {
         adapter(data, url, req, res);
     }
 };
-module.exports.reset = function () {
+doGet.reset = function () {
     filecache.reset();
 };

@@ -80,11 +80,13 @@ var onresponse = function ({ stamp, params, error }) {
     }
 };
 onmessage.onresponse = onresponse;
-
-if (cluster.isMaster) {
+Object.defineProperty(onmessage, 'isPrimary', { value: !cluster.isWorker, enumerable: false });
+if (onmessage.isPrimary) {
     onmessage["abpi"] = require("./abpi");
     onmessage["count"] = require("./count");
     onmessage["log"] = require("./log");
+    onmessage.fork = cluster.fork;
+    onmessage.Wroker = cluster.Worker;
     onmessage.send = __send;
     onmessage.invoke = __invoke;
 } else {

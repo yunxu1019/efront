@@ -5,7 +5,7 @@ var lazy = require("../basic/lazy");
  * 只在主线程中使用
  */
 var data_file = "count.jsam";
-if (!require("cluster").isMaster) {
+if (require("cluster").isWorker || !require("worker_threads").isMainThread) {
     throw "只在主线程中使用";
 }
 var counts = {};

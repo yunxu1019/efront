@@ -9,7 +9,7 @@ var remove = function () {
         rl = null;
     }
 };
-if (require("cluster").isMaster) {
+if (require("../message").isPrimary) {
     if (process.stdin.isTTY) {
         rl = readline.createInterface({
             input: process.stdin,

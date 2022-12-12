@@ -1,5 +1,4 @@
 "use strict";
-var cluster = require("cluster");
 var message = require("../message");
 var clients = require("./clients");
 var similar = require("./similar");
@@ -10,6 +9,9 @@ var memery = require("../efront/memery");
 var recover = require("./recover");
 
 var quitting = [];
+/**
+ * @type {[:Worker]}
+ */
 var waiters = [];
 var end = function () {
     quitting = quitting.concat(waiters);
@@ -59,9 +61,9 @@ var createWaiter = function () {
     var mem = require("os").freemem() / M - 256 | 0;
     if (mem < 1024) mem = 1024;
     /**
-     * @type {cluster.Worker}
+     * @type {message.Worker}
      */
-    var worker = cluster.fork({
+    var worker = message.fork({
         "NODE_OPTIONS": "--max-old-space-size=" + mem * M,
     });
     worker.on("exit", workerExit);
@@ -162,7 +164,16 @@ message.rehost = function () {
     });
     child.unref();
 };
-
+var find = async function (key, params) {
+    for (var c of waiters) {
+        if (await message.invoke(c, key, params)) return c;
+    }
+};
+message.fend = function ([k1, k2], params, socket) {
+    var c = find(k1, params);
+    if (!c) return socket.write("HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n");
+    memery.send(c, k2, params, socket);
+};
 var similar = require("./similar");
 message.logsimilar = function (a) {
     a = JSON.parse(a);

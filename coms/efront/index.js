@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 process.title = 'efront';
-var cluster = require("cluster");
+var cluster = require("../message");
 var path = require('path');
 var fs = require("fs");
 require("./console");
@@ -174,7 +174,7 @@ var detectEnvironment = function (comm) {
     });
 };
 var showHelpLine = function (line) {
-    if (cluster.isMaster) console.line('<cyan>帮助</cyan>', `${format(line)}\r\n`);
+    console.line('<cyan>帮助</cyan>', `${format(line)}\r\n`);
 }
 var showHelpInfo = function (help) {
     var { info, commands } = help;
@@ -996,7 +996,7 @@ var quit = function (e) {
 process.on("uncaughtException", quit);
 process.on("unhandledRejection", quit);
 process.on("exit", function () {
-    if (cluster.isMaster && !/win32/.test(process.platform)) {
+    if (cluster.isPrimary && !/win32/.test(process.platform)) {
         console.log();
     }
 });
