@@ -50,7 +50,7 @@ var reload = function () {
             }
         });
 };
-require("./watch")(i18n_file, reload);
+require("../server/watch")(i18n_file, reload);
 reload();
 module.exports = function i18n(language) {
     return i18n_data;

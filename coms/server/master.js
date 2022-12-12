@@ -7,6 +7,7 @@ var JSAM = require("../basic/JSAM");
 var fs = require("fs");
 var path = require("path");
 var memery = require("../efront/memery");
+var recover = require("./recover");
 
 var quitting = [];
 var waiters = [];
@@ -19,11 +20,11 @@ var end = function () {
     waiters.splice(0, waiters.length);
     exit();
 };
+recover.start();
 var afterend = function () {
-    process.removeAllListeners();
+    recover.destroy();
     watch.close();
-    clients.destroy();
-    similar.destroy();
+    process.removeAllListeners();
     if (process.stdin.unref) process.stdin.unref();
     if (process.stderr.unref) process.stderr.unref();
     if (process.stdout.unref) process.stdout.unref();
@@ -86,16 +87,13 @@ var run = async function () {
     run.ing = false;
 };
 var isDevelop = function develop() { return develop.name === 'develop' }();
-var watch = {
-    close: function (watchs) {
-        watchs.forEach(a => a.close());
-    }.bind(null, isDevelop ? [
-        "",
-        "../efront",
-        "../compile",
-        "../message",
-    ].map(a => path.join(__dirname, a)).filter(fs.existsSync).map(a => fs.watch(a, { recursive: /^(darwin|win32)$/i.test(process.platform) }, run)) : [])
-};
+var watch = require("./watch");
+if (isDevelop) [
+    "",
+    "../efront",
+    "../compile",
+    "../message",
+].map(a => path.join(__dirname, a)).filter(fs.existsSync).forEach(k => watch(k, run)), watch.start();
 message.quit = end;
 message.broadcast = broadcast;
 message.deliver = function (a) {

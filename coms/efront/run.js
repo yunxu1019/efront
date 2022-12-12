@@ -92,10 +92,8 @@ function fromComponent(base) {
                 result = result.toString();
             }
             onsuccess(result || '');
-            require("./watch").close();
         });
     };
-    require("./watch").close();
     return request;
 }
 function fromInternet(mainfilepath) {

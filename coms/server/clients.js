@@ -108,6 +108,7 @@ class Client {
     deliver(userid, msgid) {
         var c = this;
         if (userid) c = c.getUser(userid);
+        if (!c) return;
         var cmsg = msgMap.get(c);
         if (msgid instanceof Array) {
             cmsg.push.apply(cmsg, msgid);
@@ -164,8 +165,8 @@ class Client {
 }
 
 var removedindex = 0;
-var autoremove = function () {
-    var time = +new Date, delta = 30 * 1000, d = 300;
+var autoremove = function (time) {
+    var delta = 30 * 1000, d = 300;
     for (var cx = removedindex - 1, dx = removedindex - 1000; cx >= dx; cx--) {
         if (cx < 0) {
             break;
@@ -224,13 +225,8 @@ var autoremove = function () {
     }
 };
 
-var interval = setInterval(autoremove, 20);
 
 var methods = {
-    destroy() {
-        clearInterval(interval);
-        clients.splice(0, clients.length).forEach(u => u.deliver());
-    },
     /**
      * @returns {Client}
      */
@@ -300,4 +296,10 @@ var methods = {
     }
 };
 Object.assign(clients, methods);
+require("./recover").objects.push({
+    recover: autoremove,
+    destroy() {
+        clients.splice(0, clients.length).forEach(u => u.deliver());
+    },
+});
 module.exports = clients;

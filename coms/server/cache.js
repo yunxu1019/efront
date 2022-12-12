@@ -1,10 +1,10 @@
 "use strict";
 var fs = require("fs");
-var watch = require("../efront/watch");
+var watch = require("./watch");
 var path = require("path");
 var isObject = require("../basic/isObject");
 var lazy = require("../basic/lazy");
-var mimes = require("./mime");
+var mimes = require("../efront/mime");
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
     if (loading_count > 2) return;

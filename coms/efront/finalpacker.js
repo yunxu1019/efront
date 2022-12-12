@@ -13,7 +13,7 @@ var fs = require("fs");
 var FILE_BUFFER_SIZE = memery.FILE_BUFFER_SIZE;
 var createManagersWithEnv = async function (env) {
     var commap = await getCommap(env.APP);
-    var Cache = require("./cache");
+    var Cache = require("../server/cache");
     var cbuilder = commbuilder.bind(commap);
     var mixpath = (a, b) => mixin(a, b || '').map(a => path.join.apply(path, a)).filter(fs.existsSync).join(',');
     var coms_path = mixpath(env.COMS_PATH, env.COMM);

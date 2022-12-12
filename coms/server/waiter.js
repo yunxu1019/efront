@@ -5,6 +5,7 @@ var userdata = require("./userdata");
 var { Transform } = require("stream");
 var memery = require("../efront/memery");
 var clients = require("./clients");
+var recover = require("./recover");
 var message = require("../message");
 var cert = server$cert;
 require("../efront/quitme");
@@ -17,11 +18,13 @@ if (memery.DNS) dns.setServers(memery.DNS.trim().split(/[,\s]+/));
 if (memery.IPV4FIRST && dns.setDefaultResultOrder) dns.setDefaultResultOrder("ipv4first");
 var closeListener = function () {
     if (!portedServersList.filter(s => s && s.listening).length) {
-        require("../efront/watch").close();
         safeQuitProcess();
     }
 };
+require("./watch").start();
+recover.start();
 var safeQuitProcess = function () {
+    require("./watch").close();
     memery.islive = false;
     liveload.splice(0, liveload.length).forEach(res => res.end('') | res.socket.destroy());
     portedServersList.forEach((server) => {
@@ -36,7 +39,7 @@ var safeQuitProcess = function () {
         server.close(remove);
     });
     process.removeAllListeners();
-    clients.destroy();
+    recover.destroy();
 };
 
 process.on("disconnect", function () {
