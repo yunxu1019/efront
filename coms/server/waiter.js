@@ -7,6 +7,7 @@ var memery = require("../efront/memery");
 var clients = require("./clients");
 var recover = require("./recover");
 var message = require("../message");
+process.on("message", message);
 var cert = server$cert;
 require("../efront/quitme");
 var { HTTPS_PORT, HTTP_PORT } = memery;
@@ -530,7 +531,7 @@ var requestListener = async function (req, res) {
                 case "quit":
                 case "exit":
                     let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
-                    process.send('quit');
+                    message.send('quit');
                     res.end(`已关闭${ports.join("、")}端口`);
                     return;
             }

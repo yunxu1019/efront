@@ -1,86 +1,71 @@
 "use strict";
 //为了防止因message而形成环形引用，message文件夹中的内容不允许被外界调用
 var cluster = require("cluster");
-var JSAM = require("../basic/JSAM");
 // message 文件夹中定义主进程的方法
 // 子进程可通过message的属性访问主进程中的方法
-var onmessage = function (msg, __then) {
-    var index = msg.indexOf(":");
-    var run, args, key, stamp;
-    if (index < 0) {
-        key = msg;
-        run = onmessage[key];
-    } else {
-        key = msg.slice(0, index);
-        run = onmessage[key];
-        args = msg.slice(index + 1);
+var onmessage = async function ([key, params, stamp], handle) {
+    var run = onmessage[key];
+    if (!run) throw `未定义方法 ${key}`;
+    if (!stamp) try {
+        return run.call(onmessage, params, handle);
+    } catch (e) {
+        console.error(e);
+        return;
     }
-    if (run instanceof Function) {
-        if (args) {
-            var { params, stamp } = JSAM.parse(args);
-            var sended = false;
-            var error = null, status = 200;
-            var then = stamp ? (result) => {
-                if (__then) __then();
-                if (sended) return;
-                sended = true;
-                __send(this, "onresponse", {
-                    params: result,
-                    error,
-                    status,
-                    stamp
-                });
-            } : null;
-        } else {
-            params = null;
-        }
-        if (then) {
-            var crash = function (error) {
-                error = String(error);
-                status = 403,
-                    then(null);
-            };
-            try {
-                Promise.resolve(run.call(onmessage, params)).then(then, crash);
-            } catch (e) {
-                crash(e);
-            }
-        } else {
-            try {
-                Promise.resolve(run.call(onmessage, params)).catch(console.error);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-        if (__then && !then) __then();
+    var sended = false;
+    var then = (status, result, error) => {
+        if (sended) return;
+        sended = true;
+        __send(this, "onresponse", {
+            params: result,
+            error,
+            status,
+            stamp
+        });
+    };
+    try {
+        var res = await run.call(onmessage, params, handle);
+        then(200, res);
+    }
+    catch (e) {
+        then(403, null, e);
     }
 };
-var callback_maps = {};
-// 发送消息到指定进程
-var send, __send = send = function (worker, key, params, onsuccess, onerror, onfinish) {
+var callbacks_map = Object.create(null);
+var createStamp = function () {
     var stamp;
+    do {
+        stamp = Math.random().toString("36").slice(2);
+    } while (stamp in callbacks_map);
+    return stamp;
+};
+// 发送消息到指定进程
+var __send = function (worker, key, params, onsuccess, onerror, onfinish) {
+    if (!(worker.process || worker).connected) return;
     if (arguments.length === 4) {
         onfinish = onsuccess;
         onsuccess = null;
     }
     if (onsuccess instanceof Function || onerror instanceof Function || onfinish instanceof Function) {
-        do {
-            stamp = Math.random().toString("36").slice(2);
-        } while (stamp in callback_maps);
-        callback_maps[stamp] = [onsuccess, onerror, onfinish];
+        var stamp = createStamp();
+        callbacks_map[stamp] = [onsuccess, onerror, onfinish];
+        worker.send([key, params, stamp]);
     }
-    (worker.process || worker).connected && worker.send([key, JSAM.stringify({
-        params, stamp
-    })].join(":"));
+    else {
+        worker.send([key, params], onsuccess);
+    }
 };
-// if (isDebug) {
-//     __send = send = function () {
-//     };
-// }
+var __invoke = function (worker, key, params, handle) {
+    return new Promise(function (ok, oh) {
+        var stamp = createStamp();
+        callbacks_map[stamp] = [ok, oh];
+        worker.send([key, params, stamp], handle);
+    });
+};
 //收到其他进程的回复
 var onresponse = function ({ stamp, params, error }) {
-    var callback = callback_maps[stamp];
-    delete callback_maps[stamp];
+    var callback = callbacks_map[stamp];
+    delete callbacks_map[stamp];
     if (callback instanceof Array) {
         var [onsuccess, onerror, onfinish] = callback;
         if (onfinish instanceof Function) {
@@ -100,14 +85,14 @@ if (cluster.isMaster) {
     onmessage["abpi"] = require("./abpi");
     onmessage["count"] = require("./count");
     onmessage["log"] = require("./log");
-    onmessage.send = send;
+    onmessage.send = __send;
+    onmessage.invoke = __invoke;
 } else {
     onmessage["abpi"] = __send.bind(onmessage, process, "abpi");
     onmessage["count"] = __send.bind(onmessage, process, "count");
     onmessage["log"] = __send.bind(onmessage, process, "log");
-    process.on("message", onmessage);
-
-    onmessage.send = send = send.bind(onmessage, process);
+    onmessage.send = __send.bind(onmessage, process);
+    onmessage.invoke = __invoke.bind(onmessage, process);
     var broadcastid = 0, broadcastmap = Object.create(null);
     onmessage.broadcast = function (key, data) {
         broadcastid = ++broadcastid & 0x7fff;
