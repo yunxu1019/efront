@@ -8,7 +8,7 @@ function chooseFile(accept, multiple, extra) {
             // focus 事件比change事件早40-80毫秒
             if (opened && document.hasFocus()) {
                 remove(input);
-                setTimeout(oh, 210);
+                setTimeout(oh, 610);
             }
         };
         on("change")(input, function () {
