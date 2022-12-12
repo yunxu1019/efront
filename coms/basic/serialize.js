@@ -4,15 +4,15 @@ function serialize(map) {
     for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
         var a = arguments[cx];
         if (typeof a === 'string') {
-            if (!spliter) spliter = a;
-            else if (!equals) equals = a;
+            if (spliter === undefined) spliter = a;
+            else if (equals === undefined) equals = a;
         }
         else {
             encode = a;
         }
     }
-    if (!spliter) spliter = '&';
-    if (!equals) equals = '=';
+    if (spliter === undefined) spliter = '&';
+    if (equals === undefined) equals = '=';
     if (encode === void 0) encode = spliter === "&" && equals === "=" ? encodeURIComponent : trim;
     var result = [];
     for (var k in map) {
