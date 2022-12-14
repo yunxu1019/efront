@@ -1,10 +1,10 @@
 function removeFromList(list, item) {
     var count = 0;
-    for (var cx = list.length - 1; cx >= 0; cx--) {
-        if (list[cx] === item) {
-            count++;
-            list.splice(cx, 1);
-        }
+    var cx = list.indexOf(item);
+    while (cx >= 0) {
+        list.splice(cx, 1);
+        count++;
+        cx = list.indexOf(item, cx);
     }
     return count;
 }
