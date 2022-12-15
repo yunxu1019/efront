@@ -31,9 +31,9 @@ var getColor = function (c) {
     return '';
 };
 var colorReg = /<(\/?)([a-z][\w]*)[^\/\\\>]*\>/ig;
-var write = function (hasNewLine, str) {
+var formatWithColor = function (obj) {
     var colorpath = [];
-    str = String(str).replace(colorReg, function (_, e, c) {
+    return format(obj).replace(colorReg, function (_, e, c) {
         if (e) {
             colorpath.pop();
             c = colorpath[colorpath.length - 1];
@@ -45,6 +45,9 @@ var write = function (hasNewLine, str) {
         if (color) res.push(color);
         return res.join('');
     });
+};
+
+var write = function (hasNewLine, str) {
     process.stdout.cork();
     var hasNextLine = /[\r\n\u2028\u2029]$/.test(str);
     if (process.stdout.isTTY) {
@@ -95,7 +98,7 @@ var write = function (hasNewLine, str) {
     var logger = function (...args) {
         var label = fgColor + bgColor + info + reset;
         var time_stamp = '';
-        var str = [time_stamp, label, ...args.map(a => format(a))].join(" ");
+        var str = [time_stamp, label, ...args.map(a => formatWithColor(a))].join(" ");
         write1(hasNewLine, str);
     };
     colored[log] = logger;
@@ -273,4 +276,5 @@ colored.clear = function (tag) {
     write1(false, '');
     if (tag) write1(true, tag);
 };
+colored.format = formatWithColor;
 module.exports = colored;

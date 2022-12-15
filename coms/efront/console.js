@@ -28,6 +28,7 @@ var logStamp = function () {
     "warn",
     "error",
     "drop",
+    "log",
     "flush"
 ].forEach(function (log) {
     if (message.isPrimary) {
@@ -42,8 +43,9 @@ var logStamp = function () {
             logger = logTime;
         }
     } else {
-        var logger = function (...args) {
-            message.log({ log, args: args.map(a => String(a)) });
+        var logger = function () {
+            var args = Array.prototype.map.call(arguments, colored.format);
+            message.log({ log, args });
         };
     }
     console[log] = logger;
