@@ -2,13 +2,14 @@
 //为了防止因message而形成环形引用，message文件夹中的内容不允许被外界调用
 var worker_threads = require("worker_threads");
 var cluster = require("cluster");
+var net = require("net");
 // message 文件夹中定义主进程的方法
 // 子进程可通过message的属性访问主进程中的方法
 var onmessage = async function ([key, params, stamp], handle) {
     var run = onmessage[key];
     if (!run) throw `未定义方法 ${key}`;
     if (!stamp) try {
-        return run.call(this, params, handle);
+        return await run.call(this, params, handle);
     } catch (e) {
         console.error(e);
         return;
@@ -20,6 +21,10 @@ var onmessage = async function ([key, params, stamp], handle) {
         var transferList = [];
         if (result instanceof Buffer || result instanceof Uint8Array) {
             transferList.push(result.buffer);
+        }
+        else if (result instanceof net.Socket) {
+            transferList = result;
+            result = result.id;
         }
         __send(this, "onresponse", {
             params: result,
@@ -88,7 +93,9 @@ var onresponse = function ({ stamp, params, error }) {
 };
 onmessage.onresponse = onresponse;
 Object.defineProperty(onmessage, 'isPrimary', { value: !cluster.isWorker && worker_threads.isMainThread, enumerable: false });
-
+var processPostMessage = function (msg, h) {
+    if ((this.process || this).connected) this.send(msg, h);
+};
 if (onmessage.isPrimary) {
     onmessage["abpi"] = require("./abpi");
     onmessage["count"] = require("./count");
@@ -100,7 +107,7 @@ if (onmessage.isPrimary) {
         var w = cluster.fork({
             "NODE_OPTIONS": opts.join(";"),
         });
-        w.postMessage = w.send;
+        w.postMessage = processPostMessage;
         w.on("message", onmessage);
         w.threadId = w.id;
         return w;
@@ -112,7 +119,7 @@ if (onmessage.isPrimary) {
             argv: argv.slice(2),
             workerData: [process.stdout.columns],
             maxOldGenerationSizeMb: maxOldSpace,
-            maxYoungGenerationSizeMb: maxYoungSpace
+            maxYoungGenerationSizeMb: maxYoungSpace,
         });
         worker.disconnect = worker.unref;
         worker.on("message", onmessage);
@@ -126,7 +133,7 @@ if (onmessage.isPrimary) {
 }
 else {
     var parentPort = worker_threads.parentPort || process;
-    if (parentPort === process) parentPort.postMessage = process.send, parentPort.close = process.off.bind(process, 'message', onmessage);
+    if (parentPort === process) parentPort.postMessage = processPostMessage, parentPort.close = process.off.bind(process, 'message', onmessage);
     else[process.stdout.columns] = worker_threads.workerData;
     onmessage["abpi"] = __send.bind(onmessage, parentPort, "abpi");
     onmessage["count"] = __send.bind(onmessage, parentPort, "count");

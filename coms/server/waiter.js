@@ -77,9 +77,26 @@ var doCross = require("./doCross");
 var doFile = require("./doFile");
 var doProxy = require("./doProxy");
 var doFolder = require("./doFolder");
+var doChannel = require("./doChannel");
 var getRequestEnv = require('./getRequestEnv');
 var remoteAddress = require("./remoteAddress");
-
+var remoteNetid = function (req) {
+    var address = remoteAddress(req);
+    var match = /(\d+)\.(\d+)(?:\.\d+){2}$/.exec(address);
+    if (!match) return address;
+    var [, ip, id] = match;
+    switch (+ip) {
+        case 10:
+            return "10.0.0.0";
+        case 172:
+            if ((id & 0b11110000) === 16) return "172.16.0.0";
+            break;
+        case 192:
+            if (+id === 168) return "192.168.0.0";
+            break;
+    }
+    return address;
+}
 var cast = function (req, res, type) {
     var id = type[2], msgid = type[3];
     if (id && msgid) {
@@ -90,7 +107,7 @@ var cast = function (req, res, type) {
         var [cid, uid] = id.split("/");
         if (clients.getType(cid) === 1) {// 自动转换到 localIp
             if (!clients.checkId(cid)) return;
-            cid = remoteAddress(req);
+            cid = remoteNetid(req);
         }
         try {
             msgid = decodeURIComponent(msgid);
@@ -113,7 +130,7 @@ var care = function (req, res, type) {
         var client = null;
         if (ct === 1) {// 自动转换到 localIp
             if (clients.checkId(id)) {
-                id = remoteAddress(req);
+                id = remoteNetid(req);
                 client = clients.attach(id, false);
             }
         }
@@ -585,6 +602,10 @@ var requestListener = async function (req, res) {
         var color = parseInt(match[2], 16);
         return res.end(doPost.ccon(name, color));
     }
+    if (/^\/\([\s\S]*\)/.test(req.url)) {
+        return doChannel(req, res);
+    };
+
     if (/^get/i.test(req.method) || crypted) {
         return doGet(req, res);
     }
@@ -597,6 +618,9 @@ var requestListener = async function (req, res) {
 };
 var ipLoged = false;
 var selfLogged = false;
+/**
+ * @param {Http2ServerRequest} http
+ */
 var checkServerState = function (http, port0) {
     if (arguments.length === 1) var type = http;
     return new Promise(function (ok, oh) {

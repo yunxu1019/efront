@@ -122,7 +122,6 @@ padding {
         background-repeat: no-repeat;
         background-size: cover;
         display: inline-block;
-        border-radius: 50%;
         position: absolute;
         left: 10px;
     }
@@ -145,13 +144,12 @@ msg {
         content: "";
         display: block;
         position: absolute;
-        border: 6px solid transparent;
+        border: 8px solid transparent;
         top: 22px;
-        margin: -12px;
+        margin: -14px;
     }
 
     &:not([self]):before {
-        display: block;
         left: 0;
         border-right-color: #fff;
     }
@@ -170,25 +168,66 @@ msg {
     }
 }
 
+msg[files] {
+
+    a {
+        display: block;
+        border: 1px solid transparent;
+        border-left: 0;
+        border-right: 0;
+        margin: 0 -6px;
+        background-color: #fff;
+        padding: 0 14px 0 10px;
+        text-align: left;
+        border-radius: 0;
+
+        &:hover {
+            border-color: #c80;
+            background-color: #ffe;
+        }
+
+        &:active {
+            background-color: #ffc;
+        }
+
+        &:first-child {
+            border-top-color: transparent;
+            border-radius: 3px 3px 0 0;
+        }
+
+        &:last-child {
+            border-bottom-color: transparent;
+            border-radius: 0 0 3px 3px;
+        }
+    }
+}
 
 >[head] {
     padding: 9px 16px;
     line-height: 24px;
     text-align: center;
 
+    >span {
+        display: inline-block;
+    }
+
+    &:before {
+        display: none;
+    }
+
     .id {
         font-size: 10px;
         color: #0009;
     }
 
-    .menu {
+    .menubtn {
         border-radius: 50%;
         width: 36px;
         height: 36px;
         text-align: center;
         padding: 9px 0;
         margin-right: 6px;
-        margin: -3px 6px -3px -6px;
+        margin: -6px 6px -6px -6px;
         box-shadow: none;
         float: left;
 
@@ -297,6 +336,14 @@ chat {
     text-align: center;
 }
 
+.file>svg {
+    line-height: 1;
+    vertical-align: top;
+    width: 1em;
+    height: 1em;
+    margin: 7px 2px 0 0;
+}
+
 .max-size() {
     margin-top: 0 !important;
     top: 0 !important;
@@ -329,6 +376,7 @@ chat {
     [textarea] {
         border-bottom: none;
         outline: none;
+        background: #fff;
 
         >div {
             background-color: #eee;
@@ -342,13 +390,26 @@ chat {
 
     }
 
-    [foot] {
+    >[foot] {
         padding: 0;
 
         >.button {
             height: 42px;
             line-height: 42px;
         }
+
+        .file {
+            min-width: 40px;
+
+            >svg {
+                margin-top: 14px;
+            }
+
+            >span {
+                display: none;
+            }
+        }
+
     }
 }
 

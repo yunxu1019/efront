@@ -1,3 +1,14 @@
+function clickfile(event) {
+    var target = getTargetIn(this, event.target, false);
+    var children = this.children;
+    for (var cx = 0, dx = children.length; cx < dx; cx++) {
+        var c = children[cx];
+        if (c === target) {
+            break;
+        }
+    }
+    this.$eval(`pullFile(m.content[${cx}])`);
+}
 
 function msg(elem, { m }, parentScopes) {
     if (m.sender === parentScopes[parentScopes.length - 1].localid) {
@@ -6,6 +17,13 @@ function msg(elem, { m }, parentScopes) {
     if (m) switch (m.type) {
         case "html":
             elem.innerHTML = m.content;
+            break;
+        case "file":
+            var files = m.content;
+            elem.setAttribute("files", '');
+            elem.innerHTML = files.map(f => `<a class=file>${shapes$file}${f.name}</a>`).join("");
+            elem.files = files;
+            onclick(elem, clickfile);
             break;
         default:
             elem.innerText = m.content;
@@ -23,9 +41,66 @@ var userManager = function (users, map) {
         }
     }
     var ms = Object.keys(map).map(k => map[k]);
+    for (var u of ms) u.msgread = 0;
     users.push.apply(users, ms);
 };
-
+var saved_event, moving = null;
+var dragpage = {
+    start(event) {
+        moving = null;
+        saved_event = null;
+        if (getTargetIn(a => /^(msg)$/i.test(a.tagName), event.target)) return;
+        if (!this.$scope.users.length) return;
+        saved_event = event;
+    },
+    move(event) {
+        if (!saved_event) return;
+        if (event.moveLocked) return;
+        var target = this;
+        if (target.hasAttribute('resizing') || target.hasAttribute("dragging")) {
+            saved_event = null;
+            return;
+        }
+        var deltaX = saved_event.clientX - event.clientX;
+        var deltaY = saved_event.clientY - event.clientY;
+        event.preventDefault();
+        if (!moving) {
+            if (!onclick.preventClick) return;
+            if (Math.abs(deltaY) * 1.5 >= Math.abs(deltaX)) {
+                saved_event = null;
+                return;
+            }
+            moving = {
+                restX: parseFloat(getComputedStyle(target).paddingLeft) - saved_event.clientX,
+            }
+            target.style.transition = 'none';
+        }
+        event.moveLocked = true;
+        moving.deltaX = deltaX;
+        var left = event.clientX + moving.restX;
+        if (left < 0) left = 0;
+        var menuWidth = target.children[1].offsetWidth;
+        if (left > menuWidth) left = menuWidth;
+        target.style.paddingLeft = fromOffset(left);
+    },
+    end() {
+        if (!moving) return;
+        var target = this;
+        target.style.transition = "";
+        var left = freeOffset(target.style.paddingLeft);
+        var menuWidth = target.children[1].offsetWidth;
+        target.style.paddingLeft = '';
+        if (moving.deltaX < 0 && left > menuWidth * .1 || moving.deltaX > 0 && left > menuWidth * .9 || !moving.deltaX && left > menuWidth >> 1) {
+            target.$scope.showList = true;
+            addClass(target, "showList")
+        }
+        else {
+            target.$scope.showList = false;
+            removeClass(target, "showList")
+        }
+        render.refresh();
+    }
+}
 function chat(title = '会话窗口') {
     var page = view();
     page.innerHTML = template;
@@ -61,7 +136,13 @@ function chat(title = '会话窗口') {
                     break;
             }
             return false;
-        }).map(m => JSAM.parse(encode62.timedecode(m)));
+        }).map(m => JSAM.parse(encode62.timedecode(m))).filter(m => {
+            if (m.type === 'accept') {
+                page.$scope.pushFile(m.content);
+                return false;
+            }
+            return true;
+        });
         if (userMap) {
             userManager(users, userMap);
             if (users.indexOf(page.$scope.user) < 0) page.$scope.user = users[0];
@@ -98,6 +179,8 @@ function chat(title = '会话窗口') {
         }
     });
     page.setAttribute('ng-class', "{showList:showList}");
+    var fid = 0;
+    var filesMap = Object.create(null);
     renderWithDefaults(page, {
         chat: list,
         title,
@@ -108,6 +191,7 @@ function chat(title = '会话窗口') {
         localid,
         totalunread: 0,
         _user: null,
+        fileIcon: shapes$file,
         set user(v) {
             if (!v.msglist) v.msglist = []
             if (v.msgread !== v.msglist.length) {
@@ -124,6 +208,27 @@ function chat(title = '会话窗口') {
         remove() {
             remove(page);
         },
+        async pullFile(f) {
+            cast(page, 'pullfile', f);
+        },
+        async pushFile(msg) {
+            cast(page, 'pushfile', [msg.channel, filesMap[msg.file]]);
+        },
+        async chooseFile() {
+            /**
+             * @type {[:File]}
+             */
+            var files = await chooseFile('*.*', true);
+            this.sendFiles(files);
+        },
+        sendFiles(files) {
+            var flist = [];
+            for (var f of files) {
+                flist.push({ name: f.name, size: f.size, id: ++fid, mtime: +f.lastModified });
+                filesMap[fid] = f;
+            }
+            return this.send('file', flist);
+        },
         resize(body) {
             var textarea = body.querySelector("[textarea]");
             var lastElementChild = textarea.lastElementChild;
@@ -131,12 +236,13 @@ function chat(title = '会话窗口') {
             if (Math.abs(targetHeight - textarea.clientHeight - textarea.clientTop) < 2) return;
             body.resizeCell(textarea, 'top', textarea.clientHeight - targetHeight - 2);
         },
-        send() {
-            if (!this.text) return;
+
+        send(type, content) {
+            if (!content) return;
             var msg = {
-                type: 'html',
+                type,
                 sender: this.localid,
-                content: this.text,
+                content,
             };
             var data = JSAM.stringify(msg);
             if (data.length > 2000) {
@@ -151,5 +257,15 @@ function chat(title = '会话窗口') {
             this.text = '';
         }
     });
+    var headHeight = 0;
+    resizingList.set(page, function () {
+        var height = page.firstElementChild.offsetHeight;
+        if (height !== headHeight) {
+            headHeight = height;
+            css(page.firstElementChild, { marginBottom: fromOffset(-headHeight) });
+            css(page.$scope.body.firstElementChild, { paddingTop: fromOffset(headHeight) });
+        }
+    });
+    moveupon(page, dragpage);
     return page;
 }

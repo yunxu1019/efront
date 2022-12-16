@@ -1,5 +1,5 @@
 <div head mount>
-    <btn -if="users.length>0" class="menu" @click="showList=!showList" type_="showList?'default':'white'">
+    <btn -if="users.length>0" class="menubtn" @click="showList=!showList" type_="showList?'default':'white'">
         <i></i>
         <i></i>
         <i></i>
@@ -34,9 +34,15 @@
         </padding>
     </chat>
     <div textarea @mousedown="this.firstChild.focus()">
-        <div @keydown.alt.enter="send()" contenteditable="true" -model="text"></div>
+        <div @keydown.alt.enter="send('html',text)" contenteditable="true" -model="text"></div>
     </div>
 </grid>
 <div foot>
-    <a @click="send();">发送</a>
+    <a class="file" @click="chooseFile()" -if="user">
+        <template -src="fileIcon"></template>
+        <span>
+            文件
+        </span>
+    </a>
+    <a @click="send('html',text);">发送</a>
 </div>

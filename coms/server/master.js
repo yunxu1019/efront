@@ -167,10 +167,13 @@ var find = async function (key, params) {
         if (await message.invoke(c, key, params)) return c;
     }
 };
-message.fend = function ([k1, k2], params, socket) {
-    var c = find(k1, params);
+message.fend = async function ([k1, params1, k2, params2], socket) {
+    var c = await find(k1, params1);
     if (!c) return socket.write("HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n");
-    memery.send(c, k2, params, socket);
+    message.send(c, k2, params2, socket);
+};
+message.channelEnabled = function () {
+    return memery.CHANNEL_ENABLED && waiters.length === 1;
 };
 var similar = require("./similar");
 message.logsimilar = function (a) {

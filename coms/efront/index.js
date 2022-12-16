@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 "use strict";
 process.title = 'efront';
-var cluster = require("../message");
 var path = require('path');
 var fs = require("fs");
 require("./console");
@@ -996,7 +995,7 @@ var quit = function (e) {
 process.on("uncaughtException", quit);
 process.on("unhandledRejection", quit);
 process.on("exit", function () {
-    if (cluster.isPrimary && !/win32/.test(process.platform)) {
+    if (!/win32/.test(process.platform)) {
         console.log();
     }
 });

@@ -13,6 +13,15 @@ async function link(page, id) {
         req = data.from("care", { id, userid: encode62.timeencode(page.localid) });
     } while (runing);
 }
+function download(url) {
+    var f = document.createElement("iframe");
+    f.style = "display:none;opacity:0;position:absolute;left:-1;top:-1;width:0;height:0;"
+    f.src = url;
+    document.documentElement.appendChild(f);
+    f.contentWindow.onload = function () {
+        remove(f);
+    };
+}
 
 function main() {
     var page = frame$chat(clientInfo);
@@ -20,5 +29,18 @@ function main() {
     care(page, "send", function (msg) {
         data.from("cast", { id: [page.roomid, page.userid].join('/'), msg });
     });
+    care(page, 'pullfile', async function (file) {
+        try {
+            var xhr = await cross("put", `/(${file.size})`);
+            var channelId = xhr.response;
+            page.$scope.send('accept', { file: file.id, channel: channelId });
+            download(`/(${channelId})/${file.name}`);
+        } catch (e) {
+            alert(e);
+        }
+    });
+    care(page, 'pushfile', async function ([channel, file]) {
+        cross("post", `/(${channel})`).send(file);
+    })
     return page;
 }

@@ -31,9 +31,9 @@ var getColor = function (c) {
     return '';
 };
 var colorReg = /<(\/?)([a-z][\w]*)[^\/\\\>\s]*\>/ig;
-var formatWithColor = function (obj) {
+var renderColor = function (obj) {
     var colorpath = [];
-    return format(obj).replace(colorReg, function (_, e, c) {
+    return String(obj).replace(colorReg, function (_, e, c) {
         if (e) {
             colorpath.pop();
             c = colorpath[colorpath.length - 1];
@@ -99,14 +99,14 @@ var write = function (hasNewLine, str) {
     var logger = function (...args) {
         var label = fgColor + bgColor + info + reset;
         var time_stamp = '';
-        var str = [time_stamp, label, ...args.map(a => formatWithColor(a))].join(" ");
+        var str = [time_stamp, label, ...args.map(a => renderColor(a))].join(" ");
         write1(hasNewLine, str);
     };
     colored[log] = logger;
 });
 var write1 = function (hasNewLine, str) {
     drop.cancel();
-    str = formatWithColor(str);
+    str = renderColor(str);
     write(hasNewLine, str);
 };
 var formatRows = function (arg, rows, deep, entry, leave) {
@@ -290,5 +290,9 @@ colored.clear = function (tag) {
     write1(false, '');
     if (tag) write1(true, tag);
 };
-colored.format = formatWithColor;
+colored.format = function (a) {
+    a = format(a);
+    a = renderColor(a);
+    return a;
+};
 module.exports = colored;
