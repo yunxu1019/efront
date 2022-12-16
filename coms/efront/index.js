@@ -840,7 +840,7 @@ var run = function (type, value1, value2, value3) {
                     if (k in mm) continue;
                     md = true;
                     mm[k] = true;
-                    console.line("  ", `<gray2>${k}</gray2>`, "= ");
+                    console.line("  ", `<white>${k}</white>`, "= ");
                     console.log(memery.defaults[k]);
                 }
                 if (md) console.log(), console.log();
