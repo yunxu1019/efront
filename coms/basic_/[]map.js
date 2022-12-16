@@ -16,7 +16,7 @@ function map(f, o) {
     } else {
         for (var cx in this) {
             if (!isFinite(cx)) break;
-            res[cx] = f.call(o, this[cx], cx, this);
+            res[cx] = f.call(o, this[cx], +cx, this);
         }
     }
     return res;
@@ -28,7 +28,7 @@ function forEach(f, o) {
     }
     for (var cx in this) {
         if (!isFinite(cx)) break;
-        f.call(o, this[cx], cx, this);
+        f.call(o, this[cx], +cx, this);
     }
 }
 function filter(f, o) {
@@ -39,7 +39,7 @@ function filter(f, o) {
     }
     for (var cx in this) {
         if (!isFinite(cx)) break;
-        if (f.call(o, this[cx], cx, this))
+        if (f.call(o, this[cx], +cx, this))
             result.push(this[cx]);
     }
     return result;
@@ -48,7 +48,7 @@ function indexOf(searchElement, fromIndex = 0) {
     if (fromIndex < 0) fromIndex += this.length;
     if (fromIndex < 0) fromIndex = 0;
     for (var cx = fromIndex, dx = this.length; cx < dx; cx++) {
-        if (cx in this && this[cx] === searchElement) return cx;
+        if (cx in this && this[cx] === searchElement) return +cx;
     }
     return -1;
 }
@@ -65,16 +65,17 @@ var keys = function keys(object) {
     }
     return result;
 };
-if (![].map) Array.prototype.map = map;
-if (![].forEach) Array.prototype.forEach = forEach;
-if (![].indexOf) Array.prototype.indexOf = indexOf;
-if (![].filter) Array.prototype.filter = filter;
+var ArrayProto = Array.prototype;
+if (!ArrayProto.map) ArrayProto.map = map;
+if (!ArrayProto.forEach) ArrayProto.forEach = forEach;
+if (!ArrayProto.indexOf) ArrayProto.indexOf = indexOf;
+if (!ArrayProto.filter) ArrayProto.filter = filter;
 if (!"".trim) String.prototype.trim = trim;
 if (!Object.keys) Object.keys = keys;
 if (!Object.create) Object.create = function (object) {
     return { __proto__: object };
 };
-if (!function () { }.bind) Function.prototype.bind = function (context) {
+if (!Function.prototype.bind) Function.prototype.bind = function (context) {
     var args = [].slice.call(arguments, 1);
     var f = this;
     return function () {
