@@ -38,6 +38,7 @@ var objects = {
     TypeError: null,
     RangeError: null,
     ArrayBuffer: null,
+    SharedArrayBuffer: null,
     DataView: null,
     Uint8Array: null, Uint16Array: null, Uint32Array: null, BigUint64Array: null,
     Int8Array: null, Int16Array: null, Int32Array: null, BigInt64Array: null,
