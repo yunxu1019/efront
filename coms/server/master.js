@@ -63,11 +63,9 @@ var createWaiter = function () {
     /**
      * @type {message.Worker}
      */
-    var worker = message.fork({
-        "NODE_OPTIONS": "--max-old-space-size=" + mem * M,
-    });
+    var worker = message.fork(mem);
     worker.on("exit", workerExit);
-    worker.on("message", message);
+    worker.sockets_count = 0;
     return worker;
 };
 var run = async function () {

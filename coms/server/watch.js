@@ -41,6 +41,7 @@ watch.close = function () {
     return watch;
 };
 watch.start = function () {
+    watching = true;
     for (var k in watch_tree) watch_(k, watch_tree[k]);
 }
 module.exports = watch;

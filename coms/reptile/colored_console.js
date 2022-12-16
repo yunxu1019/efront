@@ -30,7 +30,7 @@ var getColor = function (c) {
     }
     return '';
 };
-var colorReg = /<(\/?)([a-z][\w]*)[^\/\\\>]*\>/ig;
+var colorReg = /<(\/?)([a-z][\w]*)[^\/\\\>\s]*\>/ig;
 var formatWithColor = function (obj) {
     var colorpath = [];
     return format(obj).replace(colorReg, function (_, e, c) {
@@ -43,7 +43,8 @@ var formatWithColor = function (obj) {
         var res = [];
         if (e) res.push(colors.Reset);
         if (color) res.push(color);
-        return res.join('');
+        if (res.length) return res.join('');
+        return _;
     });
 };
 
@@ -77,7 +78,7 @@ var write = function (hasNewLine, str) {
     if (hasNewLine) {
         lastLogLength = 0;
     } else {
-        str = str.replace(/\x1b\[\d+m/g, '').replace(/\b/g, '');
+        str = String(str).replace(/\x1b\[\d+m/g, '').replace(/\b/g, '');
         lastLogLength = str.length + str.replace(/[\x20-\xff]/g, "").length;
     }
     process.stdout.uncork();
@@ -105,6 +106,7 @@ var write = function (hasNewLine, str) {
 });
 var write1 = function (hasNewLine, str) {
     drop.cancel();
+    str = formatWithColor(str);
     write(hasNewLine, str);
 };
 var formatRows = function (arg, rows, deep, entry, leave) {
@@ -116,10 +118,15 @@ var formatRows = function (arg, rows, deep, entry, leave) {
     if (deepobjs.length === 0) circleobjs.splice(0, circleobjs.length);
     var space = new Array(deep).join("    ");
     var deepspace = new Array(deep + 1).join("    ");
-    var lens = rows.map(r => r.replace(colorReg, '').replace(/[\u00ff-\uffff]/g, '00').length);
+    var lens = rows.slice(0, 100).map(r => r.replace(colorReg, '').replace(/[\u00ff-\uffff]/g, '00').length);
     var maxLength = Math.max(...lens) + 2;
     var itemcount = (process.stdout.columns - deepspace.length - 10) / maxLength | 0;
-    if (itemcount * itemcount > rows.length) itemcount = Math.ceil(Math.sqrt(rows.length));
+    if (rows.length > itemcount) {
+        if (itemcount * itemcount > rows.length + process.stdout.columns) itemcount = Math.ceil(Math.sqrt(rows.length + process.stdout.columns));
+        if (itemcount > 20) itemcount = 20;
+        else if (itemcount > 10) itemcount = 10;
+        else if (itemcount > 5) itemcount = 5;
+    }
     if (itemcount < 1) itemcount = 1;
     var hasNextLine = false;
     var isArray = arg instanceof Array;
@@ -166,7 +173,7 @@ var deepobjs = [];
 var circleobjs = [];
 var format = function (arg, deep = 0) {
     deep++;
-    if (arg === null) return arg;
+    if (arg === null) return String(arg);
     if (typeof arg === 'string') {
         if (deep > 1) return "<green>" + strings.encode(arg) + "</green>";
         return arg;
@@ -181,17 +188,24 @@ var format = function (arg, deep = 0) {
             return `<cyan>[循环点 *${ci + 1}]</cyan>`;
         }
         if (arg instanceof Error) {
-            if (deep === 1) return arg.message;
-            return arg.stack || arg.message;
+            if (deep === 1) return String(arg.message);
+            return String(arg.stack || arg.message);
         }
-        if (arg instanceof Array) {
-            if (arg.length === 0) return '[]';
-            if (deep > 3) return `${arg.__proto__.constructor.name}(${arg.length})[ ... ]`;
+        if (arg instanceof Buffer || arg instanceof ArrayBuffer || arg instanceof SharedArrayBuffer) {
+            var data = new Uint8Array(arg.buffer || arg, arg.byteOffset || 0, arg.byteLength);
+            return `<magenta><${arg.__proto__.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}></megenta>`;
+        }
+        else if (isFinite(arg.length)) {
+            var entry = "[";
+            var leave = "]";
+            entry = `${arg.__proto__.constructor.name}(${arg.length})${entry}`;
+            if (arg.length === 0) return entry + leave;
+            if (deep > 3 && deep + arg.length > 5) return `${entry} ... ${leave}`;
             deepobjs.push(arg);
-            var res = arg.slice(0, 100).map(a => format(a, deep));
+            var res = Array.prototype.slice.call(arg, 0, 100).map(a => format(a, deep));
             deepobjs.pop();
             if (arg.length > res.length) res.push(`<gray>.. 其他 ${arg.length - res.length} 项</gray>`);
-            return formatRows(arg, res, deep, '[', ']');
+            return formatRows(arg, res, deep, entry, leave);
         }
         if (arg.constructor === Date) {
             return '<purple>' + formatDate.call(arg) + "</purple>";
@@ -201,7 +215,7 @@ var format = function (arg, deep = 0) {
         }
         var keys = Object.keys(arg);
         var ks = keys.slice(0, 100);
-        if (deep > 3) {
+        if (deep > 3 && deep + keys.length > 5) {
             var kvs = [];
             if (keys.length > 0) kvs.push(`<gray>.. 共 ${keys.length} 个属性</gray>`);
         }

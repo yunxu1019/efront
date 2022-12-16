@@ -2,12 +2,13 @@
 require("../efront/setupenv");
 var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var userdata = require("./userdata");
-var { Transform } = require("stream");
+var { Transform, Writable, Readable } = require("stream");
 var memery = require("../efront/memery");
 var clients = require("./clients");
 var recover = require("./recover");
 var message = require("../message");
-process.on("message", message);
+var net = require("net");
+message.listen();
 var cert = server$cert;
 require("../efront/quitme");
 var { HTTPS_PORT, HTTP_PORT } = memery;
@@ -27,7 +28,6 @@ recover.start();
 var safeQuitProcess = function () {
     require("./watch").close();
     memery.islive = false;
-    liveload.splice(0, liveload.length).forEach(res => res.end('') | res.socket.destroy());
     portedServersList.forEach((server) => {
         server.removeAllListeners();
         var timeout = setTimeout(function () {
@@ -39,13 +39,11 @@ var safeQuitProcess = function () {
         server.unref();
         server.close(remove);
     });
+    message.close();
     process.removeAllListeners();
+    liveload.splice(0, liveload.length).forEach(res => res.end('') | res.socket.destroy());
     recover.destroy();
 };
-
-process.on("disconnect", function () {
-    safeQuitProcess();
-});
 message.disconnect = function () {
     safeQuitProcess();
 };
@@ -419,6 +417,7 @@ var setHeader = function (crypted, k, v) {
 /**
  * @param {Http2ServerRequest}req
  * @param {Http2ServerResponse}res
+ * @this {net.Server}
  */
 var requestListener = async function (req, res) {
     req.socket.unref();
@@ -653,8 +652,7 @@ var checkOutside = lazy(async function (type) {
 var showServerInfo = async function () {
     if (--loading > 0) return;
     var address = require("../efront/getLocalIP")();
-    var port = portedServersList.map(a => a && a.address());
-    port = port.map((a, i) => a && a.port || portedServersList[i].port);
+    var port = portedServersList.map(a => a && a.port);
     var msg = [
         `服务器地址：${address}`];
     var maxLength = 0;
@@ -721,9 +719,7 @@ var showServerError = function (error) {
 };
 var portedServersList = [];
 /**
- * @param {number}port;
- * @this {http.Server}
- * @return {http.Server}
+ * @type {[:http.Server]}
  */
 function initServer(port) {
     var server = this.once("error", showServerError)
@@ -763,6 +759,9 @@ var getIntVersion = function (version) {
     return (+a << 16) + (+b << 8) + +c;
 };
 var server0, server1, server2;
+/**
+ * @type {http2.SecureServerOptions}
+ */
 var httpsOptions = {
     allowHTTP1: true,
 };
@@ -778,7 +777,7 @@ var createHttpsServer = function () {
 var createHttpServer = function () {
     server1 = http.createServer(requestListener).setTimeout(0);
     if (getIntVersion(process.version) >= getIntVersion('12.19.0')) {
-        server0 = require("net").createServer(netListener);
+        server0 = net.createServer(netListener);
         initServer.call(server0, HTTP_PORT);
     } else {
         initServer.call(server1, HTTP_PORT);
