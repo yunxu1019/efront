@@ -14,12 +14,12 @@ var assert = function (result, expect, log = dump) {
         if (k === undefined) return function () {
             var color1 = "bgred";
             var color2 = "bgblue";
-            mark.setTag1(` </${color1}>`, `<${color1}>`);
-            mark.setTag2(` </${color2}>`, `<${color2}>`);
+            mark.setTag1(`</${color1}>`, `<${color1}>`);
+            mark.setTag2(`</${color2}>`, `<${color2}>`);
             var [r, e] = mark.pair(result, expect);
-            r = String(r).trim();
-            e = String(e).trim();
-            errors = `<cyan>结果  </cyan><${color1}>${r}</${color1}>\r\n      <cyan>应为  </cyan><${color2}>${e}</${color2}>\r\n`;
+            r = String(r).trim().replace(/><\//g, "> </");
+            e = String(e).trim().replace(/><\//g, "> </");
+            errors = `<cyan>结果  </cyan>\x07<${color1}>${r}</${color1}>\r\n      <cyan>应为  </cyan><${color2}>${e}</${color2}>\r\n`;
         };
         return function (error) {
             if (error instanceof Object) {
