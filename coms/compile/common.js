@@ -817,10 +817,8 @@ var createString = function (parsed) {
         var prev = o.prev;
         if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && prev && lasttype !== SPACE && keepspace) {
             if (~[QUOTED, SCOPED, STRAP, LABEL, COMMENT].indexOf(lasttype)
-                || prev.type === STAMP
-                && (!/[\+\-\~\!]$/.test(prev.text) || /[\+\-]$/.test(prev.text) && prev.prev
-                    && (!~[STAMP, STRAP, SCOPED].indexOf(prev.prev.type) || prev.prev.type === SCOPED && prev.prev.isExpress)
-                )) {
+                || prev.type === STAMP && !prev.unary
+            ) {
                 if (o.type !== SCOPED && (o.type !== EXPRESS || !/^\.[^\.]/.test(o.text))) {
                     result.push(" ");
                     lasttype = SPACE

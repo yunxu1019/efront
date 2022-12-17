@@ -204,13 +204,17 @@ Javascript.prototype.setType = function (o) {
             if (last.text === 'async' && o.text !== "function")
                 last.type = EXPRESS;
         }
-        if (o.type === STAMP && o.text === '=>') {
+        if (o.type === STAMP && o.text === "=>") {
             var pp = last.prev;
             if (pp && pp.type === EXPRESS && pp.text === 'async') {
                 pp.type = STRAP;
             }
         }
-
+    }
+    if (o.type === STAMP) {
+        if (!last || last.type === STAMP || last.type === STRAP) {
+            o.unary =  /^[^=;,]$/.test(o.text);
+        }
     }
 };
 var insertAfter = function (o) {
