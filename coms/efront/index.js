@@ -244,6 +244,8 @@ var helps = [
     "清理代码，删除已声明未使用的代码,wash MODULE_PATH TARGET_PATH",
     "设置环境变量,setenv --NAME1=VALUE1 --NAME2=VALUE2,setenv NAME VALUE,set --NAME1=VALUE1,set --NAME=",
     "列出已配置的环境变量,listenv,env",
+    "-设置操作系统的环境变量,envx,setx",
+    "-将指定的路径添加到系统的可执行文件的扫描路径,pathx",
     "-设置远程访问的密码,password",
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
@@ -632,6 +634,30 @@ var commands = {
     set(key, value) {
         setenv({ [key]: value });
     },
+    setx(key, value, m) {
+        var cmdstr;
+        var strings = require("../basic/strings");
+        key = strings.recode(key);
+        value = strings.recode(value);
+        switch (process.platform) {
+            case "win32":
+                cmdstr = `setx ${key} ${value}`;
+                if (m) cmdstr += " /m";
+                break;
+            default:
+                "暂不支持当前操作系统！";
+                return;
+        }
+        require("child_process").spawn(cmdstr, { shell: true });
+    },
+    setxm(key, value) {
+        this.setx(key, value, true);
+    },
+    pathx(pathname) {
+        console.log(process.env.PATH);
+        // this.setx("path", "pathxm")efr
+    },
+    pathxm() { },
     async password() {
         await new Promise(ok => setTimeout(ok, require("../basic/isProduction") ? 0 : 360));
         require("../server/password").requestPassword();
@@ -1004,7 +1030,7 @@ var restArgv = [];
 require("../server/userdata").getItem("memery").then(function (mm) {
     setenv(require("../basic/parseKV")(mm));
     restArgv = [];
-    argv = process.argv.slice(1).filter(a => {
+    argv = process.argv.slice(1).map(a => a.replace(/^[^\s]+\r\n|[\s\r\n]+$/g, '')).filter(a => {
         if (a in helps) return true;
         if (!/^--/.test(a)) return true;
         if (/^--(?:inspect|debug)(-brk)?(\=\d*)?$/.test(a)) {
