@@ -18,9 +18,9 @@ var onmessage = async function ([key, params, stamp], handle) {
     var then = (status, result, error) => {
         if (sended) return;
         sended = true;
-        var transferList = [];
+        var transferList;
         if (result instanceof Buffer || result instanceof Uint8Array) {
-            transferList.push(result.buffer);
+            transferList = [result.buffer];
         }
         else if (result instanceof net.Socket) {
             transferList = result;
@@ -64,7 +64,7 @@ var __send = function (worker, key, params, onsuccess, onerror, onfinish) {
         worker.postMessage([key, params, stamp]);
     }
     else {
-        worker.postMessage([key, params], onsuccess);
+        worker.postMessage([key, params], onfinish);
     }
 };
 var __invoke = function (worker, key, params, transferList) {
@@ -132,8 +132,8 @@ if (onmessage.isPrimary) {
     onmessage.invoke = __invoke;
 }
 else {
-    var parentPort = worker_threads.parentPort || process;
-    if (parentPort === process) parentPort.postMessage = processPostMessage, parentPort.close = process.off.bind(process, 'message', onmessage);
+    var parentPort = worker_threads.parentPort || (process.__proto__ && process.__proto__.argv ? process.__proto__ : process);
+    if (parentPort !== worker_threads.parentPort) parentPort.postMessage = processPostMessage, parentPort.close = process.off.bind(process, 'message', onmessage);
     else[process.stdout.columns] = worker_threads.workerData;
     onmessage["abpi"] = __send.bind(onmessage, parentPort, "abpi");
     onmessage["count"] = __send.bind(onmessage, parentPort, "count");

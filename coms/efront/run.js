@@ -7,7 +7,7 @@ var setupenv = require("./setupenv");
 var parseURL = require("../basic/parseURL");
 var userAgent = "Efront/1.0";
 var memery = require("./memery");
-var resolve_config = { paths: memery.COMS_PATH.split(',') };
+var resolve_config = { paths: [process.cwd().replace(/\\/g, '/'), ...memery.COMS_PATH.split(',')], extensions: ["", ".js", "ts", '.cjs', '.mjs'] };
 var mainLoaderPromise = new Promise(function (ok, oh) {
     fs.readFile(path.join(__dirname, "../basic/#loader.js"), function (error, data) {
         if (error) oh(error);
@@ -190,14 +190,14 @@ function efront() {
     return window;
 }
 module.exports = function (mainpath, args) {
+    var fullpath = mainpath;
     mainpath = mainpath.replace(/\.[cm]?[jt]sx?$/i, '');
     var unload = function () {
         Object.keys(intervalHandles).forEach(clearInterval);
         Object.keys(timeoutHandles).forEach(clearTimeout);
         requestHandles.splice(0, requestHandles.length).forEach(r => r());
     };
-    var _mainpath = "./" + mainpath.replace(/\\/g, '/').replace(/^\.\//, '');
-    var fullpath = require.resolve(_mainpath, resolve_config);
+    if (!path.isAbsolute(fullpath)) fullpath = require.resolve("./" + mainpath.replace(/\\/g, '/').replace(/^\.\//, ''), resolve_config);
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
@@ -215,7 +215,7 @@ module.exports = function (mainpath, args) {
             }
             window.request = getLoader();
             window.location = location;
-            window.startPath = _mainpath.replace(/^\.[\/\\]/, '');
+            window.startPath = "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
             window.process = Object.create(process);
             Object.assign(window.process, {
                 argv: args

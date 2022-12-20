@@ -602,7 +602,7 @@ var requestListener = async function (req, res) {
         var color = parseInt(match[2], 16);
         return res.end(doPost.ccon(name, color));
     }
-    if (/^\/\([\s\S]*\)/.test(req.url)) {
+    if (memery.CHANNEL_ENABLED && /^\/\([\s\S]*\)/.test(req.url)) {
         return doChannel(req, res);
     };
 

@@ -34,21 +34,22 @@ function detectWithExtension(filenames, extensions = [""], folders = [""]) {
                     return oh(`路径<gray>${filename}</gray>不存在`);
                 }
             }
-            var f = path.join(folders[prefix], filename) + extensions[aftfix++];
-            if (fs.existsSync(f)) {
-                fs.stat(f, function (error, stats) {
-                    if (error) return run();
-                    if (stats.isFile()) {
-                        f = path.normalize(f);
+            var f = filename + extensions[aftfix++];
+            if (folders[prefix]) f = path.join(folders[prefix], f);
+            f = path.normalize(f);
+            fs.stat(f, function (error, stats) {
+                if (error) return run();
+                if (stats.isFile()) {
+                    return fs.realpath(f, function (error, f) {
+                        if (error) return run();
                         return ok(f);
-                    }
-                    if (!findedFolder) {
-                        findedFolder = f;
-                    }
-                    run();
-                });
-            }
-            else run();
+                    });
+                }
+                if (!findedFolder) {
+                    findedFolder = f;
+                }
+                run();
+            });
         };
         run();
     });
