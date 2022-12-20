@@ -244,8 +244,8 @@ var helps = [
     "清理代码，删除已声明未使用的代码,wash MODULE_PATH TARGET_PATH",
     "设置环境变量,setenv --NAME1=VALUE1 --NAME2=VALUE2,setenv NAME VALUE,set --NAME1=VALUE1,set --NAME=",
     "列出已配置的环境变量,listenv,env",
-    "-设置操作系统的环境变量,envx,setx",
-    "-将指定的路径添加到系统的可执行文件的扫描路径,pathx",
+    "-将指定的路径添加到可执行文件的扫描路径,pathx PATHNAME",
+    "-从可执行文件的扫描路径中移除指定的路径,pathxrm PATHNAME",
     "-设置远程访问的密码,password",
     "-创建windows平台的一键安装包,packwin|packexe PUBLIC_PATH PACKAGE_PATH",
     "-从压缩文件提取源文件,unpack PACKAGE_PATH PUBLIC_PATH",
@@ -634,30 +634,63 @@ var commands = {
     set(key, value) {
         setenv({ [key]: value });
     },
-    setx(key, value, m) {
-        var cmdstr;
-        var strings = require("../basic/strings");
-        key = strings.recode(key);
-        value = strings.recode(value);
-        switch (process.platform) {
-            case "win32":
-                cmdstr = `setx ${key} ${value}`;
-                if (m) cmdstr += " /m";
-                break;
-            default:
-                "暂不支持当前操作系统！";
+    setxpath(pathname, d) {
+        var reg = require("./osreg");
+        var regpath = reg.get("path");
+        var { delimiter } = require("path");
+        var pathmap = Object.create(null);
+        for (var p of regpath.split(delimiter)) {
+            if (p) pathmap[p] = true;
+        };
+        var showres = function () {
+            var plist = Object.keys(pathmap);
+            if (!plist.length) {
+                console.info("当前用户没有可执行文件的扫描路径\r\n");
                 return;
+            }
+            else {
+                console.info("当前可执行文件的扫描路有\r\n");
+                console.log(plist.join("\r\n"));
+            }
         }
-        require("child_process").spawn(cmdstr, { shell: true });
-    },
-    setxm(key, value) {
-        this.setx(key, value, true);
+        if (!pathname) {
+            return showres();
+        }
+        pathname = pathname.split(delimiter);
+        var newmap = Object.create(null);
+        for (var p of pathname) {
+            var p1 = p;
+            if (!/[%$~]/.test(p)) {
+                if (!path.isAbsolute(p) && fs.existsSync(p)) {
+                    p = path.resolve(p);
+                }
+                if (fs.existsSync(p)) {
+                    p1 = fs.realpathSync(p);
+                }
+            }
+            newmap[p1] = p;
+        }
+        for (var p in newmap) {
+            for (var k in pathmap) {
+                if (p === k || !/[%$~]/.test(k) && fs.existsSync(k) && fs.realpathSync(k) === p) delete pathmap[p];
+            }
+        }
+        if (!d) {
+            var tempmap = Object.create(null);
+            for (var p in newmap) tempmap[newmap[p]] = true;
+            pathmap = Object.assign(tempmap, pathmap);
+        }
+        var value = Object.keys(pathmap).join(delimiter);
+        reg.set("path", value, false);
+        Promise.resolve().then(showres);
     },
     pathx(pathname) {
-        console.log(process.env.PATH);
-        // this.setx("path", "pathxm")efr
+        this.setxpath(pathname, false);
     },
-    pathxm() { },
+    pathxrm(pathname) {
+        this.setxpath(pathname, true);
+        console.log("删除成功！");
+    },
     async password() {
         await new Promise(ok => setTimeout(ok, require("../basic/isProduction") ? 0 : 360));
         require("../server/password").requestPassword();
@@ -685,7 +718,7 @@ var commands = {
             return;
         }
         var fullpath = process.cwd();
-        var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], [fullpath]);
+        var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], ['']);
         detectPromise.catch(function () {
             detectEnvironment("reptile").then(function () {
                 memery.islive = true;
