@@ -145,9 +145,6 @@ var _ifempty = {
     get WAITER_NUMBER() {
         return memery.islive ? 1 : require("os").cpus().length;
     },
-    get CHANNEL_ENABLED() {
-        return this.WAITER_NUMBER === 1;
-    },
     get islive() {
         return memery.TESTMODE;
     }
@@ -234,7 +231,7 @@ var memery = module.exports = {
     RELEASE: get("RELEASE,INCLUDE_REQUIRED", 0),
     PREFIX: get("PREFIX", ''),
     COMMENT: get("COMMENT", false),
-    CHANNEL_ENABLED: get("CHANNEL_ENABLED,CHANNEL"),
+    CHANNEL_ENABLED: get("CHANNEL_ENABLED,CHANNEL", true),
     POLYFILL: get("POLYFILL"),
     SOURCEDIR: get("SOURCEDIR", false),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),

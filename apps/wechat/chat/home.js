@@ -18,7 +18,7 @@ function download(url) {
     f.style = "display:none;opacity:0;position:absolute;left:-1;top:-1;width:0;height:0;"
     f.src = url;
     document.documentElement.appendChild(f);
-    f.contentWindow.onload = function () {
+    f.contentWindow.onerror = f.contentWindow.onload = function () {
         remove(f);
     };
 }

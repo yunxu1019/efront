@@ -26,7 +26,6 @@ async function doChannel(req, res) {
         res.writeHead(status, { "Content-Type": "text/plain;charset=utf-8" });
         res.end(msg);
     };
-    if (!await message.invoke("channelEnabled")) return error(404, "暂不支持在当前服务器收发文件！");
     var id = getChannelId(req.url);
     var dowith = async function (key, socket) {
         if (channel.hasChannel(id)) {

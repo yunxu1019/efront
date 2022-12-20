@@ -172,9 +172,6 @@ message.fend = async function ([k1, params1, k2, params2], socket) {
     if (!c) return socket.write("HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n");
     message.send(c, k2, params2, socket);
 };
-message.channelEnabled = function () {
-    return memery.CHANNEL_ENABLED && waiters.length === 1;
-};
 var similar = require("./similar");
 message.logsimilar = function (a) {
     a = JSON.parse(a);

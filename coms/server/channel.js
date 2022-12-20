@@ -20,13 +20,24 @@ class Channel {
     optime = Date.now();
     flush() {
         if (this.socketCount !== 2) return;
-        this[1].write(`HTTP/1.1 200 OK\r\nContent-Length: ${this.size}\r\nContent-Disposition: attachment\r\n\r\n`);
-        this[0].write("HTTP/1.1 200 OK\r\n\r\n");
+        this[1].write(`HTTP/1.1 200 OK\r\nContent-Length: ${this.size}\r\nContent-Disposition: attachment\r\nConnection: close\r\n\r\n`);
+        this[0].write("HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n");
+        var error = function (e) {
+            c[1].end();
+            c[0].end();
+            c[1].destroy();
+            c[0].destroy();
+        };
+        var close = function (e) {
+            c[1].destroy();
+            c[0].destroy();
+        }
+        var c = this;
+        this[0].once("error", error);
+        this[1].once("error", error);
+        this[0].once("close", close);
+        this[1].once("close", close);
         this[0].pipe(this[1]);
-        this[0].once("close", function () {
-            this[1].end();
-            this[0].end();
-        });
     }
     addSocketGet(s) {
         if (this.socketCount === 2) return;
