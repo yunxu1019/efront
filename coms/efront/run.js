@@ -7,7 +7,7 @@ var setupenv = require("./setupenv");
 var parseURL = require("../basic/parseURL");
 var userAgent = "Efront/1.0";
 var memery = require("./memery");
-var resolve_config = { paths: [process.cwd().replace(/\\/g, '/'), ...memery.COMS_PATH.split(',')], extensions: ["", ".js", "ts", '.cjs', '.mjs'] };
+var resolve_config = { paths: [process.cwd().replace(/\\/g, '/'), ...memery.COMS_PATH.split(',')], extensions: ["", ".js", ".ts", '.cjs', '.mjs'] };
 var mainLoaderPromise = new Promise(function (ok, oh) {
     fs.readFile(path.join(__dirname, "../basic/#loader.js"), function (error, data) {
         if (error) oh(error);
@@ -216,10 +216,8 @@ module.exports = function (mainpath, args) {
             window.request = getLoader();
             window.location = location;
             window.startPath = "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
-            window.process = Object.create(process);
-            Object.assign(window.process, {
-                argv: args
-            });
+            window.process = process;
+            process._argv = args;
             mainLoaderPromise.then(function (loader) {
                 new Function(loader).call(window);
             }).catch(function (e) {

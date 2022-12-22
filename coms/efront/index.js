@@ -1063,7 +1063,7 @@ var restArgv = [];
 require("../server/userdata").getItem("memery").then(function (mm) {
     setenv(require("../basic/parseKV")(mm));
     restArgv = [];
-    argv = process.argv.slice(1).map(a => a.replace(/^[^\s]+\r\n|[\s\r\n]+$/g, '')).filter(a => {
+    argv = (process._argv || process.argv).slice(1).map(a => a.replace(/^[^\s]+\r\n|[\s\r\n]+$/g, '')).filter(a => {
         if (a in helps) return true;
         if (!/^--/.test(a)) return true;
         if (/^--(?:inspect|debug)(-brk)?(\=\d*)?$/.test(a)) {
