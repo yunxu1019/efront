@@ -197,7 +197,7 @@ module.exports = function (mainpath, args) {
         Object.keys(timeoutHandles).forEach(clearTimeout);
         requestHandles.splice(0, requestHandles.length).forEach(r => r());
     };
-    if (!path.isAbsolute(fullpath)) fullpath = require.resolve("./" + mainpath.replace(/\\/g, '/').replace(/^\.\//, ''), resolve_config);
+    if (!path.isAbsolute(fullpath)) fullpath = fs.existsSync(fullpath) ? path.resolve(fullpath) : require.resolve(fullpath, resolve_config);
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
