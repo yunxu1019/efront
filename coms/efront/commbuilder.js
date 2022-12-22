@@ -349,6 +349,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     if (required instanceof Array) required.forEach(({ next }, cx) => {
         if (!next || next.type !== code_body.SCOPED || next.entry !== "(") return;
         var r = next.first;
+        var rn = r.next;
+        if (rn && (rn.type !== code_body.STAMP || rn.text !== ',')) return;
         if (r.type !== code_body.QUOTED || r.length || r.text[0] === '/') return;
         r.value = strings.decode(r.text).replace(/[\\]+/g, '/');
         if (!required_map[r.value]) {
