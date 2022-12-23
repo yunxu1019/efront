@@ -672,7 +672,7 @@ var commands = {
         }
         for (var p in newmap) {
             for (var k in pathmap) {
-                if (p === k || !/[%$~]/.test(k) && fs.existsSync(k) && fs.realpathSync(k) === p) delete pathmap[p];
+                if (p === k || newmap[p] === k || !/[%$~]/.test(k) && fs.existsSync(k) && fs.realpathSync(k) === p) delete pathmap[k];
             }
         }
         if (!d) {
