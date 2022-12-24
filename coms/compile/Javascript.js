@@ -29,7 +29,7 @@ instanceof`.trim().split(/[,\s]+/);
 class Javascript extends Program {
     straps = straps;
     value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this|eval|super)$/
-    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
+    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from|as)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger)$/;
     classstrap_reg = /^(class|function|async)$/;
@@ -65,10 +65,10 @@ Javascript.prototype.fixType = function (o) {
     var type = o.type;
     var queue = o.queue;
     var m = o.text;
+    var last = o.prev;
     if (m === 'yield') {
         var temp = queue;
         var type = STRAP;
-        var last = queue.last;
         if (queue.entry === '[' || queue.isClass || queue.isObject || last && (last.type === STAMP && (
             queue[queue.length - 1].type !== SPACE && /^(\+\+|\-\-)$/.test(last.text)
             || !/^(>>>?=|<<=|[^><!=]=|[,;])/.test(last.text)
@@ -143,8 +143,7 @@ Javascript.prototype.fixType = function (o) {
                     break;
                 }
                 if (~[PROPERTY, EXPRESS, VALUE].indexOf(last.type)
-                    || last.type === STAMP && last.text === "*" && last.prev && ~[STRAP, STAMP].indexOf(last.prev.type)) {
-                    Object.defineProperty(last, 'queue', { value: queue });
+                || last.type === STAMP && last.text === "*" && last.prev && ~[STRAP, STAMP].indexOf(last.prev.type)) {
                 } else {
                     type = EXPRESS;
                 }
@@ -213,7 +212,7 @@ Javascript.prototype.setType = function (o) {
     }
     if (o.type === STAMP) {
         if (!last || last.type === STAMP || last.type === STRAP) {
-            o.unary =  /^[^=;,]$/.test(o.text);
+            o.unary = /^[^=;,]$/.test(o.text);
         }
     }
 };
