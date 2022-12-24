@@ -168,8 +168,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
-    if (/x$|ts$|ue$|\.mjs$/i.test(filename) || /^\s*(ex|im)port\s/m.test(data)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext', module: "commonjs" });
+    if (/x$|ts$/i.test(filename)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext', module: "commonjs" });
     var code = scanner2(data);
+    code.fix();
     if (memery.AUTOEVAL) {
         code = autoenum(code);
         code = autoeval(code);

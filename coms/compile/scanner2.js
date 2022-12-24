@@ -85,7 +85,9 @@ class Code extends Array {
         var last = skipSentenceQueue(this.first);
         return this.last === last || !last;
     }
-
+    fix() {
+        return this.program.fix(this);
+    }
     toString() {
         return this.program.createString(this);
     }

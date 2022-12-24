@@ -1,6 +1,7 @@
 "use strict";
 var strings = require("../basic/strings");
 var Program = require("./Program");
+var backEach = require("../basic/backEach");
 
 const {
     /*-1 */COMMENT,
@@ -16,7 +17,10 @@ const {
     /* 9 */PROPERTY,
     number_reg,
     createString,
-    createScoped
+    getDeclared,
+    createScoped,
+    relink,
+    skipAssignment,
 } = require("./common");
 var straps = `if,in,do,as,of
 var,for,new,try,let,get,set
@@ -29,7 +33,7 @@ instanceof`.trim().split(/[,\s]+/);
 class Javascript extends Program {
     straps = straps;
     value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this|eval|super)$/
-    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from|as)$/
+    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger)$/;
     classstrap_reg = /^(class|function|async)$/;
@@ -143,7 +147,7 @@ Javascript.prototype.fixType = function (o) {
                     break;
                 }
                 if (~[PROPERTY, EXPRESS, VALUE].indexOf(last.type)
-                || last.type === STAMP && last.text === "*" && last.prev && ~[STRAP, STAMP].indexOf(last.prev.type)) {
+                    || last.type === STAMP && last.text === "*" && last.prev && ~[STRAP, STAMP].indexOf(last.prev.type)) {
                 } else {
                     type = EXPRESS;
                 }
@@ -212,7 +216,7 @@ Javascript.prototype.setType = function (o) {
     }
     if (o.type === STAMP) {
         if (!last || last.type === STAMP || last.type === STRAP) {
-            o.unary = /^[^=;,]$/.test(o.text);
+            o.unary = /^[^=;,*]$/.test(o.text);
         }
     }
 };
@@ -369,6 +373,158 @@ Javascript.prototype.detour = function detour(o, ie) {
         if (o) o = o.next;
     }
 };
+
+var removeImport = function (c, i, code) {
+    var { used, envs } = code;
+    var [dec, map, o] = getDeclared(c.next);
+    if (dec.length !== 1 || !o) throw new Error("代码结构异常！");
+    if (o.type !== STRAP || o.text !== 'from') throw new Error("缺少from语句");
+    var n = o.next;
+    if (!n || n.type !== QUOTED) throw new Error("缺少导入路径！");
+    var oi = code.indexOf(o, i);
+    var ns = skipAssignment(n);
+    var nsi = code.indexOf(ns, i);
+    var q = scan(`require()`);
+    if (!used.require) used.require = [], envs.require = true;
+    used.require.push(q[0]);
+    var cs = code.splice(oi + 1, nsi - oi - 1, ...q);
+    q[1].push.apply(q[1], cs);
+    relink(q[1])
+    var name = dec[0];
+    var na = dec.attributes[0];
+    o.type = STAMP;
+    o.text = '=';
+    c.text = 'var';
+    if (typeof name === 'string' && name !== '*') {
+        if (na[0] !== '*') {
+            used[name].forEach(u => {
+                u.text = u.text.replace(/^[^\.\[]+/g, '$&.default');
+            });
+        }
+    }
+    else {
+        var name = strings.decode(q[1].last.text)
+            .replace(/\.[^\.\/\\]+$/, '')
+            .split(/[\/\\\:\{\}\[\]\.\+\-\*\/\!\~\|\:;,'"`\(\)\>\<\?\^%&\s]+/)
+            .filter(a => !!a).pop();
+        if (!this.express_reg.test(name)) name = "imported";
+        var id = 0;
+        while (this.strap_reg.test(name) || name in used) {
+            name = name.replace(/\d+$/, '') + ++id;
+        }
+        used[name] = [];
+        if (dec[0] !== "*") dec[0].forEach((dn, i) => {
+            var da = dec[0].attributes[i];
+            used[dn].forEach(u => {
+                u.text = name + da;
+                used[name].push(u);
+            });
+            delete used[dn];
+        });
+
+    }
+    var u = { type: EXPRESS, text: name };
+    code.splice(i + 1, oi - i - 1, u);
+    used[name].push(u);
+    return u;
+};
+var removeExport = function (c, i, code) {
+    var { envs, used } = code;
+    if (!used.exports) envs.exports = true, used.exports = [];
+    var n = c.next;
+    if (n.type === STAMP && n.text === '*') {
+        var u = removeImport.call(this, c, i, code);
+        if (!code.exportStars) code.exportStars = [];
+        code.exportStars.push(u);
+        return;
+    }
+    if (n.type === SCOPED) {
+        var o = n.first;
+        var allexports = [];
+        while (o) {
+            var name = o, prop = o.text;
+            var n = o.next;
+            if (n && n.type === STRAP && n.text === 'as') {
+                var nn = n.next;
+                if (!nn) throw new Error("缺少导出名！");
+                prop = nn.text;
+                o = nn;
+                n = o.next;
+            }
+            o = n && n.next;
+            var exp = scan(`\r\nexports.${prop}=`);
+            exp.push(name);
+            allexports.push(exp);
+        }
+        var ni = skipAssignment(code, i);
+        code.splice(i, ni - i);
+        for (var exp of allexports) {
+            code.splice(i, 0, ...exp);
+        }
+        return;
+    }
+    if (n.type !== STRAP) throw new Error("代码结构异常！");
+    if (n.text === 'default') {
+        n.text = '=';
+        n.type = STAMP;
+        c.text = `exports.default`;
+        code.exportDefault = true;
+        c.type = EXPRESS;
+        return;
+    }
+    var [dec, map, o] = getDeclared(n.next, 'export');
+    if (/^(class|function)$/.test(n.text)) {
+        c.text = `exports.${dec[0]}`;
+        c.type = EXPRESS;
+        code.splice(i + 1, 0, ...scan(`=${dec[0]}\r\n`));
+        return;
+    }
+    var nn = n.next;
+    if (!nn) throw new Error('缺少导出项！');
+    var oi = code.indexOf(nn, i);
+    if (!code.exportDecs) {
+        code.exportDecs = [];
+    }
+    dec.forEach((d, i) => {
+        for (var a of used[d]) {
+            if (a.kind && a.kind !== 'export') continue;
+            if (!a.export) code.exportDecs.push(a), a.export = true;
+        }
+    });
+    code.splice(i, oi - i);
+};
+
+Javascript.prototype.fix = function (code) {
+    backEach(code, function (o, i) {
+        if (o.type !== STRAP) return;
+        if (o.text === 'import') removeImport.call(this, o, i, code);
+        else if (o.text === 'export') removeExport.call(this, o, i, code);
+    }, this);
+    if (code.exportStars) {
+        var exportStars = code.exportStars;
+        if (!code.exportDefault) code.push(...scan(`\r\nexports.default=undefined`));
+        exportStars.forEach(u => {
+            code.push(...scan(`\r\nextendIfNeeded(exports,${u.text})`));
+        });
+        delete code.exportStars;
+        delete code.exportDefault;
+    }
+    if (code.exportDecs) {
+        var exportDecs = code.exportDecs;
+        delete code.exportDecs;
+        exportDecs.forEach(e => {
+            e.text = 'exports.' + e.text;
+            if (e.kind) {
+                var n = e.next;
+                if (!n || n.type !== STAMP || n.text !== '=') {
+                    var i = code.indexOf(e);
+                    code.splice(i + 1, 0, ...scan(`= undefined`));
+                }
+            }
+        });
+    }
+    relink(code);
+}
 Javascript.prototype.createString = createString;
 Javascript.prototype.createScoped = createScoped;
 module.exports = Javascript;

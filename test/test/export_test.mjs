@@ -1,5 +1,5 @@
 var a = 1;
-export var b;
+export var b = 1;
 setTimeout(function () {
     console.log(c);
     b = a;
@@ -7,5 +7,5 @@ setTimeout(function () {
 setTimeout(function () {
     console.log(b);
 }, 200);
-export {D as A}
+export { a as A }
 import { c } from "./import_test.mjs";
