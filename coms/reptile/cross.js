@@ -1,4 +1,4 @@
-return cross_.bind(function (callback, onerror) {
+var cross = cross_.bind(function (callback, onerror) {
     var response, responseObject, responseType = "", decoder, error;
     var xhr = {
         status: 0,
@@ -116,3 +116,7 @@ return cross_.bind(function (callback, onerror) {
     };
     return xhr;
 }, null, undefined);
+cross.hostCookie = function (xhr) {
+    if (xhr.cookie) return xhr.cookie;
+    return xhr.cookie = cookie.new();
+};

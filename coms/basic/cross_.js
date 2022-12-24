@@ -1,4 +1,3 @@
-var { getCookies, addCookie, delCookies } = cookie;
 var { File } = this;
 function hasFile(o) {
     if (!File) return false;
@@ -43,14 +42,7 @@ var getCrossUrl = function (domain, headers, encrypt) {
         if (!encrypt) return domain;
         domain = domain.replace(domainReg, "/$3$4");
     }
-    var originDomain = getDomainPath(domain);
-    var _cookies = getCookies(originDomain);
-    var _headers = {};
-    if (_cookies) {
-        _headers.Cookie = _cookies;
-    }
-    extend(_headers, headers);
-    _headers = serialize(_headers);
+    var _headers = serialize(headers);
     if (_headers) _headers = "," + _headers;
     var b = encrypt ? "!" : `*`;
     var ishttps = /^(https\:|s\/\/)/i.test(domain);
@@ -137,18 +129,6 @@ function createResponse(response, status = 0) {
 function cross_(jsonp, digest = noop, method, url, headers) {
     var originDomain = getDomainPath(url);
     if (!originDomain) throw new Error("路径格式错误！");
-    var _cookies = getCookies(originDomain);
-    var _headers = {};
-    if (_cookies) {
-        _headers.Cookie = _cookies;
-    }
-    extend(_headers, headers);
-    if (/^[mc]/i.test(method)) {
-        _headers["User-Agent"] = /^m/i.test(method)
-            ? "efront/3.25 (iPhone) Safari/602.1"
-            : "efront/3.25 (Windows) Chrome/77.0.3865.90";
-        method = method.slice(1);
-    }
     var loaded, errored;
     var onload = function (data) {
         if (!~requests.indexOf(_xhr)) return;
@@ -232,7 +212,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                             onerror({ status: xhr.status, response: "Cookie解析异常!", toString: toResponse });
                             return;
                         }
-                        addCookie(cookie, originDomain);
+                        cookie_.addCookie(cookie, originDomain);
                     }
 
                 }
@@ -385,6 +365,20 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     }
     var setRequestHeader = xhr.setRequestHeader;
     var realHeaders = Object.create(null);
+    var cookie_ = this.hostCookie(xhr);
+    var _cookies = cookie_.getCookies(originDomain);
+    var _headers = {};
+    if (_cookies) {
+        _headers.Cookie = _cookies;
+    }
+    extend(_headers, headers);
+    if (/^[mc]/i.test(method)) {
+        _headers["User-Agent"] = /^m/i.test(method)
+            ? "efront/3.25 (iPhone) Safari/602.1"
+            : "efront/3.25 (Windows) Chrome/77.0.3865.90";
+        method = method.slice(1);
+    }
+
     xhr.setRequestHeader = function (key, value) {
         realHeaders[key] = value;
     };
@@ -412,12 +406,12 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     };
     xhr.abort = XMLHttpRequest_abort;
     xhr.delCookies = function () {
-        delCookies(originDomain);
+        cookie_.delCookies(originDomain);
         xhr.nocookie = true;
         return xhr;
     };
     xhr.getCookies = function () {
-        return getCookies(originDomain);
+        return cookie_.getCookies(originDomain);
     };
     requests.push(xhr);
     var _xhr = xhr;
@@ -471,6 +465,7 @@ var bind = cross_.bind;
 cross_.bind = function () {
     var cross_ = bind.apply(this, arguments);
     arguments[0].getCode = getCode.bind(cross_);
+    arguments[0].hostCookie = function () { return cross_.hostCookie.apply(this, arguments) };
     extend(cross_, {
         requests,
         abortAll() {
@@ -478,8 +473,6 @@ cross_.bind = function () {
         },
         setHost,
         addReform,
-        getCookies,
-        addCookie,
         addDirect,
         getCrossUrl
     });

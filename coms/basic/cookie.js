@@ -1,4 +1,3 @@
-var cookiesMap = {};
 var parseCookieFromText = function (cookie) {
     var pairs = cookie.split(/;\s*/);
     var info = {};
@@ -22,7 +21,12 @@ var parseCookieFromText = function (cookie) {
     return [pair, info];
 };
 
-function addCookie(cookie_text, originDomain = "") {
+class Cookie {
+    cookiesMap = {};
+}
+var CookieProto = Cookie.prototype;
+CookieProto.addCookie = function addCookie(cookie_text, originDomain = "") {
+    var { cookiesMap } = this;
     originDomain = getDomainPath(originDomain);
     if (!cookie_text) return;
     if (cookie_text instanceof Array) cookie_text = cookie_text.join(",");
@@ -57,7 +61,8 @@ function addCookie(cookie_text, originDomain = "") {
     }
 }
 
-function getCookies(domainPath) {
+CookieProto.getCookies = function getCookies(domainPath) {
+    var { cookiesMap } = this;
     domainPath = getDomainPath(domainPath);
     var cookieObject = {};
     var splited = domainPath.split("/");
@@ -88,7 +93,8 @@ function getCookies(domainPath) {
     return serialize(cookieObject, ";");
 }
 
-function delCookies(domainPath) {
+CookieProto.delCookies = function delCookies(domainPath) {
+    var { cookiesMap } = this;
     domainPath = getDomainPath(domainPath);
     var splited = domainPath.split("/");
     var domain = splited[0];
@@ -100,7 +106,8 @@ function getDomainPath(url) {
     return host;
 }
 
-function linkCookie(from, to) {
+CookieProto.linkCookie = function linkCookie(from, to) {
+    var { cookiesMap } = this;
     from = getDomainPath(from).replace(/\/$/, '');
     to = getDomainPath(to).replace(/\/$/, '');
     if (cookiesMap[from]) {
@@ -109,7 +116,8 @@ function linkCookie(from, to) {
     cookiesMap[to] = cookiesMap[from] = extend({}, cookiesMap[to], cookiesMap[from]);
     return to;
 }
-function copyCookie(from, to) {
+CookieProto.copyCookie = function copyCookie(from, to) {
+    var { cookiesMap } = this;
     from = getDomainPath(from).replace(/\/$,'/, '');
     to = getDomainPath(to).replace(/\/$/, '');
     if (from in cookiesMap) {
@@ -119,12 +127,6 @@ function copyCookie(from, to) {
         delete cookiesMap[to];
     }
 }
-
-return {
-    cookiesMap,
-    addCookie,
-    getCookies,
-    delCookies,
-    linkCookie,
-    copyCookie
-}
+var defaultCookie = new Cookie;
+defaultCookie.new = () => new Cookie;
+return defaultCookie;

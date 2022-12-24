@@ -56,4 +56,16 @@ cross.setHost = function (host) {
     host = (/^https/.test(location_href) ? "https://" : "http://") + host;
     cross_.setHost(host);
 };
+cross.hostCookie = function () {
+    return cookie;
+};
+cross.getCookies = function (dp) {
+    return cookie.getCookies(dp)
+};
+cross.addCookie = function (cookie_text, dp) {
+    return cookie.addCookie(cookie_text, dp);
+};
+cross.delCookies = function (dp) {
+    return cookie.delCookies(dp);
+};
 if (cross_host) cross.setHost(cross_host);
