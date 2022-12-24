@@ -921,6 +921,9 @@ var createString = function (parsed) {
                                 || prev_prev.type === VALUE
                             ) result.push(";");
                         }
+                        else if (o.text === '*') {
+                            if (keepspace && lasttype !== SPACE && (lasttype !== STRAP || o.prev && o.prev.text !== 'function')) result.push(" ");
+                        }
                         else if (!/^(\+\+|\-\-)$/.test(o.text)) {
                             if (keepspace && lasttype !== SPACE) result.push(" ");
                         }
