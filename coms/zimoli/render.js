@@ -138,6 +138,7 @@ var initialComment = function (comment) {
     else {
         comment.renderid = 9;
         rebuild(comment);
+        delete comment.with;
         remove(comment);
     }
 };
