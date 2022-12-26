@@ -371,7 +371,19 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     if (_cookies) {
         _headers.Cookie = _cookies;
     }
-    extend(_headers, headers);
+    var cookobj = null;
+    for (var k in headers) {
+        if (/^\$/.test(headers[k])) {
+            var k2 = headers[k].slice(1);
+            if (!cookobj) cookobj = _cookies ? parseKV(_cookies, ';') : {};
+            if (k2 in cookobj) {
+                _headers[k] = cookobj[k2];
+            }
+        }
+        else {
+            _headers[k] = headers[k];
+        }
+    }
     if (/^[mc]/i.test(method)) {
         _headers["User-Agent"] = /^m/i.test(method)
             ? "efront/3.25 (iPhone) Safari/602.1"
