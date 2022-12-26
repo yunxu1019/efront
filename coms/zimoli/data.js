@@ -484,7 +484,7 @@ var privates = {
     },
     repare(api, params) {
         var { required, autotrim, prepared } = api;
-        if (!required.length && !prepared.length) return params;
+        if (!required.length && !prepared.length && !autotrim) return params;
         var params1 = {};
         required.forEach(k => {
             var v = seekResponse(params, required[k]);
