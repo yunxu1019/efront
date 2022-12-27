@@ -188,7 +188,7 @@ var format = function (arg, deep = 0) {
             return `<cyan>[循环点 *${ci + 1}]</cyan>`;
         }
         if (arg instanceof Error) {
-            if (deep === 1) return String(arg.message);
+            if (deep > 1) return String(arg.message);
             return String(arg.stack || arg.message);
         }
         if (arg instanceof Buffer || arg instanceof ArrayBuffer || arg instanceof SharedArrayBuffer) {
