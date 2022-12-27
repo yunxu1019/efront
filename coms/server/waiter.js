@@ -148,7 +148,7 @@ var care = function (req, res, type) {
         }
         var usr = client.listen(res, userinfo);
         client.refresh();
-        var uid = userinfo.split("/")[0];
+        var uid = userinfo && userinfo.split("/")[0];
         message.send('receive', [id, uid], function (msgids) {
             if (msgids && msgids.length) {
                 client.deliver(uid, msgids);
