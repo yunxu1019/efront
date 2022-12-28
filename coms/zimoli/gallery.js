@@ -102,8 +102,8 @@ function main() {
     [].forEach.call(arguments, function (arg) {
         if (isNode(arg)) {
             element = arg;
-        } else if (isFinite(arg)) {
-            minWidth = arg;
+        } else if (isFinite(arg) && arg > 0) {
+            minWidth = +arg;
         }
     });
     if ("$src" in element) {
