@@ -200,33 +200,6 @@ function ylist(container, generator, $Y) {
             list.scrollTop = -getFirstElement(1).offsetTop + indexed_item.offsetTop + indexed_item.offsetHeight * ratio;
         }
     };
-    var runbuild = lazy(function () {
-        patchBottom();
-        patchTop();
-        var firstElement = getFirstElement(1), y;
-        if (firstElement) {
-            y = firstElement.index * getNodeTarget(firstElement).offsetHeight;
-        } else {
-            y = 0;
-        }
-
-        css(topinsert, {
-            height: fromOffset(y)
-        });
-        return y;
-    }, false);
-    var rebuild = function () {
-        runbuild();
-    };
-    var topinsert = null;
-    oncemount(list, function () {
-        if (!/^(?:auto|scroll)$/i.test(getComputedStyle(list).overflowY)) return;
-        on("scroll")(list, rebuild);
-        if (!topinsert) {
-            topinsert = document.createElement('insertY');
-            list.insertBefore(topinsert, list.firstChild);
-        }
-    });
     //计算当前高度
     var currentY = function () {
         var firstElement = getFirstElement();
