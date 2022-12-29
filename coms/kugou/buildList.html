@@ -1,6 +1,6 @@
 <list ng-src="s in datas" min-width:=datas[0]?.name?320:120>
     <padding>
-        <song ng-click="run(s)" ng-class="{activate:s.hash===musicList.active_hash,imgonly:!datas[0]?.name}" ng-src="s"></song>
+        <song ng-click="run(s)" ng-class="{activate:musicList.isActived(s),imgonly:!datas[0]?.name}" ng-src="s"></song>
     </padding>
 </list>
 <loading ng-if="datas.is_loading"></loading>

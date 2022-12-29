@@ -2,7 +2,11 @@ var secret = [64, 71, 97, 119, 94, 50, 116, 71, 81, 54, 49, 45, 206, 210, 110, 1
 var isTrident = /Trident/i.test(navigator.userAgent);
 function krc(list = div()) {
     care(list, function (info) {
-
+        console.log(info)
+        if (info.type !== "kugo") {
+            remove(list.children);
+            return;
+        }
         cross("get", `http://lyrics.kugou.com/search?ver=1&man=yes&client=pc&keyword=${info.songName}&duration=${info.time}&hash=${info.hash}`).done(function (response) {
             if (!response.response) return;
             var liric = JSON.parse(response.response);
@@ -109,17 +113,17 @@ function createKRC(krc) {
             }
         }
     };
-    var markerLabel = createElement(div);
+    var markerLabel = document.createElement("div");
     return krcList;
 }
 function createCell(word) {
     var label = word.label;
-    var cell = createElement("span");
+    var cell = document.createElement("span");
     text(cell, label);
     return cell;
 }
 function createRow(data) {
-    var row = createElement(div);
+    var row = document.createElement("div");
     var cells = data.words.map(createCell);
     appendChild(row, cells);
     return row;

@@ -1,7 +1,7 @@
 & {
-    height: 52px;
+    height: auto;
     line-height: 40px;
-    padding: 10px;
+    padding: 10px 10px 0 10px;
     font-size: 16px;
     white-space: nowrap;
     overflow: hidden;
@@ -23,7 +23,7 @@
 >.logo {
     height: 40px;
     width: 40px;
-    margin: -6px -4px;
+    margin: -4px -2px;
 
     &+.singer+.song,
     &+.song {
@@ -39,16 +39,19 @@
     }
 
 }
-&.imgonly{
+
+&.imgonly {
     padding: 0;
     line-height: 0;
     font-size: 0;
     padding-bottom: 76%;
     height: auto;
-    >:not(png){
+
+    >:not(png) {
         display: none;
     }
-    >.logo{
+
+    >.logo {
         position: absolute;
         height: 100%;
         width: 100%;
@@ -56,11 +59,62 @@
     }
 }
 
+.types {
+    display: inline-block;
+    padding: 0 6px;
+    margin: 0 -6px;
+
+    >i {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-right: 6px;
+        z-index: 1;
+        cursor: pointer;
+        vertical-align: middle;
+        position: relative;
+        font-style: normal;
+
+        &[priced] {
+            filter: grayscale(.9);
+        }
+
+        &.actived {
+            outline-offset: 2px;
+            outline: 1px solid;
+        }
+
+    }
+
+    [type=kugo] {
+        background-image: url("icons/kugo.ico");
+    }
+
+    [type=kuwo] {
+        background-image: url("icons/kuwo.png");
+    }
+}
+
+&[group]>.song {
+    white-space: normal;
+}
+
 >.song {
-    line-height: 30px;
+    line-height: 28px;
+    padding-top: 2px;
+    padding-bottom: 12px;
     width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+    >span {
+        margin-right: 6px;
+        vertical-align: top;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 b {
@@ -72,8 +126,8 @@ b {
 
 >.singer {
     position: absolute;
-    left: 6px;
-    top: 4px;
+    left: 8px;
+    top: 6px;
     // right: 10px;
     text-align: center;
     line-height: 12px;
@@ -81,18 +135,20 @@ b {
     color: #fff9;
 
     &+.song {
-        padding-top: 8px;
+        padding-top: 12px;
+        padding-bottom: 6px;
     }
 }
-png{
+
+png {
     filter: brightness(.7) contrast(.9);
 }
 
 >.play-state {
     position: absolute;
-    bottom: 2px;
-    right: 4px;
-    left: 4px;
+    bottom: 0;
+    right: 2px;
+    left: 2px;
     display: block;
     background: #2c7bb522;
     height: 2px;

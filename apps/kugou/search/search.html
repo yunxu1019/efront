@@ -1,7 +1,6 @@
 <titlebar>
     <back></back>
-    <input placeholder="请输入关键字搜索" ng-model=keyword
-        ng-keyup="event.which===13?confirm():search(this.value)" />
+    <input placeholder="请输入关键字搜索" ng-model=keyword ng-keyup="event.which===13?confirm():search(this.value)" />
     <icon class="loading" ng-if="result?.loading"></icon>
     <btn ng-click="keyword='';search()">清空</btn>
 </titlebar>
@@ -13,8 +12,8 @@
         <btn ng-click="search(s,0)"><span ng-bind="s"></span></btn>
     </padding>
 </div>
-<list ng-if="keyword" ng-src="s in result">
+<list -else ng-src="s in result" min-width=260 >
     <padding>
-        <song _mark=keyword ng-click="play(s.hash)" ng-src=s></song>
+        <song _mark=keyword @play="play(event.value)" ng-src=s></song>
     </padding>
 </list>

@@ -3,8 +3,27 @@ var playState = kugou$playState;
 var playModes = kugou$playModes;
 var playModeData = data.getInstance("play-mode");
 var playList = kugou$playList();
-var getMusicInfo = function (hash) {
-    return data.from("song-info", { hash });
+var patchMusicInfo = async function (info) {
+    var res = null;
+    switch (info.type) {
+        case "kuwo":
+            res = await data.from("play-url", info);
+            info.avatar = info.pic;
+            info.singerName = info.singername;
+            info.songName = info.songname;
+            break;
+        case "kugo":
+        default:
+            res = await data.from("song-info", info);
+            if (res.fail_process === 12) res.priced = true;
+            if (res.imgUrl) {
+                res.avatar = res.imgUrl.replace(/\{size\}/ig, 200);
+            }
+            break;
+    }
+    Object.assign(info, res);
+    if (info.avatar) info.avatarUrl = `url('${info.avatar}')`;
+    return info;
 };
 var getLrc = function () {
     return `https://m.kugou.com/app/i/krc.php?cmd=100&keyword=%E9%99%88%E6%98%9F%E3%80%81%E5%BC%A0%E7%BF%94%E8%BD%A9%20-%20%E5%86%B3%E4%B8%8D%E5%9B%9E%E5%A4%B4&hash=77AFF2715498A86AA28AC2DAA29C3FEB&timelength=280000&d=0.2984004589282503`;
@@ -18,7 +37,7 @@ on("keydown")(window, function (event) {
     var { target } = event;
     if (/^(input|select|textarea)$/i.test(target.tagName)) return;
     var $scope = player.$scope;
-    if (!$scope.audio && !kugou$musicList.active_hash) return;
+    if (!$scope.audio && !kugou$musicList.getActived()) return;
     switch (event.keyCode || event.which) {
         case 32:
             if (event.repeat) break;
@@ -69,7 +88,6 @@ var filterTime = function (a, t) {
     }
     return res.map(fixTime).join(":");
 };
-
 var backer = document.createElement("back");
 onremove(backer, function () {
     $scope.page = false;
@@ -131,7 +149,8 @@ var $scope = {
             rootElements.unmount(backer);
         }
     },
-    pause() {
+    pause(inc) {
+        if (inc !== false) ++this.playid;
         $scope.playing = false;
         let _audio = $scope.audio;
         ns.disable();
@@ -181,22 +200,22 @@ var $scope = {
         }
     },
     playid: 0,
-    play(hash = musicList.active_hash) {
+    play(music = musicList.getActived()) {
+        var playid = ++this.playid;
         render.refresh();
-        var isPlayback = typeof hash === "number";
+        var isPlayback = typeof music === "number";
         if (isPlayback) {
-            if (hash < 0) {
-                hash = hash + musicList.length;
+            if (music < 0) {
+                music = music + musicList.length;
             }
             if (!musicList.length) return;
-            if (hash >= musicList.length) {
-                hash = hash % musicList.length;
+            if (music >= musicList.length) {
+                music = music % musicList.length;
             }
-            hash = musicList[hash];
-            if (!hash) return;
-            hash = hash.hash;
+            music = musicList[music];
+            if (!music) return;
         }
-        if (hash === musicList.active_hash && $scope.audio) {
+        if (musicList.isActived(music) && $scope.audio) {
             if ($scope.playing) return $scope.pause();
             $scope.playing = true;
             let _audio = $scope.audio;
@@ -206,15 +225,13 @@ var $scope = {
             }
             return;
         }
-        if (!isPlayback) for (var cx = musicList.length - 1; cx >= 0; cx--) {
-            if (musicList[cx].hash === hash) musicList.splice(cx, 1);
-        }
+        if (!isPlayback) musicList.remove(music);
 
-        $scope.pause();
+        $scope.pause(false);
 
         /**
          * ios 只能由用户创建audio，所以请在用户触发的事件中调用play方法
-         */
+        */
         $scope.playing = false;
         /**
          * @type {HTMLAudioElement}
@@ -245,17 +262,14 @@ var $scope = {
             _audio.autostart = true;
             return alert("暂不支持在您的浏览器中播放！");
         }
-        musicList.active_hash = hash;
+        musicList.setActive(music);
         $scope.playing = true;
         playState.width = 0;
-        getMusicInfo(hash).loading_promise.then((response) => {
+        patchMusicInfo(music).then((response) => {
+            if (playid !== this.playid) return;
             if (!this.playing) return;
-            if (hash !== musicList.active_hash) return;
-            if (response.imgUrl) {
-                response.avatar = response.imgUrl.replace(/\{size\}/ig, 200);
-                response.avatarUrl = `url('${response.avatar}')`;
-            }
-            var index = kugou$musicList.map(a => a.hash).indexOf(hash);
+            if (!musicList.isActived(music)) return;
+            var index = kugou$musicList.indexOf(music);
             var distlist = kugou$musicList.slice(0);
             distlist.forEach(function (info) {
                 delete info.activate;
@@ -267,9 +281,7 @@ var $scope = {
                 $scope.index = 0;
                 distlist.unshift(response);
             }
-            response.hash = hash;
             response.activate = true;
-            distlist.active_hash = hash;
             extend($scope.info, response);
             cast($scope.krcpad, response);
             _audio.onerror = e => {

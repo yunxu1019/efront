@@ -4,14 +4,14 @@
 // var document=this.document;
 // document["body"].appendChild(this.document.createElement("input"));
 var createBottomBar = function (buttonsConfig) {
-    var bar = createElement(div);
+    var bar = document.createElement("div");
     addClass(bar, "bottom-bar");
     var button_count = 0;
     for (var k in buttonsConfig) button_count++;
-    var btnArea = createElement(div);
+    var btnArea = document.createElement("div");
     css(btnArea, "width:" + (100 / button_count) + "%;");
     maxWidth(btnArea, 100);
-    var line = createElement(btnArea);
+    var line = btnArea.cloneNode();
     inlineBlock(btnArea);
     var active = function (ratio) {
         if (ratio >= .6) {
@@ -29,11 +29,11 @@ var createBottomBar = function (buttonsConfig) {
     var index = 0;
     for (var k in buttonsConfig) {
         var [url, info] = buttonsConfig[k].split(":");
-        var btn = createElement(btnArea);
+        var btn = btnArea.cloneNode();
         btn.url = url;
         btn.searchInfo = info;
         btn.active = active;
-        btn.container = createElement(div);
+        btn.container = document.createElement("div");
         btn.index = index++;
         btn.innerHTML = k;
         onclick(btn, function () {
@@ -83,7 +83,7 @@ onappend(pages, function () {
     if (!isFinite(index)) index = 1;
     pages.go(index);
 });
-var page = createElement(div);
+var page = document.createElement("div");
 appendChild(page, pages, bar);
 ontouchstart(page, kugou$dragview);
 onmousedown(page, kugou$dragview);

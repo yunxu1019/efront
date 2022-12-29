@@ -11,7 +11,7 @@ function Main(dataid, datapath, titleid) {
         datapath,
         run(s) {
             if (s.hash) {
-                this.player.play(s.hash);
+                this.player.play(s);
             } else {
                 go(datapath, s);
             }

@@ -1,6 +1,6 @@
 ({
     "https://m.kugou.com/": {
-        "song-info": "get                                 app/i/getSongInfo.php?cmd=playInfo&from=mkugou&hash",
+        "song-info;hash": "get                                 app/i/getSongInfo.php?cmd=playInfo&from=mkugou",
         "slider-src": "get:[].mod-slider>.swipe-wrap>div  .#src=img!src&href=a!href",
         "songs-list": "get:[].panel-songslist%20li          .#hash=!id&.panel-songs-item-name>span!innerText",
         "songs-list": "get:[].m_cm_item1warp:nth-child(2)>div .#=a!href\\song-mix&a:nth-child(2)>p:first-child!innerText&singer=a:nth-child(2)>p:nth-child(2)!innerText&imgurl=img!_src",
@@ -20,5 +20,19 @@
     },
     "http://mobilecdn.kugou.com/": {
         "search?keyword": "get:data.info                            api/v3/search/song?format=json&page=1&pagesize=30&showtype=1"
+    },
+    "http://www.kuwo.cn/": {
+        "kuwo-token"/*主要用于初始化kw_token*/: "get",
+    },
+    "http://www.kuwo.cn/api/www/ csrf=$kw_token": {
+        "search-kuwo;key": "get:data.list                                 search/searchMusicBykeyWord?&pn=1&rn=30#singername=artist&songname=name&priced=isListenFee",
+        "music-info;mid": "get:data                                       music/musicInfo",
+    },
+    "http://www.kuwo.cn/api/v1/www/": {
+        "play-url;mid=rid": "get:data                                              music/playUrl?type=music",
+    },
+
+    "http://newlyric.kuwo.cn/": {
+        "kuwo-lrc;rid": "get:data                                              newlyric.lrc",
     }
 })

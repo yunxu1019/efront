@@ -4,7 +4,7 @@
 </div>
 <list class="body" ng-src="(p,i) in musicList" min-width=480>
     <padding ng-delete="remove(i)">
-        <song ng-click="play(i)" ng-class="{activate:p.hash===musicList.active_hash}" ng-src=p></song>
+        <song ng-click="play(i)" ng-class="{activate:musicList.isActived(p)}" ng-src=p></song>
     </padding>
 </list>
 <div foot>

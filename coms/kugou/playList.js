@@ -24,7 +24,6 @@ var $scope = {
     },
     remove(i) {
         var list = kugou$musicList.slice(0);
-        list.active_hash = kugou$musicList.active_hash;
         list.splice(i, 1);
         data.setInstance("musicList", list, true);
     },

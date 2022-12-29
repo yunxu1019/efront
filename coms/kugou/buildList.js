@@ -6,7 +6,7 @@ function main(dataid, datapath) {
         padding,
         song,
         loading,
-        musicList,
+        musicList:kugou$musicList,
         async run(s) {
             if (!s.hash && s.hashid) {
                 await data.from("song-mix", s, function (a) {
@@ -15,7 +15,7 @@ function main(dataid, datapath) {
                 });
             }
             if (s.hash) {
-                kugou$player.play(s.hash);
+                kugou$player.play(s);
             } else {
                 go(datapath, s);
             }
