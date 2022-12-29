@@ -16,6 +16,9 @@ function detectWithExtension(filenames, extensions = [""], folders = [""]) {
         var findedFolder;
         var findex = 0;
         var filename = filenames[findex].replace(/\$/g, '/');
+        var tempname = filename.replace(/[#\?][\s\S]*$/, '');
+        var params = filename.slice(tempname.length);
+        filename = tempname;
         var run = function () {
             if (aftfix >= extensions.length) {
                 if (prefix + 1 < folders.length) {
@@ -42,11 +45,11 @@ function detectWithExtension(filenames, extensions = [""], folders = [""]) {
                 if (stats.isFile()) {
                     return fs.realpath(f, function (error, f) {
                         if (error) return run();
-                        return ok(f);
+                        return ok(f + params);
                     });
                 }
                 if (!findedFolder) {
-                    findedFolder = f;
+                    findedFolder = f + params;
                 }
                 run();
             });

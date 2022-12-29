@@ -24,7 +24,8 @@ var find = function (data) {
 };
 var globals = require("./globals");
 module.exports = function (root) {
-    var rest = [].concat.apply([], arguments);
+    var root = parseURL(root).pathname;
+    var rest = [].slice.call(arguments);
     var map = {
     }, needs = {};
     var undeclares;
@@ -86,10 +87,34 @@ module.exports = function (root) {
                 return `<${c}>${a} (${u[0].row}:${u[0].col})</${c}>`;
             }).join("<gray>,</gray> "));
         }
+        if (query !== undefined) {
+            args = args.filter(a => query.indexOf(a) === 0 || a.indexOf(query) === 0);
+            if (!args.length) {
+                console.log(`\r\n没有与指定的参数${query}相关的项`);
+            }
+            else {
+                console.log(`\r\n${query ? "与 " + query + " 相关的项" : ''}首次引用点如下：`)
+                args.forEach(a => {
+                    var logmap = Object.create(null);
+                    for (var u of undeclares[a]) {
+                        if (u.text.indexOf(a) >= 0) {
+                            var c = color(a);
+                            if (u.text in logmap) continue;
+                            logmap[u.text] = true;
+                            console.line(`<${c}>${a}</${c}>${u.text.replace(/^[^\.\[]+/, '')} ${u.row}:${u.col}`)
+                        }
+                    }
+                })
+            }
+        }
     }
+    var query;
     var run = function () {
         if (!rest.length) return list();
         var fullpath = rest.pop();
+        var parsed = parseURL(fullpath);
+        fullpath = parsed.pathname;
+        query = parsed.query;
         if (!fs.existsSync(fullpath)) return console.error("路径不存在:", fullpath), run();
         fs.stat(fullpath, function (error, stats) {
             if (error) return console.error(error);
