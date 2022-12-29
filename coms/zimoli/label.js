@@ -1,4 +1,4 @@
-var _label=createElement("label");
-function label(){
-    return createElement(_label);
+var _label = document.createElement("label");
+function label() {
+    return _label.cloneNode();
 }

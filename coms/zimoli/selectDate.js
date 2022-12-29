@@ -194,11 +194,11 @@ var buildMiSe = function (scope) {
         height = fixcent(6);
     return [src, width, height, -1];
 };
-var outerbox = createElement(div);
+var outerbox = document.createElement("div");
 
 var render = function (value, models = "年月日", message = "") {
     var builders = [buildYear, buildMonth, buildDate, buildHours, buildMiSe, buildMiSe];
-    var container = createElement(div);
+    var container = document.createElement("div");
     var build = function (index) {
         var builder = builders[index];
         var [src, width, height, addon = 0, last_src = [], next_src = [], title_src = ""] = builder(value);

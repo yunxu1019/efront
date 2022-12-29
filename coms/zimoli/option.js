@@ -1,13 +1,13 @@
-var _itemBox = div();
-var _itemHead = div();
+var _itemBox = document.createElement("div");
+var _itemHead = document.createElement("div");
 addClass(_itemHead, "head");
-var _itemBody = div();
+var _itemBody = document.createElement("div");
 addClass(_itemBody, "body");
-var _itemFoot = div();
+var _itemFoot = document.createElement("div");
 addClass(_itemFoot, "foot");
 
 function option(head = div(), body = div(), foot, splitter, container) {
-    var box = container && !/^option$/i.test(container.tagName) ? container : createElement(_itemBox);
+    var box = container && !/^option$/i.test(container.tagName) ? container : _itemBox.cloneNode();
     var _head = head;
     var _body = body;
     appendChild(box, _head, _body);
@@ -69,11 +69,11 @@ function main(arg0) {
         addClass(foot, "next");
         hasNext = true;
     }
-    if (foot) foot = createElement(_itemFoot, foot);
+    if (foot) foot = appendChild(_itemFoot.cloneNode(), foot);
     if (isString(head) && !splitter) {
         splitter = 32 + (head.length + head.replace(/[\w ]+/g, "").length) * 16;
     }
-    var box = option(createElement(_itemHead, head), createElement(_itemBody, body), foot, splitter, container);
+    var box = option(appendChild(_itemHead.cloneNode(), head), appendChild(_itemBody.cloneNode(), body), foot, splitter, container);
     if (hasNext) {
         addClass(box, "has-next")
     }

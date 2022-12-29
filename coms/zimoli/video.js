@@ -1,6 +1,6 @@
 function video(src) {
     if (isString(src)) {
-        var video = createElement("video");
+        var video = document.createElement("video");
         video.type = "video/" + src.replace(/^.*?\.(\w*)$/g, "$1");
         video.src = src;
     } else if (isNode(src)) {

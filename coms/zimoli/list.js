@@ -5,7 +5,7 @@ function ylist(container, generator, $Y) {
     /**
      * @type {HTMLElement}
      */
-    var list = container || div();
+    var list = container;
     list.autoFix = true;
     var saved_itemIndex = 0;
     addClass(list, 'list-' + $Y.toLowerCase());
@@ -582,6 +582,19 @@ var getGeneratorFromArray = function (source) {
 };
 
 
+var _insertBefore = function (child, referer) {
+    if (referer) {
+        if (referer.parentNode !== this) throw new Error('关联节点不是当前节点的子节点！');
+        appendChild.before(referer, child, false);
+    } else {
+        appendChild(this, child, false);
+    }
+    return child;
+};
+var _appendChild = function (child) {
+    appendChild(this, child, false);
+    return child;
+};
 /**
  * 
  * @param {Boolean|Array|Function} generator 
@@ -630,6 +643,9 @@ function list() {
     var groupCount = /\d+/.exec($Y);
     if (groupCount) groupCount = +groupCount[0];
     $Y = /^[xh]|[xh]$/i.test($Y) ? "X" : "Y";
+    if (!container) container = document.createElement('list');
+    container.insertBefore = _insertBefore;
+    container.appendChild = _appendChild;
     var list = ($Y === "X" ? xlist : ylist)(container, generator, $Y);
     if (!list.group) list.group = groupCount || 2;
     if (bindSrc instanceof Array) {

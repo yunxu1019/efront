@@ -35,7 +35,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     onselectstart(body, function (e) {
         return e.preventDefault();
     });
-    var frame = createElement("iframe");
+    var frame = document.createElement("iframe");
     css(frame, "display:none");
     appendChild.insert(body, frame);
     var doc = frame.contentWindow.document;

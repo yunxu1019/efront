@@ -1,7 +1,7 @@
-var a = createElement("a");
+var a = document.createElement("a");
 attr(a, 'href', "");
 function anchor(label, href) {
-    var element = createElement(a);
+    var element = a.cloneNode();
     attr(element, "href", label);
     if (isString(label)) {
         text(element, label);

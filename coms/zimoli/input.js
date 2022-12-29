@@ -1,4 +1,4 @@
-var _input = createElement("input");
+var _input = document.createElement("input");
 /**
  * @this HTMLInputElement
  */
@@ -142,5 +142,5 @@ function input(element) {
         }
         return element;
     }
-    return createElement(_input);
+    return _input.cloneNode();
 }

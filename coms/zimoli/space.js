@@ -1,5 +1,5 @@
 function space(height) {
-    var _space = createElement(div);
+    var _space = document.createElement("div");
     css(_space, {
         height: (height || 10) + "px"
     });

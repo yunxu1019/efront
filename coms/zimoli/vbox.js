@@ -4,7 +4,7 @@ function ybox(generator) {
     if (isNode(generator)) {
         _box = generator;
     } else {
-        _box = createElement(div);
+        _box = document.createElement("div");
     }
     var _tmp = isFunction(generator) && generator(_box);
     if (isNode(_tmp)) _box = _tmp;

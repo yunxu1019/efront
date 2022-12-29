@@ -1,4 +1,4 @@
-var _editor = div();
+var _editor = document.createElement("div");
 var template = `
 <div class=input></div>
 <textarea class=insert></textarea>
@@ -35,7 +35,7 @@ var getScrollTops = function (element) {
 }
 
 function editor() {
-    var edit = createElement(_editor);
+    var edit = _editor.cloneNode();
     browserClass && addClass(edit, browserClass);
     var focusClass = "focus";
     edit.innerHTML = template;

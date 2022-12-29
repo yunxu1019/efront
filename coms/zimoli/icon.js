@@ -7,7 +7,7 @@ if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
         img.src = "ccon/" + src + ".png";
     };
     icon = function (path, color, hover, active) {
-        var icon = createElement(icn);
+        var icon = icn.cloneNode();
         if (binaryImagePathReg.test(path)) {
             icon.src = path;
             return icon;
@@ -16,12 +16,12 @@ if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
         return icon;
     };
 } else {
-    icn = createElement(div);
+    icn = document.createElement("div");
     setBackGround = function (div, src) {
         css(div, "background-image:url('data:image/png;base64," + src + "')");
     };
     icon = function (path, color, hover, active) {
-        var icon = createElement(icn);
+        var icon = icn.cloneNode();
         if (binaryImagePathReg.test(path)) {
             css(icon, {
                 backgroundImage: `url('${path}')`

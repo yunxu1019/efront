@@ -1,23 +1,23 @@
-var _outterbox = createElement(div);
+var _outterbox = document.createElement("div");
 css(_outterbox, "border-radius:2px;box-shadow:0 1px 24px -3px rgba(0,0,0,0.18);width:312px;height:210px;background-color:#fff;");
-var _slider = createElement(div);
+var _slider = document.createElement("div");
 css(_slider, "float:left;width:33.3333%;");
-var _line = createElement(div);
+var _line = document.createElement("div");
 css(_line, "height:46px;line-height:46px;text-align:center;");
-var _innerbox = createElement(div);
+var _innerbox = document.createElement("div");
 css(_innerbox, "margin:0;");
 var lineHeight = "ontouchstart" in window ? 46 : 36;
 var createLine = function (startSlice, endSlice) {
     var result = [];
     for (var cx = startSlice, dx = endSlice; cx < dx; cx++) {
-        var line = createElement(_line);
+        var line = _line.cloneNode();
         text(line, cx);
         result.push(line);
     }
     return result;
 }
 function createBox(from, to) {
-    var slider = createElement(_slider);
+    var slider = _slider.cloneNode();
     slider.Height = function () {
         return Math.abs(from - to + 1) * lineHeight;
     };
@@ -49,13 +49,13 @@ function createBox(from, to) {
         }
         return top;
     }
-    var item_box = createElement(_innerbox);
+    var item_box = _innerbox.cloneNode();
     appendChild(slider, item_box);
     vbox(slider);
     return slider;
 }
 function dateslider(from_date, to_date) {
-    var outterbox = createElement(_outterbox);
+    var outterbox = _outterbox.cloneNode();
     var now = new Date;
     var currentYear = now.getFullYear();
     var currentMonth = now.getMonth() + 1;

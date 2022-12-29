@@ -1,6 +1,6 @@
-var _itemGroup = div();
+var _itemGroup = document.createElement("div");
 function group() {
-    var _group = createElement(_itemGroup);
+    var _group = _itemGroup.cloneNode();
     appendChild.apply(null, [].concat.apply([_group], arguments));
     return _group;
 }

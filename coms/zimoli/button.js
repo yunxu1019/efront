@@ -1,5 +1,5 @@
-var _label = createElement("span");
-var track = createElement(div);
+var _label = document.createElement("span");
+var track = document.createElement("div");
 var onmouseenter = on("mouseenter");
 track.className = "track";
 _label.className = "label";
@@ -73,7 +73,7 @@ var touchstart = function () {
     active.call(this);
 };
 function button(texter, type) {
-    var tracker = createElement(track);
+    var tracker = track.cloneNode();
     var _texter;
     if (isNode(texter)) {
         _texter = texter;
@@ -81,7 +81,7 @@ function button(texter, type) {
             var button = _texter;
             if (button.childNodes.length) {
                 if (button.childNodes.length === 1 && button.childNodes[0].nodeType !== 1) {
-                    _texter = createElement(_label);
+                    _texter = _label.cloneNode();
                     _texter.appendChild(button.childNodes[0]);
                     button.appendChild(_texter);
                 }
@@ -91,7 +91,7 @@ function button(texter, type) {
             }
         }
     } else {
-        _texter = createElement(_label);
+        _texter = _label.cloneNode();
         if (isString(texter)) {
             if (!type) {
                 texter = texter.replace(/#\w*/, function (w) {
@@ -105,7 +105,10 @@ function button(texter, type) {
             html(_texter, texter);
         }
     }
-    button = button || createElement(btn, tracker, _texter);
+    if (!button) {
+        button = btn.cloneNode();
+        appendChild(button, tracker, texter);
+    }
     bindAccesskey(button);
     onremove(button, resetall);
     onmouseenter(button, hover);

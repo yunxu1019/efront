@@ -1,4 +1,4 @@
-var nav = createElement("titlebar");
+var nav = document.createElement("titlebar");
 
 function btn(element) {
     var opt = button(element);
@@ -26,9 +26,9 @@ function titlebar(elem) {
         }
     }
     use_back = use_back !== false;
-    var bar = createElement(nav);
-    var title = createElement(label);
-    var _back = createElement(back);
+    var bar = nav.cloneNode();
+    var title = label();
+    var _back = back();
     text(title, page_title || document.title);
     appendChild(bar, title);
     var menu_group = div();

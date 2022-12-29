@@ -55,7 +55,7 @@ var prototype = {
         return this;
     }
 }
-
+console.error("createElement将会在未来的版本中移除！");
 function createElement(name) {
     var node = isNode(name) ? name.cloneNode() : isFunction(name) ? name() : document.createElement(name);
     if (name.className) addClass(node, name.className);

@@ -1,5 +1,3 @@
-
-var _slider = createElement(div);
 /**
  * @param {Element} template
  */
@@ -13,7 +11,6 @@ var cloneChildNodes = function (template) {
     }
     return cNodes;
 }
-
 /**
  * @param {Element} container
  * @param {Element|string} tagName;
@@ -46,8 +43,6 @@ var getGenerator = function (container, tagName = 'item') {
     appendChild(template, templates);
     render.struct(templates);
     if (templates.length) container.$template = template;
-    container.insertBefore = _slider.insertBefore;
-    container.appendChild = _slider.appendChild;
     /**
      * @param {number} index;
      * @param {Object} com;

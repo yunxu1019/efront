@@ -4,7 +4,7 @@ function main() {
     block.type = "checkbox";
     if (isIE) {
         block.setAttribute("ie", isIE);
-        block.with = createElement("label");
+        block.with = document.createElement("label");
     }
     return block;
 }
