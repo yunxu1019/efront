@@ -26,17 +26,18 @@ var seek = function (object, seeker) {
     }
     if (seeker instanceof Array) {
         if (!seeker.length) return;
-        for (var cx = 0, dx = seeker.length; cx < dx; cx++) {
+        loop: for (var cx = 0, dx = seeker.length; cx < dx; cx++) {
             var key = seeker[cx];
             if (typeof key === "string") {
-                if (/[\/\|]/.test(key)) {
-                    key = key.split(/[\/\|]/);
+                if (/[\^]/.test(key)) {
+                    key = key.split(/[\^]/);
                     for (var k of key) {
                         if (k in object) {
                             object = object[k];
-                            break;
+                            continue loop;
                         }
                     }
+                    object = undefined;
                 } else {
                     object = object[key];
                 }

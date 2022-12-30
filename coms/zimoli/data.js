@@ -128,6 +128,7 @@ var transpileMap = null;
 
 function transpile(src, trans, apiMap, delTransMap) {
     if (!trans) return src;
+
     if (src instanceof Array) {
         if (!transpileMap) transpileMap = [];
         var res = src.map(a => transpile(a, trans, apiMap, false));
@@ -145,8 +146,8 @@ function transpile(src, trans, apiMap, delTransMap) {
                 value = data[v];
                 delete data[v];
             } else {
-                value = seekResponse(data, v);
-                if (isEmpty(value)) value = seekResponse(src, v, apiMap);
+                value = seekResponse(src, v, apiMap);
+                if (isEmpty(value)) value = seekResponse(data, v);
             }
             if (!k) {
                 if (value instanceof Array) {
@@ -213,7 +214,9 @@ function seekResponse(data, seeker, apiMap = {}) {
         }
         var reg = /[\|\?\!\/]/, selector, prop;
         if (reg.test(seeker)) {
-            [selector, prop] = seeker.split(reg);
+            var m = reg.exec(seeker);
+            selector = seeker.slice(0, m.index);
+            prop = seeker.slice(m.index + m[0].length);
         } else {
             selector = seeker;
         }
