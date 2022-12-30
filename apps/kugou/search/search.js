@@ -56,6 +56,7 @@ function main(params, from) {
             this.searched = keyword;
             this.resultMap = Object.create(null);
             this.result = [];
+            if (!keyword) return;
             var s1 = this.requestSearch("kugo", 'search', { keyword }, this.resultMap, timeout, function (s1) {
                 s1.forEach(a => {
                     a.priced = a.privilege === 10 && (a.price_sq > 0);

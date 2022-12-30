@@ -34,14 +34,13 @@ function main(elem) {
                 songName = songName.replace(/^[\s\S]*?\s*\-\s*/, '');
             }
         }
-        $scope.song = {
-            hash: item.hash || item.hashid,
-            imgurl: item.imgurl,
+        $scope.song = extendIfNeeded(Object.create(item), {
+            imgurl: item.imgurl || item.avatar,
             singer: singerName,
             items: item instanceof Array ? item : null,
             songMarked: mark(songName, elem.mark),
             singerMarked: mark(singerName, elem.mark)
-        };
+        });
         if ($scope.song.items) {
             attr(elem, 'group', true);
         }

@@ -5,7 +5,7 @@ musicList.forEach(function (music) {
 });
 
 var isSameSong = function (m1, m2) {
-    return m1 === m2 || m1.mid && m1.mid === m2.mid || m1.hash && m1.hash === m2.hash;
+    return m1 === m2 || m1.mid && m1.mid === m2.mid || m1.hash && m1.hash === m2.hash || m1.id && m1.id === m2.id;
 };
 
 function addMethod(name, func) {
