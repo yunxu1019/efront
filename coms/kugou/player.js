@@ -327,7 +327,7 @@ var $scope = {
             };
             delete playState.error;
             if (ns.wake) ns.enable();
-            _audio.src = hasContext ? cross.getCrossUrl(response.url) : response.url;
+            _audio.src = hasContext && music.type === "kugo" ? cross.getCrossUrl(response.url) : response.url;
             _audio.play();
             data.setInstance('musicList', distlist, true);
             render.refresh();
