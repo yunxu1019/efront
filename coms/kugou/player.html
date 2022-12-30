@@ -11,9 +11,9 @@
         <span ng-bind="totalTime"></span>
     </div>
     <div class="song">
-        <span class="name" ng-bind=info.songName></span>
-        <span class="spliter" ng-if="info.songName&&info.singerName">&nbsp;-&nbsp;</span>
-        <span class="singer" ng-bind=info.singerName></span>
+        <span class="name" ng-bind=songName></span>
+        <span class="spliter" ng-if="songName&&singerName">&nbsp;-&nbsp;</span>
+        <span class="singer" ng-bind=singerName></span>
     </div>
 </div>
 <btn class="prev" ng-click=play(index-1)></btn>

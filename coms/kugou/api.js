@@ -45,4 +45,8 @@
         "search-krc;keyword=songName&duration=time&hash": "get:candidates[0] search?ver=1&man=yes&client=pc",
         "download-krc;accesskey&id": "get:content download?ver=1&client=pc&fmt=krc&charset=utf8"
     },
+    "https://music.91q.com/": {// 千千静听/百度音乐
+        "search-qqjt;word": "get:data.typeTrack v1/search#songname=title&singername=artist<、>.name&avatar=pic&priced=isVip",
+        "qqjt-url?TSID": "get:data v1/song/tracklink#url=path"
+    }
 })

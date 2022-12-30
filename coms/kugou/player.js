@@ -6,6 +6,13 @@ var playList = kugou$playList();
 var patchMusicInfo = async function (info) {
     var res = null, krc;
     switch (info.type) {
+        case "qqjt":
+            info.lrc = (await cross("get", info.lyric)).response;
+            console.log(info)
+            res = await data.from("qqjt-url", qqjc({
+                TSID: info.id
+            }))
+            break;
         case "yyyy":
             res = await data.from("yyyy-url", yyyc.encode({
                 ids: JSON.stringify([info.id]),
@@ -130,6 +137,12 @@ var $scope = {
     canvas: kugou$dance,
     activeList: playList,
     index: 0,
+    get songName() {
+        return this.info.singername || this.info.singerName;
+    },
+    get singerName() {
+        return this.info.songname || this.info.songName;
+    },
     update() {
         if (touching) return;
         let _audio = $scope.audio;

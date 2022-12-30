@@ -45,7 +45,7 @@ function main(params, from) {
             if (mp !== this.resultMap) return;
             res.forEach(a => a.type = type);
             res.forEach(this.addResult, this);
-            this.result = Object.keys(this.resultMap).map(k => this.resultMap[k]);
+            this.result = Object.keys(this.resultMap).map(k => this.resultMap[k]).sort((a, b) => b.length - a.length);
             for (var r of this.result) r.sort((a, b) => a.priced - b.priced);
             return res;
         },
@@ -73,8 +73,15 @@ function main(params, from) {
                 });
                 return s3;
             });
+            var p4 = {
+                word: keyword,
+                type: 1,
+                // pageSize: 20,
+            };
+            qqjc(p4);
+            var s4 = this.requestSearch("qqjt", "search-qqjt", p4, this.resultMap, timeout);
             state({ keyword });
-            await Promise.all([s1, s2, s3]);
+            await Promise.all([s1, s2, s3, s4]);
 
         },
         confirm() {
