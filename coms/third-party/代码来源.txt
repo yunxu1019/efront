@@ -1,4 +1,5 @@
 第三方代码来源及日期，后续版本请自行更新
+2022-12-30 https://npmjs.com/package/crypto-js
 2022-11-12 https://github.com/kazuhikoarase/qrcode-generator 逻辑有修改 qrcode.js
 2022-09-29 https://github.com/richtr/NoSleep.js
 2021-06-15 https://www.npmjs.com/package/html2canvas

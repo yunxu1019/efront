@@ -32,7 +32,17 @@
         "play-url;mid=rid": "get:data                                              music/playUrl?type=music",
     },
 
-    "http://newlyric.kuwo.cn/": {
-        "kuwo-lrc;rid": "get:data                                              newlyric.lrc",
-    }
+    "http://m.kuwo.cn/newh5/": {
+        "kuwo-lrc;musicId=rid": "get:data.lrclist singles/songinfoandlrc",
+    },
+    "https://music.163.com/weapi/": {
+        "search-yyyy": "form:result.songs cloudsearch/get/web#songname=name&avatar=al.picUrl",
+        "yyyy-url": "form:data[0] song/enhance/player/url/v1#encode=type",
+        "yyyy-lrc": "form:lrc.lyric song/lyric",
+        "yyyy-info": "form:lrc.lyric v3/song/detail",
+    },
+    "http://lyrics.kugou.com/": {
+        "search-krc;keyword=songName&duration=time&hash": "get:candidates[0] search?ver=1&man=yes&client=pc",
+        "download-krc;accesskey&id": "get:content download?ver=1&client=pc&fmt=krc&charset=utf8"
+    },
 })

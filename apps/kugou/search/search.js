@@ -40,8 +40,8 @@ function main(params, from) {
             if (!resultMap[id]) resultMap[id] = Object.assign([], { singer: singerName, song: songName });
             resultMap[id].push(info);
         },
-        async requestSearch(type, id, params, mp, timeout) {
-            var res = await data.from(id, params, timeout);
+        async requestSearch(type, id, params, mp, timeout, parse) {
+            var res = await data.lazyInstance(id, params, timeout, parse);
             if (mp !== this.resultMap) return;
             res.forEach(a => a.type = type);
             res.forEach(this.addResult, this);
@@ -56,15 +56,25 @@ function main(params, from) {
             this.searched = keyword;
             this.resultMap = Object.create(null);
             this.result = [];
-            var s1 = this.requestSearch("kugo", 'search', { keyword }, this.resultMap, timeout);
-            var s2 = this.requestSearch("kuwo", "search-kuwo", { key: keyword }, this.resultMap, timeout);
-            state({ keyword });
-            s1.then(function (s1) {
+            var s1 = this.requestSearch("kugo", 'search', { keyword }, this.resultMap, timeout, function (s1) {
                 s1.forEach(a => {
                     a.priced = a.privilege === 10 && (a.price_sq > 0);
                 });
-            })
-            await Promise.all([s1, s2]);
+                return s1;
+            });
+            var s2 = this.requestSearch("kuwo", "search-kuwo", { key: keyword }, this.resultMap, timeout);
+            var s3 = this.requestSearch("yyyy", "search-yyyy", yyyc.encode({ hlposttag: "</span>", hlposttag: `<span class="s-fc7">`, limit: 30, offset: 0, s: keyword, total: true, type: 1 }), this.resultMap, timeout, function (s3) {
+                s3.forEach(a => {
+                    a.priced = a.fee === 1;
+                    a.singername = a.ar.map(a => {
+                        if (a.name === "." || isEmpty(a.name)) return a.alia.join("、");
+                        return a.name;
+                    }).join("、");
+                });
+                return s3;
+            });
+            state({ keyword });
+            await Promise.all([s1, s2, s3]);
 
         },
         confirm() {

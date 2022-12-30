@@ -909,7 +909,7 @@ var data = {
                     parse = arg;
                     break;
                 default:
-                    params1 = arg;
+                    if (!isEmpty(arg)) params1 = arg;
             }
         });
         var id = "." + sid;

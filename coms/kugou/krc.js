@@ -2,33 +2,86 @@ var secret = [64, 71, 97, 119, 94, 50, 116, 71, 81, 54, 49, 45, 206, 210, 110, 1
 var isTrident = /Trident/i.test(navigator.userAgent);
 function krc(list = div()) {
     care(list, function (info) {
-        console.log(info)
         if (info.type !== "kugo") {
             remove(list.children);
-            return;
-        }
-        cross("get", `http://lyrics.kugou.com/search?ver=1&man=yes&client=pc&keyword=${info.songName}&duration=${info.time}&hash=${info.hash}`).done(function (response) {
-            if (!response.response) return;
-            var liric = JSON.parse(response.response);
-            var info = liric.candidates[0];
-            if (!info) return;
-            var url = `http://lyrics.kugou.com/download?ver=1&client=pc&id=${info.id}&accesskey=${info.accesskey}&fmt=krc&charset=utf8`;
-            info && cross("get", url).done(function (response) {
-                if (!response.response) return;
-                var krc = JSON.parse(response.responseText || response.response);
-                var content = fromBase64(krc.content);
-                content = content.slice(4).map((a, i) => a ^ secret[i % 16]);
-                var bufff = thirdParty$inflate(content.slice(2));
-                var krc = decodeUTF8(bufff);
-                remove(list.children);
-                var children = createKRC(krc);
+            if (info.lrc) {
+                var children = createLRC(info.lrc);
                 appendChild(list, children);
                 list.process = children.process;
-            });
-        });
-
+            }
+            return;
+        }
+        var content = info.krc.slice(4).map((a, i) => a ^ secret[i % 16]);
+        var bufff = thirdParty$inflate(content.slice(2));
+        var krc = decodeUTF8(bufff);
+        remove(list.children);
+        var children = createKRC(krc);
+        appendChild(list, children);
+        list.process = children.process;
     })
     return list;
+}
+function createLRC(lrc) {
+    var saved_rows = [];
+    for (var row of lrc.split(/[\r\n]+/)) {
+        var data = /^\s*\[(.*?)\](.*?)$/.exec(row);
+        if (!data) {
+            if (!isProduction) console.info("%c未解析%c", "color:#c28", "color:#333", row, data);
+            continue;
+        }
+        var [, time, words] = data;
+        var startTime = 0;
+        var times = time.split(":");
+        while (times.length) {
+            startTime = startTime * 60 + +times.shift();
+        }
+        saveToOrderedArray(saved_rows, {
+            value: startTime,
+            startTime,
+            text: words
+        });
+    }
+    var krcList = saved_rows.map(a => {
+        var r = document.createElement('div');
+        text(r, a.text);
+        return r;
+    });
+    var savedIndex = 0;
+    krcList.process = function (offset, length) {
+        var index = getIndexFromOrderedArray(saved_rows, offset);
+        var current_row = saved_rows[index];
+        if (current_row) {
+            var ele = krcList[index];
+            var firstChild = krcList[0];
+            if (index > 0) {
+                if (index !== savedIndex) {
+                    savedIndex = index;
+                    setClass(krcList, index);
+                }
+            }
+            if (ele && firstChild && firstChild.isMounted) {
+                var marginTop = (firstChild.parentNode.offsetHeight - ele.offsetHeight >> 1) - ele.offsetTop + firstChild.offsetTop;
+                css(firstChild, `margin-top:${marginTop | 0}px;`);
+            }
+        }
+    };
+    return krcList;
+}
+
+function setClass(krcList, index) {
+    var ele = krcList[index];
+    krcList.slice(0, index).map(function (a, cx, arr) {
+        removeClass(a, "active after after-active before-active");
+        addClass(a, "before");
+    });
+    removeClass(ele, "after before after-active before-active");
+    addClass(krcList[index - 1], 'before-active');
+    addClass(ele, "active");
+    krcList.slice(index + 1).map(function (a) {
+        removeClass(a, "before active after-active before-active");
+        addClass(a, "after");
+    });
+    if (index + 2 < krcList.length) addClass(krcList[index + 1], 'after-active');
 }
 function createKRC(krc) {
     var saved_rows = [];
@@ -77,18 +130,7 @@ function createKRC(krc) {
                 var marginTop = (firstChild.parentNode.offsetHeight - ele.offsetHeight >> 1) - ele.offsetTop + firstChild.offsetTop;
                 if (index > 0) {
                     if (markerLabel.parentNode !== ele) {
-                        krcList.slice(0, index).map(function (a, cx, arr) {
-                            removeClass(a, "active after after-active before-active");
-                            addClass(a, "before");
-                        });
-                        removeClass(ele, "after before after-active before-active");
-                        addClass(krcList[index - 1], 'before-active');
-                        addClass(ele, "active");
-                        krcList.slice(index + 1).map(function (a) {
-                            removeClass(a, "before active after-active before-active");
-                            addClass(a, "after");
-                        });
-                        if (index + 2 < krcList.length) addClass(krcList[index + 1], 'after-active');
+                        setClass(krcList, index);
                         ele.insertBefore(markerLabel, ele.firstChild);
                     }
                     var word_ele = ele.children[current_row_index + 1];

@@ -4,10 +4,28 @@ var playModes = kugou$playModes;
 var playModeData = data.getInstance("play-mode");
 var playList = kugou$playList();
 var patchMusicInfo = async function (info) {
-    var res = null;
+    var res = null, krc;
     switch (info.type) {
+        case "yyyy":
+            res = await data.from("yyyy-url", yyyc.encode({
+                ids: JSON.stringify([info.id]),
+                csrf_token: '',
+                level: "standard",
+                encodeType: "aac"
+            }));
+            info.lrc = await data.from('yyyy-lrc', yyyc.encode({
+                id: info.id,
+                lv: 0,
+                // tv: 0,
+            }));
+            info.singerName = info.singername;
+            info.songName = info.songname;
+            break;
         case "kuwo":
             res = await data.from("play-url", info);
+            info.lrc = await data.from("kuwo-lrc", info, function (lrc) {
+                return lrc.map(l => `[${l.time}]${l.lineLyric}`).join('\r\n');
+            });
             info.avatar = info.pic;
             info.singerName = info.singername;
             info.songName = info.songname;
@@ -15,6 +33,9 @@ var patchMusicInfo = async function (info) {
         case "kugo":
         default:
             res = await data.from("song-info", info);
+            krc = await data.from("search-krc", res);
+            krc = await data.from("download-krc", krc);
+            info.krc = fromBase64(krc);
             if (res.fail_process === 12) res.priced = true;
             if (res.imgUrl) {
                 res.avatar = res.imgUrl.replace(/\{size\}/ig, 200);
