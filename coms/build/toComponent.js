@@ -539,10 +539,10 @@ function toComponent(responseTree, noVersionInfo) {
         if (~[E,M][x](c + 1)) return s[c][0];
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
         if (~a[x](E) || ~a[x](M)) I = {}, I[B] = Q;
-        for (i = 0; i < k; i++) g[i] = a[i] === M ? I : a[i] === E ? I[B] : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](g[i])` : ''};
+        for (i = 0; i < k; i++) g[i] = a[i] === M ? I : a[i] === E ? I[B] : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
         if (l) l = l[1][q](','), g = g[o]([l]);${outsideAsync ? `
         if (C[m]) return T[${getEncodedIndex(`Promise`, 'global')}]()[T[${getEncodedIndex("all")}]()](C)[N](function (G) {
-            for (i = 0; i < k; i++) g[i] = T[a[i]]();
+            for (i = 0; i < G[m]; i++)g[G[i++]] = G[i];
             r = f[y](I ? I[B] : T[0], g);
             return I ? I[B] : r;
         });`: ""}

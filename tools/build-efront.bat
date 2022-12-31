@@ -12,13 +12,11 @@ set export_to=node
 set page=./
 set app=efront/index.js
 set extt=.js
-set coms=,reptile
+set coms=./,reptile
 set symbol_regexp=^^[A-Z][a-z]+\_^|(Statement^|Pattern^|Expression^|Declaration^|Element^|Node^|Literal^|^^Property^$)^$
-REM set libs_path=./
-REM set libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
 set destpath=efront.js
 if exist "%public_path%" rd /s /q "%public_path%"
-call node coms/efront publish %*
+call %~dp0\run-efront.bat publish %*
 popd
 endlocal
 goto :end

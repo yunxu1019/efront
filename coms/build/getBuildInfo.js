@@ -12,6 +12,7 @@ var noopbuilder = a => a;
 var getCommmap = require("../efront/getCommap");
 var commap = await getCommmap(memery.APP, Infinity);
 var xhtbuilder = commbuilder = commbuilder.bind(commap);
+manybuilder = manybuilder.bind(commap);
 var pagebuilder = function (buffer, filename) {
     if (/^index\.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 2000).toString().replace(/<!--[\s\S]*?--!?>/g, ""))) {
         return htmlbuilder.apply(null, arguments);

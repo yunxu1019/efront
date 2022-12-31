@@ -423,7 +423,6 @@ var rethink = function (mmap, imported, refname) {
             refs.pop();
             refs.pop();
         }
-        if (m === ".") console.log(m, r, refname)
         return m;
     });
     return realimport;

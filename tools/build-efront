@@ -20,4 +20,4 @@ export coms=,reptile
 # libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
 export destpath=efront.js
 rm -rf "$public_path"
-node coms/efront publish $*
+$__dirname/run-efront.bat publish $*

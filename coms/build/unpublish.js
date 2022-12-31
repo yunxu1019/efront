@@ -1,3 +1,4 @@
+"use strict";
 var commbuilder = require("../efront/commbuilder");
 var scanner = require("../compile/scanner");
 var backskip = function (data, lastIndex) {
@@ -96,7 +97,7 @@ var importedId = 0;
 
 var manybuilder = function (buffer, filename) {
     var sign = /^[^\(]*?\(\[([\s\S]*?by\s+efront\b[\s\S]*?)\]\.map[\s\S]*\[(\d+)\]\(\)([^\(]+)?/i.exec(buffer);
-    if (!sign) return commbuilder.apply(null, arguments);
+    if (!sign) return commbuilder.apply(this, arguments);
     var data = String(buffer);
     var lastIndex = data.lastIndexOf("}");
     var fEnd = lastIndex;
@@ -104,7 +105,7 @@ var manybuilder = function (buffer, filename) {
     var fStart = data.lastIndexOf("function", lastIndex);
     var decoder = data.slice(fStart, fEnd);
     var isEncrypted = !/\=\s*function\s*\(\s*?\)\s*\{\s*return\s+[a-zA-Z]\s*\;?\s*\}/.test(decoder);
-    if (isEncrypted) return commbuilder.apply(null, arguments);
+    if (isEncrypted) return commbuilder.apply(this, arguments);
 
     lastIndex = data.indexOf(".call");
     var aStart = data.indexOf("[", lastIndex) + 1;
