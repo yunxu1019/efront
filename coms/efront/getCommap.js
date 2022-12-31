@@ -39,6 +39,7 @@ async function getCommap(appname, deep = 2) {
         ser[v] = k;
     }
     res["?"] = ser;
+    res["/"] = coms;
     return res;
 }
 module.exports = getCommap;

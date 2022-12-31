@@ -480,19 +480,20 @@ var mimeTypes = require("../efront/mime");
 var shortpath = require("../basic/shortpath");
 var renderImageUrl = function (data, filepath) {
     var urlReg = [
-        /[\s\|](?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
-        /[\s](?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])([^,;\('"`\r\n\u2028\u2029\s]*?)\1/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])([^,;\('"`\r\n\u2028\u2029\s]*?)\1/ig,
     ];
+    var comsroot = this && this["/"] || [];
     var replacer = function (data, realpath, match) {
         var mime = mimeTypes[path.extname(realpath).slice(1)];
-        var compath = inCom(realpath);
+        var compath = inCom(realpath, comsroot);
         var pagepath = inPage(realpath);
         if (!mime || !compath && !pagepath) return match;
         if (pagepath) {
             data = pagepath.replace(/\\/g, '/');
         } else {
             data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
-            if (data.length > 8 * 1024) {
+            if (data.length > 8 * 1024) {// chrome,firefox的长度限制均为9929
                 if (islive || commbuilder.compress === false) {
                     data = ":comm/" + compath.replace(/\\/g, '/');
                 } else {
@@ -502,9 +503,9 @@ var renderImageUrl = function (data, filepath) {
         }
         var quote = match[match.length - 1];
         if (quote === ')') {
-            return ` url(${data})`;
+            return `url(${data})`;
         }
-        return ` src=${quote}${data}${quote}`;
+        return `src=${quote}${data}${quote}`;
     };
     return bindLoadings(urlReg, data, filepath, replacer, false);
 };
@@ -521,9 +522,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
     var lessresult = bindLoadings(importLessReg, data, lesspath, replacer, 0);
     if (watchurls.indexOf(lesspath) < 0) watchurls.push(lesspath);
     var promise = Promise.resolve(lessresult)
-        .then(function (data) {
-            return renderImageUrl(data, lesspath);
-        })
+        .then((data) => renderImageUrl.call(this, data, lesspath))
         .then(function (lessdata) {
             var timeStart = new Date;
             var lessData;
@@ -598,8 +597,8 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     extend(used, scoped.used, jscope.envs);
     var scope = Object.keys(scoped.envs).filter(e => e in this || e in jscope.used).join(",\r\n");
     var xhtmain = getValidName(`xht`, used);
-    htmltext = await renderImageUrl(htmltext, fullpath);
-    styles = await renderLessData(styles.join("\r\n"), fullpath, watchurls, lessName);
+    htmltext = await renderImageUrl.call(this, htmltext, fullpath);
+    styles = await renderLessData.call(this, styles.join("\r\n"), fullpath, watchurls, lessName);
     var jsvars = jscope.vars;
     var entryName = getEntryName(jsvars, commName);
     if (entryName && !(entryName in scoped.used)) {
@@ -667,7 +666,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         data = data.trim();
         console.warn(`文件中存在冗余数据<gray>${fullpath}</gray>:<data>${data.length > 12 ? data.slice(0, 10) + '...' : data}</data>`);
     }
-    var promise = new Promise(function (ok, oh) {
+    var promise = new Promise((ok, oh) => {
         function fire() {
             var timeStart = new Date;
             if (htmlData) {
@@ -683,12 +682,12 @@ function getMouePromise(data, filename, fullpath, watchurls) {
             ok(data);
         }
         if (htmlData) {
-            var htmlpromise = renderImageUrl(htmlData, fullpath).then(function (a) {
+            var htmlpromise = renderImageUrl.call(this, htmlData, fullpath).then(function (a) {
                 htmlData = a;
             });
         }
         if (lessData) {
-            var lesspromise = renderLessData(lessData, fullpath, watchurls, lessName).then(data => {
+            var lesspromise = renderLessData.call(this, lessData, fullpath, watchurls, lessName).then(data => {
                 lessData = data;
                 time += lesspromise.time;
             });
@@ -705,9 +704,9 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
     var jsData = "`" + data.replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&") + "`";
     var lessData;
     var time = 0;
-    var promise = getFileData(lesspath).then(function (lessdata) {
+    var promise = getFileData(lesspath).then((lessdata) => {
         if (lessdata instanceof Buffer) {
-            var lessPromise = renderLessData(lessdata, lesspath, watchurls, lessName);
+            var lessPromise = renderLessData.call(this, lessdata, lesspath, watchurls, lessName);
             return lessPromise.then(data => {
                 lessData = data;
                 time += lessPromise.time;
@@ -730,13 +729,13 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     let lesspath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".less");
     let replace = loadUseBody(data, fullpath, watchurls);
     var htmlpromise = getFileData(htmlpath)
-        .then(function (htmldata) {
+        .then((htmldata) => {
             if (htmldata && !htmldata.length) htmldata = "<!-- efront template -->";
-            return renderImageUrl(htmldata, htmlpath);
+            return renderImageUrl.call(this, htmldata, htmlpath);
         });
     var jsData, lessData, htmlData;
     var time = 0;
-    var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(function ([lessdata, htmldata, data]) {
+    var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(([lessdata, htmldata, data]) => {
         var timeStart = new Date;
         if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)*(<!doctype\b|<script\b)/i.test(htmldata)) {
             htmldata = "{toString:()=>" + wrapHtml(htmldata) + "}";
@@ -746,7 +745,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         }
         jsData = String(data);
         if (lessdata instanceof Buffer) {
-            var lessPromise = renderLessData(lessdata, lesspath, watchurls, lessName);
+            var lessPromise = renderLessData.call(this, lessdata, lesspath, watchurls, lessName);
             lessPromise.then(data => {
                 lessData = data;
                 time += lessPromise.time || 0;
@@ -782,12 +781,12 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
         if (/^(\s*<!--[\s\S]*?--!?>)*\s*<!Doctype\b/i.test(data)) {
             return data;
         }
-        promise = getHtmlPromise(data, filename, fullpath, watchurls);
+        promise = getHtmlPromise.call(this, data, filename, fullpath, watchurls);
     } else if (/\.vuex?$/i.test(fullpath)) {
-        promise = getMouePromise(data, filename, fullpath, watchurls);
+        promise = getMouePromise.call(this, data, filename, fullpath, watchurls);
     } else if (/\.(?:[cm]?[jt]sx?)$/i.test(fullpath) || !/[\\\/]/i.test(fullpath)) {
-        if (commbuilder.loadonly) return loadUseBody(data, fullpath, watchurls);
-        promise = getScriptPromise(data, filename, fullpath, watchurls);
+        if (commbuilder.loadonly) return loadUseBody.call(this, data, fullpath, watchurls);
+        promise = getScriptPromise.call(this, data, filename, fullpath, watchurls);
     } else {
         data = buffer;
         var extname = path.extname(fullpath);

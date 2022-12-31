@@ -605,6 +605,9 @@ var requestListener = async function (req, res) {
     if (memery.CHANNEL_ENABLED && /^\/\([\s\S]*\)/.test(req.url)) {
         return doChannel(req, res);
     };
+    if (memery.islive && /\/\:(\w{3,4})\//.test(req.url)) {
+        return doPost.call(this, req, res);
+    }
 
     if (/^get/i.test(req.method) || crypted) {
         return doGet(req, res);

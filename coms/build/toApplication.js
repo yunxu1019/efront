@@ -227,14 +227,13 @@ var rebuildData = function (responseTree) {
                     var name = k + "-" + imageIndex + ext;
                 } while (name in responseTree);
                 var destpath = response.destpath.replace(/\.[\w]+$/, '') + '-' + imageIndex + ext;
-                responseTree[name] = { destpath, data: Buffer.from(match[2], "base64"), realpath: true, url: name };
+                responseTree[name] = { destpath, type: '@', data: Buffer.from(match[2], "base64"), realpath: true, url: name };
                 return quote + destpath.replace(/\\/g, '/') + quote;
             }));
         };
         var response = responseTree[k];
         if (!isEfrontCode(response)) return;
         var data = String(response.data);
-
         var { argNames, args, required, dependenceNamesOffset, strs, strend } = getArgs(data);
         if (strs && strs.length > 0) {
             strs = `[${strs.map(rep)}]`;
