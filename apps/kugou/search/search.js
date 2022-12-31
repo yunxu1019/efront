@@ -42,7 +42,7 @@ function main(params, from) {
         },
         async requestSearch(type, id, params, mp, timeout, parse) {
             var res = await data.lazyInstance(id, params, timeout, parse);
-            if (mp !== this.resultMap) return;
+            if (mp !== this.resultMap || !(res instanceof Array)) return;
             res.forEach(a => a.type = type);
             res.forEach(this.addResult, this);
             this.result = Object.keys(this.resultMap).map(k => this.resultMap[k]).sort((a, b) => b.length - a.length);
@@ -58,20 +58,22 @@ function main(params, from) {
             this.result = [];
             if (!keyword) return;
             var s1 = this.requestSearch("kugo", 'search', { keyword }, this.resultMap, timeout, function (s1) {
-                s1.forEach(a => {
+                if (s1 instanceof Array) s1.forEach(a => {
                     a.priced = a.privilege === 10 && (a.price_sq > 0);
                 });
+                else s1 = [];
                 return s1;
             });
             var s2 = this.requestSearch("kuwo", "search-kuwo", { key: keyword }, this.resultMap, timeout);
             var s3 = this.requestSearch("yyyy", "search-yyyy", yyyc.encode({ hlposttag: "</span>", hlposttag: `<span class="s-fc7">`, limit: 30, offset: 0, s: keyword, total: true, type: 1 }), this.resultMap, timeout, function (s3) {
-                s3.forEach(a => {
+                if (s3 instanceof Array) s3.forEach(a => {
                     a.priced = a.fee === 1;
                     a.singername = a.ar.map(a => {
                         if (a.name === "." || isEmpty(a.name)) return a.alia.join("、");
                         return a.name;
                     }).join("、");
                 });
+                else s3 = [];
                 return s3;
             });
             var p4 = {
