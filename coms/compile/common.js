@@ -588,7 +588,7 @@ var createScoped = function (parsed, wash) {
                     mergeTo(_used, used);
                     if (scoped.length) _scoped.push(scoped);
                 }
-                if (vars.this) {
+                if (isFunction && vars.this) {
                     delete vars.this;
                     delete vars.arguments;
                 }
