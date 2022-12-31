@@ -24,7 +24,7 @@ if (window.Promise) {
                 }
             }
             if (t.ohed) {
-                if (!t.PromiseRejectReactions.length) throw `未处理的异常:${t.ohed}`;
+                if (!t.PromiseRejectReactions.length) throw t.ohed[0];
                 for (var r of t.PromiseRejectReactions) {
                     r.apply(null, t.ohed);
                 }
