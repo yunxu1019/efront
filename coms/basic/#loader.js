@@ -276,6 +276,7 @@ var loadModule = function (name, then, prebuilds = {}) {
                 flushTree(loadedModules, key);
                 return;
             }
+            if (!data) console.log(name, data);
             var [argNames, body, args, required, strs, isAsync, isYield] = getArgs(data);
             if (isProduction) {
                 strs = strs.map ? strs.map(toRem) : strs;
@@ -283,7 +284,6 @@ var loadModule = function (name, then, prebuilds = {}) {
                 body = toRem(body);
             }
             var mod = createFunction(name, body, argNames, isAsync, isYield);
-            if (!mod) console.log(name, mod);
             mod.args = args;
             mod.argNames = argNames;
             mod.strs = strs;

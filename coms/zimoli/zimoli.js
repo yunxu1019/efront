@@ -229,6 +229,10 @@ function createState(pgpath) {
     return state;
 }
 function prepare(pgpath, ok) {
+    if (pgpath instanceof Array) {
+        for (var p of pgpath) prepare(p);
+        return;
+    }
     var pgpath = getpgpath(pgpath);
     if (page_generators[pgpath]) {
         if (isFunction(ok)) {
