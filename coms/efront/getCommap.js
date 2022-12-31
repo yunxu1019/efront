@@ -9,10 +9,7 @@ var readdir = p => new Promise((ok, oh) => fs.readdir(p, { withFileTypes: true }
 }))
 async function getCommap(appname, deep = 2) {
     var env = setupenv(appname);
-    var coms = mixin(env.COMS_PATH, env.COMM).map(a => path.join.apply(path, a)).filter(fs.existsSync).sort((a, b) => {
-        var r = path.relative(b, a);
-        if (!/^\.\./.test(r)) return -1;
-    });
+    var coms = mixin(env.COMS_PATH, env.COMM).map(a => path.join.apply(path, a)).filter(fs.existsSync);
     var res = Object.create(null);
     for (var c of coms) {
         var rest = [[c, []]];
@@ -23,7 +20,7 @@ async function getCommap(appname, deep = 2) {
             for (var f of files) {
                 var fn = f.name.replace(/\.[\s\S]*$/, '').replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
                 if (f.isFile()) {
-                    if (!/\.(html?|[cm]?[tj]sx?|xht)$/i.test(f.name)) continue;
+                    if (!/\.(html?|[cm]?[tj]sx?|xht)$/i.test(f.name) || /^[\#\?]/.test(f.name)) continue;
                     n.push(fn);
                     map[n.join('$')] = path.join(p, f.name);
                     n.pop();
@@ -38,7 +35,7 @@ async function getCommap(appname, deep = 2) {
     var ser = Object.create(null);
     for (var k in res) {
         var v = res[k];
-        if (v in ser) continue;
+        if (v in ser && ser[v].length <= k) continue;
         ser[v] = k;
     }
     res["?"] = ser;
