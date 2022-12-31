@@ -22,15 +22,17 @@ var constructors = [
     Date,
     RegExp,
     Error,
-    Promise,
 ];
 setGlobal(constructors, colors.FgGray);
 var objects = {
     Math,
     JSON,
     console,
-    BigInt: null,
     performance: null,
+};
+var iemiss = {
+    Promise,
+    BigInt: null,
     Intl: null,
     Symbol: null,
     globalThis: null,
@@ -54,6 +56,7 @@ var objects = {
     atob: null, btoa: null,
 };
 setGlobal(objects, colors.FgGray);
+setGlobal(iemiss, colors.FgYellow);
 var functions = [
     eval,
     isFinite, isNaN,
