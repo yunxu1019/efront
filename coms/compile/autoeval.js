@@ -139,9 +139,29 @@ var calculate = function (body) {
     return body;
 };
 
+var polyfills = Object.assign(Object.create(null), {
+    "Object.assign": 'extend'
+});
+var polyfill = function (o, i, used) {
+    var v = o.text;
+    if (v in polyfills) {
+        var p = polyfills[v];
+        var n = o.next;
+        if (n && n.type === SCOPED && n.entry === '(') {
+            if (!this.used[p]) {
+                this.used[p] = [];
+                this.envs[p] = true;
+            }
+            o.text = p;
+            this.used[p].push(o);
+            used.splice(i, 1);
+        }
+    }
+};
 module.exports = function autoeval(body) {
     calculate(body);
     var envs = body.envs;
     if (envs.Array) backEach(body.used.Array, arrayFillMap, body);
+    if (envs.Object) backEach(body.used.Object, polyfill, body);
     return body;
 }
