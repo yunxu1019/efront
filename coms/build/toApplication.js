@@ -309,10 +309,14 @@ module.exports = async function (responseTree) {
         else xTreeName = "versionTree";
         mainVersion = true;
     }
+    var missing = Object.keys(responseTree).map(k => responseTree[k]).filter(function (a) {
+        return a && !a.data;
+    }).map(a => a.url).map(a => `"${a}": window["${a}"]`).join(",\r\n");
     var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
     var versionVariableName;
     mainScriptData = mainScriptData.toString()
         .replace(/var\s+killCircle[\s\S]*?\}\);?\s*\}\s*\};/, 'var killCircle=function(){};')
+        .replace(/var\s+modules\s*=\s*\{/, `$&\r\n${missing},\r\n`)
         .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
         .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
         .replace(
