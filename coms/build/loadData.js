@@ -1,5 +1,4 @@
 "use strict";
-var getBuildInfo = require("./getBuildInfo");
 var getBuildRoot = require("./getBuildRoot");
 var getDependence = require("./getDependence");
 var memery = require("../efront/memery");

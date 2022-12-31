@@ -7,32 +7,41 @@ var readdir = p => new Promise((ok, oh) => fs.readdir(p, { withFileTypes: true }
     if (err) return oh(err);
     return ok(names);
 }))
-async function getCommap(appname, deep = 1) {
+async function getCommap(appname, deep = 2) {
     var env = setupenv(appname);
-    var coms = mixin(env.COMS_PATH, env.COMM).map(a => path.join.apply(path, a));
+    var coms = mixin(env.COMS_PATH, env.COMM).map(a => path.join.apply(path, a)).filter(fs.existsSync).sort((a, b) => {
+        var r = path.relative(b, a);
+        if (!/^\.\./.test(r)) return -1;
+    });
     var res = Object.create(null);
     for (var c of coms) {
         var rest = [[c, []]];
         var map = Object.create(null);
-        if (!fs.existsSync(c)) continue;
         while (rest.length) {
             var [p, n] = rest.pop();
             var files = await readdir(p);
             for (var f of files) {
+                var fn = f.name.replace(/\.[\s\S]*$/, '').replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
                 if (f.isFile()) {
                     if (!/\.(html?|[cm]?[tj]sx?|xht)$/i.test(f.name)) continue;
-                    var tmp = f.name.replace(/\.[\s\S]*$/, '').replace(/\-([\s\S])/g, a => a.toUpperCase());
-                    n.push(tmp);
+                    n.push(fn);
                     map[n.join('$')] = path.join(p, f.name);
                     n.pop();
                 }
                 else if (f.isDirectory()) {
-                    if (n.length + 1 < deep) rest.push([path.join(p, f.name), n.concat(f.name)]);
+                    if (n.length + 1 < deep) rest.push([path.join(p, f.name), n.concat(fn)]);
                 }
             }
         }
         extendIfNeeded(res, map);
     }
+    var ser = Object.create(null);
+    for (var k in res) {
+        var v = res[k];
+        if (v in ser) continue;
+        ser[v] = k;
+    }
+    res["?"] = ser;
     return res;
 }
 module.exports = getCommap;

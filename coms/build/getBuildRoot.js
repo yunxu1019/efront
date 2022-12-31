@@ -2,7 +2,6 @@
 var fs = require("fs");
 var path = require("path");
 var isLib = require("../efront/isLib");
-var getBuildInfo = require("./getBuildInfo");
 var getPathIn = require("./getPathIn");
 var detectWithExtension = require("./detectWithExtension");
 var {

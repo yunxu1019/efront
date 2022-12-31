@@ -10,13 +10,13 @@ var memery = require("../efront/memery");
 var env = require("./environment");
 var noopbuilder = a => a;
 var getCommmap = require("../efront/getCommap");
-var commap = getCommmap(memery.APP);
-var xhtbuilder = commbuilder.bind(commap);
+var commap = await getCommmap(memery.APP, Infinity);
+var xhtbuilder = commbuilder = commbuilder.bind(commap);
 var pagebuilder = function (buffer, filename) {
     if (/^index\.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 2000).toString().replace(/<!--[\s\S]*?--!?>/g, ""))) {
         return htmlbuilder.apply(null, arguments);
     }
-    return commbuilder.apply(null, arguments);
+    return commbuilder.apply(commap, arguments);
 };
 var BuildInfo = function (info) {
     Object.assign(this, info);

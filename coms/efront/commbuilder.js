@@ -401,8 +401,33 @@ var buildPress2 = function (imported, params, data, args, strs) {
     }
     data = code.toString();
     return [imported, params, data];
-}
+};
 
+var rethink = function (mmap, imported, refname) {
+    var rmap = mmap["?"];
+    var refpath = refname ? refname.split('$') : [];
+    var realimport = imported.map(m => {
+        if (m in mmap) {
+            var r = rmap[mmap[m]];
+            return r;
+        }
+        var refs = refpath.slice();
+        refs.pop();
+        while (refs.length) {
+            refs.push(m);
+            var r = refs.join("$");
+            if (r in mmap) {
+                r = rmap[mmap[r]];
+                return r;
+            }
+            refs.pop();
+            refs.pop();
+        }
+        if (m === ".") console.log(m, r, refname)
+        return m;
+    });
+    return realimport;
+};
 var buildResponse = function ({ imported, params, data, required, occurs, isAsync, isYield }, compress) {
     if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
@@ -456,8 +481,8 @@ var mimeTypes = require("../efront/mime");
 var shortpath = require("../basic/shortpath");
 var renderImageUrl = function (data, filepath) {
     var urlReg = [
-        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
-        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])([^,;\('"`\r\n\u2028\u2029\s]*?)\1/ig,
+        /[\s\|](?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
+        /[\s](?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])([^,;\('"`\r\n\u2028\u2029\s]*?)\1/ig,
     ];
     var replacer = function (data, realpath, match) {
         var mime = mimeTypes[path.extname(realpath).slice(1)];
@@ -478,9 +503,9 @@ var renderImageUrl = function (data, filepath) {
         }
         var quote = match[match.length - 1];
         if (quote === ')') {
-            return `url(${data})`;
+            return ` url(${data})`;
         }
-        return `src=${quote}${data}${quote}`;
+        return ` src=${quote}${data}${quote}`;
     };
     return bindLoadings(urlReg, data, filepath, replacer, false);
 };
@@ -770,8 +795,12 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
         if (extname) buffer.mime = mimeTypes[extname.slice(1)];
     }
     if (promise) {
-        var promise1 = promise.then(function (data) {
+        var promise1 = promise.then((data) => {
             var timeStart = new Date;
+            if (this && this["?"]) {
+                var thisReferedName = this["?"][fullpath] || '';
+                data.imported = rethink(this, data.imported, thisReferedName);
+            }
             data = buildResponse(data, compress);
             data = Buffer.from(data);
             data.path = fullpath;
