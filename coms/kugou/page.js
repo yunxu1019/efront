@@ -56,11 +56,14 @@ var bar = createBottomBar({
     [i18n("看", "Watch")]: "/kugou/view:请输入房间号、主播昵称",
     [i18n("唱", "Sing")]: "/kugou/sing:今天想唱什么歌",
 });
-var menu_btn = button("<i>&#xe6d4;</i>", "left");
+var menu_btn = button("", "left");
+menu_btn.innerHTML='<i>&#xe6d4;</i>';
 onclick(menu_btn, kugou$dragview.toChange);
-var plus_btn = button("<i>&#xe632;</i>", "right");
+var plus_btn = button("", "right");
+plus_btn.innerHTML = '<i>&#xe632;</i>';
 select(plus_btn, kugou$plusmenu());
-var search_btn = button("<i>&#xe60d;</i> <info>搜索</info>", "search");
+var search_btn = button("", "search");
+search_btn.innerHTML = '<i>&#xe60d;</i> <info>搜索</info>';
 onclick(search_btn, function () {
     go("/kugou/search");
 });

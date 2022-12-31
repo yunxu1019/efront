@@ -24,10 +24,10 @@ var options = [
     return { name: labels[0], url: labels[1] }
 });
 var _state = extend({ ing: 0 }, state());
-onback(function () {
+page.onback = function () {
     _state.ing = 0;
     state(_state);
-});
+};
 page.innerHTML = `
 <div class='options'>
 ${options.map((a, i) => `<btn -class={ing:state.ing===${i}} -click=go('${a.url}',${i})>${a.name}</btn>`).join("")}

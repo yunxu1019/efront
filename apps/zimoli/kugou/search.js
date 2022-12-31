@@ -90,9 +90,9 @@ oninput(textInput, function (event) {
         appendChild(page, keywords_pad);
     }
 });
-onback(function () {
+page.onback = function () {
     textInput.value = "";
-});
+};
 onappend(page, function () {
     textInput.value = state.keyword || "";
     dispatch(textInput, "input");

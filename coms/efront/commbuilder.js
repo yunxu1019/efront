@@ -11,6 +11,7 @@ var memery = require("./memery");
 var islive = memery.islive;
 var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
+var polyfill = require("../compile/polyfill");
 
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     var ignoreUse_reg = commbuilder.ignoreUse_reg;
@@ -140,7 +141,7 @@ var loadUseBody = function (source, fullpath, watchurls) {
     return bindLoadings(useInternalReg, source, fullpath, replacer);
 };
 var getRequiredPaths = function (data) {
-    var pathReg = /\b(?:go|popup)\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;
+    var pathReg = /\b(?:go|popup|zimoli)\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;
     var requiredPaths = {};
     var result = pathReg.exec(data);
     while (result) {
@@ -174,6 +175,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     if (memery.AUTOEVAL) {
         code = autoenum(code);
         code = autoeval(code);
+    }
+    if (memery.POLYFILL) {
+        code = polyfill(code);
     }
     var {
         vars: declares,
@@ -209,16 +213,23 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var prepareCodeBody = [];
     if (destpaths.length) {
         var stringifiedpaths = destpaths.length === 1 ? JSON.stringify(destpaths[0]) : JSON.stringify(destpaths);
-        if (!declares.prepare) {
+        if (globalsmap.go) {
+            prepareCodeBody = scanner2(`go.prepare(${stringifiedpaths});`);
+        }
+        else if (globalsmap.zimoli) {
+            prepareCodeBody = scanner2(`zimoli.prepare(${stringifiedpaths});`);
+        }
+        else if (globalsmap.popup) {
+            prepareCodeBody = scanner2(`popup.prepare(${stringifiedpaths});`);
+        }
+        else if (globalsmap.state) {
+            prepareCodeBody = scanner2(`state.prepare(${stringifiedpaths});`);
+        }
+        else if (!declares.prepare) {
             globalsmap.prepare = "prepare";
             prepareCodeBody = scanner2(`prepare(${stringifiedpaths});`);
-        } else if (!declares.go) {
-            globalsmap.go = "go";
-            prepareCodeBody = scanner2(`go.prepare(${stringifiedpaths});`);
-        } else if (!declares.state) {
-            globalsmap.state = "state";
-            prepareCodeBody = scanner2(`state.prepare(${stringifiedpaths});`);
-        } else {
+        }
+        else {
             console.warn(`将不处理此文件的页面自动预载<gray>${filename}</gray>`);
         }
     }

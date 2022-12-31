@@ -26,7 +26,6 @@ function bindScroll(titlebar, page) {
         if (!image.style.backgroundImage && !/img/i.test(image.className)) return;
         return image;
     }
-
     onmounted(page, function () {
         css(titlebar, `min-height:${fromPixel(topHeight)}`);
         var image = getImage();
