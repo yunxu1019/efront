@@ -125,7 +125,7 @@ async function cross(req, res, referer) {
     }
     var onresponse = function (response) {
         var headers = response.headers;
-        var exposeHeaders = [];
+        var exposeHeaders = ["access-control-expose-headers"];
         var setCookie = headers["set-cookie"];
         if (setCookie && req.referer && referer === false) {
             headers["efront-cookie"] = setCookie;
