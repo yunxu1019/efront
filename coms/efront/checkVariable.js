@@ -143,7 +143,6 @@ module.exports = function (root) {
                     try {
                         data = String(data).replace(/^\s*#!/, '//');
                         undeclares = find(data);
-                        delete undeclares[path.basename(fullpath).replace(/\.[cm]?[jt]sx?$/i, '')];
                         Object.keys(undeclares).map(k => k).forEach(k => {
                             if (!needs[k]) needs[k] = [];
                             needs[k].push(basename);
