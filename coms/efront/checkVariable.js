@@ -24,8 +24,12 @@ var find = function (data) {
 };
 var globals = require("./globals");
 module.exports = function (root) {
-    var root = parseURL(root).pathname;
-    var rest = [].slice.call(arguments);
+    var qindex = root.indexOf("?");
+    if (qindex > 0) {
+        root = root.slice(0, qindex);
+        query = root.slice(qindex + 1);
+    }
+    var rest = [root];
     var map = {
     }, needs = {};
     var undeclares;
@@ -112,9 +116,6 @@ module.exports = function (root) {
     var run = function () {
         if (!rest.length) return list();
         var fullpath = rest.pop();
-        var parsed = parseURL(fullpath);
-        fullpath = parsed.pathname;
-        query = parsed.query;
         if (!fs.existsSync(fullpath)) return console.error("路径不存在:", fullpath), run();
         fs.stat(fullpath, function (error, stats) {
             if (error) return console.error(error);
