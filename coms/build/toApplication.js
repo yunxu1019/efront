@@ -11,6 +11,7 @@ var r29 = "?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
 var r34 = "]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 var memory = require("../efront/memery");
 var toComponent = require("./toComponent");
+var scanner2 = require("../compile/scanner2");
 var codetemp = function (delta) {
     var temp = [];
     while (delta > 0) {
@@ -140,6 +141,39 @@ var getTreeIndex = function (tree) {
         if (tree[n]) return tree[n];
     }
 };
+var findTreeKey = function (tree, k) {
+    k = path.normalize(k).replace(/\\/g, '/');
+    if (k in tree) return k;
+    var k1 = "/" + k;
+    if (k1 in tree) return k1;
+    var k2 = '@' + k;
+    if (k2 in tree) return k2;
+};
+
+var cssDataMap = null;
+var importCss = function (url, responseTree) {
+    var k = findTreeKey(cssDataMap, url);
+    if (k) return cssDataMap[k];
+    k = findTreeKey(responseTree, url);
+    if (!k) return null;
+    if (k in cssDataMap) return cssDataMap[k];
+    cssDataMap[k] = null;
+    var data = responseTree[k].data;
+    if (!data) return null;
+    try {
+        cssDataMap[k] = String(data).replace(/@?import\s+(?:url\(([\s\S]*?)\)|([\s\S]*?))[;\r\n]/ig, function (_, a, b) {
+            a = strings.decode(a || b);
+            a = url.replace(/[^\/\\]+$/, '') + a;
+            var d = importCss(a, responseTree);
+            if (d === null) throw new Error(a);
+            return d + "\r\n";
+        });
+    }
+    catch (e) {
+        return null;
+    }
+    return cssDataMap[k];
+}
 function toApplication(responseTree) {
     var mainScript = responseTree.main || responseTree["main.js"] || null;
     var htmls = Object.keys(responseTree).filter(key => {
@@ -162,8 +196,52 @@ function toApplication(responseTree) {
         htmls.push(indexHtml);
         responseTree["/" + indexnames[0]] = indexHtml;
     }
+    var { EXTRACT = htmls.length > 1 } = memory;
+    if (!EXTRACT && setting.is_file_target) {
+        htmls.forEach(html => html.data = String(html.data).replace(/<link\s+([\s\S]*?)\s*\/>/g, function (link, content) {
+            var scanned = scanner2(link, 'html');
+            var attrs = Object.create(null);
+            var attrValues = Object.create(null);
+            for (var a of scanned) {
+                if (a.type === scanned.STAMP && a.text === '=') {
+                    var p = a.prev, n = a.next;
+                    if (!p || !n) continue;
+                    attrs[p.text] = strings.decode(n.text);
+                    attrValues[p.text] = n;
+                }
+            }
+            var k = findTreeKey(responseTree, attrs.href);
+            var data = responseTree[k].data;
+            if (k && data && attrs.rel) switch (attrs.rel.toLowerCase()) {
+                case "shortcut icon":
+                    var type = attrs.type;
+                    if (!type) type = {
+                        ".ico": "image/x-icon",
+                        ".png": "image/png",
+                        ".jpg": "image/jpeg",
+                        ".jpe": "image/jpeg",
+                        ".jpeg": "image/jpeg",
+                        ".gif": "image/gif",
+                        ".svg": "image/svg+xml"
+                    }[path.extname(attrs.href).toLowerCase()];
+                    if (!type) break;
+                    data = `data:${attrs.type || ''};base64,` + Buffer.from(data).toString("base64");
+                    if (data.length > 8192) break;
+                    attrValues.href.text = strings.encode(data);
+                    delete responseTree[k];
+                    return scanned.toString();
+                case "stylesheet":
+                    cssDataMap = Object.create(null);
+                    data = importCss(attrs.href, responseTree);
+                    if (data === null) break;
+                    for (var k in cssDataMap) delete responseTree[k];
+                    cssDataMap = null;
+                    return `<style${attrs.type ? ` type=${strings.encode(attrs.type)}` : ""}>${data}</style>`;
+            }
+            return link;
+        }));
+    }
     if (mainScript) {
-        var { EXTRACT = htmls.length > 1 } = memory;
         var outsideMain = EXTRACT ? "main-" + mainScript.queryfix + ".js" : "";
         htmls.forEach(function (response) {
             response.data = buildHtml(response.data, mainScript.data, outsideMain);
