@@ -48,7 +48,7 @@ var polyfill_map = `function (f, t) {
     c = 0,
     e=s[$call],
     d = s[l];
-    for (; c < d; c++)r[c] = f[e](t, c, s[c]);
+    for (; c < d; c++)r[c] = f[e](t, s[c], c, s);
     return r
 }`;
 
@@ -442,7 +442,7 @@ function toComponent(responseTree, noVersionInfo) {
             }
             var errored = module_body.slice(0, module_body.length >> 1).filter(saveGlobal);
             if (errored.length) {
-                console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`,`<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
+                console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`, `<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
             }
             if (!responseTree[k].data) {
                 result.splice(cx, 1);
@@ -496,7 +496,7 @@ function toComponent(responseTree, noVersionInfo) {
     var hasRequire = destMap.require || destMap.init;
     saveOnlyGlobal('module');
     saveOnlyGlobal('exports');
-    if (array_map) polyfill_map = polyfill_map.replace(/\$\w+/g, function (w) {
+    if (array_map) polyfill_map = polyfill_map.replace(/\$(\w+)/g, function (_, w) {
         return getEncodedIndex(w, 'string') - 1;
     });
 
@@ -505,7 +505,6 @@ function toComponent(responseTree, noVersionInfo) {
 
     if (!PUBLIC_APP) return console.error("没有可导出的文件！"), {};
     var stringr = {
-        x: 'indexOf',
         e: 'exec',
         q: 'split',
         o: 'concat',
@@ -524,7 +523,7 @@ function toComponent(responseTree, noVersionInfo) {
     };
 
     var decoder = `
-        if (typeof a !== z || ~[${constIndex}][x](c)) return a;
+        if (typeof a !== z || ${constIndex.map(c => `${c} === c`).join(" || ")}) return a;
         return T[${destMap["- decoder"]}]()(a, c, s, s[M-1])`;
     var realize = `
     if (!(a instanceof A)) ${encoded ? `R = function () {${decoder}}` : `return T[c + 1] = function () { return a }`};${hasRequire ? `
@@ -536,10 +535,9 @@ function toComponent(responseTree, noVersionInfo) {
     }`: `function (){ return function (i) { return T[i]() } }`};` : ""}
     else R = function (Q) {${outsideAsync ? `
         var C = [];` : ''}
-        if (~[E,M][x](c + 1)) return s[c][0];
+        if (E === c+1 || M === c+1) return s[c][0];
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
-        if (~a[x](E) || ~a[x](M)) I = {}, I[B] = Q;
-        for (i = 0; i < k; i++) g[i] = a[i] === M ? I : a[i] === E ? I[B] : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
+        for (i = 0; i < k; i++) g[i] = a[i] === M ? I = {} : a[i] === E ? I[B] = Q : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
         if (l) l = l[1][q](','), g = g[o]([l]);${outsideAsync ? `
         if (C[m]) return T[${getEncodedIndex(`Promise`, 'global')}]()[T[${getEncodedIndex("all")}]()](C)[N](function (G) {
             for (i = 0; i < G[m]; i++)g[G[i++]] = G[i];
