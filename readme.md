@@ -117,7 +117,7 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 | `DIRECT`           | 如果是用`pathname`作为单页应用的页面路径，可以配置此参数，以使空路都指向该参数所指定的路径。如果配置为数值，则自动截取用户路径的前几级，如果指定为字符串，则所有空路径都返回该字符串路径下的内容。 |
 | `ENTRY_NAME`       | efront默认依次查找文件中声明的`main`,`Main`,`MAIN`,`<文件名>`做为导出对象（入口），用户可配置此环境变量以进行修改                                                                                  |
 | `EXTRACT`          | 如果项目有多个入口，efront默认将主程序写入独立的文件，如果项目是单入口，efront默认将主程序并入index.html，如果您的代码有特殊要求，可以配置引此参数指定efront的行为                                 |
-| `UPLEVEL`          | 当前的efront使用 [typescript](https://github.com/microsoft/TypeScript) 建行js版本的降级，如果您的代码发布时不需要降级，可添加此参数，以提高编译速度，typescript内部存在的问题也可由此参数屏蔽       |
+| `UPLEVEL`          | 当前的efront使用 [typescript](https://github.com/microsoft/TypeScript) 建行js版本的降级，如果您的代码发布时不需要降级，可添加此参数，以提高编译速度，typescript内部存在的问题也可由此参数屏蔽      |
 
 # 功能选项
 
@@ -150,11 +150,10 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 * 从 efront3.29 开始`.xht`文件将被识别为组件文件，如果文件内未提供入口，入口函数将由 efront 自动生成并填充
 # 相关链接
 
-[看图片，用白前](http://efront.cc/baiplay)
+[efront 兼容性说明](coms/basic_/readme.md)
+&nbsp;&nbsp;[更新日志](https://github.com/yunxu1019/efront/commits/develop)
+&nbsp;&nbsp;[与前端框架对比](docs/compare.md)
 
-[与前端框架对比](docs/compare.md)
-
-[播放器 demo 在线实例](http://efront.cc/kugou/)
-
-[更新日志](https://github.com/yunxu1019/efront/commits/develop)
-
+[酷酷千百易云音乐](http://efront.cc/kugou/)
+&nbsp;&nbsp;[局域网微信](http://efront.cc/wechat/)
+&nbsp;&nbsp;[白前看图](http://efront.cc/baiplay)
