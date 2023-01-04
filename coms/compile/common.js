@@ -829,28 +829,30 @@ var createString = function (parsed) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
                 var tmp = o.text, opentmp = false;
-                if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
-                    opentmp = true;
-                    if (/^\/\*/.test(tmp)) opentmp = 2;
-                    tmp = tmp.replace(/^\/[\/\*]\s*\<\!--\s*/, '');
-                    cacheresult = [];
-                    result = cacheresult;
-                    result.push("/* <!-- 开发辅助代码: */");
-                }
-                if (/--\!?\>\s*(?:\*\/)?$/.test(tmp) && result !== finalresult) {
-                    if (!opentmp) tmp = tmp.replace(/^\/[\/\*]\s*/, '');
-                    tmp = tmp.replace(/\s*--\!?\>\s*(?:\*\/)?$/, "");
-                    if (tmp) {
-                        result.push(tmp);
+                if (helpcode) {
+                    if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
+                        opentmp = true;
+                        if (/^\/\*/.test(tmp)) opentmp = 2;
+                        tmp = tmp.replace(/^\/[\/\*]\s*\<\!--\s*/, '');
+                        cacheresult = [];
+                        result = cacheresult;
+                        result.push("/* <!-- 开发辅助代码: */");
                     }
-                    result.push("/* --> */");
-                    opentmp = true;
-                    if (helpcode && cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
-                    result = finalresult;
-                }
-                else if (opentmp) {
-                    if (opentmp === 2) tmp = tmp.replace(/\s*\*\/$/, '');
-                    if (tmp) result.push("\r\n", tmp);
+                    if (/--\!?\>\s*(?:\*\/)?$/.test(tmp) && result !== finalresult) {
+                        if (!opentmp) tmp = tmp.replace(/^\/[\/\*]\s*/, '');
+                        tmp = tmp.replace(/\s*--\!?\>\s*(?:\*\/)?$/, "");
+                        if (tmp) {
+                            result.push(tmp);
+                        }
+                        result.push("/* --> */");
+                        opentmp = true;
+                        if (cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
+                        result = finalresult;
+                    }
+                    else if (opentmp) {
+                        if (opentmp === 2) tmp = tmp.replace(/\s*\*\/$/, '');
+                        if (tmp) result.push("\r\n", tmp);
+                    }
                 }
                 if (keepspace && !opentmp) {
                     if (lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
