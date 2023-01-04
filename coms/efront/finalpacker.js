@@ -10,6 +10,7 @@ var filebuilder = require("./filebuilder");
 var path = require("path");
 var mixin = require("./mixin");
 var fs = require("fs");
+var globals = require("./globals");
 var FILE_BUFFER_SIZE = memery.FILE_BUFFER_SIZE;
 var createManagersWithEnv = async function (env) {
     var commap = await getCommap(env.APP);
@@ -149,7 +150,10 @@ var exports = module.exports = async function (url, callback) {
         var managers = await getManagersWithEnv(env);
         var result = await managers.file(url, "");
     }
-    if (!result) callback(result, 404);
+    if (!result) {
+        if (name in globals) callback('', type);
+        else callback(result, 404);
+    }
     else callback(result, type);
     return result;
 };
