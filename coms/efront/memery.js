@@ -151,6 +151,7 @@ var _ifempty = {
 };
 var memery = module.exports = {
     islive: undefined,
+    proted: undefined,
     loghead: get('LOGHEAD, LOG'),
     defaults,
     get,

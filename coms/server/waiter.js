@@ -658,6 +658,7 @@ var checkServerState = function (http, port0) {
             if (type) return ok();
             if (powered === version) {
                 ok(`检查到${port}可以正常访问\r\n`);
+                if (!memery.proted) memery.proted = true;
             } else {
                 oh("<red>端口异常</red>");
             }

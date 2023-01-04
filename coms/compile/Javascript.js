@@ -257,6 +257,27 @@ var detourTemplate = function (raw, params) {
     return template;
 };
 
+var collectProperty = function (o, text) {
+    var q = o.queue;
+    if (!q.defined) q.defined = Object.create(null);
+    if (q.defined[text]) {
+        var t = q.defined[text];
+        var p = t.prev;
+        while (p && (p.type !== STAMP || p.text !== ',')) p = p.prev;
+        var start = p ? q.indexOf(p) : 0;
+        var n = t.next;
+        while (n && (n.type !== STAMP || n.text !== ',')) n = n.next;
+        var end = n ? q.indexOf(n) : q.length;
+        var s = q.splice(start, end - start);
+        if (p && n) {
+            var pp = p.prev;
+            n.prev = pp;
+            if (pp) pp.next = n;
+        }
+    }
+    q.defined[text] = o;
+};
+
 Javascript.prototype.detour = function detour(o, ie) {
     var avoidMap = this.avoidMap;
     while (o) {
@@ -319,7 +340,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                 }
                 else if (!o.prev || o.prev.type === STAMP || o.prev.type === STRAP) {
                     if (/^[`]/.test(o.text)) {
-                        o.text = strings.encode(strings.decode(o.text));
+                        o.text = strings.recode(o.text);
                     }
                 }
                 else {
@@ -337,35 +358,39 @@ Javascript.prototype.detour = function detour(o, ie) {
             case PROPERTY:
                 if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
-                if (ie === undefined || this.strap_reg.test(o.text)) {
-                    if (/^\[/.test(o.text)) break;
-                    if (o.queue.isObject) {
-                        var text = strings.encode(strings.decode(o.text));
-                        text = ie !== undefined ? text : `[${text}]`;
-                        if (o.short) {
-                            insertAfter.call(o.queue, o.prev, { text: text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
-                            o.type = EXPRESS;
-                            delete o.short;
-                        } else {
-                            o.text = text;
-                        }
+                if (/^\[/.test(o.text)) break;
+                if (o.queue.isObject) {
+                    var text = strings.recode(o.text);
+                    if (ie === undefined || o.prev && (o.prev.type !== STAMP || o.prev.text !== ",") || this.strap_reg.test(o.text)) {
+                        text = `[${text}]`;
                     }
-                    else if (o.queue.isClass) {
-                        if (o.text === 'constructor') break;
-                        var text = strings.encode(strings.decode(o.text));
-                        if (o.prev) {
-                            var prev = o.prev;
-                            if (prev && prev.isprop && /^(get|set|static|async)$/.test(prev.text)) {
-                                prev = prev.prev;
-                            }
-                            if (prev && prev.type === STAMP && prev.isprop) prev = prev.prev;
-                            if (prev && (prev.type !== STAMP || prev.text !== ';')) insertAfter(prev, { text: ';', type: STAMP });
+                    else {
+                        collectProperty(o, text);
+                    }
+                    if (o.short) {
+                        insertAfter.call(o.queue, o.prev, { text: text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
+                        o.type = EXPRESS;
+                        delete o.short;
+                    }
+                    else {
+                        o.text = text;
+                    }
+                }
+                else if (o.queue.isClass) {
+                    if (o.text === 'constructor') break;
+                    var text = strings.recode(o.text);
+                    if (o.prev) {
+                        var prev = o.prev;
+                        if (prev && prev.isprop && /^(get|set|static|async)$/.test(prev.text)) {
+                            prev = prev.prev;
                         }
-                        o.text = `[${text}]`;
-                        if (o.next && o.next.type === SCOPED && o.next.entry === "(") { }
-                        else if (!o.next || o.next.type !== STAMP || o.next.text !== "=") {
-                            insertAfter(o, { text: "=", type: STAMP }, { text: "undefined", type: VALUE, isExpress: true });
-                        }
+                        if (prev && prev.type === STAMP && prev.isprop) prev = prev.prev;
+                        if (prev && (prev.type !== STAMP || prev.text !== ';')) insertAfter(prev, { text: ';', type: STAMP });
+                    }
+                    o.text = `[${text}]`;
+                    if (o.next && o.next.type === SCOPED && o.next.entry === "(") { }
+                    else if (!o.next || o.next.type !== STAMP || o.next.text !== "=") {
+                        insertAfter(o, { text: "=", type: STAMP }, { text: "undefined", type: VALUE, isExpress: true });
                     }
                 }
                 break;

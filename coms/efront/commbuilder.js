@@ -339,10 +339,10 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         } = code;
         code_body = code;
     }
-    else if (memery.MSIE) {
+    else if (memery.proted && memery.MSIE) {
         code.helpcode = false;
-        code = require("./downLevel").code(code);
         code.detour();
+        code = require("./downLevel").code(code);
         var {
             vars: declares,
             used: allVariables,
