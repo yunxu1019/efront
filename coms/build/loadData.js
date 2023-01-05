@@ -9,6 +9,7 @@ function build(pages_root, lastBuiltTime, dest_root) {
     var filterMap = Object.create(null);
     var destpathMap = Object.create(null);
     var resolve;
+    var dependenceMap = Object.create(null);
     var builder = async function (roots) {
         roots = roots.sort().map(getBuildInfo).filter(a => {
             if (!a || !a.destpath) return false;
@@ -19,6 +20,8 @@ function build(pages_root, lastBuiltTime, dest_root) {
             }
             var url = a.url;
             var a = destpathMap[destpath];
+            if (url === a.url) return false;
+            dependenceMap[url] = a.url;
             for (var k in responseTree) {
                 var dependence = responseTree[k].dependence;
                 if (!dependence) continue;
@@ -48,6 +51,9 @@ function build(pages_root, lastBuiltTime, dest_root) {
             return false;
         };
         datas = datas.map(getDependence).map(async function (a) {
+            a.forEach((a, i, arr) => {
+                if (a in dependenceMap) arr[i] = dependenceMap[a];
+            });
             var required = (a.require || []).filter(filter);
             if (!include_required) return a.map(k => deps[k] = true);
             var required2 = required.map(r => require("path").join(a.dirname, r));

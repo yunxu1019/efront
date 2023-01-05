@@ -112,7 +112,6 @@ function toComponent(responseTree, noVersionInfo) {
             var key = k;
             if (!destMap[key]) {
                 saveOnlyGlobal(key);
-                asyncMap[key] = type;
             }
         } else {
             if (type === 'string') k = _strings.decode(k);
@@ -189,7 +188,6 @@ function toComponent(responseTree, noVersionInfo) {
         if (type === 'string') key = _strings.encode(key);
         return destMap[getEfrontKey(key, type)];
     };
-    var asyncMap = {};
     var saveCode = function (module_body, module_key, reqMap) {
         var this_module_params = {};
         var needAwaits = false;
@@ -285,7 +283,6 @@ function toComponent(responseTree, noVersionInfo) {
             }
             return index;
         }).concat(module_string)}]`, module_key);
-        if (isAsync) asyncMap[destMap[module_key]] = true;
     };
     var hasDirname = false;
     var initDirname = function () {
