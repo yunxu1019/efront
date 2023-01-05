@@ -292,7 +292,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                 code_body.push({ type: code_body.EXPRESS, text: commName });
             }
         } else {
-            if (!/\bmain|\bindex|\.(jsp|asp|php)$/i.test(path.basename(filename))) {
+            if (!/\bmain|\bindex|\_test\b|\.(jsp|asp|php)$/i.test(path.basename(filename))) {
                 if (filename.length > 48) {
                     filename = ".." + filename.slice(filename.length - 46);
                 }
