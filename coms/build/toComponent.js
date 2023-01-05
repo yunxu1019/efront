@@ -585,7 +585,7 @@ function toComponent(responseTree, noVersionInfo) {
     var template = `([${versionInfo}].map${array_map ? simple_compress(" || " + polyfill_map) : ''}).call([${dest}],${simple_compress(realize)},[${thisContext || 'this?this.window||this.globalThis||global:globalThis'}])[${public_index}]()`;
     if (exportName) {
         switch (exportName) {
-            case "node": template = `#!/usr/bin/env node\r\n` + template;
+            case "node": template = `#!/usr/bin/env node\r\n` + template; break;
             case "deno": template = "export default " + template; break;
         }
         if (!thisContext) switch (exportName) {
