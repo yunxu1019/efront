@@ -15,7 +15,7 @@ function _onappend(node, append = createEvent("append"), mount = createEvent("mo
     if (node.isMounted) return;
     if (node.nodeType === 1 || node.nodeType === 8) node.isMounted = true;
     dispatch(node, append);
-    var children = [...node.childNodes];
+    var children = Array.apply(null, node.childNodes);
     for (var c of children) {
         _onappend(c, append, mount);
     }

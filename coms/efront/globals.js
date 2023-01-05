@@ -28,10 +28,11 @@ var objects = {
     Math,
     JSON,
     console,
+    Event: null,
     performance: null,
 };
 var iemiss = {
-    Promise,
+    Promise: null,
     BigInt: null,
     Intl: null,
     Symbol: null,

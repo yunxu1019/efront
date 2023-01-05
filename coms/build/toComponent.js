@@ -88,6 +88,11 @@ function setDistpath(response, altername) {
     if (DESTNAME) response.destpath = DESTNAME;
 }
 function toComponent(responseTree, noVersionInfo) {
+    var thisContext = "";
+    var exportName = memery.EXPORT_TO || EXPORT_TO;
+    if (/^(this|globalThis|window|global)$/.test(exportName)) thisContext = exportName;
+    if (exportName === 'node') thisContext = 'global';
+    if (exportName === 'deno') thisContext = 'globalThis';
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];
     delete responseTree["[]map"];
     delete responseTree["[]map.js"];
@@ -169,7 +174,12 @@ function toComponent(responseTree, noVersionInfo) {
                 }
                 temp[cx] = t;
             }
-            temp = String.fromCharCode.apply(String, temp);
+            var strs = [];
+            while (temp.length > 0) {
+                strs.push(String.fromCharCode.apply(null, temp.splice(0, 1024)));
+            }
+            temp = strs.join('');
+
             if (!~strings.indexOf(temp)) source = temp;
         }
         source = _strings.encode(source);
@@ -408,7 +418,7 @@ function toComponent(responseTree, noVersionInfo) {
             }
             var dependence = response.dependence;
             if (dependence) {
-                result.push([k, dependence.require, dependence.requiredMap, [].concat(dependence, dependence.args, responseTree[k].toString().slice(dependence.offset))]);
+                result.push([k, dependence.require, dependence.requiredMap, [].concat(dependence, dependence.args, String(response.data || '').slice(dependence.offset))]);
             }
             else result.push([k, null, null, [response.data]]);
         }
@@ -571,16 +581,14 @@ function toComponent(responseTree, noVersionInfo) {
     realize = `function (a, c, s) {
     var ${declears};${realize}\r\n}`;
 
-    var thisContext = "";
-    var exportName = memery.EXPORT_TO || EXPORT_TO;
-    if (/^(this|globalThis|window)$/.test(exportName)) thisContext = exportName;
     var versionInfo = noVersionInfo ? '' : `/*${new Date().toString()} by efront ${require(path.join(__dirname, "../../package.json")).version}*/`;
-    var template = `([${versionInfo}].map${array_map ? simple_compress(" || " + polyfill_map) : ''}).call([${dest}],${simple_compress(realize)},[${thisContext || 'this.window||this.globalThis||global'}])[${public_index}]()`;
+    var template = `([${versionInfo}].map${array_map ? simple_compress(" || " + polyfill_map) : ''}).call([${dest}],${simple_compress(realize)},[${thisContext || 'this?this.window||this.globalThis||global:globalThis'}])[${public_index}]()`;
     if (exportName) {
+        switch (exportName) {
+            case "node": template = `#!/usr/bin/env node\r\n` + template;
+            case "deno": template = "export default " + template; break;
+        }
         if (!thisContext) switch (exportName) {
-            case 'node':
-                template = `#!/usr/bin/env node\r\n` + template;
-                break;
             case "void":
             case 'return':
                 template = exportName + " " + template;
@@ -596,7 +604,7 @@ function toComponent(responseTree, noVersionInfo) {
                 template = "module.exports=" + template;
                 break;
             default:
-                template = `this["${exportName}"]=` + template;
+                template = `(this||globalThis)["${exportName}"]=` + template;
                 responseTree[PUBLIC_APP].destpath = exportName;
 
         }

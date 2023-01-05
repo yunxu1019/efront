@@ -142,6 +142,7 @@ class Code extends Array {
     press(keepspace) {
         this.keepspace = keepspace;
         this.pressed = true;
+        this.helpcode = false;
         compress(this.scoped);
         return this;
     }

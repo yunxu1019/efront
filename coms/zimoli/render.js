@@ -32,10 +32,10 @@ var createTemplateNodes = function (text) {
     } else {
         var node = document.createElement(this.parentNode.tagName || "div");
         node.innerHTML = text;
-        this.with = [].slice.call(node.childNodes, 0);
+        this.with = Array.apply(null, node.childNodes);
     }
     appendChild.after(this, this.with);
-    this.with = renderElement(this.with, this.$scope, this.$parentScopes, this.renderid === 9);
+    this.with = renderElement(this.with, this.$scope, this.$parentScopes, this.$renderid === 9);
 };
 presets.template = function (t) {
     var comment = document.createComment('template');
@@ -57,16 +57,16 @@ var renderidClosed = 0;
 var addRenderElement = function () {
     var element = this;
     if (!isNode(element)) return;
-    if (element.renderid !== 9) {
+    if (element.$renderid !== 9) {
         // 只渲染一次
-        if (element.renderid < 10 && element.renderid > 0) element.renderid = ++renderidOffset;
-        renderElements[element.renderid] = element;
+        if (element.$renderid < 10 && element.$renderid > 0) element.$renderid = ++renderidOffset;
+        renderElements[element.$renderid] = element;
     }
     rebuild(element);
 };
 var removeRenderElement = function () {
     var element = this;
-    delete renderElements[element.renderid];
+    delete renderElements[element.$renderid];
 };
 function refresh(root) {
     var rest = [];
@@ -130,15 +130,15 @@ var createComment = function (renders, type, expression) {
 
 var initialComment = function (comment) {
     if (!comment.$struct.once) {
-        comment.renderid = ++renderidOffset;
+        comment.$renderid = ++renderidOffset;
         onmounted(comment, addRenderElement);
         onremove(comment, removeRenderElement);
         if (isMounted(comment) || eagermount) rebuild(comment);
     }
     else {
-        comment.renderid = 9;
+        comment.$renderid = 9;
         rebuild(comment);
-        delete comment.with;
+        if (comment.with) comment.with = null;
         remove(comment);
     }
 };
@@ -248,7 +248,7 @@ var createRepeat = function (search, id = 0) {
             }
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
-            clone.renderid = id;
+            clone.$renderid = id;
             clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
             clone.$struct = $struct;
@@ -300,7 +300,6 @@ var createIf = function (search, id = 0) {
                 break;
             }
         }
-        // console.log(shouldMount,savedValue,this,this.$scope)
         if (savedValue === shouldMount) return;
         savedValue = shouldMount;
         for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
@@ -308,8 +307,8 @@ var createIf = function (search, id = 0) {
             if (cx === shouldMount) {
                 var e = c.$template;
                 appendChild.after(c, e);
-                if (e.renderid < 0) {
-                    e.renderid = id;
+                if (e.$renderid < 0) {
+                    e.$renderid = id;
                     e = c.$template = render(e, this.$scope, this.$parentScopes);
                     e.$comment = c;
                 }
@@ -722,21 +721,21 @@ function renderRest(element, struct, replacer = element) {
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
     if (isArrayLike(element)) {
-        return Array.prototype.slice.call(element).map(function (element) {
+        return Array.apply(null, element).map(function (element) {
             return renderElement(element, scope, parentScopes, once);
         });
     }
     if (!isElement(element)) {
         return element;
     }
-    if (!isNumber(element.renderid)) {
-        element.renderid = 0;
+    if (!isNumber(element.$renderid)) {
+        element.$renderid = 0;
         element.$scope = scope;
         if (!isEmpty(parentScopes) && !isArray(parentScopes)) {
             throw new Error('父级作用域链应以数组的类型传入');
         }
         if (parentScopes) {
-            if (element.renderid && !element.$parentScopes || element.$parentScopes && element.$parentScopes.length !== parentScopes.length) {
+            if (element.$renderid && !element.$parentScopes || element.$parentScopes && element.$parentScopes.length !== parentScopes.length) {
                 throw new Error("父作用域链的长度必须相等着");
             }
         }
@@ -746,25 +745,26 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (isEmpty(s.once)) s.once = once;
         element.$eval = $eval;
     }
-    if (element.renderid <= -1) element = renderStructure(element);
+    if (element.$renderid <= -1) element = renderStructure(element);
     if (!element) return;
-    if (!element || element.renderid < 0 || element.nodeType !== 1) {
+    if (!element || element.$renderid < 0 || element.nodeType !== 1) {
         return element;
     }
     for (var id of element.$struct.ids) {
         if (scope[id] && scope[id] !== element) throw new Error("同一个id不能使用两次:" + id);
         scope[id] = element;
     }
-    var isFirstRender = !element.renderid;
+    var isFirstRender = !element.$renderid;
+
     if (isFirstRender) {
-        element.renderid = 1;
+        element.$renderid = 1;
         var parentNode = element.parentNode;
         if (parentNode) {
-            if (parentNode.renderid > 1 || isMounted(parentNode)) element.renderid = 2;
+            if (parentNode.$renderid > 1 || isMounted(parentNode)) element.$renderid = 2;
         }
         element.renders = element.renders ? [].concat(element.renders) : [];
         var { copys, binds, once } = element.$struct;
-        if (once) element.renderid = 9;
+        if (once) element.$renderid = 9;
         if (binds.src) {
             element.$src = parseRepeat(binds.src);
         }
@@ -784,7 +784,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             if (isNode(replacer) && element !== replacer) {
                 if (!replacer.$scope) replacer.$scope = scope;
                 if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
-                if (isElement(replacer) && !replacer.renderid) {
+                if (isElement(replacer) && !replacer.$renderid) {
                     createStructure(replacer);
                     if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
                     renderRest(replacer, replacer.$struct);
@@ -794,7 +794,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
-                if (!replacer.renderid) replacer.renderid = element.renderid;
+                if (!replacer.$renderid) replacer.$renderid = element.$renderid;
                 for (var id of element.$struct.ids) {
                     scope[id] = replacer;
                 }
@@ -818,10 +818,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         element.$struct.ons.forEach(([on, key, value]) => on.call(element, element, key, value));
     }
     if (element.renders.length) {
-        if (element.renderid !== 9) {
+        if (element.$renderid !== 9) {
             onmounted(element, addRenderElement);
             onremove(element, removeRenderElement);
-            if (isMounted(element) || element.renderid > 1) addRenderElement.call(element);
+            if (isMounted(element) || element.$renderid > 1) addRenderElement.call(element);
             else if (eagermount) rebuild(element);
         }
         else {
@@ -876,7 +876,7 @@ function createStructure(element) {
     if (isArrayLike(element)) return Array.prototype.map.call(element, createStructure);
     if (element.$struct) return element.$struct;
     // 处理结构流
-    var attrs = Array.prototype.slice.call(element.attributes);
+    var attrs = Array.apply(null, element.attributes);
     var types = {};
     var emiter_reg = /^(?:(v|ng|on|once)?\-|v\-on\:|@|once|on)/i;
     var ons = [];
@@ -888,6 +888,7 @@ function createStructure(element) {
     var ids = [];
     for (var attr of attrs) {
         var { name, value } = attr;
+        if (/^\$/.test(name)) continue;
         if (name === 'elementid' || name === 'renderid' || name === 'id') {
             ids.push(value);
             continue;
@@ -912,7 +913,7 @@ function createStructure(element) {
         }
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (structures.hasOwnProperty(key)) {
-            if (element.renderid <= -2) {
+            if (element.$renderid <= -2) {
                 if (/^if$|^else/i.test(key)) {
                     if (types.if) {
                         throw new Error(`暂不支持在同一元素上使用多次if结构!`);
@@ -924,14 +925,13 @@ function createStructure(element) {
                 }
             }
             if (/^if$|^else/i.test(key)) {
-                types.if = attr;
-                attr.key = key;
+                types.if = { key, name, value };
             }
             else {
                 types.repeat = attr;
             }
-            if (!element.renderid) element.renderid = -1;
-            else element.renderid = -2;
+            if (!element.$renderid) element.$renderid = -1;
+            else element.$renderid = -2;
             element.removeAttribute(name);
             continue;
         }

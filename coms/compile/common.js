@@ -829,7 +829,7 @@ var createString = function (parsed) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
                 var tmp = o.text, opentmp = false;
-                if (helpcode) {
+                if (!keepspace || helpcode) {
                     if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
                         opentmp = true;
                         if (/^\/\*/.test(tmp)) opentmp = 2;
@@ -846,7 +846,7 @@ var createString = function (parsed) {
                         }
                         result.push("/* --> */");
                         opentmp = true;
-                        if (cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
+                        if (helpcode && cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
                         result = finalresult;
                     }
                     else if (opentmp) {

@@ -5,6 +5,7 @@ var {
     String,
     Object,
     isFinite,
+    document,
     console
 } = this;
 
@@ -33,7 +34,7 @@ function forEach(f, o) {
 }
 function filter(f, o) {
     if (!(f instanceof Function)) return;
-    var result = new this.constructor;
+    var result = Object.create(this.constructor.prototype);
     if (this instanceof String) {
         result = this.split("").filter(f, o);
     }
@@ -73,14 +74,37 @@ if (!ArrayProto.filter) ArrayProto.filter = filter;
 if (!"".trim) String.prototype.trim = trim;
 if (!Object.keys) Object.keys = keys;
 if (!Object.create) Object.create = function (object) {
-    return { __proto__: object };
+    if (object === null) {
+        // 参考 https://github.com/tarruda/object-create
+        var iframe = document.createElement('iframe');
+        var parent = document.body || document.documentElement;
+        iframe.style.display = 'none';
+        parent.appendChild(iframe);
+        iframe.src = 'javascript:';
+        var empty = iframe.contentWindow.Object.prototype;
+        parent.removeChild(iframe);
+        iframe = null;
+        delete empty.constructor;
+        delete empty.hasOwnProperty;
+        delete empty.propertyIsEnumerable;
+        delete empty.isPrototypeOf;
+        delete empty.toLocaleString;
+        delete empty.toString;
+        delete empty.valueOf;
+        return empty;
+    };
+    var f = function () { };
+    f.prototype = object;
+    return new f;
 };
 if (!Function.prototype.bind) Function.prototype.bind = function (context) {
     var args = [].slice.call(arguments, 1);
     var f = this;
-    return function () {
+    var c = function () {
         var _args = args.slice.call(arguments, 0, arguments.length);
         args.unshift.apply(_args, args);
         return f.apply(context === void 0 || context === null ? this : context, _args);
     };
+    c.prototype = this.prototype;
+    return c;
 };

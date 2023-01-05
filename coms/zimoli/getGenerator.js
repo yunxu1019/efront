@@ -7,7 +7,7 @@ var cloneChildNodes = function (template) {
     var tNodes = template.childNodes;
     for (var cx = 0, dx = cNodes.length; cx < dx; cx++) {
         cNodes[cx].$struct = tNodes[cx].$struct;
-        cNodes[cx].renderid = tNodes[cx].renderid;
+        cNodes[cx].$renderid = tNodes[cx].$renderid;
     }
     return cNodes;
 }

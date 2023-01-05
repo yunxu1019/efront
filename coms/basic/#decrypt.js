@@ -1,3 +1,4 @@
+var String = window.String;
 var uncode = function (text) {
     var ratio = 1;
     var sum = 0;

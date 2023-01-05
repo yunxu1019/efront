@@ -81,7 +81,7 @@ function main(express) {
             add_exp(str);
         }
         lastIndex = match.index + m.length;
-        if (match[1] !== undefined) {
+        if (match[1]) {
             exp.push(match[1]);
         }
         else if (/[\[\{\(]/.test(m)) {

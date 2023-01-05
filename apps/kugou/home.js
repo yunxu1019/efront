@@ -1,4 +1,4 @@
-var page = div();
+var page = document.createElement("page");
 page.initialStyle = 'transform:scale(.9);opacity:0;';
 var tags = "新歌:song/list:音乐总有新玩法,排行:rank/list:排行榜 - 酷狗音乐,歌单:plist/list:歌单 - 酷狗音乐,歌手:singer/keywords:歌手分类 - 酷狗音乐".split(",").map(function (tag, cx) {
     var [str, url, title] = tag.split(":");

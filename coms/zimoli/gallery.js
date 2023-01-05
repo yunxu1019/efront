@@ -67,7 +67,7 @@ function gallery(element, minWidth, generator) {
             var c = createColumn(cx);
             element.appendChild(c);
         }
-        bindScroll([].slice.call(element.children, 0));
+        bindScroll(Array.apply(null, element.children));
 
     };
     element.go = function (index) {

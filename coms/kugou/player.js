@@ -137,10 +137,10 @@ var $scope = {
     canvas: kugou$dance,
     activeList: playList,
     index: 0,
-    get songName() {
+    getSongName() {
         return this.info.singername || this.info.singerName;
     },
-    get singerName() {
+    getSingerName() {
         return this.info.songname || this.info.songName;
     },
     update() {
@@ -431,8 +431,9 @@ var createControls = function () {
     });
     return player;
 };
-var ns = new thirdParty$NoSleep;
+var ns = document.addEventListener && new thirdParty$NoSleep;
 data.bindInstance("play-mode", function (e) {
+    if (!ns) return;
     if (e.wake) {
         ns.wake = true;
         if ($scope.playing) {

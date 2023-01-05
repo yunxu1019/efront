@@ -20,11 +20,18 @@ if (window.Promise) {
         for (var t of threads) {
             if (t.oked) {
                 for (var r of t.PromiseFulfillReactions) {
-                    r.apply(null, t.oked);
+                    r.call(null, t.oked[0]);
                 }
             }
             if (t.ohed) {
-                if (!t.PromiseRejectReactions.length) throw t.ohed[0];
+                var throwed = t.throwed;
+                t.throwed = true;
+                if (!throwed && !t.PromiseRejectReactions.length) {
+                    // <!--
+                    console.warn("在异步过程中发现未处理的异常：", t.ohed[0], t.ohed[1], t.ohed[2]);
+                    // -->
+                    throw t.ohed[0];
+                }
                 for (var r of t.PromiseRejectReactions) {
                     r.apply(null, t.ohed);
                 }
@@ -42,21 +49,21 @@ if (window.Promise) {
         this.PromiseFulfillReactions = []; //thens
         this.PromiseRejectReactions = []; //catches
         this.oked = this.ohed = null;
-
-        var ResolvingFunctions_resolve = (result) => { //ok
-            if (this.oked || this.ohed) return;
+        var p = this;
+        var ResolvingFunctions_resolve = function (result) { //ok
+            if (p.oked || p.ohed) return;
             if (isThenable(result)) {
                 result.then(ResolvingFunctions_resolve, ResolvingFunctions_reject);
             } else {
-                this.oked = arguments;
-                fire(this);
+                p.oked = arguments;
+                fire(p);
             }
         };
 
-        var ResolvingFunctions_reject = (e) => { //oh
-            if (this.oked || this.ohed) return;
-            this.ohed = arguments;
-            fire(this);
+        var ResolvingFunctions_reject = function (e) { //oh
+            if (p.oked || p.ohed) return;
+            p.ohed = arguments;
+            fire(p);
         };
         executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
     };
@@ -69,15 +76,15 @@ if (window.Promise) {
                         a = onok(a);
                         ok(a);
                     } catch (e) {
-                        oh(e);
+                        oh(e, onok, onoh);
                     }
                 };
                 if (onoh) reject = function (a) {
                     try {
-                        a = onoh(a);
+                        a = onoh.apply(null, arguments);
                         ok(a);
                     } catch (e) {
-                        oh(e);
+                        oh(e, onok, onoh);
                     }
                 };
             })

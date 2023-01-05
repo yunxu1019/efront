@@ -210,7 +210,7 @@ function seekResponse(data, seeker, apiMap = {}) {
         seeker = unescape(seeker);
         var reg = /^(\[\]|,)|(\[\]|,)$/g;
         if (reg.test(seeker)) {
-            return [].concat.apply([], data.querySelectorAll(seeker.replace(reg, '')));
+            return Array.apply(null, data.querySelectorAll(seeker.replace(reg, '')));
         }
         var reg = /[\|\?\!\/]/, selector, prop;
         if (reg.test(seeker)) {
@@ -321,17 +321,27 @@ var parseData = function (sourceText) {
             return new window.DOMParser().parseFromString(sourceText, "text/html");
         }
         // XML 格式
-        var doc = document.implementation.createHTMLDocument('');
+        var { implementation } = document;
+        if (implementation.createHTMLDocument) var doc = implementation.createHTMLDocument("");
+        else {
+            doc = document.createElement("html");
+            doc.head = document.createElement("head");
+            doc.body = document.createElement("body");
+            doc.appendChild(doc.head);
+            doc.appendChild(doc.body);
+            doc.documentElement = doc;
+        }
         if (isWorseIE) {
             sourceText = sourceText
                 .replace(/<!--[\s\S]*?-->|<\[CDATA\[[\s\S]*?\]\]>/ig, '')
                 .replace(/^[\s\S]*?<html>([\s\S]*)<\/html>[\s\S]*?$/i, '$1')
                 .replace(/^([\s\S]*?)<body>([\s\S]*?)$/i, '$1<body>$2')
-                .replace(/<\/body>[\s\S]*?$/, '');
-            var div = document.createElement('div');
-            div.innerHTML = sourceText.replace(/^([\s\S]*?)<body>[\s\S]*?$/, "$1")
+                .replace(/<\/body>[\s\S]*?$/, '')
+                .replace(/<(script|style)[\s\>][\s\S]*?<\/\1>/ig, '');
+            var hd = document.createElement('div');
+            hd.innerHTML = sourceText.replace(/^([\s\S]*?)<body>[\s\S]*?$/, "$1")
                 .replace(/<head>/i, '').replace(/<\/head>/i, '');
-            for (var c of [...div.childNodes]) doc.head.appendChild(c);
+            for (var c of Array.apply(null, hd.childNodes)) doc.head.appendChild(c);
             doc.body.innerHTML = sourceText.replace(/^[\s\S]*?<body>/, '');
         } else {
             doc.documentElement.innerHTML = sourceText;

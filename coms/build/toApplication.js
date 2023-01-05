@@ -12,6 +12,7 @@ var r34 = "]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 var memory = require("../efront/memery");
 var toComponent = require("./toComponent");
 var scanner2 = require("../compile/scanner2");
+var patchDependence = require("./getDependence");
 var codetemp = function (delta) {
     var temp = [];
     while (delta > 0) {
@@ -68,18 +69,66 @@ var encrypt = function (text, efrontsign) {
 var encoded = memory.ENCRYPT;
 var ReleaseTime = new Date();
 ReleaseTime = String(ReleaseTime);
-var buildHtml = function (html, code, outsideMain) {
+var buildHtml = function (html, code, outsideMain, responseTree) {
     var isZimoliDetected = false;
     var poweredByComment;
-    var html = html.toString()
-        .replace(/^\s*(<!doctype[^>]*?>\s*)?<!--([\s\S]*?)--!?>/i, function (_, doctype, message) {
+    html = html.toString();
+    cssDataMap = Object.create(null);
+
+    if (!outsideMain && setting.is_file_target) html = html.replace(/<link\s+([\s\S]*?)\s*\/>/g, function (link, content) {
+        var scanned = scanner2(link, 'html');
+        var attrs = Object.create(null);
+        var attrValues = Object.create(null);
+        for (var a of scanned) {
+            if (a.type === scanned.STAMP && a.text === '=') {
+                var p = a.prev, n = a.next;
+                if (!p || !n) continue;
+                attrs[p.text] = strings.decode(n.text);
+                attrValues[p.text] = n;
+            }
+        }
+        var k = findTreeKey(responseTree, attrs.href);
+        var data = responseTree[k].data;
+        if (k && data && attrs.rel) switch (attrs.rel.toLowerCase()) {
+            case "shortcut icon":
+                var type = attrs.type;
+                if (!type) type = {
+                    ".ico": "image/x-icon",
+                    ".png": "image/png",
+                    ".jpg": "image/jpeg",
+                    ".jpe": "image/jpeg",
+                    ".jpeg": "image/jpeg",
+                    ".gif": "image/gif",
+                    ".svg": "image/svg+xml"
+                }[path.extname(attrs.href).toLowerCase()];
+                if (!type) break;
+                data = `data:${attrs.type || ''};base64,` + Buffer.from(data).toString("base64");
+                if (data.length > 8192) break;
+                attrValues.href.text = strings.encode(data);
+                delete responseTree[k];
+                return scanned.toString();
+            case "stylesheet":
+                data = importCss(attrs.href, responseTree);
+                if (data === null) break;
+                if (!memory.KEEPSPACE) data = data.replace(/[\;\}\{]\s+/g, '');
+                return `<style${attrs.type ? ` type=${strings.encode(attrs.type)}` : ""}>${data}</style>`;
+        }
+        return link;
+    });
+    for (var k in cssDataMap) delete responseTree[k];
+    cssDataMap = null;
+    var html = html
+        .replace(/^\s*(<!doctype[^>]*?>\s*)?\<\!\-\-([\s\S]*?)\-\-\!?>\s*/i, function (_, doctype, message) {
             // `${doctype}<!--${message}\r\n${efrontReloadVersionAttribute}-->`
             poweredByComment = _;
             return "";
         })
-        .replace(/<!--[\s\S]*?--!?>/g, "")
+        .replace(/<\!\-\-([\s\S]*?)\-\-\!?>\s*/g, (_, a) => {
+            if (/^\s*\[[\s\S]*\]\s*$/.test(a)) return _;
+            return '';
+        })
         .replace(/<title>(.*?)<\/title>/i, `<title>${memory.TITLE || "$1"}</title>`)
-        .replace(/<script\b[\s\S]*?<\/script>\s*/ig, function (script) {
+        .replace(/<script\b[\s\S]*?<\/script>(\s*)/ig, function (script, s) {
             if (/(["'`])post\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
                 isZimoliDetected = true;
                 return "";
@@ -89,6 +138,20 @@ var buildHtml = function (html, code, outsideMain) {
             }
             if (/\b((delete|ignore)oncompile|efrontworker)\b/i.test(script)) {
                 return "";
+            }
+            a: if (!outsideMain && setting.is_file_target) {
+                var match = /\ssrc=(["']|)(.*?)\1/.exec(script);
+                if (!match) break a;
+                var [, quote, src] = match;
+                var k = findTreeKey(responseTree, src);
+                if (!k) break a;
+                var scriptData = responseTree[k].data;
+                if (!scriptData) break a;
+                delete responseTree[k];
+                if (memory.COMPRESS) {
+                    scriptData = scanner2(scriptData.toString()).press(memory.KEEPSPACE).toString();
+                }
+                return `<script>\r\n//<![CDATA[\r\n${scriptData}\r\n//]]>\r\n</script>${s}`;
             }
             return script;
         });
@@ -197,54 +260,10 @@ function toApplication(responseTree) {
         responseTree["/" + indexnames[0]] = indexHtml;
     }
     var { EXTRACT = htmls.length > 1 } = memory;
-    if (!EXTRACT && setting.is_file_target) {
-        htmls.forEach(html => html.data = String(html.data).replace(/<link\s+([\s\S]*?)\s*\/>/g, function (link, content) {
-            var scanned = scanner2(link, 'html');
-            var attrs = Object.create(null);
-            var attrValues = Object.create(null);
-            for (var a of scanned) {
-                if (a.type === scanned.STAMP && a.text === '=') {
-                    var p = a.prev, n = a.next;
-                    if (!p || !n) continue;
-                    attrs[p.text] = strings.decode(n.text);
-                    attrValues[p.text] = n;
-                }
-            }
-            var k = findTreeKey(responseTree, attrs.href);
-            var data = responseTree[k].data;
-            if (k && data && attrs.rel) switch (attrs.rel.toLowerCase()) {
-                case "shortcut icon":
-                    var type = attrs.type;
-                    if (!type) type = {
-                        ".ico": "image/x-icon",
-                        ".png": "image/png",
-                        ".jpg": "image/jpeg",
-                        ".jpe": "image/jpeg",
-                        ".jpeg": "image/jpeg",
-                        ".gif": "image/gif",
-                        ".svg": "image/svg+xml"
-                    }[path.extname(attrs.href).toLowerCase()];
-                    if (!type) break;
-                    data = `data:${attrs.type || ''};base64,` + Buffer.from(data).toString("base64");
-                    if (data.length > 8192) break;
-                    attrValues.href.text = strings.encode(data);
-                    delete responseTree[k];
-                    return scanned.toString();
-                case "stylesheet":
-                    cssDataMap = Object.create(null);
-                    data = importCss(attrs.href, responseTree);
-                    if (data === null) break;
-                    for (var k in cssDataMap) delete responseTree[k];
-                    cssDataMap = null;
-                    return `<style${attrs.type ? ` type=${strings.encode(attrs.type)}` : ""}>${data}</style>`;
-            }
-            return link;
-        }));
-    }
     if (mainScript) {
         var outsideMain = EXTRACT ? "main-" + mainScript.queryfix + ".js" : "";
         htmls.forEach(function (response) {
-            response.data = buildHtml(response.data, mainScript.data, outsideMain);
+            response.data = buildHtml(response.data, mainScript.data, outsideMain, responseTree);
         });
         if (outsideMain) {
             mainScript.destpath = outsideMain;
@@ -387,14 +406,26 @@ module.exports = async function (responseTree) {
         else xTreeName = "versionTree";
         mainVersion = true;
     }
-    var missing = Object.keys(responseTree).map(k => responseTree[k]).filter(function (a) {
-        return a && !a.data;
-    }).map(a => a.url).map(a => `"${a}": window["${a}"]`).join(",\r\n");
+    var missing = Object.keys(responseTree).filter(k => !responseTree[k].data);
     var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
     var versionVariableName;
+    var prebuilds = Object.create(null);
+    prebuilds.state = true;
+    prebuilds.prepare = true;
+    prebuilds.module = true;
+    prebuilds.exports = true;
     mainScriptData = mainScriptData.toString()
         .replace(/var\s+killCircle[\s\S]*?\}\);?\s*\}\s*\};/, 'var killCircle=function(){};')
-        .replace(/var\s+modules\s*=\s*\{/, `$&\r\n${missing},\r\n`)
+        .replace(/modules\.([^\s]+)\s*\=/g, function (_, name) {
+            prebuilds[name] = true;
+            return _;
+        })
+        .replace(/(var\s+modules\s*=\s*\{\s*)([\s\S]*?)(\s*\})/, function (_, prefix, modules, aftfix) {
+            var parsed = parseKV(modules, ',', ":");
+            Object.keys(parsed).forEach(k => prebuilds[k] = true);
+            missing = missing.filter(k => !prebuilds[responseTree[k].url]);
+            return `${prefix}${missing.map(k => responseTree[k].warn ? `${k}:window["${k}"]` : k).join(",\r\n")}\r\n${modules}${aftfix}`;
+        })
         .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
         .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
         .replace(
@@ -411,9 +442,11 @@ module.exports = async function (responseTree) {
     mainScriptData = await commbuilder(mainScriptData, "main.js", mainScript.realpath, []);
     memory.EXPORT_AS = '';
     memory.EXPORT_TO = "this";
-    mainScript.data = toComponent({
-        main: { url: "main", destpath: "main", data: mainScriptData },
-        "[]map": array_map && {}
-    }, true).main.data;
+    var maindata = { url: "main", destpath: "main", type: '', time: mainScript.time, realpath: mainScript.realpath, data: mainScriptData };
+    patchDependence(maindata);
+    var newTree = Object.create(null);
+    Object.assign(newTree, { main: maindata, "[]map": array_map && {} });
+    missing.forEach(k => newTree[k] = {});
+    mainScript.data = toComponent(newTree, true).main.data;
     return toApplication(responseTree);
 };

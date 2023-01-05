@@ -1,10 +1,12 @@
 "use strict";
 var window = this;
+var isProduction = true;
+// <!-- isProduction = false -->
+
 var {
     parseInt,
     XMLHttpRequest,
     ActiveXObject,
-    isProduction = function develop() { return develop.name !== 'develop'; }(),
     Error,
     Function,
     Array,
@@ -18,7 +20,6 @@ var {
     top,
     location,
     Object,
-    String,
     console,
     efrontURI,
     parseFloat,
@@ -137,9 +138,11 @@ var readFile = function (names, then) {
         clearTimeout(flush_to_storage_timer);
         flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
         readingCount--;
+        // <!--
         if (readingCount === 0) {
             killCircle();
         }
+        // -->
     };
     var oh = function (e) {
         if (isProduction) {
@@ -164,7 +167,12 @@ var createFunction = function (name, body, args, isAsync, isYield) {
 
 var FILE_NAME_REG = /^https?\:|\.(html?|css|asp|jsp|php)$/i;
 var loadedModules = {};
+// <!--
+var undefinedModules = {};
 var killCircle = function () {
+    var undefinedkeys = Object.keys(undefinedModules);
+    if (undefinedkeys.length) console.warn("已使用 undefined 代替", undefinedkeys.join(", "));
+    undefinedModules = {};
     var penddings = {}, circle = [], module_keys = [];
     for (var k in loadedModules) {
         if (k.slice(0, keyprefix.length) === keyprefix && loadedModules[k] instanceof Array) {
@@ -233,10 +241,11 @@ var killCircle = function () {
         });
     }
 };
+// -->
 var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (name, then, prebuilds = {}) {
     if (/^(?:module|exports|define|require|window|global|undefined|__dirname|__filename)$/.test(name)) return then();
-    if ((name in prebuilds) || hasOwnProperty.call(modules, name) || (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
+    if ((hasOwnProperty.call(prebuilds, name)) || hasOwnProperty.call(modules, name) || (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
     ) return then();
     preLoad(name);
     var key = keyprefix + name;
@@ -276,7 +285,9 @@ var loadModule = function (name, then, prebuilds = {}) {
                 flushTree(loadedModules, key);
                 return;
             }
-            if (!data) console.log(name, data);
+            // <!--
+            if (!data) undefinedModules[name] = true;
+            // -->
             var [argNames, body, args, required, strs, isAsync, isYield] = getArgs(data);
             if (isProduction) {
                 strs = strs.map ? strs.map(toRem) : strs;
@@ -412,7 +423,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     var required = exec.required;
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
     var argsList = originNames.map(function (argName) {
-        if (argName in prebuilds) {
+        if (hasOwnProperty.call(prebuilds, argName)) {
             return prebuilds[argName];
         }
         if (argName === "module") {
@@ -459,7 +470,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         var result, created;
         if (prebuilds.init) {
             var prebuilds2 = Object.create(null);
-            for (var k in prebuilds) prebuilds2[k] = prebuilds[k];
+            for (var k in prebuilds) if (hasOwnProperty.call(prebuilds, k)) prebuilds2[k] = prebuilds[k];
             prebuilds = prebuilds2;
             delete prebuilds.popup;
             delete prebuilds.action;
@@ -489,7 +500,7 @@ var init = function (name, then, prebuilds) {
     // then = bindthen(then);
     var key = keyprefix + name;
     if (prebuilds) {
-        if (name in prebuilds) {
+        if (hasOwnProperty.call(prebuilds, name)) {
             if (then) then(prebuilds[name]);
             return prebuilds[name];
         }
@@ -585,7 +596,7 @@ var init = function (name, then, prebuilds) {
             then(module.created = modules[name] = created);
             return;
         }
-        var filteredArgs = prebuilds ? args.filter(a => !(a in prebuilds)) : args;
+        var filteredArgs = prebuilds ? args.filter(a => !hasOwnProperty.call(prebuilds, a)) : args;
 
         var saveAsModule = filteredArgs.length === args.length;
         if (!filteredArgs.length) {
@@ -794,6 +805,7 @@ var loadResponseTreeFromStorage = function () {
 var preLoad = function () { };
 var start_time = efront_time / 1000 | 0;
 var errored = {};
+// modules 的代码不可出现多层
 var modules = {
     isProduction,
     undefined: void 0,
@@ -810,12 +822,12 @@ var modules = {
     devicePixelRatio,
     renderPixelRatio,
     efrontsign: "",
-    debug() {
-        document.addEventListener("blur", e => e.stopPropagation(), true);
-    },
-    put(name, module) {
-        modules[name] = module;
-    },
+};
+modules.debug = function () {
+    document.addEventListener("blur", e => e.stopPropagation(), true);
+};
+modules.put = function (name, module) {
+    modules[name] = module;
 };
 var penddings = {};
 

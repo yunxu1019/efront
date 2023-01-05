@@ -1,6 +1,6 @@
 var setPrototypeOf = Object.setPrototypeOf || function (obj, proto) {
     var hasOwnProperty = Object.prototype.hasOwnProperty;
-    for (var p in proto) if (!hasOwnProperty.call(obj)) obj[p] = proto[p];
+    for (var p in proto) if (hasOwnProperty.call(proto, p) && !(p in obj)) obj[p] = proto[p];
     return obj;
 }
 function Array2() {

@@ -1,5 +1,6 @@
 var isEmpty = require("./isEmpty");
 var convertReg = /^(?:object|function)$/;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
 var check = function (o) {
     return o === null || typeof o === 'bigint' || o instanceof BigInt || typeof o === 'number' || typeof o === "boolean";
 };
@@ -260,6 +261,7 @@ function parse(string, preload) {
     if (!isEmpty(preload)) dist = dist.concat(preload);
     var preloads_length = dist.length - 1;
     dist = dist.concat(trimed.slice(1, trimed.length));
+
     for (var cx = 0, dx = marked.length; cx < dx; cx++) {
         var index = marked[cx];
         var o = trimed[index];
@@ -276,11 +278,13 @@ function parse(string, preload) {
         delete o[""];
         delete o._;
         if (arr) for (var k in arr) {
-            t[k] = dist[arr[k]];
+            if (hasOwnProperty.call(arr, k)) t[k] = dist[arr[k]];
         }
         for (var k in o) {
-            var v = o[k];
-            t[dist[k]] = dist[v];
+            if (hasOwnProperty.call(o, k)) {
+                var v = o[k];
+                t[dist[k]] = dist[v];
+            }
         }
     }
     if (trimed.length > 1 && typeof trimed[0] === 'number') {

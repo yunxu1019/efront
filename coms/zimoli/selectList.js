@@ -188,7 +188,7 @@ function main() {
                     appendChild(page, adder);
                     break;
                 case this.children[1]:
-                    var options = [].slice.call(children, 0, children.length);
+                    var options = Array.apply(null, children);
                     var edit = selectListEdit(options.slice(0));
                     page.with = edit;
                     on("remove")(edit, function () {

@@ -75,3 +75,9 @@
     Array.prototype.slice.call(objNodeList,...)
     ```
     `ie8`及以下浏览器不支持`this`指向`NodeList`等dom对象，而当前`efront`和内部使用的`typescript`转换的代码都没有处理这一细节，所以暂时不要在dom操作相关的语句中使用高级语法，以避免转换后的代码出问题。
+    ```javascript
+    var div = document.createElement("div");
+    div.innerHTML = `<abcd><span></span></abcd>`;
+    console.log(div.innerHTML); // <SPAN></SPAN>
+    ```
+    `ie8`及以下浏览器无法正确地通过`innerHTML`属性设置自定义标签，`efront`提供的大部分组件都使用了这一特性，`efront`示例项目中[ie8.js](../../apps/kugou/ie8.js)可以实现`ie8`上设置`innerHTML`的适配，但不能保证样式正常，对于`ie7`及以下的浏览器，就暂时别用`efront`提供的与元素相关的组件了。
