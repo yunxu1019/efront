@@ -8,6 +8,7 @@ function main(params, from) {
     var page = div();
     page.initialStyle = 'margin-left:100%';
     page.innerHTML = search;
+    document.title = "搜索";
     var $scope = render(page, {
         titlebar,
         back,

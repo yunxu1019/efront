@@ -9,6 +9,10 @@ function krc(list = div()) {
                 appendChild(list, children);
                 list.process = children.process;
             }
+            else {
+                list.process = Function.prototype;
+                document.title = `${info.songName} - ${info.singerName}`;
+            }
             return;
         }
         var content = info.krc.slice(4).map((a, i) => a ^ secret[i % 16]);
@@ -77,6 +81,7 @@ function setClass(krcList, index) {
     removeClass(ele, "after before after-active before-active");
     addClass(krcList[index - 1], 'before-active');
     addClass(ele, "active");
+    document.title = ele.innerText;
     krcList.slice(index + 1).map(function (a) {
         removeClass(a, "before active after-active before-active");
         addClass(a, "after");
