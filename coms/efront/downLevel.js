@@ -33,9 +33,23 @@ var recoverArguments = function (scoped) {
     }
     for (var s of scoped) recoverArguments(s);
 };
+var replaceArray = function (a, i, arr) {
+    var p = a.prev;
+    if (!p || p.type !== STRAP || p.text !== "extends") return;
+    a.text = "Array2";
+    var used = this.used;
+    var envs = this.envs;
+    if (!used.Array2) {
+        envs.Array2 = true;
+        used.Array2 = [];
+    }
+    arr.splice(i, 1);
+    used.Array2.push(a);
+};
 var downLevelCode = function (code) {
     var isAsync = code.async;
     var isYield = code.yield;
+    if (code.envs.Array) backEach(code.used.Array, replaceArray, code);
     renameArguments(code.scoped, 0);
     code.keepcolor = false;
     var data = code.toString();
@@ -50,7 +64,6 @@ var downLevel = module.exports = function (data, isAsync, isYield) {
         data = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(){${data}}`;
     }
     if (isAsync) downLevel.isAsync = true;
-    data = data.replace(/(\sextends\s+)Array(\s||\{)/g, `$1Array2$2`);
     data = typescript.transpile(data, { noEmitHelpers: true });
     if (isYield || isAsync) {
         data = data.replace(/^\s*function\s*\(\s*\)\s*\{\s*([\s\S]*?)\s*\}\s*$/, "$1");
