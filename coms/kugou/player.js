@@ -166,9 +166,9 @@ var $scope = {
         }
         $scope.currentTime = filterTime(currentTime, duration);
         $scope.totalTime = filterTime(duration, duration);
-        $scope.currentRotate = `rotate(${currentTime * 6}deg)`;
+        $scope.currentRotate = `rotate(${-currentTime * 6}deg)`;
         $scope.quickTheta = currentTime / 3 * Math.PI;
-        $scope.currentTheta = ((currentTime * 6 + 90) % 180 - 90) / 180 * Math.PI;
+        $scope.currentTheta = (90 - (currentTime * 6 + 90) % 180) / 180 * Math.PI;
         playState.width = (currentTime * 100 / duration).toFixed(2) + `%`;
         $scope.currentProcess = `width:` + playState.width;
     },
@@ -207,6 +207,8 @@ var $scope = {
         if (player.offsetHeight <= calcPixel(80)) {
             var centerx = 44 / width, centery = .5;
             var start = 11 * ratio | 0, end = 77 * ratio | 0;
+            var cost = cos(currentTheta);
+            var sint = sin(currentTheta);
             for (var cx = start, dx = end; cx < dx; cx++) {
                 var [x, y] = buf[cx];
                 y -= 0.1;
@@ -214,8 +216,8 @@ var $scope = {
                     x = (x - centerx) * width;
                     y = (y - centery) * height;
                     y = y * cos(x / 66 * Math.PI);
-                    var x1 = cos(currentTheta) * x - sin(currentTheta) * y,
-                        y1 = cos(currentTheta) * y + sin(currentTheta) * x;
+                    var x1 = cost * x - sint * y,
+                        y1 = cost * y + sint * x;
                     buf[cx][0] = x1 / width + centerx;
                     buf[cx][1] = y1 / height + centery;
                 } else {
