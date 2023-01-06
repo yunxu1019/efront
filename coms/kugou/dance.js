@@ -39,23 +39,24 @@ var danceIcon = lazy(async function (theta) {
      * @type {CanvasRenderingContext2D}
     */
     var context = canvas.getContext("2d");
+    var size = 32;
     if (linkImage.src !== shortcurt.getHref()) {
         linkImage.src = shortcurt.getHref();
         await awaitable(linkImage);
-        canvas.width = 40;
-        canvas.height = 40;
+        canvas.width = size;
+        canvas.height = size;
     }
     context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, size, size);
     var matrix = Matrix.create2d(0);
-    matrix.translate(-20, -20);
+    matrix.translate(-size >> 1, -size >> 1);
     matrix.rotate(-theta);
     matrix.scale(ratio);
-    matrix.translate(20, 20);
+    matrix.translate(size >> 1, size >> 1);
     context.setTransform.apply(context, matrix.getTransform());
-    context.drawImage(linkImage, 0, 0, canvas.width, canvas.height);
+    context.drawImage(linkImage, 0, 0, size, size);
     shortcurt.href = canvas.toDataURL();
-});
+}, -120);
 /**
  * @this {HTMLCanvasElement}
  */
