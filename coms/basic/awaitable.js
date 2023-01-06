@@ -4,7 +4,7 @@
  * @param {Element|Object|any} image;
  */
 function awaitable(image) {
-    if (image.complete) return image;
+    if (image.complete || image.then) return image;
     var oks = [];
     var ohs = [];
     var resolved = false,

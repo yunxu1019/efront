@@ -84,8 +84,11 @@ class Matrix extends Array {
     }
 }
 class MathMatrix extends Matrix {
+    getTransform() {
+        return [this[0], this[1], this[3], this[4], this[6], this[7]];
+    }
     toDOMString() {
-        if (this.size()[1] === 2) return `matrix(${[this[0], this[1], this[3], this[4], this[6], this[7]]})`;
+        if (this.size()[1] === 2) return `matrix(${this.getTransform()})`;
         return `matrix(${this})`;
     }
 
@@ -222,8 +225,11 @@ class MathMatrix extends Matrix {
 
 }
 class MatrixTransposed extends Matrix {
+    getTransform() {
+        return [this[0], this[3], this[1], this[4], this[2], this[5]];
+    }
     toDOMString() {
-        if (this.size()[1] === 2) return `matrix(${[this[0], this[3], this[1], this[4], this[2], this[5]]})`;
+        if (this.size()[1] === 2) return `matrix(${this.getTransform()})`;
         return `matrix(${this.transpose()})`;
     }
     static transform(B, dots) {

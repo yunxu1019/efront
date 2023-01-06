@@ -1,10 +1,28 @@
-var activeDevice;
+var activeDevice, ratio = 1;
 function line(buffer, style, lineWidth = window.devicePixelRatio || 1) {
     var canvas = this;
     var context = canvas.getContext("2d");
     context.moveTo.apply(context, buffer[0]);
     context.beginPath();
     var { width, height } = canvas;
+    var lasty = buffer[0][1], deltay = 0, changed = 0;
+    for (var cx = 1, dx = Math.min(100, buffer.length); cx < dx; cx++) {
+        var [, y] = buffer[cx];
+        if (y > lasty) {
+            if (deltay < 0) {
+                changed++;
+            }
+            deltay = 1;
+        }
+        else {
+            if (deltay > 0) {
+                changed++;
+            }
+            deltay = -1;
+        }
+        lasty = y;
+    }
+    ratio = (dx - changed / 2) / dx;
     for (var cx = 1, dx = buffer.length; cx < dx; cx++) {
         var [x, y] = buffer[cx];
         context.lineTo(x * width, y * height);
@@ -13,7 +31,36 @@ function line(buffer, style, lineWidth = window.devicePixelRatio || 1) {
     context.lineWidth = lineWidth;
     context.stroke();
 }
+var linkImage;
+var danceIcon = lazy(async function (theta) {
+    if (!linkImage) linkImage = new Image, linkImage.canvas = document.createElement("canvas");
+    var canvas = linkImage.canvas;
+    /**
+     * @type {CanvasRenderingContext2D}
+    */
+    var context = canvas.getContext("2d");
+    if (linkImage.src !== shortcurt.getHref()) {
+        linkImage.src = shortcurt.getHref();
+        await awaitable(linkImage);
+        canvas.width = 40;
+        canvas.height = 40;
+    }
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    var matrix = Matrix.create2d(0);
+    matrix.translate(-20, -20);
+    matrix.rotate(-theta);
+    matrix.scale(ratio);
+    matrix.translate(20, 20);
+    context.setTransform.apply(context, matrix.getTransform());
+    context.drawImage(linkImage, 0, 0, canvas.width, canvas.height);
+    shortcurt.href = canvas.toDataURL();
+});
+/**
+ * @this {HTMLCanvasElement}
+ */
 function draw(buffer) {
+    danceIcon(buffer.theta);
     var canvas = this;
     var context = canvas.getContext("2d");
     if (canvas.width !== canvas.offsetWidth * devicePixelRatio) canvas.width = canvas.offsetWidth * devicePixelRatio;
@@ -57,6 +104,6 @@ function draw(buffer) {
 
 function dance(elem) {
     var canvas = /^canvas$/i.test(elem.tagName) ? elem : document.createElement("canvas");
-    care(canvas, draw);
+    if (canvas.getContext) care(canvas, draw);
     return canvas;
 }

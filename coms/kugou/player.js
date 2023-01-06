@@ -8,7 +8,6 @@ var patchMusicInfo = async function (info) {
     switch (info.type) {
         case "qqjt":
             info.lrc = (await cross("get", info.lyric)).response;
-            console.log(info)
             res = await data.from("qqjt-url", qqjc({
                 TSID: info.id
             }))
@@ -168,6 +167,7 @@ var $scope = {
         $scope.currentTime = filterTime(currentTime, duration);
         $scope.totalTime = filterTime(duration, duration);
         $scope.currentRotate = `rotate(${currentTime * 6}deg)`;
+        $scope.quickTheta = currentTime / 3 * Math.PI;
         $scope.currentTheta = ((currentTime * 6 + 90) % 180 - 90) / 180 * Math.PI;
         playState.width = (currentTime * 100 / duration).toFixed(2) + `%`;
         $scope.currentProcess = `width:` + playState.width;
@@ -222,16 +222,18 @@ var $scope = {
                     buf[cx][1] = y;
                 }
             }
-            cast($scope.dance, [{
+            buf = [{
                 data: buf.slice(0, start),
             }, {
                 data: buf.slice(start, end)
             }, {
                 data: buf.slice(end)
-            }]);
-        } else {
+            }]
+
             cast($scope.dance, buf);
         }
+        buf.theta = $scope.quickTheta || 0;
+        cast($scope.dance, buf);
     },
     playid: 0,
     play(music = musicList.getActived()) {
@@ -342,8 +344,7 @@ if (hasContext) {
     var animate = function () {
         if (analyser) {
             analyser.getByteTimeDomainData(dancingArray);
-            // console.log(dancingArray);
-            $scope.draw(dancingArray);
+            if ($scope.playing) $scope.draw(dancingArray);
         }
         requestAnimationFrame(animate);
     };

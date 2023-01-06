@@ -81,7 +81,7 @@ function setClass(krcList, index) {
     removeClass(ele, "after before after-active before-active");
     addClass(krcList[index - 1], 'before-active');
     addClass(ele, "active");
-    document.title = ele.innerText;
+    if (ele.innerText) document.title = ele.innerText;
     krcList.slice(index + 1).map(function (a) {
         removeClass(a, "before active after-active before-active");
         addClass(a, "after");
