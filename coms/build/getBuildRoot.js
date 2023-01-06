@@ -225,6 +225,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                         }
 
                     } else {
+                        if (getPathIn(comms_root, file)) return ok();
                         fs.readdir(file, { withFileTypes: true }, function (error, names) {
                             if (error) return oh(error);
                             // var indexfile, packagefile;

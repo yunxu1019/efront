@@ -14,6 +14,7 @@ var logTime = function (str = '') {
 var logStamp = function () {
     if (Date.now() - lastLogTime > 600) logTime();
 };
+colored.stamp = logStamp;
 
 [
     "begin",
@@ -21,6 +22,7 @@ var logStamp = function () {
     "time",
     "type",
     "line",
+    "stamp",
     "pass",
     "fail",
     "test",

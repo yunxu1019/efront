@@ -46,7 +46,7 @@ var getBuiltVersion = async function (filepath) {
 
 function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     memery.WATCH_PROJECT_VERSION++;
-    console.time();
+    console.stamp();
     if (builder.ing) return reload++;
     builder.ing = true;
     reload = 0;
@@ -88,7 +88,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         //导出项目
         require("../efront/isLib").dispose();
         if (memery.EXTT === undefined) memery.EXTT = '.txt';
-        console.info("正在编译项目", `<cyan>${PUBLIC_APP}</cyan>`, PUBLIC_APP ? "\r\n" : '');
+        console.info("正在编译项目", `<cyan>${PUBLIC_APP}</cyan>\r\n`);
         var public_path = path.join(PUBLIC_PATH, PUBLIC_APP);
         setting.is_commponent_package = false;
         setting.is_file_target = /\.html?$/i.test(environment.APP);

@@ -9,7 +9,7 @@ module.exports = function main(responseTree) {
     var maxLength1 = Math.max.apply(Math, times.map(([destpath]) => getLength(destpath)));
     if (maxLength1 > maxLength) maxLength1 = maxLength;
     var maxLength2 = Math.max.apply(Math, times.map(([, time]) => getLength(time)));
-    console.time();
+    console.stamp();
     times.forEach(function ([destpath, time]) {
         console.info(`文件 <green>${destpath} ${" ".repeat(maxLength1 - getLength(destpath))}</green> 用时 ${" ".repeat(maxLength2 - getLength(time))}<green>${time}</green> 毫秒\r\n`);
     });
