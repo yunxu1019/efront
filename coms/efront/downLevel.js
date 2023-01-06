@@ -66,7 +66,12 @@ var downLevel = module.exports = function (data, isAsync, isYield) {
     if (isAsync) downLevel.isAsync = true;
     data = typescript.transpile(data, { noEmitHelpers: true });
     if (isYield || isAsync) {
-        data = data.replace(/^\s*function\s*\(\s*\)\s*\{\s*([\s\S]*?)\s*\}\s*$/, "$1");
+        var start = data.indexOf('{');
+        var end = data.lastIndexOf("}");
+        data = data.slice(start + 1, end).trim();
+        // 这几种写法性能有区别，但对整体消耗的时间的影响很小
+        // 测试数据见 test/trim_function_test.js
+        // data = data.replace(/^\s*function\s*\(\s*\)\s*\{\s*([\s\S]*?)\s*\}\s*$/, "$1");
     }
     return data;
 };
