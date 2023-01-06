@@ -8,6 +8,7 @@ var {
     comms_root,
     pages_root,
     PAGE_PATH,
+    ignore_path,
     include_required
 } = require("./environment");
 var erroredFiles = Object.create(null);
@@ -171,6 +172,7 @@ var getBuildRoot = function (files, matchFileOnly) {
             return false;
         };
         paddExtension(file1).then(function (file) {
+            if (getPathIn(ignore_path, file)) return;
             return new Promise(function (ok, oh) {
                 fs.stat(file, function (error, stat) {
                     if (error) return oh(error);
