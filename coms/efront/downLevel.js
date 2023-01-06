@@ -37,9 +37,11 @@ var downLevelCode = function (code) {
     var isAsync = code.async;
     var isYield = code.yield;
     renameArguments(code.scoped, 0);
+    code.keepcolor = false;
     var data = code.toString();
     data = downLevel(data, isAsync, isYield);
     code = scanner2(data);
+
     recoverArguments(code.scoped);
     return code;
 };

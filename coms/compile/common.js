@@ -813,6 +813,7 @@ var createString = function (parsed) {
     var helpcode = parsed.helpcode !== false;
     var lasttype = SPACE;
     var result = [], cacheresult, finalresult = result;
+    var helpcolor = parsed.keepcolor === false;
     var run = (o, i, a) => {
         var prev = o.prev;
         if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && prev && lasttype !== SPACE && keepspace) {
@@ -870,6 +871,7 @@ var createString = function (parsed) {
                 break;
             case QUOTED:
                 if (!o.length) {
+                    if (helpcolor) o.text = color.transform(o.text);
                     result.push(o.text);
                     break;
                 }

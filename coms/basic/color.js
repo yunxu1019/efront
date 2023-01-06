@@ -162,7 +162,7 @@ var hex256 = function (num) {
 	return num.toString(16);
 }
 var hex16 = function (num) {
-	num = trim16(num);
+	num = trim16(num / 17);
 	return num.toString(16);
 }
 function color(rgba) {
@@ -242,6 +242,9 @@ function parse(color) {
 		return [R, G, B, A >= 0 ? A / 0xff : 1];
 	}
 }
+var maybe16 = function (n) {
+	return (n >> 4) === (n & 0xf);
+}
 function stringify(color) {
 	var [R, G, B, a] = color;
 	if (a >= 0 && a < 1) {
@@ -250,9 +253,11 @@ function stringify(color) {
 		B = B.toFixed();
 		a = +a.toFixed(3);
 		return `rgba(${R},${G},${B},${a})`;
-	} else {
-		return "#" + [R, G, B].map(hex256).join("");
 	}
+	if (maybe16(R) && maybe16(G) && maybe16(B)) {
+		return "#" + [R, G, B].map(hex16).join("");
+	}
+	return "#" + [R, G, B].map(hex256).join("");
 }
 function doWith(manager, color, args) {
 	var isparsed = color instanceof Array,
@@ -317,6 +322,11 @@ var colorReg = /(?:rgb|hsl)a?\s*\([\,\.\d\s%]+\)|#[\da-f]{3,8}/ig;
 function isColor(text) {
 	return rgbReg.test(text) || rgbHex.test(text) || rgbHex2.test(text) || hslReg.test(text);
 }
+function format(color) {
+	var c = parse(color);
+	if (!c) return color;
+	return stringify(c);
+}
 var replacer = function (match) {
 	if (!isColor(match)) return match;
 	if (colorDesigner.rotate !== 0) {
@@ -325,7 +335,7 @@ var replacer = function (match) {
 	if (colorDesigner.contrast !== 1) {
 		match = color.contrast(match, colorDesigner.contrast);
 	}
-	return match;
+	return format(match);
 };
 var colorDesigner = {
 	rotate: 0,

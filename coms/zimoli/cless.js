@@ -52,7 +52,6 @@ function cless(commFactory, innerCss, className) {
         var stylesheet = document.createElement("style");
         stylesheet.type = "text/css";
         stylesheet.savedText = innerCss;
-        innerCss = color.transform(innerCss);
         if (stylesheet.styleSheet) {
             stylesheet.styleSheet.cssText = innerCss;
         } else {

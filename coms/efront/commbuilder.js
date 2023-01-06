@@ -151,16 +151,6 @@ var getRequiredPaths = function (data) {
     return Object.keys(requiredPaths);
 };
 
-var convertColor = function (a) {
-    return a.replace(/\#([\da-f]{8}|[\da-f]{4}\b)/gi, function (m, a) {
-        switch (a.length) {
-            case 4:
-                return `rgba(${a.slice(0, 3).split("").map(a => parseInt(a + a, 16))},${(parseInt(a[3], 16) / 15).toFixed(4)})`;
-            case 8:
-                return `rgba(${a.slice(0, 6).replace(/\w{2}/g, a => parseInt(a, 16) + ",")}${(parseInt(a.slice(6), 16) / 255).toFixed(4)})`;
-        }
-    });
-};
 var trimNodeEnvHead = function (data) {
     data = String(data || "").replace(/^\s*\#\!/, '//');
     return data;
@@ -376,7 +366,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     })
     data = code_body.toString();
     var params = globals.map(g => globalsmap[g]);
-    data = convertColor(data);
 
     return {
         imported: globals,
@@ -537,7 +526,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
         .then(function (lessdata) {
             var timeStart = new Date;
             var lessData;
-            less.render(`.${className}{\r\n${convertColor(String(lessdata))}\r\n}`, {
+            less.render(`.${className}{\r\n${String(lessdata)}\r\n}`, {
                 compress: !islive,
                 filename: lesspath
             }, function (err, data_2) {
