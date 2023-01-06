@@ -60,7 +60,7 @@ function main(params, from) {
             if (!keyword) return;
             var s1 = this.requestSearch("kugo", 'search', { keyword }, this.resultMap, timeout, function (s1) {
                 if (s1 instanceof Array) s1.forEach(a => {
-                    a.priced = a.privilege === 10 && (a.price_sq > 0);
+                    a.priced = a.privilege === 10
                 });
                 else s1 = [];
                 return s1;
