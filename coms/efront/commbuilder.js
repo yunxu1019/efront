@@ -9,6 +9,7 @@ var fs = require("fs");
 var path = require("path");
 var memery = require("./memery");
 var islive = memery.islive;
+var autoiota = require("../compile/autoiota");
 var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
 var polyfill = require("../compile/polyfill");
@@ -163,6 +164,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var code = scanner2(data);
     code.fix();
     if (memery.AUTOEVAL) {
+        code = autoiota(code);
         code = autoenum(code);
         code = autoeval(code);
     }

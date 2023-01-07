@@ -31,18 +31,18 @@
     ```
     以上几个方法`ie9+`系列浏览器已支持，但`ie8`及以下版本不支持，如果没有指定`--no-polyfill`参数`efront`在降级编译期会使用`[]map.js`中提供的方法进行修补，这些方法会在加载器检测到浏览器不支持`[].map`时进行初始化
 4. ```javascript
-    Object.assign
     Array.prototype.fill
-    ```
-    以上两个原生方法`ie`系列浏览器均不支持，由于经常被`efront`开发者使用，在降级编译期，如果没有指定`--no-polyfill`参数，将由`efront`处理成替代品，当前的处理方案如下：
-    ```javascript
-    Object.assign // 由 extend 替代，见 ../basic/extend.js
-    Array.prototype.fill //..将按使用的目的进行不同的替换
     Array(3).fill(0) // 类似这种的将变成[0,0,0]一个常量数组
     var [a,b,c]=Array(3).fill(0).map((_,i)=>i+1) // 类似这种用于生成常量并赋值的，将直接变成赋值语句 var a=1,b=2,c=3
     Array(3).fill(a)// 类似这种非常量的，将由类似 ArrayFill(3,a) 的语句替换
     ```
+    `Array(...).fill(...).map(...)`这种写法经常被`efront`开发者用来生成自增赋值序列，并且非所有运行环境都支持，所以包括其它显式用到`Array.prototype.fill`的几种写法都会被替换。为了目标代码的性能考虑，这种替换在自动常量化之前就要执行，所以不再支持用`polyfill`的开关进行关闭。如果要关闭，请使用参数`--no-autoeval`将自动常量化的功能一同关闭。
+
 5. ```javascript
+    Object.assign
+    ```
+    Object.assign,`ie`系列浏览器均不支持，由于经常被`efront`开发者使用，在降级编译期，如果没有指定`--no-polyfill`参数，将由`efront`处理成替代品[extend](../basic/extend.js)
+6. ```javascript
     Promise
     Promise.prototype.then
     Promise.prototype.catch
@@ -52,13 +52,13 @@
     Promise.resolve
     ```
     `Promise`对象也是`ie`系列浏览器均不支持的。`efront`实现的`Promise`与原生的特性并不一致，仅在运行环境不支持的时候进行替代。比如由`.then`触发的方法与`setTimeout`触发的方法执行的先后顺序会与高级的运行环境有所区别，但也会保持在当前语境执行后再执行相关的语句。以上没有提到的`Promise`相关的方法均不支持，如`Promise.prototype.finally`，如果您使用了这些缺失的特性，就只能自己实现或找类似[core-js](https://github.com/zloirock/core-js)的库填充了
-6. ```javascript
+7. ```javascript
     obj.if
     obj.catch
     obj.for
     ```
     类似这种用`.`取属性的语句，由于属性名与`js`的保留字一样，`ie6`等浏览器会报错，但您可以在`efront`提供的环境中放心使用。因为`efront`本身就会把取属性的语句处理掉。
-7. `ie8`及以下浏览器中存在的一些与现代`js`标准不同的特性，`efront`提供的组件可能不兼容，在处理为这类环境进行应用开发时，应避免使用。
+8. `ie8`及以下浏览器中存在的一些与现代`js`标准不同的特性，`efront`提供的组件可能不兼容，在处理为这类环境进行应用开发时，应避免使用。
     ```javascript
     Object.defineProperty(...);
     ({
