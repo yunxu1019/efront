@@ -29,8 +29,8 @@ var objects = {
     JSON,
     console,
     Event: null,
-    performance: null,
 };
+constructors.performance = colors.FgWhite;
 var iemiss = {
     Promise: null,
     BigInt: null,

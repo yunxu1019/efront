@@ -35,7 +35,7 @@ var trim5 = function (data) {
 };
 var test = function (call, time) {
     var testdata = test.toString();
-    // var timestart = performance.now(); node deno
+    if (typeof performance !== 'undefined') Date = performance; // node deno
     var timestart = Date.now(); //quickjs
     for (var cx = 0, dx = time; cx < dx; cx++) {
         call(testdata);
