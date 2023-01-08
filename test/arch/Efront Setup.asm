@@ -69,15 +69,17 @@ fontFamily db "仿宋",0
 fontFamili db "宋体",0
 factor dd 4
 szClassName db 'efront.cc/baiplay',0
-szCaptionMain db '白前安装程序',0
+; 保持标题不变，以便被efront查找替换
+szCaptionMain db '白前安装程序',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 onekey1 db '一键安装',0
 onekey2 db '正在安装',0,0,0
 onekey3 db '　完成　',0
 onekey4 db '一键卸载',0
 onekey5 db '正在卸载',0
 onekey_rect real4 336,208,100,100
-szText db '白前'
-titlerect real4 18,20,150,50
+; 保持软件名不变，以便被efront查找替换
+szText db '白前',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+titlerect real4 18,20,370,50
 logodots real4 464.054, 574.786, 93.042, 57.856, 416.684, 192.928, 393.0, 2.0, 656.528, 27.884, 786.0, 177.952, 786.0, 395.0, 786.0, 612.048, 610.048, 788.0, 393.0, 788.0, 175.952, 788.0, 0.0, 612.048, 0.0, 395.0, 67.346, 325.95, 47.566, 97.362, 47.566, 97.362, 222.956, 95.026, 325.226, 415.644, 464.054, 574.786 
 closeline real4 480, 30, 480, 0, 420, 0, 420.15, 2.995, 420.598, 5.96, 421.34, 8.866, 422.368, 11.683, 423.673, 14.383, 425.24, 16.939, 427.055, 19.327,429.099, 21.521, 431.352, 23.5, 433.791, 25.244, 436.392, 26.736, 439.129, 27.961, 441.975, 28.907, 444.901, 29.563, 447.878, 29.925
 crossline real4 1024, 80.441, 943.559, 0, 512, 431.559, 80.441, 0, 0, 80.441, 431.559, 512, 0, 943.559, 80.441, 1024, 512, 592.441, 943.559, 1024, 1024, 943.559, 592.441, 512, 1024, 80.441
@@ -114,6 +116,7 @@ folder  word MAX_PATH dup(?)
 buffer  word MAX_PATH dup(?)
 buffer2  word MAX_PATH dup(?)
 program db "ProgramFiles",0
+program64 db "ProgramW6432",0
 folderTitle db "选择安装目录",0
 szErrOpenFile db '无法打开源文件！'
 szErrCreateFile db '创建文件失败！',0
@@ -749,13 +752,14 @@ folderinit proc
         invoke folderfind,addr assocname
         mov ebx,bufferat
         .if !eax
-            mov ecx,offset szText
-            mov ax,WORD ptr [ecx]
-            mov WORD ptr [ebx],ax
-            mov ax,WORD ptr [ecx+2]
-            mov WORD ptr [ebx+2],ax
-            mov WORD ptr [ebx+4],0
-            add ebx,4
+            mov ecx, offset szText
+            .while TRUE
+                mov ax, WORD ptr [ecx]
+                mov WORD ptr [ebx], ax
+                add ebx, 2
+                add ecx, 2
+                .break .if !ax
+            .endw
         .endif
         mov bufferat,ebx
     .endif
@@ -1089,7 +1093,7 @@ drawsleep proc @gp
     .else 
         mov color,0ff629436h
     .endif
-    invoke _DrawText,@gp,color,offset folder,16,offset folder_rect,offset fontFamili,offset m_folder
+    invoke _DrawText,@gp,color,offset folder,16,offset folder_rect,offset fontFamily,offset m_folder
     ret
 drawsleep endp
 drawfolder proc @gp
@@ -1583,9 +1587,9 @@ _ProcWinMain proc uses ebx edi esi,hWnd,uMsg,wParam,lParam
         .if eax
             ret
         .endif
+        invoke KillTimer,hWnd,1
         invoke DestroyWindow,hWnd
         invoke PostQuitMessage,NULL
-        invoke KillTimer,hWnd,1
     .else
         invoke DefWindowProc,hWnd,uMsg,wParam,lParam
         ret
@@ -1691,10 +1695,13 @@ start:
     invoke _ChangeLine,addr logodots,sizeof logodots,logo_c
     invoke _ChangeLine,addr closeline,sizeof closeline,close_c
     invoke _ChangeLine,addr crossline,sizeof crossline,cross_c
-    invoke _Brizerline
-    invoke _SetFactor
-    ;invoke GetEnvironmentVariable,offset program,offset buffer2,MAX_PATH
-    invoke SHGetSpecialFolderPath,NULL,offset buffer2,CSIDL_PROGRAM_FILES,FALSE
+    call _Brizerline
+    call _SetFactor
+    mov eax,2023h
+    invoke GetEnvironmentVariable,offset program64,offset buffer2,MAX_PATH
+    .if !eax
+        invoke SHGetSpecialFolderPath,NULL,offset buffer2,CSIDL_PROGRAM_FILES,FALSE
+    .endif
     invoke parseCommandLine
     invoke programinit
     invoke folderinit
