@@ -4,7 +4,7 @@ var strings = require("../basic/strings");
 var parseNumber = require("../basic/parseNumber");
 var hex = d => (d < 16 || d > 159 ? '0' + d.toString(16) : d.toString(16)) + "h,";
 var toHex = function (code) {
-    return encodeUTF16(code).reverse().map(hex).join('');
+    return encodeUTF16(code, false).map(hex).join('');
 };
 
 var replacePiece = function (piece, force) {
