@@ -27,23 +27,32 @@ function krc(list = div()) {
 }
 function createLRC(lrc) {
     var saved_rows = [];
+    var reg = /^\s*\[(.*?)\](.*?)$/;
     for (var row of lrc.split(/[\r\n]+/)) {
-        var data = /^\s*\[(.*?)\](.*?)$/.exec(row);
+        var data = reg.exec(row);
         if (!data) {
             if (!isProduction) console.info("%c未解析%c", "color:#c28", "color:#333", row, data);
             continue;
         }
-        var [, time, words] = data;
-        var startTime = 0;
-        var times = time.split(":");
-        while (times.length) {
-            startTime = startTime * 60 + +times.shift();
+        var times = [];
+        while (data) {
+            var [, time, words] = data;
+            times.push(time);
+            data = reg.exec(words);
         }
-        saveToOrderedArray(saved_rows, {
-            value: startTime,
-            startTime,
-            text: words
-        });
+        while (times.length) {
+            var time = times.pop();
+            var startTime = 0;
+            let t = time.split(":");
+            while (t.length) {
+                startTime = startTime * 60 + +t.shift();
+            }
+            saveToOrderedArray(saved_rows, {
+                value: startTime,
+                startTime,
+                text: words
+            });
+        }
     }
     var krcList = saved_rows.map(a => {
         var r = document.createElement('div');
