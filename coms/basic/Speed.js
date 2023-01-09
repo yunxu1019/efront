@@ -100,7 +100,7 @@ inertia.DOCKING = 停靠;
 var performance = window.performance;
 if (!performance || !performance.now) performance = Date;
 var now = performance.now;
-if (!now) now = function () {
+if (!performance.now) performance.now = function () {
     return +new Date;
 }
 class Speed extends Array {
@@ -108,7 +108,9 @@ class Speed extends Array {
     stamp = 0;
     deltat = 0;
     accelerate = .1;
-    static now = now;
+    static now() {
+        return performance.now();
+    }
     static inertia = inertia;
     reset() {
         this.cache.splice(0, this.cache.length, 0);
