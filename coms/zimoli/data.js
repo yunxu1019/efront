@@ -318,7 +318,9 @@ var isWorseIE = /msie\s+[2-9]/i.test(navigator.userAgent);
 var parseData = function (sourceText) {
     if (/^\s*<[^\s\'\"\`]/i.test(sourceText)) {
         if (!isWorseIE && window.DOMParser) {
-            return new window.DOMParser().parseFromString(sourceText, "text/html");
+            try {
+                return new window.DOMParser().parseFromString(sourceText, "text/html");
+            } catch (e) { }
         }
         // XML 格式
         var { implementation } = document;
