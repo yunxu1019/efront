@@ -122,7 +122,7 @@ class Speed extends Array {
     unset() {
         this.splice(0, this.length), this.cache.splice(0, this.cache.length), this.stamp = 0;
     }
-    write(values, stamp = now()) {
+    write(values, stamp = Speed.now()) {
         if (values.length !== this.length || this.length && this.cache.length < 2) this.unset();
         if (stamp - this.cache[this.cache.length - 1] === 0) return;
         this.cache.push(values, stamp);
