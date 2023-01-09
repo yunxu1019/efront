@@ -179,6 +179,17 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         return: hasReturn,
         yield: isYield
     } = code;
+    if (commbuilder.typeofMap) {
+        var typeofs = [];
+        Object.keys(undeclares).forEach(k => {
+            for (var u of allVariables[k]) {
+                var p = u.prev;
+                if (p && p.type === code.STRAP && p.text === 'typeof') {
+                    if (typeofs.indexOf(u.text) < 0) typeofs.push(u.text);
+                };
+            }
+        });
+    }
     var globalsmap = {};
     var templateName;
     if (htmlData) {
@@ -375,6 +386,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         occurs: allVariables,
         data,
         isAsync,
+        typeofs,
         isYield,
         params
     };
@@ -796,6 +808,9 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     if (promise) {
         var promise1 = promise.then((data) => {
+            if (commbuilder.typeofMap && data.typeofs.length) {
+                commbuilder.typeofMap[fullpath] = data.typeofs;
+            }
             var timeStart = new Date;
             if (this && this["?"]) {
                 var thisReferedName = this["?"][fullpath] || '';

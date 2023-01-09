@@ -360,9 +360,10 @@ var isEfrontCode = function (response) {
 module.exports = async function (responseTree) {
     if (encoded) encoded = setting.version_mark;
     rebuildData(responseTree);
-    report(responseTree);
     if (!responseTree["main"] && !responseTree["main.js"]) {
         console.warn("在您所编译的项目中没有发现主程序");
+        reportMissing(responseTree);
+        report(responseTree);
         return responseTree;
     }
     var commbuilder = require("../efront/commbuilder");
@@ -445,8 +446,10 @@ module.exports = async function (responseTree) {
     var maindata = { url: "main", destpath: "main", type: '', time: mainScript.time, realpath: mainScript.realpath, data: mainScriptData };
     patchDependence(maindata);
     var newTree = Object.create(null);
-    Object.assign(newTree, { main: maindata, "[]map": array_map && {} });
     missing.forEach(k => newTree[k] = {});
+    Object.assign(newTree, { main: maindata, "[]map": array_map && {} });
+    reportMissing(responseTree);
+    report(responseTree);
     mainScript.data = toComponent(newTree, true).main.data;
     return toApplication(responseTree);
 };

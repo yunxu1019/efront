@@ -332,7 +332,7 @@ function toComponent(responseTree, noVersionInfo) {
     var saveOnlyGlobal = function (globalName) {
         var data = globalName;
         var isGlobal = data in globals;
-        if (!/^['"]|^(Number|String|Function|Object|Array|Date|RegExp|Math|Error|Infinity|isFinite|isNaN|parseInt|parseFloat|setTimeout|setInterval|clearTimeout|clearInterval|encodeURI|encodeURIComponent|decodeURI|decodeURIComponent|escape|unescape|undefined|null|false|true|NaN|eval)$/.test(data)) {
+        if (!/^['"]/.test(data) && !(data in safeGlobals)) {
             data = `typeof ${data}!=="undefined"?${data}:void 0`;
         }
         switch (globalName) {
@@ -449,7 +449,7 @@ function toComponent(responseTree, noVersionInfo) {
             }
             var errored = module_body.slice(0, module_body.length >> 1).filter(saveGlobal);
             if (errored.length) {
-                console.warn(`在 <yellow>${k}</yellow> 中检测到未知的全局变量：`, `<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
+                console.warn(`在 <yellow>${k}</yellow> 中检测到可能不存在的外部变量：`, `<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
             }
             if (!responseTree[k].data) {
                 result.splice(cx, 1);

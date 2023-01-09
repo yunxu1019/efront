@@ -45,7 +45,7 @@ var deepwr = function (dir, data) {
 }
 function write(responseTree, public_path) {
     var values = Object.values(responseTree);
-    var promises = values.map(({ destpath, data }) => deepwr(path.join(public_path, destpath), data))
+    var promises = values.filter(a => !!a.destpath).map(({ destpath, data }) => deepwr(path.join(public_path, destpath), data))
     return Promise.all(promises);
 }
 module.exports = write;

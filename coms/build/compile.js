@@ -53,8 +53,6 @@ var window = {
         }
     },
     screen: {},
-    performance: {
-    },
     modules: {
         state: {},
         init: {},
@@ -62,6 +60,7 @@ var window = {
         prepare: {},
         MOVELOCK_DELTA: 3,
         SAFE_CIRCLE_DEPTH: 300,
+        efrontPath: '',
         renderPixelRatio: {},
         calcPixel: {},
         freePixel: {},

@@ -97,15 +97,18 @@ inertia.MOVING = 移动;
 inertia.SLOWING_DWON = 减速;
 inertia.REBOUNDING = 回弹;
 inertia.DOCKING = 停靠;
-
+var performance = window.performance;
+if (!performance || !performance.now) performance = Date;
+var now = performance.now;
+if (!now) now = function () {
+    return +new Date;
+}
 class Speed extends Array {
     cache = [];
     stamp = 0;
     deltat = 0;
     accelerate = .1;
-    static now() {
-        return performance.now ? performance.now() : Date.now();
-    }
+    static now = now;
     static inertia = inertia;
     reset() {
         this.cache.splice(0, this.cache.length, 0);
@@ -117,8 +120,9 @@ class Speed extends Array {
     unset() {
         this.splice(0, this.length), this.cache.splice(0, this.cache.length), this.stamp = 0;
     }
-    write(values, stamp = Speed.now()) {
+    write(values, stamp = now()) {
         if (values.length !== this.length || this.length && this.cache.length < 2) this.unset();
+        if (stamp - this.cache[this.cache.length - 1] === 0) return;
         this.cache.push(values, stamp);
         if (this.cache.length > 20) this.cache.splice(0, 12);
         var start = Math.max(this.cache.length - 6, 0);

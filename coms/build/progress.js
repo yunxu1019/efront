@@ -2,7 +2,6 @@ var fs = require("fs");
 var path = require("path");
 var environment = require("./environment");
 var detectWithExtension = require("./detectWithExtension");
-var globals = require("../efront/globals");
 var {
     PUBLIC_PATH,
     APP,
@@ -57,6 +56,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
     if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
     var commbuilder = require("../efront/commbuilder");
+    commbuilder.typeofMap = Object.create(null);
     var promise;
     if (public_app) {
         if (/\.asm$/i.test(public_app)) {
@@ -126,42 +126,11 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             ).concat(environment.ccons_root || []), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {
-                    var deletedMap = Object.create(null);
-                    for (var k in response) {
-                        if (!response[k].realpath) {
-                            if (response[k].warn) {
-                                deletedMap[k] = [];
-                                deletedMap[k].warn = response[k].warn;
-                            }
-                            delete response[k];
-                        }
-                    }
-                    function saveDeleted(key) {
-                        if (key in deletedMap) {
-                            if (!~deletedMap[key].indexOf(k)) deletedMap[key].push(k);
-                        }
-                    }
-                    for (var k in response) {
-                        let dependence = response[k].dependence;
-                        if (dependence) dependence.forEach(saveDeleted);
-                    }
-                    for (var k in deletedMap) {
-                        if (k in globals);
-                        else if (deletedMap[k].length) {
-                            console.warn(`已跳过 <red2>${k}</red2>, `, "该模块用在 <gray>" + deletedMap[k].join("</gray>, <gray>") + "</gray> 中");
-                        } else {
-                            if (deletedMap[k].warn) {
-                                console.warn(deletedMap[k].warn);
-                            } else {
-                                console.warn("已跳过:", k);
-                            }
-                        }
-                    }
-                    public_path = public_path.replace(/[\/\\]+$/, '');
-                    var temppath1 = public_path + "#1";
-                    var temppath2 = public_path + "#2";
+                    var pbpath = public_path.replace(/[\/\\]+$/, '');
+                    var temppath1 = pbpath + "#1";
+                    var temppath2 = pbpath + "#2";
                     var writeApplication = function () {
-                        return write(response, public_path);
+                        return write(response, pbpath);
                     };
                     var rename = (a, b) => new Promise(function (ok, oh) {
                         fs.rename(a, b, function (err) {
@@ -170,15 +139,15 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                         });
                     });
                     if (cleanAfterBuild) {
-                        if (!fs.existsSync(public_path)) return writeApplication();
+                        if (!fs.existsSync(pbpath)) return writeApplication();
                         return clean(temppath2).then(function () {
                             return write(response, temppath2);
                         }).then(function () {
                             return clean(temppath1);
                         }).then(function () {
-                            return rename(public_path, temppath1);
+                            return rename(pbpath, temppath1);
                         }).then(function () {
-                            return rename(temppath2, public_path);
+                            return rename(temppath2, pbpath);
                         }).then(function () {
                             return clean(temppath1);
                         });

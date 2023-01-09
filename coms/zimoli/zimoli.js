@@ -190,7 +190,7 @@ var page_generators = {};
 var loading_tree = {};
 var getpgpath = function (pagepath) {
     pagepath = /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
-    if (pagepath === 'main') pagepath = efrontPath || "/main";
+    if (pagepath === 'main') pagepath = modules.efrontPath || "/main";
     return pagepath;
 };
 function createState(pgpath) {

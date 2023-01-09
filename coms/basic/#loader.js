@@ -579,7 +579,8 @@ var init = function (name, then, prebuilds) {
         } while (rest.length);
         track = track.map(([d, a, e]) => ` ${new Array(d + 1).join("•")} ${new Array(2 + length - a.length - d).join("-")} ${a} 溃于: ${e.reverse().join(", ")}`)
         // -->
-        console.error(`加载 ${name} 失败，${ed && ed.length ? `${ed.join(', ')} 等 ${ed.length} 个模块` : "没有其他模块"}受到影响。\r\n${track.join("\r\n")}`);
+        var report = window.performance || !window.alert ? console.error : window.alert;
+        report(`加载 ${name} 失败，${ed && ed.length ? `${ed.join(', ')} 等 ${ed.length} 个模块` : "没有其他模块"}受到影响。\r\n${track.join("\r\n")}`);
     };
     loadModule(name, function (error) {
         if (hasOwnProperty.call(modules, name)) {

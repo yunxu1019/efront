@@ -30,7 +30,7 @@ var objects = {
     console,
     Event: null,
 };
-constructors.performance = colors.FgWhite;
+globals.performance = colors.FgWhite;
 var iemiss = {
     Promise: null,
     BigInt: null,
@@ -56,8 +56,8 @@ var iemiss = {
     queueMicrotask: null,
     atob: null, btoa: null,
 };
-setGlobal(objects, colors.FgGray);
-setGlobal(iemiss, colors.FgYellow);
+setGlobal(objects, colors.FgWhite);
+setGlobal(iemiss, colors.FgYellow2);
 var functions = [
     eval,
     isFinite, isNaN,
@@ -80,8 +80,8 @@ var nodeOnlys = {
 };
 setGlobal(nodeOnlys, colors.FgGreen);
 var nodeRequires = `os,fs,vm,url,readline,net,http,https,http2,zlib,util,buffer,path,cluster,crypto,process`;
-setGlobal(nodeRequires, colors.FgGreen);
-setGlobal("electron", colors.FgGreen);
+setGlobal(nodeRequires, colors.FgGreen2);
+setGlobal("electron", colors.FgCyan);
 var chromeOnlys = `WakeLock,XMLHttpRequest,Image,PerformanceObserver,
 window,self,
 document,name,location,customElements,history,
