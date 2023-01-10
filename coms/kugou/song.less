@@ -96,9 +96,11 @@
     [type=kuwo] {
         background-image: url("icons/kuwo.png");
     }
+
     [type=yyyy] {
         background-image: url("icons/yyyy.ico");
     }
+
     [type=qqjt] {
         background-image: url("icons/qqjt.ico");
     }
@@ -106,6 +108,10 @@
 
 &[group]>.song {
     white-space: normal;
+
+    >span {
+        display: inline-block;
+    }
 }
 
 >.song {
@@ -113,13 +119,13 @@
     padding-top: 2px;
     padding-bottom: 12px;
     width: 100%;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
 
     >span {
         margin-right: 6px;
         vertical-align: top;
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 }
 
