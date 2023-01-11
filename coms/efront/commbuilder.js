@@ -13,6 +13,7 @@ var autoiota = require("../compile/autoiota");
 var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
 var polyfill = require("../compile/polyfill");
+var $split = require("./$split");
 
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     var ignoreUse_reg = commbuilder.ignoreUse_reg;
@@ -419,7 +420,7 @@ var buildPress2 = function (imported, params, data, args, strs) {
 
 var rethink = function (mmap, imported, refname) {
     var rmap = mmap["?"];
-    var refpath = refname ? refname.split('$') : [];
+    var refpath = refname ? $split(refname) : [];
     var realimport = imported.map(m => {
         if (m in mmap) {
             var r = rmap[mmap[m]];

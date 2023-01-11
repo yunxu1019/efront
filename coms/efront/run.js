@@ -25,7 +25,7 @@ function fromComponent(base) {
         if (/^\/?comm\b/i.test(url)) {
             try {
 
-                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/[\\\$]/g, '/'), resolve_config)
+                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/([\s\S])\$|[\\]/g, '$1/'), resolve_config)
                 if (isLib(temppath)) {
                     var mode = function () {
                         return require(temppath);
@@ -42,7 +42,7 @@ function fromComponent(base) {
             isdestroied = true;
         };
         requestHandles.push(abort);
-        var url1 = base.replace(/[^\\\/]*$/, url);
+        var url1 = base.replace(/[^\\\/]*$/, '') + url;
         url1 = url1.replace(/^\/?/, "/");
         packer(url1, function (result) {
             var index = requestHandles.indexOf(abort);
@@ -63,7 +63,7 @@ function fromComponent(base) {
                         result = function () { return this }.bind(global[url1]);
                     } else {
                         try {
-                            url1 = url1.replace(/\$/g, '/');
+                            url1 = require("./$split")(url1).join("/");
                             if (/^\.*\//.test(url1)) {
                                 var parth = path.relative(url1, '.');
                                 if (/^\./.test(parth)) {
@@ -201,6 +201,7 @@ module.exports = function (mainpath, args) {
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
+    var appname = "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
     var env = setupenv(pathname);
     resolve_config.paths = env.COMS_PATH.split(',');
     var location = Object.freeze({
@@ -216,7 +217,7 @@ module.exports = function (mainpath, args) {
             }
             window.request = getLoader();
             window.location = location;
-            window.startPath = "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
+            window.startPath = appname;
             window.process = process;
             process._argv = args;
             mainLoaderPromise.then(function (loader) {

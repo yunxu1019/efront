@@ -7,7 +7,7 @@ var readdir = p => new Promise((ok, oh) => fs.readdir(p, { withFileTypes: true }
     if (err) return oh(err);
     return ok(names);
 }))
-async function getCommap(appname, deep = 2) {
+async function getCommap(appname, deep = 6) {
     var env = setupenv(appname);
     var coms = mixin(env.COMS_PATH, env.COMM).map(a => path.join.apply(path, a)).filter(fs.existsSync);
     var res = Object.create(null);

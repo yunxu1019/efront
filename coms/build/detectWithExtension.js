@@ -15,7 +15,7 @@ function detectWithExtension(filenames, extensions = [""], folders = [""]) {
         var aftfix = 0;
         var findedFolder;
         var findex = 0;
-        var filename = filenames[findex].replace(/\$/g, '/');
+        var filename = efront$$split(filenames[findex]).join("/");
         var tempname = filename.replace(/[#\?][\s\S]*$/, '');
         var params = filename.slice(tempname.length);
         filename = tempname;
