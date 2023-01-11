@@ -191,6 +191,7 @@ function efront() {
 }
 module.exports = function (mainpath, args) {
     var fullpath = mainpath;
+    var appname = "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
     mainpath = mainpath.replace(/\.[cm]?[jt]sx?$/i, '');
     var unload = function () {
         Object.keys(intervalHandles).forEach(clearInterval);
@@ -201,7 +202,6 @@ module.exports = function (mainpath, args) {
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
-    var appname = "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
     var env = setupenv(pathname);
     resolve_config.paths = env.COMS_PATH.split(',');
     var location = Object.freeze({

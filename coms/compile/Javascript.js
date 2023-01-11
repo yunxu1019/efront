@@ -107,6 +107,13 @@ Javascript.prototype.fixType = function (o) {
         case QUOTED:
             if (this.isProperty(o)) type = PROPERTY;
             break;
+        case SCOPED:
+            if (o.entry === '(') {
+                if (last && last.type === STRAP && last.text === 'import') {
+                    last.type = EXPRESS;
+                }
+            }
+            break;
         case EXPRESS:
             if ((!/^\./.test(m) || number_reg.test(m)) && this.isProperty(o)) type = PROPERTY;
             else if (number_reg.test(m)) type = VALUE;
@@ -441,7 +448,7 @@ var removeImport = function (c, i, code) {
         if (dec[0] !== "*") dec[0].forEach((dn, i) => {
             var da = dec[0].attributes[i];
             used[dn].forEach(u => {
-                u.text = name + da;
+                u.text = name + da[0];
                 used[name].push(u);
             });
             delete used[dn];
@@ -533,6 +540,20 @@ Javascript.prototype.fix = function (code) {
         });
         delete code.exportStars;
         delete code.exportDefault;
+    }
+    var imports = code.used.import;
+    if (imports) {
+        if (!code.used.require) {
+            code.used.require = [];
+            code.envs.require = true;
+        }
+        var requires = code.used.require;
+        imports.forEach(m => {
+            m.text = 'require';
+            requires.push(m);
+        });
+        delete code.used.import;
+        delete code.envs.import;
     }
     if (code.exportDecs) {
         var exportDecs = code.exportDecs;

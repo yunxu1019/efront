@@ -23,6 +23,9 @@ var polyfill = function (o, i, used) {
 
 module.exports = function (body) {
     var envs = body.envs;
-    if (envs.Object) backEach(body.used.Object, polyfill, body);
+    if (envs.Object) {
+        backEach(body.used.Object, polyfill, body);
+        if (!body.used.Object.length) delete body.used.Object, delete body.envs.Object;
+    }
     return body;
 }
