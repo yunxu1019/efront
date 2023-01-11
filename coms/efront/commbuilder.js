@@ -14,7 +14,8 @@ var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
 var polyfill = require("../compile/polyfill");
 var $split = require("./$split");
-
+var backEach = require("../basic/backEach");
+var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1(?:\s*;)?\s*$/;
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     var ignoreUse_reg = commbuilder.ignoreUse_reg;
     if (!data) return data;
@@ -24,7 +25,6 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
         var reg = regs[regindex];
         data = String(data);
         var loadurls = [];
-        var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1\s*;?\s*$/;
         data.replace(reg, function (match, quote, relative) {
             if (skipreg.test(match)) return match;
             if (ignoreUse_reg && ignoreUse_reg.test(relative)) return '';
@@ -157,12 +157,42 @@ var trimNodeEnvHead = function (data) {
     data = String(data || "").replace(/^\s*\#\!/, '//');
     return data;
 };
+var removePreqouted = function (code) {
+    var o = code.first;
+    var preqouted;
+    var { QUOTED, STAMP, EXPRESS, STRAP, SCOPED } = code;
+    while (o && o.type === QUOTED && skipreg.test(o.text)) {
+        preqouted = o;
+        o = o.next;
+        while (o && o.type === STAMP && o.text === ';') {
+            o = o.next;
+        }
+    }
+    if (preqouted) {
+        if (o && preqouted.next === o) {
+            if (o.type === STRAP && /^(in|instanceof)$/.test(o.text) || o.type === STAMP && !/^(\+\+|\-\-)$/.test(o.text)
+                || o.type === EXPRESS && /^\./.test(o.text) || o.type === SCOPED && o.entry === '[') {
+                preqouted = preqouted.prev;
+            }
+        }
+        else if (o) {
+            preqouted = preqouted.next;
+        }
+        var i = code.indexOf(preqouted);
+        code.first = preqouted.next;
+        code.first.prev = null;
+        preqouted.next = null;
+        preqouted = code.splice(0, i + 1);
+    }
+    return preqouted;
+};
 var loadJsBody = function (data, filename, lessdata, commName, className, htmlData) {
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     if (/x$|ts$/i.test(filename)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext', module: "commonjs" });
     var code = scanner2(data);
+    var preqouted = removePreqouted(code);
     code.fix();
     if (memery.AUTOEVAL) {
         code = autoiota(code);
@@ -389,6 +419,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         isAsync,
         typeofs,
         isYield,
+        preqouted,
         params
     };
 };
@@ -442,7 +473,7 @@ var rethink = function (mmap, imported, refname) {
     });
     return realimport;
 };
-var buildResponse = function ({ imported, params, data, required, occurs, isAsync, isYield }, compress) {
+var buildResponse = function ({ imported, preqouted, params, data, required, occurs, isAsync, isYield }, compress) {
     if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
         else args = [], strs = "[]";
@@ -471,6 +502,9 @@ var buildResponse = function ({ imported, params, data, required, occurs, isAsyn
         length = "00" + length;
     } else if (length.length === 2) {
         length = "0" + length;
+    }
+    if (preqouted) {
+        data = preqouted.map(a => a.text).join('') + data;
     }
     if (isYield) data = "*" + data;
     if (isAsync) data = "@" + data;
@@ -816,6 +850,27 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
             if (this && this["?"]) {
                 var thisReferedName = this["?"][fullpath] || '';
                 data.imported = rethink(this, data.imported, thisReferedName);
+            }
+            if (this && this[""]) {
+                var codes = [];
+                backEach(data.imported, (m, i, imported) => {
+                    if (m === "__dirname" || m === "__filename") {
+                        codes.push(m);
+                        imported.splice(i, 1);
+                        data.params.splice(i, 1);
+                    }
+                });
+                if (codes.length) {
+                    var root = this[""];
+                    var filename = path.relative(root, fullpath);
+                    codes = codes.map(c => {
+                        if (c === "__filename") {
+                            return `${c}=${strings.encode(filename)}`;
+                        }
+                        return `${c}=${strings.encode(filename.replace(/[^\\\/]+$/, ''))}`;
+                    });
+                    data.data = "var " + codes.join(",") + ";\r\n" + data.data;
+                }
             }
             data = buildResponse(data, compress);
             data = Buffer.from(data);

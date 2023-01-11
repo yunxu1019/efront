@@ -244,7 +244,7 @@ var killCircle = function () {
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (name, then, prebuilds = {}) {
-    if (/^(?:module|exports|define|require|window|global|undefined|__dirname|__filename)$/.test(name)) return then();
+    if (/^(?:module|exports|define|require|window|global|undefined)$/.test(name)) return then();
     if ((hasOwnProperty.call(prebuilds, name)) || hasOwnProperty.call(modules, name) || (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
     ) return then();
     preLoad(name);
@@ -369,7 +369,6 @@ var getArgs = function (text) {
     }
     var [, isAsync, isYield] = /^(@?)(\*?)/.exec(functionBody);
     if (isAsync || isYield) functionBody = functionBody.slice(+!!isAsync + +!!isYield);
-    functionBody = functionBody.replace(/^(?:\s*(["'])user? strict\1;?[\r\n]*)*/i, "\"use strict\";\r\n");
     return [argNames || [], functionBody, args || [], required || '', strs || [], !!isAsync, !!isYield];
 };
 var get_relatives = function (name, required, prefix = "") {
@@ -445,13 +444,6 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
             };
             for (let k in window.require) r[k] = window.require[k];
             return r;
-        }
-        var filename = location.pathname + exec.file.replace(/([\s\S])[\$]/g, '$1/').replace(/\\/g, '/');
-        if (argName === "__dirname") {
-            return filename.replace(/[^\/]+$/, '');
-        }
-        if (argName === "__filename") {
-            return filename;
         }
         if (argName === "define") return window[argName] || function (m_name, requires, exec) {
             if (m_name instanceof Function) {

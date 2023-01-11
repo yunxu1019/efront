@@ -14,6 +14,7 @@ var globals = require("./globals");
 var FILE_BUFFER_SIZE = memery.FILE_BUFFER_SIZE;
 var createManagersWithEnv = async function (env) {
     var commap = await getCommap(env.APP);
+    if (env.root) commap[""] = env.root;
     var Cache = require("../server/cache");
     var cbuilder = commbuilder.bind(commap);
     var mixpath = (a, b) => mixin(a, b || '').map(a => path.join.apply(path, a)).filter(fs.existsSync).join(',');
@@ -42,7 +43,7 @@ var createManagersWithEnv = async function (env) {
         }
         var changed = Object.create(null);
         for (var k in commap) {
-            if (!k in cm) {
+            if (k && !(k in cm)) {
                 changed[k] = true;
                 delete commap[k];
             }
@@ -69,18 +70,18 @@ var createManagersWithEnv = async function (env) {
     filecache.onreload = fireload;
     var managers = {
         comm(name, ext) {
-            var exts = fixExtentions([".js", '.xht', ".ts", ".json", ".html", '.vue', ''], ext);
+            var exts = fixExtentions([".js", '.mjs', '.xht', ".ts", ".json", ".html", '.vue', ''], ext);
             name = require("./$split")(name).join("/");
             var res = comscache.seek(name, exts);
             return responseFromCache(res);
         },
         page(name, ext) {
-            var exts = fixExtentions([".js", ".xht", ".ts", ".html", '.vue', ''], ext);
+            var exts = fixExtentions([".js", ".mjs", ".xht", ".ts", ".html", '.vue', ''], ext);
             var res = pagecache.seek(name, exts);
             return responseFromCache(res);
         },
         aapi(name, ext) {
-            var exts = fixExtentions([".js", '.ts'], ext);
+            var exts = fixExtentions([".js", ".mjs", '.ts'], ext);
             return apicache.seek(name, exts);
         },
         ccon(name, ext) {
