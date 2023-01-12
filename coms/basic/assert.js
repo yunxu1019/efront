@@ -19,7 +19,7 @@ var assert = function (result, expect, log = dump) {
             var [r, e] = mark.pair(result, expect);
             r = String(r).trim().replace(/><\//g, "> </");
             e = String(e).trim().replace(/><\//g, "> </");
-            errors = `<cyan>结果  </cyan>\x07<${color1}>${r}</${color1}>\r\n      <cyan>应为  </cyan><${color2}>${e}</${color2}>\r\n`;
+            errors = `<cyan>结果  </cyan><${color1}>${r}</${color1}>\r\n      <cyan>应为  </cyan><${color2}>${e}</${color2}>\r\n`;
         };
         return function (error) {
             if (error instanceof Object) {
