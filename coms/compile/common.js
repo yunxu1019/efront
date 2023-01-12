@@ -31,12 +31,21 @@ var skipAssignment = function (o, cx) {
     }
     var needpunc = false;
     var qcount = 0;
+    var ifdeep = 0;
     loop: while (o) switch (o.type) {
         case STAMP:
             switch (o.text) {
-                case ",":
                 case ";":
-                    break loop;
+                    if (!ifdeep) break loop;
+                    var n = o.next;
+                    if (!n || n.type !== STRAP || n.text !== 'else') break loop;
+                    next();
+                    break;
+                case ",":
+                    if (!ifdeep) break loop;
+                    needpunc = false;
+                    next();
+                    break;
                 case "++":
                 case "--":
                     next();
@@ -54,11 +63,15 @@ var skipAssignment = function (o, cx) {
                     next();
                     break;
                 case ":":
-                    qcount--;
-                    if (qcount < 0) {
-                        if (!o.isExpress) next();
+                    if (qcount === 0) {
+                        var p = o.prev;
+                        if (p && p.type === LABEL) {
+                            next();
+                            break;
+                        }
                         break loop;
                     }
+                    qcount--;
                     next();
                     needpunc = false;
                     break;
@@ -103,10 +116,16 @@ var skipAssignment = function (o, cx) {
                     break;
                 }
                 if (!/^(in|instanceof|of|else|as|finally)$/.test(o.text)) break loop;
+                if (o.text === 'else') {
+                    if (!ifdeep) break loop;
+                    ifdeep--;
+                }
+
                 next();
                 needpunc = false;
             }
             else if (/^(do|if|while|for|switch|with)/.test(o.text)) {
+                if (o.text === 'if') ifdeep++;
                 next();
                 next();
                 break;
