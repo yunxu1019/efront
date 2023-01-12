@@ -3,19 +3,18 @@ var Program = require("./Program");
 var strings = require("../basic/strings");
 
 const {
-    /*-1 */COMMENT,
-    /* 0 */SPACE,
-    /* 1 */STRAP,
-    /* 2 */STAMP,
-    /* 3 */VALUE,
-    /* 4 */QUOTED,
-    /* 5 */PIECE,
-    /* 6 */EXPRESS,
-    /* 7 */SCOPED,
-    /* 8 */LABEL,
-    /* 9 */PROPERTY,
+    /*   1 */COMMENT,
+    /*   2 */SPACE,
+    /*   4 */STRAP,
+    /*   8 */STAMP,
+    /*  16 */VALUE,
+    /*  32 */QUOTED,
+    /*  64 */PIECE,
+    /* 128 */EXPRESS,
+    /* 256 */SCOPED,
+    /* 512 */LABEL,
+    /*1024 */PROPERTY,
     createScoped,
-    number_reg,
 } = require("./common");
 var ignore = { test() { return false } };
 

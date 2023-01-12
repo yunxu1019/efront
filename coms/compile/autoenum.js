@@ -148,13 +148,15 @@ function enumref(scoped) {
                             o = o.next;
                         } while (o && o !== n);
                         if (exps.length !== 1) break loop;
-                        if (exps[0].type === VALUE && number_reg.test(exps[0].text)) {
-                            eq = exps[0];
+                        eq = exps[0];
+                        if (eq.type !== VALUE || !eq.isdigit) {
+                            eq = null;
                         }
                     }
                     else {
                         if (!eq) break;
                         o.type = eq.type;
+                        o.isdigit = true;
                         o.text = eq.text;
                         removeRefs(o);
                     }

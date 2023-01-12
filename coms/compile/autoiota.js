@@ -1,4 +1,4 @@
-var { skipAssignment, createString, createScoped, relink, STRAP, STAMP, SCOPED, EXPRESS, VALUE, SPACE, COMMENT, number_reg } = require("./common");
+var { skipAssignment, createString, createScoped, relink, STRAP, STAMP, SCOPED, EXPRESS, VALUE, SPACE, COMMENT } = require("./common");
 var backEach = require("../basic/backEach");
 var scanner2 = require("./scanner2");
 
@@ -82,7 +82,7 @@ var arrayFillMap = function (a, i, as) {
     var mn = nnn.next;
     var f = n.first;
     var mnn = mn.next;
-    if (!f || f.type !== VALUE || !number_reg.test(f.text) ||
+    if (!f || f.type !== VALUE || !f.isdigit ||
         !mn || mn.type !== EXPRESS || mn.text !== '.map' ||
         !mnn || mnn.type !== SCOPED || mnn.entry !== "(" ||
         Object.keys(createScoped(mnn).used).length > 0) {

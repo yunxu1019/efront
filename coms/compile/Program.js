@@ -1,15 +1,15 @@
 const {
-    /*-1 */COMMENT,
-    /* 0 */SPACE,
-    /* 1 */STRAP,
-    /* 2 */STAMP,
-    /* 3 */VALUE,
-    /* 4 */QUOTED,
-    /* 5 */PIECE,
-    /* 6 */EXPRESS,
-    /* 7 */SCOPED,
-    /* 8 */LABEL,
-    /* 9 */PROPERTY,
+    /*   1 */COMMENT,
+    /*   2 */SPACE,
+    /*   4 */STRAP,
+    /*   8 */STAMP,
+    /*  16 */VALUE,
+    /*  32 */QUOTED,
+    /*  64 */PIECE,
+    /* 128 */EXPRESS,
+    /* 256 */SCOPED,
+    /* 512 */LABEL,
+    /*1024 */PROPERTY,
     number_reg,
 } = require("./common");
 
@@ -244,6 +244,7 @@ class Program {
                 isExpress: queue.inExpress,
                 text: m
             }
+            if (isdigit) scope.isdigit = true;
             lasttype = type;
             queue_push(scope);
         };
@@ -384,7 +385,8 @@ class Program {
                 save(STRAP);
                 continue;
             }
-            if (this.value_reg.test(m) || this.number_reg.test(m)) {
+            var isdigit = this.number_reg.test(m);
+            if (this.value_reg.test(m) || isdigit) {
                 save(VALUE);
                 queue.inExpress = true;
                 continue;

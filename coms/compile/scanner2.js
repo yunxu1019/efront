@@ -81,7 +81,7 @@ class Code extends Array {
         else if (first.type === STRAP) {
             if (!this.program.strapexp_reg.test(first.text)) return false;
         }
-        else if (!~[EXPRESS, STAMP, QUOTED, SCOPED, VALUE].indexOf(first.type)) return false;
+        else if (!((EXPRESS | STAMP | QUOTED | SCOPED | VALUE) & first.type)) return false;
         var last = skipSentenceQueue(this.first);
         return this.last === last || !last;
     }

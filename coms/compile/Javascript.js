@@ -4,18 +4,17 @@ var Program = require("./Program");
 var backEach = require("../basic/backEach");
 
 const {
-    /*-1 */COMMENT,
-    /* 0 */SPACE,
-    /* 1 */STRAP,
-    /* 2 */STAMP,
-    /* 3 */VALUE,
-    /* 4 */QUOTED,
-    /* 5 */PIECE,
-    /* 6 */EXPRESS,
-    /* 7 */SCOPED,
-    /* 8 */LABEL,
-    /* 9 */PROPERTY,
-    number_reg,
+    /*   1 */COMMENT,
+    /*   2 */SPACE,
+    /*   4 */STRAP,
+    /*   8 */STAMP,
+    /*  16 */VALUE,
+    /*  32 */QUOTED,
+    /*  64 */PIECE,
+    /* 128 */EXPRESS,
+    /* 256 */SCOPED,
+    /* 512 */LABEL,
+    /*1024 */PROPERTY,
     createString,
     getDeclared,
     createScoped,
@@ -115,8 +114,7 @@ Javascript.prototype.fixType = function (o) {
             }
             break;
         case EXPRESS:
-            if ((!/^\./.test(m) || number_reg.test(m)) && this.isProperty(o)) type = PROPERTY;
-            else if (number_reg.test(m)) type = VALUE;
+            if ((!/^\./.test(m)) && this.isProperty(o)) type = PROPERTY;
             break;
         case STRAP:
         case VALUE:
@@ -130,14 +128,14 @@ Javascript.prototype.fixType = function (o) {
                     break;
                 }
                 var temp = last;
-                while (temp.type === STAMP && temp.text === "*" || temp.type === EXPRESS || temp.type === VALUE || temp.type === SCOPED) {
+                while (temp.type === STAMP && temp.text === "*" || temp.type & (EXPRESS | VALUE | SCOPED)) {
                     var prev = temp.prev;
                     if (!prev) break;
                     if (prev.type === STRAP && prev.text === "as") {
                         temp = prev.prev;
                         continue;
                     }
-                    if (prev.type !== STAMP || prev.text !== ',' && (prev.text !== "*" || !prev.prev || !~[STRAP, STAMP].indexOf(prev.prev.type))) {
+                    if (prev.type !== STAMP || prev.text !== ',' && (prev.text !== "*" || !prev.prev || !((STRAP | STAMP) & prev.prev.type))) {
                         temp = prev;
                         break;
                     }
@@ -153,8 +151,8 @@ Javascript.prototype.fixType = function (o) {
                     type = EXPRESS;
                     break;
                 }
-                if (~[PROPERTY, EXPRESS, VALUE].indexOf(last.type)
-                    || last.type === STAMP && last.text === "*" && last.prev && ~[STRAP, STAMP].indexOf(last.prev.type)) {
+                if (last.type & (PROPERTY | EXPRESS | VALUE)
+                    || last.type === STAMP && last.text === "*" && last.prev && (STRAP | STAMP) & last.prev.type) {
                 } else {
                     type = EXPRESS;
                 }
@@ -186,7 +184,7 @@ Javascript.prototype.setType = function (o) {
     var last = o.prev;
     var queue = o.queue;
     if (queue.isObject || queue.isClass) {
-        if (~[VALUE, QUOTED, STRAP].indexOf(o.type)) {
+        if (o.type & (VALUE | QUOTED | STRAP)) {
             o.isprop = this.isProperty(o);
         }
         else if (o.type === SCOPED && o.entry === '[') {
@@ -222,7 +220,7 @@ Javascript.prototype.setType = function (o) {
         }
     }
     if (o.type === STAMP) {
-        if (!last || last.type === STAMP || last.type === STRAP) {
+        if (!last || last.type & (STAMP | STRAP)) {
             o.unary = /^[^=;,*]$/.test(o.text);
         }
     }
@@ -303,7 +301,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                 break;
             case QUOTED:
                 if (o.length) {
-                    if (!o.prev || o.prev.type === STAMP || o.prev.type === STRAP) {
+                    if (!o.prev || o.prev.type & (STAMP | STRAP)) {
                         o.type = SCOPED;
                         o.entry = '[';
                         o.leave = `]["join"]('')`;
@@ -345,7 +343,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                     }
                     break;
                 }
-                else if (!o.prev || o.prev.type === STAMP || o.prev.type === STRAP) {
+                else if (!o.prev || o.prev.type & (STAMP | STRAP)) {
                     if (/^[`]/.test(o.text)) {
                         o.text = strings.recode(o.text);
                     }

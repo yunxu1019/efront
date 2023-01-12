@@ -1,17 +1,17 @@
 "use strict";
 const [
-    /*-1 */COMMENT,
-    /* 0 */SPACE,
-    /* 1 */STRAP,
-    /* 2 */STAMP,
-    /* 3 */VALUE,
-    /* 4 */QUOTED,
-    /* 5 */PIECE,
-    /* 6 */EXPRESS,
-    /* 7 */SCOPED,
-    /* 8 */LABEL,
-    /* 9 */PROPERTY,
-] = new Array(20).fill(0).map((_, a) => a - 1);
+    /*   1 */COMMENT,
+    /*   2 */SPACE,
+    /*   4 */STRAP,
+    /*   8 */STAMP,
+    /*  16 */VALUE,
+    /*  32 */QUOTED,
+    /*  64 */PIECE,
+    /* 128 */EXPRESS,
+    /* 256 */SCOPED,
+    /* 512 */LABEL,
+    /*1024 */PROPERTY,
+] = new Array(20).fill(0).map((_, a) => 1 << a);
 var number_reg = /^(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var skipAssignment = function (o, cx) {
@@ -20,13 +20,13 @@ var skipAssignment = function (o, cx) {
     } : function () {
         o = body[++ox];
         cx = ox;
-        while (o && (o.type === SPACE || o.type === COMMENT)) o = body[++ox];
+        while (o && o.type & (SPACE | COMMENT)) o = body[++ox];
     };
     if (arguments.length !== 1) {
         var body = o;
         var ox = cx;
         o = body[ox];
-        while (o && (o.type === SPACE || o.type === COMMENT)) o = body[++ox];
+        while (o && o.type & (SPACE | COMMENT)) o = body[++ox];
         cx = ox + 1;
     }
     var needpunc = false;
@@ -169,7 +169,7 @@ function snapSentenceHead(o) {
     // 只检查一级
     while (o && o.prev) {
         var p = o.prev;
-        if (o.entry === '(' && p.type !== STAMP && p.type !== STRAP) {
+        if (o.entry === '(' && !(p.type & (STAMP | STRAP))) {
             o = p;
             p = o.prev;
             if (!p) break;
@@ -182,10 +182,10 @@ function snapSentenceHead(o) {
             }
             break;
         }
-        if (p.type === VALUE || p.type === QUOTED) {
+        if (p.type & (VALUE | QUOTED)) {
             if (maybeprop) {
                 o = p;
-                if (p.entry === '`' && p.prev && (p.prev.type !== STAMP && p.prev.type !== STRAP)) o = p.prev;
+                if (p.entry === '`' && p.prev && !(p.prev.type & (STAMP | STRAP))) o = p.prev;
                 continue;
             }
             break;
@@ -235,8 +235,8 @@ function snapSentenceHead(o) {
 var snapExpressHead = function (o) {
     while (o && o.prev) {
         var p = o.prev;
-        if (p.type === EXPRESS || p.type === VALUE) {
-            if (o.type === SCOPED && o.entry === '[' || /^\./.test(o.text) || /\.$/.test(p.text) && !number_reg.test(p.text)) {
+        if (p.type & (EXPRESS | VALUE)) {
+            if (o.type === SCOPED && o.entry === '[' || /^\./.test(o.text) || /\.$/.test(p.text) && !p.isdigit) {
                 o = p;
                 continue;
             }
@@ -262,7 +262,7 @@ var createScoped = function (parsed, wash) {
             if (o.type === STAMP && equal_reg.test(o.text)) {
                 var p = snapExpressHead(o.prev);
                 if (!p);
-                else if (p.type === EXPRESS || p.type === VALUE) {
+                else if (p.type & (EXPRESS | VALUE)) {
                     p.equal = o;
                 }
                 else if (o.text === '=' && p.type === SCOPED) {
@@ -290,7 +290,7 @@ var createScoped = function (parsed, wash) {
                         break;
                     }
                 case VALUE:
-                    if (number_reg.test(o.text)) break;
+                    if (o.isdigit) break;
                 case EXPRESS:
                     if (o.prev && o.prev.type === EXPRESS) {
                         if (/\.$/.test(o.prev.text)) break;
@@ -359,9 +359,7 @@ var createScoped = function (parsed, wash) {
                                     if (o.next.type === STRAP && !/^(?:instanceof|in|of|from|as)$/.test(o.next.text)
                                         || o.next.type === STAMP && /[!~]/.test(o.next.text)
                                         || o.next.type === EXPRESS && /^\./.test(o.next.text)
-                                        || o.next.type === VALUE
-                                        || o.next.type === QUOTED
-                                        || o.next.type === SCOPED
+                                        || o.next.type & (VALUE | QUOTED | SCOPED)
                                     ) {
                                         mustyield = true;
                                     }
@@ -574,9 +572,9 @@ var createScoped = function (parsed, wash) {
                         if (!next) break;
                         var e = o;
                         if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) && o.prev && o.prev.type === EXPRESS
-                            || ~[VALUE, QUOTED, SCOPED].indexOf(o.type)
+                            || (VALUE | QUOTED | SCOPED) & o.type
                             || EXPRESS === o.type && !/\.$/.test(o.text)) {
-                            if (~[VALUE, QUOTED, PROPERTY, LABEL].indexOf(next.type)) break;
+                            if ((VALUE | QUOTED | PROPERTY | LABEL) & next.type) break;
                             if (EXPRESS === next.type && !/^\./.test(next.text)) break;
                             if (next.type === SCOPED && next.entry === "{") break;
                             if (next.type === STRAP && !next.isExpress) break;
@@ -660,7 +658,7 @@ var getDeclared = function (o, kind, queue) {
             if (/^(['"`])[\s\S]*\1$/.test(prop)) {
                 prop = `[${prop}]`;
             }
-            else if (number_reg.test(prop)) prop = `[${prop}]`;
+            else if (o.isdigit) prop = `[${prop}]`;
             else if (!/^\[[\s\S]*\]$/.test(prop)) prop = "." + prop;
             skiped.push(o);
             if (o.next && o.next.type === STAMP && o.next.text === ":") {
@@ -789,11 +787,11 @@ var getSemicolonBetween = function (prev, next) {
     if (next.type === PROPERTY) return ";";
     if (next.type === STAMP && next.text === "*") return ";";
     if (
-        [EXPRESS, VALUE, QUOTED].indexOf(prev.type) >= 0
+        (EXPRESS | VALUE | QUOTED) & prev.type
         || prev.type === STAMP && /^(\+\+|\-\-)$/.test(prev.text)
         || prev.type === SCOPED && (prev.isExpress || prev.isObject)
     ) {
-        if ([EXPRESS, VALUE, QUOTED, LABEL].indexOf(next.type) >= 0) return ";";
+        if ((EXPRESS | VALUE | QUOTED | LABEL) & next.type) return ";";
         if (next.type === STRAP) {
             if (!/^(in|of|extends|instanceof|as)$/.test(next.text)) return ";";
             return " ";
@@ -804,7 +802,7 @@ var getSemicolonBetween = function (prev, next) {
         return;
     }
     if (prev.type === STRAP) {
-        if ([STRAP, EXPRESS, VALUE, QUOTED].indexOf(next.type) >= 0) return " ";
+        if ((STRAP | EXPRESS | VALUE | QUOTED) & next.type) return " ";
         if (next.type === LABEL) return ";";
     }
 }
@@ -835,8 +833,8 @@ var createString = function (parsed) {
     var helpcolor = parsed.keepcolor === false;
     var run = (o, i, a) => {
         var prev = o.prev;
-        if (!~[SPACE, COMMENT, STAMP, PIECE].indexOf(o.type) && prev && lasttype !== SPACE && keepspace) {
-            if (~[QUOTED, SCOPED, STRAP, LABEL, COMMENT].indexOf(lasttype)
+        if (!((SPACE | COMMENT | STAMP | PIECE) & o.type) && prev && lasttype !== SPACE && keepspace) {
+            if ((QUOTED | SCOPED | STRAP | LABEL | COMMENT) & lasttype
                 || prev.type === STAMP && !prev.unary
             ) {
                 if (o.type !== SCOPED && (o.type !== EXPRESS || !/^\.[^\.]/.test(o.text))) {
@@ -895,8 +893,8 @@ var createString = function (parsed) {
                     break;
                 }
             case SCOPED:
-                if (keepspace && o.type !== QUOTED && (lasttype === STRAP || lasttype === COMMENT || lasttype === STAMP
-                    && (!o.prev || !/[\+\-\~\!]$/.test(o.prev.text) || /[\+\-]$/.test(o.prev.text) && (!o.prev.prev || !~[STAMP, STRAP].indexOf(o.prev.prev.type)))
+                if (keepspace && o.type !== QUOTED && (lasttype & (STRAP | COMMENT | STAMP)
+                    && (!o.prev || !/[\+\-\~\!]$/.test(o.prev.text) || /[\+\-]$/.test(o.prev.text) && (!o.prev.prev || !((STAMP | STRAP) & o.prev.prev.type)))
                     || lasttype === SCOPED && o.entry === "{"
                 )) result.push(" ");
                 result.push(o.entry);
@@ -928,7 +926,7 @@ var createString = function (parsed) {
             default:
                 if (o instanceof Object) {
                     if (o.prev && o.prev.type === EXPRESS && o.type === EXPRESS && (/^\./.test(o.text) || /\.$/.test(o.prev.text)));
-                    else if ([STRAP, EXPRESS, PROPERTY, COMMENT, VALUE].indexOf(lasttype) >= 0 && [STRAP, EXPRESS, PROPERTY, VALUE].indexOf(o.type) >= 0) {
+                    else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE) & o.type) {
                         result.push(" ");
                     }
                     else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
@@ -940,8 +938,7 @@ var createString = function (parsed) {
                             var prev_prev = o.prev.prev;
                             if (
                                 prev_prev.type === STRAP && !prev_prev.isExpress
-                                || prev_prev.type === EXPRESS
-                                || prev_prev.type === VALUE
+                                || prev_prev.type & (EXPRESS | VALUE)
                             ) result.push(";");
                         }
                         else if (o.text === '*') {
