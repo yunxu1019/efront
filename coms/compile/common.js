@@ -233,11 +233,26 @@ function snapSentenceHead(o) {
 }
 
 var snapExpressHead = function (o) {
+    if (!o || o.type !== EXPRESS) return;
     while (o && o.prev) {
         var p = o.prev;
         if (p.type & (EXPRESS | VALUE)) {
-            if (o.type === SCOPED && o.entry === '[' || /^\./.test(o.text) || /\.$/.test(p.text) && !p.isdigit) {
+            if (o.type === SCOPED && o.entry === '[' || o.type === EXPRESS && /^\./.test(o.text) || /\.$/.test(p.text) && !p.isdigit) {
                 o = p;
+                continue;
+            }
+        }
+        break;
+    }
+    return o;
+};
+var snapExpressFoot = function (o) {
+    if (!o || !(o.type & (EXPRESS | VALUE))) return;
+    while (o && o.next) {
+        var n = o.next;
+        if (n.type === SCOPED && o.entry === '[' || /\.$/.test(o.text) && !o.isdigit || n.type === EXPRESS && /^\./.test(n.text)) {
+            if (n.type & (EXPRESS | SCOPED)) {
+                o = n;
                 continue;
             }
         }
@@ -261,7 +276,12 @@ var createScoped = function (parsed, wash) {
             var isAster = false;
             if (o.type === STAMP && equal_reg.test(o.text)) {
                 var p = snapExpressHead(o.prev);
-                if (!p);
+                if (!p) {
+                    let n = o.next;
+                    if (n && n.type & (EXPRESS | VALUE)) {
+                        n.equal = o;
+                    }
+                }
                 else if (p.type & (EXPRESS | VALUE)) {
                     p.equal = o;
                 }
@@ -989,6 +1009,29 @@ var rename = function (used, from, to) {
         u.text = text;
     }
 };
+
+/**
+ * 按语句分割代码
+ */
+var createExpressList = function (code) {
+    var list = [];
+    for (var cx = 0, dx = code.length; cx < dx;) {
+        var o = code[cx];
+        var ex = skipAssignment(code, cx);
+        if (code[ex] && code[ex].type === STAMP && /[,;]/.test(code[ex].text)) {
+            ex++;
+        }
+        if (ex > dx) ex = dx;
+        var exp = [];
+        do {
+            exp.push(o);
+            o = code[++cx];
+        } while (cx < ex);
+        relink(exp);
+        list.push(exp);
+    }
+    return list;
+};
 module.exports = {
     /*-1 */COMMENT,
     /* 0 */SPACE,
@@ -1007,8 +1050,10 @@ module.exports = {
     getDeclared,
     createString,
     createScoped,
+    createExpressList,
     snapSentenceHead,
     snapExpressHead,
+    snapExpressFoot,
     skipSentenceQueue,
     needBreakBetween,
     saveTo,

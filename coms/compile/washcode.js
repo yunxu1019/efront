@@ -1,74 +1,26 @@
 const {
-    /*-1 */COMMENT,
-    /* 0 */SPACE,
-    /* 1 */STRAP,
-    /* 2 */STAMP,
-    /* 3 */VALUE,
-    /* 4 */QUOTED,
-    /* 5 */PIECE,
-    /* 6 */EXPRESS,
-    /* 7 */SCOPED,
-    /* 8 */LABEL,
-    /* 9 */PROPERTY,
+    STRAP,
+    STAMP,
+    QUOTED,
+    EXPRESS,
+    SCOPED,
     skipAssignment,
     getDeclared,
     createScoped,
     relink,
     needBreakBetween,
-    createString,
+    createExpressList,
 } = require("./common");
 var {
     createRefId,
     createRefMap
 } = require("./autoenum");
 
-/**
- * 按语句分割代码
- */
-var createExpressList = function (parsed) {
-    var list = [];
-    for (var cx = 0, dx = parsed.length; cx < dx;) {
-        var o = parsed[cx];
-        var ex = skipAssignment(parsed, cx);
-        if (parsed[ex] && parsed[ex].type === STAMP && /[,;]/.test(parsed[ex].text)) {
-            ex++;
-        }
-        if (ex > dx) ex = dx;
-        var exp = [];
-        do {
-            exp.push(o);
-            o = parsed[++cx];
-        } while (cx < ex);
-        patchExpress(exp);
-        list.push(exp);
-    }
-    return list;
-};
 var patchExpress = function (exp) {
-    relink(exp);
     var first = exp.first;
     if (first && first.type === QUOTED && /^(['"`])use (strict|strip)\1/i.test(first.text)) {
         exp.marked = true;
     }
-    // if (first && first.type === SCOPED && first.entry === '(') {
-    //     var ff = first.first;
-    //     var fn = first.next;
-    //     if (fn && fn.type === SCOPED && fn.entry === '(') {
-    //         var fe = getFunctionEnd(ff);
-    //         if (fe) {
-    //             first.push(fn);
-    //             var fnn = fn.next;
-    //             if (fnn) {
-    //                 first.next = fnn;
-    //                 fnn.prev = first;
-    //             }
-    //             fn.prev = fe;
-    //             fe.next = fn;
-    //             delete fn.next;
-    //             exp.splice(1, 1);
-    //         }
-    //     }
-    // }
 };
 
 var getReferedMap = function (o) {
@@ -111,7 +63,9 @@ var addToMap = function (map, k, exp) {
     if (map[k].indexOf(map[k], exp) < 0) map[k].push(exp);
 };
 var washcode = function (code, pick) {
+    var envs = code.envs;
     var explist = createExpressList(code);
+    patchExpress(explist[0]);
     var writed_map = Object.create(null), readed_map = Object.create(null);
     var called_map = Object.create(null);
     for (var cx = 0, dx = explist.length; cx < dx; cx++) {
@@ -236,7 +190,7 @@ var washcode = function (code, pick) {
                     ws = writed_map[ks.join('.')];
                 }
                 if (!ws) {
-                    if (!(ks[0] in code.envs) && !/^(arguments|this|true|false|null)$/.test(ks[0])) console.warn(`检测到错误，无法建立代码关联：${k}`);
+                    if (!(ks[0] in envs) && !/^(arguments|this|true|false|null)$/.test(ks[0])) console.warn(`检测到错误，无法建立代码关联：${k}`);
                     prevent_map[k] = true;
                     continue;
                 }
