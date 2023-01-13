@@ -801,6 +801,7 @@ choosedist proc,hWnd
 
     mov info.ulFlags,0
     invoke SHBrowseForFolder,addr info
+    ; invoke GetFileNameFromBrowse,hWnd,offset buffer,image,0,0,0,0
     ret
 choosedist endp
 
@@ -889,11 +890,11 @@ brizer proc x1,y1,x2,y2,x3,y3,x4,y4,b
     ret
 brizer endp
 _DrawText proc @gp,color,textoffset,fSize,rect,fFamily,rectref
-    local font,format,brush,family,sz,x,y,r,textlength
+    local font,format,brush,family,sz,x,y,r,textlength,path,pen
     fild fSize
     fstp sz
     invoke GdipCreateFontFamilyFromName,fFamily,NULL,addr family
-    invoke GdipCreateFont, family,sz,0,0,addr font
+    ; invoke GdipCreateFont, family,sz,0,0,addr font
     invoke GdipCreateStringFormat, 00007400h,0,addr format
     invoke GdipSetStringFormatTrimming,format,5
     invoke GdipCreateSolidFill,color,addr brush
@@ -903,9 +904,19 @@ _DrawText proc @gp,color,textoffset,fSize,rect,fFamily,rectref
     .if rectref
         invoke GdipMeasureString,@gp,textoffset,textlength,font,rect,format,rectref,addr x,addr y
     .endif
-    invoke GdipDrawString,@gp,textoffset,textlength,font,rect,format,brush
+    ; invoke GdipCreatePen1,color,0,0,addr pen
+    invoke GdipCreatePath,0,addr path
+    invoke GdipResetPath,path
+    invoke GdipAddPathString,path,textoffset,textlength,family,0,sz,rect,0
+    invoke GdipWindingModeOutline,path,0,0
+    ; invoke GdipDrawPath,@gp,pen,path
+    invoke GdipFillPath,@gp,brush,path
+    ; 还是要感谢一下勇芳软件的作者http://www.yfvb.com/
+    ; invoke GdipDrawString,@gp,textoffset,textlength,font,rect,format,brush
     invoke GdipDeleteFontFamily,family
-    invoke GdipDeleteFont,font
+    ; invoke GdipDeletePen,pen
+    invoke GdipDeletePath,path
+    ; invoke GdipDeleteFont,font
     invoke GdipDeleteBrush,brush
     invoke GdipDeleteStringFormat,format
     ret
