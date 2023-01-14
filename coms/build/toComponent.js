@@ -94,8 +94,14 @@ function toComponent(responseTree, noVersionInfo) {
     if (exportName === 'node') thisContext = 'global';
     if (exportName === 'deno') thisContext = 'globalThis';
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];
-    delete responseTree["[]map"];
-    delete responseTree["[]map.js"];
+    for (var k in responseTree) {
+        let realpath = responseTree[k].realpath
+        if (realpath && !path.relative(path.join(__dirname, "../basic_/[]map.js"), realpath)) {
+            array_map = responseTree[k];
+            delete responseTree[k];
+            break;
+        }
+    }
     var result = [];
     var libsTree = Object.create(null);
     var has_outside_require = false;
