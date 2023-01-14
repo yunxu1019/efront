@@ -894,7 +894,7 @@ _DrawText proc @gp,color,textoffset,fSize,rect,fFamily,rectref
     fild fSize
     fstp sz
     invoke GdipCreateFontFamilyFromName,fFamily,NULL,addr family
-    ; invoke GdipCreateFont, family,sz,0,0,addr font
+    invoke GdipCreateFont, family,sz,0,0,addr font
     invoke GdipCreateStringFormat, 00007400h,0,addr format
     invoke GdipSetStringFormatTrimming,format,5
     invoke GdipCreateSolidFill,color,addr brush
@@ -916,7 +916,7 @@ _DrawText proc @gp,color,textoffset,fSize,rect,fFamily,rectref
     invoke GdipDeleteFontFamily,family
     ; invoke GdipDeletePen,pen
     invoke GdipDeletePath,path
-    ; invoke GdipDeleteFont,font
+    invoke GdipDeleteFont,font
     invoke GdipDeleteBrush,brush
     invoke GdipDeleteStringFormat,format
     ret
