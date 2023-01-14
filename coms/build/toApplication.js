@@ -75,7 +75,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
     html = html.toString();
     cssDataMap = Object.create(null);
 
-    if (!outsideMain && setting.is_file_target) html = html.replace(/<link\s+([\s\S]*?)\s*\/>/g, function (link, content) {
+    if (!outsideMain && setting.is_file_target) html = html.replace(/<link(\s+[\s\S]*?)?\/?>/g, function (link, content) {
         var scanned = scanner2(link, 'html');
         var attrs = Object.create(null);
         var attrValues = Object.create(null);
@@ -360,14 +360,21 @@ var isEfrontCode = function (response) {
 module.exports = async function (responseTree) {
     if (encoded) encoded = setting.version_mark;
     rebuildData(responseTree);
-    if (!responseTree["main"] && !responseTree["main.js"]) {
-        console.warn("在您所编译的项目中没有发现主程序");
+    var mainScript = responseTree.main || responseTree["main.js"];
+    var realmain = path.join(__dirname, "../zimoli/main.js");
+    nomain: if (!mainScript || mainScript.realpath !== realmain) {
+        for (var k in responseTree) {
+            if (responseTree[k].realpath === realmain) {
+                mainScript = responseTree[k];
+                break nomain;
+            }
+        }
         reportMissing(responseTree);
         report(responseTree);
+        console.warn("<yellow2>在您所编译的项目中没有发现主程序</yellow2>");
         return responseTree;
     }
     var commbuilder = require("../efront/commbuilder");
-    var mainScript = responseTree.main || responseTree["main.js"];
     var mainScriptData = mainScript.data;
     var versionTree = {};
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];

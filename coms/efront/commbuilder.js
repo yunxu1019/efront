@@ -861,8 +861,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
                     }
                 });
                 if (codes.length) {
-                    var root = this[""];
-                    var filename = path.relative(root, fullpath);
+                    var filename = fullpath;
                     codes = codes.map(c => {
                         if (c === "__filename") {
                             return `${c}=${strings.encode(filename)}`;

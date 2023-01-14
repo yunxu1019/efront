@@ -32,10 +32,12 @@ async function getCommap(appname, deep = 6) {
         }
         extendIfNeeded(res, map);
     }
+    // res fullpath:name
+    // ser name:fullpath
     var ser = Object.create(null);
     for (var k in res) {
         var v = res[k];
-        if (v in ser && ser[v].length <= k) continue;
+        if (v in ser && ser[v].length <= k.length) continue;
         ser[v] = k;
     }
     res["?"] = ser;
