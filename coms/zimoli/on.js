@@ -1,4 +1,4 @@
-// "use strict";
+"use strict";
 if (document.efronton) return document.efronton;
 var is_addEventListener_enabled = "addEventListener" in window;
 // Edg 禁用passive原因：无滚动条的元素上纵向滚动时触发整个页面回弹
