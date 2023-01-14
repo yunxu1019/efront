@@ -107,7 +107,7 @@ function button(texter, type) {
     }
     if (!button) {
         button = btn.cloneNode();
-        appendChild(button, tracker, texter);
+        appendChild(button, tracker, _texter);
     }
     bindAccesskey(button);
     onremove(button, resetall);

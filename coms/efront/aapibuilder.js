@@ -59,11 +59,9 @@ function request(fullpath, data, info) {
     }
     var promise;
     if (arguments.length === 1) {
-        if (queue.length > 0) {
-            queue.splice(1, 0, [fullpath]);
-        } else {
-            queue.push([fullpath]);
-        }
+        promise = new Promise(function (ok, oh) {
+            queue.push([fullpath, ok, oh]);
+        })
     } else {
         promise = new Promise(function (ok, oh) {
             queue.push([fullpath, ok, oh, data, info]);
@@ -97,13 +95,13 @@ function request(fullpath, data, info) {
 }
 var multithreadingApiMap = {};
 var multithreading_requestCount = 0;
-module.exports = function aapibuilder(buffer, filename, fullpath) {
+module.exports = async function aapibuilder(buffer, filename, fullpath) {
     if (require.cache) delete require.cache[fullpath];
     delete multithreadingApiMap[fullpath];
     if (/^\s*(["'`])use multithreading\1/.test(String(buffer))) {
         multithreadingApiMap[fullpath] = true;
     }
-    request(fullpath);
+    await request(fullpath);
     return function ApiManager(req, res) {
         var i18n = _i18n(req.headers["accept-language"] || req.headers["Accept-Language"]);
         var request_accept_time = Date.now();
@@ -116,7 +114,7 @@ module.exports = function aapibuilder(buffer, filename, fullpath) {
                 )])
                     .then(function (result) {
                         res.writeHead(200, {
-                            "Content-Type": "text/plain"
+                            "Content-Type": "text/plain;charset=utf-8"
                         });
                         res.end(JSON.stringify({
                             result: result,

@@ -1,4 +1,4 @@
-var page = createElement(div);
+var page = document.createElement("div");
 var game_id, user_id, user_color;
 
 var current_cell = null;
@@ -96,7 +96,7 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
         return cell;
     });
 var game_id_elem = titlebar("").children[0];
-var chessman_grid = createElement(div);
+var chessman_grid = document.createElement("div");
 addClass(chessman_grid, "grid");
 appendChild(chessman_grid, chessmen_cells);
 appendChild(page, chessman_grid);
@@ -134,14 +134,14 @@ function watch() {
         }
     }).error(function (error) {
         alert(error);
-        go("main");
+        // history.back();
     });
 }
 onappend(page, function () {
     current_cell = null;
     watch();
 });
-var player1_elem = createElement(div), player2_elem = createElement(div);
+var player1_elem = document.createElement("div"), player2_elem = document.createElement("div");
 appendChild(page, player1_elem, player2_elem);
 var clock_timer = 0;
 function clock() {
@@ -195,13 +195,13 @@ function update(game) {
             var chessman = grid[cx];
             chessmen_cells[cx].chessman = chessman;
             if (chessman instanceof Object) {
-                text(chessmen_cells[cx].children[1], chessman.name);
+                text(chessmen_cells[cx], chessman.name);
                 css(chessmen_cells[cx], `background-color:${chessman.color === "红" ? "red" : "black"};color:white;`)
             } else if (chessman === "") {
-                text(chessmen_cells[cx].children[1], '〇');
+                text(chessmen_cells[cx], '〇');
                 css(chessmen_cells[cx], `background-color:rgb(128,64,0);color:white;`)
             } else {
-                text(chessmen_cells[cx].children[1], "");
+                text(chessmen_cells[cx], "");
                 css(chessmen_cells[cx], `background-color:rgb(128,64,0);color:white;`)
             }
         }

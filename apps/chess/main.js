@@ -1,4 +1,4 @@
-var page = createElement(div);
+var page = document.createElement("div");
 var createBtn = button("创建房间");
 var visitBtn = button("进入房间");
 var gameNum = input();

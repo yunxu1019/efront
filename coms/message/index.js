@@ -38,7 +38,7 @@ var onmessage = async function ([key, params, stamp], handle) {
         then(200, res);
     }
     catch (e) {
-        then(403, null, e);
+        then(403, null, e.message);
     }
 };
 var callbacks_map = Object.create(null);
