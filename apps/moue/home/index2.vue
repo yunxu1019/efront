@@ -40,13 +40,13 @@
 }
 </style>
 <template>
-  <grid editable>
+  <div1 editable>
     <div class="nav" solid></div>
     <div class="menu"></div>
     <div class="main">
       <btn @click="alert('你好')">abc</btn>
     </div>
-  </grid>
+  </div1>
 </template>
 <script>
 export default {
@@ -56,7 +56,7 @@ export default {
   components: {
     btn: button_test,
     btn: moue(button, "click"),
-    grid: moue(grid)
+    div1: moue(grid)
   }
 };
 </script>

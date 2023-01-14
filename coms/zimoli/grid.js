@@ -1,4 +1,4 @@
-
+"use strict";
 var grids = [];
 
 var getFirstPoints = function (point, side, direction) {
@@ -747,7 +747,7 @@ var createPointsWithChildren = function () {
         range[3] = Math.floor(range[3]);
         return range;
     };
-    var elements = [].concat.apply([], grid.children).map(a => [a,
+    var elements = Array.apply(null, grid.children).map(a => [a,
         +Math.max(0, a.offsetLeft * grid.width / grid.clientWidth).toFixed(0),
         +(Math.min(a.offsetLeft + a.offsetWidth, grid.clientWidth) * grid.width / grid.clientWidth).toFixed(0),
         +Math.max(0, a.offsetTop * grid.height / grid.clientHeight).toFixed(0),

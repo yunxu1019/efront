@@ -14,7 +14,7 @@ function main(efrontComponent, events) {
             }
         },
         created() {
-            this.$vnode.ns = "math";
+            // this.$vnode.ns = "math";
         },
         mounted() {
             events.forEach(e => {
