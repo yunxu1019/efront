@@ -40,7 +40,7 @@ async function getCommap(appname, deep = 6) {
         }
         extendIfNeeded(res, map);
     }
-    a: {
+    if (loadernames.length) a: {
         for (var loadername of loadernames) {
             if (res[loadername] === loadermain) break a;
         }
