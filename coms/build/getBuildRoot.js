@@ -119,6 +119,7 @@ function paddExtension(file) {
     return detectWithExtension(file, ['', '.js', '.xht', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parents);
 }
 var toString = function () { return this.url };
+var commap = getBuildInfo.commap["?"];
 var getBuildRoot = function (files, matchFileOnly) {
     files = [].concat(files || []);
     if (!files.length) return Promise.resolve(files);
@@ -178,9 +179,12 @@ var getBuildRoot = function (files, matchFileOnly) {
                     if (error) return oh(error);
                     if (stat.isFile()) {
                         if (/\.less$/i.test(file)) return ok();
+                        if (file in commap) {
+                            return saveComm(commap[file], file), ok();
+                        }
                         var rel = getPathIn(comms_root, file);
                         if (rel) {
-                            return saveComm(rel, file), ok();
+                            return saveComm(commap[file], file), ok();
                         }
                         var rel = getPathIn(pages_root, file);
                         if (rel) {

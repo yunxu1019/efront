@@ -11,6 +11,9 @@ async function getCommap(appname, deep = 6) {
     var env = setupenv(appname);
     var coms = mixin(env.COMS_PATH, env.COMM).map(a => path.join.apply(path, a)).filter(fs.existsSync);
     var res = Object.create(null);
+    var ser = Object.create(null);
+    var loadermain = path.join(__dirname, "../zimoli/main.js");
+    var loadernames = [];
     for (var c of coms) {
         var rest = [[c, []]];
         var map = Object.create(null);
@@ -22,7 +25,12 @@ async function getCommap(appname, deep = 6) {
                 if (f.isFile()) {
                     if (!/\.(html?|[cm]?[tj]sx?|xht)$/i.test(f.name) || /^[\#\?]/.test(f.name)) continue;
                     n.push(fn);
-                    map[n.join('$')] = path.join(p, f.name);
+                    var p1 = path.join(p, f.name);
+                    var m = n.join('$');
+                    map[m] = p1;
+                    if (p1 === loadermain) {
+                        loadernames.push(m);
+                    }
                     n.pop();
                 }
                 else if (f.isDirectory()) {
@@ -32,9 +40,19 @@ async function getCommap(appname, deep = 6) {
         }
         extendIfNeeded(res, map);
     }
-    // res fullpath:name
-    // ser name:fullpath
-    var ser = Object.create(null);
+    a: {
+        for (var loadername of loadernames) {
+            if (res[loadername] === loadermain) break a;
+        }
+        var loadername1 = loadername;
+        var i = 0;
+        while (loadername1 in res) {
+            loadername1 = loadername + ++i;
+        }
+        res[loadername1] = loadermain;
+    }
+    // res name:fullpath
+    // ser fullpath:name
     for (var k in res) {
         var v = res[k];
         if (v in ser && ser[v].length <= k.length) continue;

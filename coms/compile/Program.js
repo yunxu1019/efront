@@ -460,7 +460,7 @@ class Program {
             }
 
         }
-        if (queue !== origin) throw new Error("代码异常结束");
+        if (queue !== origin) throw console.log(queue[queue.length - 1]), new Error("代码异常结束");
         return queue;
     }
     commit() {

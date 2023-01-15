@@ -118,12 +118,15 @@ function wait(args) {
 async function compile(buildInfo, lastBuildTime, destroot) {
     if (!linesEnabled) return wait(arguments);
     linesEnabled--;
-    var { searchpath, searchname, fullpath, name, url, builder, extt, destpath } = buildInfo;
+    var { searchpath, searchname, fullpath, realpath, name, url, builder, extt, destpath } = buildInfo;
     var componentId = getComponentId();
     destpath = path.join(destroot, destpath);
     var fullpath;
     if (searchpath && searchname) {
         fullpath = await searchPath(searchpath, searchname, extt);
+    }
+    else if (realpath) {
+        fullpath = [realpath];
     }
     else {
         fullpath = [].concat(fullpath);

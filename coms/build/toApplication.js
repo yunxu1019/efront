@@ -383,7 +383,7 @@ module.exports = async function (responseTree) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (!isEfrontCode(v)) return;
-            if (v.name !== "main") {
+            if (v !== mainScript) {
                 versionTree[v.name] = String(v.data);
                 delete responseTree[k];
             }
@@ -392,7 +392,7 @@ module.exports = async function (responseTree) {
         Object.keys(responseTree).sort().forEach(function (k) {
             var v = responseTree[k];
             if (!isEfrontCode(v)) return;
-            if (v.name !== "main") {
+            if (v !== mainScript) {
                 v.data = encrypt(v.data, encoded);
                 var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
                 versionTree[v.name] = responseVersion;

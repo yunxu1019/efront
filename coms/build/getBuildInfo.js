@@ -30,7 +30,7 @@ BuildInfo.prototype = {
 
 function getBuildInfo(url) {
     var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+)?$/);
-    var fullpath = url, destpath, builder, searchpath, searchname;
+    var fullpath = url, destpath, builder, searchpath, searchname, realpath;
     if (match) {
         var {
             comms_root,
@@ -53,9 +53,13 @@ function getBuildInfo(url) {
                 }
                 searchname = name.replace(/(\w)\$/g, "$1/");
                 extt = extt || [".js", '.xht', ".ts", ".json", ".html", '.vue', ''];
-                if (comms_root instanceof Array) {
+                if (url in commap) {
+                    realpath = commap[url];
+                }
+                else if (comms_root instanceof Array) {
                     searchpath = comms_root;
-                } else {
+                }
+                else {
                     searchpath = [comms_root];
                 }
                 destpath = path.join("comm", name + memery.EXTT);
@@ -138,6 +142,7 @@ function getBuildInfo(url) {
             searchpath,
             searchname,
             fullpath,
+            realpath,
             destpath,
             name,
             url
@@ -146,3 +151,4 @@ function getBuildInfo(url) {
     console.warn("路径不支持", url);
 }
 module.exports = getBuildInfo;
+getBuildInfo.commap = commap;
