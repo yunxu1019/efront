@@ -847,7 +847,7 @@ var relink = function (list) {
 
 var createString = function (parsed) {
     var keepspace = parsed.keepspace !== false;
-    var helpcode = parsed.helpcode !== false;
+    var helpcode = parsed.helpcode;
     var lasttype = SPACE;
     var result = [], cacheresult, finalresult = result;
     var helpcolor = parsed.keepcolor === false;

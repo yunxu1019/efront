@@ -237,8 +237,7 @@ var importCss = function (url, responseTree) {
     }
     return cssDataMap[k];
 }
-function toApplication(responseTree) {
-    var mainScript = responseTree.main || responseTree["main.js"] || null;
+function toApplication(responseTree, mainScript) {
     var htmls = Object.keys(responseTree).filter(key => {
         if (!/\.(jsp|php|html|asp)$/i.test(key) || !responseTree[key].data) return false;
         return /<!doctype\s/i.test(String(responseTree[key].data).replace(/^(<!--[\s\S]*?-->)*/, ''));
@@ -270,8 +269,6 @@ function toApplication(responseTree) {
             responseTree[outsideMain] = mainScript;
         }
     }
-    delete responseTree["main"];
-    delete responseTree["main.js"];
     return responseTree;
 }
 var rebuildData = function (responseTree) {
@@ -366,6 +363,7 @@ module.exports = async function (responseTree) {
         for (var k in responseTree) {
             if (responseTree[k].realpath === realmain) {
                 mainScript = responseTree[k];
+                delete responseTree[k];
                 break nomain;
             }
         }
@@ -401,6 +399,11 @@ module.exports = async function (responseTree) {
     }
     commbuilder.loadonly = true;
     var mainScriptData = await commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
+    if (!memory.ENCRYPT) {
+        mainScriptData = scanner2(mainScriptData);
+        mainScriptData.helpcode = true;
+        mainScriptData = mainScriptData.toString()
+    }
     commbuilder.loadonly = false;
     var mainVersion = '';
     if (setting.is_file_target) {
@@ -447,10 +450,10 @@ module.exports = async function (responseTree) {
         .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.queryfix}$2`)
         .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, `parseInt("${encoded}",36)%128`);
     commbuilder.compress = false;
-    mainScriptData = await commbuilder(mainScriptData, "main.js", mainScript.realpath, []);
+    mainScriptData = await commbuilder(mainScriptData, mainScript.url, mainScript.realpath, []);
     memory.EXPORT_AS = '';
     memory.EXPORT_TO = "this";
-    var maindata = { url: "main", destpath: "main", type: '', time: mainScript.time, realpath: mainScript.realpath, data: mainScriptData };
+    var maindata = { url: mainScript.url, destpath: mainScript.destpath, type: '', time: mainScript.time, realpath: mainScript.realpath, data: mainScriptData };
     patchDependence(maindata);
     var newTree = Object.create(null);
     missing.forEach(k => newTree[k] = {});
@@ -458,5 +461,5 @@ module.exports = async function (responseTree) {
     reportMissing(responseTree);
     report(responseTree);
     mainScript.data = toComponent(newTree, true).main.data;
-    return toApplication(responseTree);
+    return toApplication(responseTree, mainScript);
 };

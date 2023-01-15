@@ -386,7 +386,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         } = code;
         code_body = code;
     }
-
+    code_body.helpcode = islive;
     if (undeclares.require) var required = allVariables.require;
     var globals = Object.keys(undeclares);
     globals.forEach(g => globalsmap[g] = g);

@@ -66,7 +66,7 @@ class Code extends Array {
     PROPERTY = PROPERTY
     pressed = false
     _scoped = null;
-    helpcode = true;
+    helpcode = false;
     keepspace = true;
     /**
      * @type {Program}

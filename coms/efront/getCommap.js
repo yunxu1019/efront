@@ -60,6 +60,7 @@ async function getCommap(appname, deep = 6) {
     }
     res["?"] = ser;
     res["/"] = coms;
+    if (loadernames.length) res[";"] = loadermain;
     return res;
 }
 module.exports = getCommap;

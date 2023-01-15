@@ -8,5 +8,6 @@ module.exports = function (p) {
         s.push(p.slice(0, i));
         p = p.slice(i + 1);
     }
+    if (m) s.push('');
     return s;
 }

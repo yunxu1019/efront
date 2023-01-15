@@ -63,7 +63,7 @@ function getBuildInfo(url) {
                     searchpath = [comms_root];
                 }
                 destpath = path.join("comm", name + memery.EXTT);
-                if (url === 'main' || url === 'main.js' && !setting.is_commponent_package) {
+                if (realpath && realpath === commap[";"] && !setting.is_commponent_package) {
                     builder = noopbuilder;
                 }
                 break;
