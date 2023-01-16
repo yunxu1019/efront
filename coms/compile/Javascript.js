@@ -256,7 +256,7 @@ var detourTemplate = function (raw, params) {
     }
     str0.pop();
     str1.pop();
-    for (var p of params) template.push(spliter, p);
+    for (var p of params) template.push(spliter), hasComma(p) ? template.push(p) : template.push(...p);
     return template;
 };
 
@@ -281,6 +281,25 @@ var collectProperty = function (o, text) {
     }
     q.defined[text] = o;
 };
+
+var hasComma = function (c) {
+    for (var cc of c) {
+        if (cc.type === STAMP && cc.text === ',') return true;
+    }
+    return false;
+}
+
+var removeQoute = function (o, c, i) {
+    if (hasComma(c)) return;
+    if (!isFinite(i)) i = o.indexOf(c);
+    o.splice(i, 1, ...c);
+    var ch = c[0];
+    var cf = c[c.length - 1];
+    ch.prev = c.prev;
+    cf.next = c.next;
+    if (c.prev) c.prev.next = ch;
+    if (c.next) c.next.prev = cf;
+}
 
 Javascript.prototype.detour = function detour(o, ie) {
     var avoidMap = this.avoidMap;
@@ -314,8 +333,9 @@ Javascript.prototype.detour = function detour(o, ie) {
                                 insertAfter.call(o, c.prev, { type: STAMP, text: ',' });
                                 c.entry = "(";
                                 c.leave = ")";
-                                insertAfter.call(o, c, { type: STAMP, text: ',' });
                                 this.detour(c.first, ie);
+                                insertAfter.call(o, c, { type: STAMP, text: ',' });
+                                removeQoute(o, c);
                             }
                         }
                     }
@@ -330,7 +350,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                                 c.entry = '(';
                                 c.leave = ")";
                                 this.detour(c.first, ie);
-                                params.push(c.length === 1 ? c[0] : c);
+                                params.push(c);
                             }
                         }
                         o.type = SCOPED;
