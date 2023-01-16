@@ -91,6 +91,12 @@ class Code extends Array {
     toString() {
         return this.program.createString(this);
     }
+    get debug() {
+        return this.program.debug;
+    }
+    set debug(v) {
+        this.program.debug = v;
+    }
     get envs() {
         return this.scoped.envs;
     }

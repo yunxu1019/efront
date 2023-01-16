@@ -237,10 +237,8 @@ var insertAfter = function (o) {
         Object.defineProperty(o, 'queue', { value: queue });
         prev = o;
     }
-    if (next) {
-        o.next = next;
-        next.prev = o;
-    }
+    o.next = next;
+    if (next) next.prev = o;
 };
 var js = new Javascript;
 var scan = function (data) {
@@ -253,7 +251,7 @@ var detourTemplate = function (raw, params) {
     var str0 = template[1].first;
     var str1 = template[1][2][2];
     for (var r of raw) {
-        str0.push({ text: strings.encode(strings.decode("`" + r.text + "`")), type: QUOTED }, spliter);
+        str0.push({ text: strings.recode("`" + r.text + "`"), type: QUOTED }, spliter);
         str1.push({ text: strings.encode(r.text), type: QUOTED }, spliter);
     }
     str0.pop();
@@ -269,11 +267,12 @@ var collectProperty = function (o, text) {
         var t = q.defined[text];
         var p = t.prev;
         while (p && (p.type !== STAMP || p.text !== ',')) p = p.prev;
-        var start = p ? q.indexOf(p) : 0;
+        var start = p ? q.indexOf(p) + 1 : 0;
         var n = t.next;
         while (n && (n.type !== STAMP || n.text !== ',')) n = n.next;
-        var end = n ? q.indexOf(n) : q.length;
+        var end = n ? q.indexOf(n) + 1 : q.length;
         var s = q.splice(start, end - start);
+        if (s.length) console.info(`属性<green>${text}</green>被后文覆盖，已移除<yellow>${createString(s)}</yellow>\r\n`);
         if (p && n) {
             var pp = p.prev;
             n.prev = pp;
@@ -296,7 +295,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                     if (m) { avoidMap[m[0]] = true; }
                 }
                 if (!/^\.\.\.|\.\.\.$/.test(o.text)) {
-                    o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => ie === undefined || this.strap_reg.test(a) ? `[${strings.encode(strings.decode(a))}]` : _);
+                    o.text = o.text.replace(/\.([^\.\[]+)/g, (_, a) => ie === undefined || this.strap_reg.test(a) ? `[${strings.recode(a)}]` : _);
                 }
                 break;
             case QUOTED:
@@ -309,7 +308,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                             var c = o[cx];
                             if (c.type === PIECE) {
                                 c.type = QUOTED;
-                                c.text = strings.encode(strings.decode("`" + c.text + "`"));
+                                c.text = strings.recode("`" + c.text + "`");
                             }
                             else {
                                 insertAfter.call(o, c.prev, { type: STAMP, text: ',' });
@@ -330,7 +329,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                             } else {
                                 c.entry = '(';
                                 c.leave = ")";
-                                this.detour(c, ie);
+                                this.detour(c.first, ie);
                                 params.push(c.length === 1 ? c[0] : c);
                             }
                         }
@@ -374,6 +373,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                     }
                     if (o.short) {
                         insertAfter.call(o.queue, o.prev, { text: text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
+                        o.isprop = false;
                         o.type = EXPRESS;
                         delete o.short;
                     }
