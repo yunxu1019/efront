@@ -27,17 +27,9 @@ var transformValue = function (value, k) {
     if (/^[\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : String(value).split(/\s+/).map(transfromSimpleValue).join(' ');
     return value;
 };
-var partifyValue = function (v) {
-    return String(v).toLowerCase().split(/['"`]|\s+/).join(" ");
-};
-var isSameValue = function (v1, v2) {
-    return partifyValue(v1) === partifyValue(v2);
-};
 var setValue = function (o, k, v) {
     if (v instanceof Array) for (var v0 of v) setValue(o, k, v0);
-    else {
-        if (!isSameValue(o[k], v)) o[k] = v;
-    }
+    else o[k] = v;
 }
 /**
  * 将中划线转成驼峰式

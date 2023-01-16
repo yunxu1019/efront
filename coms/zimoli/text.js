@@ -1,5 +1,5 @@
 function text(node, text) {
-    if (arguments.length === 2) {
+    if (arguments.length >= 2) {
         if (isFunction(text)) text = text();
         if (isFunction(node.setText)) {
             node.setText(text)

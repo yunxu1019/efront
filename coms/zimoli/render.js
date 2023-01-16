@@ -443,6 +443,7 @@ var createBinder = function (binder) {
         this.renders.push(function () {
             var value = getter(this);
             if (deepEqual.shallow(value, oldValue)) return;
+            var oldv = oldValue;
             oldValue = value;
             if (isNode(value) || isArray(value)) {
                 if (value !== this.firstChild) {
@@ -451,7 +452,7 @@ var createBinder = function (binder) {
                 }
             } else {
                 if (isEmpty(value)) value = '';
-                if (binder(this) !== value) binder(this, value);
+                if (binder(this) !== value) binder(this, value, oldv);
             }
         });
 
@@ -489,7 +490,17 @@ var directives = {
         if (arguments.length === 1) return elem.style.display !== 'none';
         elem.style.display = value ? '' : 'none';
     }),
-    style: createBinder(css),
+    style: createBinder(function (elem, value, oldValue) {
+        if (isString(value)) value = parseKV(value, ';', ':');
+        if (isString(oldValue)) oldValue = parseKV(oldValue, ";", ":");
+        var changed = getChanges(value, oldValue);
+        var targetValue = Object.create(null);
+        for (var k in changed) {
+            targetValue[k] = isEmpty(value[k]) ? "" : value[k];
+        }
+        value = targetValue;
+        css(elem, value);
+    }),
     src(src) {
         var parsedSrc = this.$src;
         return src2.call(this, parsedSrc ? parsedSrc.srcName : src);
