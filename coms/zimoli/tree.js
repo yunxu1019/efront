@@ -216,7 +216,9 @@ function tree() {
                 }
                 setState(false);
                 z0();
+                console.log(change_elem.getAttribute("style"),margin_top)
                 var res = transition(change_elem, { transition: `margin-top ${time(margin_top)}s ease-out`, marginTop: fromOffset(margin_top) }, false);
+                console.log(change_elem.getAttribute("style"),margin_top)
                 timeout(z1, res);
             }
         });

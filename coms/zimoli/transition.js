@@ -17,8 +17,9 @@ function transition(target, isLeave, _initialStyle = target.initialStyle || targ
         isLeave = parseKV(isLeave, ';', ":");
     }
     if (isObject(isLeave) && (_initialStyle === true || !_initialStyle)) {
+        var temp = _initialStyle;
         _initialStyle = isLeave;
-        isLeave = arguments[2];
+        isLeave = temp;
     }
     if (isLeave) {
         _initialStyle = target.leavingStyle || target.leaveStyle || _initialStyle;
@@ -30,7 +31,6 @@ function transition(target, isLeave, _initialStyle = target.initialStyle || targ
         return;
     }
     if (!target.style) return;
-
     var initialStyle = _initialStyle || target.initialStyle;
     var { recoverStyle, transitionTimerStart, transitionTimerEnd } = target;
     clearTimeout(transitionTimerStart);
@@ -39,7 +39,7 @@ function transition(target, isLeave, _initialStyle = target.initialStyle || targ
         initialStyle = parseKV(initialStyle, ";", ":");
     }
     if (isObject(initialStyle)) {
-        let transitionDuration = 100;
+        var transitionDuration = 100;
         if (!initialStyle.transition) {
             initialStyle.transition = "all .3s ease";
         }
@@ -53,7 +53,7 @@ function transition(target, isLeave, _initialStyle = target.initialStyle || targ
         if (!recoverStyle) {
             recoverStyle = {};
         }
-        let savedStyle = {};
+        var savedStyle = Object.create(null);
         {
             let originalStyle = target.style;
             for (let k in initialStyle) {
