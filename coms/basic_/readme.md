@@ -1,5 +1,6 @@
 # efront 兼容性说明
 * `coms/basic_`目录的代码均为非标准实现，如果你要兼容低版本的运行环境，尽量避免使用高级的功能
+* 当前的`efront`进行代码降级时用到了`typescript`，所以下文有些问题的描述会误伤`typescript`，不用觉得奇怪。
 * 已知在转换成低版本代码后与高级版本有区别的语法如下：
 1.  ```javascript
     class ... extends Array {...} 
@@ -26,12 +27,12 @@
         console.log(arguments[0])// 0
     }(0));
     ```
-    非严格模式且没有默认值的`arguments`是会被代码中的语句改掉的，而其他两种情况不会。`efront`和`typescript`在把默认值赋值的语句移动到函数体内时，都没有处理这一细节，即原来只读的`arguments`可能被函数内的语句改掉。`efront`内提供的一些组件，可能也会有一部分有无法降级使用的问题，如果您发现的相关的问题，可以向我反馈，我会尽快处理。
+    非严格模式且没有默认值的`arguments`是会被代码中的语句改掉的，而其他两种情况不会。`efront`和`typescript`在把默认值赋值的语句移动到函数体内时，都没有处理这一细节，即原来只读的`arguments`可能被函数内的语句改掉。`efront`内提供的一些组件，可能也会有一部分有因此而无法降级使用的问题，如果您发现了相关的问题，可以向我反馈，我会尽快处理。
 
 4. ```javascript
     async function () {
         await ...;
-        arguments; // typescript 转换后arguments对象的内容有误
+        arguments;
     }
     // 或
     function* (){
@@ -39,7 +40,7 @@
         arguments;
     }
     ```
-    这不是一个难解决的问题，应该只是`typescript`已发现但不愿解决的问题。`efront`在降级编译时临时使用变量重命名的方法对代码中的`arguments`进行替换使其内容与原生高级代码一致。
+    `typescript` 转换这两类新型函数后，`arguments`对象的内容有误。这不是一个难解决的问题，应该只是`typescript`已发现但不愿解决的问题。`efront`在降级编译时临时使用变量重命名的方法对代码中的`arguments`进行替换使其内容与原生高级代码一致。
 
 5. ```javascript
     Object.keys
