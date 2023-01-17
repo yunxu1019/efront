@@ -1,10 +1,12 @@
 function main() {
     var compiled = Vue.compile(template.toString());
-    console.log(compiled);
     return new Vue({
+        methods: { alert },
+        components: {
+            btn: moue(button, 'click')
+        },
         render() {
             var res = compiled.render.apply(this, arguments);
-            console.log(res);
             return res;
         },
         staticRenderFns: compiled.staticRenderFns,
