@@ -45,6 +45,7 @@ var parseExpress = function (data, mayberepeat) {
     p.lastIndex = 0;
     return p.exec(data);
 };
+var keep_reg = /^(SCRIPT|STYLE)$/i;
 Html.prototype.setType = function (o) {
     var q = o.queue;
     var p = o.prev;
@@ -52,10 +53,13 @@ Html.prototype.setType = function (o) {
         if (p && p.type === STAMP) {
             if (/^</.test(p.text)) {
                 if (o.type === EXPRESS) {
+                    if (q.keep && o.text !== q.keep) {
+                        return;
+                    }
                     q.intag = true;
                     o.type = LABEL;
-                    if (/^<\//.test(p.text)) o.isclose = true;
-                    else o.isopen = true;
+                    if (/^<\//.test(p.text)) o.isclose = true, q.keep = null;
+                    else if (!q.keep) o.isopen = true, q.keep = keep_reg.test(o.text) ? o.text : null;
                 }
                 return;
             }
