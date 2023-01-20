@@ -80,11 +80,24 @@ function testFormat() {
     var t = fs.readFileSync(path.join(__dirname, "../efront/memery.js")).toString();
     assert(scanner(t).toString(), t);
 }
+function testJsx() {
+    var m = scanner(`render(){
+        return expression.map((item,index)=><Copoment1></Component1>)
+    }`);
+    console.log(m.toString());
+}
+function testJsxOnlyHtml() {
+    var m = scanner(`<!-- angular 1.x -->
+    <component1 ng-bind="expression"><child1></child1></component1>`);
+    console.log(m.toString());
+}
 // testSpeed();
 // testVariables();
 // testRegexp();
 // testStatic();
 // testAssign();
-testFormat();
+// testFormat();
+testJsx();
+testJsxOnlyHtml();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });

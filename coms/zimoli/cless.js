@@ -50,6 +50,7 @@ var head = document.getElementsByTagName("head")[0];
 function cless(commFactory, innerCss, className) {
     if (innerCss) {
         var stylesheet = document.createElement("style");
+        //<!-- stylesheet.setAttribute("scope",className) -->
         stylesheet.type = "text/css";
         stylesheet.savedText = innerCss;
         if (stylesheet.styleSheet) {

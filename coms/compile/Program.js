@@ -138,6 +138,12 @@ class Program {
             Object.defineProperty(scope, 'queue', { value: queue });
             scope.prev = last;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
+                if (program.setType(scope) === false) {
+                    last = scope.prev;
+                    last.end = scope.end;
+                    last.text = text.slice(last.start, last.end);
+                    return;
+                }
                 if (last) last.next = scope;
                 queue.last = scope;
                 for (var cx = queue.length - 1; cx >= 0; cx--) {
@@ -146,7 +152,6 @@ class Program {
                     o.next = scope;
                 }
                 if (!queue.first) queue.first = scope;
-                program.setType(scope);
             }
             scope.row = row;
             scope.col = scope.start - colstart;
@@ -429,12 +434,14 @@ class Program {
                     }
                 }
                 else {
+                    if (!scope.prev || (scope.prev.type & (SCOPED | STAMP))) queue.inExpress = true;
                     scope.isExpress = queue.inExpress;
                     scope.inExpress = true;
                 }
 
-                queue_push(scope);
                 parents.push(queue);
+                scope.queue = queue;
+                scope.prev = queue.last;
                 queue = scope;
                 scope.start = match.index;
                 lasttype = scope.type;
@@ -450,8 +457,10 @@ class Program {
 
                 queue.end = end;
                 queue.leave = m;
+                var scope = queue;
                 queue = parents.pop();
-                lasttype = queue.type;
+                queue_push(scope);
+                lasttype = scope.type;
                 continue;
             }
 
@@ -460,7 +469,7 @@ class Program {
             }
 
         }
-        if (queue !== origin) throw console.log(queue[queue.length - 1]), new Error("代码异常结束");
+        if (queue !== origin) throw console.log(createString(queue)), new Error("代码异常结束");
         return queue;
     }
     commit() {

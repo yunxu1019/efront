@@ -118,7 +118,7 @@ Javascript.prototype.fixType = function (o) {
             break;
         case STRAP:
         case VALUE:
-            if (last && last.type === EXPRESS && /\.$/.test(last.text)) {
+            if (last && last.type === EXPRESS && /[^\.]\.$/.test(last.text)) {
                 type = EXPRESS;
             }
             else if (this.isProperty(o)) type = PROPERTY;

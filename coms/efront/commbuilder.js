@@ -575,29 +575,34 @@ var renderLessData = function (data, lesspath, watchurls, className) {
         .then(function (lessdata) {
             var timeStart = new Date;
             var lessData;
-            less.render(`.${className}{\r\n${String(lessdata)}\r\n}`, {
+            if (/\.xht$/.test(lesspath)) lessData = compile$richcss(lessdata, "." + className);
+            else less.render(`.${className}{\r\n${String(lessdata)}\r\n}`, {
                 compress: !islive,
                 filename: lesspath
             }, function (err, data_2) {
-                if (err)
-                    return console.warn(err);
-                var keyframeMap = {};
-                var hasOwnProperty = keyframeMap.hasOwnProperty;
-
-                var kprefix = className.replace(/\-$/, '') + "-";
-                lessData = data_2.css.replace(/@keyframes\s+([^\(\)\{\}\s]+)/, function (_, a) {
-                    a = keyframeMap[a] = kprefix + a;
-                    return "@keyframes " + a;
-                }).replace(/\{([^\{\}]+)\}/g, function (_, c) {
-                    var o = parseKV(c, ';', ":");
-                    if (o["user-select"]) o["-webkit-user-select"] = o["user-select"];
-                    if (o.animation) {
-                        o.animation = o.animation.split(/\s+/).map(a => hasOwnProperty.call(keyframeMap, a) ? keyframeMap[a] : a).join(' ');
-                    }
-                    return `{${serialize(o, ';', ':')}}`;
-                });
+                if (err) return console.warn(err, lesspath);
+                lessData = data_2.css;
             });
             promise.time = new Date - timeStart;
+            return lessData;
+        }).then(function (lessData) {
+            var timeStart = new Date;
+            var keyframeMap = {};
+            var hasOwnProperty = keyframeMap.hasOwnProperty;
+
+            var kprefix = className.replace(/\-$/, '') + "-";
+            lessData = lessData.replace(/@keyframes\s+([^\(\)\{\}\s]+)/, function (_, a) {
+                a = keyframeMap[a] = kprefix + a;
+                return "@keyframes " + a;
+            }).replace(/\{([^\{\}]+)\}/g, function (_, c) {
+                var o = parseKV(c, ';', ":");
+                if (o["user-select"]) o["-webkit-user-select"] = o["user-select"];
+                if (o.animation) {
+                    o.animation = o.animation.split(/\s+/).map(a => hasOwnProperty.call(keyframeMap, a) ? keyframeMap[a] : a).join(' ');
+                }
+                return `{${serialize(o, ';', ':')}}`;
+            })
+            promise.time += new Date - timeStart;
             return lessData;
         });
     return promise;

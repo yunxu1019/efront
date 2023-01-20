@@ -158,20 +158,24 @@ class Code extends Array {
 }
 
 var avoidMap = null;
+var typeMap = Object.create(null);
 function scan(text, type = "js", lastIndex = 0) {
     if (isFinite(type)) lastIndex = +type, type = arguments[1];
-    var program;
-    switch (type) {
+    var program = typeMap[type];
+    if (!program) switch (type) {
         case "html":
-            program = new Html;
+            program = typeMap[type] = new Html;
             break;
         case "js":
         case "javascript":
-            program = new Javascript;
+            program = typeMap[type] = new Javascript;
             break;
         default:
             if (type instanceof Function) {
                 program = new type;
+            }
+            else if (type instanceof Program) {
+                program = type;
             }
             break;
     }
