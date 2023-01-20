@@ -258,10 +258,10 @@ function main(elem){
     styles:[],
 })
 class ComponentName implements OnChanges,AfterViewInit,OnInit,OnDestroy{
-    @Input() params1,
-    @Input() params2,
-    @Output() event1,
-    @Output() event2,
+    @Input() params1;
+    @Input() params2;
+    @Output() event1;
+    @Output() event2;
     constructor(){
     }
     ngOnInit(){
@@ -272,7 +272,7 @@ class ComponentName implements OnChanges,AfterViewInit,OnInit,OnDestroy{
     }
     ngOnChanges(){
         // 参数变化时触发
-    },
+    }
     ngAfterViewInit(){
         // 渲染完成后触发
     }
