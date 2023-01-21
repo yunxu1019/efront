@@ -44,8 +44,10 @@ var deepwr = function (dir, data) {
     });
 }
 function write(responseTree, public_path) {
-    var values = Object.values(responseTree);
-    var promises = values.filter(a => !!a.destpath).map(({ destpath, data }) => deepwr(path.join(public_path, destpath), data))
-    return Promise.all(promises);
+    var values = Object.values(responseTree).filter(a => !!a.destpath);
+    if (values.length) console.info("正在写入文件..");
+    return queue.call(values, function ({ destpath, data }) {
+        return deepwr(path.join(public_path, destpath), data);
+    });
 }
 module.exports = write;
