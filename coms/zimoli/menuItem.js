@@ -7,7 +7,7 @@ function main(elem, scope, hasIcon) {
     else if (item.$scope) {
         var scope = item.$scope;
     }
-    if (scope.menu) scope = scope.menu;
+    if (scope.menu || scope.$item) scope = scope.menu || scope.$item;
     if (hasIcon === undefined) hasIcon = !!scope.icon;
     if (scope.disabled || scope.enabled === false) {
         item.setAttribute('disabled', '');

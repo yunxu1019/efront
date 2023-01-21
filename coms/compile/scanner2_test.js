@@ -81,10 +81,15 @@ function testFormat() {
     assert(scanner(t).toString(), t);
 }
 function testJsx() {
-    var m = scanner(`render(){
-        return expression.map((item,index)=><Copoment1></Component1>)
-    }`);
-    console.log(m.toString());
+    var m = `render() { return expression.map((item, index) => <Component1></Component1>) }`;
+    assert(scanner(m).toString(), m);
+}
+function testJsx2() {
+    var m = `return <Copoment1 onClick={onclick}>{webcontent}</Component1>`;
+    assert(scanner(m).toString(), m);
+}
+function testJsx3() {
+    var m = scanner(`return <a></b></c>`);
 }
 function testJsxOnlyHtml() {
     var m = scanner(`<!-- angular 1.x -->
@@ -98,6 +103,8 @@ function testJsxOnlyHtml() {
 // testAssign();
 // testFormat();
 testJsx();
+testJsx2();
+// testJsx3();
 testJsxOnlyHtml();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });

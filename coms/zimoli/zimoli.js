@@ -134,16 +134,20 @@ function go(pagepath, args, history_name, oldpagepath) {
         }
         return true;
     }
+    var realpath = getpgpath(pagepath);
+    if (realpath.length > 1) var [pgpath, args0] = realpath;
+    else pgpath = pagepath;
     setZimoliParams(pagepath, { data: args, from: oldpagepath, options, roles, id });
-    prepare(pagepath, function (res) {
+    prepare(pgpath, function (res) {
         if (!res.roles || res.roles === true) res.roles = !!roles;
     });
-    if (!page_generators[pagepath]) {
+    if (!page_generators[pgpath]) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
-    var page_object = page_generators[pagepath];
+    var page_object = page_generators[pgpath];
+    if (!isEmpty(args0)) page_object.state.data = args, args = args0;
     var fullfill = function () {
-        var _page = create(pagepath, args, oldpagepath);
+        var _page = create(pgpath, args, oldpagepath);
         var isDestroy = pushstate(pagepath, history_name, oldpagepath);
         if (isNode(history_name)) {
             if (history_name.activate === pagepath && history_name.activateNode === _page) return fullfill_is_dispatched--;
@@ -188,13 +192,28 @@ var page_generators = {};
  * 如果args是bool值true，那么当执行history.back()时，此对象被清除
  */
 var loading_tree = {};
+var pathmaped = Object.create(null);
 var getpgpath = function (pagepath) {
     pagepath = /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
     if (pagepath === 'main') pagepath = modules.efrontPath || "/main";
-    return pagepath;
+    var pathlist = pagepath.split("/");
+    var params = [];
+    while (pathlist.length && !pathmaped[pathlist.join("/")]) params.push(pathlist.pop());
+    if (pathlist.length) {
+        pagepath = pathlist.join("/");
+        var mparams = pathmaped[pagepath];
+        var argobj = {};
+        if (!mparams.length) argobj = params.reverse().join("/");
+        else {
+            for (var m of mparams) argobj[m] = params.pop();
+            if (params.length) argobj[m] += "/" + params.reverse().join("/");
+        }
+        return [pagepath, argobj];
+    }
+    return [pagepath];
 };
 function createState(pgpath) {
-    var pgpath = getpgpath(pgpath);
+    var [pgpath] = getpgpath(pgpath);
     var _zimoli_state_key = _zimoli_state_prefix + pgpath;
     var state = function state(condition, setAsAdditional = condition !== null) {
         var state_string = hostoryStorage.getItem(_zimoli_state_key);
@@ -233,7 +252,7 @@ function prepare(pgpath, ok) {
         for (var p of pgpath) prepare(p);
         return;
     }
-    var pgpath = getpgpath(pgpath);
+    var [pgpath] = getpgpath(pgpath);
     if (page_generators[pgpath]) {
         if (isFunction(ok)) {
             var res = page_generators[pgpath];
@@ -377,7 +396,7 @@ function prepare(pgpath, ok) {
 }
 function create(pagepath, args, from, needroles) {
     if (typeof pagepath === 'string') {
-        var page_object = isObject(pagepath) ? pagepath : page_generators[getpgpath(pagepath)];
+        var page_object = page_generators[pagepath];
         if (!page_object) {
             throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
         }
@@ -405,7 +424,7 @@ function create(pagepath, args, from, needroles) {
     var _page = pg.call(state, args, from);
     if (undefined === args || null === args) args = {};
     if (_page) {
-        _page.with = _with_elements;
+        if (_with_elements.length) _page.with = _with_elements.concat(_page.with || []);
         if (args.initialStyle) _page.initialStyle = args.initialStyle;
         if (args.holdupStyle) _page.holdupStyle = args.holdupStyle;
         if (_page.initialStyle && !_page.holdupStyle) {
@@ -483,7 +502,7 @@ var pushstate = function (path_name, history_name, oldpagepath) {
         history[history_name] = [path_name];
     } else {
         var _history = history[history_name];
-        if ([].indexOf.call(_history, oldpagepath, 0) < 0) {
+        if (oldpagepath && [].indexOf.call(_history, oldpagepath, 0) < 0) {
             _history.splice(root_path === _history[0], _history.length);
             isDestroy = true;
         }
@@ -513,14 +532,14 @@ var popstate = function (path_name, history_name) {
     }
 };
 var getCurrentHash = function () {
-    var _historylist = history[current_history];
+    var _historylist = history[current_history] || [];
     var history_name = current_history.replace(/\/$/, '');
     if (rootElements.length) {
         return `#${history_name}/`;
     }
     if (_historylist.length < 2) return "";
     var targeturl = `#${history_name}${_historylist.length ? _historylist[_historylist.length - 1] : ""}`;
-    return targeturl;
+    return encodeURI(targeturl);
 };
 
 var fixurl = function () {
@@ -668,6 +687,14 @@ zimoli.setStorage = function (storage) {
         history = JSAM.parse(hostoryStorage.getItem(history_session_object_key)) || history;
     } catch (e) {
     }
+};
+zimoli.register = function (pathlike) {
+    var params = [];
+    pathlike = pathlike.replace(/\/\:(^[^\/]+)?/g, function (_, id) {
+        params.push(id);
+        return '';
+    });
+    pathmaped[pathlike] = params;
 };
 zimoli.clearHistory = function () {
     hostoryStorage.removeItem(history_session_object_key);

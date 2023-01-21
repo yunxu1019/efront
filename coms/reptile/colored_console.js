@@ -30,10 +30,11 @@ var getColor = function (c) {
     }
     return '';
 };
-var colorReg = /<(\/?)([a-z][\w]*)[^\/\\\>\s]*\>/ig;
+var colorReg = /<(\/?)([a-z][\w]*)\>/ig;
 var renderColor = function (obj) {
     var colorpath = [];
     return String(obj).replace(colorReg, function (_, e, c) {
+        if (!getColor(c)) return _;
         if (e) {
             colorpath.pop();
             c = colorpath[colorpath.length - 1];

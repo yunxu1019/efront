@@ -107,9 +107,21 @@ function create(n, length) {
     rest[0] = source[n];
     return rest.join("");
 }
+var preventList = function (plist, k) {
+    for (var i = this.length - 1; i >= 0; i--) {
+        if (k in this[i]) return true;
+    }
+    return false;
+};
+var preventObject = function (object, k) {
+    return k in this;
+};
+var preventNull = function () { return false };
 function namelist(count, prevent, skip) {
     var dist = [];
-    if (!prevent) prevent = {};
+    if (!prevent) prevent = preventNull;
+    else if (prevent instanceof Array) prevent = preventList.bind(prevent);
+    else prevent = preventObject.bind(prevent);
     var skip0 = skip;
     for (var cy = 0, dy = counts.length; cy < dy; cy++) {
         if (count <= 0) break;
@@ -122,7 +134,7 @@ function namelist(count, prevent, skip) {
         count -= limit;
         for (var cx = skip | 0, dx = count < 0 ? limit + count : limit; cx < dx; cx++) {
             var a = create(cx, cy);
-            if (keywords.test(a) || a in prevent) {
+            if (keywords.test(a) || prevent(a)) {
                 if (dx < limit) {
                     dx++;
                     count++;

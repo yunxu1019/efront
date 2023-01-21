@@ -1,0 +1,182 @@
+<style>
+    :root {
+        --leftwidth: 260px;
+        display: block;
+        width: auto;
+        left: 0;
+        right: 0;
+        margin-right: -16px;
+        height: 100%;
+        position: absolute;
+        padding-left: var(--leftwidth);
+        overflow: hidden;
+    }
+
+    :root+scrollbar {
+        right: 0;
+        background: transparent;
+    }
+
+    :root>* {
+        vertical-align: top;
+    }
+
+    div2 test:before {
+        color: #fc0;
+        content: "测";
+    }
+    
+    div2 dang:before {
+        color: #2cf;
+        content: "档";
+    }
+
+    menu {
+        width: var(--leftwidth);
+        margin-left: -var(--leftwidth);
+        height: 100%;
+        display: inline-block;
+        min-width: 200px;
+        max-width: 600px;
+    }
+
+    div1 {
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        font-size: 16px;
+        vertical-align: top;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        position: relative;
+        background: linear-gradient(#f2f4ff, 70%, #e9fff2);
+    }
+</style>
+<menu #mulu inline -src="m in menus" @active="openMenu(m)">
+    <div2></div2>
+</menu>
+<div1 #content></div1>
+<script>
+    var menus = [
+        {
+            name: "efront 简介",
+            children: [
+                { name: "使用说明", md: "readme.md" },
+                { name: "兼容性说明", md: "coms/basic_/readme.md" },
+                { name: "版本说明", md: "docs/版本说明.md" },
+                { name: "与前端框架对比", md: "docs/compare.md" },
+                // { name: "notive", md: "docs/notive.md" },
+            ]
+        },
+        {
+            name: "组件库",
+            closed: true,
+            children: []
+        },
+        // {
+        //     name: "小工具"
+        // }
+    ];
+    zimoli.register("/mark");
+    zimoli.register("/命令");
+    zimoli.register("/组件");
+    contextmenu(document, function (event) {
+        if (!window.require) return;
+        return menuList(null, [
+            {
+                "name": "开发者选项",
+                do() {
+                    window.require("electron").ipcRenderer.send("window", "open-dev-tools");
+                    window.resizeBy(400, 0);
+                }
+            }
+        ]);
+    })
+    var initCommandsDocs = async function () {
+        var helps = await init("docs$helps");
+        var m = {
+            name: "命令详解",
+            children: [
+                { name: "防御系", a: "f" },
+                { name: "强攻系", a: "q" },
+                { name: "辅助系", a: "z" },
+                { name: "控制系", a: "k" },
+                { name: "暗器系", a: "a" }
+            ]
+        };
+        m.children.forEach(a => {
+            a.children = helps.helps.filter(h => h.type === a.a);
+            a.children.forEach(c => {
+                c.name = c.info;
+                c.path = `/命令/${c.name}`;
+            });
+            a.closed = true;
+        });
+        menus.splice(1, 0, m);
+    };
+    var initComponentDocs = async function () {
+        var m = await cross("get", "components");
+        m = JSON.parse(m.response);
+        for (var c of m) {
+            var map = Object.create(null);
+            var children = [];
+            for (var a of c.children) {
+                if (!/\.([jt]sx?|xht)$/i.test(a) || /_test\.([tj]sx?|xht)$/i.test(a)) {
+                    map[a.replace(/\.\w+$/g, a => a.toLowerCase())] = a;
+                    continue;
+                }
+                children.push({ name: a, path: `/组件/${c.name}/${a}` });
+            }
+            for (var cc of children) {
+                cc.data = {
+                    mark: !!map[cc.name.replace(/\.js$/i, ".md")],
+                    test: !!map[cc.name.replace(/\.js$/i, "_test.js")]
+                }
+                if(cc.data.mark)cc.name+="<dang></dang>"
+                if(cc.data.test)cc.name+="<test></test>"
+            }
+            c.children = children;
+            c.closed = true;
+        }
+
+        menus[2].children = m;
+    };
+    var initMenus = async function () {
+        menus[0].children.forEach(c => { c.path = "/mark/" + c.md });
+        zimoli.switch('', scope.content, menus[0].children[0].path);
+        await initCommandsDocs();
+        await initComponentDocs();
+        var route = await init("frame$route");
+        scope.menus = route.update(menus);
+        zimoli();
+        render.refresh();
+    }
+    var scope = {
+        menus,
+        div2(elem, scope) {
+            if (scope.m.data?.mark) elem.setAttribute("mark", '');
+            if (scope.m.data?.test) elem.setAttribute("test", '');
+            return menuItem.apply(this, arguments);
+        },
+        grid,
+        menu,
+        openMenu(m) {
+            this.menus.open(m);
+        }
+    };
+    var page = document.createElement('grid');
+    page.innerHTML = template;
+    render(page, scope);
+    var s = scrollbar();
+    on("mounted")(page, initMenus);
+    s.bindTarget(scope.content);
+    page.with = s;
+    bind("render")(page, function () {
+        requestAnimationFrame(function () {
+            s.reshape();
+        })
+    });
+    function main() {
+        return page;
+    }
+</script>

@@ -174,8 +174,11 @@ function scan(text, type = "js", lastIndex = 0) {
             if (type instanceof Function) {
                 program = new type;
             }
-            else if (type instanceof Program) {
+            else if (type.exec instanceof Function) {
                 program = type;
+            }
+            else {
+                console.log("类型不支持", type)
             }
             break;
     }

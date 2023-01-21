@@ -109,7 +109,7 @@
                 }
                 if (/^\-+$/.test(item.name)) item.line = true;
                 if (path) item.path = path;
-                if (data) item.params = parseKV(data);
+                if (data) item.data = parseKV(data);
                 item.closed = true;
                 if (filter) var item0 = filter(item);
                 if (item0) item = item0;

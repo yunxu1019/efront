@@ -1,0 +1,9 @@
+创建一个指定大小的数组，并用指定的元素填充。
+如：
+```javascript
+ArrayFill(大小,元素);
+```
+这个方法与下边的代码等效
+```javascript
+Array(大小).fill(元素)
+```

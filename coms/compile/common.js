@@ -853,11 +853,11 @@ var createString = function (parsed) {
     var helpcolor = parsed.keepcolor === false;
     var run = (o, i, a) => {
         var prev = o.prev;
-        if (!((SPACE | COMMENT | STAMP | PIECE) & o.type) && prev && lasttype !== SPACE && keepspace) {
+        if (!((SPACE | COMMENT | STAMP | PIECE | SCOPED) & o.type) && prev && lasttype !== SPACE && keepspace) {
             if ((QUOTED | SCOPED | STRAP | LABEL | COMMENT) & lasttype
                 || prev.type === STAMP && !prev.unary
             ) {
-                if (o.type !== SCOPED && (o.type !== EXPRESS || !/^\.[^\.]/.test(o.text))) {
+                if (o.type !== EXPRESS || !/^\.[^\.]/.test(o.text) && !prev.tag && !o.tag) {
                     result.push(" ");
                     lasttype = SPACE
                 }
@@ -920,7 +920,7 @@ var createString = function (parsed) {
                 result.push(o.entry);
                 if (o.length > 0) {
                     if (o.entry === "{" && o[0].type !== SPACE) {
-                        if (keepspace) {
+                        if (keepspace && lasttype !== PIECE) {
                             result.push(" ");
                         }
                     }
@@ -1033,17 +1033,17 @@ var createExpressList = function (code) {
     return list;
 };
 module.exports = {
-    /*-1 */COMMENT,
-    /* 0 */SPACE,
-    /* 1 */STRAP,
-    /* 2 */STAMP,
-    /* 3 */VALUE,
-    /* 4 */QUOTED,
-    /* 5 */PIECE,
-    /* 6 */EXPRESS,
-    /* 7 */SCOPED,
-    /* 8 */LABEL,
-    /* 9 */PROPERTY,
+    /*   1 */COMMENT,
+    /*   2 */SPACE,
+    /*   4 */STRAP,
+    /*   8 */STAMP,
+    /*  16 */VALUE,
+    /*  32 */QUOTED,
+    /*  64 */PIECE,
+    /* 128 */EXPRESS,
+    /* 256 */SCOPED,
+    /* 512 */LABEL,
+    /*1024 */PROPERTY,
     number_reg,
     equal_reg,
     skipAssignment,

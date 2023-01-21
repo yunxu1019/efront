@@ -27,11 +27,8 @@ class Html extends Program {
     scopes = [];
     intag = false;
     stamps = "/<>=".split("");
+    tags = [];
     quotes = [["'", "'", /\\[\s\S]/], ["\"", "\"", /\\[\s\S]/]]
-    constructor() {
-        super();
-        this.comments.push([/<!--/, /--!?>/]);
-    }
 }
 var p = new Program;
 var replaceISO8859 = function (data) {
@@ -83,6 +80,7 @@ var toCamelCase = function (a) {
 }
 
 class Node { }
+
 Html.prototype.createScoped = function (code) {
     var used = Object.create(null);
     var vars = Object.create(null);
@@ -91,7 +89,7 @@ Html.prototype.createScoped = function (code) {
     var childNodes = [], children = [];
     dom.childNodes = childNodes;
     dom.children = children;
-    var scriptNodes = [], styleNodes = [];
+    var scriptNodes = [], styleNodes = [], tempNodes = [];
     for (var cx = 0, dx = code.length, c = code[0]; cx < dx; c = code[++cx])switch (c.type) {
         case LABEL:
             if (!/^(script|style|template)$/i.test(c.text)) {
@@ -134,8 +132,8 @@ Html.prototype.createScoped = function (code) {
                 }
                 if (childNodes1.length) node.innerStart = childNodes1[0].outerStart;
                 else node.innerStart = innerEnd;
-                if (node.tagName === "SCRIPT") scriptNodes.push(node);
-                else if (node.tagName === "STYLE") styleNodes.push(node);
+                if (node.tagName === "SCRIPT") scriptNodes.push(node), tempNodes.push(node), node.isScript = true;
+                else if (node.tagName === "STYLE") styleNodes.push(node), tempNodes.push(node), node.isStyle = true;
                 nodePath.pop();
                 node = nodePath[nodePath.length - 1];
                 childNodes = node.childNodes;
@@ -195,16 +193,16 @@ Html.prototype.createScoped = function (code) {
     var scripts = [];
     var styles = [];
     var scoped = [];
+    scoped.richNodes = tempNodes.slice();
     code = code.slice();
-    for (var c of scriptNodes) scripts.push(code.slice(c.innerStart, c.innerEnd));
-    for (var c of styleNodes) styles.push(code.slice(c.innerStart, c.innerEnd));
-    var tempNodes = scriptNodes.concat(styleNodes).sort((a, b) => a.outerStart - b.outerStart);
+    for (var c of scriptNodes) scripts.push(c.innerText = replaceISO8859(this.createString(code.slice(c.innerStart, c.innerEnd))));
+    for (var c of styleNodes) styles.push(c.innerText = replaceISO8859(this.createString(code.slice(c.innerStart, c.innerEnd))));
     while (tempNodes.length) {
         var c = tempNodes.pop();
         code.splice(c.outerStart, c.outerEnd - c.outerStart);
     }
-    scoped.scripts = scripts.map(s => this.createString(s)).map(replaceISO8859);
-    scoped.styles = styles.map(s => this.createString(s)).map(replaceISO8859);
+    scoped.scripts = scripts;
+    scoped.styles = styles;
     var rootNodes = dom.childNodes.filter(a => !/^(script|style)$/i.test(a.tagName));
     if (rootNodes.length === 1) {
         scoped.outerHTML = this.createString(code);

@@ -1,4 +1,5 @@
 
+ *efront* 是一个开发工具，可以独立开发项目，也可以仅使用其一项功能
 # efront 思想
 1. 每个文件只导出一份数据，这一份数据可以是 boolean,number,string,function,object,bigint,null,undefined 中的任意一种
 2. 文件名即变量名，在其他文件中引用当前文件导出的变量，只要使用当前文件的文件名（不含后缀）即可
@@ -16,7 +17,7 @@
 6. `efront` 服务器提供跨域中转功能
 7. `efront` 编译导出的组件对可能造成代码可读的字符串和属性进行提取和加密
 
-# 基本命令（适用于windows）
+# 基本命令（部分命令适用于windows）
 
 ## 1. 下载安装
 
@@ -85,13 +86,7 @@ set public_path=PUBLIC_PATH
 efront watch
 ```
 
-# 目录说明
-
-01. apps 静态app页面，通过get或post方式访问
-02. coms 组件库
-03. public 静态资源发布目录，用于存放编译的目标文件
-
-# 配置项说明
+# 可配置项说明
 
 efront 优先读取系统环境变量中的配置，也可以将配置信息写入配置文件。
 efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`进行环境配置的初始化（如果要修改默认环境配置的路径，可以在系统环境变量中设置`CONFIG_PATH`，多个目录可以用英文逗号分开），其中的`setup.bat`为环境配置的入口，访问工作目录的某个子项目`APP`时，还将自动读取`_envs/app=%APP%.bat`中的配置。
@@ -153,9 +148,9 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 # 相关链接
 
 [efront 兼容性说明](coms/basic_/readme.md)
-&nbsp;&nbsp;[更新日志](https://github.com/yunxu1019/efront/commits/develop)
+&nbsp;&nbsp;[版本简介](docs/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E.md)
 &nbsp;&nbsp;[与前端框架对比](docs/compare.md)
 
 [酷酷千百易云音乐](http://efront.cc/kugou/)
-&nbsp;&nbsp;[局域网微信](http://efront.cc/wechat/)
-&nbsp;&nbsp;[白前看图](http://efront.cc/baiplay)
+&nbsp;&nbsp;[局域网微信](http://ipv4.efront.cc/wechat/)
+&nbsp;&nbsp;[白前看图](https://efront.cc/baiplay)

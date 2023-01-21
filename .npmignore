@@ -49,7 +49,6 @@ coms/escodegen/
 coms/less-node/
 coms/message/
 coms/pngjs/
-coms/compile/
 .github/
 data/nasm-*
 data/qq_emoji

@@ -15,6 +15,15 @@ var logStamp = function () {
     if (Date.now() - lastLogTime > 600) logTime();
 };
 colored.stamp = logStamp;
+var setLogger = message.isPrimary ? function (name, logger) {
+    console[name] = logger;
+} : function (name, logger) {
+    var logger = function () {
+        var args = Array.prototype.map.call(arguments, colored.format);
+        message.log({ log: name, args });
+    };
+    console[name] = logger;
+};
 
 [
     "begin",
@@ -33,22 +42,16 @@ colored.stamp = logStamp;
     "log",
     "flush"
 ].forEach(function (log) {
-    if (message.isPrimary) {
-        var logger = colored[log];
-        if (log === 'error') {
-            logger = function () {
-                logStamp();
-                colored.error(...arguments);
-            };
-        }
-        else if (log === 'time') {
-            logger = logTime;
-        }
-    } else {
-        var logger = function () {
-            var args = Array.prototype.map.call(arguments, colored.format);
-            message.log({ log, args });
+    var logger = colored[log];
+    if (log === 'error') {
+        logger = function () {
+            logStamp();
+            colored.error(...arguments);
         };
     }
-    console[log] = logger;
+    else if (log === 'time') {
+        logger = logTime;
+    }
+    setLogger(log, logger);
 });
+console.setLogger = setLogger;

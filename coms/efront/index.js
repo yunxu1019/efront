@@ -6,7 +6,7 @@ var fs = require("fs");
 require("./console");
 var loadenv = require("./loadenv");
 var memery = require("./memery");
-var { helps, topics } = require("./helps");
+var { helps, topics } = require("../docs/helps");
 var detectWithExtension = require("../build/detectWithExtension");
 var detect = function (module_path, matchIndex = true) {
     var search_path = [];
@@ -173,8 +173,11 @@ var detectEnvironment = function (comm) {
         });
     });
 };
+console.setLogger('help', function (line) {
+    console.line('<cyan>帮助</cyan>', format(line), `\r\n`);
+});
 var showHelpLine = function (line) {
-    console.line('<cyan>帮助</cyan>', `${format(line)}\r\n`);
+    console.help(line);
 }
 var showHelpInfo = function (help) {
     var { info, commands } = help;
@@ -218,7 +221,7 @@ var transform = function (readfrom, writeto, run) {
     if (!writeto) {
         return console.error("请指定输出文件名！");
     }
-    detect(readfrom, writeto).then(function (fullpath) {
+    detect(readfrom).then(function (fullpath) {
         fs.readFile(fullpath, function (error, data) {
             if (error) return console.error(error);
             data = data.toString();
@@ -488,21 +491,20 @@ var commands = {
         }
         showHelpLine(`目前没有与 ${value1} 相关的帮助信息！`);
     },
-    docs() {
+    async docs() {
         setAppnameAndPorts(arguments);
         // 文档
         memery.islive = true;
         setenv({
-            coms_path: path.join(__dirname, "../../coms"),
             page_path: path.join(__dirname, '../../docs'),
-            apis_path: path.join(__dirname, '../../apis'),
-            coms: 'docs,zimoli,third-party',
+            coms: 'docs,zimoli,basic,third-party',
             page: './',
             apis: 'docs,zimoli'
         });
         require("./setupenv");
         require("../server/main");
-        showHelpLine('可以通过浏览器访问打开的端口以查看文档');
+        var ported = await wait(function () { return memery.proted }, 200);
+        if (ported) showHelpLine('可以通过浏览器访问打开的端口以查看文档');
     },
     demo() {
         memery.islive = true;

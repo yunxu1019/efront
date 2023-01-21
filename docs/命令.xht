@@ -1,0 +1,100 @@
+<style>
+    efront:after {
+        content: " ";
+    }
+
+    efront:before {
+        color: #69c;
+        content: "efront";
+    }
+
+    topic {
+        display: block;
+        padding-left: 3.5em;
+    }
+
+    w {
+        color: #c3c;
+    }
+
+    m {
+        display: block;
+        padding: .2em 0;
+    }
+
+    m+m {
+        border-top: 1px solid #fff3;
+    }
+
+    [head] {
+        background-color: #26c;
+        box-shadow: inset 0 3px 6px #7cf, inset 0 -3px 6px #069;
+        font-size: 16px;
+        margin: -40px 0 0 0;
+        color: #fff;
+        padding: 10px 16px;
+    }
+    [body]{
+        background: #222;
+    }
+    :scope {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        border: 2px solid #069;
+        border-top: none;
+        position: absolute;
+        display: block;
+        color: #ccc;
+        width: 600px;
+        height: 400px;
+        margin: 0 auto;
+        font-family: "宋体", sans-serif;
+        border-radius: 8px;
+    }
+</style>
+<h2 head -bind="help?.info"></h2>
+<div body>
+    <div>可以使用的命令有：</div>
+    <m -repeat="c in help?.cmds">
+        <cmds></cmds>
+        <topic></topic>
+    </m>
+
+</div>
+<script>
+    var position = [.2, .2];
+    var page = view();
+    page.innerHTML = template;
+    once("append")(page, function () {
+        move.setPosition(this, position);
+    });
+    var scope = {
+        help: null,
+        dict: helps.topics,
+        cmds(elem, scope) {
+            var topics = scope.topics = [];
+            var cmds = scope.c.split(/\s+/).map(a => a.split("|"));
+            cmds = combine(...cmds).map(a => "<efront></efront>" + a.join("&ensp;")).join("<br/>");
+            elem.innerHTML = cmds.replace(/[A-Z]+(\_[A-Z]+)*/g, m => {
+                if (topics.indexOf(m) < 0) topics.push(m);
+                return `<w>${m}</w>`;
+            });
+        },
+        topic(elem, s) {
+            if (!s.topics.length) return;
+            elem.innerHTML = "其中，" + s.topics.filter(a => scope.dict[a]).map(a => {
+                var [n, d] = scope.dict[a].split('|');
+                return `${a}是${n}，默认值是${d}`;
+            }).join('；');
+        }
+    }
+    drag.on(page, page.firstElementChild);
+    resize.on(page);
+    render(page, scope);
+    function main(dict) {
+        var [help] = helps.helps.filter(h => dict === h.info);
+        scope.help = help;
+        return page;
+    }
+</script>

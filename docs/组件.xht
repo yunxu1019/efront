@@ -1,0 +1,87 @@
+<style>
+    :scope {
+        line-height: 1.2;
+        padding: 0 20px;
+        display: block;
+    }
+
+    p {
+        line-height: 1.8;
+    }
+
+    m {
+        line-height: 1.2;
+        display: inline-block;
+        margin-right: 6px;
+        background: #222;
+        padding: 2px 6px;
+        border-radius: 3px;
+    }
+
+    [envs] m {
+        color: #4ec9b0;
+    }
+
+    [imported] m {
+        color: #c586c0;
+    }
+
+    b[t] {
+        color: #c40;
+    }
+
+    b[w] {
+        color: #29f;
+    }
+
+    h2 b {
+        font-size: 14px;
+        display: inline-block;
+        border: 1.2px solid;
+    }
+    markdown{
+        margin: 0 -20px;
+    }
+</style>
+<h2>
+    <span -bind="name"></span>
+    <b -if="doc?.mark" w>有文档</b>
+    <b -if="doc?.test" t>有测试代码</b>
+</h2>
+<container -if="doc?.url" .src="doc.url">
+</container>
+<p envs>
+    <span -if="com?.args.length">
+        环境依赖项:&nbsp; <m -repeat="c in com.args" -bind="c"> </m>
+    </span>
+    <span -else> 无环境依赖项 </span>
+</p>
+<p imported>
+    <span -if="com?.required.length">
+        导入项:&nbsp;<m -repeat="c in com.required" -bind="c"></m>
+    </span>
+    <span -else>
+        无导入项
+    </span>
+</p>
+<script>
+    var 分析 = async function (com, props) {
+        scope.name = com;
+        await new Promise(ok => load(com, ok));
+        var loaded = loadedModules[com];
+        scope.com = loaded;
+        scope.doc = props;
+        if (props.mark) props.url = '/mark/coms/' + com.replace(/\.js$/i, '.md');
+        render.refresh();
+    };
+    var page = document.createElement("component");
+    page.innerHTML = template;
+    var scope = {
+        container,
+    };
+    render(page, scope);
+    function main(name) {
+        分析(name, this.data);
+        return page;
+    }
+</script>

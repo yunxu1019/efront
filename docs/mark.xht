@@ -1,0 +1,166 @@
+<style>
+    :scope {
+        line-height: 1.8;
+        display: block;
+        padding: 0 20px;
+        font-family: Times, "宋体", sans-serif;
+    }
+
+    [type="xml"] stamp,
+    [type="html"] stamp {
+        color: #808080;
+    }
+
+    m {
+        padding: 0 6px;
+        margin: 0 4px;
+        border: 1.2px solid #ccc6;
+        border-radius: 3px;
+        background: #ccc2;
+    }
+
+    p {
+        line-height: 1.6;
+        margin: 6px 0;
+    }
+
+    a {
+        text-decoration: none;
+        color: #16c;
+    }
+
+    a:hover {
+        outline: 1.1px solid;
+    }
+
+    a:active {
+        color: #069;
+    }
+
+    thead td {
+        font-weight: 600;
+    }
+
+    table td {
+        line-height: 1.4;
+        padding: 6px 10px;
+    }
+
+    table tr {
+        border-bottom: 1px solid #0003;
+    }
+
+    table {
+        border-collapse: collapse;
+        border: 1.2px solid #0007;
+    }
+
+    code {
+        padding: 10px 20px;
+        border-radius: 3px;
+        display: inline-block;
+        background: #333;
+        color: #d4d4d4;
+        vertical-align: top;
+    }
+
+    strap,
+    value {
+        color: #569cd6;
+    }
+
+    regexp {
+        color: #d16969;
+    }
+
+    text {
+        color: #ce9178;
+    }
+
+    flow {
+        color: #c586c0;
+    }
+
+    digit {
+        color: #b5cea8;
+    }
+
+    label {
+        color: #569cd6;
+    }
+
+    @deep(@num, @color) {
+        deep@num {
+            color: @color;
+        }
+    }
+
+    @deep(0, #ffd700);
+    @deep(1, #da70d6);
+    @deep(2, #179fff);
+    @deep(3, #ffd700);
+    @deep(4, #da70d6);
+    @deep(5, #179fff);
+    @deep(6, #ffd700);
+    @deep(7, #da70d6);
+    @deep(8, #179fff);
+    @deep(9, #ffd700);
+    @deep(10, #da70d6);
+    @deep(11, #179fff);
+    @deep(12, #ffd700);
+    @deep(13, #da70d6);
+    @deep(14, #179fff);
+    @deep(15, #ffd700);
+    @deep(16, #da70d6);
+    @deep(17, #179fff);
+
+    express,
+    property {
+        color: #9cdcfe;
+    }
+
+    invoke,
+    method {
+        color: #dcdcaa;
+    }
+
+    predef {
+        color: #4ec9b0;
+    }
+
+    outside {
+        color: #4fc1ff;
+    }
+
+    comment {
+        color: #6a9955;
+    }
+</style>
+<script>
+    var history = [];
+    function main(md) {
+        var clickAnchor = function (event) {
+            var target = this;
+            var href = target.getAttribute("href");
+            event.preventDefault();
+            if (!/^\w+:/.test(href) && /\.md$/i.test(href)) {
+                href = md.replace(/[^\/]+$/, "") + href;
+                href = decodeURI(href);
+                console.log(href)
+                go('/mark/' + href);
+            }
+            else {
+                window.open(href);
+            }
+        };
+        var page = document.createElement("markdown");
+        on("mounted")(page, async function () {
+            var xhr = await cross('get', "./welcome:" + md);
+            page.innerHTML = markdown(xhr.response, md);
+            for (var target of page.querySelectorAll("a")) {
+                onclick(target, clickAnchor);
+            }
+        });
+        return page;
+    }
+</script>

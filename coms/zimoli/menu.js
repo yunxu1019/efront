@@ -139,7 +139,7 @@ function main(elem, mode) {
                     });
                     tree(elem, function (index, item, menu) {
                         var e = generator(index, item);
-                        if (!e || e.children.length) return e;
+                        if (!e || !e.children || e.children.length) return e;
                         var m = menuItem(null, menu, elem.useIcon[0]);
                         return m;
                     });
