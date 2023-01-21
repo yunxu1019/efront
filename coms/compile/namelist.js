@@ -107,13 +107,13 @@ function create(n, length) {
     rest[0] = source[n];
     return rest.join("");
 }
-var preventList = function (plist, k) {
+var preventList = function (k) {
     for (var i = this.length - 1; i >= 0; i--) {
         if (k in this[i]) return true;
     }
     return false;
 };
-var preventObject = function (object, k) {
+var preventObject = function (k) {
     return k in this;
 };
 var preventNull = function () { return false };

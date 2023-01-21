@@ -184,7 +184,7 @@ class Program {
         var program = this;
         var queue_push = function (scope) {
             var last = queue.last;
-            Object.defineProperty(scope, 'queue', { value: queue });
+            Object.defineProperty(scope, 'queue', { value: queue, enumerable: false });
             scope.prev = last;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (program.setType(scope) === false) {
@@ -566,7 +566,7 @@ class Program {
                     }
                 }
                 else {
-                    if (!scope.prev || (scope.prev.type & (SCOPED | STAMP))) queue.inExpress = true;
+                    if (!last || (last.type & (SCOPED | STAMP))) queue.inExpress = true;
                     scope.isExpress = queue.inExpress;
                     scope.inExpress = true;
                 }
