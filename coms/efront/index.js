@@ -173,11 +173,11 @@ var detectEnvironment = function (comm) {
         });
     });
 };
-console.setLogger('help', function (line) {
-    console.line('<cyan>帮助</cyan>', format(line), `\r\n`);
+console.setLogger('help', function (...args) {
+    console.line('<cyan>帮助</cyan>', ...args, `\r\n`);
 });
 var showHelpLine = function (line) {
-    console.help(line);
+    console.help(format(line));
 }
 var showHelpInfo = function (help) {
     var { info, commands } = help;
