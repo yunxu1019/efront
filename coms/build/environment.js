@@ -97,5 +97,5 @@ module.exports = {
     EXPORT_TO,
     DESTPATH,
     include_required: !!RELEASE || !public_app,
-    APP
+    APP: env.APP
 };

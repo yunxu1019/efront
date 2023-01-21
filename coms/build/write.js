@@ -1,7 +1,7 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
-
+var environment = require("./environment");
 var mkkingTree = {};
 var mkdir = function (dir, then) {
     if (mkkingTree[dir]) return mkkingTree[dir].push(then);
@@ -46,7 +46,10 @@ var deepwr = function (dir, data) {
 function write(responseTree, public_path) {
     var values = Object.values(responseTree).filter(a => !!a.destpath);
     if (values.length) console.info("正在写入文件..");
+    var PUBLIC_PATH = environment.PUBLIC_PATH;
+    if (!/^\.\.|^$/.test(path.relative(public_path, PUBLIC_PATH))) throw new Error("请不要在非发布目录写文件！");
     return queue.call(values, function ({ destpath, data }) {
+        if (!/^\.\./.test(path.relative(destpath, PUBLIC_PATH))) throw new Error("请不要将文件写入非发布目录！");
         return deepwr(path.join(public_path, destpath), data);
     });
 }

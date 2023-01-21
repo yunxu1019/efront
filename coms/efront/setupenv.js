@@ -15,13 +15,14 @@ module.exports = function (app) {
     appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
     else env = {};
+    var nameonly = appname.replace(/^(\.+[\\\/$])+/g, '');
     if (appname) {
-        memery.setTo(env, 'APP', appname);
+        memery.setTo(env, 'APP', nameonly);
     }
-    envpath.forEach(function (p) {
-        memery.mergeTo(env, loadenv(path.join(p, "./app=" + appname)))
-    });
     cache[appname] = env;
+    envpath.forEach(function (p) {
+        memery.mergeTo(env, loadenv(path.join(p, "./app=" + nameonly)))
+    });
     pollyfill(env);
     normalize(env);
     extendIfNeed(env, rootEnvs);
@@ -30,8 +31,8 @@ module.exports = function (app) {
         if (default_value === undefined) default_value = memery.get.call(rootEnvs, key);
         if (default_value === undefined) default_value = memery.get(key);
         var value_map = Object.create(null);
-        if (appname !== undefined) {
-            if (!/\/|\.[cm]?[jt]sx?$/i.test(app)) value_map[appname] = true;
+        if (app !== undefined) {
+            if (!/\.[cm]?[jt]sx?$/i.test(app)) value_map[nameonly] = true;
         }
         if (typeof default_value === "string") {
             default_value.split(',').forEach(k => {
