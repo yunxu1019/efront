@@ -237,7 +237,7 @@ var snapExpressHead = function (o) {
     while (o && o.prev) {
         var p = o.prev;
         if (p.type & (EXPRESS | VALUE)) {
-            if (o.type === SCOPED && o.entry === '[' || o.type === EXPRESS && /^\./.test(o.text) || /\.$/.test(p.text) && !p.isdigit) {
+            if (o.type === SCOPED && o.entry === '[' || o.type === EXPRESS && /^\??\.[^\.]/.test(o.text) || /\.$/.test(p.text) && !p.isdigit) {
                 o = p;
                 continue;
             }
@@ -250,7 +250,7 @@ var snapExpressFoot = function (o) {
     if (!o || !(o.type & (EXPRESS | VALUE))) return;
     while (o && o.next) {
         var n = o.next;
-        if (n.type === SCOPED && o.entry === '[' || /\.$/.test(o.text) && !o.isdigit || n.type === EXPRESS && /^\./.test(n.text)) {
+        if (n.type === SCOPED && o.entry === '[' || /\.$/.test(o.text) && !o.isdigit || n.type === EXPRESS && /^\??\.[^\.]/.test(n.text)) {
             if (n.type & (EXPRESS | SCOPED)) {
                 o = n;
                 continue;

@@ -188,7 +188,9 @@ class Program {
             scope.prev = last;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 if (program.setType(scope) === false) {
-                    last = scope.prev;
+                    if (queue.last !== last) last = queue.last;
+                    else if (scope.prev !== last) last = scope.prev;
+                    while (queue[queue.length - 1] !== last) queue.pop();
                     last.end = scope.end;
                     last.text = text.slice(last.start, last.end);
                     return;
