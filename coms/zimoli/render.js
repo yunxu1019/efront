@@ -244,7 +244,7 @@ var createRepeat = function (search, id = 0) {
             }
             else {
                 var c = changes[k];
-                if (clonedElements[k]) if (!c || !isObject(c.previous) && !isObject(c.current)) return clonedElements1[k] = clonedElements[k];
+                if (clonedElements[k]) if (!c) return clonedElements1[k] = clonedElements[k];
             }
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
