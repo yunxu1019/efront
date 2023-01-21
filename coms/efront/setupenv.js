@@ -15,7 +15,7 @@ module.exports = function (app) {
     appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
     else env = {};
-    var nameonly = appname.replace(/^(\.+[\\\/$])+/g, '');
+    var nameonly = appname.replace(/^(\.+[\\\/\$])+/g, '');
     if (appname) {
         memery.setTo(env, 'APP', nameonly);
     }

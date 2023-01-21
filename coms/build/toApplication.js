@@ -338,9 +338,13 @@ var rebuildData = function (responseTree) {
             if (!(a in renmap)) return a;
             return renmap[a];
         });
-        var argstr = args.concat(argNames, !required ? [] : required.split(";").map(a => {
-            return a.replace(/\.(\w+)$/g, '').replace(/\-(\w)/g, (_, a) => a.toUpperCase());
-        }).join(";")).join(",");
+        var requiredMap = response.dependence.requiredMap;
+        if (required) required = required.split(";").map(a => {
+            a = requiredMap[a] || a;
+            if (a in renmap) a = renmap[a];
+            return a;
+        }).join(";");
+        var argstr = args.concat(argNames, !required ? [] : required).join(",");
         var arglen = (argstr.length << 1).toString(36);
         while (arglen.length < 3) {
             arglen = "0" + arglen;
