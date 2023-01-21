@@ -1,6 +1,6 @@
 {
   "name": "efront",
-  "version": "3.34.12",
+  "version": "3.35.0",
   "description": "简化前端开发，优化web性能",
   "main": "./coms/efront",
   "directories": {
