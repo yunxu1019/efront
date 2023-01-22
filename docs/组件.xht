@@ -5,11 +5,13 @@
         display: block;
     }
 
-    p {
+    p4 {
         line-height: 1.8;
+        display: block;
+        margin: 20px 0;
     }
 
-    m {
+    p4 m{
         line-height: 1.2;
         display: inline-block;
         margin-right: 6px;
@@ -34,46 +36,68 @@
         color: #29f;
     }
 
+    b[l] {
+        color: #29c;
+    }
+
     h2 b {
         font-size: 14px;
         display: inline-block;
         border: 1.2px solid;
+        margin-left: 6px;
+        padding: 2px 4px;
     }
-    markdown{
+
+    markdown {
         margin: 0 -20px;
     }
 </style>
 <h2>
     <span -bind="name"></span>
+    <b -if="doc?.less" l>有样式表</b>
     <b -if="doc?.mark" w>有文档</b>
     <b -if="doc?.test" t>有测试代码</b>
 </h2>
 <container -if="doc?.url" .src="doc.url">
 </container>
-<p envs>
-    <span -if="com?.args.length">
-        环境依赖项:&nbsp; <m -repeat="c in com.args" -bind="c"> </m>
+<p4 envs>
+    <span -if="envs?.length">
+        环境依赖项:&nbsp; <m -repeat="c in envs" -bind="c"> </m>
     </span>
     <span -else> 无环境依赖项 </span>
-</p>
-<p imported>
-    <span -if="com?.required.length">
-        导入项:&nbsp;<m -repeat="c in com.required" -bind="c"></m>
+</p4>
+<p4 imported>
+    <span -if="required?.length">
+        导入项:&nbsp;<m -repeat="c in required" -bind="c"></m>
     </span>
     <span -else>
         无导入项
     </span>
-</p>
+</p4>
 <script>
-    var 分析 = async function (com, props) {
-        scope.name = com;
-        await new Promise(ok => load(com, ok));
-        var loaded = loadedModules[com];
-        scope.com = loaded;
-        scope.doc = props;
+    var 分析 = lazy(async function (com, props) {
         if (props.mark) props.url = '/mark/coms/' + com.replace(/\.js$/i, '.md');
+        scope.doc = props;
+        scope.name = com;
+        var xhr = await cross("get", "./components:" + com);
+        var code = compile$scanner2(xhr.response);
+        code.fix();
+        var envs = code.envs;
+        if (props.less) envs.cless = true;
+        var required = [];
+        if (envs.require) code.used.require.forEach(r => {
+            var next = r.next;
+            if (!next) return;
+            if (next.type !== code.SCOPED || next.entry !== '(') return;
+            var first = next.first;
+            if (!first || first.type !== code.QUOTED) return;
+            var req = code.program.createString([first]);
+            required.push(req);
+        });
+        scope.required = required;
+        scope.envs = Object.keys(envs);
         render.refresh();
-    };
+    });
     var page = document.createElement("component");
     page.innerHTML = template;
     var scope = {

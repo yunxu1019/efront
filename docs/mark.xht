@@ -143,11 +143,16 @@
             var target = this;
             var href = target.getAttribute("href");
             event.preventDefault();
-            if (!/^\w+:/.test(href) && /\.md$/i.test(href)) {
-                href = md.replace(/[^\/]+$/, "") + href;
-                href = decodeURI(href);
-                console.log(href)
-                go('/mark/' + href);
+            if (!/^\w+:/.test(href)) {
+                if (/\.md$/i.test(href)) {
+                    href = md.replace(/[^\/]+$/, "") + href;
+                    href = decodeURI(href);
+                    console.log(href)
+                    go('/mark/' + href);
+                }
+                else {
+                    window.open('https://github.com/yunxu1019/efront/blob/develop/' + md.replace(/[^\/]+$/, "") + href);
+                }
             }
             else {
                 window.open(href);

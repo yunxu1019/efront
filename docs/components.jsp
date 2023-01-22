@@ -2,9 +2,16 @@
 
     var fs = require("fs").promises;
     var path = require("path");
-    var comm_file_reg = /\.([tj]sx?|xht|md)$/i;
+    var comm_file_reg = /\.([tj]sx?|xht|md|less)$/i;
+    var basepath = path.join(String(__efront), 'coms');
+    if (req.id) {
+        var compath = path.join(basepath, req.id);
+        if (!comm_file_reg.test(req.id) || !/^\.\./.test(path.relative(compath, basepath))) return forbidden("禁止访问");
+        return fs.readFile(compath);
+    }
+
     var readdir = async function (a) {
-        var b = path.join(__efront, "coms", a);
+        var b = path.join(basepath, a);
         var names = await fs.readdir(b);
         names = names.filter(name => {
             if (/#/.test(name) || !comm_file_reg.test(name)) return false;

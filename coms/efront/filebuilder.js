@@ -68,7 +68,13 @@ var buildjsp = function (buff, realpath) {
     var prebuilds = {
         __dirname: path.dirname(realpath),
         __filename: realpath,
-        __efront: path.join(__dirname, '../..'),
+        __efront: {
+            toString() {
+                return this.path;
+            },
+            path: path.join(__dirname, '../..'),
+            version: require(path.join(__dirname, "../../package.json")).version
+        },
         req: null, res: null, request: null, response: null, context: null,
         remoteAddress: null, textplain: null, forbidden: null,
         clients: require("../server/clients")
