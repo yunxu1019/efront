@@ -133,7 +133,6 @@ function main(elem, mode) {
                     care(elem, function (src) {
                         if (src) src = getTreeFromData(src);
                         var hasIcon = src.hasIcon;
-                        JSON.stringify(src);
                         elem.useIcon = hasIcon;
                         elem.src = src;
                     });

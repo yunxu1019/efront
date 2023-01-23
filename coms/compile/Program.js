@@ -177,7 +177,6 @@ class Program {
         var lasttype;
         var Code = this.Code;
         var queue = new Code();
-        queue.__proto__ = Code.prototype;
         var origin = queue;
         var colonstrap_reg = this.colonstrap_reg;
         var forceend_reg = this.forceend_reg;

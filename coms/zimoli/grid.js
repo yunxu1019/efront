@@ -308,7 +308,6 @@ function grid(breakpoints) {
 }
 class Point extends Array {
     constructor(value, range) {
-        super();
         var solid = false;
         if (isObject(value)) {
             this.value = value.value;
@@ -334,7 +333,7 @@ var createPoints = function (values, direction = "x", result = new Point(0)) {
     if (!(values instanceof Array)) values = arguments;
     for (var cx = 0, dx = values.length; cx < dx; cx++) {
         var value = values[cx];
-        if (value instanceof Array && !(value instanceof Point)) {
+        if (value instanceof Array && value.constructor !== Point) {
             if (!result.length) throw new Error("数据转换为grid失败！");
             createPoints(value, direction === "x" ? "y" : "x", result[result.length - 1]);
         } else {
