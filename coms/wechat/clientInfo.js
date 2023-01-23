@@ -1,7 +1,7 @@
 var getBrowserTypeFromUserAgent = function () {
     // 世界之窗
     // Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36 TheWorld 7
-    if (/TheWord/.test(navigator.userAgent)) return "sjzc,世界之窗";
+    if (/TheWorld/.test(navigator.userAgent)) return "sjzc,世界之窗";
     // 火狐浏览器
     // Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0 
     if (/Firefox/.test(navigator.userAgent)) return 'ffox,Firefox';
