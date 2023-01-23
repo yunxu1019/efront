@@ -61,7 +61,7 @@ function tree() {
         }
         var tabs = new Array(com.tab + 1).join("<t></t>");
         if (isFunction(generator)) {
-            var elem = generator(index, com instanceof Item ? com.value : com, com);
+            var elem = generator(index, com.constructor === Item ? com.value : com, com);
             if (!elem) return;
             span = document.createElement('span');
             span.innerHTML = tabs;

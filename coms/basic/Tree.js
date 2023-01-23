@@ -169,7 +169,7 @@ class Tree extends Array {
         for (var data of datas) {
             if (isObject(data) || isString(data)) {
                 var item;
-                if (data instanceof Item) {
+                if (data.constructor === Item) {
                     item = data;
                     Tree.remove(item);
                 }
