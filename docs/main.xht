@@ -111,7 +111,6 @@
     })
     var initVersionInfo = async function () {
         var xhr = await cross("get", "version");
-        console.log(xhr)
         var version = xhr.response.split(",");
         menus[0].name += ` <v>${version[0]}</v>`;
     }
