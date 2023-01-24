@@ -1,7 +1,7 @@
 if (Promise) {
     var SafePromise = void 0;
     Promise.resolve({
-        then() {
+        get then() {
             SafePromise = Promise;
         }
     });
