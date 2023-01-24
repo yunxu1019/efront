@@ -620,7 +620,7 @@ function prepare(filename, fullpath) {
     return [commName, lessName, className];
 }
 var wrapHtml = function (htmldata) {
-    return "`" + String(htmldata).replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&") + "`";
+    return "`" + String(htmldata).trim().replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&") + "`";
 };
 var getValidName = function (prefix, used) {
     var id = 1;
@@ -647,9 +647,10 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     var { scripts, innerHTML: htmltext, attributes = '', tagName, styles } = scoped;
     var jsData = scripts.join("\r\n");
     var used = Object.create(null);
-    var jscope = scanner2(jsData).scoped
+    var jscode = scanner2(jsData);
+    jscode.fix();
+    var jscope = jscode.scoped
     extend(used, scoped.used, jscope.envs);
-    var scope = Object.keys(scoped.envs).filter(e => e in this || e in jscope.used).join(",\r\n");
     var xhtmain = getValidName(`xht`, used);
     htmltext = await renderImageUrl.call(this, htmltext, fullpath);
     styles = await renderLessData.call(this, styles.join("\r\n"), fullpath, watchurls, lessName);
@@ -659,15 +660,37 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         htmltext = `{toString:()=>${wrapHtml(scoped.outerHTML || scoped.innerHTML)}}`;
         return loadJsBody(jsData, filename, styles, commName, className, htmltext);
     }
-    if (scope) scope = `{\r\n${scope}\r\n}`;
+    var scope = Object.keys(scoped.envs).filter(e => e in this || e in jscope.used);
+    if (scope.length) {
+        var jsvars = jscope.vars;
+        jscode.forEach(o => {
+            if (o.type === jscode.STRAP && /^(var|const|let)$/.test(o.text)) {
+                o.text = `/*${o.text}*/`;
+                o.type = jscode.COMMENT;
+            }
+        })
+        scope = scope.filter(k => {
+            if (!jsvars[k]) return true;
+            delete jsvars[k];
+            delete scope[k];
+            if (jscode.used[k]) {
+                jscode.used[k].forEach(o => {
+                    o.text = xhtmain + "." + o.text;
+                });
+            }
+        });
+        scope = `var ${Object.keys(jsvars).concat(xhtmain).join(',')}={${scope.join(",")}};`;
+        jsData = jscode.toString();
+    }
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
     var createElement = tagName
         ? `elem = document.createElement("${tagName}");`
         : `if (!isElement(elem)) elem = document.createElement("${commName}");`;
     var xht = scope ? `
 var ${xhtmain}=function(){
+    ${scope}
     ${jsData}
-    return [${wrapHtml(htmltext)},${scope}];
+    return [${wrapHtml(htmltext)},${xhtmain}];
 };
 function ${commName}(elem){
     var [template,scope]=${xhtmain}();
@@ -675,7 +698,7 @@ function ${commName}(elem){
     ${attributes}
     elem.innerHTML = template;
     render(elem,scope)
-    return cless(elem);
+    return elem;
 }`: `
 var ${xhtmain}=function(){
     ${jsData}
