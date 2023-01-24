@@ -1,0 +1,157 @@
+<style>
+    h2 {
+        margin: 0;
+        padding: 10px 20px;
+    }
+
+    field {
+        width: 50%;
+        height: 200px;
+        display: inline-block;
+        position: relative;
+        vertical-align: top;
+    }
+
+    label {
+        padding: 0 20px;
+    }
+
+    .padding {
+        border: none;
+        padding: 0 20px;
+        width: 100%;
+        display: block;
+    }
+
+    [textarea] {
+        width: 100%;
+        height: 200px;
+        display: block;
+        border: 1.2px solid;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        padding: 2px 6px;
+    }
+
+    [textarea]:focus {
+        border-color: #09c;
+    }
+
+    [textarea] w {
+        font-weight: normal;
+        color: #F24;
+    }
+
+    [textarea] a {
+        font-family: inherit;
+        font-weight: normal;
+        color: #08F;
+    }
+
+    button {
+        padding: 0 20px;
+    }
+</style>
+<h2>字符集检查工具</h2>
+<div style="text-align: right;padding: 0 20px;">
+    <button @click="check">检查</button>
+</div>
+<div>
+    <field>
+        <label>要检查的字符集区间（unicode）</label>
+        <padding>
+            <div textarea contenteditable="true" -model="ranges"></div>
+        </padding>
+    </field>
+    <field>
+        <label>当前浏览器支持的字符集区间(unicode)</label>
+        <padding>
+            <div textarea contenteditable="true" -model="result"></div>
+        </padding>
+    </field>
+</div>
+<script>
+    var checkOne = function (one) {
+        if (!String.fromCodePoint && one > 0xffff) return '';
+        var s = (String.fromCodePoint || String.fromCharCode)(one);
+        try {
+            eval(`(function (${s}){})`);
+            return true;
+        }
+        catch (e) { }
+        return '';
+    };
+    var toHex = function (one) {
+        one = one.toString(16).toUpperCase();
+        if (one.length <= 2) {
+            return "\\x" + Array(3 - one.length).join("0") + one.toString(16);
+        }
+        else if (one.length <= 4) {
+            return "\\u" + Array(5 - one.length).join("0") + one;
+        }
+        return `\\u{${one}}`;
+    };
+    var fromHex = function (hex) {
+        var str = hex.replace(/^[xu]/, '').replace(/^\{([\s\S]+)\}$/, '$1');
+        return parseInt(str, 16);
+    }
+    var check = async function () {
+        var elem = alert("正在检查", false);
+        var reg = /\\(x[0-9a-f]{2}|u[0-9a-f]{4}|u\{[0-9a-f]+\})/ig;
+        var dist0 = [];
+        ranges.replace(/<\/?\w+\/?>/g, '').replace(new RegExp(`${reg.source}(?:-${reg.source})?|${/[\s\S]/.source}`, 'ig'), function (_, a, b) {
+            dist0.push([_, a, b]);
+            return _;
+        });
+        var dist = [];
+        var dist1 = dist0.slice();
+        while (dist0.length) {
+            var [_, a, b] = dist0.shift();
+            if (_.length === 1) {
+                if (checkOne(_.codePointAt(0))) dist.push(toHex(_.codePointAt(0)));
+                else dist.push('');
+                continue;
+            }
+            a = fromHex(a);
+            if (!b) {
+                if (checkOne(a)) dist.push(toHex(a));
+                else dist.push('');
+                continue;
+            }
+            b = fromHex(b);
+            elem.setText(`正在检查${_}`);
+            await new Promise(a => setTimeout(a, 20));
+            var start = a;
+            var temp = [];
+            while (a <= b) {
+                if (checkOne(a++)) continue;
+                var end = a - 2;
+                if (start === end) {
+                    temp.push(toHex(start));
+                }
+                else if (start < end) {
+                    temp.push([start, end].map(toHex).join("-"));
+                }
+                start = a;
+            }
+            if (start < b) {
+                temp.push([start, b].map(toHex).join("-"));
+            }
+            else if (start === b) {
+                temp.push(toHex(start));
+            }
+            dist.push(temp.join(''))
+        }
+        dist = dist.map((a, i) => {
+            if (a.toUpperCase() === dist1[i][0].toUpperCase()) return a;
+            dist1[i][0] = `<a>${dist1[i][0]}</a>`;
+            return `<w>${a}</w>`;
+        })
+        elem.setText("检查完成", 600);
+        ranges = dist1.map(a => a[0]).join("");
+        result = dist.join("");
+    }
+    var ranges = /\xAA\xB5\xBA\xC0-\xD5\xD8-\xF2\xF8-\u02af\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052f\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA/.source
+    var result = '';
+
+</script>

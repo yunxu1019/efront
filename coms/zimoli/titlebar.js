@@ -27,7 +27,7 @@ function titlebar(elem) {
     }
     use_back = use_back !== false;
     var bar = nav.cloneNode();
-    var title = label();
+    var title = document.createElement("label");
     var _back = back();
     text(title, page_title || document.title);
     appendChild(bar, title);

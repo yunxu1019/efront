@@ -10,6 +10,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="Shortcut Icon" href="favicon.ico" type="image/x-icon" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,width=device-width" />
+    <script>
+        if (/Trident/i.test(navigator.userAgent)) document.createElement = function (createElement) {
+            return function (a) {
+                if (/\W/.test(a)) return createElement.call(this, 'efront');
+                return createElement.call(this, a);
+            };
+        }(document.createElement);
+    </script>
     <title>efront 文档</title>
     <style>
         body,
@@ -18,6 +26,7 @@
             margin: 0;
             overflow: hidden;
         }
+
         *,
         ::before,
         ::after {

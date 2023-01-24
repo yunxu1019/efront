@@ -308,6 +308,7 @@ function grid(breakpoints) {
 }
 class Point extends Array {
     constructor(value, range) {
+        super();
         var solid = false;
         if (isObject(value)) {
             this.value = value.value;

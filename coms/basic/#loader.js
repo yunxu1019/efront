@@ -23,6 +23,7 @@ var {
     console,
     efrontURI,
     parseFloat,
+    encodeURI,
     preventFrame,
     PREVENT_FRAMEWORK_MODE = preventFrame,
     devicePixelRatio = 1,
@@ -46,6 +47,7 @@ var efront_time = +new Date;
 var _devicePixelRatio = devicePixelRatio;
 var request = window.request || function (url, onload, onerror, version) {
     var xhr = new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
+    url = encodeURI(url);
     xhr.open("POST", url);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {

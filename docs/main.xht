@@ -91,9 +91,13 @@
             closed: true,
             children: []
         },
-        // {
-        //     name: "小工具"
-        // }
+        {
+            name: "小工具",
+            closed: true,
+            children: [
+                "字符集检查"
+            ].map(a => ({ name: a, path: "/工具/" + a }))
+        }
     ];
     zimoli.register("/mark");
     zimoli.register("/命令");
