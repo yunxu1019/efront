@@ -2,6 +2,7 @@ var window = this;
 var Array = window.Array;
 var setTimeout = window.setTimeout;
 var Function = window.Function;
+var Object = window.Object;
 var console = window.console;
 var navigator = window.navigator;
 var requestAnimationFrame = window.setImmediate || window.setTimeout;
@@ -15,33 +16,40 @@ if (!Promise) {
         return pendding instanceof Promise || pendding && isFunction(pendding.then);
     };
     var queue = [];
+    var running = false;
     var run = function (q) {
-        var threads = queue.splice(0, queue.length);
-        for (var t of threads) {
-            if (t.oked) {
-                for (var r of t.PromiseFulfillReactions) {
-                    r.call(null, t.oked[0]);
+        running = true;
+        while (queue.length) {
+            var threads = queue.splice(0, queue.length);
+            for (var t of threads) {
+                if (!t.oked && !t.ohed) continue;
+                var PromiseRejectReactions = t.PromiseRejectReactions.splice(0, t.PromiseRejectReactions.length);
+                var PromiseFulfillReactions = t.PromiseFulfillReactions.splice(0, t.PromiseFulfillReactions.length);
+
+                if (t.oked) {
+                    for (var r of PromiseFulfillReactions) {
+                        r.call(null, t.oked[0]);
+                    }
+                }
+                if (t.ohed) {
+                    var throwed = t.throwed;
+                    t.throwed = true;
+                    if (!throwed && PromiseRejectReactions.length) {
+                        // <!--
+                        console.warn("在异步过程中发现未处理的异常：", t.ohed[0], t.ohed[1], t.ohed[2]);
+                        // -->
+                        throw t.ohed[0];
+                    }
+                    for (var r of PromiseRejectReactions) {
+                        r.apply(null, t.ohed);
+                    }
                 }
             }
-            if (t.ohed) {
-                var throwed = t.throwed;
-                t.throwed = true;
-                if (!throwed && !t.PromiseRejectReactions.length) {
-                    // <!--
-                    console.warn("在异步过程中发现未处理的异常：", t.ohed[0], t.ohed[1], t.ohed[2]);
-                    // -->
-                    throw t.ohed[0];
-                }
-                for (var r of t.PromiseRejectReactions) {
-                    r.apply(null, t.ohed);
-                }
-            }
-            t.PromiseRejectReactions.splice(0, t.PromiseRejectReactions.length);
-            t.PromiseFulfillReactions.splice(0, t.PromiseFulfillReactions.length);
         }
+        running = false;
     };
     var fire = function (p) {
-        if (queue.length) return queue.push(p);
+        if (running) return queue.push(p);
         queue.push(p);
         requestAnimationFrame(run);
     };
@@ -59,12 +67,12 @@ if (!Promise) {
                 fire(p);
             }
         };
-
         var ResolvingFunctions_reject = function (e) { //oh
             if (p.oked || p.ohed) return;
             p.ohed = arguments;
             fire(p);
         };
+        fire(p);
         executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
     };
     Promise.prototype = {
@@ -147,5 +155,4 @@ if (!Promise) {
             ok.apply(null, args);
         });
     };
-
 }
