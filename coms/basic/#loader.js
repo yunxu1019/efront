@@ -621,7 +621,9 @@ var init = function (name, then, prebuilds) {
     }, prebuilds);
     return res;
 };
-var forceRequest = {};
+var forceRequest = {
+    Promise: true
+};
 var removeGlobalProperty = function (property) {
     forceRequest[property] = true;
 };
@@ -853,6 +855,7 @@ var initIfNotDefined = function (defined, path, onload) {
 
 if (document) loadResponseTreeFromStorage();
 initIfNotDefined([].map, "[]map", map => map);
+"use ../basic_/#checkPromise.js";
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);
 // <!-- window.modules = modules; -->
 var onload = function () {

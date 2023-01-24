@@ -160,7 +160,7 @@
         };
         var page = document.createElement("markdown");
         on("mounted")(page, async function () {
-            var xhr = await cross('get', "./welcome:" + md);
+            var xhr = await cross('get', "./welcome:" + encodeURI(md));
             page.innerHTML = markdown(xhr.response, md);
             for (var target of page.querySelectorAll("a")) {
                 onclick(target, clickAnchor);

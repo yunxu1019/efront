@@ -129,13 +129,10 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
             var key = transformCssKey(oStyle);
             styleobject[key] = oValue;
         } else {
-            oStyle.replace(/^;+|;+$/g, "").split(/;+/).map(function (kv) {
-                var [k, v] = kv.split(":");
-                delete styleobject[k];
-                if (k) styleobject[k] = v || '';
-            });
+            oStyle = parseKV(oStyle, ';', ':');
         }
-    } else if (isObject(oStyle)) {
+    }
+    if (isObject(oStyle)) {
         for (var k in oStyle) {
             var key = transformCssKey(k);
             styleobject[key] = oStyle[k];
@@ -144,12 +141,12 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
     var rowStyles = [];
     var styleSheet = stylesheet.styleSheet;
     var cssText = stylesheet.savedText || (styleSheet ? styleSheet.cssText : stylesheet.innerHTML).replace(/^[\s\S]*?\{([\s\S]*?)\}[\s\S]*?$/, "$1");
-    cssText.split(";").forEach(function (kv) {
-        var k = kv.replace(/^(.*?)\:.*$/, "$1");
+    cssText.trim().split(/\s*;\s*/).forEach(function (kv) {
+        var k = kv.replace(/^(.*?)\s*\:.*$/, "$1");
         if (k && !(k in styleobject)) rowStyles.push(kv);
     });
     for (var k in styleobject) {
-        if (styleobject[k]) {
+        if (!isEmpty(styleobject[k])) {
             rowStyles.push(k + ":" + transformValue(styleobject[k], k));
         }
     }

@@ -94,7 +94,33 @@ var stringsFromRegExp = function (reg) {
     var res = combine(...queue).map(a => a.join(""));
     return res;
 }
-
+var supportUnicodeRegExp = false;
+var spaceDefined = [
+    "\\u0002",
+    "\\b-\\r",// "\\b"/*8*/, "\\t"/*9*/, "\\n"/*10*/, "\\v"/*11*/, "\\f"/*12*/, "\\r"/*13*/,
+    " "/*32*/,
+    "\\u007f", "\\u00a0", "\\u00ad", "\\u034f", "\\u061c",
+    "\\u115f", "\\u1160",
+    "\\u17b4", "\\u17b5",
+    "\\u180b-\\u180e",
+    "\\u1cbb", "\\u1cbc",
+    "\\u2000-\\u200f",
+    "\\u2028-\\u202f",
+    "\\u205f-\\u206f",
+    "\\u2800", "\\u3000", "\\u3164",
+    "\\ufe00-\\ufe0f",
+    "\\ufeff", "\\uffa0",
+    "\\ufff0-\\ufff8",
+    "\\u{133fc}",
+    "\\u{1d173}-\\u{1d17a}"
+]
+try {
+    new RegExp('.', 'u');
+    supportUnicodeRegExp = true;
+} catch (e) {
+    spaceDefined.pop();
+    spaceDefined.pop();
+}
 class Program {
     quotes = [
         [/'/, /'/, /\\[\s\S]/],
@@ -126,29 +152,11 @@ class Program {
     classstrap_reg = /^(class)$/;
     extends_reg = /^(extends)$/;
     export_reg = /^(export)$/;
-    spaces = [
-        "\\u0002",
-        "\\b-\\r",// "\\b"/*8*/, "\\t"/*9*/, "\\n"/*10*/, "\\v"/*11*/, "\\f"/*12*/, "\\r"/*13*/,
-        " "/*32*/,
-        "\\u007f", "\\u00a0", "\\u00ad", "\\u034f", "\\u061c",
-        "\\u115f", "\\u1160",
-        "\\u17b4", "\\u17b5",
-        "\\u180b-\\u180e",
-        "\\u1cbb", "\\u1cbc",
-        "\\u2000-\\u200f",
-        "\\u2028-\\u202f",
-        "\\u205f-\\u206f",
-        "\\u2800", "\\u3000", "\\u3164",
-        "\\ufe00-\\ufe0f",
-        "\\ufeff", "\\uffa0",
-        "\\ufff0-\\ufff8",
-        "\\u{133fc}",
-        "\\u{1d173}-\\u{1d17a}"
-    ]
+    spaces = spaceDefined;
     nocase = false
     lastIndex = 0
     compile(s) {
-        return s.replace(/\\[\s\S]|[\[\]\(\)\{\}\+\.\-\*\?\$\^\|\\\/]/g, function (m) {
+        return s.replace(/\\[\s\S]|[\[\]\(\)\{\}\+\.\-\*\?\$\^\|\\\/ ]/g, function (m) {
             if (m.length > 1) {
                 return m;
             }
@@ -655,11 +663,12 @@ class Program {
         tokens = Object.keys(tokens).join("");
         tokens = this.compile(tokens) + spaces;
         var express = `[^${tokens}]+`;
-        this.express_reg = new RegExp(`^${express}$`, 'u');
-        this.space_reg = new RegExp(`^[${spaces}]+$`, 'u');
-        this.space_exp = new RegExp(`[${spaces}]+`, 'u');
+        var flagUnicode = supportUnicodeRegExp ? 'u' : '';
+        this.express_reg = new RegExp(`^${express}$`, flagUnicode);
+        this.space_reg = new RegExp(`^[${spaces}]+$`, flagUnicode);
+        this.space_exp = new RegExp(`[${spaces}]+`, flagUnicode);
         var quotes = this.createRegExp(quoteslike.map(q => q[0]), true).source;
-        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${this.number_reg.source.replace(/^\^|\$$/g, "")}[^${tokens}]*|${express}|[${stamps}]`], "giu");
+        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${this.number_reg.source.replace(/^\^|\$$/g, "")}[^${tokens}]*|${express}|[${stamps}]`], "gi" + flagUnicode);
     }
 }
 module.exports = Program;

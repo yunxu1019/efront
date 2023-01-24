@@ -3,14 +3,14 @@ var Array = window.Array;
 var setTimeout = window.setTimeout;
 var Function = window.Function;
 var console = window.console;
-var Error = window.Error;
+var navigator = window.navigator;
 var requestAnimationFrame = window.setImmediate || window.setTimeout;
 var isFunction = function (f) {
     return typeof f === "function";
 };
-if (window.Promise) {
-    var Promise = window.Promise;
-} else {
+var Promise = window.Promise;
+"use ./#checkPromise.js";
+if (!Promise) {
     var isThenable = function (pendding) {
         return pendding instanceof Promise || pendding && isFunction(pendding.then);
     };
@@ -93,7 +93,7 @@ if (window.Promise) {
             if (this.oked || this.ohed) fire(this);
             return promise;
         },
-        catch(f) {
+        "catch"(f) {
             return this.then(null, f);
         },
     }

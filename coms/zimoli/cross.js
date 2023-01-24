@@ -40,6 +40,9 @@ var cross = cross_.bind(function (callback, onerror) {
                     }
                     break;
                 default:
+                    if (xhr.response === void 0) {
+                        xhr.response = xhr.responseText;
+                    }
                     callback();
             }
             saveCookie();

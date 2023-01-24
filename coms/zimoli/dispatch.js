@@ -8,6 +8,7 @@ var dispatch = "dispatchEvent" in document ? function dispatchEvent(target, even
         return target[fire] && target[fire](event);
     }
 };
+var isWorseEnv = /MSIE\s([2-9]|10)|Presto/.test(navigator.userAgent);
 /**
  * @param {Event} e 
  */
@@ -15,7 +16,7 @@ function dispatch2(t, e) {
     var on = 'on' + e.type;
     var f = t[on];
     var res = dispatch(t, e);
-    if (f && (t.nodeType !== 1 || t.constructor === window.HTMLUnknownElement)) {
+    if (f && (t.nodeType !== 1 || t.constructor === window.HTMLUnknownElement || isWorseEnv && !(on in t.constructor.prototype))) {
         return f.call(t, e) !== false;
     }
     return res;

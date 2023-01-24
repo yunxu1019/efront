@@ -1,7 +1,4 @@
 var slice = [].slice;
-var { appendChild: _appendChild, insertBefore: _insertBefore } = document.createElement('a');
-var isWorseIE = /msie\s+[2-8]/i.test(navigator.userAgent);
-
 function release(node) {
     if (node === null || node === undefined) return node;
     return isFunction(node) ? node() : isNode(node) ? node : document.createTextNode(node);
@@ -35,15 +32,7 @@ function appendChild(parent, obj, transition) {
             if (hasEnterStyle(o) && transition !== false) {
                 isFunction(appendChild.transition) && appendChild.transition(o);
             }
-            if (isWorseIE) {
-                try {
-                    _appendChild.call(parent, o);
-                } catch (e) {
-                    console.error("appendChild", parent.tagName, o.tagName);
-                }
-            } else {
-                _appendChild.call(parent, o);
-            }
+            parent.appendChild(o);
             o.with && appendChild(parent, o.with, transition);
             if (isMounted(parent)) _onappend(o);
         }
@@ -62,7 +51,7 @@ function insertBefore(alreadyMounted, obj, transition) {
         var o = release(children[cx]);
         if (!o) continue;
         if (o.removeTimer) clearTimeout(o.removeTimer);
-        _insertBefore.call(parent, o, alreadyMounted);
+        parent.insertBefore(o, alreadyMounted);
         o.with && insertBefore(alreadyMounted, o.with, transition);
         if (isMounted(parent)) _onappend(o);
         if (hasEnterStyle(o) && transition !== false) {
@@ -82,7 +71,7 @@ function insertAfter(alreadyMounted, obj, transition) {
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         if (o.removeTimer) clearTimeout(o.removeTimer);
-        _insertBefore.call(parent, o, alreadyMounted.nextSibling);
+        parent.insertBefore(o, alreadyMounted.nextSibling);
         o.with && insertBefore(alreadyMounted.nextSibling, o.with, transition);
         if (isMounted(parent)) _onappend(o);
         if (hasEnterStyle(o) && transition !== false) {
@@ -108,4 +97,18 @@ appendChild.replace = function (alreadyMounted, element) {
     if (!alreadyMounted || !alreadyMounted.parentNode) return;
     insertBefore(alreadyMounted, element);
     remove(alreadyMounted);
+};
+var wrapTargetMethod = function (target, methodName) {
+    var method = target[methodName];
+    if (method.wrapped) return;
+    var newMethod = target[methodName] = function (node) {
+        var res = method.apply(this, arguments);
+        _onappend(node);
+        return res;
+    };
+    newMethod.wrapped = true;
+};
+appendChild.wrapTarget = function (target) {
+    wrapTargetMethod(target, 'insertBefore');
+    wrapTargetMethod(target, 'appendChild');
 };

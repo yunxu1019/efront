@@ -648,7 +648,8 @@ var createEmiter = function (on) {
             digest();
             var parsedSrc = this.$src;
             if (parsedSrc instanceof Repeater) {
-                var target = e.currentTarget === this ? e.target : e.currentTarget || e.target;
+                if (e.active || e.currentTarget) var target = e.active || e.currentTarget;
+                else var target = e.target;
                 if (target === this) {
                     scope = parsedSrc.createScope();
                 }

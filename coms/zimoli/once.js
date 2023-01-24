@@ -1,7 +1,7 @@
 "use strict";
 var oncetree = {};
 function emit(ontype, target, handler, firstmost) {
-    var off = ontype.call(this, target, function (event) {
+    var off = ontype(target, function (event) {
         off();
         return handler.call(this, event);
     }, firstmost);
