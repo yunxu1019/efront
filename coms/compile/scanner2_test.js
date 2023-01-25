@@ -96,15 +96,21 @@ function testJsxOnlyHtml() {
     <component1 ng-bind="expression"><child1></child1></component1>`);
     console.log(m.toString());
 }
+function testSpaceLess() {
+    var m = scanner(`if(n<0)return'_f("'+t+'")('+e+")"`);
+    console.log(m.toString());
+}
+Program.debug = true;
 // testSpeed();
 // testVariables();
 // testRegexp();
 // testStatic();
 // testAssign();
 // testFormat();
-testJsx();
-testJsx2();
+// testJsx();
+// testJsx2();
 // testJsx3();
-testJsxOnlyHtml();
+// testJsxOnlyHtml();
+testSpaceLess();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });

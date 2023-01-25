@@ -549,6 +549,9 @@ class Program {
                 var scope = [];
                 scope.entry = m;
                 scope.type = SCOPED;
+                scope.start = match.index;
+                scope.col = match.index - colstart;
+                scope.row = row;
                 var last = queue.last;
                 if (m === "{") {
                     if (!last) {
@@ -579,7 +582,6 @@ class Program {
                     scope.isExpress = queue.inExpress;
                     scope.inExpress = true;
                 }
-                scope.start = match.index;
                 push_parents(scope);
                 continue;
             }
@@ -596,13 +598,13 @@ class Program {
                 pop_parents();
                 continue;
             }
-
+            if (this.scope_leave[m]) console.warn("标记不匹配", queue.entry, m, "queue:", `${queue.row}:${queue.col}`, "position:", `${row}:${index - colstart}\r\n`, text.slice(queue.start, index));
             if (this.stamp_reg.test(m)) {
                 save(STAMP);
             }
 
         }
-        if (queue !== origin) throw console.log(createString(origin), createString([queue])), new Error("代码异常结束");
+        if (queue !== origin) throw console.log(createString(origin), `\r\n------ deep: ${parents.length} - enrty: ${queue.entry} - length: ${queue.length} - last: ${createString([queue.last])} -----\r\n`, createString([queue])), "代码异常结束";
         return queue;
     }
     commit() {
@@ -619,11 +621,13 @@ class Program {
         quoteslike.forEach(q => {
             var a = q[0];
             if (a instanceof RegExp) a = stringsFromRegExp(a);
-            if (typeof a === "string" && a.length === 1) tokens[a] = true;
             if (a instanceof Array) {
-                a.forEach(a => quote_map[a] = q);
+                a.forEach(a => {
+                    quote_map[a] = q;
+                    tokens[a.charAt(0)] = true;
+                });
             }
-            else quote_map[a] = q;
+            else quote_map[a] = q, tokens[a.charAt(0)] = true;
             var r = q.slice(q[2] ? 2 : 3).concat(q[1]).map(q => {
                 if (q instanceof Array) {
                     q = q[q.length - 2];
