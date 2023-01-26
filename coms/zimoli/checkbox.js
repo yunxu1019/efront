@@ -20,7 +20,7 @@ function main(elem = document.createElement("checkbox-group")) {
             options,
             select(a) {
                 a.checked = !a.checked;
-                elem.value = this.options.filter(a => !!a.checked);
+                elem.checked = elem.value = this.options.filter(a => !!a.checked);
                 buildValue(elem.value, this.options);
                 dispatch(elem, 'change');
             }
