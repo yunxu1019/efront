@@ -1,14 +1,17 @@
-<template -if='useIcon?||hasIcon?||icon?'>
-    <i -class="icon?" -style="{color:color?}"></i>
-    <template -if="name?">
+<template -if='hasIcon?'>
+    <i -class="icon?" -style="{color:menu.color}"></i>
+    <template -if="menu.name">
         &nbsp;&nbsp;
     </template>
 </template>
-<span -html="name?" -style="{color:color?}"></span>
-<template -if="typeof hotkey==='string'">
+<span -html="menu.name" -style="{color:menu.color}"></span>
+<template -if="typeof menu.hotkey==='string'">
     &nbsp;&nbsp; <span class="hotkey" -html="hotkey"></span>
 </template>
-<template -elseif="hotkey?.length">
-    &nbsp;&nbsp; <span ng-repeat="k of hotkey" class="hotkey" ng-html="k"></span>
+<template -elseif="menu.hotkey?.length">
+    &nbsp;&nbsp; <span ng-repeat="k of menu.hotkey" class="hotkey" ng-html="k"></span>
+</template>
+<template -if="menu.isChecked?menu.isChecked():''">
+    &nbsp;&nbsp;✓
 </template>
 <s></s>

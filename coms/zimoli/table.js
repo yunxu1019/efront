@@ -286,7 +286,10 @@ var setFixedColumn = function () {
     if (!isTableRow(thead)) thead = thead.querySelector('tr');
     var children = Array.prototype.slice.call(thead.children);
     var lastChild = children[children.length - 1];
+    var lastFieldChild = children[children.length - 2];
+    if (children.length <= 2) lastFieldChild = null;
     if (!lastChild) return;
+    if (lastFieldChild) css(lastChild, { width: 0 }), lastChild = lastFieldChild;
     var deltaW = thead.scrollWidth - lastChild.offsetWidth;
     if (this.clientWidth > deltaW + 200) {
         css(lastChild, { width: this.clientWidth - deltaW });
@@ -300,6 +303,7 @@ var setFixedColumn = function () {
         css(tfoot, { left: this.scrollLeft });
     }
 };
+var setLazyFixedColumn = lazy(setFixedColumn, 0);
 var setClass = function (tds, cls, old) {
     tds.forEach(td => td[cls] = true);
     old.forEach(td => { if (!td[cls]) removeClass(td, cls) });
@@ -353,7 +357,31 @@ var getTdsOfSameRow = function (td) {
     }
     return tds;
 };
-
+function setContextMenu(thead) {
+    var fields = this.fields.slice();
+    var scope = this;
+    var menuItems = fields.map(f => {
+        return {
+            name: f.name,
+            checked: !f.hidden,
+            width: f.width,
+            do() {
+                this.checked = !this.checked;
+                f.hidden = !this.checked;
+                scope.fields = fields.filter(f => !f.hidden);
+                var width = thead.scrollWidth / scope.fields.length;
+                if (!width || width < 200) width = 200;
+                forEachRow(thead, function (tr) {
+                    for (var td of tr.children) {
+                        if (td.offsetWidth > width) css(td, { width });
+                    }
+                });
+                setLazyFixedColumn.call(thead.parentNode)
+            }
+        }
+    });
+    contextmenu(thead, menuItems);
+}
 function table(elem) {
     var tableElement = isElement(elem) ? elem : document.createElement("table");
     var activeCols = [];
@@ -383,7 +411,7 @@ function table(elem) {
             thead = getThead(table);
         }
         if (!getTargetIn(thead, event.target)) return;
-        var tds = getTargetIn(cellMatchManager, event.target);
+        var tds = cellMatchManager(event.target);
         if (!tds) return;
         setClass(tds, 'y-ing', activeCols);
         removeXIng(activeRows);
@@ -422,8 +450,7 @@ function table(elem) {
     table.useIncrease = false;
     var _vbox = function () {
         table.$Left = function (x) {
-            if (isFinite(x)) this.scrollLeft = x;
-            setFixedColumn.call(this);
+            if (isFinite(x)) this.scrollLeft = x, setFixedColumn.call(this);
             return this.scrollLeft;
         };
         vbox(table, 'x');
@@ -446,20 +473,7 @@ function table(elem) {
             fields,
             isEmpty,
             hasFoot: true,
-            fieldsPicker: null,
-            showFieldsPicker(event) {
-                var picker = this.fieldsPicker;
-                if (!picker) {
-                    picker = view();
-                    css(picker, 'position:absolute');
-                    drag.on(picker);
-                    picker.tabIndex = -1;
-                    picker.innerHTML = `<div head></div><div body><div><div foot></div>`;
-                    this.fieldsPicker = picker;
-                }
-                on('blur')(picker, remove);
-                popup(picker, event);
-            },
+            setContextMenu,
             tbody0: null,
             tbody(e) {
                 var e = list.apply(null, arguments);
@@ -547,9 +561,7 @@ function table(elem) {
             }
             markThead();
             markedRows = true;
-            requestAnimationFrame(function () {
-                setFixedColumn.call(table)
-            })
+            setLazyFixedColumn.call(table);
         }
     );
     resizingList.set(table, setFixedColumn);

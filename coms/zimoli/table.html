@@ -1,19 +1,18 @@
-<thead @mounted="setFixedColumn.call(this.parentNode)" @contextmenu="showFieldsPicker">
+<thead @mounted="setFixedColumn.call(this.parentNode),setContextMenu(this)">
     <tr inline-block #adapter thead @mounted="resizeT(this)">
         <td draggable="false" fixed row-index>序号</td>
         <td fixed:="f.fixed" -repeat="f in fields track by f.id" :style="{width:f.width}" @dblclick="sort(f)"><i
                 -if="f.icon" -class="f.icon"></i><span -if="f.name" -html="f.name"></span><template
                 -else>&nbsp;</template>
         </td>
+        <td draggable="false">&nbsp;</td>
     </tr>
 </thead>
 <tbody -src="(d,i) in data" :style="tbodyHeight(this,hasFoot)">
     <tr inline-block :style="{width:adapter.style.width}">
-        <td draggable="false" fixed row-index -bind="i+1"
-            :style="adapter.firstChild.getAttribute('style')">
+        <td fixed row-index -bind="i+1" :style="adapter.firstChild.getAttribute('style')">
         </td>
-        <td fixed:="f.fixed" -repeat="(f,i) in fields"
-            :style="adapter.children[i+1].getAttribute('style')">
+        <td fixed:="f.fixed" -repeat="(f,i) in fields" :style="adapter.children[i+1].getAttribute('style')">
             <model -if="f.key&&!isEmpty(d[f.key])" :field=f :data=d readonly></model>
             <template -else>&nbsp;</template>
             <a on-click="o.do(d)" -if="!f.key&&f.options&&(!o.when||o.when(d))"
@@ -21,6 +20,7 @@
                 <span -text="o.name instanceof Function?o.name(d):o.name"></span>
             </a>
         </td>
+        <td :style="adapter.lastChild.getAttribute('style')">&nbsp;</td>
     </tr>
 </tbody>
 <tfoot>
