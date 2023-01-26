@@ -48,7 +48,7 @@ function inertia(gun) {
             smooth_timer = requestAnimationFrame(_decrease);
             return;
         }
-        if (args.filter(a => Math.abs(a) > 1e-7).length === 0) {
+        if (args.stop) {
             if (!decrease) {
                 train.state = 停止;
                 return;
@@ -171,12 +171,15 @@ class Speed extends Array {
             v = Math.sqrt(v * (v - a)) / v;
         }
         else {
-            v = 1e-9;
+            if (v < 1e-4) {
+                values.stop = true;
+            }
+            v = 0.6180339887498949;
         }
         var r = ratio * v;
         for (var cx = 0, dx = values.length; cx < dx; cx++) {
             values[cx] *= r;
-            if (Math.abs(this[cx]) > .1) this[cx] *= v;
+            if (Math.abs(this[cx]) > 1e-16) this[cx] *= v;
         }
         return values;
     }
