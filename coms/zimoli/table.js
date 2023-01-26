@@ -230,8 +230,8 @@ function enrichField(f) {
         f.fixed = true;
     }
 }
-var tbodyHeight = function (tbody) {
-    return { 'max-height': ((innerHeight - getScreenPosition(tbody).top - 8) / 36 | 0) * 36 }
+var tbodyHeight = function (tbody, hasFoot) {
+    return { 'max-height': ((innerHeight - (!!hasFoot * 36) - getScreenPosition(tbody).top - 16) / 36 | 0) * 36 }
 };
 
 var setFixed = function (children, scrolled, left, borderRight) {
@@ -408,7 +408,12 @@ function table(elem) {
         var { colstart, colend } = element;
         return getTdsByCol(table, colstart, colend);
     };
-
+    watch(table, {
+        showTotal(v) {
+            this.$scope.showTotal = v;
+            if (v) this.$scope.hasFoot = true;
+        }
+    })
     table.useIncrease = false;
     var _vbox = function () {
         table.$Left = function (x) {
@@ -435,10 +440,25 @@ function table(elem) {
         var $scope = {
             fields,
             isEmpty,
+            hasFoot: true,
+            fieldsPicker: null,
+            showFieldsPicker(event) {
+                var picker = this.fieldsPicker;
+                if (!picker) {
+                    picker = view();
+                    css(picker, 'position:absolute');
+                    drag.on(picker);
+                    picker.tabIndex = -1;
+                    picker.innerHTML = `<div head></div><div body><div><div foot></div>`;
+                    this.fieldsPicker = picker;
+                }
+                on('blur')(picker, remove);
+                popup(picker, event);
+            },
             tbody0: null,
             tbody(e) {
                 var e = list.apply(null, arguments);
-                css(e, tbodyHeight(e));
+                css(e, tbodyHeight(e, this.hasFoot));
                 css(e, { width: this.adapter.offsetWidth, display: 'block' });
                 this.tbody0 = e;
                 return e;

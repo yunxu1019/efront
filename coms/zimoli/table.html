@@ -1,4 +1,4 @@
-<thead @mounted="setFixedColumn.call(this.parentNode)">
+<thead @mounted="setFixedColumn.call(this.parentNode)" @contextmenu="showFieldsPicker">
     <tr inline-block #adapter thead @mounted="resizeT(this)">
         <td draggable="false" fixed row-index>序号</td>
         <td fixed:="f.fixed" -repeat="f in fields track by f.id" :style="{width:f.width}" @dblclick="sort(f)"><i
@@ -7,12 +7,13 @@
         </td>
     </tr>
 </thead>
-<tbody -src="(d,i) in data" :style="tbodyHeight(this)">
-    <tr inline-block @mounted="this.style.width=adapter.style.width">
-        <td draggable="false" fixed row-index -bind="i+1" @mounted="this.style=adapter.firstChild.getAttribute('style')">
+<tbody -src="(d,i) in data" :style="tbodyHeight(this,hasFoot)">
+    <tr inline-block :style="{width:adapter.style.width}">
+        <td draggable="false" fixed row-index -bind="i+1"
+            :style="adapter.firstChild.getAttribute('style')">
         </td>
         <td fixed:="f.fixed" -repeat="(f,i) in fields"
-            @mounted="this.style=adapter.children[i+1].getAttribute('style')">
+            :style="adapter.children[i+1].getAttribute('style')">
             <model -if="f.key&&!isEmpty(d[f.key])" :field=f :data=d readonly></model>
             <template -else>&nbsp;</template>
             <a on-click="o.do(d)" -if="!f.key&&f.options&&(!o.when||o.when(d))"
@@ -23,10 +24,15 @@
     </tr>
 </tbody>
 <tfoot>
-    <tr -if="!data||!data.length" style="padding-bottom: 20px;">
+    <tr .fade -if="!data||!data.length" style="padding-bottom: 20px;">
         <td style="text-align: center;">
             <template -if="data.is_loading">加载中</template>
             <template -else>无数据</template>
+        </td>
+    </tr>
+    <tr -elseif="hasFoot">
+        <td>
+            共&nbsp;<span -bind="data.length"></span>&nbsp;个
         </td>
     </tr>
 </tfoot>
