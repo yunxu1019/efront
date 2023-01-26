@@ -48,7 +48,7 @@ function inertia(gun) {
             smooth_timer = requestAnimationFrame(_decrease);
             return;
         }
-        if (args.stop) {
+        if (args.stop || rate && args.rate < rate) {
             if (!decrease) {
                 train.state = 停止;
                 return;
@@ -59,7 +59,7 @@ function inertia(gun) {
         }
         smooth_timer = requestAnimationFrame(smooth);
     };
-    var spd, smooth_timer, that, decrease;
+    var spd, smooth_timer, that, decrease, rate;
     var train = function () {
         _cancel();
         var args = [].slice.call(arguments, 0, arguments.length);
@@ -68,9 +68,10 @@ function inertia(gun) {
         gun.apply(this, args);
         that = this;
     };
-    train.smooth = function (d) {
+    train.smooth = function (d, r) {
         _cancel();
         decrease = d;
+        rate = r;
         if (train.state === 移动) {
             train.state = 减速;
             smooth_timer = requestAnimationFrame(smooth);
@@ -167,11 +168,12 @@ class Speed extends Array {
         for (var v of values) sum += v * v;
         v = Math.sqrt(sum);
         var a = this.accelerate * Math.atan(v + 1);
+        values.rate = v;
         if (v > a + 1e-14) {
             v = Math.sqrt(v * (v - a)) / v;
         }
         else {
-            if (v < 1e-4) {
+            if (v < 1e-6) {
                 values.stop = true;
             }
             v = 0.6180339887498949;

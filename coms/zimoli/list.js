@@ -390,7 +390,7 @@ function ylist(container, generator, $Y) {
         }
         if (absy <= 1) y = target_y;
         else {
-            var speed = Math.abs(spd.read()[0]);
+            var speed = spd.read().rate;
             if (speed < 1) speed = 1;
             if (absy < 3) speed = .5;
             y = last_y + (target_y > last_y ? speed : -speed);

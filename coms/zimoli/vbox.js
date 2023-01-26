@@ -91,12 +91,12 @@ function ybox(generator) {
     };
     var stop = _box.$stopY || _box.stopY;
     var stop2 = lazy(function () {
-        scrollY.smooth(stop);
+        scrollY.smooth(stop, 4);
     }, 40);
     var decrease = function (t) {
         var res = _decrease(increaser_t, t) + _decrease(increaser_b, t);
         if (!res) {
-            scrollY.smooth(stop);
+            scrollY.smooth(stop, 4);
         }
         return true;
     };
