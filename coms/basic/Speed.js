@@ -41,13 +41,18 @@ function inertia(gun) {
         var id = smooth_timer;
         var res = gun.apply(that, args);
         if (id !== smooth_timer) return;
+
         if (false === res) {
             spd.reset();
             train.state = 回弹;
             smooth_timer = requestAnimationFrame(_decrease);
             return;
         }
-        if (decrease && args.filter(a => Math.abs(a) > 1).length === 0) {
+        if (args.filter(a => Math.abs(a) > 1e-7).length === 0) {
+            if (!decrease) {
+                train.state = 停止;
+                return;
+            }
             train.state = 回弹;
             smooth_timer = requestAnimationFrame(_decrease);
             return;
