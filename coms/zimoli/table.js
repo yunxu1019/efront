@@ -41,6 +41,7 @@ var markRowTds = function (tr, deltas, colstart, colend) {
 };
 var forEachRow = function (tbody, call) {
     for (var tr of tbody.children) {
+        if (isTfoot(tr)) continue;
         if (isTableRow(tr)) {
             call(tr);
         }
@@ -86,9 +87,12 @@ var getTbody = function (table) {
         if (/^tbody$/i.test(c.tagName) || c.hasAttribute("tbody")) return c;
     }
 };
+var isTfoot = function (c) {
+    return /^tfoot$/i.test(c.tagName) || c.hasAttribute("tfoot");
+}
 var getTfoot = function (table) {
     for (var c of table.children) {
-        if (/^tfoot$/i.test(c.tagName) || c.hasAttribute("tfoot")) return c;
+        if (isTfoot(c)) return c;
     }
 };
 var isTableRow = function (e) {
@@ -106,6 +110,7 @@ var resizeColumn = function (target, targetW) {
         resizeT(tr, tr.offsetWidth + deltaW);
     });
     for (var c of this.children) {
+        if (isTfoot(c)) continue;
         if (!isTableRow(c)) {
             var tr = c.querySelector('tr');
             if (!tr) continue;
