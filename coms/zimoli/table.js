@@ -236,7 +236,8 @@ function enrichField(f) {
     }
 }
 var tbodyHeight = function (tbody, hasFoot) {
-    return { 'max-height': ((innerHeight - (!!hasFoot * 36) - getScreenPosition(tbody).top - 16) / 36 | 0) * 36 }
+    var rowHeight = calcPixel(36);
+    return { 'max-height': ((innerHeight - (!!hasFoot ? rowHeight : 6) - getScreenPosition(tbody).top - 10) / rowHeight | 0) * rowHeight }
 };
 
 var setFixed = function (children, scrolled, left, borderRight) {
