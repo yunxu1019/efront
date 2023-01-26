@@ -243,7 +243,7 @@ Html.prototype.createString = function (code) {
     for (var c of code) {
         switch (c.type) {
             case PIECE:
-                if (p && p.type === PIECE) dist.push(" ");
+                if (p && p.type & (PIECE | EXPRESS)) dist.push(" ");
                 dist.push(c.text);
                 break;
             case SPACE:
