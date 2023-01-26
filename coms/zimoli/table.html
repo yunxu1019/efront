@@ -5,7 +5,7 @@
                 -if="f.icon" -class="f.icon"></i><span -if="f.name" -html="f.name"></span><template
                 -else>&nbsp;</template>
         </td>
-        <td draggable="false">&nbsp;</td>
+        <td style="min-width: 0;" draggable="false">&nbsp;</td>
     </tr>
 </thead>
 <tbody -src="(d,i) in data" :style="tbodyHeight(this,hasFoot)">

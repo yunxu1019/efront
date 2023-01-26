@@ -252,18 +252,17 @@ var setFixed = function (children, scrolled, left, borderRight) {
     for (var c of children) {
         var pc = getScreenPosition(c);
         var isfixed = c.hasAttribute('fixed');
-        if (fixedWidth + scrolled > offset && fixedWidth + pc.width < this.clientWidth / 3) {
-            if (isfixed) {
+        if (isfixed) {
+            if (fixedWidth + scrolled > offset && fixedWidth + pc.width < this.clientWidth / 3) {
                 css(c, { [left]: scrolled - offset + fixedWidth, [borderRight]: '' });
                 fixedElements.push(c);
                 fixedWidth += pc.width;
             }
-        }
-        else {
-            setBorderRight(fixedElements);
-            if (isfixed && c.style[left]) {
-                css(c, { [left]: '', [borderRight]: '' })
-                fixedElements.push(c);
+            else {
+                if (c.style[left]) {
+                    css(c, { [left]: '', [borderRight]: '' })
+                    fixedElements.push(c);
+                }
             }
         }
         offset += pc.width;
@@ -280,21 +279,34 @@ var setFixed = function (children, scrolled, left, borderRight) {
 };
 
 
-var setFixedColumn = function () {
+var setFixedColumn = function (remark) {
     var thead = getThead(this);
     if (!thead) return;
+    remark = remark === true;
+    if (remark) remark = [], forEachRow(thead, function (tr) {
+        markRowTds(tr, remark);
+    });
     if (!isTableRow(thead)) thead = thead.querySelector('tr');
     var children = Array.prototype.slice.call(thead.children);
     var lastChild = children[children.length - 1];
     var lastFieldChild = children[children.length - 2];
     if (children.length <= 2) lastFieldChild = null;
     if (!lastChild) return;
-    if (lastFieldChild) css(lastChild, { width: 0 }), lastChild = lastFieldChild;
+    var cindex = children.length - 1;
+    if (lastFieldChild) css(lastChild, { width: 0 }), lastChild = lastFieldChild, cindex = children.length - 2;
     var deltaW = thead.scrollWidth - lastChild.offsetWidth;
-    if (this.clientWidth > deltaW + 200) {
+    if (this.clientWidth > deltaW + lastChild.offsetWidth) {
         css(lastChild, { width: this.clientWidth - deltaW });
         css(thead, { width: this.clientWidth });
         resizeColumn.call(this, lastChild, this.clientWidth - deltaW);
+        remark = true;
+    }
+    if (remark) {
+        var tbody = getTbody(this);
+        forEachRow(tbody, function (tr) {
+            css(tr.children[cindex], lastChild.style);
+        });
+        css(tbody, { width: thead.offsetWidth });
     }
     setFixed.call(this, children, this.scrollLeft, 'left', 'borderRight');
     setFixed.call(this, children.reverse(), this.scrollWidth - this.clientWidth - this.scrollLeft, 'right', 'borderLeft');
@@ -362,7 +374,7 @@ function setContextMenu(thead) {
     var scope = this;
     var menuItems = fields.map(f => {
         return {
-            name: f.name,
+            name: f.name || "&nbsp;",
             checked: !f.hidden,
             width: f.width,
             do() {
@@ -376,7 +388,7 @@ function setContextMenu(thead) {
                         if (td.offsetWidth > width) css(td, { width });
                     }
                 });
-                setLazyFixedColumn.call(thead.parentNode)
+                setLazyFixedColumn.call(thead.parentNode, true)
             }
         }
     });
