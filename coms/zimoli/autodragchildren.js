@@ -70,6 +70,7 @@ var scrollX = function (targetBox, moveChildren) {
         scrollDelta = dragPosition.right + 20 - areaPosition.right;
     }
     if (scrollDelta) {
+        if (targetBox === document.documentElement) return;
         vscroll.X.call(targetBox, scrollDelta / 16, false);
         moveChildren();
     }
