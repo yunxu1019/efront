@@ -488,6 +488,9 @@ function table(elem) {
             hasFoot: true,
             setContextMenu,
             tbody0: null,
+            rowClick(d, i, event) {
+                active(table, i, d, event.target);
+            },
             tbody(e) {
                 var e = list.apply(null, arguments);
                 css(e, tbodyHeight(e, this.hasFoot));
