@@ -906,7 +906,7 @@ function createStructure(element) {
             continue;
         }
         if (/^#/.test(name)) {
-            ids.push(name.slice(1));
+            ids.push(name.slice(1), name.slice(1).replace(/\-([a-z])/ig, (_, a) => a.toUpperCase()));
             element.removeAttribute(name);
             continue;
         };

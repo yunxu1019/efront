@@ -660,9 +660,11 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         htmltext = `{toString:()=>${wrapHtml(scoped.outerHTML || scoped.innerHTML)}}`;
         return loadJsBody(jsData, filename, styles, commName, className, htmltext);
     }
-    var scope = Object.keys(scoped.envs).filter(e => e in this || e in jscope.used);
+    var scope = Object.keys(Object.assign({}, scoped.vars, scoped.envs)).filter(e => e in this || e in jscope.used);
     if (scope.length) {
-        var jsvars = jscope.vars;
+        var jsvars = Object.assign({}, jscope.vars, scoped.vars);
+        var jsenvs = jscope.envs;
+        for (var k in jsvars) if (k in jsenvs) delete jsenvs[k];
         jscode.forEach(o => {
             if (o.type === jscode.STRAP && /^(var|const|let)$/.test(o.text)) {
                 o.text = `/*${o.text}*/`;
