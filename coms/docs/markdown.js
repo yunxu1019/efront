@@ -70,8 +70,8 @@ function richtext(line) {
     line = line.trim();
     line = line.replace(/\[([\s\S]*?)\](?:\(([\s\S]*?)\))?|<(\w+)>[\s\S]*?<\/\3>/g, function (_, content, href) {
         if (/^\</.test(_)) return _;
-        if (href) href = ` href=${strings.recode(href)}`;
-        return `<a${href}>${content}</a>`;
+        if (href) var href1 = ` href=${strings.recode(href)}`;
+        return `<a${href1}>${content || href}</a>`;
     });
     var a;
     if (/^#/.test(line)) a = h(line);
