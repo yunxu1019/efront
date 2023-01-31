@@ -90,6 +90,7 @@ Html.prototype.createScoped = function (code) {
     dom.childNodes = childNodes;
     dom.children = children;
     var scriptNodes = [], styleNodes = [], tempNodes = [];
+    var inScript = false;
     for (var cx = 0, dx = code.length, c = code[0]; cx < dx; c = code[++cx])switch (c.type) {
         case LABEL:
             if (!/^(script|style|template)$/i.test(c.text)) {
@@ -100,6 +101,7 @@ Html.prototype.createScoped = function (code) {
             if (!c.isclose) {
                 var node = new Node;
                 node.tagName = c.text.toUpperCase();
+                if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') inScript = true;
                 nodePath.push(node);
                 node.childNodes = [];
                 node.children = [];
@@ -132,8 +134,8 @@ Html.prototype.createScoped = function (code) {
                 }
                 if (childNodes1.length) node.innerStart = childNodes1[0].outerStart;
                 else node.innerStart = innerEnd;
-                if (node.tagName === "SCRIPT") scriptNodes.push(node), tempNodes.push(node), node.isScript = true;
-                else if (node.tagName === "STYLE") styleNodes.push(node), tempNodes.push(node), node.isStyle = true;
+                if (node.tagName === "SCRIPT") scriptNodes.push(node), tempNodes.push(node), node.isScript = true, inScript = false;
+                else if (node.tagName === "STYLE") styleNodes.push(node), tempNodes.push(node), node.isStyle = true, inScript = false;
                 nodePath.pop();
                 node = nodePath[nodePath.length - 1];
                 childNodes = node.childNodes;
@@ -169,6 +171,7 @@ Html.prototype.createScoped = function (code) {
             }
             break;
         case EXPRESS:
+            if (inScript) continue;
             var t = c.text;
             t = parseExpress(t);
             var envs = createScoped(t).envs;
