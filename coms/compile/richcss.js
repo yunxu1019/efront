@@ -41,7 +41,7 @@ Richcss.prototype.setType = function (o) {
 };
 Richcss.prototype.createScoped = function (code) {
     var run = function (o) {
-        var props = Object.create(null);
+        var props = [];
         var values = null;
         loop: while (o) {
             switch (o.type) {
@@ -51,7 +51,10 @@ Richcss.prototype.createScoped = function (code) {
                         p.push(o.text);
                         o = o.next;
                     }
-                    props[p.join(" ")] = values = [];
+                    var pj = p.join(' ');
+                    props.push({ p: pj, v: values = [] });
+                    if (!props[pj]) props[pj] = [];
+                    props[pj].push(values);
                     if (!o) break loop;
                     if (o.type === STAMP) break;
                     continue;
@@ -65,15 +68,14 @@ Richcss.prototype.createScoped = function (code) {
                 case SCOPED:
                     var s = run(o.first);
                     var vars = null, used = null;
-                    for (var k in s) {
-                        var v = s[k];
+                    for (var { p: k, v } of s) {
                         if (/^\-\-/.test(k)) {
                             if (!vars) vars = {};
                             vars[k] = v.join(" ");
                         }
                         else {
                             if (!used) used = [];
-                            used[k] = v;
+                            used.push({ p: k, v });
                         }
                     }
                     values.used = used;
@@ -113,11 +115,13 @@ var fixBase = function (b, a) {
 function evalscoped(scoped, scopeNames, base = '') {
     var root = scoped[":root"], scope = scoped[":scope"];
     var vars = Object.create(null);
-    if (root) extend(vars, root.vars);
-    if (scope) extend(vars, scope.vars);
+    if (root) root.forEach(r => extend(vars, r.vars));
+    if (scope) scope.forEach(s => extend(vars, s.vars));
     scopeNames.forEach(s => {
         var ss = scoped[s];
-        if (ss) extend(vars, ss.vars), ss.rooted = true;
+        if (ss) ss.forEach(s => {
+            extend(vars, s.vars), s.rooted = true;
+        })
     });
     var vlist = [vars];
     var mlist = [];
@@ -154,8 +158,7 @@ function evalscoped(scoped, scopeNames, base = '') {
                 return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
             });
         };
-        for (var k in props) {
-            var p = props[k];
+        for (var { p: k, v: p } of props) {
             if (p.used) {
                 var match = /^(@[^\s,]+)\s*\(\s*(@[^\s,]+\s*(?:,\s*@[^\s,]+\s*)*)?\)/.exec(k);
                 if (!match) continue;
@@ -164,7 +167,8 @@ function evalscoped(scoped, scopeNames, base = '') {
                 args = args.split(",").map(a => a.trim());
                 p.args = args;
                 p.reg = new RegExp(args.join("|"), 'g');
-                methods[name] = function () {
+                if (!methods[name]) methods[name] = [];
+                methods[name].push(function () {
                     var body = evalthis(this);
                     var valueMap = {};
                     this.args.forEach((a, i) => {
@@ -178,12 +182,12 @@ function evalscoped(scoped, scopeNames, base = '') {
                     var body = body.map(replace);
                     body.rest = rest;
                     return body;
-                }.bind(p);
-                delete props[k];
+                }.bind(p));
+                p.isMethod = true;
             }
         }
-        for (var k in props) {
-            var p = props[k];
+        for (var { p: k, v: p } of props) {
+            if (p.isMethod) continue;
             if (p.used) {
                 if (base && !p.rooted) p.base = fixBase(base, k);
                 else p.base = k;
@@ -201,10 +205,12 @@ function evalscoped(scoped, scopeNames, base = '') {
                 var [, name, params] = match;
                 params = params.split(",").map(a => a.trim());
                 var method = getFromScopeList(name, mlist);
-                if (!isFunction(method)) throw `函数未定义：${name}`;
-                var res = method.apply(null, params);
-                if (res.rest.length) rest = rest.concat(res.rest);
-                if (res.length) result = result.concat(res);
+                if (!isArray(method)) throw `函数未定义：${name}`;
+                method.forEach(m => {
+                    var res = m.apply(null, params);
+                    if (res.rest.length) rest = rest.concat(res.rest);
+                    if (res.length) result = result.concat(res);
+                });
             }
         }
         mlist.pop();
