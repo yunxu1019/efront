@@ -33,9 +33,10 @@ function prompt() {
     };
     var buttons = [button("确认"), button("取消", 'white')];
     if (isFunction(check)) {
-        var setDisable = function () {
+        var setDisable = function (event) {
+            if (oked || ohed) return;
             var valid = validate(ipt.value, check, tip);
-            attr(body, "error", !valid);
+            if (event) attr(body, "error", !valid);
             attr(buttons[0], 'disabled', !valid);
         };
         on('keyup')(ipt, setDisable);
@@ -49,7 +50,7 @@ function prompt() {
     var c = confirm(msg, body, buttons, function (_) {
         if (oked || ohed) return;
         if (_ === buttons[0]) {
-            if (check && validate(ipt.value, check, tip)) return false;
+            if (check && !validate(ipt.value, check, tip)) return false;
             oked = true;
         } else {
             ohed = true;
@@ -65,11 +66,8 @@ function prompt() {
     on("mousedown")(c, e => e.target !== ipt && e.preventDefault() | ipt.focus());
     on("keydown.enter")(c, function (event) {
         if (event.defaultPrevented) return;
-        if (check && check(ipt.value) === false) return;
         event.preventDefault();
-        oked = true;
-        remove(c);
-        fire();
+        buttons[0].click();
     });
     c.then = function (ok, oh) {
         oks.push(ok);

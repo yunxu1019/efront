@@ -170,9 +170,10 @@ function main() {
             switch (target) {
                 case this.children[0]:
                     var a = prompt("请输入", a => {
+                        if (!a) return false;
+                        console.log(itemMap, a);
                         if (a in itemMap) {
-                            alert(`选项 ${a} 已存在！`);
-                            return false;
+                            return `选项 ${a} 已存在！`;
                         }
                     });
                     page.with = a;
@@ -192,6 +193,7 @@ function main() {
                     var edit = selectListEdit(options.slice(0));
                     page.with = edit;
                     on("remove")(edit, function () {
+                        itemMap = Object.create(null);
                         page.with = null;
                         children.splice(0, children.length);
                         children.push.apply(children, edit.$scope.options.map(o => ({ key: o.key || o.value, name: o.name || o.innerHTML })))
