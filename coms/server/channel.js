@@ -29,8 +29,8 @@ class Channel {
             c[0].destroy();
         };
         var close = function (e) {
-            c[1].destroy();
-            c[0].destroy();
+            if (c[1]) c[1].destroy();
+            if (c[0]) c[0].destroy();
         }
         var c = this;
         this[0].once("error", error);
@@ -40,13 +40,13 @@ class Channel {
         this[0].pipe(this[1]);
     }
     addSocketGet(s) {
-        if (this.socketCount === 2) return;
+        if (this.socketCount === 2 || this[1]) return;
         this.socketCount++;
         this[1] = s;
         this.flush();
     }
     addSocketPost(s) {
-        if (this.socketCount === 2) return;
+        if (this.socketCount === 2 || this[0]) return;
         this.socketCount++;
         this[0] = s;
         this.flush();
