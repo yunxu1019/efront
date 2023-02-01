@@ -309,6 +309,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         };
         var fire = async function (code) {
             if (!~requests.indexOf(xhr)) return;
+            prepareHeaders();
             xhr.method = method;
             xhr.url = url;
             xhr.encrypt = code;
@@ -365,25 +366,28 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     }
     var setRequestHeader = xhr.setRequestHeader;
     var realHeaders = Object.create(null);
-    var cookie_ = this.hostCookie(xhr);
-    var _cookies = cookie_.getCookies(originDomain);
-    var _headers = {};
-    if (_cookies) {
-        _headers.Cookie = _cookies;
-    }
-    var cookobj = null;
-    for (var k in headers) {
-        if (/^\$/.test(headers[k])) {
-            var k2 = headers[k].slice(1);
-            if (!cookobj) cookobj = _cookies ? parseKV(_cookies, ';') : {};
-            if (k2 in cookobj) {
-                _headers[k] = cookobj[k2];
+    var cookie_;
+    var prepareHeaders = () => {
+        cookie_ = this.hostCookie(xhr);
+        var _cookies = cookie_.getCookies(originDomain);
+        if (_cookies) {
+            _headers.Cookie = _cookies;
+        }
+        var cookobj = null;
+        for (var k in headers) {
+            if (/^\$/.test(headers[k])) {
+                var k2 = headers[k].slice(1);
+                if (!cookobj) cookobj = _cookies ? parseKV(_cookies, ';') : {};
+                if (k2 in cookobj) {
+                    _headers[k] = cookobj[k2];
+                }
+            }
+            else {
+                _headers[k] = headers[k];
             }
         }
-        else {
-            _headers[k] = headers[k];
-        }
-    }
+    };
+    var _headers = {};
     if (/^[mc]/i.test(method)) {
         _headers["User-Agent"] = /^m/i.test(method)
             ? "efront/3.25 (iPhone) Safari/602.1"
