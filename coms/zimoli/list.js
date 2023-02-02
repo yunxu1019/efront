@@ -197,7 +197,8 @@ function ylist(container, generator, $Y) {
         }
         var indexed_item = getIndexedElement(index) || bottom_item;
         if (indexed_item) {
-            list.scrollTop = -getFirstElement(1).offsetTop + indexed_item.offsetTop + indexed_item.offsetHeight * ratio;
+            var firstElement = getFirstElement(1) || indexed_item;
+            list.scrollTop = -firstElement.offsetTop + indexed_item.offsetTop + indexed_item.offsetHeight * ratio;
         }
     };
     //计算当前高度
@@ -615,9 +616,13 @@ function list() {
             generator = function () { }
         }
     }
-    if (bindSrc === true) care(container, function () {
+    var savedSrc = [];
+    if (bindSrc === true) care(container, function (src, old) {
         var index = container.index();
-        container.clean();
+        if (src !== old) container.clean(), index = 0;
+        else container.clean(src, savedSrc);
+        savedSrc = src.slice();
+        if (index > 0 && index >= src.length) index = src.length - 1;
         container.go(index || 0);
     });
 
@@ -639,13 +644,14 @@ function list() {
     } else if (bindSrc === true) {
         container.go(container.index() || 0);
     }
-    list.clean = function () {
+    list.clean = function (src, old) {
         var children = (container || list).childNodes;
         children = Array.prototype.filter.call(children, c => {
             if (isFinite(c.index)) return true;
             if (c.nodeType === 1 && c.$comment && isFinite(c.$comment.index)) return true;
             return false;
         });
+        if (src && old) children = children.filter(c => src[c.index] !== old[c.index]);
         remove(children);
     };
 
