@@ -620,9 +620,9 @@ function addGlobal(element, name = null, isDestroy) {
         if (isFunction(body.layer)) {
             body.layer(element, oldElement, history);
         } else {
+            if (isDestroy || !oldElement) appendChild.insert(body, element);
+            else appendChild.after(oldElement, element);
             remove(oldElement);
-            if (isDestroy) appendChild.insert(body, element);
-            else appendChild(body, element);
         }
         global[name] = element;
     } else if (isNode(name)) {
