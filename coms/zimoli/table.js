@@ -472,8 +472,10 @@ function table(elem) {
         if (_vbox) _vbox(), _vbox = null;
         watch(table, {
             find(text) {
-                $scope.data.searchText = text;
-                $scope.data.update();
+                if ($scope.data.constructor === Table){
+                    $scope.data.searchText = text;
+                    $scope.data.update();
+                }
             }
         })
         thead = null;
