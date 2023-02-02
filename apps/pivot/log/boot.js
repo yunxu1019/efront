@@ -36,6 +36,7 @@ var fields = refilm`
             if (p) p = ":" + p;
             try {
                 var ip = data.ip;
+                if (!ip) return;
                 if (/^::ffff:\d+\.\d+\.\d+\.\d+$/i.test(ip)) {
                     ip = ip.slice(7);
                 }
