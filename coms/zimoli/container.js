@@ -14,7 +14,7 @@ var change = async function (data) {
         }
         zimoli.global(data, this);
     }
-    else zimoli.go(data, this.params, this);
+    else if (isString(data) || +data < 0) zimoli.go(data, this.params, this);
 };
 var gosrc = function () {
     var { src } = this;
