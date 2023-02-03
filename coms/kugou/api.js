@@ -11,7 +11,7 @@
         "plist-index": "get:[].panel-img-list%20li          plist/index#href=a!href&=a!href\\plist-info&imgurl=img!_src&name=.panel-img-content-first|innerText&count=.panel-img-content-sub|innerText",
         "plist-info": "mget:[].panel-songslist%20li          plist/list/:id/#name=.panel-songs-item-name|innerText&data=.panel-songs-item-download/innerText",
         "search-hot": "get                                api/v3/search/hot?format=json&plat=0&count=30",
-        "singer-class": "get:[].bd%20li                   singer/class#href=a!href&=a!href\\singer-list&name=a|innerText&group=?parentNode",
+        "singer-class": "get:[].bd%20.tab                   singer/list#href=!href&=!href\\singer-list&name=|innerText&group=?parentNode",
         "singer-list": "get:[].singer-img-list>li         singer/list/:id#href=a!href&=a!href\\singer-info0&imgurl=img!_src&name=p|innerText",
         "singer-info0": "mget:[].singer-songs-list>li       singer/info/:id#hash=!id&singer=.singer-name|innerText&name=.song-name|innerText&data=em/innerText"
     },

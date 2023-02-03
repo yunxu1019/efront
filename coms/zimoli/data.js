@@ -300,7 +300,6 @@ function parseConfig(api) {
         p = p.slice(1);
         if (!required[p] && p !== ':') {
             required.push(p);
-            required[p] = p;
         }
     });
     return {
@@ -502,7 +501,7 @@ var privates = {
         if (!required.length && !prepared.length && !autotrim) return params;
         var params1 = {};
         required.forEach(k => {
-            var v = seekResponse(params, required[k]);
+            var v = seekResponse(params, required[k] || k);
             params1[k] = v;
         });
         prepared.forEach(k => {
@@ -528,6 +527,7 @@ var privates = {
             var lacks = required;
             if (params) {
                 lacks = lacks.filter(k => {
+                    if (!required[k]) return false;
                     var v = seekResponse(params, required[k]);
                     if (isEmpty(v)) return true;
                 });

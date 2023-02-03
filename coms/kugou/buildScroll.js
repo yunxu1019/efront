@@ -23,11 +23,12 @@ function Main(dataid, datapath, titleid) {
         datas: []
     });
     bindScroll(_titlebar, page);
-    var loadedId;
+    var loadedId, requested = false;
     function main(params) {
         var { _text, title = "", name = _text || title, id } = params;
-        if (loadedId !== id) {
+        if (!requested || loadedId !== id) {
             loadedId = id;
+            requested = true;
             var ranklist = data.from(dataid, {
                 id
             }, parseSongsList);
