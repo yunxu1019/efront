@@ -182,3 +182,6 @@ var css = function (target, oStyle, oValue) {
     }
     else if (isString(target)) cssTargetSelector(target, oStyle, oValue);
 };
+css.transformCssKey = transformCssKey;
+css.transformNodeKey = transformNodeKey;
+css.transformValue = transformValue;

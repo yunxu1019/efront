@@ -705,3 +705,60 @@ zimoli.getCurrentHistory = function () {
 };
 zimoli.inithash = locationInitHash;
 zimoli.createState = createState;
+zimoli.enableTouchBack = function () {
+    var touchTarget, currentTarget, history_name, historyList;
+    var touchId = 0;
+    var ratio = 0;
+    var deltaX = 0;
+    bindtouch(body, {
+        start(event) {
+            event.preventDefault();
+            ratio = null;
+        },
+        move(a, event) {
+            event.preventDefault();
+            if (a !== null) {
+                if (!currentTarget) {
+                    var id = ++touchId;
+                    history_name = current_history;
+                    historyList = history[history_name];
+                    if (historyList.length < 2) return;
+                    var path1 = historyList[historyList.length - 1];
+                    var path0 = historyList[historyList.length - 2];
+                    currentTarget = global[history_name];
+                    prepare(path0, function () {
+                        if (id !== touchId) return;
+                        var args = getZimoliParams(path0).data;
+                        touchTarget = create(path0, args, path1);
+                        setWithStyle(touchTarget, true);
+                        appendChild.insert(body, touchTarget);
+                    });
+                }
+                ratio = a.x / body.clientWidth;
+                if (ratio <= 0) ratio = 0.001;
+                if (ratio >= 1) ratio = 0.999;
+                deltaX = a.deltax;
+                transition(currentTarget, ratio);
+                transition(touchTarget, ratio - 1);
+            }
+            return { x: ratio * body.clientWidth };
+        },
+        end() {
+            if (ratio === null || !touchTarget) return;
+            if (deltaX > 0 && ratio > .1 || deltaX < 0 && ratio > .9 || deltaX === 0 && ratio > .4) {
+                pushstate(historyList[historyList.length - 2]);
+                remove(currentTarget);
+                transition(touchTarget, 1);
+                global[history_name] = touchTarget;
+            }
+            else {
+                setWithStyle(touchTarget, false);
+                remove(touchTarget);
+                transition(currentTarget, 1);
+            }
+            currentTarget = null;
+            touchTarget = null;
+            ratio = null;
+        }
+    }, 'x')
+};
