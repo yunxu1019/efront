@@ -651,7 +651,7 @@ function list() {
             if (c.nodeType === 1 && c.$comment && isFinite(c.$comment.index)) return true;
             return false;
         });
-        if (src && old) children = children.filter(c => src[c.index] !== old[c.index]);
+        if (src && old) children = Array.prototype.filter.call(children, c => src[c.index] !== old[c.index]);
         remove(children);
     };
 

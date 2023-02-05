@@ -5,6 +5,7 @@ a: if (!setPrototypeOf) {
     var getOwnPropertyNames = Object.getOwnPropertyNames;
     var defineProperty = Object.defineProperty;
     try {
+        if (!getOwnPropertyNames) throw '不支持';
         defineProperty({}, 'o', { value: 0 });
         setPrototypeOf = function (obj, proto) {
             for (var n of getOwnPropertyNames(proto)) {
