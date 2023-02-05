@@ -3,7 +3,7 @@
         "song-info;hash": "get                                 app/i/getSongInfo.php?cmd=playInfo&from=mkugou",
         "slider-src": "get:[].mod-slider>.swipe-wrap>div  .#src=img!src&href=a!href",
         "songs-list": "get:[].panel-songslist%20li          .#hash=!id&.panel-songs-item-name>span!innerText",
-        "songs-list": "get:[]div+.m_cm_item1warp>div .#=a!href\\song-mix&a+a>p:first-child!innerText&singer=a+a>p+p!innerText&imgurl=img!_src",
+        "songs-list": "get:[]div:first-child+.m_cm_item1warp>div .#=a!href\\song-mix&a+a>p:first-child!innerText&singer=a+a>p+p!innerText&imgurl=img!_src",
         "song-mix;": "mget:script+script           mixsong/:hashid.html",
         "rank-list": "get:[].panel-img-list%20li            rank/list#href=a!href&=a!href\\rank-info&imgurl=img!_src&name=p|innerText",
         "rank-info": "get:[].panel-songslist%20li           rank/info/:id#src=!id&name=.panel-songs-item-name|innerText&data=.panel-songs-item-download/innerText",
