@@ -18,10 +18,7 @@
     "url": "https://github.com/yunxu1019/efront.git"
   },
   "keywords": [
-    "efront",
-    "前端",
-    "server",
-    "webpack"
+    "efront"
   ],
   "author": "yunxu1019",
   "license": "MIT"
