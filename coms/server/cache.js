@@ -122,6 +122,7 @@ Directory.prototype.update = async function (updateonly) {
     var pathname = that.pathname;
     var updated = [];
     var rest = [];
+    var hasLoaded = 0;
     for (var f of files) {
         if (/#/.test(f.name)) continue;
         map[f.name] = true;
@@ -169,17 +170,21 @@ Directory.prototype.update = async function (updateonly) {
                 o.promise = o.update();
                 if (data !== await o.promise) {
                     updated.push(o.pathname);
+                    hasLoaded++;
                 }
             }
             else {
                 if (o.isloaded) {
                     o.promise = o.update(updateonly);
-                    if (await o.promise) updated.push.apply(updated, await o.promise);
+                    var _updated = await o.promise;
+                    if (_updated) updated.push.apply(updated, _updated);
+                    hasLoaded += _updated.loaded;
                 }
             }
         }
     }
     that.isloaded = true;
+    updated.loaded = hasLoaded;
     return updated;
 };
 Directory.prototype.get = function (url) {
@@ -447,7 +452,9 @@ class Cache {
             if (direct.pathname !== rootpath) continue;
             if (direct.isloaded) {
                 direct.promise = direct.update(true);
-                updated.push.apply(updated, await direct.promise);
+                var _updated = await direct.promise;
+                updated.push.apply(updated, _updated);
+                if (_updated.loaded) updated.loaded = true;
             }
         }
         if (updated.length) this._emitUpdate(updated);

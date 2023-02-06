@@ -25,14 +25,14 @@ var createManagersWithEnv = async function (env) {
     var fireload = function () {
         if (env.reload instanceof Function) env.reload();
     };
-    var update = async function () {
+    var update = async function (updated) {
         if (update.ing) return;
         update.ing = true;
         try {
             await update1();
         } catch { }
         update.ing = false;
-        fireload();
+        if (updated.loaded) fireload();
     }
     var update1 = async function () {
         var cm = await getCommap(env.APP);
