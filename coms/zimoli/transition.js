@@ -105,7 +105,7 @@ var transitionKey = css.transformNodeKey("transition");
 
 function transition(target, _isLeave, _initialStyle) {
     if (!target) return;
-    if ((isObject(isLeave) || typeof isLeave === "string") && (isFinite(_initialStyle) || !_initialStyle)) {
+    if ((isObject(_isLeave) || typeof _isLeave === "string") && (isFinite(_initialStyle) || !_initialStyle)) {
         var temp = _initialStyle;
         _initialStyle = _isLeave;
         _isLeave = temp;
@@ -138,9 +138,6 @@ function transition(target, _isLeave, _initialStyle) {
     var { recoverStyle, transitionTimerStart, transitionTimerEnd, captureStyle } = target;
     clearTimeout(transitionTimerStart);
     clearTimeout(transitionTimerEnd);
-    if (isString(initialStyle)) {
-        initialStyle = parseKV(initialStyle, ";", ":");
-    }
     var transitionDuration = 100;
     if (!initialStyle[transitionKey]) {
         initialStyle[transitionKey] = "all .3s ease";
@@ -189,7 +186,7 @@ function transition(target, _isLeave, _initialStyle) {
         transitionTimerEnd = setTimeout(function () {
             if (transitionKey) target.style[transitionKey] = recoverStyle[transitionKey];
             extend(target.style, recoverStyle);
-        }, transitionDuration + 2);
+        }, transitionDuration + 29);
     } else {
         extend(target.style, initialStyle);
         if (transitionKey) target.style[transitionKey] = "none";

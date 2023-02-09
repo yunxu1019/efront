@@ -46,7 +46,7 @@ function tree() {
     var changed_index, changed_offset;
     var saved_top, saved_offset, timer = 0, timeout = function (call, time) {
         clearTimeout(timer);
-        timer = setTimeout(call, time + 100);
+        timer = setTimeout(call, time);
     };
     var banner = list(element, function (index) {
         var coms = dom;
