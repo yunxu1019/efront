@@ -85,8 +85,8 @@ var parse干支 = function (a) {
 };
 var compare = function (a, b) {
     for (var cx1 = a.length - 1, cx2 = b.length - 1; cx1 >= 0 && cx2 >= 0; cx1--, cx2--) {
-        while (/\s\u00a0/.test(a[cx1])) cx1--;
-        while (/\s\u00a0/.test(b[cx2])) cx2--;
+        while (/[\s\u00a0]/.test(a[cx1])) cx1--;
+        while (/[\s\u00a0]/.test(b[cx2])) cx2--;
         if (a[cx1] !== b[cx2] || a[cx1] in map子丑寅 || a[cx1] in map上中下 || a[cx1] in map一二三 || a in power || /^\d$/.test(a[cx1])) break;
     }
     a = a.slice(0, cx1 + 1);
