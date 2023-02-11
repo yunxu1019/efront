@@ -43,8 +43,10 @@ function bindtouch(target, bindder, lockDirection = false) {
             var pos = move.call(this, null, event);
             if (isObject(pos)) {
                 var { x = 0, y = 0 } = pos;
-                if (isFunction(move)) {
-                    var { x: x1, y: y1 } = move.call(this, { x: x + deltax, y: y + deltay, deltax, deltay }, event);
+                a: if (isFunction(move)) {
+                    pos = move.call(this, { x: x + deltax, y: y + deltay, deltax, deltay }, event);
+                    if (!pos) break a;
+                    var { x: x1, y: y1 } = pos;
                     if (x1 !== x) saved_x += x1 - x;
                     if (y1 !== y) saved_y += y1 - y;
                 }
