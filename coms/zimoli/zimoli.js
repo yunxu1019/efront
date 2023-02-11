@@ -492,7 +492,7 @@ try {
 } catch (e) {
 }
 var root_path;
-var pushstate = function (path_name, history_name, oldpagepath) {
+var pushstate = function (path_name, history_name) {
     var isDestroy = false;
     if (history_name === undefined) {
         history_name = current_history;
@@ -502,10 +502,6 @@ var pushstate = function (path_name, history_name, oldpagepath) {
         history[history_name] = [path_name];
     } else {
         var _history = history[history_name];
-        if (oldpagepath && [].indexOf.call(_history, oldpagepath, 0) < 0) {
-            _history.splice(root_path === _history[0], _history.length);
-            isDestroy = true;
-        }
         for (var cx = 0, dx = _history.length; cx < dx; cx++) {
             if (_history[cx] === path_name) {
                 _history.splice(cx, dx - cx);
@@ -746,7 +742,7 @@ zimoli.enableTouchBack = function () {
         end() {
             if (ratio === null || !touchTarget) return;
             if (deltaX > 0 && ratio > .1 || deltaX < 0 && ratio > .9 || deltaX === 0 && ratio > .4) {
-                pushstate(historyList[historyList.length - 2]);
+                pushstate(historyList[historyList.length - 2], history_name);
                 remove(currentTarget);
                 transition(touchTarget, 1);
                 global[history_name] = touchTarget;
