@@ -110,7 +110,7 @@ var cross = cross_.bind(function (callback, onerror) {
         overrideMimeType(type) {
             responseType = type;
             if (/gb(k|2312|18030)/.test(type)) {
-                decoder = require("../efront/gbk2utf8");
+                decoder = require("./gbk2utf8");
             }
         },
     };
