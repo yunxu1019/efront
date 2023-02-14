@@ -387,8 +387,8 @@ module.exports = async function (responseTree) {
             if (!isEfrontCode(v)) return;
             if (v !== mainScript) {
                 versionTree[v.name] = String(v.data);
-                delete responseTree[k];
             }
+            delete responseTree[k];
         });
     } else {
         Object.keys(responseTree).sort().forEach(function (k) {

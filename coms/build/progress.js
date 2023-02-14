@@ -91,7 +91,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         console.info("正在编译项目", `<cyan>${PUBLIC_APP}</cyan>\r\n`);
         var public_path = path.join(PUBLIC_PATH, APP);
         setting.is_commponent_package = false;
-        setting.is_file_target = /\.html?$/i.test(environment.APP);
+        setting.is_file_target = /\.html?$/i.test(memery.APP);
         commbuilder.prepare = !setting.is_file_target;
         var toApplication = require("./toApplication");
 
