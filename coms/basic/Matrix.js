@@ -58,9 +58,10 @@ class Matrix extends Array {
         return this;
     }
     translate(vector) {
-        if (!isFinite(vector.length)) vector = arguments;
+        var v = vector;
+        if (!isFinite(v.length)) v = arguments;
         this.dirty();
-        return this.constructor.translate(this, vector);
+        return this.constructor.translate(this, v);
     }
     scale(ratio, center) {
         this.dirty();
