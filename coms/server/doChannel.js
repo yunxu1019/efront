@@ -14,8 +14,8 @@ message["channel-size"] = function (name) {
 message["channel-get"] = function (name, socket) {
     return channel.getChannel(name).addSocketGet(socket);
 };
-message["channel-post"] = function (name, socket) {
-    return channel.getChannel(name).addSocketPost(socket);
+message["channel-post"] = function ([name, type], socket) {
+    return channel.getChannel(name).addSocketPost(socket, type);
 };
 message["channel-destroy"] = function (name) {
     return channel.removeChannel(name);
@@ -27,12 +27,13 @@ async function doChannel(req, res) {
         res.end(msg);
     };
     var id = getChannelId(req.url);
+    var params = id;
     var dowith = async function (key, socket) {
         if (channel.hasChannel(id)) {
-            return message[key](id, socket);
+            return message[key](params, socket);
         }
         else {
-            return message.invoke("fend", ["channel-has", id, key, id], socket);
+            return message.invoke("fend", ["channel-has", id, key, params], socket);
         }
     }
 
@@ -41,6 +42,7 @@ async function doChannel(req, res) {
             dowith("channel-get", res.socket);
             break;
         case "post":
+            params = [id, req.headers["content-type"]];
             dowith("channel-post", req.socket);
             break;
         case "put":

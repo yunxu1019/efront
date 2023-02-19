@@ -248,7 +248,7 @@ function chat(title = '会话窗口') {
             if (data.length > 2000) {
                 return alert("信息太长，无法发送！");
             }
-            if (this.user && this.user.id !== this.localid) {
+            if (this.user && this.user.id !== this.localid && type !== "accept") {
                 addToMsgList(this.msglist, [msg]);
             }
             data = encode62.timeencode(data);

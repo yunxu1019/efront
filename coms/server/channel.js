@@ -5,6 +5,7 @@ var net = require("net");
  */
 var channels = Object.create(null);
 class Channel {
+    type = '';
     socketCount = 0;
     /**
      * @type {net.Socket}
@@ -20,7 +21,7 @@ class Channel {
     optime = Date.now();
     flush() {
         if (this.socketCount !== 2) return;
-        this[1].write(`HTTP/1.1 200 OK\r\nContent-Length: ${this.size}\r\nContent-Disposition: attachment\r\nConnection: close\r\n\r\n`);
+        this[1].write(`HTTP/1.1 200 OK${this.type ? '\r\nContent-Type:' + this.type : ''}\r\nContent-Length: ${this.size}\r\nContent-Disposition: attachment\r\nConnection: close\r\n\r\n`);
         this[0].write("HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n");
         var error = function (e) {
             c[1].end();
@@ -37,7 +38,7 @@ class Channel {
         this[1].once("error", error);
         this[0].once("close", close);
         this[1].once("close", close);
-        this[0].pipe(this[1]);
+        this[0].on('data', this[1].write.bind(this[1]));
     }
     addSocketGet(s) {
         if (this.socketCount === 2 || this[1]) return;
@@ -45,10 +46,11 @@ class Channel {
         this[1] = s;
         this.flush();
     }
-    addSocketPost(s) {
+    addSocketPost(s, t) {
         if (this.socketCount === 2 || this[0]) return;
         this.socketCount++;
         this[0] = s;
+        this.type = t;
         this.flush();
     }
 }
