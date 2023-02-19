@@ -181,6 +181,21 @@ msg[files] {
         text-align: left;
         border-radius: 0;
 
+        >img {
+            width: 32px;
+            height: 32px;
+            margin-left: -10px;
+            vertical-align: top;
+            line-height: 32px;
+
+            &+* {
+                display: inline-block;
+                margin-left: 6px;
+                line-height: 32px;
+                vertical-align: top;
+            }
+        }
+
         &:hover {
             border-color: #c80;
             background-color: #ffe;
@@ -192,12 +207,14 @@ msg[files] {
 
         &:first-child {
             border-top-color: transparent;
-            border-radius: 3px 3px 0 0;
+            border-top-right-radius: 3px;
+            border-top-left-radius: 3px;
         }
 
         &:last-child {
             border-bottom-color: transparent;
-            border-radius: 0 0 3px 3px;
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
         }
     }
 }

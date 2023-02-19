@@ -16,12 +16,12 @@ function msg(elem, { m }, parentScopes) {
     }
     if (m) switch (m.type) {
         case "html":
-            elem.innerHTML = m.content;
+            elem.innerHTML = /<(script|iframe)(\s|>)|(src|href)=(['"`]|)javascript\:/i.test(m.content) ? `<span color="#c24">对方正试图窃取您的信息</span>` : m.content;
             break;
         case "file":
             var files = m.content;
             elem.setAttribute("files", '');
-            elem.innerHTML = files.map(f => `<a class=file>${shapes$file}${f.name}</a>`).join("");
+            elem.innerHTML = files.map(f => `<a class=file>${f.icon ? `<img src="${f.icon.replace(/\"/g, '')}"/>` : shapes$file}<span>${f.name.replace(/[><]/g, a => `&#${a.codePointAt(0)};`)}</span></a>`).join("");
             elem.files = files;
             onclick(elem, clickfile);
             break;
@@ -221,10 +221,25 @@ function chat(title = '会话窗口') {
             var files = await chooseFile('*.*', true);
             this.sendFiles(files);
         },
-        sendFiles(files) {
+        async sendFiles(files) {
             var flist = [];
+            var URL = window.URL;
             for (var f of files) {
-                flist.push({ name: f.name, size: f.size, id: ++fid, mtime: +f.lastModified });
+                if (URL && f.size < 100 * 1000 * 1000 && /\.(png|jpeg|jpg|jpe|gif|bmp)$/.test(f.name)) {
+                    var canvas = document.createElement('canvas');
+                    var size = 32;
+                    canvas.width = size;
+                    canvas.height = size;
+                    var context = canvas.getContext("2d");
+                    var img = new Image;
+                    var u = URL.createObjectURL(f);
+                    img.src = u;
+                    await awaitable(img);
+                    context.drawImage(img, 0, 0, size, size);
+                    f.icon = canvas.toDataURL();
+                    URL.revokeObjectURL(u);
+                }
+                flist.push({ name: f.name, icon: f.icon, size: f.size, id: ++fid, mtime: +f.lastModified });
                 filesMap[fid] = f;
             }
             return this.send('file', flist);
