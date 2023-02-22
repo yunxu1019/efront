@@ -214,7 +214,7 @@ function hsl2rgb([h, s, l]) {
 	var r = h + 1 / 3;
 	var g = h;
 	var b = h - 1 / 3;
-	return [r, g, b].map(t => t2rgb(t, p, q));
+	return [r, g, b].map(t => t2rgb(t, p, q) * 255);
 }
 function percent(a) {
 	if (/%$/.test(a)) {
