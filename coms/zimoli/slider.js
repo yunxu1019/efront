@@ -273,7 +273,7 @@ function slider(autoplay, circle = true) {
         if (outter.index === index && cache !== false) return;
         negative_index = -index;
         var _removingMain = _imageMain;
-        reshape(index, false, cache);
+        reshape(index, false);
         css(_removingMain, "transition:.1s opacity ease-out,.1s transform;z-index:1;left:0;");
         appendChild(outter, _removingMain);
         setTimeout(function () {
