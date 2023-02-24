@@ -89,7 +89,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         require("../efront/isLib").dispose();
         if (memery.EXTT === undefined) memery.EXTT = '.txt';
         console.info("正在编译项目", `<cyan>${PUBLIC_APP}</cyan>\r\n`);
-        var public_path = path.join(PUBLIC_PATH, APP);
+        var public_path = path.join(PUBLIC_PATH, APP.replace(/\.html?$/i, ''));
         setting.is_commponent_package = false;
         setting.is_file_target = /\.html?$/i.test(memery.APP);
         commbuilder.prepare = !setting.is_file_target;
