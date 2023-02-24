@@ -345,7 +345,13 @@ function toComponent(responseTree, noVersionInfo) {
             case "require":
             case "init":
                 data = '[]';
-                saveOnly(data, "require", "init");
+                let args = [data];
+                if (!responseTree.require || !responseTree.require.data) args.push("require");
+                if (!responseTree.init || !responseTree.init.data) args.push("init");
+                if (args.length > 1) {
+                    hasRequire = true;
+                    saveOnly.apply(null, args);
+                }
                 break;
             case "module":
                 data = `[${crypt_code}]`;
@@ -506,7 +512,7 @@ function toComponent(responseTree, noVersionInfo) {
         });
         saveOnly(simple_compress(`[${args.map(a => args[a])},function(${args}){return ${decoder}}]`), '- decoder');
     }
-    var hasRequire = destMap.require || destMap.init;
+    var hasRequire;
     saveOnlyGlobal('module');
     saveOnlyGlobal('exports');
     if (array_map) polyfill_map = polyfill_map.replace(/\$(\w+)/g, function (_, w) {
