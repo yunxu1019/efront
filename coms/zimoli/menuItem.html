@@ -6,7 +6,7 @@
 </template>
 <span -html="menu.name" -style="{color:menu.color}"></span>
 <template -if="typeof menu.hotkey==='string'">
-    &nbsp;&nbsp; <span class="hotkey" -html="hotkey"></span>
+    &nbsp;&nbsp; <span class="hotkey" -html="menu.hotkey"></span>
 </template>
 <template -elseif="menu.hotkey?.length">
     &nbsp;&nbsp; <span ng-repeat="k of menu.hotkey" class="hotkey" ng-html="k"></span>
