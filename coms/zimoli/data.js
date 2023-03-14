@@ -714,6 +714,8 @@ var unbindInstance = function (instanceId, callback) {
         delete instanceListenerMap[instanceId];
     }
 };
+var OUTDATE = new Error("请求被覆盖");
+var ABORTED = new Error("请求已取消");
 var data = {
     decodeStructure,
     encodeStructure,
@@ -938,8 +940,6 @@ var data = {
                 return instance;
             }
         }
-        var outdate = new Error("request outdate.");
-        var aborted = new Error("request aborted.");
         this.responseLoading(instance);
         promise1 = instance.loading_promise = new Promise(function (ok) {
             if (!instance.loading) {
@@ -947,15 +947,15 @@ var data = {
             }
             setTimeout(ok, timeout);
         }).then(function () {
-            if (promise1 !== instance.loading_promise) throw outdate;
+            if (promise1 !== instance.loading_promise) throw OUTDATE;
             return privates.getApi(sid);
         }).then((api) => {
-            if (promise1 !== instance.loading_promise) throw outdate;
+            if (promise1 !== instance.loading_promise) throw OUTDATE;
             if (instance.loading) {
                 instance.loading.abort();
             }
             var params2 = privates.pack(sid, params1);
-            if (!privates.validApi(api, params2)) throw aborted;
+            if (!privates.validApi(api, params2)) throw ABORTED;
             let url = api.url;
             var base = api.base;
             if (base) url = base + api.path;
@@ -966,11 +966,11 @@ var data = {
                     headers = seekFromSource(headers, api.base);
                 }
                 instance.loading = cross(method, uri, headers).send(params).done(xhr => {
-                    if (instance.loading !== xhr) return oh(aborted);
+                    if (instance.loading !== xhr) return oh(ABORTED);
                     instance.loading = null;
                     ok(xhr.responseText || xhr.response);
                 }).error(xhr => {
-                    if (instance.loading !== xhr) return oh(aborted);
+                    if (instance.loading !== xhr) return oh(ABORTED);
                     instance.loading = null;
                     try {
                         var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
@@ -984,7 +984,7 @@ var data = {
             });
             return promise;
         }).then((data) => {
-            if (instance.loading_promise !== promise1) throw aborted;
+            if (instance.loading_promise !== promise1) throw ABORTED;
             if (id) {
                 data = parse instanceof Function ? parse(data) : data;
                 this.setInstance(id, data, false);
@@ -993,10 +993,12 @@ var data = {
             }
             this.responseLoaded(instance);
             return data;
+        }).catch(function (e) {
+            if (e === OUTDATE || e === ABORTED) return;
+            throw e;
         });
         promise1.params = params;
         promise1.catch((e) => {
-            if (e === outdate || e === aborted) return;
             this.responseCrash(e, instance);
         });
 
