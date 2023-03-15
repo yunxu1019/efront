@@ -34,7 +34,7 @@ if (!Promise) {
                 if (t.ohed) {
                     var throwed = t.throwed;
                     t.throwed = true;
-                    if (!throwed && PromiseRejectReactions.length) {
+                    if (!throwed && !PromiseRejectReactions.length) {
                         // <!--
                         console.warn("在异步过程中发现未处理的异常：", t.ohed[0], t.ohed[1], t.ohed[2]);
                         // -->
