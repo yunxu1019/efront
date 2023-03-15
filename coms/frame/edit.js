@@ -18,7 +18,11 @@ function main(title, { submit }, { data: origin, fields, }) {
     });
     on('submit')(page, async function (e) {
         e.preventDefault();
-        await submit(item, fields, origin);
+        var res = await submit(item, fields, origin);
+        if (typeof res === 'string') {
+            return alert(res, 'error');
+        }
+        if (res === false) return;
         dispatch(this, 'submited');
         remove(this);
     });
