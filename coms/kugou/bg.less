@@ -1,4 +1,19 @@
+:active>& {
+    &:after {
+        width: 300px;
+        height: 140px;
+        margin: -150x -70px;
+    }
+
+    &:before {
+        width: 160px;
+        height: 180px;
+        margin: -80px -90px;
+    }
+}
+
 & {
+    z-index: 1;
     border: 1px solid rgba(0, 0, 0, .1);
     border-radius: inherit;
     position: absolute;
@@ -30,5 +45,7 @@
         background-color: #2873;
         position: absolute;
         border-radius: 50%;
+        backdrop-filter: invert(1);
+        transition: all .2s;
     }
 }
