@@ -19,6 +19,7 @@ var clean = require("./clean");
 var _finish = require("./finish");
 var setting = require("./setting");
 var memery = require("../efront/memery");
+require("../compile/namelist").makeSource(memery.SCITER);
 var getBuiltVersion = async function (filepath) {
     try {
         filepath = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, [filepath]);

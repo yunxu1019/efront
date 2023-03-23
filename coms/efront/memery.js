@@ -205,6 +205,7 @@ var memery = module.exports = {
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),
     ENVS_PATH: getdirpath("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
     COMS_PATH: getdirpath("COMS_PATH,COMM_PATH"),
+    SCITER: get("SCITER,QUICKJS,QJS", false),
     get PROXY() {
         return !noproxy;
     },
