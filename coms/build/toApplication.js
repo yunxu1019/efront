@@ -449,7 +449,7 @@ module.exports = async function (responseTree) {
                 return xTreeName + `${s1}=${s2}${code}`;
             }
         );
-    if (memory.EXTRACT_MAIN_SCRIPT || !setting.is_file_target) mainScript.queryfix = crc(Buffer.from(mainScriptData)).toString(36).replace(/^\-/, "");
+    if (memory.EXTRACT || !setting.is_file_target) mainScript.queryfix = crc(Buffer.from(mainScriptData)).toString(36).replace(/^\-/, "");
     if (!setting.is_file_target) mainScriptData = mainScriptData
         .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.queryfix}$2`)
         .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, `parseInt("${encoded}",36)%128`);
