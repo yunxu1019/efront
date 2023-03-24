@@ -88,8 +88,8 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
             }
         }
         var k = findTreeKey(responseTree, attrs.href);
-        var data = responseTree[k].data;
-        if (k && data && attrs.rel) switch (attrs.rel.toLowerCase()) {
+        var data = k && responseTree[k].data;
+        if (data && attrs.rel) switch (attrs.rel.toLowerCase()) {
             case "shortcut icon":
                 var type = attrs.type;
                 if (!type) type = {
