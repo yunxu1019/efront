@@ -73,7 +73,7 @@ var keywords = [js_keywords, c_java_go_python, others].join("|").trim().split(/[
 keywords = new RegExp(`^(${keywords})$`, 'i');
 var source = `abcdefghijklmnopqrstuvwxyz`;
 source += source.toUpperCase() + "_$";
-var number = source + '0123456789';
+var number = '0123456789' + source;
 var counts;
 var source_addition = function () {
     var reg = /\xAA\xB5\xBA\xC0-\xD5\xD8-\xF2\xF8-\u02AF\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u0523\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0621-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA/;
@@ -90,8 +90,7 @@ var source_addition = function () {
     return String.fromCharCode.apply(String, dist);
 }();
 var makeSource = function (qjs) {
-    makeSource = function () { };
-    if (!qjs) source += source_addition;
+    if (!qjs) source = number.slice(10) + source_addition;
     var source_length = source.length;
     counts = [
         source_length,
@@ -101,6 +100,7 @@ var makeSource = function (qjs) {
         source_length * 64 * 64 * 64 * 64
     ];
 };
+makeSource(true);
 function create(n, length) {
     var rest = [];
     while (length > 0) {
@@ -155,7 +155,8 @@ function namelist(count, prevent, skip) {
     dist.skip = skip0;
     return dist;
 }
-namelist.makeSource = function (sciter) {
-    return makeSource(sciter);
+namelist.makeSource = function (sciter = false) {
+    makeSource(sciter);
+    makeSource = function () { };
 };
 module.exports = namelist;
