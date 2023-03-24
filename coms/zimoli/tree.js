@@ -48,6 +48,11 @@ function tree() {
         clearTimeout(timer);
         timer = setTimeout(call, time);
     };
+    care(element, function () {
+        banner.setData(this.src);
+        this.src = root;
+    });
+
     var banner = list(element, function (index) {
         var coms = dom;
         if (index >= coms.length) return;
@@ -233,9 +238,6 @@ function tree() {
         root = new Tree(src);
         refresh();
     };
-    care(banner, function () {
-        this.setData(this.src);
-    });
     banner.addData = function (data, parent = root) {
         appendTo(parent, data);
         refresh();
