@@ -184,6 +184,7 @@ function tree() {
                 };
                 com.forEach(z);
                 setState();
+                css(banner, { paddingBottom: '' });
             };
             var time = size => (Math.log(-size / 30 + 2) * 100 | 0) / 1000;
             if (com.isClosed() && com.length) {
@@ -198,6 +199,7 @@ function tree() {
                 } else {
                     marginTop = top.offsetTop - bottom.offsetTop - bottom.offsetHeight;
                 }
+                css(banner, { paddingBottom: -marginTop });
                 var res = transition(top, {
                     transition: `margin-top ${time(marginTop)}s ease-out`,
                     marginTop: fromOffset(marginTop)
@@ -216,8 +218,10 @@ function tree() {
                 }
                 setState(false);
                 z0();
+                var paddingBottom = -margin_top;
+                css(banner, { paddingBottom });
                 var res = transition(change_elem, { transition: `margin-top ${time(margin_top)}s ease-out`, marginTop: fromOffset(margin_top) }, false);
-                timeout(z1, res);
+                timeout(z1, res + 60);
             }
         });
 
@@ -240,12 +244,9 @@ function tree() {
         var index = banner.index();
         var needremoves = dom.map(d => d.target).filter(d => !!d);
         dom = getArrayFromTree(root, true);
-        needremoves.forEach(_div => {
-            delete _div.initialStyle;
-            css(_div, "transition:;margin-top:;");
-        });
-        remove(needremoves);
+        remove(needremoves, false);
         banner.go(index || 0);
+        css(banner, { paddingBottom: '' });
     };
     banner.refresh = refresh;
 

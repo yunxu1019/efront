@@ -618,6 +618,7 @@ function list() {
     }
     var savedSrc = [];
     if (bindSrc === true) care(container, function (src, old) {
+        if (container.refresh) return;
         var index = container.index();
         if (src !== old) container.clean(), index = 0;
         else container.clean(src, savedSrc);
