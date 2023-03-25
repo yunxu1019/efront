@@ -461,7 +461,7 @@ module.exports = async function (responseTree) {
     patchDependence(maindata);
     var newTree = Object.create(null);
     missing.forEach(k => newTree[k] = {});
-    Object.assign(newTree, { main: maindata, "[]map": array_map && {} });
+    Object.assign(newTree, { main: maindata }, array_map ? { "[]map": {} } : {});
     reportMissing(responseTree);
     report(responseTree);
     mainScript.data = toComponent(newTree, true).main.data;
