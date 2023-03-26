@@ -171,7 +171,7 @@
         zimoli.go(menu);
         return result;
     };
-    on("zimoli")(window, function (event) {
+    on("zimoli")(document, function (event) {
         var { zimoli } = event;
         data.setInstance("option-buttons", zimoli.options || [], false);
         var menu = getChild(zimoli);

@@ -1,8 +1,7 @@
 "use strict";
 var window = this;
 var isProduction = true;
-// <!-- isProduction = false -->
-
+// <!-- isProduction = false; -->
 var {
     parseInt,
     XMLHttpRequest,
@@ -832,7 +831,7 @@ modules.modules = modules;
 var requires_count = 3;
 var hook = function (requires_count) {
     if (requires_count !== 0) return;
-    "alert confirm innerWidth innerHeight close prompt".split(/\s+/).map(removeGlobalProperty);
+    "alert confirm innerWidth innerHeight close prompt data".split(/\s+/).map(removeGlobalProperty);
     modules.Promise = Promise;
     modules.hook_time = +new Date;
     if (document) {
@@ -855,7 +854,7 @@ var initIfNotDefined = function (defined, path, onload) {
     else hook(--requires_count);
 };
 
-if (document) loadResponseTreeFromStorage();
+if (localStorage) loadResponseTreeFromStorage();
 initIfNotDefined([].map, "[]map", map => map);
 "use ../basic_/#checkPromise.js";
 initIfNotDefined(Promise, "Promise", promise => Promise = promise);

@@ -97,12 +97,11 @@ function 帧样式(style, captureStyle, point) {
 function InnerStyle(o) {
     for (var k in o) {
         var v = o[k];
-        this[css.transformNodeKey(k)] = css.transformValue(v);
+        this[css.transformNodeKey(k)] = css.transformValue(v, k);
     }
 }
 
 var transitionKey = css.transformNodeKey("transition");
-
 function transition(target, _isLeave, _initialStyle) {
     if (!target) return;
     if ((isObject(_isLeave) || typeof _isLeave === "string") && (isFinite(_initialStyle) || !_initialStyle)) {
@@ -140,13 +139,13 @@ function transition(target, _isLeave, _initialStyle) {
     clearTimeout(transitionTimerEnd);
     var transitionDuration = 100;
     if (!initialStyle[transitionKey]) {
-        initialStyle[transitionKey] = "all .3s ease";
+        initialStyle[transitionKey] = Object.keys(initialStyle).map(k => k.replace(/[A-Z]/g, a => "-" + a.toLowerCase()) + " .3s ease").join(",");
         transitionDuration = 300;
     }
-    String(initialStyle[transitionKey]).replace(/([\.\d]+)(m?)s/gi, function (m, d, t) {
+    initialStyle[transitionKey] = String(initialStyle[transitionKey]).replace(/([\.\d]+)(m?)s/gi, function (m, d, t) {
         if (t) transitionDuration = Math.max(+d, transitionDuration);
         else transitionDuration = Math.max(d * 1000, transitionDuration);
-        return m;
+        return transitionDuration + "ms";
     });
     transitionDuration = transitionDuration || 260;
     if (!recoverStyle) recoverStyle = {};

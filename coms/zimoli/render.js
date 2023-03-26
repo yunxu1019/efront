@@ -753,7 +753,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         }
         element.$parentScopes = parentScopes || [];
         var s = createStructure(element);
-
         if (isEmpty(s.once)) s.once = once;
         element.$eval = $eval;
     }
@@ -888,7 +887,11 @@ function createStructure(element) {
     if (isArrayLike(element)) return Array.prototype.map.call(element, createStructure);
     if (element.$struct) return element.$struct;
     // 处理结构流
-    var attrs = Array.apply(null, element.attributes);
+    var attributes = element.attributes;
+    var attrs = Array.apply(null, attributes);
+    if (attributes.length && !attributes[0]) {
+        for (var cx = 0, dx = attributes.length; cx < dx; cx++) attrs[cx] = attributes.item(cx);
+    }
     var types = {};
     var emiter_reg = /^(?:(v|ng|on|once)?\-|v\-on\:|@|once|on)/i;
     var ons = [];

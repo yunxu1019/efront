@@ -5,7 +5,7 @@
 //main
 var body = document.body;
 var onbacks = [];
-var window_history = window.history;
+var window_history = window.history || { length: 0, go() { }, back() { } };
 var window_history_length = window_history.length;
 var sessionSavedHashKey = "__zimoli_session_init_hash" + location.pathname;
 var sessionInitHash = sessionStorage.getItem(sessionSavedHashKey);
@@ -168,7 +168,7 @@ function go(pagepath, args, history_name, oldpagepath) {
                 id,
                 options
             };
-            dispatch(window, event);
+            dispatch(document, event);
             fullfill_is_dispatched = 0;
         }
         addGlobal(_page, history_name, isDestroy);

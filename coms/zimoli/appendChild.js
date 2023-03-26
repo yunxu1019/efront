@@ -10,7 +10,8 @@ function hasEnterStyle(e) {
 
 function _onappend(node, append = createEvent("append"), mount = createEvent("mounted")) {
     if (node.isMounted) return;
-    if (node.nodeType === 1 || node.nodeType === 8) node.isMounted = true;
+    node.isMounted = true;
+    if (node.nodeType !== 1 && node.nodeType !== 8) return;
     dispatch(node, append);
     var children = Array.apply(null, node.childNodes);
     for (var c of children) {

@@ -268,7 +268,7 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
         }
         if (!hs.length && hs.h) {
             element[hk] = null;
-            if (is_addEventListener_enabled) {
+            if (element.removeEventListener) {
                 element.removeEventListener(k, hs.h, getListenerOption(eventtypes, k));
             } else {
                 if (element["on" + k] === hs.h) element["on" + k] = null;
@@ -354,7 +354,9 @@ var on = document.efronton = function (k) {
             var h = broadcast.bind(target, k, hk);
             target[hk] = [];
             target[hk].h = h;
-            target.addEventListener(k, h, getListenerOption(eventtypes, k));
+            if (target.addEventListener)
+                target.addEventListener(k, h, getListenerOption(eventtypes, k));
+            else target[on_event_path] = h;
         }
         var listener = [eventtypes, handler, context];
         append.call(target, k, hk, listener, firstmost);

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title> sciter 环境玫举</title>
+</head>
+
+<body>
+    <script>
+        -async function () {
+            var occurs = [];
+            for (var k in this) {
+                occurs.push(k);
+            }
+            var ws = []
+            for (var k in window) {
+                ws.push(k);
+            }
+            var ds = [];
+            for (var k in document) {
+                ds.push(k);
+            }
+            document.body.innerHTML = `this:<br/> ${occurs.join(", ")}<br/><br/>
+            window:<br/> ${ws.join(', ')}<br/><br/>
+            document: <br/>${ds.join(", ")}<br/><br/>
+            eval: ${typeof eval}<br/>
+            XMLHttpRequest: ${typeof XMLHttpRequest}<br/>
+            fetch: ${typeof fetch}`;
+            window.request = function (url, onload, onerror, version) {
+                fetch("http://localhost/sciters/" + url, { method: 'post' }).then(r => r.text()).then(onload, e => {
+                    document.body.innerHTML = `<span style="color:red">fetch error</span>${url}<br/>${e}`;
+                    onerror(e);
+                });
+            };
+            await window.request('comm/main', function (res) {
+                document.body.innerHTML = '';
+                var a = eval(`(function(){${res}})`);
+                a.call(this);
+            });
+        }.call(this);
+
+
+    </script>
+</body>
+
+</html>

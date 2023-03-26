@@ -26,7 +26,7 @@ var _text = function (bgcolor, parameters) {
     var box = div();
     css(box, `top:${fromPixel(alerts.length ? Math.max.apply(Math, alerts.map(e => e.offsetTop + e.children[0].offsetHeight)) : 0)};height:0;line-height:${fromPixel(singleHeight - 20)};left:0;right:0;font-size:${fromPixel(fontSize)}; transition: all 0.2s ease-out;position:absolute;text-align:center;`);
     box.innerHTML = `<div style='width: 720px;white-space:pre-wrap;max-width:100%;display:inline-block;height:auto;padding:${fromPixel(10)} ${fromPixel(20)};background-color:${bgcolor};color:${color.pair(bgcolor, 1)};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
-    box.initialStyle = `margin:-${fromPixel(singleHeight)} auto;opacity:0;`;
+    box.initialStyle = `margin-top:-${fromPixel(singleHeight)};opacity:0;`;
     return box;
 };
 function alert() {

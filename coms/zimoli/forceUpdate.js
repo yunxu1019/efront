@@ -1,9 +1,6 @@
 var { window, location, preventCache = true, parseInt, navigator, Date } = this;
 var start_time = +new Date / 1000 | 0;
-while (true) {
-    if (!preventCache) {
-        break;
-    }
+if (preventCache && navigator) {
 
     var page_time = location.search.replace(/^.*?[\?&]\=([^&]+).*?$/i, "$1");
     page_time = parseInt(page_time, 36) || 0;
@@ -21,7 +18,6 @@ while (true) {
         } else {
             search = "=" + mark_time.toString(36);
         }
-        if (!/Safari|Firefox/.test(navigator.userAgent)) location.replace(location.pathname + "?" + search);
+        if (!/Safari|Firefox|Sciter/.test(navigator.userAgent)) location.replace(location.pathname + "?" + search);
     }
-    break;
 }
