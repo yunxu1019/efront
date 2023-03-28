@@ -33,18 +33,7 @@
             box-sizing: border-box;
         }
     </style>
-    <script deleteoncompile>
-        -function (body, window) {
-            body.removeChild(body.getElementsByTagName("script")[0]);
-            var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    new Function(xhr.responseText).call(window);
-                }
-            };
-            xhr.open('POST', 'comm/main');
-            xhr.send("step into my sight..");
-        }.call(this, document.documentElement.children[0], this);
+    <script efrontloader deleteoncompile>
     </script>
 </head>
 

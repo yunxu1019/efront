@@ -411,7 +411,7 @@ function create(pagepath, args, from, needroles) {
         if (!user.isLogin && user.loginPath) {
             return create(user.loginPath);
         }
-        return alert(i18n("没有权限！", "No Access!"), 0);
+        return alert(i18n`没有权限！`, 0);
     }
     _with_elements = [].concat(_with_elements);
     state.with = function (element) {

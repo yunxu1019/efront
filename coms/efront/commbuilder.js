@@ -13,6 +13,7 @@ var autoiota = require("../compile/autoiota");
 var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
 var polyfill = require("../compile/polyfill");
+var translate = require("../compile/translate");
 var $split = require("./$split");
 var backEach = require("../basic/backEach");
 var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1(?:\s*;)?\s*$/;
@@ -194,6 +195,13 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var code = scanner2(data);
     var preqouted = removePreqouted(code);
     code.fix();
+    if (this && this["#"]) {
+        translate(this["#"], code);
+        if (commName === "i18n") {
+            let lm = code.used.languageMap;
+            if (lm && lm[0].next && lm[0].next.next) lm[0].next.next.push(...scanner2(`${this["#"][1].map((a, i) => JSON.stringify(a) + ":" + i).join(",")}`));
+        }
+    }
     if (memery.AUTOEVAL) {
         code = autoiota(code);
         code = autoenum(code);
@@ -619,9 +627,6 @@ function prepare(filename, fullpath) {
     if (shortName !== className) className = className + " " + shortName;
     return [commName, lessName, className];
 }
-var wrapHtml = function (htmldata) {
-    return "`" + String(htmldata).trim().replace(/>\s+</g, "><").replace(/\\[^`]/g, "\\$&") + "`";
-};
 var getValidName = function (prefix, used) {
     var id = 1;
     while (prefix in used) {
@@ -657,8 +662,8 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     var jsvars = jscope.vars;
     var entryName = getEntryName(jsvars, commName);
     if (entryName && !(entryName in scoped.used)) {
-        htmltext = `{toString:()=>${wrapHtml(scoped.outerHTML || scoped.innerHTML)}}`;
-        return loadJsBody(jsData, filename, styles, commName, className, htmltext);
+        htmltext = `{toString:()=>${compile$wraphtml(scoped.outerHTML || scoped.innerHTML)}}`;
+        return loadJsBody.call(this, jsData, filename, styles, commName, className, htmltext);
     }
     var scope = Object.keys(Object.assign({}, scoped.vars, scoped.envs)).filter(e => e in this || e in jscope.used);
     if (scope.length) {
@@ -692,7 +697,7 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
 var ${xhtmain}=function(){
     ${scope}
     ${jsData}
-    return [${wrapHtml(htmltext)},${xhtmain}];
+    return [${compile$wraphtml(htmltext)},${xhtmain}];
 };
 function ${commName}(elem){
     var [template,scope]=${xhtmain}();
@@ -704,7 +709,7 @@ function ${commName}(elem){
 }`: `
 var ${xhtmain}=function(){
     ${jsData}
-    return ${wrapHtml(htmltext)};
+    return ${compile$wraphtml(htmltext)};
 }
 function ${commName}(elem){
     ${createElement}
@@ -712,7 +717,7 @@ function ${commName}(elem){
     elem.innerHTML=${xhtmain}();
     return elem;
 }`;
-    return loadJsBody(xht, filename, styles, commName, className)
+    return loadJsBody.call(this, xht, filename, styles, commName, className)
 }
 
 function getMouePromise(data, filename, fullpath, watchurls) {
@@ -749,13 +754,13 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         function fire() {
             var timeStart = new Date;
             if (htmlData) {
-                jsData = `var template=${wrapHtml(htmlData)};\r\n` + jsData;
+                jsData = `var template=${compile$wraphtml(htmlData)};\r\n` + jsData;
                 if (lessData) {
                     jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
                 }
                 jsData += `;\r\nextend(exports,Vue.compile(template))`;
             }
-            var data = loadJsBody(jsData, fullpath, null, commName);
+            var data = loadJsBody.call(this, jsData, fullpath, null, commName);
             time += new Date - timeStart;
             promise.time = time;
             ok(data);
@@ -791,9 +796,9 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
                 time += lessPromise.time;
             });
         }
-    }).then(function () {
+    }).then(() => {
         var timeStart = new Date;
-        var data = loadJsBody(jsData, filename, lessData, commName, className);
+        var data = loadJsBody.call(this, jsData, filename, lessData, commName, className);
         time += new Date - timeStart;
         promise.time = time;
         return data;
@@ -817,7 +822,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(([lessdata, htmldata, data]) => {
         var timeStart = new Date;
         if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)*(<!doctype\b|<script\b)/i.test(htmldata)) {
-            htmldata = "{toString:()=>" + wrapHtml(htmldata) + "}";
+            htmldata = "{toString:()=>" + compile$wraphtml(htmldata) + "}";
             htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+</g, "<").replace(/<\!\-\-.*?\-\-\>/g, "");
             htmlData = htmldata;
             watchurls.push(htmlpath);
@@ -832,9 +837,9 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
             return lessPromise;
         }
         time += new Date - timeStart;
-    }).then(function () {
+    }).then(() => {
         var timeStart = new Date;
-        var data = loadJsBody(jsData, fullpath, lessData, commName, className, htmlData);
+        var data = loadJsBody.call(this, jsData, fullpath, lessData, commName, className, htmlData);
         time += new Date - timeStart;
         promise.time = time;
         console.drop();

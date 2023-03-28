@@ -9,8 +9,8 @@ var escapeMap = {
 var unescapeMap = {};
 for (var k in escapeMap) unescapeMap[escapeMap[k]] = k;
 
-function encode(str) {
-    return "\"" + str.replace(/[\\"]/g, "\\$&").replace(/[\r\n\t\v\f\u0008\u0000-\u001f\u007f-\uffff]/g, a => {
+function encode(str, q = "\"") {
+    return q + str.replace(new RegExp(`[${q}]`, 'g'), "\\$&").replace(/[\r\n\t\v\f\u0008\u0000-\u001f\u007f-\uffff]/g, a => {
         if (escapeMap.hasOwnProperty(a)) return escapeMap[a];
         var code = a.charCodeAt(0).toString(16);
         switch (code.length) {
@@ -22,7 +22,7 @@ function encode(str) {
                 return "\\u0" + code;
         }
         return "\\u" + code;
-    }) + "\"";
+    }) + q;
 }
 function decode(s) {
     var r = /^(['"`])([\s\S]*)\1$/.exec(s);

@@ -386,7 +386,8 @@ function parse(piece) {
         } else if (/^[\/]/.test(type)) {
             type = type.slice(1);
         }
-        if (typeof options === "string") {
+        if (typeof options === "string" && !/^\$#\d+$/.test(options)) {
+            console.log(options)
             options = is(options);
             var needUnfold = /^\[|\]$/.test(options);
             options = options.replace(/^\[|\]$/g, '');

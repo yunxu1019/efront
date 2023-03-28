@@ -1,0 +1,578 @@
+<style>
+    button {
+        padding: 0 16px;
+        margin-right: 6px;
+        margin-bottom: 6px;
+    }
+
+    [error] {
+        color: #f24;
+    }
+
+    form {
+        padding: 0 0 6px 0;
+    }
+
+    form>* {
+        margin-right: 16px;
+    }
+
+    h2,
+    p,
+    div {
+        padding: 14px 20px;
+        margin: 0;
+    }
+
+    hr {
+        margin: 0;
+        clear: both;
+    }
+
+    tr.actived td {
+        color: #fff;
+        background: #069 !important;
+    }
+
+    span,
+    a {
+        vertical-align: middle;
+    }
+</style>
+<p><span>翻译结果仅做为参考，未必完美替换，语法参考<a @click="zimoli.go('/组件/basic/i18n.js',{mark:true})">i18n.js</a></span></p>
+<p -if="!window.showDirectoryPicker" error>国际化工具仅在浏览器支持 showDirectoryPicker 时可用</p>
+<div -else>
+    <button @click="chooseFolder">选择代码文件夹</button>
+    <button @click="editCode()">修改国际化参数</button>
+    <button style="float:right" -if="tableData.length" @click="exportCSV">导出到文件</button>
+    <hr />
+    <form>
+        <checkbox -src="filters" @change="runFilter"></checkbox>
+    </form>
+    <table #table-element -src="[fields,tableData]" @active="showDetail(event)">
+    </table>
+</div>
+<script>
+    var baiduFanyiConfig = data.getInstance("fanyi-config");
+    var a = button;
+    var salt = `efront${Math.random().toString(36).slice(6, 16)}`;
+    var requestBaiduFanyi = async function (str, to, from = 'auto') {
+        var appid = baiduFanyiConfig.appid || "20210218000700622";
+        var sign = baiduFanyiConfig.sign || "xJf0dfXeJdzudCTBn3QS";
+        var xhr = await cross("get", "https://fanyi-api.baidu.com/api/trans/vip/translate").send({
+            q: str,
+            from,
+            to,
+            appid,
+            salt,
+            sign: md5(`${appid}${str}${salt}${sign}`),
+        });
+        var data = JSON.parse(xhr.response);
+        return data.trans_result[0].dst;
+    };
+    var editCode = function () {
+        supports.forEach(s => s.checked = false);
+        detailScope.supports.forEach(s => s.checked = true);
+        var editor = frame$edit("国际化参数", {
+            submit(form) {
+                if (form.appid && !form.sign || form.sign && !form.appid) {
+                    return "appid和密钥不能只有一个！";
+                }
+                detailScope.supports = supports.filter(s => s.checked);
+                var smap = {};
+                for (var s of detailScope.supports) {
+                    smap[s.id] = true;
+                }
+                data.patchInstance('fanyi-config', { appid: form.appid, sign: form.sign, smap }, true);
+            }
+        }, {
+            fields: [
+                { name: "提示", readonly: true, key: 'apply_info', type: 'text' },
+                { name: "appid及密钥申请地址", readonly: true, key: 'apply_url', type: 'anchor' },
+                { name: "appid", key: 'appid', type: 'input' },
+                { name: "密钥", key: 'sign', type: "input" },
+                { name: "目标语言", type: 'checkbox', options: supports }
+            ], data: {
+                apply_url: 'https://fanyi-api.baidu.com/',
+                apply_info: 'efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己申请一个appid和密钥配置后使用',
+                appid: baiduFanyiConfig.appid,
+                sign: baiduFanyiConfig.sign
+            }
+        });
+        popup(editor, [.5, .5]);
+    };
+    // var supports2 = {
+    //     阿布哈兹语: ["ab", "Abkhazian"],
+    //     阿法尔: ["aa", "Afar"],
+    //     南非荷兰语: ["af", "Afrikaans"],
+    //     将: ["ak", "Akan"],
+    //     阿尔巴尼亚语: ["sq", "Albanian"],
+    //     阿姆哈拉语: ["am", "Amharic"],
+    //     阿拉伯语: ["ar", "Arabic"],
+    //     阿拉贡语: ["an", "Aragonese"],
+    //     亚美尼亚语: ["hy", "Armenian"],
+    //     阿萨姆语: ["as", "Assamese"],
+    //     Avaric公司: ["av", "Avaric"],
+    //     阿维斯坦: ["ae", "Avestan"],
+    //     艾玛拉: ["ay", "Aymara"],
+    //     阿塞拜疆语: ["az", "Azerbaijani"],
+    //     班巴拉: ["bm", "Bambara"],
+    //     巴什基尔语: ["ba", "Bashkir"],
+    //     巴斯克语: ["eu", "Basque"],
+    //     白俄罗斯语: ["be", "Belarusian"],
+    //     "孟加拉语（孟加拉语）": ["bn", "Bengali (Bangla)"],
+    //     比哈里: ["bh", "Bihari"],
+    //     比斯拉马: ["bi", "Bislama"],
+    //     波斯尼亚语: ["bs", "Bosnian"],
+    //     布雷顿: ["br", "Breton"],
+    //     保加利亚语: ["bg", "Bulgarian"],
+    //     缅甸语: ["my", "Burmese"],
+    //     加泰罗尼亚语: ["ca", "Catalan"],
+    //     查莫罗: ["ch", "Chamorro"],
+    //     车臣: ["ce", "Chechen"],
+    //     "Chichowa、Chewa、Nyanja": ["ny", "Chichewa, Chewa, Nyanja"],
+    //     中国人: ["zh", "Chinese"],
+    //     "中文（简体）": ["zh-Hans", "Chinese (Simplified)"],
+    //     "中文（繁体）": ["zh-Hant", "Chinese (Traditional)"],
+    //     楚瓦什: ["cv", "Chuvash"],
+    //     康沃尔语: ["kw", "Cornish"],
+    //     科西嘉岛: ["co", "Corsican"],
+    //     相信: ["cr", "Cree"],
+    //     克罗地亚语: ["hr", "Croatian"],
+    //     捷克的: ["cs", "Czech"],
+    //     丹麦语: ["da", "Danish"],
+    //     "迪维希、迪维希和马尔代夫": ["dv", "Divehi, Dhivehi, Maldivian"],
+    //     荷兰的: ["nl", "Dutch"],
+    //     宗喀语: ["dz", "Dzongkha"],
+    //     英语: ["en", "English"],
+    //     世界语: ["eo", "Esperanto"],
+    //     爱沙尼亚语: ["et", "Estonian"],
+    //     母羊: ["ee", "Ewe"],
+    //     法罗群岛语: ["fo", "Faroese"],
+    //     斐济: ["fj", "Fijian"],
+    //     芬兰语: ["fi", "Finnish"],
+    //     法语: ["fr", "French"],
+    //     "Fula、Fula、Pulaar、Pular": ["ff", "Fula, Fulah, Pulaar, Pular"],
+    //     加利西亚语: ["gl", "Galician"],
+    //     "盖尔语（苏格兰）": ["gd", "Gaelic (Scottish)"],
+    //     "盖尔语（Manx）": ["gv", "Gaelic (Manx)"],
+    //     格鲁吉亚语: ["ka", "Georgian"],
+    //     德国的: ["de", "German"],
+    //     希腊人: ["el", "Greek"],
+    //     格陵兰语: ["kl", "Greenlandic"],
+    //     瓜拉尼语: ["gn", "Guarani"],
+    //     古吉拉特语: ["gu", "Gujarati"],
+    //     海地克里奥尔语: ["ht", "Haitian Creole"],
+    //     收割台: ["ha", "Hausa"],
+    //     希伯来语: ["he", "Hebrew"],
+    //     赫雷罗: ["hz", "Herero"],
+    //     印地语: ["hi", "Hindi"],
+    //     希利摩陀语: ["ho", "Hiri Motu"],
+    //     匈牙利语: ["hu", "Hungarian"],
+    //     冰岛语: ["is", "Icelandic"],
+    //     去: ["io", "Ido"],
+    //     伊博: ["ig", "Igbo"],
+    //     印度尼西亚语: ["id, in", "Indonesian"],
+    //     中间语: ["ia", "Interlingua"],
+    //     语际: ["ie", "Interlingue"],
+    //     因纽特语: ["iu", "Inuktitut"],
+    //     因纽皮亚克: ["ik", "Inupiak"],
+    //     爱尔兰的: ["ga", "Irish"],
+    //     意大利人: ["it", "Italian"],
+    //     日本人: ["ja", "Japanese"],
+    //     爪哇语: ["jv", "Javanese"],
+    //     格陵兰语Kalaallisut: ["kl", "Kalaallisut, Greenlandic"],
+    //     卡纳达语: ["kn", "Kannada"],
+    //     卡努里: ["kr", "Kanuri"],
+    //     克什米尔: ["ks", "Kashmiri"],
+    //     哈萨克语: ["kk", "Kazakh"],
+    //     高棉语: ["km", "Khmer"],
+    //     Kikuyu公司: ["ki", "Kikuyu"],
+    //     "基尼亚卢旺达语（卢旺达）": ["rw", "Kinyarwanda (Rwanda)"],
+    //     基隆迪语: ["rn", "Kirundi"],
+    //     Kyrgyz: ["ky", "Kyrgyz"],
+    //     科米牌手表: ["kv", "Komi"],
+    //     孔戈: ["kg", "Kongo"],
+    //     韩国人: ["ko", "Korean"],
+    //     库尔德语: ["ku", "Kurdish"],
+    //     黑色: ["kj", "Kwanyama"],
+    //     老挝语: ["lo", "Lao"],
+    //     拉丁语: ["la", "Latin"],
+    //     "拉脱维亚语（Lettish）": ["lv", "Latvian (Lettish)"],
+    //     "林堡语（林堡语）": ["li", "Limburgish ( Limburger)"],
+    //     林加拉: ["ln", "Lingala"],
+    //     立陶宛语: ["lt", "Lithuanian"],
+    //     卢加加丹加: ["lu", "Luga-Katanga"],
+    //     "卢甘达，甘达": ["lg", "Luganda, Ganda"],
+    //     卢森堡语: ["lb", "Luxembourgish"],
+    //     曼克斯牌手表: ["gv", "Manx"],
+    //     马其顿语: ["mk", "Macedonian"],
+    //     马达加斯加语: ["mg", "Malagasy"],
+    //     马来语: ["ms", "Malay"],
+    //     马拉雅拉姆语: ["ml", "Malayalam"],
+    //     马耳他语: ["mt", "Maltese"],
+    //     毛利语: ["mi", "Maori"],
+    //     马拉地语: ["mr", "Marathi"],
+    //     马绍尔群岛: ["mh", "Marshallese"],
+    //     摩尔达维亚语: ["mo", "Moldavian"],
+    //     蒙古族的: ["mn", "Mongolian"],
+    //     瑙鲁: ["na", "Nauru"],
+    //     纳瓦霍语: ["nv", "Navajo"],
+    //     恩东加: ["ng", "Ndonga"],
+    //     北恩德贝勒: ["nd", "Northern Ndebele"],
+    //     尼泊尔语: ["ne", "Nepali"],
+    //     挪威语: ["no", "Norwegian"],
+    //     挪威bokmål: ["nb", "Norwegian bokmål"],
+    //     挪威语nynorsk: ["nn", "Norwegian nynorsk"],
+    //     诺苏牌手表: ["ii", "Nuosu"],
+    //     奥克语: ["oc", "Occitan"],
+    //     齐佩瓦人: ["oj", "Ojibwe"],
+    //     "古教堂斯拉夫语，古保加利亚语": ["cu", "Old Church Slavonic, Old Bulgarian"],
+    //     奥里亚语: ["or", "Oriya"],
+    //     "奥罗莫语（Afaan Oromo）": ["om", "Oromo (Afaan Oromo)"],
+    //     奥塞梯语: ["os", "Ossetian"],
+    //     锅: ["pi", "Pāli"],
+    //     "普什图语，普什图": ["ps", "Pashto, Pushto"],
+    //     "波斯语（波斯语）": ["fa", "Persian (Farsi)"],
+    //     磨光: ["pl", "Polish"],
+    //     葡萄牙语: ["pt", "Portuguese"],
+    //     "旁遮普语（东部）": ["pa", "Punjabi (Eastern)"],
+    //     克丘亚: ["qu", "Quechua"],
+    //     罗曼什语: ["rm", "Romansh"],
+    //     罗马尼亚语: ["ro", "Romanian"],
+    //     俄语: ["ru", "Russian"],
+    //     萨米语: ["se", "Sami"],
+    //     萨摩亚: ["sm", "Samoan"],
+    //     桑戈: ["sg", "Sango"],
+    //     梵语: ["sa", "Sanskrit"],
+    //     塞尔维亚语: ["sr", "Serbian"],
+    //     "塞尔维亚-克罗地亚语": ["sh", "Serbo-Croatian"],
+    //     塞索托: ["st", "Sesotho"],
+    //     塞茨瓦纳语: ["tn", "Setswana"],
+    //     肖纳: ["sn", "Shona"],
+    //     四川彝族: ["ii", "Sichuan Yi"],
+    //     信德省: ["sd", "Sindhi"],
+    //     僧伽罗语: ["si", "Sinhalese"],
+    //     西斯瓦蒂: ["ss", "Siswati"],
+    //     斯洛伐克语: ["sk", "Slovak"],
+    //     斯洛文尼亚语: ["sl", "Slovenian"],
+    //     索马里语: ["so", "Somali"],
+    //     南恩德贝勒: ["nr", "Southern Ndebele"],
+    //     西班牙的: ["es", "Spanish"],
+    //     巽他语: ["su", "Sundanese"],
+    //     "斯瓦希里语（斯瓦希里）": ["sw", "Swahili (Kiswahili)"],
+    //     斯瓦蒂: ["ss", "Swati"],
+    //     瑞典的: ["sv", "Swedish"],
+    //     塔加洛语: ["tl", "Tagalog"],
+    //     塔希提语: ["ty", "Tahitian"],
+    //     塔吉克语: ["tg", "Tajik"],
+    //     泰米尔语: ["ta", "Tamil"],
+    //     升级: ["tt", "Tatar"],
+    //     泰卢固语: ["te", "Telugu"],
+    //     泰国人: ["th", "Thai"],
+    //     藏语: ["bo", "Tibetan"],
+    //     提格里尼亚: ["ti", "Tigrinya"],
+    //     汤加: ["to", "Tonga"],
+    //     聪加人: ["ts", "Tsonga"],
+    //     土耳其的: ["tr", "Turkish"],
+    //     土库曼人: ["tk", "Turkmen"],
+    //     Twi公司: ["tw", "Twi"],
+    //     维吾尔语: ["ug", "Uyghur"],
+    //     乌克兰语: ["uk", "Ukrainian"],
+    //     乌尔都语: ["ur", "Urdu"],
+    //     乌兹别克: ["uz", "Uzbek"],
+    //     出售: ["ve", "Venda"],
+    //     越南语: ["vi", "Vietnamese"],
+    //     沃拉普克: ["vo", "Volapük"],
+    //     瓦隆: ["wa", "Wallon"],
+    //     威尔士的: ["cy", "Welsh"],
+    //     沃洛夫: ["wo", "Wolof"],
+    //     西弗里西亚语: ["fy", "Western Frisian"],
+    //     科萨: ["xh", "Xhosa"],
+    //     意第绪语: ["yi, ji", "Yiddish"],
+    //     约鲁巴语: ["yo", "Yoruba"],
+    //     "庄，庄": ["za", "Zhuang, Chuang"],
+    //     祖鲁语: ["zu", "Zulu"]
+    // };
+    var supports = [
+        { name: "中文", id: "zh", lang: "zh-CN" },
+        { name: "繁体中文", id: "cht", lang: "zh-TW" },
+        { name: "英语", id: "en", lang: "en" },
+        // { name: "文言文", id: "wyw" },
+        // { name: "粤语", id: "yue" },
+        { name: "日语", id: "jp", lang: "ja" },
+        { name: "法语", id: "fra", lang: 'fr' },
+        { name: "俄语", id: "ru", lang: 'ru' },
+        { name: "韩语", id: "kor", lang: "ko" },
+        { name: "德语", id: "de", lang: "de" },
+        { name: "意大利语", id: "it", lang: 'it' },
+        { name: "泰语", id: "th", lang: "th" },
+        { name: "越南语", id: "vie", lang: 'vi' },
+        { name: "阿拉伯语", id: "ara", lang: "ar" },
+        { name: "荷兰语", id: "nl", lang: "nl" },
+        { name: "芬兰语", id: "fin", lang: "fi" },
+        { name: "希腊语", id: "el", lang: "el" },
+        { name: "西班牙语", id: "spa", lang: "es" },
+        // { name: "葡萄牙语", id: "pt", lang: /pt\-(BR|PT)/ },
+        { name: "匈牙利语", id: "hu", lang: 'hu' },
+        { name: "瑞典语", id: "swe", lang: 'sv' },
+        { name: "丹麦语", id: "dan", lang: 'da' },
+        { name: "捷克语", id: "cs", lang: 'cs' },
+        // { name: "波兰语", id: "pl" },
+        { name: "保加利亚语", id: "bul", lang: "bg" },
+        { name: "爱沙尼亚语", id: "est", lang: 'et' },
+        { name: "罗马尼亚语", id: "rom", lang: 'ro' },
+        { name: "斯洛文尼亚语", id: "slo", lang: 'sl' },
+    ];
+    supports.forEach(s => s.key = s.id);
+    var getAllText = function (data, e) {
+        try {
+            if (/^\s*<!doctype\s/i.test(data)) return [];
+            if (/\.(xht|vue)$/i.test(e.name)) {
+                var { scripts, outerHTML: htmltext, attributes = '', tagName, styles } = compile$scanner2(data, 'html').scoped;
+                data = compile$wraphtml(htmltext) + ";\r\n" + scripts.join("\r\n");
+            }
+            else if (/\.html?$/i.test(e.name)) {
+                data = compile$wraphtml(htmltext);
+            }
+            var code = compile$scanner2(String(data));
+            return compile$translate.getI18nPrefixed(code);
+        }
+        catch (e) {
+            alert("提取出错了", "error");
+            throw e;
+        }
+    };
+    var 已找到的字符串 = [];
+    var fields = [
+        { name: "字符串", key: "text", width: 280 },
+        { name: "已翻译", key: "liang", width: 80 },
+        { name: "出现文件", key: "files", width: 200 },
+        { name: "出现次数", key: "count", width: 80 },
+    ];
+    var filters = {
+        key: "filter",
+        options: [
+            {
+                name: "只看中文", key: "cnonly", get checked() {
+                    return true;
+                },
+                set checked(v) {
+                    alert('暂不支持翻译其他语言', 'warn');
+                },
+                test(a) {
+                    return /[\u3400-\ufad9\u{20000}-\u{2a6d6}\u{2fa1d}]/u.test(a.text);
+                }
+            }
+        ]
+    };
+    var tableData = [];
+    var runFilter = function () {
+        tableData = 已找到的字符串;
+        var { options } = filters;
+        for (var o of options) {
+            if (o.checked) {
+                tableData = tableData.filter(o.test);
+            }
+        }
+    };
+    var detailWindow;
+    var detailScope = {
+        drop,
+        field,
+        textarea,
+        supports: baiduFanyiConfig.smap ? supports.filter(s => baiduFanyiConfig.smap[s.id]) : supports.slice(0, 8),
+        button,
+        lattice,
+        fanyi: {},
+        a: button,
+        async baidu() {
+            var fanyi = this.fanyi;
+            var liang = this.item.liang;
+            for (var s of this.supports) {
+                if (fanyi[s.id] && fanyi[s.id].trim()) continue;
+                fanyi[s.id] = await requestBaiduFanyi(this.item.text, s.id);
+                liang++;
+                render.digest();
+            }
+            this.item.liang = liang;
+        },
+        save() {
+
+        },
+        close() {
+            remove(detailWindow);
+        }
+    };
+    var activedRow;
+    var showDetail = function (event) {
+        var tr = getTargetIn(tableElement.children[1], event.active, false);
+        if (!detailWindow) {
+            detailWindow = view();
+            on('submit')(detailWindow, e => e.preventDefault());
+            detailWindow.innerHTML = `<div head>翻译: "<span -bind="item?.text"></span>"<drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:0 0 6px 12px;" ><label style="padding-left:0"><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:none"></textarea></field></lattice><div foot><a style="float:left" @click="baidu">一键百度</a></div>`;
+            drag.on(detailWindow, detailWindow.firstElementChild);
+            resize.on(detailWindow);
+            css(detailWindow, `position:absolute;left:0;top:0;bottom:0;width:260px;`);
+            detailWindow.initialStyle = "margin-left:-100px;opacity:0";
+            render(detailWindow, detailScope);
+            on("remove")(detailWindow, function () {
+                var count = 0;
+                var fanyi = detailScope.fanyi;
+                for (var s of supports) {
+                    if (fanyi[s.id] && fanyi[s.id].trim()) count++;
+                }
+                detailScope.item.liang = count;
+                removeClass(activedRow, "actived");
+                activedRow = null;
+            })
+
+        }
+        var item = detailScope.item = event.item;
+        if (activedRow !== tr) {
+            if (activedRow) removeClass(activedRow, 'actived');
+            activedRow = tr;
+            addClass(activedRow, 'actived');
+        }
+        if (item.text.length > 160) {
+            alert(i18n`文本超长，无法翻译`, 'error');
+            return;
+        }
+        // if (/[\u2028\u2029\r\n]/.test(item.text)) {
+        //     alert("不能翻译换行符号！", "error");
+        //     return;
+        // }
+        if (!item.fanyi) item.fanyi = {}, item.fanyi[supports[0].id] = item.text;
+        detailScope.fanyi = item.fanyi;
+
+        if (!isMounted(detailWindow)) popup(detailWindow);
+    }
+    var readText = async function (e) {
+        var file = await e.getFile();
+        var reader = new FileReader();
+        awaitable(reader);
+        var a = reader.readAsArrayBuffer(file);
+        await reader;
+        var data = reader.result;
+        data = decodeUTF8(new Uint8Array(data));
+        return data;
+    }
+    var chooseFolder = async function () {
+        var dp = await window.showDirectoryPicker();
+        var msg = alert("正在读取文件列表，请稍候..", false);
+        var rest = [dp];
+        var result = [];
+        dp.path = "";
+        var path = "";
+        var pretrans = [];
+        while (rest.length) {
+            var dp = rest.pop();
+            path = dp.path
+            for await (var [name, e] of dp.entries()) {
+                if (/^[\#]/.test(name)) {
+                    if (e.kind === "file" && /^#.*?\.ya?ml$/i.test(name)) {
+                        pretrans.push(e);
+                    }
+                    continue;
+                }
+                else {
+                    if (/^[\.]|_test\.js$/i.test(name)) continue;
+                    if (e.kind === "file" && !/\.([mc]?[tj]sx?|xht|vue|html?)$/i.test(name)) continue;
+                }
+                e.path = path + e.name;
+                if (e.kind === 'directory') {
+                    e.path += '/';
+                    rest.push(e);
+                }
+                else {
+                    result.push(e);
+                }
+            }
+        }
+        msg.setText("正在提取字符串..");
+        css(msg.firstElementChild, 'text-align:left');
+        var textMap = Object.create(null);
+        已找到的字符串.is_loading = true;
+        var addTranslate = function (translate) {
+            var tmap = textMap[translate];
+            if (!tmap) tmap = textMap[translate] = Object.create(null), tmap["#count"] = 0;
+            if (!tmap[e.path]) tmap[e.path] = [];
+            tmap["#count"]++;
+            tmap[e.path].push(t);
+        }
+        for (var e of result) {
+            msg.setText("正在提取 " + e.path);
+            var data = await readText(e);
+            var texts = getAllText(data, e);
+            for (var t of texts) {
+                if (t.transtype === compile$translate.手动) {
+                    addTranslate(t.translate);
+                }
+                else if (t.transtype === compile$translate.字段名) {
+                    t.fields.forEach(f => addTranslate(f.name));
+                }
+            }
+        }
+        msg.setText("提取完成");
+        var result = [];
+        var preMap = Object.create(null);
+        for (var e of pretrans) {
+            var data = await readText(e);
+            data = parseYML(data);
+            for (var d of data) {
+                for (var k in d) {
+                    preMap[d[k]] = d;
+                }
+            }
+        }
+        Object.keys(textMap).map(k => {
+            var texts = textMap[k];
+            var count = texts["#count"];
+            delete texts["#count"];
+            var files = Object.keys(texts);
+            var liang = 0;
+            if (k in preMap) {
+                var fanyi = {};
+                detailScope.supports.forEach(s => {
+                    var v = preMap[k][s.lang]
+                    if (v) {
+                        fanyi[s.id] = v;
+                        liang++;
+                    }
+                })
+            }
+            result.push({ text: k, occurs: texts, files: files.join(',\r\n'), count, fanyi, liang });
+        });
+
+        已找到的字符串 = result;
+        runFilter();
+    }
+    var exportCSV = async function () {
+        var checked_supports = detailScope.supports;
+        var objs = [];
+        for (var d of tableData) {
+            var o = {};
+            if (!d.fanyi) {
+                for (var c of checked_supports) o[c.lang] = '';
+            }
+            else {
+                var f = d.fanyi;
+                for (var c of checked_supports) o[c.lang] = f[c.id] || '';
+            }
+            var c = supports[0];
+            o[c.lang] = d.text;
+            objs.push(o);
+        }
+        var f = await window.showSaveFilePicker({
+            suggestedName: "#国际化.yml",
+            excludeAcceptAllOption: true,
+            types: [{
+                description: 'yml文件',
+                accept: { 'text/plain': ['.yml'] },
+            }],
+        });
+        var w = await f.createWritable();
+        await w.write(YAML.stringify(objs));
+        await w.close();
+    };
+</script>

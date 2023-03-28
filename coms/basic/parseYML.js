@@ -1,4 +1,5 @@
 
+var strings = require("./strings");
 var eval2 = function (data) {
     if (typeof data === 'string') data = data.replace(/(\r\n|\r|\n)$/, '');
     if (!data) return null;

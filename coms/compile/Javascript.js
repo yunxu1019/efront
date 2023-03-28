@@ -20,6 +20,7 @@ const {
     createScoped,
     snapExpressHead,
     relink,
+    replace,
     skipAssignment,
 } = require("./common");
 var straps = `if,in,do,as,of
@@ -288,26 +289,6 @@ var collectProperty = function (o, text) {
     q.defined[text] = o;
 };
 
-var replace = function (o, ...args) {
-    var queue = o.queue;
-    var i = queue.indexOf(o);
-    if (i >= 0) queue.splice(i, 1, ...args);
-    var prev = o.prev;
-    var next = o.next;
-    if (!args.length) {
-        if (prev) prev.next = next;
-        else queue.first = next;
-        if (next) next.prev = prev;
-        else queue.last = prev;
-    }
-    else {
-        if (prev) prev.next = args[0], args[0].prev = prev;
-        else queue.first = args[0];
-        if (next) next.prev = args[args.length - 1], args[args.length - 1].next = next;
-        else queue.last = args[args.length - 1];
-    }
-    return args.length ? args[0] : next;
-};
 var hasComma = function (c) {
     for (var cc of c) {
         if (cc.type === STAMP && cc.text === ',') return true;

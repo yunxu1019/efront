@@ -206,6 +206,7 @@ var memery = module.exports = {
     ENVS_PATH: getdirpath("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
     COMS_PATH: getdirpath("COMS_PATH,COMM_PATH"),
     SCITER: get("SCITER,QUICKJS,QJS", false),
+    I18NNAME: get("I18N_FILENAME,I18N_NAME,I18NFILE,I18NNAME", '#国际化.yml'),
     get PROXY() {
         return !noproxy;
     },

@@ -1,6 +1,5 @@
 "use strict";
 var message = require("../message");
-var _i18n = require("./i18n");
 /**
  * 读取参数
  */
@@ -11,7 +10,7 @@ function getParameters(req, i18n) {
         req.on("data", function (buff) {
             cached_length += buff.length;
             if (cached_length > 0xffff) { //64k
-                oh(i18n.the_data_you_send_should_be_less_than("64k"));
+                oh(i18n`数据大小不能超过${"64k"}。`);
             } else {
                 chunks.push(buff);
             }
@@ -22,7 +21,7 @@ function getParameters(req, i18n) {
                 var json = JSON.parse(data);
                 ok(json);
             } catch (e) {
-                oh(i18n.the_data_you_send_can_not_be_parsed_as_json(e));
+                oh(i18n`您提供的数据不能转换成json格式。\r\n${e}`);
             }
         });
     });
@@ -38,7 +37,7 @@ function request(fullpath, data, info) {
     if (multithreadingApiMap[fullpath] && arguments.length > 1) {
         return new Promise(function (ok, oh) {
             if (multithreading_requestCount > 20000) {
-                return oh("please wait for a time!");
+                return oh(i18n`请过一段时间再试`);
             }
             multithreading_requestCount++;
             message.abpi({
@@ -55,7 +54,7 @@ function request(fullpath, data, info) {
         });
     }
     if (queue.length > 200000) {
-        return Promise.reject("please wait for a time!");
+        return Promise.reject(i18n`请过一段时间再试`);
     }
     var promise;
     if (arguments.length === 1) {
@@ -103,14 +102,14 @@ module.exports = async function aapibuilder(buffer, filename, fullpath) {
     }
     await request(fullpath);
     return function ApiManager(req, res) {
-        var i18n = _i18n(req.headers["accept-language"] || req.headers["Accept-Language"]);
+        var i18k = req.headers["accept-language"];
         var request_accept_time = Date.now();
         return getParameters(req, i18n).then(function (data) {
             try {
                 var info = {
                 };
                 return Promise.race([request(fullpath, data, info), new Promise(
-                    (ok, oh) => setTimeout(oh,/*允许建立20秒以内的长连接*/ 20000, "The request was canceled by server!")
+                    (ok, oh) => setTimeout(oh,/*允许建立20秒以内的长连接*/ 20000, i18n[i18k]`服务器取消了您的请求`)
                 )])
                     .then(function (result) {
                         res.writeHead(200, {
@@ -126,7 +125,7 @@ module.exports = async function aapibuilder(buffer, filename, fullpath) {
                     })
                     .catch(function (e) {
                         res.writeHead(403, {});
-                        res.end(i18n(e));
+                        res.end(i18n[i18k](e));
                     });
             } catch (e) {
                 if (typeof e === "number") {
@@ -134,15 +133,15 @@ module.exports = async function aapibuilder(buffer, filename, fullpath) {
                     res.end();
                 } else if (e) {
                     res.writeHead(403, {});
-                    res.end(i18n(e));
+                    res.end(i18n[i18k](e));
                 } else {
                     res.writeHead(500, {});
-                    res.end(i18n.server_side_error(e));
+                    res.end(i18n[i18k]`服务器异常${e}`);
                 }
             }
         }).catch(function (e) {
             res.writeHead(400, {});
-            res.end(i18n(e));
+            res.end(i18n[i18k](e));
         });
     };
 };
