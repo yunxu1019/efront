@@ -34,8 +34,8 @@
         background: #069 !important;
     }
 
-    span,
-    a {
+    p span,
+    p a {
         vertical-align: middle;
     }
 </style>
@@ -333,7 +333,7 @@
                 data = compile$wraphtml(htmltext) + ";\r\n" + scripts.join("\r\n");
             }
             else if (/\.html?$/i.test(e.name)) {
-                data = compile$wraphtml(htmltext);
+                data = compile$wraphtml(data);
             }
             var code = compile$scanner2(String(data));
             return compile$translate.getI18nPrefixed(code);
@@ -519,32 +519,30 @@
         for (var e of pretrans) {
             var data = await readText(e);
             data = parseYML(data);
-            for (var d of data) {
-                for (var k in d) {
+            loop: for (var d of data) {
+                var liang = 0, fanyi = {};
+                for (var { lang: k, id } of supports) {
+                    if (!d[k]) continue;
+                    if (preMap[d[k]]) continue loop;
                     preMap[d[k]] = d;
+                    liang++;
+                    fanyi[id] = d[k];
                 }
+                result.push({ text: d[supports[0].lang], fanyi, liang });
             }
         }
+        var untrans = [];
         Object.keys(textMap).map(k => {
             var texts = textMap[k];
             var count = texts["#count"];
             delete texts["#count"];
             var files = Object.keys(texts);
-            var liang = 0;
-            if (k in preMap) {
-                var fanyi = {};
-                detailScope.supports.forEach(s => {
-                    var v = preMap[k][s.lang]
-                    if (v) {
-                        fanyi[s.id] = v;
-                        liang++;
-                    }
-                })
-            }
-            result.push({ text: k, occurs: texts, files: files.join(',\r\n'), count, fanyi, liang });
+            k = k.trim();
+            if (k in preMap) return;
+            untrans.push({ text: k, occurs: texts, files: files.join(',\r\n'), count });
         });
 
-        已找到的字符串 = result;
+        已找到的字符串 = untrans.concat(result);
         runFilter();
     }
     var exportCSV = async function () {

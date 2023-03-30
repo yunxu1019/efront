@@ -12,9 +12,11 @@ var getLanguageIndexFromName = function (language) {
     if (isFinite(language)) return language;
     if (language in languageMap) return languageMap[language];
     language = String(language).toLowerCase();
-    for (var k in languageMap) {
-        for (var kk of k.toLowerCase().split("-")) {
-            if (language.indexOf(kk) >= 0) return languageMap[k];
+    for (var l of language.split(",").slice(0, 12)) {
+        for (var k in languageMap) {
+            for (var kk of k.toLowerCase().split("-")) {
+                if (l.indexOf(kk) >= 0) return languageMap[k];
+            }
         }
     }
     return languageIndex;

@@ -1,12 +1,12 @@
 <div head>
-    请输入服务器密码
+    ${i18n`请输入服务器密码`}
 </div>
 <div body>
     <field ng-repeat="f in fields" ng-src="[f,data]"></field>
 </div>
 <div foot>
-    <button pending.="pending" type="submit">登录</button>
+    <button pending.="pending" type="submit">${i18n`登录`}</button>
 </div>
 <div message>
-    登录之前需要使用&nbsp;<b>efront password</b>&nbsp;命令在服务器上设置密码
+    ${i18n`${i18n`登录`}之前需要使用${`&nbsp;<b>efront password</b>&nbsp;`}命令在${i18n`服务器`}上设置${i18n`密码`}`}
 </div>

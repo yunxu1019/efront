@@ -344,6 +344,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     }
     if (templateName) {
         var template = scanner2(`var ${templateName}=${htmlData};\r\n`);
+        if (this && this["#"]) {
+            translate(this["#"], template);
+        }
         var { envs, vars, used } = template;
         Object.assign(declares, vars);
         for (var k in vars) {

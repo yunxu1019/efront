@@ -4,7 +4,7 @@ var strings = require("../basic/strings");
 var program = null;
 var patchTranslate = function (c) {
     if (c.length) {
-        c.translate = c.map((o, i) => o.type === PIECE ? strings.decode(`\`${o.text}\``) : ` $#${i + 1 >> 1} `).join('');
+        c.translate = c.map((o, i) => o.type === PIECE ? strings.decode(`\`${o.text}\``) : `$${i + 1 >> 1}`).join('');
     }
     else {
         if (/^['"`]/.test(c.text) && c.text.length > 2) {
@@ -66,7 +66,12 @@ function getI18nPrefixedText(code, dist = []) {
 
 function translate([imap, supports], code) {
     var texts = getI18nPrefixedText(code);
+    texts.sort((a, b) => {
+        if (a.start > b.start && a.end < b.end) return -1;
+        return 0;
+    });
     var getm = function (tt) {
+        tt = tt.trim();
         if (!imap[tt]) {
             console.warn(`<yellow>国际化翻译缺失：</yellow>${tt}`);
             imap[tt] = supports.map(_ => tt);
@@ -83,9 +88,9 @@ function translate([imap, supports], code) {
                 p.leave = ")";
             }
             var tt = t.translate;
-            replace(t, ...scanner2(`(${getm(tt)})`.replace(/\$#(\d+)/g, (_, i) => {
+            replace(t, ...scanner2(`(${getm(tt)})`.replace(/[\$#]+(\d+)/g, (_, i) => {
                 var a = (i << 1) - 1;
-                if (a in t) return createString(t[a]);
+                if (a in t) return `\${${createString(t[a])}}`;
                 return _;
             })));
         }
@@ -101,7 +106,7 @@ function translate([imap, supports], code) {
             t.queue.splice(i, e + 1 - i, ...scanner2("[" + t.fields.map(f => {
                 return "{" + Object.keys(f).map(k => {
                     var v = f[k];
-                    if (/\$#\d+/.test(v)) v = v.replace(/\$#(\d+)/g, (_, i) => {
+                    if (/[\$#]\d+/.test(v)) v = v.replace(/[\$#]+(\d+)/g, (_, i) => {
                         var a = (i << 1) - 1;
                         if (a in t) return createString(t[a]);
                         return _;

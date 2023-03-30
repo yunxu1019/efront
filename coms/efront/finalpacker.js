@@ -21,7 +21,7 @@ var createManagersWithEnv = async function (env) {
     var mixpath = (a, b) => mixin(a, b || '').map(a => path.join.apply(path, a)).filter(fs.existsSync).join(',');
     var coms_path = mixpath(env.COMS_PATH, env.COMM);
     var page_path = mixpath(env.PAGE_PATH, env.PAGE);
-    commap["#"] = await 国际化([coms_path, page_path], memery.I18NNAME);
+    commap["#"] = await 国际化([].concat(coms_path.split(','), page_path.split(',')), memery.I18NNAME);
     var comscache = new Cache(coms_path, cbuilder);
     var pagecache = new Cache(page_path, cbuilder);
     var fireload = function () {

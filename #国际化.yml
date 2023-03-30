@@ -1,0 +1,137 @@
+- zh-CN:    服务器异常$1
+  en:    Server Exception $1
+
+- zh-CN:    $1之前需要使用$2命令在$3上设置$4
+  en:    Before $1, you need to use the $2 command to set $4 on $3
+
+- zh-CN:    请输入服务器密码
+  en:    Please enter the server password
+
+- zh-CN:    登录
+  en:    Sign in
+
+- zh-CN:    文本超长，无法翻译
+  en:    The text is too long to be translated
+
+- zh-CN:    没有权限！
+  en:    No permission!
+
+- zh-CN:    未找到指定的资源
+  en:    The specified resource was not found
+
+- zh-CN:    原始名称
+  en:    Original Name
+
+- zh-CN:    输入新名称
+  en:    Enter a new name
+
+- zh-CN:    请过一段时间再试
+  en:    Please try again later
+
+- zh-CN:    服务器取消了您的请求
+  en:    The server canceled your request
+
+- zh-CN:    文件
+  en:    file
+
+- zh-CN:    键名
+  en:    Key Name
+
+- zh-CN:    显示名
+  en:    Display Name
+
+- zh-CN:    密钥
+  en:    secret key
+
+- zh-CN:    备注
+  en:    remarks
+
+- zh-CN:    任务ID
+  en:    Task ID
+
+- zh-CN:    任务名
+  en:    Task Name
+
+- zh-CN:    是否启用
+  en:    Enabled or not
+
+- zh-CN:    任务代码
+  en:    Task Code
+
+- zh-CN:    标识
+  en:    identification
+
+- zh-CN:    应用名
+  en:    App Name
+
+- zh-CN:    路径
+  en:    route
+
+- zh-CN:    代理路径
+  en:    Proxy Path
+
+- zh-CN:    二维码
+  en:    QR code
+
+- zh-CN:    真实路径
+  en:    Real path
+
+- zh-CN:    动作
+  en:    action
+
+- zh-CN:    状态
+  en:    state
+
+- zh-CN:    地址
+  en:    address
+
+- zh-CN:    地理位置
+  en:    geographical position
+
+- zh-CN:    启动时间
+  en:    Start time
+
+- zh-CN:    端口
+  en:    port
+
+- zh-CN:    版本
+  en:    edition
+
+- zh-CN:    进程
+  en:    process
+
+- zh-CN:    访问量
+  en:    Visits
+
+- zh-CN:    房间名
+  en:    Room name
+
+- zh-CN:    数值
+  en:    numerical value
+
+- zh-CN:    文本
+  en:    text
+
+- zh-CN:    字典ID
+  en:    Dictionary ID
+
+- zh-CN:    字典名
+  en:    Dictionary name
+
+- zh-CN:    字典数据
+  en:    Dictionary data
+
+- zh-CN:    名称
+  en:    name
+
+- zh-CN:    服务器
+  en:    The server
+
+- zh-CN:    服务器地址
+  en:    server address
+
+- zh-CN:    密码
+  en:    password
+
+- zh-CN:    这是一个空白项目
+  en:    This is a blank project

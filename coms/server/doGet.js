@@ -163,7 +163,7 @@ var adapter = function (data, url, req, res) {
     }
 
     res.writeHead(404, utf8);
-    res.end("未找到指定的资源");
+    res.end(i18n[req.headers["accept-language"]]`未找到指定的资源`);
 };
 /**
  * doGet
