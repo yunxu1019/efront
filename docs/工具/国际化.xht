@@ -325,22 +325,23 @@
         { name: "斯洛文尼亚语", id: "slo", lang: 'sl' },
     ];
     supports.forEach(s => s.key = s.id);
-    var getAllText = function (data, e) {
+    var getAllText = function (data, f) {
         try {
-            if (/^\s*<!doctype\s/i.test(data)) return [];
-            if (/\.(xht|vue)$/i.test(e.name)) {
+            if (/^\s*(\<\!--[\s\S]*?--\>\s*)*<!doctype\s/i.test(data)) return [];
+            if (/\.(xht|vue)$/i.test(f.name)) {
                 var { scripts, outerHTML: htmltext, attributes = '', tagName, styles } = compile$scanner2(data, 'html').scoped;
                 data = compile$wraphtml(htmltext) + ";\r\n" + scripts.join("\r\n");
             }
-            else if (/\.html?$/i.test(e.name)) {
+            else if (/\.html?$/i.test(f.name)) {
                 data = compile$wraphtml(data);
             }
             var code = compile$scanner2(String(data));
             return compile$translate.getI18nPrefixed(code);
         }
         catch (e) {
-            alert("提取出错了", "error");
-            throw e;
+            alert("提取文本时存在异常", "error");
+            console.error(e, f.path);
+            return [];
         }
     };
     var 已找到的字符串 = [];
