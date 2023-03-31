@@ -16,8 +16,8 @@ call npm install typescript@latest --registry=%registry%
 copy node_modules\typescript\LICENSE.txt %distpath%\typescript\LICENSE.txt
 copy node_modules\typescript\AUTHORS.md %distpath%\typescript\AUTHORS.md
 copy node_modules\typescript\lib\typescript.js %distpath%\typescript\index.js
-call efront pick %distpath%\typescript\index.js %distpath%\typescript\index.js ts.transpile
-echo module.exports=ts;>>%distpath%\typescript\index.js
+call efront tools\unwrap-typescript.js
+@REM call efront pick %distpath%\typescript\index.js %distpath%\typescript\index.js ts.transpile
 call node tools\readHelpersFromTypescript.js
 call npm uninstall typescript
 

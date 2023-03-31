@@ -47,7 +47,7 @@ var date = new Date();
 //     fs.writeFileSync(typescript_file, text);
 // }
 var destpath = path.join(__dirname, '../coms/typescript-helpers');
-var helpers = Object.keys(typescript).filter(k => /Helper$/.test(k)).map(k => typescript[k]).filter(o => o instanceof Object && o.text);
+var helpers = typescript.getAllUnscopedEmitHelpers();
 var helpersMap = {};
 helpers.forEach(o => {
     var { importName, text } = o;
