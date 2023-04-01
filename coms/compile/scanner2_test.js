@@ -76,6 +76,13 @@ function testAssign() {
     a()`);
     console.log(m.press().toString());
 }
+function testArrow() {
+    var m = scanner(`(a)=>(b)=>{c,b};`);
+    console.log("1", m.envs);
+    var m = scanner(`(a,b)=>{c,b};`);
+    console.log("2", m.envs);
+}
+
 function testFormat() {
     var t = fs.readFileSync(path.join(__dirname, "../efront/memery.js")).toString();
     assert(scanner(t).toString(), t);
@@ -111,6 +118,7 @@ Program.debug = true;
 // testJsx2();
 // testJsx3();
 // testJsxOnlyHtml();
-testSpaceLess();
+// testSpaceLess();
+testArrow();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });

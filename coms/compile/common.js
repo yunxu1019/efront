@@ -419,6 +419,7 @@ var createScoped = function (parsed, wash) {
                             if (o.next.type === STAMP) {
                                 isAster = true;
                                 o = o.next;
+                                o.isExpress = o.prev.isExpress;
                             }
                         case "catch":
                             if (s === 'catch') isCatch = true;
@@ -560,6 +561,7 @@ var createScoped = function (parsed, wash) {
                     scoped.body = o;
                     o.isExpress = isExpress;
                     run(o.first);
+                    if (isArrow && id >= 0 && o) o = o.next;
                     if (wash && isFunction) {
                         var e = o.next;
                         if (e && e.type === EXPRESS && /^[\.\[]/.test(e.text) || e && e.type === SCOPED && e.entry === "[") {
