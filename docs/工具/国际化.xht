@@ -524,7 +524,7 @@
                 var liang = 0, fanyi = {};
                 for (var { lang: k, id } of supports) {
                     if (!d[k]) continue;
-                    if (preMap[d[k]]) continue loop;
+                    if (preMap[d[k]] && preMap[d[k]] !== d) continue loop;
                     preMap[d[k]] = d;
                     liang++;
                     fanyi[id] = d[k];
