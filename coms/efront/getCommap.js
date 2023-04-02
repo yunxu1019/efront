@@ -3,6 +3,8 @@ var mixin = require("./mixin");
 var extendIfNeeded = require("../basic/extendIfNeeded");
 var fs = require("fs");
 var path = require("path");
+var 国际化 = require("./国际化");
+var memery = require("./memery");
 var readdir = p => new Promise((ok, oh) => fs.readdir(p, { withFileTypes: true }, (err, names) => {
     if (err) return oh(err);
     return ok(names);
@@ -61,6 +63,7 @@ async function getCommap(appname, deep = 6) {
     res["?"] = ser;
     res["/"] = coms;
     if (loadernames.length) res[";"] = loadermain;
+    res["#"] = await 国际化(coms.concat(mixin(env.PAGE_PATH, env.PAGE).map(a => path.join.apply(path, a)).filter(a => fs.existsSync(a))), memery.I18NNAME);
     return res;
 }
 module.exports = getCommap;
