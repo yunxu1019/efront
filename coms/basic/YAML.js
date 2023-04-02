@@ -13,8 +13,14 @@ var stringify = function (data) {
     var save = function (data) {
         var v = String(data);
         if (kesize.length) {
-            var ksize = kesize[kesize.length - 1] - result[result.length - 1].length + (kesize.length << 1) + 3;
-            v = new Array(ksize).join(" ") + v;
+            var isrow = /^\s*\-/.test(result[result.length - 2]);
+            if (isrow) {
+                var ksize = kesize[kesize.length - 1] - result[result.length - 1].length + 1;
+            }
+            else {
+                var ksize = kesize[kesize.length - 1] - result[result.length - 1].length + (kesize.length << 1);
+            }
+            v = new Array(ksize + 3).join(" ") + v;
         }
         result.push(v);
     };
