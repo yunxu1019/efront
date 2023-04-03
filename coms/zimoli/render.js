@@ -503,7 +503,7 @@ var directives = {
     }),
     src(src) {
         var parsedSrc = this.$src;
-        return src2.call(this, parsedSrc ? parsedSrc.srcName : src);
+        return src2.call(this, parsedSrc && /[\{\[\s]/.test(src) ? parsedSrc.srcName : src);
     },
     model(search, target) {
         var getter = createGetter(this, search);
