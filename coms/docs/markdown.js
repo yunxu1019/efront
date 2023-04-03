@@ -81,149 +81,10 @@ function richtext(line) {
     else a = p(line);
     if (a) content.push(a);
 }
-var codecolor = function (c) {
-    var envs = c.envs;
-    var predefs = Object.create(null);
-    predefs.module = true;
-    predefs.exports = true;
-    predefs["module.exports"] = true;
-    predefs.Promise = true;
-    [Boolean, Number, String, Function, Object, Array, Date, RegExp, Error].forEach(p => predefs[p.name] = true);
-    var { STRAP, SCOPED, QUOTED, LABEL, COMMENT, STAMP, VALUE, EXPRESS, PROPERTY, PIECE } = c;
-    var deep = 0;
-    var setcolor = function (o) {
-        switch (o.type) {
-            case LABEL:
-                o.text = `<label>${o.text}</label>`;
-                break;
-            case QUOTED:
-            case PIECE:
-                if (!o.length) {
-                    if (/^\//.test(o.text)) {
-                        o.text = `<regexp>${encode(o.text)}</regexp>`;
-                    }
-                    else o.text = `<text>${encode(o.text)}</text>`;
-                    break;
-                }
-                o.forEach(setcolor);
-                o.entry = "<text>" + o.entry;
-                o.leave = o.leave + "</text>";
-                break;
-            case SCOPED:
-                deep++;
-                o.forEach(setcolor);
-                deep--;
-                o.entry = `<deep${deep}>${o.entry}</deep${deep}>`;
-                o.leave = `<deep${deep}>${o.leave}</deep${deep}>`;
-                break;
-            case VALUE:
-                if (o.isdigit) o.text = `<digit>${o.text}</digit>`;
-                else o.text = `<value>${o.text}</value>`;
-                break;
-            case PROPERTY:
-                var next = o.next;
-                if (next && next.type === c.SCOPED && next.entry === '(') {
-                    o.text = `<method>${o.text}</method>`;
-                }
-                else o.text = `<property>${o.text}</property>`;
-
-                break;
-            case EXPRESS:
-                var keys = o.text.split(".");
-                var next = o.next;
-                if (next && next.type === c.SCOPED && next.entry === '(') {
-                    keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
-                }
-                var [name] = keys;
-                if (/^</.test(name));
-                else if (/^(arguments|this|super|Infinity|NaN)$/.test(name)) name = `<strap>${name}</strap>`;
-                else if (name in envs) name = name in predefs ? `<predef>${name}</predef>` : `<outside>${name}</outside>`;
-
-                keys[0] = name;
-                o.text = keys.map(k => /^\</.test(k) || !k ? k : `<express>${k}</express>`).join(".");
-                break;
-            case STRAP:
-                if (/^(if|else|switch|case|do|while|for|break|continue|default|import|from|as|export|try|catch|finally|await|yield|return)/.test(o.text))
-                    o.text = `<flow>${o.text}</flow>`;
-                else o.text = `<strap>${o.text}</strap>`;
-                break;
-            case STAMP:
-                if (/^(=>)$/.test(o.text) || o.text === "*" && o.prev && o.prev.type === c.STRAP) o.text = `<strap>${encode(o.text)}</strap>`;
-                else if (!/^[<\/>]+$/.test(o.text));
-                else o.text = `<stamp>${encode(o.text)}</stamp>`;
-                break;
-            case COMMENT:
-                o.text = `<comment>${encode(o.text)}</comment>`;
-                break;
-        }
-    };
-    c.forEach(setcolor);
-
-}
-var typescript = new compile$Javascript;
-typescript.straps = typescript.straps.concat("interface", "implements", "declare", "module", "readonly", "enum");
-var codesupports = {
-    javascript(a) {
-        var c = compile$scanner2(a);
-        codecolor(c);
-        return c.toString();
-    },
-    typescript(a) {
-        var c = compile$scanner2(a, typescript);
-        codecolor(c);
-        return c.toString();
-    },
-    html(a) {
-        var code = compile$scanner2(a, 'html');
-        var scoped = code.scoped;
-        codecolor(code);
-        backEach(scoped.richNodes, n => {
-            if (n.isScript) {
-                var js = compile$scanner2(n.innerText);
-                codecolor(js);
-                code.splice(n.innerStart, n.innerEnd - n.innerStart, { text: js.toString() });
-            }
-        })
-        return code.toString();
-    },
-    css(a) {
-        var c = compile$scanner2(a);
-        codecolor(c);
-        return c.toString();
-    }
-};
-codesupports.cmd = codesupports.bat;
-codesupports.jsx = codesupports.js = codesupports.javascript;
-codesupports.tsx = codesupports.ts = codesupports.typescript;
-codesupports.xml = codesupports.html;
-function codetext(type, text) {
-    try {
-        type = type.toLowerCase();
-        if (type in codesupports) text = codesupports[type](text);
-        else text = encode(text);
-
-    } catch (e) {
-        console.error(e);
-    }
-    text = text.replace(/^(\r\n|\r|\n)|\s+$/g, '');
-    var codes = text.split(/\r\n|\r|\n/);
-    var minSpace = 0;
-    for (var c of codes) {
-        var m = /^\s*/.exec(c);
-        if (m && m[0].length < c.length) {
-            minSpace = m[0].length;
-        }
-    }
-    if (minSpace > 0) codes = codes.map(c => c.slice(minSpace));
-    return `<code type=${type}>${codes.join("<br/>").replace(/\t/g, Array(5).join('&ensp;')).replace(/\s/g, '&ensp;')}</code> `;
-}
 /**
  * @type {Element}
  */
 var content;
-var encode = function (text) {
-    return text.replace(/[\<\>\|]/g, a => `&#${a.charCodeAt()};`)
-};
 function markdown(text) {
     var c = content = [];
     text.replace(/ *(`+|\*+)(\S[\s\S]*?)\1 */g, function (_, q, c, i) {
@@ -233,7 +94,7 @@ function markdown(text) {
             if (m & 2) c = `<b>${c}</b>`;
             return c;
         }
-        _ = encode(_.trim()).slice(1, -1);
+        _ = codetext.encode(_.trim()).slice(1, -1);
         if (/[\*#\.]\s/.test(text.slice(i - 1, i + 1))) _ = " " + _;
         if (q.length === 1) return `<m>${_}</m>`;
         var t = /^\S+/.exec(c);
@@ -245,4 +106,3 @@ function markdown(text) {
     content = null;
     return c.join('');
 }
-markdown.javascript = codetext.bind(null, 'javascript');

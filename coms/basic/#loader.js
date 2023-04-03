@@ -817,6 +817,7 @@ var modules = {
     load: loadModule,
     devicePixelRatio,
     renderPixelRatio,
+    createFunction,
     efrontsign: "",
 };
 modules.debug = function () {

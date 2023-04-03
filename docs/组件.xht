@@ -1,8 +1,26 @@
 <style>
     :scope {
         line-height: 1.2;
-        padding: 0 20px;
         display: block;
+        height: 100%;
+        width: 100%;
+    }
+
+    xmenu {
+        z-index: 2;
+    }
+
+    [body] {
+        border-top: 42px solid transparent;
+        margin-top: -82px;
+        padding-top: 40px;
+        padding-bottom: 0 !important;
+        border-bottom: 46px solid transparent;
+    }
+
+    textarea {
+        outline: none;
+        white-space: nowrap;
     }
 
     p4 {
@@ -11,7 +29,7 @@
         margin: 20px 0;
     }
 
-    p4 m{
+    p4 m {
         line-height: 1.2;
         display: inline-block;
         margin-right: 6px;
@@ -48,32 +66,71 @@
         padding: 2px 4px;
     }
 
+    [codearea] {
+        width: 100%;
+        height: 100%;
+    }
+
+    [codearea]>code {
+        overflow: auto;
+        width: 100%;
+        height: 100%;
+        padding-bottom: 600px;
+    }
+
     markdown {
-        margin: 0 -20px;
+        margin: -6px -20px 0 -10px;
+    }
+
+    button {
+        padding: 0 20px;
+    }
+
+    .result {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        padding: 10px 20px;
+        border-top: 1px solid #333;
+        background: #fff;
+        display: block;
+        z-index: 1;
     }
 </style>
-<h2>
+<xmenu -src="(t,i) in tags" @active="saveTagIndex(i)"></xmenu>
+<h2 head>
     <span -bind="name"></span>
     <b -if="doc?.less" l>有样式表</b>
     <b -if="doc?.mark" w>有文档</b>
     <b -if="doc?.test" t>有测试代码</b>
 </h2>
-<container -if="doc?.url" .src="doc.url">
-</container>
-<p4 envs>
-    <span -if="envs?.length">
-        环境依赖项:&nbsp; <m -repeat="c in envs" -bind="c"> </m>
-    </span>
-    <span -else> 无环境依赖项 </span>
-</p4>
-<p4 imported>
-    <span -if="required?.length">
-        导入项:&nbsp;<m -repeat="c in required" -bind="c"></m>
-    </span>
-    <span -else>
-        无导入项
-    </span>
-</p4>
+<div body -if="tags[0].actived">
+    <container -if="doc?.url" .src="doc.url">
+    </container>
+    <p4 envs>
+        <span -if="envs?.length">
+            环境依赖项:&nbsp; <m -repeat="c in envs" -bind="c"> </m>
+        </span>
+        <span -else> 无环境依赖项 </span>
+    </p4>
+    <p4 imported>
+        <span -if="required?.length">
+            导入项:&nbsp;<m -repeat="c in required" -bind="c"></m>
+        </span>
+        <span -else>
+            无导入项
+        </span>
+    </p4>
+</div>
+<div body -elseif="tags[1].actived">
+    <div codearea #coder onkeyup="updatecode()"></div>
+    <div .result #coderesult></div>
+</div>
+<div foot -if="tags[1].actived">
+    <a -if="doc?.test" @click="loadcode()">载入测试代码</a>
+    <btn @click="execute()">运行</btn>
+</div>
 <script>
     var 分析 = lazy(async function (com, props) {
         if (props.mark) props.url = '/mark/coms/' + com.replace(/\.js$/i, '.md');
@@ -97,11 +154,134 @@
         scope.required = required;
         scope.envs = Object.keys(envs);
         render.refresh();
+        if (tags[1].actived) loadcode();
     });
-    var page = document.createElement("component");
+    var loadcode = async function () {
+        if (scope.doc.test) {
+            var xhr = await cross('get', "./components:" + scope.name.replace(/\.[jt]sx?$/, '_test.js'));
+            scope.codetext = xhr.responseText;
+        }
+        else {
+            scope.codetext = '';
+        }
+        initcode();
+        execute();
+    };
+
+    var getAnchorOffset = function () {
+        var { anchorNode, anchorOffset } = document.getSelection();
+        var [c] = scope.coder.children;
+        if (anchorNode === c || !anchorNode) return -anchorOffset;
+        var sibling = anchorNode.previousSibling ? anchorNode.previousSibling : anchorNode.parentNode.previousSibling;
+        while (sibling && sibling !== c) {
+            switch (sibling.nodeType) {
+                case 1:
+                    anchorOffset += sibling.innerText.length || 1;
+                    break;
+                case 3:
+                    anchorOffset += sibling.nodeValue.length;
+                    break;
+            }
+            sibling = sibling.previousSibling ? sibling.previousSibling : sibling.parentNode.previousSibling;
+        }
+        return anchorOffset;
+    };
+    var setAnchorOffset = function (anchorOffset) {
+        var [c] = scope.coder.children;
+        if (anchorOffset < 0) {
+            return document.getSelection().setBaseAndExtent(c, -anchorOffset, c, -anchorOffset);
+        }
+        var offset = anchorOffset;
+        var child = c.firstChild;
+        while (child) {
+            var delta = 0;
+            switch (child.nodeType) {
+                case 1:
+                    delta = child.innerText.length || 1;
+                    break;
+                case 3:
+                    delta = child.nodeValue.length;
+                    break;
+            }
+            if (delta > offset) {
+                if (child.nodeType === 1) {
+                    child = child.firstChild;
+                    continue;
+                }
+                break;
+            }
+            offset -= delta;
+            child = child.nextSibling;
+        }
+        if (child) return document.getSelection().setBaseAndExtent(child, offset, child, offset);
+    }
+    var initcode = function () {
+        var innerText = scope.codetext;
+        var colored = codetext("js", scope.codetext);
+        if (scope.coder.innerHTML === colored) return;
+        var offset = getAnchorOffset();
+        scope.coder.innerHTML = colored;
+        var [c] = scope.coder.children;
+        c.contentEditable = true;
+        setAnchorOffset(offset);
+        // document.getSelection().setBaseAndExtent(c, 6, c, 6);
+
+        // c.onkeyup = editcode;
+        // if (offset) setAnchorOffset(c, offset);
+    };
+    var updatecode = function (event) {
+        var innerText = scope.coder.innerText;
+        if (innerText === scope.codetext) return;
+        scope.codetext = innerText;
+        initcode();
+    };
+    var execute = async function () {
+        try {
+            remove(scope.coderesult.children);
+            var codetext = scope.codetext;
+            data.patchInstance("docscode", { codeText: codetext })
+            var code = compile$scanner2(codetext);
+            if (code.isExpressQueue()) codetext = "return " + codetext.replace(/^\s*/, '');
+            var envs = code.envs;
+            var argNames = Object.keys(envs);
+            var args = await Promise.all(argNames.map(a => init(a)));
+            var func = createFunction("", codetext, argNames, code.async, code.yield);
+            var res = func.apply(window, args);
+            if (isFunction(res)) {
+                res = res.call(res);
+            }
+            if (isElement(res) || isArray(res)) {
+                appendChild(scope.coderesult, res);
+            }
+        } catch (e) {
+            alert(String(e), 'error');
+        }
+    };
+    var tags = [
+        { name: "简介" },
+        { name: "试试" }
+    ];
+    tags[data.getInstance("docscode").tagIndex | 0].actived = true;
+    var actived = tags.map(t => t.actived);
+    var xmenu = menu;
+    var page = view();
     page.innerHTML = template;
     var scope = {
+        btn: button,
         container,
+        view,
+        tags,
+        a: button,
+        codetext: data.getInstance('docscode').codeText,
+        xmenu: menu,
+        loadcode,
+        initcode,
+        execute,
+        updatecode,
+        saveTagIndex(i) {
+            data.setInstance("docscode", { tagIndex: i, codeText: this.codetext });
+            if (i === 1) loadcode();
+        }
     };
     render(page, scope);
     function main(name) {
