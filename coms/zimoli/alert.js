@@ -9,24 +9,14 @@ styles.info = styles.blue;
 styles.error = styles.danger = styles.red;
 styles.warn = styles.orange;
 styles.default = '#000a';
-var alerts = [];
-var clean = Cleanup(alerts);
-var build = function () {
-    var sum = 0;
-    alerts.forEach(function (elem) {
-        if (elem.offsetTop !== sum) {
-            elem.style.top = fromOffset(sum);
-        };
-        sum += elem.offsetHeight;
-    });
-};
 var fontSize = 16;
 var singleHeight = fontSize * 3.125 | 0;
+var container = document.createElement('alert-container');
+css(container, 'height:0;left:0;right:0;transition:all 0.2s ease-out;position:absolute;')
 var _text = function (bgcolor, parameters) {
-    var box = div();
-    css(box, `top:${fromPixel(alerts.length ? Math.max.apply(Math, alerts.map(e => e.offsetTop + e.children[0].offsetHeight)) : 0)};height:0;line-height:${fromPixel(singleHeight - 20)};left:0;right:0;font-size:${fromPixel(fontSize)}; transition: all 0.2s ease-out;position:absolute;text-align:center;`);
-    box.innerHTML = `<div style='width: 720px;white-space:pre-wrap;max-width:100%;display:inline-block;height:auto;padding:${fromPixel(10)} ${fromPixel(20)};background-color:${bgcolor};color:${color.pair(bgcolor, 1)};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
-    box.initialStyle = `margin-top:-${fromPixel(singleHeight)};opacity:0;`;
+    var box = document.createElement('div');
+    box.innerHTML = `<div style='padding:${fromPixel(10)} ${fromPixel(20)};background-color:${bgcolor};color:${color.pair(bgcolor, 1)};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
+    box.initialStyle = `margin-top:-${fromPixel(singleHeight)};`;
     return box;
 };
 function alert() {
@@ -69,9 +59,8 @@ function alert() {
         if (onclose) {
             onclose.call(this, event);
         }
-        clean(this);
-        build();
         if (close_timer) clearTimeout(close_timer);
+        if (!container.children.length) remove(container);
     }
     onremove(elem, _onclose);
     var close_timer;
@@ -97,8 +86,8 @@ function alert() {
             waitclose(timeout, -100);
         }
     };
-    alerts.push(elem);
-    popup(elem);
+    if (!container.parentNode) popup(container);
+    appendChild(container, elem);
     return elem;
 }
 for (var k in styles) {
