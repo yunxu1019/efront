@@ -1,8 +1,5 @@
 function data_test1() {
     var array = [{
-        name: "王勇慧",
-        birthday: "1992-11-13",
-    }, {
         name: "李时珍",
         birthday: "1518-7-3"
     }, {
