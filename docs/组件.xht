@@ -126,9 +126,10 @@
 </div>
 <div body -elseif="tags[1].actived">
     <div codearea #coder onkeyup="updatecode()"></div>
-    <div .result #coderesult></div>
+    <resultpad .result #coderesult></resultpad>
 </div>
 <div foot -if="tags[1].actived">
+    <a -if="doc?.test" @click="clearpad()">清理</a>
     <a -if="doc?.test" @click="loadcode()">载入测试代码</a>
     <btn @click="execute()">运行</btn>
 </div>
@@ -158,9 +159,46 @@
         if (tags[1].actived) loadcode();
     });
     var loadcode = async function () {
+        var modName = scope.name.replace(/\.js$/, '_test');
         if (scope.doc.test) {
-            var xhr = await cross('get', "./components:" + scope.name.replace(/\.[jt]sx?$/, '_test.js'));
-            initcode(xhr.responseText);
+            var xhr = await cross('get', "./components:" + modName + '.js');
+            var codetext = xhr.responseText;
+            var code = compile$scanner2(codetext);
+            var envs = code.envs;
+            var vars = code.vars;
+            var commName = modName.replace(/^[\s\S]*\//, '');
+            var lessName = commName + ".less", lessData;
+            var cssWrap = `css-` + +new Date;
+            if (scope.doc.test.indexOf(lessName) >= 0) {
+                lessData = await cross("get", "./components:" + modName + ".less");
+                lessData = compile$richcss(lessData.responseText, "." + cssWrap);
+                if (code.isExpressQueue()) {
+                    codetext = `return cless(${codetext},\`${lessData}\`,"${cssWrap}")`;
+                }
+                else {
+                    var entryName;
+                    if (vars.main) entryName = "main";
+                    else if (vars.Main) entryName = 'Main';
+                    else if (vars.MAIN) entryName = "MAIN";
+                    else if (vars[commName]) entryName = commName;
+                    if (entryName) codetext += `\r\nreturn cless(${entryName},\`${lessData}\`,"${cssWrap}")`;
+                }
+            }
+            else {
+                if (code.isExpressQueue()) codetext = "return " + codetext;
+                else if (vars.main) codetext += '\r\nreturn main';
+                else if (vars.Main) codetext += '\r\nreturn Main';
+                else if (vars.MAIN) codetext += "\r\nreturn MAIN";
+                else if (vars[modName]) codetext += "\r\nreturn " + modName;
+            }
+            var templateName = commName;
+            if (envs.template) templateName = 'template';
+            if (envs[templateName]) {
+                delete envs[templateName];
+                var template = await cross("get", './components:' + modName + ".html");
+                codetext = `var ${templateName}={toString(){return \`${template.responseText}\`}};\r\n` + codetext;
+            }
+            initcode(codetext);
         }
         else {
             initcode('');
@@ -244,11 +282,10 @@
     });
     var execute = async function () {
         try {
-            remove(scope.coderesult.children);
-            var codetext = scope.codetext;
-            data.patchInstance("docscode", { codeText: codetext })
+            remove(scope.coderesult.childNodes);
+            var codetext = scope.codetext.replace(/[\u2002\u00a0]/g, ' ');
+            data.patchInstance("docscode", { codetext: codetext })
             var code = compile$scanner2(codetext);
-            if (code.isExpressQueue()) codetext = "return " + codetext.replace(/^\s*/, '');
             var envs = code.envs;
             var argNames = Object.keys(envs);
             var args = await Promise.all(argNames.map(a => init(a)));
@@ -282,12 +319,15 @@
         codetext: "",
         xmenu: menu,
         loadcode,
+        clearpad() {
+            remove(this.coderesult.childNodes);
+        },
         execute,
         updatecode,
         saveTagIndex(i) {
             data.setInstance("docscode", { tagIndex: i });
             if (i === 1 && !scope.codetext) loadcode();
-        }
+        },
     };
     render(page, scope);
     function main(name) {

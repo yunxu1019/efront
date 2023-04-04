@@ -150,7 +150,13 @@
             var map = Object.create(null);
             var children = [];
             for (var a of c.children) {
-                if (!/\.([jt]sx?|xht)$/i.test(a) || /_test\.([tj]sx?|xht)$/i.test(a)) {
+                if (/_test\.([tj]sx?|xht|html|less|md)$/i.test(a)) {
+                    var testName = a.replace(/\.\w+$/g, '');
+                    if (!map[testName]) map[testName] = [];
+                    map[testName].push(a);
+                    continue;
+                }
+                else if (!/\.([jt]sx?|xht)$/i.test(a)) {
                     map[a.replace(/\.\w+$/g, a => a.toLowerCase())] = a;
                     continue;
                 }
@@ -159,7 +165,7 @@
             for (var cc of children) {
                 cc.data = {
                     mark: !!map[cc.name.replace(/\.[tj]sx?$/i, ".md")],
-                    test: !!map[cc.name.replace(/\.[tj]sx?$/i, "_test.js")],
+                    test: map[cc.name.replace(/\.[tj]sx?$/i, "_test")],
                     less: !!map[cc.name.replace(/\.[tj]sx?$/i, ".less")]
                 }
                 if (cc.data.less) cc.name += "<f less></f>"

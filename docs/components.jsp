@@ -2,7 +2,7 @@
 
     var fs = require("fs").promises;
     var path = require("path");
-    var comm_file_reg = /\.([tj]sx?|xht|md|less)$/i;
+    var comm_file_reg = /\.([tj]sx?|xht|md|less|html)$/i;
     var basepath = path.join(String(__efront), 'coms');
     if (req.id) {
         var compath = path.join(basepath, req.id);
