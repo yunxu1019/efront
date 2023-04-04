@@ -208,7 +208,6 @@
         } catch (e) {
             console.error(e);
         }
-        text = text.replace(/^(\r\n|\r|\n)|\s+$/g, '');
         var codes = text.split(/\r\n|\r|\n/);
         var minSpace = 0;
         for (var c of codes) {
@@ -217,7 +216,7 @@
                 minSpace = m[0].length;
             }
         }
-        if (minSpace > 0) codes = codes.map(c => c.slice(minSpace));
+        if (minSpace > 0) codes = codes.map(c => /^\s+/.test(c) ? c.slice(minSpace) : c);
         return `<code type=${type}>${codes.join("<br/>").replace(/\t/g, Array(5).join('&ensp;')).replace(/\s/g, '&ensp;')}</code> `;
     }
     codetext.encode = encode;

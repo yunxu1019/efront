@@ -76,6 +76,7 @@
         width: 100%;
         height: 100%;
         padding-bottom: 600px;
+        white-space: nowrap;
     }
 
     markdown {
@@ -159,12 +160,12 @@
     var loadcode = async function () {
         if (scope.doc.test) {
             var xhr = await cross('get', "./components:" + scope.name.replace(/\.[jt]sx?$/, '_test.js'));
-            scope.codetext = xhr.responseText;
+            initcode(xhr.responseText);
         }
         else {
-            scope.codetext = '';
+            initcode('');
         }
-        initcode();
+        scope.codetext = scope.coder.innerText;
         execute();
     };
 
@@ -189,7 +190,9 @@
     var setAnchorOffset = function (anchorOffset) {
         var [c] = scope.coder.children;
         if (anchorOffset < 0) {
-            return document.getSelection().setBaseAndExtent(c, -anchorOffset, c, -anchorOffset);
+            anchorOffset = -anchorOffset;
+            if (anchorOffset > c.childNodes.length) anchorOffset = c.childNodes.length;
+            return document.getSelection().setBaseAndExtent(c, anchorOffset, c, anchorOffset);
         }
         var offset = anchorOffset;
         var child = c.firstChild;
@@ -203,7 +206,7 @@
                     delta = child.nodeValue.length;
                     break;
             }
-            if (delta > offset) {
+            if (delta >= offset) {
                 if (child.nodeType === 1) {
                     child = child.firstChild;
                     continue;
@@ -211,30 +214,34 @@
                 break;
             }
             offset -= delta;
+            if (offset <= 0) break;
             child = child.nextSibling;
         }
-        if (child) return document.getSelection().setBaseAndExtent(child, offset, child, offset);
+        if (!child) child = c, offset = c.childNodes.length;
+        return document.getSelection().setBaseAndExtent(child, offset, child, offset);
     }
-    var initcode = function () {
-        var innerText = scope.codetext;
-        var colored = codetext("js", scope.codetext);
-        if (scope.coder.innerHTML === colored) return;
+    var initcode = function (innerText) {
+        var colored = codetext("js", innerText);
         var offset = getAnchorOffset();
+        var innerHTML = scope.coder.innerHTML.replace(/\s*contenteditable\=[^\s\>]+/i, '');
+        if (innerHTML === colored) return;
+        var [c0] = scope.coder.children;
+        var nodesCount = c0 ? c0.childNodes.length : 0;
         scope.coder.innerHTML = colored;
         var [c] = scope.coder.children;
+        if (nodesCount < c.childNodes.length) {
+            if (offset < 0) offset--;
+            else if (offset > 0) offset++;
+        }
         c.contentEditable = true;
         setAnchorOffset(offset);
-        // document.getSelection().setBaseAndExtent(c, 6, c, 6);
-
-        // c.onkeyup = editcode;
-        // if (offset) setAnchorOffset(c, offset);
     };
-    var updatecode = function (event) {
+    var updatecode = lazy(function (event) {
         var innerText = scope.coder.innerText;
-        if (innerText === scope.codetext) return;
-        scope.codetext = innerText;
-        initcode();
-    };
+        if (scope.codetext.replace(/[\s\u00a0]+/g, ' ').trim() === innerText.replace(/[\s\u00a0]+/g, ' ').trim()) return;
+        initcode(innerText);
+        scope.codetext = scope.coder.innerText;
+    });
     var execute = async function () {
         try {
             remove(scope.coderesult.children);
@@ -272,15 +279,14 @@
         view,
         tags,
         a: button,
-        codetext: data.getInstance('docscode').codeText,
+        codetext: "",
         xmenu: menu,
         loadcode,
-        initcode,
         execute,
         updatecode,
         saveTagIndex(i) {
-            data.setInstance("docscode", { tagIndex: i, codeText: this.codetext });
-            if (i === 1) loadcode();
+            data.setInstance("docscode", { tagIndex: i });
+            if (i === 1 && !scope.codetext) loadcode();
         }
     };
     render(page, scope);

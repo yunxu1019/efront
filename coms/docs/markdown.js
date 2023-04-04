@@ -98,7 +98,7 @@ function markdown(text) {
         if (/[\*#\.]\s/.test(text.slice(i - 1, i + 1))) _ = " " + _;
         if (q.length === 1) return `<m>${_}</m>`;
         var t = /^\S+/.exec(c);
-        if (t) t = t[0]; c = c.slice(t.length);
+        if (t) t = t[0]; c = c.slice(t.length).replace(/^(\r\n|\r|\n)|\s+$/g, '');
         return codetext(t, c);
     }).replace(/\s*((&nbsp;\s*)+)/g, "$1").split(/\r\n|\r|\n/).forEach(richtext);
     list_elem = null;
