@@ -12,7 +12,7 @@ styles.default = '#000a';
 var fontSize = 16;
 var singleHeight = fontSize * 3.125 | 0;
 var container = document.createElement('alert-container');
-css(container, 'height:0;left:0;right:0;transition:all 0.2s ease-out;position:absolute;')
+css(container, 'top:0;height:0;left:0;right:0;transition:all 0.2s ease-out;position:absolute;')
 var _text = function (bgcolor, parameters) {
     var box = document.createElement('div');
     box.innerHTML = `<div style='padding:${fromPixel(10)} ${fromPixel(20)};background-color:${bgcolor};color:${color.pair(bgcolor, 1)};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
