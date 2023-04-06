@@ -75,8 +75,9 @@
         overflow: auto;
         width: 100%;
         height: 100%;
-        padding-bottom: 600px;
+        padding: 10px 20px 600px 20px;
         white-space: nowrap;
+        outline: none;
     }
 
     markdown {
@@ -206,7 +207,7 @@
         scope.codetext = scope.coder.innerText;
         execute();
     };
-
+    var blink = document.createElement("efront-blink");
     var getAnchorOffset = function () {
         var { anchorNode, anchorOffset } = document.getSelection();
         var [c] = scope.coder.children;
@@ -259,17 +260,23 @@
         return document.getSelection().setBaseAndExtent(child, offset, child, offset);
     }
     var initcode = function (innerText) {
-        var colored = codetext("js", innerText);
+        try {
+            var colored = codetext("js", innerText);
+        } catch { return; }
         var offset = getAnchorOffset();
         var innerHTML = scope.coder.innerHTML.replace(/\s*contenteditable\=[^\s\>]+/i, '');
         if (innerHTML === colored) return;
         var [c0] = scope.coder.children;
         var nodesCount = c0 ? c0.childNodes.length : 0;
+        var scrollTop = c0 ? c0.scrollTop : 0;
+        var scrollLeft = c0 ? c0.scrollLeft : 0;
         scope.coder.innerHTML = colored;
         var [c] = scope.coder.children;
+        c.scrollTop = scrollTop;
+        c.scrollLeft = scrollLeft;
         if (nodesCount < c.childNodes.length) {
-            if (offset < 0) offset--;
-            else if (offset > 0) offset++;
+            // if (offset < 0) offset--;
+            // else if (offset > 0) offset++;
         }
         c.contentEditable = true;
         setAnchorOffset(offset);
@@ -309,6 +316,7 @@
     var actived = tags.map(t => t.actived);
     var xmenu = menu;
     var page = view();
+    on("submit")(page, e => e.preventDefault());
     page.innerHTML = template;
     var scope = {
         btn: button,
@@ -326,7 +334,7 @@
         updatecode,
         saveTagIndex(i) {
             data.setInstance("docscode", { tagIndex: i });
-            if (i === 1 && !scope.codetext) loadcode();
+            if (i === 1 && !scope.codetext) requestAnimationFrame(loadcode);
         },
     };
     render(page, scope);

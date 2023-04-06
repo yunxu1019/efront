@@ -99,7 +99,12 @@ function markdown(text) {
         if (q.length === 1) return `<m>${_}</m>`;
         var t = /^\S+/.exec(c);
         if (t) t = t[0]; c = c.slice(t.length).replace(/^(\r\n|\r|\n)|\s+$/g, '');
-        return codetext(t, c);
+        try {
+            return codetext(t, c);
+        } catch (e) {
+            console.error(e);
+            return c;
+        }
     }).replace(/\s*((&nbsp;\s*)+)/g, "$1").split(/\r\n|\r|\n/).forEach(richtext);
     list_elem = null;
     list_tag = null;

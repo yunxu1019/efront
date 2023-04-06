@@ -200,14 +200,9 @@
     codesupports.tsx = codesupports.ts = codesupports.typescript;
     codesupports.xml = codesupports.html;
     function codetext(type, text) {
-        try {
-            type = type.toLowerCase();
-            if (type in codesupports) text = codesupports[type](text);
-            else text = encode(text);
-
-        } catch (e) {
-            console.error(e);
-        }
+        type = type.toLowerCase();
+        if (type in codesupports) text = codesupports[type](text);
+        else text = encode(text);
         var codes = text.split(/\r\n|\r|\n/);
         var minSpace = 0;
         for (var c of codes) {
