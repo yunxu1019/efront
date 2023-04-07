@@ -194,13 +194,18 @@ class Program {
             Object.defineProperty(scope, 'queue', { value: queue, enumerable: false });
             scope.prev = last;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
-                if (program.setType(scope) === false) {
+                var keeplast = program.setType(scope) === false;
+                if (keeplast) {
                     if (queue.last !== last) last = queue.last;
                     else if (scope.prev !== last) last = scope.prev;
                     while (queue[queue.length - 1] !== last) queue.pop();
                     last.end = scope.end;
                     last.text = text.slice(last.start, last.end);
                     return;
+                }
+                if (queue.last !== last && queue.last !== o) {
+                    last = queue.last, scope.prev = last;
+                    if (last) last.text = text.slice(last.start, last.end);
                 }
                 if (last) last.next = scope;
                 queue.last = scope;

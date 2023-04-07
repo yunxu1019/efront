@@ -26,13 +26,11 @@ Richcss.prototype.setType = function (o) {
         }
         if (pps.length > 1) {
             var i = q.lastIndexOf(p = pps.pop());
-            q.splice(i + 1, q.length, o);
-            p.next = o;
+            q.splice(i + 1, q.length);
             p.type = PROPERTY;
             p.end = pps[0].end;
-            o.prev = p;
-            q.last = o;
-            return false;
+            q.last = p;
+            return;
         }
     }
     if (!q.entry && o.type !== SCOPED) {
