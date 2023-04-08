@@ -131,6 +131,38 @@
     <btn @click="execute()">运行</btn>
 </div>
 <script>
+    var commaps = Object.create(null);
+    var initCommap = function (live) {
+        var commap = commaps[live];
+        if (!commap) {
+            commap = commaps[live] = Object.create(null);
+            var lives = data.getInstance("components");
+            if (live) {
+                lives = lives.slice().sort((a, b) => {
+                    if (a.name === live) return -1;
+                    return 0;
+                });
+                lives.forEach(a => {
+                    for (var c of a.children) {
+                        var name = c.name.replace(/\.[^\.]+$/, '');
+                        var real = `${a.name}$${name}`;
+                        if (!commap[name]) commap[name] = real;
+                        commap[real] = real;
+                    }
+                })
+            }
+        }
+        return commap;
+    };
+    var request = modules["get request"]();
+    modules["set request"](function (url, onload, onerror, version) {
+        if (!/~/.test(url)) return request(url, onload, onerror, version);
+        var name = url.replace(/~[\s\S]*$/, '');
+        var live = url.slice(name.length + 1);
+        var commap = initCommap(live);
+        name = name.replace(/[^\/]+$/g, a => commap[a] || a);
+        return request(name, onload, onerror, version)
+    });
     var 分析 = lazy(async function (com, props) {
         if (props.mark) props.url = '/mark/coms/' + com.replace(/\.js$/i, '.md');
         scope.doc = props;
@@ -324,13 +356,16 @@
     });
     var execute = async function () {
         try {
+            var live = /^([\s\S]+)\//.exec(scope.name);
+            if (live) live = live[1];
+            var commap = initCommap(live);
             remove(scope.coderesult.childNodes);
             var codetext = scope.codetext.replace(/[\u2002\u00a0]/g, ' ');
             data.patchInstance("docscode", { codetext: codetext })
             var code = compile$scanner2(codetext);
             var envs = code.envs;
             var argNames = Object.keys(envs);
-            var args = await Promise.all(argNames.map(a => init(a)));
+            var args = await Promise.all(argNames.map(a => init(a + "~" + live, null, { ["init~" + live]: init, ["put~" + live]: put, ["zimoli~" + live]: zimoli, ["appendChild~" + live]: appendChild, ["remove~" + live]: remove })));
             var func = createFunction("", codetext, argNames, code.async, code.yield);
             var res = func.apply(window, args);
             if (isFunction(res)) {
@@ -341,6 +376,7 @@
             }
         } catch (e) {
             alert(String(e), 'error');
+            throw e;
         }
     };
     var tags = [

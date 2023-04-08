@@ -3,7 +3,7 @@ var getBuildRoot = require("./getBuildRoot");
 var getDependence = require("./getDependence");
 var memery = require("../efront/memery");
 var compile = require("./compile");
-var { include_required } = require("./environment");
+var { include_required, rest_coms } = require("./environment");
 function build(pages_root, lastBuiltTime, dest_root) {
     var responseTree = Object.create(null);
     var filterMap = Object.create(null);
@@ -73,6 +73,30 @@ function build(pages_root, lastBuiltTime, dest_root) {
         };
         var roots = [].concat(pages_root || [])
         roots = await getBuildRoot(roots);
+
+        if (rest_coms) {
+            var fs = require("fs").promises;
+            var path = require("path");
+            var rest = [].concat(rest_coms);
+            var finded = Object.create(null);
+            while (rest.length) {
+                // 只处理一级
+                var [p, n] = rest.pop();
+                var files = await fs.readdir(path.join(p, n), { withFileTypes: true });
+                for (var f of files) {
+                    if (/^[#\.]|\_test\.[^\.\/\\]*$/.test(f.name)) continue;
+                    if (f.isDirectory()) {
+                        rest.push([p, path.join(n, f.name)]);
+                    }
+                    else {
+                        if (!/\.([cm]?jsx?|xht|tsx?|vue)$/i.test(f.name) || name in finded) continue;
+                        finded[name] = true;
+                        var name = path.join(n, f.name).replace(/[\\\/]/g, '$').replace(/\.[^\.\/]+$/, '');
+                        roots.push(name);
+                    }
+                }
+            }
+        }
         while (roots.length) {
             roots = await builder(roots);
             roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);

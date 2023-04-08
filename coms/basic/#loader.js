@@ -244,12 +244,13 @@ var killCircle = function () {
 };
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
-var loadModule = function (name, then, prebuilds = {}) {
+var loadModule = function (url, then, prebuilds = {}) {
+    var name = url.replace(/~[\s\S]*$/, '');
     if (/^(?:module|exports|define|require|window|global|undefined)$/.test(name)) return then();
-    if ((hasOwnProperty.call(prebuilds, name)) || hasOwnProperty.call(modules, name) || (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
+    if ((hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
     ) return then();
-    preLoad(name);
-    var key = keyprefix + name;
+    preLoad(url);
+    var key = keyprefix + url;
     if (loadedModules[key] instanceof Function) {
         then();
         return;
@@ -267,15 +268,15 @@ var loadModule = function (name, then, prebuilds = {}) {
             }.bind(null, responseTree[name]));
         };
         if (/\.json([\#\?].*?)?$/i.test(name)) {
-            readFile(["JSON", name], saveModule);
+            readFile(["JSON", url], saveModule);
         } else {
-            readFile(name, saveModule);
+            readFile(url, saveModule);
         };
     }
     else {
 
         var saveModule = function (error) {
-            var data = responseTree[name];
+            var data = responseTree[url];
             if (typeof data === "function") {
                 var mod = data;
                 flushTree(loadedModules, key, mod);
@@ -289,7 +290,8 @@ var loadModule = function (name, then, prebuilds = {}) {
             // <!--
             if (!data) undefinedModules[name] = true;
             // -->
-            var [argNames, body, args, required, strs, isAsync, isYield] = getArgs(data);
+            var afterfix = url.slice(name.length);
+            var [argNames, body, args, required, strs, isAsync, isYield] = getArgs(data, afterfix);
             if (isProduction) {
                 strs = strs.map ? strs.map(toRem) : strs;
             } else {
@@ -300,7 +302,10 @@ var loadModule = function (name, then, prebuilds = {}) {
             mod.argNames = argNames;
             mod.strs = strs;
             var loadingCount = 0;
-            if (required) required = required.split(';').filter(a => !!a);
+            if (required) {
+                required = required.split(';').filter(a => !!a);
+                if (afterfix) required = required.map(r => r + afterfix);
+            }
             required = required ? get_relatives(name, required) : [];
             mod.required = required;
             mod.file = name;
@@ -328,13 +333,15 @@ var loadModule = function (name, then, prebuilds = {}) {
                 });
             }
         };
-        readFile(name, saveModule);
+        readFile(url, saveModule);
     }
 };
 var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".78pt" : 0.78 / devicePixelRatio + "pt") + (quote || "")) : text;
 "use ./#decrypt.js";
-var getArgs = function (text) {
-    "use ./#decrypt_.js";
+var getArgs = function (text, aftfix) {
+    if (!aftfix) {
+        "use ./#decrypt_.js";
+    }
     var args, functionBody;
     //依赖项名称部分的长度限制为36*36*18=23328
     var doublecount = parseInt(text.slice(0, 3), 36);
@@ -365,6 +372,9 @@ var getArgs = function (text) {
         var argNames = args.slice(argsstart, argsend);
         var required = args[argsend];
         args = args.slice(0, argsstart);
+        if (aftfix) {
+            args = args.map(a => a + aftfix);
+        }
     } else {
         functionBody = text;
     }
@@ -422,7 +432,8 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     var isModuleInit = false;
     var required = exec.required;
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
-    var argsList = originNames.map(function (argName) {
+    var argsList = originNames.map(function (aName) {
+        var argName = aName.replace(/~[\s\S]*$/, '');
         if (hasOwnProperty.call(prebuilds, argName)) {
             return prebuilds[argName];
         }
@@ -465,11 +476,8 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
             var prebuilds2 = Object.create(null);
             for (var k in prebuilds) if (hasOwnProperty.call(prebuilds, k)) prebuilds2[k] = prebuilds[k];
             prebuilds = prebuilds2;
-            delete prebuilds.popup;
-            delete prebuilds.action;
-            delete prebuilds.init;
         }
-        var promise = init(argName, function (res) {
+        var promise = init(aName, function (res) {
             result = res;
             created = true;
         }, prebuilds);
@@ -489,19 +497,20 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     });
 };
 
-var init = function (name, then, prebuilds) {
+var init = function (url, then, prebuilds) {
     // then = bindthen(then);
-    var key = keyprefix + name;
+    var key = keyprefix + url;
     if (prebuilds) {
-        if (hasOwnProperty.call(prebuilds, name)) {
-            if (then) then(prebuilds[name]);
-            return prebuilds[name];
+        if (hasOwnProperty.call(prebuilds, url)) {
+            if (then) then(prebuilds[url]);
+            return prebuilds[url];
         }
     }
-    if (hasOwnProperty.call(modules, name)) {
-        if (then) then(modules[name]);
-        return modules[name];
+    if (hasOwnProperty.call(modules, url)) {
+        if (then) then(modules[url]);
+        return modules[url];
     }
+    var name = url.replace(/~[\s\S]*$/, '');
     if (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name)) {
         modules[name] = window[name]
         if (then) then(modules[name]);
@@ -540,17 +549,17 @@ var init = function (name, then, prebuilds) {
     };
     var crack = function (error) {
         if (res.resolved || res.errored) return;
-        var ed = errored[name];
+        var ed = errored[url];
         res.errored = true;
         res.error = error;
         res.fire();
-        var rest = [name];
+        var rest = [url];
         var track = [];
         var length = 0;
         var deep = 0;
         // <!--
         var map = Object.create(null);
-        map[name] = true;
+        map[url] = true;
         do {
             deep++;
             var rest2 = Object.create(null);
@@ -573,11 +582,11 @@ var init = function (name, then, prebuilds) {
         track = track.map(([d, a, e]) => ` ${new Array(d + 1).join("•")} ${new Array(2 + length - a.length - d).join("-")} ${a} 溃于: ${e.reverse().join(", ")}`)
         // -->
         var report = window.performance || !window.alert ? console.error : window.alert;
-        report(`加载 ${name} 失败，${ed && ed.length ? `${ed.join(', ')} 等 ${ed.length} 个模块` : "没有其他模块"}受到影响。\r\n${track.join("\r\n")}`);
+        report(`加载 ${url} 失败，${ed && ed.length ? `${ed.join(', ')} 等 ${ed.length} 个模块` : "没有其他模块"}受到影响。\r\n${track.join("\r\n")}`);
     };
-    loadModule(name, function (error) {
-        if (hasOwnProperty.call(modules, name)) {
-            then(modules[name]);
+    loadModule(url, function (error) {
+        if (hasOwnProperty.call(modules, url)) {
+            then(modules[url]);
             return;
         }
         if (error) return crack(error);
@@ -587,7 +596,7 @@ var init = function (name, then, prebuilds) {
 
         if (!args || !args.length) {
             var created = module.call(window);
-            then(module.created = modules[name] = created);
+            then(module.created = modules[url] = created);
             return;
         }
         var filteredArgs = prebuilds ? args.filter(a => !hasOwnProperty.call(prebuilds, a)) : args;
@@ -611,12 +620,12 @@ var init = function (name, then, prebuilds) {
             if (saveAsModule) {
                 penddings[key] = created;
                 created.then(function (res) {
-                    then(modules[name] = res);
+                    then(modules[url] = res);
                 });
                 return;
             }
         } else {
-            if (saveAsModule) module.created = modules[name] = created;
+            if (saveAsModule) module.created = modules[url] = created;
         }
         then(created);
     }, prebuilds);
@@ -819,6 +828,12 @@ var modules = {
     renderPixelRatio,
     createFunction,
     efrontsign: "",
+};
+modules["set request"] = function (req) {
+    request = req;
+};
+modules["get request"] = function () {
+    return request;
 };
 modules.debug = function () {
     document.addEventListener("blur", e => e.stopPropagation(), true);

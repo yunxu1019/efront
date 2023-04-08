@@ -84,7 +84,7 @@
     var encode = function (text) {
         return text.replace(/[\<\>\|]/g, a => `&#${a.charCodeAt()};`)
     };
-    var codecolor = function (c) {
+    var codecolor = function (c, blink) {
         var envs = c.envs;
         var predefs = Object.create(null);
         predefs.module = true;
@@ -95,6 +95,8 @@
         var { STRAP, SCOPED, QUOTED, LABEL, COMMENT, STAMP, VALUE, EXPRESS, PROPERTY, PIECE } = c;
         var deep = 0;
         var setcolor = function (o) {
+            var text = o.text;
+            if (o.blink >= 0) o.text = o.text.slice(0, o.blink) + blink + o.text.slice(o.blink);
             switch (o.type) {
                 case LABEL:
                     o.text = `<label>${o.text}</label>`;
@@ -137,16 +139,16 @@
                     if (next && next.type === c.SCOPED && next.entry === '(') {
                         keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
                     }
+                    var [name0] = text.split(".");
                     var [name] = keys;
-                    if (/^</.test(name));
-                    else if (/^(arguments|this|super|Infinity|NaN)$/.test(name)) name = `<strap>${name}</strap>`;
-                    else if (name in envs) name = name in predefs ? `<predef>${name}</predef>` : `<outside>${name}</outside>`;
-
+                    if (/^</.test(name0));
+                    else if (/^(arguments|this|super|Infinity|NaN)$/.test(name0)) name = `<strap>${name}</strap>`;
+                    else if (name0 in envs) name = name0 in predefs ? `<predef>${name}</predef>` : `<outside>${name}</outside>`;
                     keys[0] = name;
                     o.text = keys.map(k => /^\</.test(k) || !k ? k : `<express>${k}</express>`).join(".");
                     break;
                 case STRAP:
-                    if (/^(if|else|switch|case|do|while|for|break|continue|default|import|from|as|export|try|catch|finally|await|yield|return)/.test(o.text))
+                    if (/^(if|else|switch|case|do|while|for|break|continue|default|import|from|as|export|try|catch|finally|await|yield|return)/.test(text))
                         o.text = `<flow>${o.text}</flow>`;
                     else o.text = `<strap>${o.text}</strap>`;
                     break;
@@ -166,10 +168,17 @@
     var typescript = new compile$Javascript;
     typescript.straps = typescript.straps.concat("interface", "implements", "declare", "module", "readonly", "enum");
     var codesupports = {
-        javascript(a) {
+        javascript(a, blink) {
+            if (blink) var index = a.indexOf(blink);
+            if (index >= 0) a = a.slice(0, index) + a.slice(index + 1);
             var c = compile$scanner2(a);
-            codecolor(c);
-            return c.toString();
+            if (index >= 0) {
+                var patched = patchBlink(c, index, blink);
+            }
+            codecolor(c, blink);
+            a = c.toString();
+            if (index >= 0 && !patched) a = blink + a;
+            return a;
         },
         typescript(a) {
             var c = compile$scanner2(a, typescript);
@@ -199,9 +208,66 @@
     codesupports.jsx = codesupports.js = codesupports.javascript;
     codesupports.tsx = codesupports.ts = codesupports.typescript;
     codesupports.xml = codesupports.html;
-    function codetext(type, text) {
+    var { SCOPED, QUOTED } = compile$common;
+    var patchBlink = function (code, index, blink) {
+        for (var cx = 0, dx = code.length; cx < dx; cx++) {
+            var c = code[cx];
+            var haschildren = c => c.type === SCOPED || c.type === QUOTED && c.length;
+            if (c.start === index) {
+                if (haschildren(c)) {
+                    c.entry = blink + c.entry;
+                }
+                else {
+                    c.blink = 0;
+                }
+                return true;
+            }
+            else if (c.start < index && c.end > index) {
+                if (haschildren(c)) {
+                    return patchBlink(c, index, blink);
+                }
+                else {
+                    c.blink = index - c.start;
+                    return true;
+                }
+            }
+            else if (c.end === index) {
+                if (haschildren(c)) {
+                    c.leave += blink;
+                }
+                else {
+                    c.blink = c.text.length;
+                }
+                return true;
+            }
+            else if (c.start > index) {
+                if (cx === 0) {
+                    if (code.entry) return code.entry += blink, true;
+                    return false;
+                }
+                else {
+                    var p = code[cx - 1];
+                    if (haschildren(p)) {
+                        p.leave += blink;
+                    }
+                    else {
+                        p.blink = p.text.length;
+                    }
+                    return true;
+                }
+            }
+        }
+        if (code.leave) {
+            code.leave = blink + code.leave;
+            return true;
+        }
+        return false;
+    };
+    function codetext(type, text, blink) {
         type = type.toLowerCase();
-        if (type in codesupports) text = codesupports[type](text);
+        if (type in codesupports) {
+            text = codesupports[type](text, blink);
+        }
         else text = encode(text);
         var codes = text.split(/\r\n|\r|\n/);
         var minSpace = 0;

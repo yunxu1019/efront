@@ -15,7 +15,8 @@ var container = document.createElement('alert-container');
 css(container, 'top:0;height:0;left:0;right:0;transition:all 0.2s ease-out;position:absolute;')
 var _text = function (bgcolor, parameters) {
     var box = document.createElement('div');
-    box.innerHTML = `<div style='padding:${fromPixel(10)} ${fromPixel(20)};background-color:${bgcolor};color:${color.pair(bgcolor, 1)};'>${[].slice.call(parameters, 0).join(", ")}</div>`;
+    css(box, `background-color:${bgcolor};color:${color.pair(bgcolor, 1)};`);
+    box.innerHTML = [].slice.call(parameters, 0).join(", ");
     box.initialStyle = `margin-top:-${fromPixel(singleHeight)};`;
     return box;
 };
@@ -55,13 +56,12 @@ function alert() {
     } else {
         elem = _text(styles.log, [text]);
     }
-    var _onclose = function (event) {
+    var _onclose = lazy(function (event) {
         if (onclose) {
             onclose.call(this, event);
         }
         if (close_timer) clearTimeout(close_timer);
-        if (!container.children.length) remove(container);
-    }
+    });
     onremove(elem, _onclose);
     var close_timer;
     var waitclose = function (autoclose, deltaTime) {
@@ -87,7 +87,7 @@ function alert() {
         }
     };
     if (!container.parentNode) popup(container);
-    appendChild(container, elem);
+    if (!elem.parentNode) appendChild(container, elem);
     return elem;
 }
 for (var k in styles) {

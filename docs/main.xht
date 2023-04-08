@@ -150,7 +150,7 @@
             var map = Object.create(null);
             var children = [];
             for (var a of c.children) {
-                if (/_test\.([tj]sx?|xht|html|less|md)$/i.test(a)) {
+                if (/_test\.([tj]sx?|xht|html|less|css|md)$/i.test(a)) {
                     var testName = a.replace(/\.\w+$/g, '');
                     if (!map[testName]) map[testName] = [];
                     map[testName].push(a);
@@ -175,7 +175,7 @@
             c.children = children;
             c.closed = true;
         }
-
+        data.setInstance('components', m);
         menus[2].children = m;
     };
     var initMenus = async function () {

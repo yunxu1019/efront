@@ -184,6 +184,7 @@ var memery = module.exports = {
         return noproxy;
     },
     LIVEMODE: get("LIVEMODE,LIVE", true),
+    RESTCOMS: get("RESTCOMS,REST_COMS"),
     DIRECT: geturlpath("DIRECT,DIRECT_PAGE,DIRECT_PATH,SINGLE,SINGLE_PAGE,SINGLE_PATH"),
     EFRONT: false,
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),

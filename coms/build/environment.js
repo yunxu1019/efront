@@ -36,7 +36,8 @@ var buildinpath = path.join(__dirname, '..');
 comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
 if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 var ccons_root = ICON && ICON_PATH ? mixin(env.ICON_PATH, env.ICON).map(joinpath).filter(fs.existsSync) : [];
-var pages_root = mixin(memery.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
+var pages_root = mixin(env.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
+if (memery.RESTCOMS) var rest_coms = mixin(env.COMS_PATH, memery.RESTCOMS).filter(a => fs.existsSync(joinpath(a)));
 POLYFILL = !/^(0|false|null)$/i.test(POLYFILL);
 var resolve_component_file_path = function (public_path = APP, source_paths = ["."].concat(pages_root, comms_root)) {
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
@@ -96,6 +97,7 @@ module.exports = {
     public_app,
     EXPORT_TO,
     DESTPATH,
+    rest_coms,
     include_required: !!RELEASE || !public_app,
     APP: env.APP
 };

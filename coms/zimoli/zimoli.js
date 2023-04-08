@@ -58,7 +58,8 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
             if (currentHash && currentHash === targetHash) return;
             var targetHashIndex = targetHash.indexOf("#" + current_history);
             if (targetHashIndex < 0) return;
-            var targetpath = targetHash.slice(targetHashIndex + current_history.length);
+            var targetpath = targetHash.slice(targetHashIndex + current_history.length + 1);
+            targetpath = decodeURI(targetpath);
             go(targetpath);
             return;
         }
