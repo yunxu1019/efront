@@ -122,7 +122,7 @@
     </p4>
 </div>
 <div body -elseif="tags[1].actived">
-    <div codearea #coder onkeyup="updatecode()"></div>
+    <div codearea #coder onkeyup="!event.isComposing&&updatecode()" onkeydown.tab="keytab(event)"></div>
     <resultpad .result #coderesult></resultpad>
 </div>
 <div foot -if="tags[1].actived">
@@ -203,7 +203,43 @@
         scope.codetext = scope.coder.innerText;
         execute();
     };
-    var blink = document.createElement("efront-blink");
+    var blink = "\u0080";
+    var markAnchorOffset = function () {
+        var { anchorNode, anchorOffset } = document.getSelection();
+        if (!anchorNode || !scope.coder) return;
+        var [c] = scope.coder.children;
+        if (anchorNode.nodeType === 1) {
+            var node = document.createTextNode(blink);
+            anchorNode.insertBefore(node, anchorNode.childNodes[anchorOffset])
+        }
+        else if (anchorNode.nodeType === 3) {
+            anchorNode.nodeValue = anchorNode.nodeValue.slice(0, anchorOffset) + blink + anchorNode.nodeValue.slice(anchorOffset);
+        }
+    };
+    var unmarkAnchorOffset = function () {
+        var [c] = scope.coder.children;
+        var node = c.firstChild;
+        while (node) {
+            if (node.nodeType === 1) {
+                if (node.innerText.indexOf(blink) >= 0) {
+                    node = node.firstChild;
+                    continue;
+                }
+            }
+            else if (node.nodeType === 3) {
+                if (node.nodeValue.indexOf(blink) >= 0) break;
+            }
+            node = node.nextSibling;
+        }
+        if (node) {
+            var offset = node.nodeValue.indexOf(blink);
+            node.nodeValue = node.nodeValue.slice(0, offset) + node.nodeValue.slice(offset + 1);
+            document.getSelection().setBaseAndExtent(node, offset, node, offset);
+            if (!node.nodeValue) {
+                remove(node);
+            }
+        }
+    }
     var getAnchorOffset = function () {
         var { anchorNode, anchorOffset } = document.getSelection();
         var [c] = scope.coder.children;
@@ -261,9 +297,8 @@
     }
     var initcode = function (innerText) {
         try {
-            var colored = codetext("js", innerText);
+            var colored = codetext("js", innerText, blink);
         } catch { return; }
-        var offset = getAnchorOffset();
         var innerHTML = scope.coder.innerHTML.replace(/\s*contenteditable\=[^\s\>]+/i, '');
         if (innerHTML === colored) return;
         var [c0] = scope.coder.children;
@@ -274,17 +309,17 @@
         var [c] = scope.coder.children;
         c.scrollTop = scrollTop;
         c.scrollLeft = scrollLeft;
-        if (contentLength < scope.coder.innerText.length) {
-            if (offset < 0) offset--;
-            else if (offset > 0) offset++;
-        }
         c.contentEditable = true;
-        setAnchorOffset(offset);
     };
-    var updatecode = lazy(function (event) {
+    var updatecode = lazy(function () {
+        markAnchorOffset();
         var innerText = scope.coder.innerText;
-        if (scope.codetext.replace(/[\s\u00a0]+/g, ' ').trim() === innerText.replace(/[\s\u00a0]+/g, ' ').trim()) return;
+        var trimspace = (_, a) => a ? "" : " ";
+        var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
+        unmarkAnchorOffset();
+        if (scope.codetext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
         initcode(innerText);
+        unmarkAnchorOffset();
         scope.codetext = scope.coder.innerText;
     });
     var execute = async function () {
@@ -336,6 +371,9 @@
             data.setInstance("docscode", { tagIndex: i });
             if (i === 1 && !scope.codetext) requestAnimationFrame(loadcode);
         },
+        keytab(event) {
+            event.preventDefault();
+        }
     };
     render(page, scope);
     function main(name) {
