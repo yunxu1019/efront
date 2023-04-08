@@ -243,8 +243,12 @@
             }
             if (delta >= offset) {
                 if (child.nodeType === 1) {
-                    child = child.firstChild;
-                    continue;
+                    if (child.firstChild) {
+                        child = child.firstChild;
+                        continue;
+                    }
+                    offset -= 1;
+                    break;
                 }
                 break;
             }
@@ -263,16 +267,16 @@
         var innerHTML = scope.coder.innerHTML.replace(/\s*contenteditable\=[^\s\>]+/i, '');
         if (innerHTML === colored) return;
         var [c0] = scope.coder.children;
-        var nodesCount = c0 ? c0.childNodes.length : 0;
+        var contentLength = c0 ? innerText.length : 0;
         var scrollTop = c0 ? c0.scrollTop : 0;
         var scrollLeft = c0 ? c0.scrollLeft : 0;
         scope.coder.innerHTML = colored;
         var [c] = scope.coder.children;
         c.scrollTop = scrollTop;
         c.scrollLeft = scrollLeft;
-        if (nodesCount < c.childNodes.length) {
-            // if (offset < 0) offset--;
-            // else if (offset > 0) offset++;
+        if (contentLength < scope.coder.innerText.length) {
+            if (offset < 0) offset--;
+            else if (offset > 0) offset++;
         }
         c.contentEditable = true;
         setAnchorOffset(offset);
