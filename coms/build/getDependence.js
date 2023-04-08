@@ -19,6 +19,8 @@ function getInitReferenced(dependence, args, argNames, data) {
         if (!next || next.type !== scaned.SCOPED || next.entry !== "(") return;
         var a = next.first;
         if (!a) return;
+        var an = a.next;
+        if (an && (an.type !== scaned.STAMP || an.text !== ",")) return;
         if (a.type === scaned.QUOTED) {
             var refer = strings.decode(a.text);
         }
