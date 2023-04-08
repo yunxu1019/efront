@@ -24,7 +24,7 @@ var getGenerator = function (container, tagName = 'item') {
     var template = document.createElement(container.tagName);
     var templates = [];
     for (let a of container.childNodes) {
-        if (a.hasAttribute('insert')) {
+        if (a.nodeType === 1 && a.hasAttribute('insert')) {
             if (!templates.length) a.$isbefore = true;
             else a.$isafter = true;
         }

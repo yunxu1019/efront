@@ -886,6 +886,7 @@ class Struct {
 function createStructure(element) {
     if (isArrayLike(element)) return Array.prototype.map.call(element, createStructure);
     if (element.$struct) return element.$struct;
+    if (element.nodeType !== 1) return;
     // 处理结构流
     var attributes = element.attributes;
     var attrs = Array.apply(null, attributes);
