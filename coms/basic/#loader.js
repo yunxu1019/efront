@@ -245,7 +245,7 @@ var killCircle = function () {
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (url, then, prebuilds = {}) {
-    var name = url.replace(/~[\s\S]*$/, '');
+    var name = url.replace(/[\*~][\s\S]*$/, '');
     if (/^(?:module|exports|define|require|window|global|undefined)$/.test(name)) return then();
     if ((hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
     ) return then();
@@ -339,7 +339,7 @@ var loadModule = function (url, then, prebuilds = {}) {
 var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".78pt" : 0.78 / devicePixelRatio + "pt") + (quote || "")) : text;
 "use ./#decrypt.js";
 var getArgs = function (text, aftfix) {
-    if (!aftfix) {
+    if (!aftfix || /^\*/.test(aftfix)) {
         "use ./#decrypt_.js";
     }
     var args, functionBody;
@@ -433,7 +433,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     var required = exec.required;
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
     var argsList = originNames.map(function (aName) {
-        var argName = aName.replace(/~[\s\S]*$/, '');
+        var argName = aName.replace(/[\*~][\s\S]*$/, '');
         if (hasOwnProperty.call(prebuilds, argName)) {
             return prebuilds[argName];
         }
@@ -510,7 +510,7 @@ var init = function (url, then, prebuilds) {
         if (then) then(modules[url]);
         return modules[url];
     }
-    var name = url.replace(/~[\s\S]*$/, '');
+    var name = url.replace(/[\*~][\s\S]*$/, '');
     if (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name)) {
         modules[name] = window[name]
         if (then) then(modules[name]);
