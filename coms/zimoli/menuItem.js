@@ -19,7 +19,7 @@ function main(elem, scope, hasIcon) {
         menu,
         checker,
     };
-    if (hasIcon) scope.hasIcon = true;
+    if (hasIcon || menu.icon) scope.hasIcon = true;
     render(item.children, scope);
     if (menu.line) item.setAttribute("line", ''), on("click")(item, preventDefault);
     return item;
