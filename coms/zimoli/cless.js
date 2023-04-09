@@ -1,4 +1,4 @@
-
+"use strict";
 var _create = function (commFactory, className, _invoke) {
     if (!className) return commFactory;
     if (commFactory instanceof Promise) {
