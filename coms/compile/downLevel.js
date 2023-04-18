@@ -1,7 +1,7 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, QUOTED, number_reg, rename, getDeclared, skipAssignment, createString } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, QUOTED, rename, getDeclared, skipAssignment, createString, relink, createExpressList } = require("./common");
 var link = function (a, b) {
     if (a) a.next = b;
     if (b) b.prev = a;
@@ -394,7 +394,7 @@ var killcls = function (body, o, getname_) {
         while (next && !next.isClass) next = next.next;
         base = createString(splice1(body, o, o = next));
     }
-    if (base === 'Array') base = 'Array2';
+    // if (base === 'Array') base = 'Array2'; 降级时不做填充的工作
     var index = 0;
     while (o && o.isClass) {
         var m = o.first;
@@ -615,6 +615,9 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
                     if (o && o.type === SCOPED) o = o.next;// ()
                     if (o && o.type === SCOPED) o = o.next;// {}
                     break;
+                case "async":
+                    splice1(body, o, o = o.next);
+                    break;
                 default:
                     o = o.next;
             }
@@ -667,9 +670,79 @@ var export_ = function () { };
 // 字面量 false|true|null|Infinity|NaN|undefined|arguments|this|eval|super
 var unfalse = function () { };
 var unyield = function () { };
-var unawait = function (body, awaits, getname_) {
+var power_map = {};
+[
+    '=,+=,-=,*=,/=,%=,|=,&=,^=,**=,~=',
+    '=>', '?,:', '&&,||', '&,|,^',
+    'instanceof,in,==,>=,<=,>,<,!=,!==,===,!in,!instanceof',
+    '>>,>>>,<<', '+,-', '*,/,%', '**',
+    'typeof,await,yield,!,~', '++,--'
+].forEach((pp, i) => {
+    pp.split(",").forEach(p => {
+        power_map[p] = i + 1;
+    })
+});
+var unawait = function (body, getname, argname) {
+    return unstruct(body, function () {
+        return getname("_");
+    }, argname);
 };
-var unforof = function (o, gettempname_, getnextname_) {
+var getsync = function (m) {
+    if (m.type === SCOPED && m.await) return null;
+    var n = skipAssignment(m);
+    while (m !== n) {
+        if (m.await || m.type === STRAP && m.text === 'await') return null;
+        m = m.next;
+    }
+};
+var isawait = function (o) {
+    if (o && o.type === SCOPED && o.entry === "{") {
+        if (!o.await) return false;
+    }
+    else while (o) {
+        o = getsync(o);
+        if (o === null) return true;
+        if (!o || o.type !== STAMP || o.text !== ',') {
+            break;
+        }
+        o = o.next;
+    }
+    return false;
+}
+var unforin = function (o, body, getnewname_) {
+    // 仅处理有 await 的代码
+    if (!o.await) {
+        if (!isawait(o.next)) return;
+    }
+    var m = o.first;
+    var hasdeclare = false;
+    if (m.type === STRAP) {
+        m = m.next;
+        hasdeclare = true;
+    }
+    var n = m.next;
+    if (n.type !== STRAP || n.text !== 'in') {
+        return;
+    }
+    n = n.next;
+    var tname = getnewname_();
+    var sname = getnewname_();
+    var kname = getnewname_();
+    var s = scanner2(`${sname}=`);
+    insert1(s, null, ...splice1(o, n));
+    insert1(s, null,
+        ...scanner2(`,${tname}=[];for(${kname} in ${sname})${tname}.push(${kname});`)
+    );
+    insert1(body, o.prev, ...s);
+    splice1(o, m.next);
+    splice1(o, m);
+    insert1(o, o.first, ...scanner2(`${kname}=0;${kname}<${tname}.length`));
+    var c = scanner2(`(=${tname}[${kname}]);${kname}++`);
+    insert1(c[0], c[0].first, m);
+    insert1(o, null, ...c);
+};
+
+var unforof = function (o, getnewname, used) {
     var m = o.first;
     var hasdeclare = false;
     if (m.type === STRAP) {
@@ -687,17 +760,19 @@ var unforof = function (o, gettempname_, getnextname_) {
         var [d] = getDeclared(p);
         insert1(o, m, ...scanner2(d.map(a => a.text).join(",")));
     }
-    splice1(o, m);
-    var iname = gettempname_();
-    insert1(o, null, ...scanner2(`${iname}=0`));
+    var iname = getnewname();
+    insert1(o, m, ...scanner2(`${iname}=0`));
     var oname;
-    if (f.type === EXPRESS && !/\./.test(oname)) {
+    if (!f.next && f.type === EXPRESS && !/\./.test(f.text) && used[f.text].length === 1) {
+        splice1(o, m);
         oname = f.text;
     }
     else {
-        oname = getnextname_();
+        oname = getnewname();
+        splice1(o, n, f);
+        var mo = splice1(o, f);
         insert1(o, null, ...scanner2(`,${oname}=`));
-        insert1(o, null, ...splice1(o, f));
+        insert1(o, null, ...mo);
     }
     insert1(o, null, ...scanner2(`;${iname}<${oname}.length&&`));
     var q = scanner2(`(=${oname}[${iname}],true)`)[0];
@@ -853,7 +928,7 @@ var down = function (scoped) {
         argcodes.push(`var ${an}=arguments;`);
     }
     var fordeep = 0;
-    var kill = function (scoped) {
+    var kill = function (scoped, _, body) {
         if (scoped.isfunc) return down(scoped);
         killlet(scoped);
         var saveddeep = fordeep;
@@ -865,7 +940,9 @@ var down = function (scoped) {
             var hp = scoped.head.prev;
             if (hp && hp.type === STRAP) {
                 if (hp.text === 'for') {
-                    unforof(scoped.head, getdeepname, getdeepname);
+                    unforof(scoped.head, getdeepname, scoped.used);
+                    unforin(scoped.head, body, getdeepname);
+                    // unforcx(scoped.head, getdeepname);
                 }
                 else if (hp.text === 'catch') {
                     killarg(scoped.head, scoped.body, _getname);
@@ -884,11 +961,24 @@ var down = function (scoped) {
         if (argcodes.length) precode(argcodes.join(";") + ";");
         if (scoped.body) scoped.body.keeplet = false, killobj(scoped.body, gettmpname, _getname, setsolid);
         scoped.forEach(kill);
+        if (scoped.async) {
+            var argname = _getname("_");
+            var code = unawait(scoped.body, _getname, argname);
+            var body = scanner2(`return async_()`);
+            code.forEach(function (c) {
+                var f = scanner2(`function(${body[2].length ? argname : ''}){}`);
+                if (!c.length) insert1(f[2], null, ...scanner2('return []'));
+                else insert1(f[2], null, ...c);
+                if (body[2].length) insert1(body[2], null, { type: STAMP, text: "," });
+                insert1(body[2], null, ...f);
+            });
+            scoped.body.splice(0, scoped.body.length);
+            insert1(scoped.body, null, ...body);
+        }
     }
     else {
         kill(scoped);
     }
-    Program.prototype.relink(scoped.body);
 };
 /**
  * @param {Program} code

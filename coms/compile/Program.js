@@ -222,7 +222,7 @@ class Program {
         };
         var row = 1, colstart = -1;
         var save = (type) => {
-            if (lasttype === STAMP && type === STAMP && !/[,;\:\?]/.test(m)) {
+            if (lasttype === STAMP && type === STAMP && !/[,;\:]/.test(m)) {
                 var scope = queue[queue.length - 1];
                 if (/=>$/i.test(scope.text) ||
                     /[=>]$/.test(scope.text) && /[^>=]/.test(m) ||

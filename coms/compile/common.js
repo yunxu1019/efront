@@ -146,6 +146,11 @@ var skipAssignment = function (o, cx) {
                 needpunc = true;
                 break;
             }
+            else if (o.text === 'debugger') {
+                next();
+                needpunc = false;
+                break loop;
+            }
             else {
                 next();
                 needpunc = false;

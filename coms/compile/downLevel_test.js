@@ -58,7 +58,7 @@ assert(downLevel(`={a:1,[a]:1}`), `= (_ = { a: 1 }, _[a] = 1, _)`);
 assert(downLevel(`={a,[a]:1}`), `= (_ = {}, _.a = a, _[a] = 1, _)`);
 assert(downLevel(`={[a]:{[b]:1}}`), `= (_ = {}, _[a] = (_0 = {}, _0[b] = 1, _0), _)`);
 assert(downLevel(`={[a]:{[b]:{[c]:1}}}`), `= (_ = {}, _[a] = (_0 = {}, _0[b] = (_1 = {}, _1[c] = 1, _1), _0), _)`);
-assert(downLevel(`={[a]:{[b]:{[c]:1}},[b]:{[a]:1})}`), `= (_ = {}, _[a] = (_0 = {}, _0[b] = (_1 = {}, _1[c] = 1, _1), _0), _[b] = (_0 = {}, _0[a] = 1, _0), _)`);
+assert(downLevel(`={[a]:{[b]:{[c]:1}},[b]:{[a]:1}}`), `= (_ = {}, _[a] = (_0 = {}, _0[b] = (_1 = {}, _1[c] = 1, _1), _0), _[b] = (_0 = {}, _0[a] = 1, _0), _)`);
 // 对象展开
 assert(downLevel(`={...a}`), `= extend({}, a)`);
 assert(downLevel(`={...{a:1}}`), `= extend({}, { a: 1 })`);
@@ -95,6 +95,7 @@ assert(downLevel(`function (a,...b,b){}`), "function (a, b) { b = arguments.leng
 assert(downLevel(`(a)=>k`), "function (a) { return k }")
 assert(downLevel(`(...a) => k`), "function () { var a = Array.prototype.slice.call(arguments, 0); return k }")
 assert(downLevel(`for(var o of os)`), "for (var _ = 0; _ < os.length && (o = os[_], true); _++)")
+assert(downLevel(`for(var o of o)`), "for (var _ = 0, _0 = o; _ < _0.length && (o = _0[_], true); _++)")
 assert(downLevel(`for(var [a] of os)`), "for (var _ = 0; _ < os.length && (a = os[_][0], true); _++)")
 assert(downLevel(`for(var [a,b] of os)`), "for (var _ = 0; _ < os.length && (_0 = os[_], a = _0[0], b = _0[1], true); _++)")
 assert(downLevel(`[...a]=a`), "a = Array.prototype.slice.call(a, 0)")
@@ -104,8 +105,11 @@ assert(downLevel(`[...a,c]=a`), "_ = a, a = Array.prototype.slice.call(a, 0, -1)
 assert(downLevel(`{...a,c}=a`), `c = a.c, a = rest_(a, ["c"])`)
 assert(downLevel(`{c,...a}=a`), `c = a.c, a = rest_(a, ["c"])`)
 assert(downLevel(`{c,[c]:b,...a}=a`), `c = a.c, b = a[c], a = rest_(a, ["c", c])`)
-assert(downLevel(`async function(){}`), `function(){return Promise.resolve()}`)
-assert(downLevel(`async function(a){await a}`), `function(a){return Promise.resolve(a)}`)
-assert(downLevel(`async function(a){await a,await b}`), `function(a){return async_(function(){return a},function(){return b}})`)
-assert(downLevel(`async function(){await a,await b}`), `function(){return async_(function(){return a},function(){return b}})`)
-assert(downLevel(`async function(a){ if(c)await a}`), `function(){return Promise.resolve(a).then(b)}`)
+assert(downLevel(`async function(){}`), `function () { return async_() }`)
+assert(downLevel(`async function(){return 1}`), `function () { return async_(function () { _0 = 1; return [_0, 2] }) }`)
+assert(downLevel(`async function(a){await a}`), `function (a) { return async_(function () { _0 = a; return [_0, 1] }) }`)
+assert(downLevel(`async function(a){return await a}`), `function (a) { return async_(function () { _0 = a; return [_0, 1] }, function (_) { _0 = _; return [_0, 2] }) }`)
+assert(downLevel(`async function(a){await a,await b}`), `function (a) { return async_(function () { _0 = a; return [_0, 1] }, function (_) { _0 = b; return [_0, 1] }) }`)
+assert(downLevel(`async function(){await a,await b}`), `function () { return async_(function () { _0 = a; return [_0, 1] }, function (_) { _0 = b; return [_0, 1] }) }`)
+assert(downLevel(`async function(a){ if(c)await a,await b;else if(s) await c;}`), `function (a) { return async_(function () { if (!c) return [3, 0]; _0 = a; return [_0, 1] }, function (_) { _0 = b; return [_0, 1] }, function (_) { return [2, 0] }, function (_) { if (!s) return [1, 0]; _0 = c; return [_0, 1] }) }`)
+assert(downLevel(`async function(a){ for(i=1;i<2;i++) await 1 }`), `function (a) { return async_(function () { i = 1; return [1, 0] }, function (_) { _0 = i < 2; if (!_0) return [3, 0] }, function (_) { _0 = 1; return [_0, 1] }, function (_) { _0 = i++; return [-2, 0] }) }`)
