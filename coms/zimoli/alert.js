@@ -78,7 +78,7 @@ function alert() {
     };
     waitclose(autoclose, 400)
     elem.setText = function (content, timeout = true) {
-        var c = elem.children[0];
+        var c = elem;
         c.innerHTML = content;
         text = content;
         if (timeout) {
