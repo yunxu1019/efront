@@ -4,6 +4,7 @@ var RE = { type: STRAP, text: "@re" };// if (_) return
 var RZ = { type: STRAP, text: "@rz" };// if (!_) return
 var RD = { type: STRAP, text: "@rd" };// if (_) return
 var RETURN = { type: STRAP, text: "@ret" };// return;
+var YIELD = { type: STRAP, text: "@yield" };// return;
 var NEXT = { type: STRAP, text: "@next" };// return;
 var _break = function (body, cx, result) {
     var label;
@@ -159,6 +160,15 @@ var _for = function (body, cx, unblock, result, tmpname) {
     if (m.type === STRAP && /^(let|const|var)$/.test(m.text)) {
         m = m.next;
     }
+    var mn = m.next;
+    if (mn.type === STRAP && mn.text === 'in') {
+        // 含有高级语法的 for in 语句在 ./downLevel.js 中预处理
+        var dx = cx;
+        var n = o.next;
+        while (body[dx] !== n) dx++;
+        addresult(result, body.slice(cx, dx));
+        return dx;
+    }
     var cy = 0;
     while (o[cy] !== m) cy++;
     var block = getblock(o, cy);// init
@@ -289,7 +299,7 @@ var _do = function (body, cx, unblock, result, tmpname) {
 };
 
 var needbreak = function (o) {
-    return o === RE || o === RZ || o === RETURN || o === NEXT || o === RD;
+    return o === RE || o === RZ || o === RD || o === RETURN || o === NEXT || o === YIELD;
 };
 var _return = function (r, nextindex) {
     var name = r.name;
@@ -301,8 +311,10 @@ var _return = function (r, nextindex) {
     semicolon = semicolon && semicolon.type === STAMP && /^[,;]$/.test(semicolon.text);
     var x;
     if (e === RETURN) {
-        if (nextindex === 1) r._return = true;
         x = scanner2(`return [${name},2]`);
+    }
+    else if (e === YIELD) {
+        x = scanner2(`return [${name},3]`);
     }
     else if (e === NEXT) {
         x = scanner2(`return [${name},1]`);
@@ -658,7 +670,14 @@ function toqueue(body, getname, ret = false) {
             continue;
         }
         a: if (o.type === STRAP) {
-            if (/^(new|typeof|yield|await)$/.test(o.text)) {
+            if (/^(new|typeof|await)$/.test(o.text)) {
+                break a;
+            }
+            if (o.text === 'yield') {
+                retn = [YIELD];
+                ret = true;
+                bx = cx + 1;
+                cx++;
                 break a;
             }
             if (o.text === 'return') {

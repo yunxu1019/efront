@@ -664,12 +664,8 @@ var killobj = function (body, getobjname, getname_, setsolid, deep = 0) {
         o = o.next;
     }
 };
-var import_ = function () { };
-var export_ = function () { };
 
 // 字面量 false|true|null|Infinity|NaN|undefined|arguments|this|eval|super
-var unfalse = function () { };
-var unyield = function () { };
 var power_map = {};
 [
     '=,+=,-=,*=,/=,%=,|=,&=,^=,**=,~=',
@@ -691,11 +687,11 @@ var getsync = function (m) {
     if (m.type === SCOPED && m.await) return null;
     var n = skipAssignment(m);
     while (m !== n) {
-        if (m.await || m.type === STRAP && m.text === 'await') return null;
+        if (m.await || m.type === STRAP && /^(yield|await)$/.test(m.text)) return null;
         m = m.next;
     }
 };
-var isawait = function (o) {
+var ises3 = function (o) {
     if (o && o.type === SCOPED && o.entry === "{") {
         if (!o.await) return false;
     }
@@ -710,9 +706,9 @@ var isawait = function (o) {
     return false;
 }
 var unforin = function (o, body, getnewname_) {
-    // 仅处理有 await 的代码
+    // 仅处理有 await 或 yield 的代码
     if (!o.await) {
-        if (!isawait(o.next)) return;
+        if (!ises3(o.next)) return;
     }
     var m = o.first;
     var hasdeclare = false;
@@ -743,6 +739,11 @@ var unforin = function (o, body, getnewname_) {
 };
 
 var unforof = function (o, getnewname, used) {
+    var hasawait = false;
+    if (o.type === STRAP && o.text === 'await') {
+        hasawait = true;
+        o = o.next;
+    }
     var m = o.first;
     var hasdeclare = false;
     if (m.type === STRAP) {
@@ -761,7 +762,7 @@ var unforof = function (o, getnewname, used) {
         insert1(o, m, ...scanner2(d.map(a => a.text).join(",")));
     }
     var iname = getnewname();
-    insert1(o, m, ...scanner2(`${iname}=0`));
+    var gname = getnewname();
     var oname;
     if (!f.next && f.type === EXPRESS && !/\./.test(f.text) && used[f.text].length === 1) {
         splice1(o, m);
@@ -774,12 +775,7 @@ var unforof = function (o, getnewname, used) {
         insert1(o, null, ...scanner2(`,${oname}=`));
         insert1(o, null, ...mo);
     }
-    insert1(o, null, ...scanner2(`;${iname}<${oname}.length&&`));
-    var q = scanner2(`(=${oname}[${iname}],true)`)[0];
-    insert1(q, q[0], p);
-    insert1(o, null, q);
-    insert1(o, null, ...scanner2(`;${iname}++`));
-
+    insert1(o, null, ...scanner2(`${gname}=${hasawait ? `${oname}[Symbol.asyncGenerator]||${oname}[Symbol.generator]` : `${oname}[Symbol.generator]||${oname}[Symbol.asyncGenerator]`}||Array.prototype[Symbol.asyncGenerator].bind(${oname}),${gname}=${gname}(),${iname}=${hasawait ? "await " : ''}${gname}.next();${p.text}=${iname}.value,!${iname}.done;${iname}=${gname}.next();`));
 };
 var unarrow = function (body, o, killobj, getname_) {
     var p = o.prev;
@@ -961,10 +957,10 @@ var down = function (scoped) {
         if (argcodes.length) precode(argcodes.join(";") + ";");
         if (scoped.body) scoped.body.keeplet = false, killobj(scoped.body, gettmpname, _getname, setsolid);
         scoped.forEach(kill);
-        if (scoped.async) {
+        if (scoped.async || scoped.yield) {
             var argname = _getname("_");
             var code = unawait(scoped.body, _getname, argname);
-            var body = scanner2(`return async_()`);
+            var body = scanner2(`return ${[, "aster_", "async_", "asyncAster_"][scoped.async << 1 | scoped.yield]}()`);
             code.forEach(function (c) {
                 var f = scanner2(`function(${body[2].length ? argname : ''}){}`);
                 if (!c.length) insert1(f[2], null, ...scanner2('return []'));

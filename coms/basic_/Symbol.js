@@ -17,5 +17,16 @@ var Symbol = this.Symbol || function () {
     };
 
     Symbol.prototype = prototype;
+    Symbol.iterator = Symbol('iterator');
+    Symbol.asyncIterator = Symbol('asyncIterator');
+    Array.prototype[Symbol.iterator] = function () {
+        var arr = this, cx = 0, dx = arr.length;
+        return {
+            next() {
+                if (cx < dx) return { value: arr[cx++], done: false };
+                return { value: undefined, done: true };
+            }
+        }
+    };
     return Symbol;
 }();

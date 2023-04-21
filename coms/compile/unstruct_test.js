@@ -31,7 +31,9 @@ test('a * a ?? b * c * c ** d', "_ = a * a; if (_ !== null && _ !== undefined) r
 test('a * a && await b*c', "_ = a * a; if (!_) return [2, 0]; _ = b; return [_, 1]; _ = @; _ = _ * c", true);
 
 test("await a", "_ = a; return [_, 1]", true);
+test("yield a", "_ = a; return [_, 3]", true);
 test("await a()", "_ = a(); return [_, 1]", true);
+test("yield a()", "_ = a(); return [_, 3]", true);
 test("(1+ +1)", "_ = +1, _ = 1 + _; _ = (_)", true);
 test("await a(await b)", "_ = b; return [_, 1]; _ = @; _ = a(_); return [_, 1]", true);
 test("await a(await b).s(await c)", "_ = b; return [_, 1]; _ = @; _ = a(_); _0 = c; return [_0, 1]; _0 = @; _ = _.s(_0); return [_, 1]", true);
@@ -48,6 +50,7 @@ test("if(a) await b; else if(e) await c else await d", "if (!a) return [2, 0]; _
 test("if(await a) await b", "_ = a; return [_, 1]; if (!_) return [1, 0]; _ = b; return [_, 1]", true);
 test("for(a=0;a<10;a++) await a", "a = 0; return [1, 0]; _ = a < 10; if (!_) return [3, 0]; _ = a; return [_, 1]; _ = a++; return [-2, 0]", true);
 test("for(a=0;a<10;a++) await a, await b", "a = 0; return [1, 0]; _ = a < 10; if (!_) return [4, 0]; _ = a; return [_, 1]; _ = b; return [_, 1]; _ = a++; return [-3, 0]", true);
+test("for(a=0;b=2,a<10;a++) await a, await b", "a = 0; return [1, 0]; b = 2; _ = a < 10; if (!_) return [4, 0]; _ = a; return [_, 1]; _ = b; return [_, 1]; _ = a++; return [-3, 0]", true);
 test("while(a) await b", "_ = a; if (!_) return [3, 0]; _ = b; return [_, 1]; return [-2, 0]", true);
 test("do{await b}while(a)", "_ = b; return [_, 1]; _ = a; return [_ ? -2 : 1, 0]", true);
 test("switch(a){case 1:}", "_ = a; _0 = 1; if (_ === _0) return [1, 0]", true);
