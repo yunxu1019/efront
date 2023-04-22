@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, relink } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, relink } = require("./common");
 var scanner2 = require("./scanner2");
 var RE = { type: STRAP, text: "@re" };// if (_) return
 var RZ = { type: STRAP, text: "@rz" };// if (!_) return
@@ -366,7 +366,7 @@ var _invoke = function (t, getname) {
                 cy = skipAssignment(o, cy);
                 if (by === cy) continue;
                 var m = o.slice(by, cy);
-                if (m.length === 1 && (m[0].type === EXPRESS && /\./.test(m[0].text) || m[0].type === VALUE)) {
+                if (m.length === 1 && (m[0].type === EXPRESS && !/\./.test(m[0].text) || m[0].type === VALUE || m[0].type === QUOTED)) {
                     continue;
                 }
                 var q = toqueue(m, getdeepname, true);
