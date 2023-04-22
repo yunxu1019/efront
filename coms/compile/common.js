@@ -101,8 +101,11 @@ var skipAssignment = function (o, cx) {
                 next();
                 break;
             }
-        case VALUE:
         case QUOTED:
+            if (needpunc && /^`/.test(o.text || o.entry)) {
+                needpunc = false;
+            }
+        case VALUE:
             if (needpunc) break loop;
             needpunc = true;
             next();
