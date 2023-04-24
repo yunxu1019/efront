@@ -280,10 +280,6 @@ function prepare(pgpath, ok) {
     var state = createState(pgpath);
     state.state = state;
     var _with_elements = [];
-    state.with = function (element) {
-        if (element) _with_elements.push(element);
-        return _with_elements;
-    };
     state.path = function (url) {
         if (/^\.+\//.test(url)) {
             url = pgpath.replace(/[^\/]*$/, url);
@@ -303,10 +299,6 @@ function prepare(pgpath, ok) {
             url = "/" + ds.join('/').replace(/^\//, '');
         }
         return url;
-    };
-    state.popup = function (a) {
-        a = state.path(a);
-        return popup.apply(this, [a].concat([].slice.call(arguments, 1)));
     };
     state.init = function (a) {
         a = state.path(a);
@@ -415,10 +407,6 @@ function create(pagepath, args, from, needroles) {
         return alert(i18n`没有权限！`, 0);
     }
     _with_elements = [].concat(_with_elements);
-    state.with = function (element) {
-        if (element) _with_elements.push(element);
-        return _with_elements;
-    };
     state.onback = function (handler) {
         _pageback_listener = handler;
     };
