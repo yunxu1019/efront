@@ -7,7 +7,7 @@ var procs = [];
 var lastdata = '';
 var locals = {}, invokes = {}, params = {};
 var registers = /^([er]?[abcd]x|[abcd][hl]|[er][sd]i|[re][sbi]p|[ecsdfg]s)$/i;
-var operators = /^(ifn?def|else|endif|echo|repeat|exitm|union|option|include(lib)?|local|end|invoke|call|push|pop|cld|(lod|sto|mov|sca|cmp)s[bwd]|rep|loop|lea|ret|mov|inc|dec|xor|and|not|or|cmp|jmp|j[na]?[ez]|sh[rl]|(fi?)?(add|div|mul|sub)|fi?(stp|ld)f(chs|ld1|init)|\.\w+)(\s|$)/i;
+var operators = /^(ifn?def|exte?rn|public|enter|leave|else|endif|echo|repeat|exitm|union|option|include(lib)?|local|end|invoke|call|push|pop|cld|(lod|sto|mov|sca|cmp)s[bwd]|rep|loop|lea|ret|mov|inc|dec|xor|and|not|or|cmp|jmp|j[na]?[ez]|sh[rl]|(fi?)?(add|div|mul|sub)|fi?(stp|ld)|f(chs|ld1|init)|\.\w+)(\s|$)/i;
 function clean() {
     queue = [];
     datas = {};
@@ -123,9 +123,9 @@ function readrow(row) {
         row.slice(match[0].length).replace(/;[\s\S]*/, '').split(',').forEach(addlocal);
         return;
     }
-    var match = /^([a-z\_@]\w*\s+)(\w+)/i.exec(row);
+    var match = /^([^\s\:;\[\],\?~`'"\>\<\(\)\*\^\%\|\\\{\}\\\/\=\+\-]+)\s+(\w+)/i.exec(row);
     if (match && !operators.test(row)) {
-        if (!/(equ|proto)/i.test(match[2])) return adddata(match[1].trim(), row);
+        if (!/(equ|proto)/i.test(match[2])) return adddata(match[1], row);
     }
     var match = /^include(?:lib)?\s+/i.exec(row);
     if (match) {
@@ -136,7 +136,7 @@ function readrow(row) {
     if (match) {
         addinvoke(match[1]);
     }
-    var match = /^\w+\s*/.exec(row);
+    var match = /^[^\s\:;\[\],\?~`'"\>\<\(\)\*\^\%\|\\\{\}\\\/\=\+\-]+(\s+|$)/.exec(row);
     if (match && !/^end\s/i.test(match)) row.slice(match[0].length).replace(/([^,\s\:\+&\|\-\>\<\.\(\)\[\]\;\!\'\"\*]+)\s*(?:[,\.\|\)\[\]\;\+\-\=\*\>\<\!&\\]|$)/g, function (_, a) {
         if (/^([\d\.]+|NULL|FALSE|TRUE)$/.test(a)) return;
         if (registers.test(a)) return;

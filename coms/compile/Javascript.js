@@ -33,7 +33,7 @@ function,continue,debugger
 instanceof`.trim().split(/[,\s]+/);
 class Javascript extends Program {
     straps = straps;
-    value_reg = /^(false|true|null|Infinity|NaN|undefined|arguments|this|eval|super)$/
+    value_reg = /^(false|true|null|Infinity|NaN|undefined)$/
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger)$/;
