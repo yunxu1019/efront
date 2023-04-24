@@ -3,12 +3,18 @@ var encodeUTF16 = require("../basic/encodeUTF16");
 var strings = require("../basic/strings");
 var parseNumber = require("../basic/parseNumber");
 var hex = d => (d < 16 || d > 159 ? '0' + d.toString(16) : d.toString(16)) + "h,";
-var toHex = function (code) {
+var toUtf16 = function (code) {
     return encodeUTF16(code, false).map(hex).join('');
 };
 
+var toUtf8 = function (code) {
+    return encodeUTF8(code).map(hex).join('');
+};
+var toUtf = toUtf16;
 var replacePiece = function (piece, force) {
     if (/^A['"]/i.test(piece)) return piece.slice(1);
+    if (/^U(tf8)?['"]/i.test(piece)) toUtf = toUtf8;
+    if (/^U(tf)?16['"]/i.test(piece)) toUtf = toUtf16;
     if (!/^(\d+|\d+\.\d+|\d+\.|\.\d+)$/i.test(piece) || force) {
         if (/^[\da-f]+h$/.test(piece)) {
             if (piece.length !== 3) {
@@ -16,10 +22,10 @@ var replacePiece = function (piece, force) {
             }
         }
         if (/^[0\\]x[a-f\d]*$/i.test(piece)) {
-            piece = toHex(parseInt(piece.slice(2), 16));
+            piece = toUtf(parseInt(piece.slice(2), 16));
         }
         else {
-            piece = piece.replace(/[\ud800-\udfff]{2}|[\u0000-\uffff]/g, toHex);
+            piece = piece.replace(/[\ud800-\udfff]{2}|[\u0000-\uffff]/g, toUtf);
             piece = piece.slice(0, piece.length - 1);
         }
         if (force) piece += ",0,0"
@@ -29,7 +35,7 @@ var replacePiece = function (piece, force) {
 var exist = a => a;
 var replaceDb = function (db) {
     var lastEnd = 0;
-    var reg = /\\[\s\S]|["',]/g;
+    var reg = /\\[\s\S]{1,16}|["',]/g;
     var str = '';
     var res = [];
     while (lastEnd < db.length) {
@@ -55,7 +61,13 @@ var replaceDb = function (db) {
         }
     }
     if (lastEnd < db.length) res.push(replacePiece(db.slice(lastEnd, db.length)));
-    return res.join(",");
+    res = res.join(',').split(',');
+    var rows = [];
+    rows.push(res.splice(0, 16).join(','))
+    while (res.length) {
+        rows.push("        db " + res.splice(0, 16).join(','));
+    }
+    return rows.join('\r\n');
 };
 var real = function (a) {
     a = parseNumber(a).toString();
@@ -73,12 +85,18 @@ var replaceRow = function (rowtext) {
         comment = rowtext.slice(commentIndex);
         rowtext = rowtext.slice(0, commentIndex);
     }
-    var match = /^(\s*(?:[a-z]\w*\s+)?)(db|real\d)(\s+)([\s\S]*?)\s*$/i.exec(rowtext);
+    var match = /^(\s*(?:[^\:,;\?\*\&\^\-\+=\!~`'"\<\>\.\\\/\[\]\(\)\[\]\|\%]+\s+)?)(d[dwb]|real\d)(\s+)([\s\S]*?)\s*$/i.exec(rowtext);
     if (!match) return rowtext + comment;
     var [, prefix, type, space, db] = match;
     var match = /^([\s\S]*?)(\s*dup\((?:\?|\d+)\)\s*)$/i.test(db);
     if (!match) switch (type) {
+        case "dw":
+            toUtf = toUtf16;
+            db = replaceDb(db);
+            type = 'db';
+            break;
         case "db":
+            toUtf = toUtf8;
             db = replaceDb(db);
             break;
         case "real4":

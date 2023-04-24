@@ -50,35 +50,35 @@ DEVICE_PRIMARY equ 0
 DEVICE_IMMERSIVE equ 1
 .data
 gpstart GdiplusStartupInput <1,0,0,0>;
-shellOperator db "open"
-assocname db "assoc.bat"
-unassoc db "unassoc.bat"
-unassocParam db "/c "
-uninstall db "cmd.exe"
-uninstallParam db "/c cd ..& rd /s /q ."
-uninstallName db "卸载.scr",0,0
+shellOperator dw "open"
+assocname dw "assoc.bat"
+unassoc dw "unassoc.bat"
+unassocParam dw "/c "
+uninstall dw "cmd.exe"
+uninstallParam dw "/c cd ..& rd /s /q ."
+uninstallName dw "卸载.scr",0,0
 uninstallSize dd 0
 uninstallRest dd 0
-shcoreName db "shcore.dll",0
-dpiProcName db a"SetProcessDpiAwareness",0
-factorName db a"GetScaleFactorForMonitor",0
-dpiforName db a"GetDpiForMonitor",0
-; shellName db "shell32.dll",0
-; browseName db a"SHBrowseForFolderW",0
-fontFamily db "仿宋",0
-fontFamili db "宋体",0
+shcoreName dw "shcore.dll",0
+dpiProcName byte "SetProcessDpiAwareness",0
+factorName byte "GetScaleFactorForMonitor",0
+dpiforName byte "GetDpiForMonitor",0
+; shellName dw "shell32.dll",0
+; browseName byte "SHBrowseForFolderW",0
+fontFamily dw "仿宋",0
+fontFamili dw "宋体",0
 factor dd 4
-szClassName db 'efront.cc/baiplay',0
+szClassName dw 'efront.cc/baiplay',0
 ; 保持标题不变，以便被efront查找替换
-szCaptionMain db '白前安装程序',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-onekey1 db '一键安装',0
-onekey2 db '正在安装',0,0,0
-onekey3 db '　完成　',0
-onekey4 db '一键卸载',0
-onekey5 db '正在卸载',0
+szCaptionMain dw '白前安装程序',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+onekey1 dw '一键安装',0
+onekey2 dw '正在安装',0,0,0
+onekey3 dw '　完成　',0
+onekey4 dw '一键卸载',0
+onekey5 dw '正在卸载',0
 onekey_rect real4 336,208,100,100
 ; 保持软件名不变，以便被efront查找替换
-szText db '白前',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+szText dw '白前',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 titlerect real4 18,20,370,50
 logodots real4 464.054, 574.786, 93.042, 57.856, 416.684, 192.928, 393.0, 2.0, 656.528, 27.884, 786.0, 177.952, 786.0, 395.0, 786.0, 612.048, 610.048, 788.0, 393.0, 788.0, 175.952, 788.0, 0.0, 612.048, 0.0, 395.0, 67.346, 325.95, 47.566, 97.362, 47.566, 97.362, 222.956, 95.026, 325.226, 415.644, 464.054, 574.786 
 closeline real4 480, 30, 480, 0, 420, 0, 420.15, 2.995, 420.598, 5.96, 421.34, 8.866, 422.368, 11.683, 423.673, 14.383, 425.24, 16.939, 427.055, 19.327,429.099, 21.521, 431.352, 23.5, 433.791, 25.244, 436.392, 26.736, 439.129, 27.961, 441.975, 28.907, 444.901, 29.563, 447.878, 29.925
@@ -115,15 +115,15 @@ ground EFRONT_BUTTON<0,0,0,0,0>
 folder  word MAX_PATH dup(?)
 buffer  word MAX_PATH dup(?)
 buffer2  word MAX_PATH dup(?)
-program db "ProgramFiles",0
-program64 db "ProgramW6432",0
-folderTitle db "选择安装目录",0
-szErrOpenFile db '无法打开源文件！'
-szErrCreateFile db '创建文件失败！',0
+program dw "ProgramFiles",0
+program64 dw "ProgramW6432",0
+folderTitle dw "选择安装目录",0
+szErrOpenFile dw '无法打开源文件！'
+szErrCreateFile dw '创建文件失败！',0
 hiddensetup dd 0
-hiddenmark db "/s"
-hiddenmark1 db "/h"
-findmark db "*.*"
+hiddenmark dw "/s"
+hiddenmark1 dw "/h"
+findmark dw "*.*"
 
 folder_rect real4 20,320,440,21
 hWinMain dd 0
@@ -1524,6 +1524,7 @@ _SetFactor proc
         ; push DWORD ptr 2 ;切换分辨率手动缩放
         call eax
     .endif
+    invoke FreeLibrary, shcore
     invoke GetSystemMetrics,SM_CXSCREEN
     mov w1,eax
     invoke GetSystemMetrics,SM_CYSCREEN
