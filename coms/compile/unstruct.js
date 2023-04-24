@@ -716,6 +716,12 @@ function toqueue(body, getname, ret = false) {
                 cx++;
                 break a;
             }
+            if (/^(async|function)$/.test(o.text)) {
+                cx = skipAssignment(body, cx);
+                addresult(result, body.slice(bx, cx));
+                bx = cx + 1;
+                break a;
+            }
             if (o.text === 'break') {
                 cx = _break(body, cx, result);
                 bx = cx + 1;
