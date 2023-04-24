@@ -193,13 +193,36 @@ var _for = function (body, cx, unblock, result, tmpname) {
     relink(result[result.length - 1]);
     return cx;
 };
+var getCondition = function (o, unblock, not_) {
+    var n = '';
+    var f = o.first;
+    var not = f.type === STAMP && f.text === "!";
+    if (not) f = f.next;
+    if (not_) not = !not;
+    if (f && f === o.last) {
+        if (f.type & (EXPRESS | VALUE)) {
+            n = f.text;
+        }
+        if (not && n) {
+            if (f.type === VALUE) {
+                n = String(eval("!" + f.text));
+            }
+            else n = "!" + n;
+        }
+    }
+    if (!n) {
+        n = unblock(o);
+        n = n.await ? ret_ : n.name;
+        if (not) n = "!" + n;
+    }
+    return n;
+}
 var _while = function (body, cx, unblock, result, tmpname) {
     var o = body[cx];
     o = o.next;
     while (body[cx] !== o) cx++;
-    var b = scanner2(`;if(!${tmpname})return []`)
-    unblock(o);
-    result[result.length - 1].push(...b);
+    var b = scanner2(`if(${getCondition(o, unblock, true)})return []`)
+    result.push(b);
     relink(result[result.length - 1]);
     var block = getblock(body, ++cx);
     var i = result.length;
@@ -291,8 +314,7 @@ var _do = function (body, cx, unblock, result, tmpname) {
     var i = result.length;
     unblock(o);
     o = o.next.next;
-    unblock(o);
-    var b = scanner2(`return [${tmpname}?${i - result.length}:${1},0]`);
+    var b = scanner2(`if(${getCondition(o, unblock)})return [${i - result.length},0];return [1,0]`);
     addresult(result, b);
     while (body[cx] !== o) cx++;
     return cx;
@@ -422,12 +444,14 @@ var ternary = function (body, getname, ret) {
             var bx = question.pop();
             if (!question.length) {
                 var b = body.slice(0, bx);
-                b = _express(b, getname, true);
+                relink(b);
                 var c = ternary(body.slice(bx + 1, cx), getname, true);
                 var d = ternary(body.slice(cx + 1), getname, true);
-                b[b.length - 1].push(...scanner2(`;return [${getname(0)}?1:${c.length + 1},0]`));
-                c[c.length - 1].push(...scanner2(`;return [${d.length + 1},0]`));
-                res.push(...b);
+                addresult(c, scanner2(`return [${d.length + 1},0]`));
+                addresult(res, scanner2(`if(${getCondition(b, function (b) {
+                    addresult(res, _express(b));
+                    return res[res.length - 1];
+                })})return [1,0];return [${c.length + 1},0]`));
                 res.push(...c);
                 res.push(...d);
             }
@@ -453,6 +477,10 @@ var _express = function (body, getname, ret) {
     for (var cx = 0, dx = body.length; cx < dx; cx++) {
         var o = body[cx];
         if (o.type & (COMMENT | SPACE)) continue;
+        if (o.type === STRAP && /^(var|let|const)/.test(o.text)) {
+            bx = cx + 1;
+            continue;
+        }
         if (o.type & (STRAP | STAMP)) {
             var p = 0;
             if (o.text === '=') {
@@ -482,7 +510,7 @@ var _express = function (body, getname, ret) {
                 var p0 = cache.pop();
                 var t = cache.pop();
                 var isawait = _await(t);
-                if (p0 > powermap["="]) q.push(...scanner2(`${getname(t.index)}=`));
+                if (p0 > powermap["="] || isawait) q.push(...scanner2(`${getname(t.index)}=`));
                 q.push.apply(q, t);
                 q.push.apply(q, b);
                 if (isawait) q.push(NEXT);
@@ -518,7 +546,7 @@ var _express = function (body, getname, ret) {
         nameindex = cache[cache.length - 1].index;
         var t = cache.pop();
         var isawait = _await(t, nameindex);
-        if (p > powermap["="] && (ret || cache.length > 0)) q.push(...scanner2(`${getname(nameindex)}=`));
+        if (p > powermap["="] && (ret || ax >= 1 || cache.length > 0 || isawait)) q.push(...scanner2(`${getname(nameindex)}=`));
         q.push.apply(q, t);
         q.push.apply(q, b);
         if (isawait) q.push(NEXT);
@@ -601,7 +629,7 @@ function toqueue(body, getname, ret = false) {
             var f = result[findex];
             var n = iftop[cx++];
             if (f) {
-                var c = scanner2(`if(!${n})return [${iftop.length > cx ? iftop[cx] - findex : result.length - findex},0];`);
+                var c = scanner2(`if(${n})return [${iftop.length > cx ? iftop[cx] - findex : result.length - findex},0];`);
                 f.unshift.apply(f, c);
                 relink(f);
             }
@@ -620,6 +648,7 @@ function toqueue(body, getname, ret = false) {
                 relink(q);
             }
         }
+        return result[result.length - 1];
     };
     var poplabel = function () {
         var e = labels.pop();
@@ -741,16 +770,7 @@ function toqueue(body, getname, ret = false) {
             if (o.text === 'if') {
                 while (body[cx] !== o.next) cx++;
                 o = o.next;
-                var n = '';
-                if (o.first && o.first === o.last) {
-                    if (o.first.type === EXPRESS) {
-                        n = o.first.text;
-                    }
-                }
-                if (!n) {
-                    unblock(o);
-                    n = getname(0);
-                }
+                var n = getCondition(o, unblock, true);
                 if (!elseif) {
                     if (iftop) uniftop();
                     iftop = [result.length, n];
@@ -805,7 +825,7 @@ module.exports = function (body, newname, ret) {
         if (!tmpnames[i]) tmpnames[i] = newname();
         return tmpnames[i];
     };
-    var res = toqueue(body, getname, ret);
+    var res = toqueue(body, getname, false);
     ret_ = ret0;
     return res;
 };
