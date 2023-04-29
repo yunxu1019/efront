@@ -16,7 +16,7 @@ test('a * a + b * c', "_ = a * a, _0 = b * c, _ + _0");
 test('a * a + b * c * c ** d', "_ = a * a, _0 = b * c, _1 = c ** d, _0 = _0 * _1, _ + _0");
 test('a * a || b * c * c ** d', "_ = a * a @re _ = b * c, _0 = c ** d, _ * _0");
 test('a * a || b * c || c * d', "_ = a * a @re _ = b * c @re c * d");
-test('a?b:c', "if (a) return [1, 0]; _ = b; return [2, 0]; _ = c;");
+test('a?b:c', "if (a) return [1, 0]; _ = b; return [2, 0]; _ = c");
 test('a * a && b * c * c ** d', "_ = a * a @rz _ = b * c, _0 = c ** d, _ * _0");
 test('a = 1 + 2', "_ = 1 + 2, a = _", true);
 test('a = b', "a = b", true);

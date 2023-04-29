@@ -6,7 +6,7 @@ var RD = { type: STRAP, text: "@rd" };// if (_) return
 var RETURN = { type: STRAP, text: "@ret" };// return;
 var YIELD = { type: STRAP, text: "@yield" };// return;
 var NEXT = { type: STRAP, text: "@next" };// return;
-var _break = function (body, cx, result) {
+var _break = function (body, cx, result, iscontinue) {
     var label;
     do {
         var o = body[++cx];
@@ -15,14 +15,19 @@ var _break = function (body, cx, result) {
     } while (true);
     var bx = cx;
     if (label) {
+        var s;
         for (var cx = labels.length - 1; cx >= 0; cx--) {
             var b = labels[cx];
             if (b.type === LABEL && b.text === label) {
                 if (!b.breaks) b.breaks = [];
                 var _b = scanner2(`return[]`);
+                if (iscontinue) _b.continue = s, s.continue = true;
                 addresult(result, _b);
                 b.breaks.push(_b);
                 break;
+            }
+            else {
+                s = b;
             }
         }
     }
@@ -32,6 +37,7 @@ var _break = function (body, cx, result) {
             if (b.type !== LABEL) {
                 if (!b.breaks) b.breaks = [];
                 var _b = scanner2(`return[]`);
+                if (iscontinue) _b.continue = b, b.continue = true;
                 addresult(result, _b);
                 b.breaks.push(_b);
                 break;
@@ -155,6 +161,7 @@ var _switch = function (body, cx, unblock, result, getname) {
 };
 var _for = function (body, cx, unblock, result, tmpname) {
     var o = body[cx];
+    var label = o;
     o = o.next;
     var m = o.first;
     if (m.type === STRAP && /^(let|const|var)$/.test(m.text)) {
@@ -187,6 +194,7 @@ var _for = function (body, cx, unblock, result, tmpname) {
     relink(result[result.length - 1]);
     var i = result.length;
     unblock(block_);
+    if (label.continue) label.continue = result.length, result[result.length - 1].cont = true, label.contat = result.length;
     unblock(block2);
     result[result.length - 1].push(...scanner2(`;return [${i - result.length},0]`));
     b[b.length - 1].push(...scanner2(`${result.length - i + 1},0`));
@@ -219,6 +227,7 @@ var getCondition = function (o, unblock, not_) {
 }
 var _while = function (body, cx, unblock, result, tmpname) {
     var o = body[cx];
+    o.contat = result.length;
     o = o.next;
     while (body[cx] !== o) cx++;
     var b = scanner2(`if(${getCondition(o, unblock, true)})return []`)
@@ -244,7 +253,7 @@ var pushstep = function (result, step) {
         relink(step);
         result.push(step);
     }
-    else if (q.ifrt) {
+    else if (q.ifrt || q.cont) {
         result.push(step);
     }
     else {
@@ -310,10 +319,12 @@ var addresult = function (result, step) {
 };
 var _do = function (body, cx, unblock, result, tmpname) {
     var o = body[cx];
+    var label = o;
     o = o.next;
     var i = result.length;
     unblock(o);
     o = o.next.next;
+    if (label.continue) result[result.length - 1].cont = true, label.contat = result.length;
     var b = scanner2(`if(${getCondition(o, unblock)})return [${i - result.length},0];return [1,0]`);
     addresult(result, b);
     while (body[cx] !== o) cx++;
@@ -451,7 +462,7 @@ var ternary = function (body, getname, ret) {
                 addresult(res, scanner2(`if(${getCondition(b, function (b) {
                     addresult(res, _express(b));
                     return res[res.length - 1];
-                })})return [1,0];return [${c.length + 1},0]`));
+                })})return [1,0]`));
                 res.push(...c);
                 res.push(...d);
             }
@@ -608,6 +619,10 @@ var getblock = function (body, cx) {
     return body.slice(ax, cx);
 };
 var labels = [];
+var scopes = [];
+var isbreak = function (o) {
+    return o.type === STRAP && /^(break|return|continue|yield)$/.test(o.text);
+};
 
 function toqueue(body, getname, ret = false) {
     var retn = false;
@@ -617,18 +632,27 @@ function toqueue(body, getname, ret = false) {
         addresult(result, re);
     }
     var uniftop = function () {
-        for (var cx = 2, dx = iftop.length; cx < dx; cx += 2) {
+        for (var cx = 3, dx = iftop.length; cx < dx; cx += 3) {
             var findex = iftop[cx];
+            var r = iftop[cx + 1];
             var p = result[findex - 1];
-            p.pop();
-            p.push(...scanner2(`[${result.length + 1 - findex},0]`));
-            relink(p);
+            if (!r) {
+                p.pop();
+                p.push(...scanner2(`[${result.length + 1 - findex},0]`));
+                relink(p);
+            }
         }
-        for (var cx = 0, dx = iftop.length - 1; cx < dx;) {
+        for (var cx = 0, dx = iftop.length - 2; cx < dx;) {
             var findex = iftop[cx++];
             var f = result[findex];
+            var r = iftop[cx++];
             var n = iftop[cx++];
-            if (f) {
+            if (r) {
+                var c = scanner2(`if(${n})`);
+                f.unshift.apply(f, c);
+                relink(f);
+            }
+            else if (f) {
                 var c = scanner2(`if(${n})return [${iftop.length > cx ? iftop[cx] - findex : result.length - findex},0];`);
                 f.unshift.apply(f, c);
                 relink(f);
@@ -660,7 +684,7 @@ function toqueue(body, getname, ret = false) {
                     var r = result[cx];
                     if (r[r.length - 1] === end) { break }
                 }
-                end.push({ type: VALUE, text: result.length - cx }, { type: STAMP, text: "," }, { type: VALUE, text: "0" });
+                end.push({ type: VALUE, text: b.contat - cx ? b.continue : result.length - cx }, { type: STAMP, text: "," }, { type: VALUE, text: "0" });
                 relink(end);
             }
         }
@@ -675,23 +699,20 @@ function toqueue(body, getname, ret = false) {
         if (!o) break;
         while (labels.length) {
             var e = labels[labels.length - 1];
-            if (e.type !== LABEL) {
-                break;
-            }
-            if (e.keep) {
-                e.keep = false;
-                break;
-            }
+            if (e.type !== LABEL && !iftop) break;
+            if (scopes.lastIndexOf(e.scope) >= 0) break;
             poplabel();
         }
 
         if (o.type === LABEL) {
-            o.keep = true;
+            o.scope = scopes[scopes.length - 1];
             labels.push(o);
             continue;
         }
         if (o.type === SCOPED && o.entry === '{' && !o.isExpress) {
+            scopes.push(o);
             var b = toqueue(o, getname, false);
+            scopes.pop();
             // addresult(result, b);
             result.push.apply(result, b);
             cx++;
@@ -722,8 +743,8 @@ function toqueue(body, getname, ret = false) {
                 bx = cx + 1;
                 break a;
             }
-            if (o.text === 'break') {
-                cx = _break(body, cx, result);
+            if (/^(break|continue)$/.test(o.text)) {
+                cx = _break(body, cx, result, o.text === 'continue');
                 bx = cx + 1;
                 continue;
             };
@@ -768,23 +789,25 @@ function toqueue(body, getname, ret = false) {
             var elseif = false;
             if (o.text === 'else') {
                 ifpatch();
-                iftop.push(result.length);
                 while (body[cx] !== o.next) cx++;
                 o = o.next;
+                var isbr = isbreak(o);
+                iftop.push(result.length, isbr);
                 elseif = true;
             }
             if (o.text === 'if') {
                 while (body[cx] !== o.next) cx++;
                 o = o.next;
-                var n = getCondition(o, unblock, true);
+                var isbr = isbreak(o.next);
+                var n = getCondition(o, unblock, !isbr);
+                o = o.next;
                 if (!elseif) {
                     if (iftop) uniftop();
-                    iftop = [result.length, n];
+                    iftop = [result.length, isbr, n];
                 }
                 else {
                     iftop.push(n);
                 }
-                o = o.next;
                 elseif = true;
             }
             if (elseif) {
