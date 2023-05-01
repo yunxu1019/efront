@@ -551,6 +551,7 @@ var _express = function (body, getname, ret) {
         }
     }
     var b = body.slice(bx, cx);
+    var needname = false;
     if (cache.length) while (cache.length) {
         var p = cache.pop();
         if (needcomma(q)) q.push({ type: STAMP, text: ',' });
@@ -561,31 +562,33 @@ var _express = function (body, getname, ret) {
         q.push.apply(q, t);
         q.push.apply(q, b);
         if (isawait) q.push(NEXT);
+        needname = true;
         b = [{ type: EXPRESS, text: getname(nameindex) }];
     }
     else if (ax !== 1) {
         if (ret && b.length || ax > 1) {
             q.push(...scanner2(`${getname(nameindex)}=`));
             q.push(...b);
+            needname = true;
         }
         else {
             q.push(...b);
         }
     }
-    q.name = getname(nameindex);
+    if (needname) q.name = getname(nameindex);
     if (ax === 1) {
         if (q.length) q.push({ type: STAMP, text: ';' });
         q.push(exps[0], { type: STAMP, text: "=" });
         q.push(...b);
         q.name = exps[0].text;
-        exps[0].set = getname(nameindex);
+        if (evals.length) exps[0].set = getname(nameindex);
         exps.shift();
     }
     if (ax > 1) {
         while (ax > 0) {
             q.push({ type: STAMP, text: ';' });
             var [e] = exps.splice(ax - 1, 1);
-            e.set = getname(nameindex + 1);
+            if (evals.length) e.set = getname(nameindex + 1);
             q.push(e);
             q.push(...scanner2(`=${getname(nameindex)}`))
             ax--;
@@ -846,7 +849,13 @@ var ret_ = '';
 module.exports = function (body, newname, ret) {
     if (ret) ret = isString(ret) ? ret : newname();
     var ret0 = ret_;
-    ret_ = ret;
+    var ret1 = null;
+    if (ret) ret_ = isString(ret) ? ret : {
+        toString() {
+            if (ret1) return ret1;
+            return newname();
+        }
+    };
     var tmpnames = [];
     var p = 0;
     var getname = function (i) {

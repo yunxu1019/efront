@@ -282,6 +282,7 @@ var createScoped = function (parsed, wash) {
             var isClass = false;
             var isAsync = false;
             var isAster = false;
+            var function_obj = null;
             if (o.type === STAMP && equal_reg.test(o.text)) {
                 var p = snapExpressHead(o.prev);
                 if (!p) {
@@ -424,6 +425,7 @@ var createScoped = function (parsed, wash) {
                             if (o.prev && o.prev.text === 'async') {
                                 isAsync = true;
                             }
+                            function_obj = o;
                             if (o.next.type === STAMP) {
                                 isAster = true;
                                 o = o.next;
@@ -508,6 +510,7 @@ var createScoped = function (parsed, wash) {
                     scoped.async = isAsync;
                     scoped.isfunc = true;
                     isFunction = true;
+                    if (function_obj) function_obj.scoped = scoped;
                     funcbody = scoped;
                 } else {
                     vars = _vars;

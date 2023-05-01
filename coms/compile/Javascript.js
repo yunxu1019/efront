@@ -439,7 +439,7 @@ Javascript.prototype.detour = function detour(o, ie) {
 };
 
 var removeImport = function (c, i, code) {
-    var { used, envs } = code;
+    var { used, envs, vars } = code;
     var [dec, map, o] = getDeclared(c.next);
     if (dec.length !== 1 || !o) throw new Error("代码结构异常！");
     if (o.type !== STRAP || o.text !== 'from') throw new Error("缺少from语句");
@@ -484,8 +484,8 @@ var removeImport = function (c, i, code) {
                 used[name].push(u);
             });
             delete used[dn];
+            delete vars[dn];
         });
-
     }
     var u = { type: EXPRESS, text: name };
     code.splice(i + 1, oi - i - 1, u);
