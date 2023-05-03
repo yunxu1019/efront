@@ -219,7 +219,8 @@ function parseValue(map) {
         case "nil":
             return null;
     }
-    return parseNumber(map);
+    if (/^[\d\.]/.test(map)) return parseNumber(map);
+    return map;
 }
 
 var last_type = '';
@@ -228,7 +229,7 @@ var getComment = function (piece) {
     for (var cx = 0, dx = piece.length; cx < dx; cx++) {
         var p = piece[cx];
         if (!isString(p)) continue;
-        var a = /^\/\//.exec(p);
+        var a = /^(\/\/|;)/.exec(p);
         if (a) {
             return piece.splice(cx, piece.length - cx).join(' ').slice(2);
         }
@@ -329,9 +330,9 @@ function parse(piece) {
             let [_, t, d] = /^(\w*?)\/?(\d+)$/.exec(type);
             type = d + 'bit/' + t;
         }
-        var sizematch = /^(\-?\d+|\-?\d*\.\d+)([YZEPTGMK]i?b?|bytes?|bits?|B|[^\/]*)([\/]|$|\s|\=)/i.exec(type);
+        var sizematch = /^(\-?\d+|\-?\d*\.\d+)?([YZEPTGMK]i?b?|bytes?|bits?|words?|dword|real[48]|long|B|[^\/]*)([\/]|$|\s|\=)/i.exec(type);
         if (sizematch) {
-            var [size_text, size, unit] = sizematch;
+            var [size_text, size = 1, unit, eq] = sizematch;
             if (unit) {
                 var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
                 size *= Math.pow(1024, ratio + 1);
@@ -345,12 +346,19 @@ function parse(piece) {
             var ratio;
             switch (unit) {
                 case "long":
+                case "qword":
+                case "real8":
                 case "double":
-                    if (!size) size = 8;
+                    ratio = 8;
+                    break;
+                case "dword":
+                case "real":
+                case "real4":
                 case "float":
                 case "uint":
                 case "int":
-                    if (!size) size = 4;
+                    ratio = 4;
+                    break;
                 case "bit":
                 case "utf":
                 case "bool":
@@ -368,12 +376,17 @@ function parse(piece) {
                     ratio = 1;
             }
             type = type.slice(size_text.length);
-            if (/\=/.test(type)) {
-                var value = type.slice(1, (size * ratio) + 1);
-                type = type.slice(value.length + 1) || 'flag';
+            if (eq === '=') {
+                // 只读
+                var value = parseValue(type);
+                type = "flag";
+            }
+            else if (/=/.test(type)) {
+                [type, value] = type.split("=");
+                value = parseValue(value);
             }
             if (!type) {
-                type = size + unit;
+                type = (size === 1 ? '' : size) + unit;
             } else {
                 type = type.replace(/^[\|\:\-\,\/]/, '');
             }
@@ -387,7 +400,6 @@ function parse(piece) {
             type = type.slice(1);
         }
         if (typeof options === "string" && !/^[\$#]+\d+$/.test(options)) {
-            console.log(options)
             options = is(options);
             var needUnfold = /^\[|\]$/.test(options);
             options = options.replace(/^\[|\]$/g, '');
