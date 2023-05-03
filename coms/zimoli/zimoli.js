@@ -397,7 +397,7 @@ function create(pagepath, args, from, needroles) {
     }
     else if (isFunction(pagepath)) {
         var pg = pagepath;
-        var { with: _with_elements, state = {}, onback: _pageback_listener, roles } = pg;
+        var { with: _with_elements = [], state = {}, onback: _pageback_listener, roles } = pg;
     }
     if (!checkroles(user.roles, roles) || !checkroles(user.roles, needroles)) {
         // 检查权限

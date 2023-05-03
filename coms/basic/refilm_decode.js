@@ -333,8 +333,8 @@ function parse(piece) {
         var sizematch = /^(\-?\d+|\-?\d*\.\d+)?([YZEPTGMK]i?b?|bytes?|bits?|words?|dword|real[48]|long|B|[^\/]*)([\/]|$|\s|\=)/i.exec(type);
         if (sizematch) {
             var [size_text, size = 1, unit, eq] = sizematch;
-            if (unit) {
-                var ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
+            if (unit && /^i?b?$/i.test(unit.slice(1))) {
+                let ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
                 size *= Math.pow(1024, ratio + 1);
                 if (ratio >= 0) {
                     unit = unit.slice(1).replace(/^i/, '');
@@ -386,7 +386,7 @@ function parse(piece) {
                 value = parseValue(value);
             }
             if (!type) {
-                type = (size === 1 ? '' : size) + unit;
+                type = (!sizematch[1] ? '' : size) + unit;
             } else {
                 type = type.replace(/^[\|\:\-\,\/]/, '');
             }
