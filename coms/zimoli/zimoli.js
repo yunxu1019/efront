@@ -339,7 +339,7 @@ function prepare(pgpath, ok) {
     };
     state.titlebar = function () {
         var realTitleBar = titlebar.apply(null, arguments);
-        if (!realTitleBar.parentNode) state.with(realTitleBar);
+        if (!realTitleBar.parentNode) _with_elements.push(realTitleBar);
         return realTitleBar;
     };
     var roles = res || null;
@@ -406,14 +406,15 @@ function create(pagepath, args, from, needroles) {
         }
         return alert(i18n`没有权限！`, 0);
     }
-    _with_elements = [].concat(_with_elements);
+    var _with_length = _with_elements.length;
     state.onback = function (handler) {
         _pageback_listener = handler;
     };
     var _page = pg.call(state, args, from);
     if (undefined === args || null === args) args = {};
     if (_page) {
-        if (_with_elements.length) _page.with = _with_elements.concat(_page.with || []);
+        if (_with_length) _page.with = _with_elements.concat(_page.with || []);
+        _with_elements.splice(_with_length, _with_elements.length - _with_length);
         if (args.initialStyle) _page.initialStyle = args.initialStyle;
         if (args.holdupStyle) _page.holdupStyle = args.holdupStyle;
         if (_page.initialStyle && !_page.holdupStyle) {

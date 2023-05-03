@@ -1,6 +1,5 @@
 function Main(dataid, datapath, titleid) {
     var _titlebar = titlebar(" ");
-    state.with(_titlebar);
     var page = createVboxWithState(state);
     page.initialStyle = 'margin-left:100%';
     page.innerHTML = buildScroll;
