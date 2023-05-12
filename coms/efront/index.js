@@ -563,7 +563,7 @@ var commands = {
             fs.readdir(process.cwd(), function (error, files) {
                 if (error) throw new Error("没有权限！");
                 if (files.length > 0) {
-                    throw new Error("当前文件夹不为空！");
+                    if (!memery.FORCE) throw new Error("当前文件夹不为空！");
                 }
                 create(process.cwd());
             });
