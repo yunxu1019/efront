@@ -181,7 +181,7 @@ var isypop = function (target) {
             || target.offsetLeft - previousSibling.offsetLeft >= previousSibling.offsetWidth / 2
         )
     ) return true;
-    var padding = parseFloat(getComputedStyle(offsetParent).paddingTop) + parseFloat(getComputedStyle(offsetParent).paddingBottom);
+    var padding = offsetParent ? parseFloat(getComputedStyle(offsetParent).paddingTop) + parseFloat(getComputedStyle(offsetParent).paddingBottom) : 0;
     if (offsetParent && target.offsetTop / target.offsetHeight < .2 && (offsetParent.clientWidth - padding) / target.offsetWidth > 1.5) return true;
 
 };
