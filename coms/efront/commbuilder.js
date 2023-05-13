@@ -105,7 +105,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     return run(data, rootfile, 1);
 };
 
-var useInternalReg = /^\s*(['"`])(?:(?:use|#?include)\b)\s*(.*?)\1(\s*;)?\s*$/img;
+var useInternalReg = /^\s*(['"`])(?:use|#?include)\s+(.+?)\1(\s*;)?\s*$/img;
 var replaceIncludes = function (data) {
     return data.replace(useInternalReg, function (m, q, p, c) {
         if (/^\s*(['"`])use\s+strict\1/i.test(m)) return m;
