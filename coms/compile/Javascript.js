@@ -538,9 +538,18 @@ var removeExport = function (c, i, code) {
     }
     var [dec, map, o] = getDeclared(n.next, 'export');
     if (/^(class|function)$/.test(n.text)) {
+        var e = skipAssignment(code, i + 1);
+        if (code[e] && code[e].type !== STAMP) {
+            code.splice(e, 0, { type: STAMP, text: ';' });
+        }
         c.text = `exports.${dec[0]}`;
         c.type = EXPRESS;
-        code.splice(i + 1, 0, ...scan(`=${dec[0]}\r\n`));
+        code.splice(i + 1, 0, ...scan(`=`));
+        var nn = n.next;
+        var d = nn.text;
+        if (used[d]) used[d].forEach(a => a.text = `exports.${d}`);
+        delete used[d];
+        delete envs[d];
         return;
     }
     var nn = n.next;
@@ -549,11 +558,15 @@ var removeExport = function (c, i, code) {
     if (!code.exportDecs) {
         code.exportDecs = [];
     }
-    dec.forEach((d, i) => {
+    dec.forEach(function rm(d) {
+        if (d instanceof Array) return d.forEach(rm);
         for (var a of used[d]) {
             if (a.kind && a.kind !== 'export') continue;
             if (!a.export) code.exportDecs.push(a), a.export = true;
         }
+    });
+    dec.forEach(d => {
+        if (typeof d === 'string') for (var a of used[d]) if (a.kind === 'export') a.needEqual = true;
     });
     code.splice(i, oi - i);
 };
@@ -592,7 +605,7 @@ Javascript.prototype.fix = function (code) {
         delete code.exportDecs;
         exportDecs.forEach(e => {
             e.text = 'exports.' + e.text;
-            if (e.kind) {
+            if (e.needEqual) {
                 var n = e.next;
                 if (!n || n.type !== STAMP || n.text !== '=') {
                     var i = code.indexOf(e);
