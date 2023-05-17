@@ -479,7 +479,7 @@ var removeImport = function (c, i, code) {
         used[name] = [];
         if (dec[0] !== "*") dec[0].forEach((dn, i) => {
             var da = dec[0].attributes[i];
-            used[dn].forEach(u => {
+            if (used[dn]) used[dn].forEach(u => {
                 u.text = name + da[0];
                 used[name].push(u);
             });
