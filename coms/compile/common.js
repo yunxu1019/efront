@@ -12,7 +12,7 @@ const [
     /* 512 */LABEL,
     /*1024 */PROPERTY,
 ] = new Array(20).fill(0).map((_, a) => 1 << a);
-var number_reg = /^(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?)(e[\+\-]?\d+|[mn])?)$/i;
+var number_reg = /^(0x[0-9a-f]+|0b\d+|0o\d+|(\d*\.\d+|\d+\.?))(e[\+\-]?\d+|[mn])?$/i;
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var skipAssignment = function (o, cx) {
     var next = arguments.length === 1 ? function () {
