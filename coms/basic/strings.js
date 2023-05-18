@@ -27,11 +27,12 @@ function encode(str, q = "\"") {
 function decode(s) {
     var r = /^(['"`])([\s\S]*)\1$/.exec(s);
     if (!r) return s;
-    return r[2].replace(/\\u[0-9a-f]{4}|\\x[0-9a-f]{2}|\\([\s\S])/ig, (a, b) => {
+    return r[2].replace(/\\u[0-9a-f]{4}|\\x[0-9a-f]{2}|\\([0-7]{1,3}|[\s\S])/ig, (a, b) => {
         if (!b) {
             return String.fromCharCode(parseInt(a.slice(2), 16));
         }
         if (unescapeMap.hasOwnProperty(a)) return unescapeMap[a];
+        if (/^[0-7]+$/.test(b)) return String.fromCharCode(parseInt(b, 8));
         return b;
     });
 }
