@@ -17,6 +17,7 @@ var translate = require("../compile/translate");
 var $split = require("./$split");
 var backEach = require("../basic/backEach");
 var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1(?:\s*;)?\s*$/;
+var breakflag = null;
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     var ignoreUse_reg = commbuilder.ignoreUse_reg;
     if (!data) return data;
@@ -376,7 +377,8 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         code_body.unshift.apply(code_body, template);
     }
     code_body.unshift.apply(code_body, prepareCodeBody);
-    if (!islive || commbuilder.compress === false) {
+    if (breakflag === false);
+    else if (!islive || commbuilder.compress === false) {
         code.relink();
         if (memery.BREAK) code.break();
         code.helpcode = false;
@@ -925,10 +927,10 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     return promise1 || data;
 }
 commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = false) {
-    var savedIsDevelop = islive;
-    islive = !breakcode;
+    var savedflag = breakflag;
+    breakflag = !!breakcode;
     var savedCompress = commbuilder.compress;
-    commbuilder.compress = compress;
+    commbuilder.compress = !!compress;
     var [commName, lessName, className] = prepare(filename, fullpath);
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
     else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data;
@@ -936,7 +938,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     var res = loadJsBody(data, filename, null, commName, lessName, className);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;
-    islive = savedIsDevelop;
+    breakflag = savedflag;
     return res;
 };
 commbuilder.break = function (data, filename, fullpath, compress) {
