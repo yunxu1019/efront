@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, relink } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, relink, snapExpressHead } = require("./common");
 var scanner2 = require("./scanner2");
 var RE = { type: STRAP, text: "@re" };// if (_) return
 var RZ = { type: STRAP, text: "@rz" };// if (!_) return
@@ -20,10 +20,11 @@ var _break = function (body, cx, result, iscontinue) {
             var b = labels[cx];
             if (b.type === LABEL && b.text === label) {
                 if (!b.breaks) b.breaks = [];
-                var _b = scanner2(`return[]`);
+                var _b = scanner2('return []');
+                _b.ret_ = true;
                 if (iscontinue) _b.continue = s, s.continue = true;
-                addresult(result, _b);
-                b.breaks.push(_b);
+                pushstep(result, _b);
+                b.breaks.push(_b[1]);
                 break;
             }
             else {
@@ -36,10 +37,11 @@ var _break = function (body, cx, result, iscontinue) {
             var b = labels[cx];
             if (b.type !== LABEL) {
                 if (!b.breaks) b.breaks = [];
-                var _b = scanner2(`return[]`);
+                var _b = scanner2("return []");
+                _b.ret_ = true;
                 if (iscontinue) _b.continue = b, b.continue = true;
-                addresult(result, _b);
-                b.breaks.push(_b);
+                pushstep(result, _b);
+                b.breaks.push(_b[1]);
                 break;
             }
         }
@@ -50,13 +52,14 @@ var _try = function (body, cx, unblock, result, getname) {
     var o = body[cx];
     o = o.next;
     while (body[cx++] !== o);
-    var trystart = scanner2(`return [,7]`);
-    addresult(result, trystart);
+    var trystart = stepReturn(0, 7);
+    var tse = trystart[trystart.length - 1];
+    pushstep(result, trystart);
     var tryoffset = result.length;
     unblock(o);
-    var final = scanner2(`return [0,9]`);
+    var final = stepReturn(0, 9);
 
-    addresult(result, final);
+    pushstep(result, final);
     o = o.next;
     if (o.type !== STRAP || o.text !== 'catch') throw `缺少catch语句`;
     o = o.next;
@@ -65,26 +68,24 @@ var _try = function (body, cx, unblock, result, getname) {
     if (o.type === SCOPED && o.entry === "(") {
         var e = o.first;
         if (e) {
-            arg = scanner2(`${e.text}=${ret_ || "@"}`);
-            addresult(result, arg);
+            arg = scanner2(`${e.text}=${ret_ || "@"};`);
         }
         o = o.next;
     }
+    var ai = result.length;
     unblock(o);
+    if (ai < result.length) {
+        if (arg.length) result[ai].unshift(...arg), relink(result[ai]);
+        pushstep(result, stepReturn(0, 9));
+    }
     o = o.next;
+    var finishoffset = result.length;
     if (o && o.type === STRAP && o.text === 'finally') {
         o = o.next;
-        var finishoffset = result.length;
         unblock(o);
     }
-    var tse = trystart[trystart.length - 1];
-    tse.unshift({
-        text: String(catchoffset - tryoffset << 16 | finishoffset - catchoffset),
-        type: VALUE,
-    });
-    relink(tse);
-
-    var finalend = scanner2(`return [1,9]`);
+    tse[0].text = String(catchoffset - tryoffset | finishoffset - catchoffset << 16);
+    var finalend = stepReturn(1, 9);
     addresult(result, finalend);
 };
 var evals = [];
@@ -93,8 +94,9 @@ var _with = function (body, cx, unblock, result, getname) {
     var o = body[cx];
     var c = o.next;
     while (body[cx] !== c) cx++;
-    unblock(c);
-    evals.push(getname(0));
+    var qs = ternary(c, getname, true);
+    for (var q of qs) if (q.length) pushstep(result, q);
+    evals.push(q.name);
     var block = getblock(body, ++cx);
     cx += block.length;
     unblock(block);
@@ -118,7 +120,9 @@ var _switch = function (body, cx, unblock, result, getname) {
     var o = body[cx];
     o = o.next;
     if (!o) return;
-    unblock(o);
+    var qt = ternary(o, getname, true);
+    for (var q of qt) if (q.length) addresult(result, q);
+    var qn = q.name;
     o = o.next;
     while (body[cx++] !== o);
     if (!o) return;
@@ -132,13 +136,15 @@ var _switch = function (body, cx, unblock, result, getname) {
         var getnextname = function (deep) {
             return getname(deep + 1);
         };
-        var q = _express(block, getnextname, true);
+        var q = ternary(block, getnextname, true);
+        var qe = q[q.length - 1];
         for (var q of q) addresult(result, q);
-        var case_ = scanner2(`if(${getname(0)}===${getname(1)})return[]`)
+        if (qe) var case_ = scanner2(`if(${qn}===${qe.name})return[]`);
+        else case_ = scanner2(`return[]`), case_.ret_ = true;
         addresult(result, case_);
         var by = cy;
         m = o[cy];
-        while (m && (m.type !== STRAP || m.text !== 'case')) m = o[++cy];
+        while (m && (m.type !== STRAP || !/^(default|case)$/i.test(m.text))) m = o[++cy];
         tmp.push(result.length - 1, case_, o.slice(by, cy));
     }
     while (tmp.length) {
@@ -159,7 +165,7 @@ var _switch = function (body, cx, unblock, result, getname) {
     }
     return cx;
 };
-var _for = function (body, cx, unblock, result, tmpname) {
+var _for = function (body, cx, unblock, result) {
     var o = body[cx];
     var label = o;
     o = o.next;
@@ -172,40 +178,61 @@ var _for = function (body, cx, unblock, result, tmpname) {
         // 含有高级语法的 for in 语句在 ./downLevel.js 中预处理
         var dx = cx;
         var n = o.next;
+        if (n && n.type === SCOPED && n.entry === '(') n = n.next;
         while (body[dx] !== n) dx++;
-        addresult(result, body.slice(cx, dx));
-        return dx;
+        var forin = body.slice(cx, dx);
+        var block = getblock(body, dx);
+        forin.push(...block);
+        pushstep(result, forin);
+        return dx + 1;
     }
     var cy = 0;
     while (o[cy] !== m) cy++;
     var block = getblock(o, cy);// init
     cy += block.length + 1;
-    unblock(block, ...scanner2(`;return [1,0]`));
+    unblock(block);
+    if (result.length) pushstep(result, stepReturn(1, 0));
     var block1 = getblock(o, cy);// condition
     cy += block1.length + 1;
     var block2 = getblock(o, cy);// next
     while (body[cx] !== o) cx++;
     var block_ = getblock(body, ++cx);// body
     cx += block_.length;
-    unblock(block1);
-    relink(result[result.length - 1]);
-    var b = scanner2(`;if(!${tmpname})return []`)
-    result[result.length - 1].push(...b);
-    relink(result[result.length - 1]);
+    var c = result.length;
+    if (block1.length) {
+        var t = unblock(block1);
+        if (t) {
+            t = t && !t.await_ ? t.name : ret_;
+            var b = scanner2(`if(!${t})return []`);
+            var be = b[b.length - 1];
+            pushstep(result, b);
+        }
+    }
     var i = result.length;
     unblock(block_);
     if (label.continue) label.continue = result.length, result[result.length - 1].cont = true, label.contat = result.length;
     unblock(block2);
-    result[result.length - 1].push(...scanner2(`;return [${i - result.length},0]`));
-    b[b.length - 1].push(...scanner2(`${result.length - i + 1},0`));
-    relink(result[result.length - 1]);
+    var loopback = stepReturn(0, 0);
+    var le = loopback[loopback.length - 1];
+    pushstep(result, loopback);
+    if (be) be.push(...scanner2(`${result.length - i + 1},0`)), relink(be);
+    le[0].text = String(c - result.length + 1);
     return cx;
 };
+var isunary = function (o) {
+    var f = o.first;
+    if (!f) return false;
+    while (f) {
+        if (f.type & (STAMP | STRAP) && powermap[f.text] < powermap.new) return false;
+        f = f.next;
+    }
+    return true;
+}
 var getCondition = function (o, unblock, not_) {
     var n = '';
     var f = o.first;
-    var not = f.type === STAMP && f.text === "!";
-    if (not) f = f.next;
+    var not = isunary(o) && f.type === STAMP && f.text === "!";
+    if (not) f = f.next, o.shift();
     if (not_) not = !not;
     if (f && f === o.last) {
         if (f.type & (EXPRESS | VALUE)) {
@@ -220,7 +247,12 @@ var getCondition = function (o, unblock, not_) {
     }
     if (!n) {
         n = unblock(o);
-        n = n.await ? ret_ : n.name;
+        if (n.await_) {
+            n.ret_ = true;
+            delete n.await_;
+            n = ret_;
+        }
+        else n = n.name;
         if (not) n = "!" + n;
     }
     return n;
@@ -230,15 +262,17 @@ var _while = function (body, cx, unblock, result, tmpname) {
     o.contat = result.length;
     o = o.next;
     while (body[cx] !== o) cx++;
-    var b = scanner2(`if(${getCondition(o, unblock, true)})return []`)
-    result.push(b);
+    if (result.length) pushstep(result, stepReturn(1, 0));
+    var i = result.length;
+    var b = scanner2(`if(${getCondition(o, unblock, true)})return []`);
+    var be = b[b.length - 1];
+    pushstep(result, b);
     relink(result[result.length - 1]);
     var block = getblock(body, ++cx);
-    var i = result.length;
     cx += block.length;
     unblock(block);
-    result.push(scanner2(`return [${i - result.length - 1},0]`));
-    b[b.length - 1].push(...scanner2(`${result.length - i + 1},0`));
+    pushstep(result, stepReturn(i - result.length, 0));
+    be.push(...scanner2(`${result.length - i},0`));
     return cx;
 };
 var pushstep = function (result, step) {
@@ -247,17 +281,22 @@ var pushstep = function (result, step) {
     if (!q) {
         result.push(step);
     }
-    else if (q.await) {
-        if (!step.awaited) step.unshift(...scanner2(`${q.name}=${ret_};`));
+    else if (q.await_) {
+        if (!step.awaited) step.unshift(...scanner2(`${q.name}=${ret_};`)), relink(step);
         step.awaited = true;
-        relink(step);
         result.push(step);
     }
-    else if (q.ifrt || q.cont) {
+    else if (q.ret_ || q.cont) {
         result.push(step);
     }
     else {
-        q.push({ type: STAMP, text: ";" }, ...step);
+        if (needcomma(q)) q.push({ type: STAMP, text: ';' });
+        q.push(...step);
+        if (!ishalf(q)) {
+            q.ret_ = step.ret_;
+        }
+        q.await_ = step.await_;
+        q.name = step.name;
         step = q;
         relink(q);
     }
@@ -301,11 +340,13 @@ var patchstep = function (r, nextindex, h) {
 var addresult = function (result, step) {
     if (!step.length) return;
     var savedLength = result.length;
-    var prev = result[savedLength - 1];
+    var savedIndex = savedLength - 1;
+    var prev = result[savedIndex];
     if (prev) var patch = prev.length;
     var cx, mx = 0, n;
     var awaited = step.awaited;
     do {
+        while (step[mx] && step[mx].type === STAMP && /^[,;]$/.test(step[mx].text)) mx++;
         cx = step.indexOf(NEXT, mx);
         n = step.slice(mx, mx = cx < 0 ? step.length : cx + 1);
         if (awaited) n.awaited = awaited, awaited = false;
@@ -313,8 +354,8 @@ var addresult = function (result, step) {
         pushstep(result, n);
     } while (mx < step.length);
     if (ret_) {
-        if (prev) patchstep(prev, result.length - savedLength - 1, patch || 0);
-        result.slice(savedLength).forEach((a, i) => patchstep(a, result.length - i - savedLength, 0));
+        if (prev) patchstep(prev, result.length - savedIndex, patch || 0);
+        result.slice(savedLength).forEach((a, i) => patchstep(a, result.length - savedLength - i, 0));
     }
 };
 var _do = function (body, cx, unblock, result, tmpname) {
@@ -330,31 +371,33 @@ var _do = function (body, cx, unblock, result, tmpname) {
     while (body[cx] !== o) cx++;
     return cx;
 };
-
+var stepReturn = function (value, type, q) {
+    var r = scanner2(`return [${value},${type}]`);
+    r.ret_ = true;
+    if (q && q.length) r.name = q[q.length - 1].name;
+    return r;
+}
 var needbreak = function (o) {
-    return o === RE || o === RZ || o === RD || o === RETURN || o === NEXT || o === YIELD;
+    return o === RETURN || o === NEXT || o === YIELD;
 };
 var _return = function (r, nextindex) {
     var name = r.name;
     var e = r[r.length - 1];
     if (!needbreak(e)) return;
-    r.ifrt = true;
+    r.ret_ = true;
     r.pop();
-    var semicolon = r[r.length - 1];
-    semicolon = semicolon && semicolon.type === STAMP && /^[,;]$/.test(semicolon.text);
     var x;
     if (e === RETURN) {
-        x = scanner2(`return [${name},2]`);
+        x = stepReturn(name, 2);
     }
     else if (e === YIELD) {
-        x = scanner2(`return [${name},3]`);
+        x = stepReturn(name, 3);
     }
     else if (e === NEXT) {
-        x = scanner2(`return [${name},1]`);
-        r.await = true;
+        x = stepReturn(name, 1);
+        r.await_ = true;
     }
-    if (semicolon) r.pop();
-    r.push({ type: STAMP, text: ';' });
+    if (needcomma(r)) r.push({ type: STAMP, text: ';' });
     r.push(...x);
     relink(r);
 };
@@ -362,7 +405,7 @@ var remove_end_comma = function (o) {
     if (!o.length || o.type !== SCOPED || o.entry === '[') return;
     for (var cx = o.length - 1; cx >= 0; cx--) {
         var m = o[cx];
-        if (m.type !== SPACE && m.type !== COMMENT) {
+        if (!(m.type & (SPACE | COMMENT))) {
             break;
         }
     }
@@ -379,14 +422,16 @@ var _invoke = function (t, getname) {
     var cache = [];
     var queue = [];
     queue.name = t.name;
+    var qname = t.name;
     var bx = 0;
     for (var cx = 0; cx < t.length; cx++) {
         var o = t[cx];
-        if (o.type === STAMP && /^[,;]$/.test(o.text)) {
-            if (queue.length) queue.push({ type: STAMP, text: ',' });
+        var iscomma = o.type === STAMP && /^[,;]$/.test(o.text);
+        if (iscomma || o === RE || o === RZ || o === RD) {
+            if (needcomma(queue)) queue.push({ type: STAMP, text: ',' });
             queue.push(...t.splice(bx, cx + 1));
-            cx += bx - cx - 1;
-            queue.pop();
+            cx = bx - 1;
+            if (iscomma) queue.pop();
             bx = cx + 1;
             continue;
         }
@@ -396,21 +441,24 @@ var _invoke = function (t, getname) {
             var cy = 0;
             for (var cy = 0; cy < o.length; cy++) {
                 var by = cy;
+                var c = o[cy];
+                if (c.type & STAMP && /[,;]/.test(c.text)) continue;
                 cy = skipAssignment(o, cy);
                 if (by === cy) continue;
                 var m = o.slice(by, cy);
-                if (m.length === 1 && (m[0].type === EXPRESS && !/\./.test(m[0].text) || m[0].type === VALUE || m[0].type === QUOTED)) {
+                if (m.length === 1 && (m[0].type === EXPRESS && !/\./.test(m[0].text) || m[0].type === VALUE || m[0].type === QUOTED && !m[0].length)) {
                     continue;
                 }
                 var q = toqueue(m, getdeepname, true);
-                o.splice(by, cy, { text: getdeepname(0), type: EXPRESS });
+                var qe = q[q.length - 1];
+                o.splice(by, cy - by, { text: qe.name, type: EXPRESS });
                 cy -= cy - by - 1;
                 nameindex++;
                 cache.push(...q);
             }
             if (!cache.length) continue;
             nameindex = _nameindex;
-            if (queue.length) addresult(result, queue), queue = [], queue.name = getdeepname(nameindex);
+            if (queue.length) addresult(result, queue), queue = [], queue.name = qname;
             result.push(...cache);
             cache = [];
             var m = t.splice(bx, cx + 1);
@@ -424,10 +472,21 @@ var _invoke = function (t, getname) {
         }
     }
     if (queue.length) {
-        if (t.length) queue.push({ type: STAMP, text: ',' }, ...t), queue.name = t.name;
+        if (t.length) {
+            if (needcomma(queue)) queue.push({ type: STAMP, text: ',' });
+            queue.push(...t), queue.name = t.name;
+        }
+        queue.name = qname;
         addresult(result, queue);
     }
-    else if (t.length) addresult(result, t);
+    else if (t.length) {
+        var t0 = t[0];
+        if (t0.type === EXPRESS && /^\./.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) {
+            t.unshift(...scanner2(`${qname}=${qname}`));
+            relink(t);
+        }
+        addresult(result, t);
+    }
     return result;
 };
 
@@ -438,40 +497,120 @@ var _await = function (t) {
     }
     return false;
 };
+var ishalf = function (q) {
+    var e = q[q.length - 1];
+    return e.type === SCOPED && e.entry === '(' && e.prev && e.prev.type === STRAP && /^if$/.test(e.prev.text) || e.type === STRAP && /^else$/.test(e.text);
+}
 var needcomma = function (q) {
     if (!q.length) return false;
     var e = q[q.length - 1];
+    if (e.type === STAMP && /^[,;]$/.test(e.text) || e === RE || e === RZ || e === RD) return false;
+    if (ishalf(q)) return false;
     return !needbreak(e);
 };
 var ternary = function (body, getname, ret) {
     var question = [];
     var res = [];
+    var equalsend = 0;
+    var skip = 0;
     for (var cx = 0, dx = body.length; cx < dx; cx++) {
         var o = body[cx];
-        if (o.type == STAMP && o.text === '?') {
+        if (o.type === STRAP && /^(var|let|const)/.test(o.text)) {
+            skip = cx + 1;
+            equalsend = skip;
+            continue;
+        }
+        if (o.type !== STAMP) continue;
+        if (o.text === '?') {
             question.push(cx);
         }
-        else if (o.type === STAMP && o.text === ":") {
+        else if (o.text === ":") {
             var bx = question.pop();
             if (!question.length) {
-                var b = body.slice(0, bx);
+                var b = body.slice(equalsend, bx);
                 relink(b);
-                var c = ternary(body.slice(bx + 1, cx), getname, true);
-                var d = ternary(body.slice(cx + 1), getname, true);
-                addresult(c, scanner2(`return [${d.length + 1},0]`));
+                var c = toqueue(body.slice(bx + 1, cx), getname, true);
+                var d = toqueue(body.slice(cx + 1), getname, true);
+                pushstep(d, stepReturn(1, 0, d));
+                pushstep(c, stepReturn(d.length + 1, 0, c));
                 addresult(res, scanner2(`if(${getCondition(b, function (b) {
-                    addresult(res, _express(b));
+                    b = ternary(b, getname, true);
+                    for (var b of b) addresult(res, b);
                     return res[res.length - 1];
-                })})return [1,0]`));
-                res.push(...c);
+                }, true)})return [1,0]`));
+                var q = res[res.length - 1];
+                var qi = res.length - 1;
+                var qe = q[q.length - 1];
+                if (c.length) {
+                    pushstep(res, c[0]);
+                    res.push(...c.slice(1));
+                }
+                qe.text = String(res.length - qi);
                 res.push(...d);
             }
         }
+        else if (powermap[o.text] === powermap["="]) {
+            if (!question.length) equalsend = cx + 1;
+        }
     }
-    if (!res.length) return _express(body, getname, ret);
-    return res;
+    if (!res.length) {
+        res = _express(equalsend ? body.slice(equalsend) : body, getname, equalsend > skip || ret);
+    }
+    if (equalsend === skip) return res;
+    var equals = body.slice(skip, equalsend);
+    var explist = res;
+    var q = explist[explist.length - 1];
+    // if (!q) throw `语法错误: <red>${createString(body)}</red> \r\n行列位置: ${equals[0].row}:${equals[0].col}`
+    var n = q.name;
+    var i = equals.length - 1;
+    while (i >= 0) {
+        var p = equals[i];
+        while (p && p.type & (SPACE | COMMENT)) p = equals[--i];
+        if (!p) break;
+        var a = p.prev;
+        var b = snapExpressHead(a);
+        if (b) {
+            var ai = equals.lastIndexOf(b, i);
+        }
+        else {
+            var ai = equals.lastIndexOf(a, i);
+        }
+        if (ai < 0) ai = 0;
+        var ass = equals.slice(ai, i);
+        var an = createString(ass);
+        var eq = equals[i];
+        if (eq.text.length > 1) {
+            var punc = eq.text.slice(0, eq.text.length - 1);
+            var bdtmp = scanner2(an + punc + n);
+            var explist2 = _express(bdtmp, getname, true);
+            for (var e of explist2) pushstep(explist, e);
+            eq.text = "=";
+            var q2 = explist2[explist2.length - 1];
+            an = q2.name;
+        }
+        else an = n;
+        ass.push(equals[i], ...scanner2(n));
+        relink(ass);
+        if (evals.length) ass[0].set = getname(0);
+        ass.name = an;
+        ass = _invoke(ass, getname);
+        for (var a of ass) pushstep(explist, a);
+        i = ai - 1;
+        n = an;
+    }
+    return explist;
+};
+var canbeTemp = function (body) {
+    if (body.length !== 1) return false;
+    var [o] = body;
+    return o.type === EXPRESS && !/[\.\[]/.test(o.text) || o.type === VALUE;
 };
 var _express = function (body, getname, ret) {
+    if (canbeTemp(body)) {
+        var q = [];
+        q.name = body[0].text;
+        return [q];
+    }
     var result = [];
     var q = [];
     var needpunc = false;
@@ -480,25 +619,23 @@ var _express = function (body, getname, ret) {
     var n = null;
     var nameindex = 0;
     var maxindex = 0;
+    var hasor = false;
     var getdeepname = function (deep = 0) {
         return getname(maxindex + deep);
     };
-    var ax = 0;
     var exps = [];
     for (var cx = 0, dx = body.length; cx < dx; cx++) {
+        if (!(body[cx].type & (COMMENT | SPACE))) { bx = cx; break; }
+    }
+    for (; cx < dx; cx++) {
         var o = body[cx];
         if (o.type & (COMMENT | SPACE)) continue;
-        if (o.type === STRAP && /^(var|let|const)/.test(o.text)) {
-            bx = cx + 1;
+        if (o.type === STRAP && o.text === 'function') {
+            while (o && (o.type !== SCOPED || o.entry !== '{')) o = body[++cx];
             continue;
         }
         if (o.type & (STRAP | STAMP)) {
             var p = 0;
-            if (o.text === '=') {
-                ax = exps.length;
-                bx = cx + 1;
-                continue;
-            }
             if (/[!~]|\+\-|\-\+/.test(o.text)) p = powermap["!"];
             if (!p && /[\+\-]/.test(o.text)) p = needpunc ? powermap["+"] : powermap["!"];
             if (!p) p = powermap[o.text];
@@ -506,7 +643,8 @@ var _express = function (body, getname, ret) {
             var b = body.slice(bx, cx + 1);
             bx = cx + 1;
             b.index = nameindex;
-            if (!cache.length || p > cache[cache.length - 1]) {
+            var isor = p === powermap["||"];
+            if (!isor) if (!cache.length || p > cache[cache.length - 1] || p >= powermap.new) {
                 cache.push(b, p);
                 continue;
             }
@@ -514,8 +652,11 @@ var _express = function (body, getname, ret) {
             var n = scanner2(name);
             q.name = name;
             n.index = nameindex;
-            nameindex = cache[cache.length - 2].index;
             n.push(b.pop());
+
+            if (cache.length) nameindex = cache[cache.length - 2].index;
+            else if (isor) n.pop(), q.push(...scanner2(`${getname(nameindex)}=`), ...b);
+
             while (cache.length && cache[cache.length - 1] >= p) {
                 if (needcomma(q)) q.push({ type: STAMP, text: ',' });
                 var p0 = cache.pop();
@@ -528,7 +669,7 @@ var _express = function (body, getname, ret) {
             }
             nameindex++;
             if (maxindex < nameindex) maxindex = nameindex;
-            if (p == powermap["||"]) {
+            if (isor) {
                 if (o.text === '||') {
                     q.push(RE);
                 }
@@ -538,6 +679,7 @@ var _express = function (body, getname, ret) {
                 else if (o.text === '??') {
                     q.push(RD);
                 }
+                hasor = true;
                 nameindex = 0;
             } else {
                 cache.push(n, p);
@@ -558,15 +700,19 @@ var _express = function (body, getname, ret) {
         nameindex = cache[cache.length - 1].index;
         var t = cache.pop();
         var isawait = _await(t, nameindex);
-        if (p > powermap["="] && (ret || ax >= 1 || cache.length > 0 || isawait)) q.push(...scanner2(`${getname(nameindex)}=`));
-        q.push.apply(q, t);
-        q.push.apply(q, b);
+        if (!t.length && canbeTemp(b) && b[0].text === getname(nameindex)) {
+        }
+        else {
+            if (p > powermap["="] && (ret || cache.length > 0 || isawait)) q.push(...scanner2(`${getname(nameindex)}=`));
+            q.push.apply(q, t);
+            q.push.apply(q, b);
+        }
         if (isawait) q.push(NEXT);
         needname = true;
         b = [{ type: EXPRESS, text: getname(nameindex) }];
     }
-    else if (ax !== 1) {
-        if (ret && b.length || ax > 1) {
+    else {
+        if (ret && b.length) {
             q.push(...scanner2(`${getname(nameindex)}=`));
             q.push(...b);
             needname = true;
@@ -576,49 +722,23 @@ var _express = function (body, getname, ret) {
         }
     }
     if (needname) q.name = getname(nameindex);
-    if (ax === 1) {
-        if (q.length) q.push({ type: STAMP, text: ';' });
-        q.push(exps[0], { type: STAMP, text: "=" });
-        q.push(...b);
-        q.name = exps[0].text;
-        if (evals.length) exps[0].set = getname(nameindex);
-        exps.shift();
-    }
-    if (ax > 1) {
-        while (ax > 0) {
-            q.push({ type: STAMP, text: ';' });
-            var [e] = exps.splice(ax - 1, 1);
-            if (evals.length) e.set = getname(nameindex + 1);
-            q.push(e);
-            q.push(...scanner2(`=${getname(nameindex)}`))
-            ax--;
-        }
-    }
-    if (evals.length && exps.length) for (var cx = q.length - 1; cx >= 0; cx--) {
-        var o = q[cx];
-        if (o.type !== EXPRESS) continue;
-        if (o === exps[exps.length - 1]) {
-            exps.pop();
-            o.get = true;
-            if (!exps.length) {
-                break;
-            }
-        }
-    }
     relink(q);
-    return _invoke(q, getdeepname);
+    result = _invoke(q, getdeepname);
+    if (hasor) result[result.length - 1].ret_ = true;
+    return result;
 };
 
 var getblock = function (body, cx) {
     var o = body[cx];
-    if (o.type === SCOPED && o.entry === '{') return [o];
+    if (o && o.type === SCOPED && o.entry === '{') return [o];
+    if (o && o.type === STAMP && /^[;:]$/.test(o.text)) return [];
     var ax = cx;
-    do {
+    while (o) {
         cx = skipAssignment(body, cx);
         var o = body[cx];
         if (!o || o.type !== STAMP || o.text !== ',') break;
         cx++;
-    } while (o);
+    }
     return body.slice(ax, cx);
 };
 var labels = [];
@@ -630,62 +750,64 @@ var isbreak = function (o) {
 function toqueue(body, getname, ret = false) {
     var retn = false;
     var ifpatch = function () {
-        var re = scanner2(`return [1,0]`);
-        re.awaited = true;
-        addresult(result, re);
+        var re = stepReturn(1, 0);
+        pushstep(result, re);
     }
     var uniftop = function () {
-        for (var cx = 3, dx = iftop.length; cx < dx; cx += 3) {
-            var findex = iftop[cx];
-            var r = iftop[cx + 1];
-            var p = result[findex - 1];
-            if (!r) {
-                p.pop();
-                p.push(...scanner2(`[${result.length + 1 - findex},0]`));
-                relink(p);
-            }
+        for (var cx = 4, dx = iftop.length; cx < dx; cx += 4) {
+            var findex = iftop[cx] - 1;
+            var p = result[findex];
+            p.pop();
+            p.push(scanner2(`[${result.length - findex},0]`)[0]);
+            relink(p);
         }
-        for (var cx = 0, dx = iftop.length - 2; cx < dx;) {
-            var findex = iftop[cx++];
-            var f = result[findex];
-            var r = iftop[cx++];
-            var n = iftop[cx++];
-            if (r) {
-                var c = scanner2(`if(${n})`);
-                f.unshift.apply(f, c);
-                relink(f);
-            }
-            else if (f) {
-                var c = scanner2(`if(${n})return [${iftop.length > cx ? iftop[cx] - findex : result.length - findex},0];`);
-                f.unshift.apply(f, c);
-                relink(f);
+        for (var cx = 1, dx = iftop.length - 2; cx < dx;) {
+            var isbr = iftop[cx++];
+            var ce = iftop[cx++];
+            var cindex = iftop[cx++];
+            var findex = iftop[cx] ? iftop[cx++] : result.length;
+            if (!isbr) {
+                ce[0].text = findex - cindex;
+                relink(ce);
             }
         };
     };
     var unblock = function (block, ...end) {
         var c = toqueue(block, getname, true);
         bx = cx + 1;
+        if (!c.length && end.length) c.push([]);
+        var qe = null, ne = null;
         if (c.length > 0) {
             c.forEach(q => {
-                if (q.length) result.push(q);
+                if (q.length) pushstep(result, q), qe = q;
+                if (q.name) ne = q.name;
             });
             if (end.length) {
-                var q = c[c.length - 1];
-                q.push(...end);
-                relink(q);
+                if (!qe) {
+                    if (result.length) qe = result[result.length - 1];
+                    else qe = c[c.length - 1], result.push(qe);
+                }
+                var e0 = end[0];
+                if (e0.type !== STAMP || !/^[,;]$/.test(e0.text)) {
+                    if (needcomma(qe)) qe.push({ type: STAMP, text: ';' });
+                }
+                qe.push(...end);
+                relink(qe);
             }
         }
-        return result[result.length - 1];
+        if (ne) qe.name = ne;
+        return qe;
     };
     var poplabel = function () {
+        if (!labels.length) return;
         var e = labels.pop();
         if (e.breaks) {
             while (e.breaks.length) {
                 var b = e.breaks.pop();
-                var end = b[b.length - 1];
+                var end = b;
                 for (var cx = result.length - 1; cx >= 0; cx--) {
                     var r = result[cx];
-                    if (r[r.length - 1] === end) { break }
+                    if (r.indexOf(b) >= 0) { break }
                 }
                 end.push({ type: VALUE, text: b.contat - cx ? b.continue : result.length - cx }, { type: STAMP, text: "," }, { type: VALUE, text: "0" });
                 relink(end);
@@ -697,8 +819,8 @@ function toqueue(body, getname, ret = false) {
     var cx = 0, bx = 0;
     var iftop = null;
     do {
-        while (cx < body.length && (body[cx].type === SPACE || body[cx].type === COMMENT)) cx++;
         var o = body[cx];
+        while (o && (o.type & (SPACE | COMMENT))) o = body[++cx];
         if (!o) break;
         while (labels.length) {
             var e = labels[labels.length - 1];
@@ -712,7 +834,7 @@ function toqueue(body, getname, ret = false) {
             labels.push(o);
             continue;
         }
-        if (o.type === SCOPED && o.entry === '{' && !o.isExpress) {
+        if (o.type === SCOPED && o.entry === '{' && !o.isObject) {
             scopes.push(o);
             var b = toqueue(o, getname, false);
             scopes.pop();
@@ -740,10 +862,12 @@ function toqueue(body, getname, ret = false) {
                 cx++;
                 break a;
             }
-            if (/^(async|function)$/.test(o.text)) {
-                cx = skipAssignment(body, cx);
-                addresult(result, body.slice(bx, cx));
-                bx = cx + 1;
+            if (/^(async|function|class)$/.test(o.text)) {
+                // cx = skipAssignment(body, cx);
+                // var f = body.slice(bx, cx);
+
+                // addresult(result, f);
+                // bx = cx + 1;
                 break a;
             }
             if (/^(break|continue)$/.test(o.text)) {
@@ -763,7 +887,7 @@ function toqueue(body, getname, ret = false) {
             }
             if (o.text === 'for') {
                 labels.push(o);
-                cx = _for(body, cx, unblock, result, getname(0));
+                cx = _for(body, cx, unblock, result);
                 poplabel();
                 bx = cx + 1;
                 continue;
@@ -802,14 +926,22 @@ function toqueue(body, getname, ret = false) {
                 while (body[cx] !== o.next) cx++;
                 o = o.next;
                 var isbr = isbreak(o.next);
+                var i = result.length;
                 var n = getCondition(o, unblock, !isbr);
                 o = o.next;
-                if (!elseif) {
-                    if (iftop) uniftop();
-                    iftop = [result.length, isbr, n];
+                if (isbr) {
+                    var c = scanner2(`if(${n})`);
                 }
                 else {
-                    iftop.push(n);
+                    var c = scanner2(`if(${n})return [0,0]`);
+                }
+                var ce = c[3];
+                pushstep(result, c);
+                if (!elseif) {
+                    iftop = [i, isbr, ce, result.length - 1];
+                }
+                else {
+                    iftop.push(ce, result.length - 1);
                 }
                 elseif = true;
             }
@@ -818,10 +950,12 @@ function toqueue(body, getname, ret = false) {
                 var block = getblock(body, cx);
                 cx += block.length;
                 o = body[cx];
+                while (o && o.type & (SPACE | COMMENT)) o = body[++cx];
                 unblock(block);
                 if (o && o.type === STAMP && o.text === ';') o = o.next;
-                while (body[cx] !== o) cx++;
+                while (cx < body.length && body[cx] !== o) cx++;
                 if (!o || o.type !== STRAP || o.text !== 'else') {
+                    if (!isbr) ifpatch();
                     uniftop();
                     iftop = null;
                 }
@@ -829,6 +963,7 @@ function toqueue(body, getname, ret = false) {
             else {
                 cx++;
             }
+            bx = cx;
             continue;
         }
         cx = skipAssignment(body, cx);
@@ -836,10 +971,14 @@ function toqueue(body, getname, ret = false) {
         cx++;
         bx = cx;
         b = ternary(b, getname, ret);
-        result.push(...b);
+        for (var a of b) pushstep(result, a);
         if (retn) {
-            retn.name = b[b.length - 1].name;
-            addresult(result, retn);
+            if (b.length) retn.name = b[b.length - 1].name;
+            pushstep(result, retn);
+        }
+        else {
+            var q = b[b.length - 1];
+            if (q && !q.length && q.name) pushstep(result, scanner2(q.name));
         }
         retn = false;
     } while (cx < body.length);

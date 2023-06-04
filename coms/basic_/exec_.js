@@ -1,16 +1,25 @@
-var exec = function (args, ok, oh, int) {
+var exec_ = function (args, ok, oh, int) {
     var p = null, index = 0, r, finished = false, t = this;
     var next = function (arg) {
         p = arg;
         run();
     };
-    var catches = [];
+    var catches = [], catch_;
     var thro = function (err) {
-        if (catches.length) {
-            [index, p] = catches[catches.length - 1]
-            index += p >>> 16;
-            p = err;
-            next();
+        if (catch_) {
+            fina();
+        }
+        else if (catches.length) {
+            catch_ = catches.pop();
+            [index, p] = catch_;
+            index += p & 0xffff;
+            if (p >>> 16) {
+                p = err;
+                next();
+            }
+            else{
+                fina();
+            }
         }
         else {
             oh(err);
@@ -24,12 +33,14 @@ var exec = function (args, ok, oh, int) {
     };
     var fina = function () {
         // 仅在try或catch未结束时使用
-        [index, p] = catches[catches.length - 1];
+        if (!catch_) catch_ = catches.pop();
+        [index, p] = catch_;
+        catch_ = null;
         index += (p >>> 16) + (p & 0xffff);
         next();
     };
     var fine = function () {
-        catches.pop();
+        index++;
         next();
     }
     var run = function () {
