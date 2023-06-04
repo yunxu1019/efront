@@ -25,8 +25,8 @@ const {
 } = require("./common");
 var straps = `if,in,do,as,of
 var,for,new,try,let,get,set
-else,case,void,with,enum,from,eval
-async,while,break,catch,throw,const,yield,class,await,super
+else,case,void,with,enum,from
+async,while,break,catch,throw,const,yield,class,await
 return,typeof,delete,switch,export,import,static
 default,finally,extends
 function,continue,debugger
@@ -232,6 +232,21 @@ Javascript.prototype.setType = function (o) {
         }
     }
 };
+var insertBefore = function (o) {
+    var queue = this || o.queue;
+    var index = queue.indexOf(o);
+    var os = [].slice.call(arguments, 1);
+    queue.splice.apply(queue, [index, 0].concat(os));
+    var prev = o && o.prev, next = o;
+    for (var o of os) {
+        if (prev) prev.next = o;
+        o.prev = prev;
+        Object.defineProperty(o, 'queue', { value: queue });
+        prev = o;
+    }
+    o.next = next;
+    if (next) next.prev = o;
+}
 var insertAfter = function (o) {
     var queue = this || o.queue;
     var index = queue.indexOf(o) + 1;
@@ -406,7 +421,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                         collectProperty(o, text);
                     }
                     if (o.short) {
-                        insertAfter.call(o.queue, o.prev, { text: text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
+                        insertBefore.call(o.queue, o, { text: text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
                         o.isprop = false;
                         o.type = EXPRESS;
                         delete o.short;

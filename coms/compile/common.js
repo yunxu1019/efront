@@ -241,13 +241,48 @@ function snapSentenceHead(o) {
 }
 
 var snapExpressHead = function (o) {
-    if (!o || o.type !== EXPRESS) return;
+    if (!o || o.type & ~(EXPRESS | SCOPED | QUOTED)) return o;
+    var a = o;
     while (o && o.prev) {
         var p = o.prev;
-        if (p.type & (EXPRESS | VALUE)) {
-            if (o.type === SCOPED && o.entry === '[' || o.type === EXPRESS && /^\??\.[^\.]/.test(o.text) || /\.$/.test(p.text) && !p.isdigit) {
+        if (p.type & (EXPRESS | VALUE | SCOPED | QUOTED)) {
+            if (o.type === SCOPED && o.entry !== '{'
+                || o.type === EXPRESS && /^\??\.[^\.]/.test(o.text)
+                || /\.$/.test(p.text) && !p.isdigit
+                || o.type === QUOTED && (o.length || /^\`/.test(o.text))
+            ) {
+                a = o;
                 o = p;
                 continue;
+            }
+            else if (o.type === SCOPED) {
+                var isclass = 0;
+                if (o.isObject) return o;
+                if (!o.isClass) {
+                    if (p.type === SCOPED && p.entry === "(") {
+                        p = p.prev;
+                        if (p && p.type === EXPRESS) p = p.prev;
+                        if (p && p.type === STAMP && p.text === '*') p = p.prev;
+                        if (!p || p.type !== STRAP || !/^function$/.test(p.text)) return a;
+                        if (p && p.type === STRAP && p.text === "new") p = p.prev;
+                        return p;
+                    }
+                    return a;
+                }
+                while (o.isClass) {
+                    isclass++;
+                    o = o.prev;
+                }
+                var p = o;
+                while (o && isclass > 0) {
+                    var p = o;
+                    if (o.type === STRAP && o.text === 'class') {
+                        isclass--;
+                    }
+                    o = o.prev;
+                }
+                if (p && p.type === STRAP && p.text === 'new') p = p.prev;
+                return p;
             }
         }
         break;
@@ -570,6 +605,7 @@ var createScoped = function (parsed, wash) {
                 if (!o);
                 else if (o.type === SCOPED && o.entry === "{") {
                     scoped.body = o;
+                    if (o.isClass) o.scoped = scoped;
                     o.isExpress = isExpress;
                     run(o.first);
                     if (isArrow && id >= 0 && o) o = o.next;
@@ -642,6 +678,10 @@ var createScoped = function (parsed, wash) {
                     delete vars.this;
                     delete vars.arguments;
                 }
+                if (isArrow) {
+                    delete used.this;
+                    delete used.arguments;
+                }
                 if (isClass) delete lets.super;
                 if (scoped.isfunc) {
                     if (used.yield) _scoped.yield = false;
@@ -672,6 +712,7 @@ var createScoped = function (parsed, wash) {
         delete envs.yield;
         delete used.yield;
     }
+    delete envs.eval;
     scoped.envs = envs;
     return scoped;
 };
@@ -716,13 +757,26 @@ var getDeclared = function (o, kind, queue) {
                         continue;
                     }
                 }
+            case EXPRESS:
             case STRAP:
             case VALUE:
-            case EXPRESS:
                 var n = o.text.replace(/^\.\.\.|\.\.\.$/g, '');
                 declared.push(n);
-                if (!prop) prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
-                if (n !== o.text) declared["..."] = [n, index];
+                var isdots = n !== o.text;
+                if (!isdots && !prop) {
+                    if (queue && queue.entry === '{') {
+                        if (o.type & (EXPRESS | STRAP)) {
+                            if (/^\[/.test(o.text)) prop = o.text;
+                            else if (!/\./.test(o.text)) prop = '.' + o.text;
+                            else prop = `[${strings.encode(o.text)}]`;
+                        }
+                        else {
+                            prop = `[${n}]`;
+                        }
+                    }
+                    else prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
+                }
+                if (isdots) declared["..."] = [n, index];
                 else attributes.push([prop, n]);
                 o.kind = kind;
                 saveTo(used, n, o);

@@ -577,7 +577,7 @@ class Program {
                         else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
                     }
                     else if (last.type === STRAP) {
-                        if (queue[queue.length - 1].type === SPACE && forceend_reg.test(last.text));
+                        if (last.isend);
                         else if (this.export_reg.test(last.text));
                         else scope.isObject = queue.inExpress;
                     }
