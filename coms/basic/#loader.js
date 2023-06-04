@@ -24,6 +24,7 @@ var {
     parseFloat,
     encodeURI,
     preventFrame,
+    preventCodeStorage = true,
     PREVENT_FRAMEWORK_MODE = preventFrame,
     devicePixelRatio = 1,
     startPath: efrontPath,
@@ -764,7 +765,7 @@ var initPixelDecoder = function () {
 };
 var flush_to_storage_timer = 0,
     responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
-var saveResponseTreeToStorage = function () {
+var saveResponseTreeToStorage = preventCodeStorage ? function () { } : function () {
     var responseTextArray = [];
     for (var k in versionTree) {
         if (hasOwnProperty.call(responseTree, k)) responseTextArray.push(
@@ -774,7 +775,7 @@ var saveResponseTreeToStorage = function () {
     var data = responseTextArray.join("，");
     localStorage && localStorage.setItem(responseTree_storageKey, data);
 };
-var loadResponseTreeFromStorage = function () {
+var loadResponseTreeFromStorage = preventCodeStorage ? function () { } : function () {
     "use ./crc.js";
     var load = function (name) {
         var data = localStorage.getItem(responseTree_storageKey);
