@@ -605,7 +605,7 @@ var createScoped = function (parsed, wash) {
                 if (!o);
                 else if (o.type === SCOPED && o.entry === "{") {
                     scoped.body = o;
-                    if (o.isClass) o.scoped = scoped;
+                    if (o.isClass || isFunction) o.scoped = scoped;
                     o.isExpress = isExpress;
                     run(o.first);
                     if (isArrow && id >= 0 && o) o = o.next;
@@ -911,6 +911,10 @@ var relink = function (list) {
     list.last = p;
     return list;
 }
+var setqueue = function (list, queue = list) {
+    var v = { value: queue }
+    for (var o of list) Reflect.deleteProperty(o, 'queue'), Reflect.defineProperty(o, 'queue', v);
+};
 
 var createString = function (parsed) {
     var keepspace = parsed.keepspace !== false;
@@ -1004,7 +1008,7 @@ var createString = function (parsed) {
                             else result.pop();
                         }
                     }
-                    if (o.leave === "}" && (!o.next || o.next.type !== PIECE) && o[o.length - 1].type !== SPACE) {
+                    if (o.leave === "}" && o.entry === "{" && o[o.length - 1].type !== SPACE) {
                         if (keepspace) result.push(" ");
                     }
                 }
@@ -1099,25 +1103,29 @@ var createExpressList = function (code) {
     }
     return list;
 };
+var splice = function (queue, index, size, ...args) {
+    if (index < 0) index += queue.length;
+    var p = queue[index];
+    var n = queue[index + size - 1];
+    var prev = p && p.prev;
+    var next = n && n.next;
+    var res = queue.splice(index, size, ...args);
+    var previ = queue.lastIndexOf(prev, index);
+    var nexti = queue.indexOf(next, index + args.length);
+    if (previ < 0) previ = 0;
+    if (nexti < 0) nexti = queue.length;
+    else nexti++;
+    var changedargs = queue.slice(previ, nexti);
+    if (!queue.first) queue.first = changedargs.first;
+    if (!queue.last) queue.last = changedargs.last;
+    relink(changedargs);
+    setqueue(args, queue);
+    return res;
+};
 var replace = function (o, ...args) {
     var queue = o.queue;
     var i = queue.indexOf(o);
-    if (i >= 0) queue.splice(i, 1, ...args);
-    var prev = o.prev;
-    var next = o.next;
-    if (!args.length) {
-        if (prev) prev.next = next;
-        else queue.first = next;
-        if (next) next.prev = prev;
-        else queue.last = prev;
-    }
-    else {
-        if (prev) prev.next = args[0], args[0].prev = prev;
-        else queue.first = args[0];
-        if (next) next.prev = args[args.length - 1], args[args.length - 1].next = next;
-        else queue.last = args[args.length - 1];
-    }
-    return args.length ? args[0] : next;
+    if (i >= 0) splice(queue, i, 1, ...args);
 };
 
 module.exports = {
@@ -1147,6 +1155,8 @@ module.exports = {
     saveTo,
     rename,
     relink,
+    setqueue,
     replace,
+    splice,
     mergeTo
 };

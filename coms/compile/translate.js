@@ -1,5 +1,5 @@
 var scanner2 = require("./scanner2");
-var { SCOPED, QUOTED, SCOPED, PIECE, number_reg, replace, createString } = require("./common");
+var { SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE, setqueue, splice, relink, number_reg, replace, createString } = require("./common");
 var strings = require("../basic/strings");
 var program = null;
 var patchTranslate = function (c) {
@@ -63,7 +63,23 @@ function getI18nPrefixedText(code, dist = []) {
     }, 字段名);
     return dist;
 }
-
+var ctn = function (tt, t) {
+    var tn = scanner2(tt.replace(/[\$#]+(\d+)/g, (_, i) => {
+        var a = (i << 1) - 1;
+        if (a in t) return `\${${a}}`;
+        return _;
+    }));
+    tn[tn.length - 1].forEach(n => {
+        if (n.type !== QUOTED || !n.length) return;
+        n.forEach((a, i) => {
+            if (a.type !== SCOPED) return;
+            var e = a[0].text;
+            if (e in t) n[i] = t[e];
+        });
+        relink(n);
+    })
+    return tn;
+}
 function translate([imap, supports], code) {
     var texts = getI18nPrefixedText(code);
     texts.sort((a, b) => {
@@ -88,11 +104,8 @@ function translate([imap, supports], code) {
                 p.leave = ")";
             }
             var tt = t.translate;
-            replace(t, ...scanner2(`(${getm(tt)})`.replace(/[\$#]+(\d+)/g, (_, i) => {
-                var a = (i << 1) - 1;
-                if (a in t) return `\${${createString(t[a])}}`;
-                return _;
-            })));
+            var tn = ctn(`(${getm(tt)})`, t);
+            replace(t, tn[0]);
         }
         else if (t.transtype === 字段名) {
             var i = t.queue.indexOf(t.prev);
@@ -103,19 +116,32 @@ function translate([imap, supports], code) {
                 used.i18n = [];
                 code.envs.i18n = true;
             }
-            t.queue.splice(i, e + 1 - i, ...scanner2("[" + t.fields.map(f => {
-                return "{" + Object.keys(f).map(k => {
+            var tn = scanner2("[]")[0];
+            t.fields.forEach(f => {
+                var o = scanner2('{}')[0];
+                Object.keys(f).forEach(k => {
                     var v = f[k];
-                    if (/[\$#]\d+/.test(v)) v = v.replace(/[\$#]+(\d+)/g, (_, i) => {
-                        var a = (i << 1) - 1;
-                        if (a in t) return createString(t[a]);
-                        return _;
-                    });
-                    else if (k === 'name') v = `i18n(${getm(v)})`;
-                    else v = JSON.stringify(v);
-                    return JSON.stringify(k) + ":" + v;
-                }).join(',') + "}";
-            }).join(',') + "]"));
+                    if (/[\$#]\d+/.test(v)) {
+                        var a = v.replace(/^[\$#]+/, '');
+                        var a = (a << 1) - 1;
+                        if (a in t) v = t[a];
+                        else v = scanner2(JSON.stringify(v));
+                    }
+                    else if (k === 'name') v = ctn(`i18n(${getm(v)})`, t);
+                    else v = scanner2(JSON.stringify(v));
+                    o.push({ type: PROPERTY, text: JSON.stringify(k) }, { type: STAMP, text: ':' }, ...v, { type: STAMP, text: ',' });
+                })
+                o.pop();
+                setqueue(o);
+                relink(o);
+                tn.push(o);
+                tn.push({ type: STAMP, text: ',' });
+            });
+            tn.pop();
+            setqueue(tn);
+            relink(tn);
+            Object.defineProperty(tn, 'queue', { value: t.queue });
+            splice(t.queue, i, e + 1 - i, tn);
         }
     }
     if (used.refilm && !used.refilm.length) {
