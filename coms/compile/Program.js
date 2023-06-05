@@ -145,7 +145,7 @@ class Program {
     value_reg = /^(false|true|null)$/
     number_reg = number_reg;
     Code = Array;
-    transive_reg = /^(new|void|switch|case|break|continue|return|throw|extends|import)$/
+    transive_reg = /^(new|void|case|break|continue|return|throw|extends|import)$/
     straps = "if,for".split(',');
     colonstrap_reg = /^(case|default)$/;
     forceend_reg = /^(return|break|continue)$/;
@@ -238,13 +238,16 @@ class Program {
             }
             var last = queue.last;
             if (type === SPACE) {
-                if (last && last.type === STRAP && forceend_reg.test(last.text)) {
+                if (last && last.isend === false) {
                     last.isend = true;
                     queue.inExpress = false;
                 }
             }
             else if (type !== STAMP);
-            else if (m === ";") queue.inExpress = false;
+            else if (m === ";") {
+                if (last && last.isend === false) last.isend = true;
+                queue.inExpress = false;
+            }
             else if (last) check: switch (m) {
                 case "?":
                     queue.inExpress = true;
@@ -311,6 +314,10 @@ class Program {
                 end,
                 isExpress: queue.inExpress,
                 text: m
+            }
+            if (type === STRAP) {
+                if (forceend_reg.test(m)) scope.isend = false;
+                if (this.transive_reg.test(m)) scope.transive = true;
             }
             if (isdigit) scope.isdigit = true;
             lasttype = type;

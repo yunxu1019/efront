@@ -439,7 +439,7 @@ module.exports = async function (responseTree) {
             var parsed = parseKV(modules, ',', ":");
             Object.keys(parsed).forEach(k => prebuilds[k] = true);
             missing = missing.filter(k => !prebuilds[responseTree[k].url] && !/^[\.\[\]]/.test(missing));
-            return `${prefix}${missing.map(k => responseTree[k].warn ? `${k}:window["${k}"]` : k).join(",\r\n")}\r\n${modules}${aftfix}`;
+            return `${prefix}${missing.map(k => responseTree[k].warn ? `${k}:window["${k}"]` : k).join(",\r\n")}${missing.length ? ',' : ''}\r\n${modules}${aftfix}`;
         })
         .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
         .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)

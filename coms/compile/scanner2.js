@@ -17,6 +17,7 @@ const {
     skipSentenceQueue,
     rename,
     relink,
+    setqueue
 } = require("./common");
 
 
@@ -153,7 +154,9 @@ class Code extends Array {
         return this;
     }
     relink(list = this) {
-        return relink(list);
+        relink(list);
+        setqueue(list);
+        return list;
     }
 }
 

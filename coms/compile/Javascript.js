@@ -19,6 +19,7 @@ const {
     getDeclared,
     createScoped,
     snapExpressHead,
+    splice,
     relink,
     replace,
     skipAssignment,
@@ -33,7 +34,7 @@ function,continue,debugger
 instanceof`.trim().split(/[,\s]+/);
 class Javascript extends Program {
     straps = straps;
-    value_reg = /^(false|true|null|Infinity|NaN|undefined)$/
+    value_reg = /^(false|true|null|Infinity|NaN|undefined|eval)$/
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger)$/;
@@ -240,12 +241,14 @@ var insertBefore = function (o) {
     var prev = o && o.prev, next = o;
     for (var o of os) {
         if (prev) prev.next = o;
+        else queue.first = o;
         o.prev = prev;
         Object.defineProperty(o, 'queue', { value: queue });
         prev = o;
     }
     o.next = next;
     if (next) next.prev = o;
+    else queue.last = o;
 }
 var insertAfter = function (o) {
     var queue = this || o.queue;
@@ -255,12 +258,14 @@ var insertAfter = function (o) {
     var prev = o, next = o && o.next;
     for (var o of os) {
         if (prev) prev.next = o;
+        else queue.first = o;
         o.prev = prev;
         Object.defineProperty(o, 'queue', { value: queue });
         prev = o;
     }
     o.next = next;
     if (next) next.prev = o;
+    else queue.last = o;
 };
 var js = new Javascript;
 var scan = function (data) {
@@ -292,8 +297,8 @@ var collectProperty = function (o, text) {
         var start = p ? q.indexOf(p) + 1 : 0;
         var n = t.next;
         while (n && (n.type !== STAMP || n.text !== ',')) n = n.next;
-        var end = n ? q.indexOf(n) + 1 : q.length;
-        var s = q.splice(start, end - start);
+        var end = n ? q.indexOf(n, start) + 1 : q.length;
+        var s = splice(q, start, end - start);
         if (s.length) console.info(`属性<green>${text}</green>被后文覆盖，已移除<yellow>${createString(s)}</yellow>\r\n`);
         if (p && n) {
             var pp = p.prev;
@@ -310,7 +315,7 @@ var hasComma = function (c) {
     }
     return false;
 }
-var removeQoute = function (o, c, i) {
+var removeQuote = function (o, c, i) {
     if (hasComma(c)) return;
     if (!isFinite(i)) i = o.indexOf(c);
     o.splice(i, 1, ...c);
@@ -351,21 +356,25 @@ Javascript.prototype.detour = function detour(o, ie) {
                     if (!o.prev || o.prev.type & (STAMP | STRAP)) {
                         o.type = SCOPED;
                         o.entry = '[';
-                        o.leave = `]["join"]('')`;
+                        o.leave = `]["join"]("")`;
                         for (var cx = o.length - 1; cx >= 0; cx--) {
                             var c = o[cx];
                             if (c.type === PIECE) {
                                 c.type = QUOTED;
                                 c.text = strings.recode("`" + c.text + "`");
+                                splice(o, cx + 1, 0, { type: STAMP, text: ',' });
                             }
                             else {
-                                insertAfter.call(o, c.prev, { type: STAMP, text: ',' });
                                 c.entry = "(";
                                 c.leave = ")";
                                 this.detour(c.first, ie);
-                                insertAfter.call(o, c, { type: STAMP, text: ',' });
-                                removeQoute(o, c);
+                                splice(o, cx + 1, 0, { type: STAMP, text: ',' });
+                                removeQuote(o, c);
                             }
+                        }
+                        if (o.length) {
+                            o.pop();
+                            o.last = o.last.prev;
                         }
                     }
                     else {

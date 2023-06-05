@@ -19,7 +19,7 @@ var Symbol = this.Symbol || function () {
     Symbol.prototype = prototype;
     Symbol.iterator = Symbol('iterator');
     Symbol.asyncIterator = Symbol('asyncIterator');
-    Array.prototype[Symbol.iterator] = function () {
+    var iterator = function () {
         var arr = this, cx = 0, dx = arr.length;
         return {
             next() {
@@ -28,5 +28,8 @@ var Symbol = this.Symbol || function () {
             }
         }
     };
+    try {
+        Object.defineProperty(Array.prototype, Symbol.iterator, { value: iterator, enumerable: false })
+    } catch { }
     return Symbol;
 }();

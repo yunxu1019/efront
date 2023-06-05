@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, relink, snapExpressHead } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
 var scanner2 = require("./scanner2");
 var RE = { type: STRAP, text: "@re" };// if (_) return
 var RZ = { type: STRAP, text: "@rz" };// if (!_) return
@@ -23,8 +23,8 @@ var _break = function (body, cx, result, iscontinue) {
                 var _b = scanner2('return []');
                 _b.ret_ = true;
                 if (iscontinue) _b.continue = s, s.continue = true;
-                pushstep(result, _b);
                 b.breaks.push(_b[1]);
+                pushstep(result, _b);
                 break;
             }
             else {
@@ -40,8 +40,8 @@ var _break = function (body, cx, result, iscontinue) {
                 var _b = scanner2("return []");
                 _b.ret_ = true;
                 if (iscontinue) _b.continue = b, b.continue = true;
-                pushstep(result, _b);
                 b.breaks.push(_b[1]);
+                pushstep(result, _b);
                 break;
             }
         }
@@ -75,7 +75,7 @@ var _try = function (body, cx, unblock, result, getname) {
     var ai = result.length;
     unblock(o);
     if (ai < result.length) {
-        if (arg.length) result[ai].unshift(...arg), relink(result[ai]);
+        if (arg.length) result[ai].unshift(...arg), result[ai].awaited = true, relink(result[ai]);
         pushstep(result, stepReturn(0, 9));
     }
     o = o.next;
@@ -337,26 +337,33 @@ var patchstep = function (r, nextindex, h) {
         relink(r);
     }
 };
-var addresult = function (result, step) {
-    if (!step.length) return;
+var flusqueue = function (result, queue) {
     var savedLength = result.length;
     var savedIndex = savedLength - 1;
     var prev = result[savedIndex];
     if (prev) var patch = prev.length;
+    for (var q of queue) pushstep(result, q);
+    queue = [];
+    if (ret_) {
+        if (prev) patchstep(prev, result.length - savedIndex, patch || 0);
+        result.slice(savedLength).forEach((a, i) => patchstep(a, result.length - savedLength - i, 0));
+    }
+};
+
+var addresult = function (result, step) {
+    if (!step.length) return;
     var cx, mx = 0, n;
     var awaited = step.awaited;
+    var queue = [];
     do {
         while (step[mx] && step[mx].type === STAMP && /^[,;]$/.test(step[mx].text)) mx++;
         cx = step.indexOf(NEXT, mx);
         n = step.slice(mx, mx = cx < 0 ? step.length : cx + 1);
         if (awaited) n.awaited = awaited, awaited = false;
         n.name = step.name;
-        pushstep(result, n);
+        queue.push(n);
     } while (mx < step.length);
-    if (ret_) {
-        if (prev) patchstep(prev, result.length - savedIndex, patch || 0);
-        result.slice(savedLength).forEach((a, i) => patchstep(a, result.length - savedLength - i, 0));
-    }
+    flusqueue(result, queue);
 };
 var _do = function (body, cx, unblock, result, tmpname) {
     var o = body[cx];
@@ -378,12 +385,15 @@ var stepReturn = function (value, type, q) {
     return r;
 }
 var needbreak = function (o) {
-    return o === RETURN || o === NEXT || o === YIELD;
+    return o && o.type === STAMP && /^[,;]$/.test(o.text) || o === RD || o == RE || o === RZ || isretn(o);
 };
+var isretn = function (o) {
+    return o === RETURN || o === NEXT || o === YIELD;
+}
 var _return = function (r, nextindex) {
     var name = r.name;
     var e = r[r.length - 1];
-    if (!needbreak(e)) return;
+    if (!isretn(e)) return;
     r.ret_ = true;
     r.pop();
     var x;
@@ -398,6 +408,7 @@ var _return = function (r, nextindex) {
         r.await_ = true;
     }
     if (needcomma(r)) r.push({ type: STAMP, text: ';' });
+    else if (r.length) r[r.length - 1].text = ';';
     r.push(...x);
     relink(r);
 };
@@ -426,12 +437,13 @@ var _invoke = function (t, getname) {
     var bx = 0;
     for (var cx = 0; cx < t.length; cx++) {
         var o = t[cx];
-        var iscomma = o.type === STAMP && /^[,;]$/.test(o.text);
-        if (iscomma || o === RE || o === RZ || o === RD) {
+        if (needbreak(o)) {
             if (needcomma(queue)) queue.push({ type: STAMP, text: ',' });
-            queue.push(...t.splice(bx, cx + 1));
+            var s = splice(t, bx, cx + 1 - bx);
+            if (cx > 0) s.name = s[0].text;
+            else s.name = qname;
+            queue.push(s);
             cx = bx - 1;
-            if (iscomma) queue.pop();
             bx = cx + 1;
             continue;
         }
@@ -456,28 +468,28 @@ var _invoke = function (t, getname) {
                 nameindex++;
                 cache.push(...q);
             }
-            if (!cache.length) continue;
             nameindex = _nameindex;
-            if (queue.length) addresult(result, queue), queue = [], queue.name = qname;
-            result.push(...cache);
+            if (!cache.length) continue;
+            if (queue.length) flusqueue(result, queue), queue = [];
+            for (var c of cache) pushstep(result, c);
             cache = [];
-            var m = t.splice(bx, cx + 1);
-            m.name = queue.name;
-            cx -= m.length;
-            if (bx + 1 < t.length && (t[bx].type & (SCOPED | EXPRESS))) t.splice(bx, 0, ...scanner2(`${getname(0)}=${getname(nameindex)}`)), t.name = getname(0);
-            relink(m);
-            addresult(result, m);
-            nameindex++;
-            bx = cx + 1;
+            var n = o.next;
+            if (n && !needbreak(n)) {
+                var h = snapExpressHead(o);
+                var hx = t.lastIndexOf(h, cx);
+                var fs = splice(t, hx, cx + 1 - hx, { type: EXPRESS, text: getname(nameindex) });
+                fs.unshift(...scanner2(`${getname(nameindex)}=`));
+                relink(fs);
+                fs.name = getname(nameindex);
+                pushstep(result, fs);
+                nameindex++;
+                cx = hx - 1;
+            }
         }
     }
     if (queue.length) {
-        if (t.length) {
-            if (needcomma(queue)) queue.push({ type: STAMP, text: ',' });
-            queue.push(...t), queue.name = t.name;
-        }
-        queue.name = qname;
-        addresult(result, queue);
+        queue.push(t);
+        flusqueue(result, queue);
     }
     else if (t.length) {
         var t0 = t[0];
@@ -499,15 +511,22 @@ var _await = function (t) {
 };
 var ishalf = function (q) {
     var e = q[q.length - 1];
+    if (!e) return false;
     return e.type === SCOPED && e.entry === '(' && e.prev && e.prev.type === STRAP && /^if$/.test(e.prev.text) || e.type === STRAP && /^else$/.test(e.text);
 }
 var needcomma = function (q) {
     if (!q.length) return false;
     var e = q[q.length - 1];
-    if (e.type === STAMP && /^[,;]$/.test(e.text) || e === RE || e === RZ || e === RD) return false;
     if (ishalf(q)) return false;
     return !needbreak(e);
 };
+var patchname = function (d, getname) {
+    var de = d[d.length - 1];
+    if (de && !de.name) {
+        splice(de, 0, 0, { type: EXPRESS, text: getname(0) }, { type: STAMP, text: "=" });
+        de.name = getname(0);
+    }
+}
 var ternary = function (body, getname, ret) {
     var question = [];
     var res = [];
@@ -531,12 +550,14 @@ var ternary = function (body, getname, ret) {
                 relink(b);
                 var c = toqueue(body.slice(bx + 1, cx), getname, true);
                 var d = toqueue(body.slice(cx + 1), getname, true);
+                patchname(c, getname);
+                patchname(d, getname);
                 pushstep(d, stepReturn(1, 0, d));
                 pushstep(c, stepReturn(d.length + 1, 0, c));
                 addresult(res, scanner2(`if(${getCondition(b, function (b) {
                     b = ternary(b, getname, true);
                     for (var b of b) addresult(res, b);
-                    return res[res.length - 1];
+                    return b;
                 }, true)})return [1,0]`));
                 var q = res[res.length - 1];
                 var qi = res.length - 1;
@@ -761,11 +782,11 @@ function toqueue(body, getname, ret = false) {
             p.push(scanner2(`[${result.length - findex},0]`)[0]);
             relink(p);
         }
-        for (var cx = 1, dx = iftop.length - 2; cx < dx;) {
+        for (var cx = 1, dx = iftop.length - 2; cx < dx; cx++) {
             var isbr = iftop[cx++];
             var ce = iftop[cx++];
             var cindex = iftop[cx++];
-            var findex = iftop[cx] ? iftop[cx++] : result.length;
+            var findex = iftop[cx] ? iftop[cx] : result.length;
             if (!isbr) {
                 ce[0].text = findex - cindex;
                 relink(ce);
@@ -832,6 +853,7 @@ function toqueue(body, getname, ret = false) {
         if (o.type === LABEL) {
             o.scope = scopes[scopes.length - 1];
             labels.push(o);
+            cx++;
             continue;
         }
         if (o.type === SCOPED && o.entry === '{' && !o.isObject) {
@@ -913,13 +935,13 @@ function toqueue(body, getname, ret = false) {
                 bx = cx + 1;
                 continue;
             }
-            var elseif = false;
+            var elseif = false, isbr = false;
             if (o.text === 'else') {
                 ifpatch();
                 while (body[cx] !== o.next) cx++;
                 o = o.next;
-                var isbr = isbreak(o);
-                iftop.push(result.length, isbr);
+                isbr = isbreak(o);
+                iftop.push(result.length);
                 elseif = true;
             }
             if (o.text === 'if') {
@@ -941,7 +963,7 @@ function toqueue(body, getname, ret = false) {
                     iftop = [i, isbr, ce, result.length - 1];
                 }
                 else {
-                    iftop.push(ce, result.length - 1);
+                    iftop.push(isbr, ce, result.length - 1);
                 }
                 elseif = true;
             }

@@ -91,18 +91,27 @@ var skipAssignment = function (o, cx) {
             next();
             needpunc = true;
             break;
+        case PROPERTY:
+            if (needpunc) break loop;
+            next();
+            break;
         case EXPRESS:
-            if (/^\.|\.$/.test(o.text)) {
+            if (/^\.[^\.]/.test(o.text)) {
                 next();
                 break;
             }
-            else if (/^\[/.test(o.text)) {
+            if (/\.$/.test(o.text)) {
+                needpunc = false;
+                next();
+                break;
+            }
+            if (/^\[/.test(o.text)) {
                 needpunc = true;
                 next();
                 break;
             }
         case QUOTED:
-            if (needpunc && /^`/.test(o.text || o.entry)) {
+            if (needpunc && /^`/.test(o.entry || o.text)) {
                 needpunc = false;
             }
         case VALUE:
@@ -127,7 +136,7 @@ var skipAssignment = function (o, cx) {
                 next();
                 needpunc = false;
             }
-            else if (/^(do|if|while|for|switch|with)/.test(o.text)) {
+            else if (/^(do|if|while|for|switch|with)$/.test(o.text)) {
                 if (o.text === 'if') ifdeep++;
                 next();
                 next();
@@ -218,7 +227,7 @@ function snapSentenceHead(o) {
                 o = p;
                 continue;
             }
-            if (/^(in|instanceof)/.test(p.text)) {
+            if (/^(in|instanceof)$/.test(p.text)) {
                 o = p.prev;
                 continue;
             }
@@ -245,59 +254,79 @@ var snapExpressHead = function (o) {
     var a = o;
     while (o && o.prev) {
         var p = o.prev;
-        if (p.type & (EXPRESS | VALUE | SCOPED | QUOTED)) {
-            if (o.type === SCOPED && o.entry !== '{'
-                || o.type === EXPRESS && /^\??\.[^\.]/.test(o.text)
-                || /\.$/.test(p.text) && !p.isdigit
-                || o.type === QUOTED && (o.length || /^\`/.test(o.text))
-            ) {
+        if (p && p.type === STRAP && p.text === 'new') return p;
+        if (o.type === SCOPED && o.entry !== '{'
+            || o.type === EXPRESS && /^\??\.[^\.]/.test(o.text)
+            || /\.$/.test(p.text) && !p.isdigit
+            || o.type === QUOTED && (o.length || /^\`/.test(o.text))
+        ) {
+            if (p.type & (EXPRESS | VALUE | SCOPED | QUOTED)) {
                 a = o;
                 o = p;
                 continue;
             }
-            else if (o.type === SCOPED) {
-                var isclass = 0;
-                if (o.isObject) return o;
-                if (!o.isClass) {
-                    if (p.type === SCOPED && p.entry === "(") {
-                        p = p.prev;
-                        if (p && p.type === EXPRESS) p = p.prev;
-                        if (p && p.type === STAMP && p.text === '*') p = p.prev;
-                        if (!p || p.type !== STRAP || !/^function$/.test(p.text)) return a;
-                        if (p && p.type === STRAP && p.text === "new") p = p.prev;
-                        return p;
-                    }
-                    return a;
+        }
+        else if (o.type === SCOPED) {
+            var isclass = 0;
+            if (o.isObject) return o;
+            if (!o.isClass) {
+                if (p.type === SCOPED && p.entry === "(") {
+                    p = p.prev;
+                    if (p && p.type === EXPRESS) p = p.prev;
+                    if (p && p.type === STAMP && p.text === '*') p = p.prev;
+                    if (!p || p.type !== STRAP || !/^function$/.test(p.text)) return a;
+                    if (p && p.type === STRAP && p.text === "new") p = p.prev;
+                    return p;
                 }
-                while (o.isClass) {
-                    isclass++;
-                    o = o.prev;
-                }
-                var p = o;
-                while (o && isclass > 0) {
-                    var p = o;
-                    if (o.type === STRAP && o.text === 'class') {
-                        isclass--;
-                    }
-                    o = o.prev;
-                }
-                if (p && p.type === STRAP && p.text === 'new') p = p.prev;
-                return p;
+                return a;
             }
+            while (o.isClass) {
+                isclass++;
+                o = o.prev;
+            }
+            var p = o;
+            while (o && isclass > 0) {
+                var p = o;
+                if (o.type === STRAP && o.text === 'class') {
+                    isclass--;
+                }
+                o = o.prev;
+            }
+            if (p && p.type === STRAP && p.text === 'new') return p;
+            return p;
         }
         break;
     }
     return o;
 };
+
 var snapExpressFoot = function (o) {
-    if (!o || !(o.type & (EXPRESS | VALUE))) return;
     while (o && o.next) {
-        var n = o.next;
-        if (n.type === SCOPED && o.entry === '[' || /\.$/.test(o.text) && !o.isdigit || n.type === EXPRESS && /^\??\.[^\.]/.test(n.text)) {
-            if (n.type & (EXPRESS | SCOPED)) {
-                o = n;
-                continue;
+        var n = null;
+        if (o.type & STRAP) {
+            n = o;
+            if (n.text === 'new') n = n.next;
+            if (n.text === 'function') {
+                while (n && n.type !== SCOPED || n.entry !== '{') n = n.next;
             }
+            else if (n.text === 'class') {
+                var n = o;
+                while (n && !n.isClass) n = n.next;
+                while (n && n.isClass) n = n.next;
+            }
+            else break;
+        }
+        else if (o.type & (EXPRESS | QUOTED | VALUE | SCOPED)) {
+            n = o.next;
+        }
+        if (!n) break;
+        if (n.type === SCOPED && o.entry !== '{'
+            || /\.$/.test(o.text) && !o.isdigit
+            || n.type === EXPRESS && /^\??\.[^\.]/.test(n.text)
+            || n.type === QUOTED && (n.length || /^\`/.test(n.text))
+        ) {
+            o = n;
+            continue;
         }
         break;
     }
@@ -359,24 +388,31 @@ var createScoped = function (parsed, wash) {
                     if (o.prev && o.prev.type === EXPRESS) {
                         if (/\.$/.test(o.prev.text)) break;
                     }
-                    var u = o.text;
-                    if (/^\.\.\./.test(u)) u = u.slice(3);
-                    var u = u.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
-                    if (!u) break;
-                    if (u === 'await' && funcbody.async !== false) {
+                    if (o.text === 'await' && funcbody.async !== false) {
                         o.type = STRAP;
                         funcbody.async = true;
                         continue;
                     }
-                    if (u === 'yield' && funcbody.aster === true) {
-                        o.type = STRAP;
-                        continue;
+                    if (o.text === 'yield') {
+                        if (funcbody.aster === true) {
+                            o.type = STRAP;
+                            continue;
+                        }
+                        if ((!o.prev || o.prev.type !== STAMP || o.prev.text === ';') && (!o.next || o.next.type !== STAMP || o.next.text === '*')) {
+                            o.type = STRAP;
+                            funcbody.aster = true;
+                            continue;
+                        }
                     }
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
                         isArrow = true;
                     }
                     else {
+                        var u = o.text;
+                        if (/^\.\.\./.test(u)) u = u.slice(3);
+                        var u = u.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
+                        if (!u) break;
                         var prev = o.prev;
                         if (prev && prev.type === STAMP && /^(?:\+\+|\-\-)$/.test(prev.text)) {
                             var pp = prev.prev;
@@ -605,7 +641,7 @@ var createScoped = function (parsed, wash) {
                 if (!o);
                 else if (o.type === SCOPED && o.entry === "{") {
                     scoped.body = o;
-                    if (o.isClass || isFunction) o.scoped = scoped;
+                    o.scoped = scoped;
                     o.isExpress = isExpress;
                     run(o.first);
                     if (isArrow && id >= 0 && o) o = o.next;
@@ -910,7 +946,7 @@ var relink = function (list) {
     while (pi < cx) list[pi++].next = null;
     list.last = p;
     return list;
-}
+};
 var setqueue = function (list, queue = list) {
     var v = { value: queue }
     for (var o of list) Reflect.deleteProperty(o, 'queue'), Reflect.defineProperty(o, 'queue', v);
@@ -928,7 +964,7 @@ var createString = function (parsed) {
             if ((QUOTED | SCOPED | STRAP | LABEL | COMMENT) & lasttype
                 || prev.type === STAMP && !prev.unary
             ) {
-                if (o.type !== EXPRESS || !/^\.[^\.]/.test(o.text) && !prev.tag && !o.tag) {
+                if (o.type !== EXPRESS || !/^(\.[^\.]|\[)/.test(o.text) && !prev.tag && !o.tag) {
                     result.push(" ");
                     lasttype = SPACE
                 }
@@ -1062,6 +1098,7 @@ var rename = function (used, from, to) {
     if (list) for (var u of list) {
         if (!u) continue;
         var text = u.text;
+        if (!u.origin) u.origin = from;
         var doted = /^\.\.\./.test(text);
         if (doted) text = text.slice(3);
         text = to + text.replace(/^[^\.\:\[]+/i, "");
@@ -1116,9 +1153,13 @@ var splice = function (queue, index, size, ...args) {
     if (nexti < 0) nexti = queue.length;
     else nexti++;
     var changedargs = queue.slice(previ, nexti);
-    if (!queue.first) queue.first = changedargs.first;
-    if (!queue.last) queue.last = changedargs.last;
+    var pp = prev && prev.prev;
+    var nn = next && next.next;
     relink(changedargs);
+    if (prev) prev.prev = pp;
+    else queue.first = changedargs.first;
+    if (next) next.next = nn;
+    else queue.last = changedargs.last;
     setqueue(args, queue);
     return res;
 };

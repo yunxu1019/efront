@@ -18,7 +18,7 @@ test('a * a + b * c * c ** d', "_ = a * a, _0 = b * c, _1 = c ** d, _0 = _0 * _1
 test('a * a || b * c * c ** d', "_ = a * a @re _ = b * c, _0 = c ** d, _ * _0");
 test('a * a || b * c || c * d', "_ = a * a @re _ = b * c @re c * d");
 test('a || b || c', "_ = a; if (_) return [1, 0]; _ = b; if (_) return [1, 0]; c", true);
-test('a?b:c', "if (!a) return [1, 0]; b; return [2, 0];\r\n c; return [1, 0]");
+test('a?b:c', "if (!a) return [1, 0]; _ = b; return [2, 0];\r\n _ = c; return [1, 0]");
 test('a * a && b * c * c ** d', "_ = a * a @rz _ = b * c, _0 = c ** d, _ * _0");
 test('a = 1 + 2', "_ = 1 + 2; a = _", true);
 test('a = b', "a = b", true);
@@ -39,8 +39,8 @@ test("yield a()", "_ = a(); return [_, 3]", true);
 test("(1+ +1)", "_ = +1, _ = 1 + _; (_)", true);
 test("await a(await b)", "_ = b; return [_, 1];\r\n _ = @; _ = a(_); return [_, 1]", true);
 test("await a(await b).s(await c)", "_ = b; return [_, 1];\r\n _ = @; _ = a(_); _0 = c; return [_0, 1];\r\n _0 = @; _ = _.s(_0); return [_, 1]", true);
-test("a*a + await a(await b).s(await c)", "_ = a * a; _0 = b; return [_0, 1];\r\n _0 = @; _0 = a(_0); _1 = c; return [_1, 1];\r\n _1 = @; _0 = _0.s(_1); return [_0, 1];\r\n _0 = @; _ + _0", true);
-test("a*a + await a(await b(await c)).s(await c)", "_ = a * a; _0 = c; return [_0, 1];\r\n _0 = @; _0 = b(_0); return [_0, 1];\r\n _0 = @; _0 = a(_0); _1 = c; return [_1, 1];\r\n _1 = @; _0 = _0.s(_1); return [_0, 1];\r\n _0 = @; _ + _0", true);
+test("a*a + await a(await b).s(await c)", "_ = a * a, _0 = b; return [_0, 1];\r\n _0 = @; _0 = a(_0); _1 = c; return [_1, 1];\r\n _1 = @; _0 = _0.s(_1); return [_0, 1];\r\n _0 = @; _ + _0", true);
+test("a*a + await a(await b(await c)).s(await c)", "_ = a * a, _0 = c; return [_0, 1];\r\n _0 = @; _0 = b(_0); return [_0, 1];\r\n _0 = @; _0 = a(_0); _1 = c; return [_1, 1];\r\n _1 = @; _0 = _0.s(_1); return [_0, 1];\r\n _0 = @; _ + _0", true);
 test("await a, await b", "_ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1]", true);
 test("await a * b, await b", "_ = a; return [_, 1];\r\n _ = @; _ * b; _ = b; return [_, 1]", true);
 test("if(a);", "if (!a) return [1, 0]; return [1, 0]", true);
@@ -51,7 +51,7 @@ test("if(a) await b; else if(e) await c", "if (!a) return [2, 0]; _ = b; return 
 test("if(a) await b; else if(e) await c else await d", "if (!a) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; return [5, 0];\r\n if (!e) return [2, 0]; _ = c; return [_, 1];\r\n _ = @; return [3, 0];\r\n _ = d; return [_, 1];\r\n _ = @; return [1, 0]", true);
 test("if(await a) await b", "_ = a; return [_, 1];\r\n if (!@) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; return [1, 0]", true);
 test("for(;;)", "return [0, 0]", true);
-test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_0 = Symbol.iterator; _ = os[_0]; if (_) return [1, 0]; _1 = Symbol.asyncIterator; _ = os[_1]; if (_) return [1, 0]; _2 = Symbol.iterator; _ = Array.prototype[_2];\r\n a = _; _ = a.call(os); a = _; _ = a.next(); b = _; return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; _0 = b.value; o = _0; _ = (_0, true);\r\n if (!_) return [1, 0]; _ = a.next(); b = _; return [-1, 0]", true);
+test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_0 = Symbol.iterator; _ = os[_0]; if (_) return [1, 0]; _0 = Symbol.asyncIterator; _ = os[_0]; if (_) return [1, 0]; _0 = Symbol.iterator; _ = Array.prototype[_0];\r\n a = _; _ = a.call(os); a = _; _ = a.next(); b = _; return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; _0 = b.value; o = _0; _ = (_0, true);\r\n if (!_) return [1, 0]; _ = a.next(); b = _; return [-1, 0]", true);
 test("for(a=0;a<10;a++) await a", "a = 0; return [1, 0];\r\n _ = a < 10; if (!_) return [2, 0]; _ = a; return [_, 1];\r\n _ = @; _ = a++; return [-1, 0]", true);
 test("for(a=0;a<10;a++) await a, await b", "a = 0; return [1, 0];\r\n _ = a < 10; if (!_) return [3, 0]; _ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1];\r\n _ = @; _ = a++; return [-2, 0]", true);
 test("for(a=0;b=2,a<10;a++) await a, await b", "a = 0; return [1, 0];\r\n b = 2; _ = a < 10; if (!_) return [3, 0]; _ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1];\r\n _ = @; _ = a++; return [-2, 0]", true);
@@ -77,3 +77,5 @@ test(`if (!/^https\\:\\/\\/|^s\\/\\//.test(url)) console.warn("请使用https访
 test(`url += (/\\?/.test(url) ? "&" : "?") + datas;`, '_ = /\\?/.test(url); if (!_) return [1, 0]; _ = "&"; return [2, 0];\r\n _ = "?"; return [1, 0];\r\n _ = (_); _ = _ + datas; _ = url + _; url = _', true);
 test(`newname.querySelector("input,textarea").value = c.name.replace(/\\/$/, '')`, `_ = c.name.replace(/\\/$/, ''); newname.querySelector("input,textarea").value = _`, true);
 test(`if (selected[f.url]) f.selected = true;`, `_ = f.url; _ = selected[_]; if (!_) return [1, 0]; f.selected = true; return [1, 0]`, true);
+test(`location.protocol  + parseURL(a.b).host `, `_ = a.b; _ = parseURL(_); location.protocol + _.host`, true);
+test("yield a", 'return [a, 3]', true);
