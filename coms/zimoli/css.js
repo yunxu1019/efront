@@ -156,6 +156,7 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
 };
 
 function cssTargetStyleSheet(stylesheet, innerCss) {
+    if (isObject(innerCss)) innerCss = serialize(innerCss, ';', ':');
     var styleSheet = stylesheet.styleSheet;
     if (styleSheet) {
         //IE
