@@ -190,7 +190,7 @@ var doGet = module.exports = async function (req, res) {
         return data.then(function (data) {
             return adapter(data, url, req, res);
         }).catch(function (error) {
-            res.writeHead(500, {});
+            res.writeHead(500, utf8);
             res.end(String(error));
         });
     } else {

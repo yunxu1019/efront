@@ -101,7 +101,7 @@ var cast = function (req, res, type) {
     var id = type[2], msgid = type[3];
     if (id && msgid) {
         if (msgid.length > 8096) {
-            res.writeHead(400);
+            res.writeHead(400, utf8error);
             return;
         }
         var [cid, uid] = id.split("/");
@@ -138,7 +138,7 @@ var care = function (req, res, type) {
             client = clients.attach(id);
         }
         if (!client) {
-            res.writeHead(403, {});
+            res.writeHead(403, utf8error);
             res.end();
             return;
         }
@@ -158,7 +158,7 @@ var care = function (req, res, type) {
             message.broadcast("putuser", [id, userinfo]);
         }
     } else {
-        res.writeHead(403);
+        res.writeHead(403, utf8error);
         res.end();
     }
 };
@@ -169,7 +169,7 @@ var doOptions = async function (req, res, type) {
     switch (type[1]) {
         case "efront":
             if (type[3]) {
-                message.send("logsimilar", JSON.stringify({ ip: remoteAddress, ppid: type[2], port: type[3], time: Date.now() }));
+                message.send("logsimilar", JSON.stringify({ ip: remoteAddress(req), ppid: type[2], port: type[3], time: Date.now() }));
                 if (!selfLogged && type[2] === version.slice(7)) {
                     selfLogged = true;
                 }
@@ -190,7 +190,7 @@ var doOptions = async function (req, res, type) {
         case "uptime":
             return message.send("uptime", null, function (error, time) {
                 if (error) {
-                    res.writeHead(403, {});
+                    res.writeHead(403, utf8error);
                     res.end(String(error));
                     return;
                 }
@@ -203,7 +203,7 @@ var doOptions = async function (req, res, type) {
                 if (!b) throw "密码不正确！";
                 res.end(b);
             }).catch(e => {
-                res.writeHead(403);
+                res.writeHead(403, utf8error);
                 res.end(String(e));
             });
         case "link":
@@ -221,7 +221,7 @@ var doOptions = async function (req, res, type) {
                     return res.end(String(room.linkid));
                 }
                 catch (e) {
-                    res.writeHead(403);
+                    res.writeHead(403, utf8error);
                     res.end(String(e));
                     return;
                 }
@@ -234,7 +234,7 @@ var doOptions = async function (req, res, type) {
                 res.write(datas);
                 res.end();
             }, function () {
-                res.writeHead(500, {});
+                res.writeHead(500, utf8error);
                 res.end();
             });
             return;
@@ -248,7 +248,7 @@ var doOptions = async function (req, res, type) {
             needLogin = true;
     }
     if (needLogin && !await require("./checkAuth")(req.headers.authorization, remoteAddress)) {
-        res.writeHead(401);
+        res.writeHead(401, utf8error);
         res.write("无权访问");
         needLogin = false;
     }
@@ -272,7 +272,7 @@ var doOptions = async function (req, res, type) {
                     }
                     message.send("clusterList", type[3], function (error, list) {
                         if (error) {
-                            res.writeHead(500);
+                            res.writeHead(500, utf8error);
                             res.end(String(error));
                             return;
                         }
@@ -301,7 +301,7 @@ var doOptions = async function (req, res, type) {
                 res.end(data);
             }
             catch (e) {
-                res.writeHead(500);
+                res.writeHead(500, utf8error);
                 res.end(String(e));
             }
             return;
@@ -311,7 +311,7 @@ var doOptions = async function (req, res, type) {
                 res.end(data);
             }
             catch (e) {
-                res.writeHead(500);
+                res.writeHead(500, utf8error);
                 res.end(String(e));
             }
             return;
@@ -328,7 +328,7 @@ var doOptions = async function (req, res, type) {
                         var exists = await userdata.option(type[1], key, null/**检查是否存在*/);
                         if (!type[3]) return res.end(encode62.timeencode(String(exists)));
                         if (exists && type[3]) {
-                            res.writeHead(403, {});
+                            res.writeHead(403, utf8error);
                             res.end("已存在相同标识的数据");
                             return;
                         }
@@ -339,7 +339,7 @@ var doOptions = async function (req, res, type) {
                 res.end(data);
             }
             catch (e) {
-                res.writeHead(e.status || 500, {});
+                res.writeHead(e.status || 500, utf8error);
                 res.end(String(e));
             }
             return;
@@ -348,7 +348,7 @@ var doOptions = async function (req, res, type) {
                 var data = await doFolder(type[2], type[3]);
                 res.end(data);
             } catch (e) {
-                res.writeHead(e.status || 500, {});
+                res.writeHead(e.status || 500, utf8error);
                 res.end(String(e));
             }
             return;
@@ -368,12 +368,12 @@ var doOptions = async function (req, res, type) {
                         await shared.remove(p);
                         break;
                     default:
-                        res.writeHead(400);
+                        res.writeHead(400, utf8error);
                         res.write("非法操作！");
                 }
             }
             catch (e) {
-                res.writeHead(e.status || 500, {});
+                res.writeHead(e.status || 500, utf8error);
                 res.end(String(e.error || e));
             }
             break;

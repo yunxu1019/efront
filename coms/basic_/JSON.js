@@ -193,14 +193,14 @@ var getString = function (object, filter, space) {
         }
         var str = "";
         if (cx === 0) {
-            str += (ks ? "{" : "[");
+            str += ks ? "{" : "[";
         }
         var dx = (ks ? ks : object).length;
         while (cx < dx) {
             key = ks ? ks[cx] : cx;
             var backlength = str.length;
-            if (cx > 0) str += (',');
-            if (space) str += ('\n' + new Array(objects.length + 1).join(space));
+            if (backlength > 1) str += ',';
+            if (space) str += '\n' + new Array(objects.length + 1).join(space);
             if (ks) {
                 str += (toString(key) + ":");
                 if (space) str += (" ");
@@ -213,7 +213,7 @@ var getString = function (object, filter, space) {
                 keys.push([0]);
                 break;
             } else if (v) {
-                str += (v);
+                str += v;
             } else {
                 str = str.slice(0, backlength);
             }
@@ -223,7 +223,7 @@ var getString = function (object, filter, space) {
             if (dx > 0) {
                 if (space) str += ('\n' + new Array(objects.length).join(space))
             }
-            str += (ks ? '}' : ']');
+            str += ks ? '}' : ']';
             pop();
         }
         result.push(str);

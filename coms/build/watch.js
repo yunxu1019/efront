@@ -4,7 +4,6 @@ require("../efront/console");
 var lazy = require("../basic/lazy");
 var environment = require("./environment");
 var fs = require("fs");
-var progress = require("./progress");
 var {
     pages_root,
     comms_root,
