@@ -40,7 +40,7 @@ function piperead(h, start, end, res, sign) {
         fs.read(h, chunk, 0, chunk.length, inc, function (error, size, chunk) {
             if (timeout) return;
             if (error) {
-                res.writeHead(403, {});
+                res.writeHead(403, utf8);
                 res.write(String(error));
                 saveend();
                 return;
@@ -73,7 +73,7 @@ function doGetFile(req, res, filepath, code) {
     }
     fs.stat(filepath, function (err, stats) {
         if (err) {
-            res.writeHead(403, {});
+            res.writeHead(403, utf8);
             res.end(String(err));
             return;
         }
@@ -85,7 +85,7 @@ function doGetFile(req, res, filepath, code) {
         if (stats.mtime) {
             var modified = req.headers["if-modified-since"];
             if (new Date(modified) - new Date(stats.mtime.toUTCString()) >= 0) {
-                res.writeHead(304);
+                res.writeHead(304, utf8);
                 res.end();
                 return;
             }
@@ -115,7 +115,7 @@ function doGetFile(req, res, filepath, code) {
         }
         fs.open(filepath, "r", function (error, h) {
             if (error) {
-                res.writeHead(403, {});
+                res.writeHead(403, utf8);
                 res.end(String(error));
                 return fs.closeSync(h);
             }
@@ -145,13 +145,13 @@ var utf8 = { "Content-Type": "text/plain;charset=utf-8" };
 
 function doDeleteFile(req, res, filepath) {
     if (!fs.existsSync(filepath)) {
-        res.writeHead(404, {});
+        res.writeHead(404, utf8);
         res.end("");
         return;
     }
     fs.unlink(filepath, function (error) {
         if (error) {
-            res.writeHead(403, {});
+            res.writeHead(403, utf8);
             res.end(String(error));
             return;
         }
@@ -179,14 +179,14 @@ function doPutFile(req, res, filepath, code) {
         return;
     }
     if (cacheCountLimit <= 1) {
-        res.writeHead(403, {});
+        res.writeHead(403, utf8);
         res.end("服务繁忙");
         return;
     }
     if (code) {
         var sign = encode62.timedecode(code);
         if (!sign) {
-            res.writeHead(401, {});
+            res.writeHead(401, utf8);
             res.end("");
             return;
         }
