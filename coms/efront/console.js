@@ -55,3 +55,4 @@ var setLogger = message.isPrimary ? function (name, logger) {
     setLogger(log, logger);
 });
 console.setLogger = setLogger;
+console.format = colored.format;

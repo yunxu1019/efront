@@ -156,14 +156,14 @@ var formatRows = function (arg, rows, deep, entry, leave) {
         if (isArray) {
             for (var cx = 0, dx = rows.length; cx < dx; cx += itemcount) {
                 res.push(rows.slice(cx, cx + itemcount).map((r, i) => {
-                    return Array(maxLength[i] - lens[cx + i]).join(" ") + r;
+                    return Array(maxLength[i] - lens[cx + i] + 1).join(" ") + r;
                 }).join(', '));
             }
         }
         else {
             for (var cx = 0, dx = rows.length; cx < dx; cx += itemcount) {
                 res.push([rows[cx], ...rows.slice(cx + 1, cx + itemcount).map((r, i) => {
-                    return Array(maxLength[i] - lens[cx + i]).join(" ") + r;
+                    return Array(maxLength[i] - lens[cx + i] + 1).join(" ") + r;
                 })].join(', '));
             }
         }

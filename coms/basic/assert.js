@@ -1,9 +1,20 @@
 var mark = require("./mark");
 var dump = function (a, msg) {
     if (a instanceof Object) console.error('对象的属性不符合'), console.log(msg ? msg + " " : "  ", a);
-    else if (msg) console.error(msg + ":", a);
-    else console.error(a);
+    else if (msg) console.log(msg + ":", a);
+    else console.log(a);
 };
+var colorString = function (s, color) {
+    s = String(s);
+    var [c0, c1] = color;
+    if (s.indexOf(c1) === 0) s = s.slice(c1.length);
+    else s = c0 + s;
+    if (s.lastIndexOf(c0) === s.length - c0.length) {
+        s = s.slice(0, s.length - c0.length);
+    }
+    else s += c1;
+    return s;
+}
 var assert = function (result, expect, log = dump) {
     var errors = {}, hasCollect;
     var collect = function (k, args) {
@@ -12,14 +23,15 @@ var assert = function (result, expect, log = dump) {
             errors = `结果 (${args}) 应为 ${JSON.stringify(k)}`;
         }
         if (k === undefined) return function () {
-            var color1 = "bgred";
-            var color2 = "bgblue";
-            mark.setTag1(`</${color1}>`, `<${color1}>`);
-            mark.setTag2(`</${color2}>`, `<${color2}>`);
+            var color1 = console.format("<bgred>; </bgred>").split(";");
+            var color2 = console.format("<bgblue>; </bgblue>").split(";");
+            var color3 = console.format("<cyan>;</cyan>").split(";");
+            mark.setTag1(color1[1], color1[0]);
+            mark.setTag2(color2[1], color2[0]);
             var [r, e] = mark.pair(result, expect);
-            r = String(r).trim().replace(/><\//g, "> </");
-            e = String(e).trim().replace(/><\//g, "> </");
-            errors = `<cyan>结果  </cyan><${color1}>${r}</${color1}>\r\n      <cyan>应为  </cyan><${color2}>${e}</${color2}>\r\n`;
+            r = colorString(r, color1);
+            e = colorString(e, color2);
+            errors = `${color3[0]}结果  ${color3[1]}${r}\r\n      ${color3[0]}应为  ${color3[1]}${e}\r\n`;
         };
         return function (error) {
             if (error instanceof Object) {
