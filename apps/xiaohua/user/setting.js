@@ -1,7 +1,7 @@
 var page = createVboxWithState(state);
 page.innerHTML = setting;
 render(page, {
-    opt: option,
+    opt: optionbar,
     go,
     logout() {
         user.Logout();

@@ -510,7 +510,6 @@ var killcls = function (body, i, getname_) {
         relink(o);
         if (invokes.length) insert1(invokes, null, { type: STAMP, text: ',' });
         insert1(invokes, null, ...scanner2('function ' + name));
-        constructor[1].unshift(...assign);
         if (base) {
             constructor[1].push(...scanner2('return this'))
             relink(constructor[1]);
@@ -518,12 +517,18 @@ var killcls = function (body, i, getname_) {
             var newt = getname(cs.vars, cs.envs, 'this_');
             if (cs.used.this) rename(cs.used, 'this', newt);
             var inited = false;
+            assign.forEach(o => {
+                if (o.type === EXPRESS) o.text = o.text.replace(/^this\./g, newt);
+            });
             if (cs.used.super) {
                 cs.used.super.forEach(o => {
                     if (o.text !== 'super') return;
                     var n = o.next;
                     if (!n || n.type !== SCOPED || n.entry !== "(") return;
                     o.text = base + '.call';
+                    if (!inited) {
+                        insert1(o.queue, o, ...assign);
+                    }
                     inited = true;
                     insert1(o.queue, o, ...scanner2(`var ${newt}=`));
                     if (n.length) n.unshift({ type: STAMP, text: ',' });
@@ -538,7 +543,10 @@ var killcls = function (body, i, getname_) {
                     insert1(o.queue, o.next, ...scanner2('.bind(this)'));
                 })
             }
-            if (!inited) constructor[1].unshift(...scanner2(`\r\nvar ${newt}=${base}.apply(this,arguments)||this;\r\n`));
+            if (!inited) constructor[1].unshift(...scanner2(`\r\nvar ${newt}=${base}.apply(this,arguments)||this;\r\n`), ...assign);
+        }
+        else {
+            constructor[1].unshift(...assign);
         }
         insert1(invokes, null, ...constructor);
         o = o.next;
@@ -1400,6 +1408,8 @@ var down = function (scoped) {
             delete vars[argname];
             revar(scoped);
             scoped.vars = Object.create(null);
+            scoped.async = false;
+            scoped.yield = false;
         }
         var vars1 = Object.keys(vars).filter(k => !(k in scoped.vars));
         if (argsmap) vars1 = vars1.filter(k => !(k in argsmap));

@@ -118,7 +118,7 @@ function translate([imap, supports], code) {
             }
             var tn = scanner2("[]")[0];
             t.fields.forEach(f => {
-                var o = scanner2('{}')[0];
+                var o = scanner2('={}')[1];
                 Object.keys(f).forEach(k => {
                     var v = f[k];
                     if (/[\$#]\d+/.test(v)) {
@@ -129,7 +129,7 @@ function translate([imap, supports], code) {
                     }
                     else if (k === 'name') v = ctn(`i18n(${getm(v)})`, t);
                     else v = scanner2(JSON.stringify(v));
-                    o.push({ type: PROPERTY, text: JSON.stringify(k) }, { type: STAMP, text: ':' }, ...v, { type: STAMP, text: ',' });
+                    o.push({ type: PROPERTY, isprop: true, text: JSON.stringify(k) }, { type: STAMP, text: ':' }, ...v, { type: STAMP, text: ',' });
                 })
                 o.pop();
                 setqueue(o);

@@ -468,7 +468,7 @@ var _invoke = function (t, getname) {
                 if (o[cy].type & (SPACE | COMMENT)) continue;
                 var by = cy;
                 var c = o[cy];
-                if (c.type & STAMP && /[,;]/.test(c.text)) continue;
+                if (c.type & STAMP && /^[,;]$/.test(c.text)) continue;
                 cy = skipAssignment(o, cy);
                 if (by === cy) continue;
                 var m = o.slice(by, cy);
@@ -672,15 +672,17 @@ var canbeOnce = function (body) {
     }
     var o = body[cx];
     var n = snapExpressFoot(o);
+    var bx = cx;
     cx = n ? body.lastIndexOf(n) + 1 : body.length;
     if (cx < 0) return false;
     for (; cx < dx; cx++) {
         if (body[cx].type & (SPACE | COMMENT)) continue;
         return false;
     }
-    while (o !== n) {
+    for (cx = bx; cx < dx; cx++) {
+        var o = body[cx];
+        if (o.type & (SPACE | COMMENT)) continue;
         if (o.type & (EXPRESS | VALUE) || o.type === QUOTED && !o.length || o.type === SCOPED && o.entry === "[" && canbeTemp(o)) {
-            o = o.next;
             continue;
         }
         return false;

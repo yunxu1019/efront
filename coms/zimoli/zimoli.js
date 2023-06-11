@@ -687,6 +687,7 @@ zimoli.clearHistory = function () {
     history = {};
 };
 zimoli.getCurrentHistory = function () {
+    if (!history[current_history]) history[current_history] = [];
     return history[current_history];
 };
 zimoli.inithash = locationInitHash;
