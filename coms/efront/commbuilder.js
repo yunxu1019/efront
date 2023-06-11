@@ -165,34 +165,34 @@ var trimNodeEnvHead = function (data) {
     data = String(data || "").replace(/^\s*\#\!/, '//');
     return data;
 };
-var removePreqouted = function (code) {
+var removePrequoted = function (code) {
     var o = code.first;
-    var preqouted;
+    var prequoted;
     var { QUOTED, STAMP, EXPRESS, STRAP, SCOPED } = code;
     while (o && o.type === QUOTED && skipreg.test(o.text)) {
-        preqouted = o;
+        prequoted = o;
         o = o.next;
         while (o && o.type === STAMP && o.text === ';') {
             o = o.next;
         }
     }
-    if (preqouted) {
-        if (o && preqouted.next === o) {
+    if (prequoted) {
+        if (o && prequoted.next === o) {
             if (o.type === STRAP && /^(in|instanceof)$/.test(o.text) || o.type === STAMP && !/^(\+\+|\-\-)$/.test(o.text)
                 || o.type === EXPRESS && /^\./.test(o.text) || o.type === SCOPED && o.entry === '[') {
-                preqouted = preqouted.prev;
+                prequoted = prequoted.prev;
             }
         }
         else if (o) {
-            preqouted = preqouted.next;
+            prequoted = prequoted.next;
         }
-        var i = code.indexOf(preqouted);
-        code.first = preqouted.next;
+        var i = code.indexOf(prequoted);
+        code.first = prequoted.next;
         code.first.prev = null;
-        preqouted.next = null;
-        preqouted = code.splice(0, i + 1);
+        prequoted.next = null;
+        prequoted = code.splice(0, i + 1);
     }
-    return preqouted;
+    return prequoted;
 };
 var loadJsBody = function (data, filename, lessdata, commName, className, htmlData) {
     data = trimNodeEnvHead(data);
@@ -200,7 +200,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     if (/x$|ts$/i.test(filename)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext', module: "commonjs" });
     var code = scanner2(data);
-    var preqouted = removePreqouted(code);
+    var prequoted = removePrequoted(code);
     code.fix();
     if (this && this["#"]) {
         translate(this["#"], code);
@@ -288,6 +288,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         while (code_body[code_body.length - 1].type === code_body.SPACE || code_body[code_body.length - 1].type === code_body.STAMP && /[,;]/.test(code_body[code_body.length - 1].text)) {
             code_body.pop();
         }
+        code.forEach(c => c.isExpress = true);
         if (hasless) code_body.unshift(
             { type: code_body.EXPRESS, text: 'cless' },
             code.relink(Object.assign(
@@ -438,7 +439,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         isAsync,
         typeofs,
         isYield,
-        preqouted,
+        prequoted,
         params
     };
 };
@@ -492,11 +493,11 @@ var rethink = function (mmap, imported, refname) {
     });
     return realimport;
 };
-var buildResponse = function ({ imported, preqouted, params, data, required, occurs, isAsync, isYield }, compress) {
+var buildResponse = function ({ imported, prequoted, params, data, required, occurs, isAsync, isYield }, compress) {
     if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
         else args = [], strs = "[]";
-        if (!memery.UPLEVEL) data = require("./downLevel")(data, isAsync, isYield);
+        if (!memery.UPLEVEL) data = downLevel(data);
         // var [imported1, params1, data1] = buildPress1(imported, params, data, args, strs);
         var [imported2, params2, data2] = buildPress2(imported, params, data, args, strs);
         data = data2;
@@ -522,8 +523,8 @@ var buildResponse = function ({ imported, preqouted, params, data, required, occ
     } else if (length.length === 2) {
         length = "0" + length;
     }
-    if (preqouted) {
-        data = preqouted.map(a => a.text).join('') + data;
+    if (prequoted) {
+        data = prequoted.map(a => a.text).join('') + data;
     }
     if (isYield) data = "*" + data;
     if (isAsync) data = "@" + data;
