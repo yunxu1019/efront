@@ -6,5 +6,17 @@
     "editor.acceptSuggestionOnCommitCharacter": false,
     "vetur.format.options.tabSize": 4,
     "editor.acceptSuggestionOnEnter": "off",
-    "compile-hero.disable-compile-files-on-did-save-code": true
+    "compile-hero.disable-compile-files-on-did-save-code": true,
+    "editor.inlineSuggest.enabled": false,
+    "editor.suggest.matchOnWordStartOnly": false,
+    "editor.suggest.showClasses": false,
+    "editor.suggest.showConstructors": false,
+    "editor.suggest.showDeprecated": true,
+    "files.maxMemoryForLargeFilesMB": 2048,
+    "workbench.quickOpen.closeOnFocusLost": true,
+    "workbench.quickOpen.preserveInput": false,
+    "workbench.editor.languageDetection": false,
+    "workbench.settings.enableNaturalLanguageSearch": false,
+    "task.allowAutomaticTasks": "off",
+    "task.reconnection": false
 }

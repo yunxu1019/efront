@@ -29,3 +29,8 @@ test/arch/RC*
 test/arch/'**
 *_temp.js
 *_temp/
+*.exe
+*.dll
+*.elf
+*.so
+*.a
