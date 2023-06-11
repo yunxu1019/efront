@@ -14,10 +14,9 @@ var exec_ = function (args, ok, oh, int) {
             [index, p] = catch_;
             index += p & 0xffff;
             if (p >>> 16) {
-                p = err;
-                next();
+                next(err);
             }
-            else{
+            else {
                 fina();
             }
         }
@@ -45,7 +44,7 @@ var exec_ = function (args, ok, oh, int) {
     }
     var run = function () {
         var args_length = args.length, i;
-        if (finished && !catches.length || index > args_length) return ok(r);
+        if (finished && !catch_ || index >= args_length) return ok(r);
         while (index < args_length) {
             try {
                 [p, i] = args[index].call(t, p) || [1, 0];
@@ -67,6 +66,7 @@ var exec_ = function (args, ok, oh, int) {
                 default: throw "代码异常！";
             }
         }
+        catch_ = null;
         retn();
     };
     next();

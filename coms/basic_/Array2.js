@@ -8,7 +8,8 @@ a: if (!setPrototypeOf) {
         if (!getOwnPropertyNames) throw '不支持';
         defineProperty({}, 'o', { value: 0 });
         setPrototypeOf = function (obj, proto) {
-            for (var n of getOwnPropertyNames(proto)) {
+            var names = getOwnPropertyNames(proto)
+            for (var n of names) {
                 var d = getOwnPropertyDescriptor(proto, n);
                 defineProperty(obj, n, d);
             }

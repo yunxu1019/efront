@@ -40,8 +40,7 @@ assert(downLevel(`var {a,b}=a`), 'var _ = a, a = a.a, b = _.b');
 assert(downLevel(`var {a:{a:{a}}}=b`), 'var a = b.a.a.a');
 assert(downLevel(`var {a,[a]:c}={}`), 'var _ = {}, a = _.a, c = _[a]');
 assert(downLevel(`={a,[a]:c}={}`), '= _ = {}, a = _.a, c = _[a]\r\nvar _');
-var tmp = scanner2(`var {window}=this`); tmp.helpcode = false; tmp.detour(); assert(downLevel.code(tmp).toString(), `this_ = this; var window = this_["window"]
-var this_`);
+var tmp = scanner2(`var {window}=this`); tmp.helpcode = false; tmp.detour(); assert(downLevel.code(tmp).toString(), `var window = this["window"]`);
 assert(downLevel(`function (){var [a]=a;}`), "function () { var a = a[0]; }")
 i++// 参数解构
 assert(downLevel(`function ([a]){}`), "function (arg) { var a = arg[0]; }")
@@ -58,7 +57,7 @@ assert(downLevel(`class a {a=1}`), "function a() { this.a = 1 }")
 assert(downLevel(`class a {a=1; b(){}}`), "function a() { this.a = 1; }; a.prototype.b = function () {}")
 assert(downLevel(`=class a {a=1; b(){}}`), "= function (a) { a.prototype.b = function () {}\r\nreturn a }(function a() { this.a = 1; })")
 assert(downLevel(`var a=class {a=1; static b=2 b(){}};`), "var a = function (cls0) { cls0.b = 2\r\ncls0.prototype.b = function () {}\r\nreturn cls0 }(function () { this.a = 1; });")
-assert(downLevel(`var a=class { constructor(){this.a=1}; static b=2 b(){}};`), "var a = function (cls0) { cls0.b = 2\r\ncls0.prototype.b = function () {}\r\nreturn cls0 }(function () { this_ = this; this_.a = 1\r\nvar this_ });")
+assert(downLevel(`var a=class { constructor(){this.a=1}; static b=2 b(){}};`), "var a = function (cls0) { cls0.b = 2\r\ncls0.prototype.b = function () {}\r\nreturn cls0 }(function () { this.a = 1 });")
 assert(downLevel(`class a {static b(){}}`), "function a() {}; a.b = function () {}")
 assert(downLevel(`class a extends b{}`), `function a() {
 var this_ = b.apply(this, arguments) || this;
@@ -83,6 +82,9 @@ _.a = function () { return async_() }, _))\r\nvar _`);
 assert(downLevel(`var a={b,async a(){}}`), `var a = (_ = {},
 _.b = b,
 _.a = function () { return async_() }, _)\r\nvar _`);
+assert(downLevel(`var a={b:a=>b,c}`), `var a = (_ = {},
+_.b = function (a) { return b },
+_.c = c, _)\r\nvar _`);
 assert(downLevel(`={b,async a(){}}`), `= (_ = {},
 _.b = b,
 _.a = function () { return async_() }, _)\r\nvar _`);
@@ -149,6 +151,7 @@ assert(downLevel(`a(c,d,e,...b.a(...c))`), `a.apply(null, [c, d, e].concat(Array
 assert(downLevel(`a(c,d,e,...b.a.c(...c))`), `a.apply(null, [c, d, e].concat(Array.prototype.slice.call((_ = b.a).c.apply(_, c))))\r\nvar _`)
 assert(downLevel(`a(...b,...c)`), `a.apply(null, (slice_ = Array.prototype.slice).call(b).concat(slice_.call(c)))\r\nvar slice_`)
 assert(downLevel(`a(...b,c)`), `a.apply(null, Array.prototype.slice.call(b).concat([c]))`)
+assert(downLevel(`getPendingExpressions()[_push](...flattenCommaList(expr));`), `(_ = getPendingExpressions())[_push].apply(_, flattenCommaList(expr));\r\nvar _`)
 assert(downLevel(`a(b,...c)`), `a.apply(null, [b].concat(Array.prototype.slice.call(c)))`)
 assert(downLevel(`a(a,b,...c,d,...e)`), `a.apply(null, [a, b].concat((slice_ = Array.prototype.slice).call(c), [d], slice_.call(e)))\r\nvar slice_`)
 assert(downLevel(`a.call(a,b,...c,d,...e)`), `a.call.apply(a, [a, b].concat((slice_ = Array.prototype.slice).call(c), [d], slice_.call(e)))\r\nvar slice_`)
@@ -184,6 +187,7 @@ assert(downLevel(`[...a]=a`), "a = Array.prototype.slice.call(a, 0)")
 assert(downLevel(`[...a,c]=a`), "_ = a, a = Array.prototype.slice.call(a, 0, -1), c = _.length > 1 ? _[_.length - 1] : undefined\r\nvar _")
 assert(downLevel(`{...a,c}=a`), `c = a.c, a = rest_(a, ["c"])`)
 assert(downLevel(`{c,...a}=a`), `c = a.c, a = rest_(a, ["c"])`)
+assert(downLevel("if(a){}[r, g, b] = rgb4s(r, g, b, s)"), "if (a) {} _ = rgb4s(r, g, b, s), r = _[0], g = _[1], b = _[2]\r\nvar _", true);
 assert(downLevel(`{c,[c]:b,...a}=a`), `c = a.c, b = a[c], a = rest_(a, ["c", c])`)
 i++//异步或步进函数
 assert(downLevel(`function *(){yield *a}`), `function () { return aster_(
@@ -242,15 +246,12 @@ var _0 }`)
 assert(downLevel(`async function(a){ for(var i=1;i<2;i++) await 1 }`), `function (a) { return async_(\r\nfunction () {\r\ni = 1; return [1, 0]\r\n},\r\nfunction () {\r\n_0 = i < 2; if (!_0) return [2, 0]; _0 = 1; return [_0, 1]\r\n},\r\nfunction (_) {\r\n_0 = _; _0 = i++; return [-1, 0]\r\n})\r\nvar i, _0 }`)
 assert(downLevel('async function(){ if(b); else {if (a){}else{location = getRequestProtocol(url) + "//" + location;}}}'), `function () { return async_(
 function () {
-if (!b) return [1, 0]; return [4, 0]
+if (!b) return [1, 0]; return [3, 0]
 },
 function () {
 if (!a) return [1, 0]; return [2, 0]
 },
 function () {
 _0 = getRequestProtocol(url) + "//", _0 = _0 + location; location = _0; return [1, 0]
-},
-function () {
-return [1, 0]
 })
 var _0 }`);

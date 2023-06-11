@@ -426,7 +426,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                     if (ie === undefined || o.prev && (o.prev.type !== STAMP || o.prev.text !== ",") || this.strap_reg.test(o.text)) {
                         text = `[${text}]`;
                     }
-                    else {
+                    else if (ie !== false) {
                         collectProperty(o, text);
                     }
                     if (o.short) {

@@ -2,23 +2,12 @@ var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
 var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, rename, getDeclared, skipAssignment, createScoped, createString, splice, relink, snapExpressHead } = require("./common");
-var link = function (a, b) {
-    if (a) a.next = b;
-    if (b) b.prev = a;
-};
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
-    if (cx < 0) throw console.log(splice2.caller, 'from', from && createString([from]), createString(q)), '结构异常';
+    if (cx < 0) throw console.log(splice2.caller, console.format('\r\n<red2>自</red2>'), from && createString([from]), console.format('\r\n<yellow>至</yellow>'), to && createString([to]), console.format(`\r\n<cyan>码列</cyan>`), createString(q)), '结构异常';
     var dx = to ? q.indexOf(to, cx) : q.length;
-    if (dx < 0) throw console.log(splice2.caller, 'to', to && createString([to]), createString(q)), '结构异常';
+    if (dx < 0) throw console.log(splice2.caller, console.format('\r\n<yellow>自</yellow>'), from && createString([from]), console.format('\r\n<red2>至</red2>'), to && createString([to]), console.format(`\r\n<cyan>码列</cyan>`), createString(q)), '结构异常';
     return splice(q, cx, dx - cx, ...a);
-};
-var splice1 = function (q, from, to) {
-    var cx = q.indexOf(from);
-    if (cx < 0) return;
-    var dx = to ? q.indexOf(to, cx) : q.length;
-    if (dx < 0) dx = q.length;
-    return q.splice(cx, dx - cx);
 };
 var insert1 = function (q, r, ...a) {
     if (r) splice2(q, r, r, ...a);
@@ -250,9 +239,10 @@ var killmap = function (body, i, _getobjname, killobj) {
     var o = body[i];
     if (!o.length) return indexof(body, o.next, i);
     var m = o.first;
-    var s = m;
+    var s = m, p;
+
     loop: while (m) {
-        s = m;
+        s = m, p = m.prev;
         if (m.type === EXPRESS) break;
         while (m && (m.type === STRAP || m.type === STAMP)) m = m.next;
         if (!m || m.isprop && (m.type === SCOPED || m.type === PROPERTY && /\[/.test(m.text) || m.short || m.next && m.next.type === SCOPED)) {
@@ -264,6 +254,10 @@ var killmap = function (body, i, _getobjname, killobj) {
         if (!m) break;
         var n = skipAssignment(m);
         while (m !== n) {
+            if (m.type === STAMP && m.text === '=>') {
+                body.await_ = true;
+                break loop;
+            }
             if (m.type === STRAP) {
                 if (/^await$/.test(m.text)) {
                     body.await_ = true;
@@ -287,7 +281,7 @@ var killmap = function (body, i, _getobjname, killobj) {
                     if (si < 0) si = o.length;
                     var ms = o.slice(mi, si);
                     killobj(ms);
-                    splice(o, mi, si, ...ms);
+                    splice(o, mi, si - mi, ...ms);
                     m = s;
                     continue;
                 }
@@ -300,8 +294,10 @@ var killmap = function (body, i, _getobjname, killobj) {
     }
     if (!m) return indexof(body, o.next, i);
     m = s;
-    if (m.prev && m.prev.type === STAMP && m.prev.text === ',') {
-        splice2(o, m.prev, m);
+    if (p && p.type === STAMP && p.text === ',') {
+        var mi = o.indexOf(m);
+        var pi = o.lastIndexOf(p, mi);
+        if (pi > 0) splice(o, pi, mi - pi);
     }
     var q;
     var next = o.next;
@@ -402,9 +398,9 @@ var getprop = function (o, m) {
     }
     else {
         prop.sfunc = false;
-        if (m && /[\=\:]/.test(m.text)) m = m.next;
+        if (m && /^[\=\:]$/.test(m.text)) m = m.next;
     }
-    splice1(o, s, m);
+    splice2(o, s, m);
     var s = m;
     if (m && prop.sfunc !== false && m.type === SCOPED && m.entry === '(') {
         m = m.next;
@@ -412,8 +408,8 @@ var getprop = function (o, m) {
     }
     else m = skipAssignment(m);
     if (m && !m.isprop) m = m.next;
-    if (!prop.short) prop.value = splice1(o, s, m);
-    else splice1(o, s, m);
+    if (!prop.short) prop.value = splice2(o, s, m);
+    else if (s) splice2(o, s, m);
     return [prop, m];
 };
 var setprop = function (prop, k, d, q) {
@@ -631,7 +627,6 @@ var killspr = function (body, i, _getobjname, setsolid, killobj) {
                 splice(body, i++, 0, { type: EXPRESS, text: n });
             }
             else if (p.type === SCOPED && p.entry === '[') {
-                splice(body, i++, 0, { type: EXPRESS, text: n });
                 p = p.prev;
             }
             else {
@@ -790,7 +785,8 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, setsol
                 }
             }
             else if (o.entry === '[') {
-                if ((!o.prev || (o.prev.type & STAMP)) && o.next && o.next.type === STAMP && o.next.text === '=' || o.next && o.next.type === STRAP && /^(in|of)$/.test(o.next.type) && body.entry === '(' && body.prev && body.prev.type === STRAP && body.prev.text === 'for') {
+                var a = snapExpressHead(o);
+                if (a === o && o.next && o.next.type === STAMP && o.next.text === '=' || o.next && o.next.type === STRAP && /^(in|of)$/.test(o.next.type) && body.entry === '(' && body.prev && body.prev.type === STRAP && body.prev.text === 'for') {
                     i = killdec(body, i, _getdeepname, '', deepkill);
                 }
                 else {
@@ -802,7 +798,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, setsol
                 if (o.next && o.next.type === STAMP && o.next.text === '=>');
                 else if (o.prev && o.prev.type === STRAP) {
                     var p = o.prev;
-                    if (p.transive || /^(if|while|with|switch)$/.test(p.text)) deepkill(o);
+                    if (p.transive || /^(if|else|while|with|switch)$/.test(p.text)) deepkill(o);
                 }
                 else if (!o.prev || o.prev.type === STAMP || o.prev.type === STRAP) {
                     deepkill(o);
@@ -847,7 +843,7 @@ var unawait = function (body, getname, argname) {
     }, argname);
 };
 var isbreak = function (m) {
-    return /^(break|continue|yield|await|throw)$/.test(m.text);
+    return /^(yield|await|throw)$/.test(m.text) || /^(break|continue)/.test(m.text) && !m.isend;
 }
 var getsync = function (m, killobj) {
     if (m.type === SCOPED && m.await_) return null;
@@ -866,7 +862,7 @@ var getsync = function (m, killobj) {
 var hasbreak = function (body) {
     for (var o of body) {
         if (o.type !== STRAP) continue;
-        if (isbreak(o.text)) return true;
+        if (isbreak(o)) return true;
     }
     for (var o of body) {
         if (o.length && hasbreak(o)) return true;
@@ -902,6 +898,17 @@ var unforin = function (o, getnewname_, killobj) {
         return false;
     }
     if (ises3(o, killobj) && ises3(o.next, killobj)) return;
+    var prev = o.prev;
+    while (prev && prev.type === LABEL) prev = prev.prev;
+    var pp = prev && prev.prev;
+    var ppp = pp && pp.prev;
+    if (pp && pp.type === STRAP && pp.text === 'else' ||
+        ppp && pp.type === SCOPED && pp.entry === '(' && ppp.type === STRAP && /^(with|for|while|if)$/.test(ppp.text)) {
+        var brace = scanner2("{}")[0];
+        var nn = skipAssignment(prev);
+        var os = splice2(o.queue, prev, nn, brace);
+        splice(brace, 0, 0, ...os);
+    }
     n = n.next;
     var tname = getnewname_();
     var sname = getnewname_();
@@ -912,10 +919,8 @@ var unforin = function (o, getnewname_, killobj) {
         ...scanner2(`,${tname}=[];for(${hasdeclare ? 'var ' : ''}${m.text} in ${sname})${tname}.push(${m.text});`)
     );
     insert1(o.queue, o.prev, ...s);
-    splice2(o, m);
-    splice(o, 0, hasdeclare, ...scanner2(`${kname}=0;${kname}<${tname}.length&&`));
-    var c = scanner2(`(=${tname}[${kname}]);${kname}++`);
-    splice(c[0], 0, 0, m);
+    splice(o, 0, o.length, ...scanner2(`${kname}=0;${kname}<${tname}.length&&`));
+    var c = scanner2(`(${m.text}=${tname}[${kname}]);${kname}++`);
     insert1(o, null, ...c);
 };
 
@@ -931,7 +936,6 @@ var unforof = function (o, getnewname, used) {
         m = m.next;
         hasdeclare = true;
     }
-
     var n = m.next;
     if (n.type !== STRAP || n.text !== 'of') {
         return o.next;
@@ -998,14 +1002,14 @@ var getname = function (vars, envs, k) {
     vars[k + inc] = true;
     return k + inc;
 };
-var killarg = function (head, body, _getname) {
+var killarg = function (head, body, _getname, setarg = true) {
     var argcodes = [];
     var o = head.first;
     var index = 0;
     var collect = 0, cname, anames = [];
     var namemap = Object.create(null);
     while (o) {
-        var aname;
+        var aname = null;
         if (o.type === SCOPED) {
             aname = _getname(head.length > 1 ? 'arg' + index : 'arg');
             var dec = splice2(head, o, o = o.next, { type: EXPRESS, text: aname });
@@ -1047,9 +1051,9 @@ var killarg = function (head, body, _getname) {
             return `${a}=arguments.length>${collect + n - 1}?arguments[arguments.length - ${n}]:undefined`;
         }));
 
-        if (cname) argcodes.unshift(`var ${cname}=Array.prototype.slice.call(arguments,${collect}${index > collect ? `,${collect - index}` : ""})`), namemap[cname] = true;
+        if (cname) argcodes.unshift(`var ${cname}=Array.prototype.slice.call(arguments,${collect}${index > collect ? `,${collect - index}` : ""})`);
     }
-    if (argcodes.length) {
+    if (argcodes.length && setarg) {
         if (!body) {
             var next = head.next;
             if (next.type === STAMP && /^=>$/.test(next.text)) next = next.next;
@@ -1067,7 +1071,7 @@ var killarg = function (head, body, _getname) {
         }
         else body.unshift(...scanner2(argcodes.join(";") + ";")), relink(body);
     }
-    return namemap;
+    return [namemap, argcodes];
 };
 var revar = function (scoped) {
     if (!scoped.body) return;
@@ -1081,6 +1085,7 @@ var revar = function (scoped) {
             if (o.next) do {
                 o = n.next;
                 n = o.next;
+                if (n && n.type === STRAP && n.text === 'in') break;
                 if (n && n.text === '=') {
                     n = skipAssignment(n);
                 }
@@ -1242,7 +1247,7 @@ var down = function (scoped) {
         var wbody = wrapper[wrapper.length - 2];
         for (var k of lets) vars[k] = true, delete envs[k];
         backEach(body, function (o, i) {
-            if (o.type === STRAP && /^(const|let|var)$/.test(o.text)) body.splice(i, 1);
+            if (o.type === STRAP && /^(const|let|var)$/.test(o.text)) splice(body, i, 1);
         });
         if (isswitch) splice(wbody, 0, 0, bpp, bp, body);
         else splice(wrapper, wrapper.length - 2, 1, body), wbody = body;
@@ -1302,7 +1307,6 @@ var down = function (scoped) {
         scoped.body.unshift.apply(scoped.body, codelist);
     };
 
-    var argcodes = [];
     var solidmap = {};
     var setsolid = function (q, o) {
         var k = o.text;
@@ -1322,14 +1326,14 @@ var down = function (scoped) {
         }
         o.text = solidmap[k] + c;
     };
-    var markcodes = funcMark ? [] : argcodes;
-    if (scoped.used.this) {
+    var markcodes = [];
+    if (scoped.isfunc && scoped.used.this && (funcMark || scoped.insett)) {
         let tn = _getname("this_");
         rename(scoped.used, "this", tn);
         scoped.used.this.forEach(o => o.origin = 'this');
         markcodes.push(`${tn}=this`);
     }
-    if (scoped.used.arguments) {
+    if (scoped.isfunc && scoped.used.arguments && (funcMark || scoped.inseta)) {
         let an = _getname("arguments_");
         scoped.used.arguments.forEach(o => o.origin = 'arguments');
         rename(scoped.used, "arguments", an);
@@ -1368,8 +1372,9 @@ var down = function (scoped) {
         fordeep = saveddeep;
     };
     if (scoped.isfunc) {
-        if (scoped.head) var argsmap = killarg(scoped.head, scoped.body, _letname);
-        if (argcodes.length) precode(argcodes.join(";") + ";");
+        if (scoped.head) var [argsmap, argcodes] = killarg(scoped.head, scoped.body, _letname, false);
+        else argcodes = [];
+        if ((markcodes.length || argcodes.length) && !funcMark) precode(markcodes.concat(argcodes).join(";") + ";");
         if (scoped.body) scoped.body.keeplet = false, _killobj(_getname, scoped.body);
 
         scoped.forEach(kill);
@@ -1386,13 +1391,15 @@ var down = function (scoped) {
                 if (body[2].length) body[2].push({ type: STAMP, text: "," });
                 body[2].push({ type: SPACE, text: '\r\n' }, ...f);
             });
-            scoped.body.splice(0, scoped.body.length);
-            if (markcodes.length) {
-                scoped.body.push(...scanner2(markcodes.join(';') + ";\r\n"));
+            splice(scoped.body, 0, scoped.body.length);
+            if (markcodes.length || argcodes.length) {
+                splice(scoped.body, 0, 0, ...scanner2(markcodes.concat(argcodes).join(';') + ";\r\n"));
             }
-            scoped.body.push(...body);
+            splice(scoped.body, scoped.body.length, 0, ...body);
+            for (var k in envs) if (!(k in scoped.envs)) vars[k] = true;
+            delete vars[argname];
             revar(scoped);
-            scoped.vars = {};
+            scoped.vars = Object.create(null);
         }
         var vars1 = Object.keys(vars).filter(k => !(k in scoped.vars));
         if (argsmap) vars1 = vars1.filter(k => !(k in argsmap));

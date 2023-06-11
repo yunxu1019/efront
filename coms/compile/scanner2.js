@@ -142,7 +142,7 @@ class Code extends Array {
     // 绕开低版本ie的异常属性
     detour(ie) {
         this.program.avoidMap = avoidMap;
-        this.program.detour(this.first, !!ie);
+        this.program.detour(this.first, ie !== false);
         return this;
     }
     // 压缩

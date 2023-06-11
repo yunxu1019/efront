@@ -256,11 +256,15 @@ var snapExpressHead = function (o) {
         var p = o.prev;
         if (p && p.type === STRAP && p.text === 'new') return p;
         if (o.type === SCOPED && o.entry !== '{'
-            || o.type === EXPRESS && /^\??\.[^\.]/.test(o.text)
+            || o.type === EXPRESS && /^(\??\.[^\.]|\[)/.test(o.text)
             || /\.$/.test(p.text) && !p.isdigit
             || o.type === QUOTED && (o.length || /^\`/.test(o.text))
         ) {
-            if (p.type & (EXPRESS | VALUE | SCOPED | QUOTED)) {
+            if (p.type === SCOPED && p.entry === '(') {
+                var pp = p.prev;
+                if (pp && pp.type === STRAP && !p.transive) return o;
+            }
+            if (p.type & (EXPRESS | VALUE | QUOTED | SCOPED)) {
                 a = o;
                 o = p;
                 continue;
@@ -315,6 +319,7 @@ var snapExpressFoot = function (o) {
                 while (n && n.isClass) n = n.next;
             }
             else break;
+            o = n;
         }
         else if (o.type & (EXPRESS | QUOTED | VALUE | SCOPED)) {
             n = o.next;
@@ -334,7 +339,7 @@ var snapExpressFoot = function (o) {
 };
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
-    var scoped = [], funcbody = scoped;
+    var scoped = [], funcbody = scoped, argscope = scoped, thisscope = scoped;
     scoped.body = parsed;
     scoped.isfunc = true;
     var run = function (o, id, body) {
@@ -564,6 +569,8 @@ var createScoped = function (parsed, wash) {
                 var _vars = vars;
                 var _scoped = scoped;
                 var _funcbody = funcbody;
+                var _argscope = argscope;
+                var _thisscope = thisscope;
                 used = Object.create(null);
                 lets = Object.create(null);
                 vars = Object.create(null);
@@ -577,6 +584,8 @@ var createScoped = function (parsed, wash) {
                     if (isFunction) {
                         vars.this = true, vars.arguments = true;
                         scoped.aster = isAster;
+                        thisscope = scoped;
+                        argscope = scoped;
                     }
                     scoped.async = isAsync;
                     scoped.isfunc = true;
@@ -589,6 +598,8 @@ var createScoped = function (parsed, wash) {
                     scoped.used = used;
                     if (isClass) {
                         lets.super = true;
+                        lets.this = true;
+                        thisscope = scoped;
                     }
                 }
                 if (isArrow);
@@ -664,7 +675,7 @@ var createScoped = function (parsed, wash) {
                     var u = o;
                     while (o !== next) {
                         var n = run(o, 0);
-                        if (o === n) o = n.next;
+                        if (o === n || n.entry === '{') o = n.next;
                         else o = n;
                     }
                 }
@@ -710,18 +721,20 @@ var createScoped = function (parsed, wash) {
                     mergeTo(_used, used);
                     if (scoped.length) _scoped.push(scoped);
                 }
-                if (isFunction && vars.this) {
-                    delete vars.this;
-                    delete vars.arguments;
-                }
                 if (isArrow) {
-                    delete used.this;
-                    delete used.arguments;
+                    if (!thisscope.insett && used.this) thisscope.insett = true;
+                    if (!argscope.inseta && used.arguments) argscope.inseta = true;
                 }
-                if (isClass) delete lets.super;
-                if (scoped.isfunc) {
+                if (isClass) delete lets.super, delete lets.this, thisscope = _thisscope;
+                if (isFunction) {
                     if (used.yield) _scoped.yield = false;
                     funcbody = _funcbody;
+                    if (!isArrow) {
+                        delete vars.this;
+                        delete vars.arguments;
+                        thisscope = _thisscope;
+                        argscope = _argscope;
+                    }
                 }
                 used = _used;
                 lets = _lets;
@@ -966,6 +979,7 @@ var createString = function (parsed) {
             ) {
                 if (o.type !== EXPRESS || !/^(\.[^\.]|\[)/.test(o.text) && !prev.tag && !o.tag) {
                     result.push(" ");
+                    if (createString.debug && !o.text) console.log(o.type, o.text, o)
                     lasttype = SPACE
                 }
             }
