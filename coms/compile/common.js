@@ -675,7 +675,7 @@ var createScoped = function (parsed, wash) {
                     var u = o;
                     while (o !== next) {
                         var n = run(o, 0);
-                        if (o === n || n.entry === '{') o = n.next;
+                        if (o === n || n && n.entry === '{') o = n.next;
                         else o = n;
                     }
                 }

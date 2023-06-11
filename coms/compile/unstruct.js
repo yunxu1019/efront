@@ -123,8 +123,9 @@ var _switch = function (body, cx, unblock, result, getname) {
     var o = body[cx];
     o = o.next;
     if (!o) return;
-    var qt = ternary(o, getname, true);
-    for (var q of qt) if (q.length) addresult(result, q);
+    var qt = _express(o, getname, true);
+    for (var q of qt) if (q.length) pushstep(result, q);
+    var q = qt[qt.length - 1];
     var qn = q.name;
     o = o.next;
     while (body[cx++] !== o);
@@ -135,14 +136,16 @@ var _switch = function (body, cx, unblock, result, getname) {
     while (o[cy] !== m) cy++;
     while (cy < o.length) {
         var block = getblock(o, ++cy);
-        cy += block.length + 1;
+        cy += block.length;
+        while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
+        cy++;
         var getnextname = function (deep) {
             return getname(deep + 1);
         };
-        var q = ternary(block, getnextname, true);
-        var qe = q[q.length - 1];
-        for (var q of q) addresult(result, q);
-        if (qe) var case_ = scanner2(`if(${qn}===${qe.name})return[]`);
+        var q = _express(block, getnextname, true);
+        for (var q of q) if (q.length) pushstep(result, q);
+        var qe = q;
+        if (qe.name) var case_ = scanner2(`if(${qn}===${qe.name})return[]`);
         else case_ = scanner2(`return[]`), case_.ret_ = true;
         pushstep(result, case_);
         var by = cy;

@@ -533,7 +533,7 @@ var killcls = function (body, i, getname_) {
             }
             if (scoped.used.super) {
                 scoped.used.super.forEach(o => {
-                    if (!/^super(\.|$)/.test(o.text)) return;
+                    if (!/^super(\.|\[|$)/.test(o.text)) return;
                     o.text = `${base}.prototype` + o.text.replace(/^super/, '');
                     insert1(o.queue, o.next, ...scanner2('.bind(this)'));
                 })
