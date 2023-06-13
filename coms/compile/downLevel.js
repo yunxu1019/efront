@@ -24,7 +24,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
         var dp = 0;
         if (typeof k === 'number' && k < 0) {
             dp = 1;
-            k = `${tmpname}.length>${doged - k - 1}?${tmpname}[${tmpname}.length - ${-k}]:undefined`;
+            k = `${tmpname}["length"]>${doged - k - 1}?${tmpname}[${tmpname}["length"] - ${-k}]:undefined`;
         } else {
             k = tmpname + k;
         }
@@ -123,12 +123,12 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
                 map[a] = a;
             });
             d.attributes.forEach(dec);
-            write(name, `rest_(${tmpname},[${Object.keys(map)}])`, false);
+            write(name, `rest_(${tmpname},[${Object.keys(map)}])`, false), rootenvs.rest_ = true;
         }
         else {
             doged = at + 1;
             head.forEach(dec);
-            write(name, `Array.prototype.slice.call(${tmpname},${at}${a > at ? `,${at - a}` : ''})`, rest.length > 0);
+            write(name, `slice_["call"](${tmpname},${at}${a > at ? `,${at - a}` : ''})`, rest.length > 0), rootenvs.slice_ = true;
             doged = at + 1;
             total = rest.length;
             rest.forEach(dec);
@@ -245,7 +245,7 @@ var killmap = function (body, i, _getobjname, killobj) {
         s = m, p = m.prev;
         if (m.type === EXPRESS) break;
         while (m && (m.type === STRAP || m.type === STAMP)) m = m.next;
-        if (!m || m.isprop && (m.type === SCOPED || m.type === PROPERTY && /\[/.test(m.text) || m.short || m.next && m.next.type === SCOPED)) {
+        if (!m || m.type & (PROPERTY | QUOTED | EXPRESS) && /^\[/.test(m.text) || m.isprop && (m.type === SCOPED || m.short || m.next && m.next.type === SCOPED)) {
             break;
         }
         m = m.next;
@@ -425,10 +425,12 @@ var setprop = function (prop, k, d, q) {
             else pe = null;
         }
         if (!d[prop.name]) {
-            let tmp = scanner2(`\r\nObject.defineProperty(${k},${prop.name},{})`);
+            let tmp = scanner2(`\r\nObject["defineProperty"](${k},${prop.name},{})`);
             insert1(q, null, ...tmp);
             if (pe) insert1(q, null, pe);
-            d[prop.name] = tmp[tmp.length - 1][4];
+            tmp = tmp[tmp.length - 1];
+            tmp = tmp[tmp.length - 1];
+            d[prop.name] = tmp;
         }
         if (d[prop.name].length) insert1(d[prop.name], null, { type: STAMP, text: ',' });
         insert1(d[prop.name], null, { type: PROPERTY, text: prop.get ? "get" : "set" });
@@ -489,7 +491,7 @@ var killcls = function (body, i, getname_) {
         while (m) {
             var [prop, m] = getprop(o, m);
             if (!prop.value.length) prop.value = scanner2('undefined;');
-            var k = prop.static ? clz.name : `${clz.name}.prototype`;
+            var k = prop.static ? clz.name : `${clz.name}["prototype"]`;
             var d = prop.static ? static_ : define_;
             if (prop.get || prop.set || prop.static) {
                 setprop(prop, k, d, defines);
@@ -518,16 +520,16 @@ var killcls = function (body, i, getname_) {
             if (cs.used.this) rename(cs.used, 'this', newt);
             var inited = false;
             assign.forEach(o => {
-                if (o.type === EXPRESS) o.text = o.text.replace(/^this\./g, newt);
+                if (o.type === EXPRESS) o.text = o.text.replace(/^this([\[\.]|$)/g, newt + "$1");
             });
             if (cs.used.super) {
                 cs.used.super.forEach(o => {
                     if (o.text !== 'super') return;
                     var n = o.next;
                     if (!n || n.type !== SCOPED || n.entry !== "(") return;
-                    o.text = base + '.call';
+                    o.text = base + '["call"]';
                     if (!inited) {
-                        insert1(o.queue, o, ...assign);
+                        insert1(o.queue, skipAssignment(o), ...assign);
                     }
                     inited = true;
                     insert1(o.queue, o, ...scanner2(`var ${newt}=`));
@@ -539,11 +541,11 @@ var killcls = function (body, i, getname_) {
             if (scoped.used.super) {
                 scoped.used.super.forEach(o => {
                     if (!/^super(\.|\[|$)/.test(o.text)) return;
-                    o.text = `${base}.prototype` + o.text.replace(/^super/, '');
-                    insert1(o.queue, o.next, ...scanner2('.bind(this)'));
+                    o.text = `${base}["prototype"]` + o.text.replace(/^super/, '');
+                    insert1(o.queue, o.next, ...scanner2('["bind"](this)'));
                 })
             }
-            if (!inited) constructor[1].unshift(...scanner2(`\r\nvar ${newt}=${base}.apply(this,arguments)||this;\r\n`), ...assign);
+            if (!inited) constructor[1].unshift(...scanner2(`\r\nvar ${newt}=${base}["apply"](this,arguments)||this;\r\n`), ...assign);
         }
         else {
             constructor[1].unshift(...assign);
@@ -582,7 +584,7 @@ var indexof = function (list, o, i) {
     return i;
 };
 // 数组或参数展开
-var killspr = function (body, i, _getobjname, setsolid, killobj) {
+var killspr = function (body, i, _getobjname, killobj) {
     var o = body[i];
     var m = o.first;
     if (!m) return i + 1;
@@ -592,12 +594,12 @@ var killspr = function (body, i, _getobjname, setsolid, killobj) {
         var s = m;
         s.text = s.text.replace(/^\.\.\./, '');
         m = skipAssignment(m);
-        var q = scanner2(`Array.prototype.slice.call()`);
+        var q = scanner2(`slice_["call"]()`);
+        rootenvs.slice_ = true;
         var v = splice2(o, s, m);
         if (m) splice2(o, m, m = m.next);
         killobj(v);
-        insert1(q[1], null, ...v);
-        setsolid(q, q[0]);
+        insert1(q[q.length - 1], null, ...v);
         return q;
     };
     var killnext = function (m) {
@@ -613,11 +615,12 @@ var killspr = function (body, i, _getobjname, setsolid, killobj) {
         index++;
     }
     if (!m) return i + 1;
-    var c = scanner2('.concat()');
+    var c = scanner2('["concat"]()');
     var next = o.next;
     if (o.entry === '(') {
         var r = snapExpressHead(o);
         var rt = r.type === EXPRESS && r.text.replace(/^\.\.\./, '');
+        var p = o.prev;
         if (r === o);
         else if (
             r === o.prev && r.type === EXPRESS && !/\.[\s\S]*\./.test(rt) && !/\[[^\]]*\]\[[^\]]*\]/.test(rt)) {
@@ -625,8 +628,12 @@ var killspr = function (body, i, _getobjname, setsolid, killobj) {
             var n = /\.|\[/.test(rt) ? rt.replace(/\.[^\.]*|\[[^\]]*\]$/, '') : "null";
             splice(o, 0, 0, ...scanner2(n + ","));
         }
+        else if (p && r === p.prev && p.type === SCOPED && p.entry === "[" && !/[\.\[]/.test(rt)) {
+            splice(o, 0, 0, ...scanner2(rt + ","));
+            p = r;
+        }
         else {
-            var p = o.prev, n = null, hasdot = false;
+            var n = null, hasdot = false;
             var pt = p.type === EXPRESS && p.text.replace(/^\.\.\./, '');
             if (p.type === EXPRESS && (n = /^(?:[\s\S]*[^\.])?(\.[^\.]*|\[[^\]]*\])$/.exec(pt))) {
                 hasdot = p.text.length !== pt.length;
@@ -652,7 +659,7 @@ var killspr = function (body, i, _getobjname, setsolid, killobj) {
                 if (cx >= 0) splice(h1, cx, 1);
             }
         }
-        splice(body, i++, 0, ...scanner2('.apply'));
+        splice(body, i++, 0, ...scanner2('["apply"]'));
         var m1 = skipAssignment(m);
         if (index > 0 || m1 && m1.next) {
             var h = splice(o, 2, o.length);
@@ -696,7 +703,7 @@ var killspr = function (body, i, _getobjname, setsolid, killobj) {
     return indexof(body, next, i);
 };
 
-var killobj = function (body, getobjname, getletname, getname_, letname_, setsolid, deep = 0) {
+var killobj = function (body, getobjname, getletname, getname_, letname_, deep = 0) {
     var i = 0;
     var _getdeep = function () {
         deep++;
@@ -712,7 +719,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, setsol
         return getobjname(deep + i);
     };
     var deepkill = function (o) {
-        killobj(o, getobjname, getletname, getname_, letname_, setsolid, deep);
+        killobj(o, getobjname, getletname, getname_, letname_, deep);
         if (o.await_) body.await_ = true;
     };
     while (i < body.length) {
@@ -798,7 +805,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, setsol
                     i = killdec(body, i, _getdeepname, '', deepkill);
                 }
                 else {
-                    i = killspr(body, i, _getobjname, setsolid, deepkill);
+                    i = killspr(body, i, _getobjname, deepkill);
                 }
                 continue;
             }
@@ -808,11 +815,11 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, setsol
                     var p = o.prev;
                     if (p.transive || /^(if|else|while|with|switch)$/.test(p.text)) deepkill(o);
                 }
-                else if (!o.prev || o.prev.type === STAMP || o.prev.type === STRAP) {
+                else if (!o.prev || o.prev.type & (STAMP | STRAP)) {
                     deepkill(o);
                 }
                 else {
-                    i = killspr(body, i, _getobjname, setsolid, deepkill);
+                    i = killspr(body, i, _getobjname, deepkill);
                     continue;
                 }
             }
@@ -971,8 +978,8 @@ var unforof = function (o, getnewname, used) {
         o.push(...mo);
         o.push({ type: STAMP, text: ',' });
     }
-    if (useSimpleLoop) o.push(...scanner2(`${iname}=0,${gname}=${oname}.length;${iname}<${gname}&&(${createString([p])}=${oname}[${iname}],true);${iname}++`));
-    else rootenvs.Symbol = true, o.push(...scanner2(`${gname}=${hasawait ? `${oname}[Symbol.asyncIterator]||${oname}[Symbol.iterator]` : `${oname}[Symbol.iterator]||${oname}[Symbol.asyncIterator]`}||Array.prototype[Symbol.iterator],${gname}=${gname}.call(${oname}),${iname}=${hasawait ? "await " : ''}${gname}.next();!${iname}.done&&(${createString([p])}=${iname}.value,true);${iname}=${gname}.next()`));
+    if (useSimpleLoop) o.push(...scanner2(`${iname}=0,${gname}=${oname}["length"];${iname}<${gname}&&(${createString([p])}=${oname}[${iname}],true);${iname}++`));
+    else rootenvs.Symbol = true, o.push(...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]||${oname}[Symbol["asyncIterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(${createString([p])}=${iname}["value"],true);${iname}=${gname}["next"]()`));
     relink(o);
 };
 var unarrow = function (body, i, killobj, letname_) {
@@ -993,7 +1000,7 @@ var unarrow = function (body, i, killobj, letname_) {
     if (n.type !== SCOPED || n.entry !== "{") {
         var nni = skipAssignment(body, ni);
         b = scanner2('{}')[0];
-        b.push({ type: STRAP, text: "return" }, ...body.splice(ni, nni - ni, b));
+        splice(b, 0, 0, { type: STRAP, transive: true, text: "return" }, ...splice(body, ni, nni - ni, b));
         killarg(h, b, letname_);
         killobj(b);
         ni = nni;
@@ -1056,10 +1063,10 @@ var killarg = function (head, body, _getname, setarg = true) {
         argcodes.unshift.apply(argcodes, anames.map((a, i) => {
             if (a === cname) cname = '';
             var n = anames.length - i;
-            return `${a}=arguments.length>${collect + n - 1}?arguments[arguments.length - ${n}]:undefined`;
+            return `${a}=arguments["length"]>${collect + n - 1}?arguments[arguments["length"] - ${n}]:undefined`;
         }));
 
-        if (cname) argcodes.unshift(`var ${cname}=Array.prototype.slice.call(arguments,${collect}${index > collect ? `,${collect - index}` : ""})`);
+        if (cname) argcodes.unshift(`var ${cname}=slice_["call"](arguments,${collect}${index > collect ? `,${collect - index}` : ""})`), rootenvs.slice_ = true;
     }
     if (argcodes.length && setarg) {
         if (!body) {
@@ -1315,25 +1322,6 @@ var down = function (scoped) {
         scoped.body.unshift.apply(scoped.body, codelist);
     };
 
-    var solidmap = {};
-    var setsolid = function (q, o) {
-        var k = o.text;
-        if (!/\.[\s\S]+\./.test(k)) return;
-        var c = k.replace(/^[\s\S]*?(\.[^\.]*$)/, '$1');
-        k = k.replace(/^([\s\S]*?)\.[^\.]*$/, '$1');
-        if (!solidmap[k]) {
-            solidmap[k] = [q, o];
-            return;
-        }
-        if (typeof solidmap[k] !== 'string') {
-            var n = k.replace(/^[\s\S]*?([^\.]*)$/, "$1");
-            n = _getname(n + "_");
-            var [q, b] = solidmap[k];
-            b.text = `(${n} = ${k})${c}`;
-            solidmap[k] = n;
-        }
-        o.text = solidmap[k] + c;
-    };
     var markcodes = [];
     if (scoped.isfunc && scoped.used.this && (funcMark || scoped.insett)) {
         let tn = _getname("this_");
@@ -1349,9 +1337,9 @@ var down = function (scoped) {
     }
     var fordeep = 0;
     var _killobj = function (_getlocal, o) {
-        return killobj(o, gettmpname, getletname, _getlocal, _letname, setsolid);
+        return killobj(o, gettmpname, getletname, _getlocal, _letname);
     };
-    var kill = function (scoped, _, body) {
+    var kill = function (scoped, _, parentScope) {
         if (scoped.isfunc) return down(scoped);
         killlet(scoped);
         var saveddeep = fordeep;
@@ -1380,6 +1368,7 @@ var down = function (scoped) {
         fordeep = saveddeep;
     };
     if (scoped.isfunc) {
+        if (!scoped.body && scoped.head) scoped.body = scoped.head.next;
         if (scoped.head) var [argsmap, argcodes] = killarg(scoped.head, scoped.body, _letname, false);
         else argcodes = [];
         if ((markcodes.length || argcodes.length) && !funcMark) precode(markcodes.concat(argcodes).join(";") + ";");
@@ -1412,6 +1401,7 @@ var down = function (scoped) {
             scoped.yield = false;
         }
         var vars1 = Object.keys(vars).filter(k => !(k in scoped.vars));
+        scoped.vars = vars;
         if (argsmap) vars1 = vars1.filter(k => !(k in argsmap));
         if (vars1.length && scoped.body) scoped.body.push(...scanner2(`\r\nvar ${vars1}`));
         if (scoped.body) relink(scoped.body);
@@ -1433,6 +1423,10 @@ var downcode = downLevel.code = function (code) {
     rootHyper = rootenvs.Symbol || code.yield || code.async;
     down(code.scoped);
     code.keepcolor = false;
+    if (rootenvs.slice_) {
+        delete rootenvs.slice_;
+        if (!code.vars.slice_) splice(code.scoped.body, 0, 0, ...scanner2('var slice_ = Array["prototype"]["slice"];\r\n'));
+    }
     rootenvs = null;
     return code;
 };

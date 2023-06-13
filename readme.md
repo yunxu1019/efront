@@ -112,7 +112,7 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 | `DIRECT`           | 如果是用`pathname`作为单页应用的页面路径，可以配置此参数，以使空路都指向该参数所指定的路径。如果配置为数值，则自动截取用户路径的前几级，如果指定为字符串，则所有空路径都返回该字符串路径下的内容。 |
 | `ENTRY_NAME`       | efront默认依次查找文件中声明的`main`,`Main`,`MAIN`,`<文件名>`做为导出对象（入口），用户可配置此环境变量以进行修改                                                                                  |
 | `EXTRACT`          | 如果项目有多个入口，efront默认将主程序写入独立的文件，如果项目是单入口，efront默认将主程序并入index.html，如果您的代码有特殊要求，可以配置引此参数指定efront的行为                                 |
-| `UPLEVEL`          | 当前的efront使用 [typescript](https://github.com/microsoft/TypeScript) 建行js版本的降级，如果您的代码发布时不需要降级，可添加此参数，以提高编译速度，typescript内部存在的问题也可由此参数屏蔽      |
+| `UPLEVEL`          | 如果您的代码发布时不需要降级，可添加此参数，以提高编译速度     |
 | `MSIE`             | 用`efront live --msie`启动服务器，可对`ie`系列浏览器进行代码适配，以便在`ie`上动态调试                                                                                                             |
 | `AUTOEVAL`         | 自动常量化的开关，在打包目标代码时默认开启，在开发环境默认关闭，可以指定参数`--no-autoeval`或`--autoeval`修改`efront`的默认行为                                                                    |
 

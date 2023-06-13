@@ -1,6 +1,6 @@
 var scanner2 = require("../compile/scanner2");
 var scanner = require("../compile/scanner");
-var downLevel = require("../efront/downLevel");
+var downLevel = require("../compile/downLevel");
 var path = require("path");
 var _strings = require("../basic/strings");
 var memery = require("../efront/memery");
@@ -245,6 +245,12 @@ function toComponent(responseTree, noVersionInfo) {
             return $key;
         };
         var module_string = module_body[module_body.length - 1];
+        var [, isAsync, isYield] = /^(@?)(\*?)/.exec(module_string);
+        if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
+        if (isAsync) outsideAsync = true;
+        if (!memery.UPLEVEL) {
+            module_string = downLevel(module_string, isAsync, isYield);
+        }
         var code_blocks = scanner(module_string);
         var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
         var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
@@ -265,12 +271,6 @@ function toComponent(responseTree, noVersionInfo) {
             }
             return block_string;
         }).join("");
-        var [, isAsync, isYield] = /^(@?)(\*?)/.exec(module_string);
-        if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
-        if (isAsync) outsideAsync = true;
-        if (!memery.UPLEVEL) {
-            module_string = downLevel(module_string, isAsync, isYield);
-        }
         module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${compress ? "" : "\r\n"}${module_string}${compress ? "" : "\r\n"}}`;
         if (compress) {
             module_string = scanner2(module_string).press(keepspace).toString();

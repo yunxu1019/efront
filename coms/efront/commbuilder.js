@@ -16,6 +16,8 @@ var polyfill = require("../compile/polyfill");
 var translate = require("../compile/translate");
 var $split = require("./$split");
 var backEach = require("../basic/backEach");
+var downLevel = require("../compile/downLevel");
+// var downLevel = require("./downLevel");
 var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1(?:\s*;)?\s*$/;
 var breakflag = null;
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
@@ -198,7 +200,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
-    if (/x$|ts$/i.test(filename)) data = require("../typescript").transpile(data, { noEmitHelpers: true, jsx: "react", target: 'esnext', module: "commonjs" });
     var code = scanner2(data);
     var prequoted = removePrequoted(code);
     code.fix();
@@ -308,7 +309,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
 
         code_body.splice(
             code_body.indexOf(code_body.first), 0,
-            { type: code_body.STRAP, text: "return" }
+            { type: code_body.STRAP, text: "return", transive: true }
         );
         code.relink();
 
@@ -321,7 +322,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         if (commName) {
             code_body.push(
                 { type: code_body.SPACE, text: "\r\n" },
-                { type: code_body.STRAP, text: "return" }
+                { type: code_body.STRAP, text: "return", transive: true }
             )
             if (hasless) {
                 code_body.push(
@@ -383,7 +384,10 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         code.relink();
         if (memery.BREAK) code.break();
         code.helpcode = false;
-        if (!memery.UPLEVEL) code = require("./downLevel").code(code);
+        if (!memery.UPLEVEL) {
+            if (!memery.BREAK) code.detour(false);
+            code = downLevel.code(code);
+        }
         var {
             vars: declares,
             used: allVariables,
@@ -395,8 +399,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     }
     else if (memery.proted && memery.MSIE) {
         code.helpcode = false;
+        code.relink();
         code.detour();
-        code = require("./downLevel").code(code);
+        code = downLevel.code(code);
         var {
             vars: declares,
             used: allVariables,
@@ -496,8 +501,6 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
         else args = [], strs = "[]";
-        if (!memery.UPLEVEL) data = downLevel(data);
-        // var [imported1, params1, data1] = buildPress1(imported, params, data, args, strs);
         var [imported2, params2, data2] = buildPress2(imported, params, data, args, strs);
         data = data2;
         imported = imported2;

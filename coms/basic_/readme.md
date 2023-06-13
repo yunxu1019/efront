@@ -1,6 +1,6 @@
 # efront 兼容性说明
 * `coms/basic_`目录的代码均为非标准实现，如果你要兼容低版本的运行环境，尽量避免使用高级的功能
-* 当前的`efront`进行代码降级时用到了`typescript`，所以下文有些问题的描述会误伤`typescript`，不用觉得奇怪。
+* 3.x及以前版本的`efront`进行代码降级时用到了`typescript`，所以下文有些问题的描述会误伤`typescript`，不用觉得奇怪。
 * 已知在转换成低版本代码后与高级版本有区别的语法如下：
 1.  ```javascript
     class ... extends Array {...} 

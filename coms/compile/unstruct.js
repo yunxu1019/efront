@@ -438,6 +438,17 @@ var remove_end_comma = function (o) {
         o.splice(cx, cx + 1);
     }
 };
+var isEvalScope = function (o) {
+    if (o.entry === "[") {
+        var h = snapExpressHead(o);
+        return o !== h;
+    }
+    else if (o.entry === '(') {
+        var h = snapExpressHead(o);
+        return o === h;
+    }
+    return false;
+}
 var _invoke = function (t, getname) {
     var nameindex = 0;;
     var getdeepname = function (deep = 0) {
@@ -464,6 +475,7 @@ var _invoke = function (t, getname) {
         if (o.type === SCOPED && (o.entry === '[' || o.entry === "(")) {
             var _nameindex = nameindex;
             remove_end_comma(o);
+            var iseval = isEvalScope(o);
             for (var cy = 0; cy < o.length; cy++) {
                 if (o[cy].type & (SPACE | COMMENT)) continue;
                 var by = cy;
@@ -477,10 +489,17 @@ var _invoke = function (t, getname) {
                 }
                 var q = toqueue(m, getdeepname, true);
                 var qe = q[q.length - 1];
-                o.splice(by, cy - by, { text: qe.name, type: EXPRESS });
-                cy -= cy - by - 1;
-                nameindex++;
+                if (!iseval || m[m.length - 1] === o.last) {
+                    splice(o, by, cy - by, { text: qe.name, type: EXPRESS });
+                    cy = by + 1;
+                }
+                else {
+                    while (o[cy].type & (SPACE | COMMENT)) cy++;
+                    splice(o, by, cy - by + 1);
+                    cy = by;
+                }
                 cache.push(...q);
+                nameindex++;
             }
             nameindex = _nameindex;
             if (!cache.length) continue;
@@ -665,6 +684,23 @@ var ternary = function (body, getname, ret) {
     }
     return explist;
 };
+var isFunctionOnly = function (body) {
+    for (var cx = 2, dx = body.length; cx < dx; cx++) {
+        if (body[cx].type & (SPACE | COMMENT)) continue;
+        break;
+    }
+    var o = body[cx];
+    if (!o) return false;
+    if (o.type === STRAP && o.text === 'function') {
+        while (o && o.entry !== "{") o = body[cx++];
+        if (!o) return false;
+    }
+    else return false;
+    for (; cx < dx; cx++) {
+        if (!(body[cx].type & (SPACE | COMMENT))) return false;
+    }
+    return true;
+};
 var canbeOnce = function (body) {
     for (var cx = 0, dx = body.length; cx < dx; cx++) {
         if (body[cx].type & (SPACE | COMMENT)) continue;
@@ -825,7 +861,12 @@ var _express = function (body, getname, ret) {
     }
     if (needname) q.name = getname(nameindex);
     relink(q);
-    result = _invoke(q, getdeepname);
+    if (isFunctionOnly(q)) {
+        result = [q];
+    }
+    else {
+        result = _invoke(q, getdeepname);
+    }
     if (hasor) result[result.length - 1].ret_ = true;
     return result;
 };
