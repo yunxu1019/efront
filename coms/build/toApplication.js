@@ -457,7 +457,7 @@ module.exports = async function (responseTree) {
     mainScriptData = await commbuilder(mainScriptData, mainScript.url, mainScript.realpath, []);
     memory.EXPORT_AS = '';
     memory.EXPORT_TO = "this";
-    var maindata = { url: mainScript.url, destpath: mainScript.destpath, type: '', time: mainScript.time, realpath: mainScript.realpath, data: mainScriptData };
+    var maindata = { url: mainScript.url, destpath: mainScript.destpath, type: '', occurs: mainScriptData.occurs, time: mainScript.time, realpath: mainScript.realpath, data: mainScriptData };
     patchDependence(maindata);
     var newTree = Object.create(null);
     missing.forEach(k => newTree[k] = {});

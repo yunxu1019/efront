@@ -68,7 +68,7 @@ var module_string = '';
 function breakcode(data, occurs) {
     if (!occurs) return [data];
     module_string = data;
-    paramsMap = occurs;
+    paramsMap = Object.assign(Object.create(null), occurs);
     var code_blocks = scanner(module_string);
     module_string = code_blocks.map(trimStringLiteral).join("");
     var res = Object.keys(paramsMap).filter(k => !hasOwnProperty.call(occurs, k));
