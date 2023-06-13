@@ -435,7 +435,7 @@ var remove_end_comma = function (o) {
         }
     }
     if (m && m.type === STAMP && m.text === ',') {
-        o.splice(cx, cx + 1);
+        splice(o, cx, o.length - cx);
     }
 };
 var isEvalScope = function (o) {
@@ -482,7 +482,7 @@ var _invoke = function (t, getname) {
                 var ay = cy;
                 cy = skipAssignment(o, cy);
                 var ey = cy;
-                if (ay === ey) continue;
+                if (ay === ey || ay >= o.length) continue;
                 var m = o.slice(ay, ey);
                 if (m.length === 1 && (m[0].type === EXPRESS && !/\./.test(m[0].text) || m[0].type === VALUE || m[0].type === QUOTED && !m[0].length)) {
                     continue;
