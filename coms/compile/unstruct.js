@@ -477,26 +477,28 @@ var _invoke = function (t, getname) {
             remove_end_comma(o);
             var iseval = isEvalScope(o);
             for (var cy = 0; cy < o.length; cy++) {
-                if (o[cy].type & (SPACE | COMMENT)) continue;
                 var by = cy;
-                var c = o[cy];
-                if (c.type & STAMP && /^[,;]$/.test(c.text)) continue;
+                while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
+                var ay = cy;
                 cy = skipAssignment(o, cy);
-                if (by === cy) continue;
-                var m = o.slice(by, cy);
+                var ey = cy;
+                if (ay === ey) continue;
+                var m = o.slice(ay, ey);
                 if (m.length === 1 && (m[0].type === EXPRESS && !/\./.test(m[0].text) || m[0].type === VALUE || m[0].type === QUOTED && !m[0].length)) {
                     continue;
                 }
                 var q = toqueue(m, getdeepname, true);
                 var qe = q[q.length - 1];
                 if (!iseval || m[m.length - 1] === o.last) {
-                    splice(o, by, cy - by, { text: qe.name, type: EXPRESS });
+                    splice(o, by, ey - by, { text: qe.name, type: EXPRESS });
                     cy = by + 1;
                 }
                 else {
-                    while (o[cy].type & (SPACE | COMMENT)) cy++;
-                    splice(o, by, cy - by + 1);
-                    cy = by;
+                    while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
+                    var c = o[cy];
+                    if (c && c.type & STAMP && /^[,;]$/.test(c.text)) cy++;
+                    splice(o, 0, cy);
+                    cy = -1;
                 }
                 cache.push(...q);
                 nameindex++;

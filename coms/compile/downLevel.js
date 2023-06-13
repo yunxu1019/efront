@@ -765,9 +765,11 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                 case "class":
                     i = killcls(body, i, letname_);
                     break;
+                case "for":
                 case "function":
                     o = o.next;
-                    if (o && o.type === STAMP) {
+                    if (o && o.type === STRAP) o = o.next;
+                    else if (o && o.type === STAMP) {
                         i++;
                         var n = body.indexOf(o, i) + 1;
                         o = o.next;
@@ -943,6 +945,7 @@ var unforof = function (o, getnewname, used) {
     var hasawait = false;
     if (o.type === STRAP && o.text === 'await') {
         hasawait = true;
+        splice2(o.queue, o, o.next);
         o = o.next;
     }
     var m = o.first;
@@ -964,7 +967,7 @@ var unforof = function (o, getnewname, used) {
     var iname = getnewname();
     var gname = getnewname();
     var oname;
-    var useSimpleLoop = !(rootHyper || used.Symbol || hasawait);
+    var useSimpleLoop = !(rootHyper || used.Symbol) && !hasawait;
     if (!f.next && f.type === EXPRESS && !/\./.test(f.text) && used[f.origin || f.text.replace(/[\.\[][\s\S]*$/, '')].length === 1) {
         splice2(o, m);
         oname = f.text;
@@ -973,13 +976,13 @@ var unforof = function (o, getnewname, used) {
         oname = getnewname();
         splice2(o, n, f);
         var mo = splice2(o, f);
-        if (useSimpleLoop) useSimpleLoop = mo.length === 1 && (mo[0].type === EXPRESS || mo[0].type === SCOPED && mo[0].entry === "[");
-        o.push(...scanner2(`${oname}=`));
-        o.push(...mo);
-        o.push({ type: STAMP, text: ',' });
+        if (useSimpleLoop && !hasawait) useSimpleLoop = mo.length === 1 && (mo[0].type === EXPRESS || mo[0].type === SCOPED && mo[0].entry === "[");
+        splice(o, o.length, 0, ...scanner2(`${oname}=`));
+        splice(o, o.length, 0, ...mo);
+        splice(o, o.length, 0, { type: STAMP, text: ',' });
     }
-    if (useSimpleLoop) o.push(...scanner2(`${iname}=0,${gname}=${oname}["length"];${iname}<${gname}&&(${createString([p])}=${oname}[${iname}],true);${iname}++`));
-    else rootenvs.Symbol = true, o.push(...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]||${oname}[Symbol["asyncIterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(${createString([p])}=${iname}["value"],true);${iname}=${gname}["next"]()`));
+    if (useSimpleLoop) splice(o, o.length, 0, ...scanner2(`${iname}=0,${gname}=${oname}["length"];${iname}<${gname}&&(${createString([p])}=${oname}[${iname}],true);${iname}++`));
+    else rootenvs.Symbol = true, splice(o, o.length, 0, ...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]||${oname}[Symbol["asyncIterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(${createString([p])}=${iname}["value"],true);${iname}=${gname}["next"]()`));
     relink(o);
 };
 var unarrow = function (body, i, killobj, letname_) {
@@ -1351,8 +1354,10 @@ var down = function (scoped) {
         a: if (scoped.head) {
             var hp = scoped.head.prev;
             if (hp && hp.type === STRAP) {
+                if (hp && hp.type === STRAP && hp.text === 'await') hp = hp.prev;
+                if (!hp) break a;
                 if (hp.text === 'for') {
-                    unforof(scoped.head, getdeepname, scoped.used);
+                    unforof(hp.next, getdeepname, scoped.used);
                     killed = unforin(scoped.head, getdeepname, _killobj.bind(null, _getlocal)) !== false;
                     // unforcx(scoped.head, getdeepname);
                 }

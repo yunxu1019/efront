@@ -248,21 +248,30 @@ function snapSentenceHead(o) {
     }
     return o;
 }
-
+var getStrapHead = function (o) {
+    var p = o.prev;
+    if (p && p.type === STRAP && !p.transive) return p;
+    if (p && p.type === STRAP && p.text === 'await') p = p.prev;
+    if (p && p.type === STRAP && p.text === 'for') return p;
+    return null;
+}
 var snapExpressHead = function (o) {
     if (!o || o.type & ~(EXPRESS | SCOPED | QUOTED)) return o;
     var a = o;
     while (o && o.prev) {
         var p = o.prev;
         if (p && p.type === STRAP && p.text === 'new') return p;
+        if (o.type === SCOPED && o.entry === '(') {
+            var h = getStrapHead(o);
+            if (h) return h;
+        }
         if (o.type === SCOPED && o.entry !== '{'
             || o.type === EXPRESS && /^(\??\.[^\.]|\[)/.test(o.text)
             || /\.$/.test(p.text) && !p.isdigit
             || o.type === QUOTED && (o.length || /^\`/.test(o.text))
         ) {
             if (p.type === SCOPED && p.entry === '(') {
-                var pp = p.prev;
-                if (pp && pp.type === STRAP && !p.transive) return o;
+                if (getStrapHead(p)) return o;
             }
             if (p.type & (EXPRESS | VALUE | QUOTED | SCOPED)) {
                 a = o;
@@ -526,6 +535,10 @@ var createScoped = function (parsed, wash) {
                             break;
                         case "for":
                             o = o.next;
+                            if (o.type === STRAP && o.text === 'await') {
+                                funcbody.async = funcbody.await = true;
+                                o = o.next;
+                            }
                             isScope = true;
                             break;
 

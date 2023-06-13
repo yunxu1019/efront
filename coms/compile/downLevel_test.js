@@ -126,8 +126,7 @@ function () {
 _1 = 'date'; return [1, 0]
 },
 function () {
-_[_1] = "desc"; _0 = (
-_); _0 = (_0); return [_0, 2]
+_[_1] = "desc"; _0 = (_); _0 = (_0); return [_0, 2]
 })
 var _0, _1 }
 var _`);
@@ -187,6 +186,40 @@ assert(downLevel(`function (a,...b){}`), `var slice_ = Array["prototype"]["slice
 assert(downLevel(`function (a,...b,c){}`), `var slice_ = Array["prototype"]["slice"];\r\nfunction (a, c) { var b = slice_["call"](arguments, 1, -1); c = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : undefined; }`)
 assert(downLevel(`function (a,...,c){}`), `function (a, c) { c = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : undefined; }`)
 assert(downLevel(`(...a) => k`), `var slice_ = Array["prototype"]["slice"];\r\nfunction () { var a = slice_["call"](arguments, 0); return k }`)
+assert(downLevel(`for await(o of os) noSymbol`), `return async_(
+function () {
+_3 = Symbol["asyncIterator"]; _2 = os[_3]; if (_2) return [1, 0]; _3 = Symbol["iterator"]; _2 = os[_3]; if (_2) return [1, 0]; _3 = Symbol["iterator"]; _2 = Array["prototype"][_3]
+},
+function () {
+_0 = _2; _2 = _0["call"](os); _0 = _2; _2 = _0["next"](); return [_2, 1]
+},
+function (_1) {
+_2 = _1; _ = _2; return [1, 0]
+},
+function () {
+_2 = !_["done"]; if (!_2) return [1, 0]; _3 = _["value"]; o = _3; _2 = (true)
+},
+function () {
+if (!_2) return [1, 0]; noSymbol; _2 = _0["next"](); _ = _2; return [-1, 0]
+})
+var _, _0, _2, _3`)
+assert(downLevel(`for await(var [o,s] of os) noSymbol`), `return async_(
+function () {
+o; s; _4 = Symbol["asyncIterator"]; _3 = os[_4]; if (_3) return [1, 0]; _4 = Symbol["iterator"]; _3 = os[_4]; if (_3) return [1, 0]; _4 = Symbol["iterator"]; _3 = Array["prototype"][_4]
+},
+function () {
+_0 = _3; _3 = _0["call"](os); _0 = _3; _3 = _0["next"](); return [_3, 1]
+},
+function (_2) {
+_3 = _2; _ = _3; return [1, 0]
+},
+function () {
+_3 = !_["done"]; if (!_3) return [1, 0]; _4 = _["value"]; _1 = _4; _5 = _1[0]; o = _5; _6 = _1[1]; s = _6; _3 = (true)
+},
+function () {
+if (!_3) return [1, 0]; noSymbol; _3 = _0["next"](); _ = _3; return [-1, 0]
+})
+var o, s, _, _0, _1, _3, _4, _5, _6`)
 assert(downLevel(`for(o of os) noSymbol`), `for (_ = 0, _0 = os["length"]; _ < _0 && (o = os[_], true); _++) noSymbol\r\nvar _, _0`)
 assert(downLevel(`for(var o of os) Symbol`), `for (var o, _0 = os[Symbol["iterator"]] || os[Symbol["asyncIterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol\r\nvar _, _0`)
 assert(downLevel(`for(var o of os) Symbol`), `for (var o, _0 = os[Symbol["iterator"]] || os[Symbol["asyncIterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol\r\nvar _, _0`)
