@@ -123,7 +123,7 @@ var _switch = function (body, cx, unblock, result, getname) {
     var o = body[cx];
     o = o.next;
     if (!o) return;
-    var qt = _express(o, getname, true);
+    var qt = ternary(o, getname, true);
     for (var q of qt) if (q.length) pushstep(result, q);
     var q = qt[qt.length - 1];
     var qn = q.name;
@@ -142,7 +142,7 @@ var _switch = function (body, cx, unblock, result, getname) {
         var getnextname = function (deep) {
             return getname(deep + 1);
         };
-        var q = _express(block, getnextname, true);
+        var q = ternary(block, getnextname, true);
         for (var q of q) if (q.length) pushstep(result, q);
         var qe = q;
         if (qe.name) var case_ = scanner2(`if(${qn}===${qe.name})return[]`);
@@ -650,7 +650,7 @@ var ternary = function (body, getname, ret) {
         for (var a of ass) {
             if (a.type === SCOPED) {
                 if (a.entry === '[') {
-                    var q = _express(a, getnextname, true);
+                    var q = ternary(a, getnextname, true);
                     for (var q of q) {
                         if (q.length) pushstep(explist, q);
                     }

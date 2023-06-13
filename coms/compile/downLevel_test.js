@@ -118,6 +118,19 @@ assert(downLevel(`()=>({\r\nfileName: entry.fileName,\r\ntextSpan: highlightSpan
 fileName: entry.fileName,
 textSpan: highlightSpan.textSpan,
 isWriteAccess: highlightSpan.kind === "writtenReference" /* writtenReference */ }, highlightSpan.isInString && { isInString: true }, highlightSpan.contextSpan && { contextSpan: highlightSpan.contextSpan })) }`);
+assert(downLevel(`async()=>({ [argitem.sort ? argitem.sort : 'date']: "desc" })`), `function () { return async_(
+function () {
+_0 = {}; _ = _0; if (!argitem.sort) return [1, 0]; _1 = argitem.sort; return [2, 0]
+},
+function () {
+_1 = 'date'; return [1, 0]
+},
+function () {
+_[_1] = "desc"; _0 = (
+_); _0 = (_0); return [_0, 2]
+})
+var _0, _1 }
+var _`);
 assert(downLevel(`={...{a:1}}`), `= extend({}, { a: 1 })`);
 assert(downLevel(`={...a,...c}`), `= extend({}, a, c)`);
 assert(downLevel(`={a:a,...b,c}`), `= (_ = extend({ a: a }, b),\r\n_.c = c, _)\r\nvar _`);
